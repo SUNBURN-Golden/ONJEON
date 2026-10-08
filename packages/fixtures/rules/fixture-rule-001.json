@@ -1,0 +1,29 @@
+{
+  "example_kind": "synthetic_not_a_real_product",
+  "rule_id": "fixture-rule-001",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "elapsed_calendar_days": "int",
+    "target_event": "bool",
+    "excluded_X": "bool",
+    "already_paid": "bool",
+    "insured_amount_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "gte": ["elapsed_calendar_days", 0] },
+      { "eq": ["target_event", true] },
+      { "eq": ["excluded_X", false] },
+      { "eq": ["already_paid", false] }
+    ]
+  },
+  "amount": {
+    "if": { "lt": ["elapsed_calendar_days", 180] },
+    "then": { "multiply_rate": ["insured_amount_krw", "0.5", { "rounding": "floor", "unit": 1 }] },
+    "else": "insured_amount_krw"
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": ["synthetic-clause-001"],
+  "publication_state": "fixture_only"
+}

@@ -1,6 +1,7 @@
 {
   "example_kind": "synthetic_not_a_real_product",
   "rule_id": "fixture-rule-001",
+  "rule_version": "1",
   "schema_version": "rule-0.1",
   "calendar": "Asia/Seoul",
   "inputs": {

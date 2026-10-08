@@ -3,7 +3,7 @@ use serde_json::{json, Value as J};
 
 fn base(eligibility: J, amount: J) -> J {
     json!({
-        "rule_id": "t", "schema_version": "rule-0.1", "calendar": "Asia/Seoul",
+        "rule_id": "t", "rule_version": "1", "schema_version": "rule-0.1", "calendar": "Asia/Seoul",
         "inputs": {"amt": "money_krw", "d1": "date", "d2": "date", "n": "int", "flag": "bool"},
         "eligibility": eligibility, "amount": amount,
         "unknown_policy": "use_three_valued_logic_never_default_to_zero",

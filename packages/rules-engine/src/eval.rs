@@ -4,7 +4,7 @@
 //! (`blockers`). A definite result (for example `false AND unknown`) has no
 //! blockers, so `missing_inputs` lists only inputs that actually matter.
 
-use crate::date::{add_months_clamped, parse_date};
+use crate::date::{add_days, add_months_clamped, parse_date};
 use crate::rule::{CmpOp, DurUnit, Expr, InputType, Rounding, Rule};
 use crate::tri::Tri;
 use crate::value::Value;
@@ -30,6 +30,9 @@ pub enum EvalError {
     Overflow {
         path: String,
     },
+    DateOutOfRange {
+        path: String,
+    },
     AmountNotMoney {
         found: &'static str,
     },
@@ -45,6 +48,10 @@ impl fmt::Display for EvalError {
             }
             EvalError::Type { path, message } => write!(f, "type error at {path}: {message}"),
             EvalError::Overflow { path } => write!(f, "arithmetic overflow at {path}"),
+            EvalError::DateOutOfRange { path } => write!(
+                f,
+                "date outside the supported range 1900-01-01..2199-12-31 at {path}"
+            ),
             EvalError::AmountNotMoney { found } => {
                 write!(f, "amount expression must produce money, found {found}")
             }
@@ -83,6 +90,14 @@ pub enum Payout {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EvaluationResult {
     pub rule_id: String,
+    /// Content version of the rule that produced this result.
+    pub rule_version: String,
+    /// Dataset release the rule came from (`None` only for fixtures).
+    pub release_id: Option<String>,
+    /// Hash of the exact rule content used.
+    pub rule_content_hash: String,
+    /// Source clauses the rule encodes (principle 5).
+    pub evidence_refs: Vec<String>,
     pub schema_version: String,
     pub engine_version: &'static str,
     pub eligibility: Tri,
@@ -343,6 +358,15 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
                 (Value::Money(x), Value::Rate { num, den }) => Ok(Ev::known(multiply_rate(
                     *x, *num, *den, *rounding, *unit, path,
                 )?)),
+                // A range from an earlier unspecified rounding. The rate is non-negative, so
+                // the product is monotonic: each bound maps to the matching bound of the result.
+                (Value::MoneyRange { min, max }, Value::Rate { num, den }) => {
+                    let lo_v = multiply_rate(*min, *num, *den, *rounding, *unit, path)?;
+                    let hi_v = multiply_rate(*max, *num, *den, *rounding, *unit, path)?;
+                    let (lo, _) = money_bounds(&lo_v, path)?;
+                    let (_, hi) = money_bounds(&hi_v, path)?;
+                    Ok(Ev::known(money_value(lo, hi)))
+                }
                 (a, b) => Err(type_err(
                     path,
                     format!(
@@ -436,21 +460,15 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
             match &d.v {
                 Value::Date(days) => {
                     let out = match unit {
-                        DurUnit::Day => {
-                            days.checked_add(*value)
-                                .ok_or_else(|| EvalError::Overflow {
-                                    path: path.to_string(),
-                                })?
-                        }
+                        DurUnit::Day => add_days(*days, *value),
                         DurUnit::CalendarMonth => add_months_clamped(*days, *value),
-                        DurUnit::CalendarYear => {
-                            let months =
-                                value.checked_mul(12).ok_or_else(|| EvalError::Overflow {
-                                    path: path.to_string(),
-                                })?;
-                            add_months_clamped(*days, months)
-                        }
+                        DurUnit::CalendarYear => value
+                            .checked_mul(12)
+                            .and_then(|months| add_months_clamped(*days, months)),
                     };
+                    let out = out.ok_or_else(|| EvalError::DateOutOfRange {
+                        path: path.to_string(),
+                    })?;
                     Ok(Ev::known(Value::Date(out)))
                 }
                 other => Err(type_err(
@@ -502,7 +520,7 @@ fn convert_inputs(rule: &Rule, inputs: &J) -> Result<BTreeMap<String, Value>, Ev
                     InputType::Date => Value::Date(
                         j.as_str()
                             .and_then(parse_date)
-                            .ok_or_else(|| bad("a YYYY-MM-DD date"))?,
+                            .ok_or_else(|| bad("a YYYY-MM-DD date between 1900 and 2199"))?,
                     ),
                     InputType::Str => {
                         Value::Str(j.as_str().ok_or_else(|| bad("a string"))?.to_string())
@@ -568,6 +586,10 @@ impl Rule {
         };
         Ok(EvaluationResult {
             rule_id: self.rule_id.clone(),
+            rule_version: self.rule_version.clone(),
+            release_id: self.release_id.clone(),
+            rule_content_hash: self.content_hash.clone(),
+            evidence_refs: self.evidence_refs.clone(),
             schema_version: self.schema_version.clone(),
             engine_version: crate::ENGINE_VERSION,
             eligibility,

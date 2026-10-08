@@ -4,6 +4,7 @@
 
 use crate::value::{parse_rate, Value};
 use serde_json::Value as J;
+use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fmt;
 
@@ -132,6 +133,13 @@ impl std::error::Error for RuleError {}
 #[derive(Debug, Clone)]
 pub struct Rule {
     pub rule_id: String,
+    /// Version of this rule's content. Bump whenever the clause or its encoding changes.
+    pub rule_version: String,
+    /// Dataset release that published this rule. Required unless `fixture_only`.
+    pub release_id: Option<String>,
+    /// SHA-256 of the canonical rule JSON (keys sorted, `release_id` excluded).
+    /// Identifies the exact content even if someone forgets to bump `rule_version`.
+    pub content_hash: String,
     pub schema_version: String,
     pub publication_state: String,
     pub evidence_refs: Vec<String>,
@@ -140,9 +148,11 @@ pub struct Rule {
     pub amount: Expr,
 }
 
-const TOP_LEVEL_KEYS: [&str; 10] = [
+const TOP_LEVEL_KEYS: [&str; 12] = [
     "example_kind",
     "rule_id",
+    "rule_version",
+    "release_id",
     "schema_version",
     "calendar",
     "inputs",
@@ -176,6 +186,15 @@ impl Rule {
                 .ok_or_else(|| RuleError::at("$", format!("`{key}` must be a string")))
         };
         let rule_id = get_str("rule_id")?;
+        let rule_version = get_str("rule_version")?;
+        if rule_version.trim().is_empty() {
+            return Err(RuleError::at("rule_version", "must not be empty"));
+        }
+        let release_id = match obj.get("release_id") {
+            None | Some(J::Null) => None,
+            Some(J::String(r)) if !r.trim().is_empty() => Some(r.clone()),
+            _ => return Err(RuleError::at("release_id", "must be a non-empty string")),
+        };
         let schema_version = get_str("schema_version")?;
         if schema_version != SCHEMA_VERSION {
             return Err(RuleError::at(
@@ -216,6 +235,12 @@ impl Rule {
                 "a publishable rule needs at least one evidence reference (principle 5)",
             ));
         }
+        if publication_state != "fixture_only" && release_id.is_none() {
+            return Err(RuleError::at(
+                "release_id",
+                "a publishable rule must name the release it belongs to",
+            ));
+        }
         let mut inputs = BTreeMap::new();
         match obj.get("inputs") {
             Some(J::Object(m)) => {
@@ -252,6 +277,9 @@ impl Rule {
         )?;
         Ok(Rule {
             rule_id,
+            rule_version,
+            release_id,
+            content_hash: content_hash(v),
             schema_version,
             publication_state,
             evidence_refs,
@@ -260,6 +288,20 @@ impl Rule {
             amount,
         })
     }
+}
+
+/// SHA-256 over the canonical serialization (serde_json sorts object keys),
+/// excluding `release_id` so re-releasing identical content keeps the same hash.
+fn content_hash(v: &J) -> String {
+    let mut canonical = v.clone();
+    if let Some(o) = canonical.as_object_mut() {
+        o.remove("release_id");
+    }
+    let bytes = serde_json::to_vec(&canonical).expect("a parsed JSON value always serializes");
+    Sha256::digest(bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
 }
 
 fn args<'a>(v: &'a J, min: usize, max: usize, path: &str) -> Result<&'a Vec<J>, RuleError> {
@@ -434,6 +476,15 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                         Some("calendar_year") => DurUnit::CalendarYear,
                         _ => return Err(RuleError::at(&p, "unit must be day|calendar_month|calendar_year")),
                     };
+                    // Bounded to the supported calendar span (1900..=2199, 300 years).
+                    let limit = match unit {
+                        DurUnit::Day => 110_000,
+                        DurUnit::CalendarMonth => 3_600,
+                        DurUnit::CalendarYear => 300,
+                    };
+                    if value.abs() > limit {
+                        return Err(RuleError::at(&p, format!("|value| must be <= {limit} for this unit")));
+                    }
                     if unit != DurUnit::Day && params.get("month_end").and_then(J::as_str) != Some("clamp") {
                         return Err(RuleError::at(&p, "month/year arithmetic requires month_end=\"clamp\" (never assume 365 days per year)"));
                     }

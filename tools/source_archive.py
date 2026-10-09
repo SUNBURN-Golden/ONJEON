@@ -240,7 +240,7 @@ def belongs_to(rel, row):
 def put_derived_for(derived, src_dir, digest, row):
     done = []
     if not src_dir.exists():
-        return done
+        return {"outputs": 0, "manifest_sha256": None}
     for f in sorted(src_dir.rglob("*.txt")):
         rel = str(f.relative_to(src_dir))
         if not belongs_to(rel, row):
@@ -258,7 +258,8 @@ def put_derived_for(derived, src_dir, digest, row):
                     "outputs": sorted(({"key": x["key"], "sha256": x["sha256"]} for x in done), key=lambda x: x["key"])}
         body = (json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode()
         put_once(derived, f"derived/{digest}/manifests/{sha256_bytes(body)}.json", body, "application/json")
-    return len(done)
+        return {"outputs": len(done), "manifest_sha256": sha256_bytes(body)}
+    return {"outputs": 0, "manifest_sha256": None}
 
 
 def cmd_add_observation(a):

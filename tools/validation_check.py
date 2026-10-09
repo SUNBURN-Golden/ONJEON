@@ -501,6 +501,8 @@ def check(data):
     for r in data["samples"]:
         if r["sample_id"] in samples:
             errors.append(f"samples.csv: duplicate sample_id {r['sample_id']}")
+        if not re.fullmatch(r"[0-9a-f]{64}", r.get("derived_manifest_sha256") or ""):
+            errors.append(f"samples.csv: {r['sample_id']} needs a pinned derived_manifest_sha256 (reproduction verifies against it)")
         samples[r["sample_id"]] = r
     if not data["gaps"]:
         errors.append("GAP_REPORT.md: no gap register rows (| Gnn |)")
@@ -572,6 +574,8 @@ def mutations():
         "clause moved to another document": (lambda d: clause(d, "kyobo_cancer", "c_main_art7").update(doc_id="d_sum"), "c_main_art7 anchor is not on d_sum page 47"),
         "price observation 50,790 → 1": (lambda d: prem(d, "kyobo_cancer", "p_sum_m_main").update(amount_krw=1), "p_sum_m_main amount 1 is not inside the quoted passage"),
         "price evidence → unrelated clause": (lambda d: prem(d, "kyobo_cancer", "p_sum_f_main").update(evidence_refs=["c_main_art7"]), "p_sum_f_main amount 33,240 is not inside the quoted passage"),
+        # pinned derived manifest
+        "derived manifest pin removed": (lambda d: d["samples"][0].update(derived_manifest_sha256=""), "needs a pinned derived_manifest_sha256"),
         # review state
         "field promoted to accepted without review": (lambda d: field(d, "kyobo_cancer", "f_main_waiting").update(review_status="accepted"), "review_status=accepted, but no cross-family review record exists"),
         # price conditions

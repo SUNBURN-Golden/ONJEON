@@ -95,7 +95,7 @@ class Derived(Base):
     def test_same_derived_input_rerun_is_fine(self):
         row = {"sample_id": "s", "cache_path": "x/terms.pdf", "format": "text_pdf"}
         src = self.write_src("same")
-        self.assertEqual(sa.put_derived_for(self.derived, src, "c" * 64, row), 1)
+        self.assertEqual(sa.put_derived_for(self.derived, src, "c" * 64, row)["outputs"], 1)
         # the manifest key is time-stamped per run; the output file itself must be already_present
         sa.put_derived_for(self.derived, src, "c" * 64, row)
 

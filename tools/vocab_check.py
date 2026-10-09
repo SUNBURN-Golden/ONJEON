@@ -31,6 +31,7 @@ CONTRACT_DOCS = [
     "docs/data/*.md",
     "docs/design/*.md",
     "docs/masterplan/가격_수집_명세.md",
+    "data/registry/README.md",
 ]
 
 
@@ -44,9 +45,12 @@ def validate(v):
     if len(ids) != len(set(ids)):
         errors.append("duplicate axis id")
     groups = None
+    acq = set()
     for a in v["axes"]:
         if a["id"] == "diff_group":
             groups = {x["code"] for x in a["values"]}
+        if a["id"] == "acquisition_status":
+            acq = {x["code"] for x in a["values"]}
     for a in v["axes"]:
         codes = [x["code"] for x in a["values"]]
         if len(codes) != len(set(codes)):
@@ -57,6 +61,8 @@ def validate(v):
             for al in x.get("deprecated_aliases", []):
                 if al in codes:
                     errors.append(f"{a['id']}.{x['code']}: alias `{al}` is also a live code in the same axis")
+            if "maps_to" in x and x["maps_to"] not in acq:
+                errors.append(f"{a['id']}.{x['code']}: maps_to must be an acquisition_status code")
             if a["id"] == "diff_type" and x.get("group") not in (groups or set()):
                 errors.append(f"diff_type.{x['code']}: group must be a diff_group code")
         for f in a.get("forbidden_codes", []):
@@ -85,8 +91,9 @@ def render(v):
         if a.get("field_aliases"):
             out += [f"과거 필드 이름: {', '.join('`'+f+'`' for f in a['field_aliases'])} → `{a['id']}`", ""]
         has_group = any("group" in x for x in a["values"])
-        head = "| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |" + (" 묶음 |" if has_group else "")
-        sep = "|---|---|---|---|" + ("---|" if has_group else "")
+        has_map = any("maps_to" in x for x in a["values"])
+        head = "| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |" + (" 묶음 |" if has_group else "") + (" 수집 상태로 |" if has_map else "")
+        sep = "|---|---|---|---|" + ("---|" if has_group else "") + ("---|" if has_map else "")
         out += [head, sep]
         for x in a["values"]:
             screen = x["screen_ko"] if x.get("screen_ko") else "(화면에 직접 표시 안 함)"
@@ -94,6 +101,8 @@ def render(v):
             row = f"| `{x['code']}` | {x['concept_ko']} | {screen} | {aliases} |"
             if has_group:
                 row += f" `{x.get('group', '')}` |"
+            if has_map:
+                row += f" `{x.get('maps_to', '')}` |"
             out.append(row)
         if a.get("forbidden_codes"):
             out += ["", "쓰지 않는 값: " + ", ".join(a["forbidden_codes"])]

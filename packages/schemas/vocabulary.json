@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "updated": "2026-10-09",
   "rules": [
     "축(axis)이 다른 상태를 한 값에 섞지 않는다. 값 상태·검수 상태·기능 자격·화면 상태·초안 상태는 서로 다른 축이다.",
@@ -16,12 +16,193 @@
       "layer": "L0-L1",
       "concept_ko": "분모의 한 항목을 확보했는가, 못 했다면 왜인가",
       "values": [
-        {"code": "unqueried", "concept_ko": "아직 조회하지 않음", "screen_ko": "아직 확인하지 않았어요", "deprecated_aliases": []},
-        {"code": "blocked", "concept_ko": "소스가 접근을 막음(인증·차단·요청 제한). 우회하지 않음", "screen_ko": "접근이 막혀 있어요", "deprecated_aliases": []},
-        {"code": "failed", "concept_ko": "시도했으나 오류로 실패(재시도 상한 도달 포함)", "screen_ko": "가져오지 못했어요", "deprecated_aliases": []},
-        {"code": "not_found", "concept_ko": "조회 증거가 있으나 해당 항목이 없음", "screen_ko": "찾지 못했어요", "deprecated_aliases": []},
-        {"code": "not_disclosed", "concept_ko": "소스가 공개하지 않는다는 근거가 있음", "screen_ko": "공개되지 않았어요", "deprecated_aliases": []},
-        {"code": "archived", "concept_ko": "원문을 받아 무결성 검사 후 불변 보관함", "screen_ko": "원문 확보", "deprecated_aliases": ["fetched", "integrity_checked"]}
+        {
+          "code": "unqueried",
+          "concept_ko": "아직 조회하지 않음",
+          "screen_ko": "아직 확인하지 않았어요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "blocked",
+          "concept_ko": "소스가 접근을 막음(인증·차단·요청 제한). 우회하지 않음",
+          "screen_ko": "접근이 막혀 있어요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "failed",
+          "concept_ko": "시도했으나 오류로 실패(재시도 상한 도달 포함)",
+          "screen_ko": "가져오지 못했어요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "not_found",
+          "concept_ko": "조회 증거가 있으나 해당 항목이 없음",
+          "screen_ko": "찾지 못했어요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "not_disclosed",
+          "concept_ko": "소스가 공개하지 않는다는 근거가 있음",
+          "screen_ko": "공개되지 않았어요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "archived",
+          "concept_ko": "원문을 받아 무결성 검사 후 불변 보관함",
+          "screen_ko": "원문 확보",
+          "deprecated_aliases": [
+            "fetched",
+            "integrity_checked"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entity_evidence",
+      "name_ko": "기관 존재 근거",
+      "applies_to": "수집 대상 목록의 보험사·공제 기관 행",
+      "layer": "L0",
+      "concept_ko": "이 기관이 대상이라는 근거가 몇 개의 서로 다른 기관 출처에서 나왔는가(같은 기관의 여러 페이지는 하나로 셈)",
+      "values": [
+        {
+          "code": "two_or_more_sources",
+          "concept_ko": "서로 다른 기관 출처 2곳 이상",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "verified_2_sources"
+          ]
+        },
+        {
+          "code": "one_source",
+          "concept_ko": "기관 출처 1곳",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "verified_1_source"
+          ]
+        },
+        {
+          "code": "seed",
+          "concept_ko": "가져온 페이지에 없음. 기억 기반 후보로 분모에 넣지 않음",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "unverified_seed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "host_access",
+      "name_ko": "호스트 접근 결과",
+      "applies_to": "출처·홈페이지·공시 페이지 요청",
+      "layer": "L0-L1",
+      "concept_ko": "이 환경에서 요청했을 때의 결과. acquisition_status로 요약된다(대응은 maps_to)",
+      "values": [
+        {
+          "code": "not_checked",
+          "maps_to": "unqueried",
+          "concept_ko": "요청하지 않음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "reachable",
+          "maps_to": "archived",
+          "concept_ko": "정상 응답, 내용 확인",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "js_shell",
+          "maps_to": "failed",
+          "concept_ko": "정상 응답이지만 JS 로더뿐이라 정적 수집 불가",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "200_js_shell"
+          ]
+        },
+        {
+          "code": "geo_blocked",
+          "maps_to": "blocked",
+          "concept_ko": "해외 IP 차단 안내",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "200_geoblock_notice"
+          ]
+        },
+        {
+          "code": "service_outage",
+          "maps_to": "failed",
+          "concept_ko": "점검·장애 안내",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "200_service_outage_notice"
+          ]
+        },
+        {
+          "code": "origin_denied",
+          "maps_to": "blocked",
+          "concept_ko": "원 서버가 403 등으로 거부",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "403_origin"
+          ]
+        },
+        {
+          "code": "rate_limited",
+          "maps_to": "blocked",
+          "concept_ko": "요청 제한(429)",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "429_rate_limited"
+          ]
+        },
+        {
+          "code": "connection_reset",
+          "maps_to": "failed",
+          "concept_ko": "연결이 끊김",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "tls_error",
+          "maps_to": "failed",
+          "concept_ko": "TLS 실패(구식 재협상 등). 검증을 끄지 않음",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "ssl_legacy_renegotiation",
+            "tls_handshake_fail"
+          ]
+        },
+        {
+          "code": "timeout",
+          "maps_to": "failed",
+          "concept_ko": "시간 초과",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "empty_reply",
+          "maps_to": "failed",
+          "concept_ko": "빈 응답",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "redirect_loop",
+          "maps_to": "failed",
+          "concept_ko": "리다이렉트 순환",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "proxy_error",
+          "maps_to": "failed",
+          "concept_ko": "경유 프록시가 연결하지 못함(502 등)",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "proxy_502"
+          ]
+        }
       ]
     },
     {
@@ -31,14 +212,59 @@
       "layer": "L1-L7",
       "concept_ko": "마지막으로 완료한 처리 단계. 보류·실패는 pipeline_block 축",
       "values": [
-        {"code": "discovered", "concept_ko": "목록에서 발견함", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "archived", "concept_ko": "원문 불변 보관", "screen_ko": null, "deprecated_aliases": ["fetched", "integrity_checked"]},
-        {"code": "parsed", "concept_ko": "구조 복원(페이지·좌표·표)", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "labeled", "concept_ko": "필드·관계 추출, 참조 해결 포함", "screen_ko": null, "deprecated_aliases": ["references_resolved"]},
-        {"code": "validated", "concept_ko": "AI 검수와 코드 검사 통과", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "compiled", "concept_ko": "실행 규칙과 설명 템플릿 생성", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "candidate", "concept_ko": "후보 릴리스에 포함, 그림자 비교 중", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "released", "concept_ko": "불변 공개 릴리스에 포함", "screen_ko": null, "deprecated_aliases": []}
+        {
+          "code": "discovered",
+          "concept_ko": "목록에서 발견함",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "archived",
+          "concept_ko": "원문 불변 보관",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "fetched",
+            "integrity_checked"
+          ]
+        },
+        {
+          "code": "parsed",
+          "concept_ko": "구조 복원(페이지·좌표·표)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "labeled",
+          "concept_ko": "필드·관계 추출, 참조 해결 포함",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "references_resolved"
+          ]
+        },
+        {
+          "code": "validated",
+          "concept_ko": "AI 검수와 코드 검사 통과",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "compiled",
+          "concept_ko": "실행 규칙과 설명 템플릿 생성",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "candidate",
+          "concept_ko": "후보 릴리스에 포함, 그림자 비교 중",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "released",
+          "concept_ko": "불변 공개 릴리스에 포함",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -48,9 +274,26 @@
       "layer": "L1-L7",
       "concept_ko": "다음 단계로 못 가는 이유",
       "values": [
-        {"code": "none", "concept_ko": "차단 없음", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "hold", "concept_ko": "판단 보류(충돌·반례·검사 실패). 근거가 해소되면 재개", "screen_ko": "판단 보류", "deprecated_aliases": ["quarantined"]},
-        {"code": "failed", "concept_ko": "처리 오류. 원인 수정 후 재처리", "screen_ko": "처리 실패", "deprecated_aliases": []}
+        {
+          "code": "none",
+          "concept_ko": "차단 없음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "hold",
+          "concept_ko": "판단 보류(충돌·반례·검사 실패). 근거가 해소되면 재개",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": [
+            "quarantined"
+          ]
+        },
+        {
+          "code": "failed",
+          "concept_ko": "처리 오류. 원인 수정 후 재처리",
+          "screen_ko": "처리 실패",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -60,13 +303,55 @@
       "layer": "L3-L5",
       "concept_ko": "이 값에 대해 무엇을 알고 있는가. 검수 여부는 review_status 축",
       "values": [
-        {"code": "observed", "concept_ko": "원문에서 직접 읽음", "screen_ko": null, "deprecated_aliases": ["verified"]},
-        {"code": "derived", "concept_ko": "확인된 다른 값에서 정해진 규칙으로 계산", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "not_found", "concept_ko": "조사 범위에서 아직 찾지 못함", "screen_ko": "자료 필요", "deprecated_aliases": ["unresolved", "missing"]},
-        {"code": "unreadable", "concept_ko": "원문은 있으나 판독 실패", "screen_ko": "읽지 못했어요", "deprecated_aliases": []},
-        {"code": "conflicting", "concept_ko": "근거끼리 충돌", "screen_ko": "근거가 서로 달라요", "deprecated_aliases": ["conflict"]},
-        {"code": "not_applicable", "concept_ko": "확인된 근거로 적용 대상이 아님", "screen_ko": "해당 없음", "deprecated_aliases": []},
-        {"code": "not_disclosed", "concept_ko": "공개되지 않는다는 근거가 있음", "screen_ko": "공개되지 않았어요", "deprecated_aliases": []}
+        {
+          "code": "observed",
+          "concept_ko": "원문에서 직접 읽음",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "verified"
+          ]
+        },
+        {
+          "code": "derived",
+          "concept_ko": "확인된 다른 값에서 정해진 규칙으로 계산",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "not_found",
+          "concept_ko": "조사 범위에서 아직 찾지 못함",
+          "screen_ko": "자료 필요",
+          "deprecated_aliases": [
+            "unresolved",
+            "missing"
+          ]
+        },
+        {
+          "code": "unreadable",
+          "concept_ko": "원문은 있으나 판독 실패",
+          "screen_ko": "읽지 못했어요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "conflicting",
+          "concept_ko": "근거끼리 충돌",
+          "screen_ko": "근거가 서로 달라요",
+          "deprecated_aliases": [
+            "conflict"
+          ]
+        },
+        {
+          "code": "not_applicable",
+          "concept_ko": "확인된 근거로 적용 대상이 아님",
+          "screen_ko": "해당 없음",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "not_disclosed",
+          "concept_ko": "공개되지 않는다는 근거가 있음",
+          "screen_ko": "공개되지 않았어요",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -75,12 +360,41 @@
       "applies_to": "FieldAssertion, PremiumObservation, Rule",
       "layer": "L4",
       "concept_ko": "AI 검수 결과(ADR-0006). 사람 검수 아님",
-      "field_aliases": ["validation_status"],
+      "field_aliases": [
+        "validation_status"
+      ],
       "values": [
-        {"code": "pending", "concept_ko": "검수 대기", "screen_ko": "확인 중", "deprecated_aliases": ["pending_review"]},
-        {"code": "accepted", "concept_ko": "AI 승인 정책 통과", "screen_ko": "AI 검증", "deprecated_aliases": ["verified"]},
-        {"code": "hold", "concept_ko": "보류(에이전트 불일치·반례·코드 검사 실패·참조 미해결)", "screen_ko": "판단 보류", "deprecated_aliases": ["conflict", "quarantined"]},
-        {"code": "rejected", "concept_ko": "근거 없음 등으로 기각. 재추출 필요", "screen_ko": null, "deprecated_aliases": []}
+        {
+          "code": "pending",
+          "concept_ko": "검수 대기",
+          "screen_ko": "확인 중",
+          "deprecated_aliases": [
+            "pending_review"
+          ]
+        },
+        {
+          "code": "accepted",
+          "concept_ko": "AI 승인 정책 통과",
+          "screen_ko": "AI 검증",
+          "deprecated_aliases": [
+            "verified"
+          ]
+        },
+        {
+          "code": "hold",
+          "concept_ko": "보류(에이전트 불일치·반례·코드 검사 실패·참조 미해결)",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": [
+            "conflict",
+            "quarantined"
+          ]
+        },
+        {
+          "code": "rejected",
+          "concept_ko": "근거 없음 등으로 기각. 재추출 필요",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -90,13 +404,48 @@
       "layer": "L2-L7",
       "concept_ko": "왜 보류했는가",
       "values": [
-        {"code": "agent_disagreement", "concept_ko": "다른 계열 에이전트끼리 불일치", "screen_ko": "판단 보류", "deprecated_aliases": []},
-        {"code": "counterexample", "concept_ko": "레드팀이 반례를 찾음", "screen_ko": "판단 보류", "deprecated_aliases": []},
-        {"code": "quote_mismatch", "concept_ko": "정확 인용이 원문 위치와 다름", "screen_ko": "판단 보류", "deprecated_aliases": []},
-        {"code": "code_check_failed", "concept_ko": "타입·단위·경계값 등 코드 검사 실패", "screen_ko": "판단 보류", "deprecated_aliases": []},
-        {"code": "reference_unresolved", "concept_ko": "필수 별표·정의·참조를 못 찾음", "screen_ko": "판단 보류", "deprecated_aliases": []},
-        {"code": "conflicting_sources", "concept_ko": "약관·요약서 등 근거 간 충돌", "screen_ko": "근거가 서로 달라요", "deprecated_aliases": []},
-        {"code": "circuit_breaker", "concept_ko": "오류 신고·재추출 불일치 임계 초과로 자동 중단", "screen_ko": "판단 보류", "deprecated_aliases": []}
+        {
+          "code": "agent_disagreement",
+          "concept_ko": "다른 계열 에이전트끼리 불일치",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "counterexample",
+          "concept_ko": "레드팀이 반례를 찾음",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "quote_mismatch",
+          "concept_ko": "정확 인용이 원문 위치와 다름",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "code_check_failed",
+          "concept_ko": "타입·단위·경계값 등 코드 검사 실패",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "reference_unresolved",
+          "concept_ko": "필수 별표·정의·참조를 못 찾음",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "conflicting_sources",
+          "concept_ko": "약관·요약서 등 근거 간 충돌",
+          "screen_ko": "근거가 서로 달라요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "circuit_breaker",
+          "concept_ko": "오류 신고·재추출 불일치 임계 초과로 자동 중단",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -106,12 +455,58 @@
       "layer": "L5-L8",
       "concept_ko": "무엇을 해도 되는가. 각 기능은 독립이며 하나가 다른 것을 자동으로 켜지 않는다(ADR-0012)",
       "values": [
-        {"code": "search", "concept_ko": "원문 검색·열람", "screen_ko": "원문 보기", "deprecated_aliases": ["indexed", "indexed_only"]},
-        {"code": "explain", "concept_ko": "검증된 필드로 쉬운 설명", "screen_ko": null, "deprecated_aliases": ["explained", "explanation_enabled"]},
-        {"code": "compare_conditions", "concept_ko": "같은 비교축으로 조건 비교", "screen_ko": "조건 비교 가능", "deprecated_aliases": ["comparable", "comparison_enabled"]},
-        {"code": "compare_price", "concept_ko": "같은 비교 기준으로 가격 비교", "screen_ko": "가격 비교 가능", "deprecated_aliases": []},
-        {"code": "simulate", "concept_ko": "규칙 엔진으로 상황 계산", "screen_ko": "가정 계산 가능", "deprecated_aliases": ["simulatable", "simulation_enabled", "scenario_ready"]},
-        {"code": "quote", "concept_ko": "개인 견적(스켈레톤)", "screen_ko": null, "deprecated_aliases": ["quotable", "quote_verified"]}
+        {
+          "code": "search",
+          "concept_ko": "원문 검색·열람",
+          "screen_ko": "원문 보기",
+          "deprecated_aliases": [
+            "indexed",
+            "indexed_only"
+          ]
+        },
+        {
+          "code": "explain",
+          "concept_ko": "검증된 필드로 쉬운 설명",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "explained",
+            "explanation_enabled"
+          ]
+        },
+        {
+          "code": "compare_conditions",
+          "concept_ko": "같은 비교축으로 조건 비교",
+          "screen_ko": "조건 비교 가능",
+          "deprecated_aliases": [
+            "comparable",
+            "comparison_enabled"
+          ]
+        },
+        {
+          "code": "compare_price",
+          "concept_ko": "같은 비교 기준으로 가격 비교",
+          "screen_ko": "가격 비교 가능",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "simulate",
+          "concept_ko": "규칙 엔진으로 상황 계산",
+          "screen_ko": "가정 계산 가능",
+          "deprecated_aliases": [
+            "simulatable",
+            "simulation_enabled",
+            "scenario_ready"
+          ]
+        },
+        {
+          "code": "quote",
+          "concept_ko": "개인 견적(스켈레톤)",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "quotable",
+            "quote_verified"
+          ]
+        }
       ]
     },
     {
@@ -121,8 +516,18 @@
       "layer": "L5-L8",
       "concept_ko": "켜졌는가. 꺼졌으면 막은 이유를 함께 저장",
       "values": [
-        {"code": "enabled", "concept_ko": "필요한 필드·근거·검수가 갖춰짐", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "blocked", "concept_ko": "필요한 것이 빠졌거나 보류. 사유 목록을 함께 저장", "screen_ko": null, "deprecated_aliases": []}
+        {
+          "code": "enabled",
+          "concept_ko": "필요한 필드·근거·검수가 갖춰짐",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "blocked",
+          "concept_ko": "필요한 것이 빠졌거나 보류. 사유 목록을 함께 저장",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -132,12 +537,46 @@
       "layer": "L8-L9",
       "concept_ko": "value_state·review_status·사용자 입력에서 서버가 계산하는 표시 상태. 저장하지 않고 파생한다",
       "values": [
-        {"code": "confirmed", "concept_ko": "값이 observed/derived이고 review_status=accepted", "screen_ko": "조건 확인됨", "deprecated_aliases": []},
-        {"code": "input_missing", "concept_ko": "판단에 필요한 사용자 입력이 없음", "screen_ko": "입력 필요", "deprecated_aliases": ["confirm_input"]},
-        {"code": "data_missing", "concept_ko": "원문·계약의 필수 근거가 없음. 0원 아님", "screen_ko": "자료 필요", "deprecated_aliases": ["unverified"]},
-        {"code": "under_review", "concept_ko": "검수 대기 중", "screen_ko": "확인 중", "deprecated_aliases": []},
-        {"code": "hold", "concept_ko": "보류", "screen_ko": "판단 보류", "deprecated_aliases": []},
-        {"code": "not_applicable", "concept_ko": "확인된 조건상 해당 없음", "screen_ko": "해당 없음", "deprecated_aliases": []}
+        {
+          "code": "confirmed",
+          "concept_ko": "값이 observed/derived이고 review_status=accepted",
+          "screen_ko": "조건 확인됨",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "input_missing",
+          "concept_ko": "판단에 필요한 사용자 입력이 없음",
+          "screen_ko": "입력 필요",
+          "deprecated_aliases": [
+            "confirm_input"
+          ]
+        },
+        {
+          "code": "data_missing",
+          "concept_ko": "원문·계약의 필수 근거가 없음. 0원 아님",
+          "screen_ko": "자료 필요",
+          "deprecated_aliases": [
+            "unverified"
+          ]
+        },
+        {
+          "code": "under_review",
+          "concept_ko": "검수 대기 중",
+          "screen_ko": "확인 중",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "hold",
+          "concept_ko": "보류",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "not_applicable",
+          "concept_ko": "확인된 조건상 해당 없음",
+          "screen_ko": "해당 없음",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -147,10 +586,35 @@
       "layer": "L8-L9",
       "concept_ko": "사용자가 이 초안에서 무엇을 하려는가. AI가 정답으로 지정하지 않는다",
       "values": [
-        {"code": "keep", "concept_ko": "이번 초안에서 변경하지 않음", "screen_ko": "유지", "deprecated_aliases": []},
-        {"code": "add", "concept_ko": "사용자가 고른 추가 후보", "screen_ko": "추가 검토", "deprecated_aliases": ["add_review", "review_add"]},
-        {"code": "remove", "concept_ko": "사용자가 고른 제외 후보", "screen_ko": "제외 검토", "deprecated_aliases": ["review_reduce"]},
-        {"code": "modify", "concept_ko": "사용자가 고른 금액·구성 변경 후보", "screen_ko": "변경 검토", "deprecated_aliases": []}
+        {
+          "code": "keep",
+          "concept_ko": "이번 초안에서 변경하지 않음",
+          "screen_ko": "유지",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "add",
+          "concept_ko": "사용자가 고른 추가 후보",
+          "screen_ko": "추가 검토",
+          "deprecated_aliases": [
+            "add_review",
+            "review_add"
+          ]
+        },
+        {
+          "code": "remove",
+          "concept_ko": "사용자가 고른 제외 후보",
+          "screen_ko": "제외 검토",
+          "deprecated_aliases": [
+            "review_reduce"
+          ]
+        },
+        {
+          "code": "modify",
+          "concept_ko": "사용자가 고른 금액·구성 변경 후보",
+          "screen_ko": "변경 검토",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -160,8 +624,18 @@
       "layer": "L8-L9",
       "concept_ko": "미해결 항목(input_missing·data_missing·hold)이 있으면 needs_condition, 없으면 plan_action 문구",
       "values": [
-        {"code": "needs_condition", "concept_ko": "해결할 질문이 있음. 저장값이 아니라 파생", "screen_ko": "조건 확인", "deprecated_aliases": []},
-        {"code": "from_plan_action", "concept_ko": "plan_action의 screen_ko를 그대로 표시", "screen_ko": null, "deprecated_aliases": []}
+        {
+          "code": "needs_condition",
+          "concept_ko": "해결할 질문이 있음. 저장값이 아니라 파생",
+          "screen_ko": "조건 확인",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "from_plan_action",
+          "concept_ko": "plan_action의 screen_ko를 그대로 표시",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -171,9 +645,24 @@
       "layer": "L6",
       "concept_ko": "Kleene 3값 논리",
       "values": [
-        {"code": "true", "concept_ko": "참", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "false", "concept_ko": "거짓", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "unknown", "concept_ko": "모름. 0이나 거짓으로 바꾸지 않음", "screen_ko": null, "deprecated_aliases": []}
+        {
+          "code": "true",
+          "concept_ko": "참",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "false",
+          "concept_ko": "거짓",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unknown",
+          "concept_ko": "모름. 0이나 거짓으로 바꾸지 않음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -183,9 +672,24 @@
       "layer": "L6-L8",
       "concept_ko": "규칙을 입력 가정에 적용한 결과. 보험사 지급 결정이 아님",
       "values": [
-        {"code": "not_payable", "concept_ko": "확인된 조건상 지급 대상 아님", "screen_ko": "이 조건에서는 지급 대상이 아니에요", "deprecated_aliases": []},
-        {"code": "payable", "concept_ko": "지급 조건 충족(금액은 amount_kind)", "screen_ko": "이 조건에서 지급 대상이에요", "deprecated_aliases": []},
-        {"code": "undetermined", "concept_ko": "필요한 사실이 없어 판단 불가", "screen_ko": "판단에 필요한 정보가 부족해요", "deprecated_aliases": []}
+        {
+          "code": "not_payable",
+          "concept_ko": "확인된 조건상 지급 대상 아님",
+          "screen_ko": "이 조건에서는 지급 대상이 아니에요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "payable",
+          "concept_ko": "지급 조건 충족(금액은 amount_kind)",
+          "screen_ko": "이 조건에서 지급 대상이에요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "undetermined",
+          "concept_ko": "필요한 사실이 없어 판단 불가",
+          "screen_ko": "판단에 필요한 정보가 부족해요",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -195,9 +699,24 @@
       "layer": "L6-L8",
       "concept_ko": "금액이 하나인가, 범위인가, 모르는가",
       "values": [
-        {"code": "exact", "concept_ko": "단일 금액", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "range", "concept_ko": "반올림 미지정 등으로 하한~상한", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "unknown", "concept_ko": "금액을 정할 수 없음", "screen_ko": "금액 확인 필요", "deprecated_aliases": []}
+        {
+          "code": "exact",
+          "concept_ko": "단일 금액",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "range",
+          "concept_ko": "반올림 미지정 등으로 하한~상한",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unknown",
+          "concept_ko": "금액을 정할 수 없음",
+          "screen_ko": "금액 확인 필요",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -207,12 +726,41 @@
       "layer": "L3-L9",
       "concept_ko": "이 가격이 어떤 종류의 근거인가. 신뢰 순위가 아니다",
       "values": [
-        {"code": "illustrative", "concept_ko": "공시된 명시 조건의 예시 보험료", "screen_ko": "공시 예시", "deprecated_aliases": ["public_disclosed"]},
-        {"code": "table_derived", "concept_ko": "공개 요율·산식을 모두 확보해 재현", "screen_ko": "요율표 재현", "deprecated_aliases": []},
-        {"code": "contract_observed", "concept_ko": "가입내역 PDF에서 확인한 내 계약 납입액", "screen_ko": "내 계약 납입액", "deprecated_aliases": ["contract_actual"]},
-        {"code": "quoted", "concept_ko": "개인 견적(스켈레톤)", "screen_ko": "내 견적", "deprecated_aliases": ["personal_quote"]}
+        {
+          "code": "illustrative",
+          "concept_ko": "공시된 명시 조건의 예시 보험료",
+          "screen_ko": "공시 예시",
+          "deprecated_aliases": [
+            "public_disclosed"
+          ]
+        },
+        {
+          "code": "table_derived",
+          "concept_ko": "공개 요율·산식을 모두 확보해 재현",
+          "screen_ko": "요율표 재현",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "contract_observed",
+          "concept_ko": "가입내역 PDF에서 확인한 내 계약 납입액",
+          "screen_ko": "내 계약 납입액",
+          "deprecated_aliases": [
+            "contract_actual"
+          ]
+        },
+        {
+          "code": "quoted",
+          "concept_ko": "개인 견적(스켈레톤)",
+          "screen_ko": "내 견적",
+          "deprecated_aliases": [
+            "personal_quote"
+          ]
+        }
       ],
-      "forbidden_codes": ["estimated", "estimated_range"]
+      "forbidden_codes": [
+        "estimated",
+        "estimated_range"
+      ]
     },
     {
       "id": "price_unavailable_reason",
@@ -221,16 +769,70 @@
       "layer": "L5-L9",
       "concept_ko": "가격을 보여줄 수 없는 이유. 0원·예산 초과로 바꾸지 않는다",
       "values": [
-        {"code": "unqueried", "concept_ko": "아직 조회하지 않음", "screen_ko": "가격 미확인 · 아직 확인 전", "deprecated_aliases": []},
-        {"code": "blocked", "concept_ko": "소스 접근 차단", "screen_ko": "가격 미확인 · 접근 막힘", "deprecated_aliases": []},
-        {"code": "failed", "concept_ko": "수집 실패", "screen_ko": "가격 미확인 · 가져오지 못함", "deprecated_aliases": []},
-        {"code": "not_found", "concept_ko": "찾지 못함", "screen_ko": "가격 미확인 · 찾지 못함", "deprecated_aliases": []},
-        {"code": "not_disclosed", "concept_ko": "공개되지 않는다는 근거 있음", "screen_ko": "가격 미확인 · 공개되지 않음", "deprecated_aliases": []},
-        {"code": "unreadable", "concept_ko": "판독 실패", "screen_ko": "가격 미확인 · 읽지 못함", "deprecated_aliases": []},
-        {"code": "conflicting", "concept_ko": "근거 충돌", "screen_ko": "가격 미확인 · 근거 충돌", "deprecated_aliases": ["conflict"]},
-        {"code": "under_review", "concept_ko": "검수 대기", "screen_ko": "가격 미확인 · 확인 중", "deprecated_aliases": ["pending_review"]},
-        {"code": "hold", "concept_ko": "보류", "screen_ko": "가격 미확인 · 판단 보류", "deprecated_aliases": []},
-        {"code": "condition_mismatch", "concept_ko": "공개된 조건이 비교 기준과 달라 적용 불가", "screen_ko": "가격 미확인 · 조건이 달라요", "deprecated_aliases": []}
+        {
+          "code": "unqueried",
+          "concept_ko": "아직 조회하지 않음",
+          "screen_ko": "가격 미확인 · 아직 확인 전",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "blocked",
+          "concept_ko": "소스 접근 차단",
+          "screen_ko": "가격 미확인 · 접근 막힘",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "failed",
+          "concept_ko": "수집 실패",
+          "screen_ko": "가격 미확인 · 가져오지 못함",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "not_found",
+          "concept_ko": "찾지 못함",
+          "screen_ko": "가격 미확인 · 찾지 못함",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "not_disclosed",
+          "concept_ko": "공개되지 않는다는 근거 있음",
+          "screen_ko": "가격 미확인 · 공개되지 않음",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unreadable",
+          "concept_ko": "판독 실패",
+          "screen_ko": "가격 미확인 · 읽지 못함",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "conflicting",
+          "concept_ko": "근거 충돌",
+          "screen_ko": "가격 미확인 · 근거 충돌",
+          "deprecated_aliases": [
+            "conflict"
+          ]
+        },
+        {
+          "code": "under_review",
+          "concept_ko": "검수 대기",
+          "screen_ko": "가격 미확인 · 확인 중",
+          "deprecated_aliases": [
+            "pending_review"
+          ]
+        },
+        {
+          "code": "hold",
+          "concept_ko": "보류",
+          "screen_ko": "가격 미확인 · 판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "condition_mismatch",
+          "concept_ko": "공개된 조건이 비교 기준과 달라 적용 불가",
+          "screen_ko": "가격 미확인 · 조건이 달라요",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -240,8 +842,18 @@
       "layer": "L0-L9",
       "concept_ko": "정책 기한 안에 다시 확인했는가. 값의 존재와 별개 축",
       "values": [
-        {"code": "fresh", "concept_ko": "기한 안에 확인", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "stale", "concept_ko": "기한을 넘김. 마지막 검증값을 유지하고 경고", "screen_ko": "확인일이 오래됐어요", "deprecated_aliases": []}
+        {
+          "code": "fresh",
+          "concept_ko": "기한 안에 확인",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "stale",
+          "concept_ko": "기한을 넘김. 마지막 검증값을 유지하고 경고",
+          "screen_ko": "확인일이 오래됐어요",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -251,11 +863,42 @@
       "layer": "개인 영역, L8",
       "concept_ko": "이 프로필의 기존 계약을 얼마나 알고 있는가",
       "values": [
-        {"code": "confirmed", "concept_ko": "PDF를 올리고 사용자가 추출 내용을 확인함", "screen_ko": "확인된 가입내역", "deprecated_aliases": ["uploaded"]},
-        {"code": "pending_confirmation", "concept_ko": "PDF를 올렸으나 확인 전. 계산에 쓰지 않음", "screen_ko": "확인 전", "deprecated_aliases": ["unconfirmed"]},
-        {"code": "none_declared", "concept_ko": "사용자가 '보험 없음'이라고 답함", "screen_ko": "보험 없음(본인 답변)", "deprecated_aliases": ["none"]},
-        {"code": "unknown", "concept_ko": "모름(대신 보는 경우 흔함). 0으로 보지 않음", "screen_ko": "아직 모름", "deprecated_aliases": []},
-        {"code": "skipped", "concept_ko": "지금은 안 올림", "screen_ko": "아직 안 올렸어요", "deprecated_aliases": []}
+        {
+          "code": "confirmed",
+          "concept_ko": "PDF를 올리고 사용자가 추출 내용을 확인함",
+          "screen_ko": "확인된 가입내역",
+          "deprecated_aliases": [
+            "uploaded"
+          ]
+        },
+        {
+          "code": "pending_confirmation",
+          "concept_ko": "PDF를 올렸으나 확인 전. 계산에 쓰지 않음",
+          "screen_ko": "확인 전",
+          "deprecated_aliases": [
+            "unconfirmed"
+          ]
+        },
+        {
+          "code": "none_declared",
+          "concept_ko": "사용자가 '보험 없음'이라고 답함",
+          "screen_ko": "보험 없음(본인 답변)",
+          "deprecated_aliases": [
+            "none"
+          ]
+        },
+        {
+          "code": "unknown",
+          "concept_ko": "모름(대신 보는 경우 흔함). 0으로 보지 않음",
+          "screen_ko": "아직 모름",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "skipped",
+          "concept_ko": "지금은 안 올림",
+          "screen_ko": "아직 안 올렸어요",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -265,9 +908,24 @@
       "layer": "개인 영역, L5",
       "concept_ko": "내 계약이 어느 상품 버전인지",
       "values": [
-        {"code": "matched", "concept_ko": "하나로 확정", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "ambiguous", "concept_ko": "후보가 여럿. 개인 계산 차단", "screen_ko": "상품 버전 확인 필요", "deprecated_aliases": []},
-        {"code": "unmatched", "concept_ko": "분모에 없음. 분모 누락 신호", "screen_ko": "아직 수집하지 않은 상품이에요", "deprecated_aliases": []}
+        {
+          "code": "matched",
+          "concept_ko": "하나로 확정",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "ambiguous",
+          "concept_ko": "후보가 여럿. 개인 계산 차단",
+          "screen_ko": "상품 버전 확인 필요",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unmatched",
+          "concept_ko": "분모에 없음. 분모 누락 신호",
+          "screen_ko": "아직 수집하지 않은 상품이에요",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -277,10 +935,30 @@
       "layer": "전 계층",
       "concept_ko": "저장·권한·로그 경계. 파생물로 상속된다",
       "values": [
-        {"code": "public_product", "concept_ko": "공시 상품 데이터", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "private_policy", "concept_ko": "사용자 계약 정보", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "private_health", "concept_ko": "건강·가족력", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "genetic_private", "concept_ko": "DNA와 그 파생정보. 보험사·설계사 전달 금지", "screen_ko": null, "deprecated_aliases": []}
+        {
+          "code": "public_product",
+          "concept_ko": "공시 상품 데이터",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "private_policy",
+          "concept_ko": "사용자 계약 정보",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "private_health",
+          "concept_ko": "건강·가족력",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "genetic_private",
+          "concept_ko": "DNA와 그 파생정보. 보험사·설계사 전달 금지",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -290,9 +968,30 @@
       "layer": "L4",
       "concept_ko": "결과를 바꾸면 c0로 승격",
       "values": [
-        {"code": "c0", "concept_ko": "지급 여부·금액·기산점·면책·감액·정의·한도·상품 버전·가격 조건", "screen_ko": null, "deprecated_aliases": ["C0"]},
-        {"code": "c1", "concept_ko": "관계·갱신 등", "screen_ko": null, "deprecated_aliases": ["C1"]},
-        {"code": "c2", "concept_ko": "검색 태그·서식", "screen_ko": null, "deprecated_aliases": ["C2"]}
+        {
+          "code": "c0",
+          "concept_ko": "지급 여부·금액·기산점·면책·감액·정의·한도·상품 버전·가격 조건",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "C0"
+          ]
+        },
+        {
+          "code": "c1",
+          "concept_ko": "관계·갱신 등",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "C1"
+          ]
+        },
+        {
+          "code": "c2",
+          "concept_ko": "검색 태그·서식",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "C2"
+          ]
+        }
       ]
     },
     {
@@ -302,10 +1001,30 @@
       "layer": "L8-L9",
       "concept_ko": "네 묶음은 같은 시각 비중으로 보인다",
       "values": [
-        {"code": "added", "concept_ko": "새로 생기거나 늘어나는 것", "screen_ko": "추가되는 것", "deprecated_aliases": []},
-        {"code": "reduced", "concept_ko": "사라지거나 줄거나 새로 붙는 제한", "screen_ko": "줄어드는 것", "deprecated_aliases": []},
-        {"code": "unchanged", "concept_ko": "그대로인 것", "screen_ko": "그대로인 것", "deprecated_aliases": []},
-        {"code": "cost_and_unknown", "concept_ko": "비용 차이와 미확인", "screen_ko": "비용과 미확인", "deprecated_aliases": []}
+        {
+          "code": "added",
+          "concept_ko": "새로 생기거나 늘어나는 것",
+          "screen_ko": "추가되는 것",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "reduced",
+          "concept_ko": "사라지거나 줄거나 새로 붙는 제한",
+          "screen_ko": "줄어드는 것",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unchanged",
+          "concept_ko": "그대로인 것",
+          "screen_ko": "그대로인 것",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "cost_and_unknown",
+          "concept_ko": "비용 차이와 미확인",
+          "screen_ko": "비용과 미확인",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -315,21 +1034,111 @@
       "layer": "L8-L9",
       "concept_ko": "각 유형은 하나의 diff_group에 속한다(group 필드)",
       "values": [
-        {"code": "gain_coverage", "group": "added", "concept_ko": "새로 생기는 보장", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "gain_amount", "group": "added", "concept_ko": "금액 증가", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "lose_coverage", "group": "reduced", "concept_ko": "사라지는 보장", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "lose_amount", "group": "reduced", "concept_ko": "금액 감소", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "new_waiting", "group": "reduced", "concept_ko": "면책기간 새로 시작·재시작", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "new_reduction", "group": "reduced", "concept_ko": "감액기간·감액률 적용", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "new_exclusion", "group": "reduced", "concept_ko": "새 제외 조건", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "term_change", "group": "reduced", "concept_ko": "보장 종료가 앞당겨짐", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "limit_change", "group": "reduced", "concept_ko": "한도·횟수 축소", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "surrender_loss", "group": "reduced", "concept_ko": "해지 시 환급금 손실", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "unchanged", "group": "unchanged", "concept_ko": "변하지 않는 보장·조건", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "renewal_change", "group": "cost_and_unknown", "concept_ko": "갱신 구조 변화, 갱신 시 보험료 변동 가능", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "price_basis_diff", "group": "cost_and_unknown", "concept_ko": "가격 기준이 달라 절감액 계산 불가", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "underwriting_unknown", "group": "cost_and_unknown", "concept_ko": "인수 심사에 따라 달라질 수 있음", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "unknown", "group": "cost_and_unknown", "concept_ko": "원문·가격 미확인", "screen_ko": null, "deprecated_aliases": []}
+        {
+          "code": "gain_coverage",
+          "group": "added",
+          "concept_ko": "새로 생기는 보장",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "gain_amount",
+          "group": "added",
+          "concept_ko": "금액 증가",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "lose_coverage",
+          "group": "reduced",
+          "concept_ko": "사라지는 보장",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "lose_amount",
+          "group": "reduced",
+          "concept_ko": "금액 감소",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "new_waiting",
+          "group": "reduced",
+          "concept_ko": "면책기간 새로 시작·재시작",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "new_reduction",
+          "group": "reduced",
+          "concept_ko": "감액기간·감액률 적용",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "new_exclusion",
+          "group": "reduced",
+          "concept_ko": "새 제외 조건",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "term_change",
+          "group": "reduced",
+          "concept_ko": "보장 종료가 앞당겨짐",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "limit_change",
+          "group": "reduced",
+          "concept_ko": "한도·횟수 축소",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "surrender_loss",
+          "group": "reduced",
+          "concept_ko": "해지 시 환급금 손실",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unchanged",
+          "group": "unchanged",
+          "concept_ko": "변하지 않는 보장·조건",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "renewal_change",
+          "group": "cost_and_unknown",
+          "concept_ko": "갱신 구조 변화, 갱신 시 보험료 변동 가능",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "price_basis_diff",
+          "group": "cost_and_unknown",
+          "concept_ko": "가격 기준이 달라 절감액 계산 불가",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "underwriting_unknown",
+          "group": "cost_and_unknown",
+          "concept_ko": "인수 심사에 따라 달라질 수 있음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unknown",
+          "group": "cost_and_unknown",
+          "concept_ko": "원문·가격 미확인",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -339,15 +1148,64 @@
       "layer": "L0-L2",
       "concept_ko": "이 문서가 무엇인가",
       "values": [
-        {"code": "terms", "concept_ko": "보통약관·주계약 약관", "screen_ko": "약관", "deprecated_aliases": ["official_terms"]},
-        {"code": "rider_terms", "concept_ko": "특약 약관", "screen_ko": "특약 약관", "deprecated_aliases": []},
-        {"code": "annex", "concept_ko": "별표·부표(질병분류표·수술분류표 등)", "screen_ko": "별표", "deprecated_aliases": []},
-        {"code": "business_method", "concept_ko": "사업방법서", "screen_ko": "사업방법서", "deprecated_aliases": []},
-        {"code": "summary", "concept_ko": "상품요약서", "screen_ko": "상품요약서", "deprecated_aliases": []},
-        {"code": "price_table", "concept_ko": "보험료 예시표·보험료표", "screen_ko": "보험료표", "deprecated_aliases": ["price_example"]},
-        {"code": "standard_terms", "concept_ko": "감독규정의 표준약관", "screen_ko": "표준약관", "deprecated_aliases": []},
-        {"code": "disclosure_page", "concept_ko": "공시 웹페이지", "screen_ko": "공시 페이지", "deprecated_aliases": []},
-        {"code": "notice", "concept_ko": "개정·판매중지 공지", "screen_ko": "공지", "deprecated_aliases": []}
+        {
+          "code": "terms",
+          "concept_ko": "보통약관·주계약 약관",
+          "screen_ko": "약관",
+          "deprecated_aliases": [
+            "official_terms"
+          ]
+        },
+        {
+          "code": "rider_terms",
+          "concept_ko": "특약 약관",
+          "screen_ko": "특약 약관",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "annex",
+          "concept_ko": "별표·부표(질병분류표·수술분류표 등)",
+          "screen_ko": "별표",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "business_method",
+          "concept_ko": "사업방법서",
+          "screen_ko": "사업방법서",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "summary",
+          "concept_ko": "상품요약서",
+          "screen_ko": "상품요약서",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "price_table",
+          "concept_ko": "보험료 예시표·보험료표",
+          "screen_ko": "보험료표",
+          "deprecated_aliases": [
+            "price_example"
+          ]
+        },
+        {
+          "code": "standard_terms",
+          "concept_ko": "감독규정의 표준약관",
+          "screen_ko": "표준약관",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "disclosure_page",
+          "concept_ko": "공시 웹페이지",
+          "screen_ko": "공시 페이지",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "notice",
+          "concept_ko": "개정·판매중지 공지",
+          "screen_ko": "공지",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -357,9 +1215,24 @@
       "layer": "L0, L5",
       "concept_ko": "판매 중인가",
       "values": [
-        {"code": "on_sale", "concept_ko": "판매 중", "screen_ko": "판매 중", "deprecated_aliases": []},
-        {"code": "discontinued", "concept_ko": "판매 중지(기존 계약 해석에 필요)", "screen_ko": "판매 중지", "deprecated_aliases": []},
-        {"code": "unknown", "concept_ko": "판매 상태 미확인", "screen_ko": "판매 상태 미확인", "deprecated_aliases": []}
+        {
+          "code": "on_sale",
+          "concept_ko": "판매 중",
+          "screen_ko": "판매 중",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "discontinued",
+          "concept_ko": "판매 중지(기존 계약 해석에 필요)",
+          "screen_ko": "판매 중지",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "unknown",
+          "concept_ko": "판매 상태 미확인",
+          "screen_ko": "판매 상태 미확인",
+          "deprecated_aliases": []
+        }
       ]
     },
     {
@@ -369,19 +1242,71 @@
       "layer": "L6-L7",
       "concept_ko": "합성 픽스처와 실제 규칙을 구분",
       "values": [
-        {"code": "fixture_only", "concept_ko": "합성 규칙. 근거·릴리스 없이 허용", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "candidate", "concept_ko": "후보 릴리스", "screen_ko": null, "deprecated_aliases": []},
-        {"code": "released", "concept_ko": "공개 릴리스", "screen_ko": null, "deprecated_aliases": ["published"]}
+        {
+          "code": "fixture_only",
+          "concept_ko": "합성 규칙. 근거·릴리스 없이 허용",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "candidate",
+          "concept_ko": "후보 릴리스",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "released",
+          "concept_ko": "공개 릴리스",
+          "screen_ko": null,
+          "deprecated_aliases": [
+            "published"
+          ]
+        }
       ]
     }
   ],
   "timestamps": [
-    {"field": "source_published_at", "concept_ko": "소스가 밝힌 게시 시각", "deprecated_aliases": []},
-    {"field": "source_as_of", "concept_ko": "소스가 밝힌 기준일(가격 등)", "deprecated_aliases": []},
-    {"field": "observed_at", "concept_ko": "우리가 관측한 시각", "deprecated_aliases": ["seen_at", "fetched_at"]},
-    {"field": "effective_from", "concept_ko": "적용 시작(valid time)", "deprecated_aliases": ["valid_from"]},
-    {"field": "effective_to", "concept_ko": "적용 종료(valid time)", "deprecated_aliases": ["valid_to"]},
-    {"field": "recorded_at", "concept_ko": "시스템이 알게 된 시각", "deprecated_aliases": []},
-    {"field": "released_at", "concept_ko": "릴리스 공개 시각", "deprecated_aliases": []}
+    {
+      "field": "source_published_at",
+      "concept_ko": "소스가 밝힌 게시 시각",
+      "deprecated_aliases": []
+    },
+    {
+      "field": "source_as_of",
+      "concept_ko": "소스가 밝힌 기준일(가격 등)",
+      "deprecated_aliases": []
+    },
+    {
+      "field": "observed_at",
+      "concept_ko": "우리가 관측한 시각",
+      "deprecated_aliases": [
+        "seen_at",
+        "fetched_at"
+      ]
+    },
+    {
+      "field": "effective_from",
+      "concept_ko": "적용 시작(valid time)",
+      "deprecated_aliases": [
+        "valid_from"
+      ]
+    },
+    {
+      "field": "effective_to",
+      "concept_ko": "적용 종료(valid time)",
+      "deprecated_aliases": [
+        "valid_to"
+      ]
+    },
+    {
+      "field": "recorded_at",
+      "concept_ko": "시스템이 알게 된 시각",
+      "deprecated_aliases": []
+    },
+    {
+      "field": "released_at",
+      "concept_ko": "릴리스 공개 시각",
+      "deprecated_aliases": []
+    }
   ]
 }

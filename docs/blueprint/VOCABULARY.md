@@ -1,6 +1,6 @@
 # 상태 어휘 (생성 문서)
 
-버전 1.0.0 | 2026-10-09 | 정본: `packages/schemas/vocabulary.json`
+버전 1.1.0 | 2026-10-09 | 정본: `packages/schemas/vocabulary.json`
 
 > 이 문서는 `python3 tools/vocab_check.py --write`로 생성한다. 직접 고치지 않는다.
 
@@ -17,6 +17,8 @@
 | 축 | 이름 | 적용 대상 | 계층 |
 |---|---|---|---|
 | `acquisition_status` | 수집 상태 | ExpectedDocument, ExpectedPrice, DiscoveryManifest 항목 | L0-L1 |
+| `entity_evidence` | 기관 존재 근거 | 수집 대상 목록의 보험사·공제 기관 행 | L0 |
+| `host_access` | 호스트 접근 결과 | 출처·홈페이지·공시 페이지 요청 | L0-L1 |
 | `pipeline_stage` | 처리 단계 | 보관된 문서와 그 파생물 | L1-L7 |
 | `pipeline_block` | 처리 차단 | 처리 단계와 함께 기록 | L1-L7 |
 | `value_state` | 필드 값 상태 | FieldAssertion, PremiumObservation의 각 값 | L3-L5 |
@@ -55,6 +57,36 @@
 | `not_found` | 조회 증거가 있으나 해당 항목이 없음 | 찾지 못했어요 | - |
 | `not_disclosed` | 소스가 공개하지 않는다는 근거가 있음 | 공개되지 않았어요 | - |
 | `archived` | 원문을 받아 무결성 검사 후 불변 보관함 | 원문 확보 | fetched, integrity_checked |
+
+## `entity_evidence` 기관 존재 근거
+
+이 기관이 대상이라는 근거가 몇 개의 서로 다른 기관 출처에서 나왔는가(같은 기관의 여러 페이지는 하나로 셈)
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `two_or_more_sources` | 서로 다른 기관 출처 2곳 이상 | (화면에 직접 표시 안 함) | verified_2_sources |
+| `one_source` | 기관 출처 1곳 | (화면에 직접 표시 안 함) | verified_1_source |
+| `seed` | 가져온 페이지에 없음. 기억 기반 후보로 분모에 넣지 않음 | (화면에 직접 표시 안 함) | unverified_seed |
+
+## `host_access` 호스트 접근 결과
+
+이 환경에서 요청했을 때의 결과. acquisition_status로 요약된다(대응은 maps_to)
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 | 수집 상태로 |
+|---|---|---|---|---|
+| `not_checked` | 요청하지 않음 | (화면에 직접 표시 안 함) | - | `unqueried` |
+| `reachable` | 정상 응답, 내용 확인 | (화면에 직접 표시 안 함) | - | `archived` |
+| `js_shell` | 정상 응답이지만 JS 로더뿐이라 정적 수집 불가 | (화면에 직접 표시 안 함) | 200_js_shell | `failed` |
+| `geo_blocked` | 해외 IP 차단 안내 | (화면에 직접 표시 안 함) | 200_geoblock_notice | `blocked` |
+| `service_outage` | 점검·장애 안내 | (화면에 직접 표시 안 함) | 200_service_outage_notice | `failed` |
+| `origin_denied` | 원 서버가 403 등으로 거부 | (화면에 직접 표시 안 함) | 403_origin | `blocked` |
+| `rate_limited` | 요청 제한(429) | (화면에 직접 표시 안 함) | 429_rate_limited | `blocked` |
+| `connection_reset` | 연결이 끊김 | (화면에 직접 표시 안 함) | - | `failed` |
+| `tls_error` | TLS 실패(구식 재협상 등). 검증을 끄지 않음 | (화면에 직접 표시 안 함) | ssl_legacy_renegotiation, tls_handshake_fail | `failed` |
+| `timeout` | 시간 초과 | (화면에 직접 표시 안 함) | - | `failed` |
+| `empty_reply` | 빈 응답 | (화면에 직접 표시 안 함) | - | `failed` |
+| `redirect_loop` | 리다이렉트 순환 | (화면에 직접 표시 안 함) | - | `failed` |
+| `proxy_error` | 경유 프록시가 연결하지 못함(502 등) | (화면에 직접 표시 안 함) | proxy_502 | `failed` |
 
 ## `pipeline_stage` 처리 단계
 

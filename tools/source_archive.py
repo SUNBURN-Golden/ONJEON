@@ -172,7 +172,7 @@ class S3Store:
         # checksums only when we send one ourselves (SHA-256 below); keeps S3-compatible stores working
         attempts = budget.policy["per_request"]["max_attempts"] if budget else 3
         base = {"signature_version": "s3v4", "retries": {"max_attempts": attempts, "mode": "standard"},
-                "connect_timeout": 10, "read_timeout": 120}
+                "connect_timeout": r2_budget.CONNECT_TIMEOUT, "read_timeout": r2_budget.READ_TIMEOUT}
         try:  # botocore >= 1.36 adds default CRC checksums; older versions have neither the default nor the option
             cfg = Config(**base, request_checksum_calculation="when_required",
                          response_checksum_validation="when_required")

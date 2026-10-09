@@ -11,18 +11,18 @@
    "listing_sha256": "9b10d89b224271f0af59cd63d5263ff49fc316458dea192703e4f9a00ab1fc29"
   }
  },
- "job_caps_note": "All runs of this job together, including the usage recorded before the ledger existed (ledger seq 1). Sized for one upload run and two full verification rounds (verify-copy raw, verify-copy derived, verify, reproduce = 4 verify runs each). Pinned bytes: raw 84,672,102 + derived 19,611,663 = 104,283,765.",
+ "job_caps_note": "All runs of this job together, including the usage recorded before the ledger existed (ledger seq 1), admissions of runs that never settled, and room kept for this month's remaining admissions (20 x the admission limits). Sized for one upload run and two full verification rounds. Pinned bytes: raw 84,672,102 + derived 19,611,663 = 104,283,765.",
  "job_caps": {
-  "put_bytes": 315200000,
-  "get_bytes": 3100000000,
-  "class_a": 1100,
-  "class_b": 4400,
-  "retries": 120,
-  "seconds": 34200
+  "put_bytes": 315500000,
+  "get_bytes": 3120000000,
+  "class_a": 1300,
+  "class_b": 7800,
+  "retries": 200,
+  "seconds": 40000
  },
  "run_profiles": {
   "verify": {
-   "put_bytes": 16384,
+   "put_bytes": 32768,
    "get_bytes": 300000000,
    "class_a": 60,
    "class_b": 400,
@@ -38,13 +38,14 @@
    "seconds": 1800
   },
   "status": {
-   "put_bytes": 8192,
+   "put_bytes": 32768,
    "get_bytes": 2000000,
-   "class_a": 6,
+   "class_a": 16,
    "class_b": 1100,
-   "retries": 3,
-   "seconds": 300
+   "retries": 10,
+   "seconds": 900
   }
  },
- "run_profiles_note": "A run reserves its profile in full before any request. When it finishes it records what it measured (never more than reserved) and only that counts; a run that crashes or never settles keeps its whole reservation. verify reserves 16 KiB of uploads for its two ledger records; any upload is still limited to the pinned keys with their exact bytes. status reads the ledger (up to 2 x max_ledger_records GETs)."
+ "run_profiles_note": "Each profile must pay for its admission (admission limits), reservation and settlement (tail read and the worst case of the settlement write); load_job checks this. A run reserves its profile in full; when it settles only the measured use counts (never more than reserved). A run that never settles keeps its admission and its whole reservation.",
+ "admissions_per_month": 20
 }

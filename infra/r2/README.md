@@ -20,7 +20,7 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 
 | D14 규칙 | AWS 정의(`infra/s3/`) | R2에서 | 이 저장소의 대응 | 남는 차이 |
 |---|---|---|---|---|
-| 비공개 | 공개 접근 4종 차단 | 버킷은 기본 비공개. 공개는 r2.dev 주소나 사용자 도메인을 켤 때만 | 두 버킷 모두 공개 주소를 켜지 않는다(사용자 확인 항목, §3) | S3 API로는 공개 설정을 확인할 수 없다 |
+| 비공개 | 공개 접근 4종 차단 | 버킷은 기본 비공개. 공개는 r2.dev 주소나 사용자 도메인을 켤 때만 | 세 버킷 모두 공개 개발 URL 비활성, 사용자 도메인 없음(검토자가 API로 확인, 2026-10-09). 켜지 않는다 | S3 API로는 공개 설정을 확인할 수 없다(Cloudflare API로 확인) |
 | 서울 리전 | 리전 고정 | 서울 없음. 위치 힌트 `apac`(아시아·태평양)는 최선 노력이고 보장이 아니다. 강제 관할은 EU·FedRAMP·US뿐 | 도구는 region `auto` | **D14의 서울 리전 조건은 R2에서 지킬 수 없다.** ADR-0016에 기록 |
 | 원본·파생 분리 | 버킷 2개 | 같음 | 같음 | 없음 |
 | 덮어쓰기 금지 | `If-None-Match` 없는 PutObject를 버킷 정책이 거부 | PutObject `If-None-Match` 지원. 버킷 정책 없음 | 도구의 모든 쓰기가 `If-None-Match: *`. 이미 있으면 바이트를 비교해 같으면 `already_present`, 다르면 `Conflict`로 중단 | 쓰기 권한이 있는 다른 도구는 덮어쓸 수 있다. 막으려면 버킷 잠금(§4) |
@@ -34,7 +34,7 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 
 ## 3. 사용자가 할 설정
 
-1. **버킷 공개 주소 끄기 확인:** 두 버킷의 Settings에서 r2.dev 공개 접근과 사용자 도메인이 꺼져 있는지 확인한다.
+1. **버킷 공개 주소:** 세 버킷 모두 꺼져 있음(검토자가 Cloudflare API로 확인, 2026-10-09). 새 버킷을 만들면 같은 상태인지 Cloudflare API로 확인한다.
 2. **API 토큰**(R2 → Manage API tokens). 버킷을 지정하고 만료일을 둔다. Admin 권한 토큰은 만들지 않는다(버킷 설정·잠금 변경·버킷 삭제가 가능해진다).
    - 수집 토큰: Object Read & Write, 버킷 `onjeon-raw-sources`, `onjeon-derived-sources`, `onjeon-budget-ledger`.
    - 검증 토큰: Object Read only, 버킷 `onjeon-raw-sources`, `onjeon-derived-sources`.
@@ -90,5 +90,5 @@ python3 -I tools/r2_budget.py status --job "$J"     # 남은 한도
 | 비용 한도 아래 대조(원장 순번 2~9) | 원본 목록 58/58, 파생 목록 61/61 바이트 일치, 표본 14건 해시 일치, 보관본 재현(OCR 재실행) reproduced 8·derived_unverified 6·불일치 0. 기록: `docs/blueprint/validation/source_checks/2026-10-09_r2_*` |
 | 비용 한도 동작(에뮬레이터) | 작업 한도 소진 시 예약 단계에서 중단, 원장 접근 불가 시 중단, 동시 10개 실행 중 남은 한도만큼만 실행(초과 없음), 목록 밖 키·다른 바이트·다른 연산 거부. 시험 `tools/tests/test_r2_budget.py` |
 | status 실행 정산 실패(순번 10) | 실행 종류 한도(Class A 4)가 정산 기록에 모자라 정산을 못 했고, 예약 전체가 사용으로 남았다. 실행 종류마다 원장 기록 비용을 검사하도록 고침. 그 예약은 되돌리지 않았다 |
-| 공개 주소(r2.dev, 사용자 도메인) | **확인하지 못함.** 연결된 도구로 조회할 수 없다. 사용자가 대시보드에서 확인 |
+| 공개 주소(r2.dev, 사용자 도메인) | 세 버킷 모두 공개 개발 URL 비활성, 사용자 도메인 없음(검토자가 Cloudflare API로 확인). 이 세션의 연결 도구로는 조회할 수 없었다 |
 | 토큰의 버킷 범위·삭제 권한 | 확인하지 않음. 새 원장 버킷에도 접근됐으므로 두 버킷 한정이 아니다. 삭제 가능으로 간주 |

@@ -7,14 +7,14 @@
   "get_bytes": 20000000000,
   "class_a": 20000,
   "class_b": 200000,
-  "retries": 500,
+  "retries": 1000,
   "seconds": 72000
  },
  "per_request": {
   "max_object_bytes": 67108864,
   "max_attempts": 3,
   "reserve_attempts": 5,
-  "max_ledger_records": 500
+  "max_ledger_records": 100
  },
  "free_tier_reference": {
   "source": "developers.cloudflare.com/r2/pricing (checked 2026-10-09)",
@@ -24,8 +24,25 @@
   "applies_to": "Standard storage only, account-wide (shared with any other R2 use on the account)"
  },
  "previous_policy_sha256": [
-  "969f07a0559ec9d85562ff5054207f1056ec3f3fc70863201e3fa8a40df67376"
+  "969f07a0559ec9d85562ff5054207f1056ec3f3fc70863201e3fa8a40df67376",
+  "f162a550a7adbf1ca290f6a690d6678d1650c5201b2e7c12fd88f6f13ce39878"
  ],
  "ledger_genesis_sha256": "22d5454c281b6ef9a6c55c69c1147cfae867d3a1fa9dd2a1efcf7ea3c19ace17",
- "ledger_genesis_note": "SHA-256 of ledger record 1 (pre-ledger usage, written 2026-10-09). A ledger that is empty or starts with another record stops every run."
+ "ledger_genesis_note": "SHA-256 of ledger record 1 (pre-ledger usage, written 2026-10-09). A ledger that is empty or starts with another record stops every run.",
+ "admission": {
+  "note": "Every run first writes an admission record (before reading anything). Until its reservation the meter holds the run to these limits, so an admission bounds everything spent before reserving. Admissions whose run never settles count at these limits. When per_month_global (or a job's admissions_per_month) is used up, a closure marker stops further runs after two HEADs; reservations must leave room for the admissions still allowed this month.",
+  "limits": {
+   "put_bytes": 12288,
+   "get_bytes": 1000000,
+   "class_a": 8,
+   "class_b": 110,
+   "retries": 3,
+   "seconds": 120
+  },
+  "per_month_global": 100
+ },
+ "local_gate": {
+  "note": "Before any request, on the machine running the tool: one budgeted run at a time, at most max_runs_per_hour starts, and a closure once seen is remembered for the month. State in $ONJEON_GATE_DIR or ~/.cache/onjeon.",
+  "max_runs_per_hour": 30
+ }
 }

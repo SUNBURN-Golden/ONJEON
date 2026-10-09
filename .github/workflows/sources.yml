@@ -5,10 +5,12 @@ name: sources
 #  - detect: fetch every recorded URL now; report unchanged / changed / fetch_failed. A change is a
 #    new version candidate; it never replaces the archived original or fails a past reproduction.
 #    Insurer and regulator sites may block foreign datacenter addresses: that is fetch_failed.
-#  - reproduce: re-verify the archived originals (hash, pages, quotes, extraction) from the private
-#    S3 raw bucket. Runs only when the repository variables below are set; uses OIDC, no stored keys.
-#      vars.ONJEON_RAW_BUCKET, vars.ONJEON_DERIVED_BUCKET, vars.ONJEON_VERIFIER_ROLE_ARN
-# Not executed yet as of 2026-10-09 (the file is not on main, and no AWS account is connected).
+#  - reproduce: re-verify the archived originals (hash, pages, quotes, extraction, pinned derived
+#    manifests) from the private Cloudflare R2 buckets (ADR-0016, infra/r2/). Runs only when the
+#    repository variables below are set; uses the read-only verifier token.
+#      vars.ONJEON_RAW_BUCKET, vars.ONJEON_DERIVED_BUCKET
+#      secrets.ONJEON_S3_ENDPOINT, secrets.R2_VERIFIER_ACCESS_KEY_ID, secrets.R2_VERIFIER_SECRET_ACCESS_KEY
+# Not executed yet as of 2026-10-09 (the file is not on main, and no R2 token is configured).
 on:
   workflow_dispatch:
     inputs:
@@ -19,7 +21,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   detect:
@@ -37,24 +38,32 @@ jobs:
         with: { name: detect-report, path: "${{ runner.temp }}/detect.json" }
 
   reproduce:
-    if: ${{ vars.ONJEON_RAW_BUCKET != '' && vars.ONJEON_VERIFIER_ROLE_ARN != '' }}
+    if: ${{ vars.ONJEON_RAW_BUCKET != '' && vars.ONJEON_DERIVED_BUCKET != '' }}
     runs-on: ubuntu-latest
+    env:
+      ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.ONJEON_VERIFIER_ROLE_ARN }}
-          aws-region: ap-northeast-2
       - name: Extractors
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q poppler-utils ${{ inputs.ocr && 'tesseract-ocr tesseract-ocr-kor' || '' }}
           python3 -m pip install --quiet pdfplumber==0.11.10 boto3
+      - name: Every archived key matches the pinned listing
+        run: |
+          L=docs/blueprint/validation/source_checks
+          python3 -I tools/source_archive.py verify-copy --expected $L/archive_listing_raw.json \
+            --dst "s3://${{ vars.ONJEON_RAW_BUCKET }}" --report "$RUNNER_TEMP/listing_raw.json"
+          python3 -I tools/source_archive.py verify-copy --expected $L/archive_listing_derived_v2.json \
+            --dst "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" --report "$RUNNER_TEMP/listing_derived.json"
       - name: Reproduce from the archive
+        if: always()
         run: |
           python3 -I tools/verify_sources.py reproduce --raw "s3://${{ vars.ONJEON_RAW_BUCKET }}" \
             --derived "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" ${{ inputs.ocr && '--ocr' || '--allow-unverified' }} \
             --report "$RUNNER_TEMP/reproduce.json"
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: reproduce-report, path: "${{ runner.temp }}/reproduce.json" }
+        with: { name: reproduce-report, path: "${{ runner.temp }}/*.json" }

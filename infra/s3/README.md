@@ -1,4 +1,6 @@
-# 원본 보관소 (S3, ap-northeast-2)
+# 원본 보관소 (S3, ap-northeast-2) — 쓰지 않음, AWS 대안
+
+**2026-10-09 사용자 결정으로 보관소는 Cloudflare R2다(ADR-0016, `infra/r2/`).** 이 디렉터리는 AWS로 옮길 경우의 정의로 남긴다.
 
 결정: ADR-0015. 계약: `docs/data/DATA_PIPELINE_CONTRACT.md` §3.1. 이 디렉터리는 버킷 정의와 구성 절차다. 비밀키는 이 문서·Git·로그·대화에 쓰지 않는다.
 

@@ -404,7 +404,7 @@ def report(kind, args, results, ok):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--endpoint-url", help="S3-compatible emulator endpoint for tests only")
+    ap.add_argument("--endpoint-url", help="S3 API endpoint (R2 or an emulator); default $ONJEON_S3_ENDPOINT, else AWS")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("reproduce")
     src = s.add_mutually_exclusive_group(required=True)

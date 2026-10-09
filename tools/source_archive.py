@@ -13,7 +13,7 @@ Derived store layout:
   derived/<raw sha256>/<kind>/<tool>@<version>/<name>
   derived/<raw sha256>/manifests/<sha256 of manifest>.json   (outputs: key + sha256)
 
-Rules enforced here (and by the bucket policy in infra/s3/, which is the real guard):
+Rules enforced here (on AWS also by the bucket policy in infra/s3/; R2 has no bucket policy, see infra/r2/):
 - a key is written once; an existing key is never overwritten (S3: If-None-Match: *;
   local: refuse). Re-archiving identical bytes is a no-op that is verified, not a rewrite.
 - a changed document at the same URL is a new object plus a new observation; the old object and
@@ -22,8 +22,11 @@ Rules enforced here (and by the bucket policy in infra/s3/, which is the real gu
 - personal policy, health, family history or DNA data never enter these stores
   (only rows from docs/blueprint/validation/samples.csv or explicit public-source arguments).
 
-Targets: file:///abs/dir  or  s3://bucket[/prefix]  (credentials from the standard AWS chain;
-never pass keys on the command line, never print them). --endpoint-url is for an S3 emulator.
+Targets: file:///abs/dir  or  s3://bucket[/prefix]. The S3 API endpoint comes from --endpoint-url or
+ONJEON_S3_ENDPOINT (unset = AWS S3, ap-northeast-2). An endpoint on *.r2.cloudflarestorage.com selects
+Cloudflare R2 (infra/r2/): region "auto", credentials from R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY,
+no SSE header (R2 encrypts every object at rest). Otherwise credentials come from the standard AWS chain.
+Never pass keys on the command line, never print them.
 
 Usage:
   source_archive.py archive-samples --cache DIR --raw T --derived T [--derived-src DIR]
@@ -31,6 +34,9 @@ Usage:
   source_archive.py fetch --raw T --out DIR          # restore samples.csv originals by hash
   source_archive.py copy --src file:///bundle/raw --dst s3://bucket   # no overwrite, conflicts abort
   source_archive.py verify --raw T [--report out.json]
+  source_archive.py listing --src T --out listing.json   # key -> sha256 of every object (no content)
+  source_archive.py verify-copy (--src T | --expected listing.json) --dst s3://bucket [--report out.json]
+                                                     # download every key back and compare bytes
 """
 import argparse
 import base64
@@ -39,6 +45,7 @@ import datetime as dt
 import hashlib
 import json
 import mimetypes
+import os
 import re
 import sys
 from pathlib import Path
@@ -107,29 +114,61 @@ class LocalStore:
         return sorted(str(p.relative_to(self.root)) for p in base.rglob("*") if p.is_file() and not p.name.endswith(".partial"))
 
 
+R2_HOST_SUFFIX = ".r2.cloudflarestorage.com"
+
+
+def provider_of(endpoint_url):
+    """aws (no endpoint), r2 (Cloudflare R2 S3 API) or emulator (any other endpoint, tests only)."""
+    if not endpoint_url:
+        return "aws"
+    from urllib.parse import urlparse
+    u = urlparse(endpoint_url)
+    if (u.hostname or "").endswith(R2_HOST_SUFFIX):
+        if u.scheme != "https":
+            raise SystemExit("R2 endpoint must be https")
+        return "r2"
+    return "emulator"
+
+
 class S3Store:
     def __init__(self, url, endpoint_url=None):
         import boto3  # only needed for s3:// targets
+        from botocore.config import Config
         rest = url[len("s3://"):]
         self.bucket, _, prefix = rest.partition("/")
         self.prefix = prefix.strip("/")
-        self.s3 = boto3.client("s3", region_name="ap-northeast-2", endpoint_url=endpoint_url)
+        endpoint_url = endpoint_url or os.environ.get("ONJEON_S3_ENDPOINT") or None
+        self.provider = provider_of(endpoint_url)
+        kw = {}
+        if self.provider == "r2":
+            key, secret = os.environ.get("R2_ACCESS_KEY_ID"), os.environ.get("R2_SECRET_ACCESS_KEY")
+            if not (key and secret):  # never fall back to the AWS chain for R2
+                raise SystemExit("R2 endpoint selected but R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY are not set")
+            kw = {"aws_access_key_id": key, "aws_secret_access_key": secret}
+        # checksums only when we send one ourselves (SHA-256 below); keeps S3-compatible stores working
+        cfg = Config(signature_version="s3v4", retries={"max_attempts": 5, "mode": "standard"},
+                     request_checksum_calculation="when_required", response_checksum_validation="when_required")
+        self.s3 = boto3.client("s3", region_name="auto" if self.provider == "r2" else "ap-northeast-2",
+                               endpoint_url=endpoint_url, config=cfg, **kw)
 
     def _k(self, key):
         return f"{self.prefix}/{key}" if self.prefix else key
 
     def put_new(self, key, body, content_type):
         from botocore.exceptions import ClientError
+        kw = {}
+        if self.provider == "aws":
+            kw["ServerSideEncryption"] = "AES256"  # R2 encrypts at rest itself and rejects this header
         try:
             self.s3.put_object(
                 Bucket=self.bucket, Key=self._k(key), Body=body, ContentType=content_type,
-                IfNoneMatch="*",  # never overwrite; the bucket policy also denies writes without it
-                ChecksumAlgorithm="SHA256",
+                IfNoneMatch="*",  # never overwrite (AWS: the bucket policy also denies writes without it)
                 ChecksumSHA256=base64.b64encode(hashlib.sha256(body).digest()).decode(),
-                ServerSideEncryption="AES256",
+                **kw,
             )
         except ClientError as e:
-            if e.response["Error"]["Code"] in ("PreconditionFailed", "ConditionalRequestConflict"):
+            if e.response["Error"]["Code"] in ("PreconditionFailed", "ConditionalRequestConflict") \
+                    or e.response.get("ResponseMetadata", {}).get("HTTPStatusCode") == 412:
                 raise Exists(key)
             raise
 
@@ -326,9 +365,58 @@ def cmd_copy(a):
     return 0
 
 
+def listing_of(st):
+    return {key: sha256_bytes(st.get(key)) for key in st.list("")}
+
+
+def cmd_listing(a):
+    """Write every key of a store with the SHA-256 of its bytes (no content), to pin a store in Git."""
+    src = store(a.src, a.endpoint_url)
+    keys = listing_of(src)
+    doc = {"listing_rule": "key-sha256-v1", "keys": len(keys), "objects": keys}
+    Path(a.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps({"keys": len(keys)}))
+    return 0
+
+
+def cmd_verify_copy(a):
+    """Download every key of the destination back and compare it with the source, byte for byte.
+    Covers what verify does not: extra originals, every observation, derived outputs and manifests.
+    The source is a store (--src) or a pinned listing (--expected, from the listing command)."""
+    dst = store(a.dst, a.endpoint_url)
+    if getattr(a, "expected", None):
+        expected = json.loads(Path(a.expected).read_text(encoding="utf-8"))["objects"]
+        src_label = "listing"
+    else:
+        expected, src_label = listing_of(store(a.src, a.endpoint_url)), a.src.split("://")[0]
+    src_keys, dst_keys = sorted(expected), set(dst.list(""))
+    results, summary = [], {}
+    for key in src_keys:
+        want = expected[key]
+        if key not in dst_keys:
+            st, got = "missing", None
+        else:
+            got = sha256_bytes(dst.get(key))
+            st = "byte_identical" if got == want else "hash_mismatch"
+        if st == "byte_identical" and key.startswith("objects/sha256/") and got != key.rsplit("/", 1)[1]:
+            st = "hash_mismatch"
+        results.append({"key": key, "status": st, "sha256_source": want, "sha256_downloaded": got})
+        summary[st] = summary.get(st, 0) + 1
+    extra = sorted(dst_keys - set(src_keys))
+    if extra:
+        summary["extra_in_destination"] = len(extra)
+    report = {"checked_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "source": src_label, "destination": a.dst.split("://")[0],
+              "summary": summary, "extra_in_destination": extra, "results": results}
+    if a.report:
+        Path(a.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(summary))
+    return 0 if summary.get("byte_identical", 0) == len(src_keys) and src_keys else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--endpoint-url", help="S3-compatible emulator endpoint for tests only")
+    ap.add_argument("--endpoint-url", help="S3 API endpoint (R2 or an emulator); default $ONJEON_S3_ENDPOINT, else AWS")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("archive-samples")
     s.add_argument("--cache", required=True)
@@ -349,6 +437,15 @@ def main():
     s = sub.add_parser("verify")
     s.add_argument("--raw", required=True)
     s.add_argument("--report")
+    s = sub.add_parser("listing")
+    s.add_argument("--src", required=True)
+    s.add_argument("--out", required=True)
+    s = sub.add_parser("verify-copy")
+    g = s.add_mutually_exclusive_group(required=True)
+    g.add_argument("--src")
+    g.add_argument("--expected", help="pinned listing JSON (key -> sha256) instead of a source store")
+    s.add_argument("--dst", required=True)
+    s.add_argument("--report")
     a = ap.parse_args()
     try:
         return run(a)
@@ -359,7 +456,8 @@ def main():
 
 def run(a):
     return {"archive-samples": cmd_archive_samples, "add-observation": cmd_add_observation,
-            "fetch": cmd_fetch, "copy": cmd_copy, "verify": cmd_verify}[a.cmd](a)
+            "fetch": cmd_fetch, "copy": cmd_copy, "verify": cmd_verify,
+            "verify-copy": cmd_verify_copy, "listing": cmd_listing}[a.cmd](a)
 
 
 if __name__ == "__main__":

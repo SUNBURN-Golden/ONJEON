@@ -11,7 +11,7 @@ Raw store layout:
                                                one record per fetch: url, time, hash, size, type
 Derived store layout:
   derived/<raw sha256>/<kind>/<tool>@<version>/<name>
-  derived/<raw sha256>/<kind>/<tool>@<version>/manifest.json
+  derived/<raw sha256>/manifests/<sha256 of manifest>.json   (outputs: key + sha256)
 
 Rules enforced here (and by the bucket policy in infra/s3/, which is the real guard):
 - a key is written once; an existing key is never overwritten (S3: If-None-Match: *;
@@ -58,6 +58,27 @@ def object_key(digest):
 
 class Exists(Exception):
     pass
+
+
+class Conflict(Exception):
+    """A key already holds different bytes. Nothing was overwritten; the run must stop."""
+
+
+def put_once(st, key, body, content_type):
+    """Write a key once. Same bytes already there: 'already_present'. Different bytes: Conflict.
+
+    Every write in this module goes through here, so a re-run can never silently keep an old
+    object while reporting the hash of a new input.
+    """
+    try:
+        st.put_new(key, body, content_type)
+        return "stored"
+    except Exists:
+        existing = st.get(key)
+        if sha256_bytes(existing) != sha256_bytes(body):
+            raise Conflict(f"{key}: stored sha256 {sha256_bytes(existing)[:16]}… differs from new input "
+                           f"{sha256_bytes(body)[:16]}…; not overwritten")
+        return "already_present"
 
 
 class LocalStore:
@@ -149,15 +170,7 @@ def store(target, endpoint_url=None):
 def put_raw(raw, body, content_type):
     """Write the bytes under their own hash. Returns (digest, 'stored'|'already_present')."""
     digest = sha256_bytes(body)
-    key = object_key(digest)
-    try:
-        raw.put_new(key, body, content_type)
-        state = "stored"
-    except Exists:
-        if sha256_bytes(raw.get(key)) != digest:
-            raise SystemExit(f"store corruption: {key} does not hash to its key")
-        state = "already_present"
-    return digest, state
+    return digest, put_once(raw, object_key(digest), body, content_type)
 
 
 def put_observation(raw, source_id, url, observed_at, digest, size, content_type, extra=None):
@@ -168,11 +181,8 @@ def put_observation(raw, source_id, url, observed_at, digest, size, content_type
     rec = {"source_id": source_id, "url": url, "observed_at": observed_at, "sha256": digest,
            "bytes": size, "content_type": content_type, "object_key": object_key(digest)}
     rec.update(extra or {})
-    try:
-        raw.put_new(key, (json.dumps(rec, ensure_ascii=False, indent=2) + "\n").encode(), "application/json")
-        return key, "stored"
-    except Exists:
-        return key, "already_present"
+    body = (json.dumps(rec, ensure_ascii=False, indent=2) + "\n").encode()
+    return key, put_once(raw, key, body, "application/json")
 
 
 def content_type_of(path, fmt):
@@ -218,31 +228,36 @@ DERIVED_FILES = [
 ]
 
 
+def belongs_to(rel, row):
+    """Is this derived file an output of this sample's original? Two samples can share a
+    directory (the two KLIA pages), so the file name must start with the original's stem."""
+    stem = Path(row["cache_path"]).name.split(".")[0]
+    if row.get("format") == "scanned_pdf" and (rel.startswith("ocr/") or rel == "ocr_all.txt"):
+        return True
+    return Path(rel).name.split(".")[0] == stem
+
+
 def put_derived_for(derived, src_dir, digest, row):
     done = []
     if not src_dir.exists():
         return done
     for f in sorted(src_dir.rglob("*.txt")):
         rel = str(f.relative_to(src_dir))
+        if not belongs_to(rel, row):
+            continue
         for pat, kind, tool in DERIVED_FILES:
             if re.search(pat, rel):
                 key = f"derived/{digest}/{kind}/{tool}/{rel.replace('/', '__')}"
                 body = f.read_bytes()
-                try:
-                    derived.put_new(key, body, "text/plain; charset=utf-8")
-                    state = "stored"
-                except Exists:
-                    state = "already_present"
+                state = put_once(derived, key, body, "text/plain; charset=utf-8")
                 done.append({"key": key, "sha256": sha256_bytes(body), "state": state})
                 break
     if done:
-        manifest = {"raw_sha256": digest, "sample_id": row["sample_id"], "outputs": done,
-                    "note": "outputs of the V1 session (2026-10-09); tool versions as recorded in the key"}
-        key = f"derived/{digest}/manifest-{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
-        try:
-            derived.put_new(key, (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode(), "application/json")
-        except Exists:
-            pass
+        # content-addressed manifest: outputs (key, sha256) only, no per-run state or time
+        manifest = {"raw_sha256": digest, "sample_id": row["sample_id"],
+                    "outputs": sorted(({"key": x["key"], "sha256": x["sha256"]} for x in done), key=lambda x: x["key"])}
+        body = (json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode()
+        put_once(derived, f"derived/{digest}/manifests/{sha256_bytes(body)}.json", body, "application/json")
     return len(done)
 
 
@@ -305,13 +320,7 @@ def cmd_copy(a):
         if key.startswith("objects/sha256/") and sha256_bytes(body) != key.rsplit("/", 1)[1]:
             raise SystemExit(f"source store corruption: {key}")
         ctype = "application/json" if key.endswith(".json") else ("text/plain; charset=utf-8" if key.endswith(".txt") else "application/octet-stream")
-        try:
-            dst.put_new(key, body, ctype)
-            counts["stored"] += 1
-        except Exists:
-            if sha256_bytes(dst.get(key)) != sha256_bytes(body):
-                raise SystemExit(f"conflict: {key} exists in the target with different bytes; not overwritten")
-            counts["already_present"] += 1
+        counts[put_once(dst, key, body, ctype)] += 1
     print(json.dumps(counts))
     return 0
 
@@ -340,6 +349,14 @@ def main():
     s.add_argument("--raw", required=True)
     s.add_argument("--report")
     a = ap.parse_args()
+    try:
+        return run(a)
+    except Conflict as e:
+        print(f"conflict: {e}", file=sys.stderr)
+        return 3
+
+
+def run(a):
     return {"archive-samples": cmd_archive_samples, "add-observation": cmd_add_observation,
             "fetch": cmd_fetch, "copy": cmd_copy, "verify": cmd_verify}[a.cmd](a)
 

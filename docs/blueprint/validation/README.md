@@ -11,7 +11,7 @@
 | `GAP_REPORT.md` | 표현력 판정과 부족분 등록부(G01~G26), 설계 반영 내역, rule-0.2 후보 |
 | `screen/*.json`, `SCREEN_BINDING.md` | 같은 자료를 내 설계 탭과 담보 상세 시트에 연결한 결과(V1-c) |
 | `source_checks/*.json` | 보관본 재현 검사·현재 출처 변경 감지·다운로드 해시 대조 실행 기록 |
-| `REVERIFY_87a19c5.md` | 87a19c5 검사 보강의 재검증 결과와 그때 찾은 결함 |
+| `REVERIFY_87a19c5.md`, `REVERIFY_839ecdb.md` | 검사 보강의 재검증 결과와 그때 찾은 결함·수정·회귀 시험 |
 
 실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
 
@@ -22,13 +22,13 @@
 | 검사 | 무엇을 보나 | 어디서 실행되나 |
 |---|---|---|
 | 내부 일관성 | 조항 인용이 지정한 문서·페이지의 인용 구간에 있는지, 필드 원문값·가격 금액이 근거 조항 구간 안에 있는지, 화면 금액이 선언한 출처와 같은지, 화면의 퍼센트·기간 숫자가 근거 문구에 있는지, 지급액 문구가 엔진 결과에서 생성된 것과 같은지, 가격 조건의 일치·불일치·원문 미기재 구분, 상태값·참조, 교차 검수 없는 `accepted` 금지. 해시는 적힌 문자열끼리만 비교 | CI 매 푸시 (`validation_check.py`, `--selftest` 28종, `cargo test --test real_clauses` 변조 5종 포함, 본문 해시 규칙 시험) |
-| 보관본 재현 | 보존한 원본의 바이트 SHA-256, 인용 페이지 재추출, 스캔본 OCR 재실행, 같은 버전 도구로 만든 추출 결과의 바이트 일치 | 수동: `tools/verify_sources.py reproduce`. CI 아님 |
+| 보관본 재현 | 보존한 원본의 바이트 SHA-256, 인용 페이지 재추출, 스캔본 OCR 재실행, 보존한 파생 결과 **전부**의 재생성 바이트 일치. 불일치는 `derived_mismatch`(실패), 비교 못 한 것이 있으면 `derived_unverified`(미검증) | 수동: `tools/verify_sources.py reproduce`. CI 아님(판정 로직의 단위 시험만 CI) |
 | 현재 출처 변경 감지 | 원 URL의 현재 문서가 마지막 관측과 같은가. 바뀌면 새 원본으로 보존하고 검수 대기 | 수동: `tools/verify_sources.py detect`. CI 아님. GitHub `sources` 워크플로는 main에 들어간 뒤에만 실행 가능(아직 한 번도 실행되지 않음) |
 
 ```bash
 python3 tools/validation_check.py              # 내부 일관성
 python3 tools/validation_check.py --selftest   # 변조마다 의도한 오류가 나는지
-python3 -m unittest discover -s tools/tests    # 본문 해시 규칙 시험
+python3 -m unittest discover -s tools/tests    # 본문 해시 규칙, 보관 쓰기 충돌, 재현 판정 시험
 cargo test --manifest-path packages/rules-engine/Cargo.toml --test real_clauses
 python3 -I tools/verify_sources.py reproduce --raw file:///…/raw --derived file:///…/derived --ocr --report r.json
 python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --archive-new --report d.json
@@ -42,8 +42,8 @@ python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --
 
 | 파일 | 검사 | 결과 |
 |---|---|---|
-| `2026-10-09_reproduce_local_archive_ocr.json` | 보관본 재현(임시 보관본, OCR 재실행, 추출 결과 대조) | reproduced 14/14. 텍스트 PDF 10건의 `-layout` 추출 결과 바이트 일치, 스캔본 인용 4쪽 OCR 결과 바이트 일치 |
-| `2026-10-09_reproduce_s3_emulator.json` | 보관본 재현(S3 에뮬레이터에 올린 사본에서 꺼냄, OCR 미실행) | reproduced 13, ocr_not_rerun 1 |
+| `2026-10-09_reproduce_local_archive_ocr.json` | 보관본 재현(임시 보관본, 파생 v2, OCR 29쪽 재실행) | reproduced 8, derived_unverified 6, derived_mismatch 0. 원본 해시·인용 위치는 14건 모두 맞음. 미검증은 재생성 도구가 저장소에 없는 파생물 때문([REVERIFY_839ecdb.md](REVERIFY_839ecdb.md)) |
+| `2026-10-09_reproduce_s3_emulator.json` | 보관본 재현(S3 에뮬레이터 사본, OCR 미실행) | reproduced 8, derived_unverified 5, ocr_not_rerun 1 |
 | `2026-10-09_archive_download_verify_s3_emulator.json` | 에뮬레이터에서 다시 받아 SHA-256 대조 | 14/14 바이트 일치 |
 | `2026-10-09_archive_download_verify_bundle.json` | 비공개 전달 묶음을 풀어 SHA-256 대조 | 14/14 바이트 일치 |
 | `2026-10-09_detect_current_sources.json` | 현재 출처 변경 감지(11:07Z) | unchanged_bytes 13, bytes_changed_content_same 1(KB 간병인 지원비용: 세션 ID·서버 표시만 다름) |

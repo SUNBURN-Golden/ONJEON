@@ -740,7 +740,9 @@
         "rate": "0.5",
         "window_end": "first_contract_anniversary_exclusive",
         "anchor": "contract_date",
-        "anchor_on_revival": "contract_date (원문이 보험계약일만 말함)"
+        "anchor_on_revival": "contract_date (원문이 보험계약일만 말함)",
+        "window_length": 1,
+        "window_unit": "year"
       },
       "unit": null,
       "evidence_refs": [
@@ -980,7 +982,9 @@
       "normalized_value": {
         "rate": "0.5",
         "anchor": "first_contract_date",
-        "survives_renewal": true
+        "survives_renewal": true,
+        "window_length": 1,
+        "window_unit": "year"
       },
       "unit": null,
       "evidence_refs": [

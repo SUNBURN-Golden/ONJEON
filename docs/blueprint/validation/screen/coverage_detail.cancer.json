@@ -105,6 +105,13 @@
             "source": "scenario:sc1",
             "krw": 0
           }
+        ],
+        "values": [
+          {
+            "text": "90일",
+            "source": "field:kyobo_cancer#f_main_waiting:length",
+            "unit_path": "length_unit"
+          }
         ]
       },
       {
@@ -119,6 +126,13 @@
           {
             "source": "scenario:sc2",
             "krw": 15000000
+          }
+        ],
+        "values": [
+          {
+            "text": "1년",
+            "source": "field:kyobo_cancer#f_main_reduction:window_length",
+            "unit_path": "window_unit"
           }
         ]
       },
@@ -176,6 +190,12 @@
         "display_status": "under_review",
         "refs": [
           "kyobo_cancer#f_main_term"
+        ],
+        "values": [
+          {
+            "text": "100세",
+            "source": "field:kyobo_cancer#f_main_term:to_age"
+          }
         ]
       },
       {
@@ -184,6 +204,12 @@
         "refs": [
           "kyobo_cancer#f_sc_renewal",
           "kyobo_cancer#c_sum_renewal_assumption"
+        ],
+        "values": [
+          {
+            "text": "20년",
+            "source": "field:kyobo_cancer#f_sc_renewal:cycle_years"
+          }
         ]
       },
       {
@@ -228,6 +254,20 @@
           "refs": [
             "kyobo_cancer#c_sum_price_cond",
             "kyobo_cancer#c_sum_price_male"
+          ],
+          "values": [
+            {
+              "text": "40세",
+              "source": "premium:kyobo_cancer#p_sum_m_bundle:conditions.age"
+            },
+            {
+              "text": "20년",
+              "source": "premium:kyobo_cancer#p_sum_m_bundle:conditions.pay_term"
+            },
+            {
+              "text": "100세",
+              "source": "premium:kyobo_cancer#p_sum_m_bundle:conditions.coverage_term"
+            }
           ]
         },
         {
@@ -279,12 +319,32 @@
           "refs": [
             "kyobo_cancer#f_main_surrender",
             "kyobo_cancer#c_sum_surrender_1y"
+          ],
+          "values": [
+            {
+              "text": "1년",
+              "source": "clause:kyobo_cancer#c_sum_surrender_1y"
+            },
+            {
+              "text": "0.0%",
+              "source": "clause:kyobo_cancer#c_sum_surrender_1y"
+            }
           ]
         },
         {
           "line": "20년 납입 뒤 해지하면 낸 돈의 87.7%",
           "refs": [
             "kyobo_cancer#c_sum_surrender_20y"
+          ],
+          "values": [
+            {
+              "text": "20년",
+              "source": "clause:kyobo_cancer#c_sum_surrender_20y"
+            },
+            {
+              "text": "87.7%",
+              "source": "clause:kyobo_cancer#c_sum_surrender_20y"
+            }
           ]
         }
       ],
@@ -321,6 +381,12 @@
             {
               "source": "premium:kyobo_cancer#p_klia_m_main",
               "krw": 50790
+            }
+          ],
+          "values": [
+            {
+              "text": "80세",
+              "source": "premium:kyobo_cancer#p_klia_m_main:conditions.coverage_term"
             }
           ]
         }
@@ -366,6 +432,13 @@
         "line": "면책 90일 새로 시작",
         "refs": [
           "kyobo_cancer#f_main_waiting"
+        ],
+        "values": [
+          {
+            "text": "90일",
+            "source": "field:kyobo_cancer#f_main_waiting:length",
+            "unit_path": "length_unit"
+          }
         ]
       },
       {
@@ -375,6 +448,17 @@
         "refs": [
           "kyobo_cancer#f_main_reduction",
           "kyobo_cancer#f_sc_reduction"
+        ],
+        "values": [
+          {
+            "text": "1년",
+            "source": "field:kyobo_cancer#f_main_reduction:window_length",
+            "unit_path": "window_unit"
+          },
+          {
+            "text": "50%",
+            "source": "field:kyobo_cancer#f_main_reduction:rate"
+          }
         ]
       },
       {
@@ -392,6 +476,12 @@
         "refs": [
           "kyobo_cancer#f_sc_renewal",
           "kyobo_cancer#p_sum_m_sc"
+        ],
+        "values": [
+          {
+            "text": "20년",
+            "source": "field:kyobo_cancer#f_sc_renewal:cycle_years"
+          }
         ]
       },
       {
@@ -479,6 +569,13 @@
         ],
         "refs": [
           "kyobo_cancer#f_main_waiting"
+        ],
+        "values": [
+          {
+            "text": "90일",
+            "source": "field:kyobo_cancer#f_main_waiting:length",
+            "unit_path": "length_unit"
+          }
         ]
       },
       "refs": [
@@ -524,6 +621,17 @@
         ],
         "refs": [
           "kyobo_cancer#f_main_reduction"
+        ],
+        "values": [
+          {
+            "text": "1년",
+            "source": "field:kyobo_cancer#f_main_reduction:window_length",
+            "unit_path": "window_unit"
+          },
+          {
+            "text": "50%",
+            "source": "field:kyobo_cancer#f_main_reduction:rate"
+          }
         ]
       },
       "refs": [
@@ -657,6 +765,17 @@
           "kyobo_cancer#f_sc_waiting",
           "kyobo_cancer#f_sc_reduction",
           "kyobo_cancer#c_sc_art10_1"
+        ],
+        "values": [
+          {
+            "text": "1년",
+            "source": "field:kyobo_cancer#f_sc_reduction:window_length",
+            "unit_path": "window_unit"
+          },
+          {
+            "text": "50%",
+            "source": "field:kyobo_cancer#f_sc_reduction:rate"
+          }
         ]
       },
       "refs": [

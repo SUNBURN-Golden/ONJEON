@@ -41,7 +41,7 @@ Object Lock은 이 템플릿에서 켜지 않는다. 보존 기간과 해제 권
 
 ## 3. 설정 후 첫 실행 (임시 보존본 → S3)
 
-2026-10-09 원본 14건은 이 세션의 임시 디렉터리에서 SHA-256 경로 배치로 보존한 뒤 사용자에게 비공개 묶음으로 전달했다(`onjeon-raw-sources-20261009.tar.gz` 3조각, 합친 파일 SHA-256 `50b6ff6b341d9d7caaee92655dbdc5610b415bbcf38204a2b87cd9642492892e`; 파생 묶음 `055e5db5…`). 묶음을 푼 위치에서:
+2026-10-09 원본 14건은 이 세션의 임시 디렉터리에서 SHA-256 경로 배치로 보존한 뒤 사용자에게 비공개 묶음으로 전달했다(`onjeon-raw-sources-20261009.tar.gz` 3조각, 합친 파일 SHA-256 `50b6ff6b341d9d7caaee92655dbdc5610b415bbcf38204a2b87cd9642492892e`; 파생 묶음은 v2 `onjeon-derived-sources-20261009-v2.tar.gz` `f6f36e54…`를 쓴다. 첫 파생 묶음 `055e5db5…`에는 잘못 연결된 파일 2개가 있다). 묶음을 푼 위치에서:
 
 ```bash
 python3 tools/source_archive.py copy   --src file://$PWD/raw     --dst s3://$ONJEON_RAW_BUCKET

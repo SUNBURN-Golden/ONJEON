@@ -371,26 +371,13 @@ def check_screen(name, d, index, gaps, errors):
         if cm.get("not_in_source") and "미확인" not in cm.get("line", ""):
             errors.append(f"{where}: {owner} line must say the remaining conditions are not stated in the source (미확인)")
 
-    def ref_text(refs):
-        out = []
-        for r in refs:
-            kind, fam, rid = resolve(index, r)
-            ent = index.get(fam, {}).get("entities", {}).get(rid)
-            if ent is None:
-                continue
-            if kind == "clause":
-                out.append(ent["anchor"])
-            elif kind == "field":
-                out += [ent.get("raw_value") or "", json.dumps(ent.get("normalized_value"), ensure_ascii=False)]
-            elif kind == "premium":
-                out.append(json.dumps({k: ent.get(k) for k in ("conditions", "components", "amount_krw")}, ensure_ascii=False))
-            elif kind == "relation":
-                out.append(ent.get("predicate") or "")
-        return norm(" ".join(out))
-
     scenario_inputs = {s["id"]: s.get("inputs", {}) for s in d.get("scenarios", [])}
 
     def check_units(path, o):
+        """Numbers with units (90일, 1년, 50%, 100세, 5종) must each be declared in `values` with a
+        source, and equal that source as a whole value: a structured field (`field:fam#id:path`),
+        a price condition (`premium:fam#id:path`) or a verbatim clause token (`clause:fam#id`).
+        Substring matching is not used: 0일 is not 90일."""
         for key in TEXT_KEYS:
             text = o.get(key)
             if not isinstance(text, str) or key in ("man_display", "chip"):
@@ -404,14 +391,64 @@ def check_screen(name, d, index, gaps, errors):
                     if days != int(m.group(1)):
                         errors.append(f"{where}: {path} question says {m.group(1)}일 but inputs differ by {days} days")
                 continue
-            refs = o.get("subtitle_refs" if key == "subtitle" else "refs", [])
-            if key == "subtitle" and not refs and unit_tokens(text):
-                errors.append(f"{where}: {path} subtitle has numbers {unit_tokens(text)} but no subtitle_refs")
+            shown = sorted(unit_tokens(text))
+            if not shown:
                 continue
-            haystack = ref_text(refs)
-            for tok in unit_tokens(text):
-                if norm(tok) not in haystack:
-                    errors.append(f"{where}: {path}.{key} `{tok}` is not in the text of its refs {refs}")
+            values = o.get("values")
+            if values is None:
+                errors.append(f"{where}: {path}.{key} shows {shown} but declares no `values` sources")
+                continue
+            declared = sorted(v.get("text", "") for v in values)
+            if shown != declared:
+                errors.append(f"{where}: {path} shows numbers {shown} but declares {declared}")
+            for v in values:
+                check_value(path, v)
+
+    def check_value(path, v):
+        m = re.fullmatch(r"(\d[\d,.]*)\s*(%|개월|시간|일|년|세|회|종)", v.get("text", ""))
+        if not m:
+            errors.append(f"{where}: {path} value text {v.get('text')!r} is not number+unit")
+            return
+        num, unit = Decimal(m.group(1).replace(",", "")), m.group(2)
+        kind, _, rest = v.get("source", "").partition(":")
+        ref, _, fpath = rest.partition(":")
+        ent_kind, fam, rid = resolve(index, ref) if ref else (None, None, None)
+        ent = index.get(fam, {}).get("entities", {}).get(rid) if fam else None
+        if kind == "clause":
+            if ent_kind != "clause":
+                errors.append(f"{where}: {path} value source `{v.get('source')}` is not a clause")
+                return
+            # keep word boundaries: collapsing all whitespace would glue "0 0.0%" into "00.0%"
+            spaced = re.sub(r"\s+", " ", ent["anchor"])
+            tok = re.compile(rf"(?<![\d.,]){re.escape(m.group(1))}\s*{re.escape(unit)}")
+            if not tok.search(spaced):
+                errors.append(f"{where}: {path} `{v['text']}` is not a whole token in the text of {ref}")
+            return
+        if kind not in ("field", "premium") or ent is None or ent_kind != kind or not fpath:
+            errors.append(f"{where}: {path} value `{v.get('text')}` needs source field:fam#id:path, premium:fam#id:path or clause:fam#id")
+            return
+        node = ent.get("normalized_value") if kind == "field" else ent
+        for part in fpath.split("."):
+            node = node.get(part) if isinstance(node, dict) else None
+        actual = None
+        if isinstance(node, bool):
+            actual = None
+        elif isinstance(node, (int, float)):
+            actual = Decimal(str(node))
+        elif isinstance(node, str):
+            if unit == "%" and re.fullmatch(r"\d+(\.\d+)?", node):
+                actual = Decimal(node) * 100  # rates are stored as fractions
+            else:
+                mm = re.fullmatch(r"(?:to_age_)?(\d+)(?:y)?", node)
+                actual = Decimal(mm.group(1)) if mm else None
+        if actual is None or actual != num:
+            errors.append(f"{where}: {path} shows `{v['text']}` but {v['source']} is {node!r}")
+            return
+        if v.get("unit_path"):
+            want = {"일": "day", "개월": "calendar_month", "년": "year", "세": "age"}.get(unit)
+            unode = ent.get("normalized_value", {}).get(v["unit_path"]) if kind == "field" else None
+            if unode != want:
+                errors.append(f"{where}: {path} `{v['text']}` unit {unit} but {ref}.{v['unit_path']} is {unode!r}")
 
     def visit(o, path):
         if isinstance(o, dict):
@@ -514,9 +551,19 @@ def mutations():
         "money hidden in a note": (lambda d: detail(d)["sections"]["what_is_covered"][2].update(note="9,999만원 지급"), "shows amounts [99990000] but declares []"),
         "money hidden in a capability reason": (lambda d: detail(d)["capabilities"][0].update(reason="9,999만원"), "shows amounts [99990000] but declares []"),
         # numbers other than money
-        "percent changed in a line": (lambda d: edit(detail(d)["sections"]["when_not_paid"][1], "line", "절반", "30%"), "`30%` is not in the text of its refs"),
-        "waiting days 90일 → 30일": (lambda d: edit(detail(d)["sections"]["when_not_paid"][0], "line", "90일", "30일"), "`30일` is not in the text of its refs"),
-        "list subtitle 90일 → 60일": (lambda d: edit(listing(d), "subtitle", "90일", "60일"), "`60일` is not in the text of its refs"),
+        "percent changed in a line": (lambda d: edit(detail(d)["sections"]["when_not_paid"][1], "line", "절반", "30%"), "shows numbers ['1년', '30%'] but declares ['1년']"),
+        "waiting days 90일 → 30일": (lambda d: edit(detail(d)["sections"]["when_not_paid"][0], "line", "90일", "30일"), "shows numbers ['30일'] but declares ['90일']"),
+        "list subtitle 90일 → 60일": (lambda d: edit(listing(d), "subtitle", "90일", "60일"), "shows numbers ['1년', '50%', '60일'] but declares ['1년', '50%', '90일']"),
+        # 839ecdb review: substring matching let 90일 → 0일 through
+        "waiting days 90일 → 0일 (substring of 90일)": (lambda d: edit(detail(d)["sections"]["when_not_paid"][0], "line", "90일", "0일"), "shows numbers ['0일'] but declares ['90일']"),
+        "diff 50% → 0% (substring of 50%)": (lambda d: edit(detail(d)["diff"]["items"][3], "line", "50%", "0%"), "shows numbers ['0%', '1년'] but declares ['1년', '50%']"),
+        "list subtitle 90일 → 0일": (lambda d: edit(listing(d), "subtitle", "90일", "0일"), "but declares ['1년', '50%', '90일']"),
+        "line and declared value both 0일": (lambda d: (edit(detail(d)["sections"]["when_not_paid"][0], "line", "90일", "0일"), detail(d)["sections"]["when_not_paid"][0]["values"][0].update(text="0일")), "shows `0일` but field:kyobo_cancer#f_main_waiting:length is 90"),
+        "field changed under an unchanged line": (lambda d: field(d, "kyobo_cancer", "f_main_waiting")["normalized_value"].update(length=30), "shows `90일` but field:kyobo_cancer#f_main_waiting:length is 30"),
+        "field unit changed (day → calendar_month)": (lambda d: field(d, "kyobo_cancer", "f_main_waiting")["normalized_value"].update(length_unit="calendar_month"), "unit 일 but kyobo_cancer#f_main_waiting.length_unit is 'calendar_month'"),
+        "value source points at another field": (lambda d: detail(d)["sections"]["limits_and_renewal"][1]["values"][0].update(source="field:kyobo_cancer#f_surg_renewal:cycle_years"), "shows `20년` but field:kyobo_cancer#f_surg_renewal:cycle_years is 5"),
+        "price condition changed under a line": (lambda d: prem(d, "kyobo_cancer", "p_sum_m_bundle")["conditions"].update(pay_term="10y"), "shows `20년` but premium:kyobo_cancer#p_sum_m_bundle:conditions.pay_term is '10y'"),
+        "clause value 87.7% → 7.7% (substring)": (lambda d: (edit(why(d)["tradeoffs"][1], "line", "87.7%", "7.7%"), why(d)["tradeoffs"][1]["values"][1].update(text="7.7%")), "`7.7%` is not a whole token in the text of kyobo_cancer#c_sum_surrender_20y"),
         "scenario question days ≠ inputs": (lambda d: edit(scen(d, "sc2"), "question", "200일", "300일"), "question says 300일 but inputs differ by 200 days"),
         # evidence location
         "cancer event evidence → sex criteria clause": (lambda d: field(d, "kyobo_cancer", "f_main_event").update(evidence_refs=["c_klia_crit_sex"]), "f_main_event raw_value is not inside the quoted passage of any cited clause"),

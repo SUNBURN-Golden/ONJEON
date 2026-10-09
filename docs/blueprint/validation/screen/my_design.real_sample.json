@@ -80,6 +80,22 @@
       "subtitle_refs": [
         "kyobo_cancer#f_main_waiting",
         "kyobo_cancer#f_main_reduction"
+      ],
+      "values": [
+        {
+          "text": "90일",
+          "source": "field:kyobo_cancer#f_main_waiting:length",
+          "unit_path": "length_unit"
+        },
+        {
+          "text": "1년",
+          "source": "field:kyobo_cancer#f_main_reduction:window_length",
+          "unit_path": "window_unit"
+        },
+        {
+          "text": "50%",
+          "source": "field:kyobo_cancer#f_main_reduction:rate"
+        }
       ]
     },
     {
@@ -108,6 +124,12 @@
       ],
       "subtitle_refs": [
         "kyobo_cancer#c_surg_annex1_class5"
+      ],
+      "values": [
+        {
+          "text": "5종",
+          "source": "clause:kyobo_cancer#c_surg_annex1_class5"
+        }
       ]
     },
     {

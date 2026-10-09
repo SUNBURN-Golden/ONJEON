@@ -1,0 +1,418 @@
+{
+  "check": "reproduce",
+  "ran_at": "2026-10-09T16:57:57Z",
+  "source": "r2:onjeon-raw-sources",
+  "ocr_rerun": true,
+  "tools": {
+    "pdftotext": "24.02.0",
+    "tesseract": "5.3.4",
+    "pdfplumber": "0.11.10"
+  },
+  "summary": {
+    "reproduced": 8,
+    "derived_unverified": 6
+  },
+  "results": [
+    {
+      "sample_id": "kyobo_cancer_summary",
+      "sha256_recorded": "11b72fb0f018d55f6f1c3c53d28660d5ecf6cecec47331634f4fc4a9e4a9d6f1",
+      "sha256_archived_bytes": "11b72fb0f018d55f6f1c3c53d28660d5ecf6cecec47331634f4fc4a9e4a9d6f1",
+      "quoted_units": 107,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "f2f00feded6ec46964d37d78d3c8e88f7163e8330633191371af5fcfba8fb038",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/11b72fb0f018d55f6f1c3c53d28660d5ecf6cecec47331634f4fc4a9e4a9d6f1/text/poppler-pdftotext-layout@24.02.0/summary.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_cancer_terms",
+      "sha256_recorded": "84785e9c081d7134563f65b419c5e187240d645798cae9caf5db73ffe45b1e5d",
+      "sha256_archived_bytes": "84785e9c081d7134563f65b419c5e187240d645798cae9caf5db73ffe45b1e5d",
+      "quoted_units": 287,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "16d3daa51e61a0e74ddbc1321046922a6279f6e685742d9d557d89f4b391f670",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/84785e9c081d7134563f65b419c5e187240d645798cae9caf5db73ffe45b1e5d/text/poppler-pdftotext-layout@24.02.0/terms.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_silson_terms",
+      "sha256_recorded": "73c7a06a6b6c00a349b06b71babfe825612f9353f0a022efcf3eb6066ffb528f",
+      "sha256_archived_bytes": "73c7a06a6b6c00a349b06b71babfe825612f9353f0a022efcf3eb6066ffb528f",
+      "quoted_units": 232,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "11c6c5fdf4917edd89f750a2d6afd467d942d70b7530ceb1a0f6f0a8cdec3a1b",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/73c7a06a6b6c00a349b06b71babfe825612f9353f0a022efcf3eb6066ffb528f/text/poppler-pdftotext-layout@24.02.0/terms.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_silson_summary",
+      "sha256_recorded": "ccdeb63419559205aa6c59d8cf5907edbc71581d24703aeda35f52af4fdaca0f",
+      "sha256_archived_bytes": "ccdeb63419559205aa6c59d8cf5907edbc71581d24703aeda35f52af4fdaca0f",
+      "quoted_units": 69,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "9b4490a97942926892ccff64639acb5995fc2d2d28468146b7a2da8eeb62e8f3",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/ccdeb63419559205aa6c59d8cf5907edbc71581d24703aeda35f52af4fdaca0f/text/poppler-pdftotext-layout@24.02.0/summary.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "fss_std_terms_byl15",
+      "sha256_recorded": "477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3",
+      "sha256_archived_bytes": "477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3",
+      "quoted_units": 64,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "2d56598c4dc8129a516ebb63168bff7fc518e59413f7378f61f694d4f126cd1c",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3/text/pdfplumber@0.11.10-x1.5-y3-selected-pages/byl15.plumber_selected.txt",
+            "state": "no_regenerator"
+          },
+          {
+            "key": "derived/477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3/text/poppler-pdftotext-layout@24.02.0/byl15.layout.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3/text/poppler-pdftotext-reading-order@24.02.0/byl15.raw.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "derived_unverified"
+    },
+    {
+      "sample_id": "kyobo_care_summary",
+      "sha256_recorded": "f724e1555efc6e3122f41d4e003060da5826e39f298ec2bd7a73451b5ece6bd9",
+      "sha256_archived_bytes": "f724e1555efc6e3122f41d4e003060da5826e39f298ec2bd7a73451b5ece6bd9",
+      "quoted_units": 108,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "d5c46259704d697b7584a9489fd4274af4cf20eae332e8b78bb993dabb836d7c",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/f724e1555efc6e3122f41d4e003060da5826e39f298ec2bd7a73451b5ece6bd9/text/poppler-pdftotext-layout@24.02.0/summary.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_wholelife_summary",
+      "sha256_recorded": "71a5602b26b0f01cce298a5f988bbaa4c1293f2ca1d82dec30ef92d787ee2736",
+      "sha256_archived_bytes": "71a5602b26b0f01cce298a5f988bbaa4c1293f2ca1d82dec30ef92d787ee2736",
+      "quoted_units": 58,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "066f6b50555613d7eee35702129d7e8660e2a96d3e755c8004e46abe9696d406",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/71a5602b26b0f01cce298a5f988bbaa4c1293f2ca1d82dec30ef92d787ee2736/text/poppler-pdftotext-layout@24.02.0/summary.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_wholelife_terms",
+      "sha256_recorded": "052dd4693601b0f5d4bf9ffb5b1f3bc47b39be0c9ad6706b36eaeb6929be4032",
+      "sha256_archived_bytes": "052dd4693601b0f5d4bf9ffb5b1f3bc47b39be0c9ad6706b36eaeb6929be4032",
+      "quoted_units": 82,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "230f8ddd6fb1de639ecca2812c22c42a2d5fa11114419b0f807783787d3c358a",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/052dd4693601b0f5d4bf9ffb5b1f3bc47b39be0c9ad6706b36eaeb6929be4032/text/poppler-pdftotext-layout@24.02.0/terms.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kb_driver_terms",
+      "sha256_recorded": "9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f",
+      "sha256_archived_bytes": "9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f",
+      "quoted_units": 176,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "36348b8341ff6bad9b517f37d7029451456d4e2c639f958c5b281887544f9a39",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f/text/pdfplumber@0.11.10-x1.5-y3-selected-pages/terms.plumber_selected.txt",
+            "state": "no_regenerator"
+          },
+          {
+            "key": "derived/9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f/text/poppler-pdftotext-layout@24.02.0/terms.layout.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f/text/poppler-pdftotext-reading-order@24.02.0/terms.raw.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "derived_unverified"
+    },
+    {
+      "sample_id": "kb_driver_summary",
+      "sha256_recorded": "8bf344b511d2e43d5dea3cbbe92c6b90f8bc15715d91ca69b3c90c9ec8182a16",
+      "sha256_archived_bytes": "8bf344b511d2e43d5dea3cbbe92c6b90f8bc15715d91ca69b3c90c9ec8182a16",
+      "quoted_units": 65,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "4bb7e5fac714c80d3b4eacdb1bf8b06eab32a3ed99d00f1beb2be20839ff7b54",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/8bf344b511d2e43d5dea3cbbe92c6b90f8bc15715d91ca69b3c90c9ec8182a16/text/poppler-pdftotext-layout@24.02.0/summary.layout.txt",
+            "state": "byte_identical"
+          }
+        ]
+      },
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "klia_pub_cancer_compare",
+      "sha256_recorded": "2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5",
+      "sha256_archived_bytes": "2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5",
+      "note": "cells checked against this page plus klia_pub_cancer_criteria",
+      "quoted_units": 205,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "d1a865fa9ccba55dae35ecb40f8ad24fa2a9d842c4e9acb1ead710154c1bd5f4",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5/text/html-table-serializer@v1-session/list.tables.txt",
+            "state": "no_regenerator"
+          }
+        ]
+      },
+      "status": "derived_unverified"
+    },
+    {
+      "sample_id": "klia_pub_cancer_criteria",
+      "sha256_recorded": "200da98f6bde03bc5ee5c4f38b0ff192ab4653fb037e26ac47d13593e9798b35",
+      "sha256_archived_bytes": "200da98f6bde03bc5ee5c4f38b0ff192ab4653fb037e26ac47d13593e9798b35",
+      "note": "cells checked against this page plus klia_pub_cancer_compare",
+      "quoted_units": 205,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "776794caab6ea37690d5a7c5f797d9382d8b83db953a8c7cdd9a854f791e7101",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/200da98f6bde03bc5ee5c4f38b0ff192ab4653fb037e26ac47d13593e9798b35/text/html-table-serializer@v1-session/info_popup.tables.txt",
+            "state": "no_regenerator"
+          }
+        ]
+      },
+      "status": "derived_unverified"
+    },
+    {
+      "sample_id": "kb_caregiver_cost_html",
+      "sha256_recorded": "6ade7ccbb07bfa9ae002ec686131167fa308e6a2d0b7730d85b34698b13ed0b2",
+      "sha256_archived_bytes": "6ade7ccbb07bfa9ae002ec686131167fa308e6a2d0b7730d85b34698b13ed0b2",
+      "quoted_units": 102,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "bfdd100ba627786932ea158068c1f0809011583cabc9bff509cd5395bf0c6036",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/6ade7ccbb07bfa9ae002ec686131167fa308e6a2d0b7730d85b34698b13ed0b2/text/html-text@v1-session/page.text.txt",
+            "state": "no_regenerator"
+          }
+        ]
+      },
+      "status": "derived_unverified"
+    },
+    {
+      "sample_id": "kyobo_1995_cancer_scanned",
+      "sha256_recorded": "7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253",
+      "sha256_archived_bytes": "7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253",
+      "quoted_units": 35,
+      "not_found": 0,
+      "examples": [],
+      "derived": {
+        "manifest": "fa593a3e65f1e63cf5b31611b9960da674dec9cda6b6dc9c1ccce663b6edf3c8",
+        "record_errors": [],
+        "outputs": [
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-01.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-02.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-03.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-04.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-05.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-06.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-07.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-08.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-09.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-10.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-11.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-12.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-13.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-14.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-15.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-16.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-17.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-18.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-19.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-20.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-21.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-22.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-23.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-24.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-25.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-26.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-27.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-28.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr__p-29.txt",
+            "state": "byte_identical"
+          },
+          {
+            "key": "derived/7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253/ocr/tesseract@5.3.4-kor-psm3-300dpi-gray/ocr_all.txt",
+            "state": "no_regenerator"
+          }
+        ]
+      },
+      "status": "derived_unverified"
+    }
+  ],
+  "derived_source": "r2:onjeon-derived-sources"
+}

@@ -39,7 +39,8 @@ CLASS_A = {"PutObject", "ListObjectsV2"}
 CLASS_B = {"GetObject", "HeadObject"}
 ALLOWED_OPS = CLASS_A | CLASS_B
 MONTHLY = ("get_bytes", "class_a", "class_b", "retries", "seconds")  # put_bytes is all-time (storage)
-SETTLEMENT_WRITE_BYTES = 4096  # upper bound for one settlement record
+SETTLEMENT_WRITE_BYTES = 4096  # upper bound for one ledger record
+LEDGER_CLASS_A = 4  # reserve: list + put; settle: list + put
 
 
 class BudgetError(SystemExit):
@@ -95,6 +96,11 @@ def load_job(spec):
                 raise BudgetError(f"job {part}.{d} must be a non-negative integer")
         if job["per_run"][d] > job["job_caps"][d]:
             raise BudgetError(f"job per_run.{d} exceeds job_caps.{d}")
+    # every run lists and writes the ledger twice (reserve, settle); a profile that cannot pay for
+    # that loses its settlement and keeps its whole reservation (found with the status profile)
+    if job["per_run"]["class_a"] < LEDGER_CLASS_A or job["per_run"]["put_bytes"] < 2 * SETTLEMENT_WRITE_BYTES:
+        raise BudgetError(f"run profile {profile!r} cannot pay for its own ledger records "
+                          f"(needs class_a >= {LEDGER_CLASS_A}, put_bytes >= {2 * SETTLEMENT_WRITE_BYTES})")
     allowed = {}
     for bucket, spec in job["buckets"].items():
         listing = json.loads((ROOT / spec["listing"]).read_text(encoding="utf-8"))

@@ -40,7 +40,7 @@
   "status": {
    "put_bytes": 8192,
    "get_bytes": 2000000,
-   "class_a": 4,
+   "class_a": 6,
    "class_b": 1100,
    "retries": 3,
    "seconds": 300

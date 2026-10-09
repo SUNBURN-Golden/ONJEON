@@ -43,11 +43,11 @@ class Fixture(unittest.TestCase):
                                        "objects": {KEY: hashlib.sha256(BODY).hexdigest()}}))
         self.policy_path = self.root / "policy.json"
         self.write_policy(class_a=1000)
-        per_run = {"put_bytes": 100, "get_bytes": 1000, "class_a": 10, "class_b": 50, "retries": 2, "seconds": 60}
+        per_run = {"put_bytes": 10000, "get_bytes": 1000, "class_a": 10, "class_b": 50, "retries": 2, "seconds": 60}
         self.job_path = self.root / "job.json"
         self.job_path.write_text(json.dumps({
             "job_id": "t", "buckets": {"raw": {"listing": str(listing), "listing_sha256": b.sha256_file(listing)}},
-            "job_caps": {"put_bytes": 300, "get_bytes": 3000, "class_a": 30, "class_b": 150, "retries": 6,
+            "job_caps": {"put_bytes": 30000, "get_bytes": 3000, "class_a": 30, "class_b": 150, "retries": 6,
                          "seconds": 180},
             "run_profiles": {"verify": per_run}}))
         self.ledger_store = sa.LocalStore(self.root / "ledger")
@@ -210,6 +210,14 @@ class FailClosed(Fixture):
         with self.assertRaises(b.BudgetError) as cm:
             self.reserve()
         self.assertIn("genesis", str(cm.exception))
+
+    def test_profile_that_cannot_pay_for_its_ledger_records_is_rejected(self):
+        doc = json.loads(self.job_path.read_text())
+        doc["run_profiles"]["verify"]["class_a"] = 3
+        self.job_path.write_text(json.dumps(doc))
+        with self.assertRaises(b.BudgetError) as cm:
+            b.load_job(self.job_path)
+        self.assertIn("ledger records", str(cm.exception))
 
     def test_changed_listing_invalidates_the_job(self):
         listing = self.root / "listing.json"

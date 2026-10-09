@@ -34,7 +34,7 @@ python3 -I tools/verify_sources.py reproduce --raw file:///…/raw --derived fil
 python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --archive-new --report d.json
 ```
 
-원본은 공개 저장소에 넣지 않는다. 보관소는 Cloudflare R2 비공개 버킷이다(ADR-0015·0016, `infra/r2/`). 2026-10-09 현재 R2 자격 증명이 없어, 원본은 같은 키 배치의 임시 보관본과 사용자에게 비공개로 전달한 묶음으로만 남아 있다. `samples.csv`의 `cache_path`는 캐시 기준 상대 경로이고, 보관소 키는 `sha256`에서 정해진다.
+원본은 공개 저장소에 넣지 않는다. 보관소는 Cloudflare R2 비공개 버킷이다(ADR-0015·0016, `infra/r2/`). 2026-10-09 원본과 파생 v2를 R2에 보존하고 다시 받아 대조했다(아래 기록). 사용자에게 비공개로 전달한 묶음은 별도 사본이다. `samples.csv`의 `cache_path`는 캐시 기준 상대 경로이고, 보관소 키는 `sha256`에서 정해진다.
 
 동적 HTML은 받을 때마다 세션 ID 등으로 바이트가 달라진다. 받은 바이트는 매번 새 원본으로 보존한다. `content_sha256`(규칙 `content_hash_rule` = `html-visible-text-v1`)은 변경 감지의 보조 지표이고, 같아도 결과는 `bytes_changed_content_same`이지 바이트 일치가 아니다.
 
@@ -48,4 +48,10 @@ python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --
 | `2026-10-09_archive_download_verify_bundle.json` | 비공개 전달 묶음을 풀어 SHA-256 대조 | 14/14 바이트 일치 |
 | `2026-10-09_detect_current_sources.json` | 현재 출처 변경 감지(11:07Z) | unchanged_bytes 13, bytes_changed_content_same 1(KB 간병인 지원비용: 세션 ID·서버 표시만 다름) |
 
-실제 R2에 올리고 다시 받아 대조한 기록은 아직 없다. 대조 기준은 Git에 고정한 키·해시 목록이다: `archive_listing_raw.json`(원본 16, 관측 42), `archive_listing_derived_v2.json`(파생 47, 파생 명세 14). 이 목록은 내용이 아니라 키와 SHA-256만 담는다.
+| `2026-10-09_r2_listing_raw.json` | R2 원본 버킷의 모든 키를 다시 받아 고정 목록과 대조(비용 한도 아래) | 58/58 바이트 일치 |
+| `2026-10-09_r2_listing_derived_v2.json` | R2 파생 버킷 같은 대조 | 61/61 바이트 일치 |
+| `2026-10-09_r2_verify_samples.json` | R2에서 표본 14건 원본 해시 대조 | 14/14 바이트 일치 |
+| `2026-10-09_r2_reproduce_ocr.json` | R2 보관본 재현(OCR 29쪽 재실행, 고정 파생 명세 검증) | reproduced 8, derived_unverified 6, 불일치 0 |
+| `2026-10-09_r2_budget_status.json` | 비용 한도 원장 상태(순번 10까지) | 작업 한도 안 |
+
+R2 보존 절차와 차이는 `infra/r2/README.md`, 비용 한도는 `infra/r2/BUDGET.md`. 대조 기준은 Git에 고정한 키·해시 목록이다: `archive_listing_raw.json`(원본 16, 관측 42), `archive_listing_derived_v2.json`(파생 47, 파생 명세 14). 이 목록은 내용이 아니라 키와 SHA-256만 담는다.

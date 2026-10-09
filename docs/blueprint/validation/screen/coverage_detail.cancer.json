@@ -314,7 +314,8 @@
           "price_unavailable_reason": "condition_mismatch",
           "display_status": "hold",
           "refs": [
-            "kyobo_cancer#p_klia_m_main"
+            "kyobo_cancer#p_klia_m_main",
+            "kyobo_cancer#c_klia_crit_cancer"
           ],
           "amounts": [
             {
@@ -475,6 +476,9 @@
             "source": "scenario:sc1",
             "krw": 0
           }
+        ],
+        "refs": [
+          "kyobo_cancer#f_main_waiting"
         ]
       },
       "refs": [
@@ -517,6 +521,9 @@
             "source": "scenario:sc2",
             "krw": 15000000
           }
+        ],
+        "refs": [
+          "kyobo_cancer#f_main_reduction"
         ]
       },
       "refs": [
@@ -559,6 +566,9 @@
             "source": "scenario:sc3",
             "krw": 30000000
           }
+        ],
+        "refs": [
+          "kyobo_cancer#f_main_amount"
         ]
       },
       "refs": [
@@ -597,6 +607,9 @@
             "source": "scenario:sc4",
             "krw": 0
           }
+        ],
+        "refs": [
+          "kyobo_cancer#f_main_exclusions"
         ]
       },
       "refs": [
@@ -638,6 +651,12 @@
             "source": "scenario:sc5",
             "krw": 1000000
           }
+        ],
+        "refs": [
+          "kyobo_cancer#f_sc_amount",
+          "kyobo_cancer#f_sc_waiting",
+          "kyobo_cancer#f_sc_reduction",
+          "kyobo_cancer#c_sc_art10_1"
         ]
       },
       "refs": [
@@ -676,7 +695,10 @@
       },
       "display": {
         "line": "계산 불가 · 진단일을 넣으면 계산돼요",
-        "display_status": "input_missing"
+        "display_status": "input_missing",
+        "refs": [
+          "kyobo_cancer#f_main_waiting"
+        ]
       },
       "refs": [
         "kyobo_cancer#f_main_waiting"
@@ -717,6 +739,10 @@
             "source": "scenario:sc7",
             "krw": 2000000
           }
+        ],
+        "refs": [
+          "kyobo_cancer#f_sc_amount",
+          "kyobo_cancer#f_sc_waiting"
         ]
       },
       "refs": [

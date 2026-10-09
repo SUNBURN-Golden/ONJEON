@@ -228,6 +228,10 @@ fn screen_errors(screen: &J, rules: &BTreeMap<String, Rule>) -> Vec<String> {
             errors.push(format!("{id}: unknown rule"));
             continue;
         };
+        if let Err(e) = rule.evaluate(&s["inputs"]) {
+            errors.push(format!("{id}: evaluation error: {e}"));
+            continue;
+        }
         let observed = observe(rule, &s["inputs"]);
         if observed != s["expect"] {
             errors.push(format!(
@@ -287,27 +291,47 @@ fn screen_payout_text_and_amounts_come_from_the_engine() {
 
 #[test]
 fn screen_check_catches_tampered_numbers() {
+    // Each tamper must fail for its intended reason, not merely produce some error.
     let rules = rules();
     let base = detail_screen();
     type Tamper = fn(&mut J);
-    let tampers: [(&str, Tamper); 4] = [
-        ("display line 1,500만원 -> 9,999만원", |s| {
-            s["scenarios"][1]["display"]["line"] = json!("9,999만원 · 첫 1년 50%");
-        }),
-        ("declared scenario amount changed", |s| {
-            s["sections"]["when_not_paid"][1]["amounts"][0]["krw"] = json!(99_990_000);
-        }),
-        ("expectation and line changed together", |s| {
-            s["scenarios"][1]["expect"]["payout"]["amount"]["krw"] = json!(99_990_000);
-            s["scenarios"][1]["display"]["line"] = json!("9,999만원 · 첫 1년 50%");
-        }),
-        ("scenario input changed under a fixed line", |s| {
-            s["scenarios"][1]["inputs"]["diagnosis_date"] = json!("2026-02-01");
-        }),
+    let tampers: [(&str, Tamper, &str); 5] = [
+        (
+            "display line 1,500만원 -> 9,999만원",
+            |s| s["scenarios"][1]["display"]["line"] = json!("9,999만원 · 첫 1년 50%"),
+            "sc2: line `9,999만원 · 첫 1년 50%` must start with engine text `1,500만원`",
+        ),
+        (
+            "declared scenario amount changed",
+            |s| s["sections"]["when_not_paid"][1]["amounts"][0]["krw"] = json!(99_990_000),
+            "amount 99990000 cites scenario sc2 = 15000000",
+        ),
+        (
+            "expectation and line changed together",
+            |s| {
+                s["scenarios"][1]["expect"]["payout"]["amount"]["krw"] = json!(99_990_000);
+                s["scenarios"][1]["display"]["line"] = json!("9,999만원 · 첫 1년 50%");
+            },
+            "sc2: engine gives",
+        ),
+        (
+            "scenario input changed under a fixed line",
+            |s| s["scenarios"][1]["inputs"]["diagnosis_date"] = json!("2026-02-01"),
+            "sc2: line `1,500만원 · 첫 1년 50%` must start with engine text `0원`",
+        ),
+        (
+            "scenario points at the wrong rule",
+            |s| s["scenarios"][1]["rule_id"] = json!("kyobo-small-cancer-skin"),
+            "sc2: evaluation error",
+        ),
     ];
-    for (name, tamper) in tampers {
+    for (name, tamper, expected) in tampers {
         let mut s = base.clone();
         tamper(&mut s);
-        assert!(!screen_errors(&s, &rules).is_empty(), "not caught: {name}");
+        let errors = screen_errors(&s, &rules);
+        assert!(
+            errors.iter().any(|e| e.contains(expected)),
+            "{name}: expected an error containing `{expected}`, got {errors:?}"
+        );
     }
 }

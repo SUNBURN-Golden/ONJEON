@@ -1,35 +1,60 @@
 name: sources
 
-# Re-verify the V1 validation samples against their original bytes: download from the recorded
-# URL, SHA-256, re-extract every quoted page. Manual only: it reaches insurer and regulator sites,
-# and some of them block foreign or datacenter addresses (reported as download_failed, never as
-# verified). The originals are not stored in this repository yet (BLUEPRINT §12).
+# Two separate checks (ADR-0015). Manual only, and only runnable once this file is on the default
+# branch (GitHub runs workflow_dispatch from there).
+#  - detect: fetch every recorded URL now; report unchanged / changed / fetch_failed. A change is a
+#    new version candidate; it never replaces the archived original or fails a past reproduction.
+#    Insurer and regulator sites may block foreign datacenter addresses: that is fetch_failed.
+#  - reproduce: re-verify the archived originals (hash, pages, quotes, extraction) from the private
+#    S3 raw bucket. Runs only when the repository variables below are set; uses OIDC, no stored keys.
+#      vars.ONJEON_RAW_BUCKET, vars.ONJEON_DERIVED_BUCKET, vars.ONJEON_VERIFIER_ROLE_ARN
+# Not executed yet as of 2026-10-09 (the file is not on main, and no AWS account is connected).
 on:
   workflow_dispatch:
     inputs:
       ocr:
-        description: "Re-OCR the scanned sample (slow)"
+        description: "Re-OCR the scanned sample during reproduce (slow)"
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
-  verify:
+  detect:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Extractors
         run: |
+          sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
+          python3 -m pip install --quiet pdfplumber==0.11.10
+      - name: Detect current source changes
+        run: python3 -I tools/verify_sources.py detect --out "$RUNNER_TEMP/now" --report "$RUNNER_TEMP/detect.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: detect-report, path: "${{ runner.temp }}/detect.json" }
+
+  reproduce:
+    if: ${{ vars.ONJEON_RAW_BUCKET != '' && vars.ONJEON_VERIFIER_ROLE_ARN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.ONJEON_VERIFIER_ROLE_ARN }}
+          aws-region: ap-northeast-2
+      - name: Extractors
+        run: |
           sudo apt-get update -q
           sudo apt-get install -y -q poppler-utils ${{ inputs.ocr && 'tesseract-ocr tesseract-ocr-kor' || '' }}
-          python3 -m pip install --quiet pdfplumber==0.11.10
-      - name: Download and verify
+          python3 -m pip install --quiet pdfplumber==0.11.10 boto3
+      - name: Reproduce from the archive
         run: |
-          python3 -I tools/verify_sources.py --cache "$RUNNER_TEMP/samples" --download \
-            ${{ inputs.ocr && '--ocr' || '--allow-ocr-skip' }} --workdir "$RUNNER_TEMP/ocr" \
-            --report "$RUNNER_TEMP/source_check.json"
-      - name: Report
+          python3 -I tools/verify_sources.py reproduce --raw "s3://${{ vars.ONJEON_RAW_BUCKET }}" \
+            --derived "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" ${{ inputs.ocr && '--ocr' || '--allow-ocr-skip' }} \
+            --report "$RUNNER_TEMP/reproduce.json"
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-check
-          path: ${{ runner.temp }}/source_check.json
+        with: { name: reproduce-report, path: "${{ runner.temp }}/reproduce.json" }

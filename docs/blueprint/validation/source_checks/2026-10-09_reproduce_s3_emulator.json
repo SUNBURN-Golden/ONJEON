@@ -1,0 +1,182 @@
+{
+  "check": "reproduce",
+  "ran_at": "2026-10-09T11:10:27Z",
+  "source": "s3",
+  "ocr_rerun": false,
+  "tools": {
+    "pdftotext": "24.02.0",
+    "tesseract": "5.3.4",
+    "pdfplumber": "0.11.10"
+  },
+  "summary": {
+    "reproduced": 13,
+    "ocr_not_rerun": 1
+  },
+  "results": [
+    {
+      "sample_id": "kyobo_cancer_summary",
+      "sha256_recorded": "11b72fb0f018d55f6f1c3c53d28660d5ecf6cecec47331634f4fc4a9e4a9d6f1",
+      "sha256_archived_bytes": "11b72fb0f018d55f6f1c3c53d28660d5ecf6cecec47331634f4fc4a9e4a9d6f1",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 107,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_cancer_terms",
+      "sha256_recorded": "84785e9c081d7134563f65b419c5e187240d645798cae9caf5db73ffe45b1e5d",
+      "sha256_archived_bytes": "84785e9c081d7134563f65b419c5e187240d645798cae9caf5db73ffe45b1e5d",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 287,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_silson_terms",
+      "sha256_recorded": "73c7a06a6b6c00a349b06b71babfe825612f9353f0a022efcf3eb6066ffb528f",
+      "sha256_archived_bytes": "73c7a06a6b6c00a349b06b71babfe825612f9353f0a022efcf3eb6066ffb528f",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 232,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_silson_summary",
+      "sha256_recorded": "ccdeb63419559205aa6c59d8cf5907edbc71581d24703aeda35f52af4fdaca0f",
+      "sha256_archived_bytes": "ccdeb63419559205aa6c59d8cf5907edbc71581d24703aeda35f52af4fdaca0f",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 69,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "fss_std_terms_byl15",
+      "sha256_recorded": "477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3",
+      "sha256_archived_bytes": "477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 64,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_care_summary",
+      "sha256_recorded": "f724e1555efc6e3122f41d4e003060da5826e39f298ec2bd7a73451b5ece6bd9",
+      "sha256_archived_bytes": "f724e1555efc6e3122f41d4e003060da5826e39f298ec2bd7a73451b5ece6bd9",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 108,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_wholelife_summary",
+      "sha256_recorded": "71a5602b26b0f01cce298a5f988bbaa4c1293f2ca1d82dec30ef92d787ee2736",
+      "sha256_archived_bytes": "71a5602b26b0f01cce298a5f988bbaa4c1293f2ca1d82dec30ef92d787ee2736",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 58,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_wholelife_terms",
+      "sha256_recorded": "052dd4693601b0f5d4bf9ffb5b1f3bc47b39be0c9ad6706b36eaeb6929be4032",
+      "sha256_archived_bytes": "052dd4693601b0f5d4bf9ffb5b1f3bc47b39be0c9ad6706b36eaeb6929be4032",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 82,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kb_driver_terms",
+      "sha256_recorded": "9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f",
+      "sha256_archived_bytes": "9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 176,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kb_driver_summary",
+      "sha256_recorded": "8bf344b511d2e43d5dea3cbbe92c6b90f8bc15715d91ca69b3c90c9ec8182a16",
+      "sha256_archived_bytes": "8bf344b511d2e43d5dea3cbbe92c6b90f8bc15715d91ca69b3c90c9ec8182a16",
+      "derived_layout": {
+        "state": "byte_identical",
+        "tool": "poppler-pdftotext-layout@24.02.0"
+      },
+      "quoted_units": 65,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "klia_pub_cancer_compare",
+      "sha256_recorded": "2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5",
+      "sha256_archived_bytes": "2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5",
+      "note": "cells checked against this page plus klia_pub_cancer_criteria",
+      "quoted_units": 205,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "klia_pub_cancer_criteria",
+      "sha256_recorded": "200da98f6bde03bc5ee5c4f38b0ff192ab4653fb037e26ac47d13593e9798b35",
+      "sha256_archived_bytes": "200da98f6bde03bc5ee5c4f38b0ff192ab4653fb037e26ac47d13593e9798b35",
+      "note": "cells checked against this page plus klia_pub_cancer_compare",
+      "quoted_units": 205,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kb_caregiver_cost_html",
+      "sha256_recorded": "6ade7ccbb07bfa9ae002ec686131167fa308e6a2d0b7730d85b34698b13ed0b2",
+      "sha256_archived_bytes": "6ade7ccbb07bfa9ae002ec686131167fa308e6a2d0b7730d85b34698b13ed0b2",
+      "quoted_units": 102,
+      "not_found": 0,
+      "examples": [],
+      "status": "reproduced"
+    },
+    {
+      "sample_id": "kyobo_1995_cancer_scanned",
+      "sha256_recorded": "7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253",
+      "sha256_archived_bytes": "7395fb37d1edc1caef595355868d7056d7eece0a3d20efbe6efeb3a217fb9253",
+      "status": "ocr_not_rerun"
+    }
+  ]
+}

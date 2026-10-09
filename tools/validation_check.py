@@ -47,7 +47,16 @@ VOCAB_KEYS = {
     "freshness": "freshness", "policy_holdings_status": "policy_holdings_status", "payout": "payout",
 }
 UNKNOWN_STATES = {"not_found", "unreadable", "conflicting", "not_disclosed"}
-TEXT_KEYS = ("line", "subtitle", "summary_line", "chip", "man_display", "label", "question")
+TEXT_KEYS = ("line", "subtitle", "summary_line", "chip", "man_display", "label", "question", "note", "reason")
+# Money must be written as digits + 원 / 만원. Other money notations would bypass the amount check.
+FORBIDDEN_MONEY = [
+    (re.compile(r"₩|\\|KRW", re.I), "currency sign"),
+    (re.compile(r"\d\s*억|\d\s*천\s*원|\d\s*천만"), "억/천 unit"),
+    (re.compile(r"[일이삼사오육칠팔구십백천]+\s*만\s*원|[일이삼사오육칠팔구십백천]+\s*원(?![가-힣])"), "Korean numerals"),
+    (re.compile(r"\d\s*만(?!\s*원)(?=[\s·,)]|$)"), "만 without 원"),
+]
+# Numbers with these units must appear in the text of what the line cites (clause, field, price).
+UNIT_RE = re.compile(r"(\d[\d,.]*)\s*(%|개월|시간|일|년|세|회|종)")
 # "1,500만원", "51,290원", "0원". Display shorthand "5.1만" (no 원) is only allowed in man_display.
 MONEY_RE = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*(만\s*원|원)")
 SEX_KO = {"male": "남", "female": "여"}
@@ -82,6 +91,10 @@ def passages(md):
                 buf.append(line)
         flush()
     return out
+
+
+def unit_tokens(text):
+    return [num + unit for num, unit in UNIT_RE.findall(text)]
 
 
 def money_tokens(text):
@@ -149,6 +162,17 @@ def check_family(fam, d, data, samples, errors, index):
     if d.get("family") != fam:
         errors.append(f"{where}: family must equal file stem")
     walk_vocab(d, where, errors)
+    # No cross-family review has happened (ADR-0006): nothing in this set may be service-approved.
+    def no_accepted(o, path):
+        if isinstance(o, dict):
+            if o.get("review_status") == "accepted":
+                errors.append(f"{where}: {path} is review_status=accepted, but no cross-family review record exists (ai_unreviewed set)")
+            for k, v in o.items():
+                no_accepted(v, f"{path}.{k}")
+        elif isinstance(o, list):
+            for i, x in enumerate(o):
+                no_accepted(x, f"{path}[{i}]")
+    no_accepted(d, "$")
     doc_passages = {}
     for doc in d["documents"]:
         s = samples.get(doc["sample_id"])
@@ -261,7 +285,10 @@ def check_family(fam, d, data, samples, errors, index):
             if not p.get("derivation"):
                 errors.append(f"{where}: {pid} derived amount needs a derivation")
         else:
-            in_cited(pid, f"{amt:,}", p["evidence_refs"], f"amount {amt:,}")
+            # the amount must appear as a whole number (not as digits inside a longer number)
+            tok = re.compile(rf"(?<![\d,.]){re.escape(f'{amt:,}')}(?![\d,.])")
+            if not any(tok.search(t) for r in p["evidence_refs"] for t in clause_passages.get(r, [])):
+                errors.append(f"{where}: {pid} amount {amt:,} is not inside the quoted passage of any cited clause {p['evidence_refs']}")
         if not p.get("comparison_basis_id"):
             errors.append(f"{where}: {pid} needs comparison_basis_id")
         cond = p.get("conditions", {})
@@ -270,7 +297,11 @@ def check_family(fam, d, data, samples, errors, index):
                 errors.append(f"{where}: {pid} must state `{dim}` or list it in missing_dimensions")
         if p.get("pay_cycle") not in {"monthly", "annual", "single", None}:
             errors.append(f"{where}: {pid} pay_cycle must be monthly|annual|single")
-    index[fam] = {"ids": ids, "premiums": premiums, "clauses": {c["clause_id"]: c for c in d["clauses"]}}
+    entities = {c["clause_id"]: c for c in d["clauses"]}
+    entities.update({f["field_id"]: f for f in d["fields"]})
+    entities.update({r["relation_id"]: r for r in d.get("relations", [])})
+    entities.update(premiums)
+    index[fam] = {"ids": ids, "premiums": premiums, "clauses": {c["clause_id"]: c for c in d["clauses"]}, "entities": entities}
 
 
 def missing_keys(p):
@@ -340,8 +371,56 @@ def check_screen(name, d, index, gaps, errors):
         if cm.get("not_in_source") and "미확인" not in cm.get("line", ""):
             errors.append(f"{where}: {owner} line must say the remaining conditions are not stated in the source (미확인)")
 
+    def ref_text(refs):
+        out = []
+        for r in refs:
+            kind, fam, rid = resolve(index, r)
+            ent = index.get(fam, {}).get("entities", {}).get(rid)
+            if ent is None:
+                continue
+            if kind == "clause":
+                out.append(ent["anchor"])
+            elif kind == "field":
+                out += [ent.get("raw_value") or "", json.dumps(ent.get("normalized_value"), ensure_ascii=False)]
+            elif kind == "premium":
+                out.append(json.dumps({k: ent.get(k) for k in ("conditions", "components", "amount_krw")}, ensure_ascii=False))
+            elif kind == "relation":
+                out.append(ent.get("predicate") or "")
+        return norm(" ".join(out))
+
+    scenario_inputs = {s["id"]: s.get("inputs", {}) for s in d.get("scenarios", [])}
+
+    def check_units(path, o):
+        for key in TEXT_KEYS:
+            text = o.get(key)
+            if not isinstance(text, str) or key in ("man_display", "chip"):
+                continue
+            if key == "question":
+                m = re.search(r"가입\s*(\d+)일\s*뒤", text)
+                inp = scenario_inputs.get(o.get("id"), {})
+                if m and inp.get("contract_date") and inp.get("diagnosis_date"):
+                    import datetime as _dt
+                    days = (_dt.date.fromisoformat(inp["diagnosis_date"]) - _dt.date.fromisoformat(inp["contract_date"])).days
+                    if days != int(m.group(1)):
+                        errors.append(f"{where}: {path} question says {m.group(1)}일 but inputs differ by {days} days")
+                continue
+            refs = o.get("subtitle_refs" if key == "subtitle" else "refs", [])
+            if key == "subtitle" and not refs and unit_tokens(text):
+                errors.append(f"{where}: {path} subtitle has numbers {unit_tokens(text)} but no subtitle_refs")
+                continue
+            haystack = ref_text(refs)
+            for tok in unit_tokens(text):
+                if norm(tok) not in haystack:
+                    errors.append(f"{where}: {path}.{key} `{tok}` is not in the text of its refs {refs}")
+
     def visit(o, path):
         if isinstance(o, dict):
+            for k, v in o.items():
+                if isinstance(v, str) and k != "man_display":  # man_display is checked against the price exactly
+                    for pat, what in FORBIDDEN_MONEY:
+                        if pat.search(v):
+                            errors.append(f"{where}: {path}.{k} uses {what} for money: {v[:40]!r} (write digits + 원/만원)")
+            check_units(path, o)
             texts = [o[k] for k in TEXT_KEYS if isinstance(o.get(k), str) and k != "man_display"]
             shown = sorted(t for s in texts for t in money_tokens(s))
             declared = sorted(a.get("krw") for a in o.get("amounts", []))
@@ -401,7 +480,10 @@ def check(data):
 
 
 def mutations():
-    """Each mutation must make the check fail. They mirror the review findings of 2026-10-09."""
+    """Tampering that must fail, each with the error text it must produce (not just any error).
+
+    Mirrors the review findings of 2026-10-09 plus evasions found while re-verifying 87a19c5.
+    """
     def scen(data, sid):
         return next(s for s in data["screens"]["coverage_detail.cancer.json"]["scenarios"] if s["id"] == sid)
     def field(data, fam, fid):
@@ -411,23 +493,45 @@ def mutations():
     def prem(data, fam, pid):
         return next(p for p in data["families"][fam]["premium_observations"] if p["observation_id"] == pid)
     detail = lambda data: data["screens"]["coverage_detail.cancer.json"]
-    def m(fn):
-        return fn
+    listing = lambda data: data["screens"]["my_design.real_sample.json"]["groups"][0]
+    why = lambda data: detail(data)["sections"]["why_this_price"]
+    def edit(obj, key, old, new):
+        assert old in obj[key], (key, old)
+        obj[key] = obj[key].replace(old, new)
     return {
-        "scenario line 1,500만원 → 9,999만원": m(lambda d: scen(d, "sc2")["display"].update(line=scen(d, "sc2")["display"]["line"].replace("1,500만원", "9,999만원"))),
-        "detail price 51,290 → 1": m(lambda d: detail(d)["sections"]["why_this_price"]["price_line"].update(won=1)),
-        "list price 51,290 → 1": m(lambda d: d["screens"]["my_design.real_sample.json"]["groups"][0]["price_line"].update(won=1)),
-        "list display 월 5.1만 → 월 0.1만": m(lambda d: d["screens"]["my_design.real_sample.json"]["groups"][0]["price_line"].update(man_display="월 0.1만")),
-        "when_not_paid 1,500만원 → 1,600만원": m(lambda d: detail(d)["sections"]["when_not_paid"][1].update(line=detail(d)["sections"]["when_not_paid"][1]["line"].replace("1,500만원", "1,600만원"))),
-        "amount source points at another price": m(lambda d: detail(d)["sections"]["why_this_price"]["breakdown"][0]["amounts"][0].update(source="premium:kyobo_cancer#p_sum_f_main")),
-        "price chip says 여 for a male price": m(lambda d: detail(d)["sections"]["why_this_price"]["price_line"].update(chip="공시 예시 · 40세 여 · 기준일 06-29")),
-        "cancer event evidence → sex criteria clause": m(lambda d: field(d, "kyobo_cancer", "f_main_event").update(evidence_refs=["c_klia_crit_sex"])),
-        "waiting raw_value from the reduction clause": m(lambda d: field(d, "kyobo_cancer", "f_main_waiting").update(raw_value=field(d, "kyobo_cancer", "f_main_reduction")["raw_value"])),
-        "art.7 clause page 47 → 48": m(lambda d: clause(d, "kyobo_cancer", "c_main_art7").update(page=48)),
-        "price observation 50,790 → 1": m(lambda d: prem(d, "kyobo_cancer", "p_sum_m_main").update(amount_krw=1)),
-        "price evidence → unrelated clause": m(lambda d: prem(d, "kyobo_cancer", "p_sum_f_main").update(evidence_refs=["c_main_art7"])),
-        "condition match drops not_in_source": m(lambda d: detail(d)["sections"]["why_this_price"]["condition_match"].update(not_in_source=[])),
-        "condition match claims pay_term": m(lambda d: detail(d)["sections"]["why_this_price"]["condition_match"]["matched"].append("pay_term")),
+        # screen amounts and prices
+        "scenario line 1,500만원 → 9,999만원": (lambda d: edit(scen(d, "sc2")["display"], "line", "1,500만원", "9,999만원"), "shows amounts [99990000] but declares [15000000]"),
+        "detail price 51,290 → 1": (lambda d: why(d)["price_line"].update(won=1), "price 1 does not equal its one price observation"),
+        "list price 51,290 → 1": (lambda d: listing(d)["price_line"].update(won=1), "price 1 does not equal its one price observation"),
+        "list display 월 5.1만 → 월 0.1만": (lambda d: listing(d)["price_line"].update(man_display="월 0.1만"), "man_display '월 0.1만' != '월 5.1만'"),
+        "when_not_paid 1,500만원 → 1,600만원": (lambda d: edit(detail(d)["sections"]["when_not_paid"][1], "line", "1,500만원", "1,600만원"), "shows amounts [16000000] but declares [15000000]"),
+        "amount source points at another price": (lambda d: why(d)["breakdown"][0]["amounts"][0].update(source="premium:kyobo_cancer#p_sum_f_main"), "shows 50790 but premium:kyobo_cancer#p_sum_f_main is 33240"),
+        "candidate amount changed": (lambda d: detail(d)["candidate"]["components"][0].update(insured_amount_krw=50000000), "but candidate `main` is 50000000"),
+        "price chip says 여 for a male price": (lambda d: why(d)["price_line"].update(chip="공시 예시 · 40세 여 · 기준일 06-29"), "must state `남`"),
+        "money written with ₩": (lambda d: edit(why(d)["breakdown"][0], "line", "50,790원", "50,790원(₩99,999)"), "uses currency sign for money"),
+        "money written with 억": (lambda d: edit(detail(d)["sections"]["what_is_covered"][0], "line", "(처음 1번)", "(최대 3억원)"), "uses 억/천 unit for money"),
+        "money in Korean numerals": (lambda d: edit(detail(d)["sections"]["what_is_covered"][0], "line", "(처음 1번)", "(최대 삼천만원)"), "uses Korean numerals for money"),
+        "money hidden in a note": (lambda d: detail(d)["sections"]["what_is_covered"][2].update(note="9,999만원 지급"), "shows amounts [99990000] but declares []"),
+        "money hidden in a capability reason": (lambda d: detail(d)["capabilities"][0].update(reason="9,999만원"), "shows amounts [99990000] but declares []"),
+        # numbers other than money
+        "percent changed in a line": (lambda d: edit(detail(d)["sections"]["when_not_paid"][1], "line", "절반", "30%"), "`30%` is not in the text of its refs"),
+        "waiting days 90일 → 30일": (lambda d: edit(detail(d)["sections"]["when_not_paid"][0], "line", "90일", "30일"), "`30일` is not in the text of its refs"),
+        "list subtitle 90일 → 60일": (lambda d: edit(listing(d), "subtitle", "90일", "60일"), "`60일` is not in the text of its refs"),
+        "scenario question days ≠ inputs": (lambda d: edit(scen(d, "sc2"), "question", "200일", "300일"), "question says 300일 but inputs differ by 200 days"),
+        # evidence location
+        "cancer event evidence → sex criteria clause": (lambda d: field(d, "kyobo_cancer", "f_main_event").update(evidence_refs=["c_klia_crit_sex"]), "f_main_event raw_value is not inside the quoted passage of any cited clause"),
+        "waiting raw_value from the reduction clause": (lambda d: field(d, "kyobo_cancer", "f_main_waiting").update(raw_value=field(d, "kyobo_cancer", "f_main_reduction")["raw_value"]), "f_main_waiting raw_value is not inside the quoted passage"),
+        "art.7 clause page 47 → 48": (lambda d: clause(d, "kyobo_cancer", "c_main_art7").update(page=48), "c_main_art7 anchor is not on d_terms page 48 (found on page [47])"),
+        "clause moved to another document": (lambda d: clause(d, "kyobo_cancer", "c_main_art7").update(doc_id="d_sum"), "c_main_art7 anchor is not on d_sum page 47"),
+        "price observation 50,790 → 1": (lambda d: prem(d, "kyobo_cancer", "p_sum_m_main").update(amount_krw=1), "p_sum_m_main amount 1 is not inside the quoted passage"),
+        "price evidence → unrelated clause": (lambda d: prem(d, "kyobo_cancer", "p_sum_f_main").update(evidence_refs=["c_main_art7"]), "p_sum_f_main amount 33,240 is not inside the quoted passage"),
+        # review state
+        "field promoted to accepted without review": (lambda d: field(d, "kyobo_cancer", "f_main_waiting").update(review_status="accepted"), "review_status=accepted, but no cross-family review record exists"),
+        # price conditions
+        "condition match drops not_in_source": (lambda d: why(d)["condition_match"].update(not_in_source=[]), "must list not_in_source conditions"),
+        "condition match claims pay_term": (lambda d: why(d)["condition_match"]["matched"].append("pay_term"), "claims `pay_term` matches"),
+        "profile sex differs but still matched": (lambda d: detail(d)["profile"].update(sex="female"), "claims `sex` matches but profile='female' price='male'"),
+        "condition line hides 미확인": (lambda d: why(d)["condition_match"].update(line="나이·성별 일치 · 조건 같음"), "line must say the remaining conditions are not stated in the source"),
     }
 
 
@@ -437,18 +541,20 @@ def selftest():
     if errors:
         print("selftest needs a clean baseline:\n  " + "\n  ".join(errors))
         return 1
-    failed = []
-    for name, fn in mutations().items():
+    bad = []
+    for name, (fn, expected) in mutations().items():
         data = copy.deepcopy(base)
         fn(data)
         errs, _ = check(data)
-        print(f"  {'caught' if errs else 'MISSED'}: {name}" + (f" -> {errs[0][:110]}" if errs else ""))
-        if not errs:
-            failed.append(name)
-    if failed:
-        print(f"selftest failed: {len(failed)} mutation(s) not caught")
+        hit = [e for e in errs if expected in e]
+        state = "caught" if hit else ("WRONG REASON" if errs else "MISSED")
+        print(f"  {state}: {name}" + (f" -> {(hit or errs)[0][:100]}" if errs else ""))
+        if not hit:
+            bad.append(name)
+    if bad:
+        print(f"selftest failed: {len(bad)} mutation(s) not caught for the intended reason")
         return 1
-    print(f"selftest ok: {len(mutations())} mutations caught")
+    print(f"selftest ok: {len(mutations())} mutations, each caught for its intended reason")
     return 0
 
 

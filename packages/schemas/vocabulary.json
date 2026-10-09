@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "updated": "2026-10-09",
   "rules": [
     "축(axis)이 다른 상태를 한 값에 섞지 않는다. 값 상태·검수 상태·기능 자격·화면 상태·초안 상태는 서로 다른 축이다.",
@@ -54,6 +54,78 @@
             "fetched",
             "integrity_checked"
           ]
+        }
+      ]
+    },
+    {
+      "id": "archive_reproduction",
+      "name_ko": "보관본 재현 결과",
+      "applies_to": "보존한 원본(raw 객체)과 그 파생물",
+      "layer": "L1-L2",
+      "concept_ko": "당시 보존한 원본으로 해시·페이지·인용·추출 결과를 다시 확인한 결과. 현재 출처의 변경과 무관하다",
+      "values": [
+        {
+          "code": "reproduced",
+          "concept_ko": "원본 바이트 해시 일치, 인용이 다시 추출한 해당 페이지에 있음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "hash_mismatch",
+          "concept_ko": "보관 객체의 바이트가 기록된 해시와 다름(보관소 손상 또는 잘못된 객체)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "quote_mismatch",
+          "concept_ko": "원본은 맞으나 인용을 다시 추출한 페이지에서 찾지 못함",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "missing",
+          "concept_ko": "보관소에서 원본을 찾지 못함",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "ocr_not_rerun",
+          "concept_ko": "스캔본의 해시는 확인했으나 OCR을 다시 돌리지 않음. 재현 완료가 아니다",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
+      ]
+    },
+    {
+      "id": "source_change",
+      "name_ko": "현재 출처 변경 감지",
+      "applies_to": "원 URL에서 지금 받은 문서",
+      "layer": "L0-L1",
+      "concept_ko": "원 URL의 현재 문서가 마지막 관측과 같은가. 바뀌었으면 새 원본으로 추가하고 별도 검수 후 새 릴리스에 반영한다. 과거 원본을 교체하거나 과거 검증을 실패로 바꾸지 않는다",
+      "values": [
+        {
+          "code": "unchanged_bytes",
+          "concept_ko": "바이트 해시가 마지막 관측과 같음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "bytes_changed_content_same",
+          "concept_ko": "바이트는 다르고 정규화 본문 해시(보조 지표)는 같음. 바이트 일치가 아니다. 새 원본으로 보존한다",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "changed",
+          "concept_ko": "내용이 바뀐 새 버전 후보. 새 원본으로 보존하고 검수 대기",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "fetch_failed",
+          "concept_ko": "받지 못함(차단·끊김·오류). 변경 여부 미확인",
+          "screen_ko": null,
+          "deprecated_aliases": []
         }
       ]
     },

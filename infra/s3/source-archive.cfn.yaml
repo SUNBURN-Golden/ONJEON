@@ -1,0 +1,169 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  ONJEON source archive (ADR-0015). Two private buckets in ap-northeast-2: raw public-disclosure
+  originals, and derived extraction/OCR outputs. Versioning on, public access blocked, encryption
+  at rest, TLS only. The collector role can add objects but cannot overwrite or delete them.
+  Object Lock is NOT configured here: it is applied only after the retention and release policy
+  in docs/data/DATA_PIPELINE_CONTRACT.md §3.1 is approved.
+
+Parameters:
+  NameSuffix:
+    Type: String
+    AllowedPattern: "^[a-z0-9-]{3,20}$"
+    Description: Globally unique suffix for bucket names (for example an org short name).
+  CollectorPrincipalArn:
+    Type: String
+    Description: ARN of the principal (role) the collection job assumes. It gets add-only access.
+  VerifierPrincipalArn:
+    Type: String
+    Description: ARN of the principal used by re-verification jobs. It gets read-only access.
+
+Conditions:
+  InSeoul: !Equals [!Ref "AWS::Region", "ap-northeast-2"]
+
+Rules:
+  SeoulOnly:
+    Assertions:
+      - Assert: !Equals [!Ref "AWS::Region", "ap-northeast-2"]
+        AssertDescription: The source archive must be created in ap-northeast-2 (Seoul).
+
+Resources:
+  RawBucket:
+    Type: AWS::S3::Bucket
+    Condition: InSeoul
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "onjeon-raw-sources-${NameSuffix}"
+      VersioningConfiguration: { Status: Enabled }
+      OwnershipControls: { Rules: [{ ObjectOwnership: BucketOwnerEnforced }] }
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+            BucketKeyEnabled: true
+      Tags:
+        - { Key: onjeon:store, Value: raw }
+        - { Key: onjeon:data-class, Value: public_product }
+
+  DerivedBucket:
+    Type: AWS::S3::Bucket
+    Condition: InSeoul
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "onjeon-derived-sources-${NameSuffix}"
+      VersioningConfiguration: { Status: Enabled }
+      OwnershipControls: { Rules: [{ ObjectOwnership: BucketOwnerEnforced }] }
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+            BucketKeyEnabled: true
+      Tags:
+        - { Key: onjeon:store, Value: derived }
+        - { Key: onjeon:data-class, Value: public_product }
+
+  RawBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: InSeoul
+    Properties:
+      Bucket: !Ref RawBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: TlsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: [!GetAtt RawBucket.Arn, !Sub "${RawBucket.Arn}/*"]
+            Condition: { Bool: { "aws:SecureTransport": "false" } }
+          - Sid: NoOverwrite
+            # Every write must be conditional (If-None-Match: *), so an existing key is never replaced.
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:PutObject"
+            Resource: !Sub "${RawBucket.Arn}/*"
+            Condition: { "Null": { "s3:if-none-match": "true" } }
+          - Sid: CollectorNeverDeletes
+            Effect: Deny
+            Principal: { AWS: !Ref CollectorPrincipalArn }
+            Action:
+              - s3:DeleteObject
+              - s3:DeleteObjectVersion
+              - s3:PutLifecycleConfiguration
+              - s3:PutBucketVersioning
+              - s3:PutBucketPolicy
+              - s3:DeleteBucketPolicy
+              - s3:PutObjectRetention
+              - s3:PutObjectLegalHold
+              - s3:BypassGovernanceRetention
+            Resource: [!GetAtt RawBucket.Arn, !Sub "${RawBucket.Arn}/*"]
+          - Sid: CollectorAddsOnly
+            Effect: Allow
+            Principal: { AWS: !Ref CollectorPrincipalArn }
+            Action: [s3:PutObject, s3:GetObject, s3:ListBucket]
+            Resource: [!GetAtt RawBucket.Arn, !Sub "${RawBucket.Arn}/*"]
+          - Sid: VerifierReadsOnly
+            Effect: Allow
+            Principal: { AWS: !Ref VerifierPrincipalArn }
+            Action: [s3:GetObject, s3:GetObjectVersion, s3:ListBucket, s3:ListBucketVersions]
+            Resource: [!GetAtt RawBucket.Arn, !Sub "${RawBucket.Arn}/*"]
+
+  DerivedBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: InSeoul
+    Properties:
+      Bucket: !Ref DerivedBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: TlsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: [!GetAtt DerivedBucket.Arn, !Sub "${DerivedBucket.Arn}/*"]
+            Condition: { Bool: { "aws:SecureTransport": "false" } }
+          - Sid: NoOverwrite
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:PutObject"
+            Resource: !Sub "${DerivedBucket.Arn}/*"
+            Condition: { "Null": { "s3:if-none-match": "true" } }
+          - Sid: CollectorNeverDeletes
+            Effect: Deny
+            Principal: { AWS: !Ref CollectorPrincipalArn }
+            Action:
+              - s3:DeleteObject
+              - s3:DeleteObjectVersion
+              - s3:PutLifecycleConfiguration
+              - s3:PutBucketVersioning
+              - s3:PutBucketPolicy
+              - s3:DeleteBucketPolicy
+            Resource: [!GetAtt DerivedBucket.Arn, !Sub "${DerivedBucket.Arn}/*"]
+          - Sid: CollectorAddsOnly
+            Effect: Allow
+            Principal: { AWS: !Ref CollectorPrincipalArn }
+            Action: [s3:PutObject, s3:GetObject, s3:ListBucket]
+            Resource: [!GetAtt DerivedBucket.Arn, !Sub "${DerivedBucket.Arn}/*"]
+          - Sid: VerifierReadsOnly
+            Effect: Allow
+            Principal: { AWS: !Ref VerifierPrincipalArn }
+            Action: [s3:GetObject, s3:GetObjectVersion, s3:ListBucket, s3:ListBucketVersions]
+            Resource: [!GetAtt DerivedBucket.Arn, !Sub "${DerivedBucket.Arn}/*"]
+
+Outputs:
+  RawBucketName:
+    Condition: InSeoul
+    Value: !Ref RawBucket
+  DerivedBucketName:
+    Condition: InSeoul
+    Value: !Ref DerivedBucket

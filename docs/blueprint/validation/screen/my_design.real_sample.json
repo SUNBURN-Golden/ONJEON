@@ -76,7 +76,11 @@
           ]
         }
       ],
-      "detail": "coverage_detail.cancer.json"
+      "detail": "coverage_detail.cancer.json",
+      "subtitle_refs": [
+        "kyobo_cancer#f_main_waiting",
+        "kyobo_cancer#f_main_reduction"
+      ]
     },
     {
       "id": "hospital_surgery",
@@ -101,6 +105,9 @@
             "kyobo_cancer#f_surg_classification"
           ]
         }
+      ],
+      "subtitle_refs": [
+        "kyobo_cancer#c_surg_annex1_class5"
       ]
     },
     {

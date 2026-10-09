@@ -27,6 +27,11 @@ try:
 except ImportError:
     HAVE_BOTO = False
 
+
+def boto_can_put_conditionally():
+    model = boto3.client("s3", region_name="auto", aws_access_key_id="k", aws_secret_access_key="s").meta.service_model
+    return "IfNoneMatch" in model.operation_model("PutObject").input_shape.members
+
 R2 = "https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com"
 FAKE = {"R2_ACCESS_KEY_ID": "k" * 32, "R2_SECRET_ACCESS_KEY": "s" * 64}
 
@@ -46,6 +51,17 @@ class Provider(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_BOTO, "boto3 not installed")
+class OldBotocore(unittest.TestCase):
+    def test_store_refuses_to_write_without_conditional_put(self):
+        if boto_can_put_conditionally():
+            self.skipTest("installed botocore supports If-None-Match")
+        with mock.patch.dict(os.environ, FAKE, clear=False):
+            with self.assertRaises(SystemExit) as cm:
+                sa.S3Store("s3://onjeon-raw-sources", R2)
+        self.assertIn("If-None-Match", str(cm.exception))
+
+
+@unittest.skipUnless(HAVE_BOTO and boto_can_put_conditionally(), "boto3 missing or older than 1.35")
 class R2Store(unittest.TestCase):
     def store(self, endpoint=R2, env=FAKE):
         with mock.patch.dict(os.environ, env, clear=False):

@@ -16,7 +16,9 @@ jobs:
         run: python3 tools/validation_check.py
       - name: Validation checker self-test (each known tampering must fail for its intended reason)
         run: python3 tools/validation_check.py --selftest
-      - name: HTML content-hash rule tests (synthetic fixture; archived originals are not in CI)
+      - name: Python test dependency (S3-compatible store tests need conditional put, boto3 >= 1.35)
+        run: python3 -m pip install --quiet --user --break-system-packages boto3==1.43.100
+      - name: Python unit tests (content hash, archive writes, reproduction, store providers; archived originals are not in CI)
         run: python3 -m unittest discover -s tools/tests -v
       - name: Toolchain
         run: rustup component add rustfmt clippy

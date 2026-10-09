@@ -62,7 +62,7 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 
 ## 5. 첫 실행 (전달 묶음 → R2)
 
-원본 묶음(`onjeon-raw-sources-20261009.tar.gz` 3조각, 합친 파일 SHA-256 `50b6ff6b341d9d7caaee92655dbdc5610b415bbcf38204a2b87cd9642492892e`)과 파생 v2 묶음(`onjeon-derived-sources-20261009-v2.tar.gz`)을 푼 위치에서. 필요한 것: Python 3, `pip install boto3 pdfplumber==0.11.10`, poppler-utils(`pdftotext`).
+원본 묶음(`onjeon-raw-sources-20261009.tar.gz` 3조각, 합친 파일 SHA-256 `50b6ff6b341d9d7caaee92655dbdc5610b415bbcf38204a2b87cd9642492892e`)과 파생 v2 묶음(`onjeon-derived-sources-20261009-v2.tar.gz`)을 푼 위치에서. 필요한 것: Python 3, `pip install "boto3>=1.35" pdfplumber==0.11.10`(boto3 1.35 미만은 조건부 쓰기를 보내지 못해 도구가 쓰기 전에 멈춘다), poppler-utils(`pdftotext`).
 
 ```bash
 L=docs/blueprint/validation/source_checks

@@ -146,10 +146,19 @@ class S3Store:
                 raise SystemExit("R2 endpoint selected but R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY are not set")
             kw = {"aws_access_key_id": key, "aws_secret_access_key": secret}
         # checksums only when we send one ourselves (SHA-256 below); keeps S3-compatible stores working
-        cfg = Config(signature_version="s3v4", retries={"max_attempts": 5, "mode": "standard"},
-                     request_checksum_calculation="when_required", response_checksum_validation="when_required")
+        base = {"signature_version": "s3v4", "retries": {"max_attempts": 5, "mode": "standard"}}
+        try:  # botocore >= 1.36 adds default CRC checksums; older versions have neither the default nor the option
+            cfg = Config(**base, request_checksum_calculation="when_required",
+                         response_checksum_validation="when_required")
+        except TypeError:
+            cfg = Config(**base)
         self.s3 = boto3.client("s3", region_name="auto" if self.provider == "r2" else "ap-northeast-2",
                                endpoint_url=endpoint_url, config=cfg, **kw)
+        put = self.s3.meta.service_model.operation_model("PutObject").input_shape.members
+        if "IfNoneMatch" not in put:  # botocore before 1.35 cannot send a conditional put: never write unguarded
+            import botocore
+            raise SystemExit(f"botocore {botocore.__version__} cannot send If-None-Match on PutObject; "
+                             "install boto3>=1.35 (tested with 1.43.100)")
 
     def _k(self, key):
         return f"{self.prefix}/{key}" if self.prefix else key

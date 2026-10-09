@@ -18,6 +18,7 @@ from pathlib import Path
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import r2_budget  # noqa: E402
 import source_archive as sa  # noqa: E402
 
 try:
@@ -55,17 +56,36 @@ class OldBotocore(unittest.TestCase):
     def test_store_refuses_to_write_without_conditional_put(self):
         if boto_can_put_conditionally():
             self.skipTest("installed botocore supports If-None-Match")
-        with mock.patch.dict(os.environ, FAKE, clear=False):
-            with self.assertRaises(SystemExit) as cm:
-                sa.S3Store("s3://onjeon-raw-sources", R2)
+        r2_budget.ACTIVE = mock.Mock(meter=None, policy={"per_request": {"max_attempts": 3}})
+        try:
+            with mock.patch.dict(os.environ, FAKE, clear=False):
+                with self.assertRaises(SystemExit) as cm:
+                    sa.S3Store("s3://onjeon-raw-sources", R2)
+        finally:
+            r2_budget.ACTIVE = None
         self.assertIn("If-None-Match", str(cm.exception))
 
 
 @unittest.skipUnless(HAVE_BOTO and boto_can_put_conditionally(), "boto3 missing or older than 1.35")
 class R2Store(unittest.TestCase):
+    """Request parameters only: a budget session without a meter (limits are tested in test_r2_budget)."""
+
+    def setUp(self):
+        r2_budget.ACTIVE = mock.Mock(meter=None, policy={"per_request": {"max_attempts": 3}})
+
+    def tearDown(self):
+        r2_budget.ACTIVE = None
+
     def store(self, endpoint=R2, env=FAKE):
         with mock.patch.dict(os.environ, env, clear=False):
             return sa.S3Store("s3://onjeon-raw-sources", endpoint)
+
+    def test_no_budget_session_sends_nothing(self):
+        r2_budget.ACTIVE = None
+        with mock.patch.dict(os.environ, FAKE, clear=False):
+            with self.assertRaises(SystemExit) as cm:
+                sa.S3Store("s3://onjeon-raw-sources", R2)
+        self.assertIn("budget job", str(cm.exception))
 
     def test_missing_r2_credentials_never_fall_back_to_aws_chain(self):
         env = {k: "" for k in FAKE}
@@ -100,12 +120,38 @@ class R2Store(unittest.TestCase):
             stub.add_response("put_object", {}, self.expected_put(b"x", sse=True))
             st.put_new("k", b"x", "text/plain")
 
+    def head_absent(self, stub):
+        stub.add_client_error("head_object", service_error_code="404", http_status_code=404)
+
+    def test_stored_checksum_decides_without_sending_bytes(self):
+        st = self.store()
+        same = base64.b64encode(hashlib.sha256(b"x").digest()).decode()
+        with Stubber(st.s3) as stub:
+            stub.add_response("head_object", {"ChecksumSHA256": same},
+                              {"Bucket": "onjeon-raw-sources", "Key": "k", "ChecksumMode": "ENABLED"})
+            self.assertEqual(sa.put_once(st, "k", b"x", "text/plain"), "already_present")
+            stub.add_response("head_object", {"ChecksumSHA256": same},
+                              {"Bucket": "onjeon-raw-sources", "Key": "k", "ChecksumMode": "ENABLED"})
+            with self.assertRaises(sa.Conflict):
+                sa.put_once(st, "k", b"y", "text/plain")
+            stub.assert_no_pending_responses()  # no put_object was sent
+
+    def test_existing_key_without_checksum_is_compared_by_download_not_reuploaded(self):
+        st = self.store()
+        with Stubber(st.s3) as stub:
+            stub.add_response("head_object", {}, {"Bucket": "onjeon-raw-sources", "Key": "k", "ChecksumMode": "ENABLED"})
+            stub.add_response("get_object", {"Body": io.BytesIO(b"x")}, {"Bucket": "onjeon-raw-sources", "Key": "k"})
+            self.assertEqual(sa.put_once(st, "k", b"x", "text/plain"), "already_present")
+            stub.assert_no_pending_responses()
+
     def test_412_is_exists_and_put_once_compares_bytes(self):
         st = self.store()
         with Stubber(st.s3) as stub:
+            self.head_absent(stub)
             stub.add_client_error("put_object", service_error_code="PreconditionFailed", http_status_code=412)
             stub.add_response("get_object", {"Body": io.BytesIO(b"x")}, {"Bucket": "onjeon-raw-sources", "Key": "k"})
             self.assertEqual(sa.put_once(st, "k", b"x", "text/plain"), "already_present")
+            self.head_absent(stub)
             stub.add_client_error("put_object", service_error_code="PreconditionFailed", http_status_code=412)
             stub.add_response("get_object", {"Body": io.BytesIO(b"old")}, {"Bucket": "onjeon-raw-sources", "Key": "k"})
             with self.assertRaises(sa.Conflict):

@@ -1,6 +1,6 @@
 # 원본 보관소 (Cloudflare R2)
 
-결정: ADR-0016(사용자 결정, 2026-10-09, D14의 보관소 제공자를 AWS S3에서 R2로 바꿈). 계약: `docs/data/DATA_PIPELINE_CONTRACT.md` §3.1. AWS용 정의(`infra/s3/`)는 쓰지 않지만 대안으로 남긴다.
+결정: ADR-0016(사용자 결정, 2026-10-09, D14의 보관소 제공자를 AWS S3에서 R2로 바꿈). 비용 제한: ADR-0017, [BUDGET.md](BUDGET.md). **모든 R2 요청은 작업 파일(`--job`)과 예약 원장을 거친다.** 계약: `docs/data/DATA_PIPELINE_CONTRACT.md` §3.1. AWS용 정의(`infra/s3/`)는 쓰지 않지만 대안으로 남긴다.
 
 비밀키는 이 문서·Git·로그·대화에 쓰지 않는다. 계정 엔드포인트(계정 ID 포함)도 공개 저장소에 쓰지 않고 환경 변수 `ONJEON_S3_ENDPOINT`로만 넘긴다.
 
@@ -10,6 +10,7 @@
 |---|---|---|
 | `onjeon-raw-sources` | 공시 PDF·HTML·보험료표 원본(받은 바이트 그대로)과 수집 관측 기록 | `objects/sha256/<aa>/<bb>/<sha256>`, `observations/<source_id>/<시각>_<해시앞16>.json` |
 | `onjeon-derived-sources` | 원본에서 만든 추출·OCR 결과와 파생 명세 | `derived/<원본 sha256>/<종류>/<도구>@<버전>/<파일>`, `derived/<원본 sha256>/manifests/<명세 sha256>.json` |
+| `onjeon-budget-ledger` | 비용 한도 예약·정산 원장(한 번만 쓰는 기록) | `ledger/v1/<순번 10자리>.json` |
 
 개인 계약·건강·가족력·DNA 자료는 이 버킷들에 넣지 않는다.
 
@@ -34,19 +35,20 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 ## 3. 사용자가 할 설정
 
 1. **버킷 공개 주소 끄기 확인:** 두 버킷의 Settings에서 r2.dev 공개 접근과 사용자 도메인이 꺼져 있는지 확인한다.
-2. **API 토큰 두 개**(R2 → Manage API tokens):
-   - 수집 토큰: 권한 **Object Read & Write**, 버킷은 `onjeon-raw-sources`, `onjeon-derived-sources` 두 개로만 제한. 만료일을 둔다.
-   - 검증 토큰: 권한 **Object Read only**, 같은 두 버킷.
-   - Admin 권한 토큰은 만들지 않는다(버킷 설정·잠금 변경·버킷 삭제가 가능해진다).
+2. **API 토큰**(R2 → Manage API tokens). 버킷을 지정하고 만료일을 둔다. Admin 권한 토큰은 만들지 않는다(버킷 설정·잠금 변경·버킷 삭제가 가능해진다).
+   - 수집 토큰: Object Read & Write, 버킷 `onjeon-raw-sources`, `onjeon-derived-sources`, `onjeon-budget-ledger`.
+   - 검증 토큰: Object Read only, 버킷 `onjeon-raw-sources`, `onjeon-derived-sources`.
+   - 원장 토큰(GitHub용): Object Read & Write, 버킷 `onjeon-budget-ledger`만.
 3. **이 Claude 환경에 등록**(세션 제목 표시줄의 환경 메뉴 → Edit → Network secrets, 없으면 환경 변수). 대화창에 붙여 넣지 않는다. 등록은 새 세션부터 적용된다.
 
    | 변수 | 값 |
    |---|---|
-   | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | 수집 토큰의 Access Key ID와 Secret Access Key |
+   | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | 수집 토큰 |
    | `ONJEON_S3_ENDPOINT` | `https://<계정 ID>.r2.cloudflarestorage.com` |
 
-   R2 엔드포인트를 쓰면 도구는 `R2_*` 변수만 읽는다. 이 환경의 `AWS_ACCESS_KEY_ID`·`AWS_SECRET_ACCESS_KEY`에 든 자리표시자로 대신하지 않는다.
-4. **GitHub 재검증**(선택): 저장소 Secrets `R2_VERIFIER_ACCESS_KEY_ID`, `R2_VERIFIER_SECRET_ACCESS_KEY`, `ONJEON_S3_ENDPOINT`(검증 토큰), Variables `ONJEON_RAW_BUCKET=onjeon-raw-sources`, `ONJEON_DERIVED_BUCKET=onjeon-derived-sources`. `sources` 워크플로는 main에 있어야 실행할 수 있다.
+   R2 엔드포인트를 쓰면 도구는 `R2_*` 변수만 읽는다(원장은 `R2_LEDGER_*`가 있으면 그것). 이 환경의 `AWS_*` 자리표시자로 대신하지 않는다.
+4. **GitHub 재검증**(선택): Secrets `ONJEON_S3_ENDPOINT`, `R2_VERIFIER_ACCESS_KEY_ID`·`R2_VERIFIER_SECRET_ACCESS_KEY`(검증 토큰), `R2_LEDGER_ACCESS_KEY_ID`·`R2_LEDGER_SECRET_ACCESS_KEY`(원장 토큰). Variables `ONJEON_RAW_BUCKET=onjeon-raw-sources`, `ONJEON_DERIVED_BUCKET=onjeon-derived-sources`. 워크플로는 main에 있어야 실행되고, 동시에 하나만 돈다.
+5. **예산 알림**(권장): Billing → Billable Usage → Set Budget Alert. 이메일 알림일 뿐 과금을 막지 않는다.
 
 ## 4. 버킷 잠금 정책 초안 (O14, 승인 전 적용하지 않음)
 
@@ -60,23 +62,22 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 
 승인되면 결정 원장 O14를 닫고 ADR로 남긴 뒤 적용한다.
 
-## 5. 첫 실행 (전달 묶음 → R2)
-
-원본 묶음(`onjeon-raw-sources-20261009.tar.gz` 3조각, 합친 파일 SHA-256 `50b6ff6b341d9d7caaee92655dbdc5610b415bbcf38204a2b87cd9642492892e`)과 파생 v2 묶음(`onjeon-derived-sources-20261009-v2.tar.gz`)을 푼 위치에서. 필요한 것: Python 3, `pip install "boto3>=1.35" pdfplumber==0.11.10`(boto3 1.35 미만은 조건부 쓰기를 보내지 못해 도구가 쓰기 전에 멈춘다), poppler-utils(`pdftotext`).
+## 5. 실행 (모두 비용 한도 안에서)
 
 ```bash
-L=docs/blueprint/validation/source_checks
-python3 -I tools/source_archive.py copy --src file://$PWD/raw     --dst s3://onjeon-raw-sources
-python3 -I tools/source_archive.py copy --src file://$PWD/derived --dst s3://onjeon-derived-sources
-# 다시 받아 대조: Git에 고정한 키·해시 목록과 모든 키(원본 16, 관측 42, 파생 47, 파생 명세 14)
-python3 -I tools/source_archive.py verify-copy --expected $L/archive_listing_raw.json        --dst s3://onjeon-raw-sources     --report raw_r2.json
-python3 -I tools/source_archive.py verify-copy --expected $L/archive_listing_derived_v2.json --dst s3://onjeon-derived-sources --report derived_r2.json
-# 표본 14건의 원본 해시와 고정한 파생 명세(해시·원본 연결·출력 존재와 해시), 재생성 비교
-python3 -I tools/source_archive.py verify --raw s3://onjeon-raw-sources --report verify_r2.json
-python3 -I tools/verify_sources.py reproduce --raw s3://onjeon-raw-sources --derived s3://onjeon-derived-sources --ocr --report reproduce_r2.json
+J=infra/r2/jobs/initial-119.json; L=docs/blueprint/validation/source_checks
+# 업로드: 이미 있는 키는 HEAD로 저장 SHA-256만 비교하고 바이트를 보내지 않는다
+python3 -I tools/source_archive.py --job "$J#upload" copy --src file://$PWD/raw     --dst s3://onjeon-raw-sources
+python3 -I tools/source_archive.py --job "$J#upload" copy --src file://$PWD/derived --dst s3://onjeon-derived-sources
+# 대조: Git에 고정한 키·해시 목록과 모든 키(원본 16, 관측 42, 파생 47, 파생 명세 14)
+python3 -I tools/source_archive.py --job "$J" verify-copy --expected $L/archive_listing_raw.json        --dst s3://onjeon-raw-sources
+python3 -I tools/source_archive.py --job "$J" verify-copy --expected $L/archive_listing_derived_v2.json --dst s3://onjeon-derived-sources
+python3 -I tools/source_archive.py --job "$J" verify --raw s3://onjeon-raw-sources
+python3 -I tools/verify_sources.py --job "$J" reproduce --raw s3://onjeon-raw-sources --derived s3://onjeon-derived-sources --ocr
+python3 -I tools/r2_budget.py status --job "$J"     # 남은 한도
 ```
 
-`copy`는 덮어쓰지 않는다. 같은 키에 다른 바이트가 있으면 종료 코드 3으로 멈춘다. `verify-copy`는 묶음이 없어도 Git의 목록만으로 실행할 수 있다.
+종료 코드: 0 성공, 1 검사 실패, 3 쓰기 충돌(덮어쓰지 않음), 4 비용 한도 도달 또는 원장 검증 실패(요청 전 중단). 필요한 것: Python 3, `pip install "boto3>=1.35" pdfplumber==0.11.10`(boto3 1.35 미만은 조건부 쓰기를 보내지 못해 도구가 쓰기 전에 멈춘다), poppler-utils(`pdftotext`), OCR 재실행 시 tesseract(kor).
 
 ## 6. 검증한 것과 하지 않은 것 (2026-10-09)
 

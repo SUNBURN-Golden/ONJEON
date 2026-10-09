@@ -1,0 +1,31 @@
+{
+ "policy": "onjeon-r2-budget-v1",
+ "note": "Client-side limits enforced by tools/r2_budget.py before each request. R2 itself has no hard spending cap; a Cloudflare budget alert only sends an email. Monthly caps reset at the start of each UTC month; put_bytes counts all uploads ever made (the archive never deletes, so uploads = storage). Raising a cap is a reviewed Git change: add the old file's SHA-256 to previous_policy_sha256.",
+ "ledger_bucket": "onjeon-budget-ledger",
+ "caps": {
+  "put_bytes": 2000000000,
+  "get_bytes": 20000000000,
+  "class_a": 20000,
+  "class_b": 200000,
+  "retries": 500,
+  "seconds": 72000
+ },
+ "per_request": {
+  "max_object_bytes": 67108864,
+  "max_attempts": 3,
+  "reserve_attempts": 5,
+  "max_ledger_records": 500
+ },
+ "free_tier_reference": {
+  "source": "developers.cloudflare.com/r2/pricing (checked 2026-10-09)",
+  "storage_gb_month": 10,
+  "class_a_per_month": 1000000,
+  "class_b_per_month": 10000000,
+  "applies_to": "Standard storage only, account-wide (shared with any other R2 use on the account)"
+ },
+ "previous_policy_sha256": [
+  "969f07a0559ec9d85562ff5054207f1056ec3f3fc70863201e3fa8a40df67376"
+ ],
+ "ledger_genesis_sha256": "22d5454c281b6ef9a6c55c69c1147cfae867d3a1fa9dd2a1efcf7ea3c19ace17",
+ "ledger_genesis_note": "SHA-256 of ledger record 1 (pre-ledger usage, written 2026-10-09). A ledger that is empty or starts with another record stops every run."
+}

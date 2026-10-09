@@ -1,0 +1,50 @@
+{
+ "job_id": "initial-119-2026-10-09",
+ "purpose": "Upload and verify exactly the 119 pinned keys (raw 58, derived v2 61). No other key, bucket or operation.",
+ "buckets": {
+  "onjeon-raw-sources": {
+   "listing": "docs/blueprint/validation/source_checks/archive_listing_raw.json",
+   "listing_sha256": "612091ff1da5c46e754451440768c929ca62b602c2eae8d52b9721a52150b222"
+  },
+  "onjeon-derived-sources": {
+   "listing": "docs/blueprint/validation/source_checks/archive_listing_derived_v2.json",
+   "listing_sha256": "9b10d89b224271f0af59cd63d5263ff49fc316458dea192703e4f9a00ab1fc29"
+  }
+ },
+ "job_caps_note": "All runs of this job together, including the usage recorded before the ledger existed (ledger seq 1). Sized for one upload run and two full verification rounds (verify-copy raw, verify-copy derived, verify, reproduce = 4 verify runs each). Pinned bytes: raw 84,672,102 + derived 19,611,663 = 104,283,765.",
+ "job_caps": {
+  "put_bytes": 315200000,
+  "get_bytes": 3100000000,
+  "class_a": 1100,
+  "class_b": 4400,
+  "retries": 120,
+  "seconds": 34200
+ },
+ "run_profiles": {
+  "verify": {
+   "put_bytes": 16384,
+   "get_bytes": 300000000,
+   "class_a": 60,
+   "class_b": 400,
+   "retries": 10,
+   "seconds": 3600
+  },
+  "upload": {
+   "put_bytes": 105000000,
+   "get_bytes": 40000000,
+   "class_a": 160,
+   "class_b": 160,
+   "retries": 10,
+   "seconds": 1800
+  },
+  "status": {
+   "put_bytes": 8192,
+   "get_bytes": 2000000,
+   "class_a": 4,
+   "class_b": 1100,
+   "retries": 3,
+   "seconds": 300
+  }
+ },
+ "run_profiles_note": "A run reserves its profile in full before any request. When it finishes it records what it measured (never more than reserved) and only that counts; a run that crashes or never settles keeps its whole reservation. verify reserves 16 KiB of uploads for its two ledger records; any upload is still limited to the pinned keys with their exact bytes. status reads the ledger (up to 2 x max_ledger_records GETs)."
+}

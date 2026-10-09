@@ -418,6 +418,7 @@ def report(kind, args, results, ok):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--endpoint-url", help="S3 API endpoint (R2 or an emulator); default $ONJEON_S3_ENDPOINT, else AWS")
+    ap.add_argument("--job", help="budget job (infra/r2/jobs/*.json); required for R2/AWS targets")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("reproduce")
     src = s.add_mutually_exclusive_group(required=True)
@@ -444,7 +445,8 @@ def main():
         print("pdfplumber is required (pip install pdfplumber==0.11.10)")
         return 2
     args.endpoint_url = getattr(args, "endpoint_url", None)
-    return cmd_reproduce(args) if args.cmd == "reproduce" else cmd_detect(args)
+    return sa.with_budget(args.job, args.endpoint_url,
+                          lambda: cmd_reproduce(args) if args.cmd == "reproduce" else cmd_detect(args))
 
 
 if __name__ == "__main__":

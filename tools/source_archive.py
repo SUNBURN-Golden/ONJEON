@@ -51,6 +51,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))  # r2_budget; -I leaves the script directory off sys.path
 SAMPLES = ROOT / "docs/blueprint/validation/samples.csv"
 SAFE_ID = re.compile(r"^[a-z0-9_]+$")
 
@@ -67,6 +68,9 @@ class Exists(Exception):
     pass
 
 
+ABSENT = object()  # stored_sha256(): the key does not exist
+
+
 class Conflict(Exception):
     """A key already holds different bytes. Nothing was overwritten; the run must stop."""
 
@@ -77,6 +81,14 @@ def put_once(st, key, body, content_type):
     Every write in this module goes through here, so a re-run can never silently keep an old
     object while reporting the hash of a new input.
     """
+    stored = st.stored_sha256(key) if hasattr(st, "stored_sha256") else ABSENT
+    if stored is not ABSENT:  # S3: the key exists; decide without uploading the bytes again
+        if stored is None:  # no checksum recorded: compare by downloading
+            stored = sha256_bytes(st.get(key))
+        if stored != sha256_bytes(body):
+            raise Conflict(f"{key}: stored sha256 {stored[:16]}… differs from new input "
+                           f"{sha256_bytes(body)[:16]}…; not overwritten")
+        return "already_present"
     try:
         st.put_new(key, body, content_type)
         return "stored"
@@ -97,9 +109,14 @@ class LocalStore:
         if p.exists():
             raise Exists(key)
         p.parent.mkdir(parents=True, exist_ok=True)
-        tmp = p.with_name(p.name + ".partial")
+        tmp = p.with_name(f"{p.name}.{os.getpid()}.{id(body)}.partial")
         tmp.write_bytes(body)
-        tmp.rename(p)
+        try:
+            os.link(tmp, p)  # atomic create-if-absent: a concurrent writer gets Exists, never an overwrite
+        except FileExistsError:
+            raise Exists(key)
+        finally:
+            tmp.unlink()
 
     def get(self, key):
         return (self.root / key).read_bytes()
@@ -131,7 +148,7 @@ def provider_of(endpoint_url):
 
 
 class S3Store:
-    def __init__(self, url, endpoint_url=None):
+    def __init__(self, url, endpoint_url=None, ledger=False):
         import boto3  # only needed for s3:// targets
         from botocore.config import Config
         rest = url[len("s3://"):]
@@ -139,14 +156,23 @@ class S3Store:
         self.prefix = prefix.strip("/")
         endpoint_url = endpoint_url or os.environ.get("ONJEON_S3_ENDPOINT") or None
         self.provider = provider_of(endpoint_url)
+        import r2_budget
+        budget = r2_budget.ACTIVE
+        if self.provider in ("aws", "r2") and budget is None and not ledger:
+            raise SystemExit(f"{self.provider} access needs a budget job (--job infra/r2/jobs/<job>.json); "
+                             "nothing was sent")
         kw = {}
         if self.provider == "r2":
             key, secret = os.environ.get("R2_ACCESS_KEY_ID"), os.environ.get("R2_SECRET_ACCESS_KEY")
+            if ledger and os.environ.get("R2_LEDGER_ACCESS_KEY_ID"):
+                key, secret = os.environ.get("R2_LEDGER_ACCESS_KEY_ID"), os.environ.get("R2_LEDGER_SECRET_ACCESS_KEY")
             if not (key and secret):  # never fall back to the AWS chain for R2
                 raise SystemExit("R2 endpoint selected but R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY are not set")
             kw = {"aws_access_key_id": key, "aws_secret_access_key": secret}
         # checksums only when we send one ourselves (SHA-256 below); keeps S3-compatible stores working
-        base = {"signature_version": "s3v4", "retries": {"max_attempts": 5, "mode": "standard"}}
+        attempts = budget.policy["per_request"]["max_attempts"] if budget else 3
+        base = {"signature_version": "s3v4", "retries": {"max_attempts": attempts, "mode": "standard"},
+                "connect_timeout": 10, "read_timeout": 120}
         try:  # botocore >= 1.36 adds default CRC checksums; older versions have neither the default nor the option
             cfg = Config(**base, request_checksum_calculation="when_required",
                          response_checksum_validation="when_required")
@@ -159,6 +185,9 @@ class S3Store:
             import botocore
             raise SystemExit(f"botocore {botocore.__version__} cannot send If-None-Match on PutObject; "
                              "install boto3>=1.35 (tested with 1.43.100)")
+        self.meter = budget.meter if budget else None
+        if self.meter and not ledger:
+            self.meter.attach(self.s3, "archive")
 
     def _k(self, key):
         return f"{self.prefix}/{key}" if self.prefix else key
@@ -182,7 +211,26 @@ class S3Store:
             raise
 
     def get(self, key):
-        return self.s3.get_object(Bucket=self.bucket, Key=self._k(key))["Body"].read()
+        r = self.s3.get_object(Bucket=self.bucket, Key=self._k(key))
+        if self.meter:  # refuse to read a body that would exceed the byte limit
+            try:
+                self.meter.charge_get_bytes(r.get("ContentLength") or 0)
+            except BaseException:
+                r["Body"].close()
+                raise
+        return r["Body"].read()
+
+    def stored_sha256(self, key):
+        """HEAD (Class B): ABSENT, the SHA-256 recorded at upload, or None if it exists without one."""
+        from botocore.exceptions import ClientError
+        try:
+            h = self.s3.head_object(Bucket=self.bucket, Key=self._k(key), ChecksumMode="ENABLED")
+        except ClientError as e:
+            if e.response["Error"]["Code"] in ("404", "NoSuchKey", "NotFound"):
+                return ABSENT
+            raise
+        c = h.get("ChecksumSHA256")
+        return base64.b64decode(c).hex() if c and "-" not in c else None
 
     def exists(self, key):
         from botocore.exceptions import ClientError
@@ -434,6 +482,7 @@ def cmd_verify_copy(a):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--endpoint-url", help="S3 API endpoint (R2 or an emulator); default $ONJEON_S3_ENDPOINT, else AWS")
+    ap.add_argument("--job", help="budget job (infra/r2/jobs/*.json); required for R2/AWS targets")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("archive-samples")
     s.add_argument("--cache", required=True)
@@ -464,11 +513,32 @@ def main():
     s.add_argument("--dst", required=True)
     s.add_argument("--report")
     a = ap.parse_args()
+    return with_budget(a.job, a.endpoint_url, lambda: run(a))
+
+
+def with_budget(job, endpoint_url, fn):
+    """Run fn inside a budget session when a job is given; always settle; print the usage."""
+    import r2_budget
+    outcome, code = "error", 1
     try:
-        return run(a)
+        if job:
+            r2_budget.start(job, endpoint_url)
+        code = fn()
+        outcome = "ok" if code == 0 else f"exit_{code}"
+        return code
     except Conflict as e:
         print(f"conflict: {e}", file=sys.stderr)
+        outcome, code = "conflict", 3
         return 3
+    except r2_budget.BudgetError as e:
+        print(str(e), file=sys.stderr)
+        outcome, code = "budget_stop", 4
+        return 4
+    finally:
+        if job:
+            summary = r2_budget.finish(outcome)
+            print("budget " + (json.dumps(summary) if summary else "no reservation made; no archive request was sent"),
+                  file=sys.stderr)
 
 
 def run(a):

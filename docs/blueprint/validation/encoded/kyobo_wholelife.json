@@ -1,0 +1,63 @@
+{
+  "encoding_version": "validation-0.1",
+  "status": {"data_kind": "design_validation", "interpretation": "ai_unreviewed", "service_use": "forbidden"},
+  "family": "kyobo_wholelife",
+  "structures": [5, 7, 8],
+  "product_version": {
+    "insurer": "교보생명", "product_name": "교보K-실속종신보험 (무배당)", "version_label": "2026.06.29 판매본",
+    "sale_status": "on_sale", "effective_from": "2026-06-29", "channel": null
+  },
+  "documents": [
+    {"doc_id": "d_terms", "sample_id": "kyobo_wholelife_terms", "extract": "extracts/kyobo_wholelife_terms.md", "doc_role": "terms", "sha256": "052dd4693601b0f5d4bf9ffb5b1f3bc47b39be0c9ad6706b36eaeb6929be4032", "observed_at": "2026-10-09T04:42:50Z", "extractor": "poppler pdftotext -layout"},
+    {"doc_id": "d_sum", "sample_id": "kyobo_wholelife_summary", "extract": "extracts/kyobo_wholelife_summary.md", "doc_role": "summary", "sha256": "71a5602b26b0f01cce298a5f988bbaa4c1293f2ca1d82dec30ef92d787ee2736", "observed_at": "2026-10-09T04:26:31Z", "extractor": "poppler pdftotext -layout"}
+  ],
+  "clauses": [
+    {"clause_id": "c_art3", "doc_id": "d_terms", "page": 31, "clause_path": "주계약 제3조", "clause_path_basis": "printed", "kind": "body", "anchor": "2. 제1보험기간 중 재해 이외의 원인으로 사망한 경우 : 질병사 망보험금"},
+    {"clause_id": "c_art8_1", "doc_id": "d_terms", "page": 36, "clause_path": "주계약 제8조1호가", "clause_path_basis": "printed", "kind": "body", "anchor": "보험기간에는 제3조(보험금의 지급사유) 제1호에 의한 재 해사망보험금을"},
+    {"clause_id": "c_art8_1_b", "doc_id": "d_terms", "page": 36, "clause_path": "주계약 제8조1호나", "clause_path_basis": "printed", "kind": "body", "anchor": "력회복)청약일]부터 2년이 지난 후에 자살한 경우 제1보 험기간에는 제3조(보험금의 지급사유) 제2호에 의한 질병 사망보험금을"},
+    {"clause_id": "c_art8_2_3", "doc_id": "d_terms", "page": 37, "clause_path": "주계약 제8조2·3호", "clause_path_basis": "printed", "kind": "body", "anchor": "다른 보험수익자에 대한 보험금은 지급합니다. 3. 계약자가 고의로 피보험자를 해친 경우"},
+    {"clause_id": "c_annex1_period", "doc_id": "d_terms", "page": 77, "clause_path": "별표1 1. 보험기간", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "5년경과 계약해당일부터 종신까지"},
+    {"clause_id": "c_annex1_accident", "doc_id": "d_terms", "page": 77, "clause_path": "별표1 2. 제1보험기간 재해사망보험금", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "+ 추가계약자적립액"},
+    {"clause_id": "c_annex1_disease", "doc_id": "d_terms", "page": 77, "clause_path": "별표1 2. 제1보험기간 질병사망보험금", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "기본보험금액의 50% + 1년"},
+    {"clause_id": "c_annex4_scope", "doc_id": "d_terms", "page": 82, "clause_path": "별표4 재해분류표 1.", "clause_path_basis": "printed", "kind": "annex", "anchor": "① 한국표준질병∙사인분류상의 (S00~Y84)에 해당하는 우발적인 외래의 사고"},
+    {"clause_id": "c_annex4_self_harm_excluded", "doc_id": "d_terms", "page": 82, "clause_path": "별표4 재해분류표 2.②", "clause_path_basis": "printed", "kind": "annex", "anchor": "- 고의적 자해(X60~X84)"},
+    {"clause_id": "c_annex4_medical", "doc_id": "d_terms", "page": 82, "clause_path": "별표4 재해분류표 2.③", "clause_path_basis": "printed", "kind": "annex", "anchor": "과적 처치(Y83~Y84)는 보장)"},
+    {"clause_id": "c_annex4_u_codes", "doc_id": "d_terms", "page": 82, "clause_path": "별표4 재해분류표 2.⑥", "clause_path_basis": "printed", "kind": "annex", "anchor": "⑥ 한국표준질병∙사인분류상의 (U00~U99)에 해당하는 질병"},
+    {"clause_id": "c_sum_periods", "doc_id": "d_sum", "page": 4, "clause_path": "상품요약서 Q&A 보험기간", "clause_path_basis": "printed", "kind": "body", "anchor": "- 제1보험기간 : 계약일부터 5년경과 계약해당일 전일까지"},
+    {"clause_id": "c_sum_disease_amount", "doc_id": "d_sum", "page": 14, "clause_path": "상품요약서 지급표 제1보험기간 질병사망보험금", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "기본보험금액 50% + 1년경과 계약해당"},
+    {"clause_id": "c_sum_limits_omit", "doc_id": "d_sum", "page": 32, "clause_path": "상품요약서 지급 제한 사유 ①", "clause_path_basis": "printed", "kind": "body", "anchor": "가. 피보험자가 고의로 자신을 해친 경우 나. 보험수익자가 고의로 피보험자를 해친 경우"},
+    {"clause_id": "c_sum_adr_rider", "doc_id": "d_sum", "page": 19, "clause_path": "상품요약서 재해사망특약 (주)2", "clause_path_basis": "printed", "kind": "footnote", "anchor": "2. 이 특약의 보험기간 중 피보험자가 재해 이외의 원인으로 사망한 경우에는 회사는 사망 당시의 계약자"},
+    {"clause_id": "c_sum_price_cond", "doc_id": "d_sum", "page": 36, "clause_path": "상품요약서 해약환급금 예시 기준", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "※ 기준 : 표준체, 주계약 1종(8년 저해약환급금형), 보험가입금액 1억원, 40세, 7년납, 월납,"},
+    {"clause_id": "c_sum_price_male", "doc_id": "d_sum", "page": 36, "clause_path": "상품요약서 해약환급금 예시 1. 남자", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "1. 남자 (월납보험료 933,000원)"},
+    {"clause_id": "c_sum_surrender_1y", "doc_id": "d_sum", "page": 36, "clause_path": "상품요약서 해약환급금 예시 1년 행", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "1년 11,196,000 3,047,357 27.2%"}
+  ],
+  "fields": [
+    {"field_id": "f_periods", "scope": "main", "axis": "period", "field": "benefit_periods", "raw_value": "- 제1보험기간 : 계약일부터 5년경과 계약해당일 전일까지", "normalized_value": {"period_1": {"from": "contract_date", "to_exclusive": "5th_contract_anniversary"}, "period_2": {"from": "5th_contract_anniversary", "to": "whole_life"}}, "unit": null, "evidence_refs": ["c_sum_periods", "c_annex1_period"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G14"]},
+    {"field_id": "f_routing", "scope": "main", "axis": "event", "field": "benefit_by_period_and_cause", "raw_value": "2. 제1보험기간 중 재해 이외의 원인으로 사망한 경우 : 질병사 망보험금", "normalized_value": {"period_1": {"accident": "재해사망보험금", "non_accident": "질병사망보험금"}, "period_2": {"any": "사망보험금"}}, "unit": null, "evidence_refs": ["c_art3"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G10"]},
+    {"field_id": "f_accident_def", "scope": "main", "axis": "event", "field": "accident_definition", "raw_value": "① 한국표준질병∙사인분류상의 (S00~Y84)에 해당하는 우발적인 외래의 사고", "normalized_value": {"code_system": "kcd", "edition": null, "include": ["S00-Y84", "감염병예방법 제2조2호 제1급감염병"], "exclude": ["X50", "X52", "X53", "X54", "X57", "X60-X84", "Y35.5", "Y60-Y69 중 무과실(단 Y83-Y84는 보장)", "X30-X39 중 급격한 액체손실 탈수", "W65-W84·W44 중 질병에 의한 호흡·삼킴장해", "U00-U99 (제1급감염병 제외)"]}, "unit": null, "evidence_refs": ["c_annex4_scope", "c_annex4_self_harm_excluded", "c_annex4_medical", "c_annex4_u_codes"], "value_state": "observed", "review_status": "hold", "hold_reason": "reference_unresolved", "criticality": "c0", "unknown_reason": "재해분류표가 KCD 개정차수를 적지 않았다. 차수를 정하지 않으면 코드 집합이 확정되지 않는다", "gaps": ["G08"]},
+    {"field_id": "f_suicide_exception", "scope": "main", "axis": "constraint", "field": "exclusion_exception_routing", "raw_value": "력회복)청약일]부터 2년이 지난 후에 자살한 경우 제1보 험기간에는 제3조(보험금의 지급사유) 제2호에 의한 질병 사망보험금을", "normalized_value": {"self_harm_with_free_will_after_2y": {"period_1": "질병사망보험금", "period_2": "사망보험금"}, "self_harm_without_free_will": {"period_1": "재해사망보험금", "period_2": "사망보험금"}, "anchor": "coverage_start_date", "anchor_on_revival": "revival_application_date", "boundary": "'2년이 지난 후' 당일 포함 여부 미기재"}, "unit": "year", "evidence_refs": ["c_art8_1", "c_art8_1_b", "c_annex4_self_harm_excluded"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G10", "G13"]},
+    {"field_id": "f_intent_exclusions", "scope": "main", "axis": "constraint", "field": "exclusions", "raw_value": "다른 보험수익자에 대한 보험금은 지급합니다. 3. 계약자가 고의로 피보험자를 해친 경우", "normalized_value": {"items": ["보험수익자 고의(일부 수익자면 다른 수익자는 지급)", "계약자 고의"]}, "unit": null, "evidence_refs": ["c_art8_2_3"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G11"]},
+    {"field_id": "f_summary_omission", "scope": "main", "axis": "constraint", "field": "summary_exclusion_text", "raw_value": "가. 피보험자가 고의로 자신을 해친 경우 나. 보험수익자가 고의로 피보험자를 해친 경우", "normalized_value": {"omits": ["심신상실 예외", "2년 경과 후 자살 → 질병사망보험금"]}, "unit": null, "evidence_refs": ["c_sum_limits_omit", "c_art8_1_b"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G21"]},
+    {"field_id": "f_accident_amount", "scope": "main", "axis": "payout_method", "field": "amount", "raw_value": "+ 추가계약자적립액", "normalized_value": {"formula": "기본보험금액 + 추가계약자적립액"}, "unit": "krw", "amount_form": "fixed_krw", "evidence_refs": ["c_annex1_accident"], "value_state": "observed", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "약관 별표1의 급부명·지급사유·지급내용 셀이 줄 단위로 섞였다. 요약서 지급표와 대조했으나 좌표 확인 전", "gaps": ["G15"]},
+    {"field_id": "f_disease_amount", "scope": "main", "axis": "payout_method", "field": "amount", "raw_value": "기본보험금액 50% + 1년경과 계약해당", "normalized_value": {"formula": "0.5 × 기본보험금액 + 0.1 × 보험가입금액 × (경과한 계약해당일 수) + 추가계약자적립액", "bands": "제1보험기간 안에서 최대 4번 체증(50%→90%)", "cap": "원문 미기재"}, "unit": "krw", "amount_form": "rate_of_insured_amount", "evidence_refs": ["c_annex1_disease", "c_sum_disease_amount"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G14"]},
+    {"field_id": "f_adr_rider_non_accident", "scope": "rider_accidental_death", "axis": "lifecycle", "field": "termination_on_non_accident_death", "raw_value": "2. 이 특약의 보험기간 중 피보험자가 재해 이외의 원인으로 사망한 경우에는 회사는 사망 당시의 계약자", "normalized_value": {"pays": "계약자적립액 (계약자에게)", "contract_effect": "terminated"}, "unit": null, "evidence_refs": ["c_sum_adr_rider"], "value_state": "observed", "review_status": "pending", "criticality": "c1", "gaps": ["G23"]}
+  ],
+  "relations": [
+    {"relation_id": "r_suicide_routes", "relation_type": "routes_to", "from": "exclusion:고의 자해(2년 경과)", "to": "benefit:질병사망보험금", "predicate": "보장개시일(부활 시 부활청약일)부터 2년이 지난 후 자살 → 제1보험기간 질병사망보험금", "evidence_refs": ["c_art8_1_b"], "review_status": "pending", "gaps": ["G10"]},
+    {"relation_id": "r_incapacity_routes", "relation_type": "routes_to", "from": "exclusion:고의 자해(심신상실)", "to": "benefit:재해사망보험금", "predicate": "심신상실 등으로 자해해 사망 → 제1보험기간 재해사망보험금(재해분류표에서 X60~X84가 제외되는데도)", "evidence_refs": ["c_art8_1", "c_annex4_self_harm_excluded"], "review_status": "pending", "gaps": ["G10"]},
+    {"relation_id": "r_accident_defined_by", "relation_type": "defined_by", "from": "benefit:재해사망보험금", "to": "f_accident_def", "predicate": null, "evidence_refs": ["c_annex4_scope"], "review_status": "pending", "gaps": ["G08"]}
+  ],
+  "rules": [
+    {"rule_id": "kyobo-wholelife-accident-death", "status": "partially_expressed", "file": "packages/fixtures/rules/real/kyobo-wholelife-accident-death.json", "cases": 5, "inputs_from_outside_dsl": ["cause_in_accident_table (재해분류표 코드 판정)"], "reason": "제1보험기간만. 제2보험기간 사망보험금·특약은 인코딩하지 않음", "gaps": ["G08", "G10"]},
+    {"rule_id": "kyobo-wholelife-disease-death", "status": "partially_expressed", "file": "packages/fixtures/rules/real/kyobo-wholelife-disease-death.json", "cases": 7, "inputs_from_outside_dsl": ["cause_in_accident_table", "basic_amount_krw (저해지기간 전후로 정의가 바뀜)", "additional_reserve_krw"], "reason": "체증은 계약해당일 if 사슬로 표현(제1보험기간 5년이라 최대 4단계). 일반 체증형에는 G14 연산이 필요", "gaps": ["G10", "G13", "G14"]}
+  ],
+  "premium_observations": [
+    {"observation_id": "p_sum_m_main", "price_basis": "illustrative", "amount_krw": 933000, "pay_cycle": "monthly", "components": [{"scope": "main", "insured_amount_krw": 100000000, "variant": "1종(8년 저해약환급금형)"}],
+     "conditions": {"age": 40, "sex": "male", "pay_term": "7y", "coverage_term": "whole_life", "risk_class": "standard", "currency": "KRW"},
+     "condition_sources": {"sex": "c_sum_price_male (소제목 괄호 안 금액)", "others": "c_sum_price_cond"},
+     "missing_dimensions": ["age_basis", "channel"],
+     "comparison_basis_id": "cb_life_wholelife_40_m_7pay_wl_100m_type1", "package_binding": null,
+     "evidence_refs": ["c_sum_price_cond", "c_sum_price_male"], "source_as_of": "2026-06-29", "observed_at": "2026-10-09T04:26:31Z",
+     "value_state": "observed", "review_status": "pending", "gaps": ["G16", "G19"]}
+  ]
+}

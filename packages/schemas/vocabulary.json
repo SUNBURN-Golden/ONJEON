@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "updated": "2026-10-09",
   "rules": [
     "축(axis)이 다른 상태를 한 값에 섞지 않는다. 값 상태·검수 상태·기능 자격·화면 상태·초안 상태는 서로 다른 축이다.",
@@ -398,6 +398,147 @@
       ]
     },
     {
+      "id": "clause_path_basis",
+      "name_ko": "조항 경로 근거",
+      "applies_to": "ClauseOccurrence.clause_path",
+      "layer": "L2",
+      "concept_ko": "조·항·호 번호를 원문 글자에서 읽었는가, 순서·참조로 추정했는가. 추정이면 경로를 근거로 한 자동 매핑을 막는다",
+      "values": [
+        {
+          "code": "printed",
+          "concept_ko": "원문에 인쇄된 번호를 읽음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "inferred",
+          "concept_ko": "번호 글자가 소실되어 순서 세기·본문 참조로 추정함(예: 원문자가 U+F000으로 추출)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
+      ]
+    },
+    {
+      "id": "relation_type",
+      "name_ko": "관계 유형",
+      "applies_to": "담보·특약·외부 파라미터 사이의 관계 간선",
+      "layer": "L4",
+      "concept_ko": "그래프 간선의 종류. 모든 간선은 근거 조항을 가진다",
+      "values": [
+        {
+          "code": "attached_to",
+          "concept_ko": "특약이 주계약(기본계약)에 부가되어 성립",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "mandatory_with",
+          "concept_ko": "기본계약 가입 시 반드시 함께 가입(의무부가)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "terminates_with",
+          "concept_ko": "상위 계약이 소멸하면 함께 소멸(예외 조건은 predicate)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "renewal_bounded_by",
+          "concept_ko": "최종 갱신 종료일·종료나이가 상위 계약에 묶임",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "excludes",
+          "concept_ko": "같은 사건을 서로 보장하지 않음(예: 급여 주계약과 비급여 특약)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "shares_limit",
+          "concept_ko": "한도·지급일수를 함께 소진",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "routes_to",
+          "concept_ko": "면책 예외가 다른 급부로 지급을 넘김(예: 2년 후 자살 → 질병사망)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "parameter_from",
+          "concept_ko": "값이 약관 밖 공시 표에서 옴(예: 회사가 정한 간병인지원비용)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "defined_by",
+          "concept_ko": "정의·분류표·코드 체계를 참조",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "same_benefit_as",
+          "concept_ko": "판매 채널 등만 다른 같은 급부(이름 유사도로 만들지 않음)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
+      ]
+    },
+    {
+      "id": "amount_form",
+      "name_ko": "금액 표현 형식",
+      "applies_to": "FieldAssertion(지급 금액)",
+      "layer": "L3-L4",
+      "concept_ko": "원문이 금액을 어떤 형식으로 적었는가. 형식이 다른 금액을 같은 것처럼 합산·환산하지 않는다",
+      "values": [
+        {
+          "code": "fixed_krw",
+          "concept_ko": "원 단위 확정 금액",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "rate_of_insured_amount",
+          "concept_ko": "가입금액에 대한 비율이 원문에 있음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "example_amount",
+          "concept_ko": "기준 가입금액 예시 금액만 있음. 비율 환산은 derived",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "per_unit_krw",
+          "concept_ko": "1일·1회 등 단위당 금액. 횟수·일수와 곱해야 함",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "indemnity",
+          "concept_ko": "실제 부담액 기준(실손형). 공제·비율·한도와 함께 씀",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "external_parameter",
+          "concept_ko": "약관 밖 공시 표 값(시간에 따라 바뀜)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "max_of",
+          "concept_ko": "여러 금액 중 큰 금액(예: 사망보험금과 납입보험료 중 큰 금액)",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
+      ]
+    },
+    {
       "id": "hold_reason",
       "name_ko": "보류 사유",
       "applies_to": "review_status=hold 또는 pipeline_block=hold",
@@ -443,6 +584,12 @@
         {
           "code": "circuit_breaker",
           "concept_ko": "오류 신고·재추출 불일치 임계 초과로 자동 중단",
+          "screen_ko": "판단 보류",
+          "deprecated_aliases": []
+        },
+        {
+          "code": "extraction_uncertain",
+          "concept_ko": "OCR·표 셀·원문자·분수식 등 추출 결과가 원문 의미를 보존했는지 확인 못 함(숫자·부정어·경계어·단위 포함)",
           "screen_ko": "판단 보류",
           "deprecated_aliases": []
         }

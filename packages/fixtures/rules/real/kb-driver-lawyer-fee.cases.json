@@ -1,0 +1,22 @@
+{
+  "rule_id": "kb-driver-lawyer-fee",
+  "source": "KB 플러스 운전자상해보험(무배당)(26.09) 변호사선임비용(심급별,자기부담금 50%) 제1조·한도표·⑪⑫·'제12항의 예시'. l01·l02는 약관에 실린 계산 예시를 그대로 옮긴 공개 계산 예시다. 일괄 계약 균등 배분은 외부에서 나눠 넣는다(G03). 이 특약의 면책 조항은 아직 발췌하지 않았다(G12). AI 해석·미검수.",
+  "base": {"accident_in_period_bodily_injury": true, "arrested": false, "indicted_not_summary": true, "summary_moved_to_trial": false, "formal_trial_requested": false,
+           "police_not_referred": false, "summary_or_not_prosecuted": false, "victim_died": false, "major_violation": false, "injury_grade_1_to_3": false,
+           "level1_used": true, "level2_used": true, "level3_used": true,
+           "level1_fee_krw": 20000000, "level2_fee_krw": 20000000, "level3_fee_krw": 20000000, "level_cap_krw": 5000000},
+  "cases": [
+    { "id": "l01_terms_example1", "note": "예시1: 일괄 6,000만원 → 심급별 2,000만원, 자기부담 1,000만원, 한도 500만원씩", 
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}}, "missing_inputs": []} },
+    { "id": "l02_terms_example2", "note": "예시2: 1심·항소심 일괄 1,000만원(각 500만원), 상고심 별도 1,000만원",
+      "set": {"level1_fee_krw": 5000000, "level2_fee_krw": 5000000, "level3_fee_krw": 10000000},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}}, "missing_inputs": []} },
+    { "id": "l03_only_first_level", "set": {"level2_used": false, "level3_used": false, "level2_fee_krw": null, "level3_fee_krw": null},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 5000000}}, "missing_inputs": []} },
+    { "id": "l04_minor_no_prosecution_not_covered", "note": "불기소지만 사망·중대법규위반·1~3급 부상 아님",
+      "set": {"indicted_not_summary": false, "summary_or_not_prosecuted": true},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
+    { "id": "l05_grade_unknown", "set": {"indicted_not_summary": false, "summary_or_not_prosecuted": true, "injury_grade_1_to_3": null},
+      "expect": {"eligibility": "unknown", "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}}, "missing_inputs": ["injury_grade_1_to_3"]} }
+  ]
+}

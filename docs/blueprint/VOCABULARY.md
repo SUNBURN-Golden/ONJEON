@@ -1,6 +1,6 @@
 # 상태 어휘 (생성 문서)
 
-버전 1.1.0 | 2026-10-09 | 정본: `packages/schemas/vocabulary.json`
+버전 1.2.0 | 2026-10-09 | 정본: `packages/schemas/vocabulary.json`
 
 > 이 문서는 `python3 tools/vocab_check.py --write`로 생성한다. 직접 고치지 않는다.
 
@@ -23,6 +23,9 @@
 | `pipeline_block` | 처리 차단 | 처리 단계와 함께 기록 | L1-L7 |
 | `value_state` | 필드 값 상태 | FieldAssertion, PremiumObservation의 각 값 | L3-L5 |
 | `review_status` | 검수 상태 | FieldAssertion, PremiumObservation, Rule | L4 |
+| `clause_path_basis` | 조항 경로 근거 | ClauseOccurrence.clause_path | L2 |
+| `relation_type` | 관계 유형 | 담보·특약·외부 파라미터 사이의 관계 간선 | L4 |
+| `amount_form` | 금액 표현 형식 | FieldAssertion(지급 금액) | L3-L4 |
 | `hold_reason` | 보류 사유 | review_status=hold 또는 pipeline_block=hold | L2-L7 |
 | `capability` | 기능 자격 | 담보 발생본(및 필드 묶음) | L5-L8 |
 | `capability_state` | 기능 자격 상태 | (대상, capability) 쌍 | L5-L8 |
@@ -140,6 +143,46 @@ AI 검수 결과(ADR-0006). 사람 검수 아님
 | `hold` | 보류(에이전트 불일치·반례·코드 검사 실패·참조 미해결) | 판단 보류 | conflict, quarantined |
 | `rejected` | 근거 없음 등으로 기각. 재추출 필요 | (화면에 직접 표시 안 함) | - |
 
+## `clause_path_basis` 조항 경로 근거
+
+조·항·호 번호를 원문 글자에서 읽었는가, 순서·참조로 추정했는가. 추정이면 경로를 근거로 한 자동 매핑을 막는다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `printed` | 원문에 인쇄된 번호를 읽음 | (화면에 직접 표시 안 함) | - |
+| `inferred` | 번호 글자가 소실되어 순서 세기·본문 참조로 추정함(예: 원문자가 U+F000으로 추출) | (화면에 직접 표시 안 함) | - |
+
+## `relation_type` 관계 유형
+
+그래프 간선의 종류. 모든 간선은 근거 조항을 가진다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `attached_to` | 특약이 주계약(기본계약)에 부가되어 성립 | (화면에 직접 표시 안 함) | - |
+| `mandatory_with` | 기본계약 가입 시 반드시 함께 가입(의무부가) | (화면에 직접 표시 안 함) | - |
+| `terminates_with` | 상위 계약이 소멸하면 함께 소멸(예외 조건은 predicate) | (화면에 직접 표시 안 함) | - |
+| `renewal_bounded_by` | 최종 갱신 종료일·종료나이가 상위 계약에 묶임 | (화면에 직접 표시 안 함) | - |
+| `excludes` | 같은 사건을 서로 보장하지 않음(예: 급여 주계약과 비급여 특약) | (화면에 직접 표시 안 함) | - |
+| `shares_limit` | 한도·지급일수를 함께 소진 | (화면에 직접 표시 안 함) | - |
+| `routes_to` | 면책 예외가 다른 급부로 지급을 넘김(예: 2년 후 자살 → 질병사망) | (화면에 직접 표시 안 함) | - |
+| `parameter_from` | 값이 약관 밖 공시 표에서 옴(예: 회사가 정한 간병인지원비용) | (화면에 직접 표시 안 함) | - |
+| `defined_by` | 정의·분류표·코드 체계를 참조 | (화면에 직접 표시 안 함) | - |
+| `same_benefit_as` | 판매 채널 등만 다른 같은 급부(이름 유사도로 만들지 않음) | (화면에 직접 표시 안 함) | - |
+
+## `amount_form` 금액 표현 형식
+
+원문이 금액을 어떤 형식으로 적었는가. 형식이 다른 금액을 같은 것처럼 합산·환산하지 않는다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `fixed_krw` | 원 단위 확정 금액 | (화면에 직접 표시 안 함) | - |
+| `rate_of_insured_amount` | 가입금액에 대한 비율이 원문에 있음 | (화면에 직접 표시 안 함) | - |
+| `example_amount` | 기준 가입금액 예시 금액만 있음. 비율 환산은 derived | (화면에 직접 표시 안 함) | - |
+| `per_unit_krw` | 1일·1회 등 단위당 금액. 횟수·일수와 곱해야 함 | (화면에 직접 표시 안 함) | - |
+| `indemnity` | 실제 부담액 기준(실손형). 공제·비율·한도와 함께 씀 | (화면에 직접 표시 안 함) | - |
+| `external_parameter` | 약관 밖 공시 표 값(시간에 따라 바뀜) | (화면에 직접 표시 안 함) | - |
+| `max_of` | 여러 금액 중 큰 금액(예: 사망보험금과 납입보험료 중 큰 금액) | (화면에 직접 표시 안 함) | - |
+
 ## `hold_reason` 보류 사유
 
 왜 보류했는가
@@ -153,6 +196,7 @@ AI 검수 결과(ADR-0006). 사람 검수 아님
 | `reference_unresolved` | 필수 별표·정의·참조를 못 찾음 | 판단 보류 | - |
 | `conflicting_sources` | 약관·요약서 등 근거 간 충돌 | 근거가 서로 달라요 | - |
 | `circuit_breaker` | 오류 신고·재추출 불일치 임계 초과로 자동 중단 | 판단 보류 | - |
+| `extraction_uncertain` | OCR·표 셀·원문자·분수식 등 추출 결과가 원문 의미를 보존했는지 확인 못 함(숫자·부정어·경계어·단위 포함) | 판단 보류 | - |
 
 ## `capability` 기능 자격
 

@@ -1,0 +1,52 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kyobo-cancer-main-dx",
+  "rule_version": "v1-validation",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "contract_date": "date",
+    "is_revived": "bool",
+    "revival_date": "date",
+    "diagnosis_date": "date",
+    "policy_end_date": "date",
+    "dx_in_cancer_annex_at_dx": "bool",
+    "already_paid": "bool",
+    "self_harm": "bool",
+    "self_harm_without_free_will": "bool",
+    "harmed_by_beneficiary_or_contractor": "bool",
+    "insured_amount_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "gte": ["diagnosis_date", {
+        "if": "is_revived",
+        "then": { "date_add": ["revival_date", { "value": 90, "unit": "day" }] },
+        "else": { "date_add": ["contract_date", { "value": 90, "unit": "day" }] }
+      }] },
+      { "lte": ["diagnosis_date", "policy_end_date"] },
+      { "eq": ["dx_in_cancer_annex_at_dx", true] },
+      { "eq": ["already_paid", false] },
+      { "not": { "all": [ { "eq": ["self_harm", true] }, { "eq": ["self_harm_without_free_will", false] } ] } },
+      { "eq": ["harmed_by_beneficiary_or_contractor", false] }
+    ]
+  },
+  "amount": {
+    "if": { "lt": ["diagnosis_date", { "date_add": ["contract_date", { "value": 1, "unit": "calendar_year", "month_end": "clamp" }] }] },
+    "then": { "multiply_rate": ["insured_amount_krw", "0.5", { "rounding": "unspecified", "unit": 1 }] },
+    "else": "insured_amount_krw"
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "kyobo_cancer#c_main_art3_1",
+    "kyobo_cancer#c_main_art7",
+    "kyobo_cancer#c_main_art8_6",
+    "kyobo_cancer#c_main_art9",
+    "kyobo_cancer#c_main_art26_5",
+    "kyobo_cancer#c_main_annex1",
+    "kyobo_cancer#c_main_annex1_note3",
+    "kyobo_cancer#c_main_annex1_note4",
+    "kyobo_cancer#c_main_annex2_rule"
+  ],
+  "publication_state": "fixture_only"
+}

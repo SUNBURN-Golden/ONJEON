@@ -1,0 +1,111 @@
+{
+  "status": {"data_kind": "design_validation", "interpretation": "ai_unreviewed", "service_use": "forbidden"},
+  "view": "coverage_detail_sheet",
+  "group_id": "diagnosis",
+  "title": "진단 보장",
+  "review_assumption": "as_is",
+  "review_assumption_note": "모든 값이 AI 1차 해석(review_status=pending/hold)이라 지금 상태 그대로 파생하면 칩은 '확인 중'·'판단 보류'·'자료 필요'만 나온다. 검수 통과 뒤 바뀌는 칸은 SCREEN_BINDING.md §4에 적었다",
+  "profile": {"age": 40, "sex": "male", "policy_holdings_status": "none_declared", "source": "사용자 입력(예시 인물)"},
+  "plan_variant": "add_only",
+  "header": {"display_status": "hold", "chip_text_from": "hold_reason=conflicting_sources", "reason_refs": ["kyobo_cancer#f_main_code_edition"]},
+  "candidate": {
+    "label": "교보생명 · 교보통합암보험(무배당) · 주계약 + 소액암 특약",
+    "components": [
+      {"scope": "main", "name": "암진단(주계약)", "insured_amount_krw": 30000000, "refs": ["kyobo_cancer#f_main_event"]},
+      {"scope": "rider_small_cancer", "name": "소액암진단특약(갱신형)Ⅳ 2형", "insured_amount_krw": 10000000, "refs": ["kyobo_cancer#f_sc_event"]}
+    ]
+  },
+  "sections": {
+    "what_is_covered": [
+      {"line": "암 진단 시 3,000만원 (처음 1번)", "display_status": "under_review", "refs": ["kyobo_cancer#f_main_event", "kyobo_cancer#f_main_amount", "kyobo_cancer#c_main_art7"]},
+      {"line": "기타피부암 진단 시 200만원 (소액암 특약 1,000만원 기준)", "display_status": "hold", "refs": ["kyobo_cancer#f_sc_amount", "kyobo_cancer#c_sc_annex1"], "gaps": ["G06"]},
+      {"line": "소액암 나머지 7가지(갑상선·대장점막내암 등)", "display_status": "data_missing", "refs": ["kyobo_cancer#f_sc_event"], "note": "지급사유는 있으나 금액 행을 인코딩하지 않음"}
+    ],
+    "when_not_paid": [
+      {"line": "가입 후 90일 안에 진단되면 0원", "kind": "waiting", "display_status": "under_review", "refs": ["kyobo_cancer#f_main_waiting", "kyobo_cancer#c_main_art26_5"]},
+      {"line": "가입 1년 안에 진단되면 절반(1,500만원)", "kind": "reduction", "display_status": "under_review", "refs": ["kyobo_cancer#f_main_reduction", "kyobo_cancer#c_main_annex1_note4"]},
+      {"line": "기타피부암·갑상선 일부·대장점막내암·초기유방암·전립선암은 주계약 '암'이 아님 → 소액암 특약 금액만", "kind": "definition_exclusion", "display_status": "hold", "refs": ["kyobo_cancer#f_main_exclusions", "kyobo_cancer#r_main_sc_excludes"]},
+      {"line": "스스로 해친 경우 등 고의 사고", "kind": "exclusion", "display_status": "under_review", "refs": ["kyobo_cancer#f_main_intent_exclusions"]},
+      {"line": "암 기준표 차수가 문서마다 달라요(약관 9차·요약서 8차)", "kind": "conflict", "display_status": "hold", "refs": ["kyobo_cancer#f_main_code_edition"], "gaps": ["G21"]},
+      {"line": "소액암 특약의 면책기간", "kind": "waiting", "display_status": "data_missing", "refs": ["kyobo_cancer#f_sc_waiting"], "gaps": ["G12"]},
+      {"line": "갱신 후 같은 소액암이 재발·전이되면 다시 받지 못함", "kind": "renewal_exclusion", "display_status": "under_review", "refs": ["kyobo_cancer#f_sc_renewal_exclusion"]}
+    ],
+    "limits_and_renewal": [
+      {"line": "주계약 100세까지, 갱신 없음", "display_status": "under_review", "refs": ["kyobo_cancer#f_main_term"]},
+      {"line": "소액암 특약은 20년마다 갱신, 갱신 때 보험료 오를 수 있음", "display_status": "under_review", "refs": ["kyobo_cancer#f_sc_renewal", "kyobo_cancer#c_sum_renewal_assumption"]},
+      {"line": "주계약이 해지되면 특약도 끝남", "display_status": "under_review", "refs": ["kyobo_cancer#r_sc_terminates"]}
+    ],
+    "why_this_price": {
+      "price_line": {"basis": "illustrative", "won": 51290, "pay_cycle": "monthly", "refs": ["kyobo_cancer#p_sum_m_bundle"],
+                     "chip": "공시 예시 · 40세 남 · 기준일 06-29", "as_of": "2026-06-29", "checked_at": "2026-10-09"},
+      "conditions": [
+        {"line": "40세 남자 · 20년 납입 · 100세 만기 · 월납", "refs": ["kyobo_cancer#c_sum_price_cond", "kyobo_cancer#c_sum_price_male"]},
+        {"line": "주계약 3,000만원(저해약환급금형) + 소액암 특약 1,000만원", "refs": ["kyobo_cancer#p_sum_m_bundle"]},
+        {"line": "보험나이 기준·표준체 여부·채널은 원문에 없음", "display_status": "data_missing", "refs": ["kyobo_cancer#p_sum_m_bundle"]}
+      ],
+      "breakdown": [
+        {"line": "주계약 50,790원", "refs": ["kyobo_cancer#p_sum_m_main"]},
+        {"line": "소액암 특약 500원 (갱신 후 금액은 공개 안 됨)", "refs": ["kyobo_cancer#p_sum_m_sc"]}
+      ],
+      "tradeoffs": [
+        {"line": "1년 안에 해지하면 돌려받는 돈 0원(저해약환급금형)", "refs": ["kyobo_cancer#f_main_surrender", "kyobo_cancer#c_sum_surrender_1y"]},
+        {"line": "20년 납입 뒤 해지하면 낸 돈의 87.7%", "refs": ["kyobo_cancer#c_sum_surrender_20y"]}
+      ],
+      "not_my_conditions": {"applies": false, "note": "예시 인물이 40세 남자라 공시 예시 조건과 같다. 다른 나이·성별이면 '내 조건 아님'을 띄우고 금액을 보간하지 않는다"},
+      "same_basis_candidates": 1,
+      "other_basis_products": [
+        {"line": "한화생명 간편가입 시그니처H암보험 · 암사망 600만원 · 월 8,400원", "reason": "가입금액·급부가 달라 같은 비교 기준이 아님", "refs": ["kyobo_cancer#p_klia_hanwha_m_main"]}
+      ],
+      "price_unresolved": [
+        {"line": "협회 비교공시의 같은 금액(50,790원)은 만기 조건이 달라(80세) 비교에서 뺌", "price_unavailable_reason": "condition_mismatch", "display_status": "hold", "refs": ["kyobo_cancer#p_klia_m_main"]}
+      ]
+    }
+  },
+  "diff": {
+    "plan_variant": "add_only",
+    "items": [
+      {"diff_type": "gain_coverage", "diff_group": "added", "line": "암 진단비 3,000만원", "refs": ["kyobo_cancer#f_main_event", "kyobo_cancer#f_main_amount"]},
+      {"diff_type": "gain_coverage", "diff_group": "added", "line": "소액암 진단비(기타피부암 200만원 등)", "refs": ["kyobo_cancer#f_sc_event", "kyobo_cancer#f_sc_amount"]},
+      {"diff_type": "new_waiting", "diff_group": "reduced", "line": "면책 90일 새로 시작", "refs": ["kyobo_cancer#f_main_waiting"]},
+      {"diff_type": "new_reduction", "diff_group": "reduced", "line": "첫 1년 50% 감액(주계약·소액암 모두)", "refs": ["kyobo_cancer#f_main_reduction", "kyobo_cancer#f_sc_reduction"]},
+      {"diff_type": "new_exclusion", "diff_group": "reduced", "line": "주계약에서 소액암 제외", "refs": ["kyobo_cancer#f_main_exclusions"]},
+      {"diff_type": "renewal_change", "diff_group": "cost_and_unknown", "line": "소액암 특약 20년 갱신 · 갱신 보험료 미공개", "refs": ["kyobo_cancer#f_sc_renewal", "kyobo_cancer#p_sum_m_sc"]},
+      {"diff_type": "unknown", "diff_group": "cost_and_unknown", "line": "암 기준표 차수 충돌", "refs": ["kyobo_cancer#f_main_code_edition"]},
+      {"diff_type": "unknown", "diff_group": "cost_and_unknown", "line": "소액암 특약 면책 여부 미확인", "refs": ["kyobo_cancer#f_sc_waiting"]},
+      {"diff_type": "underwriting_unknown", "diff_group": "cost_and_unknown", "line": "가입 심사에 따라 달라질 수 있음", "refs": ["kyobo_cancer#p_sum_m_bundle"]}
+    ],
+    "summary_line": "확인된 불이익 3건 · 미확인 2건 제외"
+  },
+  "capabilities": [
+    {"capability": "explain", "capability_state": "blocked", "reason": "C0 필드가 accepted가 아님(AI 1차 해석)"},
+    {"capability": "compare_conditions", "capability_state": "blocked", "reason": "같은 이유"},
+    {"capability": "compare_price", "capability_state": "blocked", "reason": "가격 관측치 review_status=pending. 같은 비교 기준 후보가 1개"},
+    {"capability": "simulate", "capability_state": "blocked", "reason": "규칙이 fixture_only. 아래 scenarios는 설계 검증용 실행 결과"}
+  ],
+  "scenarios": [
+    {"id": "sc1", "question": "가입 60일 뒤 위암 진단", "rule_id": "kyobo-cancer-main-dx",
+     "inputs": {"contract_date": "2026-01-01", "is_revived": false, "revival_date": null, "diagnosis_date": "2026-03-02", "policy_end_date": "2086-01-01", "dx_in_cancer_annex_at_dx": true, "already_paid": false, "self_harm": false, "self_harm_without_free_will": false, "harmed_by_beneficiary_or_contractor": false, "insured_amount_krw": 30000000},
+     "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []},
+     "display": {"line": "0원 · 면책 90일 안", "display_status": "under_review"}, "refs": ["kyobo_cancer#f_main_waiting"]},
+    {"id": "sc2", "question": "가입 200일 뒤 위암 진단", "rule_id": "kyobo-cancer-main-dx",
+     "inputs": {"contract_date": "2026-01-01", "is_revived": false, "revival_date": null, "diagnosis_date": "2026-07-20", "policy_end_date": "2086-01-01", "dx_in_cancer_annex_at_dx": true, "already_paid": false, "self_harm": false, "self_harm_without_free_will": false, "harmed_by_beneficiary_or_contractor": false, "insured_amount_krw": 30000000},
+     "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}}, "missing_inputs": []},
+     "display": {"line": "1,500만원 · 첫 1년 50%", "display_status": "under_review"}, "refs": ["kyobo_cancer#f_main_reduction"]},
+    {"id": "sc3", "question": "가입 400일 뒤 위암 진단", "rule_id": "kyobo-cancer-main-dx",
+     "inputs": {"contract_date": "2026-01-01", "is_revived": false, "revival_date": null, "diagnosis_date": "2027-02-05", "policy_end_date": "2086-01-01", "dx_in_cancer_annex_at_dx": true, "already_paid": false, "self_harm": false, "self_harm_without_free_will": false, "harmed_by_beneficiary_or_contractor": false, "insured_amount_krw": 30000000},
+     "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 30000000}}, "missing_inputs": []},
+     "display": {"line": "3,000만원", "display_status": "under_review"}, "refs": ["kyobo_cancer#f_main_amount"]},
+    {"id": "sc4", "question": "가입 200일 뒤 기타피부암 진단 — 주계약", "rule_id": "kyobo-cancer-main-dx",
+     "inputs": {"contract_date": "2026-01-01", "is_revived": false, "revival_date": null, "diagnosis_date": "2026-07-20", "policy_end_date": "2086-01-01", "dx_in_cancer_annex_at_dx": false, "already_paid": false, "self_harm": false, "self_harm_without_free_will": false, "harmed_by_beneficiary_or_contractor": false, "insured_amount_krw": 30000000},
+     "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []},
+     "display": {"line": "주계약 0원 · 소액암은 주계약 '암'이 아님", "display_status": "hold"}, "refs": ["kyobo_cancer#f_main_exclusions"]},
+    {"id": "sc5", "question": "가입 200일 뒤 기타피부암 진단 — 소액암 특약", "rule_id": "kyobo-small-cancer-skin",
+     "inputs": {"first_contract_date": "2026-01-01", "first_coverage_start_date": "2026-01-01", "period_start_date": "2026-01-01", "period_end_date": "2045-12-31", "diagnosis_date": "2026-07-20", "dx_other_skin_cancer": true, "already_paid": false, "is_renewal": false, "same_disease_paid_before_renewal": false, "rider_amount_krw": 10000000},
+     "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 1000000}}, "missing_inputs": []},
+     "display": {"line": "100만원 · 첫 1년 50% (특약 보장개시일은 가정)", "display_status": "hold"}, "refs": ["kyobo_cancer#f_sc_amount", "kyobo_cancer#f_sc_waiting"]},
+    {"id": "sc6", "question": "진단일을 모를 때", "rule_id": "kyobo-cancer-main-dx",
+     "inputs": {"contract_date": "2026-01-01", "is_revived": false, "revival_date": null, "diagnosis_date": null, "policy_end_date": "2086-01-01", "dx_in_cancer_annex_at_dx": true, "already_paid": false, "self_harm": false, "self_harm_without_free_will": false, "harmed_by_beneficiary_or_contractor": false, "insured_amount_krw": 30000000},
+     "expect": {"eligibility": "unknown", "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}}, "missing_inputs": ["diagnosis_date"]},
+     "display": {"line": "진단일을 넣으면 계산돼요", "display_status": "input_missing"}, "refs": ["kyobo_cancer#f_main_waiting"]}
+  ]
+}

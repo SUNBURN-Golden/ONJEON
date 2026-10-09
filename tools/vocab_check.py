@@ -28,6 +28,7 @@ CONTRACT_DOCS = [
     "docs/BLUEPRINT.md",
     "docs/PRINCIPLES.md",
     "docs/blueprint/*.md",
+    "docs/blueprint/validation/*.md",
     "docs/data/*.md",
     "docs/design/*.md",
     "docs/masterplan/가격_수집_명세.md",

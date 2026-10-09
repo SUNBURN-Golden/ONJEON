@@ -1,0 +1,82 @@
+{
+  "encoding_version": "validation-0.1",
+  "status": {"data_kind": "design_validation", "interpretation": "ai_unreviewed", "service_use": "forbidden"},
+  "family": "kyobo_silson",
+  "structures": [2, 7, 8],
+  "product_version": {
+    "insurer": "교보생명", "product_name": "교보실손의료비보험Ⅴ (무배당,갱신형)", "version_label": "2026.06.29 판매본",
+    "sale_status": "on_sale", "effective_from": "2026-06-29", "channel": null,
+    "standard_terms": "보험업감독업무시행세칙 [별표 15] 표준약관(시행 2026-09-10)",
+    "version_note": "요약서 파일명은 'Ⅴ ([D])'인데 공시 목록 상품명은 'Ⅴ'다. 표준약관은 상품 판매일(2026-06-29) 뒤에 개정 시행되었다(2026-09-10)"
+  },
+  "documents": [
+    {"doc_id": "d_terms", "sample_id": "kyobo_silson_terms", "extract": "extracts/kyobo_silson_terms.md", "doc_role": "terms", "sha256": "73c7a06a6b6c00a349b06b71babfe825612f9353f0a022efcf3eb6066ffb528f", "observed_at": "2026-10-09T04:26:23Z", "extractor": "poppler pdftotext -layout"},
+    {"doc_id": "d_sum", "sample_id": "kyobo_silson_summary", "extract": "extracts/kyobo_silson_summary.md", "doc_role": "summary", "sha256": "ccdeb63419559205aa6c59d8cf5907edbc71581d24703aeda35f52af4fdaca0f", "observed_at": "2026-10-09T04:26:19Z", "extractor": "poppler pdftotext -layout"},
+    {"doc_id": "d_std", "sample_id": "fss_std_terms_byl15", "extract": "extracts/fss_std_terms_byl15.md", "doc_role": "standard_terms", "sha256": "477680ce119225fa12717773ac5a378fe0237b40a56428e6209f00c62fd398c3", "observed_at": "2026-10-09T04:35:58Z", "extractor": "pdfplumber 0.11.10 (x_tolerance=1.5, y_tolerance=3); poppler는 글자 순서가 뒤섞여 사용 안 함"}
+  ],
+  "clauses": [
+    {"clause_id": "c_art1", "doc_id": "d_terms", "page": 19, "clause_path": "주계약 제1조①", "clause_path_basis": "printed", "kind": "body", "anchor": "상해급여형의 2개 보장종목으로 구성되어 있습니다."},
+    {"clause_id": "c_art3_1", "doc_id": "d_terms", "page": 20, "clause_path": "주계약 제3조 (1)질병급여형 ①", "clause_path_basis": "printed", "kind": "body", "anchor": "(보험가입금액 한도 등)에서 정한 연간 보험가입금액(5,000만 원)의 한도 내에서 다음과 같이 보상합니다."},
+    {"clause_id": "c_art3_inpatient", "doc_id": "d_terms", "page": 21, "clause_path": "주계약 제3조 (1)질병급여형 ① 표 입원", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "말합니다.)의 80%에 해당하는 금액"},
+    {"clause_id": "c_art3_outpatient", "doc_id": "d_terms", "page": 21, "clause_path": "주계약 제3조 (1)질병급여형 ① 표 통원", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "을 말합니다.)에서 ＜표1>의 ‘통원항목별 공제금 액’을 뺀 금액"},
+    {"clause_id": "c_table1", "doc_id": "d_terms", "page": 21, "clause_path": "주계약 제3조 ＜표1> 통원항목별 공제금액", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "＜표1> 통원항목별 공제금액"},
+    {"clause_id": "c_art3_3_4", "doc_id": "d_terms", "page": 24, "clause_path": "주계약 제3조 (1)질병급여형 ③④", "clause_path_basis": "printed", "kind": "body", "anchor": "종료일 다음날부터 180일 이내의 통원을 보상하며 최대 90 회 한도 내에서 보상합니다."},
+    {"clause_id": "c_art4_2", "doc_id": "d_terms", "page": 34, "clause_path": "주계약 제4조 (1)②", "clause_path_basis": "printed", "kind": "body", "anchor": "제10차 개정 이후 한국표준질병·사인분류에서 하기 질병 이외 에 추가로 아래의 분류코드에 해당하는 질병이 있는 경우에는 그 질병도 포함하는 것으로 합니다."},
+    {"clause_id": "c_art4_2_f", "doc_id": "d_terms", "page": 34, "clause_path": "주계약 제4조 (1)②1호", "clause_path_basis": "printed", "kind": "body", "anchor": "F90∼F98과 관련한 치료에서 발생한 「국민건강보험법」에"},
+    {"clause_id": "c_art4_2_o", "doc_id": "d_terms", "page": 35, "clause_path": "주계약 제4조 (1)②3호", "clause_path_basis": "printed", "kind": "body", "anchor": "예정일로부터 280일 이전인 경우에는 임신, 출산(제왕절개"},
+    {"clause_id": "c_art5", "doc_id": "d_terms", "page": 39, "clause_path": "주계약 제5조①", "clause_path_basis": "printed", "kind": "body", "anchor": "1. 비급여의료비"},
+    {"clause_id": "c_art6_1", "doc_id": "d_terms", "page": 39, "clause_path": "주계약 제6조①", "clause_path_basis": "printed", "kind": "body", "anchor": "합산하여 5천만원이며, 제3조(보장종목별 보상내용)에 의한"},
+    {"clause_id": "c_art6_2", "doc_id": "d_terms", "page": 39, "clause_path": "주계약 제6조②", "clause_path_basis": "printed", "kind": "body", "anchor": "② 이 계약에서 ‘연간’이라 함은 계약일로부터 매1년 단위로 도래"},
+    {"clause_id": "c_art6_4", "doc_id": "d_terms", "page": 40, "clause_path": "주계약 제6조④", "clause_path_basis": "printed", "kind": "body", "anchor": "연간 200만원을 초과하는 경우 그 초과금액은 제1항의 한도 내에서 보상합니다."},
+    {"clause_id": "c_art6_5", "doc_id": "d_terms", "page": 40, "clause_path": "주계약 제6조⑤", "clause_path_basis": "printed", "kind": "body", "anchor": "통원 1회당 20만원 이내에서 회사가 정한 금액 중 계약자가 선택한 금액의 한도 내에서 보상합니다."},
+    {"clause_id": "c_art6_6", "doc_id": "d_terms", "page": 40, "clause_path": "주계약 제6조⑥", "clause_path_basis": "printed", "kind": "body", "anchor": "간 종료일까지 지급한 금액을 차감한 잔여 금액을 한도로 적 용합니다."},
+    {"clause_id": "c_art25_1", "doc_id": "d_terms", "page": 61, "clause_path": "주계약 제25조①", "clause_path_basis": "printed", "kind": "body", "anchor": "① 이 계약의 보험기간은 1년 만기 갱신으로 합니다."},
+    {"clause_id": "c_art25_2", "doc_id": "d_terms", "page": 61, "clause_path": "주계약 제25조②", "clause_path_basis": "printed", "kind": "body", "anchor": "경주기”라 합니다)는 5년이며, 보장내용 변경주기 종료일은 계 약일부터 5년이 되는 계약해당일의 전일로 합니다."},
+    {"clause_id": "c_art25_7", "doc_id": "d_terms", "page": 62, "clause_path": "주계약 제25조⑦", "clause_path_basis": "printed", "kind": "body", "anchor": "동 등의 사유로 변동될 수 있습니다."},
+    {"clause_id": "c_art41", "doc_id": "d_terms", "page": 74, "clause_path": "주계약 제41조②", "clause_path_basis": "printed", "kind": "body", "anchor": "최고액에서 각 계약의 피보험자부담 공제금액 중 최소액을 차"},
+    {"clause_id": "c_art41_formula", "doc_id": "d_terms", "page": 75, "clause_path": "주계약 제41조② 산식", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "■ 각 계약별 비례분담액 ="},
+    {"clause_id": "c_nc_art3_inpatient", "doc_id": "d_terms", "page": 233, "clause_path": "비중증비급여특약 제3조 (1) 표 입원", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "료비는 1회당 300만원을 한도로 합니다."},
+    {"clause_id": "c_nc_art3_room", "doc_id": "d_terms", "page": 233, "clause_path": "비중증비급여특약 제3조 (1) 표 상급병실료 차액", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "동안 비급여 병실료 전체를 총 입원일수로 나누"},
+    {"clause_id": "c_nc_art3_outpatient", "doc_id": "d_terms", "page": 233, "clause_path": "비중증비급여특약 제3조 (1) 표 통원", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "터 1년간 통원 100일을 한도로 합니다.)"},
+    {"clause_id": "c_nc_art5", "doc_id": "d_terms", "page": 264, "clause_path": "비중증비급여특약 제5조③", "clause_path_basis": "printed", "kind": "body", "anchor": "원 1일당 20만원으로 하며,"},
+    {"clause_id": "c_std_art5_1", "doc_id": "d_std", "page": 217, "clause_path": "표준약관(실손) 제5조①", "clause_path_basis": "printed", "kind": "body", "anchor": "액을 합산하여 5천만원 이내에서 회사가 정한 금액 중 계약자가 선택한 금액을 말하며,"},
+    {"clause_id": "c_std_art5_6", "doc_id": "d_std", "page": 218, "clause_path": "표준약관(실손) 제5조⑥", "clause_path_basis": "printed", "kind": "body", "anchor": "감한 잔여 금액을 한도로 적용합니다. <본조신설 2021.7.1.>"},
+    {"clause_id": "c_std_art37", "doc_id": "d_std", "page": 245, "clause_path": "표준약관(실손) 제37조", "clause_path_basis": "printed", "kind": "body", "anchor": "제37조(다수보험의 처리) ① 다수보험의 경우 각 계약의 보장대상의료비"},
+    {"clause_id": "c_std_garbled", "doc_id": "d_std", "page": 205, "clause_path": "표준약관(실손) 제3조 poppler 추출 대조본", "clause_path_basis": "printed", "kind": "body", "anchor": "계 혈 족 및 형제자 매민( 법 제768조))의 근로 소득 에 포함된 경우,"},
+    {"clause_id": "c_sum_limits", "doc_id": "d_sum", "page": 6, "clause_path": "상품요약서 보장종목별 지급사유·보장한도 표", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "회당 20만원)"},
+    {"clause_id": "c_sum_price_index", "doc_id": "d_sum", "page": 32, "clause_path": "상품요약서 보험가격지수", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "87.8 81.8 90.4 84.2"}
+  ],
+  "fields": [
+    {"field_id": "f_inpatient_rate", "scope": "main_disease_covered", "axis": "payout_method", "field": "reimbursement_rate", "raw_value": "말합니다.)의 80%에 해당하는 금액", "normalized_value": {"rate": "0.8", "of": "급여 본인부담금(일부+전액본인부담)"}, "unit": "rate", "amount_form": "indemnity", "evidence_refs": ["c_art3_inpatient"], "value_state": "observed", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "세로쓰기 열 머리와 셀 문장이 줄 단위로 섞여 '입원' 행 범위를 좌표로 확인하지 않았다", "gaps": ["G15"]},
+    {"field_id": "f_outpatient_deductible", "scope": "main_disease_covered", "axis": "payout_method", "field": "outpatient_deductible", "raw_value": "＜표1> 통원항목별 공제금액", "normalized_value": null, "unit": "krw", "amount_form": "indemnity", "evidence_refs": ["c_art3_outpatient", "c_table1"], "value_state": "unreadable", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "'1만원/2만원, 보장대상의료비의 20%, 건강보험 본인부담률을 곱한 금액 중 큰 금액' 3열 표가 셀 단위로 섞여 기관 구분과 공제식의 대응을 텍스트로 확정할 수 없다", "gaps": ["G15", "G02"]},
+    {"field_id": "f_annual_limit", "scope": "main_disease_covered", "axis": "payout_method", "field": "annual_limit", "raw_value": "합산하여 5천만원이며, 제3조(보장종목별 보상내용)에 의한", "normalized_value": {"limit_krw": 50000000, "per": "policy_year (계약일부터 매 1년 계약해당일 전일까지)", "combined": ["입원", "통원"], "value_kind": "fixed"}, "unit": "krw", "evidence_refs": ["c_art6_1", "c_art6_2", "c_art3_1"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G05"]},
+    {"field_id": "f_annual_limit_std", "scope": "standard_terms", "axis": "payout_method", "field": "annual_limit", "raw_value": "액을 합산하여 5천만원 이내에서 회사가 정한 금액 중 계약자가 선택한 금액을 말하며,", "normalized_value": {"upper_bound_krw": 50000000, "value_kind": "upper_bound_contract_selected"}, "unit": "krw", "evidence_refs": ["c_std_art5_1"], "value_state": "observed", "review_status": "pending", "criticality": "c1", "gaps": ["G20"]},
+    {"field_id": "f_selfpay_cap", "scope": "main_disease_covered", "axis": "payout_method", "field": "inpatient_selfpay_cap", "raw_value": "연간 200만원을 초과하는 경우 그 초과금액은 제1항의 한도 내에서 보상합니다.", "normalized_value": {"selfpay_rate": "0.2", "annual_cap_krw": 2000000, "excess": "reimbursed within annual limit"}, "unit": "krw", "evidence_refs": ["c_art6_4"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G02", "G05"]},
+    {"field_id": "f_outpatient_limit", "scope": "main_disease_covered", "axis": "payout_method", "field": "outpatient_limit_per_visit", "raw_value": "통원 1회당 20만원 이내에서 회사가 정한 금액 중 계약자가 선택한 금액의 한도 내에서 보상합니다.", "normalized_value": {"upper_bound_krw": 200000, "value_kind": "upper_bound_contract_selected", "summary_states": "회당 20만원(선택 문구 없음)"}, "unit": "krw", "evidence_refs": ["c_art6_5", "c_sum_limits"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G20", "G21"]},
+    {"field_id": "f_after_end", "scope": "main_disease_covered", "axis": "period", "field": "coverage_after_contract_end", "raw_value": "종료일 다음날부터 180일 이내의 통원을 보상하며 최대 90 회 한도 내에서 보상합니다.", "normalized_value": {"inpatient_days_after_end": 180, "outpatient_days_after_end": 180, "outpatient_visits_max": 90, "remaining_limit": "연간 한도 − 직전 보험기간 지급액"}, "unit": "day", "evidence_refs": ["c_art3_3_4", "c_art6_6"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G25", "G05"]},
+    {"field_id": "f_kcd_exclusions", "scope": "main_disease_covered", "axis": "constraint", "field": "code_exclusions", "raw_value": "F90∼F98과 관련한 치료에서 발생한 「국민건강보험법」에", "normalized_value": {"code_system": "kcd", "edition": 9, "excluded": ["F04-F99 (단 F04-F09·F20-F29·F30-F39·F40-F48·F51·F90-F98 요양급여는 보상; 태아 가입 시 F80-F89 18세까지 보상)", "N96-N98 중 전액본인부담·가입 2년 이내", "O00-O99 (분만예정일 280일 이전 가입 시 일부 보상)", "Q00-Q04 (태아 가입 시 보상)", "N39.3, N39.4, R32"], "future_editions": "제10차 이후 추가 코드도 포함"}, "unit": null, "evidence_refs": ["c_art4_2", "c_art4_2_f", "c_art4_2_o"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G08"]},
+    {"field_id": "f_noncovered_excluded", "scope": "main_disease_covered", "axis": "constraint", "field": "exclusions", "raw_value": "1. 비급여의료비", "normalized_value": {"items": ["비급여의료비(특약 영역)"]}, "unit": null, "evidence_refs": ["c_art5"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": []},
+    {"field_id": "f_multi_policy", "scope": "main_disease_covered", "axis": "payout_method", "field": "pro_rata_with_other_contracts", "raw_value": "최고액에서 각 계약의 피보험자부담 공제금액 중 최소액을 차", "normalized_value": {"formula": "(보장대상의료비 최고액 − 피보험자부담 공제금액 최소액) × 이 계약 보장책임액 / 보장책임액 합계", "requires": "다른 실손 계약"}, "unit": null, "evidence_refs": ["c_art41", "c_art41_formula", "c_std_art37"], "value_state": "observed", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "분수식의 분자·분모가 다른 줄로 추출되어 구조를 텍스트로 확정할 수 없다(표준약관 제37조와 대조해 같은 식으로 읽음)", "gaps": ["G03", "G15", "G22"]},
+    {"field_id": "f_renewal", "scope": "main", "axis": "lifecycle", "field": "renewal", "raw_value": "① 이 계약의 보험기간은 1년 만기 갱신으로 합니다.", "normalized_value": {"cycle_years": 1, "coverage_revision_cycle_years": 5, "revision_cycle_end": "계약일부터 5년이 되는 계약해당일의 전일", "renewal_premium": "갱신일 요율(나이·의료수가·위험률 변동)"}, "unit": "year", "evidence_refs": ["c_art25_1", "c_art25_2", "c_art25_7"], "value_state": "observed", "review_status": "pending", "criticality": "c1", "gaps": []},
+    {"field_id": "f_nc_inpatient", "scope": "rider_noncovered_nonsevere", "axis": "payout_method", "field": "reimbursement_and_limits", "raw_value": "료비는 1회당 300만원을 한도로 합니다.", "normalized_value": {"rate": "0.5", "annual_limit_krw": 10000000, "clinic_inpatient_per_admission_krw": 3000000, "room_diff": "50%, 1일 평균 10만원 한도(평균 = 비급여 병실료 합 / 총 입원일수)", "outpatient": "1일당 20만원, 연 100일"}, "unit": "krw", "amount_form": "indemnity", "evidence_refs": ["c_nc_art3_inpatient", "c_nc_art3_room", "c_nc_art3_outpatient", "c_nc_art5"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G03", "G05"]},
+    {"field_id": "f_std_extraction", "scope": "standard_terms", "axis": "identity", "field": "extraction_strategy", "raw_value": "계 혈 족 및 형제자 매민( 법 제768조))의 근로 소득 에 포함된 경우,", "normalized_value": {"poppler": "글자 순서 뒤섞임", "pdfplumber": "정상", "decision": "쪽별 추출기 선택과 버전을 ClauseOccurrence에 기록"}, "unit": null, "evidence_refs": ["c_std_garbled"], "value_state": "observed", "review_status": "pending", "criticality": "c2", "gaps": ["G15"]}
+  ],
+  "relations": [
+    {"relation_id": "r_covered_noncovered", "relation_type": "excludes", "from": "main (급여)", "to": "rider_noncovered_nonsevere (비급여)", "predicate": "주계약은 비급여의료비를 보상하지 않는다(특약 영역)", "evidence_refs": ["c_art5"], "review_status": "pending", "gaps": []},
+    {"relation_id": "r_std_instance", "relation_type": "defined_by", "from": "main", "to": "standard_terms 제5조·제37조", "predicate": "상품 조문 번호가 다르다(표준 제5조 → 상품 제6조, 표준 제37조 → 상품 제41조). 번호로 매핑하지 않는다", "evidence_refs": ["c_std_art5_1", "c_art6_1", "c_std_art37", "c_art41"], "review_status": "pending", "gaps": ["G22", "G20"]}
+  ],
+  "rules": [
+    {"benefit": "급여 입원·통원 실손", "status": "not_expressible", "reason": "통원은 '본인부담 − 공제금액'(뺄셈), 공제금액은 max(정액, 20%, 본인부담률 곱) 표(판독 보류), 연간 한도·자기부담 200만원 상한은 같은 보험연도 누적 상태가 필요하다", "gaps": ["G02", "G05", "G15"]},
+    {"benefit": "다수보험 비례분담", "status": "not_expressible", "reason": "나눗셈과 다른 계약 목록이 필요하다", "gaps": ["G03"]},
+    {"benefit": "비중증비급여 상급병실료 차액", "status": "not_expressible", "reason": "1일 평균 = 합계 / 일수(나눗셈) 뒤 한도 적용", "gaps": ["G03", "G05"]}
+  ],
+  "premium_observations": [
+    {"observation_id": "p_silson_unit", "price_basis": "illustrative", "amount_krw": null, "pay_cycle": "monthly", "components": [{"scope": "main + 중증·비중증 비급여 특약", "insured_amount_krw": null}],
+     "conditions": {"age": 40, "risk_class": "비위험", "coverage_term": "1y", "pay_term": "full_term", "contract_phase": "initial_and_renewal_indexed"},
+     "missing_dimensions": ["sex (지수만 남/여 공시)", "amount"],
+     "comparison_basis_id": "cb_none", "package_binding": null,
+     "evidence_refs": ["c_sum_price_index"], "source_as_of": "2026-06-29", "observed_at": "2026-10-09T04:26:19Z",
+     "value_state": "not_found", "review_status": "pending", "price_unavailable_reason": "unqueried",
+     "unknown_reason": "요약서에는 보험가격지수(최초·갱신 따로)만 있고 금액이 없다. 협회 실손 비교공시 목록은 이번에 조회하지 않았다", "gaps": ["G17", "G19"]}
+  ]
+}

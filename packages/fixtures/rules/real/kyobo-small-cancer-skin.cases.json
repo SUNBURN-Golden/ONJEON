@@ -1,0 +1,23 @@
+{
+  "rule_id": "kyobo-small-cancer-skin",
+  "source": "교보통합암보험 소액암진단특약(갱신형)Ⅳ 2형 제10조1호·제11조⑧⑨·별표1. 비율 0.2/0.1은 별표1의 '1,000만원 기준 200만원/100만원' 예시에서 환산한 derived 값(G06). AI 해석·미검수.",
+  "base": {"first_contract_date": "2026-01-01", "first_coverage_start_date": "2026-01-01", "period_start_date": "2026-01-01", "period_end_date": "2045-12-31",
+           "diagnosis_date": "2026-06-01", "dx_other_skin_cancer": true, "already_paid": false, "is_renewal": false,
+           "same_disease_paid_before_renewal": false, "rider_amount_krw": 10000000},
+  "cases": [
+    { "id": "s01_no_waiting_reduced", "note": "특약 보장개시일은 입력(보장개시 조항 미발췌, G12). 1년 미만 50%", "set": {"diagnosis_date": "2026-01-02"},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 1000000}}, "missing_inputs": []} },
+    { "id": "s02_after_one_year", "set": {"diagnosis_date": "2027-01-01"},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 2000000}}, "missing_inputs": []} },
+    { "id": "s03_renewal_reduction_base_is_first_contract", "note": "갱신 후에도 감액 기산은 최초계약 계약일",
+      "set": {"is_renewal": true, "period_start_date": "2046-01-01", "period_end_date": "2065-12-31", "diagnosis_date": "2046-03-01"},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 2000000}}, "missing_inputs": []} },
+    { "id": "s04_renewal_same_disease_excluded", "note": "제11조⑨ 갱신 전 계약에서 지급된 같은 질병(잔존·재발·전이)",
+      "set": {"is_renewal": true, "period_start_date": "2046-01-01", "period_end_date": "2065-12-31", "diagnosis_date": "2046-03-01", "same_disease_paid_before_renewal": true},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
+    { "id": "s05_renewal_history_unknown", "set": {"is_renewal": true, "period_start_date": "2046-01-01", "period_end_date": "2065-12-31", "diagnosis_date": "2046-03-01", "same_disease_paid_before_renewal": null},
+      "expect": {"eligibility": "unknown", "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 2000000}}, "missing_inputs": ["same_disease_paid_before_renewal"]} },
+    { "id": "s06_outside_current_period", "set": {"diagnosis_date": "2046-01-01"},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kyobo-wholelife-accident-death",
+  "rule_version": "v1-validation",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "contract_date": "date",
+    "coverage_start_date": "date",
+    "is_revived": "bool",
+    "revival_application_date": "date",
+    "death_date": "date",
+    "cause_in_accident_table": "bool",
+    "self_harm": "bool",
+    "self_harm_without_free_will": "bool",
+    "harmed_by_beneficiary_or_contractor": "bool",
+    "basic_amount_krw": "money_krw",
+    "insured_amount_krw": "money_krw",
+    "additional_reserve_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "lt": ["death_date", { "date_add": ["contract_date", { "value": 5, "unit": "calendar_year", "month_end": "clamp" }] }] },
+      { "any": [
+        { "all": [ { "eq": ["cause_in_accident_table", true] }, { "eq": ["self_harm", false] } ] },
+        { "all": [ { "eq": ["self_harm", true] }, { "eq": ["self_harm_without_free_will", true] } ] }
+      ] },
+      { "eq": ["harmed_by_beneficiary_or_contractor", false] }
+    ]
+  },
+  "amount": { "add": ["basic_amount_krw", "additional_reserve_krw"] },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "kyobo_wholelife#c_art3",
+    "kyobo_wholelife#c_art8_1",
+    "kyobo_wholelife#c_annex1_period",
+    "kyobo_wholelife#c_annex1_accident",
+    "kyobo_wholelife#c_annex4_scope",
+    "kyobo_wholelife#c_annex4_self_harm_excluded"
+  ],
+  "publication_state": "fixture_only"
+}

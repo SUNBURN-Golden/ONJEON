@@ -1,0 +1,35 @@
+name: sources
+
+# Re-verify the V1 validation samples against their original bytes: download from the recorded
+# URL, SHA-256, re-extract every quoted page. Manual only: it reaches insurer and regulator sites,
+# and some of them block foreign or datacenter addresses (reported as download_failed, never as
+# verified). The originals are not stored in this repository yet (BLUEPRINT §12).
+on:
+  workflow_dispatch:
+    inputs:
+      ocr:
+        description: "Re-OCR the scanned sample (slow)"
+        type: boolean
+        default: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extractors
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q poppler-utils ${{ inputs.ocr && 'tesseract-ocr tesseract-ocr-kor' || '' }}
+          python3 -m pip install --quiet pdfplumber==0.11.10
+      - name: Download and verify
+        run: |
+          python3 -I tools/verify_sources.py --cache "$RUNNER_TEMP/samples" --download \
+            ${{ inputs.ocr && '--ocr' || '--allow-ocr-skip' }} --workdir "$RUNNER_TEMP/ocr" \
+            --report "$RUNNER_TEMP/source_check.json"
+      - name: Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-check
+          path: ${{ runner.temp }}/source_check.json

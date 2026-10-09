@@ -12,8 +12,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Vocabulary (canonical states, generated doc, deprecated names)
         run: python3 tools/vocab_check.py
-      - name: Validation set (verbatim quotes, hashes, vocabulary codes, references)
+      - name: Validation set internal consistency (extracts and metadata; originals are checked by the manual `sources` workflow)
         run: python3 tools/validation_check.py
+      - name: Validation checker self-test (known tampering must fail)
+        run: python3 tools/validation_check.py --selftest
       - name: Toolchain
         run: rustup component add rustfmt clippy
       - name: Format

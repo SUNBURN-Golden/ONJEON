@@ -163,19 +163,151 @@ fn every_real_rule_evidence_ref_names_an_encoded_clause() {
     }
 }
 
-#[test]
-fn screen_scenarios_show_exactly_what_the_engine_computes() {
-    // V1-c: every number on the coverage detail sheet comes from a rule evaluation.
-    let rules = rules();
-    let screen = load(
+/// Korean won text exactly as the screen writes it: "1,500만원", "51,290원", "0원".
+fn fmt_krw(krw: i64) -> String {
+    fn grouped(n: i64) -> String {
+        let s = n.to_string();
+        let mut out = String::new();
+        for (i, c) in s.chars().enumerate() {
+            if i > 0 && (s.len() - i).is_multiple_of(3) {
+                out.push(',');
+            }
+            out.push(c);
+        }
+        out
+    }
+    if krw != 0 && krw % 10_000 == 0 {
+        format!("{}만원", grouped(krw / 10_000))
+    } else {
+        format!("{}원", grouped(krw))
+    }
+}
+
+/// The payout text a scenario line must start with, generated from the engine result alone.
+fn payout_text(payout: &J) -> String {
+    match (payout["kind"].as_str(), payout["amount"]["kind"].as_str()) {
+        (Some("not_payable"), _) => fmt_krw(0),
+        (Some("payable"), Some("exact")) => fmt_krw(payout["amount"]["krw"].as_i64().unwrap()),
+        (Some("payable"), Some("range")) => format!(
+            "{}~{}",
+            fmt_krw(payout["amount"]["min_krw"].as_i64().unwrap()),
+            fmt_krw(payout["amount"]["max_krw"].as_i64().unwrap())
+        ),
+        _ => "계산 불가".to_string(),
+    }
+}
+
+fn engine_krw(payout: &J) -> Option<i64> {
+    match (payout["kind"].as_str(), payout["amount"]["kind"].as_str()) {
+        (Some("not_payable"), _) => Some(0),
+        (Some("payable"), Some("exact")) => payout["amount"]["krw"].as_i64(),
+        _ => None,
+    }
+}
+
+fn collect_amounts<'a>(v: &'a J, out: &mut Vec<&'a J>) {
+    match v {
+        J::Object(m) => {
+            if let Some(J::Array(a)) = m.get("amounts") {
+                out.extend(a.iter());
+            }
+            m.values().for_each(|x| collect_amounts(x, out));
+        }
+        J::Array(a) => a.iter().for_each(|x| collect_amounts(x, out)),
+        _ => {}
+    }
+}
+
+/// Every way the screen can disagree with the engine. Empty means the screen is faithful.
+fn screen_errors(screen: &J, rules: &BTreeMap<String, Rule>) -> Vec<String> {
+    let mut errors = Vec::new();
+    let mut results = BTreeMap::new();
+    for s in screen["scenarios"].as_array().into_iter().flatten() {
+        let id = s["id"].as_str().unwrap_or("?").to_string();
+        let Some(rule) = s["rule_id"].as_str().and_then(|r| rules.get(r)) else {
+            errors.push(format!("{id}: unknown rule"));
+            continue;
+        };
+        let observed = observe(rule, &s["inputs"]);
+        if observed != s["expect"] {
+            errors.push(format!(
+                "{id}: engine gives {observed}, screen file expects {}",
+                s["expect"]
+            ));
+        }
+        let want = payout_text(&observed["payout"]);
+        let line = s["display"]["line"].as_str().unwrap_or("");
+        if !line.starts_with(&want) {
+            errors.push(format!(
+                "{id}: line `{line}` must start with engine text `{want}`"
+            ));
+        }
+        results.insert(id, observed["payout"].clone());
+    }
+    let mut amounts = Vec::new();
+    collect_amounts(screen, &mut amounts);
+    for a in amounts {
+        let Some(id) = a["source"]
+            .as_str()
+            .and_then(|s| s.strip_prefix("scenario:"))
+        else {
+            continue; // price, candidate and clause sources are checked by tools/validation_check.py
+        };
+        match results.get(id).map(engine_krw) {
+            Some(Some(krw)) if Some(krw) == a["krw"].as_i64() => {}
+            Some(Some(krw)) => {
+                errors.push(format!("amount {} cites scenario {id} = {krw}", a["krw"]))
+            }
+            Some(None) => errors.push(format!(
+                "amount {} cites scenario {id} with no exact amount",
+                a["krw"]
+            )),
+            None => errors.push(format!("amount {} cites unknown scenario {id}", a["krw"])),
+        }
+    }
+    errors
+}
+
+fn detail_screen() -> J {
+    load(
         &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../docs/blueprint/validation/screen/coverage_detail.cancer.json"),
-    );
-    let scenarios = screen["scenarios"].as_array().expect("scenarios");
-    assert!(!scenarios.is_empty());
-    for s in scenarios {
-        let rule = &rules[s["rule_id"].as_str().unwrap()];
-        let observed = observe(rule, &s["inputs"]);
-        assert_eq!(observed, s["expect"], "screen scenario {}", s["id"]);
+    )
+}
+
+#[test]
+fn screen_payout_text_and_amounts_come_from_the_engine() {
+    // V1-c: payout lines start with text generated from the engine result, and every amount
+    // the screen attributes to a scenario equals what the engine computes for it.
+    let screen = detail_screen();
+    assert!(screen["scenarios"].as_array().unwrap().len() >= 7);
+    let errors = screen_errors(&screen, &rules());
+    assert!(errors.is_empty(), "{}", errors.join("\n"));
+}
+
+#[test]
+fn screen_check_catches_tampered_numbers() {
+    let rules = rules();
+    let base = detail_screen();
+    type Tamper = fn(&mut J);
+    let tampers: [(&str, Tamper); 4] = [
+        ("display line 1,500만원 -> 9,999만원", |s| {
+            s["scenarios"][1]["display"]["line"] = json!("9,999만원 · 첫 1년 50%");
+        }),
+        ("declared scenario amount changed", |s| {
+            s["sections"]["when_not_paid"][1]["amounts"][0]["krw"] = json!(99_990_000);
+        }),
+        ("expectation and line changed together", |s| {
+            s["scenarios"][1]["expect"]["payout"]["amount"]["krw"] = json!(99_990_000);
+            s["scenarios"][1]["display"]["line"] = json!("9,999만원 · 첫 1년 50%");
+        }),
+        ("scenario input changed under a fixed line", |s| {
+            s["scenarios"][1]["inputs"]["diagnosis_date"] = json!("2026-02-01");
+        }),
+    ];
+    for (name, tamper) in tampers {
+        let mut s = base.clone();
+        tamper(&mut s);
+        assert!(!screen_errors(&s, &rules).is_empty(), "not caught: {name}");
     }
 }

@@ -1,40 +1,146 @@
 {
-  "status": {"data_kind": "design_validation", "interpretation": "ai_unreviewed", "service_use": "forbidden"},
+  "status": {
+    "data_kind": "design_validation",
+    "interpretation": "ai_unreviewed",
+    "service_use": "forbidden"
+  },
   "view": "my_design",
   "review_assumption": "as_is",
-  "profile": {"age": 40, "sex": "male", "policy_holdings_status": "none_declared"},
+  "profile": {
+    "age": 40,
+    "sex": "male",
+    "policy_holdings_status": "none_declared"
+  },
   "release_id": null,
   "data_as_of": "2026-10-09",
-  "budget": {"value_man": 15, "set_by_user": true, "min_man": 5, "max_man": 30, "step_man": 1, "current_paid": null},
+  "budget": {
+    "value_man": 15,
+    "set_by_user": true,
+    "min_man": 5,
+    "max_man": 30,
+    "step_man": 1,
+    "current_paid": null
+  },
   "tab": "proposal",
   "comparison_basis_id": "cb_life_cancer_40_m_20pay_to100_main3000",
-  "price_caption": {"text": "공시 조건으로 비교 중 · 조건 보기", "conditions_ref": "cb_life_cancer_40_m_20pay_to100_main3000"},
+  "price_caption": {
+    "text": "공시 조건으로 비교 중 · 조건 보기",
+    "conditions_ref": "cb_life_cancer_40_m_20pay_to100_main3000"
+  },
   "groups": [
-    {"id": "diagnosis", "title": "진단 보장", "subtitle": "암 진단비 · 90일 면책, 1년 50%",
-     "plan_action": "add", "row_label": "needs_condition",
-     "price_line": {"basis": "illustrative", "won": 51290, "man_display": "월 5.1만", "candidates": 1, "as_of": "2026-06-29", "unpriced": 0,
-                    "refs": ["kyobo_cancer#p_sum_m_bundle"]},
-     "unresolved_items": [
-       {"display_status": "hold", "line": "암 기준표 차수 충돌", "refs": ["kyobo_cancer#f_main_code_edition"]},
-       {"display_status": "data_missing", "line": "소액암 특약 면책 여부", "refs": ["kyobo_cancer#f_sc_waiting"]}
-     ],
-     "detail": "coverage_detail.cancer.json"},
-    {"id": "hospital_surgery", "title": "입원·수술", "subtitle": "수술 1~5종 · 분류표 확인 중",
-     "plan_action": "keep", "row_label": "needs_condition",
-     "price_line": {"basis": null, "won": null, "price_unavailable_reason": "unqueried", "chip": "가격 미확인 · 아직 확인 전",
-                    "refs": ["kyobo_cancer#f_surg_rates"]},
-     "unresolved_items": [
-       {"display_status": "hold", "line": "수술분류표를 읽지 못함", "refs": ["kyobo_cancer#f_surg_classification"]}
-     ]},
-    {"id": "living_care", "title": "생활비 대비", "subtitle": "간병인 일당 · 약관 확보 전",
-     "plan_action": "keep", "row_label": "needs_condition",
-     "price_line": {"basis": null, "won": null, "price_unavailable_reason": "not_found", "chip": "가격 미확인 · 찾지 못함",
-                    "refs": ["kyobo_care#p_lh1_unit"]},
-     "unresolved_items": [
-       {"display_status": "data_missing", "line": "간병 특약 약관 원문 없음", "refs": ["kyobo_care#f_lh1_reduction"]},
-       {"display_status": "hold", "line": "체증형 일당 구간 판독 보류", "refs": ["kyobo_care#f_lh2_stepup"]}
-     ]},
-    {"id": "diff", "title": "무엇이 달라지나요?", "subtitle": "추가 2 · 줄어드는 것 3 · 확인 필요", "badge_count": 4}
+    {
+      "id": "diagnosis",
+      "title": "진단 보장",
+      "subtitle": "암 진단비 · 90일 면책, 1년 50%",
+      "plan_action": "add",
+      "row_label": "needs_condition",
+      "price_line": {
+        "basis": "illustrative",
+        "won": 51290,
+        "man_display": "월 5.1만",
+        "candidates": 1,
+        "as_of": "2026-06-29",
+        "unpriced": 0,
+        "refs": [
+          "kyobo_cancer#p_sum_m_bundle"
+        ],
+        "condition_match": {
+          "premium_ref": "kyobo_cancer#p_sum_m_bundle",
+          "matched": [
+            "age",
+            "sex"
+          ],
+          "mismatched": [],
+          "not_in_source": [
+            "age_basis",
+            "risk_class",
+            "channel"
+          ],
+          "line": "나이·성별 일치 · 나머지 조건 미확인",
+          "display_status": "data_missing"
+        }
+      },
+      "unresolved_items": [
+        {
+          "display_status": "hold",
+          "line": "암 기준표 차수 충돌",
+          "refs": [
+            "kyobo_cancer#f_main_code_edition"
+          ]
+        },
+        {
+          "display_status": "data_missing",
+          "line": "소액암 특약 면책 여부",
+          "refs": [
+            "kyobo_cancer#f_sc_waiting"
+          ]
+        }
+      ],
+      "detail": "coverage_detail.cancer.json"
+    },
+    {
+      "id": "hospital_surgery",
+      "title": "입원·수술",
+      "subtitle": "수술 1~5종 · 분류표 확인 중",
+      "plan_action": "keep",
+      "row_label": "needs_condition",
+      "price_line": {
+        "basis": null,
+        "won": null,
+        "price_unavailable_reason": "unqueried",
+        "chip": "가격 미확인 · 아직 확인 전",
+        "refs": [
+          "kyobo_cancer#f_surg_rates"
+        ]
+      },
+      "unresolved_items": [
+        {
+          "display_status": "hold",
+          "line": "수술분류표를 읽지 못함",
+          "refs": [
+            "kyobo_cancer#f_surg_classification"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "living_care",
+      "title": "생활비 대비",
+      "subtitle": "간병인 일당 · 약관 확보 전",
+      "plan_action": "keep",
+      "row_label": "needs_condition",
+      "price_line": {
+        "basis": null,
+        "won": null,
+        "price_unavailable_reason": "not_found",
+        "chip": "가격 미확인 · 찾지 못함",
+        "refs": [
+          "kyobo_care#p_lh1_unit"
+        ]
+      },
+      "unresolved_items": [
+        {
+          "display_status": "data_missing",
+          "line": "간병 특약 약관 원문 없음",
+          "refs": [
+            "kyobo_care#f_lh1_reduction"
+          ]
+        },
+        {
+          "display_status": "hold",
+          "line": "체증형 일당 구간 판독 보류",
+          "refs": [
+            "kyobo_care#f_lh2_stepup"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "diff",
+      "title": "무엇이 달라지나요?",
+      "subtitle": "추가 2 · 줄어드는 것 3 · 확인 필요",
+      "badge_count": 4
+    }
   ],
   "data_missing_count": 2,
   "hold_count": 3,

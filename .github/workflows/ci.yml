@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Vocabulary (canonical states, generated doc, deprecated names)
+        run: python3 tools/vocab_check.py
       - name: Toolchain
         run: rustup component add rustfmt clippy
       - name: Format

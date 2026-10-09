@@ -32,7 +32,7 @@ fn amount(j: &J, inputs: J) -> AmountOut {
 #[test]
 fn result_identifies_rule_version_release_content_and_evidence() {
     let mut j = rule(json!({"krw": 1}), json!(true));
-    j["publication_state"] = json!("published");
+    j["publication_state"] = json!("released");
     j["release_id"] = json!("rel-2026-10-01");
     let r = Rule::from_json(&j).unwrap().evaluate(&json!({})).unwrap();
     assert_eq!(r.rule_version, "3");
@@ -111,7 +111,7 @@ fn version_and_release_are_enforced_at_load_time() {
     assert!(Rule::from_json(&j).is_err());
 
     let mut j = rule(json!({"krw": 1}), json!(true));
-    j["publication_state"] = json!("published");
+    j["publication_state"] = json!("released");
     assert!(
         Rule::from_json(&j)
             .unwrap_err()

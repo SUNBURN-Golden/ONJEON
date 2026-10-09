@@ -40,9 +40,9 @@
 | 제약 | 면책, 감액, 제외, 기산점, 포함 경계 | 부정어·이상/초과·날짜 단위 보존 |
 | 관계 | 주계약 종속, 특약 배타, 동시가입, 공유 한도 | 그래프 간선에도 증거 |
 | 생애주기 | 갱신, 종료, 소멸, 환급 구조 | 가격 표와 지급 규칙 혼합 금지 |
-| 이용 등급 | indexed_only, explained, simulatable, comparable | 담보 전체와 필드별 준비 상태 구분 |
+| 기능 자격 | search, explain, compare_conditions, compare_price, simulate | 각 기능은 독립. 담보 전체와 필드별 준비 상태 구분 |
 
-모든 추출 필드는 `raw_value`, `normalized_value`, `unit`, `evidence_refs`, `scope`, `valid_from/to`, `observed_at`, `extractor_version`, `validation_status`, `unknown_reason`을 가진다. null은 0·해당 없음·미기재·해석 실패와 다르다. 라벨 사전에는 정의·포함/제외 기준·양성/음성 예·상충 규칙·버전·변경 이력을 둔다. 질병 분류 코드 개정판을 명시하고 서로 다른 개정판은 검증된 매핑이 없으면 합치지 않는다.
+모든 추출 필드는 `raw_value`, `normalized_value`, `unit`, `evidence_refs`, `scope`, `effective_from/to`, `observed_at`, `extractor_version`, `value_state`, `review_status`, `unknown_reason`을 가진다. null은 0·해당 없음·미기재·해석 실패와 다르다. 라벨 사전에는 정의·포함/제외 기준·양성/음성 예·상충 규칙·버전·변경 이력을 둔다. 질병 분류 코드 개정판을 명시하고 서로 다른 개정판은 검증된 매핑이 없으면 합치지 않는다.
 
 ## 5. AI와 코드의 역할
 

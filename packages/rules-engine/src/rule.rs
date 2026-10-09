@@ -10,6 +10,8 @@ use std::fmt;
 
 pub const SCHEMA_VERSION: &str = "rule-0.1";
 pub const UNKNOWN_POLICY: &str = "use_three_valued_logic_never_default_to_zero";
+/// Allowed `publication_state` values; must match `publication_state` in vocabulary.json.
+pub const PUBLICATION_STATES: [&str; 3] = ["fixture_only", "candidate", "released"];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InputType {
@@ -263,6 +265,12 @@ impl Rule {
             }
         }
         let publication_state = get_str("publication_state")?;
+        if !PUBLICATION_STATES.contains(&publication_state.as_str()) {
+            return Err(RuleError::at(
+                "publication_state",
+                "must be fixture_only|candidate|released (packages/schemas/vocabulary.json)",
+            ));
+        }
         let evidence_refs: Vec<String> = match obj.get("evidence_refs") {
             Some(J::Array(a)) => a
                 .iter()

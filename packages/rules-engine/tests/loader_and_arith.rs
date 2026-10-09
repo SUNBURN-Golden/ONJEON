@@ -183,7 +183,7 @@ fn loader_enforces_rule_level_invariants() {
     );
 
     let mut j = base(json!(true), json!({"krw": 1}));
-    j["publication_state"] = json!("published");
+    j["publication_state"] = json!("released");
     j["evidence_refs"] = json!([]);
     assert!(
         Rule::from_json(&j)

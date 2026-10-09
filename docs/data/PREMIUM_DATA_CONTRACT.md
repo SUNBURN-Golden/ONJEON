@@ -17,7 +17,7 @@
 - 보험기간·납입기간·납입주기·갱신형 여부·첫 회/계속 보험료·할인과 적용 조건
 - 금액·통화·적용 단위·가격 근거 유형·게시일·적용일·수집일·유효기간 또는 미기재
 - 소스 URL·불변 원문 해시·페이지/표 셀/조회 조건·정확 인용·추출기 버전
-- validation_status, comparison_basis_id, missing_dimensions, package_binding, source_revision
+- value_state, review_status, comparison_basis_id, missing_dimensions, package_binding, source_revision
 
 행·열 머리글과 각주도 금액의 일부다. 표의 40세 남성 월납 금액이 다른 나이·여성·연납으로 연결되는 추출 오류를 경계한다. 개인정보로 공개 조회를 몰래 호출하거나 가입 동의 절차를 대신 수행하지 않는다.
 

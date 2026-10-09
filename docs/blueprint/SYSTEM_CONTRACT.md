@@ -103,7 +103,7 @@ Rust 백엔드·규칙 엔진, Flutter 앱, 문서 복원용 격리 Python 워�
 | ContractSnapshot | 사용자 소유·PDF·확인 필드·버전 매핑 | 원문 공시 DB와 분리 |
 | Evaluation | 입력 스냅샷·규칙 해시·release_id·결과·trace | 과거 결과 재현과 철회 상태 추적 |
 
-기록 시점(`observed_at/recorded_at`)과 실제 적용 기간(`valid_from/to`)을 분리한다. 효력일 미상은 수집일로 대체하지 않는다. 당일 새 가격·약관이 발견돼도 과거 계약 적용본을 덮어쓰지 않는다. 날짜와 시각을 분리하고 시각 조건을 일자로 절삭하지 않는다. 현재 엔진이 지원하지 않는 형식은 데이터 이용 등급을 제한한다.
+기록 시점(`observed_at/recorded_at`)과 실제 적용 기간(`effective_from/to`)을 분리한다. 효력일 미상은 수집일로 대체하지 않는다. 당일 새 가격·약관이 발견돼도 과거 계약 적용본을 덮어쓰지 않는다. 날짜와 시각을 분리하고 시각 조건을 일자로 절삭하지 않는다. 현재 엔진이 지원하지 않는 형식은 데이터 이용 등급을 제한한다.
 
 원문이 지워져도 보존한 공개 문서 버전으로 과거 계산을 재현한다. 반대로 개인 삭제 요청은 원문 보존 원칙의 예외다. 공개 자료 불변성과 개인자료 무기한 보존을 혼동하지 않는다.
 
@@ -152,7 +152,7 @@ C0는 지급 여부·금액·기산점·면책·감액·정의·한도·상품 �
 
 ### 7.3 데이터 공개 자격
 
-`indexed_only`, `explained`, `comparable`, `simulatable`을 한 줄 등급으로만 보지 않는다. 설명·조건 비교·가격 비교·계산은 **별도 capability**이며 각각 필요한 필드·근거·검증이 있어야 활성화한다. 비교 가능한 조건이 있다고 계산 가능한 것은 아니고, 계산 가능하다고 다른 상품과 동등 비교 가능한 것도 아니다. 기존 등급은 API 호환 표시로 유지할 수 있으나 허용 동작은 capability 검사로 결정한다.
+과거의 한 줄 이용 등급은 쓰지 않는다. 원문 검색·설명·조건 비교·가격 비교·계산은 **별도 capability**(`search`, `explain`, `compare_conditions`, `compare_price`, `simulate`, VOCABULARY.md)이며 각각 필요한 필드·근거·검증이 있어야 활성화한다. 비교 가능한 조건이 있다고 계산 가능한 것은 아니고, 계산 가능하다고 다른 상품과 동등 비교 가능한 것도 아니다. 허용 동작은 capability 검사로만 결정한다.
 
 원문 검색은 가능하지만 설명이 보류될 수 있다. 가격이 보류돼도 확인된 보장 설명은 제공한다. 영향 없는 필드까지 전체 상품에서 숨기지 않는다.
 
@@ -201,7 +201,7 @@ C0는 지급 여부·금액·기산점·면책·감액·정의·한도·상품 �
 
 업로드·계산 요청은 멱등 키와 상태 조회를 제공한다. 개인 응답은 공개 캐시에 저장하지 않는다. 공개 캐시는 release_id·비교 조건을 포함한다. 오래 걸리는 처리의 타임아웃을 지급 불가로 바꾸지 않는다.
 
-상태 축은 분리한다: 수집(`queued/fetched/failed/blocked/unqueried`), 필드(`verified/unknown/conflict/hold/not_applicable`), 개인 입력(`missing/confirmed`), 가격 근거, 초안 행동. 위 상태 이름은 분리할 논리 상태의 설계안이다. 기존 공유 enum의 정본은 BLUEPRINT §6이며 구현 전 M1에서 observed/verified, conflicting/conflict 등의 대응을 하나로 확정한다. 하위 문서 표현을 그대로 별도 enum으로 만들지 않는다. 코드별 사용자 문구와 가능한 다음 행동을 계약 테스트로 고정한다. 알 수 없는 enum은 성공 상태로 기본 처리하지 않는다.
+상태 축은 분리하며 2026-10-09에 `docs/blueprint/VOCABULARY.md`(정본 `packages/schemas/vocabulary.json`)로 확정했다. 수집은 `acquisition_status`, 필드는 `value_state`와 `review_status`, 개인 입력은 `policy_holdings_status`, 가격은 `price_basis`·`price_unavailable_reason`·`freshness`, 초안은 `plan_action`이다. 하위 문서 표현을 별도 enum으로 만들지 않는다. 코드별 사용자 문구와 가능한 다음 행동을 계약 테스트로 고정한다. 알 수 없는 enum은 성공 상태로 기본 처리하지 않는다.
 
 ## 11. 개인정보·가족력·DNA 경계
 

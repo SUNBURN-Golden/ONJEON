@@ -146,25 +146,23 @@ flowchart TD
 
 ## 6. 공유 어휘 (enum 레지스트리)
 
-이 표가 상태값의 정본이다. 코드는 `packages/schemas`에서 생성한다(M1). 새 값은 이 표에 먼저 추가한다.
+상태값의 정본은 [`packages/schemas/vocabulary.json`](../packages/schemas/vocabulary.json)이다. 사람이 읽는 표는 [`docs/blueprint/VOCABULARY.md`](blueprint/VOCABULARY.md)이며 같은 파일에서 생성된다. 코드는 M1에서 같은 정본으로 생성한다. 새 값은 정본에 먼저 추가한다. `tools/vocab_check.py`가 CI에서 정본의 무결성, 생성 문서의 최신성, 계약 문서의 폐기된 이름을 검사한다.
 
-| 어휘 | 값 | 쓰는 곳 |
+축은 서로 섞지 않는다. 핵심 구분은 다음과 같다.
+
+| 축 | 질문 | 예 |
 |---|---|---|
-| 3값 | true, false, unknown | L6 |
-| 지급 판정 | not_payable, payable, undetermined | L6, L8 |
-| 필드 값 상태 | observed, not_found, unreadable, conflicting, not_applicable, not_disclosed, pending_review | L3~L5 |
-| 이용 등급 | indexed_only, explained, simulatable, comparable | L5, L8 |
-| 데이터 상태(화면) | confirmed, comparable, scenario_ready, confirm_input, unverified, hold, not_applicable | L8, L9 |
-| 초안 상태 plan_action | keep, add_review, needs_condition | L8, L9 |
-| 가격 근거 | illustrative, table_derived, contract_observed, quoted(후속) | L3~L9 |
-| 가격 미확인 사유 | not_found, not_disclosed, unreadable, conflicting, pending_review, condition_mismatch, stale | L5~L9 |
-| 가입내역 상태 | uploaded, none, unknown, skipped | 개인 영역, L8 |
-| 민감도 | public_product, private_policy, private_health, genetic_private | 전 계층 |
-| 파이프라인 단계 | discovered, archived, parsed, labeled, validated, compiled, candidate, released (+hold, failed) | L1~L7 |
-| 중요도 | C0, C1, C2 | L4 |
-| 차이 유형 | gain_coverage, gain_amount, lose_coverage, lose_amount, new_waiting, new_reduction, new_exclusion, term_change, limit_change, surrender_loss, unchanged, renewal_change, price_basis_diff, underwriting_unknown, unknown | L8, L9 |
+| `acquisition_status` | 분모의 이 항목을 확보했나, 못 했다면 왜인가 | unqueried, blocked, failed, not_found, not_disclosed, archived |
+| `pipeline_stage` + `pipeline_block` | 어디까지 처리했고 무엇이 막았나 | discovered … released / none, hold, failed |
+| `value_state` | 이 값에 대해 무엇을 아나 | observed, derived, not_found, unreadable, conflicting, not_applicable, not_disclosed |
+| `review_status` | AI 검수 결과는 무엇인가 | pending, accepted, hold, rejected |
+| `capability` + `capability_state` | 무엇을 해도 되나(설명·조건 비교·가격 비교·계산은 독립) | search, explain, compare_conditions, compare_price, simulate |
+| `display_status` | 화면에 무엇이라 보이나(파생, 저장 안 함) | confirmed, input_missing, data_missing, under_review, hold, not_applicable |
+| `plan_action` / `row_label` | 사용자가 초안에서 무엇을 하려나 / 행에 무엇이 보이나 | keep, add, remove, modify / needs_condition |
+| `price_basis` / `price_unavailable_reason` / `freshness` | 가격의 근거, 없는 이유, 최신성 | illustrative … / condition_mismatch … / fresh, stale |
+| `policy_holdings_status` / `contract_version_match` | 내 가입내역을 얼마나 아나 / 어느 버전인가 | confirmed, pending_confirmation, none_declared, unknown, skipped / matched, ambiguous, unmatched |
 
-제3부 §56의 "상태 어휘 7종·가격 근거 4종" 같은 이전 표기는 이 표로 대체된다.
+전체 26개 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
 
 ## 7. 현행 결정 요약
 

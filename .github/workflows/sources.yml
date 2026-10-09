@@ -1,0 +1,79 @@
+name: sources
+
+# Two separate checks (ADR-0015). Manual only, and only runnable once this file is on the default
+# branch (GitHub runs workflow_dispatch from there).
+#  - detect: fetch every recorded URL now; report unchanged / changed / fetch_failed. A change is a
+#    new version candidate; it never replaces the archived original or fails a past reproduction.
+#    Insurer and regulator sites may block foreign datacenter addresses: that is fetch_failed.
+#  - reproduce: re-verify the archived originals (hash, pages, quotes, extraction, pinned derived
+#    manifests) from the private Cloudflare R2 buckets (ADR-0016, infra/r2/). Runs only when the
+#    repository variables below are set; uses the read-only verifier token.
+#      vars.ONJEON_RAW_BUCKET, vars.ONJEON_DERIVED_BUCKET
+#      secrets.ONJEON_S3_ENDPOINT, secrets.R2_VERIFIER_ACCESS_KEY_ID, secrets.R2_VERIFIER_SECRET_ACCESS_KEY
+#      secrets.R2_LEDGER_ACCESS_KEY_ID, secrets.R2_LEDGER_SECRET_ACCESS_KEY (write on onjeon-budget-ledger only)
+#    Every R2 request of these steps goes through the tool's runaway mitigation (per-run limits and
+#    the ledger's cumulative use, infra/r2/BUDGET.md); it is not an account-wide spending cap.
+#    Initial operation (BUDGET.md section 6) uses one designated environment, which is not GitHub:
+#    leave the repository variables unset so this job does not run.
+# Not executed yet as of 2026-10-09 (the file is not on main, and no R2 token is configured).
+on:
+  workflow_dispatch:
+    inputs:
+      ocr:
+        description: "Re-OCR the scanned sample during reproduce (slow)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extractors
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
+          python3 -m pip install --quiet pdfplumber==0.11.10
+      - name: Detect current source changes
+        run: python3 -I tools/verify_sources.py detect --out "$RUNNER_TEMP/now" --report "$RUNNER_TEMP/detect.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: detect-report, path: "${{ runner.temp }}/detect.json" }
+
+  reproduce:
+    if: ${{ vars.ONJEON_RAW_BUCKET != '' && vars.ONJEON_DERIVED_BUCKET != '' }}
+    runs-on: ubuntu-latest
+    concurrency: { group: r2-budget, cancel-in-progress: false }
+    timeout-minutes: 120
+    env:
+      ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}
+      R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}
+      R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
+      JOB: infra/r2/jobs/initial-119.json
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extractors
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q poppler-utils ${{ inputs.ocr && 'tesseract-ocr tesseract-ocr-kor' || '' }}
+          python3 -m pip install --quiet pdfplumber==0.11.10 boto3==1.43.100
+      - name: Every archived key matches the pinned listing
+        run: |
+          L=docs/blueprint/validation/source_checks
+          python3 -I tools/source_archive.py --job "$JOB" verify-copy --expected $L/archive_listing_raw.json \
+            --dst "s3://${{ vars.ONJEON_RAW_BUCKET }}" --report "$RUNNER_TEMP/listing_raw.json"
+          python3 -I tools/source_archive.py --job "$JOB" verify-copy --expected $L/archive_listing_derived_v2.json \
+            --dst "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" --report "$RUNNER_TEMP/listing_derived.json"
+      - name: Reproduce from the archive
+        if: always()
+        run: |
+          python3 -I tools/verify_sources.py --job "$JOB" reproduce --raw "s3://${{ vars.ONJEON_RAW_BUCKET }}" \
+            --derived "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" ${{ inputs.ocr && '--ocr' || '--allow-unverified' }} \
+            --report "$RUNNER_TEMP/reproduce.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: reproduce-report, path: "${{ runner.temp }}/*.json" }

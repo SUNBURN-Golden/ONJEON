@@ -1,0 +1,40 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kb-driver-fine",
+  "rule_version": "v1-validation",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "accident_in_period": "bool",
+    "driving_accident_bodily_injury": "bool",
+    "fine_final_krw": "money_krw",
+    "hit_and_run": "bool",
+    "racing_or_test_use": "bool",
+    "dui_unlicensed_or_drugs": "bool",
+    "intentional_insured_free_will": "bool",
+    "intentional_contractor": "bool",
+    "intentional_beneficiary_sole": "bool",
+    "has_other_contracts": "bool",
+    "pro_rata_amount_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "eq": ["accident_in_period", true] },
+      { "eq": ["driving_accident_bodily_injury", true] },
+      { "eq": ["hit_and_run", false] },
+      { "eq": ["racing_or_test_use", false] },
+      { "eq": ["dui_unlicensed_or_drugs", false] },
+      { "eq": ["intentional_insured_free_will", false] },
+      { "eq": ["intentional_contractor", false] },
+      { "eq": ["intentional_beneficiary_sole", false] }
+    ]
+  },
+  "amount": {
+    "if": "has_other_contracts",
+    "then": "pro_rata_amount_krw",
+    "else": { "min": ["fine_final_krw", { "krw": 20000000 }] }
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": ["kb_driver#c_fine_art1", "kb_driver#c_fine_art2", "kb_driver#c_fine_art3"],
+  "publication_state": "fixture_only"
+}

@@ -1,0 +1,99 @@
+attempted_at,host,url,purpose,http_code,curl_exit,result,final_url,detail,host_access
+2026-10-09T04:21:35Z,www.klia.or.kr,https://www.klia.or.kr/,source:klia_home.html,200,0,200,,,reachable
+2026-10-09T04:21:43Z,www.klia.or.kr,https://www.klia.or.kr/klia/company/member/list.do,source:klia_member.html,200,0,200,,,reachable
+2026-10-09T04:22:13Z,pub.insure.or.kr,https://pub.insure.or.kr/,source:klia_pub_home.html,200,0,200,,,reachable
+2026-10-09T04:22:22Z,pub.insure.or.kr,https://pub.insure.or.kr/mngtDis/mngtDis/list.do,source:klia_pub_mngtDis.html,200,0,200,,,reachable
+2026-10-09T04:22:38Z,fine.fss.or.kr,https://fine.fss.or.kr/fine/fncco/coreMngmt/fisisLife.do?menuNo=900049,source:fine_fisisLife.html,307,0,307,,,reachable
+2026-10-09T04:22:45Z,fine.fss.or.kr,https://fine.fss.or.kr/fine/fncco/coreMngmt/fisisLife.do?menuNo=900049,source:fine_fisisLife.html,200,0,200_service_outage_notice,,,service_outage
+2026-10-09T04:23:08Z,www.fss.or.kr,https://www.fss.or.kr/,source:probe_www.fss.or.kr.html,200,0,200_service_outage_notice,,,service_outage
+2026-10-09T04:23:09Z,fisis.fss.or.kr,https://fisis.fss.or.kr/,source:probe_fisis.fss.or.kr.html,200,0,200_service_outage_notice,,,service_outage
+2026-10-09T04:23:10Z,dart.fss.or.kr,https://dart.fss.or.kr/,source:probe_dart.fss.or.kr.html,200,0,200,,,reachable
+2026-10-09T04:23:18Z,www.kdic.or.kr,https://www.kdic.or.kr/,source:probe_www.kdic.or.kr.html,000,35,connection_reset,,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:23:27Z,www.kidi.or.kr,https://www.kidi.or.kr/,source:probe_www.kidi.or.kr.html,200,0,200,,,reachable
+2026-10-09T04:23:32Z,www.e-insmarket.or.kr,https://www.e-insmarket.or.kr/,source:probe_www.e-insmarket.or.kr.html,302,47,redirect_loop,,curl: (47) Maximum (5) redirects followed ,redirect_loop
+2026-10-09T04:23:36Z,www.kfpa.or.kr,https://www.kfpa.or.kr/,source:probe_www.kfpa.or.kr.html,200,0,200,,,reachable
+2026-10-09T04:23:38Z,www.fsc.go.kr,https://www.fsc.go.kr/,source:probe_www.fsc.go.kr.html,200,0,200,,,reachable
+2026-10-09T04:23:40Z,www.knia.or.kr,https://www.knia.or.kr/,source:probe_www.knia.or.kr.html,200,0,200,,,reachable
+2026-10-09T04:23:42Z,kpub.knia.or.kr,https://kpub.knia.or.kr/,source:probe_kpub.knia.or.kr.html,200,0,200_js_shell,,,js_shell
+2026-10-09T04:23:44Z,www.data.go.kr,https://www.data.go.kr/,source:probe_www.data.go.kr.html,000,35,connection_reset,,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:23:51Z,www.kiri.or.kr,https://www.kiri.or.kr/,source:probe_www.kiri.or.kr.html,200,0,200_js_shell,,,js_shell
+2026-10-09T04:23:53Z,ko.wikipedia.org,https://ko.wikipedia.org/,source:probe_ko.wikipedia.org.html,200,0,200,,,reachable
+2026-10-09T04:23:54Z,cont.insure.or.kr,https://cont.insure.or.kr/,source:probe_cont.insure.or.kr.html,200,0,200_js_shell,,,js_shell
+2026-10-09T04:24:12Z,www.knia.or.kr,https://www.knia.or.kr/about/partner/partner01,source:knia_partner01.html,000,35,connection_reset,,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:24:25Z,www.knia.or.kr,https://www.knia.or.kr/about/partner/partner01,source:knia_partner01.html,200,0,200,,,reachable
+2026-10-09T04:24:59Z,www.kidi.or.kr,https://www.kidi.or.kr/user/nd15720.do,source:kidi_nd15720.html,200,0,200,,,reachable
+2026-10-09T04:25:41Z,www.e-insmarket.or.kr,https://www.e-insmarket.or.kr/,source:einsmarket.html,200,0,200,,,reachable
+2026-10-09T04:25:50Z,ko.wikipedia.org,https://ko.wikipedia.org/w/api.php?action=opensearch&search=...,wikipedia_search (tertiary source attempt),429,0,429_rate_limited,,"Wikimedia API ""too many requests"" 응답 — 재시도하지 않음; 위키백과는 사용하지 않음",rate_limited
+2026-10-09T04:26:07Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/main.do,source:dart_dsae001.html,200,0,200,,,reachable
+2026-10-09T04:26:21Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/selectCorpTree.do,source:dart_corptree.json,200,28,timeout,,curl: (28) Operation timed out after 30000 milliseconds with 69625 bytes received ,timeout
+2026-10-09T04:27:04Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/search.ax,source:dart_search_651_p1.html,302,0,302,,,reachable
+2026-10-09T04:27:11Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/main.do,source:dart_dsae001_b.html,200,0,200,,,reachable
+2026-10-09T04:27:21Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/search.ax,source:dart_search_651_p1.html,200,0,200,,,reachable
+2026-10-09T04:27:33Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/search.ax,source:dart_search_651_p2.html,200,0,200,,,reachable
+2026-10-09T04:27:37Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/search.ax,source:dart_search_652_p1.html,200,0,200,,,reachable
+2026-10-09T04:27:40Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/search.ax,source:dart_search_6512_p1.html,200,0,200,,,reachable
+2026-10-09T04:27:43Z,dart.fss.or.kr,https://dart.fss.or.kr/dsae001/search.ax,source:dart_search_6511_p1.html,200,0,200,,,reachable
+2026-10-09T04:28:23Z,www.klia.or.kr,https://www.klia.or.kr/klia/company/memberHis/list.do,source:klia_memberHis.html,200,0,200,,,reachable
+2026-10-09T04:29:28Z,www.hanwhalife.com,https://www.hanwhalife.com/,homepage:life-hanwha,000,35,ssl_legacy_renegotiation,https://www.hanwhalife.com/,curl: (35) OpenSSL/3.0.13: error:0A000152:SSL routines::unsafe legacy renegotiation disabled ,tls_error
+2026-10-09T04:29:31Z,www.abllife.co.kr,https://www.abllife.co.kr/,homepage:life-abl,200,0,200_geoblock_notice,https://www.abllife.co.kr/,,geo_blocked
+2026-10-09T04:29:34Z,kpub.knia.or.kr,https://kpub.knia.or.kr/main.do,source:knia_kpub_main.html,200,0,200,,,reachable
+2026-10-09T04:29:34Z,www.samsunglife.com,https://www.samsunglife.com/,homepage:life-samsung,200,0,200_js_shell,https://www.samsunglife.com/,,js_shell
+2026-10-09T04:29:36Z,www.heungkuklife.co.kr,https://www.heungkuklife.co.kr/,homepage:life-heungkuk,200,0,200_geoblock_notice,https://www.heungkuklife.co.kr/,,geo_blocked
+2026-10-09T04:29:39Z,www.kyobo.com,https://www.kyobo.com/,homepage:life-kyobo,200,0,200,https://www.kyobo.com/,,reachable
+2026-10-09T04:29:41Z,www.imlifeins.co.kr,https://www.imlifeins.co.kr/,homepage:life-im,000,28,timeout,https://www.imlifeins.co.kr/,curl: (28) Connection timed out after 30001 milliseconds ,timeout
+2026-10-09T04:29:49Z,kpub.knia.or.kr,https://kpub.knia.or.kr/managementDisc/regularly/regularlyDisclosure.do,source:knia_kpub_regular.html,200,0,200,,,reachable
+2026-10-09T04:30:12Z,life.miraeasset.com,https://life.miraeasset.com/,homepage:life-miraeasset,200,0,200_js_shell,https://life.miraeasset.com/,,js_shell
+2026-10-09T04:30:15Z,www.kdblife.co.kr,https://www.kdblife.co.kr/,homepage:life-kdb,000,35,connection_reset,https://www.kdblife.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:30:19Z,www.idblife.com,https://www.idblife.com/,homepage:life-db,000,35,connection_reset,https://www.idblife.com/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:30:32Z,www.myangel.co.kr,https://www.myangel.co.kr/,homepage:life-tongyang,000,35,tls_handshake_fail,https://www.myangel.co.kr/,curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to www.myangel.co.kr:443  ,tls_error
+2026-10-09T04:30:49Z,www.metlife.co.kr,https://www.metlife.co.kr/,homepage:life-metlife,200,0,200,https://www.metlife.co.kr/,,reachable
+2026-10-09T04:30:50Z,www.kblife.co.kr,https://www.kblife.co.kr/,homepage:life-kb,200,0,200_js_shell,https://www.kblife.co.kr/,,js_shell
+2026-10-09T04:30:53Z,www.shinhanlife.co.kr,https://www.shinhanlife.co.kr/,homepage:life-shinhan,000,35,connection_reset,https://www.shinhanlife.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:31:00Z,www.chubblife.co.kr,https://www.chubblife.co.kr/,homepage:life-chubb,200,0,200_js_shell,https://www.chubblife.co.kr/,,js_shell
+2026-10-09T04:31:04Z,www.hanalife.co.kr,https://www.hanalife.co.kr/,homepage:life-hana,000,52,empty_reply,https://www.hanalife.co.kr/,curl: (52) Empty reply from server ,empty_reply
+2026-10-09T04:31:07Z,www.cardif.co.kr,https://www.cardif.co.kr/,homepage:life-bnpcardif,200,0,200,https://www.cardif.co.kr/,,reachable
+2026-10-09T04:31:10Z,www.fubonhyundai.com,https://www.fubonhyundai.com/,homepage:life-fubonhyundai,000,35,connection_reset,https://www.fubonhyundai.com/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:31:19Z,www.lina.co.kr,https://www.lina.co.kr/,homepage:life-lina,200,0,200,https://www.lina.co.kr/,,reachable
+2026-10-09T04:31:22Z,www.aia.co.kr,https://www.aia.co.kr/,homepage:life-aia,200,0,200,https://www.aia.co.kr/ko.html,,reachable
+2026-10-09T04:31:26Z,www.nhlife.co.kr,https://www.nhlife.co.kr/,homepage:life-nh,000,35,connection_reset,https://www.nhlife.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:31:35Z,www.ibki.co.kr,https://www.ibki.co.kr/,homepage:life-ibk,200,0,200_geoblock_notice,https://www.ibki.co.kr/,,geo_blocked
+2026-10-09T04:31:41Z,www.lifeplanet.co.kr,https://www.lifeplanet.co.kr/,homepage:life-kyobo-lifeplanet,200,0,200,https://www.lifeplanet.co.kr/startmain/main.dev,,reachable
+2026-10-09T04:31:46Z,www.meritzfire.com,https://www.meritzfire.com/,homepage:nonlife-meritz,200,0,200,https://www.meritzfire.com/,,reachable
+2026-10-09T04:31:48Z,www.hwgeneralins.com,https://www.hwgeneralins.com/,homepage:nonlife-hanwha,200,0,200,https://www.hwgeneralins.com/,,reachable
+2026-10-09T04:31:52Z,www.lotteins.co.kr,https://www.lotteins.co.kr/,homepage:nonlife-lotte,000,35,connection_reset,https://www.lotteins.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:32:06Z,www.heungkukfire.co.kr,https://www.heungkukfire.co.kr/,homepage:nonlife-heungkuk,200,0,200,https://www.heungkukfire.co.kr/,,reachable
+2026-10-09T04:32:09Z,www.samsungfire.com,https://www.samsungfire.com/,homepage:nonlife-samsung,000,35,connection_reset,https://www.samsungfire.com/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:32:13Z,www.hi.co.kr,https://www.hi.co.kr/,homepage:nonlife-hyundai,200,0,200_js_shell,https://www.hi.co.kr/,,js_shell
+2026-10-09T04:32:16Z,www.kbinsure.co.kr,https://www.kbinsure.co.kr/,homepage:nonlife-kb,200,0,200,https://www.kbinsure.co.kr/,,reachable
+2026-10-09T04:32:18Z,www.idbins.com,https://www.idbins.com/,homepage:nonlife-db,200,0,200_js_shell,https://www.idbins.com/,,js_shell
+2026-10-09T04:32:21Z,www.sgic.co.kr,https://www.sgic.co.kr/,homepage:guarantee-sgi,200,0,200,https://www.sgic.co.kr/,,reachable
+2026-10-09T04:32:23Z,www.axa.co.kr,https://www.axa.co.kr/,homepage:nonlife-axa,200,0,200,https://www.axa.co.kr/cui/,,reachable
+2026-10-09T04:32:26Z,www.aig.co.kr,https://www.aig.co.kr/,homepage:nonlife-aig,200,0,200_js_shell,https://www.aig.co.kr/,,js_shell
+2026-10-09T04:32:29Z,www.educar.co.kr,https://www.educar.co.kr/,homepage:nonlife-hana,000,52,empty_reply,https://www.educar.co.kr/,curl: (52) Empty reply from server ,empty_reply
+2026-10-09T04:32:32Z,www.nhfire.co.kr,https://www.nhfire.co.kr/,homepage:nonlife-nh,000,35,connection_reset,https://www.nhfire.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:32:41Z,www.kakaopayinscorp.co.kr,https://www.kakaopayinscorp.co.kr/,homepage:nonlife-kakaopay,200,0,200,https://www.kakaopayinscorp.co.kr/,,reachable
+2026-10-09T04:32:44Z,www.shinhanez.co.kr,https://www.shinhanez.co.kr/,homepage:nonlife-shinhanez,200,0,200_js_shell,https://www.shinhanez.co.kr/,,js_shell
+2026-10-09T04:32:46Z,www.chubb.com,https://www.chubb.com/kr-kr/,homepage:nonlife-ace-chubb,200,0,200,https://www.chubb.com/kr-kr/,,reachable
+2026-10-09T04:32:48Z,www.ms-ins.co.kr,https://www.ms-ins.co.kr/,homepage:nonlife-mitsuisumitomo,200,0,200,https://www.ms-ins.co.kr/kor/template/main.asp,,reachable
+2026-10-09T04:32:51Z,www.firstam.co.kr,https://www.firstam.co.kr/,homepage:nonlife-firstam,200,0,200,https://www.firstam.co.kr/,,reachable
+2026-10-09T04:32:55Z,www.yebyeol.co.kr,https://www.yebyeol.co.kr/,homepage:nonlife-yebyeol,000,35,connection_reset,https://www.yebyeol.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:33:05Z,www.mybrown.co.kr,https://www.mybrown.co.kr/,homepage:nonlife-mybrown,000,35,connection_reset,https://www.mybrown.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:33:19Z,www.suhyup.co.kr,https://www.suhyup.co.kr/,homepage:coop-suhyup,200,0,200_js_shell,https://www.suhyup.co.kr/,,js_shell
+2026-10-09T04:33:22Z,www.cu.co.kr,https://www.cu.co.kr/,homepage:coop-cu,200,0,200,https://www.cu.co.kr:443/cu/main.do,,reachable
+2026-10-09T04:33:27Z,www.kfcc.co.kr,https://www.kfcc.co.kr/,homepage:coop-kfcc,200,0,200,https://www.kfcc.co.kr/,,reachable
+2026-10-09T04:33:31Z,www.epostlife.go.kr,https://www.epostlife.go.kr/,homepage:other-epost,000,35,connection_reset,https://www.epostlife.go.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:33:54Z,www.aia.co.kr,https://www.aia.co.kr/ko/disclosure/our-products.html,disclosure:life-aia,200,0,200,https://www.aia.co.kr/ko/disclosure/our-products/disclosing-process.html,,reachable
+2026-10-09T04:33:56Z,www.cardif.co.kr,https://www.cardif.co.kr/disclosure/product/papag001.do,disclosure:life-bnpcardif,200,0,200,https://www.cardif.co.kr/disclosure/product/papag001.do,,reachable
+2026-10-09T04:33:59Z,www.lifeplanet.co.kr,https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev,disclosure:life-kyobo-lifeplanet,200,0,200,https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev,,reachable
+2026-10-09T04:34:05Z,www.heungkukfire.co.kr,https://www.heungkukfire.co.kr/FRW/announce/insGoodsGongsiSale.do,disclosure:nonlife-heungkuk,200,0,200,https://www.heungkukfire.co.kr/FRW/announce/insGoodsGongsiSale.do,,reachable
+2026-10-09T04:34:09Z,www.chubb.com,https://www.chubb.com/kr-kr/disclosure/product-disclosure.html,disclosure:nonlife-ace-chubb,200,0,200,https://www.chubb.com/kr-kr/disclosure/product-disclosure.html,,reachable
+2026-10-09T04:34:11Z,www.ms-ins.co.kr,https://www.ms-ins.co.kr/kor/template/0304_01.asp,disclosure:nonlife-mitsuisumitomo-kr,200,0,200,https://www.ms-ins.co.kr/kor/template/0304_01.asp,,reachable
+2026-10-09T04:34:14Z,www.chubblife.co.kr,https://www.chubblife.co.kr/index.do,homepage_redirect:life-chubb,200,0,200,https://www.chubblife.co.kr/index.do,,reachable
+2026-10-09T04:34:19Z,www.idbins.com,https://www.idbins.com/main.do,homepage_redirect:nonlife-db,200,0,200,https://www.idbins.com/FWMAIV0001.do,,reachable
+2026-10-09T04:34:24Z,www.hi.co.kr,https://www.hi.co.kr/index.jsp,homepage_redirect:nonlife-hyundai,000,35,tls_handshake_fail,https://www.hi.co.kr/index.jsp,curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to www.hi.co.kr:443  ,tls_error
+2026-10-09T04:34:26Z,www.sgic.co.kr,https://www.sgic.co.kr/biz/ccp/index.html,homepage_redirect:guarantee-sgi,200,0,200,https://www.sgic.co.kr/biz/ccp/index.html,,reachable
+2026-10-09T04:34:28Z,www.aig.co.kr,https://www.aig.co.kr/wm/dpwmm001.html,homepage_redirect:nonlife-aig,200,0,200,https://www.aig.co.kr/wm/dpwmm001.html,,reachable
+2026-10-09T04:34:32Z,www.shinhanez.co.kr,https://www.shinhanez.co.kr/static/man/MAIN0000M01.html,homepage_redirect:nonlife-shinhanez,200,0,200,https://www.shinhanez.co.kr/static/man/MAIN0000M01.html,,reachable
+2026-10-09T04:34:36Z,www.suhyup.co.kr,https://www.suhyup.co.kr/index.jsp,homepage_redirect:coop-suhyup,200,0,200_js_shell,https://www.suhyup.co.kr/index.jsp,,js_shell
+2026-10-09T04:34:59Z,www.idbins.com,https://www.idbins.com/pc/bizxpress/pb/ppb/mnu/FWMAIV1530.shtm,disclosure:nonlife-db,200,0,200,https://www.idbins.com/pc/bizxpress/pb/ppb/mnu/FWMAIV1530.shtm,,reachable
+2026-10-09T04:35:03Z,www.chubblife.co.kr,https://www.chubblife.co.kr/front/official/sale/list.do,disclosure:life-chubb,200,0,200,https://www.chubblife.co.kr/front/official/sale/list.do,,reachable

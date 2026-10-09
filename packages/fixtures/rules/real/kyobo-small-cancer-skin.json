@@ -1,0 +1,42 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kyobo-small-cancer-skin",
+  "rule_version": "v1-validation",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "first_contract_date": "date",
+    "first_coverage_start_date": "date",
+    "period_start_date": "date",
+    "period_end_date": "date",
+    "diagnosis_date": "date",
+    "dx_other_skin_cancer": "bool",
+    "already_paid": "bool",
+    "is_renewal": "bool",
+    "same_disease_paid_before_renewal": "bool",
+    "rider_amount_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "gte": ["diagnosis_date", "first_coverage_start_date"] },
+      { "gte": ["diagnosis_date", "period_start_date"] },
+      { "lte": ["diagnosis_date", "period_end_date"] },
+      { "eq": ["dx_other_skin_cancer", true] },
+      { "eq": ["already_paid", false] },
+      { "not": { "all": [ { "eq": ["is_renewal", true] }, { "eq": ["same_disease_paid_before_renewal", true] } ] } }
+    ]
+  },
+  "amount": {
+    "if": { "lt": ["diagnosis_date", { "date_add": ["first_contract_date", { "value": 1, "unit": "calendar_year", "month_end": "clamp" }] }] },
+    "then": { "multiply_rate": ["rider_amount_krw", "0.1", { "rounding": "unspecified", "unit": 1 }] },
+    "else": { "multiply_rate": ["rider_amount_krw", "0.2", { "rounding": "unspecified", "unit": 1 }] }
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "kyobo_cancer#c_sc_art10_1",
+    "kyobo_cancer#c_sc_art11_8",
+    "kyobo_cancer#c_sc_art11_9",
+    "kyobo_cancer#c_sc_annex1"
+  ],
+  "publication_state": "fixture_only"
+}

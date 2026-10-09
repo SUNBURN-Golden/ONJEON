@@ -1,0 +1,90 @@
+{
+  "encoding_version": "validation-0.1",
+  "status": {"data_kind": "design_validation", "interpretation": "ai_unreviewed", "service_use": "forbidden"},
+  "family": "kb_driver",
+  "structures": [4, 6, 7, 8],
+  "product_version": {
+    "insurer": "KB손해보험", "product_name": "KB 플러스 운전자상해보험(무배당)(26.09)", "version_label": "판매 2026-09-14~ (bojongNo 25465, 파일 25465_2_*)",
+    "sale_status": "on_sale", "effective_from": "2026-09-14", "channel": null,
+    "version_note": "같은 상품의 2026-09-01~09-13 판매본(25465_1_*)은 별도 버전이다"
+  },
+  "documents": [
+    {"doc_id": "d_terms", "sample_id": "kb_driver_terms", "extract": "extracts/kb_driver_terms.md", "doc_role": "terms", "sha256": "9423e82c3ba80bf876fdd54d72ff1f1493e43e5bad2ebec3f15c9d847358d78f", "observed_at": "2026-10-09T04:29:34Z", "extractor": "poppler pdftotext (읽기순서 모드) + pdfplumber(표)"},
+    {"doc_id": "d_sum", "sample_id": "kb_driver_summary", "extract": "extracts/kb_driver_summary.md", "doc_role": "summary", "sha256": "8bf344b511d2e43d5dea3cbbe92c6b90f8bc15715d91ca69b3c90c9ec8182a16", "observed_at": "2026-10-09T04:29:45Z", "extractor": "poppler pdftotext -layout"},
+    {"doc_id": "d_care_cost", "sample_id": "kb_caregiver_cost_html", "extract": "extracts/kb_caregiver_cost_html.md", "doc_role": "disclosure_page", "sha256": "6ade7ccbb07bfa9ae002ec686131167fa308e6a2d0b7730d85b34698b13ed0b2", "observed_at": "2026-10-09T04:43:40Z", "extractor": "EUC-KR HTML table serializer"}
+  ],
+  "clauses": [
+    {"clause_id": "c_fine_art1", "doc_id": "d_terms", "page": 339, "clause_path": "2. 자동차사고벌금(운전자) 제1조①", "clause_path_basis": "inferred", "kind": "body", "anchor": "보험기간 종료 후에 이루어진 경우를 포함합니다)을 1사고 당 2,000만원을 한도 로 보험수익자에게 지급합니다."},
+    {"clause_id": "c_fine_art2", "doc_id": "d_terms", "page": 340, "clause_path": "2. 자동차사고벌금(운전자) 제2조", "clause_path_basis": "printed", "kind": "body", "anchor": "3. 피보험자가 도로교통법 제43조, 제44조에 의한 음주, 무면허상태 또는 제45 조에 의한 약물상태에서 운전하던 중 사고를 일으킨 때"},
+    {"clause_id": "c_fine_art3", "doc_id": "d_terms", "page": 340, "clause_path": "2. 자동차사고벌금(운전자) 제3조①", "clause_path_basis": "inferred", "kind": "body", "anchor": "금액을 초과했을 때 회사는 이 계약에 따른 보상책임액의 상기 합계액에 대한 비율에 따른 보험금을 지급합니다."},
+    {"clause_id": "c_lawyer_art1", "doc_id": "d_terms", "page": 347, "clause_path": "6. 변호사선임비용손해(심급별,자기부담금 50%) 제1조①", "clause_path_basis": "inferred", "kind": "body", "anchor": "마다 \"소송의 심급별\"로 제3항의 금액을 한도로 보험수익자에게 지급합니다."},
+    {"clause_id": "c_lawyer_table", "doc_id": "d_terms", "page": 348, "clause_path": "6. 변호사선임비용손해 제1조③ 한도표", "clause_path_basis": "inferred", "kind": "table_cell", "anchor": "항소심(2심) 1천5백만원 기준 변호사선임비용의 5백만원"},
+    {"clause_id": "c_lawyer_11_12", "doc_id": "d_terms", "page": 348, "clause_path": "6. 변호사선임비용손해 제1조⑪⑫", "clause_path_basis": "inferred", "kind": "body", "anchor": "비용을 균등 배분한 금액을 각 심급별 변호사선임비용으로 하여 제1항 내지 제3항"},
+    {"clause_id": "c_lawyer_example", "doc_id": "d_terms", "page": 349, "clause_path": "6. 변호사선임비용손해 '제12항의 예시'", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "→ 1심(경찰조사포함), 항소심 및 상고심 각 2,000만원 균등 배분"},
+    {"clause_id": "c_care_art1", "doc_id": "d_terms", "page": 490, "clause_path": "1-1. 간병인지원 상해입원일당(1일이상)Ⅲ【갱신계약】 제1조①②③", "clause_path_basis": "inferred", "kind": "body", "anchor": "한 간병인 사용비용을 보험수익자에게 제5항에서 정한 간병인지원비용을 한도로 지급합니다."},
+    {"clause_id": "c_care_art1_def", "doc_id": "d_terms", "page": 491, "clause_path": "1-1. 간병인지원 상해입원일당Ⅲ 제1조⑤⑥", "clause_path_basis": "inferred", "kind": "body", "anchor": "간병인지원비용이라 함은 제2항에 따라 보험수익자에게 간병인을 지원해주기 위 하여 회사가 정한 비용을 말합니다."},
+    {"clause_id": "c_care_art2", "doc_id": "d_terms", "page": 491, "clause_path": "1-1. 간병인지원 상해입원일당Ⅲ 제2조①②③", "clause_path_basis": "inferred", "kind": "body", "anchor": "합계는 1회 입원당 180일을 한도로 합니다."},
+    {"clause_id": "c_care_art2_hours", "doc_id": "d_terms", "page": 491, "clause_path": "1-1. 간병인지원 상해입원일당Ⅲ 제2조②③", "clause_path_basis": "inferred", "kind": "body", "anchor": "매 24시간을 1일이라 합니다."},
+    {"clause_id": "c_care_cost_3y", "doc_id": "d_care_cost", "page": null, "clause_path": "간병인 지원비용 공시 3년 갱신형 표", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "td:2026-07-01~현재 | td:147,000원"},
+    {"clause_id": "c_care_cost_long", "doc_id": "d_care_cost", "page": null, "clause_path": "간병인 지원비용 공시 5/10/15/20년 갱신형 표", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "td:135,200원 | td:140,400원 | td:145,600원"},
+    {"clause_id": "c_care_cost_target", "doc_id": "d_care_cost", "page": null, "clause_path": "간병인 지원비용 공시 대상 특별약관 목록(2)", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "간병인지원 상해입원일당(1일이상)Ⅲ【갱신계약】"},
+    {"clause_id": "c_care_cost_note", "doc_id": "d_care_cost", "page": null, "clause_path": "간병인 지원비용 공시 주1)", "clause_path_basis": "printed", "kind": "footnote", "anchor": "* 예시) ’25.11.01 가입한 고객의 경우 ’26.11.01~’27.10.31 기간에 간병인 사용시 140,400원 적용"},
+    {"clause_id": "c_sum_mandatory", "doc_id": "d_sum", "page": 1, "clause_path": "상품요약서 계약 구성 <의무부가 계약>", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "<의무부가 계약>"},
+    {"clause_id": "c_sum_renewal_age", "doc_id": "d_sum", "page": 6, "clause_path": "상품요약서 【갱신계약】 주2)", "clause_path_basis": "printed", "kind": "footnote", "anchor": "주2) 【갱신계약】특별약관의 갱신종료나이는 기본계약 보험기간 종료나이와 동일하게 운영함"},
+    {"clause_id": "c_sum_attach_10y", "doc_id": "d_sum", "page": 7, "clause_path": "상품요약서 독립특별약관 주3)", "clause_path_basis": "printed", "kind": "footnote", "anchor": "주3) 특별약관은 부가된 해당 보통약관의 최초계약 보험기간이 10년이상일 때 가입가능함."},
+    {"clause_id": "c_sum_price_cond", "doc_id": "d_sum", "page": 43, "clause_path": "상품요약서 해약환급금 가입기준", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "◎ 가입기준 : 남자 40세, 상해1급, 자가용 운전자, 월납 30,000원, 20년만기 20년납"},
+    {"clause_id": "c_sum_price_bundle", "doc_id": "d_sum", "page": 43, "clause_path": "상품요약서 해약환급금 담보 구성", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "자동차사고벌금Ⅱ(비탑승중포함)(스쿨존사고3천만원한도)(운전자) 3천만원"},
+    {"clause_id": "c_sum_price_rounding", "doc_id": "d_sum", "page": 43, "clause_path": "상품요약서 해약환급금 주1)", "clause_path_basis": "printed", "kind": "footnote", "anchor": "주1) 상기 환급금/환급률은 천원미만 절사한 금액으로"},
+    {"clause_id": "c_sum_price_index_cond", "doc_id": "d_sum", "page": 42, "clause_path": "상품요약서 보험가격지수 기준", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "(기준 : 40세, 상해1급, 자가용 운전자, 20년만기 20년납)"}
+  ],
+  "fields": [
+    {"field_id": "f_fine_event", "scope": "rider_fine_driver", "axis": "event", "field": "payout_event", "raw_value": "보험기간 종료 후에 이루어진 경우를 포함합니다)을 1사고 당 2,000만원을 한도 로 보험수익자에게 지급합니다.", "normalized_value": {"event": "확정판결 벌금(타인 신체상해)", "event_date": "accident_date within period", "settlement_date": "judgment date may be after period"}, "unit": null, "evidence_refs": ["c_fine_art1"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G25"]},
+    {"field_id": "f_fine_limit", "scope": "rider_fine_driver", "axis": "payout_method", "field": "limit_per_accident", "raw_value": "1사고 당 2,000만원을 한도", "normalized_value": {"limit_krw": 20000000, "per": "accident"}, "unit": "krw", "amount_form": "indemnity", "evidence_refs": ["c_fine_art1"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": []},
+    {"field_id": "f_fine_exclusions", "scope": "rider_fine_driver", "axis": "constraint", "field": "exclusions", "raw_value": "3. 피보험자가 도로교통법 제43조, 제44조에 의한 음주, 무면허상태 또는 제45 조에 의한 약물상태에서 운전하던 중 사고를 일으킨 때", "normalized_value": {"items": ["도주", "경기·연습·시험용 운전", "음주·무면허·약물", "피보험자 고의(자유의사)", "보험수익자 고의(일부 수익자면 다른 수익자 지급)", "계약자 고의"]}, "unit": null, "evidence_refs": ["c_fine_art2"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G11", "G15"]},
+    {"field_id": "f_fine_prorata", "scope": "rider_fine_driver", "axis": "payout_method", "field": "pro_rata_with_other_contracts", "raw_value": "금액을 초과했을 때 회사는 이 계약에 따른 보상책임액의 상기 합계액에 대한 비율에 따른 보험금을 지급합니다.", "normalized_value": {"formula": "손해액 × 이 계약 보상책임액 / 모든 계약 보상책임액 합계 (합계가 손해액을 넘을 때)", "requires": "피보험자의 다른 계약(공제 포함) 목록"}, "unit": null, "evidence_refs": ["c_fine_art3"], "value_state": "observed", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "항 번호가 U+F000으로 소실되어 ①·② 경계를 순서로만 추정했다", "gaps": ["G03", "G15"]},
+    {"field_id": "f_lawyer_events", "scope": "rider_lawyer_driver", "axis": "event", "field": "payout_events", "raw_value": "마다 \"소송의 심급별\"로 제3항의 금액을 한도로 보험수익자에게 지급합니다.", "normalized_value": {"events": ["구속", "기소(약식 제외)", "약식기소 후 공판절차", "정식재판 청구", "불송치(사망·중대법규위반 한정)", "약식기소·불기소(사망·중대법규위반 한정)", "약식기소·불기소(부상 1~3급, 중대법규위반 아님)"]}, "unit": null, "evidence_refs": ["c_lawyer_art1"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": []},
+    {"field_id": "f_lawyer_limits", "scope": "rider_lawyer_driver", "axis": "payout_method", "field": "per_level_deductible_and_cap", "raw_value": "항소심(2심) 1천5백만원 기준 변호사선임비용의 5백만원", "normalized_value": {"levels": ["1심(경찰조사포함)", "항소심", "상고심"], "deductible": "해당 심급 비용의 50%", "cap_krw_per_level": 5000000, "cap_basis": "보험가입금액 1,500만원 기준(다른 가입금액의 한도는 원문 표에 없음)"}, "unit": "krw", "amount_form": "indemnity", "evidence_refs": ["c_lawyer_table", "c_lawyer_example"], "value_state": "observed", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "2단 조판 표가 오른쪽 단 문장과 섞였다. 약관 예시 계산과는 맞는다", "gaps": ["G06", "G15"]},
+    {"field_id": "f_lawyer_aggregation", "scope": "rider_lawyer_driver", "axis": "payout_method", "field": "aggregation", "raw_value": "비용을 균등 배분한 금액을 각 심급별 변호사선임비용으로 하여 제1항 내지 제3항", "normalized_value": {"per_level_sum": true, "bundled_fee": "심급 수로 균등 배분"}, "unit": null, "evidence_refs": ["c_lawyer_11_12", "c_lawyer_example"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G03", "G05"]},
+    {"field_id": "f_lawyer_exclusions", "scope": "rider_lawyer_driver", "axis": "constraint", "field": "exclusions", "raw_value": null, "normalized_value": null, "unit": null, "evidence_refs": ["c_lawyer_art1"], "value_state": "not_found", "review_status": "hold", "hold_reason": "reference_unresolved", "criticality": "c0", "unknown_reason": "이 특약의 면책 조항을 표본에서 발췌하지 않았다", "gaps": ["G12"]},
+    {"field_id": "f_care_mode", "scope": "rider_caregiver_injury_3", "axis": "payout_method", "field": "payout_mode", "raw_value": "한 간병인 사용비용을 보험수익자에게 제5항에서 정한 간병인지원비용을 한도로 지급합니다.", "normalized_value": {"options": ["cash_daily (가입금액 × 입원일수)", "in_kind_caregiver (회사 지원)", "cash_actual_cost (회사 미지원 시, 간병인지원비용 한도)"], "forced_cash_when": ["간호·간병통합서비스 사용", "48시간 전 신청 없이 임의 사용", "고객 선택 간병인 1일 8시간 미만"]}, "unit": null, "evidence_refs": ["c_care_art1", "c_care_art1_def", "c_care_art2_hours"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G24", "G09"]},
+    {"field_id": "f_care_limit_days", "scope": "rider_caregiver_injury_3", "axis": "payout_method", "field": "limit_days", "raw_value": "합계는 1회 입원당 180일을 한도로 합니다.", "normalized_value": {"limit_days": 180, "per": "admission", "shared_between": ["일당 지급일수", "간병인 지원일수"]}, "unit": "day", "evidence_refs": ["c_care_art2"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G05"]},
+    {"field_id": "f_care_day_unit", "scope": "rider_caregiver_injury_3", "axis": "payout_method", "field": "day_definition", "raw_value": "매 24시간을 1일이라 합니다.", "normalized_value": {"day": "지원 시점부터 매 24시간", "partial_day": "24시간 미만도 1일로 간주하되 미사용 시간분 비용 미지급"}, "unit": "hour", "evidence_refs": ["c_care_art2_hours"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G09"]},
+    {"field_id": "f_care_cost_param", "scope": "rider_caregiver_injury_3", "axis": "payout_method", "field": "caregiver_support_cost", "raw_value": "td:135,200원 | td:140,400원 | td:145,600원", "normalized_value": {"table": "가입일(갱신일) 구간 × 경과기간 1년 단위 20구간", "row_2025_11_01_open": [135200, 140400, 145600, 150800, 156000, 161200, 166400, 171600, 176800, 182000, 187200, 192400, 197600, 202800, 208000, 213200, 218400, 223600, 228800, 234000], "open_interval": "'~현재'는 observed_at까지만 확인"}, "unit": "krw", "amount_form": "external_parameter", "evidence_refs": ["c_care_cost_long", "c_care_cost_target", "c_care_cost_note"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G07"]},
+    {"field_id": "f_renewal_age", "scope": "renewal_riders", "axis": "lifecycle", "field": "renewal_end", "raw_value": "주2) 【갱신계약】특별약관의 갱신종료나이는 기본계약 보험기간 종료나이와 동일하게 운영함", "normalized_value": {"final_end_basis": "age", "bound_to": "base_contract_end_age", "last_cycle": "잔여기간 이내 최장 보험기간"}, "unit": "age", "evidence_refs": ["c_sum_renewal_age"], "value_state": "observed", "review_status": "pending", "criticality": "c1", "gaps": ["G22"]}
+  ],
+  "relations": [
+    {"relation_id": "r_mandatory", "relation_type": "mandatory_with", "from": "교통상해50%이상후유장해", "to": "자동차사고부상보장(1~7급)", "predicate": null, "evidence_refs": ["c_sum_mandatory"], "review_status": "pending", "gaps": []},
+    {"relation_id": "r_attach_10y", "relation_type": "attached_to", "from": "독립특별약관(간병인지원 일당Ⅲ 등)", "to": "보통약관", "predicate": "보통약관 최초계약 보험기간 ≥ 10년일 때만 가입 가능", "evidence_refs": ["c_sum_attach_10y"], "review_status": "pending", "gaps": []},
+    {"relation_id": "r_renewal_age", "relation_type": "renewal_bounded_by", "from": "【갱신계약】특별약관", "to": "기본계약", "predicate": "갱신종료나이 = 기본계약 보험기간 종료나이(날짜가 아니라 나이)", "evidence_refs": ["c_sum_renewal_age"], "review_status": "pending", "gaps": ["G22"]},
+    {"relation_id": "r_care_param", "relation_type": "parameter_from", "from": "f_care_mode (간병인지원비용 한도)", "to": "f_care_cost_param", "predicate": "약관의 '회사가 정한 비용' = 공시 표에서 가입일(갱신일)·경과기간으로 찾은 값", "evidence_refs": ["c_care_art1_def", "c_care_cost_target"], "review_status": "pending", "gaps": ["G07"]}
+  ],
+  "rules": [
+    {"rule_id": "kb-driver-fine", "status": "partially_expressed", "file": "packages/fixtures/rules/real/kb-driver-fine.json", "cases": 5, "inputs_from_outside_dsl": ["pro_rata_amount_krw (나눗셈 불가)"], "reason": "비례분담 계산은 외부 입력. 다른 계약이 있으면 금액 unknown", "gaps": ["G03"]},
+    {"rule_id": "kb-driver-lawyer-fee", "status": "partially_expressed", "file": "packages/fixtures/rules/real/kb-driver-lawyer-fee.json", "cases": 5, "inputs_from_outside_dsl": ["levelN_fee_krw (일괄 계약 균등 배분)", "level_cap_krw (가입금액별 한도)"], "reason": "약관 예시 2개를 그대로 재현. 면책 조항 미발췌", "gaps": ["G03", "G06", "G12"]},
+    {"benefit": "간병인지원 상해입원일당Ⅲ", "status": "not_expressible", "reason": "일당 × 일수(곱셈), 1회 입원당 일당+지원일수 합산 180일, 24시간 단위, 현금/현물 선택, 외부 공시 표 조회가 rule-0.1에 없다", "gaps": ["G01", "G05", "G07", "G09", "G24"]}
+  ],
+  "premium_observations": [
+    {"observation_id": "p_sum_bundle_m", "price_basis": "illustrative", "amount_krw": 30000, "pay_cycle": "monthly",
+     "components": [
+       {"scope": "자동차사고부상보장(1~7급)(운전자)", "insured_amount_krw": 5000000},
+       {"scope": "교통상해50%이상후유장해(운전자)", "insured_amount_krw": 10000000},
+       {"scope": "교통상해사망(운전자)", "insured_amount_krw": 100000000},
+       {"scope": "일반상해사망", "insured_amount_krw": 100000000},
+       {"scope": "교통사고처리보장A(중상해보장확대)(비탑승중포함)(운전자)", "insured_amount_krw": 200000000},
+       {"scope": "자동차사고 변호사선임비용손해Ⅲ(경찰조사포함)(비탑승중포함)(운전자)", "insured_amount_krw": 5000000},
+       {"scope": "자동차사고벌금Ⅱ(비탑승중포함)(스쿨존사고3천만원한도)(운전자)", "insured_amount_krw": 30000000},
+       {"scope": "자동차사고벌금(대물)", "insured_amount_krw": 5000000}],
+     "conditions": {"age": 40, "sex": "male", "injury_class": "1급", "driving_type": "자가용 운전자", "pay_term": "20y", "coverage_term": "20y", "plan_type": "1형(납입면제 기본형)", "currency": "KRW"},
+     "missing_dimensions": ["age_basis", "channel", "unit_price_per_coverage (묶음 금액만 공시)"],
+     "comparison_basis_id": "cb_nonlife_driver_40_m_inj1_private_20y20_bundle8", "package_binding": "source_bundle",
+     "evidence_refs": ["c_sum_price_cond", "c_sum_price_bundle", "c_sum_price_rounding"], "source_as_of": "2026-09-14", "observed_at": "2026-10-09T04:29:45Z",
+     "value_state": "observed", "review_status": "pending",
+     "note": "묶음의 벌금·변호사비 특약은 이 파일에서 인코딩한 '벌금(운전자) 2,000만원'·'변호사선임비용(심급별, 자기부담 50%)'과 다른 종류다. 묶음 가격을 인코딩한 특약 가격으로 쓰지 않는다", "gaps": ["G17", "G18"]},
+    {"observation_id": "p_fine_driver_unit", "price_basis": "illustrative", "amount_krw": null, "pay_cycle": "monthly", "components": [{"scope": "rider_fine_driver", "insured_amount_krw": null}],
+     "conditions": {}, "missing_dimensions": ["age", "sex", "injury_class", "driving_type", "pay_term"],
+     "comparison_basis_id": "cb_none", "package_binding": "requires_base_contract",
+     "evidence_refs": ["c_sum_price_bundle"], "source_as_of": null, "observed_at": "2026-10-09T04:29:45Z",
+     "value_state": "not_found", "review_status": "pending", "price_unavailable_reason": "not_found",
+     "unknown_reason": "표본 문서에 이 특약 단독 보험료가 없다. 상품요약서 예시는 다른 벌금 특약을 포함한 8개 담보 묶음 금액뿐", "gaps": ["G18", "G19"]}
+  ]
+}

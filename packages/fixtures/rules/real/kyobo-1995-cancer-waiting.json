@@ -1,0 +1,23 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kyobo-1995-cancer-waiting",
+  "rule_version": "v1-validation",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "contract_date": "date",
+    "diagnosis_date": "date",
+    "dx_in_cancer_annex": "bool",
+    "benefit_amount_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "gte": ["diagnosis_date", { "date_add": ["contract_date", { "value": 3, "unit": "calendar_month", "month_end": "clamp" }] }] },
+      { "eq": ["dx_in_cancer_annex", true] }
+    ]
+  },
+  "amount": "benefit_amount_krw",
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": ["kyobo_1995_cancer#c_note_waiting", "kyobo_1995_cancer#c_art4_1"],
+  "publication_state": "fixture_only"
+}

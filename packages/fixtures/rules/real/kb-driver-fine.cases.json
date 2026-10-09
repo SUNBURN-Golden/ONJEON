@@ -1,0 +1,18 @@
+{
+  "rule_id": "kb-driver-fine",
+  "source": "KB 플러스 운전자상해보험(무배당)(26.09) 자동차사고벌금(운전자) 제1조~제3조. 비례분담액은 rule-0.1이 나눗셈을 못 해 외부 입력으로 받는다(G03). AI 해석·미검수.",
+  "base": {"accident_in_period": true, "driving_accident_bodily_injury": true, "fine_final_krw": 15000000, "hit_and_run": false, "racing_or_test_use": false,
+           "dui_unlicensed_or_drugs": false, "intentional_insured_free_will": false, "intentional_contractor": false, "intentional_beneficiary_sole": false,
+           "has_other_contracts": false, "pro_rata_amount_krw": null},
+  "cases": [
+    { "id": "f01_under_cap", "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}}, "missing_inputs": []} },
+    { "id": "f02_cap_2000man", "set": {"fine_final_krw": 30000000},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 20000000}}, "missing_inputs": []} },
+    { "id": "f03_dui_excluded", "set": {"dui_unlicensed_or_drugs": true},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
+    { "id": "f04_other_contracts_need_prorata", "note": "다른 계약이 있으면 개인 가입내역 없이는 금액 판단 불가", "set": {"has_other_contracts": true},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "unknown"}}, "missing_inputs": ["pro_rata_amount_krw"]} },
+    { "id": "f05_fine_not_final_yet", "note": "확정판결 전에는 벌금액 미확정", "set": {"fine_final_krw": null},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "unknown"}}, "missing_inputs": ["fine_final_krw"]} }
+  ]
+}

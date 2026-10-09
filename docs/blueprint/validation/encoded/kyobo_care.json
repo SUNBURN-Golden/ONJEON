@@ -1,0 +1,71 @@
+{
+  "encoding_version": "validation-0.1",
+  "status": {"data_kind": "design_validation", "interpretation": "ai_unreviewed", "service_use": "forbidden"},
+  "family": "kyobo_care",
+  "structures": [1, 4, 7, 8],
+  "product_version": {
+    "insurer": "교보생명", "product_name": "교보더안심치매·간병보험 (무배당)", "version_label": "2026.06.29 판매본",
+    "sale_status": "on_sale", "effective_from": "2026-06-29", "channel": null,
+    "acquisition_note": "약관 원문 미수집(상품요약서만). 요약서가 인용한 약관 조문은 확인하지 않았다"
+  },
+  "documents": [
+    {"doc_id": "d_sum", "sample_id": "kyobo_care_summary", "extract": "extracts/kyobo_care_summary.md", "doc_role": "summary", "sha256": "f724e1555efc6e3122f41d4e003060da5826e39f298ec2bd7a73451b5ece6bd9", "observed_at": "2026-10-09T04:26:28Z", "extractor": "poppler pdftotext -layout"}
+  ],
+  "clauses": [
+    {"clause_id": "c_main_death", "doc_id": "d_sum", "page": 10, "clause_path": "상품요약서 주계약 지급표 (주)2", "clause_path_basis": "printed", "kind": "footnote", "anchor": "2. 보험금의 지급사유가 발생한 경우 사망보험금과 이미 납입한 보험료(특약보험료는 제외) 중 큰 금액을 보험수익"},
+    {"clause_id": "c_lh1_nonnursing", "doc_id": "d_sum", "page": 15, "clause_path": "상품요약서 입원간병인사용특약LH1형(요양병원제외) 지급표", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "1일당 5만원"},
+    {"clause_id": "c_lh1_nursing", "doc_id": "d_sum", "page": 15, "clause_path": "상품요약서 입원간병인사용특약LH1형(요양병원) 지급표", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "1일당 1만원"},
+    {"clause_id": "c_lh1_reduction", "doc_id": "d_sum", "page": 15, "clause_path": "상품요약서 입원간병인사용특약LH1형 지급금액 셀", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "50% 감액지급하며, 재해를"},
+    {"clause_id": "c_lh1_8h", "doc_id": "d_sum", "page": 15, "clause_path": "상품요약서 입원간병인사용특약LH1형 (주)2", "clause_path_basis": "printed", "kind": "footnote", "anchor": "1일당 8시간 이상 ”간병인”을 사용한 경우에 한하여 1일로 간주하여"},
+    {"clause_id": "c_lh1_180", "doc_id": "d_sum", "page": 15, "clause_path": "상품요약서 입원간병인사용특약LH1형 (주)3", "clause_path_basis": "printed", "kind": "footnote", "anchor": "1회 입원당 사용일수는 180일을 최고한도로 합니다."},
+    {"clause_id": "c_lh1_waiver_link", "doc_id": "d_sum", "page": 15, "clause_path": "상품요약서 입원간병인사용특약LH1형 (주)1", "clause_path_basis": "printed", "kind": "footnote", "anchor": "주계약의 보험료 납입이 면제된 경우에는 이 특약의 차회 이후의 보험료 납입을 면제합니다."},
+    {"clause_id": "c_lh2_stepup", "doc_id": "d_sum", "page": 16, "clause_path": "상품요약서 입원간병인사용특약LH2형(체증형) 지급표", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "10년경과 연계약해당일부터 20년경과"},
+    {"clause_id": "c_ltc_event", "doc_id": "d_sum", "page": 27, "clause_path": "상품요약서 장기요양진단특약LH(1~5등급) 지급표", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "(다만, 최초 1회의 판정에 한함)"},
+    {"clause_id": "c_ltc_waiting", "doc_id": "d_sum", "page": 27, "clause_path": "상품요약서 장기요양진단특약LH (주)2", "clause_path_basis": "printed", "kind": "footnote", "anchor": "다만, 재해를 직접적인 원인으로 “장기요양상태(1~5등급)”가 되었을 경우에는 보 험계약일[부활(효력회복)일]을 “장기요양상태(1~5등급) 보장개시일”로 합니다."},
+    {"clause_id": "c_ltc_void", "doc_id": "d_sum", "page": 27, "clause_path": "상품요약서 장기요양진단특약LH (주)3", "clause_path_basis": "printed", "kind": "footnote", "anchor": "특약을 무효로 하며 이미 납입한 보험료를 돌려드립니다."},
+    {"clause_id": "c_ltc_exclusion", "doc_id": "d_sum", "page": 27, "clause_path": "상품요약서 장기요양진단특약LH (주)4", "clause_path_basis": "printed", "kind": "footnote", "anchor": "노인장기요양보험법 제29조(장기요양급여의 제한)에 의해 장기요양급여의 제한을 받은 경우"},
+    {"clause_id": "c_price_cond", "doc_id": "d_sum", "page": 42, "clause_path": "상품요약서 해약환급금 예시 기준", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "※ 기준 : 주계약 저해약환급금형, 가입금액 1,000만원, 40세, 20년납, 월납, 종신, 계약해당일"},
+    {"clause_id": "c_price_male", "doc_id": "d_sum", "page": 42, "clause_path": "상품요약서 해약환급금 예시 1. 남자", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "1. 남자(21,100원)"},
+    {"clause_id": "c_price_female", "doc_id": "d_sum", "page": 43, "clause_path": "상품요약서 해약환급금 예시 2. 여자", "clause_path_basis": "printed", "kind": "table_cell", "anchor": "2. 여자(18,900원)"}
+  ],
+  "fields": [
+    {"field_id": "f_main_death_amount", "scope": "main", "axis": "payout_method", "field": "amount", "raw_value": "2. 보험금의 지급사유가 발생한 경우 사망보험금과 이미 납입한 보험료(특약보험료는 제외) 중 큰 금액을 보험수익", "normalized_value": {"formula": "max(보험가입금액, 이미 납입한 주계약 보험료)"}, "unit": "krw", "amount_form": "max_of", "evidence_refs": ["c_main_death"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G12"]},
+    {"field_id": "f_lh1_amount", "scope": "rider_caregiver_lh1", "axis": "payout_method", "field": "amount_per_day", "raw_value": "1일당 5만원", "normalized_value": {"nursing_hospital": {"per_day_krw": 10000}, "other_hospital": {"per_day_krw": 50000}, "basis": "특약가입금액 1,000만원 기준(다른 가입금액은 비례로 보이나 원문 확인 전)"}, "unit": "krw", "amount_form": "per_unit_krw", "evidence_refs": ["c_lh1_nonnursing", "c_lh1_nursing"], "value_state": "observed", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "요약서 지급표 셀이 줄 단위로 섞였고 약관 원문이 없다", "gaps": ["G01", "G06", "G12", "G15"]},
+    {"field_id": "f_lh1_reduction", "scope": "rider_caregiver_lh1", "axis": "constraint", "field": "reduction", "raw_value": "50% 감액지급하며, 재해를", "normalized_value": {"rate": "0.5", "anchor": "contract_date", "window": "1y", "only_if_cause": "non_accident", "accident_cause": "100%"}, "unit": null, "evidence_refs": ["c_lh1_reduction"], "value_state": "observed", "review_status": "hold", "hold_reason": "reference_unresolved", "criticality": "c0", "unknown_reason": "요약서만 있고 약관 조문 미확인", "gaps": ["G12"]},
+    {"field_id": "f_lh1_day_def", "scope": "rider_caregiver_lh1", "axis": "payout_method", "field": "day_definition", "raw_value": "1일당 8시간 이상 ”간병인”을 사용한 경우에 한하여 1일로 간주하여", "normalized_value": {"min_hours_per_day": 8}, "unit": "hour", "evidence_refs": ["c_lh1_8h"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G09"]},
+    {"field_id": "f_lh1_limit", "scope": "rider_caregiver_lh1", "axis": "payout_method", "field": "limit_days", "raw_value": "1회 입원당 사용일수는 180일을 최고한도로 합니다.", "normalized_value": {"limit_days": 180, "per": "admission"}, "unit": "day", "evidence_refs": ["c_lh1_180"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G05"]},
+    {"field_id": "f_lh2_stepup", "scope": "rider_caregiver_lh2", "axis": "payout_method", "field": "amount_bands", "raw_value": "10년경과 연계약해당일부터 20년경과", "normalized_value": null, "unit": null, "evidence_refs": ["c_lh2_stepup"], "value_state": "unreadable", "review_status": "hold", "hold_reason": "extraction_uncertain", "criticality": "c0", "unknown_reason": "지급금액 열 안의 기간 구간 × 금액 하위 표가 섞여(X, 150%, 200%가 따로 줄) 구간과 배율 대응을 확정하지 않았다", "gaps": ["G14", "G15"]},
+    {"field_id": "f_ltc_waiting", "scope": "rider_ltc_dx", "axis": "constraint", "field": "waiting_period", "raw_value": "다만, 재해를 직접적인 원인으로 “장기요양상태(1~5등급)”가 되었을 경우에는 보 험계약일[부활(효력회복)일]을 “장기요양상태(1~5등급) 보장개시일”로 합니다.", "normalized_value": {"length": 90, "length_unit": "day", "anchor": "contract_date (부활 시 부활일)", "anchor_day_counted": true, "accident_cause": "no waiting"}, "unit": "day", "evidence_refs": ["c_ltc_waiting"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": []},
+    {"field_id": "f_ltc_void", "scope": "rider_ltc_dx", "axis": "lifecycle", "field": "void_if_before_start", "raw_value": "특약을 무효로 하며 이미 납입한 보험료를 돌려드립니다.", "normalized_value": {"contract_effect": "void", "refund": "paid_premiums"}, "unit": null, "evidence_refs": ["c_ltc_void"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G23"]},
+    {"field_id": "f_ltc_event", "scope": "rider_ltc_dx", "axis": "event", "field": "payout_event", "raw_value": "(다만, 최초 1회의 판정에 한함)", "normalized_value": {"event": "노인장기요양 1~5등급 판정", "external_system": "노인장기요양보험법 등급 체계(개정 시 버전 필요)", "exclusion": "법 제29조 급여 제한"}, "unit": null, "evidence_refs": ["c_ltc_event", "c_ltc_exclusion"], "value_state": "observed", "review_status": "pending", "criticality": "c0", "gaps": ["G08"]}
+  ],
+  "relations": [
+    {"relation_id": "r_waiver_link", "relation_type": "attached_to", "from": "rider_caregiver_lh1", "to": "main", "predicate": "특약 피보험자 = 주계약 피보험자이면 주계약 납입면제 시 특약도 면제", "evidence_refs": ["c_lh1_waiver_link"], "review_status": "pending", "gaps": []}
+  ],
+  "rules": [
+    {"benefit": "입원간병인사용급여금 LH1형", "status": "not_expressible", "reason": "사용일수 × 1일당 금액(곱셈), 8시간 이상 사용일만 1일, 1회 입원당 180일 누적이 rule-0.1에 없다. 약관 원문도 미수집", "gaps": ["G01", "G05", "G09", "G12"]},
+    {"benefit": "장기요양진단보험금 LH(1~5등급)", "status": "not_expressible", "reason": "표현은 가능하나(재해면 계약일, 아니면 90일) 보장개시 전 상태면 '무효·보험료 반환'이라는 계약 효과를 Payout이 담지 못한다. 약관 원문도 미수집", "gaps": ["G23", "G12"]}
+  ],
+  "premium_observations": [
+    {"observation_id": "p_m_main", "price_basis": "illustrative", "amount_krw": 21100, "pay_cycle": "monthly", "components": [{"scope": "main", "insured_amount_krw": 10000000, "variant": "저해약환급금형"}],
+     "conditions": {"age": 40, "sex": "male", "pay_term": "20y", "coverage_term": "whole_life", "currency": "KRW"},
+     "condition_sources": {"sex": "c_price_male (소제목 괄호 안 금액, 표 셀 아님)", "others": "c_price_cond"},
+     "missing_dimensions": ["age_basis", "risk_class", "channel", "rider_premiums (특약 보험료 미공시)"],
+     "comparison_basis_id": "cb_life_care_40_m_20pay_wl_main1000", "package_binding": null,
+     "evidence_refs": ["c_price_cond", "c_price_male"], "source_as_of": "2026-06-29", "observed_at": "2026-10-09T04:26:28Z",
+     "value_state": "observed", "review_status": "pending",
+     "note": "이 상품의 주계약은 사망보장이다. 간병 특약 가격이 없어 '간병보험 가격'으로 쓰면 안 된다", "gaps": ["G16", "G18"]},
+    {"observation_id": "p_f_main", "price_basis": "illustrative", "amount_krw": 18900, "pay_cycle": "monthly", "components": [{"scope": "main", "insured_amount_krw": 10000000, "variant": "저해약환급금형"}],
+     "conditions": {"age": 40, "sex": "female", "pay_term": "20y", "coverage_term": "whole_life", "currency": "KRW"},
+     "missing_dimensions": ["age_basis", "risk_class", "channel", "rider_premiums"],
+     "comparison_basis_id": "cb_life_care_40_f_20pay_wl_main1000", "package_binding": null,
+     "evidence_refs": ["c_price_cond", "c_price_female"], "source_as_of": "2026-06-29", "observed_at": "2026-10-09T04:26:28Z",
+     "value_state": "observed", "review_status": "pending", "gaps": ["G16", "G18"]},
+    {"observation_id": "p_lh1_unit", "price_basis": "illustrative", "amount_krw": null, "pay_cycle": "monthly", "components": [{"scope": "rider_caregiver_lh1", "insured_amount_krw": 10000000}],
+     "conditions": {}, "missing_dimensions": ["age", "sex", "pay_term"],
+     "comparison_basis_id": "cb_none", "package_binding": "requires_main",
+     "evidence_refs": ["c_price_cond"], "source_as_of": null, "observed_at": "2026-10-09T04:26:28Z",
+     "value_state": "not_found", "review_status": "pending", "price_unavailable_reason": "not_found",
+     "unknown_reason": "해약환급금 예시가 주계약만 기준으로 한다. 특약 보험료는 요약서에 없다", "gaps": ["G18"]}
+  ]
+}

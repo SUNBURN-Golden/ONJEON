@@ -1,0 +1,14 @@
+{
+  "rule_id": "kyobo-1995-cancer-waiting",
+  "source": "교보 비너스암치료보험 1995.06 인쇄약관(스캔·OCR) 제4조①, 지급표 주석. 면책은 '3개월'(달 단위)이며 90일로 바꾸지 않는다. 지급 금액은 이 검증 범위 밖이라 입력으로 받는다. OCR 원문이므로 C0 값은 hold(extraction_uncertain). AI 해석·미검수.",
+  "base": {"contract_date": "1995-01-15", "diagnosis_date": "1995-04-15", "dx_in_cancer_annex": true, "benefit_amount_krw": 10000000},
+  "cases": [
+    { "id": "y01_last_waiting_day", "set": {"diagnosis_date": "1995-04-14"},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
+    { "id": "y02_first_covered_day", "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}}, "missing_inputs": []} },
+    { "id": "y03_month_end_leap", "note": "11-30 + 3개월 → 2-29(1996 윤년). 해당일 없는 달 처리는 약관 미기재 → G13", "set": {"contract_date": "1995-11-30", "diagnosis_date": "1996-02-29"},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}}, "missing_inputs": []} },
+    { "id": "y04_month_end_leap_day_before", "set": {"contract_date": "1995-11-30", "diagnosis_date": "1996-02-28"},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} }
+  ]
+}

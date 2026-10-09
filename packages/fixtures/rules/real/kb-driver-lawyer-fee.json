@@ -1,0 +1,50 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kb-driver-lawyer-fee",
+  "rule_version": "v1-validation",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "accident_in_period_bodily_injury": "bool",
+    "arrested": "bool",
+    "indicted_not_summary": "bool",
+    "summary_moved_to_trial": "bool",
+    "formal_trial_requested": "bool",
+    "police_not_referred": "bool",
+    "summary_or_not_prosecuted": "bool",
+    "victim_died": "bool",
+    "major_violation": "bool",
+    "injury_grade_1_to_3": "bool",
+    "level1_used": "bool",
+    "level2_used": "bool",
+    "level3_used": "bool",
+    "level1_fee_krw": "money_krw",
+    "level2_fee_krw": "money_krw",
+    "level3_fee_krw": "money_krw",
+    "level_cap_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "eq": ["accident_in_period_bodily_injury", true] },
+      { "any": [
+        { "eq": ["arrested", true] },
+        { "eq": ["indicted_not_summary", true] },
+        { "eq": ["summary_moved_to_trial", true] },
+        { "eq": ["formal_trial_requested", true] },
+        { "all": [ { "eq": ["police_not_referred", true] }, { "any": [ { "eq": ["victim_died", true] }, { "eq": ["major_violation", true] } ] } ] },
+        { "all": [ { "eq": ["summary_or_not_prosecuted", true] }, { "any": [ { "eq": ["victim_died", true] }, { "eq": ["major_violation", true] } ] } ] },
+        { "all": [ { "eq": ["summary_or_not_prosecuted", true] }, { "eq": ["injury_grade_1_to_3", true] }, { "eq": ["major_violation", false] } ] }
+      ] }
+    ]
+  },
+  "amount": {
+    "add": [
+      { "if": "level1_used", "then": { "min": [ { "multiply_rate": ["level1_fee_krw", "0.5", { "rounding": "unspecified", "unit": 1 }] }, "level_cap_krw" ] }, "else": { "krw": 0 } },
+      { "if": "level2_used", "then": { "min": [ { "multiply_rate": ["level2_fee_krw", "0.5", { "rounding": "unspecified", "unit": 1 }] }, "level_cap_krw" ] }, "else": { "krw": 0 } },
+      { "if": "level3_used", "then": { "min": [ { "multiply_rate": ["level3_fee_krw", "0.5", { "rounding": "unspecified", "unit": 1 }] }, "level_cap_krw" ] }, "else": { "krw": 0 } }
+    ]
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": ["kb_driver#c_lawyer_art1", "kb_driver#c_lawyer_table", "kb_driver#c_lawyer_11_12", "kb_driver#c_lawyer_example"],
+  "publication_state": "fixture_only"
+}

@@ -207,6 +207,13 @@ class S3Store:
             token = r["NextContinuationToken"]
 
 
+def describe(st, target):
+    """Store label for reports: file, or provider plus bucket (never the endpoint, which names the account)."""
+    if isinstance(st, S3Store):
+        return f"{st.provider}:{st.bucket}" + (f"/{st.prefix}" if st.prefix else "")
+    return target.split("://")[0]
+
+
 def store(target, endpoint_url=None):
     if target.startswith("file://"):
         return LocalStore(target[len("file://"):])
@@ -352,7 +359,7 @@ def cmd_verify(a):
     for x in results:
         summary[x["status"]] = summary.get(x["status"], 0) + 1
     report = {"checked_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-              "store": a.raw.split("://")[0], "summary": summary, "results": results}
+              "store": describe(raw, a.raw), "summary": summary, "results": results}
     text = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if a.report:
         Path(a.report).write_text(text, encoding="utf-8")
@@ -397,7 +404,8 @@ def cmd_verify_copy(a):
         expected = json.loads(Path(a.expected).read_text(encoding="utf-8"))["objects"]
         src_label = "listing"
     else:
-        expected, src_label = listing_of(store(a.src, a.endpoint_url)), a.src.split("://")[0]
+        src = store(a.src, a.endpoint_url)
+        expected, src_label = listing_of(src), describe(src, a.src)
     src_keys, dst_keys = sorted(expected), set(dst.list(""))
     results, summary = [], {}
     for key in src_keys:
@@ -415,7 +423,7 @@ def cmd_verify_copy(a):
     if extra:
         summary["extra_in_destination"] = len(extra)
     report = {"checked_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-              "source": src_label, "destination": a.dst.split("://")[0],
+              "source": src_label, "destination": describe(dst, a.dst),
               "summary": summary, "extra_in_destination": extra, "results": results}
     if a.report:
         Path(a.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

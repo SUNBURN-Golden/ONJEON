@@ -29,6 +29,7 @@ import datetime as dt
 import hashlib
 import html
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -380,6 +381,16 @@ def cmd_detect(args):
     return report("detect", args, results, ok={"unchanged_bytes", "bytes_changed_content_same", "changed", "fetch_failed"})
 
 
+def target_label(target, args):
+    """file, or provider:bucket for an S3 API store (never the endpoint, which names the account)."""
+    if not target:
+        return None
+    if target.startswith("s3://"):
+        endpoint = getattr(args, "endpoint_url", None) or os.environ.get("ONJEON_S3_ENDPOINT")
+        return f"{sa.provider_of(endpoint)}:{target[len('s3://'):]}"
+    return target.split("://")[0]
+
+
 def report(kind, args, results, ok):
     counts = {}
     for x in results:
@@ -390,8 +401,10 @@ def report(kind, args, results, ok):
         env["pdfplumber"] = pdfplumber.__version__
     except Exception:
         env["pdfplumber"] = None
-    doc = {"check": kind, "ran_at": now(), "source": (args.raw or "").split("://")[0] or ("cache" if getattr(args, "cache", None) else "network"),
+    doc = {"check": kind, "ran_at": now(), "source": target_label(args.raw, args) or ("cache" if getattr(args, "cache", None) else "network"),
            "ocr_rerun": bool(getattr(args, "ocr", False)), "tools": env, "summary": counts, "results": results}
+    if getattr(args, "derived", None):
+        doc["derived_source"] = target_label(args.derived, args)
     if kind == "detect":
         doc["meaning"] = "change detection only: a changed source is a new version candidate; the recorded originals and past reproductions are untouched"
     if args.report:

@@ -117,7 +117,9 @@ flowchart TD
 | RawAsset | 바이트 해시, URL, 관측 시각, 응답 증거 | L1 | 제2부 §24 |
 | ClauseOccurrence | 문서 버전, 조항 경로, 페이지, 좌표, 정확 인용 | L2 | DATA_PIPELINE_CONTRACT §3 |
 | FieldAssertion | raw·정규화 값, 단위, value_state, 근거, 적용 범위, 추출·검증 이력 | L3~L4 | 제2부 §29 |
-| PremiumObservation | 금액, 가격 근거, 조건, 특약 구성, 기준일, 비교 기준 | L3~L5 | PREMIUM_DATA_CONTRACT, 가격 수집 명세 |
+| PremiumObservation | 금액, 가격 근거, 조건과 조건 출처, 특약 구성·묶음, 기준일, 비교 기준 | L3~L5 | PREMIUM_DATA_CONTRACT, 가격 수집 명세 |
+| CodeSet | 코드 체계, 개정차수, 고시·시행일, 판정 시점 규칙 | L3~L5 | DATA_PIPELINE_CONTRACT §4 |
+| ParameterTable | 약관이 밖으로 위임한 값의 공시 표: 키 구간, 열린 구간 관측 시각, 원문 해시 | L3~L5 | DATA_PIPELINE_CONTRACT §4 |
 | ProductVersion / CoverageOccurrence | 회사, 채널, 판매 기간, 문서 묶음, 담보 발생본 | L5 | 제2부 §27 |
 | Rule | rule_id, rule_version, release_id, 내용 해시, 근거, DSL | L6 | 엔진 README, 제3부 §49 |
 | EvaluationResult | 지급 판정, 금액, 누락 입력, trace, 규칙 식별 정보 | L6 | 엔진 코드 |
@@ -161,8 +163,9 @@ flowchart TD
 | `plan_action` / `row_label` | 사용자가 초안에서 무엇을 하려나 / 행에 무엇이 보이나 | keep, add, remove, modify / needs_condition |
 | `price_basis` / `price_unavailable_reason` / `freshness` | 가격의 근거, 없는 이유, 최신성 | illustrative … / condition_mismatch … / fresh, stale |
 | `policy_holdings_status` / `contract_version_match` | 내 가입내역을 얼마나 아나 / 어느 버전인가 | confirmed, pending_confirmation, none_declared, unknown, skipped / matched, ambiguous, unmatched |
+| `clause_path_basis` / `relation_type` / `amount_form` | 조항 번호를 읽었나 추정했나 / 간선의 종류 / 원문이 금액을 적은 형식 | printed, inferred / attached_to, routes_to, parameter_from … / example_amount, per_unit_krw … |
 
-전체 26개 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
+전체 31개 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
 
 ## 7. 현행 결정 요약
 
@@ -238,7 +241,7 @@ flowchart TD
 |---|---|---|---|
 | M0 | 엔진 v0.1과 합성 규칙 | 기반 | 완료. I1~I5, I18 |
 | V0 | 전체 수집 대상 목록(분모 최상위): 보험사 전부와 공시 진입점, 접근 결과, 미확보 사유 | 전체 | `data/registry/`에 증거와 함께 존재. 하위 상품·특약은 미열거 상태로 추적 |
-| V1 | 설계 확정: (a) 상태 어휘 정본 (b) 실제 조항·별표·가격표로 표현력 검증 (c) 소비자 화면 연결 검증 | A1, A2, A4 | (a) `vocabulary.json`과 검사기 (b) 표본별 매핑과 부족분 목록, 부족분의 설계 반영 (c) 같은 자료로 "무엇을 보장하나·언제 못 받나·왜 이 가격인가"가 선택 화면에 나타남 |
+| V1 | 설계 확정: (a) 상태 어휘 정본 (b) 실제 조항·별표·가격표로 표현력 검증 (c) 소비자 화면 연결 검증 | A1, A2, A4 | (a) `vocabulary.json`과 검사기 (b) 표본별 매핑과 부족분 목록, 부족분의 설계 반영 (c) 같은 자료로 "무엇을 보장하나·언제 못 받나·왜 이 가격인가"가 선택 화면에 나타남. **통과(2026-10-09)**: [validation/](blueprint/validation/README.md), 부족분 G01~G26 |
 | M1 | 데이터 척추: §6 어휘를 `packages/schemas`로 생성(Rust·Dart·TS), 공개/개인 분리 DB 스키마 초안 | 기반 | 어휘가 코드로 생성됨, I7·I12가 스키마 제약으로 존재 |
 | M2 | 걸어가는 뼈대: V1 표본 문서들을 L1~L9까지 관통 | A1, A2, A4 | 화면 숫자 하나에서 원문 좌표까지 따라감(I6), 보류 경로가 실제로 작동, 그림자 비교 1회 |
 | M3 | 분모와 수집 확장: AI 분모 조사, 어댑터 표준, 일일 스케줄, `/coverage` | A1~A3의 범위 | 분모 공개, 일일 확인 달성률 측정, I17 |
@@ -263,6 +266,8 @@ flowchart TD
 
 M2의 산출물이 DSL·라벨 사전·FieldAssertion 스키마의 첫 실증이다. 여기서 드러난 부족분이 이후 설계를 고친다.
 
+V1-b가 실제 표본으로 미리 찾은 부족분은 [GAP_REPORT.md](blueprint/validation/GAP_REPORT.md)에 있다. 그에 따른 순서: M1은 CodeSet·ParameterTable·`value_kind`·`amount_form`을 스키마에 넣는다. M2는 V1 표본의 보류 항목(표 셀 좌표, 미발췌 조항)을 실제 파이프라인으로 해소한다. rule-0.2 연산(`multiply_count`, `subtract_floor0`, `pro_rata`, `divide_count`, `anniversary_band`, 목록 입력과 `max_over`, `contract_effect`)은 해당 상품군을 계산 범위에 넣는 마일스톤(M5·M6)에서 사례와 함께 추가한다. 코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 DSL에 넣지 않고 입력 단계가 맡는다.
+
 ## 10. 드리프트 방지 규칙
 
 1. 모든 PR은 템플릿(`.github/pull_request_template.md`)에 해당하는 A·Q·L·I·M을 적는다. 어디에도 연결되지 않으면 범위 밖이다.
@@ -279,11 +284,11 @@ M2의 산출물이 DSL·라벨 사전·FieldAssertion 스키마의 첫 실증이
 |---|---|
 | 목적·원칙·범위 | 확정(이 문서) |
 | 계약 문서 | 데이터 파이프라인, 공개 가격, 소비자 흐름, 화면 부록, 가격 부록 |
-| 코드 | L6 규칙 엔진 v0.1, 합성 규칙 1건, 테스트 32개(CI 통과) |
-| 데이터 | 없음. 실제 수집·문서·가격은 아직 하나도 없다 |
+| 코드 | L6 규칙 엔진 v0.1, 합성 규칙 1건, 실제 조항 규칙 8건(설계 검증용, fixture_only), 테스트 41개(CI 통과). 어휘 검사기, 검증 자료 검사기 |
+| 데이터 | 전체 수집 대상 목록 V0(보험사 53, 공제 등 16, 제외·과거 49, 근거 66). 설계 검증 표본 14개 파일(교보생명·KB손해보험·생명보험협회·법제처)의 인코딩. 서비스 데이터는 아직 없다 |
 | 앱·웹·API | 없음 |
 | 불변식 | 18개 중 6개 구현(엔진 범위) |
-| 마일스톤 | M0 완료, 다음은 M1 |
+| 마일스톤 | M0·V0·V1 완료, 다음은 M1 |
 
 ## 12. 열린 결정
 

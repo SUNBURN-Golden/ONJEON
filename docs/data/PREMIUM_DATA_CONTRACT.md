@@ -19,6 +19,14 @@
 - 소스 URL·불변 원문 해시·페이지/표 셀/조회 조건·정확 인용·추출기 버전
 - value_state, review_status, comparison_basis_id, missing_dimensions, package_binding, source_revision
 
+V1-b 실제 표본에서 확인한 추가 요구(`docs/blueprint/validation/GAP_REPORT.md` G16~G19):
+
+- `condition_sources`: 조건마다 어디서 왔는지 적는다. 성별이 표 위 소제목에, 월보험료가 소제목 괄호에, 나이·만기가 다른 문서(협회 작성기준 팝업)에 있는 경우가 있다. 다른 문서의 상품군 기본 조건을 상속했으면 그렇게 표시한다.
+- 조건 차원은 라벨 사전이 정의하는 열린 집합이다. 생명보험 예시는 나이·성별·납입기간·만기, 운전자보험은 상해급수·운전형태·플랜형, 실손은 최초/갱신 구분이 붙는다. 이율 시나리오와 절사 단위(천원 미만 절사)도 조건이다. 원문에 없는 차원은 `missing_dimensions`에 적는다.
+- `package_binding`: 없음 / `requires_main`(특약 단독 가입 불가) / `source_bundle`(원문이 묶음 금액을 직접 공시) / `requires_base_contract`. 묶음 금액을 구성원 가격으로 나누지 않고, 묶음에 든 특약이 비교 대상 특약과 종류가 같은지 확인한다.
+- 값과 작성기준이 서로 맞지 않으면(같은 금액인데 만기 조건이 다름) `price_unavailable_reason=condition_mismatch`로 보류한다. 작성기준 표 자체의 오기도 보존하고 보류한다.
+- 보험가격지수·환급률은 가격이 아니다. 가격 관측치에 섞지 않는다.
+
 행·열 머리글과 각주도 금액의 일부다. 표의 40세 남성 월납 금액이 다른 나이·여성·연납으로 연결되는 추출 오류를 경계한다. 개인정보로 공개 조회를 몰래 호출하거나 가입 동의 절차를 대신 수행하지 않는다.
 
 ## 비교·계산 규칙

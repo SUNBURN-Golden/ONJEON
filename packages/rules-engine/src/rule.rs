@@ -21,7 +21,7 @@ pub enum InputType {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CmpOp {
+pub(crate) enum CmpOp {
     Eq,
     Ne,
     Lt,
@@ -31,7 +31,7 @@ pub enum CmpOp {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Rounding {
+pub(crate) enum Rounding {
     Floor,
     Ceil,
     HalfUp,
@@ -41,14 +41,14 @@ pub enum Rounding {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DurUnit {
+pub(crate) enum DurUnit {
     Day,
     CalendarMonth,
     CalendarYear,
 }
 
 #[derive(Debug, Clone)]
-pub enum Expr {
+pub(crate) enum Expr {
     Lit(Value),
     Input(String),
     All(Vec<Expr>),
@@ -80,7 +80,7 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn op_name(&self) -> &'static str {
+    pub(crate) fn op_name(&self) -> &'static str {
         match self {
             Expr::Lit(_) => "lit",
             Expr::Input(_) => "input",
@@ -130,22 +130,67 @@ impl fmt::Display for RuleError {
 
 impl std::error::Error for RuleError {}
 
+/// A validated, immutable rule.
+///
+/// The only way to obtain a `Rule` is [`Rule::from_json`] / [`Rule::from_json_str`],
+/// which validate the rule and compute its content hash from the same JSON that
+/// the expression tree was parsed from. Fields are private and there is no `&mut`
+/// API, so the logic that is evaluated can never drift from the hash and version
+/// that results report. To change a rule, edit its JSON (see [`Rule::source_json`])
+/// and load it again, which re-validates and re-hashes.
+///
+/// Reading works through accessors (this example compiles and runs; the two
+/// below differ only in the assignment, which proves they fail on privacy):
+///
+/// ```
+/// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
+/// #   "eligibility":true,"amount":{"krw":1},
+/// #   "unknown_policy":"use_three_valued_logic_never_default_to_zero",
+/// #   "evidence_refs":[],"publication_state":"fixture_only"}"#;
+/// let mut rule = onjeon_rules_engine::Rule::from_json_str(json).unwrap();
+/// let other = rule.clone();
+/// assert_eq!(rule.rule_version(), "1");
+/// assert_eq!(rule.content_hash().len(), 64);
+/// rule = other; // replacing a whole validated rule is fine
+/// # let _ = rule;
+/// ```
+///
+/// ```compile_fail
+/// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
+/// #   "eligibility":true,"amount":{"krw":1},
+/// #   "unknown_policy":"use_three_valued_logic_never_default_to_zero",
+/// #   "evidence_refs":[],"publication_state":"fixture_only"}"#;
+/// let mut rule = onjeon_rules_engine::Rule::from_json_str(json).unwrap();
+/// rule.content_hash = String::new(); // private: does not compile
+/// ```
+///
+/// ```compile_fail
+/// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
+/// #   "eligibility":true,"amount":{"krw":1},
+/// #   "unknown_policy":"use_three_valued_logic_never_default_to_zero",
+/// #   "evidence_refs":[],"publication_state":"fixture_only"}"#;
+/// let mut rule = onjeon_rules_engine::Rule::from_json_str(json).unwrap();
+/// let other = rule.clone();
+/// rule.amount = other.amount; // private: does not compile
+/// ```
 #[derive(Debug, Clone)]
 pub struct Rule {
-    pub rule_id: String,
+    pub(crate) rule_id: String,
     /// Version of this rule's content. Bump whenever the clause or its encoding changes.
-    pub rule_version: String,
+    pub(crate) rule_version: String,
     /// Dataset release that published this rule. Required unless `fixture_only`.
-    pub release_id: Option<String>,
+    pub(crate) release_id: Option<String>,
     /// SHA-256 of the canonical rule JSON (keys sorted, `release_id` excluded).
     /// Identifies the exact content even if someone forgets to bump `rule_version`.
-    pub content_hash: String,
-    pub schema_version: String,
-    pub publication_state: String,
-    pub evidence_refs: Vec<String>,
-    pub inputs: BTreeMap<String, InputType>,
-    pub eligibility: Expr,
-    pub amount: Expr,
+    pub(crate) content_hash: String,
+    pub(crate) schema_version: String,
+    pub(crate) publication_state: String,
+    pub(crate) evidence_refs: Vec<String>,
+    pub(crate) inputs: BTreeMap<String, InputType>,
+    pub(crate) eligibility: Expr,
+    pub(crate) amount: Expr,
+    /// The JSON this rule was loaded from, in canonical form.
+    pub(crate) source: J,
 }
 
 const TOP_LEVEL_KEYS: [&str; 12] = [
@@ -286,7 +331,47 @@ impl Rule {
             inputs,
             eligibility,
             amount,
+            source: v.clone(),
         })
+    }
+
+    pub fn rule_id(&self) -> &str {
+        &self.rule_id
+    }
+
+    pub fn rule_version(&self) -> &str {
+        &self.rule_version
+    }
+
+    pub fn release_id(&self) -> Option<&str> {
+        self.release_id.as_deref()
+    }
+
+    /// SHA-256 of the canonical rule content (excluding `release_id`).
+    pub fn content_hash(&self) -> &str {
+        &self.content_hash
+    }
+
+    pub fn schema_version(&self) -> &str {
+        &self.schema_version
+    }
+
+    pub fn publication_state(&self) -> &str {
+        &self.publication_state
+    }
+
+    pub fn evidence_refs(&self) -> &[String] {
+        &self.evidence_refs
+    }
+
+    pub fn input_types(&self) -> &BTreeMap<String, InputType> {
+        &self.inputs
+    }
+
+    /// The JSON this rule was loaded from. To derive a changed rule, clone and edit
+    /// this value and pass it to [`Rule::from_json`], which validates and re-hashes.
+    pub fn source_json(&self) -> &J {
+        &self.source
     }
 }
 
@@ -482,7 +567,8 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                         DurUnit::CalendarMonth => 3_600,
                         DurUnit::CalendarYear => 300,
                     };
-                    if value.abs() > limit {
+                    // Range check instead of `abs()`: `i64::MIN.abs()` overflows.
+                    if !(-limit..=limit).contains(&value) {
                         return Err(RuleError::at(&p, format!("|value| must be <= {limit} for this unit")));
                     }
                     if unit != DurUnit::Day && params.get("month_end").and_then(J::as_str) != Some("clamp") {

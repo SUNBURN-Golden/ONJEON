@@ -57,9 +57,10 @@ fn result_identifies_rule_version_release_content_and_evidence() {
 fn content_hash_changes_with_content_even_if_version_is_not_bumped() {
     let a = Rule::from_json(&rule(json!({"krw": 1}), json!(true))).unwrap();
     let b = Rule::from_json(&rule(json!({"krw": 2}), json!(true))).unwrap();
-    assert_eq!(a.rule_version, b.rule_version, "same declared version");
+    assert_eq!(a.rule_version(), b.rule_version(), "same declared version");
     assert_ne!(
-        a.content_hash, b.content_hash,
+        a.content_hash(),
+        b.content_hash(),
         "different content must not share a hash"
     );
 }
@@ -69,14 +70,20 @@ fn content_hash_ignores_formatting_and_release_but_not_evidence() {
     let base = rule(json!({"krw": 1}), json!(true));
     let pretty = serde_json::to_string_pretty(&base).unwrap();
     let compact = serde_json::to_string(&base).unwrap();
-    let h1 = Rule::from_json_str(&pretty).unwrap().content_hash;
-    let h2 = Rule::from_json_str(&compact).unwrap().content_hash;
+    let h1 = Rule::from_json_str(&pretty)
+        .unwrap()
+        .content_hash()
+        .to_string();
+    let h2 = Rule::from_json_str(&compact)
+        .unwrap()
+        .content_hash()
+        .to_string();
     assert_eq!(h1, h2, "whitespace and key order must not matter");
 
     let mut rel = base.clone();
     rel["release_id"] = json!("rel-b");
     assert_eq!(
-        Rule::from_json(&rel).unwrap().content_hash,
+        Rule::from_json(&rel).unwrap().content_hash(),
         h1,
         "re-releasing the same content keeps the hash"
     );
@@ -84,7 +91,7 @@ fn content_hash_ignores_formatting_and_release_but_not_evidence() {
     let mut ev = base.clone();
     ev["evidence_refs"] = json!(["clause-18"]);
     assert_ne!(
-        Rule::from_json(&ev).unwrap().content_hash,
+        Rule::from_json(&ev).unwrap().content_hash(),
         h1,
         "pointing at a different clause is a content change"
     );
@@ -114,7 +121,7 @@ fn version_and_release_are_enforced_at_load_time() {
     );
 
     let fixture = Rule::from_json(&rule(json!({"krw": 1}), json!(true))).unwrap();
-    assert_eq!(fixture.release_id, None, "fixtures may omit the release");
+    assert_eq!(fixture.release_id(), None, "fixtures may omit the release");
 }
 
 // ---- 2. ranges through later calculation ----
@@ -166,6 +173,10 @@ fn unspecified_rounding_range_flows_through_a_second_multiplication() {
 fn loader_rejects_huge_date_offsets() {
     for (value, unit) in [
         (i64::MAX, "day"),
+        (i64::MIN, "day"),
+        (i64::MIN, "calendar_month"),
+        (i64::MIN, "calendar_year"),
+        (i64::MAX, "calendar_year"),
         (110_001, "day"),
         (3_601, "calendar_month"),
         (301, "calendar_year"),
@@ -219,7 +230,33 @@ fn content_hash_is_independent_of_key_order_in_the_file() {
         "unknown_policy":"use_three_valued_logic_never_default_to_zero","amount":{"krw":1},
         "eligibility":{"gte":["x",0]},"inputs":{"y":"bool","x":"int"},"schema_version":"rule-0.1","rule_version":"1","rule_id":"k"}"#;
     assert_eq!(
-        Rule::from_json_str(a).unwrap().content_hash,
-        Rule::from_json_str(b).unwrap().content_hash
+        Rule::from_json_str(a).unwrap().content_hash(),
+        Rule::from_json_str(b).unwrap().content_hash().to_string()
+    );
+}
+
+#[test]
+fn reloading_the_source_json_reproduces_the_same_rule_identity() {
+    let r = Rule::from_json(&rule(json!({"krw": 1}), json!(true))).unwrap();
+    let again = Rule::from_json(r.source_json()).unwrap();
+    assert_eq!(again.content_hash(), r.content_hash());
+    assert_eq!(again.rule_version(), r.rule_version());
+
+    // The sanctioned way to change a rule: edit the JSON and reload, which re-hashes.
+    let mut edited = r.source_json().clone();
+    edited["amount"] = json!({"krw": 2});
+    let changed = Rule::from_json(&edited).unwrap();
+    assert_ne!(changed.content_hash(), r.content_hash());
+    let res = changed.evaluate(&json!({})).unwrap();
+    assert_eq!(
+        res.rule_content_hash,
+        changed.content_hash(),
+        "the result reports the hash of the logic that ran"
+    );
+    assert_eq!(
+        res.payout,
+        Payout::Payable {
+            amount: AmountOut::Exact { krw: 2 }
+        }
     );
 }

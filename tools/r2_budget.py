@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Spend limits for the S3-API archive (Cloudflare R2; also AWS). ADR-0017, infra/r2/BUDGET.md.
 
-R2 has no hard spending cap; a Cloudflare budget alert only sends an email. The limits here are
-enforced by this client before each request is sent:
+A runaway mitigation for runs of this tool: per-run limits plus the cumulative use recorded in the
+ledger. It is not an account-wide spending cap and does not bound requests made outside this tool;
+some of this tool's own requests are not recorded either (infra/r2/BUDGET.md section 5). R2 has no
+hard spending cap; a Cloudflare budget alert only sends an email. The limits here are enforced by
+this client before each request is sent:
 
   policy     infra/r2/budget_policy.json   global caps (per UTC month; stored bytes for all time),
                                            admission limits, local gate
@@ -422,7 +425,8 @@ class Ledger:
     def usage(records, job_id, month, admissions=(), admission_limits=None):
         """A reservation counts in full until its own run settles it; then it counts what the run
         measured (never more than reserved). An admission whose run never settled counts at the
-        admission limits. Re-running or running in parallel therefore cannot exceed a cap."""
+        admission limits. Re-running or running in parallel therefore counts against the caps (as far as
+        this ledger sees; unrecorded requests are listed in infra/r2/BUDGET.md section 5)."""
         settled = {}
         for r in records:
             if r.get("kind") == "settlement":

@@ -1,6 +1,6 @@
 # 원본 보관소 (Cloudflare R2)
 
-결정: ADR-0016(사용자 결정, 2026-10-09, D14의 보관소 제공자를 AWS S3에서 R2로 바꿈). 비용 제한: ADR-0017, [BUDGET.md](BUDGET.md). **모든 R2 요청은 작업 파일(`--job`)과 예약 원장을 거친다.** 계약: `docs/data/DATA_PIPELINE_CONTRACT.md` §3.1. AWS용 정의(`infra/s3/`)는 쓰지 않지만 대안으로 남긴다.
+결정: ADR-0016(사용자 결정, 2026-10-09, D14의 보관소 제공자를 AWS S3에서 R2로 바꿈). 비용 제한: ADR-0017, [BUDGET.md](BUDGET.md). **이 저장소 도구의 R2 요청은 작업 파일(`--job`)과 원장(입장·예약·정산)을 거친다.** 이것은 이 도구로 하는 실행의 폭주 완화 장치이고, 계정 전체의 과금 상한이 아니다(BUDGET.md §0). 초기 운영은 지정 실행 환경 하나, 동시 실행 1개, 수동 실행이다(BUDGET.md §6). 계약: `docs/data/DATA_PIPELINE_CONTRACT.md` §3.1. AWS용 정의(`infra/s3/`)는 쓰지 않지만 대안으로 남긴다.
 
 비밀키는 이 문서·Git·로그·대화에 쓰지 않는다. 계정 엔드포인트(계정 ID 포함)도 공개 저장소에 쓰지 않고 환경 변수 `ONJEON_S3_ENDPOINT`로만 넘긴다.
 
@@ -38,7 +38,7 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 2. **API 토큰**(R2 → Manage API tokens). 버킷을 지정하고 만료일을 둔다. Admin 권한 토큰은 만들지 않는다(버킷 설정·잠금 변경·버킷 삭제가 가능해진다).
    - 수집 토큰: Object Read & Write, 버킷 `onjeon-raw-sources`, `onjeon-derived-sources`, `onjeon-budget-ledger`.
    - 검증 토큰: Object Read only, 버킷 `onjeon-raw-sources`, `onjeon-derived-sources`.
-   - 원장 토큰(GitHub용): Object Read & Write, 버킷 `onjeon-budget-ledger`만.
+   - 원장 토큰(GitHub용, 초기 운영에서는 만들지 않음): Object Read & Write, 버킷 `onjeon-budget-ledger`만.
 3. **이 Claude 환경에 등록**(세션 제목 표시줄의 환경 메뉴 → Edit → Network secrets, 없으면 환경 변수). 대화창에 붙여 넣지 않는다. 등록은 새 세션부터 적용된다.
 
    | 변수 | 값 |
@@ -47,7 +47,7 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
    | `ONJEON_S3_ENDPOINT` | `https://<계정 ID>.r2.cloudflarestorage.com` |
 
    R2 엔드포인트를 쓰면 도구는 `R2_*` 변수만 읽는다(원장은 `R2_LEDGER_*`가 있으면 그것). 이 환경의 `AWS_*` 자리표시자로 대신하지 않는다.
-4. **GitHub 재검증**(선택): Secrets `ONJEON_S3_ENDPOINT`, `R2_VERIFIER_ACCESS_KEY_ID`·`R2_VERIFIER_SECRET_ACCESS_KEY`(검증 토큰), `R2_LEDGER_ACCESS_KEY_ID`·`R2_LEDGER_SECRET_ACCESS_KEY`(원장 토큰). Variables `ONJEON_RAW_BUCKET=onjeon-raw-sources`, `ONJEON_DERIVED_BUCKET=onjeon-derived-sources`. 워크플로는 main에 있어야 실행되고, 동시에 하나만 돈다.
+4. **GitHub 재검증**(초기 운영에서는 하지 않는다. 지정 실행 환경은 하나다. 대량 자동 수집 관문 이후 결정): Secrets `ONJEON_S3_ENDPOINT`, `R2_VERIFIER_ACCESS_KEY_ID`·`R2_VERIFIER_SECRET_ACCESS_KEY`(검증 토큰), `R2_LEDGER_ACCESS_KEY_ID`·`R2_LEDGER_SECRET_ACCESS_KEY`(원장 토큰). Variables `ONJEON_RAW_BUCKET=onjeon-raw-sources`, `ONJEON_DERIVED_BUCKET=onjeon-derived-sources`. 워크플로는 main에 있어야 실행되고, 동시에 하나만 돈다.
 5. **예산 알림**(권장): Billing → Billable Usage → Set Budget Alert. 이메일 알림일 뿐 과금을 막지 않는다.
 
 ## 4. 버킷 잠금 정책 초안 (O14, 승인 전 적용하지 않음)
@@ -62,7 +62,7 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 
 승인되면 결정 원장 O14를 닫고 ADR로 남긴 뒤 적용한다.
 
-## 5. 실행 (모두 비용 한도 안에서)
+## 5. 실행 (지정 실행 환경에서 수동으로, 한 번에 하나)
 
 ```bash
 J=infra/r2/jobs/initial-119.json; L=docs/blueprint/validation/source_checks
@@ -88,7 +88,7 @@ python3 -I tools/r2_budget.py status --job "$J"     # 남은 한도
 | 저장 체크섬 | 원본 16개 모두 R2가 돌려준 SHA-256이 키와 같음 |
 | 버킷 | 세 버킷 모두 저장 등급 Standard. 원본·파생 위치 APAC, 원장 ENAM(Cloudflare API). 위치는 힌트이고 보장이 아니다 |
 | 비용 한도 아래 대조(원장 순번 2~9) | 원본 목록 58/58, 파생 목록 61/61 바이트 일치, 표본 14건 해시 일치, 보관본 재현(OCR 재실행) reproduced 8·derived_unverified 6·불일치 0. 기록: `docs/blueprint/validation/source_checks/2026-10-09_r2_*` |
-| 비용 한도 동작(에뮬레이터) | 작업 한도 소진 시 예약 단계에서 중단, 원장 접근 불가 시 중단, 동시 10개 실행 중 남은 한도만큼만 실행(초과 없음), 목록 밖 키·다른 바이트·다른 연산 거부. 시험 `tools/tests/test_r2_budget.py` |
+| 비용 한도 동작(에뮬레이터, 1358edf 기준. 입장·마감은 e7d38dd에서 추가되어 S3 스텁으로 시험) | 작업 한도 소진 시 예약 단계에서 중단, 원장 접근 불가 시 중단, 동시 10개 실행 중 남은 한도만큼만 실행(초과 없음), 목록 밖 키·다른 바이트·다른 연산 거부. 시험 `tools/tests/test_r2_budget.py` |
 | status 실행 정산 실패(순번 10) | 실행 종류 한도(Class A 4)가 정산 기록에 모자라 정산을 못 했고, 예약 전체가 사용으로 남았다. 실행 종류마다 원장 기록 비용을 검사하도록 고침. 그 예약은 되돌리지 않았다 |
 | 공개 주소(r2.dev, 사용자 도메인) | 세 버킷 모두 공개 개발 URL 비활성, 사용자 도메인 없음(검토자가 Cloudflare API로 확인). 이 세션의 연결 도구로는 조회할 수 없었다 |
 | 토큰의 버킷 범위·삭제 권한 | 확인하지 않음. 새 원장 버킷에도 접근됐으므로 두 버킷 한정이 아니다. 삭제 가능으로 간주 |

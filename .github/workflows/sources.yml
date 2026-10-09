@@ -11,8 +11,10 @@ name: sources
 #      vars.ONJEON_RAW_BUCKET, vars.ONJEON_DERIVED_BUCKET
 #      secrets.ONJEON_S3_ENDPOINT, secrets.R2_VERIFIER_ACCESS_KEY_ID, secrets.R2_VERIFIER_SECRET_ACCESS_KEY
 #      secrets.R2_LEDGER_ACCESS_KEY_ID, secrets.R2_LEDGER_SECRET_ACCESS_KEY (write on onjeon-budget-ledger only)
-#    Every R2 request goes through the spend limits (infra/r2/BUDGET.md): each step reserves on the
-#    shared ledger first and stops (exit 4) when a cap is reached or the ledger cannot be verified.
+#    Every R2 request of these steps goes through the tool's runaway mitigation (per-run limits and
+#    the ledger's cumulative use, infra/r2/BUDGET.md); it is not an account-wide spending cap.
+#    Initial operation (BUDGET.md section 6) uses one designated environment, which is not GitHub:
+#    leave the repository variables unset so this job does not run.
 # Not executed yet as of 2026-10-09 (the file is not on main, and no R2 token is configured).
 on:
   workflow_dispatch:

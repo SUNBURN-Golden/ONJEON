@@ -1,0 +1,116 @@
+ts_utc	method	url	status	file	sha256	purpose
+2026-10-10T02:39:19Z	GET	https://www.samsungfire.com/robots.txt	200	raw/sf_robots.txt	74e2fdb881bd0618e611cf03487a34edc19c1fcdc1af0ba4babddcb8ea82bd94	삼성화재 robots
+2026-10-10T02:39:22Z	GET	https://www.hi.co.kr/robots.txt	curl35:curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to www.hi.co.kr:443 	raw/hi_robots.txt		현대해상 robots
+2026-10-10T02:39:26Z	GET	https://www.kbinsure.co.kr/robots.txt	200	raw/kb_robots.txt	cb426cdb35b78f7c7cee1ae88d78b57c861b9595a82b1fd8d98eefdc04f615dc	KB손보 robots
+2026-10-10T02:39:30Z	GET	https://www.idbins.com/robots.txt	200	raw/db_robots.txt	d195921b9baeb3c0ddf9ee1c92e6dd6b55e1e7c28306e8616495baedb1650e4e	DB손보 robots
+2026-10-10T02:39:34Z	GET	https://www.meritzfire.com/robots.txt	200	raw/meritz_robots.txt	d54ca28e21aeace565fa20ff7c463768fb29e472b8601aa51e7049abc1724b6f	메리츠 robots
+2026-10-10T02:39:49Z	GET	https://www.samsungfire.com/	curl35:curl: (35) Recv failure: Connection reset by peer	raw/sf_home.html		삼성화재 홈 진입
+2026-10-10T02:39:58Z	GET	https://www.samsungfire.com/	200	raw/sf_home.html	6d7985a149b689420bf9ee5166b8862f988864e35d883c1c1c8a017a3ce9ed77	삼성화재 홈 재시도
+2026-10-10T02:40:13Z	GET	https://www.samsungfire.com/sfmi/v2/ui/common/ih.common.js?_ver=20250408	200	raw/sf_ihcommon.js	df5c6651f32f3f71e88fe7f88420de794ca03bee264fe8048c1128bfd2509138	삼성화재 공통 JS(메뉴/요청방식)
+2026-10-10T02:40:42Z	GET	https://www.samsungfire.com/v2/resources/js/ui.base.js	200	raw/sf_uibase.js	5bbf03b8f093e5e189d29b12626442357a504fa40cd5129cff717afdaefdaf54	삼성화재 메뉴 정의 JS
+2026-10-10T02:40:55Z	GET	https://www.samsungfire.com/v2/resources/js/ui.menu.js	200	raw/sf_uimenu.js	b2c283aa3809652db88ac4a379b22cdc39973442c914bf1897811e0adaeeb212	삼성화재 메뉴 JS
+2026-10-10T02:41:13Z	GET	https://www.samsungfire.com/v2/resources/json/menu_G.json	200	raw/sf_menu_G.json	49232e09123459a952978aab17efb5468b630f5cabc9b3749afad5e38a79484b	삼성화재 메뉴 G(고객센터 추정)
+2026-10-10T02:41:39Z	GET	https://www.samsungfire.com/v2/resources/json/menu_F.json	200	raw/sf_menu_F.json	8345a91640e046dce13a2f84a45934ed4dee295583d0589fea288d43369e13f8	삼성화재 메뉴 F(PC 본사이트)
+2026-10-10T02:41:59Z	GET	https://www.samsungfire.com/v2/resources/json/menu_K.json	curl35:curl: (35) Recv failure: Connection reset by peer	raw/sf_menu_K.json		삼성화재 메뉴 K(소비자 사이트)
+2026-10-10T02:42:14Z	GET	https://www.samsungfire.com/v2/resources/json/menu_K.json	200	raw/sf_menu_K.json	5d841e0612799d0d871d89d6661c4197d2e7788fe4321161c289c9ae0ef90b6e	삼성화재 메뉴 K 재시도
+2026-10-10T02:42:26Z	GET	https://www.samsungfire.com/v2/resources/json/menu_J.json	200	raw/sf_menu_J.json	ecd4468c42581310dac69ec85dce531291346b897ff8887bb7ac76d74d187262	삼성화재 메뉴 J(siteUrl 빈 값, 공시실 추정)
+2026-10-10T02:42:36Z	GET	https://www.samsungfire.com/vh/page/VH.HPIF0103.do	200	raw/sf_HPIF0103.html	6950292c09e9e333f6d913d739879ff0f9126668ea627f739af4c9994507b7de	삼성화재 보험상품공시 페이지
+2026-10-10T02:42:50Z	GET	https://www.samsungfire.com/sfmi/v2/ui/info/IH_IF_Terms.js?_v=202610101142	200	raw/sf_IH_IF_Terms.js	4264bd6953dde36976530496421c376f3a4611cdfd23f1ba939f085e8cd61098	삼성화재 상품공시 페이지 스크립트(데이터 요청 확인)
+2026-10-10T02:43:20Z	GET	https://www.samsungfire.com/vh/data/VH.HDIF0103.do	200	raw/sf_HDIF0103_nobody.txt	ce090dab84717071558b0614e62776f7e6d3a9a98966703afbfd96bb5a325051	삼성화재 411 재현: 본문 없는 POST
+2026-10-10T02:43:35Z	POST	https://www.samsungfire.com/vh/data/VH.HDIF0103.do	200	raw/sf_HDIF0103.json	7c93bf49166a995fddd430528c3fae0618f420417923eb4f366799fde2209ce0	삼성화재 상품공시 전체 목록 데이터(POST header=tranId)
+2026-10-10T02:44:52Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201220_0_20260701_file1.pdf	200	raw/sfH_ZPB201220_0_20260701_file1.hdr	d01d6167620a3caf3382024461c8576c1c2413a146b82d22f5742616ae73b42a	삼성화재 PDF HEAD(존재·Last-Modified·크기)
+2026-10-10T02:44:55Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201220_0_20260701_file3.pdf	200	raw/sfH_ZPB201220_0_20260701_file3.hdr	a9cb5b2dea1db4af6e28bb5655fb52be35a9e714760d5eaddfb62af49e8a97af	삼성화재 PDF HEAD(존재·Last-Modified·크기)
+2026-10-10T02:44:59Z	HEAD	https://www.samsungfire.com/publication/pdf/92008_0_19921230_file1.pdf	200	raw/sfH_92008_0_19921230_file1.hdr	f3011ddb9d6ed61b2c70d9ad04a6e8bd6b93772c82d06fe76aa943b579f49832	삼성화재 PDF HEAD(존재·Last-Modified·크기)
+2026-10-10T02:45:03Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB196170_0_20250828_file1.pdf	200	raw/sfH_ZPB196170_0_20250828_file1.hdr	d6abc9643ded949ec16998630db0f19174f0306628c7c7bd5ba77bf7ab341c73	삼성화재 PDF HEAD(존재·Last-Modified·크기)
+2026-10-10T02:45:07Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB196170_0_20250827_file1.pdf	404	raw/sfH_ZPB196170_0_20250827_file1.hdr	01c0c8268a54c1f503e057e90d8e5ebcf102acfd2b6f9f4467d7b7e306338220	삼성화재 PDF HEAD(존재·Last-Modified·크기)
+2026-10-10T02:45:19Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201210_0_20260101_file1.pdf	200	raw/sfH_ZPB201210_0_20260101_file1.hdr	d22a8d8534ead5f19a16bc1a3937d54289202745d3aaaaa8cb408557eda858ab	삼성화재 PDF HEAD(판매본 이력별 Last-Modified)
+2026-10-10T02:45:24Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201210_0_20260306_file1.pdf	200	raw/sfH_ZPB201210_0_20260306_file1.hdr	24ee2eba73ad86c91b36b8417fae2f1f9ca8971b4d86bc7d19b3dbf34bb40b4e	삼성화재 PDF HEAD(판매본 이력별 Last-Modified)
+2026-10-10T02:45:27Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201210_0_20260306_file3.pdf	200	raw/sfH_ZPB201210_0_20260306_file3.hdr	40429d8a8bda860bc6c169e18f6182abc3b389e21a3bda6196cf80350b5d64fc	삼성화재 PDF HEAD(판매본 이력별 Last-Modified)
+2026-10-10T02:45:31Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201190_0_20250501_file1.pdf	200	raw/sfH_ZPB201190_0_20250501_file1.hdr	4e16af52bb771c4db6efbea655f4516eb61de8db1e7e91f11974fd99c83fe10b	삼성화재 PDF HEAD(판매본 이력별 Last-Modified)
+2026-10-10T02:45:35Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB20117_0_20240401_file1.pdf	200	raw/sfH_ZPB20117_0_20240401_file1.hdr	6c7608b2bba61ac15aa36abdc1c9d55d37afe1d55918a7f71670d075de0b160e	삼성화재 PDF HEAD(판매본 이력별 Last-Modified)
+2026-10-10T02:45:39Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201220_0_20260701_file2.pdf	200	raw/sfH_ZPB201220_0_20260701_file2.hdr	4e870d742a0a77cbd3534fb123e6abeefb18faac3f373d63e749dcc9deb71a52	삼성화재 PDF HEAD(판매본 이력별 Last-Modified)
+2026-10-10T02:45:42Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB201220_0_20260701_file4.pdf	404	raw/sfH_ZPB201220_0_20260701_file4.hdr	afd93b91932dc01cf6fb934870971f1cda93d8d85bd802d66af5f39033ee9e6b	삼성화재 PDF HEAD(판매본 이력별 Last-Modified)
+2026-10-10T02:45:54Z	GET	https://www.samsungfire.com/publication/pdf/ZPB201210_0_20260101_file1.pdf	200	raw/sf_ZPB201210_0_20260101_file1.pdf	ddef988632cbad0441e594e5e00d4fbb2ce18b905cea65149b961f6928a3d150	삼성화재 운전자 1종 약관(판매 2026-01-01~03-05) - 사후 수정 여부 확인 [PDF 1/10]
+2026-10-10T02:46:15Z	GET	https://www.samsungfire.com/publication/pdf/ZPB201210_0_20260306_file1.pdf	200	raw/sf_ZPB201210_0_20260306_file1.pdf	ddef988632cbad0441e594e5e00d4fbb2ce18b905cea65149b961f6928a3d150	삼성화재 운전자 1종 약관(판매 2026-03-06~06-30) 비교 [PDF 2/10]
+2026-10-10T02:47:03Z	HEAD	https://www.samsungfire.com/publication/pdf/ZPB256110_0_20260306_file1.pdf	200	raw/sfH_ZPB256110_0_20260306_file1.hdr	81b27a29b9ae4d195778bd687f2739eed8293504575f4900f7beacbd686f6aea	삼성화재 운전자 2종 약관 HEAD(1종과 동일 파일인지)
+2026-10-10T02:47:14Z	GET	https://www.samsungfire.com/vh/data/VH.HDIF0103.do	200	raw/sf_HDIF0103_GET.txt	921b30b1d08d1994fb3d6c5aef9bf090b78165db8a7ed304fad0aa38ad8d3c7d	삼성화재 데이터 엔드포인트 GET(411 원인 확인)
+2026-10-10T02:47:29Z	HEAD	https://www.samsungfire.com/	curl35:curl: (35) Recv failure: Connection reset by peer	raw/sf_home_HEAD.hdr	e8686a973844835d982b4caba4113ca34f4af19b383cc4c595c1d18c649ce310	삼성화재 홈 HEAD(411 원인 확인)
+2026-10-10T02:47:52Z	GET	https://www.hi.co.kr/	200	raw/hi_home.html	b09db1d290f5f6f74472bb37d8482365e7983d4b230b91101c556ce857e5633c	현대해상 홈 재시도(HTTPS)
+2026-10-10T02:47:56Z	GET	http://www.hi.co.kr/robots.txt	200	raw/hi_robots_http.txt	f04eacc00357fc09edfd9ebe0dc77523ff5d7d316eceaee4b6f68f2077f186d3	현대해상 robots(HTTP 평문) 시도
+2026-10-10T02:48:12Z	GET	https://www.hi.co.kr/index.jsp	200	raw/hi_index.html	533a63e57bccd7443c87c49c60c659f10aac6db6decfcef31dd592eccdd828d1	현대해상 index.jsp
+2026-10-10T02:48:28Z	GET	https://www.hi.co.kr/js/common/common.js?v=20261010114813	200	raw/hi_common.js	74319ccd892f6456cc714ae1bb09cde096dbd9cdee82ab829c257bd798ac36f7	현대해상 common.js(메뉴 데이터 위치 확인)
+2026-10-10T02:49:24Z	GET	https://www.hi.co.kr/serviceAction.do?view=main/main	200	raw/hi_main.html	c5cef193f409928b571bdf470338482409e1792c0626a6dc613247889a082b8f	현대해상 메인(serviceAction.do?view=main/main)
+2026-10-10T02:49:45Z	GET	https://www.hi.co.kr/serviceAction.do?view=bin/PA/03/HHPA03021M&menuId=100932	200	raw/hi_HHPA03021M.html	ad4ac6def821788e7ff91b3d6666eb1b2c10c6ad548e325c42624521258fa7b6	현대해상 보험상품공시 화면
+2026-10-10T02:50:23Z	POST	https://www.hi.co.kr/ajax.xhi	200	raw/hi_M38S_init.json	9e99fbef6fed7dd211855d2064616b34c88e649c2a3bffc02f3ffaf360329f79	현대해상 상품공시 초기 데이터(POST /ajax.xhi HHCA0310M38S)
+2026-10-10T02:52:46Z	POST	https://www.hi.co.kr/ajax.xhi	200	raw/hi_M26S_caedad94-c3e9-4da2-b608-6f2ad024fc5e.json	624cdec44259bcb951da1a6c8f286176c762457ded622d548143384fb75f52d9	현대해상 파일 UUID→경로 해석(HHCA0310M26S)
+2026-10-10T02:52:50Z	POST	https://www.hi.co.kr/ajax.xhi	200	raw/hi_M26S_8862f972-7623-42c4-875b-d644f685199c.json	b3cf2138fbc366f38421ab434e60c9ffc16ece4b305d5feff2a5a1a8a0a796bb	현대해상 파일 UUID→경로 해석(HHCA0310M26S)
+2026-10-10T02:53:02Z	HEAD	https://www.hi.co.kr/data/202609/20260907134404029.pdf	404	raw/hiH_20260907134404029.hdr	79b4db67513121a6054876a02085e927c9bb812da947c886b96daeaf2a922170	현대해상 약관 파일 직접 경로 HEAD
+2026-10-10T02:53:11Z	GET	https://www.hi.co.kr/js/common/bizCommon.js?v=20261010114813	200	raw/hi_bizCommon.js	f0b7e3c9ef2d71949170971c4963ac626f09e9ea74e58b94489f7e5fd0c9a5f2	현대해상 bizCommon.js(다운로드 함수 확인)
+2026-10-10T02:53:34Z	POST	https://www.hi.co.kr/FileActionServlet/download/0/data/202609/20260907134404029.pdf	200	raw/hi_1540_terms_20260907.pdf	9401e98e8894883cf1e3bb86d8cffd39c765418e13089477ae50d8949874c8cc	현대해상 굿앤굿1540종합 약관(2026-09-07 재등록본) [PDF 3/10]
+2026-10-10T02:54:16Z	GET	https://www.meritzfire.com/	200	raw/mz_home.html	d3868703ce0d1697ff99e5e0752315a4050738f97a3e2b8c76049a984b952dd8	메리츠화재 홈
+2026-10-10T02:54:25Z	GET	https://www.meritzfire.com/common/index.js?1	200	raw/mz_index.js	3b89bac99e157f1248aa905e5f895ddacc4910c6c9c75e61e6f841f5e5a81e41	메리츠화재 /common/index.js
+2026-10-10T02:54:34Z	GET	https://www.meritzfire.com/index.jsp	200	raw/mz_index.html	469b3e8dec4671de135f70b04a46086273f3d6dce59a1069751586671fde289e	메리츠화재 index.jsp
+2026-10-10T02:54:57Z	GET	https://www.meritzfire.com/main.do	200	raw/mz_main.html	a9d31d606110081b3a97eeb3ce334541a01a4b08144fde7cfae62bd379d50cde	메리츠화재 main.do
+2026-10-10T02:55:12Z	GET	https://www.meritzfire.com/common/app/app.js	200	raw/mz_app.js	09746379958ccb81d78f04155b293dffde05405aabc7ae1751bba87e39cf678b	메리츠화재 app.js(라우트)
+2026-10-10T02:55:35Z	GET	https://www.meritzfire.com/common/app/core/core.js	200	raw/mz_core.js	3efae3849ff303a1df7f990550eeb49661f67c146b83623c56c5ac7908cfaaa2	메리츠화재 core.js(요청 방식·메뉴)
+2026-10-10T02:55:55Z	GET	https://www.meritzfire.com/disclosure/product-announcement/product-list.do	200	raw/mz_product_list.html	d08999ecc030c4b206d585ac525de9acd17b621136a32a30e854d962827a681d	메리츠화재 공시실 상품목록 추정 경로
+2026-10-10T02:56:17Z	GET	https://www.meritzfire.com/default/app/biz/cu/ua/pdpban/salPdLst.js	200	raw/mz_salPdLst.js	cfc62c4af3b372aaa245e58abb819c5bb82b91793f623819531c1a7ddbb9caf4	메리츠화재 상품목록 페이지 스크립트
+2026-10-10T02:56:36Z	GET	https://www.meritzfire.com/common/app/core/service.js	200	raw/mz_service.js	2c02269a73de9155ca3dbed6709629e04766a9ded8a771332110e67ce7bbe543	메리츠화재 service.js(bc 호출 전송 방식)
+2026-10-10T02:56:45Z	GET	https://www.meritzfire.com/common/app/core/provider.js	200	raw/mz_provider.js	ad7f36174bddc2de4c8920f8e0274c9c03e6fedbc085d0964bdee0cdef06064f	메리츠화재 provider.js(bc 프록시)
+2026-10-10T02:57:15Z	GET	https://www.meritzfire.com/default/app/comm/comm.js?v=2.1.12	200	raw/mz_comm.js	a304dffd6ae2e6b5c28f91d20aaa4303cb5d639d42c32575547c8c05022693d9	메리츠화재 comm.js(http 서비스)
+2026-10-10T02:57:28Z	GET	https://www.meritzfire.com/default/app/comm/http.js	200	raw/mz_http.js	b282f45fca412825baa37302242498670c53e39173baeba8bd7fb0b159385255	메리츠화재 http.js(bc 전송 URL·헤더)
+2026-10-10T02:57:51Z	POST	https://www.meritzfire.com/json.smart	200	raw/mz_retrievePdList_Y1.json	4d24697b55728e5e1bb829c0334c501f85c2cf0e14f7b1c19f5c3af740fa0983	메리츠화재 판매상품 상품종류·상품명 목록(json.smart retrievePdList notfYn=Y)
+2026-10-10T02:58:08Z	POST	https://www.meritzfire.com/json.smart	200	raw/mz_retrieveSalPdList_Y_all.json	234ce58ccb11be4a821c35be0895a52039f6e72a1db1c512628bfe8244e9eff2	메리츠화재 판매상품 다운로드 목록(cmPdDivCd 빈값)
+2026-10-10T02:58:21Z	POST	https://www.meritzfire.com/json.smart	200	raw/mz_retrievePdList_Y2.json	5ae0c4364536d67073792f2e07417a2dfaa64151c19b75e879725b116dd52f27	메리츠화재 판매상품 운전자보험 상품명 목록
+2026-10-10T02:58:34Z	POST	https://www.meritzfire.com/json.smart	200	raw/mz_retrieveSalPdList_Y_4103.json	5e8266b875c99b4d830c8cbd1c4a52b7b8ba7eda8ec60bac43bf11b0e3d0d7e9	메리츠화재 판매상품 운전자(4103) 다운로드 목록
+2026-10-10T02:58:37Z	POST	https://www.meritzfire.com/json.smart	200	raw/mz_retrieveSalPdList_N_4103.json	0194e1eb94dfd40bb931939262e43627d00ae52a3dec59fc06e00278a0f4ca7c	메리츠화재 판매중지 운전자(4103) 다운로드 목록
+2026-10-10T02:59:18Z	HEAD	https://www.meritzfire.com/cu/ctl/202609301529300910015U.pdf	200	raw/mzH_direct.hdr	00540e9b5ba1eee3b05acab7be669e8cdbb24c8c05dd246348322ac3a563cfbe	메리츠 파일 직접 경로 HEAD
+2026-10-10T02:59:29Z	POST	https://www.meritzfire.com/hp/fileDownload.do	200	raw/mz_dl_test.bin	e0f930131fc27c1fc855a3a966ffa25702df2e4b4368e16c903df5aa64fd0878	메리츠 /hp/fileDownload.do 다운로드 방식 확인(운전자 상해 종합 2608 약관) [PDF 4/10 후보]
+2026-10-10T02:59:40Z	GET	https://www.kbinsure.co.kr/CG802030001.ec	200	raw/kb_CG802030001.html	fc94f9f3b5055f84a03ac601cb26fcafcb30db131ce7ed3c0810032e23102367	KB손보 상품목록(약관) 화면 GET
+2026-10-10T03:00:18Z	POST	https://www.kbinsure.co.kr/CG802030001.ec	200	raw/kb_list_b_N_p1.html	d996a43f975b1d29249c2ccb9078043d7ea98aefbe4586efe8410bd9eac7422f	KB손보 운전자보험 판매중지 목록 p1 (POST)
+2026-10-10T03:00:32Z	POST	https://www.kbinsure.co.kr/CG802030002.ec	200	raw/kb_detail_20700.html	8d154bb436547a25f9bf78e54be3b5195f9e6eed30b0d1df7361b6f29b5ab04d	KB손보 상품 상세(판매기간·문서) bojongNo=20700
+2026-10-10T03:00:36Z	POST	https://www.kbinsure.co.kr/CG802030002.ec	200	raw/kb_detail_20879.html	d5f7fb656d9f06d83fab365e34e25898d2695d3e9769e121e2a57e33b59982fe	KB손보 상품 상세(판매기간·문서) bojongNo=20879
+2026-10-10T03:00:50Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=2700_1_1.pdf	200	raw/kbH_2700_1_1.pdf.hdr	a8cb695679006cb2f32dda0085e16a4a91d65644d7142830cc16a542444eaff2	KB손보 약관 파일 HEAD(존재·Last-Modified)
+2026-10-10T03:00:54Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=2879_1_1_070211.pdf	200	raw/kbH_2879_1_1_070211.pdf.hdr	37648edbd2cdc2754bc860d71e1d6d76d1bedb2ab2e4ae1485d81bb32ec606be	KB손보 약관 파일 HEAD(존재·Last-Modified)
+2026-10-10T03:00:57Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=25465_1_1.pdf	200	raw/kbH_25465_1_1.pdf.hdr	196b4fe656eb3267435d340815b7be2fdaa077c5f1b5e00ca1e59d67ef7981a6	KB손보 약관 파일 HEAD(존재·Last-Modified)
+2026-10-10T03:01:15Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=25465_2_1.pdf	200	raw/kbH_25465_2_1.pdf.hdr	df679bf76f7e357c7777540649666d2d80599c8bed389b773d5a61306c4c70fa	KB손보 25465_2_1 HEAD(전일 표본 크기 14549344와 비교)
+2026-10-10T03:01:19Z	POST	https://www.kbinsure.co.kr/CG802030001.ec	200	raw/kb_list_b_N_p141.html	f8d25be7f8cae98a03aa7e88861ba1cfba190ed2936d4a422702ee9302150e3a	KB손보 운전자보험 판매중지 목록 마지막 페이지
+2026-10-10T03:01:22Z	POST	https://www.kbinsure.co.kr/CG802030001.ec	200	raw/kb_list_b_Y_p1.html	499ff36ec0bf950b6cb5216a3f54bcecc1729422a6491aeb9a8c31200c388827	KB손보 운전자보험 판매중 목록 p1
+2026-10-10T03:01:37Z	POST	https://www.kbinsure.co.kr/CG802030002.ec	200	raw/kb_detail_25326.html	4bd9d94df464d251e71e4c9804e8fd7c5dc624ce7bae75ba81467f2f460d7a1b	KB손보 상품 상세 bojongNo=25326
+2026-10-10T03:01:42Z	POST	https://www.kbinsure.co.kr/CG802030002.ec	200	raw/kb_detail_24984.html	d17cd7fe8c96bfd6aa26795d8c0ff8936e8f427f57abeac05b0d409c05e48943	KB손보 상품 상세 bojongNo=24984
+2026-10-10T03:01:45Z	POST	https://www.kbinsure.co.kr/CG802030001.ec	200	raw/kb_list_i_all_p1.html	0330684ee313686376a956cfa343e99eef1047a464f559b86b2ae9806bc81557	KB손보 독립특별약관 목록 p1(전체)
+2026-10-10T03:01:59Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=24984_1_1.PdF	200	raw/kbH_24984_1_1.PdF.hdr	7afed9d76ad331ee17ac24e107fcfa4d82b8b57d9503b215859afbc87df71f10	KB손보 대소문자 섞인 확장자 원래 표기 HEAD
+2026-10-10T03:02:03Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=24984_1_1.pdf	200	raw/kbH_24984_1_1.pdf.hdr	ab1ad439e56fcb3921cea2bb3248a0205c6bfbadc39a4cf3ac9be1edc798adf9	KB손보 확장자 소문자 정규화 HEAD
+2026-10-10T03:02:16Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=24984_2_1.pdF	200	raw/kbH_24984_2_1.pdF.hdr	4c58b0f5cb169b33854a7b8d60714502f7b5a4814575e4cd6b62b744f3422ee7	KB손보 24984_2_1 원래 표기 HEAD
+2026-10-10T03:02:20Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=24984_2_1.pdf	200	raw/kbH_24984_2_1.pdf.hdr	d38af1566c942617752113db75b7ce9ce158e9fe1138945eeb8ff8fee78aff2d	KB손보 24984_2_1 소문자 HEAD
+2026-10-10T03:02:23Z	HEAD	https://www.kbinsure.co.kr/CG802030003.ec?fileNm=24984_9_1.pdf	200	raw/kbH_24984_9_1.pdf.hdr	67376217112e24708d304edbc6da5605c6fb54a30473461af662e167cf2fb52f	KB손보 없는 파일명 HEAD(404 동작 확인)
+2026-10-10T03:02:36Z	GET	https://www.hanainsure.co.kr/robots.txt	200	raw/hana_robots.txt	ec75538cc5813b1cf00e8030aec32d0c6f16d7a77589efe3b864c450bff242a7	하나손보 robots
+2026-10-10T03:02:41Z	GET	https://www.hanainsure.co.kr/	200	raw/hana_home.html	02670dcc9385053b788c627037d66652ac91a13411f1f8f8f22588200ac7cacd	하나손보 홈
+2026-10-10T03:02:53Z	GET	https://www.hanainsure.co.kr/w/disclosure/product/saleProduct	200	raw/hana_saleProduct.html	b88d6e256829615fd01c6d9fff31d1b2f9bc9390b7a536c429343c8874f30101	하나손보 상품공시(판매상품)
+2026-10-10T03:03:18Z	POST	https://www.hanainsure.co.kr/w/disclosure/product/searchProduct.json	200	raw/hana_search_all_p1.json	c5e391d95373369a4310d2891ca3c157778407ff67888a504e122c7ccc14e6dd	하나손보 상품 통합검색 빈 키워드(총건수 확인)
+2026-10-10T03:03:35Z	POST	https://www.hanainsure.co.kr/w/disclosure/product/searchProduct.json	200	raw/hana_search_all.json	2ede17188f7abd5e2ef9c350b68ba7d10b5d86885d9fd25645b7befd10360611	하나손보 상품 전체 목록 한 번에(pageSize=4000)
+2026-10-10T03:03:51Z	POST	https://www.hanainsure.co.kr/w/disclosure/product/searchProduct.json	200	raw/hana_search_all_p2.json	cffc5264e5b5abfa83386c0c14adf712fee664076e47b698360fce7b872a132b	하나손보 상품 전체 목록 p2(pageSize=999 상한)
+2026-10-10T03:03:56Z	POST	https://www.hanainsure.co.kr/w/disclosure/product/searchProduct.json	200	raw/hana_search_all_p3.json	e52418a7c913ad19697e82792f3b121c9e7ac8268e2c5f38100c3a9116fe3805	하나손보 상품 전체 목록 p3(pageSize=999 상한)
+2026-10-10T03:04:01Z	POST	https://www.hanainsure.co.kr/w/disclosure/product/searchProduct.json	200	raw/hana_search_all_p4.json	878477b8cee7a454a07b456fb51833c88b2d30497217e7c943dabeac5817b2e2	하나손보 상품 전체 목록 p4(pageSize=999 상한)
+2026-10-10T03:04:28Z	HEAD	https://www.hanainsure.co.kr/download/5027c758df	400	raw/hanaH_download.hdr	11db26581a287b2bbd06b7b4793e831c52fcb96ebc9fbb8ab83c541b735e5223	하나손보 /download/{id} HEAD
+2026-10-10T03:04:31Z	GET	https://www.yebyeol.co.kr/robots.txt	200	raw/yb_robots.txt	62213cf106659ca60d11c4eb90b9b862e1b79ec7a4b7f163a176f3684ee2e88a	예별손보 robots
+2026-10-10T03:04:35Z	GET	https://www.mggeneralins.com/robots.txt	200	raw/mg_robots.txt	edc9ad1ede2b1f900150a5fc101ed69a8a7c83606c572fba4dea69ae3f09d1cf	MG손보 robots
+2026-10-10T03:04:48Z	GET	https://www.mggeneralins.com/	200	raw/mg_home.html	a5af999a5347756efabce68979d25cf3af13da34908ce4f1836f3e27e7d60b68	MG손보 홈
+2026-10-10T03:04:54Z	GET	https://www.yebyeol.co.kr/	200	raw/yb_home.html	38caef4d9b0d64c54de515efcedfa75f086dbd39081a1f995d53f69c7e6b967f	예별손보 홈
+2026-10-10T03:05:28Z	GET	https://www.yebyeol.co.kr/PB011010DM.scp?menuId=MN0801000	200	raw/yb_PB011010DM.html	0b42db3ab267262f455866b4ad9e634f50e597572c7ade9a85ee385a8531f418	예별손보 공고사항(계약이전·가교 공고 확인)
+2026-10-10T03:05:33Z	GET	https://www.yebyeol.co.kr/PB031210DM.scp?menuId=MN0803006	200	raw/yb_PB031210DM.html	a906cfbff4bebbeaf79f6b7e263dcefda9a5884961535a7bc5f4b4ac10778483	예별손보 보험상품목록
+2026-10-10T03:05:58Z	GET	https://www.yebyeol.co.kr/webdocs/biz/pb/pb031210dm.js?time=1763360030000	200	raw/yb_pb031210dm.js	b8f5e87756c283d1e6ec5e7ba692ca9ac7e1db5213ad732bc3e0a38a4e96afbd	예별손보 보험상품목록 페이지 JS
+2026-10-10T03:06:20Z	GET	https://www.yebyeol.co.kr/webdocs/resources/scripts/common/connectionImpl_ajax.js	200	raw/yb_connectionImpl_ajax.js	720c8af81710d2170b2d0e3b8e74d12672474675882df23ee40f2d9ac4946eca	예별손보 tran.sendData 구현
+2026-10-10T03:06:35Z	GET	https://www.yebyeol.co.kr/webdocs/resources/scripts/common/common.js?time=1746143997000	200	raw/yb_common.js	80da8cdedf96be58dbd29b5f5b9a7c9932bc5bb35b643eaa99a91ea70fed7f3e	예별손보 common.js(tran.sendData URL 규칙)
+2026-10-10T03:07:10Z	POST	https://www.yebyeol.co.kr/PB031210_001.ajax	200	raw/yb_PB031210_001_L15.json	b39957fb18073d6db9dd94073775891d200d6ca31b8474b1799d42ebe282d9b6	예별손보 보험상품목록 데이터 L/15 판매중(searchPrdtSaleYn=0)
+2026-10-10T03:07:27Z	GET	https://www.yebyeol.co.kr/PB031210DM.scp?menuId=MN0803006	200	raw/yb_PB031210DM_s.html	9771e0c484fcb78ef71ceffe5faaca9a1c76952101965d0b91b42e1638721aa8	예별손보 보험상품목록(세션 쿠키 확보)
+2026-10-10T03:07:32Z	POST	https://www.yebyeol.co.kr/PB031210_001.ajax	200	raw/yb_PB031210_001_L15.json	fd47be5e1ec0b0a11b763fd94e2ccb187b71b5f79ac5aadf3dd0daec12ef9511	예별손보 상품목록 데이터 L/15 판매중(세션 쿠키 포함)
+2026-10-10T03:07:59Z	GET	https://www.yebyeol.co.kr/webdocs/biz/pb/pb011010dm.js?time=1756911107000	200	raw/yb_pb011010dm.js	eaad5b4f56fc083018065082fa2bee7d9cfce5083966f605a7a07c40c2d8d2fd	예별손보 공고사항 JS
+2026-10-10T03:08:18Z	POST	https://www.yebyeol.co.kr/CS031070_001T.ajax	200	raw/yb_CS031070_001T.json	c678a14a971d2b4946179c5b1af6a00a76d2f4221e8fe3043cacd7320eaea2f1	예별손보 공고사항 목록 데이터(세션 쿠키)
+2026-10-10T03:08:30Z	POST	https://www.yebyeol.co.kr/CS031070_001T.ajax	200	raw/yb_CS031070_001T_all.json	ee5133a166804cebd8f3ff2e1e1b80843ae456c501b15242e157c8e5be374bda	예별손보 공고사항 최근 목록(키워드 없음)
+2026-10-10T03:08:44Z	POST	https://www.yebyeol.co.kr/PB031210_001.ajax	200	raw/yb_PB031210_001_L07.json	ae0a1fd5dccc587dee619f035b568e6e317a39d435a7092eee2b174022929f9c	예별손보 상품목록 데이터 L/07 운전자 판매중 재시도
+2026-10-10T03:08:57Z	GET	https://www.carrotins.com/	200	raw/carrot_home.html	36e3a10c79d0d22522edd5c44b6a9a8112fd38b51798292f8db99588eeb01d25	캐롯손보 홈(회사 정체성 확인)
+2026-10-10T03:09:21Z	GET	https://www.samsungfire.com/publication/pdf/ZPB256110_0_20260306_file1.pdf	200	raw/sf_ZPB256110_0_20260306_file1.pdf	ddef988632cbad0441e594e5e00d4fbb2ce18b905cea65149b961f6928a3d150	삼성화재 운전자 2종 약관(1종 파일과 동일 여부 확인) [PDF 4/10]
+2026-10-10T03:09:42Z	GET	https://www.hanainsure.co.kr/download/7fd4ad2390	200	raw/hana_dl_7fd4ad2390.bin	35f7f2c7a204851b2155e2436ecdebc2b1d896aebafb9c89bbdfe5cb7972d42d	하나손보 /download/{id} GET(운전자상해종합 2607 상품요약서) [PDF 5/10]
+2026-10-10T03:09:59Z	GET	https://www.hanainsure.co.kr/download/5027c758df	200	raw/hana_dl_5027c758df.pdf	10a6a0e81aa893b45ca9fe22e1df7bfe72c1e497f020b8a9982c1af1909b348e	하나손보 약관 다운로드(Referer 포함, 2607 운전자 20261001 판매본) [PDF 5/10]
+2026-10-10T03:10:42Z	GET	https://www.hanainsure.co.kr/download/7fd4ad2390	200	raw/hana_dl_7fd4ad2390_ref.bin	35f7f2c7a204851b2155e2436ecdebc2b1d896aebafb9c89bbdfe5cb7972d42d	하나손보 요약서 재시도(Referer 포함) [PDF 6/10 후보]

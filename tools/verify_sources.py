@@ -378,7 +378,9 @@ def cmd_detect(args):
                                          {"detect_status": res["status"]})
             res.update(archived_object=state, observation=okey)
         results.append(res)
-    return report("detect", args, results, ok={"unchanged_bytes", "bytes_changed_content_same", "changed", "fetch_failed"})
+    # a source that could not be fetched is a failed collection, not a green run (exit 1); a changed
+    # source is a successful observation of a new version candidate
+    return report("detect", args, results, ok={"unchanged_bytes", "bytes_changed_content_same", "changed"})
 
 
 def target_label(target, args):

@@ -1,0 +1,11 @@
+ts_utc	method	url	status	file	sha256	purpose
+2026-10-11T08:17:59Z	POST	https://www.hi.co.kr/ajax.xhi	curl35:curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to www.hi.co.kr:443 	raw/hi_M26S_8766985f-89e0-40a2-aa69-ee039e75df61.json		굿앤굿1540 문서 UUID→경로 해석(HHCA0310M26S), 사업방법서·요약서 확인
+2026-10-11T08:18:03Z	POST	https://www.hi.co.kr/ajax.xhi	200	raw/hi_M26S_e8d156f9-c906-47d9-8f04-b9b59fc410b4.json	e110d131176deb60914a212b8c09d0b619ebb895cb30e9faa1ac32dbf0de80fa	굿앤굿1540 문서 UUID→경로 해석(HHCA0310M26S), 사업방법서·요약서 확인
+2026-10-11T08:18:07Z	POST	https://www.hi.co.kr/ajax.xhi	200	raw/hi_M26S_84fb1bae-ee86-41f8-9b42-479cbabe16f8.json	0818268a86d918fa5d2f97e3e1e3c17b129ee49f2fd35a4ecc0907d1a7f87d59	굿앤굿1540 문서 UUID→경로 해석(HHCA0310M26S), 사업방법서·요약서 확인
+2026-10-11T08:18:23Z	POST	https://www.hi.co.kr/ajax.xhi	200	raw/hi_M26S_8766985f-89e0-40a2-aa69-ee039e75df61.json	fe1c95156c0abdd8a53bb754d2467e9a3089a71a9df95cefa57837ace92dcb4b	재시도(앞 요청 TLS 연결 실패): 굿앤굿1540 사업방법서 UUID→경로
+2026-10-11T08:18:36Z	POST	https://www.hi.co.kr/FileActionServlet/download/0/data/202609/20260907134405471.pdf	200	raw/hi_1540_mthd_20260907.pdf	272917dae66842a4d338d4ff9c885bc199d35d4a7b37f2fcd6060819f501dbef	굿앤굿1540 사업방법서별지(LO-6, 2026-09-07 등록)
+2026-10-11T08:18:42Z	POST	https://www.hi.co.kr/FileActionServlet/download/0/data/202608/20260807175746421.pdf	200	raw/hi_1540_mthd_20260807.pdf	272917dae66842a4d338d4ff9c885bc199d35d4a7b37f2fcd6060819f501dbef	굿앤굿1540 사업방법서별지(LO-5, 2026-08-07 등록)
+2026-10-11T08:18:48Z	POST	https://www.hi.co.kr/FileActionServlet/download/0/data/202608/20260807175747306.pdf	200	raw/hi_1540_smry_20260807.pdf	7a56b8373b17837d9823b362c2ffd6cdd314edd647e7bb4fc54d18465b620914	굿앤굿1540 상품요약서(LO-5)
+2026-10-11T08:18:56Z	POST	https://www.hi.co.kr/FileActionServlet/download/0/data/202608/20260807175738507.pdf	200	raw/hi_1540_terms_20260807.pdf	9401e98e8894883cf1e3bb86d8cffd39c765418e13089477ae50d8949874c8cc	굿앤굿1540 약관(LO-5, 2026-08-07 등록) — 9401e98e와 대조
+2026-10-11T08:19:52Z	GET	https://kpub.knia.or.kr/file/download/91620.do	200	raw/kpub_file_91620.bin	7a56b8373b17837d9823b362c2ffd6cdd314edd647e7bb4fc54d18465b620914	손보협회 비교공시 상품요약서 SEQ 91620(굿앤굿1540 건강고지Ⅰ)
+2026-10-11T08:19:59Z	GET	https://kpub.knia.or.kr/file/download/91621.do	200	raw/kpub_file_91621.bin	7a56b8373b17837d9823b362c2ffd6cdd314edd647e7bb4fc54d18465b620914	손보협회 비교공시 상품요약서 SEQ 91621(굿앤굿1540 일반심사)

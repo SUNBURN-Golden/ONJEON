@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>이 일이 생겼어요 - 실제 사건 결과</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4E9E}a:hover{color:#163A77}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 900px; box-sizing: border-box; background: #F2F4F7; font-family: 'IBM Plex Sans KR', sans-serif; color: #17202B; padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 16px">
+
+  <div style="display: flex; align-items: center; gap: 8px; height: 44px">
+    <button aria-label="뒤로" style="width: 44px; height: 44px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; margin-left: -10px; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17202B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    </button>
+    <div style="font-size: 17px; font-weight: 600">이 일이 생겼어요</div>
+  </div>
+
+  <div style="font-size: 13px; color: #4A5565">내 보험 · 굿앤굿1540 (현대해상) · 위암 진단</div>
+
+  <div style="background: #FFFFFF; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: center">
+      <div style="font-size: 12px; font-weight: 700; color: #4A5565">확인한 사건 자료</div>
+      <a href="#edit" style="margin-left: auto; font-size: 13px; font-weight: 600; text-decoration: none; min-height: 32px; display: flex; align-items: center">고치기</a>
+    </div>
+    <div style="display: grid; grid-template-columns: 88px minmax(0, 1fr); row-gap: 6px; font-size: 14px">
+      <span style="color: #4A5565">진단명</span><span style="font-weight: 600">위 선암</span>
+      <span style="color: #4A5565">질병코드</span><span style="font-weight: 600">C16.2</span>
+      <span style="color: #4A5565">결과보고일</span><span style="font-weight: 600">2027.1.5</span>
+    </div>
+    <div style="font-size: 12px; color: #4A5565">진단서에서 읽고 확인하신 내용 · 계약 유지는 2027.2.1에 답하신 내용 기준</div>
+  </div>
+
+  <div style="background: #FFFFFF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 1px 2px rgba(23,32,43,0.06)">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 14px; color: #4A5565">{{ lead }}</div>
+      <div style="font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15">{{ total }}</div>
+    </div>
+
+    <sc-if value="{{ asking }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 10px; background: #EEF3FB; border-radius: 12px; padding: 14px">
+        <div style="font-size: 14px">이전 수령 여부에 따라 달라질 수 있어요.</div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <button onClick="{{ answerNo }}" style="min-height: 46px; border: 1px solid #9FB4D8; background: #FFFFFF; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 600; color: #17202B; cursor: pointer">받은 적 없어요</button>
+          <button onClick="{{ answerYes }}" style="min-height: 46px; border: 1px solid #9FB4D8; background: #FFFFFF; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 600; color: #17202B; cursor: pointer">받은 적 있어요</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ answeredNo }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4A5565">
+        <span>이전에 받은 진단금: 없음 (답하신 내용)</span>
+        <button onClick="{{ reset }}" style="margin-left: auto; min-height: 36px; padding: 0 12px; border: 1px solid #C7CFDB; background: #FFFFFF; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600; color: #17202B; cursor: pointer">고치기</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ answeredYes }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 8px; background: #EEF3FB; border-radius: 12px; padding: 14px">
+        <div style="font-size: 14px">이미 받은 진단금을 골라 주세요. 그 보장은 빼고 다시 계산해요.</div>
+        <sc-for list="{{ items }}" as="item" hint-placeholder-count="3">
+          <button onClick="{{ item.pick }}" aria-pressed="{{ item.taken }}" style="{{ item.chip }}">{{ item.label }}</button>
+        </sc-for>
+        <button onClick="{{ reset }}" style="align-self: flex-start; min-height: 36px; padding: 0 12px; border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; color: #1F4E9E; cursor: pointer">처음으로</button>
+      </div>
+    </sc-if>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #E6EAF0; padding-top: 14px; font-size: 14px">
+      <sc-for list="{{ items }}" as="item" hint-placeholder-count="3">
+        <div style="display: flex; justify-content: space-between"><span style="{{ item.nameStyle }}">{{ item.label }}</span><span style="{{ item.amountStyle }}">{{ item.amountText }}</span></div>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; background: #EEF3FB; border-radius: 12px; padding: 12px 14px; font-size: 14px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F4E9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>
+      <span>다음 회차부터 보험료 납입면제 대상 · 회사에 요청해야 해요</span>
+    </div>
+  </div>
+
+  <div style="font-size: 12px; color: #4A5565; line-height: 1.5">약관에 따라 계산한 금액이에요. 실제 지급은 보험회사 심사로 정해져요. <a href="#detail" style="font-weight: 600">자세히</a></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto">
+    <a href="#claim" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 14px; background: #1F4E9E; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none">보험금 청구 준비</a>
+    <a href="#waiver" style="display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 14px; background: #FFFFFF; border: 1px solid #C7CFDB; color: #17202B; font-size: 15px; font-weight: 600; text-decoration: none">납입면제 요청 안내</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { prior: 'ask', taken: { cancer: false, renew: false, waiver: false } };
+  }
+  renderVals() {
+    const st = this.state;
+    const defs = [
+      { id: 'cancer', label: '암진단', amt: 3000 },
+      { id: 'renew', label: '암진단(갱신형)', amt: 2000 },
+      { id: 'waiver', label: '보험료납입면제대상', amt: 100 }
+    ];
+    const fmt = (n) => n.toLocaleString('ko-KR') + '만원';
+    const yes = st.prior === 'yes';
+    let sum = 0;
+    const items = defs.map((d) => {
+      const taken = yes && st.taken[d.id];
+      if (!taken) sum += d.amt;
+      return {
+        label: d.label,
+        taken: !!st.taken[d.id],
+        amountText: taken ? '이미 받음 · 0원' : fmt(d.amt),
+        nameStyle: taken ? 'color: #4A5565; text-decoration: line-through' : '',
+        amountStyle: taken ? 'color: #4A5565' : 'font-weight: 600',
+        chip: st.taken[d.id]
+          ? 'min-height: 44px; text-align: left; padding: 0 14px; border: 2px solid #1F4E9E; background: #FFFFFF; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 700; color: #17202B; cursor: pointer'
+          : 'min-height: 44px; text-align: left; padding: 0 14px; border: 1px solid #9FB4D8; background: #FFFFFF; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 500; color: #17202B; cursor: pointer',
+        pick: () => this.setState({ taken: Object.assign({}, st.taken, { [d.id]: !st.taken[d.id] }) })
+      };
+    });
+    const lead = st.prior === 'ask' ? '처음 받는 진단금이라면'
+      : st.prior === 'no' ? '확인한 진단과 답하신 내용 기준'
+      : '이미 받은 진단금을 뺀 금액';
+    return {
+      lead: lead,
+      total: fmt(sum),
+      items: items,
+      asking: st.prior === 'ask',
+      answeredNo: st.prior === 'no',
+      answeredYes: yes,
+      answerNo: () => this.setState({ prior: 'no' }),
+      answerYes: () => this.setState({ prior: 'yes' }),
+      reset: () => this.setState({ prior: 'ask', taken: { cancer: false, renew: false, waiver: false } })
+    };
+  }
+}
+</script>
+</body>
+</html>

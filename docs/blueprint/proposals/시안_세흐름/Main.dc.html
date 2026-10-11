@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>이런 일이 생기면 - 가상 탐색 결과</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F4E9E}a:hover{color:#163A77}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 900px; box-sizing: border-box; background: #F2F4F7; font-family: 'IBM Plex Sans KR', sans-serif; color: #17202B; padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 16px">
+
+  <div style="display: flex; align-items: center; gap: 8px; height: 44px">
+    <button aria-label="뒤로" style="width: 44px; height: 44px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; margin-left: -10px; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17202B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    </button>
+    <div style="font-size: 17px; font-weight: 600">이런 일이 생기면?</div>
+    <div style="margin-left: auto; font-size: 12px; font-weight: 600; color: #1F4E9E; background: #E3ECFA; border-radius: 999px; padding: 4px 10px">미리 보기</div>
+  </div>
+
+  <div style="font-size: 13px; color: #4A5565">내 보험 · 굿앤굿1540 (현대해상)</div>
+
+  <div role="group" aria-label="진단 종류" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: #E4E8EE; border-radius: 12px; padding: 4px">
+    <button onClick="{{ pickGeneral }}" aria-pressed="{{ isGeneral }}" style="{{ segGeneral }}">일반 암</button>
+    <button onClick="{{ pickInsitu }}" aria-pressed="{{ isInsitu }}" style="{{ segInsitu }}">제자리암 등</button>
+    <button onClick="{{ pickThyroid }}" aria-pressed="{{ isThyroid }}" style="{{ segThyroid }}">갑상선암</button>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px dashed #9AA6B8; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <div style="font-size: 12px; font-weight: 700; color: #4A5565; letter-spacing: 0.02em">예시 조건</div>
+      <button style="margin-left: auto; min-height: 36px; padding: 0 12px; border: 1px solid #C7CFDB; background: #FFFFFF; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600; color: #17202B; cursor: pointer">바꾸기</button>
+    </div>
+    <div style="font-size: 15px; font-weight: 600">2027.3.15 진단 · 처음 받는 진단금</div>
+    <div style="font-size: 12px; color: #4A5565">예로 넣은 조건이에요. 내 계약 정보로 저장하지 않아요.</div>
+  </div>
+
+  <div style="background: #FFFFFF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 1px 2px rgba(23,32,43,0.06)">
+
+    <sc-if value="{{ isGeneral }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 14px; color: #4A5565">일반 암으로 진단받는다면, 이 조건에서</div>
+        <div style="font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15">5,100만원</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #E6EAF0; padding-top: 14px; font-size: 14px">
+        <div style="display: flex; justify-content: space-between"><span>암진단</span><span style="font-weight: 600">3,000만원</span></div>
+        <div style="display: flex; justify-content: space-between"><span>암진단(갱신형)</span><span style="font-weight: 600">2,000만원</span></div>
+        <div style="display: flex; justify-content: space-between"><span>보험료납입면제대상</span><span style="font-weight: 600">100만원</span></div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; background: #EEF3FB; border-radius: 12px; padding: 12px 14px; font-size: 14px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F4E9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>
+        <span>다음 회차부터 보험료 납입면제</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isInsitu }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 14px; color: #4A5565">제자리암·경계성종양 등으로 진단받는다면, 이 조건에서</div>
+        <div style="font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15">600만원</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #E6EAF0; padding-top: 14px; font-size: 14px">
+        <div style="display: flex; justify-content: space-between"><span>유사암진단</span><span style="font-weight: 600">600만원</span></div>
+      </div>
+      <div style="font-size: 13px; color: #4A5565">유사암은 보험료 납입면제 사유가 아니에요.</div>
+    </sc-if>
+
+    <sc-if value="{{ isThyroid }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 14px; color: #4A5565">갑상선암으로 진단받는다면</div>
+        <div style="font-size: 15px">관련 보장 · 유사암진단 가입금액 <span style="font-weight: 600">600만원</span></div>
+      </div>
+      <div style="background: #FFF4DC; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A4A00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5"></path><path d="M12 16h.01"></path></svg>
+          <div style="font-size: 15px; font-weight: 700; color: #6B4100">이 부위에 특별조건이 있어요</div>
+        </div>
+        <div style="font-size: 14px; color: #3D2A08">증권: 갑상선 · 부담보 5년</div>
+        <div style="font-size: 14px; color: #3D2A08">예외 적용 여부가 확인되지 않아 지급액 계산을 보류했어요.</div>
+        <button style="align-self: flex-start; min-height: 40px; padding: 0 14px; border: 1px solid #C99A4A; background: #FFFFFF; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600; color: #5A3700; cursor: pointer">적용 조건 보기</button>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="font-size: 12px; color: #4A5565; line-height: 1.5">약관에 따라 계산한 금액이에요. 실제 지급은 보험회사 심사로 정해져요. <a href="#detail" style="font-weight: 600">자세히</a></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto">
+    <a href="C_result.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 14px; background: #1F4E9E; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none">실제로 진단받았어요</a>
+    <a href="B_summary.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 14px; background: #FFFFFF; border: 1px solid #C7CFDB; color: #17202B; font-size: 15px; font-weight: 600; text-decoration: none">내 보험 보기</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { scen: 'general' };
+  }
+  renderVals() {
+    const s = this.state.scen;
+    const on = 'min-height: 44px; border: 0; border-radius: 9px; background: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 700; color: #17202B; box-shadow: 0 1px 2px rgba(23,32,43,0.12); cursor: pointer';
+    const off = 'min-height: 44px; border: 0; border-radius: 9px; background: transparent; font-family: inherit; font-size: 14px; font-weight: 500; color: #3B4655; cursor: pointer';
+    return {
+      isGeneral: s === 'general',
+      isInsitu: s === 'insitu',
+      isThyroid: s === 'thyroid',
+      segGeneral: s === 'general' ? on : off,
+      segInsitu: s === 'insitu' ? on : off,
+      segThyroid: s === 'thyroid' ? on : off,
+      pickGeneral: () => this.setState({ scen: 'general' }),
+      pickInsitu: () => this.setState({ scen: 'insitu' }),
+      pickThyroid: () => this.setState({ scen: 'thyroid' })
+    };
+  }
+}
+</script>
+</body>
+</html>

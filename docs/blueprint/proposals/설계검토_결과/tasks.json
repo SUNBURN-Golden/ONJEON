@@ -1,0 +1,3508 @@
+{
+  "_status": "설계 담당 검토용 묶음. 채택된 정본이 아니다. 데몬이 읽는 작업 명세 초안(실행하지 않음)",
+  "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
+  "_target_sha": "4549fd0",
+  "schema": "onjeon-tasks-0.1",
+  "field_definitions": {
+    "id": "T-<구역2자>-<번호>. 구역: CT contracts, DT data, KN knowledge, TW twin, PS personal, AP app·api, MB mobile, WB web·console, OP infra·ops, UX",
+    "stage": "S0~S5 내부 단계(구현계획 §4). 납품 단위가 아니다",
+    "twin_axis": "U-02 디지털 트윈 축(★)",
+    "replaces_wp": "구현계획 §14의 WP 중 이 과제가 대체·분할한 것",
+    "inputs": "읽어야 하는 문서·산출물",
+    "prereq_tasks": "먼저 끝나야(merged) 하는 과제 ID",
+    "prereq_decisions": "이 과제의 '병합 가능'을 막는 사용자 결정·미정 항목 ID. blocked_by가 좁은 범위를 설명한다",
+    "allowed_paths": "수정 허용 glob. 밖의 파일을 바꾸면 데몬이 결과를 반송한다",
+    "forbidden_paths": "어떤 경우에도 수정 금지. 정본·토의 자료·비밀값·고정 작업 파일",
+    "outputs": "산출물",
+    "tests": "실행 명령. 로그를 결과 봉투에 첨부한다. '(측정 작업)' 등은 자동 시험 없음",
+    "done_criteria": "완료 기준. 전부 충족 + 공통 기준(03 §2)",
+    "parallel_ok": "다른 과제와 동시 실행 가능 여부",
+    "conflict_paths": "동시 실행 시 충돌하는 경로. 겹치는 과제는 데몬이 직렬화한다",
+    "immediate_audit": "운영 규칙 5 즉시 감리 대상(경계·계산·계약·릴리스)",
+    "blocked_by": "무엇에만 막히는지 좁게 적은 설명. '없음'이면 결정 없이 착수 가능",
+    "notes": "비고"
+  },
+  "common_done_criteria": [
+    "PR 템플릿의 A·Q·L·I·M과 R 요구 ID를 적었다",
+    "과제 ID, 작성에 참여한 모델 역할·실행 경로, 대상 SHA를 적었다",
+    "tests의 명령을 실행하고 로그를 첨부했다('시험 추가 예정'은 통과가 아님)",
+    "시안 숫자·임시 데이터·미연결 경로가 제품 코드에 없다. 시험 전용은 fixture_only 또는 origin=fixture",
+    "스켈레톤 비노출 시험과 누출 정적 검사가 통과한다",
+    "독립 리뷰가 대상 SHA에 고정되어 있고 리뷰어는 작성 계열이 아니다",
+    "비밀값·모델 식별자 원문·원문 발췌를 포함하지 않는다",
+    "allowed_paths 밖을 수정하지 않았다"
+  ],
+  "decision_index": {
+    "D-02": [
+      "T-KN-06",
+      "T-OP-03"
+    ],
+    "D-04": [
+      "T-OP-04"
+    ],
+    "O14": [
+      "T-OP-04"
+    ],
+    "D-14": [
+      "T-KN-11"
+    ],
+    "D-06": [
+      "T-AP-08"
+    ],
+    "D-07": [
+      "T-AP-08"
+    ],
+    "D-16": [
+      "T-UX-01"
+    ],
+    "D-03": [
+      "T-OP-07"
+    ],
+    "D-12": [
+      "T-OP-07"
+    ],
+    "D-17": [
+      "T-OP-07"
+    ],
+    "D-18": [
+      "T-OP-07"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "T-OP-00",
+      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 읽어 M1~M16을 모의 빌더로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
+      "zone": "infra·ops",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "04_자동개발명세",
+        "daemon_rules.json",
+        "05_VM실행준비 §5"
+      ],
+      "prereq_tasks": [],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "tools/daemon/**",
+        "tools/tests/test_daemon_dry_run.py"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "dry_run.py(규칙 파일을 데이터로 적재, 전이표 밖 조건은 returned), 모의 빌더 스크립트, 모의 과제 파일(T-MOCK-*)",
+        "보고서 형식(시나리오별 기대·실제 전이)"
+      ],
+      "tests": [
+        "python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all",
+        "python3 -m unittest tools/tests/test_daemon_dry_run.py"
+      ],
+      "done_criteria": [
+        "M1~M16 전부 기대 전이와 일치",
+        "병합 API·자동 병합 설정 호출 함수가 코드에 없다(정적 검사 M16)",
+        "네트워크·실제 CLI 호출이 없다",
+        "가동 기능(스케줄러·실행기 연결)이 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "tools/daemon/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음. 이 도구는 규칙 검증용이며 가동이 아니다",
+      "notes": "가동 전 준비 과제. 이 과제의 완료가 가동 승인이 아니다"
+    },
+    {
+      "id": "T-CT-01",
+      "name": "계약 패키지 골격, JSON Schema, 코드 생성(Rust·Dart·TS), 호환 검사",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP01"
+      ],
+      "inputs": [
+        "02_구현계약 §1·§5·§6",
+        "packages/schemas/vocabulary.json 1.5.0",
+        "화면 설계서 §11 뷰모델"
+      ],
+      "prereq_tasks": [],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/schemas/json/**",
+        "packages/schemas/codegen/**",
+        "packages/schemas/README.md",
+        "packages/schemas/evidence_ref.md",
+        ".github/workflows/ci.yml",
+        "Cargo.toml"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "JSON Schema: Assertion, ReleaseManifest, EvaluationResult, ScenarioResult, CoverageDetail, CompareView, PlanView, EvidenceView, PremiumObservation, ContractSnapshot(개인), 오류 응답",
+        "생성기(어휘 enum → Rust·Dart·TS)",
+        "이전 태그 생성물로 새 스키마를 컴파일하는 호환 검사 CI 단계"
+      ],
+      "tests": [
+        "cargo test -p onjeon-contracts",
+        "python3 tools/vocab_check.py",
+        "bash packages/schemas/codegen/check_compat.sh <prev_tag>"
+      ],
+      "done_criteria": [
+        "세 언어 생성물이 빌드된다",
+        "필드 삭제를 넣은 자체 시험에서 호환 검사가 실패한다",
+        "스키마의 모든 enum이 어휘 정본에서만 온다(문자열 상수 없음)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/schemas/**",
+        ".github/workflows/ci.yml"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-CT-02",
+      "name": "어휘 정본 확장(evidence_role, scope_relation, correction_reason, assertion_origin, fact_source, fact_kind, confirm_party, error_class, usage_restriction, knowledge_freshness 값 withdrawn)",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "02_구현계약 §1.2·§1.4·§4.2",
+        "온톨로지 설계안 §13",
+        "BLUEPRINT §6·§10.2 절차"
+      ],
+      "prereq_tasks": [],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/schemas/vocabulary.json",
+        "docs/blueprint/VOCABULARY.md",
+        "tools/vocab_check.py"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv"
+      ],
+      "outputs": [
+        "어휘 1.6.0(제안): 새 축과 값, screen_ko, 정의",
+        "VOCABULARY.md 재생성(--write)"
+      ],
+      "tests": [
+        "python3 tools/vocab_check.py",
+        "cargo test -p onjeon-rules-engine --test vocabulary"
+      ],
+      "done_criteria": [
+        "기존 값은 삭제·개명하지 않았다",
+        "새 값마다 정의·화면 문구가 있다",
+        "생성 문서가 최신이다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "packages/schemas/vocabulary.json",
+        "docs/blueprint/VOCABULARY.md"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음. 정본 절차(BLUEPRINT §10.2) 안의 변경이며 즉시 감리로 검토한다",
+      "notes": "VOCABULARY.md는 정본이지만 생성 문서다. 이 과제만 재생성한다."
+    },
+    {
+      "id": "T-CT-03",
+      "name": "OpenAPI v1 초안: 공개·개인·관제 (C-14·C-15·C-16)",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP03"
+      ],
+      "inputs": [
+        "02_구현계약 §2",
+        "SYSTEM_CONTRACT §10 경로 제안",
+        "제3부 §46.4"
+      ],
+      "prereq_tasks": [
+        "T-CT-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/schemas/openapi/**",
+        "packages/schemas/codegen/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "openapi/public.v1.yaml, personal.v1.yaml, console.v1.yaml",
+        "생성 클라이언트(Dart·TS)와 서버 타입(Rust)"
+      ],
+      "tests": [
+        "bash packages/schemas/codegen/gen.sh && cargo build -p onjeon-api-types",
+        "cd apps/mobile && flutter analyze (골격 있을 때)",
+        "cd apps/web && npm run typecheck (골격 있을 때)"
+      ],
+      "done_criteria": [
+        "모든 응답에 release_id가 있다(개인·관제 포함)",
+        "개인 API 응답 스키마에 공개 캐시 헤더가 금지되어 있다(계약 시험)",
+        "스켈레톤 경로는 x-onjeon-skeleton: true로 표시되고 기본 비활성이다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/schemas/openapi/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "D-11은 비회원 ephemeral 모드 한 항목만 보류 표시",
+      "notes": ""
+    },
+    {
+      "id": "T-CT-04",
+      "name": "오류 코드(C-22), 이벤트 허용 목록(C-17), 도메인 이벤트 스키마(C-21), evidence_ref 문법 검사기, 계약 패키지 버전 고정(C-23)",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "02_구현계약 §3·§4·§5·§6"
+      ],
+      "prereq_tasks": [
+        "T-CT-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/schemas/errors.json",
+        "packages/schemas/analytics-events.json",
+        "packages/schemas/events/**",
+        "packages/schemas/evidence_ref.md",
+        "packages/schemas/src/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "errors.json(코드·클래스·화면 상태 매핑)",
+        "analytics-events.json(허용 필드·이벤트)",
+        "events/*.schema.json",
+        "evidence_ref 파서·검증 함수(Rust) + 픽스처 ID 변환기"
+      ],
+      "tests": [
+        "cargo test -p onjeon-contracts evidence_ref",
+        "python3 -I packages/schemas/codegen/check_allowlist.py"
+      ],
+      "done_criteria": [
+        "허용 목록 밖 필드를 가진 이벤트 예제가 검사에서 실패한다",
+        "evidence_ref 7종 모두 왕복 파싱된다",
+        "오류 코드마다 화면 상태 매핑이 있다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/schemas/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-CT-05",
+      "name": "공개·개인 분리 DB 스키마와 제약(I7·I12·K8, accepted⇒ReviewDecision, fixture⇒not accepted)",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP02"
+      ],
+      "inputs": [
+        "02_구현계약 §1.2·§1.3·§1.4·§8.2",
+        "06_검토사항_점검 D-09·D-10 선택안"
+      ],
+      "prereq_tasks": [
+        "T-CT-01",
+        "T-CT-02"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "infra/db/public/**",
+        "infra/db/personal/**",
+        "infra/db/README.md"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "public 스키마 마이그레이션(assertion, node, clause, document, raw_asset, observation, premium_observation, release_manifest, review_decision, conflict, gap, acquisition_task, code_system)",
+        "personal 스키마 마이그레이션(profile, consent, upload, contract_snapshot, evaluation, plan, deletion_job)",
+        "DB 역할 3종(data_writer, knowledge_writer, personal) 권한 스크립트"
+      ],
+      "tests": [
+        "bash infra/db/test.sh (Compose Postgres에서 제약 시험)"
+      ],
+      "done_criteria": [
+        "조건 없는 가격 행 삽입이 거부된다(I7)",
+        "공개 스키마 텍스트 열에 contract: 접두어 삽입이 거부된다(K8)",
+        "review_decision_id 없는 accepted 삽입이 거부된다",
+        "origin=fixture인 accepted 삽입이 거부된다",
+        "personal 역할로 공개 테이블 쓰기가 거부된다(I12)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "infra/db/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "D-09·D-10은 설계 담당 선택(06 문서)이다. 감리 통과 전에는 이 PR의 병합만 기다린다. 작성·로컬 시험은 진행",
+      "notes": ""
+    },
+    {
+      "id": "T-CT-06",
+      "name": "스켈레톤 플래그·비노출 시험, 누출 정적 검사(I10·I11·§52.3), 구역 의존 검사(O15)",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP06"
+      ],
+      "inputs": [
+        "01_코드설계 §2 허용 의존",
+        "02_구현계약 §7.1",
+        "제3부 §58"
+      ],
+      "prereq_tasks": [
+        "T-CT-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "infra/ci/**",
+        "packages/schemas/feature_flags.json",
+        ".github/workflows/ci.yml",
+        "tools/ci/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "feature_flags.json(스켈레톤 플래그 기본 off)",
+        "의존 검사 규칙 파일(infra/ci/deps.json)과 검사기",
+        "누출 정적 검사기(민감도 타입 import, 허용 목록 밖 이벤트, 광고·수수료 필드의 정렬 입력)",
+        "스켈레톤 라우트·화면 비노출 시험 템플릿"
+      ],
+      "tests": [
+        "python3 -I tools/ci/check_deps.py",
+        "python3 -I tools/ci/check_leak.py",
+        "python3 -I tools/ci/check_leak.py --selftest"
+      ],
+      "done_criteria": [
+        "금지 패턴(민감도 타입을 공개 직렬화기가 import, 허용 목록 밖 필드 전송, 수수료 필드가 정렬 함수 입력)을 넣은 자체 시험이 각각 의도한 이유로 실패한다",
+        "의존 규칙 위반 import를 넣으면 실패한다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "infra/ci/**",
+        ".github/workflows/ci.yml"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-01",
+      "name": "로컬 Compose(Postgres, S3 호환 객체 저장소, 큐)",
+      "zone": "infra·ops",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP04"
+      ],
+      "inputs": [
+        "제3부 §48.2·§48.4"
+      ],
+      "prereq_tasks": [],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "infra/compose/**",
+        "infra/README.md"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "docker-compose.yml, 초기화 스크립트, 환경 변수 예시(비밀값 없음)"
+      ],
+      "tests": [
+        "bash infra/compose/smoke.sh"
+      ],
+      "done_criteria": [
+        "새 클론에서 한 명령으로 뜨고 내려간다",
+        "개인 DB와 공개 DB가 다른 자격 증명으로 뜬다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "infra/compose/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음. D-03(운영 환경)은 로컬을 막지 않는다",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-01",
+      "name": "packages/ontology 크레이트: T-box 적재(onto-0.1), K1~K13 검사기, 집합 연산, 범위 관계 계산, 소속 판정(C-26), 변이 자체 시험·골든",
+      "zone": "knowledge",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP07"
+      ],
+      "inputs": [
+        "온톨로지/tbox.json",
+        "온톨로지/검증/ontology_check.py(참조 구현)",
+        "검증/결과.txt(골든)",
+        "02_구현계약 §1.2·C-26"
+      ],
+      "prereq_tasks": [
+        "T-CT-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/ontology/**",
+        "packages/schemas/ontology/tbox.json",
+        "packages/fixtures/ontology/**",
+        "Cargo.toml"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "크레이트 API: load_tbox, check_constraints(release) → violations, membership(snapshot, cat, code, as_of) → Judgement, scope_relation(a,b,universe) → value|not_comparable, release_view(assertions, exclude, superseded)",
+        "schemas/ontology/tbox.json(onto-0.1, 설계안 복사)",
+        "골든: 질문 11개 입력·기대값, 변이 13개"
+      ],
+      "tests": [
+        "cargo test -p onjeon-ontology",
+        "python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py <runner> (참조 결과 재생성용, 변경하지 않음)"
+      ],
+      "done_criteria": [
+        "r24 릴리스에서 K1 위반 정확히 1건, r25에서 0건",
+        "하나 2-1 대 현대 2-5 범위 관계 = narrower(픽스처 우주)",
+        "변이 13개가 각각 의도한 제약으로만 실패한다",
+        "공식 CodeSystem 없이 호출하면 scope_relation이 not_comparable을 돌려준다(B8)",
+        "라이브러리는 DB·네트워크 의존이 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/ontology/**",
+        "packages/schemas/ontology/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-02",
+      "name": "온톨로지 사례 픽스처 이전(origin=fixture, fixture_only)과 릴리스 빌더 거부 시험(B1~B7)",
+      "zone": "knowledge",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "온톨로지/abox_cases.json",
+        "온톨로지/규칙/*.json",
+        "02_구현계약 §8"
+      ],
+      "prereq_tasks": [
+        "T-KN-01",
+        "T-CT-04"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/fixtures/ontology/**",
+        "services/knowledge/tests/fixture_rejection/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "packages/fixtures/ontology/abox_cases.json(정식 evidence_ref로 변환, origin=fixture, _review_note 유지)",
+        "rules/*.json(fixture_only 그대로)",
+        "거부 시험 7종"
+      ],
+      "tests": [
+        "cargo test -p onjeon-knowledge fixture_rejection"
+      ],
+      "done_criteria": [
+        "픽스처 주장을 서비스 적재기에 넣으면 B1에서 거부된다",
+        "origin을 pipeline으로 고친 사본은 B3(ReviewDecision 없음)에서 거부된다",
+        "fixture_only 규칙은 릴리스 빌더가 ONJ-KN-S-050으로 거부한다",
+        "픽스처 문서 해시는 R2 관측 목록에 없으므로 B4에서 거부된다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/fixtures/ontology/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-03",
+      "name": "AI 게이트웨이: 다중 제공자 어댑터, 호출 기록(C-19), JSON Schema 출력 검증, 비용 상한·기능 저하",
+      "zone": "knowledge",
+      "stage": "S0",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP19"
+      ],
+      "inputs": [
+        "제3부 §47.3",
+        "02_구현계약 C-19",
+        "운영 규칙 7(개발 역할표 ≠ 검수 모델 구성)"
+      ],
+      "prereq_tasks": [
+        "T-CT-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/ai-gateway/**",
+        "infra/ci/deps.json"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "게이트웨이 크레이트: provider trait, 호출 기록(provider_family_label, model_ref_hash, prompt_version, schema_version, cost, latency, run_id), 월·사용자 상한, 사용자 문서 본문 미저장",
+        "제공자 SDK 직접 호출 금지 의존 규칙"
+      ],
+      "tests": [
+        "cargo test -p onjeon-ai-gateway",
+        "python3 -I tools/ci/check_deps.py"
+      ],
+      "done_criteria": [
+        "다른 크레이트가 제공자 SDK를 직접 의존하면 의존 검사가 실패한다",
+        "상한 초과 시 ONJ-AP-L-020과 기능 저하 플래그를 돌려준다",
+        "호출 기록에 프롬프트 본문·문서 본문이 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/ai-gateway/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-02는 ReviewDecision 생성(이종 계열 2개)만 막는다. 게이트웨이 구조와 단일 계열 호출은 막지 않는다",
+      "notes": ""
+    },
+    {
+      "id": "T-TW-01",
+      "name": "twin-runtime 골격: 판매 구성 선택(config_select), 입력 단계(input_stage: 코드 소속·시간 판정, 근거 전달), 릴리스 스냅샷 읽기, CLI 하네스(runner 흡수)",
+      "zone": "twin",
+      "stage": "S0",
+      "twin_axis": true,
+      "replaces_wp": [],
+      "inputs": [
+        "온톨로지 검증 resolve()·applicable_config()",
+        "ADR-0014 §4",
+        "02_구현계약 C-08·C-26",
+        "온톨로지/검증/runner/src/main.rs"
+      ],
+      "prereq_tasks": [
+        "T-KN-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/twin-runtime/**",
+        "Cargo.toml"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "config_select(snapshot, candidates, contract_date) → Selected|Blocked{assertion_id, status}",
+        "input_stage::fill(rule.inputs_from_outside_dsl, facts, snapshot) → inputs + judgements[]",
+        "CLI: stdin jobs → 엔진 결과 + judgements(기존 runner 호환)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-twin-runtime",
+        "cargo run -p onjeon-twin-runtime --bin case-runner < packages/fixtures/ontology/jobs.json"
+      ],
+      "done_criteria": [
+        "Q1~Q10 골든과 같은 입력 단계 판정·엔진 결과가 나온다(픽스처 우주)",
+        "Q9·Q10에서 엔진이 호출되지 않는다(차단 사유에 주장 ID·상태)",
+        "엔진 호출 전에 DB·네트워크 접근이 없다(의존 검사)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/twin-runtime/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-TW-02",
+      "name": "rule-0.2 연산 7개(multiply_count, subtract_floor0, pro_rata, divide_count, anniversary_band, 목록 입력+max_over, contract_effect)",
+      "zone": "twin",
+      "stage": "S0",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP05"
+      ],
+      "inputs": [
+        "GAP_REPORT §5",
+        "ADR-0014 §6",
+        "packages/rules-engine README"
+      ],
+      "prereq_tasks": [],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/rules-engine/**",
+        "packages/fixtures/rules/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "schema_version rule-0.2 로더 분기(rule-0.1 유지)",
+        "연산별 골든·경계·변이·건전성 시험",
+        "EvaluationResult.contract_effect"
+      ],
+      "tests": [
+        "cargo test -p onjeon-rules-engine",
+        "cargo clippy --all-targets -- -D warnings"
+      ],
+      "done_criteria": [
+        "연산마다 골든·경계·변이·건전성 시험이 있다",
+        "미확인 입력이 0으로 바뀌지 않는다(I1)",
+        "pro_rata whole=0은 unknown이다",
+        "기존 rule-0.1 시험 42개가 그대로 통과한다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/rules-engine/src/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-DT-01",
+      "name": "S1 원본 보존 경로: 로컬 객체 저장소 + Rust 보관 클라이언트(키 레이아웃·조건부 쓰기·관측 기록) + 파이썬 도구 적합성 시험",
+      "zone": "data",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP10"
+      ],
+      "inputs": [
+        "tools/source_archive.py(참조 구현)",
+        "tools/tests/test_source_archive.py",
+        "DATA_PIPELINE_CONTRACT §3.1"
+      ],
+      "prereq_tasks": [
+        "T-OP-01",
+        "T-CT-04"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/collect/**",
+        "Cargo.toml"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "archive 클라이언트 크레이트: put_once, observe, listing, verify_copy",
+        "적합성 시험(파이썬 사례를 Rust로 이식)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-collect archive",
+        "python3 -m unittest discover -s tools/tests -v"
+      ],
+      "done_criteria": [
+        "같은 URL의 다른 바이트를 덮어쓰지 않는다",
+        "형식 검증(MIME·길이·파싱)에 실패한 응답은 격리된다",
+        "삭제 명령이 없다",
+        "R2 대상 호출은 작업 파일·원장 없이는 보내지 않는다(r2_budget 원장 v1 호환)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/collect/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "R2 실제 쓰기만 D-04(토큰 폐기·재발급)에 막힌다. 로컬 객체 저장소 경로는 막히지 않는다",
+      "notes": ""
+    },
+    {
+      "id": "T-DT-02",
+      "name": "docproc 텍스트 PDF 추출기 + ClauseOccurrence(쪽·좌표·정확 인용·clause_path_basis·추출기 판), 공시용 배포",
+      "zone": "data",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP11"
+      ],
+      "inputs": [
+        "DATA_PIPELINE_CONTRACT §3",
+        "tools/verify_sources.py 재추출 로직",
+        "02_구현계약 §1.1 ClauseOccurrence"
+      ],
+      "prereq_tasks": [
+        "T-DT-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/docproc/**",
+        "infra/compose/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "docproc 컨테이너(네트워크 차단), 추출기 v1, ClauseOccurrence JSON 출력",
+        "인용 문자열-좌표 대조 검사"
+      ],
+      "tests": [
+        "cd services/docproc && python3 -m pytest -q",
+        "bash services/docproc/test_sandbox.sh (네트워크 차단 확인)"
+      ],
+      "done_criteria": [
+        "인용 문자열이 원문 좌표의 텍스트와 일치한다",
+        "추출기 판이 모든 ClauseOccurrence에 있다",
+        "컨테이너에서 외부 네트워크 호출이 실패한다(I13 권한 없음)",
+        "원문 발췌는 저장소에 커밋되지 않는다(시험 자료는 합성 PDF)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/docproc/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음. 실제 공시 PDF 시험은 세션 임시 영역 또는 R2(D-04) 자료로만",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-04",
+      "name": "주장 저장소(assertion store)와 적재기, 제약 검사 통합, 지식 공백·확보 작업 기록(C-18 기록 부분)",
+      "zone": "knowledge",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "02_구현계약 §1.2·§1.1·C-18",
+        "T-CT-05 스키마"
+      ],
+      "prereq_tasks": [
+        "T-CT-05",
+        "T-KN-01",
+        "T-KN-02"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/knowledge/**",
+        "Cargo.toml"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "assertion 저장·조회·supersedes·conflict API",
+        "제약 검사 실행기(릴리스 후보 집합에 K1~K13)",
+        "gap·acquisition_task 기록 API(문의 초안 생성 없음)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-knowledge"
+      ],
+      "done_criteria": [
+        "주장은 수정 API가 없고 supersedes로만 바뀐다",
+        "제약 위반 집합은 후보 릴리스로 승격되지 않는다",
+        "픽스처 거부 시험(T-KN-02) 통과",
+        "공백 상태와 작업 상태가 독립 필드다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "services/knowledge/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-05",
+      "name": "FieldAssertion 추출(게이트웨이 경유) + 코드 검사(인용 일치·단위·기산점·참조 완결), C-20 주장 형식 저장(pending)",
+      "zone": "knowledge",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP12"
+      ],
+      "inputs": [
+        "DATA_PIPELINE_CONTRACT §5·§7.2",
+        "T-DT-02 ClauseOccurrence",
+        "02_구현계약 §8.3 P3"
+      ],
+      "prereq_tasks": [
+        "T-KN-04",
+        "T-DT-02",
+        "T-KN-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/ai-review/**",
+        "services/knowledge/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "추출 오케스트레이션(단일 계열로도 pending 생성 가능)",
+        "코드 검사 5종",
+        "원문 속 지시문 미실행 시험"
+      ],
+      "tests": [
+        "cargo test -p onjeon-ai-review extraction"
+      ],
+      "done_criteria": [
+        "근거 없는 필드 후보가 거절된다",
+        "지시문이 든 합성 PDF가 데이터로만 처리된다(I13)",
+        "요약서만 근거인 C0 후보가 basis로 저장되지 않는다(K1)",
+        "생성된 주장은 모두 pending·origin=pipeline이다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/ai-review/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음(D-02는 승인 단계만)",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-06",
+      "name": "AI 검수 실행기: 작성·승인·레드팀 이종 계열, 코드 검사, 불일치=hold, ReviewDecision 기록",
+      "zone": "knowledge",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP13"
+      ],
+      "inputs": [
+        "ADR-0006",
+        "제3부 §57.2·§57.3",
+        "02_구현계약 §8.2 B3"
+      ],
+      "prereq_tasks": [
+        "T-KN-05"
+      ],
+      "prereq_decisions": [
+        "D-02"
+      ],
+      "allowed_paths": [
+        "services/ai-review/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "검수 실행기(families_count ≥ 2 강제)",
+        "ReviewDecision 기록(모델 계열 라벨, 코드 검사 로그, 레드팀 반례, 프롬프트 판)",
+        "hold 경로 실행 기록"
+      ],
+      "tests": [
+        "cargo test -p onjeon-ai-review review (모의 제공자 2계열)",
+        "실제 제공자 2계열 실행 기록(D-02 후)"
+      ],
+      "done_criteria": [
+        "다수결 코드 경로가 없다(I14, 정적 검사)",
+        "계열이 하나뿐이면 ReviewDecision을 만들지 않고 pending을 유지한다",
+        "불일치·반례는 hold로 기록된다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/ai-review/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "D-02(검수 모델 계열 2개 이상·정책 소유자). 모의 제공자 시험과 코드 작성은 막히지 않는다. 실제 ReviewDecision 생성만 막힌다",
+      "notes": ""
+    },
+    {
+      "id": "T-TW-03",
+      "name": "컴파일러: accepted C0 주장 → Rule(candidate, K9), 설명 템플릿 생성·두 표현 대조",
+      "zone": "twin",
+      "stage": "S1",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP14"
+      ],
+      "inputs": [
+        "DATA_PIPELINE_CONTRACT §6",
+        "온톨로지 설계안 §11 implemented_by",
+        "02_구현계약 §8.3 P6"
+      ],
+      "prereq_tasks": [
+        "T-TW-01",
+        "T-TW-02",
+        "T-KN-04"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/twin-runtime/**",
+        "services/knowledge/explain_templates/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "compile(coverage, assertions) → Rule JSON(candidate) + inputs_from_outside_dsl",
+        "explain template 생성기 + 대조 검사(숫자·기간·예외 일치)",
+        "미지원 구조 → 명시적 실패(ONJ-TW-U-010)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-twin-runtime compiler",
+        "cargo test -p onjeon-knowledge explain"
+      ],
+      "done_criteria": [
+        "픽스처 주장(accepted 아님)으로는 규칙이 만들어지지 않는다",
+        "규칙 evidence_refs가 담보 C0 basis의 부분집합이다(K9)",
+        "설명 템플릿의 숫자·예외가 주장과 다르면 릴리스 입력에서 제외된다",
+        "엔진이 실행 중 온톨로지를 조회하지 않는다(의존 검사)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/twin-runtime/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-07",
+      "name": "릴리스 빌더: ReleaseManifest(불변), capability 표(K11), 철회, 그림자 비교 연결, 픽스처·fixture_only 거부",
+      "zone": "knowledge",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP15"
+      ],
+      "inputs": [
+        "02_구현계약 §1.3·§8.2·§8.3 P5~P8",
+        "SYSTEM_CONTRACT §12",
+        "I16"
+      ],
+      "prereq_tasks": [
+        "T-TW-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/knowledge/release/**",
+        "packages/twin-runtime/shadow/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "build_release(candidate_set) → manifest | 거부 사유",
+        "withdraw(release_id, reason)",
+        "shadow_compare(old, new, inputs) → report(unexplained_count)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-knowledge release",
+        "cargo test -p onjeon-twin-runtime shadow"
+      ],
+      "done_criteria": [
+        "같은 입력이면 같은 release_hash다",
+        "원인 없는 금액 차이가 있으면 릴리스가 만들어지지 않는다",
+        "fixture_only·origin=fixture가 섞이면 ONJ-KN-S-050",
+        "제약 위반이 있으면 ONJ-KN-S-051",
+        "철회는 manifest를 지우지 않고 withdrawn_at만 쓴다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "services/knowledge/release/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-01",
+      "name": "api 골격(Axum), 릴리스 읽기, capability resolver, display_status 매핑, 오류 코드, 공개 캐시 정책, 계약 시험 틀",
+      "zone": "app·api",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "02_구현계약 §2·§2.5·§4",
+        "T-CT-03 OpenAPI"
+      ],
+      "prereq_tasks": [
+        "T-CT-03",
+        "T-CT-04",
+        "T-KN-07"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/api/**",
+        "Cargo.toml"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "api 바이너리(public·personal·console 모듈 분리, personal은 기본 비활성 플래그)",
+        "capability resolver(릴리스 capability 표 읽기 + 재검사)",
+        "display_status 매핑 함수와 계약 시험"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api",
+        "bash services/api/contract_test.sh"
+      ],
+      "done_criteria": [
+        "알 수 없는 enum은 ONJ-AP-V-001이다(성공 기본 처리 없음)",
+        "개인 응답에 Cache-Control: no-store가 강제된다",
+        "공개 캐시 키에 release_id·comparison_basis가 들어간다",
+        "매핑표의 모든 행에 계약 시험이 있다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/main.rs",
+        "services/api/src/capability/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-02",
+      "name": "CoverageDetail·EvidenceView 엔드포인트(실제 릴리스 읽기, 근거 사슬 끝까지, 첫 층 규칙 R07)",
+      "zone": "app·api",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP16"
+      ],
+      "inputs": [
+        "02_구현계약 §2.1·§2.4·§6.2",
+        "화면 설계서 §4.5"
+      ],
+      "prereq_tasks": [
+        "T-AP-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/api/src/public/coverages/**",
+        "services/api/src/public/evidence/**",
+        "services/api/src/viewmodel/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "GET /v1/coverages/{id}, GET /v1/evidence/{ref}",
+        "I6 계약 시험(사슬 한 칸 끊긴 값은 사실로 나가지 않음)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api coverage evidence"
+      ],
+      "done_criteria": [
+        "응답의 모든 금액에 amounts[].source·evidence_kind·applicability가 있다",
+        "사슬이 끊긴 값은 display_status=data_missing이고 금액 자리가 비어 있다",
+        "결과를 뒤집는 제외가 layers[1]에 있다",
+        "D-12 플래그 off이면 인용 문자열·쪽 이미지가 응답에 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/public/coverages/**",
+        "services/api/src/public/evidence/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-12는 인용·페이지 이미지 표시 플래그만 막는다. 조항 단위 참조·출처 링크는 진행",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-03",
+      "name": "POST /v1/scenarios: 상품 트윈 시나리오(입력 단계 + 엔진) + explain_render + 차단 사유·공백 노출",
+      "zone": "app·api",
+      "stage": "S1",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP16"
+      ],
+      "inputs": [
+        "02_구현계약 §2.1·§2.4 ScenarioResult",
+        "온톨로지 검증 explain()",
+        "불변 원칙 7"
+      ],
+      "prereq_tasks": [
+        "T-AP-01",
+        "T-TW-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/api/src/public/scenarios/**",
+        "services/api/src/explain_render/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "엔드포인트, 멱등 키 처리, explain_render(템플릿 채우기만)",
+        "ScenarioResult 계약 시험"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api scenarios",
+        "bash services/api/contract_test.sh scenarios"
+      ],
+      "done_criteria": [
+        "금액·지급 여부는 EvaluationResult에서만 온다(정적 검사: explain_render에 산술 없음)",
+        "judgements[]와 rule.evidence_refs가 따로 실린다",
+        "차단 시 blocked_by·remaining_gaps·acquisition_task 상태가 실린다",
+        "판단 불가는 undetermined + missing_inputs이지 0원이 아니다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/public/scenarios/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-MB-01",
+      "name": "Flutter 골격: 4탭·세 진입점 라우팅, 디자인 토큰, 생성 클라이언트, 공통 상태 7종 프레임, 금액 산술 린트",
+      "zone": "mobile·web·console",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "CONSUMER_FLOW_SPEC",
+        "화면 설계서 §1~§3·§9",
+        "제3부 §44.1·§44.2",
+        "T-CT-03 생성 클라이언트"
+      ],
+      "prereq_tasks": [
+        "T-CT-03",
+        "T-CT-06"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "apps/mobile/**",
+        "packages/design-tokens/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "앱 골격(화면 라우트, 상태 프레임 위젯 7종, 예시 모드 표시)",
+        "디자인 토큰 → Dart",
+        "krw 필드 산술 금지 린트"
+      ],
+      "tests": [
+        "cd apps/mobile && flutter analyze && flutter test"
+      ],
+      "done_criteria": [
+        "생성 클라이언트 밖의 HTTP 호출이 없다",
+        "스켈레톤 라우트가 네비게이션·딥링크에 없다(비노출 시험)",
+        "예시 모드 화면은 synthetic=true 표시가 항상 보인다",
+        "화면 코드에 금액 산술이 없다(린트)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "apps/mobile/lib/app/**",
+        "apps/mobile/pubspec.yaml"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-05(세 흐름 배치)는 설계 담당 선택이며 06 문서의 선택안을 입력으로 쓴다. 감리 전에는 라우팅 PR 병합만 기다린다",
+      "notes": ""
+    },
+    {
+      "id": "T-MB-02",
+      "name": "담보 상세·만약에 줄·증거 보기(실제 API) — S1 관문 화면",
+      "zone": "mobile·web·console",
+      "stage": "S1",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP17"
+      ],
+      "inputs": [
+        "T-AP-02·T-AP-03 응답",
+        "화면 설계서 §4.5·§7"
+      ],
+      "prereq_tasks": [
+        "T-MB-01",
+        "T-AP-02",
+        "T-AP-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "apps/mobile/lib/features/coverage_detail/**",
+        "apps/mobile/lib/features/evidence/**",
+        "apps/mobile/integration_test/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "화면 3종 × 상태 7종",
+        "integration_test: 화면 숫자 → 원문 좌표 두 탭 이내"
+      ],
+      "tests": [
+        "cd apps/mobile && flutter test && flutter test integration_test (실제 API 대상)"
+      ],
+      "done_criteria": [
+        "화면의 모든 숫자가 응답 amounts[]에서 온다(하드코딩 없음)",
+        "증거 보기까지 두 탭 이내",
+        "S1 관문 시험이지 기능 완성이 아니다(보고서에 '내부 검증'으로만 적는다)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "apps/mobile/lib/features/coverage_detail/**",
+        "apps/mobile/lib/features/evidence/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-02",
+      "name": "S1 관문 증거 묶음: 실제 상품 하나 관통 기록(원문→복원→주장→(검수)→규칙→릴리스→API→화면), 보류 경로 실행, 그림자 비교 1회",
+      "zone": "infra·ops",
+      "stage": "S1",
+      "twin_axis": false,
+      "replaces_wp": [],
+      "inputs": [
+        "구현계획 §4 S1",
+        "BLUEPRINT §9.3",
+        "T-DT-01~T-MB-02 산출물"
+      ],
+      "prereq_tasks": [
+        "T-MB-02",
+        "T-KN-07"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "docs/blueprint/proposals/설계검토_결과/관문기록/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "관문 기록(명령·로그·해시). AI 검수 칸은 D-02 전이면 '비어 있음'으로 표시"
+      ],
+      "tests": [
+        "bash tools/gate/s1.sh (기록 생성)"
+      ],
+      "done_criteria": [
+        "화면 숫자 하나에서 원문 좌표까지 따라간 기록이 있다(I6)",
+        "보류 경로(약관 판 미확인)가 실제로 엔진을 부르지 않은 기록이 있다",
+        "그림자 비교 보고 1건",
+        "D-02 전이면 ReviewDecision이 없으므로 릴리스는 candidate에 머문다고 명시한다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "docs/blueprint/proposals/설계검토_결과/관문기록/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "D-02는 AI 검수 칸만 비운다. D-04는 R2 보존 칸만 비운다(로컬 저장소 기록으로 대체 표시)",
+      "notes": ""
+    },
+    {
+      "id": "T-DT-03",
+      "name": "docproc 확장: 스캔 OCR·표·병합 셀·2단 조판·HWP 변환 글자 순서, extraction_uncertain 보류",
+      "zone": "data",
+      "stage": "S2",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP20"
+      ],
+      "inputs": [
+        "GAP_REPORT G15",
+        "DATA_PIPELINE_CONTRACT §3"
+      ],
+      "prereq_tasks": [
+        "T-DT-02"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/docproc/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "추출기 v2(쪽별 전략 선택), 표 셀 좌표, OCR 불확실성 전파"
+      ],
+      "tests": [
+        "cd services/docproc && python3 -m pytest -q"
+      ],
+      "done_criteria": [
+        "불확실한 값은 hold_reason=extraction_uncertain으로 나간다",
+        "쪽별 추출기·판이 기록된다",
+        "원문 오기는 고치지 않고 보존된다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/docproc/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-08",
+      "name": "구조 다양성 묶음 인코딩(실손·간병·수술·입원·사망·운전자·특약 종속·갱신·가격)",
+      "zone": "knowledge",
+      "stage": "S2",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP21"
+      ],
+      "inputs": [
+        "docs/blueprint/validation/encoded/*(형식 참고, 적재 금지)",
+        "SYSTEM_CONTRACT §14"
+      ],
+      "prereq_tasks": [
+        "T-KN-05",
+        "T-DT-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/ai-review/**",
+        "services/knowledge/**",
+        "data/label-dictionary/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "구조별 주장 묶음(pending 또는 hold), 미지원 구조 목록"
+      ],
+      "tests": [
+        "cargo test -p onjeon-knowledge structures"
+      ],
+      "done_criteria": [
+        "구조마다 관통하거나 '미지원'으로 기록된다",
+        "표현하지 못한 구조는 capability에서 빠진다(ONJ-TW-U-010)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "data/label-dictionary/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-02는 accepted 전환만 막는다. O03(라벨 사전 v1)은 정규 라벨 승격만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-TW-04",
+      "name": "W2~W4 연산: 일당×일수, 실손 상환형·누적 한도·청구 이력, 간병",
+      "zone": "twin",
+      "stage": "S2",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP22"
+      ],
+      "inputs": [
+        "제3부 §54.4 W2~W4",
+        "GAP_REPORT G01~G05·G09",
+        "O12"
+      ],
+      "prereq_tasks": [
+        "T-TW-02",
+        "T-TW-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/rules-engine/**",
+        "packages/twin-runtime/**",
+        "packages/fixtures/rules/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "연산 추가(rule-0.2 또는 0.3), 계약 트윈 누적 사용량 입력 계약, 합성·변이 시험"
+      ],
+      "tests": [
+        "cargo test -p onjeon-rules-engine",
+        "cargo test -p onjeon-twin-runtime"
+      ],
+      "done_criteria": [
+        "상품군별 합성·변이 시험 통과",
+        "미지원 의미론은 명시적으로 실패하고 계산 자격에서 빠진다",
+        "청구 이력 상태는 DSL 밖(계약 트윈)에서 온다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/rules-engine/src/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "O12(실손·이력·범위 비교 DSL 의미론)는 해당 연산의 릴리스 포함만 막는다. 설계·합성 시험은 진행",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-09",
+      "name": "PremiumObservation·comparison_basis 저장과 검사(I7·I8·K13), 묶음 가격 배분 금지",
+      "zone": "knowledge",
+      "stage": "S2",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP23"
+      ],
+      "inputs": [
+        "PREMIUM_DATA_CONTRACT",
+        "GAP_REPORT G16~G19",
+        "02_구현계약 C-07"
+      ],
+      "prereq_tasks": [
+        "T-KN-04"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/knowledge/premium/**",
+        "services/api/src/viewmodel/price/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "가격 관측 저장·조건 차원·condition_sources·package_binding",
+        "같은 기준 안 정렬·필터 함수"
+      ],
+      "tests": [
+        "cargo test -p onjeon-knowledge premium"
+      ],
+      "done_criteria": [
+        "다른 조건 가격의 합산·정렬을 거부한다(I8)",
+        "묶음 금액을 구성원에 나누지 않는다",
+        "연납÷12는 월평균으로만 표시된다",
+        "조건·구성·기준일 없는 관측은 저장되지 않는다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/knowledge/premium/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "O04(동일 조건 판정·묶음 규칙)는 compare_price enabled 전환만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-03",
+      "name": "AI 검수 파일럿 실측(처리량·비용·지연·재추출 불일치) → D-19 근거",
+      "zone": "infra·ops",
+      "stage": "S2",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP24"
+      ],
+      "inputs": [
+        "제3부 §54.3",
+        "통합안 D-19"
+      ],
+      "prereq_tasks": [
+        "T-KN-06"
+      ],
+      "prereq_decisions": [
+        "D-02"
+      ],
+      "allowed_paths": [
+        "docs/blueprint/proposals/설계검토_결과/실측/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "실측 보고서(수치는 측정값만)"
+      ],
+      "tests": [
+        "(측정 작업. 자동 시험 없음)"
+      ],
+      "done_criteria": [
+        "수치 기준을 쓰지 않고 측정값만 기록한다",
+        "임계값 확정은 정책 소유자 몫으로 남긴다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [],
+      "immediate_audit": false,
+      "blocked_by": "D-02(실제 이종 계열 없이는 측정 불가)",
+      "notes": ""
+    },
+    {
+      "id": "T-DT-04",
+      "name": "분모 열거 어댑터(협회·보험사별: 목록 열거·종료 증거·미탐색·차단 기록), 기관 분모 적재",
+      "zone": "data",
+      "stage": "S3",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP30"
+      ],
+      "inputs": [
+        "data/registry/*.csv(V0)",
+        "DATA_PIPELINE_CONTRACT §1·§2",
+        "ADR-0018 §3·§4(PR #3 브랜치 내용. 통합 시 재확인)",
+        "조사 H1~H14"
+      ],
+      "prereq_tasks": [
+        "T-DT-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/collect/**",
+        "data/registry/README.md"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "어댑터 트레이트와 기관별 구현, DiscoveryManifest 기록, 기관 진행표"
+      ],
+      "tests": [
+        "cargo test -p onjeon-collect adapters (기록된 응답 픽스처)"
+      ],
+      "done_criteria": [
+        "기관마다 진행표가 있고 미확보 사유를 확보로 세지 않는다",
+        "robots 확인 불가 호스트는 보류로 기록된다",
+        "200 로그인 HTML을 성공으로 세지 않는다",
+        "공제는 분모에서 제외하고 사유를 남긴다(ADR-0018 §4. PR #3 통합 시 범위 재확인)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/collect/src/adapters/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "PR #3 미병합: ADR-0018 범위는 브랜치 내용을 입력으로 쓰고 통합 시 재확인한다. 실제 R2 보존은 D-04. 대량 자동 수집은 O17",
+      "notes": ""
+    },
+    {
+      "id": "T-DT-05",
+      "name": "일일 스케줄·변경 감지(html-visible-text-v1 재사용)·영향 재처리(참조 폐쇄 집합), data 독립 빌드",
+      "zone": "data",
+      "stage": "S3",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP31"
+      ],
+      "inputs": [
+        "tools/verify_sources.py detect",
+        "tools/html_content_hash.py",
+        "DATA_PIPELINE_CONTRACT §7",
+        "D15 분리 조건"
+      ],
+      "prereq_tasks": [
+        "T-DT-04",
+        "T-KN-07"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/collect/**",
+        "infra/compose/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "스케줄러(수동 트리거 모드 기본), 변경 감지, 영향 집합 계산 호출",
+        "data 구역 단독 빌드 스크립트"
+      ],
+      "tests": [
+        "cargo test -p onjeon-collect schedule",
+        "bash services/collect/build_standalone.sh"
+      ],
+      "done_criteria": [
+        "장애 주입 시 최신성 경고와 마지막 검증 데이터가 유지된다",
+        "본문 해시 일치는 bytes_changed_content_same이지 바이트 일치가 아니다",
+        "예약 실행은 O17 통과 전 기본 off다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/collect/src/schedule/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "O17(대량 자동 수집 관문)은 예약 실행 on 전환만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-04",
+      "name": "O17 관문 작업: 원장 체크포인트, 버킷 잠금(O14), 토큰 재발급, 동시성 통제, 실제 R2 검증 기록",
+      "zone": "infra·ops",
+      "stage": "S3",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP32"
+      ],
+      "inputs": [
+        "infra/r2/BUDGET.md §6",
+        "ADR-0017",
+        "DECISIONS O14·O17"
+      ],
+      "prereq_tasks": [],
+      "prereq_decisions": [
+        "D-04",
+        "O14"
+      ],
+      "allowed_paths": [
+        "infra/r2/**",
+        "tools/r2_budget.py",
+        "tools/tests/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "체크포인트 설계·구현, 잠금 규칙안, 실제 R2 검증 기록"
+      ],
+      "tests": [
+        "python3 -m unittest discover -s tools/tests -v"
+      ],
+      "done_criteria": [
+        "실제 R2에서 실행 통제를 검증한 기록이 있다",
+        "무기한 잠금이 없다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "infra/r2/**",
+        "tools/r2_budget.py"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "D-04(토큰 폐기·재발급)와 O14(잠금 승인). 체크포인트 설계·시험은 막히지 않는다",
+      "notes": ""
+    },
+    {
+      "id": "T-DT-06",
+      "name": "가격 격자 출처 조사와 수집 어댑터",
+      "zone": "data",
+      "stage": "S3",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP33"
+      ],
+      "inputs": [
+        "PREMIUM_DATA_CONTRACT",
+        "GAP_REPORT G19",
+        "O02"
+      ],
+      "prereq_tasks": [
+        "T-DT-04",
+        "T-KN-09"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/collect/src/adapters/price/**",
+        "docs/research/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "격자 출처 조사 기록, 가격 어댑터"
+      ],
+      "tests": [
+        "cargo test -p onjeon-collect price"
+      ],
+      "done_criteria": [
+        "같은 조건 가격만 비교에 들어간다",
+        "소스별 조회 한도·재사용 조건 기록(O02)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/collect/src/adapters/price/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "O02는 대량 조회만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-04",
+      "name": "GET /v1/coverage-status 집계(분모·층별 확보율·최신성 넷), I17 린트",
+      "zone": "app·api",
+      "stage": "S3",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP34"
+      ],
+      "inputs": [
+        "ADR-0018 §5",
+        "02_구현계약 §2.1"
+      ],
+      "prereq_tasks": [
+        "T-DT-04",
+        "T-AP-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/api/src/public/coverage_status/**",
+        "tools/ci/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "집계 쿼리, 응답, '전수' 문자열 린트"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api coverage_status",
+        "python3 -I tools/ci/check_i17.py"
+      ],
+      "done_criteria": [
+        "분모 근거 없이 '전수'·'모든 상품' 문구가 나가지 않는다",
+        "미확보 사유만 있는 항목은 확보로 세지 않는다",
+        "퍼센트 하나로 합친 지표가 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/public/coverage_status/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-MB-03",
+      "name": "전 화면 × 공통 상태 7종(세 진입점·홈·계약 상세·같은 담보 비교·만약에·내 설계·두 안 비교·내 정보), 기준 화면 대조",
+      "zone": "mobile·web·console",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP40"
+      ],
+      "inputs": [
+        "통합안 §2.1",
+        "화면 설계서 §9·§12",
+        "06_검토사항_점검 D-05 선택안"
+      ],
+      "prereq_tasks": [
+        "T-MB-02",
+        "T-AP-05",
+        "T-AP-07"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "apps/mobile/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "화면 전부, 상태 카탈로그 1:1 시험, 기준 화면 대조 시험"
+      ],
+      "tests": [
+        "cd apps/mobile && flutter test && flutter test integration_test"
+      ],
+      "done_criteria": [
+        "상태 카탈로그 1:1",
+        "기준 화면 ±2dp·ΔE 3",
+        "실제 API E2E",
+        "가격 미확인 상품이 목록에서 빠지지 않고 0원으로 합산되지 않는다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "apps/mobile/lib/features/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-PS-01",
+      "name": "personal 서비스 골격: 별도 바이너리·DB·실행 계정, 격리 docproc 개인용 배포, PDF 가져오기(비밀번호 즉시 폐기), 추출 확인 API",
+      "zone": "personal",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP41"
+      ],
+      "inputs": [
+        "ADR-0005",
+        "02_구현계약 §1.4·§2.2·§7",
+        "제3부 §47.2"
+      ],
+      "prereq_tasks": [
+        "T-CT-05",
+        "T-DT-03",
+        "T-CT-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/personal/**",
+        "infra/compose/**",
+        "Cargo.toml"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "personal 바이너리, 업로드·추출·확인 엔드포인트, 개인용 docproc 배포 정의"
+      ],
+      "tests": [
+        "cargo test -p onjeon-personal import",
+        "bash services/personal/test_isolation.sh"
+      ],
+      "done_criteria": [
+        "비밀번호가 저장·로그에 남지 않는다(시험)",
+        "사용자 확인 전 추출값이 계산에 쓰이지 않는다",
+        "personal 실행 계정에 R2 토큰·공개 DB 쓰기 권한이 없다",
+        "합성 PDF로만 시험한다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/personal/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "D-17은 실제 민감자료의 외부 AI 처리만 막는다. 합성 자료 구현·시험은 진행",
+      "notes": ""
+    },
+    {
+      "id": "T-PS-02",
+      "name": "버전 매핑 후보(contract_version_match), 계약 스냅샷, 적용 약관 이력, 개인 계약 트윈(C-11)",
+      "zone": "personal",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP41"
+      ],
+      "inputs": [
+        "ADR-0018 §2 적용 약관",
+        "불변 원칙 6",
+        "02_구현계약 §1.4",
+        "06 D-10 선택안"
+      ],
+      "prereq_tasks": [
+        "T-PS-01",
+        "T-TW-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/personal/**",
+        "packages/twin-runtime/contract_twin/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "매핑 후보 생성(이름만으로 확정 금지), 스냅샷 저장, contract_twin 생성기"
+      ],
+      "tests": [
+        "cargo test -p onjeon-personal mapping",
+        "cargo test -p onjeon-twin-runtime contract_twin"
+      ],
+      "done_criteria": [
+        "ambiguous·unmatched면 개인 계산이 보류되고 공개 비교만 제공된다",
+        "최신 약관이 자동 적용되지 않는다",
+        "공개 노드는 릴리스 고정 ID로만 참조된다(K8)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/personal/src/mapping/**",
+        "packages/twin-runtime/contract_twin/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-PS-03",
+      "name": "동의(목적별)·선택 가족력·삭제 순서·늦은 쓰기 거부·내보내기·민감도 전파",
+      "zone": "personal",
+      "stage": "S4",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP42"
+      ],
+      "inputs": [
+        "SYSTEM_CONTRACT §11",
+        "제3부 §46.3~§46.5",
+        "02_구현계약 §7.2"
+      ],
+      "prereq_tasks": [
+        "T-PS-01"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/personal/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "consent API, family-history API(본인만), deletion_job, export(JSON·PDF)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-personal consent deletion export"
+      ],
+      "done_criteria": [
+        "삭제 뒤 진행 중 작업이 데이터를 되살리지 않는다(ONJ-PS-S-031)",
+        "백업 복원 시 삭제 표시가 재적용된다",
+        "가족력에서 확률·필요액이 생성되지 않는다",
+        "동의 철회 시 꺼지는 기능 목록이 응답에 있다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/personal/src/consent/**",
+        "services/personal/src/deletion/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "D-17은 백업 보존 기한 문구·외부 AI 처리만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-PS-04",
+      "name": "누출 시험 묶음: 교차 계정·로그·분석·크래시·검색 색인·외부 AI·관제 응답",
+      "zone": "personal",
+      "stage": "S4",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP42"
+      ],
+      "inputs": [
+        "02_구현계약 §7.1",
+        "I11·I12",
+        "제3부 §52"
+      ],
+      "prereq_tasks": [
+        "T-PS-03",
+        "T-CT-06",
+        "T-WB-02"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/personal/tests/leak/**",
+        "services/api/tests/leak/**",
+        "tools/ci/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "누출 시험 7종과 CI 단계"
+      ],
+      "tests": [
+        "cargo test --workspace leak",
+        "python3 -I tools/ci/check_leak.py"
+      ],
+      "done_criteria": [
+        "민감도 라벨 값이 로그·분석·크래시·공개 응답·관제 응답에 나타나면 실패한다",
+        "다른 계정의 자료가 403이고 존재 여부도 새지 않는다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/personal/tests/leak/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-TW-05",
+      "name": "여러 계약 관계(정액 중복·실손 비례분담), 두 안 차이 계산(diff_type, 면책 재시작·감액·해지 손실), W5·W6, 노드별 evidence_ref",
+      "zone": "twin",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP43"
+      ],
+      "inputs": [
+        "제3부 §44.5·§54.4 W5·W6",
+        "I9",
+        "R17",
+        "02_구현계약 §6.2 노드별 근거"
+      ],
+      "prereq_tasks": [
+        "T-TW-04"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "packages/rules-engine/**",
+        "packages/twin-runtime/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "multi_contract(합산 금지 규칙), plan_diff, W5·W6 연산, trace[].evidence_ref"
+      ],
+      "tests": [
+        "cargo test -p onjeon-rules-engine",
+        "cargo test -p onjeon-twin-runtime multi plan_diff"
+      ],
+      "done_criteria": [
+        "지원 여부를 확인하지 않은 합산이 거부된다",
+        "두 안의 줄어드는 것이 항상 계산된다(I9)",
+        "자동차보험은 범위 밖으로 표시된다(ADR-0018, PR #3 통합 시 재확인)",
+        "W6 공시이율 입력은 ParameterTable에서만 온다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "packages/rules-engine/src/**",
+        "packages/twin-runtime/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "O12는 해당 연산의 릴리스 포함만 막는다. BLUEPRINT §12 '범위 금액과 기준값 비교의 의미'는 W3 범위 비교만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-05",
+      "name": "개인 API: evaluations, plans, diff, me, consents, policy-imports 라우팅(personal 서비스 위임), 결과 상태 네 축",
+      "zone": "app·api",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [],
+      "inputs": [
+        "02_구현계약 §2.2·§2.4",
+        "T-PS-* 서비스"
+      ],
+      "prereq_tasks": [
+        "T-AP-01",
+        "T-PS-02",
+        "T-TW-05"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/api/src/personal/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "개인 엔드포인트 전부, no-store 캐시, result_state 네 축"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api personal",
+        "bash services/api/contract_test.sh personal"
+      ],
+      "done_criteria": [
+        "개인 응답은 공개 캐시에 들어가지 않는다",
+        "예산 필터는 같은 비교 기준 안에서만 동작한다",
+        "초안 저장 시 release_id·기준일·가정이 고정된다",
+        "철회 릴리스 결과는 withdrawn으로 표시된다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/personal/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-11은 ephemeral 모드만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-WB-01",
+      "name": "공개 웹 전 경로(/, /how-it-works, /principles, /coverage, /coverage/releases, /legal/*, /support, /status)",
+      "zone": "mobile·web·console",
+      "stage": "S4",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP44"
+      ],
+      "inputs": [
+        "통합안 §2.2",
+        "제3부 §45.1",
+        "I15·I17"
+      ],
+      "prereq_tasks": [
+        "T-AP-04",
+        "T-CT-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "apps/web/app/(public)/**",
+        "apps/web/package.json"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "Next.js 공개 경로, 실제 집계 렌더링, 문구 린트"
+      ],
+      "tests": [
+        "cd apps/web && npm test && npm run lint:phrases"
+      ],
+      "done_criteria": [
+        "'전문가 검수'·'검수 완료' 문구가 없다(I15)",
+        "분모 근거 없이 '전수'가 없다(I17)",
+        "실제 집계로 렌더링된다(목업 금지)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "apps/web/app/(public)/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-20(도메인·명칭)은 배포만 막는다",
+      "notes": ""
+    },
+    {
+      "id": "T-WB-02",
+      "name": "관제 콘솔: 7개 화면 + 검수 감사(bbox 나란히) + 정책·서킷 브레이커 + 공백·확보 작업 + 2FA·역할",
+      "zone": "mobile·web·console",
+      "stage": "S4",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP45"
+      ],
+      "inputs": [
+        "통합안 §2.3",
+        "제3부 §45.2",
+        "02_구현계약 §2.3"
+      ],
+      "prereq_tasks": [
+        "T-DT-05",
+        "T-KN-06",
+        "T-CT-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "apps/web/app/console/**",
+        "services/api/src/console/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "콘솔 화면, 관제 API, 역할·2FA"
+      ],
+      "tests": [
+        "cd apps/web && npm test -- console",
+        "cargo test -p onjeon-api console"
+      ],
+      "done_criteria": [
+        "사용자 원본·건강정보가 어떤 관제 응답에도 없다(누출 시험)",
+        "정책 변경은 정책 소유자 역할만 가능하다",
+        "문의 발송 기능이 없다",
+        "실제 파이프라인 상태를 보여 준다(목업 금지)"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "apps/web/app/console/**",
+        "services/api/src/console/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-02 전에는 검수 감사 화면이 pending만 보인다(기능 자체는 막히지 않음)",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-06",
+      "name": "오류 신고 → 격리 저장 → 검수 대기 → 오류 격리(hold 전파) → 영향 상태 표시",
+      "zone": "app·api",
+      "stage": "S4",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP46"
+      ],
+      "inputs": [
+        "SYSTEM_CONTRACT §3·§12",
+        "R22",
+        "02_구현계약 §2.1 error-reports"
+      ],
+      "prereq_tasks": [
+        "T-AP-02",
+        "T-KN-07"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/api/src/public/error_reports/**",
+        "services/knowledge/isolation/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "접수·격리·검수 큐 연결, 영향 결과 hold 전파, 정정 이력"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api error_reports",
+        "cargo test -p onjeon-knowledge isolation"
+      ],
+      "done_criteria": [
+        "자동 전달은 공개 근거 ID뿐이다(자유 입력 미전달)",
+        "영향 결과가 hold로 바뀌고 정정 이력이 남는다",
+        "위험한 과거 규칙으로의 단순 롤백이 정상 복구로 취급되지 않는다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/public/error_reports/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-10",
+      "name": "정보 공백 관제 연결: /v1/gaps 공개 응답, 콘솔 공백·확보 작업 화면, 회신 주장별 평가 모델(발송 없음)",
+      "zone": "knowledge",
+      "stage": "S4",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP47"
+      ],
+      "inputs": [
+        "토의 23~24차",
+        "02_구현계약 C-18·§3.1",
+        "온톨로지 KnowledgeGap·AcquisitionTask"
+      ],
+      "prereq_tasks": [
+        "T-KN-04",
+        "T-WB-02"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/knowledge/gaps/**",
+        "services/api/src/public/gaps/**",
+        "apps/web/app/console/gaps/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "공백·작업 조회 API, 회신(수신 문서) 주장별 평가 입력 형식"
+      ],
+      "tests": [
+        "cargo test -p onjeon-knowledge gaps"
+      ],
+      "done_criteria": [
+        "문의를 보내지 않았으면 '확인 중'이 표시되지 않는다",
+        "회신이 와도 질문에 답하지 않았으면 공백이 남는다",
+        "발송 기능·외부 전송 코드가 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/knowledge/gaps/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음(발송·초안 생성은 T-KN-11)",
+      "notes": ""
+    },
+    {
+      "id": "T-KN-11",
+      "name": "문의 초안 생성(AI 보조, 명의·승인자 표시), 수동 발송 기록 양식",
+      "zone": "knowledge",
+      "stage": "S4",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP47"
+      ],
+      "inputs": [
+        "통합안 D-14 권고",
+        "T-KN-10"
+      ],
+      "prereq_tasks": [
+        "T-KN-10"
+      ],
+      "prereq_decisions": [
+        "D-14"
+      ],
+      "allowed_paths": [
+        "services/knowledge/gaps/inquiry/**",
+        "apps/web/app/console/gaps/inquiry/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "초안 생성기, 사용자 승인 뒤 수동 발송 기록(자동 발송 없음)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-knowledge inquiry"
+      ],
+      "done_criteria": [
+        "자동 발송 경로가 없다(정적 검사)",
+        "초안에 AI 작성 보조 표시가 있다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/knowledge/gaps/inquiry/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-14(포함 여부·명의·승인자·자동화 범위)",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-07",
+      "name": "같은 상황 비교: 여러 상품 트윈에 같은 사건, 근거 종류·적용 확인 구분, 확인 필요 상품 같은 목록(POST /v1/comparisons scenario 모드)",
+      "zone": "app·api",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP48"
+      ],
+      "inputs": [
+        "시안_비교 표시 원칙(통합안 §3.2)",
+        "02_구현계약 §2.4 CompareView",
+        "06 D-15 선택안"
+      ],
+      "prereq_tasks": [
+        "T-AP-03",
+        "T-KN-09"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "services/api/src/public/comparisons/**",
+        "apps/mobile/lib/features/compare/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "비교 엔드포인트 시나리오 모드, CompareView, 비교 화면"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api comparisons",
+        "cd apps/mobile && flutter test compare"
+      ],
+      "done_criteria": [
+        "큰 금액 자리에는 scenario: 출처만 오른다",
+        "요약서 근거는 evidence_kind=summary·applicability=unverified로 구분된다",
+        "확인 필요 상품이 같은 목록·같은 자리에 있다",
+        "범위 관계는 derived 값만 표시된다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/public/comparisons/**",
+        "apps/mobile/lib/features/compare/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-AP-08",
+      "name": "실제 사건 확인: 개인 계약 트윈 + 사용자가 확인한 사실(진술) → 조건부 계산, 결과를 바꾸는 미확인과 확인 주체, 다음 행동",
+      "zone": "app·api",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP48"
+      ],
+      "inputs": [
+        "시안_세흐름 C 흐름",
+        "통합안 D-06·D-07 권고",
+        "02_구현계약 §2.2 evaluations"
+      ],
+      "prereq_tasks": [
+        "T-AP-05",
+        "T-AP-07"
+      ],
+      "prereq_decisions": [
+        "D-06",
+        "D-07"
+      ],
+      "allowed_paths": [
+        "services/api/src/personal/events/**",
+        "apps/mobile/lib/features/actual_event/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "사건 사실 입력(진술), 조건부 결과, 확인 주체 표시, 다음 행동(청구 안내 범위는 D-07)"
+      ],
+      "tests": [
+        "cargo test -p onjeon-api events",
+        "cd apps/mobile && flutter test actual_event"
+      ],
+      "done_criteria": [
+        "사진·진단서 입력 경로가 없다(D-06 결정 전 ADR-0005 유지)",
+        "코드 미확인은 undetermined로 남는다",
+        "청구 대행·서류 전송 기능이 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/api/src/personal/events/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-06(사건 사실 입력 범위·진단서)과 D-07(청구 안내 범위). 진술 입력·조건부 계산 골격은 ADR-0005 안에서 진행 가능",
+      "notes": ""
+    },
+    {
+      "id": "T-MB-04",
+      "name": "내 설계·두 안 비교·만약에·내 정보·PDF 가져오기 화면(실제 개인 API)",
+      "zone": "mobile·web·console",
+      "stage": "S4",
+      "twin_axis": true,
+      "replaces_wp": [
+        "WP40"
+      ],
+      "inputs": [
+        "CONSUMER_FLOW_SPEC §2~§4",
+        "화면 설계서 §4~§7",
+        "T-AP-05"
+      ],
+      "prereq_tasks": [
+        "T-MB-01",
+        "T-AP-05",
+        "T-PS-03"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "apps/mobile/lib/features/my_design/**",
+        "apps/mobile/lib/features/what_if/**",
+        "apps/mobile/lib/features/me/**",
+        "apps/mobile/lib/features/import/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "화면 4묶음 × 상태 7종, 슬라이더 디바운스·최신 입력 해시만 적용"
+      ],
+      "tests": [
+        "cd apps/mobile && flutter test && flutter test integration_test"
+      ],
+      "done_criteria": [
+        "예산을 올려도 반드시 더 가입하는 결과가 되지 않는다",
+        "과거 응답이 최신 입력 결과를 덮지 않는다",
+        "가격 미확인이 '비싸서 제외'로 보이지 않는다",
+        "'AI가 읽은 내용 / 원본 영역' 대조 확인 전 계산 버튼이 없다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "apps/mobile/lib/features/my_design/**",
+        "apps/mobile/lib/features/what_if/**",
+        "apps/mobile/lib/features/me/**",
+        "apps/mobile/lib/features/import/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-08(판단 기준 영역·기본값)은 기본 필요액 표시만 막는다. 사용자 직접 가정 입력은 진행",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-05",
+      "name": "관측(OTel, 허용 목록)·런북·서킷 브레이커·롤백(manifest 교체) 연습 기록",
+      "zone": "infra·ops",
+      "stage": "S5",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP50"
+      ],
+      "inputs": [
+        "제3부 §52·§53.3·§57.5",
+        "SYSTEM_CONTRACT §12"
+      ],
+      "prereq_tasks": [
+        "T-WB-02",
+        "T-KN-07"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "infra/observability/**",
+        "docs/runbooks/**",
+        "services/api/src/ops/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "OTel 설정(마스킹 포함), 런북 4종, 서킷 브레이커 발동·롤백 연습 기록"
+      ],
+      "tests": [
+        "bash tools/drills/circuit_breaker.sh",
+        "bash tools/drills/rollback.sh"
+      ],
+      "done_criteria": [
+        "연습마다 실행 기록이 있다(문서만 있는 런북은 미완)",
+        "롤백이 문제 있는 결과를 다시 유효하게 만들지 않는다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "docs/runbooks/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-19(임계값)는 수치 확정만 막는다. 발동 경로 연습은 임시 수치로 진행하되 완성으로 세지 않는다",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-06",
+      "name": "보안 점검(위협 모델 항목별): 파서 샌드박스, 토큰, 서명 빌드, RBAC, 백업 암호화·복구 연습",
+      "zone": "infra·ops",
+      "stage": "S5",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP51"
+      ],
+      "inputs": [
+        "제3부 §53"
+      ],
+      "prereq_tasks": [
+        "T-PS-04"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "docs/security/**",
+        "infra/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "항목별 결과 기록"
+      ],
+      "tests": [
+        "(점검 작업)"
+      ],
+      "done_criteria": [
+        "항목별 결과가 있고 미해결은 미해결로 적혀 있다"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "docs/security/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": ""
+    },
+    {
+      "id": "T-UX-01",
+      "name": "사용자 이해 시험(가상 계약, 사전 고정 과제·수락 수치)",
+      "zone": "ux",
+      "stage": "S5",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP52"
+      ],
+      "inputs": [
+        "CONSUMER_FLOW_SPEC §7",
+        "화면 설계서 §12-6",
+        "통합안 D-16 권고"
+      ],
+      "prereq_tasks": [
+        "T-MB-03",
+        "T-AP-07"
+      ],
+      "prereq_decisions": [
+        "D-16"
+      ],
+      "allowed_paths": [
+        "docs/ux-tests/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "시험 계획(사전 고정), 실행 기록, 결과"
+      ],
+      "tests": [
+        "(사용자 시험)"
+      ],
+      "done_criteria": [
+        "수락 수치가 시험 전에 고정되어 있다",
+        "실패 원인이 기록된다",
+        "구현자 읽기 점검을 사용자 검증으로 쓰지 않는다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "docs/ux-tests/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "D-16(과제·표본·수락 수치)",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-07",
+      "name": "4주 리허설(합성·AI 사용자 시뮬레이션, 중요 오류 0건)",
+      "zone": "infra·ops",
+      "stage": "S5",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP53"
+      ],
+      "inputs": [
+        "제3부 §54.1 P4"
+      ],
+      "prereq_tasks": [
+        "T-OP-05",
+        "T-OP-06",
+        "T-UX-01"
+      ],
+      "prereq_decisions": [
+        "D-03",
+        "D-12",
+        "D-17",
+        "D-18"
+      ],
+      "allowed_paths": [
+        "docs/rehearsal/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "리허설 기록"
+      ],
+      "tests": [
+        "(운영 기록)"
+      ],
+      "done_criteria": [
+        "4주 동안 중요 오류 0건 기록",
+        "다섯 축 중간 평가 공개"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [],
+      "immediate_audit": false,
+      "blocked_by": "D-03(운영 환경) 없으면 스테이징 리허설 불가. D-12·D-17·D-18은 해당 기능 켜기만",
+      "notes": ""
+    },
+    {
+      "id": "T-OP-08",
+      "name": "출시 전 최종 감리와 다섯 축 보고(남은 공백 공개)",
+      "zone": "infra·ops",
+      "stage": "S5",
+      "twin_axis": false,
+      "replaces_wp": [
+        "WP54"
+      ],
+      "inputs": [
+        "구현계획 §2·§6"
+      ],
+      "prereq_tasks": [
+        "T-OP-07"
+      ],
+      "prereq_decisions": [],
+      "allowed_paths": [
+        "docs/release-readiness/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/blueprint/VOCABULARY.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json"
+      ],
+      "outputs": [
+        "감리 보고서, 다섯 축 보고"
+      ],
+      "tests": [
+        "(감리)"
+      ],
+      "done_criteria": [
+        "확인하지 못한 구간을 '완료'로 포장하지 않는다",
+        "출시 판정은 사용자 결정으로 넘긴다"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [],
+      "immediate_audit": true,
+      "blocked_by": "출시 판정(L1)은 사용자 결정",
+      "notes": ""
+    }
+  ]
+}

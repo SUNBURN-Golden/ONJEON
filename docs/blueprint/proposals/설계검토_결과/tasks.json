@@ -1320,7 +1320,7 @@
   "tasks": [
     {
       "id": "T-OP-00",
-      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M32를 공용 전이·검증 코어로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
+      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M35를 공용 전이·검증 코어로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
       "zone": "infra·ops",
       "stage": "S0",
       "twin_axis": false,
@@ -1384,7 +1384,10 @@
         "시험 stale-approval-invalidated: review_approved·audit_pending·merge_wait(그리고 리뷰 중·지적 상태) 각 상태에서 head_sha_changed 사건 → pr_open 으로 가고(CI 재검사 뒤 변경분 재리뷰), 옛 review_result·audit_result가 무효(R-04) 기록된다. 전이표의 head_sha_changed 목적지는 pr_open 하나다",
         "시험 late-write-fenced: 임대 A(token 7) 전환 뒤 임대 B(token 8) 시작. A가 늦게 푸시·결과 봉투 제출 → lease_id·token 불일치로 거부(late_envelope_rejected, R-11 기록), A 프로세스 그룹 종료·자격 회수 기록, B의 쓰기만 수락, B의 상태(building) 불변. 교체 전후 동시 쓰기 0건",
         "시험 late-result-no-state-change(M28): 이전 임대 A(lease_id≠현재, token 7)의 결과 봉투·푸시·전환 신호가 뒤늦게 도착 → late_envelope_rejected(noop, R-11 기록만), 현재 과제(임대 B, building) 상태 전이 0건, fence_violation 미발생. 같은 내용을 현재 lease_id·token을 달고 보냈는데 펜싱 규칙(데몬 우회 푸시·자격 회수 뒤 쓰기)을 어기면 그때만 fence_violation→returned",
-        "시험 handoff-order(M29): switch_signal 뒤 기록 순서가 preserve(현재 토큰으로 WIP 푸시) → stop(프로세스 그룹 종료·자격 회수) → revoke_token → issue_next_lease(새 토큰)이고(handoff_sequence), revoke 뒤 옛 토큰의 봉투는 late_envelope_rejected, 새 토큰은 revoke 뒤에만 발급된다",
+        "시험 handoff-order(M29): switch_signal 뒤 기록 순서가 stop(정상 중단 요청) → isolate(기한 초과 시 강제 종료 또는 쓰기 금지 격리, 자격 회수) → confirm_quiescent → preserve(데몬 보존 자격) → revoke_token → issue_next_lease(lease_generation+1, 새 토큰)이고(handoff_sequence), revoke 뒤 옛 세대 봉투는 late_envelope_rejected, 새 토큰·세대는 revoke 뒤에만 발급된다",
+        "시험 handoff-quiescent-before-preserve(M33, 재검토 S02): 응답하지 않는 모의 빌더가 stop 뒤에도 보존 도중까지 계속 파일을 쓴다 → isolate(강제 종료 또는 쓰기 금지 격리)가 먼저 기록되고, confirm_quiescent 조건(프로세스 0·mtime 고정·쓰기 핸들 0·트리 해시 2회 일치)이 참이 된 뒤에만 preserve가 일어나며, 보존 커밋의 트리 해시 == quiescent_tree_hash 이고 격리 뒤의 쓰기는 보존본에 섞이지 않는다(모의 파일 시스템). 정지 확인 전 커밋·푸시 0건",
+        "시험 duplicate-delivery-noop(M34, 재검토 S03): 같은 임대 세대에서 같은 멱등 키(task_id + lease_generation + base_sha + envelope_kind)의 결과 봉투가 두 번 오면 두 번째는 envelope_duplicate_delivery(noop)로 기록되고 상태·처리 결과가 바뀌지 않는다",
+        "시험 retry-new-idempotency-key(M35, 재검토 S03): returned→queued 재개, 시험 실패 뒤 재임대, CI 실패 뒤 재임대, 인계, 일시중단 복귀 각각에서 lease_generation이 +1 되고 멱등 키가 바뀌며 새 세대의 첫 봉투는 수락된다. 이전 세대 키로 온 늦은 봉투는 late_envelope_rejected와 같은 처리(거부·R-11 기록·상태 불변)이고 새 세대의 봉투를 막지 않는다",
         "시험 lease-guards-all-paths(M30): queued→leased, handoff→leased, paused_no_builder→leased, ci_failed→building, changes_requested→building, 시험 실패 뒤 재임대 각각에서 conflict_paths 충돌·잠금 실패·동시 임대 수 초과·예산 미예약·봉투 검증 실패 중 하나라도 있으면 임대가 발급되지 않는다(lease_guards). 통과하면 토큰이 +1 된다",
         "시험 merge-observation-fields(M31): squash 병합으로 merge_commit_sha ≠ approved_head_sha 여도 head_sha_at_merge == approved_head_sha 이고 base_sha 가 승인 시점과 같으면 merged 이며 completion_facts에 approved_head_sha·base_sha·head_sha_at_merge·merge_commit_sha·integration_check 가 기록된다. 승인 뒤 head가 바뀐 채 병합되면 merged_invalid_approval(R-12)",
         "시험 envelope-permission-rejects-missing(M32): (a) real_data_allowed 없는 지시 봉투 → envelope_validator 거부·발송 0건·returned(R-13) (b) 정본 변경 과제(어휘 정본 변경을 본뜬 T-MOCK-CANON, canon_change.required=true)에 canon_change_approval 없음 → R-13 (c) decision_ref가 decision_record에 없음 → R-13 (d) scope_paths에 allowed_paths 밖 경로 → R-13 (e) 올바른 승인 → 발송되고 scope_paths 안의 정본 수정이 R-01이 아님 (f) canon_change 없는 과제가 허용 경로에 든 정본 파일을 고치면 R-01 (g) real_data_allowed=false 봉투로 모의·로컬 작업은 진행된다",
@@ -1403,7 +1406,7 @@
         "시험 r2-local-work-allowed(M10b): 모의 과제(원본 보존 경로 과제를 본뜬 T-MOCK-ARCHIVE)가 real_data=[D-04]일 때 로컬 객체 저장소 경로 작업은 진행되고 R2 쓰기 단계만 real_data_allowed=false 로 막힌다"
       ],
       "done_criteria": [
-        "M1~M32 전부 기대 전이와 일치",
+        "M1~M35 전부 기대 전이와 일치",
         "병합 API·자동 병합 설정 호출 함수가 코드에 없다(정적 검사)",
         "네트워크·실제 CLI 호출이 없다",
         "가동 기능(스케줄러·실행기 연결)이 없다",
@@ -1432,7 +1435,10 @@
         "handoff-order",
         "lease-guards-all-paths",
         "merge-observation-fields",
-        "envelope-permission-rejects-missing"
+        "envelope-permission-rejects-missing",
+        "handoff-quiescent-before-preserve",
+        "duplicate-delivery-noop",
+        "retry-new-idempotency-key"
       ],
       "features": [],
       "parallel_ok": true,
@@ -1504,20 +1510,23 @@
       "test_outputs_within_allowed": true,
       "outputs": [
         "실행기 검증 도구(T-MOCK-* 과제만, 제품 브랜치 쓰기·병합 없음)",
-        "R1~R8 결과 기록, §1b 확인표 채움(미확인은 미확인)"
+        "R1~R13 결과 기록, §1b 확인표 채움(미확인은 미확인)"
       ],
       "tests": [
         "bash tools/daemon/runner_verify/run.sh --remote <시험용 원격> --report docs/vm_check/<날짜>/runner_verify.json",
         "시험 late-write-fenced(R1·R3, 실제 실행기): 만료된 임대 A의 실제 푸시가 보호 브랜치·회수 자격으로 원격에서 거부되고 R-11이 기록된다. A 전환 중 B 시작 시 두 프로세스가 동시에 쓰기 자격을 가진 시각 구간이 자격 발급·회수 로그상 없다",
-        "시험 late-result-rejected(R2): 만료된 임대 A의 결과 봉투가 lease_id·토큰 불일치로 거부되고(late_envelope_rejected) 현재 임대의 상태 전이가 없다. 인계 순서(preserve → stop → revoke_token → issue_next_lease)가 실제 프로세스·원격 로그에서 그 순서로 나타난다",
+        "시험 late-result-rejected(R2): 만료된 임대 A의 결과 봉투가 lease_id·토큰 불일치로 거부되고(late_envelope_rejected) 현재 임대의 상태 전이가 없다. 인계 순서(stop → isolate → confirm_quiescent → preserve → revoke_token → issue_next_lease)가 실제 프로세스·원격 로그에서 그 순서로 나타난다",
         "시험 resume-after-interrupt(R4): 데몬 강제 종료 뒤 재시작이 외부 상태로 복원하거나 R-08. WIP 커밋 보존",
         "시험 duplicate-run-prevented(R5): 데몬 두 인스턴스 동시 기동 시 임대 하나, 봉투 하나",
         "시험 provider-scoped-switch(R6·R7, 실제 실행기): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움",
         "시험 hard-stop-heartbeating-job(R9): 중단 지시 뒤 하트비트를 계속 보내는 실제 CLI 프로세스가 grace_s 뒤 프로세스 그룹 종료·자격 회수로 끝나고 그 뒤의 푸시·봉투가 거부된다",
-        "시험 budget-reserve-before-call(R10): CLI 내부 호출 수가 봉투의 max_calls를 넘을 때 데몬이 실제로 막을 수 있는 범위(프록시 계량 가능 여부)를 기록한다. 막지 못하는 범위는 '사후 정산만'으로 적는다"
+        "시험 budget-reserve-before-call(R10): CLI 내부 호출 수가 봉투의 max_calls를 넘을 때 데몬이 실제로 막을 수 있는 범위(프록시 계량 가능 여부)를 기록한다. 막지 못하는 범위는 '사후 정산만'으로 적는다",
+        "시험 handoff-quiescent-before-preserve(R11, 실제 실행기, S02): stop 요청을 무시하고 루프로 파일을 쓰는 실제 CLI 프로세스에 대해 grace_s 뒤 프로세스 그룹 강제 종료 또는 작업 트리 쓰기 금지 격리가 실제로 쓰기를 막고, confirm_quiescent 조건(생존 프로세스 0, mtime 고정, lsof 쓰기 핸들 0, 트리 해시 2회 일치)이 실제 파일 시스템에서 판정되며, 데몬이 보존 전용 자격으로 푸시한 WIP 커밋의 트리 해시 == quiescent_tree_hash 이고 격리 뒤의 쓰기가 섞여 있지 않다. 빌더 토큰·자격으로 푸시된 보존 커밋이 없다",
+        "시험 duplicate-delivery-noop(R12, 실제 실행기, S03): 실제 전달 경로(파일 큐·HTTP 재시도)로 같은 봉투가 두 번 도착해도 두 번째가 noop으로 기록되고 상태 저장소가 바뀌지 않는다",
+        "시험 retry-new-idempotency-key(R13, 실제 실행기, S03): 실제 재임대·인계·복귀 뒤 상태 저장소의 lease_generation이 올라가고 새 세대 첫 봉투가 수락되며 이전 세대 키의 늦은 봉투는 거부된다"
       ],
       "done_criteria": [
-        "R1~R8 결과가 기록되고 실패는 실패로 적힌다",
+        "R1~R13 결과가 기록되고 실패는 실패로 적힌다",
         "제품 브랜치에 쓰기·병합이 없다(정적·로그 검사)",
         "확인되지 않은 종료 코드는 runner_profile에 넣지 않는다",
         "이 과제 완료가 가동 승인이 아니다"
@@ -1529,7 +1538,10 @@
         "duplicate-run-prevented",
         "provider-scoped-switch",
         "hard-stop-heartbeating-job",
-        "budget-reserve-before-call"
+        "budget-reserve-before-call",
+        "handoff-quiescent-before-preserve",
+        "duplicate-delivery-noop",
+        "retry-new-idempotency-key"
       ],
       "features": [],
       "parallel_ok": false,
@@ -2599,7 +2611,7 @@
       "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
-        "온톨로지 검증 resolve()·applicable_config()·edition_status()(rel:case-r26, 골든 E1~E4)",
+        "온톨로지 검증 resolve()·applicable_config()·edition_status()(rel:case-r26, 골든 E1~E4·S01·S01b)",
         "ADR-0014 §4",
         "02_구현계약 C-08·C-26·§1.7",
         "온톨로지/검증/runner/src/main.rs"
@@ -2661,8 +2673,8 @@
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
-        "config_select(snapshot, candidates, contract_date) → Selected|Blocked{assertion_id, status}. 후보는 ID로 정렬해 순서와 무관. 적용 후보가 여럿이면 Blocked(multiple_candidates)",
-        "resolve_chain(snapshot, config, as_of, requested_cov) → Linked{edition, coverage, rule} | Blocked{reason ∈ {no_uses_edition, multiple_candidates, edition_identity_unconfirmed, cov_not_in_edition, no_rule}}: 판매 구성 → uses_edition(가입일 적용 기간) → edition_status=confirmed → in_edition(요청 담보) → 실행 규칙 순서로 승인된 연결만 따라간다. 요청이 넘긴 cov를 따로 신뢰하지 않는다",
+        "config_select(snapshot, candidates, contract_date) → Selected|Blocked{assertion_id, status}. 후보는 ID로 정렬해 순서와 무관. 가입일에 적용되는 판매 구성이 여럿일 때만 Blocked(multiple_candidates). 한 판매 구성이 여러 약관 판(보통약관·특약)을 쓰는 것은 정상(S01)",
+        "resolve_chain(snapshot, config, as_of, requested_cov) → Linked{edition, coverage, rule} | Blocked{reason ∈ {no_uses_edition, multiple_candidates, multiple_editions, link_unapproved, edition_identity_unconfirmed, cov_not_in_edition, no_rule}}: 판매 구성(가입일에 하나) → 판 선택(요청 담보의 in_edition 판 중 그 판매 구성이 가입일에 uses_edition으로 쓰는 판. 같은 (판매 구성, 판) 연결의 근거 주장 여럿은 하나의 연결. 0개면 no_uses_edition, 2개 이상이면 multiple_editions, 요청 담보의 연결 주장에 미승인이 섞이면 link_unapproved. 요청 담보와 무관한 판의 미확인 연결은 막지 않음) → edition_status=confirmed → 실행 규칙. 요청이 넘긴 cov를 따로 신뢰하지 않는다",
         "input_stage::fill(rule.inputs_from_outside_dsl, facts, snapshot) → inputs + judgements[]",
         "CLI: stdin jobs → 엔진 결과 + judgements"
       ],
@@ -2672,20 +2684,22 @@
         "시험 input-link-other-company(골든 E1, 재검토 R02 재현): 하나 판매 구성·가입일은 그대로 두고 요청 cov만 현대 담보(cov:hi_2_5)로 바꾸면 resolve_chain이 Blocked(cov_not_in_edition)이고 rule_assertion 없음, 엔진 호출 0건. 현대 규칙·입력이 반환되지 않는다",
         "시험 input-link-other-edition(골든 E2): 같은 판매 구성에 다른 판의 담보를 요청하면 Blocked(cov_not_in_edition), 엔진 호출 0건",
         "시험 input-link-multiple-candidates(골든 E3): 가입일에 적용 판매본 후보가 여럿이면 Blocked(multiple_candidates), 영향받는 결론 보류, 엔진 호출 0건",
-        "시험 input-link-order-independent(골든 E4): 후보 목록을 뒤집어도 Q1~Q10 결과·blocked 사유가 같다"
+        "시험 input-link-order-independent(골든 E4): 후보 목록을 뒤집어도 Q1~Q10 결과·blocked 사유가 같다",
+        "시험 input-link-multi-edition-config(골든 S01·S01b, 재검토 e02755a 재현): (a) 같은 (판매 구성, 판) 연결의 근거 주장을 하나 더 추가해도 Q1 결과 불변 (b) 보통약관 판과 미확인 다른 특약 판을 함께 연결해도 요청 담보의 결론은 그대로(무관한 판의 미확인은 막지 않음) (c) 요청 담보의 판 연결 주장에 hold가 섞이면 Blocked(link_unapproved), 엔진 호출 0건. 어느 경우도 '판매본 후보 복수'로 막지 않는다"
       ],
       "done_criteria": [
         "Q1~Q10 골든과 같은 입력 단계 판정·엔진 결과",
         "Q9·Q10에서 엔진이 호출되지 않는다",
         "엔진 호출 전에 DB·네트워크 접근이 없다",
-        "input-link-other-company·input-link-other-edition·input-link-multiple-candidates·input-link-order-independent 통과: 연결이 없거나 모호하면 영향받는 결론만 보류하고 엔진 호출 0건",
+        "input-link-other-company·input-link-other-edition·input-link-multiple-candidates·input-link-order-independent·input-link-multi-edition-config 통과: 연결이 없거나 모호하면 영향받는 결론만 보류하고 엔진 호출 0건. 한 판매 구성의 여러 약관 판은 모호함이 아니다",
         "edition_status가 confirmed가 아닌 판에서는 입력 단계가 계산하지 않는다"
       ],
       "required_test_ids": [
         "input-link-other-company",
         "input-link-other-edition",
         "input-link-multiple-candidates",
-        "input-link-order-independent"
+        "input-link-order-independent",
+        "input-link-multi-edition-config"
       ],
       "features": [
         "input-stage"

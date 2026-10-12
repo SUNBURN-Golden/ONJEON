@@ -1690,7 +1690,7 @@
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
-      "notes": "F03 수정: 이전 판은 onjeon-knowledge 시험에 의존했다. 이제 선행에 있는 onjeon-ontology만 쓴다"
+      "notes": "실행 불가능한 작업 순서 수정: 이전 판은 onjeon-knowledge 시험에 의존했다. 이제 선행에 있는 onjeon-ontology만 쓴다"
     },
     {
       "id": "T-KN-03",
@@ -3002,7 +3002,7 @@
       ],
       "immediate_audit": true,
       "blocked_by": "D-02는 AI 검수 칸만 비운다. D-04는 R2 보존 칸만 비운다",
-      "notes": "F04 수정: 관문 기록 폴더를 토의 자료 폴더(docs/blueprint/proposals) 밖 docs/gates/로 옮겼다"
+      "notes": "수정 권한 충돌 수정: 관문 기록 폴더를 토의 자료 폴더(docs/blueprint/proposals) 밖 docs/gates/로 옮겼다"
     },
     {
       "id": "T-DT-03",
@@ -3402,7 +3402,7 @@
       ],
       "immediate_audit": true,
       "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다",
-      "notes": "F08 신설"
+      "notes": "판단 기준 관리(원본 F11) 신설"
     },
     {
       "id": "T-KN-13",
@@ -3627,7 +3627,7 @@
       "conflict_paths": [],
       "immediate_audit": false,
       "blocked_by": "시작: D-02(실제 이종 계열 없이는 측정 불가)",
-      "notes": "F04 수정: 실측 기록 폴더를 토의 자료 폴더 밖 docs/measurements/로 옮겼다"
+      "notes": "수정 권한 충돌 수정: 실측 기록 폴더를 토의 자료 폴더 밖 docs/measurements/로 옮겼다"
     },
     {
       "id": "T-DT-04",
@@ -4450,7 +4450,7 @@
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
-      "notes": "F09 신설"
+      "notes": "불확실성이 영향을 주는 결론만 보류 신설"
     },
     {
       "id": "T-AP-05",
@@ -4622,7 +4622,7 @@
       ],
       "immediate_audit": false,
       "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다. 적용 기록 전에는 사용자 가정 기반 결과만",
-      "notes": "F08 신설"
+      "notes": "판단 기준 관리(원본 F11) 신설"
     },
     {
       "id": "T-WB-01",
@@ -4789,7 +4789,7 @@
       ],
       "immediate_audit": false,
       "blocked_by": "D-02 전에는 검수 감사 화면이 pending만 보인다",
-      "notes": "F03 수정: onjeon-api를 만드는 T-AP-01을 선행에 추가했다"
+      "notes": "실행 불가능한 작업 순서 수정: onjeon-api를 만드는 T-AP-01을 선행에 추가했다"
     },
     {
       "id": "T-AP-06",

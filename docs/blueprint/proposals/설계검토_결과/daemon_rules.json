@@ -1,5 +1,5 @@
 {
-  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, 사용자 검토 F06·F07·F10·F11·F12 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
+  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, 사용자 검토(데몬 대기·복구 경로, 이전 작성자의 늦은 쓰기 차단(원본 F08), 결정 차단, 모델 전환 신호, 병합 뒤 상태) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
   "_decided_by": "역할·전환 정책은 사용자 결정 2026-10-12(U-04, 운영 규칙 1~8). 상태 기계·사건·신호·봉투·잠금·펜싱은 설계 담당 판단(감리 대상)",
   "schema": "onjeon-daemon-rules-0.2",
@@ -92,7 +92,7 @@
     "audit_queued",
     "done"
   ],
-  "_post_merge_note": "선행 과제 충족은 state in post_merge_states 로 판정한다. 병합된 과제가 정기 감리 묶음(audit_queued)이나 done으로 바뀌어도 후속 과제는 시작할 수 있다(F12)",
+  "_post_merge_note": "선행 과제 충족은 state in post_merge_states 로 판정한다. 병합된 과제가 정기 감리 묶음(audit_queued)이나 done으로 바뀌어도 후속 과제는 시작할 수 있다(병합 뒤 상태와 선행 조건)",
   "events": [
     "prereqs_satisfied",
     "builder_available",
@@ -486,7 +486,7 @@
     }
   ],
   "switch_policy": {
-    "_scope_rule": "전환 신호는 빌더 CLI 자신의 모델 호출 상태 채널만 본다. 자식 프로세스 출력, 시험 로그, 수집 대상 사이트 응답, 저장소 API 응답은 보지 않는다(F11)",
+    "_scope_rule": "전환 신호는 빌더 CLI 자신의 모델 호출 상태 채널만 본다. 자식 프로세스 출력, 시험 로그, 수집 대상 사이트 응답, 저장소 API 응답은 보지 않는다(모델 전환 신호 지적 대응)",
     "allowed_sources": [
       "provider_http_response",
       "runner_exit_code",
@@ -777,8 +777,8 @@
     "branch_naming": "task/<task_id>-a<attempt>",
     "pr_dedup": "같은 task_id의 열린 PR이 있으면 새 PR을 만들지 않는다"
   },
+  "_safety_verification_note": "specified = 규칙 파일에 명세만 있음. dry_run_target = T-OP-00 모의 실행기로 규칙 전이를 시험할 대상. real_executor_required = T-OP-09에서 실제 CLI·작업 트리·원격으로 검증해야 함. 어느 장치에도 '검증됨'을 쓰지 않는다. 검증 결과는 T-OP-00·T-OP-09의 보고서에만 적는다",
   "safety_verification_status": {
-    "_meaning": "specified = 규칙 파일에 명세만 있음. dry_run_target = T-OP-00 모의 실행기로 규칙 전이를 시험할 대상. real_executor_required = T-OP-09에서 실제 CLI·작업 트리·원격으로 검증해야 함. '검증됨'은 이 파일에 쓰지 않는다. 검증 결과는 T-OP-00·T-OP-09의 보고서에만 적는다",
     "fencing_token_rejects_late_write": "real_executor_required",
     "fencing_token_rejects_late_result_envelope": "real_executor_required",
     "lease_isolation_worktree": "real_executor_required",

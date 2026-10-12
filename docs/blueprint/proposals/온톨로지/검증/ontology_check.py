@@ -9,6 +9,7 @@
 사용: python3 -I ontology_check.py <runner 실행 파일>
 """
 import copy
+import hashlib
 import json
 import os
 import re
@@ -22,20 +23,90 @@ ABOX = json.load(open(os.path.join(ROOT, "abox_cases.json"), encoding="utf-8"))
 ANCHORS = {"계약일", "보장개시일", "갱신일", "부활일", "결과보고일", "진단확정일", "청구일"}
 UNITS = {"day", "calendar_month", "calendar_year"}
 PRIVATE_PREFIX = ("contract:", "person:", "upload:")
+TERMS_ROLES = {"보통약관", "특약 약관", "별표"}
+STRUCTURAL = {"uses_edition", "realizes", "disclosure_of"}
+# 릴리스가 고정하는 구역. 확보 작업(acquisition_tasks)은 운영 상태라 릴리스 밖이다
+SECTIONS = ("raw_assets", "segments", "terms_editions", "terms_lineages", "clauses", "nodes", "assertions", "conflicts", "gaps", "premium_observations")
 
 
 # ---------- 릴리스와 현재 주장 ----------
-def current_assertions(abox, release_id):
+def _rule_files(items):
+    out = {}
+    for a in items:
+        if a.get("rule_path"):
+            path = os.path.join(ROOT, a["rule_path"])
+            out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
+    return out
+
+
+def content_hash(members_content, rule_files):
+    blob = json.dumps({"members": members_content, "rule_files": rule_files}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def _select(abox, members):
+    return {k: sorted([x for x in abox.get(k, []) if x["id"] in set(members.get(k, []))], key=lambda x: x["id"]) for k in SECTIONS}
+
+
+def freeze(abox, members):
+    """릴리스 고정: 구성원 ID 목록 + 규칙 파일 해시 + 내용 해시."""
+    sel = _select(abox, members)
+    rules = _rule_files(sel["assertions"])
+    return {"members": {k: sorted(members.get(k, [])) for k in SECTIONS}, "rule_files": rules, "content_sha256": content_hash(sel, rules)}
+
+
+def candidate_view(abox):
+    """릴리스 후보: 지금 저장된 전부. 아직 고정되지 않았으므로 K15를 검사하지 않는다."""
+    v = {k: copy.deepcopy(abox.get(k, [])) for k in SECTIONS}
+    v["acquisition_tasks"] = abox["acquisition_tasks"]
+    v["_integrity"] = []
+    for k in ("_rule_override", "_capability_override"):
+        if k in abox:
+            v[k] = abox[k]
+    return v
+
+
+def view(abox, release_id):
+    """고정 릴리스가 읽는 내용만 돌려준다. 목록 밖 주장은 나중에 추가돼도 보이지 않는다(K15)."""
     rel = next(r for r in abox["releases"] if r["id"] == release_id)
-    excluded = set(rel.get("assertions_exclude", []))
-    pool = [a for a in abox["assertions"] if a["id"] not in excluded]
+    members = rel["members"]
+    sel = _select(abox, members)
+    integrity = []
+    for k in SECTIONS:
+        have = {x["id"] for x in sel[k]}
+        for mid in members.get(k, []):
+            if mid not in have:
+                integrity.append(("K15", mid, f"{release_id} 구성원이 저장소에 없음"))
+    rules = _rule_files(sel["assertions"])
+    if rules != rel["rule_files"]:
+        integrity.append(("K15", release_id, "규칙 파일 해시가 고정값과 다름"))
+    elif content_hash(sel, rules) != rel["content_sha256"]:
+        integrity.append(("K15", release_id, "구성원 내용이 제자리에서 바뀜(내용 해시 불일치)"))
+    v = copy.deepcopy(sel)
+    v["acquisition_tasks"] = abox["acquisition_tasks"]
+    v["_integrity"] = integrity
+    for k in ("_rule_override", "_capability_override"):
+        if k in abox:
+            v[k] = abox[k]
+    return v
+
+
+def current_assertions(v):
+    pool = v["assertions"]
     superseded = {a["supersedes"] for a in pool if a.get("supersedes")}
     return [a for a in pool if a["id"] not in superseded], pool
 
 
-def clause_doc_kind(abox):
-    docs = {d["id"]: d["kind"] for d in abox["documents"]}
-    return {c["id"]: docs[c["doc"]] for c in abox["clauses"]}
+def terms_clauses(v, cur):
+    """약관 구획에 있고, 그 구획이 accepted realizes로 본문 판에 이어진 조항 → 판 ID."""
+    segs = {s["id"]: s for s in v["segments"]}
+    realized = {a["subject"]: a["object"] for a in cur if a["predicate"] == "realizes" and a["review_status"] == "accepted"}
+    out = {}
+    for c in v["clauses"]:
+        s = segs.get(c["segment"])
+        if s and s["doc_role"] in TERMS_ROLES and c["segment"] in realized:
+            out[c["id"]] = realized[c["segment"]]
+    return out
 
 
 # ---------- KCD 코드 소속(입력 단계) ----------
@@ -111,22 +182,24 @@ def membership(abox, cur, cat_id, code, trail):
 
 
 # ---------- 일관성 제약 ----------
-def check_constraints(abox, release_id):
-    cur, pool = current_assertions(abox, release_id)
-    kinds = clause_doc_kind(abox)
-    v = []
+def check_constraints(abox):
+    """abox는 view() 또는 candidate_view()의 결과."""
+    cur, pool = current_assertions(abox)
+    terms = terms_clauses(abox, cur)
+    v = list(abox.get("_integrity", []))
     # K1
     for a in cur:
         if a["criticality"] == "C0" and a["review_status"] == "accepted":
-            if not any(e["role"] == "basis" and kinds.get(e["ref"]) == "약관" for e in a["evidence"]):
-                if a["predicate"] == "uses_document" and any(e["role"] == "observation" for e in a["evidence"]):
-                    continue  # 판매본-문서 대응은 목록 관측이 근거(약관 내용 주장이 아님)
-                v.append(("K1", a["id"], "C0 accepted인데 약관 basis 근거가 없음"))
+            if a["predicate"] in STRUCTURAL:
+                if not any(e["role"] == "observation" for e in a["evidence"]):
+                    v.append(("K1", a["id"], "구조 주장에 관측 근거가 없음"))
+                continue
+            if not any(e["role"] == "basis" and e["ref"] in terms for e in a["evidence"]):
+                v.append(("K1", a["id"], "C0 accepted인데 약관 본문 판에 이어진 basis 근거가 없음"))
     # K2
     for a in cur:
         if a["predicate"] == "same_benefit_as":
-            refs = [e for e in a["evidence"] if e["role"] == "basis" and kinds.get(e["ref"]) == "약관"]
-            docs = {next(c["doc"] for c in abox["clauses"] if c["id"] == e["ref"]) for e in refs}
+            docs = {terms[e["ref"]] for e in a["evidence"] if e["role"] == "basis" and e["ref"] in terms}
             if len(docs) < 2:
                 v.append(("K2", a["id"], "same_benefit_as에 양쪽 약관 대조 근거가 없음"))
     # K3
@@ -164,7 +237,7 @@ def check_constraints(abox, release_id):
             if n["kind"] == "감액" and n.get("value") != "없음" and not n.get("applies_to"):
                 v.append(("K7", a["id"], "감액 적용 대상 없음"))
     # K8
-    blob = json.dumps({k: abox[k] for k in ("nodes", "assertions", "clauses", "documents")}, ensure_ascii=False)
+    blob = json.dumps({k: abox[k] for k in SECTIONS}, ensure_ascii=False)
     for p in PRIVATE_PREFIX:
         if p in blob:
             v.append(("K8", p, "공개 영역에 개인 영역 식별자"))
@@ -198,7 +271,7 @@ def check_constraints(abox, release_id):
             v.append(("K10", t, "같은 주장을 둘이 대체하는데 충돌 기록 없음"))
     # K11
     for cov in [n["id"] for n in abox["nodes"] if n["class"] == "CoverageOccurrence"]:
-        cap = abox.get("_capability_override", {}).get(cov)
+        cap = abox.get("_capability_override", {}).get(cov)  # 자체 시험용
         if cap == "enabled" and not simulate_allowed(abox, cur, cov)[0]:
             v.append(("K11", cov, "hold·충돌이 있는데 simulate enabled"))
     # K12
@@ -215,6 +288,16 @@ def check_constraints(abox, release_id):
         for k in ("conditions", "package_binding", "as_of"):
             if not p.get(k):
                 v.append(("K13", p["id"], f"가격 관측에 {k} 없음"))
+    # K14
+    segs = {s["id"]: s for s in abox["segments"]}
+    for a in cur:
+        if a["predicate"] == "realizes" and a["review_status"] == "accepted":
+            s = segs.get(a["subject"])
+            fp = (s or {}).get("fingerprint") or {}
+            if not (fp.get("rule") and fp.get("sha256")):
+                v.append(("K14", a["id"], "본문 지문 없는 구획으로 본문 판을 확정"))
+            elif not any(e["role"] == "observation" and e["ref"] == a["subject"] for e in a["evidence"]):
+                v.append(("K14", a["id"], "구획 관측 근거 없이 본문 판을 확정"))
     return v
 
 
@@ -269,7 +352,7 @@ def simulate_allowed(abox, cur, cov):
 def applicable_config(abox, cur, configs, contract_date):
     for sc in configs:
         for a in cur:
-            if a["subject"] == sc and a["predicate"] == "uses_document":
+            if a["subject"] == sc and a["predicate"] == "uses_edition":
                 t = a.get("time", {})
                 if (not t.get("valid_from") or t["valid_from"] <= contract_date) and (not t.get("valid_to") or contract_date <= t["valid_to"]):
                     return sc, a
@@ -314,8 +397,8 @@ QUESTIONS = [
 ]
 
 
-def resolve(abox, release, q):
-    cur, _ = current_assertions(abox, release)
+def resolve(abox, q):
+    cur, _ = current_assertions(abox)
     steps = []
     sc, link = applicable_config(abox, cur, q["configs"], q["facts"]["contract_date"])
     if not sc:
@@ -349,10 +432,18 @@ def run_engine(runner, jobs):
     return {r["case_id"]: r for r in json.loads(p.stdout)}
 
 
-def explain(abox, release, q, res, ev):
-    cur, _ = current_assertions(abox, release)
+def explain(abox, q, res, ev):
+    cur, _ = current_assertions(abox)
     clauses = {c["id"]: c for c in abox["clauses"]}
-    docs = {d["id"]: d for d in abox["documents"]}
+    segs = {s["id"]: s for s in abox["segments"]}
+    raws = {r["id"]: r for r in abox["raw_assets"]}
+    terms = terms_clauses(abox, cur)
+
+    def where(c):
+        s = segs[c["segment"]]
+        r = raws[s["raw_asset"]]
+        ed = terms.get(c["id"], "본문 판 미연결")
+        return f"{c['path']} · 판 {ed} · 구획 {s['id']}({s['doc_role']}) 지문 {s['fingerprint']['sha256'][:12]} · 원본 sha256 {r['sha256'][:12]} PDF {c['pdf_page']}쪽"
     lines = []
     if "blocked" in res:
         lines.append("결과: 이 상황의 지급액 확인 필요(계산하지 않음)")
@@ -385,12 +476,12 @@ def explain(abox, release, q, res, ev):
                     continue
                 seen.add((aid, e["ref"]))
                 c = clauses[e["ref"]]
-                lines.append(f"    {msg} ← 주장 {aid} → {c['path']} · {docs[c['doc']]['kind']} sha256 {docs[c['doc']]['sha256'][:12]} · PDF {c['pdf_page']}쪽")
+                lines.append(f"    {msg} ← 주장 {aid} → {where(c)}")
     lines.append("  실행 규칙의 근거:")
     for ref in ev["evidence_refs"]:
         c = clauses[ref]
         backing = [a["id"] for a in cur if any(e["ref"] == ref and e["role"] == "basis" for e in a["evidence"])]
-        lines.append(f"    근거 {ref} → 주장 {','.join(backing)} → {c['path']} · {docs[c['doc']]['kind']} sha256 {docs[c['doc']]['sha256'][:12]} · PDF {c['pdf_page']}쪽")
+        lines.append(f"    근거 {ref} → 주장 {','.join(backing)} → {where(c)}")
     if q.get("note_gap"):
         lines.append("  남은 공백: " + q["note_gap"])
     return lines
@@ -409,11 +500,14 @@ def outcome(res, ev):
 
 # ---------- 자체 시험(변조) ----------
 def mutations():
+    """제약마다 일부러 깨뜨린 저장소. 릴리스 후보(candidate_view)로 검사한다."""
     M = []
     def m(cid, f):
         a = copy.deepcopy(ABOX); f(a); M.append((cid, a))
     def set_a(a, aid, **kw):
         next(x for x in a["assertions"] if x["id"] == aid).update(kw)
+    def seg(a, sid):
+        return next(x for x in a["segments"] if x["id"] == sid)
     m("K1", lambda a: set_a(a, "a:lotte_cov_def", review_status="accepted"))
     m("K2", lambda a: a["assertions"].append({"id": "a:bad_same", "subject": "cov:hana_2_1", "predicate": "same_benefit_as", "object": "cov:hi_2_5", "criticality": "C0", "evidence": [{"ref": "hana_2601_3d#c_2_1_art1_1", "role": "basis"}], "value_state": "observed", "review_status": "accepted"}))
     m("K3", lambda a: next(n for n in a["nodes"] if n["id"] == "codes:c44").pop("edition"))
@@ -430,7 +524,88 @@ def mutations():
     m("K11", lambda a: a.__setitem__("_capability_override", {"cov:lotte_general_dx": "enabled"}))
     m("K12", lambda a: a["assertions"].append({"id": "a:wrong_scope", "subject": "cat:hana_cancer_x_breast_genital", "predicate": "scope_relation", "object": "cat:hi_cancer_x_similar", "value": "same_scope", "criticality": "C1", "evidence": [], "value_state": "derived", "review_status": "accepted"}))
     m("K13", lambda a: a.setdefault("premium_observations", []).append({"id": "p:hana_bundle", "krw": 16598, "priced_for": "sc:hana_2601_3d_v20260701", "conditions": None, "package_binding": "source_bundle", "as_of": None}))
+    m("K14", lambda a: seg(a, "seg:hana_r2_1").__setitem__("fingerprint", None))
     return M
+
+
+def with_bad_rule(mutated, fn):
+    rp = os.path.join(ROOT, "규칙", "hana-2601-3d-cancer-dx.json")
+    bad = json.loads(open(rp, encoding="utf-8").read())
+    bad["evidence_refs"].append("hana_2601_3d#c_2_1_art5")
+    tmp = os.path.join(ROOT, "규칙", "_tmp_bad.json")
+    open(tmp, "w", encoding="utf-8").write(json.dumps(bad, ensure_ascii=False))
+    try:
+        next(x for x in mutated["assertions"] if x["id"] == "a:hana_rule")["rule_path"] = "규칙/_tmp_bad.json"
+        return fn()
+    finally:
+        os.remove(tmp)
+
+
+def answer(v, runner, qid):
+    q = next(x for x in QUESTIONS if x["id"] == qid)
+    r = resolve(v, q)
+    ev = None
+    if "blocked" not in r:
+        ev = run_engine(runner, [{"case_id": q["id"], "rule_path": r["rule_path"], "inputs": r["inputs"]}])[q["id"]]
+    return outcome(r, ev)
+
+
+def release_tests(runner):
+    """릴리스 고정(K15)과 문서 모델(원본·구획·본문 판) 시험. (이름, 통과, 설명)."""
+    out = []
+    frozen25 = next(r for r in ABOX["releases"] if r["id"] == "rel:case-r25")
+    n25 = len(frozen25["members"]["assertions"])
+    base_q1 = answer(view(ABOX, "rel:case-r25"), runner, "Q1")
+
+    # I1 나중에 추가된 주장은 과거 릴리스에 들어가지 않는다
+    a = copy.deepcopy(ABOX)
+    old = next(x for x in a["assertions"] if x["id"] == "a:hana_doc_link")
+    a["assertions"].append(dict(old, id="a:hana_doc_link_v2", supersedes="a:hana_doc_link", review_status="hold", hold_reason="reference_unresolved",
+                                correction_reason="출처 변경", _review_note="자체 시험: 릴리스 뒤에 들어온 정정"))
+    v25 = view(a, "rel:case-r25")
+    q1_old, q1_new = answer(v25, runner, "Q1"), answer(candidate_view(a), runner, "Q1")
+    ok = len(v25["assertions"]) == n25 and not check_constraints(v25) and q1_old == base_q1 and q1_new == {"kind": "blocked"}
+    out.append(("I1 새 주장 추가 후 r25", ok, f"r25 주장 {len(v25['assertions'])}개(고정 {n25}) · 위반 {len(check_constraints(v25))} · Q1 r25 {q1_old} · 후보 {q1_new}"))
+
+    # I2 구성원을 제자리에서 고치면 잡는다
+    a = copy.deepcopy(ABOX)
+    next(x for x in a["assertions"] if x["id"] == "a:hana_cov_def")["note"] = "제자리 수정"
+    vs = check_constraints(view(a, "rel:case-r25"))
+    out.append(("I2 구성원 제자리 수정", [x[0] for x in vs] == ["K15"], "; ".join(x[2] for x in vs) or "못 잡음"))
+
+    # I3 구성원이 없어지면 잡는다
+    a = copy.deepcopy(ABOX)
+    a["assertions"] = [x for x in a["assertions"] if x["id"] != "a:hi_doc_link"]
+    vs = check_constraints(view(a, "rel:case-r25"))
+    out.append(("I3 구성원 삭제", bool(vs) and all(x[0] == "K15" for x in vs), "; ".join(x[2] for x in vs) or "못 잡음"))
+
+    # I4 규칙 파일을 제자리에서 바꾸면 잡는다
+    a = copy.deepcopy(ABOX)
+    vs = with_bad_rule(a, lambda: check_constraints(view(a, "rel:case-r25")))
+    out.append(("I4 규칙 파일 교체", any(x[0] == "K15" for x in vs), "; ".join(sorted({x[2] for x in vs if x[0] == "K15"})) or "못 잡음"))
+
+    # D1 같은 본문 판을 담은 다른 원본(재압축본·통합약관 구획·개별 특약 파일)
+    a = copy.deepcopy(ABOX)
+    seg0 = next(x for x in a["segments"] if x["id"] == "seg:hana_r2_1")
+    a["raw_assets"].append({"id": "raw:synthetic_repack", "class": "RawAsset", "observed_label": "자체 시험용 가상 원본(재압축본)", "org": "org:hana_nonlife", "sha256": "0" * 64, "source": "합성", "observed_at": None})
+    a["segments"].append(dict(seg0, id="seg:synthetic_repack_r2_1", raw_asset="raw:synthetic_repack", pages=[10, 11]))
+    a["assertions"].append({"id": "a:realizes_synthetic", "subject": "seg:synthetic_repack_r2_1", "predicate": "realizes", "object": "ted:hana_r2_1@2607", "criticality": "C0",
+                            "evidence": [{"ref": "seg:synthetic_repack_r2_1", "role": "observation"}], "value_state": "observed", "review_status": "accepted", "origin": "fixture"})
+    cv = candidate_view(a)
+    cur, _ = current_assertions(cv)
+    segs = {s["id"]: s for s in cv["segments"]}
+    raws_of = {segs[x["subject"]]["raw_asset"] for x in cur if x["predicate"] == "realizes" and x["object"] == "ted:hana_r2_1@2607"}
+    q1 = answer(cv, runner, "Q1")
+    ok = not check_constraints(cv) and len(raws_of) == 2 and q1 == base_q1
+    out.append(("D1 다른 원본이 같은 본문 판", ok, f"판 ted:hana_r2_1@2607을 담은 원본 {len(raws_of)}개 · 위반 {len(check_constraints(cv))} · Q1 {q1}"))
+
+    # D2 원본 해시가 같다는 이유만으로 다른 특약을 같은 판으로 묶지 않는다
+    a = copy.deepcopy(ABOX)
+    a["assertions"].append({"id": "a:realizes_by_hash", "subject": "seg:hana_annex12", "predicate": "realizes", "object": "ted:hi_r2_5@2608", "criticality": "C0",
+                            "evidence": [{"ref": "raw:hana_fd9c0133", "role": "observation"}], "value_state": "observed", "review_status": "accepted", "origin": "fixture"})
+    vs = check_constraints(candidate_view(a))
+    out.append(("D2 원본 해시만으로 판 확정", any(x[0] == "K14" for x in vs), "; ".join(x[2] for x in vs if x[0] == "K14") or "못 잡음"))
+    return out
 
 
 def main():
@@ -439,31 +614,39 @@ def main():
     p = out.append
     p("# 온톨로지 사례 검증 결과")
     p("")
+    p("## 릴리스 고정")
+    for rel in ABOX["releases"]:
+        v = view(ABOX, rel["id"])
+        counts = " · ".join(f"{k} {len(rel['members'][k])}" for k in SECTIONS if rel["members"][k])
+        p(f"- {rel['id']}: 내용 해시 {rel['content_sha256'][:16]} · 무결성 {'일치' if not v['_integrity'] else '불일치'} · {counts}")
+    p("")
+    res = {}
     for rel in ("rel:case-r24", "rel:case-r25"):
-        vs = check_constraints(ABOX, rel)
+        vs = check_constraints(view(ABOX, rel))
+        res[rel] = vs
         p(f"## 일관성 제약 · {rel}: 위반 {len(vs)}건")
         for x in vs:
             p(f"- {x[0]} {x[1]}: {x[2]}")
         p("")
-    vs25 = check_constraints(ABOX, "rel:case-r25")
-    vs24 = check_constraints(ABOX, "rel:case-r24")
+    vs24, vs25 = res["rel:case-r24"], res["rel:case-r25"]
     ok_r24 = [x[0] for x in vs24] == ["K1"] and vs24[0][1] == "a:lotte_cond_waiting_v1"
     ok_r25 = not vs25
+    v25 = view(ABOX, "rel:case-r25")
 
-    cur, _ = current_assertions(ABOX, "rel:case-r25")
-    sr = scope_relation(ABOX, cur, "cat:hana_cancer_x_breast_genital", "cat:hi_cancer_x_similar")
+    cur, _ = current_assertions(v25)
+    sr = scope_relation(v25, cur, "cat:hana_cancer_x_breast_genital", "cat:hi_cancer_x_similar")
     p(f"## 범위 관계(코드 집합에서 계산): 하나 2-1 범주 대 현대 2-5 범주 = {sr}")
     p("")
 
     jobs, resolved = [], {}
     for q in QUESTIONS:
-        r = resolve(ABOX, "rel:case-r25", q)
+        r = resolve(v25, q)
         resolved[q["id"]] = r
         if "blocked" not in r:
             jobs.append({"case_id": q["id"], "rule_path": r["rule_path"], "inputs": r["inputs"]})
     evs = run_engine(runner, jobs) if jobs else {}
     passed = 0
-    p("## 질문 → 지식 조회 → 규칙 실행 → 설명·근거")
+    p("## 질문 → 지식 조회 → 규칙 실행 → 설명·근거 (rel:case-r25)")
     for q in QUESTIONS:
         r = resolved[q["id"]]
         ev = evs.get(q["id"])
@@ -477,41 +660,41 @@ def main():
             p("- " + s)
         if ev:
             p(f"- 엔진 입력: {json.dumps(r['inputs'], ensure_ascii=False)}")
-        for line in explain(ABOX, "rel:case-r25", q, r, ev):
+        for line in explain(v25, q, r, ev):
             p("  " + line if line.startswith("  ") else "- " + line)
 
     p("")
     p("## 정정 이력 재현")
     for rel in ("rel:case-r24", "rel:case-r25"):
-        c, _ = current_assertions(ABOX, rel)
+        c, _ = current_assertions(view(ABOX, rel))
         a = next(x for x in c if x["object"] == "cond:lotte_waiting")
         p(f"- {rel}: 롯데 보장개시 조건 주장 {a['id']} review_status={a['review_status']}" + (f" · 대체 사유: {a['correction_reason']}" if a.get("correction_reason") else ""))
 
     p("")
-    p("## 자체 시험(제약마다 일부러 깨뜨린 A-box)")
+    p("## 자체 시험 1: 제약마다 일부러 깨뜨린 저장소(릴리스 후보로 검사)")
     st_ok = 0
     muts = mutations()
     for cid, mutated in muts:
         if mutated.get("_rule_override"):
-            rp = os.path.join(ROOT, "규칙", "hana-2601-3d-cancer-dx.json")
-            orig = open(rp, encoding="utf-8").read()
-            bad = json.loads(orig); bad["evidence_refs"].append("hana_2601_3d#c_2_1_art5")
-            tmp = os.path.join(ROOT, "규칙", "_tmp_bad.json")
-            open(tmp, "w", encoding="utf-8").write(json.dumps(bad, ensure_ascii=False))
-            next(x for x in mutated["assertions"] if x["id"] == "a:hana_rule")["rule_path"] = "규칙/_tmp_bad.json"
-            vs = check_constraints(mutated, "rel:case-r25")
-            os.remove(tmp)
+            vs = with_bad_rule(mutated, lambda: check_constraints(candidate_view(mutated)))
         else:
-            vs = check_constraints(mutated, "rel:case-r25")
+            vs = check_constraints(candidate_view(mutated))
         hit = [x for x in vs if x[0] == cid]
         others = [x for x in vs if x[0] != cid]
         good = bool(hit) and not others
         st_ok += good
         p(f"- {cid}: {'잡음' if good else '못 잡음'} · {hit[0][2] if hit else '-'}" + (f" · 다른 위반 {others}" if others else ""))
 
-    total_ok = ok_r24 and ok_r25 and sr == "narrower" and passed == len(QUESTIONS) and st_ok == len(muts)
     p("")
-    p(f"## 요약: r24 K1 위반 재현 {ok_r24} · r25 위반 0 {ok_r25} · 범위 관계 narrower {sr == 'narrower'} · 질문 {passed}/{len(QUESTIONS)} · 자체 시험 {st_ok}/{len(muts)} · 전체 {'통과' if total_ok else '실패'}")
+    p("## 자체 시험 2: 릴리스 고정과 문서 모델")
+    rt = release_tests(runner)
+    for name, good, msg in rt:
+        p(f"- {name}: {'통과' if good else '실패'} · {msg}")
+    rt_ok = sum(1 for _, g, _ in rt if g)
+
+    total_ok = ok_r24 and ok_r25 and sr == "narrower" and passed == len(QUESTIONS) and st_ok == len(muts) and rt_ok == len(rt)
+    p("")
+    p(f"## 요약: r24 K1 위반 재현 {ok_r24} · r25 위반 0 {ok_r25} · 범위 관계 narrower {sr == 'narrower'} · 질문 {passed}/{len(QUESTIONS)} · 제약 자체 시험 {st_ok}/{len(muts)} · 릴리스·문서 모델 시험 {rt_ok}/{len(rt)} · 전체 {'통과' if total_ok else '실패'}")
     print("\n".join(out))
     sys.exit(0 if total_ok else 1)
 

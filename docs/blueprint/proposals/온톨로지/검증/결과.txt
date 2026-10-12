@@ -1,13 +1,17 @@
 # 온톨로지 사례 검증 결과
 
+## 릴리스 고정
+- rel:case-r24: 내용 해시 38907152d069f649 · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
+- rel:case-r25: 내용 해시 8d0520e876438262 · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
+
 ## 일관성 제약 · rel:case-r24: 위반 1건
-- K1 a:lotte_cond_waiting_v1: C0 accepted인데 약관 basis 근거가 없음
+- K1 a:lotte_cond_waiting_v1: C0 accepted인데 약관 본문 판에 이어진 basis 근거가 없음
 
 ## 일관성 제약 · rel:case-r25: 위반 0건
 
 ## 범위 관계(코드 집합에서 계산): 하나 2-1 범주 대 현대 2-5 범주 = narrower
 
-## 질문 → 지식 조회 → 규칙 실행 → 설명·근거
+## 질문 → 지식 조회 → 규칙 실행 → 설명·근거 (rel:case-r25)
 
 ### Q1 PASS · 가입 2026-08-20, 2027-04-20 위암(C16) 진단, 처음 받는 진단금. 하나 2-1은?
 기대 {'kind': 'payable', 'krw': 5000000} · 실제 {'kind': 'payable', 'krw': 5000000}
@@ -15,25 +19,25 @@
 - 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
 - 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
 -   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
--   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 - 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2027-04-20", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
 - 결과: 5,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
     규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0 · 입력 해시 135e7decccf8
     입력 단계 판정(dx_in_category)의 근거:
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
     실행 규칙의 근거:
-      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_cov_def,a:hana_cond_reduction,a:hana_cond_count,a:hana_rule,a:hana_concept → 2-1 제1조① · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cov_def,a:hana_cat_inc,a:hana_cat_exc_premalignant → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
 
 ### Q2 PASS · 같은 계약, 2028-08-20(가입 후 2년) 진단
 기대 {'kind': 'payable', 'krw': 10000000} · 실제 {'kind': 'payable', 'krw': 10000000}
@@ -41,25 +45,25 @@
 - 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
 - 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
 -   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
--   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 - 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2028-08-20", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
 - 결과: 10,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
     규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0 · 입력 해시 634cbe8c5c3d
     입력 단계 판정(dx_in_category)의 근거:
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
     실행 규칙의 근거:
-      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_cov_def,a:hana_cond_reduction,a:hana_cond_count,a:hana_rule,a:hana_concept → 2-1 제1조① · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cov_def,a:hana_cat_inc,a:hana_cat_exc_premalignant → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
 
 ### Q3 PASS · 같은 계약, 2026-11-17 진단(계약일 포함 90일째, 보장개시 전날)
 기대 {'kind': 'not_payable'} · 실제 {'kind': 'not_payable'}
@@ -67,25 +71,25 @@
 - 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
 - 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
 -   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
--   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 - 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2026-11-17", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
 - 결과: 이 담보에서는 지급 대상이 아님
     규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0 · 입력 해시 be8af4d079af
     입력 단계 판정(dx_in_category)의 근거:
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
     실행 규칙의 근거:
-      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_cov_def,a:hana_cond_reduction,a:hana_cond_count,a:hana_rule,a:hana_concept → 2-1 제1조① · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cov_def,a:hana_cat_inc,a:hana_cat_exc_premalignant → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
     남은 공백: 제5조: 보장개시 전 진단이면 보장 무효·보험료 반환(계약 효과). rule-0.1은 계약 효과를 표현하지 못한다(G23)
 
 ### Q3b PASS · 같은 계약, 2026-11-18 진단(보장개시일 당일)
@@ -94,25 +98,25 @@
 - 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
 - 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
 -   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
 -   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
--   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
 - 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2026-11-18", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
 - 결과: 5,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
     규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0 · 입력 해시 0f7c32c28aaa
     입력 단계 판정(dx_in_category)의 근거:
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
     실행 규칙의 근거:
-      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_cov_def,a:hana_cond_reduction,a:hana_cond_count,a:hana_rule,a:hana_concept → 2-1 제1조① · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cov_def,a:hana_cat_inc,a:hana_cat_exc_premalignant → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
 
 ### Q4 PASS · 같은 계약, 2027-04-20 유방암(C50) 진단
 기대 {'kind': 'not_payable'} · 실제 {'kind': 'not_payable'}
@@ -120,25 +124,21 @@
 - 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
 - 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C50 → False
 -   C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
--   C50는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
--   C50는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
 -   C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← a:hana_cat_exc_bg
 - 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2027-04-20", "policy_end_date": "2046-08-20", "dx_in_category": false, "already_paid": false, "insured_amount_krw": 10000000}
 - 결과: 이 담보에서는 지급 대상이 아님
     규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0 · 입력 해시 c6461c124ad8
     입력 단계 판정(dx_in_category)의 근거:
-      C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      C50는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C50는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
     실행 규칙의 근거:
-      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_cov_def,a:hana_cond_reduction,a:hana_cond_count,a:hana_rule,a:hana_concept → 2-1 제1조① · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cov_def,a:hana_cat_inc,a:hana_cat_exc_premalignant → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
 
 ### Q5 PASS · 같은 계약, 2027-04-20 위 쪽 암이라고 들었지만 코드 모름
 기대 {'kind': 'undetermined', 'krw': 5000000} · 실제 {'kind': 'undetermined', 'krw': 5000000}
@@ -149,11 +149,11 @@
 - 결과: 판단 불가 · 대상이라면 5,000,000원 · 빠진 입력 ['dx_in_category']
     규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0 · 입력 해시 688e6f6cf1c2
     실행 규칙의 근거:
-      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_cov_def,a:hana_cond_reduction,a:hana_cond_count,a:hana_rule,a:hana_concept → 2-1 제1조① · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 약관 sha256 fd9c0133d852 · PDF 52쪽
-      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cov_def,a:hana_cat_inc,a:hana_cat_exc_premalignant → 2-1 제4조① · 약관 sha256 fd9c0133d852 · PDF 53쪽
-      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 약관 sha256 fd9c0133d852 · PDF 174쪽
-      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 약관 sha256 fd9c0133d852 · PDF 185쪽
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
 
 ### Q6 PASS · 가입 2026-08-20, 2027-04-20 위암(C16). 현대 2-5는?
 기대 {'kind': 'payable', 'krw': 10000000} · 실제 {'kind': 'payable', 'krw': 10000000}
@@ -166,14 +166,14 @@
 - 결과: 10,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
     규칙 hi2607-2-5-cancer-dx v1-ontology-case 해시 f07b679e1b4b (fixture_only) · 엔진 0.1.0 · 입력 해시 721d4d94cc19
     입력 단계 판정(dx_in_category)의 근거:
-      C16 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 2-5 제2조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      C16 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 별표2 · 약관 sha256 9401e98e8894 · PDF 1223쪽
-      C16는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 약관 sha256 9401e98e8894 · PDF 305쪽
+      C16 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      C16 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
+      C16는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
     실행 규칙의 근거:
-      근거 hi2607#c_2_5_art1 → 주장 a:hi_cov_def,a:hi_cond_no_reduction,a:hi_cond_count,a:hi_rule,a:hi_concept → 2-5 제1조 · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cov_def,a:hi_cat_inc,a:hi_cat_exc_premalignant → 2-5 제2조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 약관 sha256 9401e98e8894 · PDF 1223쪽
+      근거 hi2607#c_2_5_art1 → 주장 a:hi_concept,a:hi_cond_count,a:hi_cond_no_reduction,a:hi_cov_def,a:hi_rule → 2-5 제1조 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cat_exc_premalignant,a:hi_cat_inc,a:hi_cov_def → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
 
 ### Q7 PASS · 현대 2-5, 위 제자리암(D00.2)
 기대 {'kind': 'not_payable'} · 실제 {'kind': 'not_payable'}
@@ -186,14 +186,14 @@
 - 결과: 이 담보에서는 지급 대상이 아님
     규칙 hi2607-2-5-cancer-dx v1-ontology-case 해시 f07b679e1b4b (fixture_only) · 엔진 0.1.0 · 입력 해시 76e210cba89b
     입력 단계 판정(dx_in_category)의 근거:
-      D00.2 ∈ 유사암 — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_sim_insitu → 2-5 제2조②~⑥ · 약관 sha256 9401e98e8894 · PDF 305쪽
-      D00.2 ∈ 유사암 — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_sim_insitu → 별표11 · 약관 sha256 9401e98e8894 · PDF 1236쪽
-      D00.2는 암(유사암 제외) — 현대 Hi2607 판에서 제외 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 약관 sha256 9401e98e8894 · PDF 305쪽
+      D00.2 ∈ 유사암 — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_sim_insitu → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      D00.2 ∈ 유사암 — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_sim_insitu → 별표11 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex11_12(별표) 지문 119c3687b643 · 원본 sha256 9401e98e8894 PDF 1236쪽
+      D00.2는 암(유사암 제외) — 현대 Hi2607 판에서 제외 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
     실행 규칙의 근거:
-      근거 hi2607#c_2_5_art1 → 주장 a:hi_cov_def,a:hi_cond_no_reduction,a:hi_cond_count,a:hi_rule,a:hi_concept → 2-5 제1조 · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cov_def,a:hi_cat_inc,a:hi_cat_exc_premalignant → 2-5 제2조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 약관 sha256 9401e98e8894 · PDF 1223쪽
+      근거 hi2607#c_2_5_art1 → 주장 a:hi_concept,a:hi_cond_count,a:hi_cond_no_reduction,a:hi_cov_def,a:hi_rule → 2-5 제1조 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cat_exc_premalignant,a:hi_cat_inc,a:hi_cov_def → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
 
 ### Q8 PASS · 현대 2-5, 유방암(C50)
 기대 {'kind': 'payable', 'krw': 10000000} · 실제 {'kind': 'payable', 'krw': 10000000}
@@ -206,14 +206,14 @@
 - 결과: 10,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
     규칙 hi2607-2-5-cancer-dx v1-ontology-case 해시 f07b679e1b4b (fixture_only) · 엔진 0.1.0 · 입력 해시 721d4d94cc19
     입력 단계 판정(dx_in_category)의 근거:
-      C50 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 2-5 제2조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      C50 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 별표2 · 약관 sha256 9401e98e8894 · PDF 1223쪽
-      C50는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 약관 sha256 9401e98e8894 · PDF 305쪽
+      C50 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      C50 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
+      C50는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
     실행 규칙의 근거:
-      근거 hi2607#c_2_5_art1 → 주장 a:hi_cov_def,a:hi_cond_no_reduction,a:hi_cond_count,a:hi_rule,a:hi_concept → 2-5 제1조 · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cov_def,a:hi_cat_inc,a:hi_cat_exc_premalignant → 2-5 제2조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 약관 sha256 9401e98e8894 · PDF 305쪽
-      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 약관 sha256 9401e98e8894 · PDF 1223쪽
+      근거 hi2607#c_2_5_art1 → 주장 a:hi_concept,a:hi_cond_count,a:hi_cond_no_reduction,a:hi_cov_def,a:hi_rule → 2-5 제1조 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cat_exc_premalignant,a:hi_cat_inc,a:hi_cov_def → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
 
 ### Q9 PASS · 롯데 2604 1종 일반암진단비, 위암(C16)
 기대 {'kind': 'blocked'} · 실제 {'kind': 'blocked'}
@@ -221,11 +221,11 @@
 -   이 판매본의 약관 판이 확인되지 않음 → 계산하지 않음
 - 결과: 이 상황의 지급액 확인 필요(계산하지 않음)
     막은 것: a:lotte_doc_link:hold
+    공백 gap:L0: 롯데 2604 1종 판매본이 쓰는 약관 판 · 지식 상태 미확인 · 필요한 근거: 약관 원본
+      확보 작업 task:L1_collect: 공개 수집 · 보류
     공백 gap:L1: 롯데 2604 1종 판의 '일반암'에 위암(C16)이 드는가 · 지식 상태 일부 해소(요약서 기재) · 필요한 근거: 약관의 일반암 정의 조항과 참조 별표
       확보 작업 task:L1_collect: 공개 수집 · 보류
       확보 작업 task:L1_inquiry: 문의 · 초안 작성, 미발송
-    공백 gap:L0: 롯데 2604 1종 판매본이 쓰는 약관 판 · 지식 상태 미확인 · 필요한 근거: 약관 원본
-      확보 작업 task:L1_collect: 공개 수집 · 보류
 
 ### Q10 PASS · 하나 같은 이름 상품, 가입 2026-03-15(이전 판매본), 위암(C16)
 기대 {'kind': 'blocked'} · 실제 {'kind': 'blocked'}
@@ -240,8 +240,8 @@
 - rel:case-r24: 롯데 보장개시 조건 주장 a:lotte_cond_waiting_v1 review_status=accepted
 - rel:case-r25: 롯데 보장개시 조건 주장 a:lotte_cond_waiting_v2 review_status=hold · 대체 사유: 오류 정정: C0 근거는 약관(ADR-0014). 요약서 기재, 약관 대조 전
 
-## 자체 시험(제약마다 일부러 깨뜨린 A-box)
-- K1: 잡음 · C0 accepted인데 약관 basis 근거가 없음
+## 자체 시험 1: 제약마다 일부러 깨뜨린 저장소(릴리스 후보로 검사)
+- K1: 잡음 · C0 accepted인데 약관 본문 판에 이어진 basis 근거가 없음
 - K2: 잡음 · same_benefit_as에 양쪽 약관 대조 근거가 없음
 - K3: 잡음 · 코드 집합에 edition 없음
 - K4: 잡음 · narrower 순환
@@ -254,5 +254,14 @@
 - K11: 잡음 · hold·충돌이 있는데 simulate enabled
 - K12: 잡음 · 주장 same_scope ≠ 계산 narrower
 - K13: 잡음 · 가격 관측에 conditions 없음
+- K14: 잡음 · 본문 지문 없는 구획으로 본문 판을 확정
 
-## 요약: r24 K1 위반 재현 True · r25 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 자체 시험 13/13 · 전체 통과
+## 자체 시험 2: 릴리스 고정과 문서 모델
+- I1 새 주장 추가 후 r25: 통과 · r25 주장 37개(고정 37) · 위반 0 · Q1 r25 {'kind': 'payable', 'krw': 5000000} · 후보 {'kind': 'blocked'}
+- I2 구성원 제자리 수정: 통과 · 구성원 내용이 제자리에서 바뀜(내용 해시 불일치)
+- I3 구성원 삭제: 통과 · rel:case-r25 구성원이 저장소에 없음; 구성원 내용이 제자리에서 바뀜(내용 해시 불일치)
+- I4 규칙 파일 교체: 통과 · 규칙 파일 해시가 고정값과 다름
+- D1 다른 원본이 같은 본문 판: 통과 · 판 ted:hana_r2_1@2607을 담은 원본 2개 · 위반 0 · Q1 {'kind': 'payable', 'krw': 5000000}
+- D2 원본 해시만으로 판 확정: 통과 · 구획 관측 근거 없이 본문 판을 확정
+
+## 요약: r24 K1 위반 재현 True · r25 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 14/14 · 릴리스·문서 모델 시험 6/6 · 전체 통과

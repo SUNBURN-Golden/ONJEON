@@ -75,7 +75,7 @@
 </head>
 <body>
 <div class="wrap">
-  <p class="page-note"><b>화면 시안입니다.</b> 상품, 담보, 조건, 보험료는 2026-10-10에 받은 손해보험협회 비교공시에서 옮겼습니다. 현대해상은 약관도 함께 확인했습니다. 금액은 손으로 계산했고 계산 엔진에는 연결하지 않았습니다. 상품마다 금액이 어떤 근거로 나왔는지 금액 위에 적었습니다. 시안에서 연결하지 않은 버튼을 누르면 시안이라는 안내가 나옵니다.</p>
+  <p class="page-note"><b>화면 시안입니다.</b> 상품, 담보, 조건, 보험료는 2026-10-10에 받은 손해보험협회 비교공시에서 옮겼습니다. 현대해상은 약관도 함께 확인했습니다. 금액은 손으로 계산했고 계산 엔진에는 연결하지 않았습니다. 큰 금액 자리에는 명시한 가정에서 약관으로 계산한 결과만 올렸고, 공시 문구로 한 산술 예시는 근거 안에 두었습니다. 시안에서 연결하지 않은 버튼을 누르면 시안이라는 안내가 나옵니다.</p>
   <div class="row">
     <div class="screen" id="screen-cmp" data-testid="screen-cmp">
       <div class="top">
@@ -89,7 +89,7 @@
       <div class="assume" data-testid="common">
         <div class="assume-head"><span class="pill">공통 가정</span><button class="link-btn" data-proto>바꾸기</button></div>
         <ul>
-          <li>처음 받는 진단금</li>
+          <li data-testid="common-dx">약관상 진단 요건을 충족한 최초 진단이라고 가정</li>
           <li data-testid="common-amount">세 상품 모두 암 진단 담보 가입금액을 1,000만 원으로 맞춤(각 공시의 예시 가입금액과 같아요)</li>
         </ul>
       </div>
@@ -105,24 +105,25 @@
         <div class="prod" data-prod="lotte">
           <div class="prod-head">
             <div><div class="pname">암보험(2604) 1종</div><div class="pco">롯데손보 · 갱신형</div></div>
-            <div class="pamt"><div class="kind" data-testid="kind-lotte">계산 보류</div></div>
+            <div class="pamt"><div class="kind" data-testid="kind-lotte">이 상황의 지급액 확인 필요</div></div>
           </div>
-          <div class="reason" data-testid="reason-lotte">위암이 이 상품의 '일반암'에 드는지 확인한 공시에 기재가 없어요. 약관은 아직 확인하지 못했어요.</div>
+          <div class="reason" data-testid="reason-lotte">확인한 공시에 '일반암'의 정의가 기재되어 있지 않고, 약관은 아직 확인하지 못했어요.</div>
           <div class="rule">확인된 조건: 가입금액 지급, 계약일부터 1년 미만이면 50%<span class="tag">공시</span></div>
         </div>
         <div class="prod" data-prod="hana">
           <div class="prod-head">
             <div><div class="pname">하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601) 3대질병형</div><div class="pco">하나손보 · 갱신형</div></div>
-            <div class="pamt"><div class="kind" data-testid="kind-hana">공시 감액률을 적용한 예시</div><div class="v" data-testid="amt-hana">500만 원</div></div>
+            <div class="pamt"><div class="kind" data-testid="kind-hana">이 상황의 지급액 확인 필요</div></div>
           </div>
-          <div class="rule" data-testid="rule-hana">1년 미만 50% 감액<span class="tag">공시</span><span class="apply" data-testid="apply-hana">8개월 시점이라 이 예시에 적용했어요. 무엇부터 1년을 세는지는 확인한 공시에 기재가 없어요.</span></div>
+          <div class="reason" data-testid="reason-hana">'암'의 정의와 다른 적용 조건을 약관으로 확인하지 못했어요.</div>
+          <div class="rule" data-testid="rule-hana">확인된 조건: 가입금액 지급, 1년 미만이면 50%(무엇부터 세는지는 기재 없음)<span class="tag">공시</span></div>
         </div>
         <div class="prod" data-prod="hd">
           <div class="prod-head">
             <div><div class="pname">굿앤굿1540종합보험(Hi2607) 일반심사</div><div class="pco">현대해상 · 비갱신</div></div>
             <div class="pamt"><div class="kind" data-testid="kind-hd">약관 기준 계산</div><div class="v" data-testid="amt-hd">1,000만 원</div></div>
           </div>
-          <div class="rule" data-testid="rule-hd">가입 초기 감액 없음<span class="tag">약관</span><span class="apply" data-testid="apply-hd">보장 시작(계약일부터 90일 지난 다음날) 뒤의 진단이에요.</span></div>
+          <div class="rule" data-testid="rule-hd">적용한 조건: 위암은 지급 대상, 가입 초기 감액 없음, 보장 시작(계약일부터 90일 지난 다음날) 뒤의 진단<span class="tag">약관</span><span class="apply" data-testid="apply-hd">위의 공통 가정에서 계산했어요. 실제 계약에서 확인한 것은 아니에요.</span></div>
         </div>
       </div>
 
@@ -131,8 +132,8 @@
       <div class="legend" data-testid="legend">꼬리표는 자료의 출처예요. 그 조건이 이 상황에 적용되는지는 금액 위에 따로 적었어요.</div>
       <div data-testid="diff">
         <div class="item" data-item="target"><h3>위암이 지급 대상인지</h3>
-          <div class="cell"><span class="co">롯데손보</span><span class="val">확인 못 함<span class="tag">공시</span><small>'일반암'의 범위가 확인한 공시에 기재 없음</small></span></div>
-          <div class="cell"><span class="co">하나손보</span><span class="val">공시 문구상 해당<span class="tag">공시</span><small>암에서 유방암·생식기암·유사암 등을 뺀 범위</small></span></div>
+          <div class="cell"><span class="co">롯데손보</span><span class="val">확인 필요<span class="tag">공시</span><small>'일반암'의 정의가 확인한 공시에 기재 없음</small></span></div>
+          <div class="cell"><span class="co">하나손보</span><span class="val">확인 필요<span class="tag">공시</span><small>공시의 제외 목록(유방암·생식기암·유사암 등)에는 없지만, '암'의 정의는 약관 미확인</small></span></div>
           <div class="cell"><span class="co">현대해상</span><span class="val">해당<span class="tag">약관</span><small>위암(C16)은 별표2의 암이고 유사암이 아님</small></span></div>
         </div>
         <div class="item" data-item="reduce"><h3>가입 초기 감액</h3>
@@ -187,26 +188,28 @@
         <button class="fold" aria-expanded="false" data-fold="d-lotte">롯데손보 암보험(2604) 1종<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#66554A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <dl class="detail" id="d-lotte" hidden>
           <dt>공시 담보</dt><dd>일반암진단비(간편맞춤형Ⅱ)(갱신형): 보험가입금액(1천만원)(단, 계약일로부터 경과기간 1년 미만시 보험가입금액의 50%) · 지급사유 "일반암으로 진단확정된 경우"</dd>
-          <dt>계산을 보류한 이유</dt><dd>지급사유의 '일반암'이 어떤 암을 말하는지 확인한 공시에 기재가 없어요. 그래서 위암이 지급 대상인지 판단할 수 없었어요.</dd>
+          <dt>지급액을 확인 필요로 둔 이유</dt><dd>지급사유의 '일반암'이 어떤 암을 말하는지 확인한 공시에 기재가 없어요. 그래서 위암이 지급 대상인지 판단할 수 없었어요.</dd>
           <dt>확인하지 못한 것</dt><dd>'일반암'의 범위, 보장 시작일, 지급 횟수. 약관을 확보하지 못했어요. 공시의 보험료 조건은 "일반심사형"인데 담보명에는 "간편맞춤형Ⅱ"가 붙어 있어요.</dd>
           <dt>출처</dt><dd>손해보험협회 비교공시 PB22, 공시행 N03PB223229, 요약서 SEQ 91797, 2026-10-10 수집</dd>
         </dl>
         <button class="fold" aria-expanded="false" data-fold="d-hana">하나손보 하나더퍼스트 3.0.5<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#66554A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <dl class="detail" id="d-hana" hidden>
           <dt>공시 담보</dt><dd>암진단비(유방암및생식기암제외)(갱신형): 1천만원(최초 1회한, 1년미만 50%) · 지급사유 "보장개시일 이후에 암(유방암및생식기암제외)로 진단확정된 경우. 유방및생식기암, 기타피부암, 갑상선암, 제자리암, 경계성종양은 보장하지않음"</dd>
-          <dt>예시로 표시한 이유</dt><dd>공시 문구로는 위암이 지급 대상에 들어요. 하지만 '암'의 정의, 보장개시일, 1년을 세는 기준일은 약관을 확보하지 못해 확인하지 않았어요. 그래서 공시의 '1년미만 50%'를 산술로 적용한 예시로 표시했어요.</dd>
+          <dt>지급액을 확인 필요로 둔 이유</dt><dd>공시의 제외 목록에 위암이 없다는 것만으로는 지급 대상이라고 확인할 수 없어요. '암'의 정의, 보장개시일, 1년을 세는 기준일 같은 적용 조건은 약관을 확보하지 못해 확인하지 않았어요.</dd>
+          <dt>산술 예시</dt><dd data-testid="arith-hana">가입금액 1,000만 원에 공시된 감액률 50%를 적용하면 500만 원입니다. 이 위암 상황에 해당 규칙이 적용되는지는 아직 확인하지 못했습니다.</dd>
           <dt>출처</dt><dd>손해보험협회 비교공시 PB15, 공시행 N17PB150844, 요약서 SEQ 91339, 2026-10-10 수집</dd>
         </dl>
         <button class="fold" aria-expanded="false" data-fold="d-hd">현대해상 굿앤굿1540 일반심사<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#66554A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <dl class="detail" id="d-hd" hidden>
           <dt>공시 담보</dt><dd>암진단II(유사암제외) 1000만원 · 지급사유 "보장개시일 이후 암(유사암 제외)으로 진단확정된 경우"</dd>
+          <dt>계산 전제(가정)</dt><dd>약관상 진단 요건을 충족한 최초 진단, 공통 가정의 가입금액 1,000만 원. 실제 계약에서 확인한 사실이 아니에요.</dd>
           <dt>약관으로 확인한 적용</dt><dd>지급금액: 2-5 암진단Ⅱ(유사암제외)보장 특별약관 제1조. 최초 1회에 한해 "이 특약의 보험가입금액"을 지급하고, 금액을 줄이는 문구가 없어요(약관 305쪽).<br>지급 대상: 제2조①의 '암'은 별표2 악성신생물 분류표의 질병이고, 소화기관(C15~C26)에 위암(C16)이 들어 있어요(1223쪽). 유사암(C44·C73·제자리암·경계성종양)에는 해당하지 않아요.<br>보장 시작: 제3조①, 계약일부터 그 날을 포함해 90일이 지난 다음날.<br>감액: 특약 본문(305~306쪽)과 보통약관(125~154쪽)에 진단금을 줄이는 규정이 없어요. 상품안내 지급제한표(117쪽)에서도 이 특약의 '1년미만 보험금 감액여부'는 '-'예요. 같은 표의 다른 담보에는 50% 같은 비율이 적혀 있어요.</dd>
-          <dt>확인하지 못한 것</dt><dd>진단이 병리 검사 같은 진단확정 요건(제2조⑦)을 갖췄는지, 계약 전 알릴 의무 같은 실제 계약의 사정</dd>
+          <dt>가정으로 둔 것</dt><dd>진단이 병리 검사 같은 진단확정 요건(제2조⑦)을 갖췄는지, 계약 전 알릴 의무 같은 실제 계약의 사정은 확인하지 않고 가정으로 두었어요.</dd>
           <dt>출처</dt><dd>비교공시 PB14, 공시행 N09PB144456, 2026-10-10 수집 · 약관 sha256 9401e98e…, 사업방법서 sha256 272917da…</dd>
         </dl>
       </div>
 
-      <div class="general">공시와 약관에 따라 계산한 금액이에요. 실제 가입 조건과 지급은 보험회사 심사로 정해져요.</div>
+      <div class="general">금액은 위 가정에서 약관에 따라 계산한 것이에요. 실제 가입 조건과 지급은 보험회사 심사로 정해져요.</div>
       <div class="toast" role="status" aria-live="polite" hidden data-toast></div>
     </div>
   </div>
@@ -214,18 +217,14 @@
 <script>
 (function () {
   var data = {
-    '8m': { dates: '가입 2026.8.20 → 진단 2027.4.20', hana: '500만 원',
-            hanaApply: '8개월 시점이라 이 예시에 적용했어요. 무엇부터 1년을 세는지는 확인한 공시에 기재가 없어요.' },
-    '2y': { dates: '가입 2026.8.20 → 진단 2028.8.20', hana: '1,000만 원',
-            hanaApply: '2년 시점이라 이 예시에는 적용하지 않았어요. 무엇부터 1년을 세는지는 확인한 공시에 기재가 없어요.' }
+    '8m': { dates: '가입 2026.8.20 → 진단 2027.4.20' },
+    '2y': { dates: '가입 2026.8.20 → 진단 2028.8.20' }
   };
   var segs = document.querySelectorAll('[data-elapsed]');
   function render(k) {
     var d = data[k];
     segs.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-elapsed') === k)); });
     document.getElementById('dates').textContent = d.dates;
-    document.querySelector('[data-testid="amt-hana"]').textContent = d.hana;
-    document.querySelector('[data-testid="apply-hana"]').textContent = d.hanaApply;
   }
   segs.forEach(function (b) { b.addEventListener('click', function () { render(b.getAttribute('data-elapsed')); }); });
   document.querySelectorAll('[data-fold]').forEach(function (btn) {

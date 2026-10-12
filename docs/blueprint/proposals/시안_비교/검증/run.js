@@ -41,12 +41,14 @@ function check(name, cond, detail) { log.push((cond ? 'PASS ' : 'FAIL ') + name 
   // 상품별 금액 또는 이유가 같은 자리(오른쪽 위)에 있는지
   const pos = await page.evaluate(() => [...document.querySelectorAll('.prod')].map(p => { const r = p.getBoundingClientRect(), a = p.querySelector('.pamt').getBoundingClientRect(); return [Math.round(a.right - r.right), Math.round(a.top - r.top)]; }));
   check('세 상품 모두 금액·이유가 같은 자리(오른쪽 위)', pos.length === 3 && pos.every(p => p[0] === pos[0][0] && p[1] === pos[0][1]), JSON.stringify(pos));
-  check('금액 위 근거 종류: 보류 / 공시 감액률 예시 / 약관 기준 계산', (await txt('[data-testid="kind-lotte"]')) === '계산 보류' && (await txt('[data-testid="kind-hana"]')) === '공시 감액률을 적용한 예시' && (await txt('[data-testid="kind-hd"]')) === '약관 기준 계산');
-  check('금액: 하나 500만 원, 현대 1,000만 원, 롯데는 숫자 없음', (await txt('[data-testid="amt-hana"]')) === '500만 원' && (await txt('[data-testid="amt-hd"]')) === '1,000만 원' && (await page.locator('[data-prod="lotte"] .v').count()) === 0);
-  check('계산 보류 상품: 이유와 확인된 조건 표시', (await txt('[data-testid="reason-lotte"]')).includes('기재가 없어요') && (await page.locator('[data-prod="lotte"] .rule').innerText()).includes('확인된 조건'));
-  check('계산 보류 표시는 다른 근거 표시와 같은 색(강조색 아님)', await page.evaluate(() => { const c = s => getComputedStyle(document.querySelector(s)).color; return c('[data-testid="kind-lotte"]') === c('[data-testid="kind-hd"]') && c('[data-testid="kind-lotte"]') === 'rgb(102, 85, 74)'; }));
+  check('대표 결과: 롯데·하나는 지급액 확인 필요, 현대는 약관 기준 계산', (await txt('[data-testid="kind-lotte"]')) === '이 상황의 지급액 확인 필요' && (await txt('[data-testid="kind-hana"]')) === '이 상황의 지급액 확인 필요' && (await txt('[data-testid="kind-hd"]')) === '약관 기준 계산');
+  check('큰 금액 자리에는 현대해상 1,000만 원만', (await page.locator('[data-prod] .pamt .v').count()) === 1 && (await txt('[data-testid="amt-hd"]')) === '1,000만 원');
+  check('하나 500만 원은 첫 화면 어디에도 없음(근거 안 산술 예시로만)', !(await page.locator('#screen-cmp').innerText()).includes('500만 원'));
+  check('확인 필요 상품: 이유와 확인된 공시 조건', (await txt('[data-testid="reason-lotte"]')).includes('정의가 기재되어 있지 않고') && (await txt('[data-testid="reason-hana"]')).includes('약관으로 확인하지 못했어요') && (await page.locator('[data-prod="lotte"] .rule').innerText()).includes('확인된 조건') && (await txt('[data-testid="rule-hana"]')).includes('1년 미만이면 50%'));
+  check('확인 필요 표시는 계산 표시와 같은 색(강조색 아님)', await page.evaluate(() => { const c = s => getComputedStyle(document.querySelector(s)).color; return c('[data-testid="kind-lotte"]') === c('[data-testid="kind-hd"]') && c('[data-testid="kind-hana"]') === c('[data-testid="kind-hd"]') && c('[data-testid="kind-lotte"]') === 'rgb(102, 85, 74)'; }));
+  check('공통 가정: 약관상 진단 요건을 충족한 최초 진단', (await txt('[data-testid="common-dx"]')) === '약관상 진단 요건을 충족한 최초 진단이라고 가정');
+  check('현대 계산에 적용 조건과 "실제 계약에서 확인한 것은 아님"', (await txt('[data-testid="rule-hd"]')).startsWith('적용한 조건') && (await txt('[data-testid="apply-hd"]')).includes('실제 계약에서 확인한 것은 아니에요'));
   check('공통 가정에 가입금액 1,000만 원 맞춤 명시', (await txt('[data-testid="common-amount"]')).includes('가입금액을 1,000만 원으로 맞춤'));
-  check('결과를 바꾸는 조건이 금액 바로 아래', (await vis('[data-testid="rule-hana"]')) && (await vis('[data-testid="rule-hd"]')));
 
   const all = await page.locator('#screen-cmp').innerText();
   check('"최저가"·"추천" 같은 표시 없음', !/최저가|가장 싼|저렴|추천|1위/.test(all));
@@ -68,14 +70,13 @@ function check(name, cond, detail) { log.push((cond ? 'PASS ' : 'FAIL ') + name 
   await page.click('[data-elapsed="2y"]');
   check('2년: 버튼 상태', (await page.getAttribute('[data-elapsed="2y"]', 'aria-pressed')) === 'true' && (await page.getAttribute('[data-elapsed="8m"]', 'aria-pressed')) === 'false');
   check('2년: 진단일 2028.8.20', (await txt('#dates')).includes('2028.8.20'));
-  check('2년: 하나손보 1,000만 원', (await txt('[data-testid="amt-hana"]')) === '1,000만 원');
-  check('2년: 감액 규칙은 남고 적용만 바뀜', (await vis('[data-testid="rule-hana"]')) && (await txt('[data-testid="rule-hana"]')).startsWith('1년 미만 50% 감액') && (await txt('[data-testid="apply-hana"]')).includes('적용하지 않았어요'));
-  check('2년: 근거 종류 표시 그대로', (await txt('[data-testid="kind-hana"]')) === '공시 감액률을 적용한 예시' && (await txt('[data-testid="kind-lotte"]')) === '계산 보류');
+  check('2년: 결과 표시는 그대로(확인 필요 상품에 금액이 생기지 않음)', (await page.locator('[data-prod] .pamt .v').count()) === 1 && (await txt('[data-testid="kind-hana"]')) === '이 상황의 지급액 확인 필요');
+  check('2년: 하나 감액 조건은 그대로 보임', (await vis('[data-testid="rule-hana"]')) && (await txt('[data-testid="rule-hana"]')).includes('1년 미만이면 50%'));
   check('2년: 현대해상 그대로 1,000만 원', (await txt('[data-testid="amt-hd"]')) === '1,000만 원');
   await layout('2년');
   await shot('02_비교_2년.png');
   await page.click('[data-elapsed="8m"]');
-  check('8개월로 되돌림: 500만 원, 적용 문구 복귀', (await txt('[data-testid="amt-hana"]')) === '500만 원' && (await txt('[data-testid="apply-hana"]')).includes('적용했어요') && !(await txt('[data-testid="apply-hana"]')).includes('않았어요'));
+  check('8개월로 되돌림: 진단일 복귀', (await txt('#dates')).includes('2027.4.20'));
 
   // 근거 펼침
   for (const id of ['d-more', 'd-lotte', 'd-hana', 'd-hd']) {
@@ -83,6 +84,8 @@ function check(name, cond, detail) { log.push((cond ? 'PASS ' : 'FAIL ') + name 
     check(id + ' 펼침', (await vis('#' + id)) && (await page.getAttribute('[data-fold="' + id + '"]', 'aria-expanded')) === 'true');
   }
   check('전체 조건: 갱신·따로 보는 암·지급 횟수', (await page.locator('#d-more [data-item]').count()) === 3);
+  check('하나 근거 속 산술 예시 문장', (await txt('[data-testid="arith-hana"]')) === '가입금액 1,000만 원에 공시된 감액률 50%를 적용하면 500만 원입니다. 이 위암 상황에 해당 규칙이 적용되는지는 아직 확인하지 못했습니다.');
+  check('현대 근거에 계산 전제(가정)', (await page.locator('#d-hd dt', { hasText: '계산 전제(가정)' }).count()) === 1);
   check('근거마다 출처 있음', (await page.locator('.detail dt', { hasText: '출처' }).count()) === 3);
   await layout('근거 펼침');
   await page.click('[data-fold="d-lotte"]'); await page.click('[data-fold="d-hana"]');
@@ -93,11 +96,11 @@ function check(name, cond, detail) { log.push((cond ? 'PASS ' : 'FAIL ') + name 
   // 시안 전용 버튼
   const protos = await page.locator('[data-proto]').all(); let ok = 0;
   for (const el of protos) {
-    const before = await page.evaluate(() => [location.href, document.querySelector('[data-testid="amt-hana"]').textContent]);
+    const before = await page.evaluate(() => [location.href, document.getElementById('dates').textContent]);
     await el.click();
     const t = page.locator('[data-toast]');
     const shown = (await t.isVisible()) && (await t.innerText()) === '화면 시안이라 아직 연결되지 않았어요.';
-    const after = await page.evaluate(() => [location.href, document.querySelector('[data-testid="amt-hana"]').textContent]);
+    const after = await page.evaluate(() => [location.href, document.getElementById('dates').textContent]);
     if (shown && JSON.stringify(before) === JSON.stringify(after)) ok++;
   }
   check('시안 전용 버튼 ' + protos.length + '개: 누르면 시안 안내, 상태·주소 변화 없음', ok === protos.length, ok + '/' + protos.length);

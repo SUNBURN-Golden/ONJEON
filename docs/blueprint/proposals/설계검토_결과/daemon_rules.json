@@ -1,13 +1,13 @@
 {
-  "_status": "설계 담당 검토용 묶음. 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
+  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, 사용자 검토 F06·F07·F10·F11·F12 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
-  "_decided_by": "역할·전환 정책은 사용자 결정 2026-10-12(U-04, 운영 규칙 1~8). 상태 기계·신호·봉투·잠금은 설계 담당 판단(감리 대상)",
-  "schema": "onjeon-daemon-rules-0.1",
+  "_decided_by": "역할·전환 정책은 사용자 결정 2026-10-12(U-04, 운영 규칙 1~8). 상태 기계·사건·신호·봉투·잠금·펜싱은 설계 담당 판단(감리 대상)",
+  "schema": "onjeon-daemon-rules-0.2",
   "auto_merge": false,
   "daemon_identity": {
     "role": "messenger",
     "name": "Grokbot",
-    "principle": "정해진 규칙에 따라 호출·전달·상태 기록·인계만 한다. 규칙에 없는 판단은 담당자에게 반송한다"
+    "principle": "정해진 규칙에 따라 호출·전달·상태 기록·인계만 한다. 전이표에 없는 조건은 담당자에게 반송한다"
   },
   "roles": {
     "architect": {
@@ -59,7 +59,7 @@
     "reviewers": {
       "order": "builders와 같다",
       "exclude": "해당 PR 작성에 참여한 모든 계열(authors_families)",
-      "if_none": "merge_wait(reason=reviewer_unavailable). 병합을 기다린다"
+      "if_none": "merge_wait(reason=reviewer_unavailable). 리뷰어가 복귀하면 reviewer_available 사건으로 review_pending에 돌아간다"
     },
     "families": {
       "claude": [
@@ -80,234 +80,473 @@
         "Claude Code(GLM 5.3)"
       ]
     },
-    "_families_note": "Fable·Sonnet을 같은 claude 계열로 보는 것과 GLM을 실행 경로가 아니라 모델로 세는 것은 구현자 해석(자동개발_설정안 §3.3)이며 사용자 확인 대상이다. 그 전까지 데몬은 이 표를 그대로 쓴다(더 엄격한 쪽)",
+    "_families_note": "Fable·Sonnet을 같은 claude 계열로 보는 것과 GLM을 모델로 세는 것은 구현자 해석(자동개발_설정안 §3.3)이며 사용자 확인 대상이다. 그 전까지 더 엄격한 이 표를 쓴다",
     "merge": {
       "by": "human_only",
       "daemon_may_call_merge_api": false,
       "daemon_may_enable_auto_merge": false
     }
   },
+  "post_merge_states": [
+    "merged",
+    "audit_queued",
+    "done"
+  ],
+  "_post_merge_note": "선행 과제 충족은 state in post_merge_states 로 판정한다. 병합된 과제가 정기 감리 묶음(audit_queued)이나 done으로 바뀌어도 후속 과제는 시작할 수 있다(F12)",
+  "events": [
+    "prereqs_satisfied",
+    "builder_available",
+    "lease_granted",
+    "first_heartbeat",
+    "heartbeat_missed_twice",
+    "lease_expired",
+    "switch_signal",
+    "preserved",
+    "no_builder",
+    "result_pr_opened",
+    "result_wip_preserved",
+    "result_verdict_requested",
+    "result_failed_tests",
+    "result_out_of_scope",
+    "ci_failed",
+    "ci_passed",
+    "reviewer_assigned",
+    "reviewer_unavailable",
+    "reviewer_available",
+    "review_changes_requested",
+    "review_approved",
+    "head_sha_changed",
+    "audit_required",
+    "audit_not_required",
+    "auditor_available",
+    "auditor_unavailable",
+    "audit_pass",
+    "audit_changes_requested",
+    "decision_pending",
+    "decision_recorded",
+    "pr_merged_observed",
+    "impl_counter_incremented",
+    "batch_audit_pass",
+    "owner_resolved",
+    "owner_cancelled",
+    "fence_violation",
+    "secret_detected",
+    "budget_exhausted"
+  ],
   "states": {
-    "queued": "실행 가능. 선행 과제 merged, prereq_decisions 비어 있음 또는 해당 결정 기록 있음",
-    "blocked": "prereq_tasks 미병합 또는 prereq_decisions 미결. 사유 필드에 ID를 적는다",
-    "leased": "빌더에게 임대됨(lease_id, TTL). 아직 쓰기 전",
-    "building": "빌더가 브랜치에 쓰는 중. 하트비트 필요",
-    "handoff": "전환 신호 감지. 쓰기 중단·보존 진행 중",
+    "blocked": "선행 과제가 post_merge_states에 없거나 decision_gates.start 미결. 사유 필드에 ID",
+    "queued": "실행 가능",
+    "leased": "빌더에게 임대(lease_id, fencing_token, TTL). 쓰기 전",
+    "building": "빌더가 격리 작업 트리에서 쓰는 중. 하트비트 필요",
+    "handoff": "전환 신호 감지. 쓰기 중단·보존 중(이전 임대 토큰 폐기)",
     "paused_no_builder": "모든 빌더 불가. 작업 보존 후 대기",
     "pr_open": "PR 열림. CI 대기",
     "ci_failed": "CI 실패. 같은 작성자가 고친다(전환 금지)",
     "review_pending": "리뷰어 배정 대기",
     "review_in_progress": "리뷰어가 대상 SHA에 고정해 리뷰 중",
-    "changes_requested": "지적 있음. 같은 작성자가 수정. 새 SHA면 변경분 재리뷰",
+    "changes_requested": "지적 있음. 같은 작성자가 수정",
     "review_approved": "독립 리뷰 통과(SHA 고정)",
-    "audit_pending": "즉시 감리 대상. 감리 담당 응답 대기(병합 전)",
-    "merge_wait": "사람 병합 대기. 사유: ready | reviewer_unavailable | auditor_unavailable | decision_pending",
+    "audit_pending": "즉시 감리 대상. 감리 응답 대기(병합 전)",
+    "merge_wait": "사람 병합 대기. reason ∈ {ready, reviewer_unavailable, auditor_unavailable, decision_pending}",
     "merged": "사람이 병합함(데몬은 관측만)",
     "audit_queued": "정기 감리(10개 카운터) 묶음에 포함됨",
-    "done": "완료 기준 전부 확인 + 감리 통과 또는 정기 감리 대기 상태로 종료",
-    "returned": "데몬이 판단할 수 없어 담당자에게 반송. return_code 필수",
-    "cancelled": "담당자가 취소"
+    "done": "감리 통과로 종료(정기 감리 지적은 새 과제로 등록)",
+    "returned": "데몬이 판단할 수 없어 담당자에게 반송. return_code 필수. 담당자가 해소를 기록하면 queued로 재개",
+    "cancelled": "담당자 취소"
   },
   "transitions": [
     {
       "from": "blocked",
       "to": "queued",
-      "when": "all(prereq_tasks state==merged) and all(prereq_decisions in decisions_recorded)",
+      "event": "prereqs_satisfied",
+      "when": "all(prereq_tasks.state in post_merge_states) and all(decision_gates.start ⊆ decisions_recorded). 이미 완료된 선행(done 포함)도 충족으로 센다",
       "by": "daemon"
     },
     {
       "from": "queued",
       "to": "leased",
-      "when": "builder_available and no_conflict_lease(conflict_paths) and lock_acquired(task_id)",
+      "event": "lease_granted",
+      "when": "builder_available and no_conflict_lease(conflict_paths) and lock_acquired(task_id) and fencing_token = last_token(task_id)+1",
       "by": "daemon"
     },
     {
       "from": "leased",
       "to": "building",
-      "when": "instruction_envelope_delivered and first_heartbeat",
+      "event": "first_heartbeat",
+      "when": "instruction_envelope_delivered(token) and first_heartbeat(token)",
+      "by": "daemon"
+    },
+    {
+      "from": "leased",
+      "to": "queued",
+      "event": "lease_expired",
+      "when": "no first_heartbeat within heartbeat_s*2 → 임대 해제·토큰 폐기·프로세스 그룹 종료·자격 회수",
       "by": "daemon"
     },
     {
       "from": "building",
       "to": "handoff",
-      "when": "switch_signal in allowed_switch_signals",
+      "event": "switch_signal",
+      "when": "signal.source in allowed sources and signal.scope == model_provider(HTTP의 경우) — switch_policy 참조",
       "by": "daemon"
     },
     {
       "from": "building",
       "to": "returned",
-      "when": "result_envelope.touched_paths outside allowed_paths or result_envelope.verdict_requested or heartbeat_missing(lease_ttl) twice",
+      "event": "result_out_of_scope",
+      "when": "result_envelope.touched_paths ⊄ allowed_paths (R-01)",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "returned",
+      "event": "result_verdict_requested",
+      "when": "result_envelope.status == verdict_requested (R-02)",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "returned",
+      "event": "heartbeat_missed_twice",
+      "when": "heartbeat missing twice → 토큰 폐기·프로세스 그룹 종료·자격 회수 후 반송(R-08 계열)",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "building",
+      "event": "result_failed_tests",
+      "when": "result_envelope.status == failed_tests and consecutive_failed_tests < 3 → 같은 작성자 재임대(새 토큰). 3회면 returned(R-06)",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "returned",
+      "event": "result_failed_tests",
+      "when": "consecutive_failed_tests >= 3 (R-06)",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "returned",
+      "event": "fence_violation",
+      "when": "stale token write attempt observed (R-11). 늦은 쓰기는 거부되고 기록만 남는다",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "returned",
+      "event": "secret_detected",
+      "when": "비밀값 패턴 검출 (R-10) 즉시 중단",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "returned",
+      "event": "budget_exhausted",
+      "when": "예산 소진 (R-07)",
       "by": "daemon"
     },
     {
       "from": "handoff",
       "to": "leased",
-      "when": "preserved(wip_commit_sha pushed, handoff_record written) and next_builder_available",
+      "event": "preserved",
+      "when": "preserved(wip_commit_sha pushed with current token, handoff_record written) and previous token revoked and next_builder_available → 새 토큰 발급",
       "by": "daemon"
     },
     {
       "from": "handoff",
       "to": "paused_no_builder",
+      "event": "no_builder",
       "when": "preserved and no next builder",
       "by": "daemon"
     },
     {
       "from": "paused_no_builder",
       "to": "leased",
-      "when": "any builder_available (사람이 환경을 고친 뒤)",
+      "event": "builder_available",
+      "when": "any builder_available (사람이 환경을 고친 뒤) → 새 토큰",
       "by": "daemon"
     },
     {
       "from": "building",
       "to": "pr_open",
-      "when": "result_envelope.status==pr_opened and pr.body has task_id, authors, target_sha, test_log_ref",
+      "event": "result_pr_opened",
+      "when": "result_envelope.status == pr_opened and token == current and pr.body has task_id, authors, target_sha, test_log_ref",
       "by": "daemon"
     },
     {
       "from": "pr_open",
       "to": "ci_failed",
-      "when": "ci.conclusion==failure",
+      "event": "ci_failed",
+      "when": "ci.conclusion == failure",
       "by": "daemon"
     },
     {
       "from": "ci_failed",
       "to": "building",
-      "when": "same author re-leased (전환 금지: 운영 규칙 1)",
+      "event": "lease_granted",
+      "when": "같은 작성자 재임대(새 토큰). 전환 금지(운영 규칙 1)",
       "by": "daemon"
     },
     {
       "from": "pr_open",
       "to": "review_pending",
-      "when": "ci.conclusion==success",
+      "event": "ci_passed",
+      "when": "ci.conclusion == success",
       "by": "daemon"
     },
     {
       "from": "review_pending",
       "to": "review_in_progress",
-      "when": "reviewer_assigned (family not in authors_families)",
+      "event": "reviewer_assigned",
+      "when": "reviewer.family not in authors_families and reviewer available",
       "by": "daemon"
     },
     {
       "from": "review_pending",
       "to": "merge_wait",
-      "when": "no reviewer outside authors_families is available (reason=reviewer_unavailable)",
+      "event": "reviewer_unavailable",
+      "when": "no reviewer outside authors_families is available → reason = reviewer_unavailable",
+      "by": "daemon"
+    },
+    {
+      "from": "merge_wait",
+      "to": "review_pending",
+      "event": "reviewer_available",
+      "when": "reason == reviewer_unavailable and a reviewer outside authors_families became available",
       "by": "daemon"
     },
     {
       "from": "review_in_progress",
       "to": "changes_requested",
-      "when": "review_result.verdict==changes_requested",
+      "event": "review_changes_requested",
+      "when": "review_result.verdict == changes_requested and review_result.sha == pr.head_sha",
       "by": "reviewer"
     },
     {
       "from": "review_in_progress",
       "to": "review_approved",
-      "when": "review_result.verdict==approved and review_result.sha==pr.head_sha",
+      "event": "review_approved",
+      "when": "review_result.verdict == approved and review_result.sha == pr.head_sha",
       "by": "reviewer"
+    },
+    {
+      "from": "review_in_progress",
+      "to": "review_pending",
+      "event": "head_sha_changed",
+      "when": "pr.head_sha changed during review → 진행 중 리뷰 무효(R-04 기록), 변경분 재리뷰",
+      "by": "daemon"
     },
     {
       "from": "changes_requested",
       "to": "building",
-      "when": "same author re-leased",
+      "event": "lease_granted",
+      "when": "같은 작성자 재임대(새 토큰)",
       "by": "daemon"
     },
     {
       "from": "review_approved",
       "to": "review_pending",
-      "when": "pr.head_sha != review_result.sha (코드가 바뀜 → 변경분 재리뷰)",
+      "event": "head_sha_changed",
+      "when": "pr.head_sha != review_result.sha → 승인 무효(R-04 기록), 변경분 재리뷰(운영 규칙 4)",
       "by": "daemon"
     },
     {
       "from": "review_approved",
       "to": "audit_pending",
-      "when": "immediate_audit_required(pr)",
+      "event": "audit_required",
+      "when": "immediate_audit_required(pr) == true",
       "by": "daemon"
     },
     {
       "from": "review_approved",
       "to": "merge_wait",
-      "when": "not immediate_audit_required(pr) (reason=ready)",
+      "event": "audit_not_required",
+      "when": "immediate_audit_required(pr) == false and decision_gates.merge ⊆ decisions_recorded → reason = ready",
+      "by": "daemon"
+    },
+    {
+      "from": "review_approved",
+      "to": "merge_wait",
+      "event": "decision_pending",
+      "when": "immediate_audit_required(pr) == false and decision_gates.merge ⊄ decisions_recorded → reason = decision_pending",
       "by": "daemon"
     },
     {
       "from": "audit_pending",
       "to": "merge_wait",
-      "when": "audit_result.verdict==pass and audit_result.sha==pr.head_sha (reason=ready)",
+      "event": "audit_pass",
+      "when": "audit_result.verdict == pass and audit_result.sha == pr.head_sha and decision_gates.merge ⊆ decisions_recorded → reason = ready",
+      "by": "auditor"
+    },
+    {
+      "from": "audit_pending",
+      "to": "merge_wait",
+      "event": "decision_pending",
+      "when": "audit_result.verdict == pass and audit_result.sha == pr.head_sha and decision_gates.merge ⊄ decisions_recorded → reason = decision_pending",
       "by": "auditor"
     },
     {
       "from": "audit_pending",
       "to": "changes_requested",
-      "when": "audit_result.verdict==changes_requested",
+      "event": "audit_changes_requested",
+      "when": "audit_result.verdict == changes_requested and audit_result.sha == pr.head_sha",
       "by": "auditor"
     },
     {
       "from": "audit_pending",
       "to": "merge_wait",
-      "when": "auditor unavailable (reason=auditor_unavailable)",
+      "event": "auditor_unavailable",
+      "when": "auditor and backup unavailable → reason = auditor_unavailable",
+      "by": "daemon"
+    },
+    {
+      "from": "audit_pending",
+      "to": "review_pending",
+      "event": "head_sha_changed",
+      "when": "pr.head_sha changed while audit pending → 감리 대상 무효, 변경분 재리뷰",
+      "by": "daemon"
+    },
+    {
+      "from": "merge_wait",
+      "to": "audit_pending",
+      "event": "auditor_available",
+      "when": "reason == auditor_unavailable and auditor (or backup) became available",
+      "by": "daemon"
+    },
+    {
+      "from": "merge_wait",
+      "to": "merge_wait",
+      "event": "decision_recorded",
+      "when": "reason == decision_pending and decision_gates.merge ⊆ decisions_recorded → reason = ready (사유 갱신)",
+      "by": "daemon"
+    },
+    {
+      "from": "merge_wait",
+      "to": "review_pending",
+      "event": "head_sha_changed",
+      "when": "pr.head_sha changed while waiting → 승인·감리 결과 무효(R-04 기록), 변경분 재리뷰",
       "by": "daemon"
     },
     {
       "from": "merge_wait",
       "to": "merged",
-      "when": "pr.merged==true observed (사람이 병합)",
+      "event": "pr_merged_observed",
+      "when": "pr.merged == true observed. 데몬은 병합하지 않는다. reason != ready 였다면 R-12 기록(사람이 대기 사유를 넘어 병합함)",
       "by": "human"
     },
     {
       "from": "merged",
       "to": "audit_queued",
-      "when": "pr is implementation PR → merged_impl_counter += 1",
+      "event": "impl_counter_incremented",
+      "when": "pr is implementation PR → merged_impl_counter += 1. docs-only PR은 done으로 바로",
+      "by": "daemon"
+    },
+    {
+      "from": "merged",
+      "to": "done",
+      "event": "impl_counter_incremented",
+      "when": "pr is docs-only (변경 경로가 docs/** 뿐 또는 label docs-only)",
       "by": "daemon"
     },
     {
       "from": "audit_queued",
       "to": "done",
-      "when": "audit_result for batch containing this PR == pass",
+      "event": "batch_audit_pass",
+      "when": "audit_result for the batch containing this PR recorded (pass, 또는 지적은 새 수정 과제로 등록)",
       "by": "auditor"
+    },
+    {
+      "from": "returned",
+      "to": "queued",
+      "event": "owner_resolved",
+      "when": "담당자가 return_code 해소를 기록(resolution_ref) → attempt += 1, 새 토큰으로 재개",
+      "by": "human"
+    },
+    {
+      "from": "returned",
+      "to": "cancelled",
+      "event": "owner_cancelled",
+      "when": "담당자 취소",
+      "by": "human"
     },
     {
       "from": "*",
       "to": "returned",
-      "when": "any condition not covered by this table",
+      "event": "unmapped_condition",
+      "when": "표에 없는 모든 조건 (R-03 등)",
       "by": "daemon"
     },
     {
       "from": "*",
       "to": "cancelled",
-      "when": "owner instruction",
+      "event": "owner_cancelled",
+      "when": "담당자 취소",
       "by": "human"
     }
   ],
   "switch_policy": {
+    "_scope_rule": "전환 신호는 빌더 CLI 자신의 모델 호출 상태 채널만 본다. 자식 프로세스 출력, 시험 로그, 수집 대상 사이트 응답, 저장소 API 응답은 보지 않는다(F11)",
+    "allowed_sources": [
+      "provider_http_response",
+      "runner_exit_code",
+      "runner_auth_probe",
+      "runner_version_probe"
+    ],
     "allowed_switch_signals": [
       {
         "id": "usage_limit",
         "detect": [
-          "http_status==429",
-          "stderr matches /(usage|rate) ?limit|quota|exceeded your/i",
-          "runner exit code documented as limit"
+          {
+            "source": "provider_http_response",
+            "match": "status == 429 or (status == 400 and error.type in provider_documented_quota_types)",
+            "scope": "model_provider"
+          },
+          {
+            "source": "runner_exit_code",
+            "match": "exit_code in runner_profile.limit_exit_codes (CLI별 05 §1b 확인표에 기록된 값만)",
+            "scope": "runner_self"
+          }
         ]
       },
       {
         "id": "auth_failure",
         "detect": [
-          "http_status in (401,403)",
-          "stderr matches /not (logged|signed) in|unauthorized|invalid (api )?key|expired token/i"
+          {
+            "source": "provider_http_response",
+            "match": "status in (401, 403)",
+            "scope": "model_provider"
+          },
+          {
+            "source": "runner_auth_probe",
+            "match": "auth status command reports not_authenticated or expired",
+            "scope": "runner_self"
+          }
         ]
       },
       {
         "id": "service_unavailable",
         "detect": [
-          "http_status>=500",
-          "connection refused/reset",
-          "3 consecutive timeouts with no output within timeout_s"
+          {
+            "source": "provider_http_response",
+            "match": "status >= 500 or connection_error, 3 consecutive within window_s",
+            "scope": "model_provider"
+          },
+          {
+            "source": "runner_exit_code",
+            "match": "exit_code in runner_profile.unavailable_exit_codes",
+            "scope": "runner_self"
+          }
         ]
       },
       {
         "id": "runner_missing",
         "detect": [
-          "command not found",
-          "version check fails"
+          {
+            "source": "runner_version_probe",
+            "match": "command not found or version probe non-zero",
+            "scope": "runner_self"
+          }
         ]
       }
     ],
@@ -317,13 +556,18 @@
       "review_findings",
       "audit_findings",
       "quality_dissatisfaction",
-      "slow_progress"
+      "slow_progress",
+      "child_process_stderr_text",
+      "target_site_http_error",
+      "repo_api_error"
     ],
+    "runner_profiles_note": "runner_profile.limit_exit_codes·unavailable_exit_codes·provider_documented_quota_types는 CLI별로 05 §1b에서 확인한 값만 넣는다. 미확인이면 비어 있고, 그 CLI는 provider_http_response·runner_auth_probe·runner_version_probe로만 전환한다",
     "handoff_steps": [
-      "쓰기 중단 확인(마지막 쓰기 시각 기록)",
-      "미커밋 변경을 같은 브랜치의 WIP 커밋으로 남기고 푸시(wip_commit_sha)",
+      "쓰기 중단 확인(마지막 쓰기 시각 기록), 현재 토큰 폐기 예약",
+      "미커밋 변경을 같은 브랜치의 WIP 커밋으로 남기고 현재 토큰으로 푸시(wip_commit_sha)",
+      "토큰 폐기·프로세스 그룹 종료·임대별 쓰기 자격 회수",
       "시험 결과 로그 위치·남은 작업 목록을 handoff_record에 적는다",
-      "다음 순위 빌더가 같은 브랜치·같은 SHA에서 시작한다",
+      "다음 순위 빌더가 같은 브랜치·같은 SHA에서 새 토큰으로 시작한다",
       "authors_families에 새 계열을 추가한다(리뷰 제외 갱신)"
     ],
     "no_silent_substitution": true
@@ -331,8 +575,8 @@
   "review_assignment": {
     "candidates": "builders 순서",
     "exclude_rule": "candidate.family in pr.authors_families → 제외",
-    "pin": "review_result.sha == pr.head_sha 여야 유효. 다르면 변경분 재리뷰",
-    "none_available": "merge_wait(reviewer_unavailable). 데몬은 리뷰를 대신하지 않는다",
+    "pin": "review_result.sha == pr.head_sha 여야 유효. 다르면 head_sha_changed 사건으로 변경분 재리뷰",
+    "none_available": "merge_wait(reviewer_unavailable). 복귀 시 reviewer_available 사건으로 재개. 데몬은 리뷰를 대신하지 않는다",
     "self_review_forbidden": true
   },
   "audit_triggers": {
@@ -340,7 +584,7 @@
       "counter": "merged_impl_counter",
       "every": 10,
       "scope": "그 10개 PR의 누적 영향",
-      "counts_only": "implementation PR(코드·스키마·시험 변경). 문서만 바꾼 PR은 세지 않는다(label docs-only 또는 변경 경로가 docs/** 뿐)"
+      "counts_only": "implementation PR(코드·스키마·시험 변경). docs-only PR은 세지 않는다"
     },
     "immediate_rules": [
       {
@@ -368,13 +612,13 @@
       "services/personal/**",
       "services/knowledge/release/**",
       "services/ai-review/src/review/**",
+      "services/criteria/**",
       "infra/db/**",
       "infra/r2/**",
       "tools/r2_budget.py",
-      "packages/schemas/ontology/tbox.json",
       "infra/ci/**"
     ],
-    "design_change_audit": "01~06 문서의 구조·계약을 바꾸는 PR, T-box(C-20) 변경, D-09·D-10·D-15 확정 시",
+    "design_change_audit": "01~07 문서의 구조·계약을 바꾸는 PR, T-box(C-20) 변경, D-09·D-10·D-15 확정 시, 과제 취소로 선행 목록을 바꿀 때",
     "stage_gate_audit": [
       "S0",
       "S1",
@@ -392,10 +636,12 @@
         "task_id",
         "attempt",
         "lease_id",
+        "fencing_token",
         "builder",
         "runner",
         "branch",
         "base_sha",
+        "worktree",
         "allowed_paths",
         "forbidden_paths",
         "inputs",
@@ -416,7 +662,8 @@
         "정본·토의 자료를 바꾸지 않는다",
         "비밀값을 출력하지 않는다",
         "판단이 필요하면 verdict_requested로 반송한다",
-        "병합·자동 병합 설정을 하지 않는다"
+        "병합·자동 병합 설정을 하지 않는다",
+        "푸시는 데몬을 통해서만 하며 봉투의 fencing_token을 함께 보낸다"
       ]
     },
     "result": {
@@ -425,6 +672,7 @@
         "task_id",
         "attempt",
         "lease_id",
+        "fencing_token",
         "builder",
         "runner",
         "status",
@@ -450,7 +698,8 @@
         "pr_number",
         "verdict_question",
         "handoff_record"
-      ]
+      ],
+      "acceptance": "fencing_token == current_token(task_id) 가 아니면 거부(R-11)"
     },
     "review_result": {
       "required": [
@@ -471,16 +720,26 @@
         "verdict",
         "report_ref"
       ]
+    },
+    "decision_record": {
+      "required": [
+        "decision_id",
+        "recorded_at",
+        "recorded_by",
+        "source_ref"
+      ],
+      "note": "사용자 결정의 기록. 데몬은 내용을 해석하지 않고 ID 존재만 본다"
     }
   },
   "checkpoint_and_resume": {
-    "state_store": "작업별 상태 파일(JSON, append-only 이벤트 로그 + 현재 상태 스냅샷). 비밀값 없음",
-    "write_before_act": "외부 호출(빌더 실행·PR 생성) 전에 의도 레코드를 먼저 쓴다. 호출 뒤 결과 레코드를 쓴다",
+    "state_store": "작업별 JSON: append-only 이벤트 로그 + 현재 상태 스냅샷 + 현재 fencing_token. 비밀값 없음",
+    "write_before_act": "외부 호출(빌더 실행·PR 생성·푸시) 전에 의도 레코드(토큰 포함), 뒤에 결과 레코드",
     "resume": [
-      "데몬 재시작 시 모든 임대를 읽는다",
+      "데몬 재시작 시 모든 임대와 토큰을 읽는다",
       "의도 레코드만 있고 결과 레코드가 없으면 외부 상태(브랜치·PR)를 조회해 결과를 복원한다",
-      "복원 불가면 임대를 해제하고 returned(resume_unresolved)로 둔다",
-      "브랜치의 WIP 커밋은 지우지 않는다"
+      "복원 불가면 임대를 해제(토큰 폐기·자격 회수)하고 returned(R-08)로 둔다",
+      "브랜치의 WIP 커밋은 지우지 않는다",
+      "returned 과제는 담당자의 owner_resolved 기록으로만 queued가 된다"
     ],
     "stop": "담당자 중단 지시 또는 예산 소진 시 새 임대를 만들지 않고 진행 중 임대는 하트비트 만료까지 둔다"
   },
@@ -488,23 +747,45 @@
     "lease": {
       "ttl_s": "[사용자 결정 필요] 기본 3600",
       "heartbeat_s": 300,
-      "renew": "하트비트마다 갱신. 두 번 놓치면 만료"
+      "renew": "하트비트마다 갱신. 두 번 놓치면 만료 → 토큰 폐기·프로세스 종료·자격 회수"
+    },
+    "fencing": {
+      "token": "lease_fencing_token: 과제별 단조 증가 정수. 임대마다 +1. 상태 저장소가 현재 값을 보관한다",
+      "checked_at": [
+        "push",
+        "pr_update",
+        "result_accept",
+        "handoff_preserve"
+      ],
+      "rule": "봉투·푸시·PR 갱신에 실린 토큰이 현재 토큰과 같을 때만 수락. 작으면 늦은 쓰기로 거부(R-11)하고 기록",
+      "on_lease_end": [
+        "terminate_process",
+        "revoke_write_credential",
+        "revoke_token",
+        "record_handoff"
+      ]
+    },
+    "isolation": {
+      "worktree": "임대마다 격리된 작업 트리(git worktree 또는 별도 클론, 경로에 lease_id 포함). 이전 임대의 트리는 읽기 전용으로 보존",
+      "push_path": "빌더는 원격에 직접 푸시하지 못한다. 데몬이 토큰 검사 뒤 푸시한다(임대별 단기 자격, 임대 종료 시 회수). 보호 브랜치 규칙이 빌더 계정의 직접 푸시를 막는다",
+      "pr_update": "PR 본문·라벨 갱신도 데몬만, 토큰 검사 뒤"
     },
     "idempotency_key": "task_id + attempt + base_sha. 같은 키의 지시 봉투는 다시 보내지 않는다",
-    "single_writer": "같은 브랜치에 임대는 하나. 파일 잠금(상태 저장소)으로 강제",
+    "single_writer": "같은 브랜치에 임대 하나(상태 저장소 파일 잠금)",
     "conflict_paths": "tasks.json의 conflict_paths가 겹치는 과제는 동시에 임대하지 않는다",
     "max_parallel_leases": "[사용자 결정 필요] 기본 2",
     "branch_naming": "task/<task_id>-a<attempt>",
     "pr_dedup": "같은 task_id의 열린 PR이 있으면 새 PR을 만들지 않는다"
   },
   "daemon_does": [
-    "상태 전이표에 있는 전이만 수행",
-    "지시 봉투 생성·전달",
-    "결과 봉투 수신·검증(필수 필드, 경로 범위)",
-    "CI·PR·리뷰·감리 결과 관측과 기록",
-    "전환 신호 판정(기계 검출만)",
+    "전이표에 있는 전이만 수행(사건 + 조건)",
+    "지시 봉투 생성·전달(토큰 포함)",
+    "결과 봉투 수신·검증(필수 필드, 경로 범위, 토큰)",
+    "CI·PR·리뷰·감리·결정 기록 관측과 기록",
+    "전환 신호 판정(허용 출처만)",
     "리뷰어·감리 배정(배제 규칙)",
-    "카운터·잠금·임대·멱등 키 관리",
+    "카운터·잠금·임대·토큰·멱등 키 관리",
+    "토큰 검사 뒤 푸시·PR 갱신",
     "인계 기록 보존",
     "반송"
   ],
@@ -516,12 +797,14 @@
     "범위·완료 기준 변경",
     "모델 대체",
     "allowed_paths·forbidden_paths 수정",
+    "결정 기록의 내용 해석(ID 존재만 본다)",
     "비밀값 전달·출력",
     "정본·토의 자료 수정",
     "외부 문의 발송",
     "배포",
     "R2 토큰 보유",
-    "요청에 없는 과제 생성"
+    "요청에 없는 과제 생성",
+    "자식 프로세스 출력·시험 로그·수집 대상 응답으로 전환 판정"
   ],
   "return_codes": [
     {
@@ -536,17 +819,17 @@
     },
     {
       "code": "R-03",
-      "when": "전환 신호가 allowed·forbidden 어느 목록에도 없음",
+      "when": "전환 신호가 허용·금지 어느 목록에도 없음 / 전이표에 없는 조건",
       "to": "user"
     },
     {
       "code": "R-04",
-      "when": "리뷰·감리 결과의 sha가 head_sha와 다름",
+      "when": "리뷰·감리 결과의 sha가 head_sha와 다름(기록만, 전이는 head_sha_changed로)",
       "to": "reviewer/auditor"
     },
     {
       "code": "R-05",
-      "when": "prereq_decisions에 적힌 결정 ID가 결정 기록에 없음",
+      "when": "decision_gates에 적힌 결정 ID가 결정 기록에 없음(사유 표시용. 전이는 blocked·decision_pending)",
       "to": "user"
     },
     {
@@ -561,23 +844,34 @@
     },
     {
       "code": "R-08",
-      "when": "재시작 복원 불가",
+      "when": "재시작 복원 불가 / 하트비트 2회 누락",
       "to": "user"
     },
     {
       "code": "R-09",
-      "when": "PR 본문 필수 항목 누락(task_id, authors, target_sha, test_log_ref)",
+      "when": "PR 본문 필수 항목 누락",
       "to": "builder (같은 작성자)"
     },
     {
       "code": "R-10",
       "when": "비밀값 패턴이 봉투·로그에 검출",
       "to": "user (즉시 중단)"
+    },
+    {
+      "code": "R-11",
+      "when": "펜싱 토큰이 현재보다 작은 쓰기·결과 봉투(늦은 쓰기). 거부하고 기록",
+      "to": "architect"
+    },
+    {
+      "code": "R-12",
+      "when": "merge_wait(reason != ready) 상태의 PR이 병합된 것을 관측",
+      "to": "user"
     }
   ],
   "secrets": {
     "daemon_holds": [
-      "빌더 CLI 인증은 각 CLI의 자체 저장소에만 둔다"
+      "빌더 CLI 인증은 각 CLI의 자체 저장소에만 둔다",
+      "임대별 단기 푸시 자격은 데몬이 발급·회수한다"
     ],
     "daemon_never_holds": [
       "R2 토큰",

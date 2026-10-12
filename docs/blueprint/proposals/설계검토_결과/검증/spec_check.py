@@ -326,7 +326,9 @@ def run(repo):
            "input-link-multiple-candidates": "link", "input-link-order-independent": "link",
            "late-result-no-state-change": "latewrite", "lease-guards-all-paths": "latewrite",
            "envelope-permission-rejects-missing": "gates", "price-raw-kept-comparison-gated": "consistency",
-           "reason-evidence-by-kind": "consistency"}
+           "reason-evidence-by-kind": "consistency",
+           "handoff-quiescent-before-preserve": "latewrite", "retry-new-idempotency-key": "latewrite",
+           "duplicate-delivery-noop": "latewrite", "input-link-multi-edition-config": "link"}
     have = {x for t in tasks.values() for x in t.get("required_test_ids", [])}
     for rid, fid in req.items():
         check(fid, f"G12 필수 시험 ID '{rid}'를 가진 과제가 있음", rid in have, "", kind="존재 검사")
@@ -436,9 +438,10 @@ def run(repo):
     check("latewrite", "G33 [R04②] 이전 임대의 늦은 결과는 상태를 바꾸지 않음(전이는 현재 임대 조건, 이전 임대 사건은 no-op)", not bad and bool(stale_noop), {"현재 임대 조건 없는 전이": bad, "늦은 결과 no-op": stale_noop})
     # R04③ 인계 순서: 보존 → 중단 → 토큰 폐기 → 다음 임대 발급
     seq = [st if isinstance(st, str) else st.get("id") for st in D.get("handoff_sequence", [])]
-    want = ["preserve", "stop", "revoke_token", "issue_next_lease"]
+    # 재검토 e02755a S02로 순서 변경: 쓰기를 멈추고(필요하면 강제 격리) 정지를 확인한 뒤 보존한다
+    want = ["stop", "isolate", "confirm_quiescent", "preserve", "revoke_token", "issue_next_lease"]
     pos = [seq.index(w) if w in seq else -1 for w in want]
-    check("latewrite", "G34 [R04③] handoff_sequence가 preserve → stop → revoke_token → issue_next_lease 순서", -1 not in pos and pos == sorted(pos), seq or "없음")
+    check("latewrite", "G34 [R04③·S02] handoff_sequence가 stop → isolate → confirm_quiescent → preserve → revoke_token → issue_next_lease 순서", -1 not in pos and pos == sorted(pos), seq or "없음")
     # R04④ 임대를 발급하는 모든 전이에 공통 가드
     guards = D.get("lease_guards", [])
     bad = [f"{x.get('from')}→leased ({x.get('event')})" for x in tr if x.get("to") == "leased" and "lease_guards" not in (x.get("when") or "") and x.get("guard") != "lease_guards"]
@@ -448,6 +451,14 @@ def run(repo):
     need = ("approved_head_sha", "base_sha", "merge_commit_sha", "integration_check")
     ok = not re.search(r"merged_sha\s*==\s*approved_sha", blob) and all(k in blob for k in need)
     check("wait", "G36 [R04⑤] merged_sha == approved_sha 비교 없음, 승인 head·base·병합 커밋·통합 검증 구분", ok, [k for k in need if k not in blob] or "비교식 남음" if not ok else "")
+    # S03 중복 전달과 재시도 구분: 키에 임대 세대, 임대 발급마다 세대 증가
+    conc = D.get("concurrency", {})
+    key = json.dumps(conc.get("idempotency_key", ""), ensure_ascii=False)
+    no_gen = [f"{x.get('from')}→leased ({x.get('event')})" for x in tr if x.get("to") == "leased"
+              and "lease_generation" not in (x.get("when") or "") + json.dumps(x.get("side_effects", ""), ensure_ascii=False)]
+    ok = "lease_generation" in key and bool(conc.get("duplicate_delivery")) and bool(conc.get("retry")) and not no_gen
+    check("latewrite", "G42 [S03] 멱등 키에 lease_generation, 중복 전달·재시도 정책 분리, 임대 발급 전이마다 세대 증가", ok,
+          {"키": key[:80], "duplicate_delivery": bool(conc.get("duplicate_delivery")), "retry": bool(conc.get("retry")), "세대 증가 없는 전이": no_gen})
     # R05 봉투에 권한 필드, 일반 금지와 정본 변경 예외의 일치
     req_fields = set(D.get("envelopes", {}).get("instruction", {}).get("required", []))
     check("gates", "G37 [R05] 지시 봉투 필수 필드에 real_data_allowed·canon_change_approval", {"real_data_allowed", "canon_change_approval"} <= req_fields, sorted({"real_data_allowed", "canon_change_approval"} - req_fields))

@@ -452,24 +452,41 @@ def resolve(abox, q):
     if not hits:
         steps.append("판매본: 가입일에 적용되는 판매본을 찾지 못함")
         return {"blocked": ["판매본 미확인"], "steps": steps}
-    if len(hits) > 1:
-        steps.append("판매본: 가입일에 적용되는 후보가 여럿 → 계산하지 않음(" + ", ".join(f"{sc}←{a['id']}" for sc, a in hits) + ")")
-        return {"blocked": ["판매본 후보 복수: " + ",".join(sc for sc, _ in hits)], "steps": steps}
-    sc, link = hits[0]
-    steps.append(f"판매본: {node(abox, sc)['label']} ← {link['id']}({link['value_state']}/{link['review_status']})")
-    if link["review_status"] != "accepted" or not link.get("object"):
-        steps.append(f"  이 판매본의 약관 판이 확인되지 않음 → 계산하지 않음")
-        return {"blocked": [link["id"] + ":" + link["review_status"]], "steps": steps, "config": sc}
-    ed = link["object"]
+    configs = sorted({sc for sc, _ in hits})
+    if len(configs) > 1:
+        # 모호함은 "판매 구성이 여럿"일 때다. 한 판매 구성이 여러 약관 판(보통약관·특약)을 쓰는 것은 정상이다(재검토 S01)
+        steps.append("판매본: 가입일에 적용되는 판매 구성이 여럿 → 계산하지 않음(" + ", ".join(configs) + ")")
+        return {"blocked": ["판매본 후보 복수: " + ",".join(configs)], "steps": steps}
+    sc = configs[0]
+    steps.append(f"판매본: {node(abox, sc)['label']}")
+    cov_eds = sorted({a["object"] for a in cur if a["subject"] == q["cov"] and a["predicate"] == "in_edition" and a["review_status"] == "accepted"})
+    used = {}
+    for _, a in hits:
+        used.setdefault(a.get("object"), []).append(a)
+    # 요청 담보가 정의된 판 중, 이 판매 구성이 가입일에 쓰는 판
+    cand = [ed for ed in cov_eds if ed in used]
+    unresolved = [a for ed, links in used.items() for a in links if ed is None or a["review_status"] != "accepted"]
+    if not cand:
+        if unresolved:
+            steps.append("  이 판매본의 약관 판이 확인되지 않음 → 계산하지 않음")
+            return {"blocked": [a["id"] + ":" + a["review_status"] for a in unresolved], "steps": steps, "config": sc}
+        steps.append(f"  요청한 담보 {q['cov']}가 이 판매본이 쓰는 약관 판 {sorted(k for k in used if k)}에 정의되어 있지 않음(담보의 판 {cov_eds or '없음'}) → 계산하지 않음")
+        return {"blocked": [f"{q['cov']}∉{sorted(k for k in used if k)}"], "steps": steps, "config": sc}
+    if len(cand) > 1:
+        steps.append(f"  요청한 담보가 이 판매본이 쓰는 판 여럿에 정의됨 {cand} → 계산하지 않음")
+        return {"blocked": [f"{q['cov']}: 판 후보 복수 {cand}"], "steps": steps, "config": sc}
+    ed = cand[0]
+    link = sorted(used[ed], key=lambda a: a["id"])[0]
+    if any(a["review_status"] != "accepted" for a in used[ed]):
+        bad = [a["id"] + ":" + a["review_status"] for a in used[ed] if a["review_status"] != "accepted"]
+        steps.append(f"  판 {ed} 연결 주장 중 승인되지 않은 것이 있음 → 계산하지 않음")
+        return {"blocked": bad, "steps": steps, "config": sc}
+    steps.append(f"  적용 약관 판: {ed} ← {', '.join(a['id'] for a in sorted(used[ed], key=lambda a: a['id']))}({link['value_state']}/{link['review_status']})")
     est = edition_status(abox, cur).get(ed, {"state": "identity_unconfirmed"})
     if est["state"] != "confirmed":
         steps.append(f"  약관 판 {ed}의 동일성이 확인되지 않음(근거 묶음 부족 또는 검수 없는 지문 차이) → 계산하지 않음")
         return {"blocked": [f"{ed}:identity_unconfirmed"], "steps": steps, "config": sc}
-    links = [a for a in cur if a["subject"] == q["cov"] and a["predicate"] == "in_edition" and a["review_status"] == "accepted"]
-    if [a["object"] for a in links] != [ed]:
-        steps.append(f"  요청한 담보 {q['cov']}가 이 판매본의 약관 판 {ed}에 정의되어 있지 않음(연결 {[a['object'] for a in links] or '없음'}) → 계산하지 않음")
-        return {"blocked": [f"{q['cov']}∉{ed}"], "steps": steps, "config": sc}
-    steps.append(f"  담보 연결: {q['cov']} ∈ {ed} ← {links[0]['id']}")
+    steps.append(f"  담보 연결: {q['cov']} ∈ {ed}")
     ok, why = simulate_allowed(abox, cur, q["cov"])
     steps.append(f"담보: {node(abox, q['cov'])['label']} · simulate {'enabled' if ok else 'blocked'}" + ("" if ok else " ← " + ", ".join(why)))
     if not ok:
@@ -810,6 +827,28 @@ def release_tests(runner):
     qs_rev = [dict(q, configs=list(reversed(q["configs"]))) for q in QUESTIONS if q["id"] in ("Q1", "Q10")]
     got = [outcome(resolve(cv, q), None)["kind"] if "blocked" in resolve(cv, q) else "ran" for q in qs_rev]
     out.append(("E4 후보 목록 순서 변경", "동작", got == ["ran", "blocked"] and rev[0][0]["kind"] == "payable", f"뒤집은 순서 Q1 {got[0]} · Q10 {got[1]} (원래 Q1 payable, Q10 blocked)"))
+
+    # S01 재검토(e02755a): 한 판매 구성이 여러 약관 판을 쓰는 정상 구성, 같은 연결의 근거 주장 추가는 막지 않는다
+    a = copy.deepcopy(ABOX)
+    hl = next(x for x in a["assertions"] if x["id"] == "a:hana_doc_link")
+    a["assertions"].append(dict(hl, id="a:hana_doc_link_more_evidence", _review_note="자체 시험: 같은 연결의 근거 주장 추가"))
+    r1 = run_all(candidate_view(a), runner)["Q1"][0]
+    a = copy.deepcopy(ABOX)
+    a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_main@2607", label="자체 시험용 보통약관 판", parts=[]))
+    hl = next(x for x in a["assertions"] if x["id"] == "a:hana_doc_link")
+    a["assertions"].append(dict(hl, id="a:synthetic_main_link", object="ted:synthetic_main@2607"))
+    a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_rider2@2607", label="자체 시험용 다른 특약 판", parts=[]))
+    a["assertions"].append(dict(hl, id="a:synthetic_rider2_link", object="ted:synthetic_rider2@2607", review_status="hold", hold_reason="reference_unresolved"))
+    cv = candidate_view(a)
+    r2 = run_all(cv, runner)["Q1"][0]
+    out.append(("S01 한 판매 구성의 여러 약관 판·같은 연결의 근거 추가(재검토 e02755a 재현)", "동작", r1 == base["Q1"][0] and r2 == base["Q1"][0],
+                f"근거 주장 추가 → Q1 {r1} · 보통약관 판 + 미확인 다른 특약 판 함께 연결 → Q1 {r2}(요청 담보와 무관한 판의 미확인은 막지 않음)"))
+    # S01b 요청 담보의 판 연결 자체가 미확인이면 막는다
+    a = copy.deepcopy(ABOX)
+    hl = next(x for x in a["assertions"] if x["id"] == "a:hana_doc_link")
+    a["assertions"].append(dict(hl, id="a:hana_doc_link_dup_hold", review_status="hold", hold_reason="reference_unresolved"))
+    r, = [resolve(candidate_view(a), next(q for q in QUESTIONS if q["id"] == "Q1"))]
+    out.append(("S01b 요청 담보의 판 연결에 미승인 주장이 섞임", "동작", "blocked" in r, f"blocked {r.get('blocked')} · 엔진 호출 0"))
 
     # P1 재검토 R06①: 조건이 빈 원시 가격 관측은 보존(위반 없음), 비교 자격을 주면 K13
     a = copy.deepcopy(ABOX)

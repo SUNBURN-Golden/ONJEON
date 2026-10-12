@@ -1,7 +1,7 @@
 {
-  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, ffbcaf6 사용자 검토 반영). 채택된 정본이 아니다. 데몬이 읽는 작업 명세 초안(실행하지 않음)",
+  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, ffbcaf6 사용자 검토와 9554c96 독립 재검토 R01~R06 반영). 채택된 정본이 아니다. 데몬이 읽는 작업 명세 초안(실행하지 않음)",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
-  "_target_sha": "ffbcaf6(사용자 검토 대상) → 2cdd663(수정판 1차) → 이 판(상세 검토서 F01~F12 대조)",
+  "_target_sha": "ffbcaf6(사용자 검토 대상) → 2cdd663 → 9554c96(독립 재검토 대상) → 이 판(R01~R06 대조)",
   "schema": "onjeon-tasks-0.3",
   "field_definitions": {
     "id": "T-<구역2자>-<번호>. CT contracts, DT data, KN knowledge, TW twin, PS personal, AP app·api, MB mobile, WB web·console, OP infra·ops, UX",
@@ -46,7 +46,7 @@
   "test_profiles": {
     "historical_fixture": {
       "what": "온톨로지 사례 A-box(r24·r25)와 규칙을 토의 자료 시점 그대로 읽는다. decision.by=fixture_assumption·origin=fixture·fixture_only를 허용한다",
-      "expected": "r24 K1 위반 1, r25 위반 0, 질문 11/11, 변이 15/15, I1~I7·D1~D7 통과(ontology_check.py 결과.txt)",
+      "expected": "r24 K1 위반 1, r25·r26 위반 0, 질문 11/11, 변이 15/15, I1~I7·D1~D9·E1~E4·P1 통과 21/21(ontology_check.py 결과.txt, 기준 릴리스 rel:case-r26)",
       "used_by": [
         "T-KN-01 골든",
         "CI design-specs"
@@ -57,9 +57,8 @@
       "what": "같은 입력을 서비스 적재기·릴리스 빌더에 넣는다. origin=fixture·fixture_assumption·fixture_only·environment=test ReviewDecision은 accepted·릴리스가 될 수 없다",
       "expected": "accepted 전부 거부, 릴리스 미생성(ONJ-KN-S-050), B1~B9 각 거부 사유 기록",
       "used_by": [
-        "T-KN-02",
-        "T-KN-04",
-        "T-KN-07"
+        "T-KN-04(profile-historical-vs-service)",
+        "T-KN-07(릴리스 거부)"
       ],
       "is_service_evidence": true
     },
@@ -1321,7 +1320,7 @@
   "tasks": [
     {
       "id": "T-OP-00",
-      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M27을 공용 전이·검증 코어로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
+      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M32를 공용 전이·검증 코어로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
       "zone": "infra·ops",
       "stage": "S0",
       "twin_axis": false,
@@ -1382,29 +1381,35 @@
         "python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all",
         "python3 -m unittest tools/tests/test_daemon_dry_run.py",
         "시험 decision-gate-merge-only: 모의 과제의 decision_gates.merge=[D-X], start=[] · D-X 미기록 → queued→leased→…→review_approved→merge_wait(decision_pending) 까지 진행되고 결정 기록 뒤 merge_wait(ready)가 된다. start만 보는 전이가 merge 결정을 보지 않는다",
-        "시험 stale-approval-invalidated: review_approved·audit_pending·merge_wait 각 상태에서 head_sha_changed 사건 → review_pending 으로 가고 옛 review_result·audit_result가 무효(R-04) 기록된다",
-        "시험 late-write-fenced: 임대 A(token 7) 전환 뒤 임대 B(token 8) 시작. A가 늦게 푸시·결과 봉투 제출 → token<8 로 거부(R-11), A 프로세스 그룹 종료·자격 회수 기록, B의 쓰기만 수락. 교체 전후 동시 쓰기 0건",
+        "시험 stale-approval-invalidated: review_approved·audit_pending·merge_wait(그리고 리뷰 중·지적 상태) 각 상태에서 head_sha_changed 사건 → pr_open 으로 가고(CI 재검사 뒤 변경분 재리뷰), 옛 review_result·audit_result가 무효(R-04) 기록된다. 전이표의 head_sha_changed 목적지는 pr_open 하나다",
+        "시험 late-write-fenced: 임대 A(token 7) 전환 뒤 임대 B(token 8) 시작. A가 늦게 푸시·결과 봉투 제출 → lease_id·token 불일치로 거부(late_envelope_rejected, R-11 기록), A 프로세스 그룹 종료·자격 회수 기록, B의 쓰기만 수락, B의 상태(building) 불변. 교체 전후 동시 쓰기 0건",
+        "시험 late-result-no-state-change(M28): 이전 임대 A(lease_id≠현재, token 7)의 결과 봉투·푸시·전환 신호가 뒤늦게 도착 → late_envelope_rejected(noop, R-11 기록만), 현재 과제(임대 B, building) 상태 전이 0건, fence_violation 미발생. 같은 내용을 현재 lease_id·token을 달고 보냈는데 펜싱 규칙(데몬 우회 푸시·자격 회수 뒤 쓰기)을 어기면 그때만 fence_violation→returned",
+        "시험 handoff-order(M29): switch_signal 뒤 기록 순서가 preserve(현재 토큰으로 WIP 푸시) → stop(프로세스 그룹 종료·자격 회수) → revoke_token → issue_next_lease(새 토큰)이고(handoff_sequence), revoke 뒤 옛 토큰의 봉투는 late_envelope_rejected, 새 토큰은 revoke 뒤에만 발급된다",
+        "시험 lease-guards-all-paths(M30): queued→leased, handoff→leased, paused_no_builder→leased, ci_failed→building, changes_requested→building, 시험 실패 뒤 재임대 각각에서 conflict_paths 충돌·잠금 실패·동시 임대 수 초과·예산 미예약·봉투 검증 실패 중 하나라도 있으면 임대가 발급되지 않는다(lease_guards). 통과하면 토큰이 +1 된다",
+        "시험 merge-observation-fields(M31): squash 병합으로 merge_commit_sha ≠ approved_head_sha 여도 head_sha_at_merge == approved_head_sha 이고 base_sha 가 승인 시점과 같으면 merged 이며 completion_facts에 approved_head_sha·base_sha·head_sha_at_merge·merge_commit_sha·integration_check 가 기록된다. 승인 뒤 head가 바뀐 채 병합되면 merged_invalid_approval(R-12)",
+        "시험 envelope-permission-rejects-missing(M32): (a) real_data_allowed 없는 지시 봉투 → envelope_validator 거부·발송 0건·returned(R-13) (b) 정본 변경 과제(어휘 정본 변경을 본뜬 T-MOCK-CANON, canon_change.required=true)에 canon_change_approval 없음 → R-13 (c) decision_ref가 decision_record에 없음 → R-13 (d) scope_paths에 allowed_paths 밖 경로 → R-13 (e) 올바른 승인 → 발송되고 scope_paths 안의 정본 수정이 R-01이 아님 (f) canon_change 없는 과제가 허용 경로에 든 정본 파일을 고치면 R-01 (g) real_data_allowed=false 봉투로 모의·로컬 작업은 진행된다",
         "시험 provider-scoped-switch: 자식 시험 로그에 'rate limit exceeded', 수집 대상 사이트 403 응답을 넣어도 전환 없음. 모델 제공자 HTTP 429(scope=model_provider)·실행기 종료 코드·인증 프로브 실패만 전환",
         "시험 post-merge-prereq: 선행 과제가 merged→audit_queued→done 으로 바뀐 뒤에도 후속 과제가 queued 가 된다(post_merge_states)",
         "시험 event-duplicate-noop(M21): 같은 ci_passed·pr_merged_observed 알림을 두 번 받아도 상태가 바뀌지 않고 noop 기록만 남는다(noop_events)",
         "시험 event-out-of-order(M22): review_approved 결과가 ci_passed보다 먼저 도착하면 보류 큐에 두었다가 순서가 맞을 때 적용하고, 맞지 않는 SHA면 무효(R-04). 전이표 밖 조건으로 반송하지 않는다",
         "시험 docs-pr-complete(M23): 변경 경로가 docs/** 뿐인 PR은 merged→done(docs_only)으로 가고 merged_impl_counter를 올리지 않는다",
         "시험 eleventh-pr-audit(M24): 구현 PR 10개 merged 뒤 audit_queued 묶음이 생기고, 11번째 PR은 새 묶음(카운터 1)에 들어가며 10번째 묶음의 감리 결과가 11번째 PR의 done을 막지 않는다",
-        "시험 mis-merge-not-done(M25): merge_wait(reason≠ready)·review_pending 등에서 병합이 관측되면 merged_invalid_approval 상태로 기록되고 post_merge_states에 들지 않아 후속 과제 선행으로 세지 않는다. done으로 가지 않는다",
+        "시험 mis-merge-not-done(M25): merge_wait(reason≠ready)·리뷰어 배정 전·리뷰 중 등에서 병합이 관측되면 merged_invalid_approval 상태로 기록되고 post_merge_states에 들지 않아 후속 과제 선행으로 세지 않는다. done으로 가지 않는다",
         "시험 budget-reserve-before-call(M26): 지시 봉투 전 예약 레코드가 없으면 호출이 나가지 않고, 예산 소진 뒤 새 임대가 생기지 않는다",
         "시험 hard-stop-heartbeating-job(M27): 중단 지시·예산 소진 뒤 하트비트가 계속 와도 hard_stop.grace_s 가 지나면 임대가 종료 처리되고 토큰이 폐기된다(모의)",
         "시험 switch-negative-test-output(M18a): 자식 시험 로그가 HTTP 429·'quota exceeded' 문자열을 출력해도 전환 신호가 발행되지 않는다",
         "시험 switch-negative-third-party-http(M18b): 수집 대상 사이트 403/503, 저장소 API 401 응답에도 전환 신호가 발행되지 않는다",
-        "시험 d02-mock-start-allowed(M10a): 모의 과제(T-KN-06 거울)가 decision_gates.start=[], real_data=[D-02]일 때 D-02 미기록이어도 queued→leased→building 까지 진행되고 지시 봉투에 real_data_allowed=false 가 실린다",
-        "시험 r2-local-work-allowed(M10b): 모의 과제(T-DT-01 거울)가 real_data=[D-04]일 때 로컬 객체 저장소 경로 작업은 진행되고 R2 쓰기 단계만 real_data_allowed=false 로 막힌다"
+        "시험 d02-mock-start-allowed(M10a): 모의 과제(AI 검수 실행기 과제를 본뜬 T-MOCK-REVIEW)가 decision_gates.start=[], real_data=[D-02]일 때 D-02 미기록이어도 queued→leased→building 까지 진행되고 지시 봉투에 real_data_allowed=false 가 실린다",
+        "시험 r2-local-work-allowed(M10b): 모의 과제(원본 보존 경로 과제를 본뜬 T-MOCK-ARCHIVE)가 real_data=[D-04]일 때 로컬 객체 저장소 경로 작업은 진행되고 R2 쓰기 단계만 real_data_allowed=false 로 막힌다"
       ],
       "done_criteria": [
-        "M1~M27 전부 기대 전이와 일치",
+        "M1~M32 전부 기대 전이와 일치",
         "병합 API·자동 병합 설정 호출 함수가 코드에 없다(정적 검사)",
         "네트워크·실제 CLI 호출이 없다",
         "가동 기능(스케줄러·실행기 연결)이 없다",
         "모의 실행기는 실제 실행기와 같은 전이·검증 코어(daemon_rules.execution_core)를 호출한다. 모의 결과만 맞춘 별도 로직이 없다",
-        "decision-gate-merge-only·stale-approval-invalidated·late-write-fenced·provider-scoped-switch·post-merge-prereq 시험이 각각 통과하고 보고서에 전이 열이 남는다"
+        "decision-gate-merge-only·stale-approval-invalidated·late-write-fenced·provider-scoped-switch·post-merge-prereq 시험이 각각 통과하고 보고서에 전이 열이 남는다",
+        "late-result-no-state-change·handoff-order·lease-guards-all-paths·merge-observation-fields·envelope-permission-rejects-missing 시험이 통과한다. 사건 봉투·가드·부수 효과·토큰 유효 시점이 daemon_rules.json과 같은 모의 코어에서 검사된다"
       ],
       "required_test_ids": [
         "decision-gate-merge-only",
@@ -1422,7 +1427,12 @@
         "switch-negative-test-output",
         "switch-negative-third-party-http",
         "d02-mock-start-allowed",
-        "r2-local-work-allowed"
+        "r2-local-work-allowed",
+        "late-result-no-state-change",
+        "handoff-order",
+        "lease-guards-all-paths",
+        "merge-observation-fields",
+        "envelope-permission-rejects-missing"
       ],
       "features": [],
       "parallel_ok": true,
@@ -1499,7 +1509,7 @@
       "tests": [
         "bash tools/daemon/runner_verify/run.sh --remote <시험용 원격> --report docs/vm_check/<날짜>/runner_verify.json",
         "시험 late-write-fenced(R1·R3, 실제 실행기): 만료된 임대 A의 실제 푸시가 보호 브랜치·회수 자격으로 원격에서 거부되고 R-11이 기록된다. A 전환 중 B 시작 시 두 프로세스가 동시에 쓰기 자격을 가진 시각 구간이 자격 발급·회수 로그상 없다",
-        "시험 late-result-rejected(R2): 만료된 임대 A의 결과 봉투가 토큰 불일치로 거부되고 상태 전이가 없다",
+        "시험 late-result-rejected(R2): 만료된 임대 A의 결과 봉투가 lease_id·토큰 불일치로 거부되고(late_envelope_rejected) 현재 임대의 상태 전이가 없다. 인계 순서(preserve → stop → revoke_token → issue_next_lease)가 실제 프로세스·원격 로그에서 그 순서로 나타난다",
         "시험 resume-after-interrupt(R4): 데몬 강제 종료 뒤 재시작이 외부 상태로 복원하거나 R-08. WIP 커밋 보존",
         "시험 duplicate-run-prevented(R5): 데몬 두 인스턴스 동시 기동 시 임대 하나, 봉투 하나",
         "시험 provider-scoped-switch(R6·R7, 실제 실행기): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움",
@@ -1662,7 +1672,15 @@
         "required": true,
         "what": "어휘 정본(vocabulary.json)과 생성 문서 VOCABULARY.md",
         "procedure": "BLUEPRINT §10.2: 새 값은 정본에 먼저 추가하는 단독 PR, 즉시 감리. 사용자 지시 뒤 병합",
-        "note": "경로 권한과 별개의 조건이다. 허용 경로에는 이 두 파일이 들어 있고 금지 경로에는 없다"
+        "approval": {
+          "envelope_field": "canon_change_approval{decision_ref, scope_paths}",
+          "scope_paths": [
+            "packages/schemas/vocabulary.json",
+            "docs/blueprint/VOCABULARY.md"
+          ],
+          "decision_ref": "사용자 지시의 decision_record ID(기록 전에는 봉투 미발송, R-13)"
+        },
+        "note": "경로 권한과 별개의 조건이다. 허용 경로에는 이 두 파일이 들어 있고 금지 경로에는 없다. 일반 금지(정본 변경 금지)의 유일한 예외는 봉투의 scope_paths다"
       },
       "allowed_paths": [
         "packages/schemas/vocabulary.json",
@@ -1702,7 +1720,8 @@
       "done_criteria": [
         "기존 값은 삭제·개명하지 않았다",
         "새 값마다 정의·화면 문구가 있다",
-        "생성 문서가 최신이다"
+        "생성 문서가 최신이다",
+        "이 과제의 지시 봉투는 canon_change_approval{decision_ref, scope_paths=[packages/schemas/vocabulary.json, docs/blueprint/VOCABULARY.md]}를 가진다. 승인 참조가 없거나 decision_record에 없으면 봉투가 나가지 않는다(R-13). 허용 경로에 두 파일이 있다는 사실은 승인이 아니다"
       ],
       "required_test_ids": [],
       "features": [
@@ -1714,7 +1733,7 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "immediate_audit": true,
-      "blocked_by": "없음. 정본 절차 안의 변경(canon_change 참조)",
+      "blocked_by": "없음. 정본 절차 안의 변경(canon_change 참조). 임대 발급은 canon_change_approval 검증을 통과해야 한다",
       "notes": "정본 변경 과제. 병합은 사용자 지시 후"
     },
     {
@@ -2070,12 +2089,13 @@
         "python3 -I tools/ci/check_deps.py",
         "python3 -I tools/ci/check_leak.py",
         "python3 -I tools/ci/check_leak.py --selftest",
-        "시험 bootstrap-clean-main: tools/ci/check_bootstrap.py — 깨끗한 main 클론에 과제 X의 선행 과제 산출물만 둔 상태에서 X의 tests 명령이 참조하는 crate·path가 모두 존재함을 tasks.json의 produces/consumes로 검사하고(spec_check G2와 같은 규칙), 표본 과제 하나(T-TW-01)를 실제로 그 상태에서 빌드·시험한다"
+        "시험 bootstrap-clean-main: tools/ci/check_bootstrap.py — tasks.json만 입력으로, 과제마다 tests 명령이 참조하는 crate·path와 done_criteria가 언급하는 과제 ID·크레이트가 자신 또는 선행 과제의 produces에 있는지 정적으로 검사한다(spec_check G2·G31과 같은 규칙). 빌드·실행은 하지 않는다. 실제 표본 빌드는 후속 통합 시험 과제(bootstrap-sample-build)로 분리"
       ],
       "done_criteria": [
         "금지 패턴을 넣은 자체 시험이 각각 의도한 이유로 실패한다",
         "의존 규칙 위반 import를 넣으면 실패한다",
-        "bootstrap-clean-main 통과. 공통 완료 기준의 누출·비노출 항목은 이 과제 이후 과제에만 적용된다(applies_after)"
+        "deps.json의 규칙 'AI 제공자 SDK 직접 의존은 services/ai-gateway 크레이트만'을 어기는 합성 Cargo.toml이 실패한다",
+        "bootstrap-clean-main 통과(정적 검사만). 공통 완료 기준의 누출·비노출 항목은 이 과제 이후 과제에만 적용된다(applies_after)"
       ],
       "required_test_ids": [
         "bootstrap-clean-main"
@@ -2093,6 +2113,87 @@
       "immediate_audit": false,
       "blocked_by": "없음",
       "notes": "CI 워크플로 파일(.github/workflows/**)은 구현자가 관리한다. 이 과제는 검사기와 규칙 파일만 만들고 워크플로 연결은 구현자에게 넘긴다"
+    },
+    {
+      "id": "T-CT-07",
+      "name": "부트스트랩 통합 시험: 깨끗한 main 클론에 선행 과제 산출물만 둔 상태에서 표본 과제(twin-runtime 골격)를 실제로 빌드·시험(검사 도구 작성과 분리한 후속 통합 시험)",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "final_gate": false,
+      "verification_kind": null,
+      "replaces_wp": [],
+      "inputs": [
+        "tasks.json produces/consumes",
+        "tools/ci/check_bootstrap.py(선행 과제 산출물)"
+      ],
+      "prereq_tasks": [
+        "T-CT-06",
+        "T-TW-01"
+      ],
+      "decision_gates": {
+        "start": [],
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
+      },
+      "canon_change": null,
+      "allowed_paths": [
+        "tools/ci/bootstrap_sample/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json",
+        "docs/blueprint/VOCABULARY.md"
+      ],
+      "produces": [
+        "path:tools/ci/bootstrap_sample/**"
+      ],
+      "consumes": [
+        "path:tools/ci/**",
+        "crate:onjeon-twin-runtime"
+      ],
+      "test_outputs_within_allowed": true,
+      "outputs": [
+        "bootstrap_sample/run.sh: 임시 클론 → 선행 과제 산출물만 체크아웃 → cargo build·test -p onjeon-twin-runtime → 결과 기록"
+      ],
+      "tests": [
+        "bash tools/ci/bootstrap_sample/run.sh --task T-TW-01",
+        "시험 bootstrap-sample-build: 깨끗한 클론에 T-TW-01의 선행 과제 산출물(onjeon-contracts, onjeon-ontology, 골든)만 둔 상태에서 onjeon-twin-runtime 이 빌드·시험되고, 선행 아닌 과제의 산출물을 하나 지워도 결과가 같다"
+      ],
+      "done_criteria": [
+        "bootstrap-sample-build 통과 로그",
+        "선행이 아닌 산출물에 기대지 않는다"
+      ],
+      "required_test_ids": [
+        "bootstrap-sample-build"
+      ],
+      "features": [],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "tools/ci/bootstrap_sample/**"
+      ],
+      "immediate_audit": false,
+      "blocked_by": "없음",
+      "notes": "R03 대응: 검사 도구(T-CT-06)와 후속 구현을 대상으로 한 통합 시험을 분리했다"
     },
     {
       "id": "T-OP-01",
@@ -2181,9 +2282,9 @@
       ],
       "inputs": [
         "온톨로지/tbox.json(onto-0.2)",
-        "온톨로지/검증/ontology_check.py(참조 구현)",
-        "검증/결과.txt(골든: 질문 11, 제약 변이 14, I1~I4, D1~D2)",
-        "02_구현계약 §1.2·C-26"
+        "온톨로지/검증/ontology_check.py(참조 구현: edition_status, resolve)",
+        "검증/결과.txt(골든, 기준 릴리스 rel:case-r26: 질문 11, 제약 변이 15, I1~I7, D1~D9, E1~E4, P1)",
+        "02_구현계약 §1.2·§1.3a·C-26"
       ],
       "prereq_tasks": [
         "T-CT-01"
@@ -2244,19 +2345,23 @@
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
-        "크레이트 API: load_tbox, check_constraints(view) → violations(K1~K16), view(release)·candidate_view, freeze(members) → {members, rule_files, content_sha256}, service_allowed(release, coverage, notices) → {allowed, notices[]}, membership(snapshot, cat, code, as_of) → Judgement, scope_relation(a,b,universe)",
+        "크레이트 API: load_tbox, check_constraints(view, profile) → violations(K1~K16), view(release)·candidate_view, freeze(members, input_stage_edition) → {members, rule_files, content_sha256, input_stage_edition}, service_allowed(release, coverage, notices) → {allowed, notices[]}, edition_status(view, edition) → {state ∈ {confirmed, identity_unconfirmed}, missing_parts[], mismatch[{part, kind ∈ {content_difference_candidate, not_comparable}}]}, membership(snapshot, cat, code, as_of) → Judgement, scope_relation(a,b,universe)",
         "schemas/ontology/tbox.json(onto-0.2 복사)",
-        "골든: 질문 11·변이 15·I1~I7·D1~D5(ontology_check.py onto-0.2 결과)"
+        "골든: 질문 11·변이 15·I1~I7·D1~D9·E1~E4·P1(ontology_check.py 결과.txt 21/21, rel:case-r26)"
       ],
       "tests": [
         "cargo test -p onjeon-ontology",
         "시험 edition-not-auto-by-fingerprint(골든 D3): realizes의 decision.by가 fingerprint_match이면 K14 위반. accepted는 review_decision(서비스) 또는 fixture_assumption(시험 전용)만",
-        "시험 edition-composition-annex(골든 D4·D5): 판의 구성(본문 + 참조 별표 + 참조 정의) 중 하나라도 다르거나 빠진 원본은 그 판을 실현하지 않는다(K16). 본문 지문만 같은 원본은 같은 판 후보가 아니다",
+        "시험 edition-composition-annex(골든 D4·D5·D8): 판의 구성(TermsEdition.parts: 본문 + 참조 별표 + 참조 정의, 부분마다 role·지문)과 그것을 입증하는 근거 묶음(그 판을 실현한다는 accepted realizes 전부, 원본 수와 무관)을 나눈다. 완전성은 근거 묶음 전체가 구성을 덮는지로 판단하고 원본 하나 단위로 요구하지 않는다(K16). 본문 지문만 같은 원본은 같은 판 후보가 아니고, 덮지 못한 부분이 있으면 같은 판으로 확정하지 않는다",
+        "시험 edition-bundle-split-files(골든 D5, 재검토 R01 재현): 같은 판의 본문과 별표12가 서로 다른 원본 파일에 나뉘어 있어도 두 구획의 realizes가 구성 전부를 같은 지문으로 덮으면 위반 0이고 Q1 결과가 같다",
+        "시험 edition-annex-missing-unconfirmed(골든 D8): 참조 별표를 확보하지 못한 판은 edition_status=identity_unconfirmed. 그 realizes가 accepted면 K16 위반, hold면 입력 단계가 blocked(identity_unconfirmed)이고 엔진 호출 0건. 다른 판으로 확정하지 않는다",
+        "시험 edition-ocr-normalization(골든 D9): 정규화 규칙이 다른 지문(fp-ocr-0.1 vs fp-0.1)은 비교 불가. 검수 결정 없이 같은 판으로 accepted면 K16 위반, decision{by=review_decision, covers=[규칙, 지문]}이 있으면 위반 0",
+        "시험 edition-annex-content-changed(골든 D4): 같은 정규화 규칙에서 별표 지문이 다르면 '내용 차이 후보'. 검수 결정 없이 같은 판으로 accepted면 K16 위반. 다른 판이라는 확정도 검수 결정(새 TermsEdition + realizes)만 한다",
         "시험 edition-repack-same(골든 D1): 재압축본(다른 원본 해시)이 구성 전부를 같은 지문으로 담으면 같은 판이고 Q1 결과가 같다",
         "시험 edition-integrated-vs-separate-file(골든 D6): 통합약관 속 구획과 개별 특약 파일이 같은 특약 판을 담는다(원본 3개, 위반 0). 같은 역할·같은 기간이라는 이유로 Conflict를 만들지 않는다",
         "시험 edition-one-rider-revised-in-integrated(골든 D7): 통합 파일 안 특약 하나만 개정되면 그 특약은 새 판(같은 계열), 다른 특약 판은 그대로. 기존 판에 잇는 realizes는 K16 위반, r25 결과 불변",
         "시험 release-future-supersedes-frozen(골든 I1): 릴리스 뒤 들어온 supersedes(미래의 정정)가 과거 릴리스의 결과·설명 11개를 바꾸지 않는다",
-        "시험 profile-historical-vs-service: 같은 사례 A-box를 (a) historical_fixture 프로필로 읽으면 r25 위반 0·질문 11/11(decision.by=fixture_assumption 허용), (b) service_conformance 프로필로 서비스 적재기에 넣으면 origin=fixture·fixture_assumption 때문에 accepted 전부 거부되고 릴리스가 만들어지지 않는다. 두 기대값을 한 시험 안에서 따로 보고한다"
+        "시험 profile-check-flags-fixture: 같은 사례 A-box에 check_constraints를 (a) historical_fixture 프로필로 돌리면 r26 위반 0·질문 11/11(decision.by=fixture_assumption 허용), (b) service_conformance 프로필로 돌리면 origin=fixture·fixture_assumption인 accepted 전부가 위반으로 나열된다. 라이브러리 수준 검사만. 실제 서비스 적재기·릴리스 빌더의 거부는 그 구현 과제의 시험(profile-historical-vs-service)"
       ],
       "done_criteria": [
         "r24에서 K1 위반 정확히 1건, r25에서 0건",
@@ -2264,7 +2369,12 @@
         "I2~I4: 제자리 수정·삭제·규칙 파일 교체가 K15로 잡힌다",
         "D1: 다른 원본의 구획이 같은 본문 판을 실현해도 Q1 결과가 같다",
         "D2: 원본 해시만 근거인 realizes가 K14로 잡힌다",
-        "D3·D4·D5: 지문 일치만으로 accepted 되는 realizes는 K14 위반, 본문 같고 참조 별표가 다르거나 빠지면 K16 위반",
+        "D3: 지문 일치만으로 accepted 되는 realizes는 K14 위반",
+        "D4: 같은 정규화 규칙에서 별표 지문이 다르면 내용 차이 후보로 K16(검수 결정 없이 같은 판 승인 불가)",
+        "D5: 본문·별표가 다른 원본에 나뉘어도 근거 묶음이 구성 전부를 덮으면 위반 0·Q1 동일",
+        "D8: 별표 미확보는 identity_unconfirmed(accepted면 K16, hold면 입력 단계 blocked·엔진 호출 0)",
+        "D9: 정규화 규칙이 다른 지문(OCR)은 비교 불가. decision.covers=[규칙, 지문]을 적은 검수 결정이 있을 때만 같은 판",
+        "지문은 검수의 근거이고 판 동일성(같은 판·다른 판)은 검수 결정이다. 코드는 자동 확정하지 않는다",
         "I5~I7: 참조 노드·적용 관계 교체 뒤에도 과거 릴리스 재현 동일, ReleaseNotice는 재현을 막지 않고 영향 담보의 서비스 사용만 제한",
         "공식 CodeSystem 없이 scope_relation이 not_comparable을 돌려준다",
         "DB·네트워크 의존이 없다"
@@ -2272,11 +2382,15 @@
       "required_test_ids": [
         "edition-not-auto-by-fingerprint",
         "edition-composition-annex",
+        "edition-bundle-split-files",
+        "edition-annex-missing-unconfirmed",
+        "edition-ocr-normalization",
+        "edition-annex-content-changed",
         "edition-integrated-vs-separate-file",
         "edition-repack-same",
         "edition-one-rider-revised-in-integrated",
         "release-future-supersedes-frozen",
-        "profile-historical-vs-service"
+        "profile-check-flags-fixture"
       ],
       "features": [
         "ontology"
@@ -2363,7 +2477,7 @@
       "done_criteria": [
         "픽스처의 모든 주장이 origin=fixture이고 규칙이 fixture_only다",
         "픽스처 원본 해시가 Git 고정 R2 관측 목록(archive_listing_raw.json)에 없음을 시험이 확인한다",
-        "서비스 적재기 거부 시험(B1~B3)은 T-KN-04, 릴리스 빌더 거부(B5)는 T-KN-07로 넘긴다"
+        "서비스 적재기 거부(B1~B3)와 릴리스 빌더 거부(B5)는 이 과제가 검사하지 않는다. 그 구현 과제의 시험(profile-historical-vs-service, fixture_rejection, release 거부)으로 넘긴다"
       ],
       "required_test_ids": [],
       "features": [
@@ -2448,13 +2562,15 @@
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
-        "게이트웨이 크레이트: provider trait, 호출 기록, 월·사용자 상한, 사용자 문서 본문 미저장"
+        "게이트웨이 크레이트: provider trait, 호출 기록, 월·사용자 상한, 사용자 문서 본문 미저장",
+        "시험 provider_sdk_only_here(cargo metadata 기반)"
       ],
       "tests": [
-        "cargo test -p onjeon-ai-gateway"
+        "cargo test -p onjeon-ai-gateway",
+        "cargo test -p onjeon-ai-gateway provider_sdk_only_here"
       ],
       "done_criteria": [
-        "다른 크레이트가 제공자 SDK를 직접 의존하면 의존 검사(T-CT-06)가 실패한다",
+        "이 과제 안의 시험 provider_sdk_only_here가 cargo metadata로 작업 공간의 다른 크레이트가 제공자 SDK를 직접 의존하지 않음을 검사한다(CI 의존 검사 규칙 파일에 같은 규칙을 두는 것은 의존 검사 과제의 몫)",
         "상한 초과 시 ONJ-AP-L-020과 기능 저하 플래그",
         "호출 기록에 프롬프트 본문·문서 본문이 없다"
       ],
@@ -2483,9 +2599,9 @@
       "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
-        "온톨로지 검증 resolve()·applicable_config()",
+        "온톨로지 검증 resolve()·applicable_config()·edition_status()(rel:case-r26, 골든 E1~E4)",
         "ADR-0014 §4",
-        "02_구현계약 C-08·C-26",
+        "02_구현계약 C-08·C-26·§1.7",
         "온톨로지/검증/runner/src/main.rs"
       ],
       "prereq_tasks": [
@@ -2545,20 +2661,32 @@
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
-        "config_select(snapshot, candidates, contract_date) → Selected|Blocked{assertion_id, status}",
+        "config_select(snapshot, candidates, contract_date) → Selected|Blocked{assertion_id, status}. 후보는 ID로 정렬해 순서와 무관. 적용 후보가 여럿이면 Blocked(multiple_candidates)",
+        "resolve_chain(snapshot, config, as_of, requested_cov) → Linked{edition, coverage, rule} | Blocked{reason ∈ {no_uses_edition, multiple_candidates, edition_identity_unconfirmed, cov_not_in_edition, no_rule}}: 판매 구성 → uses_edition(가입일 적용 기간) → edition_status=confirmed → in_edition(요청 담보) → 실행 규칙 순서로 승인된 연결만 따라간다. 요청이 넘긴 cov를 따로 신뢰하지 않는다",
         "input_stage::fill(rule.inputs_from_outside_dsl, facts, snapshot) → inputs + judgements[]",
         "CLI: stdin jobs → 엔진 결과 + judgements"
       ],
       "tests": [
         "cargo test -p onjeon-twin-runtime",
-        "cargo run -p onjeon-twin-runtime --bin case-runner < packages/ontology/tests/golden/jobs.json"
+        "cargo run -p onjeon-twin-runtime --bin case-runner < packages/ontology/tests/golden/jobs.json",
+        "시험 input-link-other-company(골든 E1, 재검토 R02 재현): 하나 판매 구성·가입일은 그대로 두고 요청 cov만 현대 담보(cov:hi_2_5)로 바꾸면 resolve_chain이 Blocked(cov_not_in_edition)이고 rule_assertion 없음, 엔진 호출 0건. 현대 규칙·입력이 반환되지 않는다",
+        "시험 input-link-other-edition(골든 E2): 같은 판매 구성에 다른 판의 담보를 요청하면 Blocked(cov_not_in_edition), 엔진 호출 0건",
+        "시험 input-link-multiple-candidates(골든 E3): 가입일에 적용 판매본 후보가 여럿이면 Blocked(multiple_candidates), 영향받는 결론 보류, 엔진 호출 0건",
+        "시험 input-link-order-independent(골든 E4): 후보 목록을 뒤집어도 Q1~Q10 결과·blocked 사유가 같다"
       ],
       "done_criteria": [
         "Q1~Q10 골든과 같은 입력 단계 판정·엔진 결과",
         "Q9·Q10에서 엔진이 호출되지 않는다",
-        "엔진 호출 전에 DB·네트워크 접근이 없다"
+        "엔진 호출 전에 DB·네트워크 접근이 없다",
+        "input-link-other-company·input-link-other-edition·input-link-multiple-candidates·input-link-order-independent 통과: 연결이 없거나 모호하면 영향받는 결론만 보류하고 엔진 호출 0건",
+        "edition_status가 confirmed가 아닌 판에서는 입력 단계가 계산하지 않는다"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "input-link-other-company",
+        "input-link-other-edition",
+        "input-link-multiple-candidates",
+        "input-link-order-independent"
+      ],
       "features": [
         "input-stage"
       ],
@@ -2836,6 +2964,7 @@
       "done_criteria": [
         "인용 문자열이 원문 좌표의 텍스트와 일치한다",
         "구획마다 쪽 범위·문서 역할·구획 규칙 판·지문(규칙 판 포함)이 있다",
+        "ClauseOccurrence ID는 clause:<segment_id>/<path_slug>#p<page>:<extraction_edition> 한 형식이고 같은 구획을 다른 추출기 판으로 재추출하면 새 ID가 된다(시험 clause-id-reextract-new)",
         "컨테이너에서 외부 네트워크 호출이 실패한다(I13)",
         "원문 발췌는 저장소에 커밋되지 않는다(시험 자료는 합성 PDF)"
       ],
@@ -2932,7 +3061,9 @@
       "tests": [
         "cargo test -p onjeon-knowledge store",
         "cargo test -p onjeon-knowledge fixture_rejection(service_conformance 프로필: 픽스처 A-box 적재 시 fixture_assumption·origin=fixture accepted 전부 거부)",
-        "cargo test -p onjeon-knowledge edition_conflict(통합약관 구획과 개별 특약 파일이 같은 판을 담을 때 Conflict가 생기지 않고, 동일 적용 범위에서 양립 불가한 주장만 Conflict가 된다)"
+        "cargo test -p onjeon-knowledge edition_conflict(통합약관 구획과 개별 특약 파일이 같은 판을 담을 때 Conflict가 생기지 않고, 동일 적용 범위에서 양립 불가한 주장만 Conflict가 된다)",
+        "시험 profile-historical-vs-service: 같은 사례 A-box를 (a) historical_fixture 프로필로 읽으면 r26 위반 0·질문 11/11(decision.by=fixture_assumption 허용), (b) service_conformance 프로필로 이 과제의 서비스 적재기에 넣으면 origin=fixture·fixture_assumption 때문에 accepted 전부 거부된다(B1~B3). 두 기대값을 한 시험 안에서 따로 보고한다. 릴리스 미생성은 릴리스 빌더 과제의 시험",
+        "시험 price-raw-kept-comparison-gated(골든 P1, 재검토 R06①): 조건·구성·기준일이 빈 원시 가격 관측이 저장되고(evidence·raw_amount·observed_at만 필수, missing_dimensions 기록) comparison_eligible=false다. comparison_eligible=true로 바꾸려면 조건·구성·기준일 전부와 review accepted가 필요하고(K13) 없으면 거부된다. 자격 없는 관측은 compare_price·정렬·예산 필터 후보에 들지 않는다"
       ],
       "done_criteria": [
         "주장은 수정 API가 없고 supersedes로만 바뀐다",
@@ -2940,9 +3071,13 @@
         "B2: origin=fixture인 accepted 삽입이 거부된다(DB 제약 재확인)",
         "B3: origin을 pipeline으로 고친 사본은 ReviewDecision 없음으로 거부된다",
         "제약 위반 집합은 후보 릴리스로 승격되지 않는다",
-        "공백 상태와 작업 상태가 독립 필드다"
+        "공백 상태와 작업 상태가 독립 필드다",
+        "원시 가격 관측 보존과 비교 자격 판정이 분리된다(price-raw-kept-comparison-gated)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "profile-historical-vs-service",
+        "price-raw-kept-comparison-gated"
+      ],
       "features": [
         "labeling",
         "public-knowledge-model"
@@ -4330,7 +4465,7 @@
       ],
       "tests": [
         "cargo test -p onjeon-criteria",
-        "시험 need-criteria-versioned: 기준 항목을 v1→v2로 정정하면 v1이 지워지지 않고 v2가 supersedes로 잇는다. 출처 없는 기준 판은 release에 들어가지 못한다. 기준 판이 '기본 필요액' 값을 담으면 D-08 기록 없이는 거부된다(T-KN-13 경로만)"
+        "시험 need-criteria-versioned: 기준 항목을 v1→v2로 정정하면 v1이 지워지지 않고 v2가 supersedes로 잇는다. 출처 없는 기준 판은 release에 들어가지 못한다. 기준 판이 '기본 필요액' 값을 담으면 D-08 기록 없이는 거부된다(기본값 후보 적재 과제의 경로만)"
       ],
       "done_criteria": [
         "need-criteria-versioned 통과",
@@ -5227,7 +5362,7 @@
         "cargo test -p onjeon-twin-runtime contract_twin"
       ],
       "done_criteria": [
-        "ambiguous·unmatched면 그 계약에 기대는 결론만 보류되고 공개 비교는 제공된다(T-TW-06 규칙)",
+        "ambiguous·unmatched면 그 계약에 기대는 결론만 보류되고 공개 비교는 제공된다(02 §1.6 결론별 의존 기록 규칙)",
         "최신 약관이 자동 적용되지 않는다",
         "공개 노드는 릴리스 고정 ID로만 참조(K8)"
       ],
@@ -5702,17 +5837,19 @@
         "cargo test -p onjeon-api need",
         "cargo test -p onjeon-criteria eval",
         "시험 need-flow-keep-addnone-hold-unknown: 실제 흐름(화면→API→기준 릴리스)에서 네 결과가 각각 나오는 입력 사례: (keep) 확인된 계약이 관심 상황을 이미 덮음, (no_add) 사용자 가정상 스스로 감당 가능하다고 입력, (hold) 결론을 바꾸는 입력이 비어 있음 → decisive_inputs 질문 1개, (unknown) 계약 판 미확인 → 그 계약에 기대는 이유만 unknown 표시. 네 경우 모두 점수·순위 없이 이유가 보이고 '추가 가입'이 기본 결론이 아니다",
-        "시험 need-result-reasons: (1) 모든 결과에 verdict와 이유 1개 이상. (2) 이유마다 기준 판 참조가 있고 그 판이 기준 릴리스에 있다. (3) 'no_add(추가 없음)'와 'keep(유지)'가 실제로 나오는 입력 사례가 있다. (4) 기준 판을 정정하면 지난 결과가 영향 목록에 잡힌다. (5) 종합 점수·순위가 응답에 없다. (6) 가족력만으로 review_add가 나오지 않는다"
+        "시험 reason-evidence-by-kind(재검토 R06③): 이유 종류별 근거를 검사한다. 사실 이유(statement_kind=fact) → assertion_refs가 릴리스 안 accepted 주장이어야 한다. 가정 이유(user_assumption) → user_assumption_ref가 개인 영역의 사용자 가정 판이어야 한다. 기준 평가 이유(criteria_eval) → criterion_version_ref가 기준 릴리스에 있고 criteria_application 승인분이어야 한다. 계산 결과 이유(calc_result) → eval_ref. 미확인 이유(unknown) → unknown_overlap 참조. 종류에 맞는 근거가 없는 이유는 응답에 실리지 않는다. 적용 승인 전(criteria_application 없음)에는 기준 평가 이유가 0건이고 사실·가정 이유만 실린다",
+        "시험 need-result-reasons: (1) 모든 결과에 verdict와 이유 1개 이상. (2) 이유마다 statement_kind에 맞는 근거가 있다(reason-evidence-by-kind: 사실 이유→주장, 가정 이유→사용자 가정, 기준 평가 이유→기준 릴리스의 기준 판). (3) 'no_add(추가 없음)'와 'keep(유지)'가 실제로 나오는 입력 사례가 있다. (4) 기준 판을 정정하면 지난 결과가 영향 목록에 잡힌다. (5) 종합 점수·순위가 응답에 없다. (6) 가족력만으로 review_add가 나오지 않는다"
       ],
       "done_criteria": [
-        "need-result-reasons (1)~(6) 통과",
-        "약관 사실·기준 평가·사용자 가정·계산 결과·미확인이 statement_kind로 구분된다",
-        "기준 평가 이유·기본값은 criteria_application(T-KN-14) 승인분만 쓰고 없으면 사용자 가정만",
+        "need-result-reasons (1)~(6)·reason-evidence-by-kind 통과",
+        "약관 사실·기준 평가·사용자 가정·계산 결과·미확인이 statement_kind로 구분되고 종류별 근거(사실 이유→주장, 가정 이유→사용자 가정 판, 기준 평가 이유→기준 판)가 검사된다",
+        "기준 평가 이유·기본값은 criteria_application(서비스 적용 승인 관문) 승인분만 쓰고 없으면 사실·사용자 가정 이유만",
         "결론을 바꾸는 입력만 추가 질문으로 나간다"
       ],
       "required_test_ids": [
         "need-result-reasons",
-        "need-flow-keep-addnone-hold-unknown"
+        "need-flow-keep-addnone-hold-unknown",
+        "reason-evidence-by-kind"
       ],
       "features": [
         "my-design",
@@ -5725,7 +5862,7 @@
       ],
       "immediate_audit": false,
       "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다. 적용 기록 전에는 사용자 가정 기반 결과만",
-      "notes": "판단 기준 관리(원본 F11) 신설"
+      "notes": "판단 기준 관리(원본 F11) 신설. 이유 종류별 근거(재검토 R06③)"
     },
     {
       "id": "T-WB-01",
@@ -7001,7 +7138,8 @@
         "T-OP-07",
         "T-OP-00",
         "T-OP-09",
-        "T-KN-14"
+        "T-KN-14",
+        "T-CT-07"
       ],
       "decision_gates": {
         "start": [],

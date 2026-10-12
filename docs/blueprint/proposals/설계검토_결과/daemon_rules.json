@@ -1,5 +1,5 @@
 {
-  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, 사용자 검토(데몬 대기·복구 경로, 이전 작성자의 늦은 쓰기 차단(원본 F08), 결정 차단, 모델 전환 신호, 병합 뒤 상태) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
+  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, 사용자 검토 ffbcaf6(F07·F08·F09·F10)과 독립 재검토 9554c96(R04 전이·임대·병합 관측 통일, R05 봉투 권한 필드) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
   "_decided_by": "역할·전환 정책은 사용자 결정 2026-10-12(U-04, 운영 규칙 1~8). 상태 기계·사건·신호·봉투·잠금·펜싱은 설계 담당 판단(감리 대상)",
   "schema": "onjeon-daemon-rules-0.3",
@@ -87,6 +87,23 @@
       "daemon_may_enable_auto_merge": false
     }
   },
+  "handoff_sequence": [
+    "preserve",
+    "stop",
+    "revoke_token",
+    "issue_next_lease"
+  ],
+  "_handoff_sequence_note": "R04③ 인계 순서. 상세는 switch_policy.handoff_steps. 보존은 현재(이전 임대) 토큰으로만, 다음 토큰은 폐기 뒤에만",
+  "lease_guards": [
+    "builder_available",
+    "no_conflict_lease(conflict_paths)",
+    "lock_acquired(task_id)",
+    "single_writer(branch)",
+    "max_parallel_leases 미만",
+    "budget_reserved(task_id, attempt)",
+    "instruction_envelope_valid(required 전부, real_data_allowed, canon_change_approval)"
+  ],
+  "_lease_guards_note": "R04④ 임대를 발급하는 모든 전이(to == leased, event == lease_granted, building→building 재임대)가 거치는 공통 가드. 상세는 concurrency.lease_guards",
   "post_merge_states": [
     "merged",
     "audit_queued",
@@ -134,6 +151,7 @@
     "budget_exhausted",
     "merged_without_valid_approval",
     "hard_stop_deadline",
+    "envelope_invalid",
     "unmapped_condition"
   ],
   "noop_events": [
@@ -145,14 +163,23 @@
     "heartbeat",
     "decision_recorded_duplicate",
     "builder_status_unchanged",
-    "notification_retry"
+    "notification_retry",
+    "late_envelope_rejected"
   ],
-  "_noop_note": "noop_events는 상태를 바꾸지 않고 '수신·무시' 기록만 남긴다(event-duplicate-noop). 순서가 뒤바뀐 사건(예: review_approved가 ci_passed보다 먼저)은 보류 큐에 두었다가 적용 조건이 맞을 때 처리하고, SHA가 맞지 않으면 무효(R-04)로 기록한다(event-out-of-order). 전이표 밖 조건만 unmapped_condition으로 반송한다",
+  "_noop_note": "noop_events는 상태를 바꾸지 않고 '수신·무시' 기록만 남긴다(event-duplicate-noop). 순서가 뒤바뀐 사건(예: review_approved가 ci_passed보다 먼저)은 보류 큐에 두었다가 적용 조건이 맞을 때 처리하고, SHA가 맞지 않으면 무효(R-04)로 기록한다(event-out-of-order). 전이표 밖 조건만 unmapped_condition으로 반송한다. late_envelope_rejected(R04②): lease_id가 현재 임대가 아니거나 토큰이 현재보다 작은 결과 봉투·푸시·PR 갱신·전환 신호는 거부하고 R-11을 기록만 한다. 현재 과제의 상태를 바꾸지 않는다(late-result-rejected). fence_violation 전이는 lease_id·토큰이 현재 임대인 봉투가 펜싱 규칙을 어긴 경우에만 쓴다",
   "record_separation": {
     "task_lifecycle": "상태 기계(states·transitions). 과제의 현재 상태",
     "completion_facts": "불변 기록: 병합 관측 SHA·시각, 감리 결과, 실행 로그 참조. 한 번 쓰면 바꾸지 않는다",
     "review_audit_validity": "review_result·audit_result는 sha에 묶인다. head_sha_changed 뒤에는 무효(invalidated_at 기록)이고 삭제하지 않는다",
-    "merge_observation": "병합은 사람이 한다. 데몬은 관측·기록만. 유효한 승인 없이 병합된 사실은 completion_facts에 기록하되 과제를 done으로 올리지 않는다(merged_invalid_approval)"
+    "merge_observation": "병합은 사람이 한다. 데몬은 관측·기록만. 유효한 승인 없이 병합된 사실은 completion_facts에 기록하되 과제를 done으로 올리지 않는다(merged_invalid_approval)",
+    "merge_observation_fields": {
+      "approved_head_sha": "독립 리뷰(필요 시 감리)가 고정한 PR head SHA(review_result.sha == audit_result.sha)",
+      "base_sha": "승인 시점의 PR base 브랜치와 그 SHA(대상 base)",
+      "head_sha_at_merge": "병합 관측 시점의 PR head SHA(저장소 API). approved_head_sha와 같아야 유효",
+      "merge_commit_sha": "저장소가 만든 병합 커밋 SHA(merge·squash·rebase에 따라 approved_head_sha와 다르다). 기록만 하고 승인 SHA와 비교하지 않는다",
+      "integration_check": "병합 뒤 base에서 CI가 돌린 결과 참조(있으면). 승인 판정이 아니라 기록",
+      "_rule": "유효 판정 = reason == ready and head_sha_at_merge == approved_head_sha and pr.base_sha_at_merge == base_sha. 병합 커밋 SHA와 승인 SHA의 동일성 비교는 쓰지 않는다(R04⑤)"
+    }
   },
   "execution_core": {
     "shared_by": [
@@ -164,7 +191,8 @@
   },
   "gate_semantics": {
     "start": "blocked→queued 전이가 본다",
-    "real_data": "지시 봉투의 real_data_allowed(bool)로 전달. false이면 빌더는 실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회 단계를 건너뛰고 모의/로컬 경로만 쓴다. 상태 전이를 막지 않는다(d02-mock-start-allowed, r2-local-work-allowed)",
+    "real_data": "지시 봉투 필수 필드 real_data_allowed(bool)로 전달(envelopes.instruction.required). 값 = decision_gates.real_data ⊆ decisions_recorded. false이면 빌더는 실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회 단계를 건너뛰고 모의/로컬 경로만 쓴다. 상태 전이를 막지 않는다(d02-mock-start-allowed, r2-local-work-allowed). 필드가 없는 봉투는 envelope_validator가 거부한다(real-data-field-required)",
+    "canon_change": "지시 봉투 필수 필드 canon_change_approval(null 또는 {decision_ref, scope_paths[]})로 전달. task.canon_change.required=true면 null일 수 없고, decision_ref는 decision_record에 있어야 하며, scope_paths ⊆ task.allowed_paths 이고 정본 경로만 담는다. 누락·미기록 decision_ref·범위 밖 경로면 봉투를 보내지 않고 returned(R-13). task.canon_change가 없는 과제에 approval이 실려도 거부. 허용 경로에 정본 파일이 들어 있다는 사실은 승인이 아니다(canon-approval-required)",
     "merge": "→merge_wait(ready) 전이가 본다. 미결이면 merge_wait(decision_pending)",
     "release": "데몬 밖. 릴리스 빌더·기능 플래그·criteria_application이 검사한다. 데몬은 기록만 한다"
   },
@@ -173,7 +201,7 @@
     "queued": "실행 가능",
     "leased": "빌더에게 임대(lease_id, fencing_token, TTL). 쓰기 전",
     "building": "빌더가 격리 작업 트리에서 쓰는 중. 하트비트 필요",
-    "handoff": "전환 신호 감지. 쓰기 중단·보존 중(이전 임대 토큰 폐기)",
+    "handoff": "전환 신호 감지. switch_policy.handoff_order 순서로 진행: 보존(현재 토큰으로 WIP 푸시) → 중단(프로세스 그룹 종료·자격 회수) → 토큰 폐기 → 다음 임대 발급(새 토큰). 토큰 폐기 뒤 옛 토큰의 봉투·푸시는 late_envelope_rejected",
     "paused_no_builder": "모든 빌더 불가. 작업 보존 후 대기",
     "pr_open": "PR 열림. CI 대기",
     "ci_failed": "CI 실패. 같은 작성자가 고친다(전환 금지)",
@@ -202,7 +230,15 @@
       "from": "queued",
       "to": "leased",
       "event": "lease_granted",
-      "when": "builder_available and no_conflict_lease(conflict_paths) and lock_acquired(task_id) and fencing_token = last_token(task_id)+1",
+      "when": "lease_guards 통과(builder_available, no_conflict_lease(conflict_paths), lock_acquired(task_id), budget_reserved, instruction_envelope_valid) and fencing_token = last_token(task_id)+1",
+      "by": "daemon",
+      "guard": "lease_guards"
+    },
+    {
+      "from": "queued",
+      "to": "returned",
+      "event": "envelope_invalid",
+      "when": "지시 봉투 검증 실패: real_data_allowed 누락 / canon_change 과제의 canon_change_approval 누락·decision_ref 미기록·scope_paths ⊄ allowed_paths / canon_change 없는 과제에 approval 있음 → 발송 0건 (R-13)",
       "by": "daemon"
     },
     {
@@ -251,8 +287,9 @@
       "from": "building",
       "to": "building",
       "event": "result_failed_tests",
-      "when": "result_envelope.status == failed_tests and consecutive_failed_tests < 3 → 같은 작성자 재임대(새 토큰). 3회면 returned(R-06)",
-      "by": "daemon"
+      "when": "result_envelope.status == failed_tests and consecutive_failed_tests < 3 → 같은 작성자 재임대(새 토큰, lease_guards). 3회면 returned(R-06)",
+      "by": "daemon",
+      "guard": "lease_guards"
     },
     {
       "from": "building",
@@ -265,7 +302,7 @@
       "from": "building",
       "to": "returned",
       "event": "fence_violation",
-      "when": "stale token write attempt observed (R-11). 늦은 쓰기는 거부되고 기록만 남는다",
+      "when": "현재 임대(lease_id == current_lease_id)의 봉투·푸시·PR 갱신이 펜싱 규칙을 어김: 토큰 불일치, 데몬 우회 직접 푸시, 자격 회수 뒤 쓰기 (R-11). 이전 임대의 늦은 봉투·푸시는 이 사건이 아니라 late_envelope_rejected(noop: 거부·기록만, 현재 상태 불변)",
       "by": "daemon"
     },
     {
@@ -293,22 +330,24 @@
       "from": "handoff",
       "to": "leased",
       "event": "preserved",
-      "when": "preserved(wip_commit_sha pushed with current token, handoff_record written) and previous token revoked and next_builder_available → 새 토큰 발급",
-      "by": "daemon"
+      "when": "handoff_order 완료: (1) preserved — wip_commit_sha를 현재 토큰으로 푸시(handoff_preserve 검사) (2) stopped — 프로세스 그룹 종료·쓰기 자격 회수 (3) revoked — 현재 토큰 폐기 (4) handoff_record 기록; and next_builder_available and lease_guards 통과 → 새 토큰(+1) 발급",
+      "by": "daemon",
+      "guard": "lease_guards"
     },
     {
       "from": "handoff",
       "to": "paused_no_builder",
       "event": "no_builder",
-      "when": "preserved and no next builder",
+      "when": "handoff_order (1)~(4) 완료 and no next builder",
       "by": "daemon"
     },
     {
       "from": "paused_no_builder",
       "to": "leased",
       "event": "builder_available",
-      "when": "any builder_available (사람이 환경을 고친 뒤) → 새 토큰",
-      "by": "daemon"
+      "when": "any builder_available (사람이 환경을 고친 뒤) and lease_guards 통과 → 새 토큰",
+      "by": "daemon",
+      "guard": "lease_guards"
     },
     {
       "from": "building",
@@ -328,8 +367,9 @@
       "from": "ci_failed",
       "to": "building",
       "event": "lease_granted",
-      "when": "같은 작성자 재임대(새 토큰). 전환 금지(운영 규칙 1)",
-      "by": "daemon"
+      "when": "같은 작성자 재임대(새 토큰, lease_guards). 전환 금지(운영 규칙 1)",
+      "by": "daemon",
+      "guard": "lease_guards"
     },
     {
       "from": "pr_open",
@@ -412,8 +452,9 @@
       "from": "changes_requested",
       "to": "building",
       "event": "lease_granted",
-      "when": "같은 작성자 재임대(새 토큰)",
-      "by": "daemon"
+      "when": "같은 작성자 재임대(새 토큰, lease_guards)",
+      "by": "daemon",
+      "guard": "lease_guards"
     },
     {
       "from": "review_approved",
@@ -503,14 +544,14 @@
       "from": "merge_wait",
       "to": "merged",
       "event": "pr_merged_observed",
-      "when": "pr.merged == true observed and reason == ready and merged_sha == approved_sha. 데몬은 병합하지 않는다",
+      "when": "pr.merged == true observed and reason == ready and head_sha_at_merge == approved_head_sha and base == base_sha → completion_facts에 merge_observation_fields(approved_head_sha, base_sha, head_sha_at_merge, merge_commit_sha, integration_check) 기록. merge_commit_sha는 승인 SHA와 비교하지 않는다. 데몬은 병합하지 않는다",
       "by": "human"
     },
     {
       "from": "merge_wait",
       "to": "merged_invalid_approval",
       "event": "merged_without_valid_approval",
-      "when": "pr.merged == true observed and (reason != ready or merged_sha != approved_sha) → R-12 기록. done으로 가지 않는다",
+      "when": "pr.merged == true observed and (reason != ready or head_sha_at_merge != approved_head_sha or base != base_sha) → R-12 기록. done으로 가지 않는다",
       "by": "human"
     },
     {
@@ -601,7 +642,7 @@
       "from": "returned",
       "to": "queued",
       "event": "owner_resolved",
-      "when": "담당자가 return_code 해소를 기록(resolution_ref) → attempt += 1, 새 토큰으로 재개",
+      "when": "담당자가 return_code 해소를 기록(resolution_ref) → attempt += 1. 임대는 queued→leased에서 lease_guards를 다시 거친다",
       "by": "human"
     },
     {
@@ -712,12 +753,19 @@
       "repo_api_error"
     ],
     "runner_profiles_note": "runner_profile.limit_exit_codes·unavailable_exit_codes·provider_documented_quota_types는 CLI별로 05 §1b에서 확인한 값만 넣는다. 미확인이면 비어 있고, 그 CLI는 provider_http_response·runner_auth_probe·runner_version_probe로만 전환한다",
+    "handoff_order": [
+      "preserve",
+      "stop",
+      "revoke_token",
+      "issue_next_lease"
+    ],
+    "_handoff_order_note": "R04③. 보존은 현재(이전 임대) 토큰으로만 할 수 있다. 그 토큰이 유효한 마지막 쓰기가 WIP 푸시다. 폐기 뒤에는 그 토큰의 어떤 봉투·푸시도 late_envelope_rejected다. 다음 임대의 토큰은 폐기 뒤에만 발급한다",
     "handoff_steps": [
-      "쓰기 중단 확인(마지막 쓰기 시각 기록), 현재 토큰 폐기 예약",
-      "미커밋 변경을 같은 브랜치의 WIP 커밋으로 남기고 현재 토큰으로 푸시(wip_commit_sha)",
-      "토큰 폐기·프로세스 그룹 종료·임대별 쓰기 자격 회수",
-      "시험 결과 로그 위치·남은 작업 목록을 handoff_record에 적는다",
-      "다음 순위 빌더가 같은 브랜치·같은 SHA에서 새 토큰으로 시작한다",
+      "(preserve) 빌더에 stop 신호(SIGTERM)·마지막 쓰기 시각 기록. grace_s 안에 오는 wip_preserved 봉투(현재 토큰)를 수락하고 데몬이 현재 토큰으로 WIP 커밋을 푸시(wip_commit_sha, handoff_preserve 검사). 봉투가 없으면 데몬이 격리 작업 트리의 미커밋 변경을 WIP 커밋으로 남기고 현재 토큰으로 푸시",
+      "(stop) 프로세스 그룹 종료·임대별 쓰기 자격 회수",
+      "(revoke_token) 현재 토큰 폐기. 이후 그 토큰·lease_id의 봉투·푸시는 late_envelope_rejected(R-11 기록, 상태 불변)",
+      "handoff_record 기록: wip_commit_sha, 시험 결과 로그 위치, 남은 작업 목록",
+      "(issue_next_lease) lease_guards를 거쳐 다음 순위 빌더에게 같은 브랜치·wip_commit_sha에서 새 토큰(+1) 발급",
       "authors_families에 새 계열을 추가한다(리뷰 제외 갱신)"
     ],
     "no_silent_substitution": true
@@ -799,8 +847,27 @@
         "done_criteria",
         "deadline_heartbeat_s",
         "budget",
-        "reply_to"
+        "reply_to",
+        "real_data_allowed",
+        "canon_change_approval"
       ],
+      "real_data_allowed": {
+        "type": "bool",
+        "value": "decision_gates.real_data ⊆ decisions_recorded",
+        "false_means": "실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회 단계 금지. 모의·로컬 작업은 계속 가능"
+      },
+      "canon_change_approval": {
+        "type": "null | {decision_ref, scope_paths[]}",
+        "required_when": "task.canon_change.required == true",
+        "validate": [
+          "decision_ref ∈ decision_record",
+          "scope_paths ⊆ task.allowed_paths",
+          "scope_paths는 정본 경로만(packages/schemas/vocabulary.json, docs/blueprint/VOCABULARY.md, docs/decisions/** 등)",
+          "task.canon_change 없음 ⇒ null"
+        ],
+        "on_fail": "봉투 미발송·returned(R-13)",
+        "note": "허용 경로에 정본 파일이 있다는 사실은 승인이 아니다"
+      },
       "budget": {
         "max_calls": "int",
         "max_cost_units": "int",
@@ -809,11 +876,12 @@
       },
       "rules_for_builder": [
         "allowed_paths 밖을 바꾸지 않는다",
-        "정본·토의 자료를 바꾸지 않는다",
+        "정본·토의 자료를 바꾸지 않는다. 유일한 예외는 봉투의 canon_change_approval.scope_paths에 적힌 경로이며, 그 밖의 정본 경로는 allowed_paths에 있어도 바꾸지 않는다(R-01)",
+        "real_data_allowed=false이면 실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회를 하지 않고 모의·로컬 경로만 쓴다",
         "비밀값을 출력하지 않는다",
         "판단이 필요하면 verdict_requested로 반송한다",
         "병합·자동 병합 설정을 하지 않는다",
-        "푸시는 데몬을 통해서만 하며 봉투의 fencing_token을 함께 보낸다"
+        "푸시는 데몬을 통해서만 하며 봉투의 lease_id·fencing_token을 함께 보낸다"
       ]
     },
     "result": {
@@ -849,7 +917,7 @@
         "verdict_question",
         "handoff_record"
       ],
-      "acceptance": "fencing_token == current_token(task_id) 가 아니면 거부(R-11)"
+      "acceptance": "lease_id == current_lease_id(task_id) and fencing_token == current_token(task_id) 일 때만 수락. 아니면 late_envelope_rejected(R-11 기록만, 현재 과제 상태 불변). 현재 임대의 봉투가 규칙을 어기면 fence_violation"
     },
     "review_result": {
       "required": [
@@ -901,11 +969,12 @@
     ],
     "grace_s": "[사용자 결정 필요] 기본 120",
     "procedure": [
-      "stop 신호를 빌더에 전달(SIGTERM)",
-      "grace_s 안에 wip_preserved 봉투가 오면 수락(현재 토큰)",
-      "grace_s 경과 시 하트비트와 무관하게 프로세스 그룹 종료(SIGKILL), 토큰 폐기, 자격 회수, 상태 returned 또는 paused",
-      "그 뒤 도착하는 봉투·푸시는 R-11"
+      "(preserve) stop 신호를 빌더에 전달(SIGTERM). grace_s 안에 wip_preserved 봉투가 오면 수락하고 현재 토큰으로 푸시",
+      "(stop) grace_s 경과 시 하트비트와 무관하게 프로세스 그룹 종료(SIGKILL), 쓰기 자격 회수",
+      "(revoke_token) 토큰 폐기, 상태 returned 또는 paused",
+      "그 뒤 도착하는 봉투·푸시는 late_envelope_rejected(R-11 기록, 상태 불변)"
     ],
+    "order": "switch_policy.handoff_order와 같다(preserve → stop → revoke_token)",
     "verification": "hard-stop-heartbeating-job: 모의(T-OP-00)·실제 실행기(T-OP-09)"
   },
   "budget_enforcement": {
@@ -941,7 +1010,14 @@
         "revoke_write_credential",
         "revoke_token",
         "record_handoff"
-      ]
+      ],
+      "late_envelope": "lease_id가 현재 임대가 아니거나 토큰이 현재보다 작은 봉투·푸시·PR 갱신·전환 신호는 거부하고 R-11을 기록만 한다(late_envelope_rejected). 현재 과제의 상태·현재 임대에 영향이 없다. fence_violation(building→returned)은 lease_id·토큰이 현재 임대인 봉투의 위반에만 쓴다"
+    },
+    "lease_guards_detail": {
+      "applies_to": "to == leased 이거나 event == lease_granted 인 모든 전이와 building→building 재임대: queued→leased, handoff→leased, paused_no_builder→leased, ci_failed→building, changes_requested→building, building→building(result_failed_tests). returned→queued 뒤의 재임대도 queued→leased를 지난다",
+      "checks": "최상위 lease_guards 목록과 같다. budget_reserved는 budget_enforcement.reserve_before_call, instruction_envelope_valid는 envelopes.instruction",
+      "on_fail": "임대를 발급하지 않는다. 충돌·잠금·동시 수 초과면 현재 상태에서 대기, 예산 미예약·소진이면 returned(R-07), 봉투 검증 실패면 returned(R-13)",
+      "verification": "lease-guards-all-paths(T-OP-00)"
     },
     "isolation": {
       "worktree": "임대마다 격리된 작업 트리(git worktree 또는 별도 클론, 경로에 lease_id 포함). 이전 임대의 트리는 읽기 전용으로 보존",
@@ -979,7 +1055,13 @@
     "noop_and_out_of_order_event_handling": "dry_run_target",
     "merged_without_valid_approval_not_done": "dry_run_target",
     "shared_execution_core_no_dry_run_branch": "dry_run_target",
-    "human_only_merge_observation_R12": "specified"
+    "human_only_merge_observation_R12": "specified",
+    "late_envelope_from_previous_lease_no_state_change": "dry_run_target",
+    "lease_guards_on_all_lease_paths": "dry_run_target",
+    "handoff_order_preserve_stop_revoke_issue": "dry_run_target",
+    "merge_observation_fields_separated": "dry_run_target",
+    "canon_change_approval_in_envelope": "dry_run_target",
+    "real_data_allowed_field_required": "dry_run_target"
   },
   "daemon_does": [
     "전이표에 있는 전이만 수행(사건 + 조건)",
@@ -988,9 +1070,10 @@
     "CI·PR·리뷰·감리·결정 기록 관측과 기록",
     "전환 신호 판정(허용 출처만)",
     "리뷰어·감리 배정(배제 규칙)",
-    "카운터·잠금·임대·토큰·멱등 키 관리",
-    "토큰 검사 뒤 푸시·PR 갱신",
-    "인계 기록 보존",
+    "카운터·잠금·임대·토큰·멱등 키 관리(임대 발급은 lease_guards)",
+    "lease_id·토큰 검사 뒤 푸시·PR 갱신",
+    "인계 기록 보존(handoff_order)",
+    "병합 관측 필드 기록(approved_head_sha·base_sha·head_sha_at_merge·merge_commit_sha·integration_check)",
     "반송"
   ],
   "daemon_does_not": [
@@ -1063,12 +1146,17 @@
     },
     {
       "code": "R-11",
-      "when": "펜싱 토큰이 현재보다 작은 쓰기·결과 봉투(늦은 쓰기). 거부하고 기록",
+      "when": "lease_id·펜싱 토큰이 현재 임대가 아닌 쓰기·결과 봉투(늦은 결과). 거부하고 기록만(late_envelope_rejected, 상태 불변). 현재 임대의 위반이면 fence_violation 전이",
       "to": "architect"
     },
     {
       "code": "R-12",
-      "when": "유효한 승인 없이(또는 승인 SHA와 다른 SHA로) 병합된 것을 관측 → merged_invalid_approval. 기록하되 done으로 올리지 않는다",
+      "when": "유효한 승인 없이 병합된 것을 관측(reason != ready, head_sha_at_merge != approved_head_sha, base != base_sha) → merged_invalid_approval. 기록하되 done으로 올리지 않는다",
+      "to": "user"
+    },
+    {
+      "code": "R-13",
+      "when": "지시 봉투 검증 실패: real_data_allowed 누락, canon_change 과제의 canon_change_approval 누락·decision_ref 미기록·scope_paths 범위 밖, canon_change 없는 과제에 approval 있음. 봉투 미발송",
       "to": "user"
     }
   ],

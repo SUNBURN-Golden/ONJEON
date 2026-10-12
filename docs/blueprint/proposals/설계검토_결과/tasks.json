@@ -704,11 +704,12 @@
     },
     {
       "id": "need-criteria",
-      "name": "판단 기준 관리(기준·기준의 판·출처·적용 범위, 기본값은 출처 확정분만)",
+      "name": "판단 기준 관리(기준·기준의 판·출처·적용 범위·가정·정정 이력·의존, 서비스 적용 승인 관문)",
       "covers": [],
       "tasks": [
         "T-KN-12",
-        "T-KN-13"
+        "T-KN-13",
+        "T-KN-14"
       ]
     },
     {
@@ -733,7 +734,7 @@
     "D-08": {
       "start": [],
       "merge": [
-        "T-KN-13"
+        "T-KN-14"
       ]
     },
     "D-04": {
@@ -879,6 +880,88 @@
       "immediate_audit": false,
       "blocked_by": "없음. 규칙 검증용이며 가동이 아니다",
       "notes": "가동 전 준비 과제. 완료가 가동 승인이 아니다. 최종 감리(T-OP-08)의 자동 개발 운영 기록 항목이 이 보고서를 본다"
+    },
+    {
+      "id": "T-OP-09",
+      "name": "실제 실행기 검증(VM, 가동 전): 실제 CLI 프로세스·격리 작업 트리·시험용 원격(보호 브랜치·단기 자격)에서 중단·재개, 늦은 결과(만료 임대의 푸시·결과 봉투), 교체 전후 동시 쓰기, 중복 실행, 전환 신호 실제 채널, 종료 코드 확인표",
+      "zone": "infra·ops",
+      "stage": "S5",
+      "twin_axis": false,
+      "final_gate": false,
+      "replaces_wp": [],
+      "inputs": [
+        "05_VM실행준비 §1b·§6",
+        "04_자동개발명세 §8·§9",
+        "T-OP-00 보고서"
+      ],
+      "prereq_tasks": [
+        "T-OP-00"
+      ],
+      "decision_gates": {
+        "start": [],
+        "merge": []
+      },
+      "canon_change": null,
+      "allowed_paths": [
+        "tools/daemon/runner_verify/**",
+        "docs/vm_check/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json",
+        "docs/blueprint/VOCABULARY.md"
+      ],
+      "produces": [
+        "path:tools/daemon/runner_verify/**",
+        "path:docs/vm_check/**"
+      ],
+      "consumes": [
+        "path:tools/daemon/**"
+      ],
+      "outputs": [
+        "실행기 검증 도구(T-MOCK-* 과제만, 제품 브랜치 쓰기·병합 없음)",
+        "R1~R8 결과 기록, §1b 확인표 채움(미확인은 미확인)"
+      ],
+      "tests": [
+        "bash tools/daemon/runner_verify/run.sh --remote <시험용 원격> --report docs/vm_check/<날짜>/runner_verify.json",
+        "시험 late-write-fenced-runner(R1·R2·R3): 만료된 임대 A의 실제 푸시가 원격에서 거부되고 R-11이 기록된다. A의 결과 봉투가 토큰 불일치로 거부된다. A 전환 중 B 시작 시 두 프로세스가 동시에 쓰기 자격을 가진 시각 구간이 자격 발급·회수 로그상 없다",
+        "시험 resume-runner(R4): 데몬 강제 종료 뒤 재시작이 외부 상태로 복원하거나 R-08. WIP 커밋 보존",
+        "시험 duplicate-runner(R5): 데몬 두 인스턴스 동시 기동 시 임대 하나, 봉투 하나",
+        "시험 provider-scoped-switch-runner(R6·R7): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움"
+      ],
+      "done_criteria": [
+        "R1~R8 결과가 기록되고 실패는 실패로 적힌다",
+        "제품 브랜치에 쓰기·병합이 없다(정적·로그 검사)",
+        "확인되지 않은 종료 코드는 runner_profile에 넣지 않는다",
+        "이 과제 완료가 가동 승인이 아니다"
+      ],
+      "required_test_ids": [
+        "late-write-fenced-runner",
+        "resume-runner",
+        "duplicate-runner",
+        "provider-scoped-switch-runner"
+      ],
+      "features": [],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "tools/daemon/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "VM의 CLI·원격·자격 설정은 사람이 준비한다(05 §7). 결정 ID로 막히지는 않는다",
+      "notes": "T-OP-00(모의 검증)과 분리된 실제 실행기 검증. 가동이 아니다"
     },
     {
       "id": "T-CT-01",
@@ -1496,6 +1579,7 @@
         "I2~I4: 제자리 수정·삭제·규칙 파일 교체가 K15로 잡힌다",
         "D1: 다른 원본의 구획이 같은 본문 판을 실현해도 Q1 결과가 같다",
         "D2: 원본 해시만 근거인 realizes가 K14로 잡힌다",
+        "D3·D4(구현자 보강분): 본문 같고 참조 별표·정의·적용 범위가 다르면 다른 판 후보, 지문 일치만으로 accepted 되는 realizes는 거부(ReviewDecision 필요)",
         "공식 CodeSystem 없이 scope_relation이 not_comparable을 돌려준다",
         "DB·네트워크 의존이 없다"
       ],
@@ -3271,7 +3355,7 @@
         "data/criteria/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "없음. D-08은 기본값의 출처·내용(T-KN-13)만 막는다",
+      "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다",
       "notes": "F08 신설"
     },
     {
@@ -3292,9 +3376,7 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": [
-          "D-08"
-        ]
+        "merge": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3345,8 +3427,87 @@
         "data/criteria/defaults/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "병합: D-08(기본값의 출처·내용). D-08이 '기본값 없음'으로 정해지면 이 과제는 취소되고 선행 목록에서 제거된다(설계 변경 감리)",
-      "notes": "F08 신설"
+      "blocked_by": "없음. 후보 적재만 한다. 사용자에게 보이는 것은 T-KN-14의 적용 승인(D-08) 뒤",
+      "notes": "판단 기준 관리 신설. 후보는 applied=false로 적재되고 표시되지 않는다"
+    },
+    {
+      "id": "T-KN-14",
+      "name": "판단 기준 서비스 적용 승인 관문: criteria_application 기록(적용 기준 판 목록·기본 필요액 제공 여부·산출 근거·승인 참조) 없이는 기준 평가 이유·기본값이 서비스 모드에 나가지 않음",
+      "zone": "knowledge",
+      "stage": "S4",
+      "twin_axis": false,
+      "final_gate": false,
+      "replaces_wp": [],
+      "inputs": [
+        "02_구현계약 §1.5 서비스 적용 승인 관문",
+        "[사용자 결정 2026-10-12] 판단 기준 관리 범위",
+        "통합안 D-08"
+      ],
+      "prereq_tasks": [
+        "T-KN-12",
+        "T-KN-13"
+      ],
+      "decision_gates": {
+        "start": [],
+        "merge": [
+          "D-08"
+        ]
+      },
+      "canon_change": null,
+      "allowed_paths": [
+        "services/criteria/src/application/**",
+        "data/criteria/applications/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json",
+        "docs/blueprint/VOCABULARY.md"
+      ],
+      "produces": [
+        "path:services/criteria/src/application/**",
+        "path:data/criteria/applications/**"
+      ],
+      "consumes": [
+        "crate:onjeon-criteria",
+        "path:data/criteria/defaults/**"
+      ],
+      "outputs": [
+        "criteria_application 기록·검증기, 서비스 모드 읽기 필터(승인된 기준 판·기본값만)",
+        "설계 승인 ≠ 적용 승인을 코드 주석·스키마 설명에 명시"
+      ],
+      "tests": [
+        "cargo test -p onjeon-criteria application",
+        "시험: 적용 기록이 없으면 NeedResult에 criteria_eval 이유와 참고 통계가 없고 사용자 가정 이유만 있다. 기록이 있으면 그 목록의 기준 판만 쓰인다. defaults_enabled=false면 기본값이 어떤 응답에도 없다"
+      ],
+      "done_criteria": [
+        "승인 참조(decision_id·approved_by·recorded_at) 없는 적용 기록은 거부된다",
+        "적용 목록 밖 기준 판은 서비스 모드에서 읽히지 않는다",
+        "기본 필요액 제공은 defaults_enabled와 산출 근거 참조가 있을 때만"
+      ],
+      "required_test_ids": [],
+      "features": [
+        "need-criteria"
+      ],
+      "parallel_ok": true,
+      "conflict_paths": [
+        "services/criteria/src/application/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "병합: D-08(어떤 기준을 실제 사용자에게 적용할지, 기본 필요액 제공 여부와 산출 근거). 구조·판·출처·정정 이력·의존 기록(T-KN-12)과 사용자 가정 경로(T-AP-09)는 막지 않는다",
+      "notes": "[사용자 결정 2026-10-12] 설계 승인이 특정 판단 기준의 서비스 적용 승인은 아니다. 이 과제가 그 별도 관문이다"
     },
     {
       "id": "T-OP-03",
@@ -4381,7 +4542,7 @@
       "done_criteria": [
         "need-result-reasons (1)~(6) 통과",
         "약관 사실·기준 평가·사용자 가정·계산 결과·미확인이 statement_kind로 구분된다",
-        "기본 필요액은 T-KN-13 적재분(출처 있음)만 쓰고 없으면 사용자 가정만",
+        "기준 평가 이유·기본값은 criteria_application(T-KN-14) 승인분만 쓰고 없으면 사용자 가정만",
         "결론을 바꾸는 입력만 추가 질문으로 나간다"
       ],
       "required_test_ids": [
@@ -4397,7 +4558,7 @@
         "services/api/src/personal/need/**"
       ],
       "immediate_audit": false,
-      "blocked_by": "없음. D-08은 기본값 적재(T-KN-13)만 막는다",
+      "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다. 적용 기록 전에는 사용자 가정 기반 결과만",
       "notes": "F08 신설"
     },
     {
@@ -5055,7 +5216,7 @@
         "apps/mobile/lib/features/import/**"
       ],
       "immediate_audit": false,
-      "blocked_by": "없음. D-08은 기본 필요액 표시만 막는다",
+      "blocked_by": "없음. D-08(적용 승인 관문) 전에는 기준 평가 이유·기본값 없이 사용자 가정 기반 결과만 표시",
       "notes": ""
     },
     {
@@ -5532,7 +5693,7 @@
     },
     {
       "id": "T-OP-08",
-      "name": "출시 전 최종 감리와 다섯 축 보고(남은 공백·기본값 출처·자동 개발 운영 기록 공개)",
+      "name": "출시 전 최종 감리와 다섯 축 보고(남은 공백·판단 기준 적용 승인 상태·자동 개발 운영 기록(모의·실제 실행기 검증) 공개)",
       "zone": "infra·ops",
       "stage": "S5",
       "twin_axis": false,
@@ -5546,7 +5707,8 @@
       "prereq_tasks": [
         "T-OP-07",
         "T-OP-00",
-        "T-KN-13"
+        "T-OP-09",
+        "T-KN-14"
       ],
       "decision_gates": {
         "start": [],
@@ -5580,7 +5742,8 @@
       "consumes": [
         "path:docs/rehearsal/**",
         "path:tools/daemon/**",
-        "path:data/criteria/defaults/**"
+        "path:docs/vm_check/**",
+        "path:data/criteria/applications/**"
       ],
       "outputs": [
         "감리 보고서, 다섯 축 보고"
@@ -5599,7 +5762,7 @@
       "conflict_paths": [],
       "immediate_audit": true,
       "blocked_by": "출시 판정(L1)은 사용자 결정",
-      "notes": "최종 관문(final_gate). 다른 모든 과제가 전이적 선행이다. 취소된 과제(D-08·D-14 부결)는 설계 변경 감리로 선행 목록에서 제거한다"
+      "notes": "최종 관문(final_gate). 다른 모든 과제가 전이적 선행이다. 취소된 과제(D-14 부결 등)는 설계 변경 감리로 선행 목록에서 제거한다"
     }
   ]
 }

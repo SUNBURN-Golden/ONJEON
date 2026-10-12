@@ -35,26 +35,32 @@ function check(name, cond, detail) { log.push((cond ? 'PASS ' : 'FAIL ') + name 
   const shot = async (name) => { await page.locator('#screen-cmp').screenshot({ path: OUT + '/' + name }); log.push('캡처 ' + name); };
 
   // 읽는 순서: 상황 → 공통 가정 → 경과 기간 → 금액 → 차이 → 보험료 → 근거
-  const ys = [await y('[data-testid="situation"]'), await y('[data-testid="common"]'), await y('.seg'), await y('[data-prod="lotte"]'), await y('[data-testid="diff"]'), await y('[data-testid="price-note"]'), await y('[data-fold]')];
+  const ys = [await y('[data-testid="situation"]'), await y('[data-testid="common"]'), await y('.seg'), await y('[data-prod="lotte"]'), await y('[data-testid="diff"]'), await y('[data-testid="price-note"]'), await y('[data-fold="d-lotte"]')];
   check('순서: 상황 → 공통 가정 → 경과 기간 → 금액 → 차이 → 보험료 → 근거', ys.every((v, i) => i === 0 || ys[i-1] < v), ys.map(Math.round).join(' < '));
 
   // 상품별 금액 또는 이유가 같은 자리(오른쪽 위)에 있는지
   const pos = await page.evaluate(() => [...document.querySelectorAll('.prod')].map(p => { const r = p.getBoundingClientRect(), a = p.querySelector('.pamt').getBoundingClientRect(); return [Math.round(a.right - r.right), Math.round(a.top - r.top)]; }));
   check('세 상품 모두 금액·이유가 같은 자리(오른쪽 위)', pos.length === 3 && pos.every(p => p[0] === pos[0][0] && p[1] === pos[0][1]), JSON.stringify(pos));
-  check('금액 자리에 가입금액이 아닌 계산 결과 또는 이유', (await txt('[data-testid="amt-lotte"]')) === '계산 보류' && (await txt('[data-testid="amt-hana"]')) === '500만 원' && (await txt('[data-testid="amt-hd"]')) === '1,000만 원');
-  check('계산 보류 상품에 이유 표시', (await page.locator('[data-prod="lotte"] .limit').innerText()).includes('정의가 없어요'));
-  check('결과를 바꾸는 조건(50%)이 금액 바로 아래', await vis('[data-testid="limit-hana"]'));
+  check('금액 위 근거 종류: 보류 / 공시 감액률 예시 / 약관 기준 계산', (await txt('[data-testid="kind-lotte"]')) === '계산 보류' && (await txt('[data-testid="kind-hana"]')) === '공시 감액률을 적용한 예시' && (await txt('[data-testid="kind-hd"]')) === '약관 기준 계산');
+  check('금액: 하나 500만 원, 현대 1,000만 원, 롯데는 숫자 없음', (await txt('[data-testid="amt-hana"]')) === '500만 원' && (await txt('[data-testid="amt-hd"]')) === '1,000만 원' && (await page.locator('[data-prod="lotte"] .v').count()) === 0);
+  check('계산 보류 상품: 이유와 확인된 조건 표시', (await txt('[data-testid="reason-lotte"]')).includes('기재가 없어요') && (await page.locator('[data-prod="lotte"] .rule').innerText()).includes('확인된 조건'));
+  check('계산 보류 표시는 다른 근거 표시와 같은 색(강조색 아님)', await page.evaluate(() => { const c = s => getComputedStyle(document.querySelector(s)).color; return c('[data-testid="kind-lotte"]') === c('[data-testid="kind-hd"]') && c('[data-testid="kind-lotte"]') === 'rgb(102, 85, 74)'; }));
+  check('공통 가정에 가입금액 1,000만 원 맞춤 명시', (await txt('[data-testid="common-amount"]')).includes('가입금액을 1,000만 원으로 맞춤'));
+  check('결과를 바꾸는 조건이 금액 바로 아래', (await vis('[data-testid="rule-hana"]')) && (await vis('[data-testid="rule-hd"]')));
 
-  // 최저가 표시·가격 정렬 없음
   const all = await page.locator('#screen-cmp').innerText();
-  check('"최저가"·"가장 싼" 같은 표시 없음', !/최저가|가장 싼|저렴|추천|1위/.test(all));
+  check('"최저가"·"추천" 같은 표시 없음', !/최저가|가장 싼|저렴|추천|1위/.test(all));
+  check('"공시에 없음" 대신 "확인한 공시에 기재 없음"', !all.includes('공시에 없음') && all.includes('확인한 공시에 기재 없음'));
   const order = await page.evaluate(() => [...document.querySelectorAll('[data-price]')].map(e => e.getAttribute('data-price')));
   const prodOrder = await page.evaluate(() => [...document.querySelectorAll('[data-prod]')].map(e => e.getAttribute('data-prod')));
-  check('보험료 순서는 상품 순서(가나다)와 같고 가격순 아님', JSON.stringify(order) === JSON.stringify(prodOrder) && JSON.stringify(order) === '["lotte","hana","hd"]');
-  check('보험료 직접 비교하지 않는다는 안내', (await txt('[data-testid="price-note"]')).includes('직접 비교하지 않아요'));
-  check('보험료마다 공시 조건 표시', (await page.locator('[data-price] .cond').count()) === 3);
-  check('미확인 칸 표시(3칸)', (await page.locator('[data-testid="diff"] td.u').count()) === 3);
-  check('근거 접힘이 기본', (await page.locator('.detail:visible').count()) === 0);
+  check('보류 상품도 같은 목록, 순서는 가나다(가격순 아님)', JSON.stringify(order) === JSON.stringify(prodOrder) && JSON.stringify(order) === '["lotte","hana","hd"]');
+  check('보험료: 직접 비교하지 않고 담보 묶음 예시임을 안내', (await txt('[data-testid="price-note"]')).includes('담보만의 보험료가 아니고'));
+  check('보험료마다 "위 보장 구성의 견적이 아님"과 공시 조건', (await page.locator('[data-price] .nq', { hasText: '위 보장 구성의 견적이 아님' }).count()) === 3 && (await page.locator('[data-price] .cond').count()) === 3);
+  check('차이는 표가 아니라 항목별 세로 나열', (await page.locator('#screen-cmp table').count()) === 0);
+  const items = await page.evaluate(() => [...document.querySelectorAll('[data-item]')].filter(e => e.offsetParent).map(e => [e.getAttribute('data-item'), e.querySelectorAll('.cell').length, [...e.querySelectorAll('.cell')].every(c => /^(공시|약관)$/.test((c.querySelector('.tag') || {}).textContent || ''))]));
+  check('기본으로 보이는 차이: 지급 대상·감액·보장 시작, 항목마다 세 상품과 출처 꼬리표', JSON.stringify(items) === JSON.stringify([['target',3,true],['reduce',3,true],['start',3,true]]), JSON.stringify(items));
+  check('출처와 적용 구분 안내', (await txt('[data-testid="legend"]')).includes('출처'));
+  check('근거·전체 조건 접힘이 기본', (await page.locator('.detail:visible').count()) === 0 && !(await vis('#d-more')));
   await layout('기본');
   await shot('01_비교_기본.png');
 
@@ -63,25 +69,26 @@ function check(name, cond, detail) { log.push((cond ? 'PASS ' : 'FAIL ') + name 
   check('2년: 버튼 상태', (await page.getAttribute('[data-elapsed="2y"]', 'aria-pressed')) === 'true' && (await page.getAttribute('[data-elapsed="8m"]', 'aria-pressed')) === 'false');
   check('2년: 진단일 2028.8.20', (await txt('#dates')).includes('2028.8.20'));
   check('2년: 하나손보 1,000만 원', (await txt('[data-testid="amt-hana"]')) === '1,000만 원');
-  check('2년: 하나손보 50% 줄 숨김', !(await vis('[data-testid="limit-hana"]')));
-  check('2년: 롯데 가정 금액 1,000만 원, 50% 문구 없음', (await txt('[data-testid="branch-lotte"]')) === '일반암에 든다면 공시 문구 기준 1,000만 원');
+  check('2년: 감액 규칙은 남고 적용만 바뀜', (await vis('[data-testid="rule-hana"]')) && (await txt('[data-testid="rule-hana"]')).startsWith('1년 미만 50% 감액') && (await txt('[data-testid="apply-hana"]')).includes('적용하지 않았어요'));
+  check('2년: 근거 종류 표시 그대로', (await txt('[data-testid="kind-hana"]')) === '공시 감액률을 적용한 예시' && (await txt('[data-testid="kind-lotte"]')) === '계산 보류');
   check('2년: 현대해상 그대로 1,000만 원', (await txt('[data-testid="amt-hd"]')) === '1,000만 원');
   await layout('2년');
   await shot('02_비교_2년.png');
   await page.click('[data-elapsed="8m"]');
-  check('8개월로 되돌림: 500만 원, 50% 줄, 롯데 문구 복귀', (await txt('[data-testid="amt-hana"]')) === '500만 원' && (await vis('[data-testid="limit-hana"]')) && (await txt('[data-testid="branch-lotte"]')) === '일반암에 든다면 공시 문구 기준 500만 원(1년 미만 50%)');
+  check('8개월로 되돌림: 500만 원, 적용 문구 복귀', (await txt('[data-testid="amt-hana"]')) === '500만 원' && (await txt('[data-testid="apply-hana"]')).includes('적용했어요') && !(await txt('[data-testid="apply-hana"]')).includes('않았어요'));
 
   // 근거 펼침
-  for (const id of ['d-lotte', 'd-hana', 'd-hd']) {
+  for (const id of ['d-more', 'd-lotte', 'd-hana', 'd-hd']) {
     await page.click('[data-fold="' + id + '"]');
     check(id + ' 펼침', (await vis('#' + id)) && (await page.getAttribute('[data-fold="' + id + '"]', 'aria-expanded')) === 'true');
   }
+  check('전체 조건: 갱신·따로 보는 암·지급 횟수', (await page.locator('#d-more [data-item]').count()) === 3);
   check('근거마다 출처 있음', (await page.locator('.detail dt', { hasText: '출처' }).count()) === 3);
   await layout('근거 펼침');
   await page.click('[data-fold="d-lotte"]'); await page.click('[data-fold="d-hana"]');
-  check('접기', !(await vis('#d-lotte')) && !(await vis('#d-hana')) && (await vis('#d-hd')));
-  await shot('03_비교_현대해상_근거.png');
-  await page.click('[data-fold="d-hd"]');
+  check('접기', !(await vis('#d-lotte')) && !(await vis('#d-hana')) && (await vis('#d-hd')) && (await vis('#d-more')));
+  await shot('03_비교_전체조건_현대해상_근거.png');
+  await page.click('[data-fold="d-hd"]'); await page.click('[data-fold="d-more"]');
 
   // 시안 전용 버튼
   const protos = await page.locator('[data-proto]').all(); let ok = 0;

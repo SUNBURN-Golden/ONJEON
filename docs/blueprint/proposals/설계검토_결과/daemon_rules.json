@@ -777,6 +777,28 @@
     "branch_naming": "task/<task_id>-a<attempt>",
     "pr_dedup": "같은 task_id의 열린 PR이 있으면 새 PR을 만들지 않는다"
   },
+  "safety_verification_status": {
+    "_meaning": "specified = 규칙 파일에 명세만 있음. dry_run_target = T-OP-00 모의 실행기로 규칙 전이를 시험할 대상. real_executor_required = T-OP-09에서 실제 CLI·작업 트리·원격으로 검증해야 함. '검증됨'은 이 파일에 쓰지 않는다. 검증 결과는 T-OP-00·T-OP-09의 보고서에만 적는다",
+    "fencing_token_rejects_late_write": "real_executor_required",
+    "fencing_token_rejects_late_result_envelope": "real_executor_required",
+    "lease_isolation_worktree": "real_executor_required",
+    "push_only_via_daemon_with_short_lived_credential": "real_executor_required",
+    "lease_end_terminates_process_and_revokes_credential": "real_executor_required",
+    "no_concurrent_writers_across_handoff": "real_executor_required",
+    "resume_after_daemon_interrupt": "real_executor_required",
+    "duplicate_daemon_instance_prevented": "real_executor_required",
+    "switch_signal_provider_scope_only": "dry_run_target",
+    "decision_gate_start_vs_merge": "dry_run_target",
+    "stale_approval_invalidated_on_head_change": "dry_run_target",
+    "post_merge_states_prereq": "dry_run_target",
+    "returned_resume_by_owner": "dry_run_target",
+    "path_scope_rejection_R01": "dry_run_target",
+    "secret_pattern_halt_R10": "dry_run_target",
+    "no_merge_api_in_daemon_code": "dry_run_target",
+    "immediate_audit_path_rules": "dry_run_target",
+    "budget_reserve_before_act": "specified",
+    "human_only_merge_observation_R12": "specified"
+  },
   "daemon_does": [
     "전이표에 있는 전이만 수행(사건 + 조건)",
     "지시 봉투 생성·전달(토큰 포함)",

@@ -21,6 +21,7 @@
     "tests": "실행 명령과 필수 시험의 내용",
     "done_criteria": "고유 완료 기준. 공통 기준(03 §2)과 함께",
     "required_test_ids": "사용자 검토가 요구한 필수 시험 ID. tests·done_criteria에 그 내용이 있다",
+    "verification_kind": "dry_run(모의 검증, 규칙 파일만) | real_executor(실제 실행기 검증, VM, 가동 전). 해당 과제만. 둘은 분리된 과제다",
     "features": "feature_registry의 기능 ID(역색인)",
     "parallel_ok": "동시 실행 가능 여부",
     "conflict_paths": "동시 실행 시 충돌하는 경로. 겹치는 과제는 직렬화",
@@ -806,6 +807,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": "dry_run",
       "replaces_wp": [],
       "inputs": [
         "04_자동개발명세",
@@ -888,6 +890,7 @@
       "stage": "S5",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": "real_executor",
       "replaces_wp": [],
       "inputs": [
         "05_VM실행준비 §1b·§6",
@@ -937,10 +940,11 @@
       ],
       "tests": [
         "bash tools/daemon/runner_verify/run.sh --remote <시험용 원격> --report docs/vm_check/<날짜>/runner_verify.json",
-        "시험 late-write-fenced-runner(R1·R2·R3): 만료된 임대 A의 실제 푸시가 원격에서 거부되고 R-11이 기록된다. A의 결과 봉투가 토큰 불일치로 거부된다. A 전환 중 B 시작 시 두 프로세스가 동시에 쓰기 자격을 가진 시각 구간이 자격 발급·회수 로그상 없다",
-        "시험 resume-runner(R4): 데몬 강제 종료 뒤 재시작이 외부 상태로 복원하거나 R-08. WIP 커밋 보존",
-        "시험 duplicate-runner(R5): 데몬 두 인스턴스 동시 기동 시 임대 하나, 봉투 하나",
-        "시험 provider-scoped-switch-runner(R6·R7): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움"
+        "시험 late-write-fenced(R1·R3, 실제 실행기): 만료된 임대 A의 실제 푸시가 보호 브랜치·회수 자격으로 원격에서 거부되고 R-11이 기록된다. A 전환 중 B 시작 시 두 프로세스가 동시에 쓰기 자격을 가진 시각 구간이 자격 발급·회수 로그상 없다",
+        "시험 late-result-rejected(R2): 만료된 임대 A의 결과 봉투가 토큰 불일치로 거부되고 상태 전이가 없다",
+        "시험 resume-after-interrupt(R4): 데몬 강제 종료 뒤 재시작이 외부 상태로 복원하거나 R-08. WIP 커밋 보존",
+        "시험 duplicate-run-prevented(R5): 데몬 두 인스턴스 동시 기동 시 임대 하나, 봉투 하나",
+        "시험 provider-scoped-switch(R6·R7, 실제 실행기): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움"
       ],
       "done_criteria": [
         "R1~R8 결과가 기록되고 실패는 실패로 적힌다",
@@ -949,10 +953,11 @@
         "이 과제 완료가 가동 승인이 아니다"
       ],
       "required_test_ids": [
-        "late-write-fenced-runner",
-        "resume-runner",
-        "duplicate-runner",
-        "provider-scoped-switch-runner"
+        "late-write-fenced",
+        "late-result-rejected",
+        "resume-after-interrupt",
+        "duplicate-run-prevented",
+        "provider-scoped-switch"
       ],
       "features": [],
       "parallel_ok": false,
@@ -970,6 +975,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP01"
       ],
@@ -1052,6 +1058,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §1.2·§1.4·§1.5·§4.2",
@@ -1128,6 +1135,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP03"
       ],
@@ -1205,6 +1213,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §3·§4·§5·§6"
@@ -1282,6 +1291,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP02"
       ],
@@ -1367,6 +1377,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP06"
       ],
@@ -1451,6 +1462,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP04"
       ],
@@ -1516,6 +1528,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP07"
       ],
@@ -1566,12 +1579,14 @@
         "path:docs/blueprint/proposals/온톨로지/tbox.json"
       ],
       "outputs": [
-        "크레이트 API: load_tbox, check_constraints(view) → violations(K1~K15), view(release)·candidate_view, freeze(members) → {members, rule_files, content_sha256}, membership(snapshot, cat, code, as_of) → Judgement, scope_relation(a,b,universe)",
+        "크레이트 API: load_tbox, check_constraints(view) → violations(K1~K16), view(release)·candidate_view, freeze(members) → {members, rule_files, content_sha256}, service_allowed(release, coverage, notices) → {allowed, notices[]}, membership(snapshot, cat, code, as_of) → Judgement, scope_relation(a,b,universe)",
         "schemas/ontology/tbox.json(onto-0.2 복사)",
-        "골든: 질문 11·변이 14·I1~I4·D1~D2"
+        "골든: 질문 11·변이 15·I1~I7·D1~D5(ontology_check.py onto-0.2 결과)"
       ],
       "tests": [
-        "cargo test -p onjeon-ontology"
+        "cargo test -p onjeon-ontology",
+        "시험 edition-not-auto-by-fingerprint(골든 D3): realizes의 decision.by가 fingerprint_match이면 K14 위반. accepted는 review_decision(서비스) 또는 fixture_assumption(시험 전용)만",
+        "시험 edition-composition-annex(골든 D4·D5): 판의 구성(본문 + 참조 별표 + 참조 정의) 중 하나라도 다르거나 빠진 원본은 그 판을 실현하지 않는다(K16). 본문 지문만 같은 원본은 같은 판 후보가 아니다"
       ],
       "done_criteria": [
         "r24에서 K1 위반 정확히 1건, r25에서 0건",
@@ -1579,11 +1594,15 @@
         "I2~I4: 제자리 수정·삭제·규칙 파일 교체가 K15로 잡힌다",
         "D1: 다른 원본의 구획이 같은 본문 판을 실현해도 Q1 결과가 같다",
         "D2: 원본 해시만 근거인 realizes가 K14로 잡힌다",
-        "D3·D4(구현자 보강분): 본문 같고 참조 별표·정의·적용 범위가 다르면 다른 판 후보, 지문 일치만으로 accepted 되는 realizes는 거부(ReviewDecision 필요)",
+        "D3·D4·D5: 지문 일치만으로 accepted 되는 realizes는 K14 위반, 본문 같고 참조 별표가 다르거나 빠지면 K16 위반",
+        "I5~I7: 참조 노드·적용 관계 교체 뒤에도 과거 릴리스 재현 동일, ReleaseNotice는 재현을 막지 않고 영향 담보의 서비스 사용만 제한",
         "공식 CodeSystem 없이 scope_relation이 not_comparable을 돌려준다",
         "DB·네트워크 의존이 없다"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "edition-not-auto-by-fingerprint",
+        "edition-composition-annex"
+      ],
       "features": [
         "ontology"
       ],
@@ -1603,6 +1622,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "온톨로지/abox_cases.json(onto-0.2)",
@@ -1679,6 +1699,7 @@
       "stage": "S0",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP19"
       ],
@@ -1754,6 +1775,7 @@
       "stage": "S0",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "온톨로지 검증 resolve()·applicable_config()",
@@ -1832,6 +1854,7 @@
       "stage": "S0",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP05"
       ],
@@ -1909,6 +1932,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP10"
       ],
@@ -1990,6 +2014,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP11"
       ],
@@ -2070,6 +2095,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §1.1·§1.2·§8.2·C-18",
@@ -2154,6 +2180,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP12"
       ],
@@ -2235,6 +2262,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP13"
       ],
@@ -2314,6 +2342,7 @@
       "stage": "S1",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP14"
       ],
@@ -2397,6 +2426,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP15"
       ],
@@ -2447,14 +2477,17 @@
       ],
       "outputs": [
         "build_release(candidate_set) → manifest{members per section, rule_files{path: sha256}, content_sha256} | 거부 사유",
-        "view(release) → 구성원만 읽는 스냅샷",
+        "view(release) → 구성원만 읽는 스냅샷(공지와 무관하게 재현)",
+        "release_notice(release_id, affected{coverages[], sales_configs[]}, reason) → 운영 상태(릴리스 내용 밖). 서비스 사용만 영향 범위 단위로 제한",
         "withdraw(release_id, reason)",
         "shadow_compare(old, new, inputs) → report(unexplained_count)"
       ],
       "tests": [
         "cargo test -p onjeon-knowledge release",
         "cargo test -p onjeon-twin-runtime shadow",
-        "시험 release-frozen-members: 릴리스 r 생성 뒤 (a) 새 주장 추가 → view(r)에 보이지 않고 r의 질문 결과 불변, (b) 구성원 제자리 수정 → K15 내용 해시 불일치, (c) 구성원 삭제 → K15 구성원 없음, (d) 규칙 파일 교체 → K15 규칙 해시 불일치"
+        "시험 release-frozen-members: 릴리스 r 생성 뒤 (a) 새 주장 추가 → view(r)에 보이지 않고 r의 질문 결과 불변, (b) 구성원 제자리 수정 → K15 내용 해시 불일치, (c) 구성원 삭제 → K15 구성원 없음, (d) 규칙 파일 교체 → K15 규칙 해시 불일치",
+        "시험 release-referenced-nodes-frozen: 코드 집합·조건 노드·uses_edition 적용 관계를 새 판으로 교체(supersedes)해도 r의 결과·설명·근거 사슬이 동일하고(온톨로지 I5), 참조 노드 제자리 수정은 K15로 잡힌다(I6)",
+        "시험 release-usage-restriction-separate: ReleaseNotice(릴리스+영향 담보+사유)를 기록하면 view(r)와 재현 결과는 그대로이고, 영향 담보의 새 서비스 계산만 차단되며 다른 담보는 허용된다(I7). 공지는 릴리스 내용 해시를 바꾸지 않는다"
       ],
       "done_criteria": [
         "같은 입력이면 같은 content_sha256",
@@ -2465,7 +2498,9 @@
         "철회는 manifest를 지우지 않고 withdrawn_at만 쓴다"
       ],
       "required_test_ids": [
-        "release-frozen-members"
+        "release-frozen-members",
+        "release-referenced-nodes-frozen",
+        "release-usage-restriction-separate"
       ],
       "features": [
         "web-releases",
@@ -2488,6 +2523,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §2·§2.5·§4",
@@ -2569,6 +2605,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP16"
       ],
@@ -2649,6 +2686,7 @@
       "stage": "S1",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP16"
       ],
@@ -2731,6 +2769,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "CONSUMER_FLOW_SPEC",
@@ -2813,6 +2852,7 @@
       "stage": "S1",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP17"
       ],
@@ -2896,6 +2936,7 @@
       "stage": "S1",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "구현계획 §4 S1",
@@ -2970,6 +3011,7 @@
       "stage": "S2",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP20"
       ],
@@ -3044,6 +3086,7 @@
       "stage": "S2",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP21"
       ],
@@ -3123,6 +3166,7 @@
       "stage": "S2",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP22"
       ],
@@ -3205,6 +3249,7 @@
       "stage": "S2",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP23"
       ],
@@ -3281,6 +3326,7 @@
       "stage": "S2",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §1.5",
@@ -3365,6 +3411,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "통합안 D-08 권고",
@@ -3437,6 +3484,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §1.5 서비스 적용 승인 관문",
@@ -3490,14 +3538,16 @@
       ],
       "tests": [
         "cargo test -p onjeon-criteria application",
-        "시험: 적용 기록이 없으면 NeedResult에 criteria_eval 이유와 참고 통계가 없고 사용자 가정 이유만 있다. 기록이 있으면 그 목록의 기준 판만 쓰인다. defaults_enabled=false면 기본값이 어떤 응답에도 없다"
+        "시험 need-criteria-service-gate: (1) criteria_application 기록이 없으면 NeedResult에 criteria_eval 이유와 참고 통계가 없고 사용자 가정 이유만 있다. (2) 기록이 있으면 applied_criterion_versions 목록의 기준 판만 쓰인다. (3) defaults_enabled=false면 기본값이 어떤 응답에도 없다. (4) 승인 참조(decision_id·approved_by·recorded_at) 없는 기록은 삽입이 거부된다. (5) 기준 릴리스가 새로 고정되어도 적용 기록이 그 릴리스를 가리키기 전에는 옛 적용분만 쓰인다"
       ],
       "done_criteria": [
         "승인 참조(decision_id·approved_by·recorded_at) 없는 적용 기록은 거부된다",
         "적용 목록 밖 기준 판은 서비스 모드에서 읽히지 않는다",
         "기본 필요액 제공은 defaults_enabled와 산출 근거 참조가 있을 때만"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "need-criteria-service-gate"
+      ],
       "features": [
         "need-criteria"
       ],
@@ -3516,6 +3566,7 @@
       "stage": "S2",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP24"
       ],
@@ -3585,6 +3636,7 @@
       "stage": "S3",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP30"
       ],
@@ -3664,6 +3716,7 @@
       "stage": "S3",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP31"
       ],
@@ -3747,6 +3800,7 @@
       "stage": "S3",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP32"
       ],
@@ -3825,6 +3879,7 @@
       "stage": "S3",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP33"
       ],
@@ -3900,6 +3955,7 @@
       "stage": "S3",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP34"
       ],
@@ -3977,6 +4033,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP41"
       ],
@@ -4059,6 +4116,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP41"
       ],
@@ -4143,6 +4201,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP42"
       ],
@@ -4227,6 +4286,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP43"
       ],
@@ -4312,6 +4372,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "불확실_상황_시험 §2(결론별 의존 기록, 값 미확인과 영향 범위 미확인)",
@@ -4398,6 +4459,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §2.2·§2.4·§1.6",
@@ -4481,6 +4543,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [],
       "inputs": [
         "02_구현계약 §1.5·§2.1·§2.2",
@@ -4568,6 +4631,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP44"
       ],
@@ -4650,6 +4714,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP45"
       ],
@@ -4733,6 +4798,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP46"
       ],
@@ -4816,6 +4882,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP47"
       ],
@@ -4893,6 +4960,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP47"
       ],
@@ -4967,6 +5035,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP48"
       ],
@@ -5051,6 +5120,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP48"
       ],
@@ -5132,6 +5202,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP40"
       ],
@@ -5226,6 +5297,7 @@
       "stage": "S4",
       "twin_axis": true,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP40"
       ],
@@ -5306,6 +5378,7 @@
       "stage": "S4",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP42"
       ],
@@ -5390,6 +5463,7 @@
       "stage": "S5",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP50"
       ],
@@ -5473,6 +5547,7 @@
       "stage": "S5",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP51"
       ],
@@ -5543,6 +5618,7 @@
       "stage": "S5",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP52"
       ],
@@ -5616,6 +5692,7 @@
       "stage": "S5",
       "twin_axis": false,
       "final_gate": false,
+      "verification_kind": null,
       "replaces_wp": [
         "WP53"
       ],
@@ -5698,6 +5775,7 @@
       "stage": "S5",
       "twin_axis": false,
       "final_gate": true,
+      "verification_kind": null,
       "replaces_wp": [
         "WP54"
       ],

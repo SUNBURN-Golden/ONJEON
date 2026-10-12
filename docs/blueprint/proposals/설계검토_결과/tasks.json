@@ -1,8 +1,8 @@
 {
   "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, ffbcaf6 사용자 검토 반영). 채택된 정본이 아니다. 데몬이 읽는 작업 명세 초안(실행하지 않음)",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
-  "_target_sha": "ffbcaf6(검토 대상) + 온톨로지 onto-0.2 작업 트리",
-  "schema": "onjeon-tasks-0.2",
+  "_target_sha": "ffbcaf6(사용자 검토 대상) → 2cdd663(수정판 1차) → 이 판(상세 검토서 F01~F12 대조)",
+  "schema": "onjeon-tasks-0.3",
   "field_definitions": {
     "id": "T-<구역2자>-<번호>. CT contracts, DT data, KN knowledge, TW twin, PS personal, AP app·api, MB mobile, WB web·console, OP infra·ops, UX",
     "stage": "S0~S5 내부 단계. 납품 단위가 아니다",
@@ -11,7 +11,7 @@
     "replaces_wp": "구현계획 §14의 WP 중 이 과제가 대체·분할한 것",
     "inputs": "읽어야 하는 문서·산출물",
     "prereq_tasks": "먼저 끝나야 하는 과제. 충족 판정은 daemon_rules.post_merge_states(merged·audit_queued·done)로 한다",
-    "decision_gates": "start: 시작(임대) 전에 기록되어 있어야 하는 결정 ID. merge: 병합 대기(ready) 전에 기록되어 있어야 하는 결정 ID. 시작 전이는 start만, 병합 대기 전이는 merge만 본다",
+    "decision_gates": "네 키. start: 시작(임대) 전 결정. real_data: 실제 데이터(실제 제공자 검수·R2·실제 민감자료·대량 조회)에 접근하기 전 결정 — 지시 봉투의 real_data_allowed 로 전달되고 모의·로컬 작업은 막지 않는다. merge: 병합 대기(ready) 전 결정. release: 릴리스·서비스 모드 활성화 전 결정(릴리스 빌더·기능 플래그가 검사). 시작 전이는 start만, 병합 대기 전이는 merge만 본다",
     "canon_change": "정본 변경이 필요한 과제의 조건(ADR 절차·사용자 지시 후 병합). 경로 권한과 별개다",
     "allowed_paths": "수정 허용 glob. 밖의 파일을 바꾸면 반송(R-01)",
     "forbidden_paths": "수정 금지. 정본·토의 자료·비밀값·고정 작업 파일. 허용 경로와 겹치지 않는다(T-CT-02는 어휘 정본이 허용에 있고 금지에 없다)",
@@ -34,11 +34,37 @@
     "과제 ID, 작성에 참여한 모델 역할·실행 경로, 대상 SHA를 적었다",
     "tests의 명령을 실행하고 로그를 첨부했다('시험 추가 예정'은 통과가 아님)",
     "시안 숫자·임시 데이터·미연결 경로가 제품 코드에 없다. 시험 전용은 fixture_only 또는 origin=fixture",
-    "스켈레톤 비노출 시험과 누출 정적 검사가 통과한다",
+    {
+      "text": "스켈레톤 비노출 시험과 누출 정적 검사가 통과한다",
+      "applies_after": "T-CT-06",
+      "note": "이 도구는 T-CT-06이 만든다. 그 이전 과제(T-OP-00, T-CT-01~T-CT-05, T-OP-01)에는 적용하지 않는다"
+    },
     "독립 리뷰가 대상 SHA에 고정되어 있고 리뷰어는 작성 계열이 아니다",
     "비밀값·모델 식별자 원문·원문 발췌를 포함하지 않는다",
     "allowed_paths 밖을 수정하지 않았다"
   ],
+  "test_profiles": {
+    "historical_fixture": {
+      "what": "온톨로지 사례 A-box(r24·r25)와 규칙을 토의 자료 시점 그대로 읽는다. decision.by=fixture_assumption·origin=fixture·fixture_only를 허용한다",
+      "expected": "r24 K1 위반 1, r25 위반 0, 질문 11/11, 변이 15/15, I1~I7·D1~D7 통과(ontology_check.py 결과.txt)",
+      "used_by": [
+        "T-KN-01 골든",
+        "CI design-specs"
+      ],
+      "is_service_evidence": false
+    },
+    "service_conformance": {
+      "what": "같은 입력을 서비스 적재기·릴리스 빌더에 넣는다. origin=fixture·fixture_assumption·fixture_only·environment=test ReviewDecision은 accepted·릴리스가 될 수 없다",
+      "expected": "accepted 전부 거부, 릴리스 미생성(ONJ-KN-S-050), B1~B9 각 거부 사유 기록",
+      "used_by": [
+        "T-KN-02",
+        "T-KN-04",
+        "T-KN-07"
+      ],
+      "is_service_evidence": true
+    },
+    "note": "두 프로필의 기대값은 서로 다르며 모순이 아니다. 시험용 성공, 서비스 거부, 실제 지식 승격(실제 ReviewDecision·R2 보존)을 따로 보고한다(profile-historical-vs-service)"
+  },
   "feature_registry": [
     {
       "id": "entry-points",
@@ -49,7 +75,14 @@
       "tasks": [
         "T-MB-01",
         "T-MB-03"
-      ]
+      ],
+      "evidence": "실제 앱 빌드에서 세 진입점 → 익명 탐색 → 계정 전환 E2E 기록(민감정보 전환 전 미전송 로그)",
+      "acceptance_tests": [
+        "flutter integration_test entry_points",
+        "누출 시험: 전환 전 서버 요청 본문에 건강 필드 없음"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "home",
@@ -60,7 +93,14 @@
       "tasks": [
         "T-MB-03",
         "T-AP-05"
-      ]
+      ],
+      "evidence": "실제 릴리스·실제 개인 영역에서 가입내역 상태 네 가지별 화면 캡처와 응답 기록",
+      "acceptance_tests": [
+        "integration_test home_states_4",
+        "미제출을 0원·무보험으로 표시하지 않음(계약 시험)"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "contract-detail",
@@ -71,7 +111,14 @@
       "tasks": [
         "T-MB-03",
         "T-PS-02"
-      ]
+      ],
+      "evidence": "확인된 스냅샷(합성 PDF 기원) 위 계약 상세 E2E",
+      "acceptance_tests": [
+        "integration_test contract_detail",
+        "applied_editions가 근거로 확인한 판만(T-PS-02 시험)"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "coverage-detail",
@@ -82,7 +129,14 @@
       "tasks": [
         "T-AP-02",
         "T-MB-02"
-      ]
+      ],
+      "evidence": "실제 상품 담보의 상세 화면 숫자 → 원문 좌표 기록(S1 관문 (b) 실제 데이터 관문)",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api coverage",
+        "integration_test coverage_detail_to_evidence(두 탭 이내)"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "same-coverage-compare",
@@ -92,7 +146,14 @@
       ],
       "tasks": [
         "T-AP-07"
-      ]
+      ],
+      "evidence": "실제 담보 둘 이상의 비교 E2E, 확인 필요 상품 포함 목록 캡처",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api comparisons",
+        "flutter test compare"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "what-if",
@@ -103,7 +164,14 @@
       "tasks": [
         "T-AP-03",
         "T-MB-04"
-      ]
+      ],
+      "evidence": "실제 릴리스 상품 트윈으로 감액·면책 경계일 시나리오 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api scenarios",
+        "integration_test what_if_boundary_days"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "my-design",
@@ -115,7 +183,14 @@
         "T-AP-05",
         "T-MB-04",
         "T-AP-09"
-      ]
+      ],
+      "evidence": "실제 가격 관측·실제 기준 릴리스로 내 설계 E2E(예산 필터, 필요 담보 이유)",
+      "acceptance_tests": [
+        "integration_test my_design",
+        "need-flow-keep-addnone-hold-unknown"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "two-plan-diff",
@@ -127,7 +202,14 @@
         "T-TW-05",
         "T-AP-05",
         "T-MB-04"
-      ]
+      ],
+      "evidence": "현재 계약 트윈·보완안 트윈의 차이 계산 기록(줄어드는 것 포함)",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime plan_diff",
+        "integration_test two_plan_diff_reduced_shown"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "evidence-view",
@@ -138,7 +220,14 @@
       "tasks": [
         "T-AP-02",
         "T-MB-02"
-      ]
+      ],
+      "evidence": "화면 숫자에서 원문 좌표까지 사슬 기록, D-12 플래그 상태별 응답",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api evidence",
+        "I6 계약 시험"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "me",
@@ -149,7 +238,14 @@
       "tasks": [
         "T-PS-03",
         "T-MB-04"
-      ]
+      ],
+      "evidence": "동의·가족력·삭제·내보내기 E2E(합성 자료, D-17 전)",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal consent deletion export",
+        "integration_test me_tab"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "pdf-import",
@@ -160,7 +256,14 @@
       "tasks": [
         "T-PS-01",
         "T-MB-04"
-      ]
+      ],
+      "evidence": "실제 형식 PDF(텍스트·스캔·비밀번호)의 가져오기 E2E, 비밀번호 미저장 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal import",
+        "integration_test import_confirm_before_calc"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "family-history",
@@ -170,7 +273,13 @@
       ],
       "tasks": [
         "T-PS-03"
-      ]
+      ],
+      "evidence": "본인 프로필 전용 입력·삭제 E2E, 확률·필요액 미생성 확인",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal family_history"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "error-report",
@@ -180,7 +289,14 @@
       ],
       "tasks": [
         "T-AP-06"
-      ]
+      ],
+      "evidence": "신고 → 격리 → 검수 대기 → 영향 표시 E2E 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api error_reports",
+        "cargo test -p onjeon-knowledge isolation"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "account",
@@ -191,7 +307,14 @@
       "tasks": [
         "T-PS-01",
         "T-AP-05"
-      ]
+      ],
+      "evidence": "익명→계정→본인확인 전환 E2E, 주민번호 미저장 확인",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal auth",
+        "integration_test account_upgrade"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "screen-states",
@@ -202,7 +325,13 @@
       "tasks": [
         "T-MB-01",
         "T-MB-03"
-      ]
+      ],
+      "evidence": "전 화면 × 상태 7종 카탈로그 캡처 1:1",
+      "acceptance_tests": [
+        "integration_test state_catalog"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "web-static",
@@ -212,7 +341,14 @@
       ],
       "tasks": [
         "T-WB-01"
-      ]
+      ],
+      "evidence": "배포 가능한 빌드의 경로별 렌더링 기록, 문구 린트",
+      "acceptance_tests": [
+        "npm test",
+        "npm run lint:phrases"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "web-coverage",
@@ -223,7 +359,14 @@
       "tasks": [
         "T-AP-04",
         "T-WB-01"
-      ]
+      ],
+      "evidence": "실제 분모·층별 확보율 집계로 렌더링된 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api coverage_status",
+        "python3 -I tools/ci/check_i17.py"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "web-releases",
@@ -234,7 +377,13 @@
       "tasks": [
         "T-WB-01",
         "T-KN-07"
-      ]
+      ],
+      "evidence": "실제 릴리스 이력·정정 이력 렌더링",
+      "acceptance_tests": [
+        "npm test -- releases"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "web-legal",
@@ -244,7 +393,13 @@
       ],
       "tasks": [
         "T-WB-01"
-      ]
+      ],
+      "evidence": "경로 렌더링·문의·삭제 요청 접수 기록",
+      "acceptance_tests": [
+        "npm test -- legal support status"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "console",
@@ -252,7 +407,14 @@
       "covers": [],
       "tasks": [
         "T-WB-02"
-      ]
+      ],
+      "evidence": "실제 파이프라인 상태를 보여 주는 7화면 캡처, 2FA·역할 시험",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api console",
+        "npm test -- console"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "scope",
@@ -262,7 +424,13 @@
       ],
       "tasks": [
         "T-DT-04"
-      ]
+      ],
+      "evidence": "포함 범위 기관 전부의 진행표(ADR-0018 범위, PR #3 통합 시 재확인)",
+      "acceptance_tests": [
+        "cargo test -p onjeon-collect adapters"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "denominator",
@@ -273,7 +441,14 @@
       "tasks": [
         "T-DT-04",
         "T-AP-04"
-      ]
+      ],
+      "evidence": "기관→상품→판매본→문서 분모 기록과 미확보 사유 분포",
+      "acceptance_tests": [
+        "cargo test -p onjeon-collect adapters",
+        "coverage_status I17 린트"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "collect",
@@ -285,7 +460,13 @@
         "T-DT-01",
         "T-DT-04",
         "T-DT-05"
-      ]
+      ],
+      "evidence": "일일 확인 실행 기록, 200 로그인 HTML 미성공 처리 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-collect archive schedule"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "preserve",
@@ -296,7 +477,14 @@
       "tasks": [
         "T-DT-01",
         "T-OP-04"
-      ]
+      ],
+      "evidence": "R2 보존·대조 기록(D-04 뒤), 로컬 저장소 조건부 쓰기 시험",
+      "acceptance_tests": [
+        "cargo test -p onjeon-collect archive",
+        "python3 -m unittest discover -s tools/tests"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "restore",
@@ -307,7 +495,14 @@
       "tasks": [
         "T-DT-02",
         "T-DT-03"
-      ]
+      ],
+      "evidence": "실제 공시 PDF(텍스트·스캔·표)의 구획·조항 추출 기록, 인용-좌표 대조",
+      "acceptance_tests": [
+        "docproc pytest",
+        "test_sandbox.sh"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "labeling",
@@ -319,7 +514,14 @@
         "T-KN-04",
         "T-KN-05",
         "T-KN-08"
-      ]
+      ],
+      "evidence": "실제 원문에서 추출된 pending 주장과 코드 검사 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-ai-review extraction",
+        "cargo test -p onjeon-knowledge store structures"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "ai-review",
@@ -330,7 +532,14 @@
       "tasks": [
         "T-KN-03",
         "T-KN-06"
-      ]
+      ],
+      "evidence": "실제 이종 계열 2개의 ReviewDecision 기록(D-02 뒤), hold 경로 실행 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-ai-review review",
+        "I14 정적 검사"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "release",
@@ -340,7 +549,14 @@
       ],
       "tasks": [
         "T-KN-07"
-      ]
+      ],
+      "evidence": "실제 릴리스 manifest(구성원·해시), 철회·공지 연습 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-knowledge release",
+        "release-frozen-members 외 3개"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "public-price",
@@ -351,7 +567,14 @@
       "tasks": [
         "T-KN-09",
         "T-DT-06"
-      ]
+      ],
+      "evidence": "실제 가격 관측 저장·비교 자격 판정 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-knowledge premium",
+        "cargo test -p onjeon-collect price"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "change-impact",
@@ -362,7 +585,14 @@
       "tasks": [
         "T-DT-05",
         "T-AP-06"
-      ]
+      ],
+      "evidence": "변경 감지 → 영향 재처리 → 후보 릴리스 → 그림자 비교 실행 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-collect schedule",
+        "cargo test -p onjeon-twin-runtime shadow"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "public-knowledge-model",
@@ -373,7 +603,14 @@
       "tasks": [
         "T-CT-05",
         "T-KN-04"
-      ]
+      ],
+      "evidence": "실제 판매 구성·구성 요소·약관 판 적재 기록",
+      "acceptance_tests": [
+        "bash infra/db/test.sh",
+        "cargo test -p onjeon-knowledge store"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "ontology",
@@ -384,7 +621,14 @@
       "tasks": [
         "T-KN-01",
         "T-KN-02"
-      ]
+      ],
+      "evidence": "두 프로필(historical_fixture·service_conformance) 결과 보고",
+      "acceptance_tests": [
+        "cargo test -p onjeon-ontology",
+        "cargo test -p onjeon-ontology fixture_origin"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "gap-resolution",
@@ -395,7 +639,14 @@
       "tasks": [
         "T-KN-10",
         "T-KN-11"
-      ]
+      ],
+      "evidence": "공백·확보 작업 기록과 콘솔 화면, 문의 초안(D-14 뒤)",
+      "acceptance_tests": [
+        "cargo test -p onjeon-knowledge gaps",
+        "cargo test -p onjeon-knowledge inquiry"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "deterministic-eval",
@@ -405,7 +656,13 @@
       ],
       "tasks": [
         "T-TW-02"
-      ]
+      ],
+      "evidence": "기존 엔진 시험 전부 통과 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-rules-engine"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "all-product-ops",
@@ -416,7 +673,14 @@
       "tasks": [
         "T-TW-04",
         "T-TW-05"
-      ]
+      ],
+      "evidence": "W1~W6 연산별 합성·변이·실제 표본 사례 시험 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-rules-engine",
+        "cargo test -p onjeon-twin-runtime"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "rule-0-2",
@@ -426,7 +690,13 @@
       ],
       "tasks": [
         "T-TW-02"
-      ]
+      ],
+      "evidence": "rule-0.2 연산 7개 골든·변이 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-rules-engine"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "input-stage",
@@ -436,7 +706,14 @@
       ],
       "tasks": [
         "T-TW-01"
-      ]
+      ],
+      "evidence": "Q1~Q10 골든과 같은 입력 단계 판정 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime",
+        "case-runner 골든"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "multi-contract",
@@ -447,7 +724,14 @@
       "tasks": [
         "T-TW-05",
         "T-TW-06"
-      ]
+      ],
+      "evidence": "여러 계약 합산 금지·부분 보류 시험 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime multi dependency",
+        "partial-hold-independent-contract-kept"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "node-evidence",
@@ -457,7 +741,13 @@
       ],
       "tasks": [
         "T-TW-05"
-      ]
+      ],
+      "evidence": "trace[].evidence_ref가 있는 평가 결과 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "precheck",
@@ -468,7 +758,14 @@
       "tasks": [
         "T-TW-03",
         "T-AP-01"
-      ]
+      ],
+      "evidence": "미지원 구조 ONJ-TW-U-010 기록과 capability blocked",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime compiler",
+        "cargo test -p onjeon-api capability"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "storage-separation",
@@ -479,7 +776,14 @@
       "tasks": [
         "T-CT-05",
         "T-CT-06"
-      ]
+      ],
+      "evidence": "DB 역할 분리 시험 로그, 의존 검사 통과",
+      "acceptance_tests": [
+        "bash infra/db/test.sh",
+        "python3 -I tools/ci/check_deps.py"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "contract-snapshot",
@@ -489,7 +793,13 @@
       ],
       "tasks": [
         "T-PS-02"
-      ]
+      ],
+      "evidence": "확인된 스냅샷·적용 판 이력 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal mapping"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "personal-contract-model",
@@ -500,7 +810,14 @@
       "tasks": [
         "T-CT-02",
         "T-PS-02"
-      ]
+      ],
+      "evidence": "어휘 새 축이 코드로 생성되고 스냅샷에 쓰인 기록",
+      "acceptance_tests": [
+        "python3 tools/vocab_check.py",
+        "cargo test -p onjeon-personal mapping"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "consent-deletion",
@@ -510,7 +827,13 @@
       ],
       "tasks": [
         "T-PS-03"
-      ]
+      ],
+      "evidence": "삭제 순서·늦은 쓰기 거부·백업 재적용 시험 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal consent deletion"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "sensitivity",
@@ -521,7 +844,14 @@
       "tasks": [
         "T-PS-03",
         "T-PS-04"
-      ]
+      ],
+      "evidence": "누출 시험 8종 통과 로그",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal leak",
+        "cargo test -p onjeon-api leak"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "no-denominator-signal",
@@ -531,7 +861,13 @@
       ],
       "tasks": [
         "T-PS-04"
-      ]
+      ],
+      "evidence": "개인 문서 유래 상품 후보가 수집 큐에 없음을 확인한 누출 시험",
+      "acceptance_tests": [
+        "cargo test -p onjeon-personal leak denominator_signal"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "daily-ops",
@@ -541,7 +877,13 @@
       ],
       "tasks": [
         "T-DT-05"
-      ]
+      ],
+      "evidence": "일일 실행 기록, 장애 주입 시 최신성 경고 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-collect schedule"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "quality-guards",
@@ -552,7 +894,14 @@
       "tasks": [
         "T-OP-05",
         "T-KN-07"
-      ]
+      ],
+      "evidence": "서킷 브레이커 발동·배포 차단 연습 기록",
+      "acceptance_tests": [
+        "bash tools/drills/circuit_breaker.sh",
+        "cargo test -p onjeon-knowledge release"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "incident",
@@ -563,7 +912,14 @@
       "tasks": [
         "T-AP-06",
         "T-OP-05"
-      ]
+      ],
+      "evidence": "오류 대응 런북 실행 기록",
+      "acceptance_tests": [
+        "bash tools/drills/rollback.sh",
+        "cargo test -p onjeon-api error_reports"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "security",
@@ -573,7 +929,13 @@
       ],
       "tasks": [
         "T-OP-06"
-      ]
+      ],
+      "evidence": "위협 모델 항목별 점검 기록",
+      "acceptance_tests": [
+        "(점검 기록)"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "observability",
@@ -584,7 +946,13 @@
       "tasks": [
         "T-OP-05",
         "T-CT-06"
-      ]
+      ],
+      "evidence": "OTel 마스킹·허용 목록 이벤트 시험 로그",
+      "acceptance_tests": [
+        "python3 -I tools/ci/check_leak.py"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "cost",
@@ -595,7 +963,14 @@
       "tasks": [
         "T-KN-03",
         "T-OP-04"
-      ]
+      ],
+      "evidence": "AI 호출 상한·R2 원장 동작 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-ai-gateway",
+        "python3 -m unittest discover -s tools/tests"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "rehearsal",
@@ -605,7 +980,13 @@
       ],
       "tasks": [
         "T-OP-07"
-      ]
+      ],
+      "evidence": "4주 리허설 기록(중요 오류 0건)",
+      "acceptance_tests": [
+        "(운영 기록)"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "skeleton",
@@ -614,7 +995,14 @@
       "tasks": [
         "T-CT-06",
         "T-MB-01"
-      ]
+      ],
+      "evidence": "플래그 기본 off, 라우트·화면 비노출 시험 CI 로그",
+      "acceptance_tests": [
+        "python3 -I tools/ci/check_leak.py",
+        "flutter test skeleton_hidden"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-what-if",
@@ -624,7 +1012,13 @@
       ],
       "tasks": [
         "T-AP-03"
-      ]
+      ],
+      "evidence": "실제 상품 트윈 시나리오 결과 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api scenarios"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-compare",
@@ -634,7 +1028,13 @@
       ],
       "tasks": [
         "T-AP-07"
-      ]
+      ],
+      "evidence": "같은 사건을 여러 상품 트윈에 넣은 비교 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api comparisons"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-what-if-line",
@@ -646,7 +1046,13 @@
         "T-AP-02",
         "T-AP-03",
         "T-MB-02"
-      ]
+      ],
+      "evidence": "담보 상세의 만약에 줄 숫자 → 원문 좌표 기록",
+      "acceptance_tests": [
+        "integration_test coverage_detail_to_evidence"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-my-insurance",
@@ -657,7 +1063,13 @@
       "tasks": [
         "T-PS-02",
         "T-AP-05"
-      ]
+      ],
+      "evidence": "개인 계약 트윈 위 홈·계약 상세 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api personal"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-actual-event",
@@ -667,7 +1079,13 @@
       ],
       "tasks": [
         "T-AP-08"
-      ]
+      ],
+      "evidence": "진술 입력 → 조건부 계산 → 확인 주체 표시 기록(D-06·D-07 범위)",
+      "acceptance_tests": [
+        "cargo test -p onjeon-api events"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-switch",
@@ -678,7 +1096,13 @@
       "tasks": [
         "T-TW-05",
         "T-AP-05"
-      ]
+      ],
+      "evidence": "두 안 비교에서 면책 재시작·감액·해지 손실 계산 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime plan_diff"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-multi",
@@ -689,7 +1113,13 @@
       "tasks": [
         "T-TW-05",
         "T-TW-06"
-      ]
+      ],
+      "evidence": "정액 중복·실손 비례분담·부분 보류 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime multi dependency"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "twin-change-impact",
@@ -701,7 +1131,14 @@
         "T-KN-07",
         "T-DT-05",
         "T-AP-06"
-      ]
+      ],
+      "evidence": "그림자 비교와 영향받는 저장 결과 표시 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-twin-runtime shadow",
+        "cargo test -p onjeon-knowledge isolation"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "need-criteria",
@@ -711,7 +1148,15 @@
         "T-KN-12",
         "T-KN-13",
         "T-KN-14"
-      ]
+      ],
+      "evidence": "기준 릴리스·적용 승인 기록(D-08 뒤), 정정 이력 기록",
+      "acceptance_tests": [
+        "cargo test -p onjeon-criteria",
+        "need-criteria-versioned",
+        "need-criteria-service-gate"
+      ],
+      "excluded": false,
+      "scope_decision": null
     },
     {
       "id": "need-result-reasons",
@@ -720,81 +1165,155 @@
       "tasks": [
         "T-AP-09",
         "T-MB-04"
-      ]
+      ],
+      "evidence": "실제 흐름에서 네 결과(유지·추가 없음·보류·미확인) 기록",
+      "acceptance_tests": [
+        "need-result-reasons",
+        "need-flow-keep-addnone-hold-unknown"
+      ],
+      "excluded": false,
+      "scope_decision": null
     }
   ],
   "decision_index": {
-    "D-02": {
-      "start": [
-        "T-OP-03"
-      ],
-      "merge": [
-        "T-KN-06"
-      ]
-    },
-    "D-08": {
-      "start": [],
-      "merge": [
-        "T-KN-14"
-      ]
-    },
     "D-04": {
       "start": [
         "T-OP-04"
       ],
-      "merge": []
+      "real_data": [
+        "T-DT-01",
+        "T-OP-02",
+        "T-DT-04"
+      ],
+      "merge": [],
+      "release": []
+    },
+    "D-02": {
+      "start": [
+        "T-OP-03"
+      ],
+      "real_data": [
+        "T-KN-06",
+        "T-OP-02"
+      ],
+      "merge": [],
+      "release": []
+    },
+    "D-12": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-AP-02",
+        "T-OP-07"
+      ]
+    },
+    "O12": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-TW-04",
+        "T-TW-05"
+      ]
+    },
+    "O04": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-KN-09"
+      ]
+    },
+    "D-08": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-KN-14"
+      ]
+    },
+    "O17": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-DT-05"
+      ]
     },
     "O14": {
       "start": [],
+      "real_data": [],
       "merge": [
         "T-OP-04"
+      ],
+      "release": []
+    },
+    "O02": {
+      "start": [],
+      "real_data": [
+        "T-DT-06"
+      ],
+      "merge": [],
+      "release": []
+    },
+    "D-17": {
+      "start": [],
+      "real_data": [
+        "T-PS-01",
+        "T-PS-02",
+        "T-PS-03"
+      ],
+      "merge": [],
+      "release": [
+        "T-OP-07"
       ]
     },
     "D-14": {
       "start": [],
+      "real_data": [],
       "merge": [
         "T-KN-11"
-      ]
+      ],
+      "release": []
     },
     "D-06": {
       "start": [],
+      "real_data": [],
       "merge": [
         "T-AP-08"
-      ]
+      ],
+      "release": []
     },
     "D-07": {
       "start": [],
+      "real_data": [],
       "merge": [
         "T-AP-08"
-      ]
+      ],
+      "release": []
     },
     "D-16": {
       "start": [
         "T-UX-01"
       ],
-      "merge": []
+      "real_data": [],
+      "merge": [],
+      "release": []
     },
     "D-03": {
       "start": [
         "T-OP-07"
       ],
-      "merge": []
-    },
-    "D-12": {
-      "start": [],
-      "merge": [
-        "T-OP-07"
-      ]
-    },
-    "D-17": {
-      "start": [],
-      "merge": [
-        "T-OP-07"
-      ]
+      "real_data": [],
+      "merge": [],
+      "release": []
     },
     "D-18": {
       "start": [],
-      "merge": [
+      "real_data": [],
+      "merge": [],
+      "release": [
         "T-OP-07"
       ]
     }
@@ -802,7 +1321,7 @@
   "tasks": [
     {
       "id": "T-OP-00",
-      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M20을 모의 빌더로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
+      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M27을 공용 전이·검증 코어로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
       "zone": "infra·ops",
       "stage": "S0",
       "twin_axis": false,
@@ -817,7 +1336,14 @@
       "prereq_tasks": [],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -848,6 +1374,7 @@
       "consumes": [
         "path:docs/blueprint/proposals/설계검토_결과/daemon_rules.json"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "dry_run.py(전이표 밖 조건은 returned), 모의 빌더 스크립트, 모의 과제 파일(T-MOCK-*), 보고서(시나리오별 기대·실제 전이)"
       ],
@@ -858,13 +1385,25 @@
         "시험 stale-approval-invalidated: review_approved·audit_pending·merge_wait 각 상태에서 head_sha_changed 사건 → review_pending 으로 가고 옛 review_result·audit_result가 무효(R-04) 기록된다",
         "시험 late-write-fenced: 임대 A(token 7) 전환 뒤 임대 B(token 8) 시작. A가 늦게 푸시·결과 봉투 제출 → token<8 로 거부(R-11), A 프로세스 그룹 종료·자격 회수 기록, B의 쓰기만 수락. 교체 전후 동시 쓰기 0건",
         "시험 provider-scoped-switch: 자식 시험 로그에 'rate limit exceeded', 수집 대상 사이트 403 응답을 넣어도 전환 없음. 모델 제공자 HTTP 429(scope=model_provider)·실행기 종료 코드·인증 프로브 실패만 전환",
-        "시험 post-merge-prereq: 선행 과제가 merged→audit_queued→done 으로 바뀐 뒤에도 후속 과제가 queued 가 된다(post_merge_states)"
+        "시험 post-merge-prereq: 선행 과제가 merged→audit_queued→done 으로 바뀐 뒤에도 후속 과제가 queued 가 된다(post_merge_states)",
+        "시험 event-duplicate-noop(M21): 같은 ci_passed·pr_merged_observed 알림을 두 번 받아도 상태가 바뀌지 않고 noop 기록만 남는다(noop_events)",
+        "시험 event-out-of-order(M22): review_approved 결과가 ci_passed보다 먼저 도착하면 보류 큐에 두었다가 순서가 맞을 때 적용하고, 맞지 않는 SHA면 무효(R-04). 전이표 밖 조건으로 반송하지 않는다",
+        "시험 docs-pr-complete(M23): 변경 경로가 docs/** 뿐인 PR은 merged→done(docs_only)으로 가고 merged_impl_counter를 올리지 않는다",
+        "시험 eleventh-pr-audit(M24): 구현 PR 10개 merged 뒤 audit_queued 묶음이 생기고, 11번째 PR은 새 묶음(카운터 1)에 들어가며 10번째 묶음의 감리 결과가 11번째 PR의 done을 막지 않는다",
+        "시험 mis-merge-not-done(M25): merge_wait(reason≠ready)·review_pending 등에서 병합이 관측되면 merged_invalid_approval 상태로 기록되고 post_merge_states에 들지 않아 후속 과제 선행으로 세지 않는다. done으로 가지 않는다",
+        "시험 budget-reserve-before-call(M26): 지시 봉투 전 예약 레코드가 없으면 호출이 나가지 않고, 예산 소진 뒤 새 임대가 생기지 않는다",
+        "시험 hard-stop-heartbeating-job(M27): 중단 지시·예산 소진 뒤 하트비트가 계속 와도 hard_stop.grace_s 가 지나면 임대가 종료 처리되고 토큰이 폐기된다(모의)",
+        "시험 switch-negative-test-output(M18a): 자식 시험 로그가 HTTP 429·'quota exceeded' 문자열을 출력해도 전환 신호가 발행되지 않는다",
+        "시험 switch-negative-third-party-http(M18b): 수집 대상 사이트 403/503, 저장소 API 401 응답에도 전환 신호가 발행되지 않는다",
+        "시험 d02-mock-start-allowed(M10a): 모의 과제(T-KN-06 거울)가 decision_gates.start=[], real_data=[D-02]일 때 D-02 미기록이어도 queued→leased→building 까지 진행되고 지시 봉투에 real_data_allowed=false 가 실린다",
+        "시험 r2-local-work-allowed(M10b): 모의 과제(T-DT-01 거울)가 real_data=[D-04]일 때 로컬 객체 저장소 경로 작업은 진행되고 R2 쓰기 단계만 real_data_allowed=false 로 막힌다"
       ],
       "done_criteria": [
-        "M1~M20 전부 기대 전이와 일치",
+        "M1~M27 전부 기대 전이와 일치",
         "병합 API·자동 병합 설정 호출 함수가 코드에 없다(정적 검사)",
         "네트워크·실제 CLI 호출이 없다",
         "가동 기능(스케줄러·실행기 연결)이 없다",
+        "모의 실행기는 실제 실행기와 같은 전이·검증 코어(daemon_rules.execution_core)를 호출한다. 모의 결과만 맞춘 별도 로직이 없다",
         "decision-gate-merge-only·stale-approval-invalidated·late-write-fenced·provider-scoped-switch·post-merge-prereq 시험이 각각 통과하고 보고서에 전이 열이 남는다"
       ],
       "required_test_ids": [
@@ -872,7 +1411,18 @@
         "stale-approval-invalidated",
         "late-write-fenced",
         "provider-scoped-switch",
-        "post-merge-prereq"
+        "post-merge-prereq",
+        "event-duplicate-noop",
+        "event-out-of-order",
+        "docs-pr-complete",
+        "eleventh-pr-audit",
+        "mis-merge-not-done",
+        "budget-reserve-before-call",
+        "hard-stop-heartbeating-job",
+        "switch-negative-test-output",
+        "switch-negative-third-party-http",
+        "d02-mock-start-allowed",
+        "r2-local-work-allowed"
       ],
       "features": [],
       "parallel_ok": true,
@@ -902,7 +1452,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -934,6 +1491,7 @@
       "consumes": [
         "path:tools/daemon/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "실행기 검증 도구(T-MOCK-* 과제만, 제품 브랜치 쓰기·병합 없음)",
         "R1~R8 결과 기록, §1b 확인표 채움(미확인은 미확인)"
@@ -944,7 +1502,9 @@
         "시험 late-result-rejected(R2): 만료된 임대 A의 결과 봉투가 토큰 불일치로 거부되고 상태 전이가 없다",
         "시험 resume-after-interrupt(R4): 데몬 강제 종료 뒤 재시작이 외부 상태로 복원하거나 R-08. WIP 커밋 보존",
         "시험 duplicate-run-prevented(R5): 데몬 두 인스턴스 동시 기동 시 임대 하나, 봉투 하나",
-        "시험 provider-scoped-switch(R6·R7, 실제 실행기): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움"
+        "시험 provider-scoped-switch(R6·R7, 실제 실행기): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움",
+        "시험 hard-stop-heartbeating-job(R9): 중단 지시 뒤 하트비트를 계속 보내는 실제 CLI 프로세스가 grace_s 뒤 프로세스 그룹 종료·자격 회수로 끝나고 그 뒤의 푸시·봉투가 거부된다",
+        "시험 budget-reserve-before-call(R10): CLI 내부 호출 수가 봉투의 max_calls를 넘을 때 데몬이 실제로 막을 수 있는 범위(프록시 계량 가능 여부)를 기록한다. 막지 못하는 범위는 '사후 정산만'으로 적는다"
       ],
       "done_criteria": [
         "R1~R8 결과가 기록되고 실패는 실패로 적힌다",
@@ -957,7 +1517,9 @@
         "late-result-rejected",
         "resume-after-interrupt",
         "duplicate-run-prevented",
-        "provider-scoped-switch"
+        "provider-scoped-switch",
+        "hard-stop-heartbeating-job",
+        "budget-reserve-before-call"
       ],
       "features": [],
       "parallel_ok": false,
@@ -987,7 +1549,23 @@
       "prereq_tasks": [],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
@@ -997,7 +1575,8 @@
         "packages/schemas/Cargo.toml",
         "packages/schemas/README.md",
         "packages/schemas/evidence_ref.md",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1025,6 +1604,7 @@
       "consumes": [
         "path:packages/schemas/vocabulary.json"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "JSON Schema: Assertion, ReleaseManifest, EvaluationResult, ScenarioResult, CoverageDetail, CompareView, PlanView, EvidenceView, NeedResult, PremiumObservation, ContractSnapshot(개인), 오류 응답",
         "생성기(어휘 enum → Rust·Dart·TS)",
@@ -1045,7 +1625,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/schemas/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -1068,7 +1649,14 @@
       "prereq_tasks": [],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": {
         "required": true,
@@ -1102,6 +1690,7 @@
         "path:docs/blueprint/VOCABULARY.md"
       ],
       "consumes": [],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "어휘 1.6.0(제안): 새 축과 값, screen_ko, 정의",
         "VOCABULARY.md 재생성(--write)"
@@ -1149,14 +1738,31 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "packages/schemas/openapi/**",
         "packages/schemas/codegen/**",
         "packages/api-types/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1183,6 +1789,7 @@
       "consumes": [
         "crate:onjeon-contracts"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "openapi/public.v1.yaml, personal.v1.yaml, console.v1.yaml",
         "생성 클라이언트(Dart·TS)와 서버 타입(Rust)"
@@ -1200,7 +1807,9 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/schemas/openapi/**",
-        "packages/schemas/codegen/**"
+        "packages/schemas/codegen/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": true,
       "blocked_by": "D-11은 비회원 ephemeral 모드 한 항목만 보류 표시",
@@ -1223,7 +1832,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -1259,6 +1875,7 @@
       "consumes": [
         "crate:onjeon-contracts"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "errors.json(코드·클래스·화면 상태 매핑)",
         "analytics-events.json",
@@ -1306,7 +1923,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -1334,12 +1958,15 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:infra/db/**"
+        "path:infra/db/public/**",
+        "path:infra/db/personal/**",
+        "path:infra/db/criteria/**"
       ],
       "consumes": [
         "crate:onjeon-contracts",
         "path:packages/schemas/vocabulary.json"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "public 스키마 마이그레이션(raw_asset, observation, document_segment, terms_edition, terms_lineage, clause, node, assertion, premium_observation, release_manifest, review_decision, conflict, gap, acquisition_task, code_system)",
         "criteria 스키마(criterion, criterion_version, criterion_source)",
@@ -1391,7 +2018,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -1425,6 +2059,7 @@
       "consumes": [
         "crate:onjeon-contracts"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "feature_flags.json(스켈레톤 플래그 기본 off)",
         "의존 검사 규칙 파일(infra/ci/deps.json)과 검사기",
@@ -1434,13 +2069,17 @@
       "tests": [
         "python3 -I tools/ci/check_deps.py",
         "python3 -I tools/ci/check_leak.py",
-        "python3 -I tools/ci/check_leak.py --selftest"
+        "python3 -I tools/ci/check_leak.py --selftest",
+        "시험 bootstrap-clean-main: tools/ci/check_bootstrap.py — 깨끗한 main 클론에 과제 X의 선행 과제 산출물만 둔 상태에서 X의 tests 명령이 참조하는 crate·path가 모두 존재함을 tasks.json의 produces/consumes로 검사하고(spec_check G2와 같은 규칙), 표본 과제 하나(T-TW-01)를 실제로 그 상태에서 빌드·시험한다"
       ],
       "done_criteria": [
         "금지 패턴을 넣은 자체 시험이 각각 의도한 이유로 실패한다",
-        "의존 규칙 위반 import를 넣으면 실패한다"
+        "의존 규칙 위반 import를 넣으면 실패한다",
+        "bootstrap-clean-main 통과. 공통 완료 기준의 누출·비노출 항목은 이 과제 이후 과제에만 적용된다(applies_after)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "bootstrap-clean-main"
+      ],
       "features": [
         "storage-separation",
         "observability",
@@ -1472,7 +2111,14 @@
       "prereq_tasks": [],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -1501,6 +2147,7 @@
         "path:infra/compose/**"
       ],
       "consumes": [],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "docker-compose.yml, 초기화 스크립트, 환경 변수 예시(비밀값 없음)"
       ],
@@ -1523,7 +2170,7 @@
     },
     {
       "id": "T-KN-01",
-      "name": "packages/ontology 크레이트: T-box 적재(onto-0.2: 원본·구획·본문 판·계열), K1~K15 검사기, 집합 연산, 범위 관계 계산, 소속 판정(C-26), 변이·릴리스 고정·문서 모델 골든",
+      "name": "packages/ontology 크레이트: T-box 적재(onto-0.2: 원본·구획·본문 판·계열), K1~K16 검사기, 집합 연산, 범위 관계 계산, 소속 판정(C-26), 변이·릴리스 고정·문서 모델 골든",
       "zone": "knowledge",
       "stage": "S0",
       "twin_axis": false,
@@ -1543,13 +2190,30 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "packages/ontology/**",
         "packages/schemas/ontology/tbox.json",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1578,6 +2242,7 @@
         "crate:onjeon-contracts",
         "path:docs/blueprint/proposals/온톨로지/tbox.json"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "크레이트 API: load_tbox, check_constraints(view) → violations(K1~K16), view(release)·candidate_view, freeze(members) → {members, rule_files, content_sha256}, service_allowed(release, coverage, notices) → {allowed, notices[]}, membership(snapshot, cat, code, as_of) → Judgement, scope_relation(a,b,universe)",
         "schemas/ontology/tbox.json(onto-0.2 복사)",
@@ -1586,7 +2251,12 @@
       "tests": [
         "cargo test -p onjeon-ontology",
         "시험 edition-not-auto-by-fingerprint(골든 D3): realizes의 decision.by가 fingerprint_match이면 K14 위반. accepted는 review_decision(서비스) 또는 fixture_assumption(시험 전용)만",
-        "시험 edition-composition-annex(골든 D4·D5): 판의 구성(본문 + 참조 별표 + 참조 정의) 중 하나라도 다르거나 빠진 원본은 그 판을 실현하지 않는다(K16). 본문 지문만 같은 원본은 같은 판 후보가 아니다"
+        "시험 edition-composition-annex(골든 D4·D5): 판의 구성(본문 + 참조 별표 + 참조 정의) 중 하나라도 다르거나 빠진 원본은 그 판을 실현하지 않는다(K16). 본문 지문만 같은 원본은 같은 판 후보가 아니다",
+        "시험 edition-repack-same(골든 D1): 재압축본(다른 원본 해시)이 구성 전부를 같은 지문으로 담으면 같은 판이고 Q1 결과가 같다",
+        "시험 edition-integrated-vs-separate-file(골든 D6): 통합약관 속 구획과 개별 특약 파일이 같은 특약 판을 담는다(원본 3개, 위반 0). 같은 역할·같은 기간이라는 이유로 Conflict를 만들지 않는다",
+        "시험 edition-one-rider-revised-in-integrated(골든 D7): 통합 파일 안 특약 하나만 개정되면 그 특약은 새 판(같은 계열), 다른 특약 판은 그대로. 기존 판에 잇는 realizes는 K16 위반, r25 결과 불변",
+        "시험 release-future-supersedes-frozen(골든 I1): 릴리스 뒤 들어온 supersedes(미래의 정정)가 과거 릴리스의 결과·설명 11개를 바꾸지 않는다",
+        "시험 profile-historical-vs-service: 같은 사례 A-box를 (a) historical_fixture 프로필로 읽으면 r25 위반 0·질문 11/11(decision.by=fixture_assumption 허용), (b) service_conformance 프로필로 서비스 적재기에 넣으면 origin=fixture·fixture_assumption 때문에 accepted 전부 거부되고 릴리스가 만들어지지 않는다. 두 기대값을 한 시험 안에서 따로 보고한다"
       ],
       "done_criteria": [
         "r24에서 K1 위반 정확히 1건, r25에서 0건",
@@ -1601,7 +2271,12 @@
       ],
       "required_test_ids": [
         "edition-not-auto-by-fingerprint",
-        "edition-composition-annex"
+        "edition-composition-annex",
+        "edition-integrated-vs-separate-file",
+        "edition-repack-same",
+        "edition-one-rider-revised-in-integrated",
+        "release-future-supersedes-frozen",
+        "profile-historical-vs-service"
       ],
       "features": [
         "ontology"
@@ -1609,7 +2284,9 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/ontology/**",
-        "packages/schemas/ontology/**"
+        "packages/schemas/ontology/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -1635,7 +2312,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -1667,6 +2351,7 @@
         "crate:onjeon-ontology",
         "path:docs/blueprint/proposals/온톨로지/abox_cases.json"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "packages/fixtures/ontology/abox_cases.json(정식 evidence_ref, origin=fixture 전 주장, _review_note 유지)",
         "rules/*.json(fixture_only 그대로)",
@@ -1713,12 +2398,29 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "services/ai-gateway/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1744,6 +2446,7 @@
       "consumes": [
         "crate:onjeon-contracts"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "게이트웨이 크레이트: provider trait, 호출 기록, 월·사용자 상한, 사용자 문서 본문 미저장"
       ],
@@ -1762,7 +2465,9 @@
       ],
       "parallel_ok": true,
       "conflict_paths": [
-        "services/ai-gateway/**"
+        "services/ai-gateway/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": false,
       "blocked_by": "D-02는 ReviewDecision 생성(이종 계열 2개)만 막는다",
@@ -1788,12 +2493,29 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "packages/twin-runtime/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1821,6 +2543,7 @@
         "crate:onjeon-rules-engine",
         "path:packages/ontology/tests/golden/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "config_select(snapshot, candidates, contract_date) → Selected|Blocked{assertion_id, status}",
         "input_stage::fill(rule.inputs_from_outside_dsl, facts, snapshot) → inputs + judgements[]",
@@ -1841,7 +2564,9 @@
       ],
       "parallel_ok": true,
       "conflict_paths": [
-        "packages/twin-runtime/**"
+        "packages/twin-runtime/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -1866,7 +2591,14 @@
       "prereq_tasks": [],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -1897,6 +2629,7 @@
       "consumes": [
         "crate:onjeon-rules-engine"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "schema_version rule-0.2 로더 분기(rule-0.1 유지)",
         "연산별 골든·경계·변이·건전성 시험",
@@ -1947,12 +2680,31 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [
+          "D-04"
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "services/collect/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1980,6 +2732,7 @@
         "path:infra/compose/**",
         "path:packages/schemas/events/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "archive 클라이언트: put_once, observe, listing, verify_copy",
         "적합성 시험(파이썬 사례 이식)"
@@ -2001,10 +2754,12 @@
       ],
       "parallel_ok": true,
       "conflict_paths": [
-        "services/collect/**"
+        "services/collect/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": false,
-      "blocked_by": "R2 실제 쓰기만 D-04(토큰 폐기·재발급)에 막힌다. 로컬 경로는 막히지 않는다",
+      "blocked_by": "실데이터: R2 실제 쓰기만 D-04(토큰 폐기·재발급)에 막힌다. 로컬 경로·병합은 막히지 않는다",
       "notes": ""
     },
     {
@@ -2029,7 +2784,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2061,6 +2823,7 @@
         "path:infra/compose/**",
         "crate:onjeon-collect"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "docproc 컨테이너(네트워크 차단), 추출기 v1, DocumentSegment·ClauseOccurrence JSON 출력",
         "본문 지문 계산기(fp-0.1)",
@@ -2109,12 +2872,29 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "services/knowledge/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2142,15 +2922,17 @@
         "path:infra/db/**",
         "path:packages/fixtures/ontology/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "assertion 저장·조회·supersedes·conflict API",
         "적재기(allowlist: R2 관측 목록에 있는 해시만)",
-        "제약 검사 실행기(후보 집합에 K1~K15)",
+        "제약 검사 실행기(후보 집합에 K1~K16)",
         "gap·acquisition_task 기록 API(문의 초안 생성 없음)"
       ],
       "tests": [
         "cargo test -p onjeon-knowledge store",
-        "cargo test -p onjeon-knowledge fixture_rejection"
+        "cargo test -p onjeon-knowledge fixture_rejection(service_conformance 프로필: 픽스처 A-box 적재 시 fixture_assumption·origin=fixture accepted 전부 거부)",
+        "cargo test -p onjeon-knowledge edition_conflict(통합약관 구획과 개별 특약 파일이 같은 판을 담을 때 Conflict가 생기지 않고, 동일 적용 범위에서 양립 불가한 주장만 Conflict가 된다)"
       ],
       "done_criteria": [
         "주장은 수정 API가 없고 supersedes로만 바뀐다",
@@ -2167,7 +2949,9 @@
       ],
       "parallel_ok": false,
       "conflict_paths": [
-        "services/knowledge/**"
+        "services/knowledge/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -2196,12 +2980,29 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "services/ai-review/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2229,6 +3030,7 @@
         "crate:onjeon-ai-gateway",
         "path:services/docproc/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "추출 오케스트레이션(단일 계열로도 pending 생성 가능)",
         "코드 검사 5종",
@@ -2249,7 +3051,9 @@
       ],
       "parallel_ok": true,
       "conflict_paths": [
-        "services/ai-review/**"
+        "services/ai-review/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": false,
       "blocked_by": "없음(D-02는 승인 단계만)",
@@ -2276,9 +3080,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": [
+        "real_data": [
           "D-02"
-        ]
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2309,6 +3120,7 @@
       "consumes": [
         "crate:onjeon-ai-review"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "검수 실행기(families_count ≥ 2 강제)",
         "ReviewDecision 기록",
@@ -2332,7 +3144,7 @@
         "services/ai-review/src/review/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "병합: D-02(검수 모델 계열 2개 이상·정책 소유자). 시작·모의 제공자 시험은 막히지 않는다",
+      "blocked_by": "실데이터: D-02(검수 모델 계열 2개 이상·정책 소유자)가 실제 제공자 ReviewDecision 생성만 막는다. 시작·모의 제공자(environment=test) 시험·병합은 막히지 않는다",
       "notes": ""
     },
     {
@@ -2358,7 +3170,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2392,6 +3211,7 @@
         "crate:onjeon-twin-runtime",
         "crate:onjeon-knowledge"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "compile(coverage, assertions) → Rule JSON(candidate) + inputs_from_outside_dsl",
         "explain template 생성기 + 대조 검사",
@@ -2441,7 +3261,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2475,6 +3302,7 @@
         "crate:onjeon-knowledge",
         "crate:onjeon-twin-runtime"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "build_release(candidate_set) → manifest{members per section, rule_files{path: sha256}, content_sha256} | 거부 사유",
         "view(release) → 구성원만 읽는 스냅샷(공지와 무관하게 재현)",
@@ -2487,7 +3315,8 @@
         "cargo test -p onjeon-twin-runtime shadow",
         "시험 release-frozen-members: 릴리스 r 생성 뒤 (a) 새 주장 추가 → view(r)에 보이지 않고 r의 질문 결과 불변, (b) 구성원 제자리 수정 → K15 내용 해시 불일치, (c) 구성원 삭제 → K15 구성원 없음, (d) 규칙 파일 교체 → K15 규칙 해시 불일치",
         "시험 release-referenced-nodes-frozen: 코드 집합·조건 노드·uses_edition 적용 관계를 새 판으로 교체(supersedes)해도 r의 결과·설명·근거 사슬이 동일하고(온톨로지 I5), 참조 노드 제자리 수정은 K15로 잡힌다(I6)",
-        "시험 release-usage-restriction-separate: ReleaseNotice(릴리스+영향 담보+사유)를 기록하면 view(r)와 재현 결과는 그대로이고, 영향 담보의 새 서비스 계산만 차단되며 다른 담보는 허용된다(I7). 공지는 릴리스 내용 해시를 바꾸지 않는다"
+        "시험 release-usage-restriction-separate: ReleaseNotice(릴리스+영향 담보+사유)를 기록하면 view(r)와 재현 결과는 그대로이고, 영향 담보의 새 서비스 계산만 차단되며 다른 담보는 허용된다(I7). 공지는 릴리스 내용 해시를 바꾸지 않는다",
+        "시험 release-future-supersedes-frozen(서비스): 릴리스 r 고정 뒤 r의 주장을 supersedes하는 정정이 들어와도 view(r)의 현재 주장 집합·평가 결과·근거 사슬이 r 고정 시점과 같다. 정정은 다음 릴리스에서만 보인다"
       ],
       "done_criteria": [
         "같은 입력이면 같은 content_sha256",
@@ -2500,7 +3329,8 @@
       "required_test_ids": [
         "release-frozen-members",
         "release-referenced-nodes-frozen",
-        "release-usage-restriction-separate"
+        "release-usage-restriction-separate",
+        "release-future-supersedes-frozen"
       ],
       "features": [
         "web-releases",
@@ -2536,12 +3366,29 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "services/api/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2570,6 +3417,7 @@
         "crate:onjeon-knowledge",
         "crate:onjeon-twin-runtime"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "api 바이너리(public·personal·console 모듈, personal 기본 비활성)",
         "capability resolver",
@@ -2592,7 +3440,9 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/api/src/main.rs",
-        "services/api/src/capability/**"
+        "services/api/src/capability/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -2618,7 +3468,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": [
+          "D-12"
+        ]
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2651,6 +3510,7 @@
       "consumes": [
         "crate:onjeon-api"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "GET /v1/coverages/{id}, GET /v1/evidence/{ref}",
         "I6 계약 시험"
@@ -2701,7 +3561,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2734,6 +3601,7 @@
         "crate:onjeon-api",
         "crate:onjeon-twin-runtime"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "엔드포인트, 멱등 키, explain_render(템플릿 채우기만)",
         "ScenarioResult 계약 시험"
@@ -2783,7 +3651,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2816,6 +3691,7 @@
         "path:packages/schemas/openapi/**",
         "path:packages/schemas/feature_flags.json"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "앱 골격(화면 라우트, 상태 프레임 위젯 7종, 예시 모드 표시)",
         "디자인 토큰 → Dart",
@@ -2867,7 +3743,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2902,6 +3785,7 @@
         "path:services/api/src/public/coverages/**",
         "path:services/api/src/public/scenarios/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "화면 3종 × 상태 7종",
         "integration_test: 화면 숫자 → 원문 좌표 두 탭 이내"
@@ -2949,7 +3833,17 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [
+          "D-02",
+          "D-04"
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -2982,6 +3876,7 @@
         "path:apps/mobile/lib/features/coverage_detail/**",
         "path:services/knowledge/release/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "관문 기록(명령·로그·해시). AI 검수 칸은 D-02 전이면 '비어 있음'"
       ],
@@ -2989,10 +3884,10 @@
         "bash tools/gate/s1.sh"
       ],
       "done_criteria": [
-        "화면 숫자 하나에서 원문 좌표까지 따라간 기록(I6)",
+        "관문 기록을 두 층으로 나눈다: (a) 코드 경로 관통 — 모의 제공자 2계열(environment=test)의 ReviewDecision으로 accepted된 주장 → 규칙 → test 릴리스 → API → 화면 숫자 → 원문 좌표(I6). D-02·D-04 없이 가능. (b) 실제 데이터 관문 통과 — 실제 제공자 ReviewDecision(D-02)과 R2 보존(D-04)이 있는 릴리스로 같은 경로. 둘 다 기록하되 (b) 없이 S1 관문을 통과로 적지 않는다",
         "보류 경로가 엔진을 부르지 않은 기록",
         "그림자 비교 보고 1건",
-        "D-02 전이면 릴리스가 candidate에 머문다고 명시"
+        "test 환경 ReviewDecision으로 만든 릴리스는 environment=test 표시가 있어 서비스 릴리스 빌더가 거부한다(service_conformance)"
       ],
       "required_test_ids": [],
       "features": [],
@@ -3001,7 +3896,7 @@
         "docs/gates/s1/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "D-02는 AI 검수 칸만 비운다. D-04는 R2 보존 칸만 비운다",
+      "blocked_by": "실데이터: D-02(실제 검수 결정)·D-04(R2 보존). 둘 다 '코드 경로 관통' 기록은 막지 않고 '실제 데이터 관문 통과' 판정만 막는다",
       "notes": "수정 권한 충돌 수정: 관문 기록 폴더를 토의 자료 폴더(docs/blueprint/proposals) 밖 docs/gates/로 옮겼다"
     },
     {
@@ -3025,7 +3920,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3055,6 +3957,7 @@
       "consumes": [
         "path:services/docproc/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "추출기 v2(쪽별 전략), 표 셀 좌표, 구획 경계 확정(특약·별표 시작·끝 쪽), OCR 불확실성 전파"
       ],
@@ -3101,7 +4004,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3137,6 +4047,7 @@
         "crate:onjeon-ai-review",
         "path:services/docproc/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "구조별 주장 묶음(pending 또는 hold), 미지원 구조 목록, 엔진 연산 과제(T-TW-04·05)가 쓰는 실제 표본 사례 묶음(fixture_only)"
       ],
@@ -3183,7 +4094,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": [
+          "O12"
+        ]
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3218,6 +4138,7 @@
         "crate:onjeon-twin-runtime",
         "path:packages/fixtures/structures/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "연산 추가, 계약 트윈 누적 사용량 입력 계약, 합성·변이 시험 + 실제 표본 사례"
       ],
@@ -3263,7 +4184,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": [
+          "O04"
+        ]
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3294,6 +4224,7 @@
       "consumes": [
         "crate:onjeon-knowledge"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "가격 관측 저장·조건 차원·condition_sources·package_binding",
         "같은 기준 안 정렬·필터 함수"
@@ -3340,13 +4271,30 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "services/criteria/**",
         "data/criteria/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3374,6 +4322,7 @@
         "path:infra/db/**",
         "path:packages/schemas/vocabulary.json"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "criterion{id, kind, scope, ...}, criterion_version{version, valid_from, source[{ref, evidence_kind}], rationale}",
         "criteria release(불변, 판 목록·내용 해시)",
@@ -3398,7 +4347,9 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/criteria/**",
-        "data/criteria/**"
+        "data/criteria/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": true,
       "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다",
@@ -3423,7 +4374,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3454,6 +4412,7 @@
       "consumes": [
         "crate:onjeon-criteria"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "기본값 기준 판(출처 RawAsset 해시·적용 대상·갱신 주기)"
       ],
@@ -3497,9 +4456,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": [
+        "real_data": [],
+        "merge": [],
+        "release": [
           "D-08"
         ]
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3532,6 +4498,7 @@
         "crate:onjeon-criteria",
         "path:data/criteria/defaults/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "criteria_application 기록·검증기, 서비스 모드 읽기 필터(승인된 기준 판·기본값만)",
         "설계 승인 ≠ 적용 승인을 코드 주석·스키마 설명에 명시"
@@ -3556,7 +4523,7 @@
         "services/criteria/src/application/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "병합: D-08(어떤 기준을 실제 사용자에게 적용할지, 기본 필요액 제공 여부와 산출 근거). 구조·판·출처·정정 이력·의존 기록(T-KN-12)과 사용자 가정 경로(T-AP-09)는 막지 않는다",
+      "blocked_by": "출시(서비스 적용): D-08(어떤 기준을 실제 사용자에게 적용할지, 기본 필요액 제공 여부와 산출 근거)이 criteria_application 기록 생성과 서비스 모드 활성화만 막는다. 관문 코드의 작성·병합, 구조·판·출처·정정 이력·의존 기록(T-KN-12), 사용자 가정 경로(T-AP-09)는 막지 않는다",
       "notes": "[사용자 결정 2026-10-12] 설계 승인이 특정 판단 기준의 서비스 적용 승인은 아니다. 이 과제가 그 별도 관문이다"
     },
     {
@@ -3581,7 +4548,14 @@
         "start": [
           "D-02"
         ],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3611,6 +4585,7 @@
       "consumes": [
         "path:services/ai-review/src/review/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "실측 보고서(수치는 측정값만)"
       ],
@@ -3651,7 +4626,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [
+          "D-04"
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3683,6 +4667,7 @@
         "crate:onjeon-collect",
         "path:data/registry/insurers.csv"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "어댑터 트레이트와 기관별 구현, DiscoveryManifest 기록, 기관 진행표"
       ],
@@ -3732,7 +4717,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": [
+          "O17"
+        ]
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3765,6 +4759,7 @@
         "path:services/knowledge/release/**",
         "path:tools/html_content_hash.py"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "스케줄러(수동 트리거 모드 기본), 변경 감지, 영향 집합 계산 호출",
         "data 구역 단독 빌드 스크립트"
@@ -3814,9 +4809,16 @@
         "start": [
           "D-04"
         ],
+        "real_data": [],
         "merge": [
           "O14"
-        ]
+        ],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3848,6 +4850,7 @@
       "consumes": [
         "path:tools/r2_budget.py"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "체크포인트 설계·구현, 잠금 규칙안, 실제 R2 검증 기록"
       ],
@@ -3894,7 +4897,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [
+          "O02"
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -3926,6 +4938,7 @@
         "path:services/collect/src/adapters/**",
         "path:services/knowledge/premium/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "격자 출처 조사 기록, 가격 어댑터"
       ],
@@ -3969,7 +4982,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4001,6 +5021,7 @@
         "crate:onjeon-api",
         "path:services/collect/src/adapters/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "집계 쿼리, 응답, '전수' 문자열 린트"
       ],
@@ -4049,13 +5070,32 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [
+          "D-17"
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.toml",
+            "only": "workspace.members에 이 과제의 크레이트 한 줄 추가. 다른 줄 변경 금지"
+          },
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
       },
       "canon_change": null,
       "allowed_paths": [
         "services/personal/**",
         "infra/compose/**",
-        "Cargo.toml"
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4083,6 +5123,7 @@
         "path:services/docproc/**",
         "crate:onjeon-api-types"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "personal 바이너리, 업로드·추출·확인 엔드포인트, 계정·프로필, 개인용 docproc 배포 정의"
       ],
@@ -4103,7 +5144,9 @@
       ],
       "parallel_ok": true,
       "conflict_paths": [
-        "services/personal/**"
+        "services/personal/**",
+        "Cargo.toml",
+        "Cargo.lock"
       ],
       "immediate_audit": true,
       "blocked_by": "D-17은 실제 민감자료의 외부 AI 처리만 막는다",
@@ -4132,7 +5175,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [
+          "D-17"
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4166,6 +5218,7 @@
         "crate:onjeon-personal",
         "crate:onjeon-twin-runtime"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "매핑 후보 생성(이름만으로 확정 금지), 스냅샷 저장, contract_twin 생성기"
       ],
@@ -4215,7 +5268,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [
+          "D-17"
+        ],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4251,6 +5313,7 @@
       "consumes": [
         "crate:onjeon-personal"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "consent API, family-history API(본인만), deletion_job, export(JSON·PDF)"
       ],
@@ -4301,7 +5364,16 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": [
+          "O12"
+        ]
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4334,6 +5406,7 @@
         "crate:onjeon-rules-engine",
         "crate:onjeon-twin-runtime"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "multi_contract(합산 금지 규칙), plan_diff, W5·W6 연산, trace[].evidence_ref"
       ],
@@ -4386,7 +5459,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4421,6 +5501,7 @@
         "path:packages/twin-runtime/src/contract_twin/**",
         "crate:onjeon-api"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "conclusion_dependency{conclusion_id, deps{assertions[], facts[], rules[], criteria[]}, unknown_overlap[]}",
         "hold_scope(conclusions, unknowns) → {held[], kept[], partial[{conclusion, excluded_contracts[]}]}",
@@ -4428,6 +5509,8 @@
       ],
       "tests": [
         "cargo test -p onjeon-twin-runtime dependency",
+        "시험 partial-hold-independent-contract-kept: 확인된 독립 계약 A와 연결 미확인(ambiguous) 계약 B를 한 요청에 넣으면 A의 담보별 결과가 held 없이 그대로 응답에 실리고, B에 의존하는 합계·비교만 partial/held가 된다. 이전 정본 문구('버전 불확실하면 개인 계산 보류')의 일괄 차단과 다른 동작이며 채택 필요 항목으로 올렸다(07 A-01)",
+        "시험 no-completeness-from-equal-candidates: 판매 구성 후보 두 개가 모두 ambiguous이고 두 후보로 계산한 결과가 같아도 결론을 confirmed로 올리지 않는다. dependency_state=held 유지, 설명에 '후보가 같은 결과를 내지만 판은 미확인'",
         "시험 uncertainty-partial-hold: 계약 A(판 확인)·B(판 ambiguous). (1) A 단독 결론은 kept, B 단독 결론은 held(의존 집합에 B의 uses_edition 미확인 포함). (2) A+B 합산 결론은 partial(excluded_contracts=[B]) 또는 합산이 의미를 잃는 경우(실손 비례분담) held. (3) B의 미확인이 A 결론의 의존 집합에 없으면 A는 영향받지 않는다. (4) 의존 기록이 없는 결론은 '의존 미확인'으로 넓게 보류된다"
       ],
       "done_criteria": [
@@ -4437,7 +5520,9 @@
         "합산 결론의 excluded_contracts가 응답에 실린다"
       ],
       "required_test_ids": [
-        "uncertainty-partial-hold"
+        "uncertainty-partial-hold",
+        "partial-hold-independent-contract-kept",
+        "no-completeness-from-equal-candidates"
       ],
       "features": [
         "multi-contract",
@@ -4473,7 +5558,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4505,6 +5597,7 @@
         "crate:onjeon-personal",
         "path:packages/twin-runtime/src/dependency/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "개인 엔드포인트 전부, no-store 캐시, result_state 네 축, 결론별 held/kept/partial 표시"
       ],
@@ -4557,7 +5650,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4593,6 +5693,7 @@
         "crate:onjeon-criteria",
         "path:services/api/src/personal/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "NeedResult{verdict ∈ need_verdict{keep, no_add, hold, review_add}, reasons[{criterion_version_ref, evidence[], user_assumption_ref?, statement_kind ∈ {fact, criteria_eval, user_assumption, calc_result, unknown}}], decisive_inputs[], deps}",
         "user_assumption{id, version, ...}(개인 영역)"
@@ -4600,6 +5701,7 @@
       "tests": [
         "cargo test -p onjeon-api need",
         "cargo test -p onjeon-criteria eval",
+        "시험 need-flow-keep-addnone-hold-unknown: 실제 흐름(화면→API→기준 릴리스)에서 네 결과가 각각 나오는 입력 사례: (keep) 확인된 계약이 관심 상황을 이미 덮음, (no_add) 사용자 가정상 스스로 감당 가능하다고 입력, (hold) 결론을 바꾸는 입력이 비어 있음 → decisive_inputs 질문 1개, (unknown) 계약 판 미확인 → 그 계약에 기대는 이유만 unknown 표시. 네 경우 모두 점수·순위 없이 이유가 보이고 '추가 가입'이 기본 결론이 아니다",
         "시험 need-result-reasons: (1) 모든 결과에 verdict와 이유 1개 이상. (2) 이유마다 기준 판 참조가 있고 그 판이 기준 릴리스에 있다. (3) 'no_add(추가 없음)'와 'keep(유지)'가 실제로 나오는 입력 사례가 있다. (4) 기준 판을 정정하면 지난 결과가 영향 목록에 잡힌다. (5) 종합 점수·순위가 응답에 없다. (6) 가족력만으로 review_add가 나오지 않는다"
       ],
       "done_criteria": [
@@ -4609,7 +5711,8 @@
         "결론을 바꾸는 입력만 추가 질문으로 나간다"
       ],
       "required_test_ids": [
-        "need-result-reasons"
+        "need-result-reasons",
+        "need-flow-keep-addnone-hold-unknown"
       ],
       "features": [
         "my-design",
@@ -4647,7 +5750,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4681,6 +5791,7 @@
         "path:services/api/src/public/coverage_status/**",
         "path:packages/schemas/openapi/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "Next.js 공개 경로, 실제 집계 렌더링, 릴리스 이력·정정 이력, 문구 린트"
       ],
@@ -4731,7 +5842,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4765,6 +5883,7 @@
         "path:services/collect/src/schedule/**",
         "path:services/ai-review/src/review/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "콘솔 화면, 관제 API, 역할·2FA"
       ],
@@ -4814,7 +5933,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4848,6 +5974,7 @@
         "crate:onjeon-knowledge",
         "path:packages/twin-runtime/src/dependency/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "접수·격리·검수 큐 연결, 영향 결과 hold 전파, 정정 이력"
       ],
@@ -4896,7 +6023,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -4930,6 +6064,7 @@
         "crate:onjeon-knowledge",
         "path:apps/web/app/console/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "공백·작업 조회 API, 회신 주장별 평가 입력 형식"
       ],
@@ -4973,9 +6108,16 @@
       ],
       "decision_gates": {
         "start": [],
+        "real_data": [],
         "merge": [
           "D-14"
-        ]
+        ],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5006,6 +6148,7 @@
       "consumes": [
         "path:services/knowledge/gaps/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "초안 생성기, 사용자 승인 뒤 수동 발송 기록(자동 발송 없음)"
       ],
@@ -5052,7 +6195,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5086,6 +6236,7 @@
         "path:services/knowledge/premium/**",
         "path:apps/mobile/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "비교 엔드포인트 시나리오 모드, CompareView, 비교 화면"
       ],
@@ -5135,10 +6286,17 @@
       ],
       "decision_gates": {
         "start": [],
+        "real_data": [],
         "merge": [
           "D-06",
           "D-07"
-        ]
+        ],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5171,6 +6329,7 @@
         "path:services/api/src/personal/**",
         "path:services/api/src/public/comparisons/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "사건 사실 입력(진술), 조건부 결과, 확인 주체 표시, 다음 행동(청구 안내 범위는 D-07)"
       ],
@@ -5219,7 +6378,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5257,6 +6423,7 @@
         "path:services/api/src/personal/**",
         "path:services/api/src/public/need/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "화면 4묶음 × 상태 7종, 슬라이더 디바운스·최신 입력 해시만 적용, 필요 담보 행에 판단 이유(기준 판·근거)와 주장 종류 표시"
       ],
@@ -5314,7 +6481,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5344,6 +6518,7 @@
       "consumes": [
         "path:apps/mobile/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "화면 전부, 상태 카탈로그 1:1 시험, 기준 화면 대조 시험"
       ],
@@ -5395,7 +6570,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5430,6 +6612,7 @@
         "crate:onjeon-api",
         "path:tools/ci/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "누출 시험 8종과 CI 단계"
       ],
@@ -5480,7 +6663,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5515,6 +6705,7 @@
         "path:services/api/src/public/error_reports/**",
         "path:docs/measurements/ai-review/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "OTel 설정(마스킹 포함), 런북 4종, 서킷 브레이커 발동·롤백 연습 기록"
       ],
@@ -5559,7 +6750,14 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5590,6 +6788,7 @@
       "consumes": [
         "path:services/personal/tests/leak/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "항목별 결과 기록"
       ],
@@ -5634,7 +6833,14 @@
         "start": [
           "D-16"
         ],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5664,6 +6870,7 @@
       "consumes": [
         "path:apps/mobile/lib/features/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "시험 계획(사전 고정), 실행 기록, 결과"
       ],
@@ -5713,11 +6920,18 @@
         "start": [
           "D-03"
         ],
-        "merge": [
+        "real_data": [],
+        "merge": [],
+        "release": [
           "D-12",
           "D-17",
           "D-18"
         ]
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
@@ -5748,6 +6962,7 @@
         "path:docs/runbooks/**",
         "path:docs/ux-tests/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
         "리허설 기록"
       ],
@@ -5765,7 +6980,7 @@
       "parallel_ok": false,
       "conflict_paths": [],
       "immediate_audit": false,
-      "blocked_by": "시작: D-03(운영 환경). 병합: D-12·D-17·D-18(해당 기능 켜기)",
+      "blocked_by": "시작: D-03(운영 환경). 출시: D-12·D-17·D-18(해당 기능 켜기). 리허설 기록의 병합은 막히지 않는다",
       "notes": ""
     },
     {
@@ -5790,11 +7005,19 @@
       ],
       "decision_gates": {
         "start": [],
-        "merge": []
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": []
       },
       "canon_change": null,
       "allowed_paths": [
-        "docs/release-readiness/**"
+        "docs/release-readiness/**",
+        "tools/release_readiness/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5815,7 +7038,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:docs/release-readiness/**"
+        "path:docs/release-readiness/**",
+        "path:tools/release_readiness/**"
       ],
       "consumes": [
         "path:docs/rehearsal/**",
@@ -5823,18 +7047,24 @@
         "path:docs/vm_check/**",
         "path:data/criteria/applications/**"
       ],
+      "test_outputs_within_allowed": true,
       "outputs": [
-        "감리 보고서, 다섯 축 보고"
+        "감리 보고서, 다섯 축 보고",
+        "출시 준비 판정기 tools/release_readiness/check.py: feature_registry의 비제외 항목 전부가 tasks(post_merge 상태)·evidence(실제 데이터 증거 기록 참조)·acceptance_tests(실행 로그) 를 갖는지 검사"
       ],
       "tests": [
-        "(감리)"
+        "python3 -I tools/release_readiness/check.py --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/",
+        "시험 release-readiness-rejects-incomplete: 등록부 항목 하나의 evidence 또는 acceptance_tests 로그를 지우거나 과제 하나를 미완료로 바꾸면 판정기가 종료 코드 1을 내고 그 항목을 지목한다. 제외 항목은 scope_decision(승인된 범위 결정 ID)이 있을 때만 제외로 인정한다"
       ],
       "done_criteria": [
         "확인하지 못한 구간을 '완료'로 포장하지 않는다",
         "출시 판정은 사용자 결정으로 넘긴다",
-        "자동 개발 운영 기록(데몬 규칙 검증 보고서 포함)이 축 5에 들어 있다"
+        "자동 개발 운영 기록(모의·실제 실행기 검증 보고서)이 축 5에 들어 있다",
+        "release-readiness-rejects-incomplete 통과. 판정기가 등록부의 명시적 집합을 검사하며 사람의 발견에 기대지 않는다"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "release-readiness-rejects-incomplete"
+      ],
       "features": [],
       "parallel_ok": false,
       "conflict_paths": [],

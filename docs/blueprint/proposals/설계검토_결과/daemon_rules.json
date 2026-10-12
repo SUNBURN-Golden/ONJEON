@@ -2,7 +2,7 @@
   "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, 사용자 검토(데몬 대기·복구 경로, 이전 작성자의 늦은 쓰기 차단(원본 F08), 결정 차단, 모델 전환 신호, 병합 뒤 상태) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
   "_decided_by": "역할·전환 정책은 사용자 결정 2026-10-12(U-04, 운영 규칙 1~8). 상태 기계·사건·신호·봉투·잠금·펜싱은 설계 담당 판단(감리 대상)",
-  "schema": "onjeon-daemon-rules-0.2",
+  "schema": "onjeon-daemon-rules-0.3",
   "auto_merge": false,
   "daemon_identity": {
     "role": "messenger",
@@ -131,8 +131,43 @@
     "owner_cancelled",
     "fence_violation",
     "secret_detected",
-    "budget_exhausted"
+    "budget_exhausted",
+    "merged_without_valid_approval",
+    "hard_stop_deadline",
+    "unmapped_condition"
   ],
+  "noop_events": [
+    "ci_pending",
+    "ci_passed_duplicate",
+    "pr_merged_observed_duplicate",
+    "review_result_duplicate",
+    "audit_result_duplicate",
+    "heartbeat",
+    "decision_recorded_duplicate",
+    "builder_status_unchanged",
+    "notification_retry"
+  ],
+  "_noop_note": "noop_events는 상태를 바꾸지 않고 '수신·무시' 기록만 남긴다(event-duplicate-noop). 순서가 뒤바뀐 사건(예: review_approved가 ci_passed보다 먼저)은 보류 큐에 두었다가 적용 조건이 맞을 때 처리하고, SHA가 맞지 않으면 무효(R-04)로 기록한다(event-out-of-order). 전이표 밖 조건만 unmapped_condition으로 반송한다",
+  "record_separation": {
+    "task_lifecycle": "상태 기계(states·transitions). 과제의 현재 상태",
+    "completion_facts": "불변 기록: 병합 관측 SHA·시각, 감리 결과, 실행 로그 참조. 한 번 쓰면 바꾸지 않는다",
+    "review_audit_validity": "review_result·audit_result는 sha에 묶인다. head_sha_changed 뒤에는 무효(invalidated_at 기록)이고 삭제하지 않는다",
+    "merge_observation": "병합은 사람이 한다. 데몬은 관측·기록만. 유효한 승인 없이 병합된 사실은 completion_facts에 기록하되 과제를 done으로 올리지 않는다(merged_invalid_approval)"
+  },
+  "execution_core": {
+    "shared_by": [
+      "dry_run",
+      "real_executor"
+    ],
+    "module": "tools/daemon/core/(transition_engine, envelope_validator, fencing, gate_evaluator, signal_classifier)",
+    "rule": "T-OP-00(모의)과 T-OP-09(실제 실행기)는 같은 전이·검증 코어를 호출한다. 모의 결과만 맞추는 별도 분기(if dry_run: …)는 코어에 둘 수 없고, 다른 것은 어댑터(모의 빌더/실제 CLI, 모의 원격/실제 원격)뿐이다. 정적 검사: 코어 모듈에 'dry_run' 분기 문자열이 없다"
+  },
+  "gate_semantics": {
+    "start": "blocked→queued 전이가 본다",
+    "real_data": "지시 봉투의 real_data_allowed(bool)로 전달. false이면 빌더는 실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회 단계를 건너뛰고 모의/로컬 경로만 쓴다. 상태 전이를 막지 않는다(d02-mock-start-allowed, r2-local-work-allowed)",
+    "merge": "→merge_wait(ready) 전이가 본다. 미결이면 merge_wait(decision_pending)",
+    "release": "데몬 밖. 릴리스 빌더·기능 플래그·criteria_application이 검사한다. 데몬은 기록만 한다"
+  },
   "states": {
     "blocked": "선행 과제가 post_merge_states에 없거나 decision_gates.start 미결. 사유 필드에 ID",
     "queued": "실행 가능",
@@ -151,6 +186,7 @@
     "merged": "사람이 병합함(데몬은 관측만)",
     "audit_queued": "정기 감리(10개 카운터) 묶음에 포함됨",
     "done": "감리 통과로 종료(정기 감리 지적은 새 과제로 등록)",
+    "merged_invalid_approval": "유효한 승인(SHA 일치 리뷰·필요 시 감리·merge 관문) 없이 병합이 관측됨. 기록만. post_merge_states가 아니며 done으로 가지 않는다. 담당자가 되돌리기·재리뷰 조치를 기록하면 review_pending(revert 또는 새 PR 뒤)으로",
     "returned": "데몬이 판단할 수 없어 담당자에게 반송. return_code 필수. 담당자가 해소를 기록하면 queued로 재개",
     "cancelled": "담당자 취소"
   },
@@ -243,7 +279,14 @@
       "from": "building",
       "to": "returned",
       "event": "budget_exhausted",
-      "when": "예산 소진 (R-07)",
+      "when": "예산 소진 (R-07). hard_stop 절차 적용",
+      "by": "daemon"
+    },
+    {
+      "from": "building",
+      "to": "returned",
+      "event": "hard_stop_deadline",
+      "when": "중단 지시·예산 소진 뒤 grace_s 경과. 하트비트가 계속 와도 임대 종료(토큰 폐기·프로세스 그룹 종료·자격 회수) (R-07/R-08)",
       "by": "daemon"
     },
     {
@@ -332,9 +375,37 @@
     },
     {
       "from": "review_in_progress",
-      "to": "review_pending",
+      "to": "pr_open",
       "event": "head_sha_changed",
-      "when": "pr.head_sha changed during review → 진행 중 리뷰 무효(R-04 기록), 변경분 재리뷰",
+      "when": "pr.head_sha changed during review → 진행 중 리뷰 무효(R-04 기록), CI 재검사 뒤 변경분 재리뷰",
+      "by": "daemon"
+    },
+    {
+      "from": "pr_open",
+      "to": "pr_open",
+      "event": "head_sha_changed",
+      "when": "CI 재검사(새 SHA). 이전 CI 결과 무효",
+      "by": "daemon"
+    },
+    {
+      "from": "ci_failed",
+      "to": "pr_open",
+      "event": "head_sha_changed",
+      "when": "같은 작성자가 고쳐 푸시(현재 토큰) → CI 재검사",
+      "by": "daemon"
+    },
+    {
+      "from": "review_pending",
+      "to": "pr_open",
+      "event": "head_sha_changed",
+      "when": "배정 전 코드 변경 → CI 재검사",
+      "by": "daemon"
+    },
+    {
+      "from": "changes_requested",
+      "to": "pr_open",
+      "event": "head_sha_changed",
+      "when": "수정 푸시(현재 토큰) → CI 재검사 뒤 변경분 재리뷰",
       "by": "daemon"
     },
     {
@@ -346,9 +417,9 @@
     },
     {
       "from": "review_approved",
-      "to": "review_pending",
+      "to": "pr_open",
       "event": "head_sha_changed",
-      "when": "pr.head_sha != review_result.sha → 승인 무효(R-04 기록), 변경분 재리뷰(운영 규칙 4)",
+      "when": "pr.head_sha != review_result.sha → 승인 무효(R-04 기록), CI 재검사 뒤 변경분 재리뷰(운영 규칙 4)",
       "by": "daemon"
     },
     {
@@ -402,9 +473,9 @@
     },
     {
       "from": "audit_pending",
-      "to": "review_pending",
+      "to": "pr_open",
       "event": "head_sha_changed",
-      "when": "pr.head_sha changed while audit pending → 감리 대상 무효, 변경분 재리뷰",
+      "when": "pr.head_sha changed while audit pending → 감리 대상 무효, CI 재검사 뒤 변경분 재리뷰",
       "by": "daemon"
     },
     {
@@ -423,16 +494,86 @@
     },
     {
       "from": "merge_wait",
-      "to": "review_pending",
+      "to": "pr_open",
       "event": "head_sha_changed",
-      "when": "pr.head_sha changed while waiting → 승인·감리 결과 무효(R-04 기록), 변경분 재리뷰",
+      "when": "pr.head_sha changed while waiting → 승인·감리 결과 무효(R-04 기록), CI 재검사 뒤 변경분 재리뷰",
       "by": "daemon"
     },
     {
       "from": "merge_wait",
       "to": "merged",
       "event": "pr_merged_observed",
-      "when": "pr.merged == true observed. 데몬은 병합하지 않는다. reason != ready 였다면 R-12 기록(사람이 대기 사유를 넘어 병합함)",
+      "when": "pr.merged == true observed and reason == ready and merged_sha == approved_sha. 데몬은 병합하지 않는다",
+      "by": "human"
+    },
+    {
+      "from": "merge_wait",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "pr.merged == true observed and (reason != ready or merged_sha != approved_sha) → R-12 기록. done으로 가지 않는다",
+      "by": "human"
+    },
+    {
+      "from": "pr_open",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "리뷰 전 병합 관측 → R-12 기록",
+      "by": "human"
+    },
+    {
+      "from": "ci_failed",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "CI 실패 상태 병합 관측 → R-12",
+      "by": "human"
+    },
+    {
+      "from": "review_pending",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "리뷰어 배정 전 병합 관측 → R-12",
+      "by": "human"
+    },
+    {
+      "from": "review_in_progress",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "리뷰 중 병합 관측 → R-12",
+      "by": "human"
+    },
+    {
+      "from": "changes_requested",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "지적 미해결 병합 관측 → R-12",
+      "by": "human"
+    },
+    {
+      "from": "review_approved",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "즉시 감리·merge 관문 판정 전 병합 관측 → R-12",
+      "by": "human"
+    },
+    {
+      "from": "audit_pending",
+      "to": "merged_invalid_approval",
+      "event": "merged_without_valid_approval",
+      "when": "감리 전 병합 관측 → R-12",
+      "by": "human"
+    },
+    {
+      "from": "merged_invalid_approval",
+      "to": "review_pending",
+      "event": "owner_resolved",
+      "when": "담당자가 되돌리기(revert PR) 또는 재리뷰 조치를 기록 → 새 head_sha로 리뷰 재개. completion_facts의 잘못된 병합 기록은 남는다",
+      "by": "human"
+    },
+    {
+      "from": "merged_invalid_approval",
+      "to": "cancelled",
+      "event": "owner_cancelled",
+      "when": "담당자 취소",
       "by": "human"
     },
     {
@@ -446,7 +587,7 @@
       "from": "merged",
       "to": "done",
       "event": "impl_counter_incremented",
-      "when": "pr is docs-only (변경 경로가 docs/** 뿐 또는 label docs-only)",
+      "when": "pr is docs_only (변경 경로가 docs/** 뿐 또는 label docs-only) → 카운터를 올리지 않고 완료",
       "by": "daemon"
     },
     {
@@ -550,6 +691,15 @@
         ]
       }
     ],
+    "signal_validation": [
+      "source",
+      "attempt",
+      "call_id",
+      "lease_id",
+      "fencing_token",
+      "runner"
+    ],
+    "_signal_validation_note": "전환 신호 봉투는 {source, attempt, call_id, lease_id, fencing_token, runner, status, observed_at}을 갖는다. 실행기 어댑터가 자기 모델 호출(call_id)에서 관측한 구조화 오류만 발행한다. attempt·lease_id·fencing_token이 현재 임대와 다르면 무시(R-11). 작업 내용·시험 출력·제3자 HTTP 오류는 어댑터가 발행하지 않으며 데몬도 받지 않는다(switch-negative-test-output, switch-negative-third-party-http). 원시 stderr 정규식은 05 §1b에서 확인된 출력 채널 안에서만 보조로 쓴다",
     "forbidden_switch_reasons": [
       "test_failure",
       "ci_failed",
@@ -741,7 +891,35 @@
       "브랜치의 WIP 커밋은 지우지 않는다",
       "returned 과제는 담당자의 owner_resolved 기록으로만 queued가 된다"
     ],
-    "stop": "담당자 중단 지시 또는 예산 소진 시 새 임대를 만들지 않고 진행 중 임대는 하트비트 만료까지 둔다"
+    "stop": "담당자 중단 지시 또는 예산 소진 시 새 임대를 만들지 않는다. 진행 중 임대는 hard_stop 절차로 끝낸다(하트비트 만료를 기다리지 않는다)"
+  },
+  "hard_stop": {
+    "trigger": [
+      "owner_stop",
+      "budget_exhausted",
+      "secret_detected"
+    ],
+    "grace_s": "[사용자 결정 필요] 기본 120",
+    "procedure": [
+      "stop 신호를 빌더에 전달(SIGTERM)",
+      "grace_s 안에 wip_preserved 봉투가 오면 수락(현재 토큰)",
+      "grace_s 경과 시 하트비트와 무관하게 프로세스 그룹 종료(SIGKILL), 토큰 폐기, 자격 회수, 상태 returned 또는 paused",
+      "그 뒤 도착하는 봉투·푸시는 R-11"
+    ],
+    "verification": "hard-stop-heartbeating-job: 모의(T-OP-00)·실제 실행기(T-OP-09)"
+  },
+  "budget_enforcement": {
+    "reserve_before_call": "지시 봉투를 보내기 전에 예약 레코드(max_calls·max_cost_units·max_wall_s)를 상태 저장소에 쓴다. 예약 없이는 봉투가 나가지 않는다. 결과 봉투의 calls·cost_units·wall_s로 정산한다",
+    "enforceable": [
+      "새 임대 생성 여부",
+      "지시 봉투 발송 여부",
+      "임대 벽시계 시간(hard_stop)",
+      "데몬이 중계하는 제공자 호출 수(프록시 경유 시 계량 가능)"
+    ],
+    "not_enforceable": [
+      "CLI가 내부에서 직접 제공자를 부르는 호출 수·비용(프록시를 거치지 않을 때). 이 경우 사후 정산과 월 상한 통지만 가능하다"
+    ],
+    "verification": "budget-reserve-before-call: 모의(T-OP-00)에서 예약 전 발송 0건, 실제 실행기(T-OP-09)에서 각 CLI가 프록시 계량에 들어오는지 기록"
   },
   "concurrency": {
     "lease": {
@@ -796,7 +974,11 @@
     "secret_pattern_halt_R10": "dry_run_target",
     "no_merge_api_in_daemon_code": "dry_run_target",
     "immediate_audit_path_rules": "dry_run_target",
-    "budget_reserve_before_act": "specified",
+    "budget_reserve_before_call": "dry_run_target",
+    "hard_stop_after_grace_despite_heartbeat": "real_executor_required",
+    "noop_and_out_of_order_event_handling": "dry_run_target",
+    "merged_without_valid_approval_not_done": "dry_run_target",
+    "shared_execution_core_no_dry_run_branch": "dry_run_target",
     "human_only_merge_observation_R12": "specified"
   },
   "daemon_does": [
@@ -886,7 +1068,7 @@
     },
     {
       "code": "R-12",
-      "when": "merge_wait(reason != ready) 상태의 PR이 병합된 것을 관측",
+      "when": "유효한 승인 없이(또는 승인 SHA와 다른 SHA로) 병합된 것을 관측 → merged_invalid_approval. 기록하되 done으로 올리지 않는다",
       "to": "user"
     }
   ],

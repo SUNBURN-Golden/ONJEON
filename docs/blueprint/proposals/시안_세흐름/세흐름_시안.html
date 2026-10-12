@@ -10,6 +10,7 @@
   :root{
     --bg:#F6F4EE; --page:#E9E4DB; --ink:#1A1411; --ink2:#66554A; --line:#E3DED5; --line2:#DBD4CB;
     --accent:#AE583F; --accent-text:#A14529; --seg:#EDE8E1; --seg-on:#E8D9CD; --tint:#F5E4DB; --surface:#FFFDFA;
+    --off:#8C7D71;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--page);font-family:'IBM Plex Sans KR','WenQuanYi Zen Hei',sans-serif;color:var(--ink)}
@@ -19,24 +20,24 @@
   .row{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;align-items:flex-start}
   .col{display:flex;flex-direction:column;gap:10px;width:390px;max-width:100%}
   .col h2{margin:0;font-size:15px;font-weight:600;color:var(--ink2)}
-  .screen{width:390px;max-width:100%;min-height:844px;background:var(--bg);border-radius:28px;padding:12px 24px 24px;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(26,20,17,.12)}
+  .screen{position:relative;overflow:hidden;width:390px;max-width:100%;background:var(--bg);border-radius:28px;padding:12px 24px 28px;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(26,20,17,.12)}
   .top{display:flex;align-items:center;height:48px}
-  .icon-btn{width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-12px;margin-right:6px}
-  .icon-btn.todo{outline-offset:-4px}
+  .icon-btn{width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-12px;margin-right:4px;cursor:pointer}
+  .title-bar{font-size:17px;font-weight:600}
   .crumb{font-size:15px;color:var(--ink2)}
   .logo{font-size:25px;font-weight:700;color:var(--accent-text)}
-  .virtual{font-size:12px;color:var(--ink2);text-align:center;padding:4px 0 12px}
+  .virtual{font-size:12px;color:var(--ink2);text-align:center;padding:2px 0 12px}
   h1{margin:0;font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
   .sub{font-size:16px;color:var(--ink2);margin-top:6px}
   .lead{font-size:16px;color:var(--ink2);margin-top:10px}
   .big{font-size:38px;font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-top:4px}
-  .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--seg);border-radius:14px;padding:4px;margin-top:22px}
+  .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--seg);border-radius:14px;padding:4px;margin-top:6px}
   .seg button{min-height:48px;border:0;border-radius:11px;background:transparent;font:inherit;font-size:16px;font-weight:500;color:var(--ink2);cursor:pointer}
   .seg button[aria-pressed="true"]{background:var(--seg-on);font-weight:700;color:var(--accent-text)}
-  .example{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:14px;color:var(--ink2)}
+  .assume{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--ink2);white-space:nowrap}
   .pill{font-size:12px;font-weight:700;color:var(--ink);border:1px solid var(--line2);border-radius:999px;padding:2px 8px;white-space:nowrap}
-  .rule{height:1px;background:var(--line);margin:8px 0 20px}
   .rows{display:flex;flex-direction:column;margin-top:16px}
+  .rows-head{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--ink2);padding-bottom:6px}
   .r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:16px}
   .r:last-child{border-bottom:1px solid var(--line)}
   .r .n{font-weight:600}
@@ -49,30 +50,46 @@
   .tint .d{font-size:14px;color:#3A2A22}
   .general{font-size:13px;color:var(--ink2);line-height:1.5;margin-top:16px}
   .link-btn{border:0;background:transparent;padding:0;font:inherit;font-weight:600;color:var(--accent-text);cursor:pointer;min-height:44px}
-  .cta{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:24px}
-  .primary{display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;border:0;border-radius:14px;background:var(--accent);color:#FFFFFF;font:inherit;font-size:18px;font-weight:600;text-decoration:none;cursor:pointer}
+  .cta{display:flex;flex-direction:column;gap:10px;padding-top:20px}
+  .primary{display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;border:0;border-radius:14px;background:var(--accent);color:#FFFFFF;font:inherit;font-size:18px;font-weight:600;text-decoration:none;cursor:pointer;width:100%}
   .secondary{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer}
   .choice{min-height:48px;border:1px solid var(--line2);background:var(--surface);border-radius:12px;font:inherit;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer}
-  .chip{min-height:48px;text-align:left;padding:0 14px;border:1px solid var(--line2);background:var(--surface);border-radius:12px;font:inherit;font-size:15px;font-weight:500;color:var(--ink);cursor:pointer}
-  .chip[aria-pressed="true"]{border:2px solid var(--accent);font-weight:700}
   .fold{width:100%;min-height:52px;display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:0;font:inherit;font-size:16px;font-weight:600;color:var(--ink);cursor:pointer;text-align:left}
   .fold svg{margin-left:auto}
   .fold[aria-expanded="true"] svg{transform:rotate(180deg)}
   .grid2{display:grid;grid-template-columns:96px minmax(0,1fr);row-gap:8px;font-size:14px;padding-bottom:14px}
   .grid2 .k{color:var(--ink2)}
   .note{font-size:13px;color:var(--ink2)}
-  /* 연결 안 된 버튼: 화면에서도 보이게 */
-  .todo{outline:1px dashed #A99C8E;outline-offset:2px;border-radius:8px}
-  .primary.todo{outline-offset:3px;border-radius:14px}
-  .todo-tag{display:inline-block;font-size:11px;font-weight:600;line-height:1;color:var(--ink2);background:var(--seg);border-radius:999px;padding:3px 6px;margin-left:6px;vertical-align:middle}
-  .primary .todo-tag{background:rgba(255,255,255,.22);color:#FFFFFF}
+  .summary-row{display:flex;align-items:center;gap:8px;margin-top:12px;min-height:44px;font-size:15px}
+  .summary-row .tag{font-weight:600}
+  /* 연결 안 된 버튼: 차분한 비활성 + 작은 표시 */
+  .off{color:var(--off) !important;cursor:default}
+  .off .off-tag{font-size:11px;font-weight:500;color:var(--off);margin-left:4px}
+  .choice.off{border-color:var(--line);background:transparent}
+  .primary.off{background:#E8DCD3;color:var(--off) !important}
+  .icon-btn.off svg{stroke:#B3A79C}
+  /* 시트 */
+  .scrim{position:absolute;inset:0;background:rgba(26,20,17,.38);display:flex;align-items:flex-end}
+  .sheet{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:10px 24px 24px;display:flex;flex-direction:column;gap:10px}
+  .grab{width:40px;height:4px;border-radius:2px;background:var(--line2);align-self:center;margin-bottom:6px}
+  .sheet h3{margin:0;font-size:19px;font-weight:700}
+  .opt{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border:1px solid var(--line2);border-radius:12px;background:#FFFFFF;cursor:pointer;font-size:16px}
+  .opt input{position:absolute;opacity:0;width:1px;height:1px}
+  .box{width:22px;height:22px;border-radius:6px;border:1.5px solid #B3A79C;display:flex;align-items:center;justify-content:center;flex:none;background:#FFFFFF}
+  .box svg{visibility:hidden}
+  .opt.on{border:2px solid var(--accent);padding:0 13px}
+  .opt.on .box{background:var(--accent);border-color:var(--accent)}
+  .opt.on .box svg{visibility:visible}
+  .opt:focus-within{box-shadow:0 0 0 3px rgba(174,88,63,.25)}
+  .sheet-actions{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:6px}
+  .done[disabled]{background:#E8DCD3;color:var(--off);cursor:default}
   [hidden]{display:none !important}
   @media (max-width:440px){.wrap{padding:16px 8px 40px}.screen{border-radius:20px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <p class="page-note"><b>가상 계약·가상 사건으로 만든 화면 예시입니다.</b> 숫자는 가상 계약과 약관 조항으로 손으로 계산한 예시이며 계산 엔진과 연결되지 않았습니다. <b>점선과 "미구현" 표시</b>가 붙은 버튼은 아직 연결하지 않아 눌러도 아무 일이 없습니다.</p>
+  <p class="page-note"><b>가상 계약·가상 사건으로 만든 화면 예시입니다.</b> 숫자는 가상 계약과 약관 조항으로 손으로 계산한 예시이며 계산 엔진과 연결되지 않았습니다. 흐린 글자에 <b>"미구현"</b>이 붙은 버튼은 아직 연결하지 않아 눌러도 아무 일이 없습니다.</p>
   <div class="row">
 
     <!-- A -->
@@ -80,27 +97,37 @@
       <h2 id="ha">A. 이런 일이 생기면? (가상 탐색)</h2>
       <div class="screen" id="screen-a" data-testid="screen-a">
         <div class="top">
-          <button class="icon-btn todo" aria-disabled="true" aria-label="뒤로 (미구현)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A1411" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
-          <div class="crumb">내 보험 · 굿앤굿1540</div>
+          <button class="icon-btn off" aria-disabled="true" aria-label="뒤로 (미구현)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A1411" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="title-bar">이런 일이 생기면? <span class="crumb">· 굿앤굿1540</span></div>
         </div>
         <div class="virtual">가상 계약으로 만든 화면 예시 · 숫자는 예시</div>
-        <h1>이런 일이 생기면?</h1>
-        <div class="sub">미리 알아보는 계산이에요.</div>
+
         <div class="seg" role="group" aria-label="진단 종류">
           <button data-scen="general" aria-pressed="true">일반 암</button>
           <button data-scen="insitu" aria-pressed="false">제자리암 등</button>
           <button data-scen="thyroid" aria-pressed="false">갑상선암</button>
         </div>
-        <div class="example">
-          <span class="pill">예시 조건</span>
-          <span style="white-space:nowrap">2027.3.15 진단 · 처음 받는 진단금</span>
-        </div>
-        <button class="link-btn todo" aria-disabled="true" style="align-self:flex-start;font-size:14px;margin-top:2px">예시 조건 바꾸기<span class="todo-tag">미구현</span></button>
-        <div class="rule"></div>
 
         <div data-a="general">
-          <div class="lead" style="margin-top:0">일반 암 진단이라면, 이 조건에서</div>
-          <div class="big">5,100만 원</div>
+          <div class="lead" style="margin-top:22px">일반 암 진단이라면</div>
+          <div class="big" data-testid="a-big">5,100만 원</div>
+        </div>
+        <div data-a="insitu" hidden>
+          <div class="lead" style="margin-top:22px">제자리암·경계성종양 등 진단이라면</div>
+          <div class="big">600만 원</div>
+        </div>
+        <div data-a="thyroid" hidden>
+          <div class="lead" style="margin-top:22px">갑상선암 진단이라면</div>
+          <div style="font-size:18px;margin-top:6px">관련 보장 · 유사암진단 가입금액 <b>600만 원</b></div>
+        </div>
+
+        <div class="assume" data-testid="a-assume">
+          <span class="pill">예시 조건</span>
+          <span>2027.3.15 진단 · 처음 받는 진단금</span>
+          <button class="link-btn off" aria-disabled="true" style="margin-left:auto;font-size:13px;min-height:36px">바꾸기<span class="off-tag">미구현</span></button>
+        </div>
+
+        <div data-a="general">
           <div class="rows">
             <div class="r"><span class="n">암진단</span><span>3,000만 원</span></div>
             <div class="r"><span class="n">암진단(갱신형)</span><span>2,000만 원</span></div>
@@ -109,25 +136,21 @@
           </div>
         </div>
         <div data-a="insitu" hidden>
-          <div class="lead" style="margin-top:0">제자리암·경계성종양 등 진단이라면, 이 조건에서</div>
-          <div class="big">600만 원</div>
           <div class="rows">
             <div class="r"><span class="n">유사암진단</span><span>600만 원</span></div>
           </div>
           <div class="note" style="margin-top:10px;font-size:14px">유사암은 보험료 납입면제 사유가 아니에요.</div>
         </div>
         <div data-a="thyroid" hidden>
-          <div class="lead" style="margin-top:0">갑상선암 진단이라면</div>
-          <div style="font-size:16px;margin-top:6px">관련 보장 · 유사암진단 가입금액 <b>600만 원</b></div>
           <div class="tint">
             <div class="t">이 부위에 특별조건이 있어요</div>
             <div class="d">증권: 갑상선 · 부담보 5년</div>
             <div class="d">예외 적용 여부가 확인되지 않아 지급액 계산을 보류했어요.</div>
-            <button class="link-btn todo" aria-disabled="true" style="align-self:flex-start;font-size:14px">적용 조건 보기 ›<span class="todo-tag">미구현</span></button>
+            <button class="link-btn off" aria-disabled="true" style="align-self:flex-start;font-size:14px">적용 조건 보기<span class="off-tag">미구현</span></button>
           </div>
         </div>
 
-        <div class="general">약관에 따라 계산한 금액이에요. 실제 지급은 보험회사 심사로 정해져요. <button class="link-btn todo" aria-disabled="true" style="font-size:13px;min-height:24px;margin-left:6px">자세히<span class="todo-tag">미구현</span></button></div>
+        <div class="general">약관에 따라 계산한 금액이에요. 실제 지급은 보험회사 심사로 정해져요. <button class="link-btn off" aria-disabled="true" style="font-size:13px;min-height:24px;margin-left:4px">자세히<span class="off-tag">미구현</span></button></div>
         <div class="cta">
           <a class="primary" href="#screen-c">실제로 진단받았어요</a>
           <a class="secondary" href="#screen-b">내 보험 보기</a>
@@ -141,31 +164,31 @@
       <div class="screen" id="screen-b" data-testid="screen-b">
         <div class="top">
           <div class="logo">온전</div>
-          <button class="link-btn todo" aria-disabled="true" style="margin-left:auto;font-size:14px">계약 변경·서류 추가<span class="todo-tag">미구현</span></button>
+          <button class="link-btn off" aria-disabled="true" style="margin-left:auto;font-size:14px">계약 변경·서류 추가<span class="off-tag">미구현</span></button>
         </div>
         <div class="virtual">가상 계약으로 만든 화면 예시 · 숫자는 예시</div>
         <div class="crumb">내 보험 · 현대해상</div>
         <h1 style="margin-top:4px">굿앤굿1540 종합보험</h1>
-        <div class="sub">2026.8.20 가입 · 100세 만기 · 20년 납입</div>
-        <div class="note" style="margin-top:2px">증권 기준(발행 시점)</div>
+        <div class="sub" data-testid="b-meta">2026.8.20 가입 · 기본계약 100세 만기 · 20년 납입</div>
+        <div class="note" style="margin-top:2px">증권 기준(발행 시점) · 특약마다 기간이 다를 수 있어요</div>
 
-        <div class="note" style="font-weight:700;margin-top:24px;padding-bottom:6px">진단받으면</div>
-        <div class="rows" style="margin-top:0">
-          <div class="r"><span class="n">암</span><span style="text-align:right"><b>5,000만 원</b><br><span class="s">3,000 + 갱신형 2,000</span></span></div>
+        <div class="rows" style="margin-top:24px">
+          <div class="rows-head"><span data-testid="b-head">가입한 진단 보장</span><span>가입금액</span></div>
+          <div class="r"><span class="n">암</span><span style="text-align:right"><b>5,000만 원</b><br><span class="s">3,000 + 갱신형 2,000(20년마다 갱신)</span></span></div>
           <div class="r"><span><span class="n">유사암</span><br><span class="s">갑상선암·제자리암 등</span></span><b>600만 원</b></div>
           <div class="r"><span class="n">뇌혈관질환</span><b>1,000만 원</b></div>
           <div class="r"><span class="n">허혈심장질환</span><b>1,000만 원</b></div>
         </div>
-        <div class="note" style="font-weight:700;margin-top:18px;padding-bottom:6px">다치면 · 보험료</div>
-        <div class="rows" style="margin-top:0">
-          <div class="r"><span class="n">상해 사망·후유장해</span><span style="text-align:right"><b>최대 1억 원</b><br><span class="s">후유장해는 장해 정도에 따라</span></span></div>
+        <div class="rows" style="margin-top:18px">
+          <div class="rows-head"><span>가입한 상해 보장 · 보험료</span><span>가입금액</span></div>
+          <div class="r"><span class="n">상해 사망·후유장해</span><span style="text-align:right"><b>1억 원</b><br><span class="s">후유장해는 장해 정도에 따라 일부</span></span></div>
           <div class="r"><span class="n">보험료 납입면제</span><span class="m" style="font-size:15px">있음 · 암·뇌혈관 등 진단 시</span></div>
         </div>
 
         <div class="tint" style="margin-top:16px;padding:14px 16px;gap:4px">
           <div class="t" style="font-size:15px">특별조건 1건 · 갑상선 부담보 5년</div>
           <div class="d">갑상선 관련 보장과, 보험료를 낮추는 계약전환 신청에 영향을 줘요.</div>
-          <button class="link-btn todo" aria-disabled="true" style="align-self:flex-start;font-size:14px;min-height:40px">보기 ›<span class="todo-tag">미구현</span></button>
+          <button class="link-btn off" aria-disabled="true" style="align-self:flex-start;font-size:14px;min-height:40px">보기<span class="off-tag">미구현</span></button>
         </div>
 
         <div style="border-bottom:1px solid var(--line);margin-top:8px">
@@ -179,8 +202,8 @@
               <div style="font-size:15px;font-weight:600">지금도 유지 중인가요?</div>
               <div class="note" style="font-size:14px">사고나 진단 금액을 볼 때 필요해요. 지금 답하지 않아도 돼요.</div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-                <button class="choice todo" aria-disabled="true" style="padding:0 12px;font-size:14px">유지 중이에요<span class="todo-tag">미구현</span></button>
-                <button class="choice todo" aria-disabled="true" style="padding:0 12px;font-size:14px">해지·실효된 적 있어요<span class="todo-tag">미구현</span></button>
+                <button class="choice off" aria-disabled="true" style="padding:0 12px;font-size:14px">유지 중이에요<span class="off-tag">미구현</span></button>
+                <button class="choice off" aria-disabled="true" style="padding:0 12px;font-size:14px">해지·실효된 적 있어요<span class="off-tag">미구현</span></button>
               </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
@@ -202,7 +225,7 @@
       <h2 id="hc">C. 이 일이 생겼어요 (실제 사건)</h2>
       <div class="screen" id="screen-c" data-testid="screen-c">
         <div class="top">
-          <button class="icon-btn todo" aria-disabled="true" aria-label="뒤로 (미구현)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A1411" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <button class="icon-btn off" aria-disabled="true" aria-label="뒤로 (미구현)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A1411" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
           <div class="crumb">이 일이 생겼어요 · 굿앤굿1540</div>
         </div>
         <div class="virtual">가상 계약·가상 사건으로 만든 화면 예시 · 숫자는 예시</div>
@@ -212,9 +235,9 @@
           <div class="lead" id="c-lead">처음 받는 진단금이라는 조건에서</div>
           <div class="big" id="c-total" data-testid="c-total">5,100만 원</div>
         </div>
-        <div id="c-checking" hidden>
-          <div class="lead">금액을 다시 계산하려면</div>
-          <div style="font-size:24px;font-weight:700;line-height:1.35;margin-top:4px" data-testid="c-checking">어떤 진단금을 받았는지<br>확인 중이에요</div>
+        <div id="c-pending" hidden>
+          <div class="lead" id="c-pending-lead">금액을 다시 계산하려면</div>
+          <div style="font-size:24px;font-weight:700;line-height:1.35;margin-top:4px" id="c-pending-text" data-testid="c-pending">어떤 진단금을 받았는지<br>확인 중이에요</div>
         </div>
 
         <div id="c-ask" style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
@@ -224,17 +247,9 @@
             <button class="choice" id="c-yes">받은 적 있어요</button>
           </div>
         </div>
-        <div id="c-answered-no" hidden style="margin-top:10px;display:flex;align-items:center;font-size:14px;color:var(--ink2)">
-          <span>이 계약에서 이전에 받은 진단금: 없음(답하신 내용)</span>
-          <button class="link-btn" id="c-fix" style="margin-left:auto;font-size:14px">고치기</button>
-        </div>
-        <div id="c-answered-yes" hidden style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
-          <div style="font-size:15px">이 계약에서 이미 받은 진단금을 골라 주세요.</div>
-          <button class="chip" data-item="cancer" aria-pressed="false">암진단</button>
-          <button class="chip" data-item="renew" aria-pressed="false">암진단(갱신형)</button>
-          <button class="chip" data-item="waiver" aria-pressed="false">보험료납입면제대상</button>
-          <div class="note">이 사례의 세 보장은 약관상 한 번만 지급돼요. 고른 보장을 빼는 것은 이 사례 기준의 화면 예시예요.</div>
-          <button class="link-btn" id="c-reset" style="align-self:flex-start;font-size:14px">처음으로</button>
+        <div class="summary-row" id="c-summary" hidden data-testid="c-summary">
+          <span class="tag" id="c-summary-text">이전에 받은 보장 1개 반영</span>
+          <button class="link-btn" id="c-edit" style="margin-left:auto;font-size:14px">수정</button>
         </div>
 
         <div style="margin-top:18px;border-top:1px solid var(--line)">
@@ -245,7 +260,9 @@
               <div class="r" data-row="cancer"><span class="n">암진단</span><span class="v">3,000만 원</span></div>
               <div class="r" data-row="renew"><span class="n">암진단(갱신형)</span><span class="v">2,000만 원</span></div>
               <div class="r" data-row="waiver"><span class="n">보험료납입면제대상</span><span class="v">100만 원</span></div>
-              <div class="r"><span class="n">보험료 납입면제</span><span class="m" style="font-size:15px">다음 회차부터 · 요청 필요</span></div>
+              <div class="r" style="flex-wrap:wrap"><span class="n">보험료 납입면제</span><span class="m" style="font-size:15px">다음 회차부터 · 요청 필요</span>
+                <button class="link-btn off" aria-disabled="true" data-testid="c-waiver-guide" style="font-size:14px;min-height:36px;width:100%;text-align:left">납입면제 요청 안내<span class="off-tag">미구현</span></button>
+              </div>
             </div>
           </div>
         </div>
@@ -258,15 +275,31 @@
               <span class="k">결과보고일</span><span>2027.1.5 · 결과지에서 읽고 확인함</span>
               <span class="k">계약 유지</span><span>2027.2.1에 답하신 내용(문서 확인 아님)</span>
               <span class="k">계약 내용</span><span>증권 기준(발행 시점)</span>
-              <span style="grid-column:1 / 3"><button class="link-btn todo" aria-disabled="true" style="font-size:14px">고치기<span class="todo-tag">미구현</span></button></span>
+              <span style="grid-column:1 / 3"><button class="link-btn off" aria-disabled="true" style="font-size:14px">고치기<span class="off-tag">미구현</span></button></span>
             </div>
           </div>
         </div>
 
-        <div class="general">약관에 따라 계산한 금액이에요. 실제 지급은 보험회사 심사로 정해져요. <button class="link-btn todo" aria-disabled="true" style="font-size:13px;min-height:24px;margin-left:6px">자세히<span class="todo-tag">미구현</span></button></div>
-        <div class="cta">
-          <button class="primary todo" aria-disabled="true">보험금 청구 준비<span class="todo-tag">미구현</span></button>
-          <button class="secondary todo" aria-disabled="true">납입면제 요청 안내<span class="todo-tag">미구현</span></button>
+        <div class="general">약관에 따라 계산한 금액이에요. 실제 지급은 보험회사 심사로 정해져요. <button class="link-btn off" aria-disabled="true" style="font-size:13px;min-height:24px;margin-left:4px">자세히<span class="off-tag">미구현</span></button></div>
+        <div class="cta" data-testid="c-cta">
+          <button class="primary off" aria-disabled="true">보험금 청구 준비<span class="off-tag">미구현</span></button>
+        </div>
+
+        <!-- 이전에 받은 보장 고르기 시트 -->
+        <div class="scrim" id="c-sheet" hidden data-testid="c-sheet">
+          <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="c-sheet-title">
+            <div class="grab" aria-hidden="true"></div>
+            <h3 id="c-sheet-title">이 계약에서 이미 받은 보장</h3>
+            <div class="note" style="font-size:14px">받은 것을 모두 골라 주세요.</div>
+            <label class="opt" data-opt="cancer"><input type="checkbox" value="cancer"><span class="box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span><span>암진단</span></label>
+            <label class="opt" data-opt="renew"><input type="checkbox" value="renew"><span class="box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span><span>암진단(갱신형)</span></label>
+            <label class="opt" data-opt="waiver"><input type="checkbox" value="waiver"><span class="box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span><span>보험료납입면제대상</span></label>
+            <label class="opt" data-opt="unknown"><input type="checkbox" value="unknown"><span class="box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span><span>어떤 보장인지 모르겠어요</span></label>
+            <div class="sheet-actions">
+              <button class="choice" id="c-sheet-cancel">취소</button>
+              <button class="primary done" id="c-sheet-done" disabled style="min-height:48px;font-size:16px">완료</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,44 +333,90 @@
 
   // C: 이전 수령 여부
   var defs = { cancer: 3000, renew: 2000, waiver: 100 };
-  var st = { prior: 'ask', taken: { cancer: false, renew: false, waiver: false } };
+  var keys = Object.keys(defs);
+  // 확정된 답(본문 기준)과 시트 안의 임시 선택을 나눈다
+  var st = { prior: 'ask', taken: {}, unknown: false };   // prior: ask | no | yes
+  var draft = { taken: {}, unknown: false };
+  var sheetOpen = false;
   function fmt(n) { return n.toLocaleString('ko-KR') + '만 원'; }
+  function count(t) { return keys.filter(function (k) { return t[k]; }).length; }
+
+  function renderSheet() {
+    document.getElementById('c-sheet').hidden = !sheetOpen;
+    document.querySelectorAll('#c-sheet .opt').forEach(function (opt) {
+      var k = opt.getAttribute('data-opt');
+      var on = k === 'unknown' ? draft.unknown : !!draft.taken[k];
+      opt.classList.toggle('on', on);
+      opt.querySelector('input').checked = on;
+    });
+    document.getElementById('c-sheet-done').disabled = !(draft.unknown || count(draft.taken) > 0);
+  }
   function renderC() {
     var yes = st.prior === 'yes';
-    var any = Object.keys(defs).some(function (k) { return st.taken[k]; });
-    var checking = yes && !any;
+    var n = count(st.taken);
+    // 시트가 처음 열려 아직 답이 없으면 "확인 중", 모르겠다고 하면 "확인 필요"
+    var pendingFirst = sheetOpen && !yes;
+    var unknown = yes && st.unknown;
+    var showNumber = !pendingFirst && !unknown;
     var sum = 0;
-    Object.keys(defs).forEach(function (k) {
-      var taken = yes && st.taken[k];
+    keys.forEach(function (k) {
+      var taken = yes && !st.unknown && st.taken[k];
       if (!taken) sum += defs[k];
       var row = document.querySelector('#c-rows [data-row="' + k + '"]');
-      row.classList.toggle('taken', taken);
-      row.querySelector('.v').textContent = taken ? '이미 받음' : fmt(defs[k]);
-      var chip = document.querySelector('#c-answered-yes [data-item="' + k + '"]');
-      chip.setAttribute('aria-pressed', String(!!st.taken[k]));
+      row.classList.toggle('taken', !!taken);
+      row.querySelector('.v').textContent = taken ? '이미 받음' : (unknown ? '확인 필요' : fmt(defs[k]));
     });
-    document.getElementById('c-number').hidden = checking;
-    document.getElementById('c-checking').hidden = !checking;
+    document.getElementById('c-number').hidden = !showNumber;
+    document.getElementById('c-pending').hidden = showNumber;
+    if (unknown) {
+      document.getElementById('c-pending-lead').textContent = '금액을 다시 계산하려면';
+      document.getElementById('c-pending-text').innerHTML = '어떤 보장을 받았는지<br>확인이 필요해요';
+    } else {
+      document.getElementById('c-pending-lead').textContent = '금액을 다시 계산하려면';
+      document.getElementById('c-pending-text').innerHTML = '어떤 진단금을 받았는지<br>확인 중이에요';
+    }
     document.getElementById('c-total').textContent = fmt(sum);
     document.getElementById('c-lead').textContent =
-      st.prior === 'ask' ? '처음 받는 진단금이라는 조건에서'
-      : st.prior === 'no' ? '확인한 진단과 답하신 내용 기준으로'
-      : '고른 진단금을 뺀 예시 금액';
-    document.getElementById('c-ask').hidden = st.prior !== 'ask';
-    document.getElementById('c-answered-no').hidden = st.prior !== 'no';
-    document.getElementById('c-answered-yes').hidden = !yes;
+      st.prior === 'no' ? '확인한 진단과 답하신 내용 기준으로'
+      : yes ? '이전에 받은 보장을 뺀 예시 금액'
+      : '처음 받는 진단금이라는 조건에서';
+    document.getElementById('c-ask').hidden = st.prior !== 'ask' || sheetOpen;
+    var sum_ = document.getElementById('c-summary');
+    sum_.hidden = st.prior === 'ask';
+    document.getElementById('c-summary-text').textContent =
+      st.prior === 'no' ? '이전에 받은 진단금 없음(답하신 내용)'
+      : unknown ? '이전에 받은 보장 확인 필요'
+      : '이전에 받은 보장 ' + n + '개 반영';
+    renderSheet();
   }
-  function reset() { st.prior = 'ask'; st.taken = { cancer: false, renew: false, waiver: false }; renderC(); }
-  document.getElementById('c-no').addEventListener('click', function () { st.prior = 'no'; renderC(); });
-  document.getElementById('c-yes').addEventListener('click', function () { st.prior = 'yes'; renderC(); });
-  document.getElementById('c-fix').addEventListener('click', reset);
-  document.getElementById('c-reset').addEventListener('click', reset);
-  document.querySelectorAll('#c-answered-yes [data-item]').forEach(function (chip) {
-    chip.addEventListener('click', function () {
-      var k = chip.getAttribute('data-item');
-      st.taken[k] = !st.taken[k];
-      renderC();
+  function openSheet() {
+    draft = { taken: Object.assign({}, st.prior === 'yes' ? st.taken : {}), unknown: st.prior === 'yes' && st.unknown };
+    sheetOpen = true; renderC();
+    var first = document.querySelector('#c-sheet input'); if (first) first.focus();
+  }
+  document.getElementById('c-no').addEventListener('click', function () { st = { prior: 'no', taken: {}, unknown: false }; renderC(); });
+  document.getElementById('c-yes').addEventListener('click', openSheet);
+  document.getElementById('c-edit').addEventListener('click', function () {
+    if (st.prior === 'no') { st = { prior: 'ask', taken: {}, unknown: false }; renderC(); }
+    else openSheet();
+  });
+  document.querySelectorAll('#c-sheet .opt input').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      var k = inp.value;
+      if (k === 'unknown') {
+        draft.unknown = inp.checked;
+        if (inp.checked) draft.taken = {};          // 모르겠다고 하면 특정 보장 선택을 비운다
+      } else {
+        draft.taken[k] = inp.checked;
+        if (inp.checked) draft.unknown = false;      // 특정 보장을 고르면 "모르겠어요"를 해제한다
+      }
+      renderSheet();
     });
+  });
+  document.getElementById('c-sheet-cancel').addEventListener('click', function () { sheetOpen = false; renderC(); document.getElementById(st.prior === 'ask' ? 'c-yes' : 'c-edit').focus(); });
+  document.getElementById('c-sheet-done').addEventListener('click', function () {
+    st = { prior: 'yes', taken: Object.assign({}, draft.taken), unknown: draft.unknown };
+    sheetOpen = false; renderC(); document.getElementById('c-edit').focus();
   });
   renderC();
 })();

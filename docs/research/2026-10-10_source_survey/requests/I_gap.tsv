@@ -1,0 +1,10 @@
+ts_utc	method	url	status	file	sha256	purpose
+2026-10-12T03:19:56Z	GET	https://www.hanainsure.co.kr/robots.txt	200	raw/hana_robots.txt	ec75538cc5813b1cf00e8030aec32d0c6f16d7a77589efe3b864c450bff242a7	하나손보 robots 재확인
+2026-10-12T03:20:00Z	GET	https://www.hanainsure.co.kr/download/8bff6f1fc6	200	raw/hana_policy_8bff6f1fc6.pdf	fd9c0133d852e42d49e4c13919b557431bb2d525221d293c1efc1b0075866374	하나더퍼스트 3.0.5 일반심사형 3대질병형(2026.7.1~) 약관: 암 정의·보장개시·감액 기준 확인
+2026-10-12T03:21:09Z	GET	https://www.lotteins.co.kr/robots.txt	curl35:curl: (35) Recv failure: Connection reset by peer	raw/lotte_robots.txt		롯데손보 robots
+2026-10-12T03:21:25Z	GET	https://www.lotteins.co.kr/robots.txt	curl35:curl: (35) Recv failure: Connection reset by peer	raw/lotte_robots.txt		롯데손보 robots 재시도(앞 요청 연결 재설정)
+2026-10-12T03:21:56Z	GET	http://www.lotteins.co.kr/web/C/D/H/cdh190.jsp	200	raw/lotte_cdh190.html	df2a20030566babf8b2b3160f1d5615091729eb0ac268cc60eb54fc8a50b00af	롯데손보 공시 TP_URL(http) 확인, 앞 2회 HTTPS 연결 재설정
+2026-10-12T03:22:08Z	GET	http://www.lotteins.co.kr/robots.txt	curl28:curl: (28) Operation timed out after 60001 milliseconds with 0 bytes received	raw/lotte_robots_http.txt		롯데손보 robots(http)
+2026-10-12T03:23:39Z	GET	http://www.lotteins.co.kr/robots.txt	curl28:curl: (28) Operation timed out after 60002 milliseconds with 0 bytes received	raw/lotte_robots_http.txt		롯데손보 robots(http) 재시도(앞 요청 60초 시간 초과)
+2026-10-12T03:24:52Z	GET	https://kpub.knia.or.kr/file/download/91797.do	curl35:curl: (35) Recv failure: Connection reset by peer	raw/kpub_summary_91797.bin		롯데 암보험(2604) 1종 상품요약서(협회 공시 SUMMARY_SEQ 91797): 일반암 정의·보장개시·지급횟수 확인
+2026-10-12T03:25:24Z	GET	https://kpub.knia.or.kr/file/download/91797.do	200	raw/kpub_summary_91797.bin	6c481f0acfc62db7a29e0c1658bd3bf3dee0def1b9523d64923ddb92645aefac	롯데 상품요약서 SEQ 91797 재시도(앞 요청 연결 재설정)

@@ -201,7 +201,7 @@
     "queued": "실행 가능",
     "leased": "빌더에게 임대(lease_id, fencing_token, TTL). 쓰기 전",
     "building": "빌더가 격리 작업 트리에서 쓰는 중. 하트비트 필요",
-    "handoff": "전환 신호 감지. switch_policy.handoff_order 순서로 진행: 보존(현재 토큰으로 WIP 푸시) → 중단(프로세스 그룹 종료·자격 회수) → 토큰 폐기 → 다음 임대 발급(새 토큰). 토큰 폐기 뒤 옛 토큰의 봉투·푸시는 late_envelope_rejected",
+    "handoff": "전환 신호 감지. switch_policy.handoff_sequence 순서로 진행: 보존(현재 토큰으로 WIP 푸시) → 중단(프로세스 그룹 종료·자격 회수) → 토큰 폐기 → 다음 임대 발급(새 토큰). 토큰 폐기 뒤 옛 토큰의 봉투·푸시는 late_envelope_rejected",
     "paused_no_builder": "모든 빌더 불가. 작업 보존 후 대기",
     "pr_open": "PR 열림. CI 대기",
     "ci_failed": "CI 실패. 같은 작성자가 고친다(전환 금지)",
@@ -330,7 +330,7 @@
       "from": "handoff",
       "to": "leased",
       "event": "preserved",
-      "when": "handoff_order 완료: (1) preserved — wip_commit_sha를 현재 토큰으로 푸시(handoff_preserve 검사) (2) stopped — 프로세스 그룹 종료·쓰기 자격 회수 (3) revoked — 현재 토큰 폐기 (4) handoff_record 기록; and next_builder_available and lease_guards 통과 → 새 토큰(+1) 발급",
+      "when": "handoff_sequence 완료: (1) preserved — wip_commit_sha를 현재 토큰으로 푸시(handoff_preserve 검사) (2) stopped — 프로세스 그룹 종료·쓰기 자격 회수 (3) revoked — 현재 토큰 폐기 (4) handoff_record 기록; and next_builder_available and lease_guards 통과 → 새 토큰(+1) 발급",
       "by": "daemon",
       "guard": "lease_guards"
     },
@@ -338,7 +338,7 @@
       "from": "handoff",
       "to": "paused_no_builder",
       "event": "no_builder",
-      "when": "handoff_order (1)~(4) 완료 and no next builder",
+      "when": "handoff_sequence (1)~(4) 완료 and no next builder",
       "by": "daemon"
     },
     {
@@ -753,13 +753,13 @@
       "repo_api_error"
     ],
     "runner_profiles_note": "runner_profile.limit_exit_codes·unavailable_exit_codes·provider_documented_quota_types는 CLI별로 05 §1b에서 확인한 값만 넣는다. 미확인이면 비어 있고, 그 CLI는 provider_http_response·runner_auth_probe·runner_version_probe로만 전환한다",
-    "handoff_order": [
+    "handoff_sequence": [
       "preserve",
       "stop",
       "revoke_token",
       "issue_next_lease"
     ],
-    "_handoff_order_note": "R04③. 보존은 현재(이전 임대) 토큰으로만 할 수 있다. 그 토큰이 유효한 마지막 쓰기가 WIP 푸시다. 폐기 뒤에는 그 토큰의 어떤 봉투·푸시도 late_envelope_rejected다. 다음 임대의 토큰은 폐기 뒤에만 발급한다",
+    "_handoff_sequence_note": "R04③. 보존은 현재(이전 임대) 토큰으로만 할 수 있다. 그 토큰이 유효한 마지막 쓰기가 WIP 푸시다. 폐기 뒤에는 그 토큰의 어떤 봉투·푸시도 late_envelope_rejected다. 다음 임대의 토큰은 폐기 뒤에만 발급한다",
     "handoff_steps": [
       "(preserve) 빌더에 stop 신호(SIGTERM)·마지막 쓰기 시각 기록. grace_s 안에 오는 wip_preserved 봉투(현재 토큰)를 수락하고 데몬이 현재 토큰으로 WIP 커밋을 푸시(wip_commit_sha, handoff_preserve 검사). 봉투가 없으면 데몬이 격리 작업 트리의 미커밋 변경을 WIP 커밋으로 남기고 현재 토큰으로 푸시",
       "(stop) 프로세스 그룹 종료·임대별 쓰기 자격 회수",
@@ -974,7 +974,7 @@
       "(revoke_token) 토큰 폐기, 상태 returned 또는 paused",
       "그 뒤 도착하는 봉투·푸시는 late_envelope_rejected(R-11 기록, 상태 불변)"
     ],
-    "order": "switch_policy.handoff_order와 같다(preserve → stop → revoke_token)",
+    "order": "switch_policy.handoff_sequence와 같다(preserve → stop → revoke_token)",
     "verification": "hard-stop-heartbeating-job: 모의(T-OP-00)·실제 실행기(T-OP-09)"
   },
   "budget_enforcement": {
@@ -1058,7 +1058,7 @@
     "human_only_merge_observation_R12": "specified",
     "late_envelope_from_previous_lease_no_state_change": "dry_run_target",
     "lease_guards_on_all_lease_paths": "dry_run_target",
-    "handoff_order_preserve_stop_revoke_issue": "dry_run_target",
+    "handoff_sequence_preserve_stop_revoke_issue": "dry_run_target",
     "merge_observation_fields_separated": "dry_run_target",
     "canon_change_approval_in_envelope": "dry_run_target",
     "real_data_allowed_field_required": "dry_run_target"
@@ -1072,7 +1072,7 @@
     "리뷰어·감리 배정(배제 규칙)",
     "카운터·잠금·임대·토큰·멱등 키 관리(임대 발급은 lease_guards)",
     "lease_id·토큰 검사 뒤 푸시·PR 갱신",
-    "인계 기록 보존(handoff_order)",
+    "인계 기록 보존(handoff_sequence)",
     "병합 관측 필드 기록(approved_head_sha·base_sha·head_sha_at_merge·merge_commit_sha·integration_check)",
     "반송"
   ],

@@ -94,7 +94,7 @@
 | 검증 자료 | `python3 tools/validation_check.py`, `--selftest` | 인용 위치·근거 구간·화면 금액 출처의 내부 일관성. 원본 바이트는 확인하지 않는다 |
 | Python 도구 | `python3 -m unittest discover -s tools/tests -v` | 보관·재현·해시·R2 한도 도구 |
 | 원본 재현·변경 감지 | 수동 `sources` 워크플로(`verify_sources.py reproduce/detect`) | 보관본 바이트 일치와 현재 출처 변경. CI에 포함되지 않는다 |
-| 온톨로지 사례 검증 | `CARGO_TARGET_DIR=<임시 경로> cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml` 후 `python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py <임시 경로>/debug/ontology-case-runner` | 일관성 제약 K1~K16(24차 판의 K1 위반 재현, 25차 판 위반 0), 계산된 범위 관계, 질문 11개의 조회 → 엔진 → 설명 연결, 제약 변이 15개, 릴리스 고정·문서 모델 시험 12개(I1~I7, D1~D5). **약관 해석의 정확도는 보증하지 않는다.** 판매 구성-판 연결과 구획-판 연결(realizes)은 사례 검증용 가정 승인이다. 코드 우주는 별표에 나온 코드의 근사다 |
+| 온톨로지 사례 검증 | `CARGO_TARGET_DIR=<임시 경로> cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml` 후 `python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py <임시 경로>/debug/ontology-case-runner` | 일관성 제약 K1~K16(24차 판의 K1 위반 재현, 25차 판 위반 0), 계산된 범위 관계, 질문 11개의 조회 → 엔진 → 설명 연결, 제약 변이 15개, 릴리스 고정·문서 모델 시험 14개(I1~I7, D1~D7). **약관 해석의 정확도는 보증하지 않는다.** 판매 구성-판 연결과 구획-판 연결(realizes)은 사례 검증용 가정 승인이다. 코드 우주는 별표에 나온 코드의 근사다 |
 | 설계 묶음 의미 검사 | `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 작업 그래프(선행·산출물 순서, 최종 관문), 경로 권한 충돌, 데몬 전이(대기·복구, 병합 뒤 상태, 결정 차단), 전환 신호 출처, 펜싱. 일부는 문구 존재 검사이며 제품 의미의 적절성은 보증하지 않는다 |
 | 시안 실행 검증 | `node 시안_세흐름/검증/run.js …`, `node 시안_비교/검증/run.js 비교_시안.html 캡처` (Playwright 1.56, `/opt/pw-browsers` Chromium) | HTML 시안의 겹침·상태 전환·문구 규칙. **제품 기능이나 사용자 이해를 보증하지 않는다.** Flutter 상태 카탈로그 시험의 참고 형식으로만 쓴다 |
 

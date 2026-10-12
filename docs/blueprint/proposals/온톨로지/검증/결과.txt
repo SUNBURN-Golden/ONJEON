@@ -1,8 +1,8 @@
 # 온톨로지 사례 검증 결과
 
 ## 릴리스 고정
-- rel:case-r24: 내용 해시 b60368aa0dbe8017 · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
-- rel:case-r25: 내용 해시 9899138e732aec5f · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
+- rel:case-r24: 내용 해시 ae244c964f0aa8fc · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
+- rel:case-r25: 내용 해시 012295575244f897 · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
 
 ## 일관성 제약 · rel:case-r24: 위반 1건
 - K1 a:lotte_cond_waiting_v1: C0 accepted인데 약관 본문 판에 이어진 basis 근거가 없음
@@ -270,5 +270,7 @@
 - D3 지문 일치를 자동 승인으로 씀 [동작 검증]: 통과 · 승인 결정이 검수 결정이 아님(fingerprint_match)
 - D4 본문 같음·참조 별표 다름 [동작 검증]: 통과 · 원본의 구획이 판의 구성과 다름(빠진 부분 1, 다른 부분 1)
 - D5 본문 같음·참조 별표 빠짐 [동작 검증]: 통과 · 원본의 구획이 판의 구성과 다름(빠진 부분 1, 다른 부분 0)
+- D6 통합약관 구획과 개별 특약 파일이 같은 판 [동작 검증]: 통과 · 판을 담은 원본 3개(원래·개별·통합) · 위반 0
+- D7 통합 파일 안 특약 하나 개정 → 새 판(같은 계열) [동작 검증]: 통과 · 기존 판에 잇기 → ['K16'] · 새 판에 잇기 → 위반 0 · 같은 계열 · r25 결과 불변
 
-## 요약: r24 K1 위반 재현 True · r25 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 12/12 · 전체 통과
+## 요약: r24 K1 위반 재현 True · r25 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 14/14 · 전체 통과

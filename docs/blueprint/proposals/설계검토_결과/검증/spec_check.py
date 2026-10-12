@@ -45,20 +45,23 @@ def read(name):
 
 RESULTS = []
 
-# 지적 표지. 원본 번호는 사용자 상세 검토서(REVIEW.md)의 번호다. 확인된 것만 적는다(2026-10-12: F08, F11).
+# 지적 표지. 원본 번호는 사용자 상세 검토서(검증/사용자검토_ffbcaf6/REVIEW.md)의 F01~F12다.
 LABELS = {
-    "release": ("과거 릴리스 고정", None), "edition": ("약관 판 모델 회귀", None), "order": ("실행 불가능한 작업 순서", None),
-    "perm": ("수정 권한 충돌", None), "final": ("최종 관문 누락", None), "wait": ("데몬 대기·복구 경로", None),
-    "latewrite": ("이전 작성자의 늦은 쓰기 차단", "F08"), "needcrit": ("판단 기준 관리", "F11"),
-    "partial": ("불확실성이 영향을 주는 결론만 보류", None), "gates": ("결정 차단: 설명과 기계 규칙", None),
-    "switch": ("모델 전환 신호", None), "postmerge": ("병합 뒤 상태와 선행 조건", None), "ci": ("CI 의미 검사·보고 구분", None),
-    "—": ("그래프 기본", None),
+    "release": ("새 주장이 기존 릴리스에 유입", "F01"), "edition": ("약관 의미상 판과 파일 식별의 혼합", "F02"),
+    "partial": ("영향받는 결론만 보류", "F03"), "order": ("먼저 통과해야 할 시험의 구현이 후속 작업에", "F04"),
+    "perm": ("허용·금지 경로 충돌과 공용 파일 잠금", "F05"), "final": ("최종 감리가 전체 완성품을 요구하지 않음", "F06"),
+    "wait": ("데몬 대기·병합 후 재개 경로", "F07"), "postmerge": ("데몬 대기·병합 후 재개 경로(병합 뒤 상태)", "F07"),
+    "latewrite": ("점유 만료·중단 뒤 이전 작성자 차단", "F08"), "switch": ("일반 오류를 모델 사용량 제한으로 오인", "F09"),
+    "gates": ("좁게 차단한다는 설명과 기계 규칙", "F10"), "needcrit": ("필요성 판단·판단 기준 관리", "F11"),
+    "consistency": ("제약·근거·승격 상태 정의의 정합성", "F12"),
+    "ci": ("검증 수준 정정(검토서 본문, 번호 없음)", "본문"), "trace": ("요구사항→계약→작업→시험→출시 증거 대응표(검토서 다음 작업 3)", "본문"),
+    "—": ("그래프 기본", "—"),
 }
 
 
 def check(fid, name, ok, detail, kind="기계"):
     label, orig = LABELS[fid]
-    RESULTS.append({"finding": fid, "label": label, "original_id": orig or "원본 번호 확인 전", "check": name, "ok": bool(ok), "kind": kind, "detail": detail})
+    RESULTS.append({"finding": fid, "label": label, "original_id": orig, "check": name, "ok": bool(ok), "kind": kind, "detail": detail})
 
 
 # ---------- 공통 도구 ----------
@@ -300,7 +303,18 @@ def run(repo):
            "late-write-fenced": "latewrite", "provider-scoped-switch": "switch", "post-merge-prereq": "postmerge",
            "release-referenced-nodes-frozen": "release", "release-usage-restriction-separate": "release",
            "edition-not-auto-by-fingerprint": "edition", "edition-composition-annex": "edition",
-           "need-criteria-service-gate": "needcrit"}
+           "need-criteria-service-gate": "needcrit",
+           "release-future-supersedes-frozen": "release", "edition-integrated-vs-separate-file": "edition",
+           "edition-repack-same": "edition", "edition-one-rider-revised-in-integrated": "edition",
+           "partial-hold-independent-contract-kept": "partial", "no-completeness-from-equal-candidates": "partial",
+           "bootstrap-clean-main": "order", "release-readiness-rejects-incomplete": "final",
+           "event-duplicate-noop": "wait", "event-out-of-order": "wait", "docs-pr-complete": "wait",
+           "eleventh-pr-audit": "wait", "mis-merge-not-done": "wait",
+           "budget-reserve-before-call": "latewrite", "hard-stop-heartbeating-job": "latewrite",
+           "switch-negative-test-output": "switch", "switch-negative-third-party-http": "switch",
+           "d02-mock-start-allowed": "gates", "r2-local-work-allowed": "gates",
+           "need-flow-keep-addnone-hold-unknown": "needcrit",
+           "profile-historical-vs-service": "consistency"}
     have = {x for t in tasks.values() for x in t.get("required_test_ids", [])}
     for rid, fid in req.items():
         check(fid, f"G12 필수 시험 ID '{rid}'를 가진 과제가 있음", rid in have, "", kind="존재 검사")
@@ -323,6 +337,71 @@ def run(repo):
     missing_labels = [lab for key, (lab, _) in LABELS.items() if key != "—" and lab not in t07]
     check("ci", "G16 07_수정대응표.md가 지적마다 변경 위치·시험 종류·증명 범위·미검증 칸을 가짐", t07 and all(h in t07 for h in heads) and not missing_labels,
           f"없는 칸 {[h for h in heads if h not in t07]} · 없는 지적 {missing_labels}", kind="존재 검사")
+    # ---- 상세 검토서 대조로 추가한 검사(2026-10-12) ----
+    # F05 공용 manifest·lockfile 잠금, 산출물 경로가 허용 경로 안
+    shared = ("Cargo.toml", "Cargo.lock")
+    bad = []
+    for tid, t in tasks.items():
+        for f in shared:
+            if any(a == f or fnmatch.fnmatch(f, a) for a in t.get("allowed_paths", [])) and f not in t.get("conflict_paths", []):
+                bad.append(f"{tid}: {f} 수정 권한이 있는데 conflict_paths에 없음")
+    check("perm", "G17 공용 manifest·lockfile을 고치는 과제가 그 파일을 잠근다", not bad, bad[:10])
+    bad = []
+    for tid, t in tasks.items():
+        for ref in t.get("produces", []):
+            k, _, v = ref.partition(":")
+            if k == "path" and not any(overlap(v, a) and (fnmatch.fnmatch(sample(v), a) or v == a) for a in t.get("allowed_paths", [])):
+                bad.append(f"{tid}: 산출물 {v} 가 허용 경로 밖")
+    check("perm", "G18 각 과제의 산출물 경로가 그 과제의 허용 경로 안", not bad, bad[:10])
+    # F04 공통 완료 기준 중 다른 과제가 만드는 도구에 기대는 것은 적용 시점(applies_after)을 가진다
+    staged_words = ("누출", "비노출", "스켈레톤")
+    bad = [c for c in T.get("common_done_criteria", []) if isinstance(c, str) and any(w in c for w in staged_words)]
+    bad += [c.get("text") for c in T.get("common_done_criteria", []) if isinstance(c, dict) and c.get("applies_after") not in tasks]
+    check("order", "G19 도구에 기대는 공통 완료 기준이 그 도구를 만드는 과제 이후에만 적용됨(applies_after)", not bad, bad[:5])
+    # F06 출시 요구마다 필수 과제·실제 데이터 증거·수락 시험, 제외는 승인된 범위 결정으로만
+    bad = []
+    for f in reg:
+        if f.get("excluded"):
+            if not f.get("scope_decision"):
+                bad.append(f"{f['id']}: 제외인데 범위 결정 근거 없음")
+        elif not (f.get("tasks") and f.get("evidence") and f.get("acceptance_tests")):
+            bad.append(f"{f['id']}: tasks·evidence·acceptance_tests 중 빠짐")
+    check("final", "G20 feature_registry 항목마다 필수 과제·실제 데이터 증거·수락 시험(제외는 범위 결정 근거)", reg and not bad, bad[:10], kind="존재 검사")
+    # F07 명시적 no-op, 문서 PR 완료, 잘못된 병합은 완료가 아님
+    noop = D.get("noop_events", [])
+    check("wait", "G21 명시적 no-op 사건 목록(중복·대기 알림)", bool(noop), noop or "없음")
+    docs_done = [x for x in tr if x.get("from") == "merged" and x.get("to") == "done" and "docs_only" in x.get("when", "")]
+    check("wait", "G22 문서 PR의 병합 뒤 완료 전이", bool(docs_done), [x.get("event") for x in docs_done] or "없음")
+    bad_merge = [x for x in tr if x.get("event") == "merged_without_valid_approval"]
+    check("wait", "G23 유효한 승인 없이 병합된 사실은 기록하되 done으로 가지 않음", bad_merge and all(x.get("to") != "done" for x in bad_merge), [(x.get("from"), x.get("to")) for x in bad_merge] or "없음")
+    # F09 전환 신호의 출처·attempt·호출 ID 검증
+    val = set(D.get("switch_policy", {}).get("signal_validation", []))
+    check("switch", "G24 전환 신호가 source·attempt·call_id를 검증", {"source", "attempt", "call_id"} <= val, sorted(val) or "없음")
+    # F10 착수·실데이터 접근·병합·출시 조건을 따로
+    keys = {"start", "real_data", "merge", "release"}
+    bad = [tid for tid, t in tasks.items() if not keys <= set((t.get("decision_gates") or {}).keys())]
+    check("gates", "G25 decision_gates가 start·real_data·merge·release를 따로 가짐", not bad, bad[:8])
+    # F12 제약 목록 단일화, 시험 프로필 분리
+    tb = json.load(open(os.path.join(repo, "docs/blueprint/proposals/온톨로지/tbox.json"), encoding="utf-8"))
+    kmax = max(int(k["id"][1:]) for k in tb["constraints"])
+    texts = {n: read(n) for n in ("01_코드설계.md", "02_구현계약.md", "03_작업명세.md", "06_검토사항_점검.md")}
+    texts["tasks.json"] = json.dumps(T, ensure_ascii=False)
+    stale = sorted({f"{n}: K1~K{m}" for n, tx in texts.items() for m in re.findall(r"K1\s*~\s*K(\d+)", tx) if int(m) != kmax})
+    check("consistency", f"G26 제약 범위 표기가 T-box(K1~K{kmax})와 같음", not stale, stale[:8])
+    prof = T.get("test_profiles", {})
+    check("consistency", "G27 시험 프로필이 역사적 사례(historical_fixture)와 서비스 적합성(service_conformance)으로 나뉨", {"historical_fixture", "service_conformance"} <= set(prof), sorted(prof) or "없음")
+    c02 = read("02_구현계약.md")
+    check("consistency", "G28 02가 주장 종류별 근거 정책과 가격 관측의 보존·비교 자격 분리를 둠", "근거 정책" in c02 and "비교 자격" in c02, "", kind="존재 검사")
+    # 다음 작업 2: 모의 검증과 실제 데몬이 같은 전이·검증 코어를 쓴다
+    core = D.get("execution_core", {})
+    check("wait", "G30 dry-run과 실제 실행기가 같은 전이·검증 코어를 쓴다(execution_core.shared_by)", {"dry_run", "real_executor"} <= set(core.get("shared_by", [])), core or "없음")
+    # 다음 작업 3: 요구사항 추적표
+    try:
+        t08 = read("08_요구추적표.md")
+    except FileNotFoundError:
+        t08 = ""
+    cols = ("요구", "계약", "작업", "시험", "출시 증거")
+    check("trace", "G29 08_요구추적표.md(요구→계약→작업→실제 데이터/화면 시험→출시 증거)", t08 and all(c in t08 for c in cols), [c for c in cols if c not in t08], kind="존재 검사")
     need_feats = {"need-criteria": "판단 기준 관리(기준·기준의 판·출처)", "need-result-reasons": "유지·추가 없음·보류 결과와 이유"}
     ids = {f["id"] for f in reg}
     for fid, label in need_feats.items():
@@ -340,7 +419,7 @@ def main():
     run(repo)
     fails = [r for r in RESULTS if not r["ok"]]
     for r in RESULTS:
-        print(f"{'PASS' if r['ok'] else 'FAIL'} [{r['label']} · {r['original_id']}] ({r['kind']}) {r['check']}" + ("" if r["ok"] else f"\n      {r['detail']}"))
+        print(f"{'PASS' if r['ok'] else 'FAIL'} [{r['original_id']} {r['label']}] ({r['kind']}) {r['check']}" + ("" if r["ok"] else f"\n      {r['detail']}"))
     mech = [r for r in RESULTS if r["kind"] == "기계"]
     print(f"\n요약: 기계 검사 {sum(r['ok'] for r in mech)}/{len(mech)} · 존재 검사 {sum(r['ok'] for r in RESULTS if r['kind'] != '기계')}/{len(RESULTS) - len(mech)} · {'전체 통과' if not fails else '실패 ' + str(len(fails))}")
     print("주의: '기계' 검사는 JSON 구조·그래프를 계산해서 판정하지만, 명세의 정합성만 본다. 실제 데몬·서비스의 동작 검증이 아니다.")

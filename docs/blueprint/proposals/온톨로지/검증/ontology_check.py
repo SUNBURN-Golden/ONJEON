@@ -711,6 +711,48 @@ def release_tests(runner):
     repack(a, "annexmissing", drop="seg:hana_annex1")
     vs = check_constraints(candidate_view(a))
     out.append(("D5 본문 같음·참조 별표 빠짐", "동작", bool(vs) and all(x[0] == "K16" for x in vs), "; ".join(x[2] for x in vs) or "못 잡음"))
+    # D6 통합약관 안의 구획과 개별 특약 파일이 같은 판(다른 특약이 함께 든 통합 원본 + 이 특약만 든 개별 원본)
+    a = copy.deepcopy(ABOX)
+    repack(a, "separate")  # 개별 특약 파일: 이 특약의 구성만 담음
+    a["raw_assets"].append({"id": "raw:synthetic_integrated", "class": "RawAsset", "observed_label": "자체 시험용 합성 통합약관", "org": "org:hana_nonlife", "sha256": "1" * 64, "source": "합성", "observed_at": None})
+    for k, sid in enumerate(("seg:hana_r2_1", "seg:hana_annex1", "seg:hana_annex12")):
+        sg = copy.deepcopy(next(x for x in a["segments"] if x["id"] == sid))
+        sg.update(id=f"seg:synthetic_integrated_{k}", raw_asset="raw:synthetic_integrated", pages=[400 + k, 400 + k])
+        a["segments"].append(sg)
+        a["assertions"].append(realizes(sg["id"], "ted:hana_r2_1@2607"))
+    other = copy.deepcopy(next(x for x in a["segments"] if x["id"] == "seg:hana_r2_1"))
+    other.update(id="seg:synthetic_integrated_other", raw_asset="raw:synthetic_integrated", pages=[10, 11], fingerprint={"rule": "fp-0.1", "sha256": "2" * 64}, note="같은 통합 파일 안의 다른 특약(판 연결 없음)")
+    a["segments"].append(other)
+    cv = candidate_view(a)
+    cur, _ = current_assertions(cv)
+    segs = {x["id"]: x for x in cv["segments"]}
+    raws_of = {segs[x["subject"]]["raw_asset"] for x in cur if x["predicate"] == "realizes" and x["object"] == "ted:hana_r2_1@2607"}
+    ok = not check_constraints(cv) and len(raws_of) == 3
+    out.append(("D6 통합약관 구획과 개별 특약 파일이 같은 판", "동작", ok, f"판을 담은 원본 {len(raws_of)}개(원래·개별·통합) · 위반 {len(check_constraints(cv))}"))
+
+    # D7 통합 파일 안의 특약 하나만 개정: 개정된 구성은 기존 판이 아니라 새 판(같은 계열)으로만 이어진다
+    a = copy.deepcopy(ABOX)
+    a["raw_assets"].append({"id": "raw:synthetic_rev", "class": "RawAsset", "observed_label": "자체 시험용 합성 개정 통합약관", "org": "org:hana_nonlife", "sha256": "3" * 64, "source": "합성", "observed_at": None})
+    new_parts = []
+    for k, sid in enumerate(("seg:hana_r2_1", "seg:hana_annex1", "seg:hana_annex12")):
+        sg = copy.deepcopy(next(x for x in a["segments"] if x["id"] == sid))
+        sg.update(id=f"seg:synthetic_rev_{k}", raw_asset="raw:synthetic_rev", pages=[50 + k, 50 + k])
+        if sid == "seg:hana_r2_1":
+            sg["fingerprint"] = {"rule": "fp-0.1", "sha256": "4" * 64}  # 본문 개정
+        a["segments"].append(sg)
+        new_parts.append({"role": "본문" if k == 0 else "참조 별표", "label": sg["doc_role"], "fingerprint": sg["fingerprint"]})
+    wrong = copy.deepcopy(a)
+    for k in range(3):
+        wrong["assertions"].append(realizes(f"seg:synthetic_rev_{k}", "ted:hana_r2_1@2607"))
+    vs_wrong = check_constraints(candidate_view(wrong))
+    ed0 = next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")
+    a["terms_editions"].append(dict(copy.deepcopy(ed0), id="ted:hana_r2_1@rev", parts=new_parts, label="자체 시험용 개정 판"))
+    for k in range(3):
+        a["assertions"].append(realizes(f"seg:synthetic_rev_{k}", "ted:hana_r2_1@rev"))
+    cv = candidate_view(a)
+    eds = {x["id"]: x for x in cv["terms_editions"]}
+    ok = any(x[0] == "K16" for x in vs_wrong) and not check_constraints(cv) and eds["ted:hana_r2_1@rev"]["lineage"] == eds["ted:hana_r2_1@2607"]["lineage"] and run_all(view(ABOX, "rel:case-r25"), runner) == base
+    out.append(("D7 통합 파일 안 특약 하나 개정 → 새 판(같은 계열)", "동작", ok, f"기존 판에 잇기 → {sorted({x[0] for x in vs_wrong})} · 새 판에 잇기 → 위반 {len(check_constraints(cv))} · 같은 계열 · r25 결과 불변"))
     return out
 
 

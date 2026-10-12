@@ -194,7 +194,34 @@
       "lineage": "tl:hana_3d_cancer_dx_rider",
       "label": "하나 2-1 3대질병형 암진단비(유방암및생식기암제외) 특약 · 2026-07-01 판매 시작 판매본의 약관 파일에서 확인한 판",
       "revision_mark": null,
-      "note": "개정 표기·시행일을 약관 본문에서 따로 확인하지 않았다. 판의 동일성은 구획 지문으로만 판단한다"
+      "note": "개정 표기·시행일을 약관 본문에서 따로 확인하지 않았다. 판의 동일성은 구획 지문으로만 판단한다",
+      "parts": [
+        {
+          "role": "본문",
+          "label": "특약 약관 52~53쪽",
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "f28e5b5de3e7364a8b431de912d816d0877e1ec91ead7ebb68eb00b971db7896"
+          }
+        },
+        {
+          "role": "참조 별표",
+          "label": "별표 174~174쪽",
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "f3e220bec9409b30d76f1ba29733a51a1112dc14bb2895775e38c978f69c71c4"
+          }
+        },
+        {
+          "role": "참조 별표",
+          "label": "별표 185~185쪽",
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "4bc4c3ae24bbf593dc31a02884c7b21b69a97fa75aef8fe9625817877c91f6a2"
+          }
+        }
+      ],
+      "parts_note": "판의 구성(본문 + 참조 별표). 보통약관의 정의 조항 구획은 이 사례에서 수집하지 않아 구성에 없다(미검증)"
     },
     {
       "id": "ted:hi_r2_5@2608",
@@ -202,7 +229,34 @@
       "lineage": "tl:hi_cancer_dx_2_5",
       "label": "현대 굿앤굿1540(Hi2607) 2-5 암진단비 특약 · 2026-08-01 판매 시작 행의 약관 파일에서 확인한 판",
       "revision_mark": null,
-      "note": "같은 판이 다른 원본(통합약관·개별 특약 파일·재압축본)에 들어 있어도 이 판 하나에 realizes로 잇는다"
+      "note": "같은 판이 다른 원본(통합약관·개별 특약 파일·재압축본)에 들어 있어도 이 판 하나에 realizes로 잇는다",
+      "parts": [
+        {
+          "role": "본문",
+          "label": "특약 약관 305~305쪽",
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "087355a33987f64c4c248d55b5718c06db1be0063c1921a6a7016ec094eef8d9"
+          }
+        },
+        {
+          "role": "참조 별표",
+          "label": "별표 1223~1223쪽",
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "1b84a3a5ea36370a3c365f9267a42776c6ae08ce3d9a1d302544f00d51198bfa"
+          }
+        },
+        {
+          "role": "참조 별표",
+          "label": "별표 1236~1237쪽",
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "119c3687b643a53825390aedd9f137b94c470bc37e2af4ebfdf8161b9d4bc7eb"
+          }
+        }
+      ],
+      "parts_note": "판의 구성(본문 + 참조 별표). 보통약관의 정의 조항 구획은 이 사례에서 수집하지 않아 구성에 없다(미검증)"
     }
   ],
   "terms_lineages": [
@@ -686,7 +740,11 @@
       "value_state": "observed",
       "review_status": "accepted",
       "origin": "fixture",
-      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다"
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      }
     },
     {
       "id": "a:realizes_hana_annex1",
@@ -706,7 +764,11 @@
       "value_state": "observed",
       "review_status": "accepted",
       "origin": "fixture",
-      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다"
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      }
     },
     {
       "id": "a:realizes_hana_annex12",
@@ -726,7 +788,11 @@
       "value_state": "observed",
       "review_status": "accepted",
       "origin": "fixture",
-      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다"
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      }
     },
     {
       "id": "a:realizes_hi_r2_5",
@@ -746,7 +812,11 @@
       "value_state": "observed",
       "review_status": "accepted",
       "origin": "fixture",
-      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다"
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      }
     },
     {
       "id": "a:realizes_hi_annex2",
@@ -766,7 +836,11 @@
       "value_state": "observed",
       "review_status": "accepted",
       "origin": "fixture",
-      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다"
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      }
     },
     {
       "id": "a:realizes_hi_annex11_12",
@@ -786,7 +860,11 @@
       "value_state": "observed",
       "review_status": "accepted",
       "origin": "fixture",
-      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다"
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      }
     },
     {
       "id": "a:hana_doc_link",
@@ -1439,7 +1517,7 @@
   "releases": [
     {
       "id": "rel:case-r24",
-      "note": "24차 시안 시점(정정 전). onto-0.2(원본·구획·본문 판 분리)로 2026-10-12 다시 고정. onto-0.1은 제외 목록 방식이라 나중 주장이 섞였다",
+      "note": "24차 시안 시점(정정 전). onto-0.2(원본·구획·본문 판 분리, 판의 구성, 승인 결정)로 2026-10-12 다시 고정. onto-0.1은 제외 목록 방식이라 나중 주장이 섞였다",
       "frozen_at": "2026-10-12",
       "members": {
         "raw_assets": [
@@ -1576,11 +1654,11 @@
         "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
         "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
       },
-      "content_sha256": "38907152d069f649793076500364bdd1265b1302b3adace59e4973a01f5d26e2"
+      "content_sha256": "b60368aa0dbe801788b09f174e98be87f6928a11d2f9e571ec8aa4c2837b3123"
     },
     {
       "id": "rel:case-r25",
-      "note": "25차 정정 후. onto-0.2(원본·구획·본문 판 분리)로 2026-10-12 다시 고정. onto-0.1은 제외 목록 방식이라 나중 주장이 섞였다",
+      "note": "25차 정정 후. onto-0.2(원본·구획·본문 판 분리, 판의 구성, 승인 결정)로 2026-10-12 다시 고정. onto-0.1은 제외 목록 방식이라 나중 주장이 섞였다",
       "frozen_at": "2026-10-12",
       "members": {
         "raw_assets": [
@@ -1717,11 +1795,13 @@
         "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
         "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
       },
-      "content_sha256": "8d0520e876438262730a4eb94b2f05a138e4c5da93f7f7d3e7c0159b13961553"
+      "content_sha256": "9899138e732aec5f86fa219268d9493ef3c14c7d47450de1bc2b24182fc76718"
     }
   ],
   "_fingerprint_rule": {
     "id": "fp-0.1",
     "rule": "pdftotext(poppler 24.02) -layout로 쪽별 출력 → 이어 붙임 → 유니코드 NFC → 공백 문자 전부 제거 → UTF-8 SHA-256. 원문 발췌가 아니라 해시만 둔다. 추출기·규칙이 바뀌면 지문 규칙의 판을 올린다"
-  }
+  },
+  "release_notices": [],
+  "_release_notices_note": "릴리스 사용 제한 공지(운영 상태). 릴리스 내용 밖이라 내용 해시에 들지 않는다. 재현은 막지 않고 서비스 사용만 막는다"
 }

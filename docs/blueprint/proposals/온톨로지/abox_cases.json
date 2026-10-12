@@ -1525,6 +1525,44 @@
       "hold_reason": "reference_unresolved",
       "supersedes": "a:lotte_cond_waiting_v1",
       "correction_reason": "오류 정정: C0 근거는 약관(ADR-0014). 요약서 기재, 약관 대조 전"
+    },
+    {
+      "id": "a:hana_cov_in_edition",
+      "subject": "cov:hana_2_1",
+      "predicate": "in_edition",
+      "object": "ted:hana_r2_1@2607",
+      "criticality": "C0",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_1",
+          "role": "basis"
+        }
+      ],
+      "value_state": "observed",
+      "review_status": "accepted",
+      "note": "담보가 정의된 약관 본문 판. 입력 단계가 판매 구성 → 판 → 담보 연결을 확인하는 데 쓴다(재검토 R02)"
+    },
+    {
+      "id": "a:hi_cov_in_edition",
+      "subject": "cov:hi_2_5",
+      "predicate": "in_edition",
+      "object": "ted:hi_r2_5@2608",
+      "criticality": "C0",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art1",
+          "role": "basis"
+        }
+      ],
+      "value_state": "observed",
+      "review_status": "accepted",
+      "note": "담보가 정의된 약관 본문 판. 입력 단계가 판매 구성 → 판 → 담보 연결을 확인하는 데 쓴다(재검토 R02)"
     }
   ],
   "conflicts": [],
@@ -1742,7 +1780,8 @@
         "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
         "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
       },
-      "content_sha256": "ae244c964f0aa8fc8562ab4fdce1534fc8b8664036045500674376367b1bcb98"
+      "content_sha256": "ae244c964f0aa8fc8562ab4fdce1534fc8b8664036045500674376367b1bcb98",
+      "input_stage": "case-0.1(판매 구성 선택 후 담보를 요청값으로 받음)"
     },
     {
       "id": "rel:case-r25",
@@ -1883,7 +1922,152 @@
         "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
         "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
       },
-      "content_sha256": "012295575244f8979b60585bb5a93b6ded9860803cf52f0fbd3752fd0aeade20"
+      "content_sha256": "012295575244f8979b60585bb5a93b6ded9860803cf52f0fbd3752fd0aeade20",
+      "input_stage": "case-0.1(판매 구성 선택 후 담보를 요청값으로 받음)"
+    },
+    {
+      "id": "rel:case-r26",
+      "note": "재검토(9554c96) 대응: 담보-판 연결(in_edition) 주장 추가. 판의 구성은 근거 묶음으로 판정(K16 개정). r24·r25는 고정값 그대로",
+      "frozen_at": "2026-10-12",
+      "input_stage": "case-0.2(판매 구성 → 판 → 담보 연결 검증)",
+      "members": {
+        "raw_assets": [
+          "raw:hana_fd9c0133",
+          "raw:hana_listing_2ede1718",
+          "raw:hi_9401e98e",
+          "raw:hi_listing_20261010",
+          "raw:lotte_6c481f0a"
+        ],
+        "segments": [
+          "seg:hana_annex1",
+          "seg:hana_annex12",
+          "seg:hana_listing",
+          "seg:hana_r2_1",
+          "seg:hi_annex11_12",
+          "seg:hi_annex2",
+          "seg:hi_listing",
+          "seg:hi_p117",
+          "seg:hi_r2_5",
+          "seg:lotte_smry"
+        ],
+        "terms_editions": [
+          "ted:hana_r2_1@2607",
+          "ted:hi_r2_5@2608"
+        ],
+        "terms_lineages": [
+          "tl:hana_3d_cancer_dx_rider",
+          "tl:hi_cancer_dx_2_5"
+        ],
+        "clauses": [
+          "hana_2601_3d#annex1",
+          "hana_2601_3d#annex12",
+          "hana_2601_3d#c_2_1_art1_1",
+          "hana_2601_3d#c_2_1_art1_2",
+          "hana_2601_3d#c_2_1_art4_1",
+          "hana_2601_3d#c_2_1_art4_2",
+          "hana_2601_3d#c_2_1_art4_3",
+          "hana_2601_3d#c_2_1_art4_4",
+          "hana_2601_3d#c_2_1_art5",
+          "hana_listing#2601_3d_v20260101",
+          "hana_listing#2601_3d_v20260701",
+          "hi2607#annex11",
+          "hi2607#annex12",
+          "hi2607#annex2",
+          "hi2607#c_2_5_art1",
+          "hi2607#c_2_5_art2_1",
+          "hi2607#c_2_5_art2_2",
+          "hi2607#c_2_5_art3_1",
+          "hi2607#summary_table_p117",
+          "hi_listing#hi2607_20260801",
+          "lotte_2604_smry#benefit_table",
+          "lotte_2604_smry#term_general_cancer"
+        ],
+        "nodes": [
+          "cat:hana_breast_genital",
+          "cat:hana_cancer_x_breast_genital",
+          "cat:hi_cancer_x_similar",
+          "cat:hi_similar",
+          "cat:lotte_general_cancer",
+          "codes:c44",
+          "codes:c73",
+          "codes:hana_annex12",
+          "codes:hi_annex11",
+          "codes:hi_annex12",
+          "codes:kcd9_malignant_21",
+          "concept:cancer_dx_lump_sum",
+          "cond:hana_count",
+          "cond:hana_reduction",
+          "cond:hana_waiting",
+          "cond:hi_count",
+          "cond:hi_no_reduction",
+          "cond:hi_waiting",
+          "cond:lotte_waiting",
+          "cov:hana_2_1",
+          "cov:hi_2_5",
+          "cov:lotte_general_dx",
+          "org:hana_nonlife",
+          "org:hyundai_marine",
+          "org:lotte_nonlife",
+          "sc:hana_2601_3d_v20260101",
+          "sc:hana_2601_3d_v20260701",
+          "sc:hi2607_general",
+          "sc:lotte_2604_type1"
+        ],
+        "assertions": [
+          "a:hana_cat_exc_bg",
+          "a:hana_cat_exc_c44",
+          "a:hana_cat_exc_c73",
+          "a:hana_cat_exc_premalignant",
+          "a:hana_cat_inc",
+          "a:hana_concept",
+          "a:hana_cond_count",
+          "a:hana_cond_reduction",
+          "a:hana_cond_waiting",
+          "a:hana_cov_def",
+          "a:hana_cov_in_edition",
+          "a:hana_doc_link",
+          "a:hana_old_doc_link",
+          "a:hana_rule",
+          "a:hi_cat_exc_premalignant",
+          "a:hi_cat_exc_similar",
+          "a:hi_cat_inc",
+          "a:hi_concept",
+          "a:hi_cond_count",
+          "a:hi_cond_no_reduction",
+          "a:hi_cond_waiting",
+          "a:hi_cov_def",
+          "a:hi_cov_in_edition",
+          "a:hi_doc_link",
+          "a:hi_rule",
+          "a:hi_sim_border",
+          "a:hi_sim_c44",
+          "a:hi_sim_c73",
+          "a:hi_sim_insitu",
+          "a:lotte_cat_def",
+          "a:lotte_cond_waiting_v2",
+          "a:lotte_cov_def",
+          "a:lotte_doc_link",
+          "a:realizes_hana_annex1",
+          "a:realizes_hana_annex12",
+          "a:realizes_hana_r2_1",
+          "a:realizes_hi_annex11_12",
+          "a:realizes_hi_annex2",
+          "a:realizes_hi_r2_5"
+        ],
+        "conflicts": [],
+        "gaps": [
+          "gap:G5",
+          "gap:H_old",
+          "gap:L0",
+          "gap:L1"
+        ],
+        "premium_observations": []
+      },
+      "rule_files": {
+        "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
+        "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
+      },
+      "content_sha256": "40e27601f23aa19e698e117459c2da6229f92d36a7156a27f0e355823872f8f5"
     }
   ],
   "_fingerprint_rule": {

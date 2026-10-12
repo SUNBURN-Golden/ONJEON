@@ -1,0 +1,9 @@
+# 재검토(9554c96) 재현과 수정 뒤 결과 (구현자 실행, 2026-10-12)
+
+## 9554c96 (수정 전)
+R02 하나 판매 구성 + cov:hi_2_5 → config sc:hana_2601_3d_v20260701 · rule_assertion a:hi_rule · blocked None
+R01 별표12 구획만 별도 원본으로 → [('K16', 'ted:hana_r2_1@2607@raw:hana_fd9c0133', '원본의 구획이 판의 구성과 다름(빠진 부분 1, 다른 부분 0)'), ('K16', 'ted:hana_r2_1@2607@raw:annex_only', '원본의 구획이 판의 구성과 다름(빠진 부분 2, 다른 부분 0)')]
+
+## 작업 트리 (수정 뒤, 기준 릴리스 rel:case-r26)
+R02 하나 판매 구성 + cov:hi_2_5 → config sc:hana_2601_3d_v20260701 · rule_assertion None · blocked ['cov:hi_2_5∉ted:hana_r2_1@2607']
+R01 별표12 구획만 별도 원본으로 → 위반 없음

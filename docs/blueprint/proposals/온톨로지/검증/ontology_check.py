@@ -26,6 +26,7 @@ PRIVATE_PREFIX = ("contract:", "person:", "upload:")
 TERMS_ROLES = {"보통약관", "특약 약관", "별표"}
 STRUCTURAL = {"uses_edition", "realizes", "disclosure_of"}
 # 릴리스가 고정하는 구역. 확보 작업(acquisition_tasks)은 운영 상태라 릴리스 밖이다
+CURRENT = "rel:case-r26"  # 질문·릴리스 시험의 기준 릴리스. r24·r25는 정정 이력 재현용
 SECTIONS = ("raw_assets", "segments", "terms_editions", "terms_lineages", "clauses", "nodes", "assertions", "conflicts", "gaps", "premium_observations")
 
 
@@ -95,6 +96,38 @@ def current_assertions(v):
     pool = v["assertions"]
     superseded = {a["supersedes"] for a in pool if a.get("supersedes")}
     return [a for a in pool if a["id"] not in superseded], pool
+
+
+def edition_status(v, cur):
+    """판마다: 구성 부분별 덮임 여부, 검수 없는 지문 불일치, 상태(confirmed / identity_unconfirmed)."""
+    segs = {s["id"]: s for s in v["segments"]}
+    out = {}
+    for e in v["terms_editions"]:
+        parts = [(p["fingerprint"]["rule"], p["fingerprint"]["sha256"]) for p in e.get("parts", [])]
+        covered, mismatch, acc = set(), [], []
+        for a in cur:
+            if a["predicate"] != "realizes" or a["object"] != e["id"] or a["review_status"] != "accepted" or a["subject"] not in segs:
+                continue
+            acc.append(a["id"])
+            fp = segs[a["subject"]].get("fingerprint") or {}
+            key = (fp.get("rule"), fp.get("sha256"))
+            reviewed = (a.get("decision") or {}).get("by") == "review_decision"
+            if key in parts:
+                covered.add(key)
+            elif any(r == key[0] for r, _ in parts):
+                if reviewed and (a.get("decision") or {}).get("covers"):
+                    covered.add(tuple(a["decision"]["covers"]))
+                else:
+                    mismatch.append((a["id"], "같은 정규화 규칙에서 지문이 다름(내용 차이 후보)"))
+            else:
+                if reviewed and (a.get("decision") or {}).get("covers"):
+                    covered.add(tuple(a["decision"]["covers"]))
+                else:
+                    mismatch.append((a["id"], f"정규화 규칙이 달라 지문 비교 불가({key[0]})"))
+        missing = [p for p in parts if p not in covered]
+        state = "confirmed" if acc and not missing and not mismatch else "identity_unconfirmed"
+        out[e["id"]] = {"accepted_realizes": acc, "missing": missing, "unreviewed_mismatch": mismatch, "state": state}
+    return out
 
 
 def terms_clauses(v, cur):
@@ -283,11 +316,12 @@ def check_constraints(abox):
                     v.append(("K12", a["id"], "계산할 수 없는 쌍의 범위 관계가 accepted"))
             elif got != a.get("value"):
                 v.append(("K12", a["id"], f"주장 {a.get('value')} ≠ 계산 {got}"))
-    # K13
+    # K13 원시 관측은 조건이 비어도 보존한다. 비교 자격(comparison_eligible)을 주려면 조건·구성·기준일이 있어야 한다
     for p in abox.get("premium_observations", []):
-        for k in ("conditions", "package_binding", "as_of"):
-            if not p.get(k):
-                v.append(("K13", p["id"], f"가격 관측에 {k} 없음"))
+        if p.get("comparison_eligible"):
+            for k in ("conditions", "package_binding", "as_of"):
+                if not p.get(k):
+                    v.append(("K13", p["id"], f"비교 자격이 있는 가격 관측에 {k} 없음"))
     # K14
     segs = {s["id"]: s for s in abox["segments"]}
     for a in cur:
@@ -300,20 +334,16 @@ def check_constraints(abox):
                 v.append(("K14", a["id"], "구획 관측 근거 없이 본문 판을 확정"))
             elif (a.get("decision") or {}).get("by") not in ("review_decision", "fixture_assumption"):
                 v.append(("K14", a["id"], f"승인 결정이 검수 결정이 아님({(a.get('decision') or {}).get('by')})"))
-    # K16 판의 구성: 원본마다 본문 + 참조 별표·정의 전부를 같은 지문으로 실현해야 같은 판이다
-    eds = {e["id"]: e for e in abox["terms_editions"]}
-    groups = {}
-    for a in cur:
-        if a["predicate"] == "realizes" and a["review_status"] == "accepted" and a["subject"] in segs:
-            sg = segs[a["subject"]]
-            groups.setdefault((a["object"], sg["raw_asset"]), []).append(((sg.get("fingerprint") or {}).get("sha256"), a["id"]))
-    for (ed, raw), items in groups.items():
-        want = sorted(p["fingerprint"]["sha256"] for p in eds.get(ed, {}).get("parts", []))
-        got = sorted(fp for fp, _ in items)
-        if want and got != want:
-            missing = len([w for w in want if w not in got])
-            extra = len([g for g in got if g not in want])
-            v.append(("K16", f"{ed}@{raw}", f"원본의 구획이 판의 구성과 다름(빠진 부분 {missing}, 다른 부분 {extra})"))
+    # K16 판의 구성과 근거 묶음(재검토 R01). 근거 묶음 = 그 판을 실현한다는 accepted realizes 전부(원본 수와 무관).
+    #  - 구획 지문이 구성의 한 부분과 같은 규칙·같은 값이면 그 부분을 덮는다.
+    #  - 같은 규칙에서 값이 다르면 "내용 차이 후보", 규칙이 다르면(OCR·정규화 판) "비교 불가". 둘 다 검수 결정(review_decision)
+    #    없이는 같은 판으로 accepted가 될 수 없다. 다른 판이라고 확정하는 것도 검사기가 아니라 검수 결정이다.
+    #  - 근거 묶음이 구성 일부를 덮지 못하면(별표 미확보) 동일성 미확인이다. 그 판의 realizes는 accepted일 수 없다(hold).
+    for ed_id, st in edition_status(abox, cur).items():
+        for aid, why in st["unreviewed_mismatch"]:
+            v.append(("K16", aid, why + ": 검수 결정 없이 같은 판으로 승인할 수 없음"))
+        if st["accepted_realizes"] and st["missing"]:
+            v.append(("K16", ed_id, f"근거 묶음이 판의 구성 {len(st['missing'])}개를 덮지 못함(동일성 미확인, hold여야 함)"))
     return v
 
 
@@ -365,14 +395,16 @@ def simulate_allowed(abox, cur, cov):
     return (not bad), bad
 
 
-def applicable_config(abox, cur, configs, contract_date):
-    for sc in configs:
+def applicable_links(abox, cur, configs, contract_date):
+    """가입일에 적용되는 (판매 구성, uses_edition 주장) 전부. 후보 목록 순서와 무관하도록 정렬해 돌려준다."""
+    hits = []
+    for sc in sorted(set(configs)):
         for a in cur:
             if a["subject"] == sc and a["predicate"] == "uses_edition":
                 t = a.get("time", {})
                 if (not t.get("valid_from") or t["valid_from"] <= contract_date) and (not t.get("valid_to") or contract_date <= t["valid_to"]):
-                    return sc, a
-    return None, None
+                    hits.append((sc, a))
+    return hits
 
 
 # ---------- 질문 → 조회 → 실행 → 설명 ----------
@@ -416,14 +448,28 @@ QUESTIONS = [
 def resolve(abox, q):
     cur, _ = current_assertions(abox)
     steps = []
-    sc, link = applicable_config(abox, cur, q["configs"], q["facts"]["contract_date"])
-    if not sc:
+    hits = applicable_links(abox, cur, q["configs"], q["facts"]["contract_date"])
+    if not hits:
         steps.append("판매본: 가입일에 적용되는 판매본을 찾지 못함")
         return {"blocked": ["판매본 미확인"], "steps": steps}
+    if len(hits) > 1:
+        steps.append("판매본: 가입일에 적용되는 후보가 여럿 → 계산하지 않음(" + ", ".join(f"{sc}←{a['id']}" for sc, a in hits) + ")")
+        return {"blocked": ["판매본 후보 복수: " + ",".join(sc for sc, _ in hits)], "steps": steps}
+    sc, link = hits[0]
     steps.append(f"판매본: {node(abox, sc)['label']} ← {link['id']}({link['value_state']}/{link['review_status']})")
     if link["review_status"] != "accepted" or not link.get("object"):
         steps.append(f"  이 판매본의 약관 판이 확인되지 않음 → 계산하지 않음")
         return {"blocked": [link["id"] + ":" + link["review_status"]], "steps": steps, "config": sc}
+    ed = link["object"]
+    est = edition_status(abox, cur).get(ed, {"state": "identity_unconfirmed"})
+    if est["state"] != "confirmed":
+        steps.append(f"  약관 판 {ed}의 동일성이 확인되지 않음(근거 묶음 부족 또는 검수 없는 지문 차이) → 계산하지 않음")
+        return {"blocked": [f"{ed}:identity_unconfirmed"], "steps": steps, "config": sc}
+    links = [a for a in cur if a["subject"] == q["cov"] and a["predicate"] == "in_edition" and a["review_status"] == "accepted"]
+    if [a["object"] for a in links] != [ed]:
+        steps.append(f"  요청한 담보 {q['cov']}가 이 판매본의 약관 판 {ed}에 정의되어 있지 않음(연결 {[a['object'] for a in links] or '없음'}) → 계산하지 않음")
+        return {"blocked": [f"{q['cov']}∉{ed}"], "steps": steps, "config": sc}
+    steps.append(f"  담보 연결: {q['cov']} ∈ {ed} ← {links[0]['id']}")
     ok, why = simulate_allowed(abox, cur, q["cov"])
     steps.append(f"담보: {node(abox, q['cov'])['label']} · simulate {'enabled' if ok else 'blocked'}" + ("" if ok else " ← " + ", ".join(why)))
     if not ok:
@@ -545,7 +591,7 @@ def mutations():
     m("K10", lambda a: a["assertions"].append(dict(next(x for x in a["assertions"] if x["id"] == "a:lotte_cond_waiting_v2"), id="a:lotte_cond_waiting_v3")))
     m("K11", lambda a: a.__setitem__("_capability_override", {"cov:lotte_general_dx": "enabled"}))
     m("K12", lambda a: a["assertions"].append({"id": "a:wrong_scope", "subject": "cat:hana_cancer_x_breast_genital", "predicate": "scope_relation", "object": "cat:hi_cancer_x_similar", "value": "same_scope", "criticality": "C1", "evidence": [], "value_state": "derived", "review_status": "accepted"}))
-    m("K13", lambda a: a.setdefault("premium_observations", []).append({"id": "p:hana_bundle", "krw": 16598, "priced_for": "sc:hana_2601_3d_v20260701", "conditions": None, "package_binding": "source_bundle", "as_of": None}))
+    m("K13", lambda a: a.setdefault("premium_observations", []).append({"id": "p:hana_bundle", "krw": 16598, "priced_for": "sc:hana_2601_3d_v20260701", "conditions": None, "package_binding": "source_bundle", "as_of": None, "comparison_eligible": True}))
     m("K14", lambda a: set_a(a, "a:realizes_hana_r2_1", decision={"by": "fingerprint_match"}))
     m("K16", lambda a: seg(a, "seg:hana_annex12").__setitem__("fingerprint", {"rule": "fp-0.1", "sha256": "e" * 64}))
     return M
@@ -612,34 +658,34 @@ def repack(a, tag, change=None, drop=None):
 def release_tests(runner):
     """릴리스 고정(K15), 재현과 사용 제한의 분리, 판의 구성(K14·K16). (이름, 종류, 통과, 설명)."""
     out = []
-    frozen25 = next(r for r in ABOX["releases"] if r["id"] == "rel:case-r25")
-    n25 = len(frozen25["members"]["assertions"])
-    base = run_all(view(ABOX, "rel:case-r25"), runner)
+    frozen_cur = next(r for r in ABOX["releases"] if r["id"] == CURRENT)
+    n25 = len(frozen_cur["members"]["assertions"])
+    base = run_all(view(ABOX, CURRENT), runner)
 
     # I1 나중에 추가된 주장은 과거 릴리스에 들어가지 않는다
     a = copy.deepcopy(ABOX)
     old = next(x for x in a["assertions"] if x["id"] == "a:hana_doc_link")
     a["assertions"].append(dict(old, id="a:hana_doc_link_v2", supersedes="a:hana_doc_link", review_status="hold", hold_reason="reference_unresolved",
                                 correction_reason="출처 변경", _review_note="자체 시험: 릴리스 뒤에 들어온 정정"))
-    v25 = view(a, "rel:case-r25")
+    v25 = view(a, CURRENT)
     after, cand = run_all(v25, runner), run_all(candidate_view(a), runner)
     ok = len(v25["assertions"]) == n25 and not check_constraints(v25) and after == base and cand["Q1"][0] == {"kind": "blocked"}
-    out.append(("I1 새 주장 추가 후 r25(결과·설명 11개 비교)", "동작", ok, f"r25 주장 {len(v25['assertions'])}개(고정 {n25}) · 결과·설명 동일 {after == base} · 후보 Q1 {cand['Q1'][0]}"))
+    out.append(("I1 새 주장 추가 후 r26(결과·설명 11개 비교)", "동작", ok, f"r26 주장 {len(v25['assertions'])}개(고정 {n25}) · 결과·설명 동일 {after == base} · 후보 Q1 {cand['Q1'][0]}"))
 
     # I2~I4 제자리 수정·삭제·규칙 파일 교체
     a = copy.deepcopy(ABOX)
     next(x for x in a["assertions"] if x["id"] == "a:hana_cov_def")["note"] = "제자리 수정"
-    vs = check_constraints(view(a, "rel:case-r25"))
+    vs = check_constraints(view(a, CURRENT))
     out.append(("I2 주장 제자리 수정", "동작", [x[0] for x in vs] == ["K15"], "; ".join(x[2] for x in vs) or "못 잡음"))
     a = copy.deepcopy(ABOX)
     a["assertions"] = [x for x in a["assertions"] if x["id"] != "a:hi_doc_link"]
-    vs = check_constraints(view(a, "rel:case-r25"))
+    vs = check_constraints(view(a, CURRENT))
     out.append(("I3 구성원 삭제", "동작", bool(vs) and all(x[0] == "K15" for x in vs), "; ".join(sorted({x[2] for x in vs})) or "못 잡음"))
     a = copy.deepcopy(ABOX)
-    vs = with_bad_rule(a, lambda: check_constraints(view(a, "rel:case-r25")))
+    vs = with_bad_rule(a, lambda: check_constraints(view(a, CURRENT)))
     out.append(("I4 규칙 파일 교체", "동작", any(x[0] == "K15" for x in vs), "; ".join(sorted({x[2] for x in vs if x[0] == "K15"})) or "못 잡음"))
 
-    # I5 참조 대상(코드 집합·조건 노드·적용 관계)을 새 판으로 바꿔도 r25의 결과와 근거는 그대로다
+    # I5 참조 대상(코드 집합·조건 노드·적용 관계)을 새 판으로 바꿔도 r26의 결과와 근거는 그대로다
     a = copy.deepcopy(ABOX)
     c44 = next(x for x in a["nodes"] if x["id"] == "codes:c44")
     a["nodes"].append(dict(c44, id="codes:c44@v2", ranges=["C44", "C16"], label="C44(자체 시험용 가상 개정)"))
@@ -651,27 +697,27 @@ def release_tests(runner):
     a["assertions"].append(dict(hc, id=hc["id"] + "_v2", object="cond:hi_waiting@v2", supersedes=hc["id"], correction_reason="해석 개선"))
     hl = next(x for x in a["assertions"] if x["id"] == "a:hi_doc_link")
     a["assertions"].append(dict(hl, id="a:hi_doc_link_v2", time=dict(hl["time"], valid_to="2026-08-10"), supersedes="a:hi_doc_link", correction_reason="출처 변경"))
-    v25 = view(a, "rel:case-r25")
+    v25 = view(a, CURRENT)
     after, cand = run_all(v25, runner), run_all(candidate_view(a), runner)
     changed = [k for k in cand if cand[k] != base[k]]
     ok = not check_constraints(v25) and after == base and cand["Q1"][0] == {"kind": "not_payable"} and cand["Q6"][0] == {"kind": "blocked"}
-    out.append(("I5 코드 집합·조건 노드·적용 관계를 새 판으로 교체", "동작", ok, f"r25 결과·설명 동일 {after == base} · 후보에서 달라진 질문 {changed}"))
+    out.append(("I5 코드 집합·조건 노드·적용 관계를 새 판으로 교체", "동작", ok, f"r26 결과·설명 동일 {after == base} · 후보에서 달라진 질문 {changed}"))
 
     # I6 참조 노드를 제자리에서 바꾸면 잡는다
     a = copy.deepcopy(ABOX)
     next(x for x in a["nodes"] if x["id"] == "codes:c44")["ranges"] = ["C44", "C16"]
-    vs = check_constraints(view(a, "rel:case-r25"))
+    vs = check_constraints(view(a, CURRENT))
     out.append(("I6 참조 노드(코드 집합) 제자리 수정", "동작", [x[0] for x in vs] == ["K15"], "; ".join(x[2] for x in vs) or "못 잡음"))
 
     # I7 재현과 사용 제한은 따로 작동한다
     a = copy.deepcopy(ABOX)
-    a["release_notices"] = [{"id": "notice:t1", "release": "rel:case-r25", "affects": ["cov:hana_2_1"], "state": "restricted", "reason": "자체 시험: r25의 하나 2-1 해석 오류 확인"}]
-    v25 = view(a, "rel:case-r25")
+    a["release_notices"] = [{"id": "notice:t1", "release": CURRENT, "affects": ["cov:hana_2_1"], "state": "restricted", "reason": "자체 시험: r26의 하나 2-1 해석 오류 확인"}]
+    v25 = view(a, CURRENT)
     repro = run_all(v25, runner)
     q1 = next(q for q in QUESTIONS if q["id"] == "Q1")
     q6 = next(q for q in QUESTIONS if q["id"] == "Q6")
-    ok = repro == base and serve_block(a, "rel:case-r25", q1) and not serve_block(a, "rel:case-r25", q6) and not v25["_integrity"]
-    out.append(("I7 사용 제한 공지: 재현은 유지, 영향 담보만 서비스 차단", "동작", bool(ok), f"재현 결과 동일 {repro == base} · Q1 서비스 {serve_block(a, 'rel:case-r25', q1) or '허용'} · Q6 서비스 {serve_block(a, 'rel:case-r25', q6) or '허용'}"))
+    ok = repro == base and serve_block(a, CURRENT, q1) and not serve_block(a, CURRENT, q6) and not v25["_integrity"]
+    out.append(("I7 사용 제한 공지: 재현은 유지, 영향 담보만 서비스 차단", "동작", bool(ok), f"재현 결과 동일 {repro == base} · Q1 서비스 {serve_block(a, 'rel:case-r26', q1) or '허용'} · Q6 서비스 {serve_block(a, 'rel:case-r26', q6) or '허용'}"))
 
     # D1 같은 판의 구성 전부를 담은 다른 원본
     a = copy.deepcopy(ABOX)
@@ -700,17 +746,78 @@ def release_tests(runner):
     vs = check_constraints(candidate_view(a))
     out.append(("D3 지문 일치를 자동 승인으로 씀", "동작", bool(vs) and all(x[0] == "K14" for x in vs), "; ".join(sorted({x[2] for x in vs})) or "못 잡음"))
 
-    # D4 본문은 같고 참조 별표가 다름(제외 코드표가 바뀐 경우)
+    # D4 본문은 같고 참조 별표 내용이 다름(같은 정규화 규칙에서 지문 다름) → 내용 차이 후보. 검수 결정 없이 같은 판 불가
     a = copy.deepcopy(ABOX)
     repack(a, "annexdiff", change="seg:hana_annex12")
     vs = check_constraints(candidate_view(a))
-    out.append(("D4 본문 같음·참조 별표 다름", "동작", bool(vs) and all(x[0] == "K16" for x in vs), "; ".join(x[2] for x in vs) or "못 잡음"))
+    out.append(("D4 참조 별표 내용 변경(같은 규칙·다른 지문)", "동작", bool(vs) and all(x[0] == "K16" for x in vs) and "내용 차이 후보" in vs[0][2], "; ".join(x[2] for x in vs) or "못 잡음"))
 
-    # D5 본문은 같고 참조 별표가 빠짐
+    # D5 재검토 R01 재현: 별표12 구획만 별도 원본으로 옮김 → 근거 묶음이 구성 전부를 덮으므로 위반 없음, 결과 동일
     a = copy.deepcopy(ABOX)
-    repack(a, "annexmissing", drop="seg:hana_annex1")
-    vs = check_constraints(candidate_view(a))
-    out.append(("D5 본문 같음·참조 별표 빠짐", "동작", bool(vs) and all(x[0] == "K16" for x in vs), "; ".join(x[2] for x in vs) or "못 잡음"))
+    a["raw_assets"].append({"id": "raw:annex_only", "class": "RawAsset", "observed_label": "자체 시험용 별표 분리 파일", "org": "org:hana_nonlife", "sha256": "9" * 64, "source": "합성", "observed_at": None})
+    next(x for x in a["segments"] if x["id"] == "seg:hana_annex12")["raw_asset"] = "raw:annex_only"
+    cv = candidate_view(a)
+    q1 = run_all(cv, runner)["Q1"][0]
+    out.append(("D5 본문·별표가 다른 원본에 나뉨(재검토 R01 재현)", "동작", not check_constraints(cv) and q1 == base["Q1"][0], f"위반 {[x[2] for x in check_constraints(cv)] or 0} · Q1 {q1}"))
+
+    # D8 별표 미확보: accepted로 두면 동일성 미확인 위반, hold로 두면 위반 없이 계산 보류(엔진 호출 0)
+    a = copy.deepcopy(ABOX)
+    a["assertions"] = [x for x in a["assertions"] if x["id"] != "a:realizes_hana_annex1"]
+    vs_acc = check_constraints(candidate_view(a))
+    for x in a["assertions"]:
+        if x["predicate"] == "realizes" and x["object"] == "ted:hana_r2_1@2607":
+            x["review_status"] = "hold"; x["hold_reason"] = "reference_unresolved"
+    cv = candidate_view(a)
+    res = resolve(cv, next(q for q in QUESTIONS if q["id"] == "Q1"))
+    ok = any(x[0] == "K16" and "동일성 미확인" in x[2] for x in vs_acc) and "blocked" in res and any("identity_unconfirmed" in b for b in res["blocked"])
+    out.append(("D8 참조 별표 미확보 → 동일성 미확인(다른 판으로 확정하지 않음)", "동작", ok, f"accepted 유지 시 {[x[2] for x in vs_acc if x[0] == 'K16']} · hold 시 Q1 {res.get('blocked')} · 엔진 호출 0"))
+
+    # D9 OCR(정규화 규칙이 다름): 검수 결정 없으면 비교 불가 위반, 검수 결정(covers 지정)이 있으면 위반 없음
+    a = copy.deepcopy(ABOX)
+    seg_ocr = copy.deepcopy(next(x for x in a["segments"] if x["id"] == "seg:hana_annex1"))
+    seg_ocr.update(id="seg:synthetic_ocr_annex1", raw_asset="raw:hana_fd9c0133", fingerprint={"rule": "fp-ocr-0.1", "sha256": "7" * 64})
+    a["segments"].append(seg_ocr)
+    a["assertions"].append(realizes("seg:synthetic_ocr_annex1", "ted:hana_r2_1@2607"))
+    vs_no = check_constraints(candidate_view(a))
+    ed = next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")
+    p1 = next(pp for pp in ed["parts"] if pp["fingerprint"]["sha256"].startswith("f3e220"))
+    x = next(x for x in a["assertions"] if x["id"] == "a:realizes_synthetic_ocr_annex1")
+    x["decision"] = {"by": "review_decision", "covers": [p1["fingerprint"]["rule"], p1["fingerprint"]["sha256"]], "note": "자체 시험: OCR 판과 텍스트 판이 같은 별표임을 검수 결정으로 확인"}
+    vs_yes = check_constraints(candidate_view(a))
+    out.append(("D9 정규화 규칙이 다른 지문(OCR)", "동작", any("비교 불가" in v[2] for v in vs_no) and not vs_yes, f"검수 없음 → {[v[2] for v in vs_no]} · 검수 결정 → 위반 {len(vs_yes)}"))
+
+    # E1~E4 재검토 R02: 판매 구성 → 판 → 담보 → 규칙 연결. 연결이 없거나 모호하면 보류, 엔진 호출 0
+    def calls(v, q):
+        r = resolve(v, q)
+        return r, (0 if "blocked" in r else 1)
+    cv = view(ABOX, CURRENT)
+    q1 = next(q for q in QUESTIONS if q["id"] == "Q1")
+    r, n = calls(cv, dict(q1, cov="cov:hi_2_5"))
+    out.append(("E1 하나 판매 구성에 현대 담보(재검토 R02 재현)", "동작", "blocked" in r and n == 0, f"blocked {r.get('blocked')} · 엔진 호출 {n}"))
+    a = copy.deepcopy(ABOX)
+    a["nodes"].append({"id": "cov:synthetic_other_edition", "class": "CoverageOccurrence", "label": "자체 시험용 다른 판 담보"})
+    a["assertions"].append({"id": "a:synthetic_in_other", "subject": "cov:synthetic_other_edition", "predicate": "in_edition", "object": "ted:hi_r2_5@2608", "criticality": "C0",
+                            "evidence": [{"ref": "hi2607#c_2_5_art1", "role": "basis"}], "value_state": "observed", "review_status": "accepted"})
+    r, n = calls(candidate_view(a), dict(q1, cov="cov:synthetic_other_edition"))
+    out.append(("E2 같은 판매 구성에 다른 판의 담보", "동작", "blocked" in r and n == 0, f"blocked {r.get('blocked')} · 엔진 호출 {n}"))
+    a = copy.deepcopy(ABOX)
+    a["nodes"].append({"id": "sc:synthetic_overlap", "class": "SalesConfiguration", "label": "자체 시험용 겹치는 판매 구성"})
+    hl = next(x for x in a["assertions"] if x["id"] == "a:hana_doc_link")
+    a["assertions"].append(dict(hl, id="a:synthetic_overlap_link", subject="sc:synthetic_overlap"))
+    r, n = calls(candidate_view(a), dict(q1, configs=q1["configs"] + ["sc:synthetic_overlap"]))
+    out.append(("E3 가입일에 적용 후보가 여럿", "동작", "blocked" in r and n == 0 and "복수" in r["blocked"][0], f"blocked {r.get('blocked')} · 엔진 호출 {n}"))
+    rev = [run_all(cv, runner)[k] for k in ("Q1", "Q10")]
+    qs_rev = [dict(q, configs=list(reversed(q["configs"]))) for q in QUESTIONS if q["id"] in ("Q1", "Q10")]
+    got = [outcome(resolve(cv, q), None)["kind"] if "blocked" in resolve(cv, q) else "ran" for q in qs_rev]
+    out.append(("E4 후보 목록 순서 변경", "동작", got == ["ran", "blocked"] and rev[0][0]["kind"] == "payable", f"뒤집은 순서 Q1 {got[0]} · Q10 {got[1]} (원래 Q1 payable, Q10 blocked)"))
+
+    # P1 재검토 R06①: 조건이 빈 원시 가격 관측은 보존(위반 없음), 비교 자격을 주면 K13
+    a = copy.deepcopy(ABOX)
+    a["premium_observations"] = [{"id": "p:raw_bundle", "krw": 16598, "priced_for": "sc:hana_2601_3d_v20260701", "conditions": None, "package_binding": "source_bundle", "as_of": None, "comparison_eligible": False}]
+    vs_raw = check_constraints(candidate_view(a))
+    a["premium_observations"][0]["comparison_eligible"] = True
+    vs_cmp = check_constraints(candidate_view(a))
+    out.append(("P1 원시 가격 관측 보존과 비교 자격 분리", "동작", not vs_raw and [x[0] for x in vs_cmp] and all(x[0] == "K13" for x in vs_cmp), f"보존 → 위반 {len(vs_raw)} · 비교 자격 → {sorted({x[0] for x in vs_cmp})}"))
     # D6 통합약관 안의 구획과 개별 특약 파일이 같은 판(다른 특약이 함께 든 통합 원본 + 이 특약만 든 개별 원본)
     a = copy.deepcopy(ABOX)
     repack(a, "separate")  # 개별 특약 파일: 이 특약의 구성만 담음
@@ -751,8 +858,8 @@ def release_tests(runner):
         a["assertions"].append(realizes(f"seg:synthetic_rev_{k}", "ted:hana_r2_1@rev"))
     cv = candidate_view(a)
     eds = {x["id"]: x for x in cv["terms_editions"]}
-    ok = any(x[0] == "K16" for x in vs_wrong) and not check_constraints(cv) and eds["ted:hana_r2_1@rev"]["lineage"] == eds["ted:hana_r2_1@2607"]["lineage"] and run_all(view(ABOX, "rel:case-r25"), runner) == base
-    out.append(("D7 통합 파일 안 특약 하나 개정 → 새 판(같은 계열)", "동작", ok, f"기존 판에 잇기 → {sorted({x[0] for x in vs_wrong})} · 새 판에 잇기 → 위반 {len(check_constraints(cv))} · 같은 계열 · r25 결과 불변"))
+    ok = any(x[0] == "K16" for x in vs_wrong) and not check_constraints(cv) and eds["ted:hana_r2_1@rev"]["lineage"] == eds["ted:hana_r2_1@2607"]["lineage"] and run_all(view(ABOX, CURRENT), runner) == base
+    out.append(("D7 통합 파일 안 특약 하나 개정 → 새 판(같은 계열)", "동작", ok, f"기존 판에 잇기 → {sorted({x[0] for x in vs_wrong})} · 새 판에 잇기 → 위반 {len(check_constraints(cv))} · 같은 계열 · r26 결과 불변"))
     return out
 
 
@@ -769,7 +876,7 @@ def main():
         p(f"- {rel['id']}: 내용 해시 {rel['content_sha256'][:16]} · 무결성 {'일치' if not v['_integrity'] else '불일치'} · {counts}")
     p("")
     res = {}
-    for rel in ("rel:case-r24", "rel:case-r25"):
+    for rel in ("rel:case-r24", "rel:case-r25", CURRENT):
         vs = check_constraints(view(ABOX, rel))
         res[rel] = vs
         p(f"## 일관성 제약 · {rel}: 위반 {len(vs)}건")
@@ -778,8 +885,8 @@ def main():
         p("")
     vs24, vs25 = res["rel:case-r24"], res["rel:case-r25"]
     ok_r24 = [x[0] for x in vs24] == ["K1"] and vs24[0][1] == "a:lotte_cond_waiting_v1"
-    ok_r25 = not vs25
-    v25 = view(ABOX, "rel:case-r25")
+    ok_r25 = not vs25 and not res[CURRENT]
+    v25 = view(ABOX, CURRENT)
 
     cur, _ = current_assertions(v25)
     sr = scope_relation(v25, cur, "cat:hana_cancer_x_breast_genital", "cat:hi_cancer_x_similar")
@@ -794,7 +901,7 @@ def main():
             jobs.append({"case_id": q["id"], "rule_path": r["rule_path"], "inputs": r["inputs"]})
     evs = run_engine(runner, jobs) if jobs else {}
     passed = 0
-    p("## 질문 → 지식 조회 → 규칙 실행 → 설명·근거 (rel:case-r25)")
+    p(f"## 질문 → 지식 조회 → 규칙 실행 → 설명·근거 ({CURRENT})")
     for q in QUESTIONS:
         r = resolved[q["id"]]
         ev = evs.get(q["id"])
@@ -813,7 +920,7 @@ def main():
 
     p("")
     p("## 정정 이력 재현")
-    for rel in ("rel:case-r24", "rel:case-r25"):
+    for rel in ("rel:case-r24", "rel:case-r25", CURRENT):
         c, _ = current_assertions(view(ABOX, rel))
         a = next(x for x in c if x["object"] == "cond:lotte_waiting")
         p(f"- {rel}: 롯데 보장개시 조건 주장 {a['id']} review_status={a['review_status']}" + (f" · 대체 사유: {a['correction_reason']}" if a.get("correction_reason") else ""))
@@ -842,7 +949,7 @@ def main():
 
     total_ok = ok_r24 and ok_r25 and sr == "narrower" and passed == len(QUESTIONS) and st_ok == len(muts) and rt_ok == len(rt)
     p("")
-    p(f"## 요약: r24 K1 위반 재현 {ok_r24} · r25 위반 0 {ok_r25} · 범위 관계 narrower {sr == 'narrower'} · 질문 {passed}/{len(QUESTIONS)} · 제약 자체 시험 {st_ok}/{len(muts)} · 릴리스·문서 모델 시험 {rt_ok}/{len(rt)} · 전체 {'통과' if total_ok else '실패'}")
+    p(f"## 요약: r24 K1 위반 재현 {ok_r24} · r25·r26 위반 0 {ok_r25} · 범위 관계 narrower {sr == 'narrower'} · 질문 {passed}/{len(QUESTIONS)} · 제약 자체 시험 {st_ok}/{len(muts)} · 릴리스·문서 모델 시험 {rt_ok}/{len(rt)} · 전체 {'통과' if total_ok else '실패'}")
     print("\n".join(out))
     sys.exit(0 if total_ok else 1)
 

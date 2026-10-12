@@ -55,6 +55,7 @@ LABELS = {
     "gates": ("좁게 차단한다는 설명과 기계 규칙", "F10"), "needcrit": ("필요성 판단·판단 기준 관리", "F11"),
     "consistency": ("제약·근거·승격 상태 정의의 정합성", "F12"),
     "ci": ("검증 수준 정정(검토서 본문, 번호 없음)", "본문"), "trace": ("요구사항→계약→작업→시험→출시 증거 대응표(검토서 다음 작업 3)", "본문"),
+    "link": ("입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)", "R02"),
     "—": ("그래프 기본", "—"),
 }
 
@@ -122,6 +123,10 @@ def guess_crate_owner(tasks, crate):
     short = crate.replace("onjeon-", "")
     roots = {f"services/{short}/**", f"packages/{short}/**", f"services/{short.replace('-', '_')}/**", f"packages/{short.replace('-', '_')}/**"}
     return {tid for tid, t in tasks.items() if roots & set(t.get("allowed_paths", []))}
+
+
+def noop_events_of(D):
+    return [e if isinstance(e, str) else e.get("event", "") for e in D.get("noop_events", [])]
 
 
 def integration_rows(repo):
@@ -314,7 +319,14 @@ def run(repo):
            "switch-negative-test-output": "switch", "switch-negative-third-party-http": "switch",
            "d02-mock-start-allowed": "gates", "r2-local-work-allowed": "gates",
            "need-flow-keep-addnone-hold-unknown": "needcrit",
-           "profile-historical-vs-service": "consistency"}
+           "profile-historical-vs-service": "consistency",
+           "edition-bundle-split-files": "edition", "edition-annex-missing-unconfirmed": "edition",
+           "edition-ocr-normalization": "edition", "edition-annex-content-changed": "edition",
+           "input-link-other-company": "link", "input-link-other-edition": "link",
+           "input-link-multiple-candidates": "link", "input-link-order-independent": "link",
+           "late-result-no-state-change": "latewrite", "lease-guards-all-paths": "latewrite",
+           "envelope-permission-rejects-missing": "gates", "price-raw-kept-comparison-gated": "consistency",
+           "reason-evidence-by-kind": "consistency"}
     have = {x for t in tasks.values() for x in t.get("required_test_ids", [])}
     for rid, fid in req.items():
         check(fid, f"G12 필수 시험 ID '{rid}'를 가진 과제가 있음", rid in have, "", kind="존재 검사")
@@ -395,6 +407,61 @@ def run(repo):
     # 다음 작업 2: 모의 검증과 실제 데몬이 같은 전이·검증 코어를 쓴다
     core = D.get("execution_core", {})
     check("wait", "G30 dry-run과 실제 실행기가 같은 전이·검증 코어를 쓴다(execution_core.shared_by)", {"dry_run", "real_executor"} <= set(core.get("shared_by", [])), core or "없음")
+    # ---- 재검토(9554c96) R01~R06 충돌 검사 ----
+    # R03(F04) done_criteria·tests가 언급하는 과제 ID·크레이트는 자신 또는 선행이 만든 것이어야 한다
+    bad = []
+    for tid, t in tasks.items():
+        anc = ancestors(tasks, tid, {}) | {tid}
+        text = " ".join(t.get("tests", []) + [c if isinstance(c, str) else c.get("text", "") for c in t.get("done_criteria", [])])
+        for ref in sorted(set(re.findall(r"T-[A-Z]{2}-\d{2}", text))):
+            if ref in tasks and ref not in anc:
+                bad.append(f"{tid}: 완료 기준·시험이 선행이 아닌 {ref}를 언급")
+        for c in sorted(set(re.findall(r"onjeon-[a-z0-9-]+", text))):
+            if c in crates:
+                continue
+            owners = produced_by(tasks, "crate:" + c)
+            if owners and not (owners & anc):
+                bad.append(f"{tid}: 완료 기준·시험이 {c}(만드는 과제 {sorted(owners)})에 기대는데 선행이 아님")
+    check("order", "G31 [R03] done_criteria·tests가 자신과 선행 과제의 산출물만 요구", not bad, bad[:10])
+    # R04① head 변경 뒤 상태가 하나이고, 그 상태를 시험 문구도 쓴다
+    targets = {x.get("to") for x in tr if x.get("event") == "head_sha_changed"}
+    stale_txt = " ".join(" ".join(t.get("tests", []) + [c if isinstance(c, str) else c.get("text", "") for c in t.get("done_criteria", [])])
+                         for t in tasks.values() if "stale-approval-invalidated" in t.get("required_test_ids", []))
+    ok = len(targets) == 1 and stale_txt and next(iter(targets)) in stale_txt and not ({"pr_open", "review_pending"} - targets) & set(re.findall(r"pr_open|review_pending", stale_txt))
+    check("wait", "G32 [R04①] head_sha_changed의 목적지가 하나이고 stale-approval 시험의 기대 상태와 같음", ok, {"전이 목적지": sorted(t for t in targets if t), "시험 문구의 상태": sorted(set(re.findall(r"pr_open|review_pending", stale_txt)))})
+    # R04② 늦은 결과·펜스 위반은 현재 임대에만 상태 전이를 일으킨다
+    bad = [f"{x.get('from')}→{x.get('to')} ({x.get('event')})" for x in tr
+           if re.search(r"fence|late|stale_lease", x.get("event") or "") and x.get("from") != x.get("to") and "current" not in (x.get("when") or "")]
+    stale_noop = [e for e in noop_events_of(D) if re.search(r"late|stale", e)]
+    check("latewrite", "G33 [R04②] 이전 임대의 늦은 결과는 상태를 바꾸지 않음(전이는 현재 임대 조건, 이전 임대 사건은 no-op)", not bad and bool(stale_noop), {"현재 임대 조건 없는 전이": bad, "늦은 결과 no-op": stale_noop})
+    # R04③ 인계 순서: 보존 → 중단 → 토큰 폐기 → 다음 임대 발급
+    seq = [st if isinstance(st, str) else st.get("id") for st in D.get("handoff_sequence", [])]
+    want = ["preserve", "stop", "revoke_token", "issue_next_lease"]
+    pos = [seq.index(w) if w in seq else -1 for w in want]
+    check("latewrite", "G34 [R04③] handoff_sequence가 preserve → stop → revoke_token → issue_next_lease 순서", -1 not in pos and pos == sorted(pos), seq or "없음")
+    # R04④ 임대를 발급하는 모든 전이에 공통 가드
+    guards = D.get("lease_guards", [])
+    bad = [f"{x.get('from')}→leased ({x.get('event')})" for x in tr if x.get("to") == "leased" and "lease_guards" not in (x.get("when") or "") and x.get("guard") != "lease_guards"]
+    check("latewrite", "G35 [R04④] 임대 발급 전이 전부가 lease_guards(충돌 검사·잠금·예산 예약)를 거침", bool(guards) and not bad, {"lease_guards": guards, "가드 없는 전이": bad})
+    # R04⑤ 승인 head와 병합 커밋을 구분
+    blob = json.dumps(D, ensure_ascii=False) + read("04_자동개발명세.md")
+    need = ("approved_head_sha", "base_sha", "merge_commit_sha", "integration_check")
+    ok = not re.search(r"merged_sha\s*==\s*approved_sha", blob) and all(k in blob for k in need)
+    check("wait", "G36 [R04⑤] merged_sha == approved_sha 비교 없음, 승인 head·base·병합 커밋·통합 검증 구분", ok, [k for k in need if k not in blob] or "비교식 남음" if not ok else "")
+    # R05 봉투에 권한 필드, 일반 금지와 정본 변경 예외의 일치
+    req_fields = set(D.get("envelopes", {}).get("instruction", {}).get("required", []))
+    check("gates", "G37 [R05] 지시 봉투 필수 필드에 real_data_allowed·canon_change_approval", {"real_data_allowed", "canon_change_approval"} <= req_fields, sorted({"real_data_allowed", "canon_change_approval"} - req_fields))
+    rules = D.get("envelopes", {}).get("instruction", {}).get("rules_for_builder", [])
+    bad = [r for r in rules if "정본" in r and "canon_change_approval" not in r]
+    check("gates", "G38 [R05] 정본 변경 금지 문구가 승인 예외(canon_change_approval)와 일치", not bad, bad)
+    # R06 같은 계약 안의 모순
+    c02 = read("02_구현계약.md")
+    bad = [ln.strip()[:80] for ln in c02.splitlines() if "PremiumObservation" in ln and "저장 거부" in ln]
+    check("consistency", "G39 [R06①] 02가 PremiumObservation을 조건 부족으로 저장 거부하지 않음(원시 보존·비교 자격 분리)", not bad, bad)
+    forms = sorted(set(re.findall(r"`clause:[^`]+`", c02)))
+    check("consistency", "G40 [R06②] 02의 ClauseOccurrence ID 형식이 하나이고 추출 판을 포함", len(forms) == 1 and re.search(r"extract|추출", forms[0] if forms else ""), forms or "형식 없음")
+    t09 = " ".join(" ".join(t.get("tests", []) + [c if isinstance(c, str) else c.get("text", "") for c in t.get("done_criteria", [])]) for tid, t in tasks.items() if tid == "T-AP-09")
+    check("consistency", "G41 [R06③] T-AP-09가 이유 종류별 근거(사실→주장, 가정→사용자 가정, 기준 평가→기준 판)를 검사", all(w in t09 for w in ("사실 이유", "가정 이유", "기준 평가 이유")), "", kind="존재 검사")
     # 다음 작업 3: 요구사항 추적표
     try:
         t08 = read("08_요구추적표.md")

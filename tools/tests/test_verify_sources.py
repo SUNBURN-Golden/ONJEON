@@ -190,5 +190,39 @@ class ArchiveReproduce(unittest.TestCase):
         self.assertEqual(res[self.SAMPLE]["status"], "reproduced")
 
 
+class DetectExit(unittest.TestCase):
+    """A green detect run must mean every source was observed: a fetch failure exits 1."""
+
+    def run_detect(self, fetch):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as d:
+            import argparse
+            args = argparse.Namespace(raw=None, out=d, archive_new=False, report=str(Path(d) / "r.json"),
+                                      endpoint_url=None, cache=None, derived=None, ocr=False)
+            with mock.patch.object(vs, "fetch", side_effect=fetch), \
+                    mock.patch("sys.stdout", new_callable=__import__("io").StringIO):
+                code = vs.cmd_detect(args)
+            return code, json.loads(Path(args.report).read_text())["summary"]
+
+    def test_any_fetch_failure_fails_the_run(self):
+        rows = list(vs.rows())
+        calls = {"n": 0}
+
+        def fetch(url):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise OSError("blocked")
+            return b"other bytes", "application/pdf"
+        code, summary = self.run_detect(fetch)
+        self.assertEqual(code, 1)
+        self.assertEqual(summary.get("fetch_failed"), 1)
+        self.assertEqual(sum(summary.values()), len(rows))
+
+    def test_changed_sources_are_a_successful_observation(self):
+        code, summary = self.run_detect(lambda url: (b"other bytes", "application/pdf"))
+        self.assertEqual(code, 0)
+        self.assertNotIn("fetch_failed", summary)
+
+
 if __name__ == "__main__":
     unittest.main()

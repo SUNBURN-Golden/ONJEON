@@ -1,0 +1,159 @@
+{
+ "description": "T-OP-00 모의 코어용 모의 과제와 모의 설정. daemon_rules.json이 확정하지 않은 값(사용자 결정 필요)은 parameters로 채우며, 이 값은 모의 실행을 위한 가정이지 결정이 아니다.",
+ "parameters": {
+  "concurrency.lease.ttl_s": 3600,
+  "concurrency.quiescence.window_s": 5,
+  "hard_stop.grace_s": 120,
+  "handoff_failure_policy.max_attempts.quiescence_failed.value": 3,
+  "handoff_failure_policy.max_attempts.index_lock.value": 3,
+  "handoff_failure_policy.max_attempts.preserve_commit_failed.value": 2,
+  "handoff_failure_policy.max_attempts.preserve_push_failed.value": 3,
+  "max_parallel_leases": 2
+ },
+ "builders": [
+  {
+   "name": "mock-builder-1",
+   "runner": "mock-runner-1"
+  },
+  {
+   "name": "mock-builder-2",
+   "runner": "mock-runner-2"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T-MOCK-BASIC",
+   "allowed_paths": [
+    "tools/mock/basic/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/basic/**"
+   ],
+   "inputs": [
+    "mock://input/basic"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "budget": {
+    "max_calls": 10,
+    "max_cost_units": 10,
+    "max_wall_s": 7200,
+    "max_retries": 3
+   },
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null
+  },
+  {
+   "task_id": "T-MOCK-HANDOFF",
+   "allowed_paths": [
+    "tools/mock/handoff/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/handoff/**"
+   ],
+   "inputs": [
+    "mock://input/handoff"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "budget": {
+    "max_calls": 10,
+    "max_cost_units": 10,
+    "max_wall_s": 7200,
+    "max_retries": 3
+   },
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null
+  },
+  {
+   "task_id": "T-MOCK-OTHER",
+   "allowed_paths": [
+    "tools/mock/other/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/other/**"
+   ],
+   "inputs": [
+    "mock://input/other"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "budget": {
+    "max_calls": 10,
+    "max_cost_units": 10,
+    "max_wall_s": 7200,
+    "max_retries": 3
+   },
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null
+  }
+ ],
+ "t_op_00_required_test_ids": [
+  "decision-gate-merge-only",
+  "stale-approval-invalidated",
+  "late-write-fenced",
+  "provider-scoped-switch",
+  "post-merge-prereq",
+  "event-duplicate-noop",
+  "event-out-of-order",
+  "docs-pr-complete",
+  "eleventh-pr-audit",
+  "mis-merge-not-done",
+  "budget-reserve-before-call",
+  "hard-stop-heartbeating-job",
+  "switch-negative-test-output",
+  "switch-negative-third-party-http",
+  "d02-mock-start-allowed",
+  "r2-local-work-allowed",
+  "late-result-no-state-change",
+  "handoff-order",
+  "lease-guards-all-paths",
+  "merge-observation-fields",
+  "envelope-permission-rejects-missing",
+  "handoff-quiescent-before-preserve",
+  "duplicate-delivery-noop",
+  "retry-new-idempotency-key",
+  "preserve-manifest-same-function",
+  "preserve-failure-recoverable-stop",
+  "daemon-restart-during-handoff",
+  "envelope-id-distinct-events",
+  "lease-issue-atomic-single-owner",
+  "restart-ttl-expired-no-resend",
+  "restart-revoked-pending-void",
+  "restart-valid-pending-resend",
+  "restart-corrupt-record-returned"
+ ]
+}

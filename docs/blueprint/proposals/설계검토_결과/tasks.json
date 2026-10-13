@@ -424,7 +424,7 @@
       "tasks": [
         "T-DT-04"
       ],
-      "evidence": "포함 범위 기관 전부의 진행표(ADR-0018 범위, PR #3 통합 시 재확인)",
+      "evidence": "포함 범위 기관 전부의 진행표(ADR-0018 범위)",
       "acceptance_tests": [
         "cargo test -p onjeon-collect adapters"
       ],
@@ -4823,7 +4823,7 @@
       "inputs": [
         "data/registry/*.csv(V0)",
         "DATA_PIPELINE_CONTRACT §1·§2",
-        "ADR-0018 §3·§4(PR #3 브랜치 내용. 통합 시 재확인)",
+        "ADR-0018 §3·§4",
         "조사 H1~H14"
       ],
       "prereq_tasks": [
@@ -4884,7 +4884,7 @@
         "기관마다 진행표가 있고 미확보 사유를 확보로 세지 않는다",
         "robots 확인 불가 호스트는 보류",
         "200 로그인 HTML을 성공으로 세지 않는다",
-        "공제는 분모에서 제외하고 사유를 남긴다(PR #3 통합 시 재확인)",
+        "공제는 분모에서 제외하고 사유를 남긴다(ADR-0018)",
         "미확보 사유 기록은 확보로 세지 않는다(09 P02). 문서 종류(약관·특약·별표·사업방법서·상품요약서·가격 조건)별 확보·미확보(사유)가 분모 기록에 따로 있다"
       ],
       "required_test_ids": [
@@ -4900,7 +4900,7 @@
         "services/collect/src/adapters/**"
       ],
       "immediate_audit": false,
-      "blocked_by": "PR #3 미병합: 통합 시 재확인. 실제 R2 보존은 D-04. 대량 자동 수집은 O17",
+      "blocked_by": "실제 R2 보존은 D-04. 대량 자동 수집은 O17",
       "notes": ""
     },
     {
@@ -5632,7 +5632,7 @@
       "done_criteria": [
         "지원 여부를 확인하지 않은 합산이 거부된다",
         "두 안의 줄어드는 것이 항상 계산된다(I9)",
-        "자동차보험은 범위 밖으로 표시(ADR-0018, PR #3 통합 시 재확인)",
+        "자동차보험은 범위 밖으로 표시(ADR-0018)",
         "W6 공시이율 입력은 ParameterTable에서만",
         "갈아타기와 여러 계약 관계 결과가 입력·조건·규칙·약관 근거까지 추적된다(switch-diff-evidence-trace, multi-contract-relation-trace)"
       ],

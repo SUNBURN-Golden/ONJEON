@@ -18,7 +18,8 @@
 | 수정판 3차(이 판) | 독립 재검토 9554c96의 R01~R06 대조(07 §1a). R01 판의 구성과 근거 묶음·판정 결과 셋(02 §1.1·§1.2·§1.3a, T-KN-01 시험 4종), R02 입력 단계 연결 검증(02 §1.7·C-26, 01 §4, T-TW-01 시험 4종), R03 검사 도구와 통합 시험 분리(T-CT-06/T-CT-07 신설, T-KN-03, T-KN-01→T-KN-04 프로필 시험), R04 데몬 전이·늦은 결과 no-op·인계 순서·공통 임대 가드·병합 관측 필드(daemon_rules 0.3: handoff_sequence, lease_guards, late_envelope_rejected, merge_observation_fields; T-OP-00 시험 5종), R05 봉투 권한 필드 real_data_allowed·canon_change_approval(R-13, T-CT-02), R06 가격 원시 보존·조항 ID 한 형식·이유 종류별 근거(02 §1.1·§1.5·§6, T-KN-04·T-DT-02·T-AP-09). 릴리스 input_stage_edition(02 §1.3). A-01 권고 문구 기록(02 §1.6, 07 §3). 온톨로지 쪽 수정(K16·K13·resolve, rel:case-r26, 결과 21/21)은 구현자가 했다 |
 | 수정판 4차(10f470c) | 재검토 e02755a의 S02·S03만 좁혀 반영(07 §1b). S02 인계 순서를 stop → isolate → confirm_quiescent → preserve(데몬 보존 전용 자격) → revoke_token → issue_next_lease로 개정하고 정지 확인 조건(`concurrency.quiescence`)을 둠. S03 `lease_generation` 기반 멱등 키와 `duplicate_delivery`/`retry` 정책 분리, 임대 발급 전이의 side_effects. T-OP-00·T-OP-09에 handoff-quiescent-before-preserve·duplicate-delivery-noop·retry-new-idempotency-key(M33~M35, R11~R13). **명세 수정이며 실제 데몬 동작 증명이 아니다.** S01(복수 특약 후보 복수 차단)은 구현자가 온톨로지를 고친 뒤 02 §1.7·T-TW-01 문구를 맞춘다(이 판 미반영). 검사기 G34 순서 변경·G42 추가는 구현자 몫이며 이 판 실행 시 옛 G34는 실패한다 |
 | 수정판 5차(12c1726) | 재검토 10f470c의 T01~T04만 좁혀 반영(07 §1c). T01(구현자 온톨로지 수정: 범위 미확인 연결 scope_unknown 보류·무관한 특약 허용·경쟁 판 보류·순서 독립, 결과 24/24)을 02 §1.7·T-TW-01에 반영. T02 `preserve_manifest`(git write-tree tree OID 비교, 삭제·미추적·모드·링크·제외 경로 정의, 정지 확인과 보존 확인이 같은 함수). T03 `handoff_blocked` 상태·실패 사건 전이·`handoff_failure_policy`(always_revoke에 preserve_credential, max_attempts, recovery_decision, R-14), 로컬/원격 보존 상태 분리. T04 `envelope_identity=envelope_id`·멱등 키에 envelope_id, `lease_issue`(issue_lease 단일 발급, atomic_record, restart_recovery), 전이·인계 단계의 별도 증가 제거. T-OP-00·T-OP-09에 5종 시험(M36~M40, R14~R18). **T02~T04는 명세 수정이며 실제 데몬 동작 증명이 아니다** |
-| 수정판 6차(이 판) | 재검토 12c1726의 U01·U02만 반영(07 §1d). U01: 02 §1.2 `applies_to`·`application_scope_complete`, §1.7 1a 재작성(정의 위치≠적용 관계, 건너뛰기는 (가)(나) 둘 다, 사례 시험 전제), T-TW-01 시험 2종(온톨로지 쪽은 구현자 진행 중). U02: 복구 실패 뒤 재발급 규칙 통일(returned(R-08) → owner_resolved → queued → issue_lease, 자동 재발급 없음), `state_integrity`(정상 만료 vs 손상, 재발송 조건), 봉투에 lease_generation·lease_expires_at, 수신 측 검증, **모의 코어 계약 `core_contract`와 `transitions[].cond` 구조화**(05 §5a), T-OP-00 M41~M44·T-OP-09 R19~R22. **계약 정리이며 동작 증명이 아니다. 모의 코어 구현·실행은 빌더가 한다** |
+| 수정판 6차(직전) | 재검토 12c1726의 U01·U02만 반영(07 §1d). U01: 02 §1.2 `applies_to`·`application_scope_complete`, §1.7 1a 재작성(정의 위치≠적용 관계, 건너뛰기는 (가)(나) 둘 다, 사례 시험 전제), T-TW-01 시험 2종(온톨로지 쪽은 구현자 진행 중). U02: 복구 실패 뒤 재발급 규칙 통일(returned(R-08) → owner_resolved → queued → issue_lease, 자동 재발급 없음), `state_integrity`(정상 만료 vs 손상, 재발송 조건), 봉투에 lease_generation·lease_expires_at, 수신 측 검증, **모의 코어 계약 `core_contract`와 `transitions[].cond` 구조화**(05 §5a), T-OP-00 M41~M44·T-OP-09 R19~R22. **계약 정리이며 동작 증명이 아니다. 모의 코어 구현·실행은 빌더가 한다** |
+| 수정판 7차(이 판) | **[사용자 결정 U-05, 2026-10-13] 개발 비용 정책** 반영: daemon_rules `budget_enforcement` → `usage_recording`(기록만, 상한 없음, 기록 실패가 실행을 막지 않음), 봉투 `budget` → `limits`(max_wall_s는 응답 없음·무한 반복 통제), budget_exhausted 사건·예산 소진 정지 삭제, R-07을 max_wall_s 초과로 재정의, lease_guards의 예약을 `usage_slot_ready`로, hard_stop은 중단 지시·응답 없음·비밀값용으로만. T-OP-00·T-OP-09 `usage-recorded-not-capped`. 남은 사용자 결정에서 비용 상한 삭제(README §5, 04 §9, 05 §3, 07 §5). **빌더 발견 명세 공백 G01~G28 구조화**(07 §1e): 수치 필드 숫자화(+decided), side_effects {id,args}, return_code, retry_limits·attempt_counting, state_corrupted 전이, noop_rules, event_catalog, envelopes.signal/heartbeat/fence_violation_report, secret_patterns, fenced_write, 검사 순서 등. 명세 수정이며 동작 증명 아님. 빌더가 바뀐 계약으로 모의 코어를 고쳐 재실행한다 |
 
 읽은 자료는 이전 판과 같고, 추가로 `공개지식_모델_토의초안.md` §1, `공개지식_모델_1차_정리.md` §3, `불확실_상황_시험.md` §2, `소비자_기능_필요정보.md` §4·§6, 온톨로지 onto-0.2(tbox·abox·ontology_check.py·결과.txt), `검증/spec_check.py`·`재현_ffbcaf6.txt`를 읽었다. 사용자 상세 검토서(REVIEW.md, check_results.json)는 읽지 못했다.
 
@@ -56,14 +57,14 @@
 6. 트윈 축을 S0~S1에 고정. 범위 관계는 공식 CodeSystem 있을 때만 accepted.
 7. 데몬은 전령. 전이표 밖 조건은 반송. 시작 전이는 decision_gates.start만, 병합 대기는 merge만. 선행 충족은 post_merge_states. 전환 신호는 모델 제공자 응답·실행기 종료 코드·프로브만.
 8. 늦은 쓰기 차단은 펜싱 토큰·격리 작업 트리·데몬 전용 푸시·자격 회수로 **명세**했다. 모의 검증(T-OP-00)과 실제 실행기 검증(T-OP-09)은 분리된 과제이며 둘 다 아직 없다. "차단된다"는 증명되지 않았다.
-9. 수치(임대 TTL·동시 임대·예산·임계값)는 정하지 않았다.
+9. 수치(임대 TTL·동시 임대·grace_s·window_s·max_attempts)는 정하지 않았다(JSON에는 보수 기본값 숫자 + `decided: false`). 비용 상한은 사용자 결정 U-05(2026-10-13)로 두지 않는다.
 
 ## 5. [사용자 결정 필요]로 올린 항목
 
 | 항목 | 위치 | 권고 |
 |---|---|---|
 | 모델 계열 해석 | 04 §10 | 설정안 §3.3 해석 채택(더 엄격) |
-| 데몬 수치(임대 TTL, 동시 임대, 예산, grace_s, quiescence window_s, 인계 실패 max_attempts) | 04 §8·§9·§10, 05 §3 | 보수 기본값으로 모의 작업 뒤 조정 |
+| 데몬 수치(임대 TTL, 동시 임대, grace_s, quiescence window_s, 인계 실패 max_attempts, max_wall_s) — 비용 상한은 U-05로 목록에서 삭제 | 04 §8·§9·§10, 05 §3 | 보수 기본값(숫자, decided:false)으로 모의 작업 뒤 조정 |
 | D-08: 판단 기준 서비스 적용 관문(적용 기준·기본 필요액 제공 여부·산출 근거) | 02 §1.5, T-KN-14(release 관문) | 범위를 관문으로 좁혔다. 결정은 대기 |
 | A-01: 정본 SYSTEM_CONTRACT의 '개인 계산 일괄 보류' 문구 | 07 §3, 02 §1.6 | 재검토 권고안 그대로 기록: "불확실성이 영향을 줄 수 있는 결론만 보류한다. 영향 범위를 모르면 잠재적으로 영향받는 결론을 넓게 보류한다." '그 계약만 보류'로 좁히지 않는다. 결정은 사용자 몫이며 이 수정을 막지 않는다. D-21 경로. 그 전까지 02 §1.6을 따르되 정본과 다르다고 표시 |
 | U-01~U-04·온톨로지 객체(onto-0.2)·판단 기준 영역의 정본 반영 | 06 §4.3 O-10, §5 | D-21 경로(새 ADR). 정본은 고치지 않았다 |

@@ -1389,7 +1389,7 @@
         "시험 duplicate-delivery-noop(M34, 재검토 S03): 같은 임대 세대에서 같은 멱등 키(task_id + lease_generation + envelope_kind + envelope_id)의 결과 봉투가 두 번 오면 두 번째는 envelope_duplicate_delivery(noop)로 기록되고 상태·처리 결과가 바뀌지 않는다",
         "시험 retry-new-idempotency-key(M35, 재검토 S03): returned→queued 재개, 시험 실패 뒤 재임대, CI 실패 뒤 재임대, 인계, 일시중단 복귀 각각에서 issue_lease가 새 세대를 발급해 멱등 키가 바뀌며 새 세대의 첫 봉투는 수락된다. 이전 세대 키로 온 늦은 봉투는 late_envelope_rejected와 같은 처리(거부·R-11 기록·상태 불변)이고 새 세대의 봉투를 막지 않는다",
         "시험 preserve-manifest-same-function(M36, 재검토 T02): 정지 확인의 마지막 preserve_manifest.function(git_write_tree_oid) 결과와 보존 커밋의 tree OID가 같은 함수·같은 includes/excludes로 계산되어 비교되고, 삭제 파일·미추적 파일·실행 권한 변경·심볼릭 링크(대상 경로 문자열)·제외 경로(.git/, target/, node_modules/, 비밀값 패턴)·빈 디렉터리 각각에서 두 OID가 일치한다. 다른 해시 정의(파일 목록 SHA-256)가 코드에 없다(정적 검사). 모의 Git 저장소",
-        "시험 preserve-failure-recoverable-stop(M37, 재검토 T03): 정지 확인 실패 반복·index.lock·디스크 부족·커밋 실패·푸시 실패(네트워크, 권한 거부) 각각을 주입하면 handoff_failure_policy.max_attempts 안에서만 재시도하고 넘으면 handoff_blocked로 멈추며, 어느 경우에도 빌더 쓰기 차단·자격 회수가 보존보다 먼저 기록되고 always_revoke(preserve_credential 포함)가 회수(finally)되며, 작업 트리 쓰기 금지가 유지되고, issue_lease 호출 0건이다. recovery_decision 기록 뒤에만 재개되고 handoff_abandoned면 returned(R-14). 로컬 커밋 성공·푸시 실패는 preservation_state=local_committed로 멈춘다",
+        "시험 preserve-failure-recoverable-stop(M37, 재검토 T03): 정지 확인 실패 반복·index.lock·디스크 부족·커밋 실패·푸시 실패(네트워크, 권한 거부) 각각을 주입하면 handoff_failure_policy.max_attempts 안에서만 재시도하고 넘으면 handoff_blocked로 멈추며, 어느 경우에도 빌더 쓰기 차단·자격 회수가 보존보다 먼저 기록되고 always_revoke(preserve_credential 포함)가 회수(finally)되며, 작업 트리 쓰기 금지가 유지되고, issue_lease 호출 0건이다. recovery_decision(action=retry) 기록 뒤에만 재개되고 recovery_decision(action=abandon)이면 returned(R-14). 로컬 커밋 성공·푸시 실패는 preservation_state=local_committed로 멈춘다",
         "시험 daemon-restart-during-handoff(M38, 재검토 T03): stop·isolate·confirm_quiescent·preserve(로컬)·푸시 각 단계에서 모의 데몬을 재시작하면 handoff_record.phase·preservation_state부터 재개하거나(쓰기 금지·자격 회수 재적용, 로컬 커밋은 tree OID로·원격은 ref로 확인) 확인 불가 시 handoff_blocked이며, 세대가 바뀌거나 봉투가 나가지 않는다",
         "시험 envelope-id-distinct-events(M39, 재검토 T04): 같은 세대에서 envelope_id가 다른 signal 봉투 둘은 각각 처리되고, 같은 envelope_id의 재전송은 noop이며, envelope_id 없는 봉투는 거부된다",
         "시험 lease-issue-atomic-single-owner(M40, 재검토 T04): 임대를 발급하는 모든 경로(초기·재임대·인계·복귀)가 issue_lease만 부르고 세대가 한 번만 바뀐다(두 경로가 같은 사건을 동시에 처리해도 한 번). 세대·임대 기록·outbox 기록이 한 트랜잭션으로 저장되고, 기록 사이에서 모의 재시작을 걸면 셋이 모두 있거나 모두 없으며 재시작 뒤 outbox pending부터 같은 envelope_id로 발송된다. 인계 단계와 전이 side_effects에 별도 증가 코드가 없다(정적 검사)",
@@ -1407,8 +1407,8 @@
         "시험 docs-pr-complete(M23): 변경 경로가 docs/** 뿐인 PR은 merged→done(docs_only)으로 가고 merged_impl_counter를 올리지 않는다",
         "시험 eleventh-pr-audit(M24): 구현 PR 10개 merged 뒤 audit_queued 묶음이 생기고, 11번째 PR은 새 묶음(카운터 1)에 들어가며 10번째 묶음의 감리 결과가 11번째 PR의 done을 막지 않는다",
         "시험 mis-merge-not-done(M25): merge_wait(reason≠ready)·리뷰어 배정 전·리뷰 중 등에서 병합이 관측되면 merged_invalid_approval 상태로 기록되고 post_merge_states에 들지 않아 후속 과제 선행으로 세지 않는다. done으로 가지 않는다",
-        "시험 budget-reserve-before-call(M26): 지시 봉투 전 예약 레코드가 없으면 호출이 나가지 않고, 예산 소진 뒤 새 임대가 생기지 않는다",
-        "시험 hard-stop-heartbeating-job(M27): 중단 지시·예산 소진 뒤 하트비트가 계속 와도 hard_stop.grace_s 가 지나면 임대가 종료 처리되고 토큰이 폐기된다(모의)",
+        "시험 usage-recorded-not-capped(M26, U-05): 지시 봉투 전에 사용량 기록 슬롯이 만들어지고 결과 봉투의 calls·wall_s·cost_units가 usage_record에 기록된다. 비용 단위가 어떤 값으로 누적돼도(모의 누적 1e9) 새 임대·발송·실행이 막히지 않고 반송·전이가 생기지 않는다. 같은 실패 재시도 한도(retry_limits.consecutive_failed_tests 3회째 R-06), 응답 없음 정지(hard_stop_deadline·heartbeat_missed_twice), max_wall_s 초과(R-07)는 그대로 동작한다. 사용량 기록 실패(결과 뒤)는 경고만 남기고 실행을 막지 않는다",
+        "시험 hard-stop-heartbeating-job(M27): 중단 지시 또는 max_wall_s 초과 뒤 하트비트가 계속 와도 hard_stop.grace_s 가 지나면 임대가 종료 처리되고 토큰이 폐기된다(모의)",
         "시험 switch-negative-test-output(M18a): 자식 시험 로그가 HTTP 429·'quota exceeded' 문자열을 출력해도 전환 신호가 발행되지 않는다",
         "시험 switch-negative-third-party-http(M18b): 수집 대상 사이트 403/503, 저장소 API 401 응답에도 전환 신호가 발행되지 않는다",
         "시험 d02-mock-start-allowed(M10a): 모의 과제(AI 검수 실행기 과제를 본뜬 T-MOCK-REVIEW)가 decision_gates.start=[], real_data=[D-02]일 때 D-02 미기록이어도 queued→leased→building 까지 진행되고 지시 봉투에 real_data_allowed=false 가 실린다",
@@ -1435,7 +1435,7 @@
         "docs-pr-complete",
         "eleventh-pr-audit",
         "mis-merge-not-done",
-        "budget-reserve-before-call",
+        "usage-recorded-not-capped",
         "hard-stop-heartbeating-job",
         "switch-negative-test-output",
         "switch-negative-third-party-http",
@@ -1466,7 +1466,7 @@
       ],
       "immediate_audit": false,
       "blocked_by": "없음. 규칙 검증용이며 가동이 아니다",
-      "notes": "가동 전 준비 과제. 완료가 가동 승인이 아니다. 최종 감리(T-OP-08)의 자동 개발 운영 기록 항목이 이 보고서를 본다"
+      "notes": "가동 전 준비 과제. 완료가 가동 승인이 아니다. 최종 감리(T-OP-08)의 자동 개발 운영 기록 항목이 이 보고서를 본다 개발 도구. 출시 완성품의 일부가 아니다(09 §5)"
     },
     {
       "id": "T-OP-09",
@@ -1539,7 +1539,7 @@
         "시험 duplicate-run-prevented(R5): 데몬 두 인스턴스 동시 기동 시 임대 하나, 봉투 하나",
         "시험 provider-scoped-switch(R6·R7, 실제 실행기): 시험 프록시의 429/5xx가 각 CLI의 상태 채널로 데몬에 도달하는지. 도달하지 않는 CLI는 runner_profile 비움",
         "시험 hard-stop-heartbeating-job(R9): 중단 지시 뒤 하트비트를 계속 보내는 실제 CLI 프로세스가 grace_s 뒤 프로세스 그룹 종료·자격 회수로 끝나고 그 뒤의 푸시·봉투가 거부된다",
-        "시험 budget-reserve-before-call(R10): CLI 내부 호출 수가 봉투의 max_calls를 넘을 때 데몬이 실제로 막을 수 있는 범위(프록시 계량 가능 여부)를 기록한다. 막지 못하는 범위는 '사후 정산만'으로 적는다",
+        "시험 usage-recorded-not-capped(R10, 실제 실행기, U-05): 실제 CLI 실행의 calls·wall_s·cost_units가 usage_record에 기록되고(프록시 계량 가능 범위는 기록, 불가 범위는 '기록 불가'로 적음), 누적액이 커져도 새 임대·실행이 막히지 않으며, 재시도 한도·응답 없음 정지는 그대로 동작한다",
         "시험 handoff-quiescent-before-preserve(R11, 실제 실행기, S02): stop 요청을 무시하고 루프로 파일을 쓰는 실제 CLI 프로세스에 대해 grace_s 뒤 프로세스 그룹 강제 종료 또는 작업 트리 쓰기 금지 격리가 실제로 쓰기를 막고, confirm_quiescent 조건(생존 프로세스 0, mtime 고정, lsof 쓰기 핸들 0, 트리 해시 2회 일치)이 실제 파일 시스템에서 판정되며, 데몬이 보존 전용 자격으로 푸시한 WIP 커밋의 tree OID == quiescent_tree_oid(git_write_tree_oid) 이고 격리 뒤의 쓰기가 섞여 있지 않다. 빌더 토큰·자격으로 푸시된 보존 커밋이 없다",
         "시험 duplicate-delivery-noop(R12, 실제 실행기, S03): 실제 전달 경로(파일 큐·HTTP 재시도)로 같은 봉투가 두 번 도착해도 두 번째가 noop으로 기록되고 상태 저장소가 바뀌지 않는다",
         "시험 retry-new-idempotency-key(R13, 실제 실행기, S03): 실제 재임대·인계·복귀 뒤 상태 저장소의 lease_generation이 바뀌고 새 세대 첫 봉투가 수락되며 이전 세대 키의 늦은 봉투는 거부된다",
@@ -1566,7 +1566,7 @@
         "duplicate-run-prevented",
         "provider-scoped-switch",
         "hard-stop-heartbeating-job",
-        "budget-reserve-before-call",
+        "usage-recorded-not-capped",
         "handoff-quiescent-before-preserve",
         "duplicate-delivery-noop",
         "retry-new-idempotency-key",
@@ -1587,7 +1587,7 @@
       ],
       "immediate_audit": true,
       "blocked_by": "VM의 CLI·원격·자격 설정은 사람이 준비한다(05 §7). 결정 ID로 막히지는 않는다",
-      "notes": "T-OP-00(모의 검증)과 분리된 실제 실행기 검증. 가동이 아니다"
+      "notes": "T-OP-00(모의 검증)과 분리된 실제 실행기 검증. 가동이 아니다 개발 도구. 출시 완성품의 일부가 아니다(09 §5)"
     },
     {
       "id": "T-CT-01",
@@ -2934,7 +2934,8 @@
         "같은 URL의 다른 바이트를 덮어쓰지 않는다",
         "형식 검증 실패 응답은 격리",
         "삭제 명령 없음",
-        "R2 대상 호출은 작업 파일·원장 없이는 보내지 않는다"
+        "R2 대상 호출은 작업 파일·원장 없이는 보내지 않는다",
+        "보존 기록에 문서 종류(약관·특약·별표·사업방법서·상품요약서·가격 조건)와 출처·관측 시각이 있고, 미확보는 사유와 함께 따로 기록된다(09 P02·P03)"
       ],
       "required_test_ids": [],
       "features": [
@@ -3987,14 +3988,18 @@
         "integration_test: 화면 숫자 → 원문 좌표 두 탭 이내"
       ],
       "tests": [
-        "cd apps/mobile && flutter test && flutter test integration_test"
+        "cd apps/mobile && flutter test && flutter test integration_test",
+        "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다"
       ],
       "done_criteria": [
         "화면의 모든 숫자가 응답 amounts[]에서 온다",
         "증거 보기까지 두 탭 이내",
-        "S1 관문 시험이지 기능 완성이 아니다"
+        "S1 관문 시험이지 기능 완성이 아니다",
+        "담보 상세의 면책·제외·확인할 조건이 접히거나 생략되지 않는다(09 P16)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "decisive-conditions-not-hidden"
+      ],
       "features": [
         "coverage-detail",
         "evidence-view",
@@ -4248,13 +4253,17 @@
         "구조별 주장 묶음(pending 또는 hold), 미지원 구조 목록, 엔진 연산 과제(T-TW-04·05)가 쓰는 실제 표본 사례 묶음(fixture_only)"
       ],
       "tests": [
-        "cargo test -p onjeon-knowledge structures"
+        "cargo test -p onjeon-knowledge structures",
+        "시험 label-kinds-complete(09 P04): 라벨 사전의 종류(보장 대상·지급 사유·제외·면책·감액·한도·갱신·가입 제약·담보 간 관계·특약 종속)마다 실제 표본 담보에 basis 근거가 있는 accepted 주장이 하나 이상 있고, 빠진 종류는 공백(KnowledgeGap)으로 기록된다. 종류 하나를 지우면 시험이 실패한다"
       ],
       "done_criteria": [
         "구조마다 관통하거나 '미지원'으로 기록된다",
-        "표현하지 못한 구조는 capability에서 빠진다(ONJ-TW-U-010)"
+        "표현하지 못한 구조는 capability에서 빠진다(ONJ-TW-U-010)",
+        "라벨 종류 전부가 실제 표본에 근거와 함께 구조화된다(label-kinds-complete)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "label-kinds-complete"
+      ],
       "features": [
         "labeling"
       ],
@@ -4868,15 +4877,19 @@
         "어댑터 트레이트와 기관별 구현, DiscoveryManifest 기록, 기관 진행표"
       ],
       "tests": [
-        "cargo test -p onjeon-collect adapters"
+        "cargo test -p onjeon-collect adapters",
+        "시험 acquisition-reason-not-counted(09 P02): 분모의 각 문서 항목에서 '확보'는 원본 보존(RawAsset) + 구획 추출(DocumentSegment) + 판 연결(accepted realizes)이 모두 있을 때만 센다. 미확보 사유(차단·미탐색·형식 실패·robots 보류)만 기록된 항목은 '미확보(사유)'로 분모에 남고 확보율 분자에 들어가지 않는다. 사유만 있는 항목 10개를 넣어도 확보율이 오르지 않는다"
       ],
       "done_criteria": [
         "기관마다 진행표가 있고 미확보 사유를 확보로 세지 않는다",
         "robots 확인 불가 호스트는 보류",
         "200 로그인 HTML을 성공으로 세지 않는다",
-        "공제는 분모에서 제외하고 사유를 남긴다(PR #3 통합 시 재확인)"
+        "공제는 분모에서 제외하고 사유를 남긴다(PR #3 통합 시 재확인)",
+        "미확보 사유 기록은 확보로 세지 않는다(09 P02). 문서 종류(약관·특약·별표·사업방법서·상품요약서·가격 조건)별 확보·미확보(사유)가 분모 기록에 따로 있다"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "acquisition-reason-not-counted"
+      ],
       "features": [
         "scope",
         "denominator",
@@ -5223,14 +5236,18 @@
       ],
       "tests": [
         "cargo test -p onjeon-api coverage_status",
-        "python3 -I tools/ci/check_i17.py"
+        "python3 -I tools/ci/check_i17.py",
+        "시험 coverage-status-counts-acquired-only(09 P02): /v1/coverage-status의 층별 확보율 분자는 확보(원본+구획+판 연결) 항목만이고, 사유만 기록된 항목은 '미확보 사유 분포'에만 집계된다. 응답에 문서 종류별 확보율과 미확보 사유 분포가 함께 있다"
       ],
       "done_criteria": [
         "분모 근거 없이 '전수'·'모든 상품' 문구가 나가지 않는다",
         "미확보 사유만 있는 항목은 확보로 세지 않는다",
-        "퍼센트 하나로 합친 지표가 없다"
+        "퍼센트 하나로 합친 지표가 없다",
+        "확보율 분자에 미확보 사유 기록 항목이 들어가지 않는다(09 P02)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "coverage-status-counts-acquired-only"
+      ],
       "features": [
         "web-coverage",
         "denominator"
@@ -5608,15 +5625,21 @@
       ],
       "tests": [
         "cargo test -p onjeon-rules-engine",
-        "cargo test -p onjeon-twin-runtime multi plan_diff"
+        "cargo test -p onjeon-twin-runtime multi plan_diff",
+        "시험 switch-diff-evidence-trace(09 P12 갈아타기): 현재 계약 트윈과 보완안 트윈의 두 안 차이(diff_type별 항목: 면책 재시작·감액·해지 손실·줄어드는 보장)마다 trace[].evidence_ref로 입력·조건·규칙·약관 조항까지 추적되고, 근거가 끊긴 항목은 사실로 표시되지 않는다(I6)",
+        "시험 multi-contract-relation-trace(09 P13): 정액 중복·실손 비례분담 결과의 각 계약 몫이 어느 계약의 어느 규칙·조항·입력에서 왔는지 추적되고, 합산이 금지된 경우 그 사유(규칙·조항)가 근거로 보인다"
       ],
       "done_criteria": [
         "지원 여부를 확인하지 않은 합산이 거부된다",
         "두 안의 줄어드는 것이 항상 계산된다(I9)",
         "자동차보험은 범위 밖으로 표시(ADR-0018, PR #3 통합 시 재확인)",
-        "W6 공시이율 입력은 ParameterTable에서만"
+        "W6 공시이율 입력은 ParameterTable에서만",
+        "갈아타기와 여러 계약 관계 결과가 입력·조건·규칙·약관 근거까지 추적된다(switch-diff-evidence-trace, multi-contract-relation-trace)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "switch-diff-evidence-trace",
+        "multi-contract-relation-trace"
+      ],
       "features": [
         "two-plan-diff",
         "all-product-ops",
@@ -6440,15 +6463,19 @@
       ],
       "tests": [
         "cargo test -p onjeon-api comparisons",
-        "cd apps/mobile && flutter test compare"
+        "cd apps/mobile && flutter test compare",
+        "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)"
       ],
       "done_criteria": [
         "큰 금액 자리에는 scenario: 출처만",
         "요약서 근거는 evidence_kind=summary·applicability=unverified",
         "확인 필요 상품이 같은 목록·같은 자리",
-        "범위 관계는 derived 값만"
+        "범위 관계는 derived 값만",
+        "비교 응답에 종합 점수·순위가 없고 확인 필요 상품이 같은 목록에 있다(09 P17)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "no-composite-score"
+      ],
       "features": [
         "same-coverage-compare",
         "twin-compare"
@@ -6538,7 +6565,8 @@
       "done_criteria": [
         "사진·진단서 입력 경로가 없다(ADR-0005 유지)",
         "코드 미확인은 undetermined",
-        "청구 대행·서류 전송 기능이 없다"
+        "청구 대행·서류 전송 기능이 없다",
+        "결과를 바꾸는 미확인과 확인 주체가 응답에서 생략되지 않는다(09 P16)"
       ],
       "required_test_ids": [],
       "features": [
@@ -6626,16 +6654,22 @@
         "화면 4묶음 × 상태 7종, 슬라이더 디바운스·최신 입력 해시만 적용, 필요 담보 행에 판단 이유(기준 판·근거)와 주장 종류 표시"
       ],
       "tests": [
-        "cd apps/mobile && flutter test && flutter test integration_test"
+        "cd apps/mobile && flutter test && flutter test integration_test",
+        "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다",
+        "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)"
       ],
       "done_criteria": [
         "예산을 올려도 반드시 더 가입하는 결과가 되지 않는다",
         "과거 응답이 최신 입력 결과를 덮지 않는다",
         "가격 미확인이 '비싸서 제외'로 보이지 않는다",
         "대조 확인 전 계산 버튼이 없다",
-        "'추가 없음'·'유지' 결과가 화면에 그대로 보이고 가입 권고처럼 꾸며지지 않는다"
+        "'추가 없음'·'유지' 결과가 화면에 그대로 보이고 가입 권고처럼 꾸며지지 않는다",
+        "내 설계·두 안 비교에 종합 점수·순위가 없고 결과를 바꾸는 조건이 숨지 않는다(09 P16·P17)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "decisive-conditions-not-hidden",
+        "no-composite-score"
+      ],
       "features": [
         "what-if",
         "my-design",
@@ -6721,15 +6755,23 @@
         "화면 전부, 상태 카탈로그 1:1 시험, 기준 화면 대조 시험"
       ],
       "tests": [
-        "cd apps/mobile && flutter test && flutter test integration_test"
+        "cd apps/mobile && flutter test && flutter test integration_test",
+        "시험 first-view-priority(09 P15): 기준 화면(홈·담보 상세·같은 담보 비교·만약에·실제 사건·내 설계·두 안 비교)마다 첫 뷰(스크롤·탭 없이 보이는 영역)에 상황, 금액과 보장, 중요한 차이, 필요한 질문(decisive_inputs·unresolved)이 있는지 캡처를 기준 화면과 대조한다",
+        "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다",
+        "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)"
       ],
       "done_criteria": [
         "상태 카탈로그 1:1",
         "기준 화면 ±2dp·ΔE 3",
         "실제 API E2E",
-        "가격 미확인 상품이 목록에서 빠지지 않고 0원으로 합산되지 않는다"
+        "가격 미확인 상품이 목록에서 빠지지 않고 0원으로 합산되지 않는다",
+        "첫 뷰 우선순위·결과를 바꾸는 조건 비은닉·종합점수 없음이 전 화면에서 확인된다(09 P15~P17)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "first-view-priority",
+        "decisive-conditions-not-hidden",
+        "no-composite-score"
+      ],
       "features": [
         "entry-points",
         "home",
@@ -7253,16 +7295,22 @@
       ],
       "tests": [
         "python3 -I tools/release_readiness/check.py --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/",
-        "시험 release-readiness-rejects-incomplete: 등록부 항목 하나의 evidence 또는 acceptance_tests 로그를 지우거나 과제 하나를 미완료로 바꾸면 판정기가 종료 코드 1을 내고 그 항목을 지목한다. 제외 항목은 scope_decision(승인된 범위 결정 ID)이 있을 때만 제외로 인정한다"
+        "시험 release-readiness-rejects-incomplete: 등록부 항목 하나의 evidence 또는 acceptance_tests 로그를 지우거나 과제 하나를 미완료로 바꾸면 판정기가 종료 코드 1을 내고 그 항목을 지목한다. 제외 항목은 scope_decision(승인된 범위 결정 ID)이 있을 때만 제외로 인정한다",
+        "python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/",
+        "시험 purpose-rows-all-closed(09 §6): 09 제품목적 대응표의 P01~P19 행마다 구현 작업 과제가 post_merge 상태이고 완료 증거 로그가 등록부에 있으면 통과. 행 하나의 증거를 지우거나 과제 하나를 미완료로 바꾸면 종료 코드 1과 그 행 번호. 축소·후속 칸이 있는 행은 근거(결정 ID·정본)가 있을 때만 제외로 인정"
       ],
       "done_criteria": [
         "확인하지 못한 구간을 '완료'로 포장하지 않는다",
         "출시 판정은 사용자 결정으로 넘긴다",
         "자동 개발 운영 기록(모의·실제 실행기 검증 보고서)이 축 5에 들어 있다",
-        "release-readiness-rejects-incomplete 통과. 판정기가 등록부의 명시적 집합을 검사하며 사람의 발견에 기대지 않는다"
+        "release-readiness-rejects-incomplete 통과. 판정기가 등록부의 명시적 집합을 검사하며 사람의 발견에 기대지 않는다",
+        "09 제품목적 대응표의 모든 행(축소·후속 근거 있는 것 제외)이 등록부 증거로 닫혀 있다(purpose-rows-all-closed)",
+        "데몬 과제(T-OP-00·T-OP-09)는 개발 도구이며 출시 완성품의 축이 아니다. 축 5 운영 기록에만 들어간다",
+        "일부 상품 시연(S1 관문)을 완성품으로 적지 않는다"
       ],
       "required_test_ids": [
-        "release-readiness-rejects-incomplete"
+        "release-readiness-rejects-incomplete",
+        "purpose-rows-all-closed"
       ],
       "features": [],
       "parallel_ok": false,

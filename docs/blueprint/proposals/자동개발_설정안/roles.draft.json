@@ -1,0 +1,56 @@
+{
+  "_status": "설정안(초안). 적용하지 않음. 실행기·스케줄러·자동 병합에 연결되어 있지 않다.",
+  "_decided_by": "사용자 결정 2026-10-12 (역할·전환 정책). 실제 모델 지원·인증·사용량은 환경에서 확인한다.",
+  "auto_merge": false,
+  "families": {
+    "claude": ["claude-fable-5-1", "claude-sonnet-5-5"],
+    "gpt": ["gpt-astra"],
+    "grok": ["grok-4.7"],
+    "swe": ["swe2"],
+    "glm": ["glm-5.3"]
+  },
+  "_family_note": "Cursor CLI와 grokbuild CLI의 Grok 4.7은 같은 계열(grok)이다(운영 규칙 2). Claude Code로 실행하는 GLM 5.3은 실행 경로와 상관없이 glm 계열로 센다(구현자 해석, 사용자 확인 대상). Fable과 Sonnet을 같은 claude 계열로 보는 것도 구현자 해석이다.",
+  "roles": {
+    "architect": {
+      "duty": "전체 코드 설계·구현 계약",
+      "primary": {"model": "claude-fable-5-1", "runner": "claude-code"},
+      "fallback": [{"model": "gpt-astra", "runner": "unconfirmed"}]
+    },
+    "builder": {
+      "duty": "구현",
+      "order": [
+        {"model": "claude-sonnet-5-5", "runner": "claude-code"},
+        {"model": "grok-4.7", "runner": "cursor-cli"},
+        {"model": "grok-4.7", "runner": "grokbuild-cli"},
+        {"model": "swe2", "runner": "devin-cli"},
+        {"model": "glm-5.3", "runner": "claude-code"}
+      ],
+      "after_last": "작업 보존 후 대기"
+    },
+    "reviewer": {
+      "duty": "PR 독립 리뷰",
+      "order": "builder.order와 같다",
+      "exclude": "해당 PR 작성에 참여한 모든 모델 계열",
+      "pin": "대상 커밋 SHA에 고정. 이후 바뀌면 변경분 재검토",
+      "if_none": "병합을 기다린다"
+    },
+    "auditor": {
+      "duty": "병합된 구현 PR 10개마다 감리, 중요 설계 변경·출시 전 최종 감리",
+      "primary": {"model": "claude-fable-5-1", "runner": "claude-code"},
+      "fallback": [{"model": "gpt-astra", "runner": "unconfirmed"}],
+      "immediate_triggers": ["개인정보 경계 변경", "계산 의미 변경", "공통 계약 변경", "릴리스 구조 변경"],
+      "self_written": "감리 담당이 직접 작성한 변경은 다른 모델 계열이 검토"
+    }
+  },
+  "switch_policy": {
+    "allowed_triggers": ["usage_limit", "service_unavailable"],
+    "forbidden_triggers": ["test_failure", "review_findings", "quality_dissatisfaction"],
+    "handoff": [
+      "이전 실행의 쓰기를 중단한다",
+      "브랜치·커밋·미커밋 변경·시험 결과·남은 작업을 보존한다(미커밋 변경은 같은 브랜치의 WIP 커밋으로 남기고 인계 기록에 SHA를 적는다)",
+      "다음 빌더가 같은 브랜치에서 이어받는다"
+    ],
+    "no_silent_substitution": true
+  },
+  "separate_from": "코드 리뷰와 보험 지식(약관) 검수는 별도다. 이 역할표는 지식 검수 모델 구성의 승인이 아니다(운영 규칙 7)."
+}

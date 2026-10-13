@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>이런 일이 생기면 - 가상 탐색 결과</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#A14529}a:hover{color:#7E3420}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 900px; box-sizing: border-box; background: #F6F4EE; font-family: 'IBM Plex Sans KR', sans-serif; color: #1A1411; padding: 12px 24px 24px; display: flex; flex-direction: column">
+
+  <div style="display: flex; align-items: center; height: 48px">
+    <button aria-label="뒤로" style="width: 44px; height: 44px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; margin-left: -12px; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A1411" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    </button>
+    <div style="font-size: 15px; color: #66554A">내 보험 · 굿앤굿1540</div>
+  </div>
+
+  <div style="font-size: 12px; color: #66554A; text-align: center; padding: 4px 0 12px">가상 계약으로 만든 화면 예시 · 숫자는 예시</div>
+
+  <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25">이런 일이 생기면?</h1>
+  <div style="font-size: 16px; color: #66554A; margin-top: 6px">미리 알아보는 계산이에요.</div>
+
+  <div role="group" aria-label="진단 종류" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; background: #EDE8E1; border-radius: 14px; padding: 4px; margin-top: 22px">
+    <button onClick="{{ pickGeneral }}" aria-pressed="{{ isGeneral }}" style="{{ segGeneral }}">일반 암</button>
+    <button onClick="{{ pickInsitu }}" aria-pressed="{{ isInsitu }}" style="{{ segInsitu }}">제자리암 등</button>
+    <button onClick="{{ pickThyroid }}" aria-pressed="{{ isThyroid }}" style="{{ segThyroid }}">갑상선암</button>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 14px; color: #66554A">
+    <span style="font-size: 12px; font-weight: 700; color: #1A1411; border: 1px solid #DBD4CB; border-radius: 999px; padding: 2px 8px">예시 조건</span>
+    <span>2027.3.15 진단 · 처음 받는 진단금</span>
+    <button style="margin-left: auto; min-height: 44px; padding: 0 4px; border: 0; background: transparent; font-family: inherit; font-size: 14px; font-weight: 600; color: #A14529; cursor: pointer">바꾸기</button>
+  </div>
+
+  <div style="height: 1px; background: #E3DED5; margin: 8px 0 20px"></div>
+
+  <sc-if value="{{ isGeneral }}" hint-placeholder-val="{{ true }}">
+    <div style="font-size: 16px; color: #66554A">일반 암 진단이라면, 이 조건에서</div>
+    <div style="font-size: 38px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-top: 4px">5,100만 원</div>
+    <div style="display: flex; flex-direction: column; margin-top: 16px">
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #E3DED5; font-size: 16px"><span style="font-weight: 600">암진단</span><span>3,000만 원</span></div>
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #E3DED5; font-size: 16px"><span style="font-weight: 600">암진단(갱신형)</span><span>2,000만 원</span></div>
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #E3DED5; font-size: 16px"><span style="font-weight: 600">보험료납입면제대상</span><span>100만 원</span></div>
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #E3DED5; border-bottom: 1px solid #E3DED5; font-size: 16px"><span style="font-weight: 600">보험료 납입면제</span><span style="color: #66554A">다음 회차부터</span></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isInsitu }}" hint-placeholder-val="{{ false }}">
+    <div style="font-size: 16px; color: #66554A">제자리암·경계성종양 등 진단이라면, 이 조건에서</div>
+    <div style="font-size: 38px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-top: 4px">600만 원</div>
+    <div style="display: flex; flex-direction: column; margin-top: 16px">
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #E3DED5; border-bottom: 1px solid #E3DED5; font-size: 16px"><span style="font-weight: 600">유사암진단</span><span>600만 원</span></div>
+    </div>
+    <div style="font-size: 14px; color: #66554A; margin-top: 10px">유사암은 보험료 납입면제 사유가 아니에요.</div>
+  </sc-if>
+
+  <sc-if value="{{ isThyroid }}" hint-placeholder-val="{{ false }}">
+    <div style="font-size: 16px; color: #66554A">갑상선암 진단이라면</div>
+    <div style="font-size: 16px; margin-top: 6px">관련 보장 · 유사암진단 가입금액 <span style="font-weight: 700">600만 원</span></div>
+    <div style="background: #F5E4DB; border-radius: 14px; padding: 16px; margin-top: 14px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-size: 16px; font-weight: 700; color: #A14529">이 부위에 특별조건이 있어요</div>
+      <div style="font-size: 14px; color: #3A2A22">증권: 갑상선 · 부담보 5년</div>
+      <div style="font-size: 14px; color: #3A2A22">예외 적용 여부가 확인되지 않아 지급액 계산을 보류했어요.</div>
+      <button style="align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: transparent; font-family: inherit; font-size: 14px; font-weight: 600; color: #A14529; cursor: pointer">적용 조건 보기 ›</button>
+    </div>
+  </sc-if>
+
+  <div style="font-size: 13px; color: #66554A; line-height: 1.5; margin-top: 16px">약관에 따라 계산한 금액이에요. 실제 지급은 보험회사 심사로 정해져요. <button style="border: 0; background: transparent; padding: 0; font-family: inherit; font-size: 13px; font-weight: 600; color: #A14529; cursor: pointer">자세히</button></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-top: 24px">
+    <a href="C_result.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 56px; border-radius: 14px; background: #AE583F; color: #FFFFFF; font-size: 18px; font-weight: 600; text-decoration: none">실제로 진단받았어요</a>
+    <a href="B_summary.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 48px; color: #1A1411; font-size: 16px; font-weight: 600; text-decoration: none">내 보험 보기</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { scen: 'general' };
+  }
+  renderVals() {
+    const s = this.state.scen;
+    const on = 'min-height: 48px; border: 0; border-radius: 11px; background: #E8D9CD; font-family: inherit; font-size: 16px; font-weight: 700; color: #A14529; cursor: pointer';
+    const off = 'min-height: 48px; border: 0; border-radius: 11px; background: transparent; font-family: inherit; font-size: 16px; font-weight: 500; color: #66554A; cursor: pointer';
+    return {
+      isGeneral: s === 'general',
+      isInsitu: s === 'insitu',
+      isThyroid: s === 'thyroid',
+      segGeneral: s === 'general' ? on : off,
+      segInsitu: s === 'insitu' ? on : off,
+      segThyroid: s === 'thyroid' ? on : off,
+      pickGeneral: () => this.setState({ scen: 'general' }),
+      pickInsitu: () => this.setState({ scen: 'insitu' }),
+      pickThyroid: () => this.setState({ scen: 'thyroid' })
+    };
+  }
+}
+</script>
+</body>
+</html>

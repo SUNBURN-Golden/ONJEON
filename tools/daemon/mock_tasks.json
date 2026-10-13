@@ -1,0 +1,143 @@
+{
+ "description": "T-OP-00 모의 코어용 모의 과제와 모의 설정. 숫자(ttl_s·heartbeat_s·window_s·grace_s·max_attempts·max_parallel_leases)는 daemon_rules.json이 직접 갖는다(G01). 이 파일은 과제 정의, 빌더 목록, 필수 시험 ID만 둔다.",
+ "builders": [
+  {
+   "name": "mock-builder-1",
+   "runner": "mock-runner-1"
+  },
+  {
+   "name": "mock-builder-2",
+   "runner": "mock-runner-2"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T-MOCK-BASIC",
+   "allowed_paths": [
+    "tools/mock/basic/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/basic/**"
+   ],
+   "inputs": [
+    "mock://input/basic"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-HANDOFF",
+   "allowed_paths": [
+    "tools/mock/handoff/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/handoff/**"
+   ],
+   "inputs": [
+    "mock://input/handoff"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-OTHER",
+   "allowed_paths": [
+    "tools/mock/other/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/other/**"
+   ],
+   "inputs": [
+    "mock://input/other"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  }
+ ],
+ "t_op_00_required_test_ids": [
+  "decision-gate-merge-only",
+  "stale-approval-invalidated",
+  "late-write-fenced",
+  "provider-scoped-switch",
+  "post-merge-prereq",
+  "event-duplicate-noop",
+  "event-out-of-order",
+  "docs-pr-complete",
+  "eleventh-pr-audit",
+  "mis-merge-not-done",
+  "usage-recorded-not-capped",
+  "hard-stop-heartbeating-job",
+  "switch-negative-test-output",
+  "switch-negative-third-party-http",
+  "d02-mock-start-allowed",
+  "r2-local-work-allowed",
+  "late-result-no-state-change",
+  "handoff-order",
+  "lease-guards-all-paths",
+  "merge-observation-fields",
+  "envelope-permission-rejects-missing",
+  "handoff-quiescent-before-preserve",
+  "duplicate-delivery-noop",
+  "retry-new-idempotency-key",
+  "preserve-manifest-same-function",
+  "preserve-failure-recoverable-stop",
+  "daemon-restart-during-handoff",
+  "envelope-id-distinct-events",
+  "lease-issue-atomic-single-owner",
+  "restart-ttl-expired-no-resend",
+  "restart-revoked-pending-void",
+  "restart-valid-pending-resend",
+  "restart-corrupt-record-returned"
+ ]
+}

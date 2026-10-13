@@ -1,0 +1,83 @@
+{
+  "head": "ffbcaf61d6284eb7047915d390f4bc68badc4611",
+  "task_count": 56,
+  "missing_task_refs": [],
+  "explicit_cycles": [],
+  "actual_original_wp_count": 40,
+  "unmapped_original_wp": [],
+  "allow_forbid_collisions": [
+    {
+      "task": "T-CT-02",
+      "allowed": "docs/blueprint/VOCABULARY.md",
+      "forbidden": "docs/blueprint/VOCABULARY.md"
+    },
+    {
+      "task": "T-OP-02",
+      "allowed": "docs/blueprint/proposals/설계검토_결과/관문기록/**",
+      "forbidden": "docs/blueprint/proposals/**"
+    },
+    {
+      "task": "T-OP-03",
+      "allowed": "docs/blueprint/proposals/설계검토_결과/실측/**",
+      "forbidden": "docs/blueprint/proposals/**"
+    }
+  ],
+  "outside_final_gate_transitive_dependencies": [
+    "T-AP-04",
+    "T-AP-06",
+    "T-AP-08",
+    "T-DT-06",
+    "T-KN-08",
+    "T-KN-10",
+    "T-KN-11",
+    "T-MB-04",
+    "T-OP-00",
+    "T-OP-02",
+    "T-OP-03",
+    "T-OP-04",
+    "T-WB-01"
+  ],
+  "outgoing_transitions": {
+    "merge_wait": [
+      {
+        "from": "merge_wait",
+        "to": "merged",
+        "when": "pr.merged==true observed (사람이 병합)",
+        "by": "human"
+      }
+    ],
+    "returned": [],
+    "merged": [
+      {
+        "from": "merged",
+        "to": "audit_queued",
+        "when": "pr is implementation PR → merged_impl_counter += 1",
+        "by": "daemon"
+      }
+    ],
+    "audit_queued": [
+      {
+        "from": "audit_queued",
+        "to": "done",
+        "when": "audit_result for batch containing this PR == pass",
+        "by": "auditor"
+      }
+    ]
+  },
+  "shared_manifest_writers_without_manifest_conflict": [
+    "T-CT-01",
+    "T-KN-01",
+    "T-TW-01",
+    "T-DT-01",
+    "T-KN-04",
+    "T-AP-01",
+    "T-PS-01"
+  ],
+  "historical_release_probe": {
+    "release": "rel:case-r25",
+    "assertions_before": 31,
+    "assertions_after": 32,
+    "future_assertion_leaks_into_old_release": true,
+    "input_files_modified": false
+  }
+}

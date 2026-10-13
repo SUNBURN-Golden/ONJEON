@@ -1,0 +1,7 @@
+# 재검토(10f470c) T01 재현과 수정 뒤 결과 (구현자 실행, 2026-10-13)
+
+## 10f470c (수정 전)
+T01 같은 판매 구성·같은 기간에 object=None·hold 연결 추가 → 제약 위반 0 · blocked None · rule_assertion a:hana_rule
+
+## 작업 트리 (수정 뒤)
+T01 같은 판매 구성·같은 기간에 object=None·hold 연결 추가 → 제약 위반 0 · blocked ['a:unknown_scope_link:scope_unknown'] · rule_assertion None

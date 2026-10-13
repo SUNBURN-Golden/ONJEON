@@ -1,0 +1,13 @@
+[package]
+name = "ontology-case-runner"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "온톨로지 사례 검증용: 규칙 JSON과 입력 JSON을 받아 규칙 엔진으로 평가한다(시험 전용)"
+
+[dependencies]
+onjeon-rules-engine = { path = "../../../../../../packages/rules-engine" }
+serde_json = "1"
+
+# 저장소 루트 워크스페이스에 넣지 않는다(토의 자료의 검증 도구).
+[workspace]

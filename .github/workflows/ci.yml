@@ -28,3 +28,15 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
       - name: Test (golden, mutation, soundness, loader, real clauses, screen numbers)
         run: cargo test --all
+
+  design-specs:
+    # 토의 자료(docs/blueprint/proposals)의 기계 검사. 설계 문서의 의미 검토를 대신하지 않는다
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ontology case runner (rules engine only; computes nothing itself)
+        run: cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
+      - name: Ontology check (constraints, frozen releases, document model, question flow, self-tests)
+        run: python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py "$RUNNER_TEMP/onto/debug/ontology-case-runner"
+      - name: Design bundle semantic check (task graph, path permissions, final gate, daemon transitions, switch signals)
+        run: python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py

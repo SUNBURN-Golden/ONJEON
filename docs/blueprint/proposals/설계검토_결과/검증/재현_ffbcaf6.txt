@@ -1,0 +1,62 @@
+PASS [—] (기계) G1 선행 과제 존재·순환 없음
+FAIL [F03] (기계) G2 시험이 선행 과제의 산출물만 쓴다
+      ['T-CT-01: crate:onjeon-contracts 를 만드는 과제가 없음', 'T-CT-04: crate:onjeon-contracts 를 만드는 과제가 없음', "T-KN-02: crate:onjeon-knowledge 는 ['T-KN-04', 'T-KN-05', 'T-KN-08'] 가 만드는데 선행이 아님", "T-WB-02: crate:onjeon-api 는 ['T-AP-01'] 가 만드는데 선행이 아님"]
+FAIL [F04] (기계) G3 같은 과제의 허용·금지 경로가 겹치지 않음
+      ['T-CT-02: 허용 docs/blueprint/VOCABULARY.md ↔ 금지 docs/blueprint/VOCABULARY.md', 'T-OP-02: 허용 docs/blueprint/proposals/설계검토_결과/관문기록/** ↔ 금지 docs/blueprint/proposals/**', 'T-OP-03: 허용 docs/blueprint/proposals/설계검토_결과/실측/** ↔ 금지 docs/blueprint/proposals/**']
+FAIL [F05] (기계) G4a 최종 관문 과제가 하나로 지정됨(final_gate)
+      final_gate 없음. 아무도 의존하지 않는 과제 12개: ['T-OP-00', 'T-OP-02', 'T-KN-08', 'T-OP-03', 'T-OP-04', 'T-DT-06', 'T-WB-01', 'T-AP-06', 'T-KN-11', 'T-AP-08', 'T-MB-04', 'T-OP-08']
+FAIL [F05] (기계) G4b 최종 관문이 다른 모든 과제를 선행으로 가짐
+      T-OP-08 의 선행 밖 13개: ['T-AP-04', 'T-AP-06', 'T-AP-08', 'T-DT-06', 'T-KN-08', 'T-KN-10', 'T-KN-11', 'T-MB-04', 'T-OP-00', 'T-OP-02', 'T-OP-03', 'T-OP-04', 'T-WB-01']
+FAIL [F05] (기계) G4c 통합안 §2 기능 행이 전부 feature_registry에 매핑됨
+      행 60개 중 미매핑 60: ['2.1 세 진입점', '2.1 홈', '2.1 계약 상세', '2.1 담보 상세', '2.1 같은 담보 비교', '2.1 만약에', '2.1 내 설계', '2.1 두 안 비교', '2.1 증거 보기', '2.1 내 정보', '2.1 PDF 가져오기', '2.1 선택 가족력']
+FAIL [F10] (기계) G5a 과제가 시작 차단과 병합 차단을 따로 적음(decision_gates)
+      decision_gates 없는 과제 ['T-OP-00', 'T-CT-01', 'T-CT-02', 'T-CT-03', 'T-CT-04', 'T-CT-05', 'T-CT-06', 'T-OP-01']
+FAIL [F10] (기계) G5b 시작 전이는 decision_gates.start만 본다
+      ['all(prereq_tasks state==merged) and all(prereq_decisions in decisions_recorded)']
+FAIL [F10] (기계) G5c 병합 대기 전이가 decision_gates.merge를 본다
+      decision_gates.merge를 보는 전이 0개
+FAIL [F12] (기계) G6a post_merge_states가 merged에서 닿는 상태를 전부 포함
+      닿는 상태 ['audit_queued', 'done', 'merged'] · 선언 []
+FAIL [F12] (기계) G6b 선행 충족을 '==merged'가 아니라 post_merge_states로 판정
+      ['all(prereq_tasks state==merged) and all(prereq_decisions in decisions_recorded)']
+FAIL [F06] (기계) G7a 대기·복구 전이(event 필드 기준)
+      ['리뷰어 복귀 → 리뷰 재개', '감리 담당 복귀 → 감리 재개', '결정 기록 → 병합 대기 사유 갱신', '병합 대기 중 코드 변경 → 승인 무효·재리뷰', '감리 대기 중 코드 변경 → 재리뷰', '리뷰 중 코드 변경 → 재리뷰', '승인 뒤 코드 변경 → 재리뷰', '선행 충족(이미 완료된 선행 포함) → 시작 가능']
+FAIL [F06] (기계) G7b 종료가 아닌 상태마다 반송 외의 나가는 전이가 있음
+      ['returned']
+FAIL [F07] (기계) G8 임대 펜싱 토큰·격리·만료 시 프로세스 종료와 쓰기 권한 회수
+      {'fencing': '없음', 'isolation': '없음'}
+FAIL [F11] (기계) G9 전환 신호가 모델 제공자 응답·실행기 종료 코드로만 판정
+      ["usage_limit: 구조 없는 문자열 규칙 'http_status==429'", "usage_limit: 구조 없는 문자열 규칙 'stderr matches /(usage|rate) ?limit|quota|exceeded your/i'", "usage_limit: 구조 없는 문자열 규칙 'runner exit code documented as limit'", "auth_failure: 구조 없는 문자열 규칙 'http_status in (401,403)'", "auth_failure: 구조 없는 문자열 규칙 'stderr matches /not (logged|signed) in|unauthorized|invalid (api )?key|expired token/i'", "service_unavailable: 구조 없는 문자열 규칙 'http_status>=500'", "service_unavailable: 구조 없는 문자열 규칙 'connection refused/reset'", "service_unavailable: 구조 없는 문자열 규칙 '3 consecutive timeouts with no output within timeout_s'", "runner_missing: 구조 없는 문자열 규칙 'command not found'", "runner_missing: 구조 없는 문자열 규칙 'version check fails'"]
+FAIL [C] (기계) G10 CI가 spec_check.py와 ontology_check.py를 실행
+      워크플로에 없음
+FAIL [F02] (존재 검사) G11a 02가 약관 판을 '원본 해시 + 문서 역할'로 정의하지 않음
+      원본 해시 + 문서 역할
+FAIL [F02] (존재 검사) G11b 02가 원본·구획·본문 판·계열을 나눔
+      
+FAIL [F01] (존재 검사) G11c 02가 릴리스를 구성원 목록+내용 해시로 고정
+      
+FAIL [F08] (존재 검사) G12 필수 시험 ID 'need-criteria-versioned'를 가진 과제가 있음
+      
+FAIL [F08] (존재 검사) G12 필수 시험 ID 'need-result-reasons'를 가진 과제가 있음
+      
+FAIL [F09] (존재 검사) G12 필수 시험 ID 'uncertainty-partial-hold'를 가진 과제가 있음
+      
+FAIL [F01] (존재 검사) G12 필수 시험 ID 'release-frozen-members'를 가진 과제가 있음
+      
+FAIL [F10] (존재 검사) G12 필수 시험 ID 'decision-gate-merge-only'를 가진 과제가 있음
+      
+FAIL [F06] (존재 검사) G12 필수 시험 ID 'stale-approval-invalidated'를 가진 과제가 있음
+      
+FAIL [F07] (존재 검사) G12 필수 시험 ID 'late-write-fenced'를 가진 과제가 있음
+      
+FAIL [F11] (존재 검사) G12 필수 시험 ID 'provider-scoped-switch'를 가진 과제가 있음
+      
+FAIL [F12] (존재 검사) G12 필수 시험 ID 'post-merge-prereq'를 가진 과제가 있음
+      
+FAIL [F08] (존재 검사) G13 기능 '판단 기준 관리(기준·기준의 판·출처)'이 feature_registry에 있음
+      
+FAIL [F08] (존재 검사) G13 기능 '유지·추가 없음·보류 결과와 이유'이 feature_registry에 있음
+      
+
+요약: 기계 검사 1/16 · 존재 검사 0/14 · 실패 29
+주의: 존재 검사는 이름·문구가 있는지만 본다. 제품 의미(F08·F09 등)의 적절성은 사람 검토 대상이다.

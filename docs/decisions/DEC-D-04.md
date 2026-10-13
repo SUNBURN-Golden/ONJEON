@@ -38,10 +38,10 @@ Fable 대리 결정이 아니다. docs/decisions PR로 기록한다.
 
 ## 과제 관문 영향 (Consequence for T-OP-04 / T-DT-01 / T-DT-04 `real_data` gates)
 
-소유자 결정 원문은 **"대화에 노출된 R2 토큰은 폐기하지 않는다"**는 것뿐이며, 노출된 토큰의 재사용을 허가하거나 R2 접근 관문을 면제하지 않는다. 현재 저장소의 관련 정의(`DECISIONS.md` `O13` "토큰 폐기 전 추가 수집 금지", `tasks.json` `D-04` "대화 노출 R2 토큰 폐기·범위 제한 토큰 재발급", `05_VM실행준비.md` §4 "재사용·출력 금지. 폐기 전까지 T-OP-04는 시작 불가")와 데몬 규칙(`daemon_rules.json`: `decision_record`가 `decisions_recorded`에 등록되어야 관문 충족)에 따른 과제별 영향은 다음과 같다.
+소유자 결정 원문은 **"대화에 노출된 R2 토큰은 폐기하지 않는다"**는 것뿐이며, 노출된 토큰의 재사용을 허가하거나 R2 접근 관문을 면제하지 않는다. 현재 저장소의 관련 정의(`DECISIONS.md` `O13` "토큰 폐기 전 추가 수집 금지", `설계검토_결과/README.md` §6 및 `03_작업명세.md` §5의 D-04 행 "대화 노출 R2 토큰 폐기·범위 제한 토큰 재발급"(`tasks.json` `decision_index.D-04`는 관문 과제 목록만 둔다), `05_VM실행준비.md` §4 "재사용·출력 금지. 폐기 전까지 T-OP-04는 시작 불가")와 데몬 규칙(`daemon_rules.json`: `decision_record`가 `decisions_recorded`에 등록되어야 관문 충족)에 따른 과제별 영향은 다음과 같다.
 
 - **`T-OP-04`** (`decision_gates.start = ["D-04"]`, `decision_gates.merge = ["O14"]`):
-  - **시작 관문(`start: ["D-04"]`) 미해제:** `T-OP-04`의 차단 조건(`blocked_by`: "시작: D-04(토큰 폐기·재발급 전에는 R2에 접근하지 않음). 병합: O14(잠금 승인)")과 `05_VM실행준비.md` §4는 노출 토큰 재사용 금지 및 범위 제한 토큰 준비를 요구하며, 데몬은 `decisions_recorded`에 `D-04`가 등록되어야 `blocked → queued`로 전이한다. 이 마크다운 문서만으로는 `decisions_recorded`가 갱신되지 않고 R2 접근 자격도 부여되지 않으므로 `T-OP-04`의 시작 차단은 그대로 유지된다.
+  - **시작 관문(`start: ["D-04"]`) 미해제:** `T-OP-04`의 차단 조건(`blocked_by`: "시작: D-04(토큰 폐기·재발급 전에는 R2에 접근하지 않음). 병합: O14(잠금 승인)")과 `05_VM실행준비.md` §4는 노출 토큰의 폐기(사용자), 재사용·출력 금지, 폐기 전 `T-OP-04` 시작 불가를 정하고(범위 제한 토큰 재발급은 `O13`과 위 D-04 행에 있다), 데몬은 `decisions_recorded`에 `D-04`가 등록되어야 `blocked → queued`로 전이한다. 이 마크다운 문서만으로는 `decisions_recorded`가 갱신되지 않고 R2 접근 자격도 부여되지 않으므로 `T-OP-04`의 시작 차단은 그대로 유지된다.
   - **병합 관문(`merge: ["O14"]`):** `T-OP-04`의 병합 관문은 `O14`(R2 버킷 잠금 규칙 승인) 단일 관문이며 그대로 유지된다.
 - **`T-DT-01` 및 `T-DT-04`** (`decision_gates.real_data = ["D-04"]`, `start = []`, `merge = []`, `release = []`):
   - **실데이터 관문(`real_data: ["D-04"]`) 미해제:** 두 과제의 실제 R2 쓰기·보존 단계는 `tasks.json`(`T-DT-01` `blocked_by`: "실데이터: R2 실제 쓰기만 D-04(토큰 폐기·재발급)에 막힌다", `T-DT-04` `blocked_by`: "실제 R2 보존은 D-04") 및 정본 `DECISIONS.md` `O13`("토큰 폐기 전 추가 수집 금지")에 묶여 있다. 이 결정 기록만으로는 `real_data_allowed = true`가 되지 않으며 실제 R2 쓰기는 계속 차단된다.
@@ -52,7 +52,7 @@ Fable 대리 결정이 아니다. docs/decisions PR로 기록한다.
 
 ## 재검토 조건 (Revisit Trigger)
 
-1. 소유자(준태님)가 노출된 토큰을 폐기하지 않은 상태에서 실제 R2 접근에 사용할 자격(예: 별도 범위 제한 토큰 재발급 여부)과 정본 `DECISIONS.md` `O13`·`tasks.json` `D-04` 관문 문구 개정 및 데몬 `decisions_recorded` 등록 여부를 후속 결정하거나, 반대로 토큰 폐기·재발급을 새로 지시할 때.
+1. 소유자(준태님)가 노출된 토큰을 폐기하지 않은 상태에서 실제 R2 접근에 사용할 자격(예: 별도 범위 제한 토큰 재발급 여부)과 정본 `DECISIONS.md` `O13`·`tasks.json` `decision_index.D-04` 관문 조건 개정 및 데몬 `decisions_recorded` 등록 여부를 후속 결정하거나, 반대로 토큰 폐기·재발급을 새로 지시할 때.
 2. 원장(`onjeon-budget-ledger`) 기록과 Cloudflare R2 사용량·청구 대조에서 비인가 호출이나 이상 징후가 관측될 때.
 3. `O14`(R2 버킷 잠금 규칙 승인, `T-OP-04` 병합 관문) 또는 `O17`(대량 자동 수집 관문, `T-DT-05` `release` 관문) 결정 시점에 R2 운영 환경·토큰 권한 범위를 확정할 때.
 4. `D16`~`D18`의 R2 운영 원칙을 개정하는 후속 결정이나 ADR이 채택될 때.

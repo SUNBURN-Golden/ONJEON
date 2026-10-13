@@ -15,7 +15,8 @@ name: sources
 #    the ledger's cumulative use, infra/r2/BUDGET.md); it is not an account-wide spending cap.
 #    Initial operation (BUDGET.md section 6) uses one designated environment, which is not GitHub:
 #    leave the repository variables unset so this job does not run.
-# Not executed yet as of 2026-10-09 (the file is not on main, and no R2 token is configured).
+# detect: first run on main (2026-10-09) stopped before fetching (dependencies installed where python3 -I
+# could not see them); fixed with a venv. reproduce: not run (repository variables unset, initial operation).
 on:
   workflow_dispatch:
     inputs:
@@ -32,12 +33,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # python3 -I ignores user site-packages, so dependencies go into a venv (its own site-packages
+      # stay visible under -I). The first run on main failed here: pdfplumber installed with --user.
       - name: Extractors
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
-          python3 -m pip install --quiet pdfplumber==0.11.10
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet pdfplumber==0.11.10
       - name: Detect current source changes
-        run: python3 -I tools/verify_sources.py detect --out "$RUNNER_TEMP/now" --report "$RUNNER_TEMP/detect.json"
+        # exit 1 if any source could not be fetched: a green run means every source was observed
+        run: |
+          "$RUNNER_TEMP/venv/bin/python" -I tools/verify_sources.py detect --out "$RUNNER_TEMP/now" \
+            --report "$RUNNER_TEMP/detect.json"
+      - name: Per-source result
+        if: always()
+        run: |
+          python3 - "$RUNNER_TEMP/detect.json" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import json, sys
+          try:
+              d = json.load(open(sys.argv[1]))
+          except FileNotFoundError:
+              print("detect wrote no report (stopped before fetching)"); sys.exit(0)
+          print("| status | count |\n|---|---|")
+          for k, n in sorted(d["summary"].items()):
+              print(f"| {k} | {n} |")
+          print("\n| sample | status | detail |\n|---|---|---|")
+          for r in d["results"]:
+              print(f"| {r['sample_id']} | {r['status']} | {r.get('detail', '')} |")
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: detect-report, path: "${{ runner.temp }}/detect.json" }
@@ -60,7 +83,9 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q poppler-utils ${{ inputs.ocr && 'tesseract-ocr tesseract-ocr-kor' || '' }}
-          python3 -m pip install --quiet pdfplumber==0.11.10 boto3==1.43.100
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet pdfplumber==0.11.10 boto3==1.43.100
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
       - name: Every archived key matches the pinned listing
         run: |
           L=docs/blueprint/validation/source_checks

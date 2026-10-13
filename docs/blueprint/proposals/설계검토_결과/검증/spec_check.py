@@ -21,6 +21,12 @@
     switch_policy.allowed_switch_signals[].detect[]: {source, match, scope}
     concurrency.fencing: {token, checked_at: [...], on_lease_end: [...]}, concurrency.isolation
     safety_verification_status: {장치: specified | dry_run_target | real_executor_required}
+    concurrency.lease_issue: {function: issue_lease, atomic_record: [lease_generation, lease_record, outbox], restart_recovery}
+    concurrency.envelope_identity: envelope_id | one_per_kind_per_generation
+    preserve_manifest: {function, includes/excludes, deleted·untracked·mode·symlink 규칙, compare}; concurrency.quiescence가 같은 function 참조
+    handoff_failure_policy: {max_attempts, always_revoke:[..., preserve_credential], ...}
+    전이 event: quiescence_failed, index_lock, disk_full, preserve_commit_failed, preserve_push_failed, daemon_restart_during_handoff
+    handoff→leased 전이의 when: preserve_succeeded 또는 recovery_decision
   tasks[].verification_kind: dry_run | real_executor (해당 과제만)
   07_수정대응표.md: 지적마다 변경 위치·시험 종류·증명 범위·미검증
 """
@@ -328,7 +334,10 @@ def run(repo):
            "envelope-permission-rejects-missing": "gates", "price-raw-kept-comparison-gated": "consistency",
            "reason-evidence-by-kind": "consistency",
            "handoff-quiescent-before-preserve": "latewrite", "retry-new-idempotency-key": "latewrite",
-           "duplicate-delivery-noop": "latewrite", "input-link-multi-edition-config": "link"}
+           "duplicate-delivery-noop": "latewrite", "input-link-multi-edition-config": "link",
+           "input-link-unknown-scope-hold": "link", "input-link-unrelated-rider-allowed": "link", "input-link-competing-editions-hold": "link",
+           "preserve-manifest-same-function": "latewrite", "preserve-failure-recoverable-stop": "latewrite",
+           "daemon-restart-during-handoff": "latewrite", "envelope-id-distinct-events": "latewrite", "lease-issue-atomic-single-owner": "latewrite"}
     have = {x for t in tasks.values() for x in t.get("required_test_ids", [])}
     for rid, fid in req.items():
         check(fid, f"G12 필수 시험 ID '{rid}'를 가진 과제가 있음", rid in have, "", kind="존재 검사")
@@ -451,14 +460,43 @@ def run(repo):
     need = ("approved_head_sha", "base_sha", "merge_commit_sha", "integration_check")
     ok = not re.search(r"merged_sha\s*==\s*approved_sha", blob) and all(k in blob for k in need)
     check("wait", "G36 [R04⑤] merged_sha == approved_sha 비교 없음, 승인 head·base·병합 커밋·통합 검증 구분", ok, [k for k in need if k not in blob] or "비교식 남음" if not ok else "")
-    # S03 중복 전달과 재시도 구분: 키에 임대 세대, 임대 발급마다 세대 증가
+    # S03·T04 중복 전달과 재시도 구분, 봉투 식별, 임대 발급의 단일 책임
     conc = D.get("concurrency", {})
     key = json.dumps(conc.get("idempotency_key", ""), ensure_ascii=False)
-    no_gen = [f"{x.get('from')}→leased ({x.get('event')})" for x in tr if x.get("to") == "leased"
-              and "lease_generation" not in (x.get("when") or "") + json.dumps(x.get("side_effects", ""), ensure_ascii=False)]
-    ok = "lease_generation" in key and bool(conc.get("duplicate_delivery")) and bool(conc.get("retry")) and not no_gen
-    check("latewrite", "G42 [S03] 멱등 키에 lease_generation, 중복 전달·재시도 정책 분리, 임대 발급 전이마다 세대 증가", ok,
-          {"키": key[:80], "duplicate_delivery": bool(conc.get("duplicate_delivery")), "retry": bool(conc.get("retry")), "세대 증가 없는 전이": no_gen})
+    issue = conc.get("lease_issue") or {}
+    no_issue = [f"{x.get('from')}→leased ({x.get('event')})" for x in tr if x.get("to") == "leased"
+                and "issue_lease" not in (x.get("when") or "") + json.dumps(x.get("side_effects", ""), ensure_ascii=False)]
+    inc_pat = re.compile(r"lease_generation\s*(\+=|\+\s*1|를?\s*(올|증가))")
+    dup_inc = [f"{x.get('from')}→{x.get('to')}" for x in tr if inc_pat.search(json.dumps(x.get("side_effects", ""), ensure_ascii=False) + (x.get("when") or ""))]
+    dup_inc += [f"handoff_steps: {st if isinstance(st, str) else st.get('id')}" for st in D.get("switch_policy", {}).get("handoff_steps", []) + D.get("handoff_steps", [])
+                if inc_pat.search(json.dumps(st, ensure_ascii=False))]
+    ok = ("lease_generation" in key and bool(conc.get("duplicate_delivery")) and bool(conc.get("retry")) and not no_issue and not dup_inc
+          and "lease_generation" in json.dumps(issue, ensure_ascii=False))
+    check("latewrite", "G42 [S03·T04] 키에 lease_generation, 중복 전달·재시도 분리, 임대 발급은 issue_lease 한 곳(전이·인계 단계에서 따로 증가 안 함)", ok,
+          {"키": key[:80], "lease_issue": bool(issue), "issue_lease 참조 없는 전이": no_issue, "따로 증가": dup_inc})
+    ident = conc.get("envelope_identity")
+    atomic = set((issue.get("atomic_record") or []))
+    ok = ident in ("envelope_id", "one_per_kind_per_generation") and (ident != "envelope_id" or "envelope_id" in key) and {"lease_generation", "lease_record", "outbox"} <= atomic and bool(issue.get("restart_recovery"))
+    check("latewrite", "G45 [T04] 봉투 식별 방식(envelope_id 또는 세대당 종류별 하나), 세대·임대 기록·outbox 원자 저장, 재시작 복구 규칙", ok,
+          {"envelope_identity": ident, "atomic_record": sorted(atomic), "restart_recovery": bool(issue.get("restart_recovery"))})
+    # T02 보존 해시: 정지 확인과 보존 확인이 같은 함수
+    pm = D.get("preserve_manifest") or {}
+    q_ref = json.dumps(conc.get("quiescence", {}), ensure_ascii=False)
+    need = ("deleted", "untracked", "mode", "symlink", "excludes")
+    blobpm = json.dumps(pm, ensure_ascii=False)
+    ok = bool(pm.get("function")) and pm.get("function") in q_ref and pm.get("function") in json.dumps(pm.get("compare", ""), ensure_ascii=False) + json.dumps(D.get("handoff_failure_policy", {}), ensure_ascii=False) + blobpm and all(k in blobpm for k in need)
+    check("latewrite", "G43 [T02] preserve_manifest(function·삭제·미추적·권한·심볼릭 링크·제외 경로)를 정지 확인과 보존 확인이 같이 씀", ok,
+          {"function": pm.get("function"), "정지 확인이 참조": pm.get("function") in q_ref if pm.get("function") else False, "빠진 정의": [k for k in need if k not in blobpm]})
+    # T03 인계 실패 경로
+    fails = ("quiescence_failed", "index_lock", "disk_full", "preserve_commit_failed", "preserve_push_failed", "daemon_restart_during_handoff")
+    miss = [e for e in fails if not any(x.get("event") == e for x in tr)]
+    bad_to = [f"{x.get('event')}→leased" for x in tr if x.get("event") in fails and x.get("to") == "leased"]
+    gate = [x for x in tr if x.get("to") == "leased" and x.get("from") == "handoff"]
+    gate_ok = bool(gate) and all(("preserve_succeeded" in (x.get("when") or "") or "recovery_decision" in (x.get("when") or "")) for x in gate)
+    pol = D.get("handoff_failure_policy") or {}
+    ok = not miss and not bad_to and gate_ok and bool(pol.get("max_attempts")) and "preserve_credential" in json.dumps(pol.get("always_revoke", ""), ensure_ascii=False)
+    check("latewrite", "G44 [T03] 인계 실패 사건마다 전이(임대 발급 아님), 다음 임대는 보존 성공 또는 복구 결정 뒤, 재시도 한도, 보존 자격 항상 회수", ok,
+          {"전이 없는 실패 사건": miss, "임대로 가는 실패": bad_to, "handoff→leased 조건": [x.get("when", "")[:60] for x in gate], "max_attempts": pol.get("max_attempts"), "always_revoke": pol.get("always_revoke")})
     # R05 봉투에 권한 필드, 일반 금지와 정본 변경 예외의 일치
     req_fields = set(D.get("envelopes", {}).get("instruction", {}).get("required", []))
     check("gates", "G37 [R05] 지시 봉투 필수 필드에 real_data_allowed·canon_change_approval", {"real_data_allowed", "canon_change_approval"} <= req_fields, sorted({"real_data_allowed", "canon_change_approval"} - req_fields))

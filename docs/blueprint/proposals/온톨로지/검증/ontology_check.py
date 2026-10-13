@@ -466,6 +466,12 @@ def resolve(abox, q):
     # 요청 담보가 정의된 판 중, 이 판매 구성이 가입일에 쓰는 판
     cand = [ed for ed in cov_eds if ed in used]
     unresolved = [a for ed, links in used.items() for a in links if ed is None or a["review_status"] != "accepted"]
+    # 재검토(10f470c) T01: 어느 판인지 모르는 연결(object 없음)은 요청 담보와 무관하다는 근거가 없다 → 영향받을 수 있으므로 보류.
+    # 판이 확인됐고, 요청 담보가 승인된 in_edition으로 다른 판에 정의돼 있으면(담보는 한 판에만 정의) 그 연결은 무관함이 확인된 것이다.
+    unknown_scope = sorted((a for a in used.get(None, [])), key=lambda a: a["id"])
+    if unknown_scope:
+        steps.append("  이 판매본에 어느 판인지 모르는 연결이 있음(" + ", ".join(a["id"] for a in unknown_scope) + ") → 요청 담보와 무관하다는 근거가 없어 계산하지 않음")
+        return {"blocked": [a["id"] + ":scope_unknown" for a in unknown_scope], "steps": steps, "config": sc}
     if not cand:
         if unresolved:
             steps.append("  이 판매본의 약관 판이 확인되지 않음 → 계산하지 않음")
@@ -849,6 +855,33 @@ def release_tests(runner):
     a["assertions"].append(dict(hl, id="a:hana_doc_link_dup_hold", review_status="hold", hold_reason="reference_unresolved"))
     r, = [resolve(candidate_view(a), next(q for q in QUESTIONS if q["id"] == "Q1"))]
     out.append(("S01b 요청 담보의 판 연결에 미승인 주장이 섞임", "동작", "blocked" in r, f"blocked {r.get('blocked')} · 엔진 호출 0"))
+
+    # T01 재검토(10f470c): 영향 범위를 모르는 연결은 보류, 무관함이 확인된 특약은 허용, 경쟁 판은 보류, 순서 독립
+    q1 = next(q for q in QUESTIONS if q["id"] == "Q1")
+    hl = next(x for x in ABOX["assertions"] if x["id"] == "a:hana_doc_link")
+    a = copy.deepcopy(ABOX)
+    a["assertions"].append(dict(hl, id="a:unknown_scope_link", object=None, review_status="hold", hold_reason="reference_unresolved"))
+    r_unknown = resolve(candidate_view(a), q1)
+    a = copy.deepcopy(ABOX)
+    a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_rider3@2607", label="자체 시험용 다른 특약 판", parts=[]))
+    a["assertions"].append(dict(hl, id="a:synthetic_rider3_link", object="ted:synthetic_rider3@2607", review_status="hold", hold_reason="reference_unresolved"))
+    r_unrel = run_all(candidate_view(a), runner)["Q1"][0]
+    a = copy.deepcopy(ABOX)
+    a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_compete@2607", label="자체 시험용 경쟁 판"))
+    a["assertions"].append(dict(hl, id="a:synthetic_compete_link", object="ted:synthetic_compete@2607"))
+    inc = next(x for x in a["assertions"] if x["id"] == "a:hana_cov_in_edition")
+    a["assertions"].append(dict(inc, id="a:synthetic_cov_in_compete", object="ted:synthetic_compete@2607"))
+    r_comp = resolve(candidate_view(a), q1)
+    a = copy.deepcopy(ABOX)
+    a["assertions"].append(dict(hl, id="a:hana_doc_link_more", _review_note="자체 시험: 같은 연결의 근거 추가"))
+    a["assertions"].append(dict(hl, id="a:aa_unknown_scope_first", object=None, review_status="hold"))
+    fwd = resolve(candidate_view(a), q1)
+    b = copy.deepcopy(a); b["assertions"] = list(reversed(b["assertions"]))
+    rev = resolve(candidate_view(b), dict(q1, configs=list(reversed(q1["configs"]))))
+    ok = ("blocked" in r_unknown and "scope_unknown" in r_unknown["blocked"][0] and r_unrel == base["Q1"][0]
+          and "blocked" in r_comp and "판 후보 복수" in r_comp["blocked"][0] and fwd.get("blocked") == rev.get("blocked") and "blocked" in fwd)
+    out.append(("T01 범위 미확인 연결 보류·무관한 특약 허용·경쟁 판 보류·순서 독립(재검토 10f470c 재현)", "동작", ok,
+                f"범위 미확인 → {r_unknown.get('blocked')} · 무관함 확인된 특약(hold) → Q1 {r_unrel} · 경쟁 판 → {r_comp.get('blocked')} · 순서 뒤집기 → 같음 {fwd.get('blocked') == rev.get('blocked')}"))
 
     # P1 재검토 R06①: 조건이 빈 원시 가격 관측은 보존(위반 없음), 비교 자격을 주면 K13
     a = copy.deepcopy(ABOX)

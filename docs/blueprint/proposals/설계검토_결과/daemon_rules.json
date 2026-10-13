@@ -1,5 +1,5 @@
 {
-  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, 사용자 검토 ffbcaf6(F07·F08·F09·F10), 독립 재검토 9554c96(R04·R05), 재검토 e02755a(S02 보존 순서, S03 임대 세대 멱등 키) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
+  "_status": "설계 담당 검토용 묶음(수정판 2026-10-13, 사용자 검토 ffbcaf6(F07·F08·F09·F10), 독립 재검토 9554c96(R04·R05), e02755a(S02·S03), 10f470c(T02 보존 manifest, T03 보존 실패 복구, T04 봉투 식별·임대 발급 단일 책임) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
   "_decided_by": "역할·전환 정책은 사용자 결정 2026-10-12(U-04, 운영 규칙 1~8). 상태 기계·사건·신호·봉투·잠금·펜싱은 설계 담당 판단(감리 대상)",
   "schema": "onjeon-daemon-rules-0.3",
@@ -106,6 +106,100 @@
     "instruction_envelope_valid(required 전부, real_data_allowed, canon_change_approval)"
   ],
   "_lease_guards_note": "R04④ 임대를 발급하는 모든 전이(to == leased, event == lease_granted, building→building 재임대)가 거치는 공통 가드. 상세는 concurrency.lease_guards",
+  "preserve_manifest": {
+    "choice": "(a) git write-tree의 tree OID 비교. 이유: 보존 커밋도 Git 객체이므로 같은 객체 모델(경로·모드·종류·내용)로 비교하면 변환 없이 동일성이 정의되고, 삭제·실행 권한·심볼릭 링크가 트리 항목으로 그대로 표현된다. (b) 별도 manifest 함수는 Git 모델과 다른 두 번째 정의를 만들어 T02와 같은 불일치가 다시 생긴다",
+    "function": "git_write_tree_oid",
+    "function_def": "git_write_tree_oid(worktree, includes, excludes) → tree OID. 임시 인덱스(GIT_INDEX_FILE)에 includes를 git add -A 하고(excludes·.gitignore 제외) git write-tree 한 결과. 작업 트리의 인덱스·HEAD는 건드리지 않는다",
+    "includes": [
+      "추적 파일의 변경",
+      "미추적 파일(untracked, .gitignore 대상 제외)",
+      "삭제",
+      "모드 변경",
+      "심볼릭 링크"
+    ],
+    "deleted": "삭제된 추적 파일은 트리에서 항목 없음으로 표현된다(git add -A). 삭제도 보존 대상이다",
+    "untracked": "미추적 파일은 포함한다. .gitignore 에 걸리는 것(빌드 산출물·캐시)과 excludes는 제외",
+    "mode": "실행 권한은 트리 항목 모드(100755/100644)로 보존된다. core.fileMode=true 로 계산",
+    "symlink": "심볼릭 링크는 모드 120000, 내용 = 대상 경로 문자열로 해시한다. 대상 파일을 따라가지 않는다",
+    "excludes": [
+      ".git/",
+      "target/",
+      "node_modules/",
+      "build/",
+      "dist/",
+      ".venv/",
+      "__pycache__/",
+      ".env",
+      "*.pem",
+      "*.key",
+      "*credentials*",
+      "*secret*",
+      "비밀값 패턴(R-10 검출 규칙)에 걸리는 파일 — 걸리면 보존하지 않고 R-10"
+    ],
+    "empty_dirs": "Git 트리는 빈 디렉터리를 담지 않는다. 보존 대상 아님",
+    "compare": "quiescent_tree_oid(confirm_quiescent의 마지막 git_write_tree_oid 결과) == commit.tree_oid(보존 커밋의 tree). 같은 함수·같은 includes/excludes로 계산한 OID끼리만 비교한다. 다른 해시(파일 목록 SHA-256 등)는 쓰지 않는다",
+    "used_by": [
+      "concurrency.quiescence.conditions",
+      "switch_policy.handoff_steps preserve(로컬)",
+      "transitions preserve_commit_ok",
+      "handoff_failure_policy"
+    ],
+    "verification": "preserve-manifest-same-function(T-OP-00 모의 Git 저장소, T-OP-09 실제)"
+  },
+  "handoff_failure_policy": {
+    "invariants": [
+      "isolate(빌더 쓰기 차단·자격 회수)는 보존 성공 여부와 무관하게 보존보다 먼저 끝난다",
+      "always_revoke 항목은 성공·실패 모두 반드시 회수한다(finally)",
+      "로컬 보존(preservation_state=local_committed)과 원격 보존(remote_pushed)은 handoff_record에 별도 상태로 기록한다",
+      "실패하면 복구 가능한 상태 handoff_blocked에서 멈춘다: 작업 트리 쓰기 금지 유지, 사유·단계·시도 이력 기록",
+      "보존 성공(preserve_succeeded = remote_pushed) 또는 명시적 recovery_decision 뒤의 보존 성공 전에는 issue_lease를 부르지 않는다",
+      "무한 재시도 없음. max_attempts를 넘으면 handoff_blocked, 포기는 handoff_abandoned→returned(R-14)"
+    ],
+    "always_revoke": [
+      "builder_write_credential",
+      "builder_token",
+      "preserve_credential"
+    ],
+    "max_attempts": {
+      "quiescence_failed": {
+        "value": "[사용자 결정 필요] 기본 3",
+        "interval": "quiescence.window_s",
+        "retry_from": "isolate(강제 종료)",
+        "on_exhaust": "handoff_blocked"
+      },
+      "index_lock": {
+        "value": "[사용자 결정 필요] 기본 3",
+        "interval": "10초",
+        "note": "잠금 소유 프로세스가 살아 있으면 isolate로. 남은 잠금 파일 제거는 recovery_decision",
+        "on_exhaust": "handoff_blocked"
+      },
+      "disk_full": {
+        "value": 0,
+        "on_exhaust": "handoff_blocked 즉시"
+      },
+      "preserve_commit_failed": {
+        "value": "[사용자 결정 필요] 기본 2",
+        "retry_from": "confirm_quiescent(git_write_tree_oid 재계산)",
+        "on_exhaust": "handoff_blocked"
+      },
+      "preserve_push_failed": {
+        "value": "[사용자 결정 필요] 기본 3(네트워크·일시 오류)",
+        "interval": "지수 간격 5·15·45초",
+        "no_retry": "권한 거부·보호 브랜치 규칙 거부",
+        "on_exhaust": "handoff_blocked(로컬 커밋은 남는다)"
+      },
+      "daemon_restart_during_handoff": {
+        "value": 1,
+        "rule": "handoff_record.phase부터 재개. 쓰기 금지·자격 회수를 재적용하고 preserve_credential은 회수 뒤 1회만 재발급. 로컬 커밋은 tree OID(git_write_tree_oid)로, 원격은 ref로 확인. 확인 불가면 handoff_blocked"
+      }
+    },
+    "recovery_decision": {
+      "by": "사람 또는 설계 담당",
+      "record": "recovery_ref(조치 내용, 기록자, 시각)",
+      "effect": "handoff_blocked → handoff(시도 횟수 초기화, isolate부터. 로컬 커밋이 있으면 푸시만) 또는 handoff_abandoned → returned(R-14)"
+    },
+    "verification": "preserve-failure-recoverable-stop·daemon-restart-during-handoff(T-OP-00 모의, T-OP-09 실제 실행기)"
+  },
   "post_merge_states": [
     "merged",
     "audit_queued",
@@ -154,6 +248,16 @@
     "merged_without_valid_approval",
     "hard_stop_deadline",
     "envelope_invalid",
+    "preserve_commit_ok",
+    "preserve_push_ok",
+    "quiescence_failed",
+    "index_lock",
+    "disk_full",
+    "preserve_commit_failed",
+    "preserve_push_failed",
+    "daemon_restart_during_handoff",
+    "recovery_decision",
+    "handoff_abandoned",
     "unmapped_condition"
   ],
   "noop_events": [
@@ -204,7 +308,8 @@
     "queued": "실행 가능",
     "leased": "빌더에게 임대(lease_id, fencing_token, TTL). 쓰기 전",
     "building": "빌더가 격리 작업 트리에서 쓰는 중. 하트비트 필요",
-    "handoff": "전환 신호 감지. handoff_sequence 순서로 진행: stop(정상 중단 요청) → isolate(기한 초과 시 강제 종료 또는 작업 트리 쓰기 금지 격리, 빌더 쓰기 자격 회수) → confirm_quiescent(프로세스 0·mtime 고정·열린 쓰기 핸들 0·트리 해시 2회 일치) → preserve(데몬이 보존 전용 자격으로 WIP 커밋·푸시) → revoke_token → issue_next_lease(lease_generation+1, 새 토큰). 토큰 폐기 뒤 옛 세대의 봉투·푸시는 late_envelope_rejected",
+    "handoff": "전환 신호 감지. handoff_sequence 순서로 진행: stop → isolate(빌더 쓰기 차단·자격 회수, 보존 성공 여부와 무관하게 먼저 끝남) → confirm_quiescent(preserve_manifest.function 2회 일치) → preserve. handoff_record.phase와 preservation_state ∈ {none, local_committed, remote_pushed}를 기록한다(로컬 커밋과 원격 푸시는 별도 보존 상태). 실패 사건(quiescence_failed·index_lock·disk_full·preserve_commit_failed·preserve_push_failed·daemon_restart_during_handoff)은 handoff_failure_policy의 max_attempts 안에서 재시도하고 넘으면 handoff_blocked. preserve_succeeded(remote_pushed) 뒤 revoke_token·handoff_record·issue_lease",
+    "handoff_blocked": "보존 실패로 복구 가능한 상태에서 정지. 작업 트리 쓰기 금지 유지, always_revoke 전부 회수됨(finally), 실패 사유·단계·시도 이력·preservation_state 기록. 다음 임대는 발급하지 않는다. 사람 또는 설계 담당의 recovery_decision(recovery_ref)으로만 handoff로 돌아가거나, handoff_abandoned로 returned(R-14)",
     "paused_no_builder": "모든 빌더 불가. 작업 보존 후 대기",
     "pr_open": "PR 열림. CI 대기",
     "ci_failed": "CI 실패. 같은 작성자가 고친다(전환 금지)",
@@ -233,13 +338,11 @@
       "from": "queued",
       "to": "leased",
       "event": "lease_granted",
-      "when": "lease_guards 통과(builder_available, no_conflict_lease(conflict_paths), lock_acquired(task_id), budget_reserved, instruction_envelope_valid) → lease_generation += 1, fencing_token = lease_generation",
+      "when": "lease_guards 통과(builder_available, no_conflict_lease(conflict_paths), lock_acquired(task_id), budget_reserved, instruction_envelope_valid) → issue_lease(task_id)",
       "by": "daemon",
       "guard": "lease_guards",
       "side_effects": [
-        "lease_generation += 1",
-        "fencing_token = lease_generation",
-        "idempotency_key 재계산(task_id + lease_generation + base_sha)"
+        "issue_lease(task_id) 호출(concurrency.lease_issue). 세대·임대 기록·outbox는 그 함수가 한 트랜잭션으로 쓰고, 이 전이는 세대를 손대지 않는다"
       ]
     },
     {
@@ -295,13 +398,11 @@
       "from": "building",
       "to": "building",
       "event": "result_failed_tests",
-      "when": "result_envelope.status == failed_tests and consecutive_failed_tests < 3 → 같은 작성자 재임대(lease_generation += 1, 새 토큰, lease_guards). 3회면 returned(R-06)",
+      "when": "result_envelope.status == failed_tests and consecutive_failed_tests < 3 → 같은 작성자 재임대(issue_lease, 새 토큰, lease_guards). 3회면 returned(R-06)",
       "by": "daemon",
       "guard": "lease_guards",
       "side_effects": [
-        "lease_generation += 1",
-        "fencing_token = lease_generation",
-        "idempotency_key 재계산(task_id + lease_generation + base_sha)"
+        "issue_lease(task_id) 호출(concurrency.lease_issue). 세대·임대 기록·outbox는 그 함수가 한 트랜잭션으로 쓰고, 이 전이는 세대를 손대지 않는다"
       ]
     },
     {
@@ -341,35 +442,143 @@
     },
     {
       "from": "handoff",
+      "to": "handoff",
+      "event": "quiescence_failed",
+      "when": "confirm_quiescent 거짓(git_write_tree_oid 2회 불일치·생존 프로세스·쓰기 핸들) and attempts < handoff_failure_policy.max_attempts.quiescence_failed → isolate(강제 종료)부터 재시도. 보존·발급 없음",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff_blocked",
+      "event": "quiescence_failed",
+      "when": "attempts >= max_attempts → 복구 가능한 정지. 쓰기 금지 유지, always_revoke 회수(finally), 사유 기록",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff",
+      "event": "index_lock",
+      "when": ".git/index.lock 존재 and attempts < max_attempts.index_lock → 간격 뒤 재시도. 소유 프로세스가 살아 있으면 isolate로",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff_blocked",
+      "event": "index_lock",
+      "when": "attempts >= max_attempts(잠금 파일이 남아 있음) → 정지. 잠금 제거는 recovery_decision",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff_blocked",
+      "event": "disk_full",
+      "when": "디스크 부족(ENOSPC) → 재시도 없이 즉시 정지. 쓰기 금지 유지, always_revoke 회수",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff",
+      "event": "preserve_commit_failed",
+      "when": "git commit 실패(index_lock·disk_full 외) and attempts < max_attempts.preserve_commit_failed → confirm_quiescent부터 재시도",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff_blocked",
+      "event": "preserve_commit_failed",
+      "when": "attempts >= max_attempts → 정지",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff",
+      "event": "preserve_commit_ok",
+      "when": "데몬이 preserve_credential로 격리 작업 트리를 WIP 커밋. commit.tree_oid == quiescent_tree_oid(preserve_manifest.compare) → preservation_state = local_committed(wip_commit_sha, tree_oid 기록). 아직 preserve_succeeded 아님",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff",
+      "event": "preserve_push_failed",
+      "when": "preservation_state == local_committed and 푸시 실패(네트워크·일시 오류) and attempts < max_attempts.preserve_push_failed → 지수 간격 뒤 재시도. 권한·보호 규칙 거부는 재시도 0회",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff_blocked",
+      "event": "preserve_push_failed",
+      "when": "attempts >= max_attempts 또는 권한·보호 규칙 거부 → 정지. 로컬 커밋은 남는다(복구 시 푸시만 재시도)",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff",
+      "event": "preserve_push_ok",
+      "when": "remote ref == wip_commit_sha → preservation_state = remote_pushed = preserve_succeeded. preserve_credential 회수(finally), revoke_token, handoff_record 기록",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff",
+      "event": "daemon_restart_during_handoff",
+      "when": "재시작 뒤 handoff_record.phase ∈ {stop, isolate, confirm_quiescent} → isolate부터 재개(쓰기 금지 재적용·자격 회수 재확인). phase == preserve 이면 로컬 커밋은 tree OID(git_write_tree_oid)로, 원격은 ref로 확인해 preservation_state를 복원",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
+      "to": "handoff_blocked",
+      "event": "daemon_restart_during_handoff",
+      "when": "재시작 뒤 단계·작업 트리 상태를 확인할 수 없음(기록 불일치) 또는 preserve_credential 재발급 1회 초과 → 정지(R-08 계열 기록)",
+      "by": "daemon"
+    },
+    {
+      "from": "handoff",
       "to": "leased",
       "event": "preserved",
-      "when": "handoff_sequence 완료: (1) stop — 정상 중단 요청, 기한 grace_s (2) isolate — 미확인 시 프로세스 그룹 강제 종료 또는 작업 트리 쓰기 금지 격리, 빌더 쓰기 자격 회수 (3) confirm_quiescent — concurrency.quiescence 조건 전부 참 (4) preserve — 데몬이 보존 전용 자격으로 wip_commit_sha 커밋·푸시(트리 해시 == quiescent 해시) (5) revoke_token (6) handoff_record 기록; and next_builder_available and lease_guards 통과 → issue_next_lease",
+      "when": "preserve_succeeded(preservation_state == remote_pushed, 또는 recovery_decision 뒤의 preserve_succeeded) and revoke_token·handoff_record 완료 and next_builder_available and lease_guards 통과 → issue_lease(task_id)",
       "by": "daemon",
       "guard": "lease_guards",
       "side_effects": [
-        "lease_generation += 1",
-        "fencing_token = lease_generation",
-        "idempotency_key 재계산(task_id + lease_generation + base_sha)"
+        "issue_lease(task_id) 호출(concurrency.lease_issue). 세대·임대 기록·outbox는 그 함수가 한 트랜잭션으로 쓰고, 이 전이는 세대를 손대지 않는다"
       ]
+    },
+    {
+      "from": "handoff_blocked",
+      "to": "handoff",
+      "event": "recovery_decision",
+      "when": "사람 또는 설계 담당이 recovery_decision(recovery_ref: 잠금 제거·디스크 확보·원격 권한 복구 등)을 기록 → 시도 횟수 초기화, isolate부터 재개(로컬 커밋이 있으면 푸시만)",
+      "by": "human"
+    },
+    {
+      "from": "handoff_blocked",
+      "to": "returned",
+      "event": "handoff_abandoned",
+      "when": "recovery_decision이 보존 포기를 택함 → R-14 기록, 작업 트리는 읽기 전용으로 남김, 다음 임대 없음",
+      "by": "human"
+    },
+    {
+      "from": "handoff_blocked",
+      "to": "cancelled",
+      "event": "owner_cancelled",
+      "when": "담당자 취소",
+      "by": "human"
     },
     {
       "from": "handoff",
       "to": "paused_no_builder",
       "event": "no_builder",
-      "when": "handoff_sequence (1)~(5) 완료(stop → isolate → confirm_quiescent → preserve → revoke_token) and no next builder",
+      "when": "preserve_succeeded(remote_pushed) and revoke_token·handoff_record 완료 and no next builder",
       "by": "daemon"
     },
     {
       "from": "paused_no_builder",
       "to": "leased",
       "event": "builder_available",
-      "when": "any builder_available (사람이 환경을 고친 뒤) and lease_guards 통과 → lease_generation += 1, 새 토큰",
+      "when": "any builder_available (사람이 환경을 고친 뒤) and lease_guards 통과 → issue_lease(task_id)",
       "by": "daemon",
       "guard": "lease_guards",
       "side_effects": [
-        "lease_generation += 1",
-        "fencing_token = lease_generation",
-        "idempotency_key 재계산(task_id + lease_generation + base_sha)"
+        "issue_lease(task_id) 호출(concurrency.lease_issue). 세대·임대 기록·outbox는 그 함수가 한 트랜잭션으로 쓰고, 이 전이는 세대를 손대지 않는다"
       ]
     },
     {
@@ -390,13 +599,11 @@
       "from": "ci_failed",
       "to": "building",
       "event": "lease_granted",
-      "when": "같은 작성자 재임대(lease_generation += 1, 새 토큰, lease_guards). 전환 금지(운영 규칙 1)",
+      "when": "같은 작성자 재임대(issue_lease, 새 토큰, lease_guards). 전환 금지(운영 규칙 1)",
       "by": "daemon",
       "guard": "lease_guards",
       "side_effects": [
-        "lease_generation += 1",
-        "fencing_token = lease_generation",
-        "idempotency_key 재계산(task_id + lease_generation + base_sha)"
+        "issue_lease(task_id) 호출(concurrency.lease_issue). 세대·임대 기록·outbox는 그 함수가 한 트랜잭션으로 쓰고, 이 전이는 세대를 손대지 않는다"
       ]
     },
     {
@@ -480,13 +687,11 @@
       "from": "changes_requested",
       "to": "building",
       "event": "lease_granted",
-      "when": "같은 작성자 재임대(lease_generation += 1, 새 토큰, lease_guards)",
+      "when": "같은 작성자 재임대(issue_lease, 새 토큰, lease_guards)",
       "by": "daemon",
       "guard": "lease_guards",
       "side_effects": [
-        "lease_generation += 1",
-        "fencing_token = lease_generation",
-        "idempotency_key 재계산(task_id + lease_generation + base_sha)"
+        "issue_lease(task_id) 호출(concurrency.lease_issue). 세대·임대 기록·outbox는 그 함수가 한 트랜잭션으로 쓰고, 이 전이는 세대를 손대지 않는다"
       ]
     },
     {
@@ -675,7 +880,7 @@
       "from": "returned",
       "to": "queued",
       "event": "owner_resolved",
-      "when": "담당자가 return_code 해소를 기록(resolution_ref) → attempt += 1. 임대는 queued→leased에서 lease_guards를 다시 거치고 그때 lease_generation이 오른다(새 멱등 키, retry 정책)",
+      "when": "담당자가 return_code 해소를 기록(resolution_ref) → attempt += 1. 임대는 queued→leased에서 lease_guards를 다시 거치고 그때 issue_lease가 새 세대를 발급한다(새 멱등 키, retry 정책)",
       "by": "human"
     },
     {
@@ -771,7 +976,8 @@
       "call_id",
       "lease_id",
       "fencing_token",
-      "runner"
+      "runner",
+      "envelope_id"
     ],
     "_signal_validation_note": "전환 신호 봉투는 {source, attempt, call_id, lease_id, fencing_token, runner, status, observed_at}을 갖는다. 실행기 어댑터가 자기 모델 호출(call_id)에서 관측한 구조화 오류만 발행한다. attempt·lease_id·fencing_token이 현재 임대와 다르면 무시(R-11). 작업 내용·시험 출력·제3자 HTTP 오류는 어댑터가 발행하지 않으며 데몬도 받지 않는다(switch-negative-test-output, switch-negative-third-party-http). 원시 stderr 정규식은 05 §1b에서 확인된 출력 채널 안에서만 보조로 쓴다",
     "forbidden_switch_reasons": [
@@ -798,11 +1004,13 @@
     "handoff_steps": [
       "(stop) 빌더에 정상 중단 요청: stop 봉투 + SIGTERM. 마지막 쓰기 시각 기록. 기한 = hard_stop.grace_s. 빌더의 stopped·wip_preserved 봉투(현재 토큰)는 '쓰기를 멈췄다'는 자기 보고로만 받고 보존으로 치지 않는다",
       "(isolate) 기한 안에 중단이 확인되지 않으면(프로세스 생존 또는 쓰기 계속) 프로세스 그룹 강제 종료(SIGKILL) 또는 작업 트리 쓰기 금지 격리(읽기 전용 재마운트/권한 회수). 확인됐더라도 빌더의 임대별 쓰기 자격을 회수한다. 이후 빌더 쪽 쓰기는 실패한다",
-      "(confirm_quiescent) concurrency.quiescence의 기계 조건 전부 참: 프로세스 그룹 생존 프로세스 0, 작업 트리 최대 mtime이 quiescence_window_s 동안 불변, 열린 쓰기 핸들 0, 작업 트리 해시(git status --porcelain + 변경 파일 내용 해시)가 window 간격으로 2회 연속 같음. 하나라도 거짓이면 isolate로 돌아간다(강제 종료). 통과 시 quiescent_tree_hash 기록",
-      "(preserve) 데몬이 보존 전용 자격(preserve_credential: 임대별·단기, 데몬만 보유, 보존 브랜치 푸시만 가능)으로 격리 작업 트리의 변경을 WIP 커밋으로 남기고 같은 브랜치에 푸시(wip_commit_sha). 커밋 트리 해시 == quiescent_tree_hash 가 아니면 보존 실패로 isolate부터 다시. 커밋 메시지에 lease_id·lease_generation·quiescent_tree_hash 기록. handoff_preserve 검사는 현재 lease_id와 데몬 보존 자격으로 한다(빌더 토큰 아님)",
-      "(revoke_token) 현재 토큰·세대 폐기, 보존 자격 회수. 이후 그 토큰·lease_id·세대의 봉투·푸시는 late_envelope_rejected(R-11 기록, 상태 불변)",
-      "handoff_record 기록: wip_commit_sha, quiescent_tree_hash, 시험 결과 로그 위치, 남은 작업 목록, stop 확인 여부(정상/강제)",
-      "(issue_next_lease) lease_guards를 거쳐 다음 순위 빌더에게 같은 브랜치·wip_commit_sha에서 lease_generation+1·새 토큰 발급. 멱등 키가 바뀐다",
+      "(confirm_quiescent) concurrency.quiescence의 기계 조건 전부 참: 프로세스 그룹 생존 프로세스 0, 작업 트리 최대 mtime이 quiescence_window_s 동안 불변, 열린 쓰기 핸들 0, preserve_manifest.function(git_write_tree_oid)이 window 간격으로 2회 연속 같은 tree OID. 하나라도 거짓이면 quiescence_failed(max_attempts 안 재시도, 넘으면 handoff_blocked). 통과 시 quiescent_tree_oid 기록",
+      "(preserve, 로컬) 데몬이 보존 전용 자격(preserve_credential: 임대별·단기, 데몬만 보유, 보존 브랜치 푸시만 가능)으로 preserve_manifest의 includes/excludes대로 임시 인덱스를 만들어 WIP 커밋(wip_commit_sha). commit.tree_oid == quiescent_tree_oid(preserve_manifest.compare, git_write_tree_oid) 가 아니면 preserve_commit_failed. 커밋 메시지에 lease_id·lease_generation·quiescent_tree_oid 기록. 실패 경우는 handoff_failure_policy(index_lock·disk_full·preserve_commit_failed). 성공 시 preservation_state = local_committed",
+      "(preserve, 원격) 같은 자격으로 같은 브랜치에 푸시. remote ref == wip_commit_sha 확인. 실패는 preserve_push_failed(max_attempts·권한 규칙은 handoff_failure_policy). 성공 시 preservation_state = remote_pushed = preserve_succeeded",
+      "(finally) 성공이든 실패든 always_revoke(빌더 쓰기 자격·빌더 토큰·preserve_credential)를 반드시 회수한다. 빌더 쓰기 차단은 이미 isolate에서 끝났고 실패 시에도 유지된다. 실패로 멈추면 handoff_blocked(복구 가능 상태)",
+      "(revoke_token) 현재 토큰·세대 폐기. 이후 그 토큰·lease_id·세대의 봉투·푸시는 late_envelope_rejected(R-11 기록, 상태 불변)",
+      "handoff_record 기록: phase, preservation_state, wip_commit_sha, quiescent_tree_oid, 시험 결과 로그 위치, 남은 작업 목록, stop 확인 여부(정상/강제), 실패·시도 이력",
+      "(issue_next_lease) 전제: preserve_succeeded 또는 recovery_decision 뒤의 preserve_succeeded. lease_guards를 거쳐 concurrency.lease_issue.function(issue_lease)을 호출한다. 세대·임대 기록·outbox는 그 함수가 한 트랜잭션으로 쓰며 이 단계는 세대를 손대지 않는다",
       "authors_families에 새 계열을 추가한다(리뷰 제외 갱신)"
     ],
     "no_silent_substitution": true
@@ -956,6 +1164,14 @@
       ],
       "acceptance": "lease_id == current_lease_id(task_id) and fencing_token == current_token(task_id) 일 때만 수락. 아니면 late_envelope_rejected(R-11 기록만, 현재 과제 상태 불변). 현재 임대의 봉투가 규칙을 어기면 fence_violation"
     },
+    "identification": {
+      "scheme": "envelope_id(concurrency.envelope_identity)",
+      "field": "envelope_id",
+      "generated_by": "발신자(데몬: instruction, 빌더 어댑터: result·signal·heartbeat), ULID",
+      "dedup_key": "task_id + lease_generation + envelope_kind + envelope_id(concurrency.idempotency_key)",
+      "rule": "같은 envelope_id 재수신 = 중복 전달(noop). 다른 envelope_id = 별개 사건. envelope_id 없는 봉투는 거부(R-13)",
+      "verification": "envelope-id-distinct-events(T-OP-00·T-OP-09)"
+    },
     "review_result": {
       "required": [
         "pr_number",
@@ -990,7 +1206,8 @@
     "state_store": "작업별 JSON: append-only 이벤트 로그 + 현재 상태 스냅샷 + 현재 fencing_token. 비밀값 없음",
     "write_before_act": "외부 호출(빌더 실행·PR 생성·푸시) 전에 의도 레코드(토큰 포함), 뒤에 결과 레코드",
     "resume": [
-      "데몬 재시작 시 모든 임대와 토큰을 읽는다",
+      "데몬 재시작 시 모든 임대와 토큰을 읽고, concurrency.lease_issue.restart_recovery대로 outbox(pending 발송)부터 복구한다",
+      "인계 도중 재시작이면 handoff_record.phase·preservation_state부터 재개한다(handoff_failure_policy.max_attempts.daemon_restart_during_handoff)",
       "의도 레코드만 있고 결과 레코드가 없으면 외부 상태(브랜치·PR)를 조회해 결과를 복원한다",
       "복원 불가면 임대를 해제(토큰 폐기·자격 회수)하고 returned(R-08)로 둔다",
       "브랜치의 WIP 커밋은 지우지 않는다",
@@ -1008,8 +1225,9 @@
     "procedure": [
       "(stop) stop 신호를 빌더에 전달(stop 봉투 + SIGTERM). grace_s 안의 stopped·wip_preserved 봉투는 자기 보고로만 기록",
       "(isolate) grace_s 경과 시 하트비트와 무관하게 프로세스 그룹 강제 종료(SIGKILL) 또는 작업 트리 쓰기 금지 격리, 빌더 쓰기 자격 회수",
-      "(confirm_quiescent) concurrency.quiescence 조건 전부 참일 때까지 대기(거짓이면 다시 강제 종료)",
-      "(preserve) 데몬이 보존 전용 자격으로 quiescent 트리를 WIP 커밋·푸시(트리 해시 일치 확인)",
+      "(confirm_quiescent) concurrency.quiescence 조건 전부 참일 때까지(git_write_tree_oid 2회 일치). 거짓이면 handoff_failure_policy대로 재시도·정지",
+      "(preserve) 데몬이 preserve_credential로 quiescent 트리를 WIP 커밋(tree OID 일치 확인)·푸시. 실패는 handoff_failure_policy(handoff_blocked)와 같다",
+      "(finally) always_revoke 회수",
       "(revoke_token) 토큰·세대 폐기, 상태 returned 또는 paused",
       "그 뒤 도착하는 봉투·푸시는 late_envelope_rejected(R-11 기록, 상태 불변)"
     ],
@@ -1063,16 +1281,41 @@
       "push_path": "빌더는 원격에 직접 푸시하지 못한다. 데몬이 토큰 검사 뒤 푸시한다(임대별 단기 자격, 임대 종료 시 회수). 보호 브랜치 규칙이 빌더 계정의 직접 푸시를 막는다",
       "pr_update": "PR 본문·라벨 갱신도 데몬만, 토큰 검사 뒤"
     },
-    "lease_generation": "과제별 단조 증가 정수. 임대를 발급하는 모든 전이(queued→leased, handoff→leased, paused_no_builder→leased, ci_failed→building, changes_requested→building, building→building 재임대)에서 +1. fencing_token은 이 값을 싣는다(저장소에는 카운터 하나). attempt는 returned→queued 재개 횟수이며 세대와 다르다",
-    "idempotency_key": "task_id + lease_generation + base_sha + envelope_kind(instruction|result|signal). 같은 세대 안에서 같은 키의 봉투는 한 번만 처리한다(duplicate_delivery). 새 임대 세대는 새 키다(retry)",
+    "lease_generation": "과제별 단조 증가 정수. 값을 바꾸는 곳은 concurrency.lease_issue(issue_lease) 하나뿐이다. 임대를 발급하는 모든 전이(queued→leased, handoff→leased, paused_no_builder→leased, ci_failed→building, changes_requested→building, building→building 재임대)와 handoff_steps의 issue_next_lease는 issue_lease를 부를 뿐이다. fencing_token은 이 값을 싣는다(저장소에는 카운터 하나). attempt는 returned→queued 재개 횟수이며 세대와 다르다",
+    "lease_issue": {
+      "function": "issue_lease",
+      "signature": "issue_lease(task_id, reason ∈ {initial, retry_failed_tests, retry_ci, retry_review, handoff, resume_paused}) → lease{lease_id, lease_generation, fencing_token, builder, branch, base_sha}",
+      "sole_owner": "임대 발급은 이 함수에서만 한다. 전이 side_effects·handoff_steps는 호출만 한다. lease_generation += 1 은 이 정의의 atomic_record 안에서만 일어난다",
+      "preconditions": [
+        "lease_guards 통과",
+        "handoff 경로면 preserve_succeeded 또는 recovery_decision 뒤의 preserve_succeeded",
+        "현재 세대의 임대가 종료(폐기)됨"
+      ],
+      "atomic_record": [
+        "lease_generation",
+        "lease_record",
+        "outbox"
+      ],
+      "atomic_record_detail": {
+        "lease_generation": "lease_generation += 1 (유일한 증가 지점)",
+        "lease_record": "lease_id, generation, token=generation, builder, branch, base_sha, issued_at",
+        "outbox": "instruction 봉투(envelope_id 포함), status=pending"
+      },
+      "storage": "상태 저장소 파일 잠금 아래 한 트랜잭션(임시 파일 + 원자적 rename). 셋 중 일부만 남는 상태는 없다",
+      "restart_recovery": "재시작 시 outbox부터 복구한다: status=pending → 같은 envelope_id로 발송(수신 측은 중복 전달 noop); status=sent인데 결과 없음 → 하트비트 대기; outbox 없이 lease_record만 있는 상태는 원자성 위반이므로 R-08 기록 후 그 임대를 폐기하고 다음 issue_lease로 새 세대 발급",
+      "verification": "lease-issue-atomic-single-owner(T-OP-00: 같은 사건을 두 경로가 동시에 처리해도 세대가 한 번만 바뀜, 전이·인계 단계에 별도 증가 코드 없음(정적 검사); T-OP-09: 재시작 뒤 outbox 복구)"
+    },
+    "envelope_identity": "envelope_id",
+    "_envelope_identity_note": "(b) 봉투마다 envelope_id. 이유: signal 봉투(전환·상태 신호)와 하트비트는 한 세대 안에서 여러 번 정당하게 발생하므로 (a) 세대당 종류별 하나(one_per_kind_per_generation)는 맞지 않는다. 발신자가 ULID로 만들고 재전송은 같은 ID를 유지한다. 상세는 envelopes.identification",
+    "idempotency_key": "task_id + lease_generation + envelope_kind(instruction|result|signal) + envelope_id. 같은 envelope_id의 재수신은 중복 전달(noop), 다른 envelope_id는 별개 사건이다(duplicate_delivery). 새 임대 세대는 새 키다(retry). base_sha는 키가 아니라 봉투 내용이며 검증 대상이다",
     "duplicate_delivery": {
-      "case": "같은 실행의 중복 전달: 같은 lease_generation·같은 멱등 키의 봉투가 다시 온다(재전송·알림 재시도)",
-      "rule": "멱등하게 무시한다. 상태를 바꾸지 않고 envelope_duplicate_delivery(noop)로 수신·무시 기록만 남긴다. 처음 처리한 결과를 바꾸지 않는다",
-      "verification": "duplicate-delivery-noop(T-OP-00·T-OP-09)"
+      "case": "같은 실행의 중복 전달: 같은 lease_generation·같은 envelope_kind·같은 envelope_id의 봉투가 다시 온다(재전송·알림 재시도)",
+      "rule": "멱등하게 무시한다. 상태를 바꾸지 않고 envelope_duplicate_delivery(noop)로 수신·무시 기록만 남긴다. 처음 처리한 결과를 바꾸지 않는다. 같은 세대의 다른 envelope_id(서로 다른 signal 봉투, 하트비트)는 별개 사건으로 각각 처리한다",
+      "verification": "duplicate-delivery-noop·envelope-id-distinct-events(T-OP-00·T-OP-09)"
     },
     "retry": {
       "case": "종료 뒤 새로 시작하는 재시도: returned→queued 재개, 시험 실패 뒤 재임대, CI 실패·지적 뒤 재임대, 인계, 일시중단 복귀",
-      "rule": "새 임대 세대(lease_generation+1)를 발급하므로 멱등 키가 바뀌고 새 세대의 첫 봉투는 수락한다. 이전 세대 키로 온 늦은 봉투는 late_envelope_rejected(R-11 기록, 상태 불변)와 같은 처리다. 세대를 올리지 않고 임대를 발급하는 경로는 없다(lease_guards 통과 전이의 side_effects)",
+      "rule": "issue_lease가 새 임대 세대를 발급하므로 멱등 키가 바뀌고 새 세대의 첫 봉투는 수락한다. 이전 세대 키로 온 늦은 봉투는 late_envelope_rejected(R-11 기록, 상태 불변)와 같은 처리다. 세대를 올리지 않고 임대를 발급하는 경로는 없다(lease_guards 통과 전이의 side_effects)",
       "verification": "retry-new-idempotency-key(T-OP-00·T-OP-09)"
     },
     "quiescence": {
@@ -1081,11 +1324,12 @@
         "프로세스 그룹에 생존 프로세스 0",
         "작업 트리 파일 최대 mtime이 window_s 동안 불변",
         "작업 트리에 열린 쓰기 핸들 0(lsof 또는 동등 수단)",
-        "작업 트리 해시(git status --porcelain + 변경 파일 내용 SHA-256)가 window_s 간격으로 2회 연속 같음"
+        "preserve_manifest.function(git_write_tree_oid)의 결과가 window_s 간격으로 2회 연속 같은 tree OID → quiescent_tree_oid"
       ],
-      "on_fail": "isolate로 돌아가 강제 종료. 보존하지 않는다",
+      "manifest_function": "git_write_tree_oid",
+      "on_fail": "quiescence_failed → handoff_failure_policy(max_attempts 안 isolate부터 재시도, 넘으면 handoff_blocked). 보존하지 않는다",
       "preserved_by": "데몬, 보존 전용 자격(preserve_credential). 빌더 토큰·자격은 isolate에서 회수된 뒤라 쓰이지 않는다",
-      "verification": "handoff-quiescent-before-preserve(T-OP-00 모의 쓰기 주입, T-OP-09 실제 프로세스)"
+      "verification": "handoff-quiescent-before-preserve·preserve-manifest-same-function(T-OP-00 모의 쓰기 주입, T-OP-09 실제 프로세스)"
     },
     "single_writer": "같은 브랜치에 임대 하나(상태 저장소 파일 잠금). 세대가 다른 임대가 같은 브랜치에 동시에 살아 있을 수 없다",
     "conflict_paths": "tasks.json의 conflict_paths가 겹치는 과제는 동시에 임대하지 않는다",
@@ -1121,6 +1365,12 @@
     "late_envelope_from_previous_lease_no_state_change": "dry_run_target",
     "lease_guards_on_all_lease_paths": "dry_run_target",
     "handoff_sequence_stop_isolate_quiescent_preserve_revoke_issue": "dry_run_target",
+    "preserve_manifest_same_function_tree_oid": "real_executor_required",
+    "preserve_failure_recoverable_stop_no_next_lease": "dry_run_target",
+    "preserve_credential_revoked_finally": "real_executor_required",
+    "daemon_restart_during_handoff_resume_or_block": "real_executor_required",
+    "envelope_id_distinguishes_events_from_redelivery": "dry_run_target",
+    "lease_issue_single_owner_atomic": "dry_run_target",
     "quiescence_confirmed_before_preserve_no_mixed_writes": "real_executor_required",
     "preserve_by_daemon_credential_not_builder_token": "real_executor_required",
     "idempotency_key_per_lease_generation": "dry_run_target",
@@ -1139,7 +1389,8 @@
     "카운터·잠금·임대·토큰·멱등 키 관리(임대 발급은 lease_guards)",
     "lease_id·토큰 검사 뒤 푸시·PR 갱신",
     "인계 기록 보존(handoff_sequence: 정지 확인 뒤 데몬 보존 자격으로 보존)",
-    "임대 세대(lease_generation)·멱등 키 관리",
+    "임대 세대·멱등 키 관리(발급은 issue_lease 한 곳)",
+    "보존 manifest(tree OID)·보존 실패 복구 정지(handoff_blocked)",
     "병합 관측 필드 기록(approved_head_sha·base_sha·head_sha_at_merge·merge_commit_sha·integration_check)",
     "반송"
   ],
@@ -1223,7 +1474,12 @@
     },
     {
       "code": "R-13",
-      "when": "지시 봉투 검증 실패: real_data_allowed 누락, canon_change 과제의 canon_change_approval 누락·decision_ref 미기록·scope_paths 범위 밖, canon_change 없는 과제에 approval 있음. 봉투 미발송",
+      "when": "지시 봉투 검증 실패: real_data_allowed 누락, canon_change 과제의 canon_change_approval 누락·decision_ref 미기록·scope_paths 범위 밖, canon_change 없는 과제에 approval 있음, envelope_id 없음. 봉투 미발송",
+      "to": "user"
+    },
+    {
+      "code": "R-14",
+      "when": "인계 보존 실패 뒤 recovery_decision이 보존 포기를 택함(handoff_abandoned). 작업 트리는 읽기 전용으로 남고 다음 임대 없음",
       "to": "user"
     }
   ],

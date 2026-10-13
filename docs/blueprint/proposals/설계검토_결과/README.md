@@ -1,6 +1,6 @@
 # 설계 검토 결과 묶음 (검토용, 수정판)
 
-작성 2026-10-12 | 검토 대상 SHA **ffbcaf6**(사용자 검토 "수정 후 재검토", 상세 검토서 `검증/사용자검토_ffbcaf6/REVIEW.md`) → 2cdd663(수정판 1차) → 9554c96(수정판 2차, 독립 재검토 "수정 후 재검토", `검증/사용자재검토_9554c96/REVIEW.md`) → e02755a(수정판 3차, 재검토 S01~S03) → 이 판(S02·S03 대조, S01은 구현자 작업 뒤) | 상태: **수정판 4차 제출. 채택된 정본이 아니다. 실행하지 않았다. 수정 완료 판정은 독립 재검토 뒤.**
+작성 2026-10-12 | 검토 대상 SHA **ffbcaf6**(사용자 검토 "수정 후 재검토", 상세 검토서 `검증/사용자검토_ffbcaf6/REVIEW.md`) → 2cdd663(수정판 1차) → 9554c96(수정판 2차, 독립 재검토 "수정 후 재검토", `검증/사용자재검토_9554c96/REVIEW.md`) → e02755a(수정판 3차, 재검토 S01~S03) → 10f470c(수정판 4차, 재검토 T01~T04) → 이 판(T01~T04 대조) | 상태: **수정판 5차 제출. 채택된 정본이 아니다. 실행하지 않았다. 수정 완료 판정은 독립 재검토 뒤.**
 
 ## 0. 작성 주체와 실행 경로
 
@@ -16,7 +16,8 @@
 | 수정판 1차(2cdd663) | 사용자 검토 요지(상세 검토서 수신 전) 반영. 유지한 것: 구역 분리, 개인 영역 보호, 온톨로지와 계산 엔진의 역할 구분, 근거·정정 이력, 독립 리뷰 방향 |
 | 수정판 2차(이 판) | 상세 검토서 원본 F01~F12 대조. tasks.json 0.3(decision_gates 네 키, path_policy·Cargo 잠금, feature_registry 증거·수락 시험, test_profiles, verification_kind, 필수 시험 ID 36종), daemon_rules 0.3(noop 사건, 모든 활성 상태의 head_sha_changed, merged_invalid_approval, hard_stop, budget_enforcement, signal_validation, execution_core, record_separation), 02 §6a 근거 정책·비교 자격·environment 분리, 08_요구추적표 신설, WP 개수 정정(실제 WP 행 40개). 상세는 [07_수정대응표.md](07_수정대응표.md) |
 | 수정판 3차(이 판) | 독립 재검토 9554c96의 R01~R06 대조(07 §1a). R01 판의 구성과 근거 묶음·판정 결과 셋(02 §1.1·§1.2·§1.3a, T-KN-01 시험 4종), R02 입력 단계 연결 검증(02 §1.7·C-26, 01 §4, T-TW-01 시험 4종), R03 검사 도구와 통합 시험 분리(T-CT-06/T-CT-07 신설, T-KN-03, T-KN-01→T-KN-04 프로필 시험), R04 데몬 전이·늦은 결과 no-op·인계 순서·공통 임대 가드·병합 관측 필드(daemon_rules 0.3: handoff_sequence, lease_guards, late_envelope_rejected, merge_observation_fields; T-OP-00 시험 5종), R05 봉투 권한 필드 real_data_allowed·canon_change_approval(R-13, T-CT-02), R06 가격 원시 보존·조항 ID 한 형식·이유 종류별 근거(02 §1.1·§1.5·§6, T-KN-04·T-DT-02·T-AP-09). 릴리스 input_stage_edition(02 §1.3). A-01 권고 문구 기록(02 §1.6, 07 §3). 온톨로지 쪽 수정(K16·K13·resolve, rel:case-r26, 결과 21/21)은 구현자가 했다 |
-| 수정판 4차(이 판) | 재검토 e02755a의 S02·S03만 좁혀 반영(07 §1b). S02 인계 순서를 stop → isolate → confirm_quiescent → preserve(데몬 보존 전용 자격) → revoke_token → issue_next_lease로 개정하고 정지 확인 조건(`concurrency.quiescence`)을 둠. S03 `lease_generation` 기반 멱등 키와 `duplicate_delivery`/`retry` 정책 분리, 임대 발급 전이의 side_effects. T-OP-00·T-OP-09에 handoff-quiescent-before-preserve·duplicate-delivery-noop·retry-new-idempotency-key(M33~M35, R11~R13). **명세 수정이며 실제 데몬 동작 증명이 아니다.** S01(복수 특약 후보 복수 차단)은 구현자가 온톨로지를 고친 뒤 02 §1.7·T-TW-01 문구를 맞춘다(이 판 미반영). 검사기 G34 순서 변경·G42 추가는 구현자 몫이며 이 판 실행 시 옛 G34는 실패한다 |
+| 수정판 4차(10f470c) | 재검토 e02755a의 S02·S03만 좁혀 반영(07 §1b). S02 인계 순서를 stop → isolate → confirm_quiescent → preserve(데몬 보존 전용 자격) → revoke_token → issue_next_lease로 개정하고 정지 확인 조건(`concurrency.quiescence`)을 둠. S03 `lease_generation` 기반 멱등 키와 `duplicate_delivery`/`retry` 정책 분리, 임대 발급 전이의 side_effects. T-OP-00·T-OP-09에 handoff-quiescent-before-preserve·duplicate-delivery-noop·retry-new-idempotency-key(M33~M35, R11~R13). **명세 수정이며 실제 데몬 동작 증명이 아니다.** S01(복수 특약 후보 복수 차단)은 구현자가 온톨로지를 고친 뒤 02 §1.7·T-TW-01 문구를 맞춘다(이 판 미반영). 검사기 G34 순서 변경·G42 추가는 구현자 몫이며 이 판 실행 시 옛 G34는 실패한다 |
+| 수정판 5차(이 판) | 재검토 10f470c의 T01~T04만 좁혀 반영(07 §1c). T01(구현자 온톨로지 수정: 범위 미확인 연결 scope_unknown 보류·무관한 특약 허용·경쟁 판 보류·순서 독립, 결과 24/24)을 02 §1.7·T-TW-01에 반영. T02 `preserve_manifest`(git write-tree tree OID 비교, 삭제·미추적·모드·링크·제외 경로 정의, 정지 확인과 보존 확인이 같은 함수). T03 `handoff_blocked` 상태·실패 사건 전이·`handoff_failure_policy`(always_revoke에 preserve_credential, max_attempts, recovery_decision, R-14), 로컬/원격 보존 상태 분리. T04 `envelope_identity=envelope_id`·멱등 키에 envelope_id, `lease_issue`(issue_lease 단일 발급, atomic_record, restart_recovery), 전이·인계 단계의 별도 증가 제거. T-OP-00·T-OP-09에 5종 시험(M36~M40, R14~R18). **T02~T04는 명세 수정이며 실제 데몬 동작 증명이 아니다** |
 
 읽은 자료는 이전 판과 같고, 추가로 `공개지식_모델_토의초안.md` §1, `공개지식_모델_1차_정리.md` §3, `불확실_상황_시험.md` §2, `소비자_기능_필요정보.md` §4·§6, 온톨로지 onto-0.2(tbox·abox·ontology_check.py·결과.txt), `검증/spec_check.py`·`재현_ffbcaf6.txt`를 읽었다. 사용자 상세 검토서(REVIEW.md, check_results.json)는 읽지 못했다.
 
@@ -25,7 +26,7 @@
 | 검증 | 결과 | 종류 |
 |---|---|---|
 | `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py`(상세 검토서·재검토 기준 G1~G41) | **"요약: 기계 검사 39/39 · 존재 검사 59/59 · 전체 통과"**(이 세션 재실행. 다르면 07 §4에 적는다) | 존재·문구 검사 + JSON 구조·그래프 정합성. **명세의 정합성만** 본다. 제품 의미·실제 동작은 검사하지 않는다 |
-| `python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py <runner>` (onto-0.2, 기준 릴리스 rel:case-r26, D4·D5·D8·D9·E1~E4·P1·S01·S01b 회귀 포함) | 구현자 실행 기록(`검증/결과.txt`, 이 세션 재실행 아님). **"r24 K1 위반 재현 True · r25·r26 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 23/23 · 전체 통과"**. 출력이 `검증/결과.txt`와 동일 | 동작 검증(토의 자료·시험 전용 검증기, historical_fixture 프로필). 약관 해석 정확도·서비스 코드는 검증하지 않음 |
+| `python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py <runner>` (onto-0.2, 기준 릴리스 rel:case-r26, D4·D5·D8·D9·E1~E4·P1·S01·S01b·T01 회귀 포함) | 구현자 실행 기록(`검증/결과.txt`, 이 세션 재실행 아님). **"r24 K1 위반 재현 True · r25·r26 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 24/24 · 전체 통과"**(T01 뒤 구현자 재실행; 3차 21/21, 4차 23/23). 출력이 `검증/결과.txt`와 동일 | 동작 검증(토의 자료·시험 전용 검증기, historical_fixture 프로필). 약관 해석 정확도·서비스 코드는 검증하지 않음 |
 | `cargo test --all`, `vocab_check.py`, `validation_check.py` (ffbcaf6 시점) | 전부 통과 | 기존 엔진·어휘·검증 자료 검사. 이 묶음의 설계와 무관 |
 | tasks.json, daemon_rules.json | JSON 적재 성공(생성기 검증), 문서 인용 과제 ID 전부 존재 | 구조 |
 
@@ -39,7 +40,7 @@
 | [02_구현계약.md](02_구현계약.md) | 데이터(원본·구획·본문 판·계열, 주장 통합, 릴리스 고정·사용 제한 공지, 개인 객체, **§1.5 판단 기준·적용 승인 관문, §1.6 결론별 의존·부분 보류**), API, 이벤트, 오류, 버전, 근거 문법·사슬, 개인정보 경계, 시험 전용 유지·승격 경로, C-01~C-28, **§10 구현됨/설계 구분** |
 | [03_작업명세.md](03_작업명세.md) + [tasks.json](tasks.json) | 과제 63개(T-CT-07 신설)(schema 0.3: produces/consumes, decision_gates 네 키, path_policy, final_gate, feature_registry 64(증거·수락 시험), test_profiles, required_test_ids, verification_kind) |
 | [04_자동개발명세.md](04_자동개발명세.md) + [daemon_rules.json](daemon_rules.json) | 상태 기계·사건, 결정 관문, 병합 뒤 상태, 출처 제한 전환 신호, 펜싱 토큰·격리·자격 회수(**명세됨/모의 검증 대상/실제 실행기 검증 필요** 표기), safety_verification_status |
-| [05_VM실행준비.md](05_VM실행준비.md) | CLI 확인 절차, §1b 종료 코드 확인표(전부 미확인), "확인됨" 기준, 한도, 비밀값, 모의 검증 M1~M35(T-OP-00), 실제 실행기 검증 R1~R13(T-OP-09) |
+| [05_VM실행준비.md](05_VM실행준비.md) | CLI 확인 절차, §1b 종료 코드 확인표(전부 미확인), "확인됨" 기준, 한도, 비밀값, 모의 검증 M1~M40(T-OP-00), 실제 실행기 검증 R1~R18(T-OP-09) |
 | [06_검토사항_점검.md](06_검토사항_점검.md) | 검토 요청 1~8 판정, 선택안(D-05·D-09(onto-0.2 반영)·D-10·D-15·D-02 일부), 온톨로지 보강, 정본 충돌 점검 |
 | [07_수정대응표.md](07_수정대응표.md) | 원본 F01~F12(R 번호 병기) + §1a 재검토 R01~R06(R02 추가 결함 행 포함) + 본문 항목 + A-01~A-04. 지적마다 변경 위치·검증 증거(시험 종류)·증명 범위·미검증·검토 후 발견 사례 |
 | [08_요구추적표.md](08_요구추적표.md) | 요구(R01~R26, 토의 추가 요구, Q1~Q7) → 계약 → 작업 → 실제 데이터/화면 시험 → 출시 증거. 출시 증거는 전부 아직 없음 |
@@ -61,7 +62,7 @@
 | 항목 | 위치 | 권고 |
 |---|---|---|
 | 모델 계열 해석 | 04 §10 | 설정안 §3.3 해석 채택(더 엄격) |
-| 데몬 수치(임대 TTL, 동시 임대, 예산, grace_s, quiescence window_s) | 04 §9·§10, 05 §3 | 보수 기본값으로 모의 작업 뒤 조정 |
+| 데몬 수치(임대 TTL, 동시 임대, 예산, grace_s, quiescence window_s, 인계 실패 max_attempts) | 04 §8·§9·§10, 05 §3 | 보수 기본값으로 모의 작업 뒤 조정 |
 | D-08: 판단 기준 서비스 적용 관문(적용 기준·기본 필요액 제공 여부·산출 근거) | 02 §1.5, T-KN-14(release 관문) | 범위를 관문으로 좁혔다. 결정은 대기 |
 | A-01: 정본 SYSTEM_CONTRACT의 '개인 계산 일괄 보류' 문구 | 07 §3, 02 §1.6 | 재검토 권고안 그대로 기록: "불확실성이 영향을 줄 수 있는 결론만 보류한다. 영향 범위를 모르면 잠재적으로 영향받는 결론을 넓게 보류한다." '그 계약만 보류'로 좁히지 않는다. 결정은 사용자 몫이며 이 수정을 막지 않는다. D-21 경로. 그 전까지 02 §1.6을 따르되 정본과 다르다고 표시 |
 | U-01~U-04·온톨로지 객체(onto-0.2)·판단 기준 영역의 정본 반영 | 06 §4.3 O-10, §5 | D-21 경로(새 ADR). 정본은 고치지 않았다 |

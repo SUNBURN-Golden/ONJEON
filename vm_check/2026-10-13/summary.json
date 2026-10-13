@@ -1,0 +1,191 @@
+{
+ "checked_at": "2026-10-13T17:2x+09:00",
+ "host_hash": "sha256:4aa651d9ea11c72e",
+ "runners": [
+  {
+   "runner": "claude-cli/.claude-fable",
+   "role_name": "builder-1 (Sonnet)",
+   "installed": true,
+   "version": "2.1.290 (Claude Code)",
+   "auth": "subscription login dir /home/box/.claude-fable (account masked)",
+   "model_evidence": [
+    {
+     "source": "result JSON modelUsage key",
+     "hash": "sha256:c13e66682022f862"
+    }
+   ],
+   "model_matches_role": true,
+   "min_call": {
+    "ok": true,
+    "latency_ms": 4333,
+    "cost_units": 0.044947600000000004
+   },
+   "exit_code_profile": {
+    "confirmed": false,
+    "source": "미확인 (05 §1b)"
+   },
+   "checked_at": "2026-10-13T17:2x+09:00",
+   "host_hash": "sha256:4aa651d9ea11c72e",
+   "note": "첫 시도(17:01)는 박스 부하(load avg 361)로 300s timeout(rc=124); 재시도 성공"
+  },
+  {
+   "runner": "claude-cli/.claude-fable",
+   "role_name": "design/audit/reviewer (Fable)",
+   "installed": true,
+   "version": "2.1.290 (Claude Code)",
+   "auth": "subscription login dir /home/box/.claude-fable (account masked)",
+   "model_evidence": [
+    {
+     "source": "result JSON modelUsage key",
+     "hash": "sha256:f8064a2325012d60"
+    }
+   ],
+   "model_matches_role": true,
+   "min_call": {
+    "ok": true,
+    "latency_ms": 6241,
+    "cost_units": 0.2537445
+   },
+   "exit_code_profile": {
+    "confirmed": false,
+    "source": "미확인"
+   },
+   "checked_at": "2026-10-13T17:2x+09:00",
+   "host_hash": "sha256:4aa651d9ea11c72e",
+   "note": "첫 시도 timeout(부하), 재시도 성공"
+  },
+  {
+   "runner": "devin-cli",
+   "role_name": "builder-2 / reviewer (SWE2)",
+   "installed": true,
+   "version": "devin 3000.11.3 (9c803229faa4)",
+   "auth": "CLI login (masked); min call ok",
+   "model_evidence": [
+    {
+     "source": "requested --model only; CLI output carries no model field",
+     "hash": "sha256:441b1fa56f117064"
+    }
+   ],
+   "model_matches_role": null,
+   "min_call": {
+    "ok": true,
+    "latency_ms": 2901,
+    "cost_units": null
+   },
+   "exit_code_profile": {
+    "confirmed": false,
+    "source": "미확인"
+   },
+   "checked_at": "2026-10-13T17:2x+09:00",
+   "host_hash": "sha256:4aa651d9ea11c72e",
+   "note": "05 §2 (a) 모델 증거 없음 -> '확인됨' 아님(자기 보고·요청값만)"
+  },
+  {
+   "runner": "cursor-agent",
+   "role_name": "builder-3 / reviewer (Grok 4.7)",
+   "installed": true,
+   "version": "2026.10.01-e373342",
+   "auth": "✓ Logged in as ***@***",
+   "model_evidence": [
+    {
+     "source": "stream-json system.init model field",
+     "hash": "sha256:cbf33d305d56d423"
+    }
+   ],
+   "model_matches_role": true,
+   "min_call": {
+    "ok": true,
+    "latency_ms": 37811,
+    "cost_units": null
+   },
+   "exit_code_profile": {
+    "confirmed": false,
+    "source": "미확인"
+   },
+   "checked_at": "2026-10-13T17:2x+09:00",
+   "host_hash": "sha256:4aa651d9ea11c72e"
+  },
+  {
+   "runner": "grokbuild-cli",
+   "role_name": "builder",
+   "installed": null,
+   "version": null,
+   "auth": null,
+   "model_evidence": [],
+   "model_matches_role": false,
+   "min_call": {
+    "ok": false
+   },
+   "exit_code_profile": {
+    "confirmed": false,
+    "source": "-"
+   },
+   "checked_at": "2026-10-13T17:2x+09:00",
+   "host_hash": "sha256:4aa651d9ea11c72e",
+   "note": "사용 안 함(2026-10-13 11:49 사용자 지시로 금지)"
+  },
+  {
+   "runner": "claude-code/GLM-5.3",
+   "role_name": "builder-5",
+   "installed": true,
+   "version": "2.1.290 (Claude Code)",
+   "auth": "미확인(z.ai 한도 소진 보고 10-10~)",
+   "model_evidence": [],
+   "model_matches_role": null,
+   "min_call": {
+    "ok": null
+   },
+   "exit_code_profile": {
+    "confirmed": false,
+    "source": "-"
+   },
+   "checked_at": "2026-10-13T17:2x+09:00",
+   "host_hash": "sha256:4aa651d9ea11c72e",
+   "note": "이번 점검에서 호출하지 않음"
+  },
+  {
+   "runner": "gpt-astra",
+   "role_name": "design/audit backup",
+   "installed": null,
+   "version": null,
+   "auth": null,
+   "model_evidence": [],
+   "model_matches_role": null,
+   "min_call": {
+    "ok": null
+   },
+   "exit_code_profile": {
+    "confirmed": false,
+    "source": "-"
+   },
+   "checked_at": "2026-10-13T17:2x+09:00",
+   "host_hash": "sha256:4aa651d9ea11c72e",
+   "note": "미확인(경로 미정, 사용자 결정 필요)"
+  }
+ ],
+ "remote": {
+  "gh_auth": "logged in as BeautifulMind-JT (token masked, scopes incl. repo, workflow, admin:org)",
+  "repo_permissions": {
+   "admin": true,
+   "maintain": true,
+   "pull": true,
+   "push": true,
+   "triage": true
+  },
+  "main_branch_protection": "NONE (HTTP 404 Branch not protected)",
+  "repo_merge_settings": {
+   "allow_auto_merge": false,
+   "allow_merge_commit": true,
+   "allow_squash_merge": true
+  }
+ },
+ "checklist_05_7": {
+  "builder_confirmed": "claude Sonnet(확인됨: modelUsage), cursor grok 4.7(확인됨: init model)",
+  "reviewer_outside_author_family": "Fable·cursor grok 확인됨, Devin 모델 증거 없음",
+  "fable_path": "확인됨",
+  "astra_backup": "미확인",
+  "exit_code_table_1b": "전부 미확인 -> HTTP·프로브 전환만",
+  "protected_branch": "없음(사람 조치 필요)",
+  "short_lived_credentials": "없음(장기 gh 토큰 사용 중)"
+ }
+}

@@ -1,0 +1,10 @@
+$ cursor.version
+2026.10.01-e373342
+
+$ cursor.status
+✓ Logged in as ***@***
+
+$ cursor.rc
+rc=0 ms=37811
+
+[마스킹: 계정·토큰은 ***로 치환]

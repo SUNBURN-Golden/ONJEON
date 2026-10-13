@@ -1,5 +1,5 @@
 {
-  "_status": "설계 담당 검토용 묶음(수정판 2026-10-13, 사용자 검토 ffbcaf6(F07·F08·F09·F10), 독립 재검토 9554c96(R04·R05), e02755a(S02·S03), 10f470c(T02·T03·T04), 12c1726(U02 복구 실패 뒤 재발급 규칙 통일·모의 코어 계약 core_contract) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
+  "_status": "설계 담당 검토용 묶음(수정판 2026-10-13, 사용자 검토 ffbcaf6(F07·F08·F09·F10), 독립 재검토 9554c96(R04·R05), e02755a(S02·S03), 10f470c(T02·T03·T04), 12c1726(U02 복구 실패 뒤 재발급 규칙 통일·모의 코어 계약 core_contract), 모의 코어가 만든 명세 공백 G29~G50 해소(07 §1f, t_op_00_followups) 반영). 채택된 정본이 아니다. 데몬 규칙 초안. 어떤 실행기·스케줄러·자동 병합에도 연결하지 않았다",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
   "_decided_by": "역할·전환 정책은 사용자 결정 2026-10-12(U-04, 운영 규칙 1~8). 상태 기계·사건·신호·봉투·잠금·펜싱은 설계 담당 판단(감리 대상)",
   "schema": "onjeon-daemon-rules-0.3",
@@ -100,15 +100,42 @@
     {
       "id": "builder_available",
       "kind": "adapter",
-      "check": "다음 순위 빌더 실행기가 가용(runner_version_probe 통과)"
+      "check": "다음 순위 빌더 실행기가 가용(runner_version_probe 통과)",
+      "on_fail": {
+        "action": "wait"
+      }
     },
     {
       "id": "no_conflict_lease",
       "kind": "store",
       "check": {
-        "field": "count(lease_record where status == active and task.conflict_paths ∩ this.conflict_paths != ∅)",
+        "field": "count(lease_record where status == active and task_id != this.task_id and task.conflict_paths ∩ this.conflict_paths != ∅)",
         "op": "==",
         "value": 0
+      },
+      "scope": {
+        "collection": "lease_record",
+        "universe": "all_tasks",
+        "rows": "other_tasks_only",
+        "own_task": "not_counted",
+        "own_task_reason": "issue_lease replaces this task's lease; precondition lease_record.status not_in [active] holds after end_lease"
+      },
+      "conflict_match": {
+        "relation": "patterns_overlap",
+        "meaning_of": "∩ between the two conflict_paths lists is non-empty when any pair overlaps",
+        "pattern_forms": [
+          "exact_path",
+          "dir_glob(<dir>/**)"
+        ],
+        "overlap_when": [
+          "a == b",
+          "a is dir_glob(<dir>/**) and b starts with '<dir>/'",
+          "b is dir_glob(<dir>/**) and a starts with '<dir>/'"
+        ],
+        "other_glob_characters": "pattern text before the first of * ? [ is a literal prefix; treat as overlapping with any pattern under that prefix (conservative)"
+      },
+      "on_fail": {
+        "action": "wait"
       }
     },
     {
@@ -121,24 +148,47 @@
           null,
           "self"
         ]
+      },
+      "on_fail": {
+        "action": "wait"
       }
     },
     {
       "id": "single_writer",
       "kind": "store",
       "check": {
-        "field": "count(lease_record where status == active and branch == this.branch)",
+        "field": "count(lease_record where status == active and task_id != this.task_id and branch == this.branch)",
         "op": "==",
         "value": 0
+      },
+      "scope": {
+        "collection": "lease_record",
+        "universe": "all_tasks",
+        "rows": "other_tasks_only",
+        "own_task": "not_counted",
+        "own_task_reason": "issue_lease replaces this task's lease; precondition lease_record.status not_in [active] holds after end_lease"
+      },
+      "on_fail": {
+        "action": "wait"
       }
     },
     {
       "id": "max_parallel_leases",
       "kind": "store",
       "check": {
-        "field": "count(lease_record where status == active)",
+        "field": "count(lease_record where status == active and task_id != this.task_id)",
         "op": "<",
         "value": "concurrency.max_parallel_leases"
+      },
+      "scope": {
+        "collection": "lease_record",
+        "universe": "all_tasks",
+        "rows": "other_tasks_only",
+        "own_task": "not_counted",
+        "own_task_reason": "issue_lease replaces this task's lease; precondition lease_record.status not_in [active] holds after end_lease"
+      },
+      "on_fail": {
+        "action": "wait"
       }
     },
     {
@@ -149,7 +199,11 @@
         "op": "!=",
         "value": null
       },
-      "note": "U-05: 예약·상한이 아니라 기록 슬롯. 저장소 쓰기 불가일 때만 거짓"
+      "note": "U-05: 예약·상한이 아니라 기록 슬롯. 저장소 쓰기 불가일 때만 거짓",
+      "on_fail": {
+        "action": "wait",
+        "reason": "state_store_write_failed"
+      }
     },
     {
       "id": "instruction_envelope_valid",
@@ -158,10 +212,28 @@
         "field": "envelope_validator(instruction)",
         "op": "==",
         "value": "valid"
+      },
+      "on_fail": {
+        "action": "emit_event",
+        "event": "envelope_invalid",
+        "emitted_by": "core",
+        "only_in_states": [
+          "queued"
+        ],
+        "only_if_guards_passed": [
+          "builder_available"
+        ],
+        "payload": {
+          "missing_fields": "envelope_validator.missing_fields",
+          "reason": "instruction_invalid"
+        },
+        "otherwise": {
+          "action": "wait"
+        }
       }
     }
   ],
-  "_lease_guards_note": "R04④·G19. 임대를 발급하는 모든 전이(to == leased, event == lease_granted, building→building 재임대)가 거치는 공통 가드. kind=store는 코어가 store로 판정, adapter는 모의/실제 어댑터가 답한다. 전부 참일 때만 issue_lease",
+  "_lease_guards_note": "R04④·G19. 임대를 발급하는 모든 전이(to == leased, event == lease_granted, building→building 재임대)가 거치는 공통 가드. kind=store는 코어가 store로 판정, adapter는 모의/실제 어댑터가 답한다. 전부 참일 때만 issue_lease. G29: count의 범위는 식이 직접 말한다(task_id != this.task_id: 다른 과제의 활성 임대만 센다). G48: 가드 실패 뒤 행동은 가드마다 on_fail로 구조화한다(기본 wait, instruction_envelope_valid만 envelope_invalid를 코어가 낸다)",
   "preserve_manifest": {
     "choice": "(a) git write-tree의 tree OID 비교. 이유: 보존 커밋도 Git 객체이므로 같은 객체 모델(경로·모드·종류·내용)로 비교하면 변환 없이 동일성이 정의되고, 삭제·실행 권한·심볼릭 링크가 트리 항목으로 그대로 표현된다. (b) 별도 manifest 함수는 Git 모델과 다른 두 번째 정의를 만들어 T02와 같은 불일치가 다시 생긴다",
     "function": "git_write_tree_oid",
@@ -209,11 +281,46 @@
         "ghp_[A-Za-z0-9]{36}",
         "xox[baprs]-[A-Za-z0-9-]{10,}"
       ],
-      "scan": "보존 전 includes 대상 파일 내용과 봉투·로그",
+      "scan": [
+        {
+          "id": "preserve_files",
+          "target": "contents of the files in preserve_manifest.includes",
+          "at": "handoff.confirm_quiescent",
+          "states": [
+            "handoff"
+          ]
+        },
+        {
+          "id": "result_envelope",
+          "target": "string values of result, signal and heartbeat envelopes",
+          "at": "accept_envelope.before_inbox_seen",
+          "states": [
+            "building"
+          ]
+        },
+        {
+          "id": "journal_text",
+          "target": "string values written to the journal and to logs",
+          "at": "record_append",
+          "states": [
+            "building",
+            "handoff"
+          ]
+        }
+      ],
       "on_match": {
         "exclude_from_preserve": true,
         "event": "secret_detected",
-        "return_code": "R-10"
+        "return_code": "R-10",
+        "transitions": [
+          "building→returned secret_detected",
+          "handoff→returned secret_detected"
+        ],
+        "payload": [
+          "scan_id",
+          "match_count"
+        ],
+        "never_record": "the matched text; only scan_id, match_count and the file path or field name"
       },
       "_note": "G21. 패턴은 값의 모양만 적는다. 실제 비밀값은 어디에도 적지 않는다"
     }
@@ -243,7 +350,7 @@
     "recovery_decision": {
       "by": "사람 또는 설계 담당",
       "record": "recovery_ref(조치 내용, 기록자, 시각)",
-      "effect": "action=retry → handoff(reset_attempts, phase=isolate; 로컬 커밋이 있으면 preserve_remote). action=abandon → returned(R-14). handoff_abandoned 사건은 폐지(G17): abandon은 recovery_decision의 action이다",
+      "effect": "action=retry → handoff(reset_attempts). phase는 전이 두 행의 cond가 고른다(G30): preservation_state == local_committed 이면 preserve_remote, 아니면 isolate. action=abandon → returned(R-14). handoff_abandoned 사건은 폐지(G17): abandon은 recovery_decision의 action이다",
       "payload": [
         "recovery_ref",
         "action ∈ {retry, abandon}"
@@ -274,7 +381,8 @@
         "retry_from": "preserve",
         "owner_alive_then": "isolate",
         "on_exhaust": "handoff_blocked",
-        "note": "남은 잠금 파일 제거는 recovery_decision"
+        "note": "남은 잠금 파일 제거는 recovery_decision",
+        "owner_alive_ref": "transitions[handoff→handoff index_lock] cond event.owner_pid_alive"
       },
       "disk_full": {
         "interval_s": 0,
@@ -322,11 +430,95 @@
       "stop": "isolate",
       "isolate": "isolate",
       "confirm_quiescent": "isolate",
-      "preserve": "verify_local_commit(tree OID) → 있으면 preserve_remote, 없으면 confirm_quiescent",
-      "preserve_remote": "verify_remote_ref → 있으면 preserve_push_ok 처리, 없으면 preserve_remote",
-      "revoke_token": "revoke_token 완료 뒤 issue_next_lease",
-      "issue_next_lease": "다음 세대 active lease_record가 있으면(issue_lease가 끝남) 상태 leased, 없으면 issue_lease",
-      "_note": "G16. 어느 단계든 쓰기 금지·always_revoke 재적용을 먼저 한다"
+      "preserve": {
+        "check": {
+          "id": "local_commit_exists",
+          "kind": "adapter",
+          "query": "git.find_commit_by_tree",
+          "args": [
+            "lease_record.branch",
+            "handoff_record.quiescent_tree_oid"
+          ],
+          "result_as": "check.result",
+          "true_when": "result != null"
+        },
+        "then": {
+          "event": "preserve_commit_ok",
+          "payload": {
+            "commit_tree_oid": "handoff_record.quiescent_tree_oid",
+            "wip_commit_sha": "check.result"
+          }
+        },
+        "else": {
+          "stage": "confirm_quiescent"
+        }
+      },
+      "preserve_remote": {
+        "check": {
+          "id": "remote_ref_equals_wip_commit",
+          "kind": "adapter",
+          "query": "git.remote_ref",
+          "args": [
+            "lease_record.branch"
+          ],
+          "result_as": "check.result",
+          "true_when": "result == handoff_record.wip_commit_sha"
+        },
+        "then": {
+          "event": "preserve_push_ok",
+          "payload": {
+            "remote_ref_sha": "check.result"
+          }
+        },
+        "else": {
+          "stage": "preserve_remote"
+        }
+      },
+      "revoke_token": {
+        "check": {
+          "id": "token_revoked",
+          "kind": "store",
+          "pred": [
+            {
+              "field": "handoff_record.token_revoked",
+              "op": "==",
+              "value": true
+            }
+          ]
+        },
+        "then": {
+          "stage": "issue_next_lease"
+        },
+        "else": {
+          "stage": "revoke_token"
+        }
+      },
+      "issue_next_lease": {
+        "check": {
+          "id": "next_lease_active",
+          "kind": "store",
+          "pred": [
+            {
+              "field": "lease_record.status",
+              "op": "==",
+              "value": "active"
+            },
+            {
+              "field": "lease_record.lease_id",
+              "op": "!=",
+              "value": "handoff_record.lease_id"
+            }
+          ]
+        },
+        "then": {
+          "noop": "task_state.state is already leased (issue_lease writes the lease and the state in one transaction)"
+        },
+        "else": {
+          "stage": "issue_next_lease"
+        }
+      },
+      "_note": "G16. 어느 단계든 쓰기 금지·always_revoke 재적용을 먼저 한다",
+      "_forms": "값은 단계 id 문자열(그 단계로 재개) 또는 {check, then, else}. then·else는 {stage: id} | {event: 이름, payload} | {noop: 이유}. G31: preserve에서 로컬 커밋이 없으면 confirm_quiescent로 돌아가 정지 확인을 다시 한다(재시작이 정지 확인의 증거를 지운다)"
     }
   },
   "post_merge_states": [
@@ -374,6 +566,7 @@
     "fence_violation",
     "secret_detected",
     "merged_without_valid_approval",
+    "owner_stop",
     "hard_stop_deadline",
     "envelope_invalid",
     "preserve_commit_ok",
@@ -402,7 +595,8 @@
     "envelope_duplicate_delivery",
     "lease_granted_duplicate",
     "switch_signal_during_handoff",
-    "envelope_rejected_invalid"
+    "envelope_rejected_invalid",
+    "owner_stop_ignored_during_handoff"
   ],
   "_noop_note": "noop_events는 상태를 바꾸지 않고 '수신·무시' 기록만 남긴다(event-duplicate-noop). 순서가 뒤바뀐 사건(예: review_approved가 ci_passed보다 먼저)은 보류 큐에 두었다가 적용 조건이 맞을 때 처리하고, SHA가 맞지 않으면 무효(R-04)로 기록한다(event-out-of-order). 전이표 밖 조건만 unmapped_condition으로 반송한다. late_envelope_rejected(R04②): lease_id가 현재 임대가 아니거나 토큰이 현재보다 작은 결과 봉투·푸시·PR 갱신·전환 신호는 거부하고 R-11을 기록만 한다. 현재 과제의 상태를 바꾸지 않는다(late-result-rejected). fence_violation 전이는 lease_id·토큰이 현재 임대인 봉투가 펜싱 규칙을 어긴 경우에만 쓴다. envelope_duplicate_delivery(S03): 같은 임대 세대에서 같은 멱등 키의 봉투가 다시 오면 상태를 바꾸지 않고 수신·무시 기록만 남긴다(duplicate-delivery-noop). 이전 세대 키로 온 늦은 봉투는 late_envelope_rejected와 같은 처리다",
   "record_separation": {
@@ -885,6 +1079,71 @@
       "return_code": "R-10"
     },
     {
+      "from": "handoff",
+      "to": "returned",
+      "event": "secret_detected",
+      "when": "인계 중 보존 전 검출(preserve_manifest.secret_patterns.scan[preserve_files], G38) → 즉시 중단 (R-10). 보존·푸시 없음, 작업 트리는 읽기 전용으로 남는다",
+      "by": "daemon",
+      "side_effects": [
+        {
+          "id": "terminate_process"
+        },
+        {
+          "id": "worktree_readonly",
+          "args": {
+            "value": true
+          }
+        },
+        {
+          "id": "revoke_all",
+          "args": {
+            "which": "handoff_failure_policy.always_revoke"
+          }
+        },
+        {
+          "id": "end_lease",
+          "args": {
+            "status": "revoked"
+          }
+        },
+        {
+          "id": "void_outbox",
+          "args": {
+            "reason": "revoked"
+          }
+        },
+        {
+          "id": "record_r_code",
+          "args": {
+            "code": "R-10"
+          }
+        }
+      ],
+      "return_code": "R-10"
+    },
+    {
+      "from": "building",
+      "to": "building",
+      "event": "owner_stop",
+      "when": "담당자 중단 지시(G50) → stop 요청과 기한 기록. grace_s 안의 stopped·wip_preserved 봉투는 자기 보고로만 받고, 기한이 지나면 hard_stop_deadline이 임대를 끝낸다(하트비트가 와도)",
+      "by": "human",
+      "cond": [
+        {
+          "field": "task_state.stop_requested_at",
+          "op": "==",
+          "value": null
+        }
+      ],
+      "side_effects": [
+        {
+          "id": "request_stop",
+          "args": {
+            "deadline": "clock.now + hard_stop.grace_s"
+          }
+        }
+      ]
+    },
+    {
       "from": "building",
       "to": "returned",
       "event": "hard_stop_deadline",
@@ -1007,13 +1266,58 @@
       "from": "handoff",
       "to": "handoff",
       "event": "index_lock",
-      "when": ".git/index.lock 존재 and attempts < max_attempts.index_lock → 간격 뒤 재시도. 소유 프로세스가 살아 있으면 isolate로",
+      "when": ".git/index.lock 존재, 소유 프로세스가 살아 있고(event.owner_pid_alive == true) attempts <= max_attempts.index_lock → retry_detail.index_lock.owner_alive_then(isolate)부터 재시도(G39)",
       "by": "daemon",
       "cond": [
         {
           "field": "handoff_record.attempts.index_lock",
           "op": "<=",
           "value": "handoff_failure_policy.max_attempts.index_lock"
+        },
+        {
+          "field": "event.owner_pid_alive",
+          "op": "==",
+          "value": true
+        }
+      ],
+      "side_effects": [
+        {
+          "id": "increment_counter",
+          "args": {
+            "field": "handoff_record.attempts.index_lock",
+            "order": "before_cond"
+          }
+        },
+        {
+          "id": "append_failure_log",
+          "args": {
+            "event": "index_lock"
+          }
+        },
+        {
+          "id": "resume_from_phase",
+          "args": {
+            "stage": "handoff_failure_policy.retry_detail.index_lock.owner_alive_then"
+          }
+        }
+      ]
+    },
+    {
+      "from": "handoff",
+      "to": "handoff",
+      "event": "index_lock",
+      "when": ".git/index.lock 존재, 소유 프로세스가 없고(event.owner_pid_alive != true) attempts <= max_attempts.index_lock → retry_detail.index_lock.retry_from(preserve)부터 재시도",
+      "by": "daemon",
+      "cond": [
+        {
+          "field": "handoff_record.attempts.index_lock",
+          "op": "<=",
+          "value": "handoff_failure_policy.max_attempts.index_lock"
+        },
+        {
+          "field": "event.owner_pid_alive",
+          "op": "!=",
+          "value": true
         }
       ],
       "side_effects": [
@@ -1527,7 +1831,7 @@
       "from": "handoff_blocked",
       "to": "handoff",
       "event": "recovery_decision",
-      "when": "사람 또는 설계 담당이 recovery_decision(recovery_ref: 잠금 제거·디스크 확보·원격 권한 복구 등)을 기록 → 시도 횟수 초기화, isolate부터 재개(로컬 커밋이 있으면 푸시만)",
+      "when": "사람 또는 설계 담당이 recovery_decision(action=retry)을 기록하고 로컬 보존 커밋이 있으면(preservation_state == local_committed) → 시도 횟수 초기화, preserve_remote(푸시만)부터 재개. G30: phase를 고르는 규칙은 이 행과 다음 행의 cond가 정한다",
       "by": "human",
       "cond": [
         {
@@ -1539,6 +1843,11 @@
           "field": "event.action",
           "op": "==",
           "value": "retry"
+        },
+        {
+          "field": "handoff_record.preservation_state",
+          "op": "==",
+          "value": "local_committed"
         }
       ],
       "side_effects": [
@@ -1549,7 +1858,43 @@
           "id": "set_handoff_field",
           "args": {
             "field": "phase",
-            "value": "isolate 또는 preserve_remote(로컬 커밋 있음)"
+            "value": "preserve_remote"
+          }
+        }
+      ]
+    },
+    {
+      "from": "handoff_blocked",
+      "to": "handoff",
+      "event": "recovery_decision",
+      "when": "recovery_decision(action=retry)이고 로컬 보존 커밋이 없으면(preservation_state != local_committed) → 시도 횟수 초기화, isolate부터 재개(G30)",
+      "by": "human",
+      "cond": [
+        {
+          "field": "event.recovery_ref",
+          "op": "!=",
+          "value": null
+        },
+        {
+          "field": "event.action",
+          "op": "==",
+          "value": "retry"
+        },
+        {
+          "field": "handoff_record.preservation_state",
+          "op": "!=",
+          "value": "local_committed"
+        }
+      ],
+      "side_effects": [
+        {
+          "id": "reset_attempts"
+        },
+        {
+          "id": "set_handoff_field",
+          "args": {
+            "field": "phase",
+            "value": "isolate"
           }
         }
       ]
@@ -1558,7 +1903,7 @@
       "from": "handoff_blocked",
       "to": "returned",
       "event": "recovery_decision",
-      "when": "recovery_decision(action=abandon) → R-14 기록, 작업 트리는 읽기 전용으로 남김, 다음 임대 없음(G17: handoff_abandoned 사건 폐지)",
+      "when": "recovery_decision(action=abandon) → R-14 기록, 작업 트리는 읽기 전용으로 남김, 다음 임대 없음(G17: handoff_abandoned 사건 폐지) G37: 반송 전에 활성 임대를 끝낸다(남기면 owner_resolved 뒤 queued→leased의 cond가 막힌다)",
       "by": "human",
       "cond": [
         {
@@ -1573,6 +1918,18 @@
         }
       ],
       "side_effects": [
+        {
+          "id": "end_lease",
+          "args": {
+            "status": "revoked"
+          }
+        },
+        {
+          "id": "void_outbox",
+          "args": {
+            "reason": "revoked"
+          }
+        },
         {
           "id": "record_r_code",
           "args": {
@@ -1591,6 +1948,12 @@
       "side_effects": [
         {
           "id": "set_cancelled"
+        },
+        {
+          "id": "end_lease",
+          "args": {
+            "status": "revoked"
+          }
         }
       ]
     },
@@ -1944,7 +2307,12 @@
       "to": "cancelled",
       "event": "owner_cancelled",
       "when": "담당자 취소",
-      "by": "human"
+      "by": "human",
+      "side_effects": [
+        {
+          "id": "set_cancelled"
+        }
+      ]
     },
     {
       "from": "merged",
@@ -2046,7 +2414,45 @@
       "from": "*",
       "to": "returned",
       "event": "unmapped_condition",
-      "when": "표에 없는 모든 조건 (R-03 등)",
+      "when": "표에 없는 조건이고 활성 임대가 있으면(leased·building·handoff) 임대를 끝내고 반송한다(G37). R-03",
+      "by": "daemon",
+      "side_effects": [
+        {
+          "id": "end_lease",
+          "args": {
+            "status": "revoked"
+          }
+        },
+        {
+          "id": "revoke_preserve_credential"
+        },
+        {
+          "id": "void_outbox",
+          "args": {
+            "reason": "revoked"
+          }
+        },
+        {
+          "id": "record_r_code",
+          "args": {
+            "code": "R-03"
+          }
+        }
+      ],
+      "return_code": "R-03",
+      "cond": [
+        {
+          "field": "lease_record.status",
+          "op": "==",
+          "value": "active"
+        }
+      ]
+    },
+    {
+      "from": "*",
+      "to": "returned",
+      "event": "unmapped_condition",
+      "when": "표에 없는 조건이고 활성 임대가 없으면 (R-03). 임대를 끝낼 것이 없다",
       "by": "daemon",
       "side_effects": [
         {
@@ -2274,17 +2680,13 @@
       "real_data_allowed": {
         "type": "bool",
         "value": "decision_gates.real_data ⊆ decisions_recorded",
-        "false_means": "실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회 단계 금지. 모의·로컬 작업은 계속 가능"
+        "false_means": "실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회 단계 금지. 모의·로컬 작업은 계속 가능",
+        "derived_by": "daemon (core_contract.operations.validate_instruction)"
       },
       "canon_change_approval": {
         "type": "null | {decision_ref, scope_paths[]}",
         "required_when": "task.canon_change.required == true",
-        "validate": [
-          "decision_ref ∈ decision_record",
-          "scope_paths ⊆ task.allowed_paths",
-          "scope_paths는 정본 경로만(packages/schemas/vocabulary.json, docs/blueprint/VOCABULARY.md, docs/decisions/** 등)",
-          "task.canon_change 없음 ⇒ null"
-        ],
+        "validate": "core_contract.operations.validate_instruction.rules",
         "on_fail": "봉투 미발송·returned(R-13)",
         "note": "허용 경로에 정본 파일이 있다는 사실은 승인이 아니다"
       },
@@ -2309,9 +2711,14 @@
           "type": "int",
           "default": 3,
           "decided": false,
-          "purpose": "같은 실패의 재시도 한도(retry_limits.consecutive_failed_tests와 같은 값)"
+          "purpose": "같은 실패의 재시도 한도(retry_limits.consecutive_failed_tests와 같은 값)",
+          "must_equal": "retry_limits.consecutive_failed_tests"
         },
-        "_note": "이전 판의 호출 수·비용 단위 상한 필드는 U-05로 삭제. 사용량은 usage_recording으로 기록만 한다"
+        "_note": "이전 판의 호출 수·비용 단위 상한 필드는 U-05로 삭제. 사용량은 usage_recording으로 기록만 한다",
+        "value_source_order": [
+          "task definition limits.<key>",
+          "envelopes.instruction.limits.<key>.default"
+        ]
       }
     },
     "result": {
@@ -2424,7 +2831,7 @@
         "lease_id",
         "lease_generation",
         "fencing_token",
-        "kind ∈ {direct_push, write_after_revoke, token_mismatch}",
+        "kind",
         "observed_at"
       ]
     }
@@ -2465,7 +2872,8 @@
     "decided": {
       "grace_s": false
     },
-    "default_basis": "보수 기본값 [사용자 결정 필요]"
+    "default_basis": "보수 기본값 [사용자 결정 필요]",
+    "trigger_events_ref": "core_contract.operations.hard_stop.trigger_events"
   },
   "concurrency": {
     "lease": {
@@ -2500,8 +2908,8 @@
     "lease_guards_detail": {
       "applies_to": "to == leased 이거나 event == lease_granted 인 모든 전이와 building→building 재임대: queued→leased, handoff→leased, paused_no_builder→leased, ci_failed→building, changes_requested→building, building→building(result_failed_tests). returned→queued 뒤의 재임대도 queued→leased를 지난다",
       "checks": "최상위 lease_guards[].check(구조화). usage_slot_ready는 usage_recording",
-      "on_fail": "임대를 발급하지 않는다. 충돌·잠금·동시 수 초과·슬롯 생성 실패면 현재 상태에서 대기, 봉투 검증 실패면 returned(R-13)",
-      "verification": "lease-guards-all-paths(T-OP-00)"
+      "verification": "lease-guards-all-paths(T-OP-00)",
+      "on_fail_ref": "lease_guards[].on_fail"
     },
     "isolation": {
       "worktree": "임대마다 격리된 작업 트리(git worktree 또는 별도 클론, 경로에 lease_id 포함). 이전 임대의 트리는 읽기 전용으로 보존",
@@ -2543,7 +2951,40 @@
         "handoff",
         "resume_paused"
       ],
-      "_reasons_note": "G04. after_owner_resolved는 폐지: returned→queued 뒤의 발급은 queued→leased와 같은 from_queue다"
+      "_reasons_note": "G04. after_owner_resolved는 폐지: returned→queued 뒤의 발급은 queued→leased와 같은 from_queue다",
+      "lock": {
+        "row": "core_contract.store.lease_lock",
+        "scope": "task_id",
+        "acquire": {
+          "by": "the daemon instance that evaluates lease_guards",
+          "at": "before the first lease_guard is evaluated",
+          "writes": {
+            "holder": "core_contract.daemon_instance.id",
+            "acquired_at": "clock.now"
+          }
+        },
+        "release": {
+          "at": [
+            "after the issue_lease transaction commits",
+            "when a guard fails",
+            "when an issue_lease precondition fails",
+            "on error"
+          ],
+          "writes": {
+            "holder": null,
+            "acquired_at": null
+          }
+        },
+        "self": {
+          "means": "holder == core_contract.daemon_instance.id of the evaluating process"
+        },
+        "foreign_holder": "lock_acquired is false; the evaluator waits (guard on_fail wait)",
+        "restart": {
+          "clears_rows_where": "holder != the new instance id",
+          "at": "restart_recovery before classification",
+          "precondition": "no other daemon instance is alive (safety_verification_status.duplicate_daemon_instance_prevented, T-OP-09)"
+        }
+      }
     },
     "envelope_identity": "envelope_id",
     "_envelope_identity_note": "(b) 봉투마다 envelope_id. 이유: signal 봉투(전환·상태 신호)와 하트비트는 한 세대 안에서 여러 번 정당하게 발생하므로 (a) 세대당 종류별 하나(one_per_kind_per_generation)는 맞지 않는다. 발신자가 ULID로 만들고 재전송은 같은 ID를 유지한다. 상세는 envelopes.identification",
@@ -2617,14 +3058,19 @@
           "preserve_push_ok"
         ],
         [
-          "ci_failed",
-          "building",
-          "lease_granted"
+          "handoff",
+          "returned",
+          "secret_detected"
         ],
         [
-          "changes_requested",
-          "building",
-          "lease_granted"
+          "handoff_blocked",
+          "returned",
+          "recovery_decision"
+        ],
+        [
+          "handoff_blocked",
+          "cancelled",
+          "owner_cancelled"
         ],
         [
           "*",
@@ -2633,11 +3079,51 @@
         ],
         [
           "*",
+          "returned",
+          "unmapped_condition"
+        ],
+        [
+          "*",
           "cancelled",
           "owner_cancelled"
         ]
       ],
-      "rule": "end_lease(status)는 lease_record.status를 바꾸고 on_lease_end 부수 효과(terminate_process·revoke_write_credential·revoke_token·record_handoff)를 낸다. 보존 자격은 revoke_preserve_credential로 따로 회수한다. issue_lease 전제 '현재 임대 종료'는 lease_record.status != active"
+      "rule": "end_lease(status)는 lease_record.status를 바꾸고 on_lease_end 부수 효과(terminate_process·revoke_write_credential·revoke_token·record_handoff)를 낸다. 보존 자격은 revoke_preserve_credential로 따로 회수한다. issue_lease 전제 '현재 임대 종료'는 lease_record.status != active",
+      "active_lease_states": [
+        "leased",
+        "building",
+        "handoff",
+        "handoff_blocked"
+      ],
+      "no_active_lease_elsewhere": "이 상태들 밖으로 나가는 전이는 임대를 끝낸 뒤이거나 끝낸다. 예외 하나: handoff→paused_no_builder(no_builder)는 cond token_revoked == true 이고 임대는 preserve_push_ok에서 handed_off로 이미 끝났다",
+      "applies_when": [
+        {
+          "field": "lease_record.status",
+          "op": "==",
+          "value": "active"
+        }
+      ],
+      "reissue_without_end": [
+        [
+          "ci_failed",
+          "building",
+          "lease_granted"
+        ],
+        [
+          "changes_requested",
+          "building",
+          "lease_granted"
+        ]
+      ],
+      "reissue_without_end_rule": "이 두 전이는 임대를 끝내지 않는다. 임대는 result_pr_opened(building→pr_open)에서 이미 completed로 끝났고, issue_lease 전제 lease_record.status != active 가 그대로 성립한다",
+      "on_lease_end_effects": {
+        "source": "concurrency.fencing.on_lease_end",
+        "skip_ids_listed_in_the_same_transition": true,
+        "listed_run_at": "their own position in the transition's side_effects",
+        "unlisted_run_after": "end_lease",
+        "unlisted_order": "source_order",
+        "each_id_at_most_once_per_transition": true
+      }
     }
   },
   "_safety_verification_note": "specified = 규칙 파일에 명세만 있음. dry_run_target = T-OP-00 모의 실행기로 규칙 전이를 시험할 대상. real_executor_required = T-OP-09에서 실제 CLI·작업 트리·원격으로 검증해야 함. 어느 장치에도 '검증됨'을 쓰지 않는다. 검증 결과는 T-OP-00·T-OP-09의 보고서에만 적는다 U-05 뒤 usage_recorded_not_capped 추가",
@@ -2747,7 +3233,7 @@
     },
     {
       "code": "R-07",
-      "when": "max_wall_s 초과(응답 없음·무한 반복 통제). 이전 판의 '호출·단위 소진'은 U-05로 삭제했다. 사용량 누적은 반송 사유가 아니다",
+      "when": "max_wall_s 초과(응답 없음·무한 반복 통제) 또는 담당자 중단 지시(owner_stop) 뒤 grace_s 경과(G50). 이전 판의 '호출·단위 소진'은 U-05로 삭제했다. 사용량 누적은 반송 사유가 아니다",
       "to": "user"
     },
     {
@@ -2798,7 +3284,7 @@
     ],
     "log_redaction": "봉투·로그에 비밀값 패턴 검출 시 R-10"
   },
-  "_cond_note": "transitions[].cond는 모의 코어가 읽는 구조화 조건이다. 술어 {field, op, value}: op ∈ {==, !=, <, <=, >, >=, in, not_in, all_pass, any, all}. field는 core_contract.store 경로·clock.now·event/envelope/request/report/signal 페이로드 경로·count(...)·coalesce(a, b) 식, value는 상수 또는 다른 경로/식(숫자 필드는 숫자). side_effects는 [{id, args}](core_contract.expected_outputs.side_effect_ids). order=before_cond 인 부수 효과는 cond 평가 전에 적용한다(attempt_counting). return_code는 반송 전이의 R 코드(G05). on_cond_fail은 cond가 거짓일 때 대신 일으킬 사건(G18). cond가 없는 전이는 사건 발생만으로 from/to/event대로 옮긴다. 자연어 when은 코어가 읽지 않는다",
+  "_cond_note": "transitions[].cond는 모의 코어가 읽는 구조화 조건이다. 술어 {field, op, value}: op ∈ {==, !=, <, <=, >, >=, in, not_in, all_pass, any, all}. field는 core_contract.store 경로·clock.now·event/envelope/request/report/signal 페이로드 경로·count(...)·coalesce(a, b) 식, value는 상수 또는 다른 경로/식(숫자 필드는 숫자). side_effects는 [{id, args}](core_contract.expected_outputs.side_effect_ids). order=before_cond 인 부수 효과는 cond 평가 전에 적용한다(attempt_counting). return_code는 반송 전이의 R 코드(G05). on_cond_fail은 cond가 거짓일 때 대신 일으킬 사건(G18). cond가 없는 전이는 사건 발생만으로 from/to/event대로 옮긴다. 자연어 when은 코어가 읽지 않는다. 예외는 하나뿐이다: noop_rules[].when은 값이 {field, op, value} 술어 목록이고 코어가 읽는다(G33, core_contract.condition_keys). 값이 문자열인 when은 설명이다. G49: op에 subset_of·is_bool·is_list가 더해진다(core_contract.predicate_ops).",
   "state_integrity": {
     "_note": "U02. 정상 임대 만료와 상태 손상을 구분한다. 재시작 복구와 outbox 재발송은 이 분류를 먼저 거친다",
     "normal_expiry": {
@@ -2827,7 +3313,15 @@
       ],
       "path": "기존 만료 전이: leased→queued(lease_expired) 또는 building→returned(heartbeat_missed_twice)",
       "outbox": "pending → void(expired). 재발송 없음",
-      "next_lease": "queued→leased에서 issue_lease가 새 세대 발급(정상 경로)"
+      "next_lease": "queued→leased에서 issue_lease가 새 세대 발급(정상 경로)",
+      "events_by_state": {
+        "leased": "lease_expired",
+        "building": "heartbeat_missed_twice"
+      },
+      "events": [
+        "lease_expired",
+        "heartbeat_missed_twice"
+      ]
     },
     "corruption": {
       "detect": [
@@ -2868,11 +3362,15 @@
               ]
             },
             {
-              "field": "count(lease_record where status == active)",
+              "field": "count(lease_record where status == active and task_id == this.task_id)",
               "op": "==",
               "value": 0
             }
-          ]
+          ],
+          "scope": {
+            "collection": "lease_record",
+            "rows": "own_task_only"
+          }
         },
         {
           "id": "generation_decreased_or_token_mismatch",
@@ -2892,6 +3390,21 @@
                   "value": "lease_record.lease_generation"
                 }
               ]
+            }
+          ]
+        },
+        {
+          "id": "outbox_lease_id_mismatch",
+          "pred": [
+            {
+              "field": "lease_record.status",
+              "op": "==",
+              "value": "active"
+            },
+            {
+              "field": "count(outbox where lease_generation == lease_record.lease_generation and lease_id != lease_record.lease_id)",
+              "op": ">",
+              "value": 0
             }
           ]
         }
@@ -2928,13 +3441,51 @@
       ],
       "_phase_note": "G09. 'handoff_record.phase 확인 불가'는 손상이 아니라 인계 실패다: transitions handoff→handoff_blocked(daemon_restart_during_handoff). 손상 탐지 목록에서 제외",
       "event": "state_corrupted",
-      "return_code": "R-08"
+      "return_code": "R-08",
+      "applies_to": {
+        "scope": "per_task",
+        "cond": [
+          {
+            "field": "any",
+            "op": "==",
+            "value": [
+              {
+                "field": "lease_record.status",
+                "op": "==",
+                "value": "active"
+              },
+              {
+                "field": "task_state.state",
+                "op": "in",
+                "value": [
+                  "leased",
+                  "building",
+                  "handoff"
+                ]
+              }
+            ]
+          }
+        ],
+        "not_classified_again": "a task that was ended and returned (no active lease, state outside leased, building, handoff)"
+      },
+      "bindings": {
+        "lease_record": "row: the task's current lease_record (own task only)",
+        "outbox": {
+          "in_field_path": "row: latest outbox row of the task whose lease_id == lease_record.lease_id ({} when none)",
+          "in_count": "collection: all outbox rows of the task"
+        },
+        "journal": {
+          "in_max_or_count": "collection: journal records of the task, with args flattened into the record"
+        }
+      },
+      "detect_order": "first_true_wins",
+      "resend_outbox_link": "resend_outbox on_fail generation_or_lease_mismatch emits state_corrupted; its cond holds because generation_mismatch or outbox_lease_id_mismatch (G42 d) is among detect"
     },
     "resend_same_envelope_id_only_if": "core_contract.operations.resend_outbox.checks 전부 통과",
     "verification": "restart-ttl-expired-no-resend·restart-revoked-pending-void·restart-valid-pending-resend·restart-corrupt-record-returned(T-OP-00 M41~M44, T-OP-09 R19~R22)"
   },
   "core_contract": {
-    "_scope": "T-OP-00 모의 코어(빌더 구현)의 구현 계약. 코어가 읽는 필드는 core_contract.reads가 정본이다(G20). 자연어 when·note·_ 키는 읽지 않는다. 같은 코어를 T-OP-09가 어댑터만 바꿔 쓴다(execution_core)",
+    "_scope": "T-OP-00 모의 코어(빌더 구현)의 구현 계약. 코어가 읽는 필드는 core_contract.reads가 정본이다(G20). 자연어 when·note·_ 키는 읽지 않는다. 같은 코어를 T-OP-09가 어댑터만 바꿔 쓴다(execution_core) G32: switch_policy.allowed_sources가 읽기 목록에 들어갔다. G33: noop_rules[].when은 술어 목록이면 조건이고 문자열이면 설명이다(core_contract.condition_keys).",
     "clock": {
       "type": "virtual",
       "api": [
@@ -2949,7 +3500,16 @@
         "quiescence_window": "concurrency.quiescence.window_s"
       },
       "rule": "모든 시간 비교는 clock.now()만 쓴다. 벽시계 금지",
-      "expressions": "field·value 식에는 +, *, coalesce(a, b)(a가 null이면 b), count(...)를 쓸 수 있다"
+      "expressions": "field·value 식에는 +, -, *, 괄호, coalesce(a, b)(a가 null이면 b), count(<collection> where ...), max(<collection>.<field>)를 쓸 수 있다",
+      "expression_forms": [
+        "+",
+        "-",
+        "*",
+        "(...)",
+        "coalesce(a, b)",
+        "count(<collection> where <atom> and ...)",
+        "max(<collection>.<field>)"
+      ]
     },
     "store": {
       "task_state": {
@@ -2974,7 +3534,7 @@
         "issued_at": "ts",
         "expires_at": "ts",
         "last_heartbeat_at": "ts?",
-        "status": "active | expired | revoked | handed_off"
+        "status": "active | expired | revoked | handed_off | completed | returned"
       },
       "outbox": {
         "envelope_id": "ulid",
@@ -2985,7 +3545,7 @@
         "status": "pending | sent | void",
         "created_at": "ts",
         "sent_at": "ts?",
-        "void_reason": "expired | revoked | corrupt | cancelled?"
+        "void_reason": "expired | revoked | corrupt?"
       },
       "inbox_seen": {
         "key": "task_id + lease_generation + envelope_kind + envelope_id",
@@ -3032,6 +3592,23 @@
         "task_id": "str",
         "holder": "daemon_instance_id?",
         "acquired_at": "ts?"
+      },
+      "enums": {
+        "lease_record_status": [
+          "active",
+          "expired",
+          "revoked",
+          "handed_off",
+          "completed",
+          "returned"
+        ],
+        "lease_record_status_set_by": "end_lease(status) writes any value other than active; issue_lease writes active",
+        "outbox_void_reason": [
+          "expired",
+          "revoked",
+          "corrupt"
+        ],
+        "outbox_void_reason_note": "owner_cancelled ends the lease as revoked, so a cancelled task's pending outbox is voided as revoked (G41)"
       }
     },
     "events_in": {
@@ -3129,6 +3706,13 @@
         ],
         "result_out_of_scope": [
           "envelope(envelopes.result.required)"
+        ],
+        "secret_detected": [
+          "scan_id",
+          "match_count"
+        ],
+        "owner_stop": [
+          "stop_ref"
         ]
       }
     },
@@ -3300,7 +3884,8 @@
         "on_fail": {
           "not_pending": {
             "effects": [],
-            "note": "sent는 하트비트 대기, void는 무시"
+            "note": "sent는 하트비트 대기, void는 무시",
+            "then_events": []
           },
           "expired": {
             "effects": [
@@ -3311,7 +3896,11 @@
                 }
               }
             ],
-            "then": "정상 만료 전이(lease_expired 또는 heartbeat_missed_twice)"
+            "then": "정상 만료 전이(lease_expired 또는 heartbeat_missed_twice)",
+            "then_events": [
+              "lease_expired",
+              "heartbeat_missed_twice"
+            ]
           },
           "revoked_or_cancelled": {
             "effects": [
@@ -3322,11 +3911,16 @@
                 }
               }
             ],
-            "then": "재발송 없음"
+            "then": "재발송 없음",
+            "void_reason_rule": "owner_cancelled and revoked leases are both revoked (store.enums.outbox_void_reason)",
+            "then_events": []
           },
           "generation_or_lease_mismatch": {
             "effects": [],
-            "then": "state_corrupted 사건(state_integrity.corruption)"
+            "then": "state_corrupted 사건(state_integrity.corruption)",
+            "then_events": [
+              "state_corrupted"
+            ]
           }
         }
       },
@@ -3370,6 +3964,15 @@
             "fail_key": "late"
           },
           {
+            "id": "not_seen",
+            "pred": {
+              "field": "inbox_seen[key]",
+              "op": "==",
+              "value": null
+            },
+            "fail_key": "duplicate"
+          },
+          {
             "id": "lease_active_unexpired",
             "pred": {
               "field": "all",
@@ -3388,15 +3991,6 @@
               ]
             },
             "fail_key": "expired"
-          },
-          {
-            "id": "not_seen",
-            "pred": {
-              "field": "inbox_seen[key]",
-              "op": "==",
-              "value": null
-            },
-            "fail_key": "duplicate"
           },
           {
             "id": "current_lease_rules",
@@ -3435,7 +4029,43 @@
           "inbox_seen += key",
           "해당 사건(result_*/switch_signal/first_heartbeat/heartbeat)으로 전이표 적용"
         ],
-        "_order_note": "G25. 이전 세대 봉투는 duplicate보다 late를 먼저 판정한다(lease_matches가 not_seen 앞)"
+        "_order_note": "G25·G40. 이전 세대 봉투는 duplicate보다 late를 먼저 판정한다(lease_matches가 not_seen 앞). 이미 수락한 같은 봉투의 재전달은 임대가 그 봉투로 끝났어도 duplicate다(not_seen이 lease_active_unexpired 앞). 처음 보는 봉투가 끝난 임대로 오면 late(R-11)",
+        "idempotency_key_fields": [
+          "task_id",
+          "lease_generation",
+          "envelope_kind",
+          "envelope_id"
+        ],
+        "view_bindings": {
+          "envelope.kind": {
+            "means": "envelope_type",
+            "values": [
+              "result",
+              "signal",
+              "heartbeat",
+              "fence_violation_report"
+            ]
+          },
+          "envelope.violation_kind": {
+            "means": "the sender's own field kind of a fence_violation_report",
+            "values_ref": "field_value_sets.fence_violation_report.kind"
+          },
+          "rule": "the evaluation view exposes the envelope type as kind and the sender's own kind as violation_kind; the wire field stays kind"
+        },
+        "field_value_sets": {
+          "fence_violation_report": {
+            "kind": [
+              "direct_push",
+              "write_after_revoke",
+              "token_mismatch"
+            ]
+          }
+        },
+        "field_value_checks": {
+          "after": "required_present",
+          "fail_key": "required_missing",
+          "rule": "a value outside field_value_sets is treated like a missing field (R-13)"
+        }
       },
       "receiver_validation": {
         "by": "빌더 어댑터(모의 빌더)",
@@ -3600,6 +4230,180 @@
           }
         ],
         "_note": "G26. concurrency.fencing.checked_at의 push·pr_update 검사 연산"
+      },
+      "hard_stop": {
+        "trigger_events": {
+          "owner_stop": {
+            "event": "owner_stop",
+            "then": "hard_stop_deadline",
+            "states": [
+              "building"
+            ],
+            "other_states": "handoff·handoff_blocked는 owner_stop_ignored_during_handoff(noop), 그 밖은 unmapped_condition(R-03)"
+          },
+          "secret_detected": {
+            "event": "secret_detected",
+            "then": null,
+            "states": [
+              "building",
+              "handoff"
+            ]
+          },
+          "max_wall_s_exceeded": {
+            "event": "hard_stop_deadline",
+            "then": null,
+            "states": [
+              "building"
+            ]
+          },
+          "heartbeat_missed_twice": {
+            "event": "heartbeat_missed_twice",
+            "then": null,
+            "states": [
+              "building"
+            ]
+          }
+        },
+        "return_codes": {
+          "owner_stop": "R-07",
+          "secret_detected": "R-10",
+          "max_wall_s_exceeded": "R-07",
+          "heartbeat_missed_twice": "R-08"
+        }
+      },
+      "validate_instruction": {
+        "inputs": [
+          "instruction envelope",
+          "task definition",
+          "task_state.decisions_recorded"
+        ],
+        "when": "lease_guards[instruction_envelope_valid] and the receiver side before work starts",
+        "rules": [
+          {
+            "id": "real_data_derivable",
+            "applies_when": [],
+            "pred": [
+              {
+                "field": "task.decision_gates.real_data",
+                "op": "is_list",
+                "value": true
+              }
+            ],
+            "missing": "real_data_allowed"
+          },
+          {
+            "id": "real_data_allowed_is_bool",
+            "applies_when": [],
+            "pred": [
+              {
+                "field": "envelope.real_data_allowed",
+                "op": "is_bool",
+                "value": true
+              }
+            ],
+            "missing": "real_data_allowed"
+          },
+          {
+            "id": "approval_required",
+            "applies_when": [
+              {
+                "field": "task.canon_change.required",
+                "op": "==",
+                "value": true
+              }
+            ],
+            "pred": [
+              {
+                "field": "envelope.canon_change_approval",
+                "op": "!=",
+                "value": null
+              }
+            ],
+            "missing": "canon_change_approval"
+          },
+          {
+            "id": "approval_forbidden_without_canon_change",
+            "applies_when": [
+              {
+                "field": "task.canon_change.required",
+                "op": "!=",
+                "value": true
+              }
+            ],
+            "pred": [
+              {
+                "field": "envelope.canon_change_approval",
+                "op": "==",
+                "value": null
+              }
+            ],
+            "missing": "canon_change_approval"
+          },
+          {
+            "id": "decision_ref_recorded",
+            "applies_when": [
+              {
+                "field": "envelope.canon_change_approval",
+                "op": "!=",
+                "value": null
+              }
+            ],
+            "pred": [
+              {
+                "field": "envelope.canon_change_approval.decision_ref",
+                "op": "in",
+                "value": "task_state.decisions_recorded"
+              }
+            ],
+            "missing": "canon_change_approval.decision_ref"
+          },
+          {
+            "id": "scope_within_allowed_paths",
+            "applies_when": [
+              {
+                "field": "envelope.canon_change_approval",
+                "op": "!=",
+                "value": null
+              }
+            ],
+            "pred": [
+              {
+                "field": "envelope.canon_change_approval.scope_paths",
+                "op": "subset_of",
+                "value": "task.allowed_paths"
+              }
+            ],
+            "missing": "canon_change_approval.scope_paths"
+          },
+          {
+            "id": "scope_within_task_canon_scope",
+            "applies_when": [
+              {
+                "field": "envelope.canon_change_approval",
+                "op": "!=",
+                "value": null
+              }
+            ],
+            "pred": [
+              {
+                "field": "envelope.canon_change_approval.scope_paths",
+                "op": "subset_of",
+                "value": "task.canon_change.approval.scope_paths"
+              }
+            ],
+            "missing": "canon_change_approval.scope_paths"
+          }
+        ],
+        "on_fail": {
+          "event": "envelope_invalid",
+          "payload": [
+            "missing_fields",
+            "reason"
+          ],
+          "return_code": "R-13",
+          "send": false
+        },
+        "canon_paths": "no daemon-wide canon list: a task's own canon_change.approval.scope_paths names the canon files it may change; the envelope scope must stay inside it and inside allowed_paths"
       }
     },
     "expected_outputs": {
@@ -3664,7 +4468,13 @@
         "record_transition",
         "record_usage"
       ],
-      "report": "시나리오별 기대(expected) 전이·부수 효과·noop 열과 실제(actual) 열을 나란히. 하나라도 다르면 종료 코드 1"
+      "report": "시나리오별 기대(expected) 전이·부수 효과·noop 열과 실제(actual) 열을 나란히. 하나라도 다르면 종료 코드 1",
+      "credential_of_effect": {
+        "revoke_token": "builder_token",
+        "revoke_write_credential": "builder_write_credential",
+        "revoke_preserve_credential": "preserve_credential"
+      },
+      "credential_of_effect_rule": "values are exactly handoff_failure_policy.always_revoke, each once; revoke_all revokes the whole list"
     },
     "verification": "T-OP-00 M1~M44 전부. 실제 실행기(T-OP-09)는 같은 코어에 실제 어댑터를 붙인다",
     "reads": [
@@ -3679,13 +4489,46 @@
       "handoff_failure_policy.{max_attempts,attempt_counting,retry_detail,restart_resume,always_revoke}",
       "retry_limits",
       "concurrency.{lease,fencing.on_lease_end,lease_end,lease_issue,quiescence,idempotency_key,max_parallel_leases,branch_naming}",
+      "switch_policy.allowed_sources",
       "hard_stop.{grace_s,trigger}",
       "preserve_manifest.{function,excludes,secret_patterns}",
       "envelopes.*.required",
       "state_integrity",
       "usage_recording",
       "return_codes[].code"
-    ]
+    ],
+    "daemon_instance": {
+      "id": "ULID generated at process start, never reused",
+      "stored_in": [
+        "lease_lock.holder"
+      ]
+    },
+    "predicate_ops": {
+      "implemented": [
+        "==",
+        "!=",
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "in",
+        "not_in",
+        "all_pass",
+        "all_present",
+        "any",
+        "all"
+      ],
+      "added_by_G49": {
+        "subset_of": "left list is a subset of right list",
+        "is_bool": "left is true or false (not null)",
+        "is_list": "left is a list (not null)"
+      }
+    },
+    "condition_keys": {
+      "transitions[]": "cond",
+      "noop_rules[]": "when",
+      "when_rule": "a `when` whose value is a list of {field, op, value} predicates is a condition and is read; a `when` whose value is a string is an explanation and is never read"
+    }
   },
   "usage_recording": {
     "decision": "U-05(2026-10-13): 작업당·일일·월간 비용 상한을 두지 않는다. 상한 미정을 이유로 실행을 막지 않는다. 사용량·비용은 계속 기록하되 누적액만으로 작업을 멈추지 않는다. 무한 반복·고장 통제(같은 실패 재시도 한도, 중복 실행, 응답 없음 정지)는 비용과 별개로 그대로 둔다",
@@ -3695,11 +4538,9 @@
     "record_after_result": [
       "calls",
       "wall_s",
-      "cost_units",
-      "provider_family_label",
-      "runner"
+      "cost_units"
     ],
-    "store": "usage_record(append-only, 과제·세대·봉투별)",
+    "store": "usage_record(행은 삭제·덮어쓰기 없음, 열은 null에서 값으로 한 번만 채움, 과제·세대·봉투별)",
     "aggregate": "일·월 누적은 보고용(T-OP-08 운영 기록). 임계값 없음",
     "record_failure": {
       "after_result_write_fails": "실행을 막지 않는다. 경고 기록 + 비동기 재시도. 결과 봉투 처리는 계속",
@@ -3714,7 +4555,48 @@
       "중복 실행 방지"
     ],
     "expansion": "제품 완성에 외부 서비스 한도·수집 범위 확장이 필요하면 필요한 범위와 변경안을 [사용자 결정 필요]로 올린다",
-    "verification": "usage-recorded-not-capped(T-OP-00 M26, T-OP-09 R10)"
+    "verification": "usage-recorded-not-capped(T-OP-00 M26, T-OP-09 R10)",
+    "record_semantics": {
+      "rows": "never deleted or overwritten",
+      "columns": "write_once (null → value)",
+      "key": [
+        "task_id",
+        "lease_generation"
+      ]
+    },
+    "report_join": {
+      "runner": "lease_record.runner of the same (task_id, lease_generation)",
+      "provider_family_label": "roles.builders[runner == that runner].family",
+      "rule": "for reports only; not stored in usage_record"
+    },
+    "accepted_vs_rejected": {
+      "accepted_result": "record",
+      "late_envelope_rejected": "not_recorded",
+      "envelope_duplicate_delivery": "not_recorded",
+      "envelope_rejected_invalid": "not_recorded",
+      "reason": "a rejected envelope never changes state; its self-reported amounts are not trusted. Not recording it never blocks anything (U-05)"
+    },
+    "slot_lifecycle": {
+      "create": {
+        "by": "lease_guards.usage_slot_ready",
+        "key": [
+          "task_id",
+          "lease_generation"
+        ],
+        "idempotent": true,
+        "on_failure": "record_failure.usage_slot_create_fails"
+      },
+      "attach_envelope": {
+        "by": "issue_lease",
+        "field": "envelope_id",
+        "when": "after effects_atomic, same transaction"
+      },
+      "fill_result": {
+        "by": "accept_envelope.on_pass",
+        "fields": "record_after_result",
+        "write_once": true
+      }
+    }
   },
   "retry_limits": {
     "consecutive_failed_tests": 3,
@@ -3790,6 +4672,544 @@
           }
         }
       ]
+    },
+    {
+      "event": "owner_stop",
+      "when": [
+        {
+          "field": "task_state.state",
+          "op": "in",
+          "value": [
+            "handoff",
+            "handoff_blocked"
+          ]
+        }
+      ],
+      "noop_event": "owner_stop_ignored_during_handoff",
+      "note": "G50: 인계·보존 중에는 중단 지시가 보존을 끊지 않는다. 기록만"
     }
-  ]
+  ],
+  "t_op_00_followups": {
+    "_note": "설계 담당(G29~G50 해소)이 T-OP-00 빌더에게 넘기는 목록. 코어는 이 파일을 읽지 않는다. 경로 표기: 점으로 이은 키, 리스트 원소는 [키=값,...] 선택자. tools/daemon/spec_gaps.py는 설계 담당이 고치지 않으므로, 빌더가 gap_resolutions로 상태를 갱신한다",
+    "gap_resolutions": {
+      "G29": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "lease_guards[id=no_conflict_lease].check.field",
+          "lease_guards[id=no_conflict_lease].scope",
+          "lease_guards[id=no_conflict_lease].conflict_match",
+          "lease_guards[id=single_writer].check.field",
+          "lease_guards[id=max_parallel_leases].check.field",
+          "state_integrity.corruption.detect[id=state_without_lease].pred",
+          "state_integrity.corruption.detect[id=state_without_lease].scope"
+        ],
+        "summary": "count의 범위를 식이 직접 말한다(가드는 task_id != this.task_id, 손상 탐지는 task_id == this.task_id). ∩는 패턴 겹침(conflict_match)",
+        "mock_core_reads": "partly",
+        "scenarios": [
+          "M30"
+        ],
+        "core_change": "∩를 문자열 교집합이 아니라 conflict_match.relation(patterns_overlap)로 구현(중첩 글롭 services/knowledge/** ↔ services/knowledge/release/**)"
+      },
+      "G30": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "transitions[from=handoff_blocked,event=recovery_decision,to=handoff]"
+        ],
+        "summary": "recovery_decision(retry)을 preservation_state로 가르는 두 전이(local_committed → preserve_remote, 아니면 isolate)",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M37"
+        ],
+        "core_change": "Rules/effects의 문장 속 단계 id 추출(_stage_from_prose) 삭제, M37의 rep.gap을 rep.eq로"
+      },
+      "G31": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "handoff_failure_policy.restart_resume.preserve",
+          "handoff_failure_policy.restart_resume.preserve_remote",
+          "handoff_failure_policy.restart_resume.revoke_token",
+          "handoff_failure_policy.restart_resume.issue_next_lease",
+          "handoff_failure_policy.restart_resume._forms"
+        ],
+        "summary": "문장 4개를 {check, then, else}로. preserve에서 로컬 커밋이 없으면 confirm_quiescent로 돌아가 정지 확인을 다시 한다",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M38"
+        ],
+        "core_change": "restart_resume 값이 객체면 check를 평가해 then/else(stage·event·noop)를 따른다. preserve의 else는 confirm_quiescent(지금 코어는 phase 유지)"
+      },
+      "G32": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.reads"
+        ],
+        "summary": "switch_policy.allowed_sources를 읽기 목록에 넣었다",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M29",
+          "M33"
+        ],
+        "core_change": "rules.py의 EXTENSIONS 삭제"
+      },
+      "G33": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.condition_keys",
+          "noop_rules[event=lease_granted].when"
+        ],
+        "summary": "키 이름은 그대로 두고 예외를 명시한다: noop_rules[].when이 술어 목록이면 조건(코어가 읽음), 문자열이면 설명(읽지 않음). 어느 쪽인지는 값의 모양으로만 정해지고 core_contract.condition_keys가 그 규칙을 적는다",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M39",
+          "M40"
+        ]
+      },
+      "G34": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.store.enums.lease_record_status",
+          "core_contract.store.lease_record.status",
+          "concurrency.lease_end.reissue_without_end",
+          "concurrency.lease_end.applies_when"
+        ],
+        "summary": "lease_record.status 열거에 completed·returned를 넣었다. lease_end.transitions에서 임대를 끝내지 않는 두 전이를 reissue_without_end로 옮겼다",
+        "mock_core_reads": "partly",
+        "scenarios": [
+          "M35"
+        ],
+        "core_change": "end_lease는 lease_record.status == active일 때만 상태를 바꾼다(지금 코어는 덮어쓴다)"
+      },
+      "G35": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "concurrency.lease_end.on_lease_end_effects"
+        ],
+        "summary": "전이가 직접 적은 id는 그 자리에서 한 번, 나머지는 end_lease 뒤 on_lease_end 순서",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M44"
+        ]
+      },
+      "G36": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.expected_outputs.credential_of_effect"
+        ],
+        "summary": "효과 id ↔ 자격 이름 대응표",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M37"
+        ],
+        "core_change": "effects.credential_name의 끝말 비교 삭제, 대응표 사용"
+      },
+      "G37": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "transitions[from=*,event=unmapped_condition,to=returned]",
+          "transitions[from=handoff_blocked,event=recovery_decision,to=returned]",
+          "transitions[from=handoff_blocked,event=owner_cancelled,to=cancelled]",
+          "transitions[from=merged_invalid_approval,event=owner_cancelled,to=cancelled]",
+          "concurrency.lease_end.active_lease_states"
+        ],
+        "summary": "활성 임대가 있으면 반송·취소 전에 임대를 끝낸다(unmapped는 cond로 두 행). merged_invalid_approval→cancelled에 set_cancelled",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M37",
+          "M42"
+        ]
+      },
+      "G38": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "transitions[from=handoff,event=secret_detected,to=returned]",
+          "preserve_manifest.secret_patterns.scan",
+          "preserve_manifest.secret_patterns.on_match",
+          "core_contract.events_in.payloads.secret_detected"
+        ],
+        "summary": "인계 중 보존 전 검출은 handoff→returned(R-10). 검출 지점 3곳(preserve_files·result_envelope·journal_text)",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M36"
+        ],
+        "core_change": "confirm_quiescent 직후 패턴 검사에 걸리면 secret_detected를 내고 멈춘다(지금 코어는 걸린 파일만 보존에서 제외하고 계속). M36 코어 경로 시험을 이에 맞춘다"
+      },
+      "G39": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "transitions[from=handoff,event=index_lock,to=handoff]",
+          "handoff_failure_policy.retry_detail.index_lock.owner_alive_ref"
+        ],
+        "summary": "index_lock을 event.owner_pid_alive로 갈라 true면 owner_alive_then(isolate), 아니면 retry_from(preserve)",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M37"
+        ],
+        "core_change": "M37의 rep.gap을 rep.eq로"
+      },
+      "G40": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.operations.accept_envelope.checks_in_order[id=not_seen]",
+          "core_contract.operations.accept_envelope._order_note"
+        ],
+        "summary": "검사 순서를 lease_matches → not_seen → lease_active_unexpired로. 이미 수락한 봉투의 재전달은 임대가 끝나도 duplicate",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M34"
+        ],
+        "core_change": "M34의 rep.gap을 rep.eq로"
+      },
+      "G41": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.store.enums.outbox_void_reason",
+          "core_contract.store.outbox.void_reason"
+        ],
+        "summary": "cancelled를 void_reason에서 삭제한다. 취소는 임대를 revoked로 끝내므로 revoked로 기록",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M42"
+        ],
+        "core_change": "M42의 rep.gap을 rep.eq로"
+      },
+      "G42": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "state_integrity.corruption.applies_to",
+          "state_integrity.corruption.bindings",
+          "state_integrity.corruption.detect[id=outbox_lease_id_mismatch]",
+          "core_contract.clock.expressions",
+          "core_contract.clock.expression_forms"
+        ],
+        "summary": "적용 대상·outbox 행/컬렉션 바인딩·max 식 허용·lease_id만 어긋난 outbox 행 탐지",
+        "mock_core_reads": "partly",
+        "scenarios": [
+          "M44"
+        ],
+        "core_change": "detect_id의 적용 대상 판정을 applies_to 데이터로"
+      },
+      "G43": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "state_integrity.normal_expiry.events_by_state",
+          "state_integrity.normal_expiry.events",
+          "core_contract.operations.resend_outbox.on_fail.expired.then_events",
+          "core_contract.operations.resend_outbox.on_fail.generation_or_lease_mismatch.then_events",
+          "core_contract.operations.accept_envelope.idempotency_key_fields"
+        ],
+        "summary": "만료 사건·후속 사건·멱등 키 필드를 목록으로",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M41",
+          "M42"
+        ],
+        "core_change": "문장에서 사건 이름·키 필드를 뽑는 코드(expiry_events, then_events, key_fields) 삭제"
+      },
+      "G44": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.operations.accept_envelope.view_bindings",
+          "core_contract.operations.accept_envelope.field_value_sets",
+          "core_contract.operations.accept_envelope.field_value_checks",
+          "envelopes.fence_violation_report.required"
+        ],
+        "summary": "envelope.kind는 봉투 종류, 보낸 쪽의 kind는 violation_kind로 노출. 값 집합은 field_value_sets. 필수 목록의 문장 삭제",
+        "mock_core_reads": "partly",
+        "scenarios": [
+          "M28"
+        ],
+        "core_change": "검사 뷰가 violation_kind를 노출하고 값 집합을 검사한다(지금 코어는 kind를 덮어쓴다)"
+      },
+      "G45": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "concurrency.lease_issue.lock",
+          "core_contract.daemon_instance"
+        ],
+        "summary": "lease_lock의 획득·해제·self·재시작 규칙",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M30"
+        ],
+        "core_change": "가드 평가 앞에서 잠그고 발급 뒤 푼다. self = daemon_instance.id"
+      },
+      "G46": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "usage_recording.record_semantics",
+          "usage_recording.record_after_result",
+          "usage_recording.report_join",
+          "usage_recording.accepted_vs_rejected",
+          "usage_recording.slot_lifecycle"
+        ],
+        "summary": "열은 한 번만 채움(write-once), runner·provider_family_label은 조인, 거부 봉투는 기록 안 함, 슬롯은 usage_slot_ready가 만들고 issue_lease가 봉투를 붙임",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M26"
+        ]
+      },
+      "G47": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "envelopes.instruction.limits.value_source_order",
+          "envelopes.instruction.limits.max_retries.must_equal"
+        ],
+        "summary": "limits 값의 출처 순서: 과제 정의 → envelopes.instruction.limits.<key>.default",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M26"
+        ],
+        "core_change": "reads에 envelopes.instruction.limits 추가"
+      },
+      "G48": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "lease_guards[id=instruction_envelope_valid].on_fail",
+          "lease_guards[id=usage_slot_ready].on_fail",
+          "concurrency.lease_guards_detail.on_fail_ref"
+        ],
+        "summary": "가드별 on_fail. instruction_envelope_valid 실패는 코어가 envelope_invalid를 낸다(queued, builder_available 통과 때만)",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M30"
+        ],
+        "core_change": "가드 실패 뒤 on_fail(emit_event)을 코어가 실행"
+      },
+      "G49": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "core_contract.operations.validate_instruction",
+          "core_contract.predicate_ops",
+          "envelopes.instruction.canon_change_approval.validate",
+          "envelopes.instruction.real_data_allowed.derived_by"
+        ],
+        "summary": "검증 규칙 7개를 읽기 목록 안(core_contract)에 구조화. 정본 경로 목록 대신 과제의 canon_change.approval.scope_paths",
+        "mock_core_reads": "no",
+        "scenarios": [
+          "M32"
+        ],
+        "core_change": "validate_instruction 구현, op subset_of·is_bool·is_list 추가, M32 구현"
+      },
+      "G50": {
+        "status": "해소(필드)",
+        "resolved_by": [
+          "events",
+          "noop_rules[event=owner_stop]",
+          "transitions[from=building,event=owner_stop,to=building]",
+          "core_contract.operations.hard_stop.trigger_events",
+          "hard_stop.trigger_events_ref",
+          "return_codes[code=R-07]"
+        ],
+        "summary": "owner_stop 사건과 전이를 더하고 트리거 ↔ 사건 대응표를 만든다. 중단 지시는 stop 요청, grace_s 뒤 hard_stop_deadline(R-07)",
+        "mock_core_reads": "yes",
+        "scenarios": [
+          "M27"
+        ]
+      }
+    },
+    "reads_to_add": [
+      "envelopes.instruction.limits"
+    ],
+    "reads_to_add_note": "읽기 목록에 넣으면 tools/tests/test_daemon_dry_run.py의 view 집합 검사(envelopes 본문은 required만)도 같이 고친다",
+    "prose_still_parsed_by_mock_core": [
+      {
+        "gap": "G43",
+        "legacy": "state_integrity.normal_expiry.path",
+        "structured": "state_integrity.normal_expiry.events_by_state"
+      },
+      {
+        "gap": "G43",
+        "legacy": "core_contract.operations.resend_outbox.on_fail.expired.then",
+        "structured": "core_contract.operations.resend_outbox.on_fail.expired.then_events"
+      },
+      {
+        "gap": "G43",
+        "legacy": "concurrency.idempotency_key",
+        "structured": "core_contract.operations.accept_envelope.idempotency_key_fields"
+      },
+      {
+        "gap": "G31",
+        "legacy": "handoff_failure_policy.restart_resume.preserve",
+        "structured": "handoff_failure_policy.restart_resume.preserve.check"
+      }
+    ],
+    "mock_core_behavior_differs": [
+      {
+        "gap": "G29",
+        "spec": "∩는 conflict_paths의 패턴 겹침",
+        "mock_core": "문자열 교집합"
+      },
+      {
+        "gap": "G31",
+        "spec": "preserve에서 로컬 커밋이 없으면 confirm_quiescent로",
+        "mock_core": "phase 유지"
+      },
+      {
+        "gap": "G34",
+        "spec": "end_lease는 active일 때만",
+        "mock_core": "상태를 덮어씀"
+      },
+      {
+        "gap": "G36",
+        "spec": "효과 id ↔ 자격 이름은 credential_of_effect 대응표",
+        "mock_core": "id의 끝말과 이름의 끝을 비교"
+      },
+      {
+        "gap": "G38",
+        "spec": "검출 시 handoff→returned(R-10), 보존 없음",
+        "mock_core": "걸린 파일만 보존에서 제외하고 계속"
+      },
+      {
+        "gap": "G42",
+        "spec": "적용 대상과 outbox·journal 바인딩을 applies_to·bindings 데이터로 읽음",
+        "mock_core": "recovery.detect_id가 적용 대상을 코드로 판정"
+      },
+      {
+        "gap": "G44",
+        "spec": "violation_kind 노출과 값 집합 검사",
+        "mock_core": "kind를 봉투 종류로 덮어씀, 값 집합 미검사"
+      },
+      {
+        "gap": "G45",
+        "spec": "가드 평가 앞에서 잠금",
+        "mock_core": "검사만"
+      },
+      {
+        "gap": "G48",
+        "spec": "코어가 envelope_invalid를 냄",
+        "mock_core": "호출자가 냄"
+      },
+      {
+        "gap": "G49",
+        "spec": "validate_instruction 규칙",
+        "mock_core": "M32 미구현"
+      }
+    ],
+    "scenario_gap_marks_to_convert": [
+      "M34(G40)",
+      "M36(G38)",
+      "M37(G30·G39)",
+      "M38(G31)",
+      "M42(G41)"
+    ],
+    "tests_to_add_note": "G29~G50 전용 시험은 이 설계 노드가 넣지 못했다. tools/tests/test_daemon_dry_run.py는 이 노드의 허용 경로 밖이라 가드가 거부했다. 설계 담당은 아래 검사를 저장소 밖에서 돌려 이 판의 데이터에서 통과하는 것을 확인했지만 저장소에는 남아 있지 않다. T-OP-00 빌더가 test_daemon_dry_run.py에 시험으로 넣는다. 아래 `structure`는 파일 안의 정합성(코어 없이), `behavior`는 모의 코어(MockEnv)를 돌려 보는 동작이다",
+    "tests_to_add": {
+      "structure": [
+        {"gap": "G29", "check": "가드 셋과 state_without_lease의 식에 task_id 범위가 있다. 겹침 규칙(patterns_overlap)이 tasks.json의 중첩 conflict_paths(services/knowledge/** ↔ services/knowledge/release/**)를 겹침으로 본다"},
+        {"gap": "G30", "check": "handoff_blocked→handoff recovery_decision 두 행이 배타(preservation_state ==/!=)이고 phase가 restart_resume 단계다"},
+        {"gap": "G31", "check": "restart_resume의 7개 키·순서 그대로, 객체 값은 {check, then, else}이고 then·else의 대상이 단계 또는 events"},
+        {"gap": "G32·G33", "check": "reads에 switch_policy.allowed_sources가 있고, noop_rules[].when은 모두 술어 목록이며 다른 `when`의 술어 목록은 없다(core_contract.condition_keys)"},
+        {"gap": "G34~G36", "check": "lease_record_status 열거 ⊇ end_lease가 쓰는 값, lease_end.transitions = end_lease를 가진 전이, 효과 id→자격 이름 표가 always_revoke와 일대일"},
+        {"gap": "G37", "check": "활성 임대 상태를 떠나는 모든 전이가 end_lease를 가진다(예외 handoff→paused_no_builder 하나), 취소로 가는 모든 전이에 set_cancelled"},
+        {"gap": "G38·G39", "check": "handoff→returned secret_detected(R-10)와 scan 항목의 states마다 받는 전이가 있다. index_lock 두 행이 owner_pid_alive로 배타이고 retry_detail의 두 필드를 모두 쓴다"},
+        {"gap": "G40~G44", "check": "checks_in_order 순서, void 사유 열거 = 쓰는 값, corruption.detect 5개의 id 고유·bindings, 사건 목록이 문장 속 토큰과 같음, fence_violation_report.kind 값 집합"},
+        {"gap": "G45~G50", "check": "lease_lock 수명 주기, usage 의미 규칙, limits 출처, lease_guards on_fail의 사건이 events_in.payloads에 있음, validate_instruction 규칙 7개, owner_stop 전이·noop·trigger_events"},
+        {"gap": "G29~G50", "check": "gap_resolutions의 resolved_by 경로가 모두 실제로 있고, 07 §1f에 22행이 있으며, doc_followups의 row가 05에 실제로 있다"}
+      ],
+      "behavior": [
+        {"gap": "G37", "check": "unmapped_condition(활성 임대 있음)이 end_lease(revoked)를 하고 owner_resolved 뒤 queued→leased가 된다. 임대가 없으면 record_r_code만. handoff_blocked의 abandon·취소가 임대를 끝낸다. merged_invalid_approval 취소가 set_cancelled를 한다"},
+        {"gap": "G38", "check": "인계 중 secret_detected → returned(R-10), 커밋·푸시 0건, 임대 revoked"},
+        {"gap": "G39", "check": "index_lock에 소유자가 살아 있으면 isolate부터, 아니면 preserve부터 재시도"},
+        {"gap": "G40", "check": "수락한 결과 봉투(result_pr_opened)의 재전달은 envelope_duplicate_delivery이고 late가 아니다. 처음 보는 봉투가 끝난 임대로 오면 late(R-11)"},
+        {"gap": "G42", "check": "lease_id만 어긋난 outbox 행을 outbox_lease_id_mismatch가 잡는다"},
+        {"gap": "G46", "check": "거부된(late·중복) 결과 봉투는 usage_record를 바꾸지 않는다"},
+        {"gap": "G50", "check": "building에서 owner_stop은 stop 요청만 하고 기한 뒤 hard_stop_deadline(R-07)으로 끝난다. 인계 중 owner_stop은 noop. 일을 시작하기 전(leased)의 owner_stop은 unmapped_condition(R-03)"}
+      ]
+    },
+    "doc_followups_note": "05_VM실행준비.md는 이 설계 노드의 허용 경로 밖이라 고치지 않았다. 아래 행은 규칙(이 파일)과 다른 이전 문구로 남아 있다. 정본은 이 파일이고, 05 소유자 또는 T-OP-00 빌더가 05 §5 보고서를 갱신할 때 행 단위로 맞춘다. row는 05 안의 표 행 앵커",
+    "doc_followups": [
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M13 |",
+        "gaps": [
+          "G29"
+        ],
+        "change": "입력 열: conflict_paths 겹침 = 같은 문자열, 또는 `<dir>/**`가 다른 쪽을 품음(lease_guards[no_conflict_lease].conflict_match)"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M14 |",
+        "gaps": [
+          "G38"
+        ],
+        "change": "입력 열에 '인계 중 보존 전 작업 트리 파일에 패턴' 추가. 기대 열: 인계 중이면 handoff → returned(secret_detected, R-10), 보존·푸시 0건"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M27 |",
+        "gaps": [
+          "G50"
+        ],
+        "change": "입력 열: 중단 지시 = `owner_stop` 사건. 기대 열: grace_s 뒤 R-07로 끝남(hard_stop_deadline), 인계·handoff_blocked 중 owner_stop은 noop"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M30 |",
+        "gaps": [],
+        "principle": "U-05",
+        "change": "입력 열의 '예산 미예약' → '사용량 슬롯(usage_slot_ready) 실패'. 예산 상한은 없다(U-05)"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M34 |",
+        "gaps": [
+          "G40"
+        ],
+        "change": "입력 열: 임대를 끝낸 결과 봉투의 재전달도 포함. 기대 열: 재전달은 envelope_duplicate_delivery(noop), 처음 보는 봉투가 끝난 임대로 오면 late(R-11)"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M36 |",
+        "gaps": [
+          "G38"
+        ],
+        "change": "기대 열: 비밀값 패턴 파일이 있으면 secret_detected → returned(R-10), 보존 커밋 0건(제외하고 계속하지 않음)"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M37 |",
+        "gaps": [
+          "G30",
+          "G37",
+          "G39"
+        ],
+        "change": "기대 열: recovery_decision(action=retry) 재개 지점 = 로컬 커밋 있으면 preserve_remote, 없으면 isolate; action=abandon은 임대를 끝내고 returned(R-14); index.lock 소유 프로세스가 살아 있으면 isolate부터"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M38 |",
+        "gaps": [
+          "G31"
+        ],
+        "change": "기대 열: preserve에서 재시작했는데 로컬 커밋이 없으면 confirm_quiescent부터 다시"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§5",
+        "row": "| M42 |",
+        "gaps": [
+          "G41"
+        ],
+        "change": "기대 열: void(revoked/cancelled) → void(revoked). 취소도 임대를 revoked로 끝내므로 void_reason에 cancelled는 없다"
+      },
+      {
+        "file": "05_VM실행준비.md",
+        "section": "§8",
+        "row": "| 저장 구조 |",
+        "gaps": [
+          "G34",
+          "G41"
+        ],
+        "change": "lease_record.status 열거 = active/expired/revoked/handed_off/completed/returned(6개). outbox.void_reason 열거 = expired/revoked/corrupt"
+      }
+    ]
+  }
 }

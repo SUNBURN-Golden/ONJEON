@@ -301,8 +301,9 @@
 - S01 한 판매 구성의 여러 약관 판·같은 연결의 근거 추가(재검토 e02755a 재현) [동작 검증]: 통과 · 근거 주장 추가 → Q1 {'kind': 'payable', 'krw': 5000000} · 보통약관 판 + 미확인 다른 특약 판 함께 연결 → Q1 {'kind': 'payable', 'krw': 5000000}(요청 담보와 무관한 판의 미확인은 막지 않음)
 - S01b 요청 담보의 판 연결에 미승인 주장이 섞임 [동작 검증]: 통과 · blocked ['a:hana_doc_link_dup_hold:hold'] · 엔진 호출 0
 - T01 범위 미확인 연결 보류·무관한 특약 허용·경쟁 판 보류·순서 독립(재검토 10f470c 재현) [동작 검증]: 통과 · 범위 미확인 → ['a:unknown_scope_link:scope_unknown'] · 무관함 확인된 특약(hold) → Q1 {'kind': 'payable', 'krw': 5000000} · 경쟁 판 → ["cov:hana_2_1: 판 후보 복수 ['ted:hana_r2_1@2607', 'ted:synthetic_compete@2607']"] · 순서 뒤집기 → 같음 True
+- U01 정의 위치와 적용 관계 구분(재검토 12c1726 재현) [동작 검증]: 통과 · 적용 관계 확인 + 무관 → Q1 {'kind': 'payable', 'krw': 5000000} · 확인 근거 없음(판 ID만 다름) → ['sc:hana_2601_3d_v20260701:application_scope_unverified'] · 확인 주장 hold → ['sc:hana_2601_3d_v20260701:application_scope_unverified'] · 다른 판이 조건 적용 → ['ted:synthetic_main@2607:applies_from_other_edition_unmodeled'] · 적용 관계 미승인 → ['a:synthetic_main_applies:applies_unconfirmed']
 - P1 원시 가격 관측 보존과 비교 자격 분리 [동작 검증]: 통과 · 보존 → 위반 0 · 비교 자격 → ['K13']
 - D6 통합약관 구획과 개별 특약 파일이 같은 판 [동작 검증]: 통과 · 판을 담은 원본 3개(원래·개별·통합) · 위반 0
 - D7 통합 파일 안 특약 하나 개정 → 새 판(같은 계열) [동작 검증]: 통과 · 기존 판에 잇기 → ['K16'] · 새 판에 잇기 → 위반 0 · 같은 계열 · r26 결과 불변
 
-## 요약: r24 K1 위반 재현 True · r25·r26 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 24/24 · 전체 통과
+## 요약: r24 K1 위반 재현 True · r25·r26 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 25/25 · 전체 통과

@@ -454,6 +454,28 @@
       "temporal": false,
       "inference": "none",
       "criticality": "—"
+    },
+    {
+      "id": "applies_to",
+      "ko": "적용 관계",
+      "domain": "TermsEdition|ClauseOccurrence",
+      "range": "CoverageOccurrence",
+      "cardinality": "n..n",
+      "semantics": "이 판(또는 조항)이 그 담보의 결론에 조건을 덧붙인다(보통약관 준용 규정, 별도 제한 조건). 정의 위치(in_edition)와 다르다. 입력 단계는 실행 규칙이 다루지 않는 적용 관계가 있으면 계산하지 않는다(재검토 U01)",
+      "temporal": true,
+      "inference": "none",
+      "criticality": "C0"
+    },
+    {
+      "id": "application_scope_complete",
+      "ko": "적용 관계 확인 완료",
+      "domain": "SalesConfiguration",
+      "range": "bool",
+      "cardinality": "0..1",
+      "semantics": "그 판매 구성이 쓰는 판들의 적용 관계를 모두 확인했다는 주장(사업방법서·약관 목차 대조 근거). 이 주장이 승인되어 있을 때만 applies_to가 없는 다른 판을 무관하다고 본다. 판 ID가 다르다는 사실만으로 무관함을 정하지 않는다",
+      "temporal": true,
+      "inference": "none",
+      "criticality": "C0"
     }
   ],
   "assertion_fields": {

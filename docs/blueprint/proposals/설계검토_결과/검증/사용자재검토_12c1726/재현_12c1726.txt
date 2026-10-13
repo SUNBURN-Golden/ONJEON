@@ -1,0 +1,9 @@
+# 재검토(12c1726) U01 재현과 수정 뒤 결과 (구현자 실행, 2026-10-13)
+
+## 12c1726 (수정 전)
+U01 다른 판(보통약관)이 요청 담보에 조건 적용 → blocked None · rule a:hana_rule
+U01 다른 판 연결, 적용 관계 확인 근거 없음 → blocked None · rule a:hana_rule
+
+## 작업 트리 (수정 뒤)
+U01 다른 판(보통약관)이 요청 담보에 조건 적용 → blocked ['ted:synthetic_main@2607:applies_from_other_edition_unmodeled'] · rule None
+U01 다른 판 연결, 적용 관계 확인 근거 없음 → blocked ['sc:hana_2601_3d_v20260701:application_scope_unverified'] · rule None

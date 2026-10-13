@@ -493,6 +493,26 @@ def resolve(abox, q):
         steps.append(f"  약관 판 {ed}의 동일성이 확인되지 않음(근거 묶음 부족 또는 검수 없는 지문 차이) → 계산하지 않음")
         return {"blocked": [f"{ed}:identity_unconfirmed"], "steps": steps, "config": sc}
     steps.append(f"  담보 연결: {q['cov']} ∈ {ed}")
+    # 재검토(12c1726) U01: 정의 위치(in_edition)와 적용 관계(applies_to: 판 → 담보)를 구분한다.
+    # 다른 판은 (가) 판매 구성의 적용 관계 전부 확인(application_scope_complete) + (나) 그 판의 applies_to 없음일 때만 건너뛴다.
+    rule_a = next((a for a in cur if a["subject"] == q["cov"] and a["predicate"] == "implemented_by" and a["review_status"] == "accepted"), None)
+    covered_eds = set((rule_a or {}).get("covers_editions", [ed]))
+    applies = [a for a in cur if a["predicate"] == "applies_to" and a["object"] == q["cov"]]
+    pending = [a for a in applies if a["review_status"] != "accepted"]
+    if pending:
+        steps.append("  요청 담보에 대한 적용 관계 주장이 미승인 → 영향 여부 미확인 → 계산하지 않음")
+        return {"blocked": [a["id"] + ":applies_unconfirmed" for a in sorted(pending, key=lambda a: a["id"])], "steps": steps, "config": sc}
+    unmodeled = sorted(a["subject"] for a in applies if a["subject"] not in covered_eds)
+    if unmodeled:
+        steps.append(f"  다른 판 {unmodeled}이 요청 담보에 조건을 적용하는데 실행 규칙이 그 판을 다루지 않음 → 계산하지 않음")
+        return {"blocked": [f"{e}:applies_from_other_edition_unmodeled" for e in unmodeled], "steps": steps, "config": sc}
+    others = sorted(e for e in used if e not in (None, ed))
+    if others:
+        complete = [a for a in cur if a["subject"] == sc and a["predicate"] == "application_scope_complete" and a["review_status"] == "accepted" and a.get("value") is True]
+        if not complete:
+            steps.append(f"  이 판매본이 쓰는 다른 판 {others}의 적용 관계를 모두 확인했다는 근거가 없음 → 영향 여부 미확인 → 계산하지 않음")
+            return {"blocked": [f"{sc}:application_scope_unverified"], "steps": steps, "config": sc}
+        steps.append(f"  다른 판 {others}: 적용 관계 확인 완료({complete[0]['id']}), 요청 담보에 대한 applies_to 없음 → 이 결론과 무관")
     ok, why = simulate_allowed(abox, cur, q["cov"])
     steps.append(f"담보: {node(abox, q['cov'])['label']} · simulate {'enabled' if ok else 'blocked'}" + ("" if ok else " ← " + ", ".join(why)))
     if not ok:
@@ -656,6 +676,13 @@ def run_all(v, runner):
         r, ev = res[q["id"]], evs.get(q["id"])
         out[q["id"]] = (outcome(r, ev), r["steps"] + explain(v, q, r, ev))
     return out
+
+
+def scope_complete(sc="sc:hana_2601_3d_v20260701", status="accepted"):
+    """자체 시험용: 판매 구성의 적용 관계를 모두 확인했다는 주장(사업방법서·약관 목차 대조를 가정)."""
+    return {"id": "a:synthetic_scope_complete", "subject": sc, "predicate": "application_scope_complete", "value": True, "criticality": "C0",
+            "evidence": [{"ref": "hana_listing#2601_3d_v20260701", "role": "observation"}], "value_state": "observed", "review_status": status, "origin": "fixture",
+            "_review_note": "자체 시험용 가정: 적용 관계 전부 확인"}
 
 
 def realizes(sid, ed, by="fixture_assumption"):
@@ -845,6 +872,7 @@ def release_tests(runner):
     a["assertions"].append(dict(hl, id="a:synthetic_main_link", object="ted:synthetic_main@2607"))
     a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_rider2@2607", label="자체 시험용 다른 특약 판", parts=[]))
     a["assertions"].append(dict(hl, id="a:synthetic_rider2_link", object="ted:synthetic_rider2@2607", review_status="hold", hold_reason="reference_unresolved"))
+    a["assertions"].append(scope_complete())
     cv = candidate_view(a)
     r2 = run_all(cv, runner)["Q1"][0]
     out.append(("S01 한 판매 구성의 여러 약관 판·같은 연결의 근거 추가(재검토 e02755a 재현)", "동작", r1 == base["Q1"][0] and r2 == base["Q1"][0],
@@ -865,6 +893,7 @@ def release_tests(runner):
     a = copy.deepcopy(ABOX)
     a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_rider3@2607", label="자체 시험용 다른 특약 판", parts=[]))
     a["assertions"].append(dict(hl, id="a:synthetic_rider3_link", object="ted:synthetic_rider3@2607", review_status="hold", hold_reason="reference_unresolved"))
+    a["assertions"].append(scope_complete())
     r_unrel = run_all(candidate_view(a), runner)["Q1"][0]
     a = copy.deepcopy(ABOX)
     a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_compete@2607", label="자체 시험용 경쟁 판"))
@@ -882,6 +911,29 @@ def release_tests(runner):
           and "blocked" in r_comp and "판 후보 복수" in r_comp["blocked"][0] and fwd.get("blocked") == rev.get("blocked") and "blocked" in fwd)
     out.append(("T01 범위 미확인 연결 보류·무관한 특약 허용·경쟁 판 보류·순서 독립(재검토 10f470c 재현)", "동작", ok,
                 f"범위 미확인 → {r_unknown.get('blocked')} · 무관함 확인된 특약(hold) → Q1 {r_unrel} · 경쟁 판 → {r_comp.get('blocked')} · 순서 뒤집기 → 같음 {fwd.get('blocked') == rev.get('blocked')}"))
+
+    # U01 재검토(12c1726): 정의 위치와 적용 관계 구분
+    q1 = next(q for q in QUESTIONS if q["id"] == "Q1")
+    hl = next(x for x in ABOX["assertions"] if x["id"] == "a:hana_doc_link")
+    def with_other(applies=None, complete=None):
+        a = copy.deepcopy(ABOX)
+        a["terms_editions"].append(dict(copy.deepcopy(next(x for x in a["terms_editions"] if x["id"] == "ted:hana_r2_1@2607")), id="ted:synthetic_main@2607", label="자체 시험용 보통약관 판", parts=[]))
+        a["assertions"].append(dict(hl, id="a:synthetic_main_link2", object="ted:synthetic_main@2607"))
+        if applies:
+            a["assertions"].append({"id": "a:synthetic_main_applies", "subject": "ted:synthetic_main@2607", "predicate": "applies_to", "object": "cov:hana_2_1", "criticality": "C0",
+                                    "evidence": [{"ref": "hana_2601_3d#c_2_1_art1_1", "role": "basis"}], "value_state": "observed", "review_status": applies, "origin": "fixture"})
+        if complete:
+            a["assertions"].append(scope_complete(status=complete))
+        return candidate_view(a)
+    r_ok = run_all(with_other(complete="accepted"), runner)["Q1"][0]
+    r_unver = resolve(with_other(), q1)
+    r_hold_complete = resolve(with_other(complete="hold"), q1)
+    r_applies = resolve(with_other(applies="accepted", complete="accepted"), q1)
+    r_applies_hold = resolve(with_other(applies="hold", complete="accepted"), q1)
+    ok = (r_ok == base["Q1"][0] and "application_scope_unverified" in str(r_unver.get("blocked")) and "application_scope_unverified" in str(r_hold_complete.get("blocked"))
+          and "applies_from_other_edition_unmodeled" in str(r_applies.get("blocked")) and "applies_unconfirmed" in str(r_applies_hold.get("blocked")))
+    out.append(("U01 정의 위치와 적용 관계 구분(재검토 12c1726 재현)", "동작", ok,
+                f"적용 관계 확인 + 무관 → Q1 {r_ok} · 확인 근거 없음(판 ID만 다름) → {r_unver.get('blocked')} · 확인 주장 hold → {r_hold_complete.get('blocked')} · 다른 판이 조건 적용 → {r_applies.get('blocked')} · 적용 관계 미승인 → {r_applies_hold.get('blocked')}"))
 
     # P1 재검토 R06①: 조건이 빈 원시 가격 관측은 보존(위반 없음), 비교 자격을 주면 K13
     a = copy.deepcopy(ABOX)

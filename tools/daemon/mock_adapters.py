@@ -12,7 +12,7 @@ import threading
 
 from .core.ports import (
     BuilderPool, Catalog, Clock, CommitFailed, Credentials, Faults, Git, GuardChecks, IdSource, Ports,
-    ProcessControl, PushFailed, Sender, SimulatedCrash, SpecGap, Store, Worktree,
+    ProcessControl, PushFailed, Remote, Sender, SimulatedCrash, SpecGap, Store, Worktree,
 )
 
 
@@ -77,10 +77,27 @@ class IdGen(IdSource):
 class MockFaults(Faults):
     def __init__(self):
         self.armed = {}
+        self.failing = {}
         self.hits = []
 
     def arm(self, point, times=1):
         self.armed[point] = times
+
+    def arm_fail(self, point, times=1):
+        """The next `times` writes at this point cannot be made (None: until cleared)."""
+        self.failing[point] = times
+
+    def clear_fail(self, point):
+        self.failing.pop(point, None)
+
+    def fails(self, point):
+        n = self.failing.get(point, 0)
+        if n is None:
+            return True
+        if n > 0:
+            self.failing[point] = n - 1
+            return True
+        return False
 
     def check(self, point):
         n = self.armed.get(point, 0)
@@ -200,7 +217,9 @@ class MockGit(Git):
                 raise exc
 
     # --- the one tree identity function (name read from concurrency.quiescence.manifest_function)
-    def _excluded(self, rel):
+    def _excluded(self, rel, extra=()):
+        if rel in extra:
+            return True
         parts = rel.split("/")
         for pat in self.excludes:
             if pat.endswith("/"):
@@ -225,21 +244,24 @@ class MockGit(Git):
                 return True
         return False
 
-    def _included(self, worktree):
+    def _included(self, worktree, extra=()):
         tree = self.wt.ensure(worktree)
         leaves = {}
         for rel, e in tree["files"].items():
             if e["kind"] == "dir":
                 continue  # a Git tree holds no empty directories
-            if self._excluded(rel) or self._gitignored(tree, rel):
+            if self._excluded(rel, extra) or self._gitignored(tree, rel):
                 continue
             leaves[rel] = e
         return leaves
 
-    def git_write_tree_oid(self, worktree, includes=None, excludes=None):
+    def included_files(self, worktree, excludes=()):
+        return {rel: e["content"] for rel, e in self._included(worktree, tuple(excludes)).items()}
+
+    def git_write_tree_oid(self, worktree, includes=None, excludes=()):
         self.oid_calls += 1
         self._maybe_fail("git_write_tree_oid")
-        return self._hash(self._included(worktree))
+        return self._hash(self._included(worktree, tuple(excludes or ())))
 
     @staticmethod
     def _hash(leaves):
@@ -275,16 +297,16 @@ class MockGit(Git):
         return tree_sha(root) or hashlib.sha1(b"tree 0\0").hexdigest()
 
     # --- Git port
-    def preserve_commit(self, worktree, branch, message):
+    def preserve_commit(self, worktree, branch, message, excludes=()):
         self._maybe_fail("commit")
         for hook in self.before_commit:
             hook()
-        tree_oid = self.git_write_tree_oid(worktree)
+        tree_oid = self.git_write_tree_oid(worktree, excludes=excludes)
         self.commit_count += 1
         self.trace.append(("commit", self.trace_len()))
         sha = hashlib.sha1(f"commit {self.commit_count} {tree_oid} {message}".encode()).hexdigest()
         self.commits[sha] = {"tree": tree_oid, "branch": branch, "message": message,
-                             "paths": sorted(self._included(worktree))}
+                             "paths": sorted(self._included(worktree, tuple(excludes)))}
         return {"commit_tree_oid": tree_oid, "wip_commit_sha": sha}
 
     def push(self, branch, sha):
@@ -431,45 +453,31 @@ class MockCatalog(Catalog):
     def task(self, task_id):
         return self.tasks[task_id]
 
-    def branch_for(self, task_id, attempt):
-        return f"task/{task_id}-a{attempt}"
-
     def reply_to(self):
         return "mock://daemon-inbox"
 
 
 class MockGuards(GuardChecks):
-    def __init__(self, pool, catalog, max_parallel):
-        self.pool = pool
-        self.catalog = catalog
-        self.max_parallel = max_parallel
-        self.reserved = set()
-        self.lock_blocked = set()
+    """The only guard that needs the outside world: is a next-ranked builder runner available."""
 
-    def reserve(self, task_id, attempt):
-        self.reserved.add((task_id, attempt))
+    def __init__(self, pool):
+        self.pool = pool
 
     def check(self, name, info):
-        d, tid = info["snapshot"], info["task_id"]
-        others = {k: v for k, v in d["tasks"].items() if k != tid}
-        active = {k: v for k, v in others.items() if (v["lease_record"] or {}).get("status") == "active"}
         if name == "builder_available":
             return self.pool.available("any", None)
-        if name == "no_conflict_lease":
-            mine = set(info["conflict_paths"])
-            return not any(mine & set(self.catalog.task(k).get("conflict_paths", [])) for k in active)
-        if name == "lock_acquired":
-            return tid not in self.lock_blocked
-        if name == "single_writer":
-            return not any(v["lease_record"]["branch"] == info["branch"] for v in active.values())
-        if name == "max_parallel_leases":
-            return len(active) < self.max_parallel
-        if name == "budget_reserved":
-            return (tid, info["attempt"]) in self.reserved
         raise SpecGap(f"no mock check for guard {name}")
 
 
-def build_ports(clock, tasks, builders, excludes, max_parallel):
+class MockRemote(Remote):
+    def __init__(self):
+        self.writes = []
+
+    def execute(self, kind, task_id, request):
+        self.writes.append((kind, task_id, request.get("lease_generation"), request.get("envelope_id")))
+
+
+def build_ports(clock, tasks, builders, excludes):
     creds = MockCredentials()
     wt = MockWorktree(clock, creds)
     proc = MockProcessControl(clock)
@@ -477,6 +485,6 @@ def build_ports(clock, tasks, builders, excludes, max_parallel):
     catalog = MockCatalog(tasks)
     return Ports(
         clock=clock, store=MemoryStore(), sender=MockSender(proc), process=proc, credentials=creds, worktree=wt,
-        git=MockGit(wt, excludes), guards=MockGuards(pool, catalog, max_parallel), builders=pool,
-        catalog=catalog, ids=IdGen(), faults=MockFaults(),
+        git=MockGit(wt, excludes), guards=MockGuards(pool), builders=pool,
+        catalog=catalog, ids=IdGen(), faults=MockFaults(), remote=MockRemote(),
     )

@@ -1,15 +1,5 @@
 {
- "description": "T-OP-00 모의 코어용 모의 과제와 모의 설정. daemon_rules.json이 확정하지 않은 값(사용자 결정 필요)은 parameters로 채우며, 이 값은 모의 실행을 위한 가정이지 결정이 아니다.",
- "parameters": {
-  "concurrency.lease.ttl_s": 3600,
-  "concurrency.quiescence.window_s": 5,
-  "hard_stop.grace_s": 120,
-  "handoff_failure_policy.max_attempts.quiescence_failed.value": 3,
-  "handoff_failure_policy.max_attempts.index_lock.value": 3,
-  "handoff_failure_policy.max_attempts.preserve_commit_failed.value": 2,
-  "handoff_failure_policy.max_attempts.preserve_push_failed.value": 3,
-  "max_parallel_leases": 2
- },
+ "description": "T-OP-00 모의 코어용 모의 과제와 모의 설정. 숫자(ttl_s·heartbeat_s·window_s·grace_s·max_attempts·max_parallel_leases)는 daemon_rules.json이 직접 갖는다(G01). 이 파일은 과제 정의, 빌더 목록, 필수 시험 ID만 둔다.",
  "builders": [
   {
    "name": "mock-builder-1",
@@ -41,18 +31,16 @@
    "done_criteria": [
     "mock done"
    ],
-   "budget": {
-    "max_calls": 10,
-    "max_cost_units": 10,
-    "max_wall_s": 7200,
-    "max_retries": 3
-   },
    "decision_gates": {
     "start": [],
     "real_data": [],
     "merge": []
    },
-   "canon_change": null
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
   },
   {
    "task_id": "T-MOCK-HANDOFF",
@@ -74,18 +62,16 @@
    "done_criteria": [
     "mock done"
    ],
-   "budget": {
-    "max_calls": 10,
-    "max_cost_units": 10,
-    "max_wall_s": 7200,
-    "max_retries": 3
-   },
    "decision_gates": {
     "start": [],
     "real_data": [],
     "merge": []
    },
-   "canon_change": null
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
   },
   {
    "task_id": "T-MOCK-OTHER",
@@ -107,18 +93,16 @@
    "done_criteria": [
     "mock done"
    ],
-   "budget": {
-    "max_calls": 10,
-    "max_cost_units": 10,
-    "max_wall_s": 7200,
-    "max_retries": 3
-   },
    "decision_gates": {
     "start": [],
     "real_data": [],
     "merge": []
    },
-   "canon_change": null
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
   }
  ],
  "t_op_00_required_test_ids": [
@@ -132,7 +116,7 @@
   "docs-pr-complete",
   "eleventh-pr-audit",
   "mis-merge-not-done",
-  "budget-reserve-before-call",
+  "usage-recorded-not-capped",
   "hard-stop-heartbeating-job",
   "switch-negative-test-output",
   "switch-negative-third-party-http",

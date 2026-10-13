@@ -1,16 +1,15 @@
-"""issue_lease (the only place that changes lease_generation), guards, outbox send/resend, expiry helpers."""
+"""issue_lease (the only place that changes lease_generation), lease guards, outbox send and resend."""
 import re
 
+from . import usage
 from .envelope_validator import build_instruction, missing_instruction_fields
-from .gate_evaluator import GuardResult
+from .gate_evaluator import Clockview, Ctx, GuardResult
 from .ports import PreconditionFailed
 
 
-def issue_reasons(rules):
-    text = rules.get("core_contract.operations.issue_lease.inputs")[1]
-    m = re.search(r"\{([^}]*)\}", text)
-    rules.token_log.add(("core_contract.operations.issue_lease.inputs", "reason set in braces"))
-    return [x.strip() for x in m.group(1).split(",")]
+def branch_name(core, task_id, attempt):
+    """concurrency.branch_naming: 'task/<task_id>-a<attempt>'."""
+    return core.rules.get("concurrency.branch_naming").replace("<task_id>", task_id).replace("<attempt>", str(attempt))
 
 
 def _candidate_lease(core, d, task_id, reason, lease_id="(new)"):
@@ -22,41 +21,67 @@ def _candidate_lease(core, d, task_id, reason, lease_id="(new)"):
         "lease_id": lease_id, "task_id": task_id, "lease_generation": t["lease_generation"] + 1,
         "fencing_token": t["lease_generation"] + 1,
         "builder": builder["name"] if builder else None, "runner": builder["runner"] if builder else None,
-        "branch": core.ports.catalog.branch_for(task_id, ts["attempt"]),
+        "branch": branch_name(core, task_id, ts["attempt"]),
         "base_sha": core.ports.git.base_sha(task_id), "issued_at": now,
         "expires_at": now + core.rules.number("concurrency.lease.ttl_s"),
         "last_heartbeat_at": None, "status": "active",
     }
 
 
-def run_guards(core, d, task_id, reason="initial"):
-    """lease_guards, in the order the contract lists them. The names come from the data; the checks
-    that need the outside world are adapter calls, instruction_envelope_valid is the core's own."""
+class _LockView:
+    """lease_lock(task_id): the lock row of a task ({} when nobody holds it)."""
+
+    def __init__(self, d):
+        self.d = d
+
+    def __call__(self, task_id):
+        return self.d.setdefault("lease_lock", {}).get(task_id) or {"task_id": task_id, "holder": None, "acquired_at": None}
+
+
+def run_guards(core, d, task_id, reason="from_queue"):
+    """lease_guards[], in the order the contract lists them. kind=store and kind=core are predicates the core
+    evaluates itself; kind=adapter goes to the adapter. Returns a GuardResult."""
     t = d["tasks"][task_id]
     task_def = core.ports.catalog.task(task_id)
     attempt = t["task_state"]["attempt"]
-    info = {"task_id": task_id, "attempt": attempt, "branch": core.ports.catalog.branch_for(task_id, attempt),
-            "conflict_paths": task_def.get("conflict_paths", []), "snapshot": d}
+    this = {"task_id": task_id, "branch": branch_name(core, task_id, attempt),
+            "conflict_paths": task_def.get("conflict_paths", [])}
+    # Count over the leases of the other tasks: this task's own lease is the one being replaced (G29).
+    others = [dict(v["lease_record"]) for k, v in d["tasks"].items() if k != task_id and v.get("lease_record")]
+    roots = {"this": this, "lease_lock": _LockView(d), "usage_record": usage.UsageView(core, d),
+             "lease_record": t.get("lease_record") or {}}
+
+    def valid(_arg):
+        cand = _candidate_lease(core, d, task_id, reason)
+        inst = build_instruction(core, d, task_id, cand, "(new)")
+        return "invalid" if missing_instruction_fields(core, task_id, inst) else "valid"
+
+    roots["clock"] = Clockview(core.clock.now())
+    ctx = Ctx(core.rules, roots, funcs={"envelope_validator": valid},
+              variables={"task_id": task_id, "next_generation": t["lease_generation"] + 1},
+              collections={"lease_record": others, "outbox": t["outbox"]},
+              task_of=lambda row: core.ports.catalog.task(row["task_id"]))
     items = []
-    for entry in core.rules.view["lease_guards"]:
-        name = core.rules.token("lease_guards", r"^[A-Za-z_][A-Za-z0-9_]*", entry)
-        if name == "instruction_envelope_valid":
-            cand = _candidate_lease(core, d, task_id, reason)
-            inst = build_instruction(core, d, task_id, cand, "(new)")
-            ok = not missing_instruction_fields(core, task_id, inst)
+    for guard in core.rules.view["lease_guards"]:
+        kind = guard["kind"]
+        if kind == "adapter":
+            ok = bool(core.ports.guards.check(guard["id"], {"task_id": task_id, "reason": reason}))
         else:
-            ok = bool(core.ports.guards.check(name, info))
-        items.append((entry, ok))
+            ok = ctx.predicate(guard["check"])[0]
+        items.append((guard["id"], ok))
     return GuardResult(items)
 
 
-def issue_lease(core, d, task_id, reason):
-    """The one function that issues a lease. Everything else calls this."""
+def issue_lease(core, d, task_id, reason, tr, recs):
+    """The one function that issues a lease. Everything else calls this. `tr` is the transition row that issues
+    it (its `to` is the state set by the atomic record and its event goes into the transition record)."""
     rules = core.rules
     t = d["tasks"][task_id]
-    if reason not in core.issue_reasons:
+    if reason not in rules.issue_reasons:
         raise PreconditionFailed([f"reason not allowed: {reason}"])
-    ctx = core.ctx(d, task_id)
+    if tr is None:
+        raise PreconditionFailed(["issue_lease needs the transition that issues it"])
+    ctx = core.ctx(d, task_id, reason=reason)
     failures = []
     for pre in rules.get("core_contract.operations.issue_lease.preconditions"):
         if "when_reason" in pre and pre["when_reason"] != reason:
@@ -67,8 +92,7 @@ def issue_lease(core, d, task_id, reason):
     if failures:
         raise PreconditionFailed(failures)
     prev = t.get("lease_record") or {}
-    builder = core.ports.builders.select(task_id, reason, prev.get("builder"))
-    if builder is None:
+    if core.ports.builders.select(task_id, reason, prev.get("builder")) is None:
         raise PreconditionFailed(["no builder"])
     now = core.clock.now()
     new_gen = t["lease_generation"] + 1
@@ -81,9 +105,26 @@ def issue_lease(core, d, task_id, reason):
     if missing:
         raise PreconditionFailed([f"instruction fields missing: {missing}"])
     core.ports.faults.check("issue_lease:staged")
-    t["lease_generation"] = new_gen
-    t["lease_record"] = lease
-    t["outbox"].append(row)
+    # effects_atomic, in the order the contract lists them. All of them are written in this one transaction.
+    for eff in rules.get("core_contract.operations.issue_lease.effects_atomic"):
+        sid = eff["id"]
+        if sid == "increment_counter":
+            if eff["args"]["field"] != "lease_generation":
+                raise PreconditionFailed([f"issue_lease increments only lease_generation, not {eff['args']['field']}"])
+            t["lease_generation"] = new_gen
+        elif sid == "create_lease_record":
+            lease["expires_at"] = ctx.value(eff["args"]["expires_at"])
+            lease["status"] = ctx.value(eff["args"]["status"])
+            t["lease_record"] = lease
+        elif sid == "create_outbox":
+            t["outbox"].append(row)
+        elif sid == "set_task_state":
+            t["task_state"]["state"] = tr["to"]
+        elif sid == "record_transition":
+            core.rec.transition(d, task_id, tr["from"], tr["to"], tr["event"], recs or [])
+        else:
+            raise PreconditionFailed([f"issue_lease effect not understood: {sid}"])
+    usage.attach_envelope(core, d, task_id, new_gen, row["envelope_id"])
     core.rec.side_effect(d, task_id, "issue_lease", reason=reason, lease_id=lease["lease_id"],
                          lease_generation=new_gen, envelope_id=row["envelope_id"], builder=lease["builder"])
     return lease, row
@@ -99,47 +140,47 @@ def void_pending(core, d, task_id, reason, only_envelope=None):
             core.rec.side_effect(d, task_id, "void_outbox", envelope_id=row["envelope_id"], reason=reason)
 
 
-def classify_resend_failure(recs, lease, ts):
-    failed = {r["field"] for r in recs if not r["result"]}
-    if "outbox.status" in failed:
-        return "not_pending", None
-    if failed & {"lease_record.lease_id", "lease_record.lease_generation"}:
-        return "generation_or_lease_mismatch", None
-    if "task_state.cancelled" in failed or ts.get("state") == "cancelled" or ts.get("cancelled"):
-        return "revoked_or_cancelled", "cancelled"
-    if lease.get("status") == "expired" or (lease.get("status") == "active" and "clock.now" in failed):
-        return "expired", "expired"
-    return "revoked_or_cancelled", "revoked"
+def then_events(core, where, text):
+    """on_fail.<key>.then is a sentence; the event names that stand in it are the follow-up events."""
+    known = core.rules.known_events
+    names = [w for w in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", text or "") if w in known]
+    for n in names:
+        core.rules.token_log.add((where, "event name inside a sentence: " + n))
+    return names
 
 
 def resend_outbox(core, task_id, trigger):
-    """core_contract.operations.resend_outbox. Same envelope_id, only if every check in
-    state_integrity.resend_same_envelope_id_only_if holds."""
-    rules = core.rules
-    checks = rules.get("state_integrity.resend_same_envelope_id_only_if")
+    """core_contract.operations.resend_outbox. Same envelope_id, only if every check passes."""
+    from . import effects, recovery
+    spec = core.rules.get("core_contract.operations.resend_outbox")
     results = []
     pending = [r["envelope_id"] for r in core.snapshot()["tasks"][task_id]["outbox"] if r["status"] == "pending"]
     for env_id in pending:
         action = None
+        follow = []
         with core.ports.store.transaction() as d:
             t = d["tasks"][task_id]
             row = next(r for r in t["outbox"] if r["envelope_id"] == env_id)
             if row["status"] != "pending":
                 continue
             ctx = core.ctx(d, task_id, row=row)
-            ok, recs = ctx.all(checks)
-            if ok:
+            failed_key, recs = None, []
+            for chk in spec["checks"]:
+                ok, rec = ctx.predicate(chk["pred"])
+                recs.append(rec)
+                if not ok:
+                    failed_key = chk["fail_key"]
+                    break
+            if failed_key is None:
                 lease = t["lease_record"]
                 instruction = build_instruction(core, d, task_id, lease, row["envelope_id"])
                 core.rec.intent(d, task_id, "send_envelope", envelope_id=env_id, trigger=trigger)
                 action = ("send", instruction)
             else:
-                kind, reason = classify_resend_failure(recs, t.get("lease_record") or {}, t["task_state"])
-                if kind == "generation_or_lease_mismatch":
-                    action = ("corruption", None)
-                else:
-                    void_pending(core, d, task_id, reason, only_envelope=env_id)
-                    action = (kind, reason)
+                on_fail = spec["on_fail"][failed_key]
+                effects.run_effects(core, d, task_id, on_fail.get("effects"), effects.Env(only_envelope=env_id))
+                follow = then_events(core, f"core_contract.operations.resend_outbox.on_fail.{failed_key}.then", on_fail.get("then"))
+                action = (failed_key, None)
         if action[0] == "send":
             core.ports.sender.send(task_id, action[1])
             core.ports.faults.check("resend:after_send")
@@ -151,13 +192,8 @@ def resend_outbox(core, task_id, trigger):
                 core.rec.side_effect(d, task_id, "send_envelope", envelope_id=env_id,
                                      lease_generation=row["lease_generation"], kind="instruction", trigger=trigger)
                 core.rec.result(d, task_id, "send_envelope", "sent", envelope_id=env_id)
-        elif action[0] == "corruption":
-            from . import recovery
+        elif follow:
             with core.ports.store.transaction() as d:
-                recovery.handle_corruption(core, d, task_id, why="outbox/lease mismatch found while resending")
-        elif action[0] == "expired":
-            from . import recovery
-            with core.ports.store.transaction() as d:
-                recovery.expire(core, d, task_id)
+                recovery.follow_up(core, d, task_id, follow, {"detect_id": recovery.detect_id(core, d, task_id)})
         results.append((env_id, action[0]))
     return results

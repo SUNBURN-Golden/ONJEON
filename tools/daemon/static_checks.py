@@ -136,15 +136,21 @@ def single_lease_generation_writer():
     return bad
 
 
+def _increments_generation(eff):
+    return eff.get("id") == "increment_counter" and (eff.get("args") or {}).get("field") == "lease_generation"
+
+
 def rules_issue_only_in_side_effects(rules_raw):
-    """No transition side effect or handoff step text increments the generation by itself."""
+    """No transition side effect or handoff step text increments the generation by itself; the only
+    increment is in issue_lease.effects_atomic."""
     bad = []
     for i, tr in enumerate(rules_raw["transitions"]):
-        for s in tr.get("side_effects", []):
-            if re.search(r"lease_generation\s*(\+=|=\s*lease_generation\s*\+|\+\s*1)", s):
-                bad.append(f"transitions[{i}] side_effects increments the generation: {s[:60]}")
-            if "issue_lease(" not in s:
-                bad.append(f"transitions[{i}] side_effects does not call issue_lease: {s[:60]}")
+        for eff in tr.get("side_effects", []):
+            if _increments_generation(eff):
+                bad.append(f"transitions[{i}] side_effects increments the generation")
+    atomic = rules_raw["core_contract"]["operations"]["issue_lease"]["effects_atomic"]
+    if sum(1 for eff in atomic if _increments_generation(eff)) != 1:
+        bad.append("issue_lease.effects_atomic does not increment lease_generation exactly once")
     for step in rules_raw["switch_policy"]["handoff_steps"]:
         if re.search(r"lease_generation\s*(\+=|=\s*lease_generation\s*\+)", step):
             bad.append(f"handoff step increments the generation: {step[:60]}")
@@ -152,14 +158,43 @@ def rules_issue_only_in_side_effects(rules_raw):
 
 
 def issuing_transitions_call_issue_lease(rules_raw):
-    """Every transition that enters `leased`, carries lease_granted, or is the building->building
-    re-lease lists issue_lease in side_effects."""
+    """Every transition that enters `leased`, carries lease_granted, or is the building->building re-lease
+    lists issue_lease (with a reason) in side_effects."""
     bad = []
     for i, tr in enumerate(rules_raw["transitions"]):
         issues = tr["to"] == "leased" or tr["event"] == "lease_granted" or (tr["from"] == "building" and tr["to"] == "building" and tr.get("guard"))
-        has = any("issue_lease(" in s for s in tr.get("side_effects", []))
-        if issues and not has:
+        calls = [e for e in tr.get("side_effects", []) if e.get("id") == "issue_lease"]
+        if issues and not calls:
             bad.append(f"transitions[{i}] {tr['from']}->{tr['to']} {tr['event']} has no issue_lease side effect")
+        for c in calls:
+            if (c.get("args") or {}).get("reason") not in rules_raw["concurrency"]["lease_issue"]["reasons"]:
+                bad.append(f"transitions[{i}] issue_lease reason {(c.get('args') or {}).get('reason')!r} is not in lease_issue.reasons")
+    return bad
+
+
+def no_cost_cap(rules_raw=None, tasks_path=None):
+    """U-05: no budget reservation or exhaustion stop. Core sources, mock files and the rule fields that decide
+    behavior (events, transitions, lease_guards, instruction required list, hard_stop.trigger) name none."""
+    bad = []
+    for p in _py_files(CORE):
+        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            if re.search(r"\b(?:budget|reserv|exhaust|cost_cap|max_cost|max_calls)", line, re.I):
+                bad.append(f"core/{p.name}:{i}: {line.strip()}")
+    if tasks_path is not None:
+        text = Path(tasks_path).read_text(encoding="utf-8")
+        for m in re.finditer(r'"(budget[a-z_]*|max_cost[a-z_]*|max_calls)"', text):
+            bad.append(f"{Path(tasks_path).name}: {m.group(0)}")
+    if rules_raw is not None:
+        names = list(rules_raw["events"]) + [t["event"] for t in rules_raw["transitions"]] \
+            + [g["id"] for g in rules_raw["lease_guards"]] + list(rules_raw["envelopes"]["instruction"]["required"]) \
+            + list(rules_raw["hard_stop"]["trigger"])
+        for n in names:
+            if re.search(r"\b(?:budget|exhaust|reserv)", n, re.I):
+                bad.append(f"rules: {n}")
+        if "usage_recording" not in rules_raw:
+            bad.append("rules: usage_recording is missing")
+        if "limits" not in rules_raw["envelopes"]["instruction"]["required"]:
+            bad.append("rules: envelopes.instruction.required has no limits")
     return bad
 
 
@@ -199,8 +234,9 @@ def no_model_identifiers(extra_files=()):
     return bad
 
 
-def all_static(rules_path):
+def all_static(rules_path, tasks_path=None):
     raw = json.loads(Path(rules_path).read_text(encoding="utf-8"))
+    tasks_path = tasks_path or HERE / "mock_tasks.json"
     return [
         ("코어가 when·note·_ 키를 읽지 않음", no_natural_language_reads()),
         ("코어에 dry_run·mock 분기 문자열 없음", no_dry_run_branch_in_core()),
@@ -212,5 +248,6 @@ def all_static(rules_path):
         ("전이 side_effects·인계 단계에 별도 세대 증가 없음", rules_issue_only_in_side_effects(raw)),
         ("임대 발급 전이는 모두 issue_lease를 부름", issuing_transitions_call_issue_lease(raw)),
         ("다른 해시 정의 없음, 트리 해시는 git_write_tree_oid만", single_tree_identity_function()),
+        ("비용 상한·예산 예약·소진 정지 표현 없음(코어·모의 과제·규칙의 동작 필드)", no_cost_cap(raw, tasks_path)),
         ("모델 식별자 문자열 없음", no_model_identifiers()),
     ]

@@ -4,6 +4,9 @@ import re
 from .gate_evaluator import Clockview, Ctx
 from .ports import SpecGap
 
+# message type -> envelope kind used by accept_envelope.current_lease_rules (envelope.kind)
+FENCE_REPORT = "fence_violation"
+
 
 def key_fields(rules):
     """concurrency.idempotency_key is written as 'a + b + c + d'."""
@@ -13,27 +16,38 @@ def key_fields(rules):
     return fields
 
 
-def required_fields(rules, msg_type):
+def _spec(rules, msg_type):
+    """(required entries, envelope name) for a message type. The payload table either holds the list or points
+    at envelopes.<name>.required; result envelopes are envelopes.result."""
     payloads = rules.get("core_contract.events_in.payloads")
-    if msg_type == "result":
-        base = list(rules.view["envelopes"]["result"]["required"])
-    elif msg_type in ("first_heartbeat", "heartbeat"):
-        base = list(payloads[msg_type])
-    elif msg_type in payloads and msg_type != "switch_signal":
-        base = list(payloads[msg_type])
-    elif msg_type == "switch_signal":
-        text = payloads["switch_signal"][0]
-        m = re.search(r"signal:\s*([^)]*)\)", text)
+    spec = payloads.get(msg_type)
+    if isinstance(spec, str):
+        m = re.fullmatch(r"envelopes\.([A-Za-z_]\w*)\.required", spec)
         if not m:
-            raise SpecGap("switch_signal required list is not machine readable")
-        rules.token_log.add(("core_contract.events_in.payloads.switch_signal", "field list after 'signal:'"))
-        base = [x.strip() for x in m.group(1).split(",")]
-    else:
-        raise SpecGap(f"no required list for message type {msg_type}")
+            raise SpecGap(f"payload spec is not a pointer to a required list: {spec}")
+        return list(rules.get(spec)), m.group(1)
+    if msg_type in rules.view["envelopes"]:
+        return list(rules.view["envelopes"][msg_type]["required"]), msg_type
+    if isinstance(spec, list):
+        return list(spec), msg_type
+    raise SpecGap(f"no required list for message type {msg_type}")
+
+
+def required_fields(rules, msg_type):
+    entries, _name = _spec(rules, msg_type)
+    out = []
+    for e in entries:
+        name = re.match(r"[A-Za-z_][A-Za-z0-9_]*", e).group(0)  # 'kind ∈ {...}' names the field 'kind'
+        if name not in out:
+            out.append(name)
     for f in key_fields(rules):
-        if f not in ("envelope_kind", "task_id") and f not in base:
-            base.append(f)
-    return base
+        if f not in ("envelope_kind",) and f not in out:
+            out.append(f)
+    return out
+
+
+def envelope_name(rules, msg_type):
+    return _spec(rules, msg_type)[1]
 
 
 def missing_fields(rules, msg_type, envelope):
@@ -72,7 +86,7 @@ def build_instruction(core, d, task_id, lease, envelope_id):
         "tests": task_def.get("tests"),
         "done_criteria": task_def.get("done_criteria"),
         "deadline_heartbeat_s": core.rules.get("concurrency.lease.heartbeat_s"),
-        "budget": task_def.get("budget"),
+        "limits": task_def.get("limits"),
         "reply_to": core.ports.catalog.reply_to(),
         "real_data_allowed": set(gates.get("real_data", [])) <= recorded,
         "canon_change_approval": task_def.get("canon_change_approval"),

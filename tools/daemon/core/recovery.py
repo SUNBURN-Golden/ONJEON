@@ -1,77 +1,71 @@
-"""restart_recovery, normal expiry, state corruption (state_integrity)."""
-from . import effects, lease as lease_mod, transition_engine
+"""restart_recovery, normal expiry and state corruption (state_integrity)."""
+import re
+
+from . import lease as lease_mod, transition_engine
 
 
-def expiry_candidates(core, state):
-    """Events that move an expired lease out of `state`, taken from the transition table."""
-    return [e for e in core.expiry_events if any(tr["event"] == e and tr["from"] == state for tr in core.rules.transitions)]
+def expiry_events(core):
+    """The events that move an expired lease out of its state. state_integrity.normal_expiry.path names them in
+    a sentence; there is no structured list (reported as a gap)."""
+    path = core.rules.get("state_integrity.normal_expiry.path")
+    core.rules.token_log.add(("state_integrity.normal_expiry.path", "event names inside the path text"))
+    known = core.rules.transition_events
+    return [e for e in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", path) if e in known]
+
+
+def _expiry_rows(core, state):
+    names = expiry_events(core)
+    return [tr["event"] for tr in core.rules.transitions if tr["event"] in names and tr["from"] == state]
 
 
 def normal_expiry_due(core, d, task_id):
     t = d["tasks"][task_id]
-    lease = t.get("lease_record")
-    if not lease or t["task_state"]["state"] not in ("leased", "building"):
+    state = t["task_state"]["state"]
+    if not t.get("lease_record") or not _expiry_rows(core, state):
         return False
-    ctx = core.ctx(d, task_id)
-    ok, _ = ctx.all(core.rules.get("state_integrity.normal_expiry.detect"))
+    ok, _ = core.ctx(d, task_id).all(core.rules.get("state_integrity.normal_expiry.detect"))
     return ok
 
 
-def expire(core, d, task_id):
-    """The existing expiry transition (lease_expired / heartbeat_missed_twice). Pending outbox -> void(expired)."""
-    state = d["tasks"][task_id]["task_state"]["state"]
-    for ev in expiry_candidates(core, state):
-        out = transition_engine.apply_event(core, d, task_id, ev, {})
+def follow_up(core, d, task_id, events, payload):
+    """Try the follow-up events in order; the first one that moves the task wins."""
+    for ev in events:
+        out = transition_engine.apply_event(core, d, task_id, ev, payload)
         if out["applied"]:
             return out
-    lease_mod.void_pending(core, d, task_id, "expired")
     return None
 
 
-def corruption_reason(core, d, task_id):
-    """Detections of state_integrity.corruption.detect (the contract lists them as prose; coded here).
-    The 'handoff phase unreadable' item is not applied: it conflicts with transitions[27] (see gaps)."""
+def expire(core, d, task_id):
+    """The existing expiry transition (lease_expired / heartbeat_missed_twice)."""
+    state = d["tasks"][task_id]["task_state"]["state"]
+    out = follow_up(core, d, task_id, _expiry_rows(core, state), {})
+    if out is None:
+        lease_mod.void_pending(core, d, task_id, "expired")
+    return out
+
+
+def detect_id(core, d, task_id):
+    """The id of the first state_integrity.corruption.detect item that holds, or None. The list does not say to
+    which tasks it applies (reported as a gap): the core applies it to tasks whose lease is active or whose state
+    holds a lease; a task that was already ended and returned is not classified again."""
     t = d["tasks"][task_id]
-    lease = t.get("lease_record")
-    ts = t["task_state"]
-    live_state = ts["state"] in ("leased", "building")
-    if lease is None:
-        return "state has no lease record" if live_state else None
-    if lease["status"] != "active" and not live_state:
+    holding = {tr["from"] for tr in core.rules.transitions if tr["event"] in expiry_events(core)}
+    if (t.get("lease_record") or {}).get("status") != "active" and t["task_state"]["state"] not in holding \
+            and t["task_state"]["state"] != "handoff":
         return None
-    rows = t["outbox"]
-    mine = [r for r in rows if r["lease_id"] == lease["lease_id"] or r["lease_generation"] == lease["lease_generation"]]
-    if not mine:
-        return "lease_record without an outbox row of the same generation"
-    for r in mine:
-        if (r["lease_id"] == lease["lease_id"]) != (r["lease_generation"] == lease["lease_generation"]):
-            return "outbox.lease_generation != lease_record.lease_generation"
-    if lease["lease_generation"] != t["lease_generation"] or lease["fencing_token"] != lease["lease_generation"]:
-        return "generation decreased or fencing_token != lease_generation"
-    if live_state and lease["status"] != "active":
-        return "leased/building without an active lease_record"
+    ctx = core.ctx(d, task_id)
+    for item in core.rules.get("state_integrity.corruption.detect"):
+        ok, _ = ctx.all(item["pred"])
+        if ok:
+            return item["id"]
     return None
 
 
-def handle_corruption(core, d, task_id, why):
-    """effects of state_integrity.corruption, then returned(R-08). No new lease is issued."""
-    t = d["tasks"][task_id]
-    ts = t["task_state"]
-    frm = ts["state"]
-    lease = t.get("lease_record")
-    if lease is not None and lease["status"] != "revoked":
-        lease["status"] = "revoked"
-    core.rec.side_effect(d, task_id, "revoke_token", lease_id=(lease or {}).get("lease_id"), via="corruption")
-    for name in core.rules.always_revoke:
-        core.ports.credentials.revoke(name, task_id, (lease or {}).get("lease_id"))
-        core.rec.side_effect(d, task_id, "revoke_credential", credential=name, via="corruption")
-    lease_mod.void_pending(core, d, task_id, "corrupt")
-    code = core.rules.token("state_integrity.corruption.effects", r"R-\d\d", " ".join(core.rules.get("state_integrity.corruption.effects")))
-    ts["state"] = "returned"
-    ts["return_code"] = code
-    core.rec.transition(d, task_id, frm, "returned", "state_integrity.corruption", [], source="state_integrity")
-    core.rec.diagnostic(d, task_id, "corruption", why=why)
-    core.rec.returned(d, task_id, code)
+def corrupt(core, d, task_id, found):
+    """state_corrupted: the contract's own event; its row carries the effects and the R code."""
+    return transition_engine.apply_event(core, d, task_id, core.rules.get("state_integrity.corruption.event"),
+                                         {"detect_id": found})
 
 
 def restart_recovery(core):
@@ -79,11 +73,11 @@ def restart_recovery(core):
     snap = core.snapshot()
     post = []
     for task_id in sorted(snap["tasks"]):
-        # 1 classify
+        # 1 classify: corruption first, then normal expiry
         with core.ports.store.transaction() as d:
-            why = corruption_reason(core, d, task_id)
-            if why:
-                handle_corruption(core, d, task_id, why)
+            found = detect_id(core, d, task_id)
+            if found:
+                corrupt(core, d, task_id, found)
                 continue
             if normal_expiry_due(core, d, task_id):
                 expire(core, d, task_id)

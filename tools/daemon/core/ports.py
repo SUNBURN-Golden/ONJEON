@@ -1,6 +1,6 @@
 """Adapter interfaces. The core touches the outside world only through these.
 
-A test bench supplies in-memory implementations (in the adapters module beside this package). A real executor would
+A test bench supplies in-memory implementations (in the adapter module beside this package). A real executor would
 supply real ones (clock, state file with a lock, process control, git, sender). No real adapter exists here.
 """
 from abc import ABC, abstractmethod
@@ -105,10 +105,16 @@ class Worktree(ABC):
 
 
 class Git(ABC):
-    """git_write_tree_oid(worktree) is the one tree-identity function. Its name is read from the rules."""
+    """git_write_tree_oid(worktree, includes, excludes) is the one tree-identity function. Its name is read
+    from the rules. `excludes` carries the extra paths (files that matched a secret pattern) that are left out
+    of the tree on top of the manifest's own excludes."""
 
     @abstractmethod
-    def preserve_commit(self, worktree, branch, message): ...
+    def preserve_commit(self, worktree, branch, message, excludes=()): ...
+
+    @abstractmethod
+    def included_files(self, worktree, excludes=()):
+        """{relative path: content} of the files the tree identity function would put into the tree."""
 
     @abstractmethod
     def push(self, branch, sha): ...
@@ -124,6 +130,8 @@ class Git(ABC):
 
 
 class GuardChecks(ABC):
+    """Lease guards whose kind is `adapter` (they need the outside world). Store and core guards never get here."""
+
     @abstractmethod
     def check(self, name, info): ...
 
@@ -141,10 +149,14 @@ class Catalog(ABC):
     def task(self, task_id): ...
 
     @abstractmethod
-    def branch_for(self, task_id, attempt): ...
+    def reply_to(self): ...
+
+
+class Remote(ABC):
+    """The outside world a fenced write reaches (push, pull request update). Called only after the checks passed."""
 
     @abstractmethod
-    def reply_to(self): ...
+    def execute(self, kind, task_id, request): ...
 
 
 class IdSource(ABC):
@@ -154,11 +166,17 @@ class IdSource(ABC):
 
 class Faults(ABC):
     @abstractmethod
-    def check(self, point): ...
+    def check(self, point):
+        """Raise SimulatedCrash if the process dies at this point."""
+
+    @abstractmethod
+    def fails(self, point):
+        """True if a write at this point cannot be made (state store write failure). The process stays alive."""
 
 
 class Ports:
-    def __init__(self, clock, store, sender, process, credentials, worktree, git, guards, builders, catalog, ids, faults):
+    def __init__(self, clock, store, sender, process, credentials, worktree, git, guards, builders, catalog, ids, faults,
+                 remote):
         self.clock = clock
         self.store = store
         self.sender = sender
@@ -171,3 +189,4 @@ class Ports:
         self.catalog = catalog
         self.ids = ids
         self.faults = faults
+        self.remote = remote

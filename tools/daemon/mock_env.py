@@ -52,8 +52,9 @@ class MockBuilder:
 
     # ---- envelope makers
     def heartbeat_envelope(self, instr, envelope_id=None):
-        return {"envelope_id": envelope_id or self._eid(), "lease_id": instr["lease_id"],
-                "lease_generation": instr["lease_generation"], "fencing_token": instr["fencing_token"]}
+        return {"envelope_id": envelope_id or self._eid(), "task_id": instr["task_id"], "lease_id": instr["lease_id"],
+                "lease_generation": instr["lease_generation"], "fencing_token": instr["fencing_token"],
+                "at": self.env.clock.now()}
 
     def result_envelope(self, instr, status, **over):
         env = {"envelope_id": self._eid(), "task_id": instr["task_id"], "attempt": instr["attempt"],
@@ -66,10 +67,10 @@ class MockBuilder:
         return env
 
     def signal_envelope(self, instr, status="usage_limit", **over):
-        env = {"source": "provider_http_response", "attempt": instr["attempt"], "call_id": self._eid(),
-               "lease_id": instr["lease_id"], "lease_generation": instr["lease_generation"],
+        env = {"source": "provider_http_response", "task_id": instr["task_id"], "attempt": instr["attempt"],
+               "call_id": self._eid(), "lease_id": instr["lease_id"], "lease_generation": instr["lease_generation"],
                "fencing_token": instr["fencing_token"], "runner": instr["runner"], "envelope_id": self._eid(),
-               "status": status}
+               "status": status, "observed_at": self.env.clock.now()}
         env.update(over)
         return env
 
@@ -87,10 +88,9 @@ class MockEnv:
         with open(tasks_path, encoding="utf-8") as f:
             self.cfg = json.load(f)
         self.clock = VirtualClock()
-        self.rules = Rules(self.raw, self.cfg["parameters"])
+        self.rules = Rules(self.raw)
         excludes = self.rules.view["preserve_manifest"]["excludes"]
-        self.ports = build_ports(self.clock, self.cfg["tasks"], self.cfg["builders"], excludes,
-                                 self.cfg["parameters"]["max_parallel_leases"])
+        self.ports = build_ports(self.clock, self.cfg["tasks"], self.cfg["builders"], excludes)
         self.core = DaemonCore(self.rules, self.ports)
         self.ports.git.trace_len = lambda: len(self.ports.store._data["journal"])
         self.builders = {b["name"]: MockBuilder(self, b["name"], b["runner"]) for b in self.cfg["builders"]}
@@ -131,17 +131,11 @@ class MockEnv:
     def submit(self, task_id, msg_type, envelope):
         return self.core.submit_envelope(task_id, msg_type, envelope)
 
-    def start_task(self, task_id, reserve=True):
+    def start_task(self, task_id):
         self.core.register_task(task_id, "blocked")
         self.event("prereqs_satisfied", task_id)
-        if reserve:
-            self.reserve(task_id)
 
-    def reserve(self, task_id):
-        attempt = self.snap()["tasks"][task_id]["task_state"]["attempt"]
-        self.ports.guards.reserve(task_id, attempt)
-
-    def grant(self, task_id, reason="initial"):
+    def grant(self, task_id, reason="from_queue"):
         return self.event("lease_granted", task_id, reason=reason)
 
     def run_builders(self, first="first_heartbeat"):

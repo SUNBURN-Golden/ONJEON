@@ -1,90 +1,161 @@
 """The contract view of daemon_rules.json.
 
-The core never sees the whole file. build_view() copies only the fields the contract says the core reads
-(core_contract._scope), and sanitize() drops every key named `when` or `note` and every key that starts
-with `_` (explanations for people) wherever it appears. Anything the core needs beyond that list is
-listed in EXTENSIONS and reported as a specification gap.
+The core never sees the whole file. build_view() copies only the fields listed in core_contract.reads (the
+canonical read list, G20) and sanitize() drops every explanation key wherever it appears: `note`, every key that
+starts with `_`, and `when` when its value is prose. (noop_rules[].when is a list of structured predicates, not
+prose; it is kept, see the specification gaps.) Anything the core needs beyond the read list is named in
+EXTENSIONS and reported as a specification gap.
 """
+import copy
 import re
 
 from .ports import SpecGap
 
-PLACEHOLDER_PREFIX = "[사용자 결정 필요]"
-TRANSITION_FIELDS = ("from", "to", "event", "guard", "cond", "side_effects", "by")
-CONCURRENCY_READ = ("lease", "lease_issue", "quiescence", "idempotency_key")
-
-# Fields outside core_contract._scope that the core still needs (reported as gaps in the run report).
+# Fields outside core_contract.reads that the core still needs (reported as gaps in the run report).
 EXTENSIONS = (
-    "events (names only)",
-    "hard_stop.grace_s",
-    "preserve_manifest.function / excludes",
-    "concurrency.fencing.on_lease_end",
-    "envelopes.*.required is read; no signal/heartbeat required list exists, so core_contract.events_in.payloads is used",
+    "switch_policy.allowed_sources",
 )
 
+_MISSING = object()
 
-def is_banned_key(key):
-    return key in ("when", "note") or key.startswith("_")
+
+def is_banned_key(key, value=None):
+    if key in ("when", "note"):
+        # a `when` that holds structured predicates is data (noop_rules); a prose `when` is never read
+        return key in ("note",) or not _structured_predicates(value)
+    return key.startswith("_")
+
+
+def _structured_predicates(value):
+    return isinstance(value, list) and bool(value) and all(
+        isinstance(x, dict) and "field" in x and "op" in x for x in value)
 
 
 def sanitize(node):
     if isinstance(node, dict):
-        return {k: sanitize(v) for k, v in node.items() if not is_banned_key(k)}
+        out = {}
+        for key, v in node.items():
+            if is_banned_key(key, v):
+                continue
+            # a structured `when` (noop_rules) is handed to the core under the name transitions use for the same thing
+            out["cond" if key in ("when",) else key] = sanitize(v)
+        return out
     if isinstance(node, list):
         return [sanitize(x) for x in node]
     return node
 
 
+# ---------------------------------------------------------------- read list patterns
+def _split_top(text, sep):
+    parts, depth, cur = [], 0, ""
+    for ch in text:
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+        if ch == sep and depth == 0:
+            parts.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    parts.append(cur)
+    return parts
+
+
+def expand_pattern(pattern):
+    """'a.b[].{c,d.e}' -> [[('key','a'),('key','b'),('each',),('key','c')], [... ('key','d'),('key','e')]]"""
+    seqs = [[]]
+    for seg in _split_top(pattern, "."):
+        if seg.startswith("{") and seg.endswith("}"):
+            alts = []
+            for alt in _split_top(seg[1:-1], ","):
+                alts += expand_pattern(alt.strip())
+            seqs = [s + a for s in seqs for a in alts]
+            continue
+        steps = []
+        if seg.endswith("[]"):
+            seg, steps = seg[:-2], [("each",)]
+        head = [("all",)] if seg == "*" else [("key", seg)]
+        seqs = [s + head + steps for s in seqs]
+    return seqs
+
+
+def _extract(node, seq):
+    if not seq:
+        return copy.deepcopy(node)
+    head, rest = seq[0], seq[1:]
+    if head[0] == "key":
+        if isinstance(node, dict) and head[1] in node:
+            sub = _extract(node[head[1]], rest)
+            return _MISSING if sub is _MISSING else {head[1]: sub}
+        return _MISSING
+    if head[0] == "each":
+        if not isinstance(node, list):
+            return _MISSING
+        out = []
+        for x in node:
+            sub = _extract(x, rest)
+            out.append({} if sub is _MISSING else sub)
+        return out
+    if head[0] == "all":
+        if not isinstance(node, dict):
+            return _MISSING
+        out = {}
+        for k, v in node.items():
+            sub = _extract(v, rest)
+            if sub is not _MISSING:
+                out[k] = sub
+        return out if out else _MISSING
+    raise SpecGap(f"bad read pattern step {head}")
+
+
+def _combine(a, b):
+    if isinstance(a, dict) and isinstance(b, dict):
+        out = dict(a)
+        for k, v in b.items():
+            out[k] = _combine(out[k], v) if k in out else v
+        return out
+    if isinstance(a, list) and isinstance(b, list) and len(a) == len(b):
+        return [_combine(x, y) for x, y in zip(a, b)]
+    return b
+
+
 def build_view(raw):
-    envelopes = {}
-    for name, body in raw["envelopes"].items():
-        if isinstance(body, dict) and "required" in body:
-            envelopes[name] = {"required": list(body["required"])}
-    return sanitize({
-        "core_contract": raw["core_contract"],
-        "transitions": [{f: t[f] for f in TRANSITION_FIELDS if f in t} for t in raw["transitions"]],
-        "lease_guards": raw["lease_guards"],
-        "handoff_sequence": raw["handoff_sequence"],
-        "handoff_failure_policy": {k: raw["handoff_failure_policy"][k] for k in ("max_attempts", "always_revoke")},
-        "concurrency": dict({k: raw["concurrency"][k] for k in CONCURRENCY_READ},
-                            fencing={"on_lease_end": raw["concurrency"]["fencing"]["on_lease_end"]}),
-        "envelopes": envelopes,
-        "state_integrity": raw["state_integrity"],
-        "noop_events": raw["noop_events"],
-        "return_codes": raw["return_codes"],
-        "events": raw["events"],
-        "hard_stop": {"grace_s": raw["hard_stop"]["grace_s"]},
-        "preserve_manifest": {k: raw["preserve_manifest"][k] for k in ("function", "excludes")},
-    })
+    """Project raw onto core_contract.reads (+ EXTENSIONS) and sanitize. Returns (view, unmatched entries)."""
+    reads = list(raw["core_contract"]["reads"]) + list(EXTENSIONS)
+    view, unmatched = {}, []
+    for entry in reads:
+        hit = False
+        for seq in expand_pattern(entry):
+            part = _extract(raw, seq)
+            if part is _MISSING:
+                continue
+            hit = True
+            view = _combine(view, part)
+        if not hit:
+            unmatched.append(entry)
+    return sanitize(view), unmatched
 
 
 class Rules:
-    """Read access to the contract view. `params` supplies numbers the contract leaves as undecided
-    placeholders ("[사용자 결정 필요] 기본 N"); without an override such a value stops the core."""
+    """Read access to the contract view."""
 
     # (where, token): ids/codes pulled out of strings inside read fields. Shared by all instances so that
     # a run report can list every one of them.
     token_log = set()
 
-    def __init__(self, raw, params=None):
-        self.view = build_view(raw)
-        self.params = dict(params or {})
+    def __init__(self, raw):
+        self.view, self.unmatched_reads = build_view(raw)
+        if "core_contract" not in self.view:
+            raise SpecGap("core_contract.reads is missing")
 
     def get(self, path):
-        for key in (path, path + ".value"):
-            if key in self.params:
-                return self.params[key]
         cur = self.view
         for seg in path.split("."):
             if isinstance(cur, dict) and seg in cur:
                 cur = cur[seg]
             else:
                 raise SpecGap(f"contract path not found: {path}")
-        if isinstance(cur, dict) and "value" in cur:
-            self.token_log.add((path, "implicit .value"))
-            cur = cur["value"]
-        if isinstance(cur, str) and cur.startswith(PLACEHOLDER_PREFIX):
-            raise SpecGap(f"undecided value without a numeric field or override: {path}")
         return cur
 
     def number(self, path):
@@ -114,13 +185,29 @@ class Rules:
     def transitions(self):
         return self.view["transitions"]
 
+    def _catalog(self, key):
+        v = self.get("event_catalog")[key]
+        return list(self.get(v)) if isinstance(v, str) else list(v)
+
     @property
-    def events(self):
-        return list(self.view["events"])
+    def transition_events(self):
+        return self._catalog("transition_events")
 
     @property
     def noop_events(self):
-        return list(self.view["noop_events"])
+        return self._catalog("noop_events")
+
+    @property
+    def operation_events(self):
+        return self._catalog("operation_events")
+
+    @property
+    def known_events(self):
+        return set(self.transition_events) | set(self.noop_events) | set(self.operation_events)
+
+    @property
+    def noop_rules(self):
+        return list(self.view.get("noop_rules", []))
 
     @property
     def sequence(self):
@@ -133,6 +220,15 @@ class Rules:
     @property
     def max_attempt_events(self):
         return list(self.view["handoff_failure_policy"]["max_attempts"].keys())
+
+    @property
+    def stages(self):
+        """Every stage id the contract names for resuming a handoff (the keys of restart_resume)."""
+        return list(self.view["handoff_failure_policy"]["restart_resume"].keys())
+
+    @property
+    def issue_reasons(self):
+        return list(self.get("concurrency.lease_issue.reasons"))
 
     def return_target(self, code):
         for rc in self.view["return_codes"]:

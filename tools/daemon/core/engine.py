@@ -1,8 +1,8 @@
 """DaemonCore: the shared transition and validation core. Callers differ only in the `ports` they supply."""
-from . import effects, envelope_validator, fencing, handoff, lease as lease_mod, recovery, transition_engine
-from .gate_evaluator import Clockview, Ctx
+from . import effects, envelope_validator, fencing, handoff, lease as lease_mod, recovery, transition_engine, usage
+from .gate_evaluator import Clockview, Ctx, Lazy
+from .ports import PreconditionFailed, SpecGap
 from .records import Recorder
-import re
 
 
 class DaemonCore:
@@ -12,12 +12,13 @@ class DaemonCore:
         self.clock = ports.clock
         self.rec = Recorder(rules, ports.clock)
         self.effects = effects
+        if rules.unmatched_reads:
+            raise SpecGap(f"core_contract.reads lists fields the file does not have: {rules.unmatched_reads}")
+        self.known_events = rules.known_events
         payload_names = set(rules.get("core_contract.events_in.payloads").keys())
-        self.known_events = set(rules.events) | {n for n in payload_names if n != "result_*"} | {"daemon_restart"}
-        path = rules.get("state_integrity.normal_expiry.path")
-        self.expiry_events = [e for e in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", path) if e in rules.events]
-        rules.token_log.add(("state_integrity.normal_expiry.path", "event names inside the path text"))
-        self.issue_reasons = lease_mod.issue_reasons(rules)
+        if payload_names - self.known_events:
+            raise SpecGap(f"events_in.payloads names events outside event_catalog: {sorted(payload_names - self.known_events)}")
+        self.issue_reasons = rules.issue_reasons
 
     # ---- state access
     def snapshot(self):
@@ -38,23 +39,51 @@ class DaemonCore:
         return dict((t or {}).get("lease_record") or {})
 
     # ---- evaluation context
-    def ctx(self, d, task_id, row=None, event=None, envelope=None, funcs=None):
+    def ctx(self, d, task_id, row=None, event=None, envelope=None, funcs=None, reason="from_queue"):
         t = d["tasks"][task_id]
-        roots = {"task_state": t["task_state"], "lease_record": t["lease_record"] or {},
-                 "handoff_record": t["handoff_record"] or {}, "outbox": row or {},
-                 "clock": Clockview(self.clock.now()), "event": event or {}, "envelope": envelope or {},
-                 "daemon": self}
-        prev = (t["lease_record"] or {}).get("builder")
+        lease = t["lease_record"] or {}
+        if row is None:
+            # the outbox row of the current lease (state_integrity predicates talk about "the" outbox row)
+            mine = [r for r in t["outbox"] if r["lease_id"] == lease.get("lease_id")]
+            row = mine[-1] if mine else {}
+        ev = dict(event or {})
+        ev["at"] = self.clock.now()  # events_in.schema: at is the clock time of the event
+        env = envelope if envelope is not None else {}
+
+        def instruction():
+            if not lease:
+                return {}
+            rows = [r for r in t["outbox"] if r["lease_id"] == lease["lease_id"]]
+            return envelope_validator.build_instruction(self, d, task_id, lease, rows[-1]["envelope_id"] if rows else "(none)")
+
+        roots = {"task_state": t["task_state"], "lease_record": lease,
+                 "handoff_record": t["handoff_record"] or {}, "outbox": row,
+                 "clock": Clockview(self.clock.now()), "event": ev, "envelope": env, "signal": env, "report": env,
+                 "request": env, "daemon": self, "instruction": Lazy(instruction),
+                 "usage_record": usage.UsageView(self, d)}
+        prev = lease.get("builder")
+        task_def = self.ports.catalog.task(task_id)
+        roots["this"] = {"task_id": task_id, "conflict_paths": task_def.get("conflict_paths", []),
+                         "branch": lease_mod.branch_name(self, task_id, t["task_state"]["attempt"])}
         base = {
-            "lease_guards": lambda _a: lease_mod.run_guards(self, d, task_id),
+            "lease_guards": lambda _a: lease_mod.run_guards(self, d, task_id, reason),
             "builder_available": lambda a: self.ports.builders.available(a, prev),
-            "envelope_validator": lambda a: self._validate_instruction(d, task_id),
+            "envelope_validator": lambda a: self._validate_instruction(d, task_id, reason),
         }
         base.update(funcs or {})
-        return Ctx(self.rules, roots, base, {"task_id": task_id})
+        journal = []
+        for rec in d["journal"]:
+            if rec.get("task_id") == task_id:
+                flat = dict(rec)
+                flat.update(rec.get("args") or {})
+                journal.append(flat)
+        own = [dict(lease)] if lease else []
+        return Ctx(self.rules, roots, base, {"task_id": task_id, "next_generation": t["lease_generation"] + 1},
+                   collections={"lease_record": own, "outbox": t["outbox"], "journal": journal},
+                   task_of=lambda r: self.ports.catalog.task(r["task_id"]))
 
-    def _validate_instruction(self, d, task_id):
-        cand = lease_mod._candidate_lease(self, d, task_id, "initial")
+    def _validate_instruction(self, d, task_id, reason):
+        cand = lease_mod._candidate_lease(self, d, task_id, reason)
         inst = envelope_validator.build_instruction(self, d, task_id, cand, "(new)")
         return "invalid" if envelope_validator.missing_instruction_fields(self, task_id, inst) else "valid"
 
@@ -65,10 +94,13 @@ class DaemonCore:
             return self.restart()
         task_id, payload = ev["task_id"], dict(ev.get("payload") or {})
         if name == "fence_violation":
-            # detected violation by the holder of a lease: only the current lease's counts (fencing)
-            env = dict(payload)
-            env.setdefault("lease_generation", env.get("fencing_token"))
-            return self.submit_envelope(task_id, "fence_violation", env)
+            return self.submit_envelope(task_id, "fence_violation", payload)
+        if name in ("push_requested", "pr_update_requested"):
+            kind = "push" if name == "push_requested" else "pr_update"
+            with self.ports.store.transaction() as d:
+                out = fencing.fenced_write(self, d, task_id, name, kind, payload)
+            self._after_commit(out)
+            return out
         with self.ports.store.transaction() as d:
             out = transition_engine.apply_event(self, d, task_id, name, payload)
         self._after_commit(out)
@@ -81,8 +113,12 @@ class DaemonCore:
         return out
 
     def issue_lease(self, task_id, reason):
+        """Direct call of the one issuing function: it needs the row that leads out of the task's state."""
         with self.ports.store.transaction() as d:
-            lease, _row = lease_mod.issue_lease(self, d, task_id, reason)
+            tr = transition_engine.row_for_issue(self, d, task_id, reason)
+            if tr is None:
+                raise PreconditionFailed([f"no transition issues a lease for {reason} from the current state"])
+            lease, _row = lease_mod.issue_lease(self, d, task_id, reason, tr, [])
         self.ports.faults.check("issue_lease:committed")
         return lease
 
@@ -92,6 +128,9 @@ class DaemonCore:
             with self.ports.store.transaction() as d:
                 if recovery.normal_expiry_due(self, d, task_id):
                     recovery.expire(self, d, task_id)
+
+    def retry_usage(self):
+        return usage.retry_pending(self)
 
     def restart(self):
         post = recovery.restart_recovery(self)

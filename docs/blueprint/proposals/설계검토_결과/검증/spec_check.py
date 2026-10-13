@@ -421,6 +421,20 @@ def run(repo):
     cap_words = re.findall(r"max_cost_units|월 총비용 상한|월 총 비용 상한|예산 소진|budget_exhausted|cost_cap", blob_d)
     ok = not cap_words and bool(D.get("usage_recording")) and not any("예산" in (r.get("when") or "") or "비용" in (r.get("when") or "") for r in D.get("return_codes", []))
     check("latewrite", "G46 [U-05] 비용 상한·예산 소진 정지가 규칙에 없고 사용량 기록(usage_recording)은 있음", ok, {"남은 비용 상한 표현": sorted(set(cap_words)), "usage_recording": bool(D.get("usage_recording"))})
+    # 진행 지시(2026-10-13) 제품 목적 대응표: 목적 → 소비자 기능 → 데이터·레이블 → 트윈 → 화면 → 작업 → 완료 증거
+    try:
+        t09 = read("09_제품목적_대응표.md")
+    except FileNotFoundError:
+        t09 = ""
+    cols = ("제품 목적", "소비자 기능", "데이터", "트윈", "화면", "구현 작업", "완료 증거")
+    ids09 = set(re.findall(r"T-[A-Z]{2}-\d{2}", t09))
+    unknown = sorted(i for i in ids09 if i not in tasks)
+    fin = next((tid for tid, t in tasks.items() if t.get("final_gate")), None)
+    outside = sorted(i for i in ids09 if i in tasks and fin and i != fin and i not in ancestors(tasks, fin, {}))
+    musts = ("미확보 사유", "종합점수", "결과를 바꾸는 조건")
+    ok = t09 and all(c in t09 for c in cols) and ids09 and not unknown and not outside and all(m in t09 for m in musts)
+    check("trace", "G47 09_제품목적_대응표: 칸 7개, 과제 ID가 실재하고 최종 관문 선행 안, 원칙(미확보 사유≠확보, 종합점수 없음, 결과를 바꾸는 조건 공개)", ok,
+          {"없는 칸": [c for c in cols if c not in t09], "과제 ID 수": len(ids09), "없는 과제": unknown, "최종 관문 밖": outside, "없는 원칙 문구": [m for m in musts if m not in t09]}, kind="존재 검사")
     # 다음 작업 2: 모의 검증과 실제 데몬이 같은 전이·검증 코어를 쓴다
     core = D.get("execution_core", {})
     check("wait", "G30 dry-run과 실제 실행기가 같은 전이·검증 코어를 쓴다(execution_core.shared_by)", {"dry_run", "real_executor"} <= set(core.get("shared_by", [])), core or "없음")

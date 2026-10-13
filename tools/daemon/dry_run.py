@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from daemon import scenarios as sc  # noqa: E402
 from daemon.core import Rules  # noqa: E402
-from daemon.spec_gaps import SPEC_GAPS  # noqa: E402
+from daemon.spec_gaps import SPEC_GAPS, open_gaps, resolved_gaps  # noqa: E402
 
 
 def run_scenario(entry, rules, tasks):
@@ -99,9 +99,9 @@ def main(argv=None):
     if args.scenario == "all":
         print("  실행하지 않은 시험 ID: " + ", ".join(not_run))
     print(f"  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 {len(Rules.token_log)}종(명세 공백 후보, --report에 목록)")
-    print("  명세 공백 목록(daemon_rules.json을 고칠 곳)")
-    for g in SPEC_GAPS:
-        print(f"   - {g['id']} {g['field']} @ {g['where']}: {g['need']}")
+    print(f"  명세 공백: 해소(필드) {len(resolved_gaps())}건, 남았거나 새로 생긴 것 {len(open_gaps())}건")
+    for g in open_gaps():
+        print(f"   - {g['id']} [{g['status']}] {g['field']} @ {g['where']}: {g['need']}")
     if args.report:
         Path(args.report).parent.mkdir(parents=True, exist_ok=True)
         Path(args.report).write_text(json.dumps({"results": results, "not_run": not_run, "spec_gaps": SPEC_GAPS,

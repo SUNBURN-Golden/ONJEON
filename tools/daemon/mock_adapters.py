@@ -458,7 +458,7 @@ class MockCatalog(Catalog):
 
 
 class MockGuards(GuardChecks):
-    """The only guard that needs the outside world: is a next-ranked builder runner available."""
+    """The only guard that needs the outside world: is a builder runner available."""
 
     def __init__(self, pool):
         self.pool = pool

@@ -336,21 +336,17 @@ class Ctx:
             tree = _parse(v.strip())
         except ValueError:
             return v
+        if tree[0] == "atom" and len(tree[1]) == 1 and tree[1][0][1] is None and tree[1][0][2] is None:
+            return v  # a bare word is a literal ("active", "daemon"), never a root
         for segs in _walk_atoms(tree, []):
             name0, call0, index0 = segs[0]
             if name0 in _BUILTINS and call0 is not None:
                 continue
             if self._known(name0):
                 continue
-            if len(segs) == 1 and call0 is None and index0 is None and tree[0] == "atom":
-                return v  # a bare word: a literal such as "active"
             if len(segs) == 1 and call0 is None and index0 is None:
                 return v  # a bare word inside an arithmetic-looking string: "R-08"
             raise SpecGap(f"unknown root in {v!r}: {name0}")
-        if tree[0] == "atom" and len(tree[1]) == 1 and tree[1][0][1] is None and tree[1][0][2] is None \
-                and tree[1][0][0] not in self.vars and tree[1][0][0] in self._rule_roots \
-                and tree[1][0][0] not in self.roots:
-            return v  # a bare word that happens to be a top-level contract key is still a literal
         return self._eval(tree)
 
     # ---- predicates

@@ -1,36 +1,478 @@
-== M28 late-result-no-state-change: 이전 임대의 늦은 결과·전환 신호는 noop, 현재 상태 불변  [PASS+GAP]
+== M26 usage-recorded-not-capped: 사용량 기록(슬롯·결과), 상한으로 멈추지 않음, 재시도 한도·응답 없음 정지는 그대로  [PASS]
+  [PASS] 지시 봉투 전에 사용량 기록 슬롯이 만들어진다(슬롯 기록 < 발송 기록)
+      기대: true
+      실제: true
+  [PASS] 슬롯: 과제·세대·봉투·생성 시각이 있고 calls·wall_s·cost_units는 아직 없다
+      기대: [["T-MOCK-BASIC", 1, "01MOCK00000000000000000002", 1000000, null, null, null, null]]
+      실제: [["T-MOCK-BASIC", 1, "01MOCK00000000000000000002", 1000000, null, null, null, null]]
+  [PASS] 결과 봉투의 calls·wall_s·cost_units가 usage_record에 기록된다(세대 1)
+      기대: [7, 120, 1000000000, true]
+      실제: [7, 120, 1000000000, true]
+  [PASS] 비용 1e9 누적 뒤에도 새 임대·발송이 막히지 않고 반송이 없다(세대 2 발송, 상태 building, 반송 0)
+      기대: [2, 2, "building", []]
+      실제: [2, 2, "building", []]
+  [PASS] 그 전이는 시험 실패 재임대 하나뿐(비용으로 생긴 전이 없음)
+      기대: [["building", "building", "result_failed_tests"], ["building", "building", "first_heartbeat"]]
+      실제: [["building", "building", "result_failed_tests"], ["building", "building", "first_heartbeat"]]
+  [PASS] 기록 실패: 결과 봉투 처리는 계속(재임대 세대 3), 경고만 남기고 재시도 대기 1건, 반송 0
+      기대: [3, 1, 1, []]
+      실제: [3, 1, 1, []]
+  [PASS] 기록 실패 시점의 사용량 행은 비어 있다
+      기대: [null, null]
+      실제: [null, null]
+  [PASS] 비동기 재시도가 뒤늦게 기록한다
+      기대: [1, 3, 1000000000, 0]
+      실제: [1, 3, 1000000000, 0]
+  [PASS] 같은 실패 재시도 한도: 3회째 returned(R-06), 임대 종료
+      기대: [[["building", "returned", "result_failed_tests"]], ["R-06"], 3]
+      실제: [[["building", "returned", "result_failed_tests"]], ["R-06"], 3]
+  [PASS] 누적 비용 3e9가 기록되어 있다
+      기대: 3000000000
+      실제: 3000000000
+  [PASS] 다른 과제의 새 임대도 막히지 않는다
+      기대: ["leased", 1]
+      실제: ["leased", 1]
+  [PASS] 응답 없음 정지: 하트비트 2회 누락 → returned(R-08)
+      기대: [[["building", "returned", "heartbeat_missed_twice"]], ["R-08"]]
+      실제: [[["building", "returned", "heartbeat_missed_twice"]], ["R-08"]]
+  [PASS] max_wall_s 직전의 hard_stop_deadline은 받지 않는다
+      기대: [[], "building"]
+      실제: [[], "building"]
+  [PASS] max_wall_s 초과 → returned(R-07)(비용이 아니라 응답 없음·무한 반복 통제)
+      기대: [[["building", "returned", "hard_stop_deadline"]], ["R-07"]]
+      실제: [[["building", "returned", "hard_stop_deadline"]], ["R-07"]]
+  [PASS] 슬롯 쓰기 불가(저장소 장애): 임대 없이 대기(queued), 반송 0
+      기대: [0, "queued", []]
+      실제: [0, "queued", []]
+  [PASS] 저장소가 돌아오면 발급된다
+      기대: ["leased", 1]
+      실제: ["leased", 1]
+  [PASS] 정적: 비용 상한·예산 예약·소진 정지 표현 없음
+      기대: []
+      실제: []
+  [PASS] lease_guards 중 사용량 관련 가드는 usage_slot_ready 하나(예약이 아니라 기록 슬롯)
+      기대: ["usage_slot_ready"]
+      실제: ["usage_slot_ready"]
+== M28 late-result-no-state-change: 이전 임대의 늦은 결과·전환 신호·푸시는 noop, 현재 상태 불변  [PASS]
   [PASS] 임대 B로 교체(token 1→2), 상태 building
       기대: [2, "building", "active"]
       실제: [2, "building", "active"]
-  [PASS] 이전 임대 A의 결과·전환 신호·하트비트: late_envelope_rejected(R-11)
-      기대: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"]]
-      실제: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"]]
-  [PASS] 현재 과제 전이 0건, fence_violation 없음
-      기대: [[], false]
-      실제: [[], false]
+  [PASS] 이전 임대 A의 결과·전환 신호·하트비트·푸시·PR 갱신: late_envelope_rejected(R-11)
+      기대: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envel...
+      실제: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envel...
+  [PASS] 현재 과제 전이 0건, fence_violation 없음, 원격 쓰기 0건
+      기대: [[], false, []]
+      실제: [[], false, [["push", "T-MOCK-BASIC", 2, "P-CUR"]]]
   [PASS] 현재 임대 B·상태·inbox_seen 불변
       기대: [{"lease_id": "01MOCK00000000000000000005", "task_id": "T-MOCK-BASIC", "lease_generation": 2, "fencing_token": 2, "builder": "mock-builder-1", "runner": "moc...
       실제: [{"lease_id": "01MOCK00000000000000000005", "task_id": "T-MOCK-BASIC", "lease_generation": 2, "fencing_token": 2, "builder": "mock-builder-1", "runner": "moc...
   [PASS] 수락 아님
-      기대: [false, false, false]
-      실제: [false, false, false]
+      기대: [false, false, false, false, false]
+      실제: [false, false, false, false, false]
   [PASS] 현재 임대 B의 봉투는 수락
       기대: true
       실제: true
   [PASS] 옛 임대 이름의 위반 신고는 late로만 처리(전이 없음)
       기대: [[], [["late_envelope_rejected", "R-11"]]]
       실제: [[], [["late_envelope_rejected", "R-11"]]]
-  [PASS] 현재 임대의 펜싱 위반만 fence_violation → returned
-      기대: [["building", "returned", "fence_violation"]]
-      실제: [["building", "returned", "fence_violation"]]
-  [GAP] 푸시·PR 갱신의 펜싱 검사
-      기대: "푸시·PR 갱신도 토큰 검사"
-      실제: "미구현(연산 정의 없음)"
-      명세 공백: fencing.checked_at에 push·pr_update가 있으나 core_contract.operations에 푸시/PR 갱신 검사 연산이 없다. 결과 봉투·전환 신호·하트비트만 시험함
-  [GAP] fence_violation payload에 lease_generation 없음
-      기대: "payload에 세대"
-      실제: "토큰으로 대체"
-      명세 공백: events_in.payloads.fence_violation에 lease_generation이 없어 accept_envelope의 세대 검사를 못 한다. fencing_token == lease_generation(store.lease_record) 관계로 세대를 채웠다
+  [PASS] 현재 임대 B의 데몬 경유 푸시는 실행된다(execute_write 1건)
+      기대: [true, [["push", "T-MOCK-BASIC", 2, "P-CUR"]], ["execute_write"]]
+      실제: [true, [["push", "T-MOCK-BASIC", 2, "P-CUR"]], ["execute_write"]]
+  [PASS] 현재 임대의 데몬 우회 푸시만 fence_violation → returned(R-11), 쓰기 거부
+      기대: [[["building", "returned", "fence_violation"]], false, 1, ["R-11"]]
+      실제: [[["building", "returned", "fence_violation"]], false, 1, ["R-11"]]
+  [PASS] 현재 임대 이름의 위반 신고는 fence_violation → returned(R-11), 임대 revoked
+      기대: [[["building", "returned", "fence_violation"]], ["R-11"], "revoked"]
+      실제: [[["building", "returned", "fence_violation"]], ["R-11"], "revoked"]
+== M29 handoff-order: 인계 기록 순서와 폐기 뒤 옛 세대 거부, 새 세대는 폐기 뒤에만  [PASS]
+  [PASS] handoff_sequence(데이터)의 앞 다섯 단계가 모두 기록되고 순서대로다
+      기대: [true, true]
+      실제: [true, true]
+  [PASS] preserve(커밋·푸시)는 데몬 보존 자격으로, 푸시 기록이 revoke_token보다 앞
+      기대: true
+      실제: true
+  [PASS] revoke 뒤·다음 발급 전: 세대 1, issue_lease 0건, 임대 handed_off, 토큰 폐기 표시
+      기대: [1, 0, "handed_off", true]
+      실제: [1, 0, "handed_off", true]
+  [PASS] 폐기 뒤 옛 세대 봉투는 late_envelope_rejected(R-11), 상태·세대 불변
+      기대: [["late_envelope_rejected", "R-11"], "handoff", 1]
+      실제: [["late_envelope_rejected", "R-11"], "handoff", 1]
+  [PASS] 새 토큰·세대는 폐기 뒤에만: 재시작 뒤 issue_lease 1건으로 세대 2, 상태 leased
+      기대: [1, 2, "leased"]
+      실제: [1, 2, "leased"]
+  [PASS] 새 세대 지시 봉투는 발급 뒤에 하나 나간다
+      기대: [2]
+      실제: [2]
+  [PASS] issue_lease는 revoke_token 기록보다 뒤
+      기대: true
+      실제: true
+== M30 lease-guards-all-paths: 모든 임대 발급 경로에서 가드가 하나라도 거짓이면 임대 없음  [PASS]
+  [PASS] lease_guards(데이터)의 id 전부가 이 시험의 주입 대상이다
+      기대: ["builder_available", "instruction_envelope_valid", "lock_acquired", "max_parallel_leases", "no_conflict_lease", "single_writer", "usage_slot_ready"]
+      실제: ["builder_available", "instruction_envelope_valid", "lock_acquired", "max_parallel_leases", "no_conflict_lease", "single_writer", "usage_slot_ready"]
+  [PASS] 가드 종류: adapter 1(builder_available), core 1(instruction_envelope_valid), 나머지 store
+      기대: {"builder_available": "adapter", "instruction_envelope_valid": "core"}
+      실제: {"builder_available": "adapter", "instruction_envelope_valid": "core"}
+  [PASS] [queued→leased / 주입 conflict] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [0, 0, 0, true]
+      실제: [0, 0, 0, true]
+  [PASS] [queued→leased / 주입 conflict] 막은 가드는 ['no_conflict_lease']
+      기대: ["no_conflict_lease"]
+      실제: ["no_conflict_lease"]
+  [PASS] [queued→leased / 주입 conflict] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [queued→leased / 주입 writer] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [0, 0, 0, true]
+      실제: [0, 0, 0, true]
+  [PASS] [queued→leased / 주입 writer] 막은 가드는 ['single_writer']
+      기대: ["single_writer"]
+      실제: ["single_writer"]
+  [PASS] [queued→leased / 주입 writer] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [queued→leased / 주입 lock] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [0, 0, 0, true]
+      실제: [0, 0, 0, true]
+  [PASS] [queued→leased / 주입 lock] 막은 가드는 ['lock_acquired']
+      기대: ["lock_acquired"]
+      실제: ["lock_acquired"]
+  [PASS] [queued→leased / 주입 lock] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [queued→leased / 주입 parallel] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [0, 0, 0, true]
+      실제: [0, 0, 0, true]
+  [PASS] [queued→leased / 주입 parallel] 막은 가드는 ['max_parallel_leases']
+      기대: ["max_parallel_leases"]
+      실제: ["max_parallel_leases"]
+  [PASS] [queued→leased / 주입 parallel] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [queued→leased / 주입 slot] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [0, 0, 0, true]
+      실제: [0, 0, 0, true]
+  [PASS] [queued→leased / 주입 slot] 막은 가드는 ['usage_slot_ready']
+      기대: ["usage_slot_ready"]
+      실제: ["usage_slot_ready"]
+  [PASS] [queued→leased / 주입 slot] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [queued→leased / 주입 envelope] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [0, 0, 0, true]
+      실제: [0, 0, 0, true]
+  [PASS] [queued→leased / 주입 envelope] 막은 가드는 ['instruction_envelope_valid']
+      기대: ["instruction_envelope_valid"]
+      실제: ["instruction_envelope_valid"]
+  [PASS] [queued→leased / 주입 envelope] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [queued→leased / 주입 builder] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [0, 0, 0, true]
+      실제: [0, 0, 0, true]
+  [PASS] [queued→leased / 주입 builder] 막은 가드는 ['builder_available', 'instruction_envelope_valid']
+      기대: ["builder_available", "instruction_envelope_valid"]
+      실제: ["builder_available", "instruction_envelope_valid"]
+  [PASS] [queued→leased / 주입 builder] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [시험 실패 뒤 재임대 / 주입 conflict] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [시험 실패 뒤 재임대 / 주입 conflict] 막은 가드는 ['no_conflict_lease']
+      기대: ["no_conflict_lease"]
+      실제: ["no_conflict_lease"]
+  [PASS] [시험 실패 뒤 재임대 / 주입 conflict] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [시험 실패 뒤 재임대 / 주입 writer] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [시험 실패 뒤 재임대 / 주입 writer] 막은 가드는 ['single_writer']
+      기대: ["single_writer"]
+      실제: ["single_writer"]
+  [PASS] [시험 실패 뒤 재임대 / 주입 writer] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [시험 실패 뒤 재임대 / 주입 lock] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [시험 실패 뒤 재임대 / 주입 lock] 막은 가드는 ['lock_acquired']
+      기대: ["lock_acquired"]
+      실제: ["lock_acquired"]
+  [PASS] [시험 실패 뒤 재임대 / 주입 lock] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [시험 실패 뒤 재임대 / 주입 parallel] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [시험 실패 뒤 재임대 / 주입 parallel] 막은 가드는 ['max_parallel_leases']
+      기대: ["max_parallel_leases"]
+      실제: ["max_parallel_leases"]
+  [PASS] [시험 실패 뒤 재임대 / 주입 parallel] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [시험 실패 뒤 재임대 / 주입 slot] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [시험 실패 뒤 재임대 / 주입 slot] 막은 가드는 ['usage_slot_ready']
+      기대: ["usage_slot_ready"]
+      실제: ["usage_slot_ready"]
+  [PASS] [시험 실패 뒤 재임대 / 주입 slot] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [시험 실패 뒤 재임대 / 주입 envelope] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [시험 실패 뒤 재임대 / 주입 envelope] 막은 가드는 ['instruction_envelope_valid']
+      기대: ["instruction_envelope_valid"]
+      실제: ["instruction_envelope_valid"]
+  [PASS] [시험 실패 뒤 재임대 / 주입 envelope] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [시험 실패 뒤 재임대 / 주입 builder] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [시험 실패 뒤 재임대 / 주입 builder] 막은 가드는 ['builder_available', 'instruction_envelope_valid']
+      기대: ["builder_available", "instruction_envelope_valid"]
+      실제: ["builder_available", "instruction_envelope_valid"]
+  [PASS] [시험 실패 뒤 재임대 / 주입 builder] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [ci_failed→building / 주입 conflict] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [ci_failed→building / 주입 conflict] 막은 가드는 ['no_conflict_lease']
+      기대: ["no_conflict_lease"]
+      실제: ["no_conflict_lease"]
+  [PASS] [ci_failed→building / 주입 conflict] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [ci_failed→building / 주입 writer] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [ci_failed→building / 주입 writer] 막은 가드는 ['single_writer']
+      기대: ["single_writer"]
+      실제: ["single_writer"]
+  [PASS] [ci_failed→building / 주입 writer] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [ci_failed→building / 주입 lock] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [ci_failed→building / 주입 lock] 막은 가드는 ['lock_acquired']
+      기대: ["lock_acquired"]
+      실제: ["lock_acquired"]
+  [PASS] [ci_failed→building / 주입 lock] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [ci_failed→building / 주입 parallel] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [ci_failed→building / 주입 parallel] 막은 가드는 ['max_parallel_leases']
+      기대: ["max_parallel_leases"]
+      실제: ["max_parallel_leases"]
+  [PASS] [ci_failed→building / 주입 parallel] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [ci_failed→building / 주입 slot] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [ci_failed→building / 주입 slot] 막은 가드는 ['usage_slot_ready']
+      기대: ["usage_slot_ready"]
+      실제: ["usage_slot_ready"]
+  [PASS] [ci_failed→building / 주입 slot] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [ci_failed→building / 주입 envelope] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [ci_failed→building / 주입 envelope] 막은 가드는 ['instruction_envelope_valid']
+      기대: ["instruction_envelope_valid"]
+      실제: ["instruction_envelope_valid"]
+  [PASS] [ci_failed→building / 주입 envelope] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [ci_failed→building / 주입 builder] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [ci_failed→building / 주입 builder] 막은 가드는 ['builder_available', 'instruction_envelope_valid']
+      기대: ["builder_available", "instruction_envelope_valid"]
+      실제: ["builder_available", "instruction_envelope_valid"]
+  [PASS] [ci_failed→building / 주입 builder] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [changes_requested→building / 주입 conflict] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [changes_requested→building / 주입 conflict] 막은 가드는 ['no_conflict_lease']
+      기대: ["no_conflict_lease"]
+      실제: ["no_conflict_lease"]
+  [PASS] [changes_requested→building / 주입 conflict] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [changes_requested→building / 주입 writer] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [changes_requested→building / 주입 writer] 막은 가드는 ['single_writer']
+      기대: ["single_writer"]
+      실제: ["single_writer"]
+  [PASS] [changes_requested→building / 주입 writer] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [changes_requested→building / 주입 lock] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [changes_requested→building / 주입 lock] 막은 가드는 ['lock_acquired']
+      기대: ["lock_acquired"]
+      실제: ["lock_acquired"]
+  [PASS] [changes_requested→building / 주입 lock] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [changes_requested→building / 주입 parallel] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [changes_requested→building / 주입 parallel] 막은 가드는 ['max_parallel_leases']
+      기대: ["max_parallel_leases"]
+      실제: ["max_parallel_leases"]
+  [PASS] [changes_requested→building / 주입 parallel] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [changes_requested→building / 주입 slot] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [changes_requested→building / 주입 slot] 막은 가드는 ['usage_slot_ready']
+      기대: ["usage_slot_ready"]
+      실제: ["usage_slot_ready"]
+  [PASS] [changes_requested→building / 주입 slot] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [changes_requested→building / 주입 envelope] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [changes_requested→building / 주입 envelope] 막은 가드는 ['instruction_envelope_valid']
+      기대: ["instruction_envelope_valid"]
+      실제: ["instruction_envelope_valid"]
+  [PASS] [changes_requested→building / 주입 envelope] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [changes_requested→building / 주입 builder] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [changes_requested→building / 주입 builder] 막은 가드는 ['builder_available', 'instruction_envelope_valid']
+      기대: ["builder_available", "instruction_envelope_valid"]
+      실제: ["builder_available", "instruction_envelope_valid"]
+  [PASS] [changes_requested→building / 주입 builder] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [handoff→leased / 주입 conflict] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [handoff→leased / 주입 conflict] 막은 가드는 ['no_conflict_lease']
+      기대: ["no_conflict_lease"]
+      실제: ["no_conflict_lease"]
+  [PASS] [handoff→leased / 주입 conflict] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [handoff→leased / 주입 writer] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [handoff→leased / 주입 writer] 막은 가드는 ['single_writer']
+      기대: ["single_writer"]
+      실제: ["single_writer"]
+  [PASS] [handoff→leased / 주입 writer] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [handoff→leased / 주입 lock] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [handoff→leased / 주입 lock] 막은 가드는 ['lock_acquired']
+      기대: ["lock_acquired"]
+      실제: ["lock_acquired"]
+  [PASS] [handoff→leased / 주입 lock] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [handoff→leased / 주입 parallel] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [handoff→leased / 주입 parallel] 막은 가드는 ['max_parallel_leases']
+      기대: ["max_parallel_leases"]
+      실제: ["max_parallel_leases"]
+  [PASS] [handoff→leased / 주입 parallel] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [handoff→leased / 주입 slot] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [handoff→leased / 주입 slot] 막은 가드는 ['usage_slot_ready']
+      기대: ["usage_slot_ready"]
+      실제: ["usage_slot_ready"]
+  [PASS] [handoff→leased / 주입 slot] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [handoff→leased / 주입 envelope] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [handoff→leased / 주입 envelope] 막은 가드는 ['instruction_envelope_valid']
+      기대: ["instruction_envelope_valid"]
+      실제: ["instruction_envelope_valid"]
+  [PASS] [handoff→leased / 주입 envelope] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [paused_no_builder→leased / 주입 conflict] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [paused_no_builder→leased / 주입 conflict] 막은 가드는 ['no_conflict_lease']
+      기대: ["no_conflict_lease"]
+      실제: ["no_conflict_lease"]
+  [PASS] [paused_no_builder→leased / 주입 conflict] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [paused_no_builder→leased / 주입 writer] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [paused_no_builder→leased / 주입 writer] 막은 가드는 ['single_writer']
+      기대: ["single_writer"]
+      실제: ["single_writer"]
+  [PASS] [paused_no_builder→leased / 주입 writer] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [paused_no_builder→leased / 주입 lock] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [paused_no_builder→leased / 주입 lock] 막은 가드는 ['lock_acquired']
+      기대: ["lock_acquired"]
+      실제: ["lock_acquired"]
+  [PASS] [paused_no_builder→leased / 주입 lock] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [paused_no_builder→leased / 주입 parallel] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [paused_no_builder→leased / 주입 parallel] 막은 가드는 ['max_parallel_leases']
+      기대: ["max_parallel_leases"]
+      실제: ["max_parallel_leases"]
+  [PASS] [paused_no_builder→leased / 주입 parallel] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [paused_no_builder→leased / 주입 slot] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [paused_no_builder→leased / 주입 slot] 막은 가드는 ['usage_slot_ready']
+      기대: ["usage_slot_ready"]
+      실제: ["usage_slot_ready"]
+  [PASS] [paused_no_builder→leased / 주입 slot] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
+  [PASS] [paused_no_builder→leased / 주입 envelope] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)
+      기대: [1, 0, 1, true]
+      실제: [1, 0, 1, true]
+  [PASS] [paused_no_builder→leased / 주입 envelope] 막은 가드는 ['instruction_envelope_valid']
+      기대: ["instruction_envelope_valid"]
+      실제: ["instruction_envelope_valid"]
+  [PASS] [paused_no_builder→leased / 주입 envelope] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [2, 2]
 == M33 handoff-quiescent-before-preserve: 응답 없는 빌더의 보존: isolate 먼저, 정지 확인 뒤에만 preserve  [PASS]
   [PASS] 기록 순서: stop < isolate < confirm_quiescent < preserve(commit < push) < revoke_token < issue_lease
       기대: true
@@ -38,9 +480,9 @@
   [PASS] 빌더 쓰기 자격 회수도 정지 확인보다 먼저
       기대: true
       실제: true
-  [PASS] 응답 없는 빌더: stop 기한이 지나 isolate가 프로세스 그룹을 종료
-      기대: ["terminate_process_group"]
-      실제: ["terminate_process_group"]
+  [PASS] 응답 없는 빌더: stop 기한이 지나 isolate가 프로세스 그룹을 종료(첫 기록 terminated=True), 임대 종료 때는 이미 없음
+      기대: [true, false]
+      실제: [true, false]
   [PASS] stop 결과: 기한 경과
       기대: "grace_expired"
       실제: "grace_expired"
@@ -71,51 +513,45 @@
   [PASS] 원격 ref == wip_commit_sha
       기대: "f2d33a6b4dfa9122ebc14ee3d042726ba96cf553"
       실제: "f2d33a6b4dfa9122ebc14ee3d042726ba96cf553"
-== M34 duplicate-delivery-noop: 같은 멱등 키 봉투의 중복 전달은 noop  [PASS]
+== M34 duplicate-delivery-noop: 같은 멱등 키 봉투의 중복 전달은 noop  [PASS+GAP]
+  [PASS] 살아 있는 임대 안: 두 번째는 envelope_duplicate_delivery(noop)
+      기대: [true, "envelope_duplicate_delivery", [["heartbeat", null], ["envelope_duplicate_delivery", null]]]
+      실제: [true, "envelope_duplicate_delivery", [["heartbeat", null], ["envelope_duplicate_delivery", null]]]
+  [PASS] 상태·처리 결과 불변
+      기대: [{"task_id": "T-MOCK-BASIC", "state": "building", "attempt": 1, "consecutive_failed_tests": 0, "stop_requested_at": null, "cancelled": false, "return_code": ...
+      실제: [{"task_id": "T-MOCK-BASIC", "state": "building", "attempt": 1, "consecutive_failed_tests": 0, "stop_requested_at": null, "cancelled": false, "return_code": ...
   [PASS] 처음 처리: building→pr_open
       기대: [["building", "pr_open", "result_pr_opened"]]
       실제: [["building", "pr_open", "result_pr_opened"]]
-  [PASS] 두 번째는 envelope_duplicate_delivery(noop)
-      기대: ["envelope_duplicate_delivery", [["envelope_duplicate_delivery", null]]]
-      실제: ["envelope_duplicate_delivery", [["envelope_duplicate_delivery", null]]]
-  [PASS] 상태·처리 결과 불변
-      기대: [{"task_id": "T-MOCK-BASIC", "state": "pr_open", "attempt": 1, "consecutive_failed_tests": 0, "stop_requested_at": null, "cancelled": false, "return_code": n...
-      실제: [{"task_id": "T-MOCK-BASIC", "state": "pr_open", "attempt": 1, "consecutive_failed_tests": 0, "stop_requested_at": null, "cancelled": false, "return_code": n...
+  [PASS] 결과 봉투 재전달: 거부되어 처리 결과·상태 불변(noop 하나)
+      기대: [false, 1, {"task_id": "T-MOCK-BASIC", "state": "pr_open", "attempt": 1, "consecutive_failed_tests": 0, "stop_requested_at": null, "cancelled": false, "retur...
+      실제: [false, 1, {"task_id": "T-MOCK-BASIC", "state": "pr_open", "attempt": 1, "consecutive_failed_tests": 0, "stop_requested_at": null, "cancelled": false, "retur...
   [PASS] 처음 처리의 수락 결과는 그대로
-      기대: [true, true]
-      실제: [true, true]
-== M35 retry-new-idempotency-key: 재개·재임대·인계·복귀마다 새 세대·새 키  [PASS+GAP]
+      기대: true
+      실제: true
+  [GAP] 임대를 끝낸 결과 봉투의 중복 전달 분류
+      기대: "envelope_duplicate_delivery(noop)"
+      실제: "late_envelope_rejected(R-11)"
+      명세 공백: accept_envelope.checks_in_order에서 lease_active_unexpired(fail_key expired)가 not_seen(duplicate)보다 앞이다. result_pr_opened가 end_lease(completed)로 임대를 끝내므로 같은 결과 봉투의 재전달은 envelope_duplicate_delivery가 아니라 late_envelope_rejected(R-11)가 된다. 05 §5 M34는 envelope_duplicate_delivery를 기대한다
+== M35 retry-new-idempotency-key: 재개·재임대·인계·복귀마다 새 세대·새 키  [PASS]
   [PASS] 반송 뒤 재개(returned→queued→leased)
-      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
-      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
-  [GAP] 이전 세대에서 이미 수락된 봉투의 재전송 분류
-      기대: "late_envelope_rejected(R-11)"
-      실제: "envelope_duplicate_delivery(None)"
-      명세 공백: accept_envelope.checks_in_order는 inbox_seen 검사를 임대·세대 검사보다 앞에 두므로, 이전 세대에서 이미 본 봉투가 다시 오면 envelope_duplicate_delivery로 분류된다. concurrency.fencing.late_envelope와 noop_events 설명은 이전 세대 멱등 키로 온 봉투를 late_envelope_rejected(R-11)와 같은 처리라고 한다. 둘 다 noop·상태 불변이지만 기록되는 noop 종류와 R-11 기록 여부가 다르다
+      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "from_queue", [["leased", "building", "first_heartbeat"]]]
+      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "from_queue", [["leased", "building", "first_heartbeat"]]]
+  [PASS] 이전 세대에서 이미 수락된 봉투의 재전송은 late_envelope_rejected(R-11)(G25 확정: 세대 검사가 중복 검사보다 앞)
+      기대: ["late_envelope_rejected", "R-11"]
+      실제: ["late_envelope_rejected", "R-11"]
   [PASS] 시험 실패 뒤 재임대(building→building)
-      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
-      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
+      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "retry_failed_tests", [["building", "building", "first_heartbeat"]]]
+      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "retry_failed_tests", [["building", "building", "first_heartbeat"]]]
   [PASS] CI 실패 뒤 재임대(ci_failed→building)
-      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
-      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
+      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "retry_ci", [["building", "building", "first_heartbeat"]]]
+      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "retry_ci", [["building", "building", "first_heartbeat"]]]
   [PASS] 인계(handoff→leased)
-      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
-      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
+      기대: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "handoff", [["leased", "building", "first_heartbeat"]]]
+      실제: [1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "handoff", [["leased", "building", "first_heartbeat"]]]
   [PASS] 일시중단(paused_no_builder) 뒤 복귀
-      기대: ["paused_no_builder", 1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
-      실제: ["paused_no_builder", 1, 2, "started", true, "late_envelope_rejected", "R-11", true, true]
-  [GAP] 각 경로가 새 세대를 부르는 reason
-      기대: "전이마다 reason 명시"
-      실제: "떠나는 상태에서 유도"
-      명세 공백: transitions[]의 side_effects는 'issue_lease(task_id)'만 적고 reason 인자가 없다. reason은 전이가 떠나는 상태(queued/handoff/paused_no_builder/ci_failed/changes_requested/building)로 정했다. concurrency.lease_issue.signature에는 after_owner_resolved가 없고 core_contract.operations.issue_lease.inputs에는 있다
-  [GAP] building→building 재임대 뒤 새 임대의 첫 하트비트
-      기대: "새 임대의 첫 하트비트 사건"
-      실제: "heartbeat(noop)"
-      명세 공백: result_failed_tests 재임대는 상태가 building에 남는데 first_heartbeat 전이는 leased→building뿐이다. 새 임대의 첫 봉투를 어떤 사건으로 받는지 명세가 없어 일반 heartbeat(noop)로 받았다
-  [GAP] 임대 종료 시점
-      기대: "임대 종료 전이 명시"
-      실제: "코어가 위 두 시점에 종료"
-      명세 공백: issue_lease 전제는 '현재 세대의 임대가 종료(폐기)됨'인데 어느 전이가 임대를 끝내는지 구조화돼 있지 않다. concurrency.fencing.on_lease_end(읽기 목록 밖)를 가져와, lease 보유 상태(leased·building)를 handoff 밖으로 떠날 때와 새 임대를 발급하기 직전에 끝냈다
+      기대: ["paused_no_builder", 1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "resume_paused", [["leased", "building", "first_heartbeat"]]]
+      실제: ["paused_no_builder", 1, 2, "started", true, "late_envelope_rejected", "R-11", true, true, "resume_paused", [["leased", "building", "first_heartbeat"]]]
 == M36 preserve-manifest-same-function: 정지 확인 OID와 보존 커밋 tree OID가 같은 함수  [PASS+GAP]
   [PASS] 삭제된 추적 파일: 트리에서 항목 없음(OID 변화)
       기대: "changes"
@@ -147,7 +583,7 @@
   [PASS] 코어 경로: 정지 확인 OID == 보존 커밋 tree OID
       기대: "796e7cd477e218bc05a6812e11907fe6ef935ccc"
       실제: "796e7cd477e218bc05a6812e11907fe6ef935ccc"
-  [PASS] 보존 커밋의 경로: 삭제·제외·.gitignore·빈 디렉터리 없음
+  [PASS] 보존 커밋의 경로: 삭제·제외·.gitignore·빈 디렉터리·비밀값 패턴 파일 없음
       기대: [".gitignore", "link", "new_untracked.txt", "notes.txt", "run.sh", "src/keep.py", "src/work.py"]
       실제: [".gitignore", "link", "new_untracked.txt", "notes.txt", "run.sh", "src/keep.py", "src/work.py"]
   [PASS] 커밋에 든 파일만으로 다시 계산한 OID도 같다
@@ -159,23 +595,23 @@
   [PASS] 정적: 다른 해시 정의 없음, 트리 해시는 git_write_tree_oid에서만
       기대: []
       실제: []
-  [GAP] 제외 목록의 비밀값 패턴 항목(R-10)
-      기대: "비밀값 패턴 파일 → 보존 중단 R-10"
-      실제: "미구현"
-      명세 공백: preserve_manifest.excludes의 마지막 항목은 '비밀값 패턴(R-10 검출 규칙)에 걸리는 파일 — 걸리면 보존하지 않고 R-10'이라는 문장이고, R-10 검출 규칙(패턴)이 구조화돼 있지 않다. 글롭 형태 항목만 제외 목록으로 쓰고 이 항목은 적용하지 않음
+  [GAP] 비밀값 패턴 검출의 사건·R 코드(secret_patterns.on_match)
+      기대: "secret_detected → returned(R-10)"
+      실제: "제외만 함, secret_detected 전이 0건"
+      명세 공백: preserve_manifest.secret_patterns.on_match는 event=secret_detected, return_code=R-10을 말하지만 secret_detected 전이는 building에서만 있다. 인계(handoff) 상태에서 보존 전에 검출하면 받을 전이가 없다. 코어는 패턴에 걸린 파일을 보존에서 제외(exclude_from_preserve)만 하고 사건은 내지 않았다(내면 unmapped_condition=R-03이 된다). 봉투·로그의 스캔도 하지 않았다
 == M37 preserve-failure-recoverable-stop: 보존 실패 주입: max_attempts 안 재시도, 넘으면 handoff_blocked  [PASS+GAP]
   [PASS] [정지 확인 실패 반복] 전이 열(max_attempts 안에서만 재시도, 넘으면 handoff_blocked)
-      기대: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff_blo...
-      실제: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff_blo...
+      기대: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff", "...
+      실제: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff", "quiescence_failed"], ["handoff", "handoff", "...
   [PASS] [정지 확인 실패 반복] 시도 횟수
-      기대: {"quiescence_failed": 3}
-      실제: {"quiescence_failed": 3}
+      기대: {"quiescence_failed": 4}
+      실제: {"quiescence_failed": 4}
   [PASS] [정지 확인 실패 반복] preservation_state
       기대: "none"
       실제: "none"
   [PASS] [정지 확인 실패 반복] 단계별 실행 횟수(재시도는 retry_from 단계부터)
-      기대: {"stop": 1, "isolate": 3, "confirm_quiescent": 3, "preserve_commit": 0, "preserve_push": 0}
-      실제: {"stop": 1, "isolate": 3, "confirm_quiescent": 3, "preserve_commit": 0, "preserve_push": 0}
+      기대: {"stop": 1, "isolate": 4, "confirm_quiescent": 4, "preserve_commit": 0, "preserve_push": 0}
+      실제: {"stop": 1, "isolate": 4, "confirm_quiescent": 4, "preserve_commit": 0, "preserve_push": 0}
   [PASS] [정지 확인 실패 반복] 상태 handoff_blocked
       기대: "handoff_blocked"
       실제: "handoff_blocked"
@@ -198,17 +634,17 @@
       기대: [[], "handoff_blocked", 1]
       실제: [[], "handoff_blocked", 1]
   [PASS] [index.lock] 전이 열(max_attempts 안에서만 재시도, 넘으면 handoff_blocked)
-      기대: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff_blocked", "index_...
-      실제: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff_blocked", "index_...
+      기대: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff", "index_lock"], ...
+      실제: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff", "index_lock"], ["handoff", "handoff", "index_lock"], ...
   [PASS] [index.lock] 시도 횟수
-      기대: {"index_lock": 3}
-      실제: {"index_lock": 3}
+      기대: {"index_lock": 4}
+      실제: {"index_lock": 4}
   [PASS] [index.lock] preservation_state
       기대: "none"
       실제: "none"
   [PASS] [index.lock] 단계별 실행 횟수(재시도는 retry_from 단계부터)
-      기대: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 3, "preserve_push": 0}
-      실제: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 3, "preserve_push": 0}
+      기대: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 4, "preserve_push": 0}
+      실제: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 4, "preserve_push": 0}
   [PASS] [index.lock] 빌더 쓰기 차단·자격 회수가 보존보다 먼저
       기대: true
       실제: true
@@ -270,17 +706,17 @@
       기대: [[], "handoff_blocked", 1]
       실제: [[], "handoff_blocked", 1]
   [PASS] [커밋 실패] 전이 열(max_attempts 안에서만 재시도, 넘으면 handoff_blocked)
-      기대: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "preserve_commit_failed"], ["handoff", "handoff_blocked", "preserve_commit_failed"]]
-      실제: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "preserve_commit_failed"], ["handoff", "handoff_blocked", "preserve_commit_failed"]]
+      기대: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "preserve_commit_failed"], ["handoff", "handoff", "preserve_commit_failed"], ["handoff", "h...
+      실제: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "preserve_commit_failed"], ["handoff", "handoff", "preserve_commit_failed"], ["handoff", "h...
   [PASS] [커밋 실패] 시도 횟수
-      기대: {"preserve_commit_failed": 2}
-      실제: {"preserve_commit_failed": 2}
+      기대: {"preserve_commit_failed": 3}
+      실제: {"preserve_commit_failed": 3}
   [PASS] [커밋 실패] preservation_state
       기대: "none"
       실제: "none"
   [PASS] [커밋 실패] 단계별 실행 횟수(재시도는 retry_from 단계부터)
-      기대: {"stop": 1, "isolate": 1, "confirm_quiescent": 2, "preserve_commit": 2, "preserve_push": 0}
-      실제: {"stop": 1, "isolate": 1, "confirm_quiescent": 2, "preserve_commit": 2, "preserve_push": 0}
+      기대: {"stop": 1, "isolate": 1, "confirm_quiescent": 3, "preserve_commit": 3, "preserve_push": 0}
+      실제: {"stop": 1, "isolate": 1, "confirm_quiescent": 3, "preserve_commit": 3, "preserve_push": 0}
   [PASS] [커밋 실패] 빌더 쓰기 차단·자격 회수가 보존보다 먼저
       기대: true
       실제: true
@@ -309,14 +745,14 @@
       기대: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "preserve_commit_ok"], ["handoff", "handoff", "preserve_push_failed"], ["handoff", "handoff...
       실제: [["building", "handoff", "switch_signal"], ["handoff", "handoff", "preserve_commit_ok"], ["handoff", "handoff", "preserve_push_failed"], ["handoff", "handoff...
   [PASS] [푸시 실패(네트워크)] 시도 횟수
-      기대: {"preserve_push_failed": 3}
-      실제: {"preserve_push_failed": 3}
+      기대: {"preserve_push_failed": 4}
+      실제: {"preserve_push_failed": 4}
   [PASS] [푸시 실패(네트워크)] preservation_state
       기대: "local_committed"
       실제: "local_committed"
   [PASS] [푸시 실패(네트워크)] 단계별 실행 횟수(재시도는 retry_from 단계부터)
-      기대: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 1, "preserve_push": 3}
-      실제: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 1, "preserve_push": 3}
+      기대: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 1, "preserve_push": 4}
+      실제: {"stop": 1, "isolate": 1, "confirm_quiescent": 1, "preserve_commit": 1, "preserve_push": 4}
   [PASS] [푸시 실패(네트워크)] 빌더 쓰기 차단·자격 회수가 보존보다 먼저
       기대: true
       실제: true
@@ -377,13 +813,19 @@
   [PASS] [푸시 실패(권한 거부)] 재시작·시간 경과로는 재개되지 않는다(recovery_decision 전)
       기대: [[], "handoff_blocked", 1]
       실제: [[], "handoff_blocked", 1]
+  [PASS] [복구] recovery_ref 없는 recovery_decision은 받지 않는다(handoff_blocked 유지)
+      기대: [[], "handoff_blocked"]
+      실제: [[], "handoff_blocked"]
   [PASS] [복구] recovery_decision 뒤 handoff로 돌아가 푸시만 하고 끝낸다
       기대: [["handoff_blocked", "handoff", "recovery_decision"], ["handoff", "handoff", "preserve_push_ok"], ["handoff", "leased", "preserved"]]
       실제: [["handoff_blocked", "handoff", "recovery_decision"], ["handoff", "handoff", "preserve_push_ok"], ["handoff", "leased", "preserved"]]
-  [PASS] [복구] 새 커밋 없음, 시도 횟수 초기화, 새 세대 2
+  [PASS] [복구] 새 커밋 없음, 새 세대 2
       기대: [1, 2]
       실제: [1, 2]
   [PASS] [복구] issue_lease는 보존 성공 뒤 한 번
+      기대: 1
+      실제: 1
+  [PASS] [복구] reset_attempts 기록
       기대: 1
       실제: 1
   [PASS] [복구] 정지 확인 실패 뒤 복구: isolate부터 다시 해 보존까지 끝낸다
@@ -392,28 +834,20 @@
   [PASS] [복구] 복구 사건 열
       기대: [["handoff_blocked", "handoff", "recovery_decision"], ["handoff", "handoff", "preserve_commit_ok"], ["handoff", "handoff", "preserve_push_ok"], ["handoff", "...
       실제: [["handoff_blocked", "handoff", "recovery_decision"], ["handoff", "handoff", "preserve_commit_ok"], ["handoff", "handoff", "preserve_push_ok"], ["handoff", "...
-  [PASS] [포기] handoff_abandoned → returned
-      기대: [["handoff_blocked", "returned", "handoff_abandoned"]]
-      실제: [["handoff_blocked", "returned", "handoff_abandoned"]]
+  [GAP] recovery_decision 뒤의 phase 값
+      기대: "phase를 고르는 구조화 규칙"
+      실제: "로컬 커밋 있음 → preserve_remote, 없음 → isolate"
+      명세 공백: transitions[recovery_decision→handoff]의 set_handoff_field(phase)의 value가 'isolate 또는 preserve_remote(로컬 커밋 있음)'라는 문장이다. 코어는 문장 안의 단계 id 두 개를 뽑아 로컬 커밋이 있으면 뒤의 것, 없으면 앞의 것을 썼다(추정이 아니라 가장 좁은 해석이며 토큰 목록에 기록됨). 구조화된 값(phase 선택 규칙)이 필요하다
+  [PASS] [포기] recovery_decision(action=abandon) → returned(R-14)
+      기대: [[["handoff_blocked", "returned", "recovery_decision"]], ["R-14"]]
+      실제: [[["handoff_blocked", "returned", "recovery_decision"]], ["R-14"]]
   [PASS] [포기] 다음 임대 없음
       기대: [0, 1]
       실제: [0, 1]
-  [GAP] [포기] returned(R-14) 기록
-      기대: ["R-14"]
-      실제: []
-      명세 공백: handoff_abandoned 전이(transitions[30])에는 return_code 필드가 없고, R-14와의 연결은 return_codes[].when(읽기 금지 키)뿐이다. 코어가 읽을 수 있는 구조화 필드가 없어 R-14를 기록하지 않았다
-  [GAP] recovery_decision(action=abandon) 처리
-      기대: "포기 경로 하나"
-      실제: "recovery_decision(abandon) → 전이 []"
-      명세 공백: transitions[29] cond가 action != abandon이라 abandon이면 전이가 없고, 포기는 handoff_abandoned 사건(transitions[30])이 받는다. handoff_abandoned의 events_in payload에는 action이 없는데 cond는 event.action == abandon을 요구한다. 두 사건의 payload 계약이 어긋난다
-  [GAP] attempts 증가 시점
-      기대: "명세 확정 필요"
-      실제: "증가 뒤 비교"
-      명세 공백: operations.handoff_failure는 cond 비교 뒤 attempts += 1 순으로 적혀 있으나, daemon_restart_during_handoff의 cond(restart_count < value + 1)는 증가 뒤 비교를 전제한다. 증가 뒤 비교로 해석해 3회째 실패에서 handoff_blocked가 된다(비교 뒤 증가면 4회째)
-  [GAP] index_lock의 재시도 시작 단계
-      기대: "retry_from"
-      실제: "실패 단계 재실행"
-      명세 공백: max_attempts.index_lock에 retry_from 구조화 필드가 없다(설명은 note에만 있음). 실패한 단계를 그대로 다시 하는 것으로 처리함
+  [GAP] retry_detail.index_lock.owner_alive_then
+      기대: "owner_pid_alive=true일 때 isolate부터"
+      실제: "미사용"
+      명세 공백: retry_detail.index_lock에 owner_alive_then(isolate)가 있으나 어느 전이·효과도 이 필드를 참조하지 않는다. 코어는 쓰지 않았고 index.lock 재시도는 retry_from(preserve)만 따른다(owner_pid_alive=false로 시험)
 == M38 daemon-restart-during-handoff: 인계 도중 재시작: phase부터 재개 또는 handoff_blocked  [PASS+GAP]
   [PASS] [stop 단계] 중단 지점
       기대: "handoff:stop:start"
@@ -562,6 +996,36 @@
   [PASS] [푸시 직후·기록 전] 쓰기 금지 유지, 보존 자격 회수
       기대: [true, false]
       실제: [true, false]
+  [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 중단 지점
+      기대: "handoff:issue_next_lease:start"
+      실제: "handoff:issue_next_lease:start"
+  [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료
+      기대: ["leased", 2, 1, "remote_pushed"]
+      실제: ["leased", 2, 1, "remote_pushed"]
+  [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 재시작 사건 전이
+      기대: 1
+      실제: 1
+  [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 세대는 마지막 issue_lease 한 번만 바뀌고, 발송된 봉투는 새 세대 지시 하나뿐
+      기대: [1, 1, [2]]
+      실제: [1, 1, [2]]
+  [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 커밋 1개·푸시 1회(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)
+      기대: [1, 1]
+      실제: [1, 1]
+  [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
+      기대: ["c930a2f01627260382d508b27f88b93ad9b03fd2", "5d3b989294c13e81e42f38787fcfa55dceb8591a"]
+      실제: ["c930a2f01627260382d508b27f88b93ad9b03fd2", "5d3b989294c13e81e42f38787fcfa55dceb8591a"]
+  [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 쓰기 금지 유지, 보존 자격 회수
+      기대: [true, false]
+      실제: [true, false]
+  [PASS] restart_resume[confirm_quiescent]=isolate: 재시작 뒤 isolate를 다시 한다
+      기대: 1
+      실제: 1
+  [PASS] [phase=revoke_token] 재시작: 토큰 폐기를 마치고 다음 임대 발급
+      기대: ["leased", 2, 1]
+      실제: ["leased", 2, 1]
+  [PASS] [phase=revoke_token] 임대 종료(handed_off) 기록이 발급보다 먼저
+      기대: true
+      실제: true
   [PASS] [두 번째 재시작] 한도 초과: handoff_blocked
       기대: [["handoff", "handoff_blocked", "daemon_restart_during_handoff"]]
       실제: [["handoff", "handoff_blocked", "daemon_restart_during_handoff"]]
@@ -571,15 +1035,11 @@
   [PASS] [phase 확인 불가] handoff_blocked, issue_lease 0, 세대 불변
       기대: [[["handoff", "handoff_blocked", "daemon_restart_during_handoff"]], 0, 1]
       실제: [[["handoff", "handoff_blocked", "daemon_restart_during_handoff"]], 0, 1]
-  [GAP] phase 확인 불가의 분류
-      기대: "한 가지 분류"
-      실제: "전이표 우선"
-      명세 공백: state_integrity.corruption.detect의 '핸드오프 phase를 확인할 수 없다'는 returned(R-08)로 가고, transitions[27]은 같은 조건(phase == null)을 handoff_blocked로 보낸다. 같은 조건에 두 목적지가 있어 전이표(handoff_blocked)를 따르고 손상 탐지에서는 이 항목을 적용하지 않았다
-  [GAP] phase=revoke_token·issue_next_lease에서의 재시작
-      기대: "재개 또는 handoff_blocked"
-      실제: "state=handoff, phase=revoke_token, 전이=[]"
-      명세 공백: transitions[26]의 cond는 phase in [stop, isolate, confirm_quiescent, preserve]만 허용하고 transitions[27]은 phase == null 또는 횟수 초과만 받는다. revoke_token·issue_next_lease 단계의 재시작을 받는 전이가 없어 전이 없이 handoff에 멈춘다
-== M39 envelope-id-distinct-events: envelope_id가 다르면 별개 사건, 같으면 noop, 없으면 거부  [PASS+GAP]
+  [GAP] restart_resume의 분기 문장(4단계)
+      기대: "문장을 구조화한 {check, then, else}"
+      실제: "phase 유지 + 단계 함수의 확인"
+      명세 공백: handoff_failure_policy.restart_resume 7개 중 preserve, preserve_remote, revoke_token, issue_next_lease의 값은 'verify_local_commit(tree OID) → 있으면 preserve_remote, 없으면 confirm_quiescent' 같은 절차 문장이다. 코어는 단계 id만 있는 값(stop, isolate, confirm_quiescent)만 따르고, 문장인 값은 phase를 그대로 두며 각 단계 함수가 이미 있는 커밋(tree OID)·원격 ref를 확인해 이어간다. 특히 preserve에서 로컬 커밋이 없을 때 문장은 confirm_quiescent로 돌아가라고 하나 코어는 정지 확인을 다시 하지 않는다
+== M39 envelope-id-distinct-events: envelope_id가 다르면 별개 사건, 같으면 noop, 없으면 거부  [PASS]
   [PASS] 같은 세대, 다른 envelope_id 둘은 각각 처리
       기대: [true, true, "heartbeat", "heartbeat"]
       실제: [true, true, "heartbeat", "heartbeat"]
@@ -593,26 +1053,30 @@
       기대: [false, "R-13"]
       실제: [false, "R-13"]
   [PASS] noop 기록 순서
-      기대: [["heartbeat", null], ["heartbeat", null], ["envelope_duplicate_delivery", null], [null, "R-13"]]
-      실제: [["heartbeat", null], ["heartbeat", null], ["envelope_duplicate_delivery", null], [null, "R-13"]]
+      기대: [["heartbeat", null], ["heartbeat", null], ["envelope_duplicate_delivery", null], ["envelope_rejected_invalid", "R-13"]]
+      실제: [["heartbeat", null], ["heartbeat", null], ["envelope_duplicate_delivery", null], ["envelope_rejected_invalid", "R-13"]]
   [PASS] 전이 0건, inbox_seen에는 first_heartbeat·h2·h3 세 키
       기대: [0, 3]
       실제: [0, 3]
-  [GAP] signal 봉투(전환·상태 신호) 둘의 개별 처리
-      기대: "signal 둘 각각 처리"
-      실제: "하트비트로 대체"
-      명세 공백: envelope_identity 설명은 signal 봉투도 한 세대에 여러 번 정당하다고 하지만, 한 번 수락된 switch_signal은 building→handoff로 상태를 바꾸므로 같은 세대의 두 번째 signal이 어느 전이로 처리되는지 전이표에 없다(handoff에서 switch_signal 행 없음). 하트비트 봉투 둘로만 시험함
-  [GAP] heartbeat 봉투의 필수 목록
-      기대: "heartbeat payload에 envelope_id"
-      실제: "키 필드를 합침"
-      명세 공백: core_contract.events_in.payloads.heartbeat에 envelope_id가 없다(first_heartbeat에는 있음). 멱등 키(concurrency.idempotency_key)에 envelope_id가 있으므로 키 필드를 필수 목록에 합쳐 사용함
-== M40 lease-issue-atomic-single-owner: issue_lease 단일 책임, 한 트랜잭션, 세대 한 번만  [PASS+GAP]
+  [PASS] 인계 중 같은 세대의 둘째 signal(다른 envelope_id)은 수락되어 switch_signal_during_handoff(noop), 전이 없음
+      기대: [true, "switch_signal_during_handoff", [], "handoff"]
+      실제: [true, "switch_signal_during_handoff", [], "handoff"]
+  [PASS] 같은 envelope_id 재전송은 noop, envelope_id 없는 signal은 거부(R-13)
+      기대: [["switch_signal_during_handoff", null], ["envelope_duplicate_delivery", null], ["envelope_rejected_invalid", "R-13"]]
+      실제: [["switch_signal_during_handoff", null], ["envelope_duplicate_delivery", null], ["envelope_rejected_invalid", "R-13"]]
+  [PASS] 첫 signal은 building→handoff 한 번, 세대 불변
+      기대: [1, 1]
+      실제: [1, 1]
+== M40 lease-issue-atomic-single-owner: issue_lease 단일 책임, 한 트랜잭션, 세대 한 번만  [PASS]
   [PASS] 각 경로: (세대 증가, issue_lease 기록) = (1, 1)
       기대: [["초기 발급(queued→leased)", 1, 1], ["시험 실패 뒤 재임대(building→building)", 1, 1], ["인계(handoff→leased)", 1, 1], ["반송 뒤 재개(returned→queued→leased)", 1, 1]]
       실제: [["초기 발급(queued→leased)", 1, 1], ["시험 실패 뒤 재임대(building→building)", 1, 1], ["인계(handoff→leased)", 1, 1], ["반송 뒤 재개(returned→queued→leased)", 1, 1]]
   [PASS] 최종 세대 = issue_lease 기록 수
       기대: 4
       실제: 4
+  [PASS] 각 경로가 부른 issue_lease의 reason(전이 side_effects의 args)
+      기대: ["from_queue", "retry_failed_tests", "handoff", "from_queue"]
+      실제: ["from_queue", "retry_failed_tests", "handoff", "from_queue"]
   [PASS] 동시 8개 호출: 성공 1, 전제 실패 7
       기대: [1, 7]
       실제: [1, 7]
@@ -622,27 +1086,18 @@
   [PASS] 같은 lease_granted를 8개 경로가 처리: 세대 1, issue_lease 기록 1건, 임대 기록 1개
       기대: [1, 1, 1]
       실제: [1, 1, 1]
-  [GAP] 같은 lease_granted의 중복 도착
-      기대: "중복 lease_granted는 noop 또는 명시된 처리"
-      실제: "최종 상태 returned"
-      명세 공백: 먼저 처리된 경로가 queued→leased를 끝내면 나머지 lease_granted는 leased 상태에서 받을 전이가 없어 전이표 규칙대로 unmapped_condition(returned)으로 간다. noop_events에는 lease_granted 중복이 없다. 세대는 한 번만 바뀌지만 중복 알림이 과제를 반송시키는 것이 의도인지 명세가 없다
+  [PASS] 나머지 7개는 noop(lease_granted_duplicate), 상태 leased 그대로(G24 확정)
+      기대: [[["lease_granted_duplicate", null], ["lease_granted_duplicate", null], ["lease_granted_duplicate", null], ["lease_granted_duplicate", null], ["lease_granted...
+      실제: [[["lease_granted_duplicate", null], ["lease_granted_duplicate", null], ["lease_granted_duplicate", null], ["lease_granted_duplicate", null], ["lease_granted...
   [PASS] 커밋 전 중단: 세대·임대·outbox 모두 없음
       기대: ["issue_lease:staged", 0, null, [], "queued", 0]
       실제: ["issue_lease:staged", 0, null, [], "queued", 0]
-  [PASS] 커밋 뒤 중단: 셋 모두 있음(pending)
-      기대: [1, 1, "pending", 1]
-      실제: [1, 1, "pending", 1]
+  [PASS] 커밋 뒤 중단: 셋 모두 있음(pending), task_state·전이 기록도 같은 커밋(G23)
+      기대: [1, 1, "pending", 1, "leased", [["queued", "leased", "lease_granted"]]]
+      실제: [1, 1, "pending", 1, "leased", [["queued", "leased", "lease_granted"]]]
   [PASS] 재시작 뒤 outbox pending부터 같은 envelope_id로 발송
       기대: ["01MOCK00000000000000000004"]
       실제: ["01MOCK00000000000000000004"]
-  [GAP] 트랜잭션 기록 사이(세대·임대·outbox 사이)에서의 중단
-      기대: "세 기록 사이 중단 주입"
-      실제: "미실행(명세가 전/후만 허용)"
-      명세 공백: core_contract.atomicity가 '중간 재시작 주입 지점은 트랜잭션 전/후만'이라 정했으므로 기록 사이 중단은 시험하지 않는다. 시험한 것은 커밋 전/후 둘뿐
-  [GAP] task_state.state 갱신이 issue_lease 트랜잭션에 포함되는지
-      기대: "명세 확정 필요"
-      실제: "같은 커밋에 포함"
-      명세 공백: atomic_record는 [lease_generation, lease_record, outbox] 셋이다. 전이 기록·state 갱신을 같은 커밋에 넣었다(포함하지 않으면 재시작 뒤 state=queued인 active 임대가 생겨 resend 검사의 task_state.state in [leased, building]이 거짓이 된다)
   [PASS] 정적: lease_generation 대입은 issue_lease 안에서만
       기대: []
       실제: []
@@ -662,9 +1117,9 @@
   [PASS] 재시작: 정상 만료 전이
       기대: [["leased", "queued", "lease_expired"]]
       실제: [["leased", "queued", "lease_expired"]]
-  [PASS] 재시작: 부수 효과는 void 하나
-      기대: ["void_outbox"]
-      실제: ["void_outbox"]
+  [PASS] 재시작: 부수 효과 = end_lease(만료)와 임대 종료 부수 효과(on_lease_end), void
+      기대: ["end_lease", "terminate_process", "revoke_write_credential", "revoke_token", "record_handoff", "void_outbox"]
+      실제: ["end_lease", "terminate_process", "revoke_write_credential", "revoke_token", "record_handoff", "void_outbox"]
   [PASS] pending outbox는 void(expired)
       기대: ["void", "expired"]
       실제: ["void", "expired"]
@@ -695,25 +1150,35 @@
   [PASS] 두 번째 재시작은 새 임대를 그대로 둔다(발송 1건 유지)
       기대: ["01MOCK00000000000000000004"]
       실제: ["01MOCK00000000000000000004"]
-== M42 restart-revoked-pending-void: 폐기·취소된 임대의 pending 봉투는 void, 재발송 0  [PASS]
-  [PASS] A 취소: 상태·취소 표시·outbox
-      기대: ["cancelled", true, "pending"]
-      실제: ["cancelled", true, "pending"]
+  [PASS] 하트비트 없는 leased: 599초에는 정상(재발송)
+      기대: [[], 1]
+      실제: [[], 1]
+  [PASS] 600초(heartbeat_s*2)에 만료 전이
+      기대: [["leased", "queued", "lease_expired"]]
+      실제: [["leased", "queued", "lease_expired"]]
+== M42 restart-revoked-pending-void: 폐기·취소된 임대의 pending 봉투는 void, 재발송 0  [PASS+GAP]
+  [PASS] A 취소: 상태·취소 표시·임대·outbox
+      기대: ["cancelled", true, "revoked", "pending"]
+      실제: ["cancelled", true, "revoked", "pending"]
   [PASS] A 재시작: 전이 없음
       기대: []
       실제: []
   [PASS] A 재시작: void 하나, issue_lease 없음
       기대: ["void_outbox"]
       실제: ["void_outbox"]
-  [PASS] A void 사유 cancelled
-      기대: ["void", "cancelled"]
-      실제: ["void", "cancelled"]
+  [PASS] A void(revoked_or_cancelled → reason revoked)
+      기대: ["void", "revoked"]
+      실제: ["void", "revoked"]
   [PASS] A 재발송 0건, 상태·세대 불변
       기대: [[], "cancelled", 1]
       실제: [[], "cancelled", 1]
-  [PASS] B 폐기: 임대 상태·outbox
-      기대: ["revoked", "pending"]
-      실제: ["revoked", "pending"]
+  [GAP] void_reason=cancelled를 만드는 규칙
+      기대: "cancelled 또는 revoked(명세 미정)"
+      실제: "revoked"
+      명세 공백: store.outbox.void_reason에 cancelled가 있으나 resend_outbox.on_fail.revoked_or_cancelled는 항상 reason=revoked다. 취소와 폐기를 구분해 기록하는 규칙이 없어 revoked로 기록됨
+  [PASS] B 폐기: 상태·임대 상태·outbox
+      기대: ["returned", "revoked", "pending"]
+      실제: ["returned", "revoked", "pending"]
   [PASS] B 재시작: 전이 없음
       기대: []
       실제: []
@@ -724,9 +1189,9 @@
       기대: ["void", "revoked"]
       실제: ["void", "revoked"]
   [PASS] B 재발송 0건, 상태 returned 불변
-      기대: [[], "returned"]
-      실제: [[], "returned"]
-== M43 restart-valid-pending-resend: 유효한 pending은 같은 id로 재발송, 수신 측 검증  [PASS+GAP]
+      기대: [1, "returned"]
+      실제: [1, "returned"]
+== M43 restart-valid-pending-resend: 유효한 pending은 같은 id로 재발송, 수신 측 검증  [PASS]
   [PASS] 유효한 pending: 재시작에서 전이 없음
       기대: []
       실제: []
@@ -760,13 +1225,9 @@
   [PASS] 만료 봉투: lease_invalid 결과만 보냄
       기대: ["lease_invalid"]
       실제: ["lease_invalid"]
-  [PASS] 만료 봉투 결과는 late_envelope_rejected(noop), 상태 불변
-      기대: [[["late_envelope_rejected", null]], [], "leased"]
-      실제: [[["late_envelope_rejected", null]], [], "leased"]
-  [GAP] 만료 봉투의 late_envelope_rejected에 R-11 기록
-      기대: "R-11 또는 없음(명세 미정)"
-      실제: null
-      명세 공백: accept_envelope.on_fail.expired 문구에 R-11이 없다(다른 불일치 항목에는 있음). 만료 때 R-11을 기록할지 명세가 없어 기록하지 않음
+  [PASS] 만료 봉투 결과는 late_envelope_rejected(noop, R-11 기록: G06 확정), 상태 불변
+      기대: [[["late_envelope_rejected", "R-11"]], [], "leased"]
+      실제: [[["late_envelope_rejected", "R-11"]], [], "leased"]
   [PASS] 세대가 바뀐 옛 봉투: 빌더는 새 봉투만 실행
       기대: [["01MOCK00000000000000000004"], ["01MOCK00000000000000000002"]]
       실제: [["01MOCK00000000000000000004"], ["01MOCK00000000000000000002"]]
@@ -774,12 +1235,12 @@
       기대: [[["late_envelope_rejected", "R-11"]], [["leased", "building", "first_heartbeat"]]]
       실제: [[["late_envelope_rejected", "R-11"]], [["leased", "building", "first_heartbeat"]]]
 == M44 restart-corrupt-record-returned: 손상 기록은 returned(R-08), 자동 재발급 0  [PASS]
-  [PASS] [outbox 없이 lease_record만] 손상 분류: returned
-      기대: [["leased", "returned", "state_integrity.corruption"]]
-      실제: [["leased", "returned", "state_integrity.corruption"]]
-  [PASS] [outbox 없이 lease_record만] 부수 효과: 토큰 폐기·자격 회수·R 코드
-      기대: ["revoke_token", "revoke_credential", "revoke_credential", "revoke_credential", "record_r_code"]
-      실제: ["revoke_token", "revoke_credential", "revoke_credential", "revoke_credential", "record_r_code"]
+  [PASS] [outbox 없이 lease_record만] 손상 분류: 사건 state_corrupted → returned
+      기대: [["leased", "returned", "state_corrupted"]]
+      실제: [["leased", "returned", "state_corrupted"]]
+  [PASS] [outbox 없이 lease_record만] 부수 효과: 임대 종료·토큰 폐기·자격 회수·R 코드
+      기대: ["end_lease", "terminate_process", "record_handoff", "revoke_token", "revoke_write_credential", "revoke_preserve_credential", "record_r_code"]
+      실제: ["end_lease", "terminate_process", "record_handoff", "revoke_token", "revoke_write_credential", "revoke_preserve_credential", "record_r_code"]
   [PASS] [outbox 없이 lease_record만] 반송 코드 R-08
       기대: ["R-08"]
       실제: ["R-08"]
@@ -798,12 +1259,12 @@
   [PASS] [outbox 없이 lease_record만] queued→leased에서만 새 세대
       기대: [[["queued", "leased", "lease_granted"]], 1, 2]
       실제: [[["queued", "leased", "lease_granted"]], 1, 2]
-  [PASS] [outbox 세대 불일치] 손상 분류: returned
-      기대: [["leased", "returned", "state_integrity.corruption"]]
-      실제: [["leased", "returned", "state_integrity.corruption"]]
-  [PASS] [outbox 세대 불일치] 부수 효과: 토큰 폐기·자격 회수·pending void·R 코드
-      기대: ["revoke_token", "revoke_credential", "revoke_credential", "revoke_credential", "void_outbox", "record_r_code"]
-      실제: ["revoke_token", "revoke_credential", "revoke_credential", "revoke_credential", "void_outbox", "record_r_code"]
+  [PASS] [outbox 세대 불일치] 손상 분류: 사건 state_corrupted → returned
+      기대: [["leased", "returned", "state_corrupted"]]
+      실제: [["leased", "returned", "state_corrupted"]]
+  [PASS] [outbox 세대 불일치] 부수 효과: 임대 종료·토큰 폐기·자격 회수·pending void·R 코드
+      기대: ["end_lease", "terminate_process", "record_handoff", "revoke_token", "revoke_write_credential", "revoke_preserve_credential", "void_outbox", "record_r_code"]
+      실제: ["end_lease", "terminate_process", "record_handoff", "revoke_token", "revoke_write_credential", "revoke_preserve_credential", "void_outbox", "record_r_code"]
   [PASS] [outbox 세대 불일치] 반송 코드 R-08
       기대: ["R-08"]
       실제: ["R-08"]
@@ -856,61 +1317,67 @@
   [PASS] 정적: 다른 해시 정의 없음, 트리 해시는 git_write_tree_oid만
       기대: []
       실제: []
+  [PASS] 정적: 비용 상한·예산 예약·소진 정지 표현 없음(코어·모의 과제·규칙의 동작 필드)
+      기대: []
+      실제: []
   [PASS] 정적: 모델 식별자 문자열 없음
       기대: []
       실제: []
   [PASS] 설명 키(when·note·_*)를 엉뚱한 문장으로 바꾸거나 모든 시나리오의 검사 이름·상태·실제 값이 같다
-      기대: [[["임대 B로 교체(token 1→2), 상태 building", "PASS", [2, "building", "active"]], ["이전 임대 A의 결과·전환 신호·하트비트: late_envelope_rejected(R-11)", "PASS", [["late_envelope_...
-      실제: [[["임대 B로 교체(token 1→2), 상태 building", "PASS", [2, "building", "active"]], ["이전 임대 A의 결과·전환 신호·하트비트: late_envelope_rejected(R-11)", "PASS", [["late_envelope_...
+      기대: [[["지시 봉투 전에 사용량 기록 슬롯이 만들어진다(슬롯 기록 < 발송 기록)", "PASS", true], ["슬롯: 과제·세대·봉투·생성 시각이 있고 calls·wall_s·cost_units는 아직 없다", "PASS", [["T-MOCK-BASIC", 1, "01MOCK0...
+      실제: [[["지시 봉투 전에 사용량 기록 슬롯이 만들어진다(슬롯 기록 < 발송 기록)", "PASS", true], ["슬롯: 과제·세대·봉투·생성 시각이 있고 calls·wall_s·cost_units는 아직 없다", "PASS", [["T-MOCK-BASIC", 1, "01MOCK0...
   [PASS] 설명 키(when·note·_*)를 지워도 모든 시나리오의 검사 이름·상태·실제 값이 같다
-      기대: [[["임대 B로 교체(token 1→2), 상태 building", "PASS", [2, "building", "active"]], ["이전 임대 A의 결과·전환 신호·하트비트: late_envelope_rejected(R-11)", "PASS", [["late_envelope_...
-      실제: [[["임대 B로 교체(token 1→2), 상태 building", "PASS", [2, "building", "active"]], ["이전 임대 A의 결과·전환 신호·하트비트: late_envelope_rejected(R-11)", "PASS", [["late_envelope_...
+      기대: [[["지시 봉투 전에 사용량 기록 슬롯이 만들어진다(슬롯 기록 < 발송 기록)", "PASS", true], ["슬롯: 과제·세대·봉투·생성 시각이 있고 calls·wall_s·cost_units는 아직 없다", "PASS", [["T-MOCK-BASIC", 1, "01MOCK0...
+      실제: [[["지시 봉투 전에 사용량 기록 슬롯이 만들어진다(슬롯 기록 < 발송 기록)", "PASS", true], ["슬롯: 과제·세대·봉투·생성 시각이 있고 calls·wall_s·cost_units는 아직 없다", "PASS", [["T-MOCK-BASIC", 1, "01MOCK0...
 
 == 요약
-  M28     late-result-no-state-change              PASS+GAP  검사 10건 중 통과 8
+  M26     usage-recorded-not-capped                PASS      검사 18건 중 통과 18
+  M28     late-result-no-state-change              PASS      검사 10건 중 통과 10
+  M29     handoff-order                            PASS      검사 7건 중 통과 7
+  M30     lease-guards-all-paths                   PASS      검사 122건 중 통과 122
   M33     handoff-quiescent-before-preserve        PASS      검사 13건 중 통과 13
-  M34     duplicate-delivery-noop                  PASS      검사 4건 중 통과 4
-  M35     retry-new-idempotency-key                PASS+GAP  검사 9건 중 통과 5
+  M34     duplicate-delivery-noop                  PASS+GAP  검사 6건 중 통과 5
+  M35     retry-new-idempotency-key                PASS      검사 6건 중 통과 6
   M36     preserve-manifest-same-function          PASS+GAP  검사 15건 중 통과 14
-  M37     preserve-failure-recoverable-stop        PASS+GAP  검사 82건 중 통과 78
-  M38     daemon-restart-during-handoff            PASS+GAP  검사 54건 중 통과 52
-  M39     envelope-id-distinct-events              PASS+GAP  검사 8건 중 통과 6
-  M40     lease-issue-atomic-single-owner          PASS+GAP  검사 14건 중 통과 11
-  M41     restart-ttl-expired-no-resend            PASS      검사 14건 중 통과 14
-  M42     restart-revoked-pending-void             PASS      검사 10건 중 통과 10
-  M43     restart-valid-pending-resend             PASS+GAP  검사 15건 중 통과 14
+  M37     preserve-failure-recoverable-stop        PASS+GAP  검사 82건 중 통과 80
+  M38     daemon-restart-during-handoff            PASS+GAP  검사 63건 중 통과 62
+  M39     envelope-id-distinct-events              PASS      검사 9건 중 통과 9
+  M40     lease-issue-atomic-single-owner          PASS      검사 13건 중 통과 13
+  M41     restart-ttl-expired-no-resend            PASS      검사 16건 중 통과 16
+  M42     restart-revoked-pending-void             PASS+GAP  검사 11건 중 통과 10
+  M43     restart-valid-pending-resend             PASS      검사 14건 중 통과 14
   M44     restart-corrupt-record-returned          PASS      검사 17건 중 통과 17
-  STATIC  static-checks                            PASS      검사 13건 중 통과 13
-  검사 278건, 실패 0건, 명세 공백 표시 19건
-  필수 시험 ID 33개 중 이번에 실행한 것 13개, 실행하지 않은 것 20개(이번 범위 밖)
-  실행하지 않은 시험 ID: decision-gate-merge-only, stale-approval-invalidated, late-write-fenced, provider-scoped-switch, post-merge-prereq, event-duplicate-noop, event-out-of-order, docs-pr-complete, eleventh-pr-audit, mis-merge-not-done, budget-reserve-before-call, hard-stop-heartbeating-job, switch-negative-test-output, switch-negative-third-party-http, d02-mock-start-allowed, r2-local-work-allowed, handoff-order, lease-guards-all-paths, merge-observation-fields, envelope-permission-rejects-missing
-  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 20종(명세 공백 후보, --report에 목록)
-  명세 공백 목록(daemon_rules.json을 고칠 곳)
-   - G01 concurrency.lease.ttl_s, concurrency.quiescence.window_s, hard_stop.grace_s, handoff_failure_policy.max_attempts.{quiescence_failed,index_lock,preserve_commit_failed,preserve_push_failed}.value, concurrency.max_parallel_leases @ daemon_rules.json: 숫자 필드. 지금은 '[사용자 결정 필요] 기본 N' 문장이라 코어가 읽을 수 없다. 숫자 값(또는 default_numeric)과 결정 여부를 분리해 달라
-   - G02 transitions[15..24] cond의 handoff_failure_policy.max_attempts.<event> @ daemon_rules.json: transitions[26..27]은 ....daemon_restart_during_handoff.value 로 쓰고 15..24는 .value 없이 객체 경로를 쓴다. 한 가지 경로 표기로 통일
-   - G03 core_contract.operations.handoff_failure.effects / transitions[15..27] cond @ daemon_rules.json: attempts[event] += 1을 cond 비교 앞에 하는지 뒤에 하는지. restart cond의 '+ 1'은 증가 뒤 비교를 전제하고 effects 순서는 비교 뒤 증가로 읽힌다
-   - G04 transitions[].side_effects @ daemon_rules.json: 'issue_lease(task_id) 호출(...)' 문장뿐이다. 구조화한 {id, args}와 reason 인자가 필요하다. reason 집합도 concurrency.lease_issue.signature(after_owner_resolved 없음)와 core_contract.operations.issue_lease.inputs(있음)가 다르다
-   - G05 transitions[].return_code (없음) @ daemon_rules.json: 반송 전이가 어떤 R 코드를 쓰는지 구조화 필드가 없고 return_codes[].when(읽기 금지 키)에만 있다. 특히 handoff_abandoned→returned(R-14), heartbeat_missed_twice→returned(R-08), unmapped_condition→returned(R-03)
-   - G06 core_contract.operations.accept_envelope.on_fail, state_integrity.corruption.effects @ daemon_rules.json: noop 이름과 R 코드가 문장 안에 들어 있다. {noop_event, return_code}로 구조화. on_fail.expired에는 R-11이 없고 다른 불일치 항목에는 있다: 만료 때 R-11을 기록하는지 확정
-   - G07 accept_envelope.checks_in_order ↔ on_fail, resend_same_envelope_id_only_if ↔ resend_outbox.on_fail @ daemon_rules.json: 각 검사가 어느 on_fail 키로 가는지 연결이 없다(lease_record.status != active는 어느 키인지도 불명). 검사마다 fail_key를 달아 달라
-   - G08 state_integrity.corruption.detect @ daemon_rules.json: 사람이 읽는 문장 목록이다. normal_expiry.detect처럼 {field, op, value}로 구조화
-   - G09 state_integrity.corruption.detect ↔ transitions[27] @ daemon_rules.json: 'handoff_record.phase를 확인할 수 없다'가 손상 탐지(→ returned R-08)와 transitions[27](phase == null → handoff_blocked) 양쪽에 있어 목적지가 둘이다. 하나로 정해 달라
-   - G10 events / transitions (손상 → returned(R-08)) @ daemon_rules.json: state_integrity.corruption.path가 returned(R-08)로 가라고 하지만 이를 일으키는 사건과 전이가 events·transitions에 없다(*→returned는 unmapped_condition뿐)
-   - G11 전이가 일으키는 상태 변경 전반 @ daemon_rules.json: transitions[].effects 구조화가 없다. 코어가 문장 설명을 보고 코드로 옮긴 것: issue_lease.effects_atomic, corruption.effects, handoff_failure.effects, recovery_decision의 시도 횟수 초기화(handoff_failure_policy.recovery_decision.effect, 읽기 목록 밖), preserve_commit_ok·preserve_push_ok의 preservation_state·wip_commit_sha 갱신, switch_signal의 handoff_record 생성, (first_)heartbeat의 임대 갱신(clock.derived), 만료의 lease_record.status=expired, owner_resolved의 attempt+1, owner_cancelled의 task_state.cancelled=true
-   - G12 임대 종료 전이 / concurrency.fencing.on_lease_end @ daemon_rules.json: issue_lease 전제는 '현재 임대가 종료됨'인데 어느 전이가 임대를 끝내는지 구조화돼 있지 않다(building→building, ci_failed→building, returned→queued→leased 모두 해당). on_lease_end는 읽기 목록 밖이고 항목 이름이 side_effect_ids와 다르다(terminate_process↔terminate_process_group, revoke_write_credential↔revoke_credential)
-   - G13 envelopes.signal.required, events_in.payloads.heartbeat / switch_signal / fence_violation @ daemon_rules.json: signal·하트비트 봉투의 필수 목록이 envelopes에 없다. heartbeat payload에는 멱등 키 필드 envelope_id가 없다. switch_signal payload는 한 문장이다. fence_violation payload에는 lease_generation이 없다
-   - G14 transitions[9]·[10] (building, result_failed_tests) @ daemon_rules.json: from·event가 같고 둘을 가르는 cond가 없다. R-06(같은 과제 3회 연속 failed_tests)에 해당하는 cond도 없다
-   - G15 transitions (building→building 재임대 뒤 첫 하트비트) @ daemon_rules.json: first_heartbeat 전이는 leased→building뿐이라 building→building 재임대 뒤 새 임대의 첫 봉투를 받을 사건이 없다
-   - G16 transitions[26] cond (daemon_restart_during_handoff) @ daemon_rules.json: phase in [stop, isolate, confirm_quiescent, preserve]만 허용하고 revoke_token·issue_next_lease 단계의 재시작을 받는 전이가 없다
-   - G17 handoff_abandoned / recovery_decision payload와 transitions[29..30] @ daemon_rules.json: handoff_abandoned의 payload에는 recovery_ref만 있는데 transitions[30] cond는 event.action == abandon을 요구한다. recovery_decision(action=abandon)을 받는 전이는 없다
-   - G18 preserve_commit_ok cond 실패, handoff_failure_policy.max_attempts.index_lock.retry_from @ daemon_rules.json: commit tree OID가 quiescent_tree_oid와 다를 때의 결과가 구조화돼 있지 않다(문장으로만 preserve_commit_failed). index_lock에는 retry_from이 없다. 나머지 retry_from은 'isolate(강제 종료)'처럼 문장이 붙어 있다
-   - G19 lease_guards[] @ daemon_rules.json: 항목이 'max_parallel_leases 미만' 같은 문장 혼합이고 각 가드가 무엇을 검사하는지 어디에도 구조화돼 있지 않다. budget_reserved가 쓰는 예약 레코드가 core_contract.store에 없다. concurrency.max_parallel_leases·branch_naming은 읽기 목록 밖이다
-   - G20 core_contract._scope (읽기 목록) @ daemon_rules.json: 코어가 실제로 필요로 한 읽기 목록 밖 필드: events(이름 목록), hard_stop.grace_s, preserve_manifest.function·excludes, concurrency.fencing.on_lease_end. 목록에 넣거나 코어가 안 읽어도 되게 구조를 바꿔 달라
-   - G21 preserve_manifest.excludes 마지막 항목 @ daemon_rules.json: '비밀값 패턴에 걸리는 파일 — 걸리면 보존하지 않고 R-10'이 목록 안의 문장이다. R-10 검출 패턴이 구조화돼 있지 않다
-   - G22 state_integrity.normal_expiry.detect ↔ transitions[4] @ daemon_rules.json: 하트비트가 한 번도 없는 leased 임대: transitions[4]는 issued_at + heartbeat_s*2로 만료시키지만 detect의 last_heartbeat_at + heartbeat_s*2는 값이 없어 거짓이다(clock.derived는 issued_at 대체를 문장으로만 말함). 재시작 분류와 만료 전이가 어긋난다
-   - G23 core_contract.atomicity @ daemon_rules.json: 원자 기록이 [lease_generation, lease_record, outbox] 셋뿐이다. task_state.state 갱신을 같은 커밋에 넣는지 정해 달라(넣지 않으면 재시작 뒤 state=queued인 active 임대가 생김). 중간 중단 지점은 트랜잭션 전/후만이라 세 기록 사이 중단은 시험하지 않음
-   - G24 noop_events / transitions (중복 lease_granted) @ daemon_rules.json: 이미 leased인 과제에 같은 lease_granted가 다시 오면 받을 전이가 없어 unmapped_condition(returned)이 된다. noop_events에도 없다
-   - G25 accept_envelope.checks_in_order 순서 ↔ concurrency.fencing.late_envelope @ daemon_rules.json: inbox_seen 검사가 임대 검사보다 앞이라 이전 세대에서 이미 본 봉투의 재전송은 envelope_duplicate_delivery가 되는데, late_envelope 설명은 이전 세대 키의 봉투를 late_envelope_rejected(R-11)와 같다고 한다
-   - G26 core_contract.operations (푸시·PR 갱신 펜싱) @ daemon_rules.json: concurrency.fencing.checked_at에 push·pr_update가 있으나 이를 검사하는 연산이 core_contract에 없다
-   - G27 events / events_in (daemon_restart, heartbeat) @ daemon_rules.json: daemon_restart는 events_in에만 있고 events·transitions에 없다. heartbeat는 noop_events와 events_in.payloads 양쪽에 있다. 사건 이름의 정본 목록 하나를 정해 달라
-   - G28 같은 세대의 둘째 switch_signal @ daemon_rules.json: envelope_identity는 signal 봉투가 한 세대에 여러 번 정당하다고 하나, 첫 switch_signal이 building→handoff로 상태를 바꾸므로 둘째 signal을 받을 전이가 없다
+  STATIC  static-checks                            PASS      검사 14건 중 통과 14
+  검사 436건, 실패 0건, 명세 공백 표시 6건
+  필수 시험 ID 33개 중 이번에 실행한 것 16개, 실행하지 않은 것 17개(이번 범위 밖)
+  실행하지 않은 시험 ID: decision-gate-merge-only, stale-approval-invalidated, late-write-fenced, provider-scoped-switch, post-merge-prereq, event-duplicate-noop, event-out-of-order, docs-pr-complete, eleventh-pr-audit, mis-merge-not-done, hard-stop-heartbeating-job, switch-negative-test-output, switch-negative-third-party-http, d02-mock-start-allowed, r2-local-work-allowed, merge-observation-fields, envelope-permission-rejects-missing
+  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 7종(명세 공백 후보, --report에 목록)
+  명세 공백: 해소(필드) 22건, 남았거나 새로 생긴 것 28건
+   - G11 [일부 해소] 상태 변경 구조화 @ daemon_rules.json: 효과를 {id,args}로
+   - G12 [일부 해소] 임대 종료 전이·이름 @ daemon_rules.json: 종료 전이와 이름 통일
+   - G16 [일부 해소] revoke_token·issue_next_lease 단계의 재시작 @ daemon_rules.json: 받을 전이
+   - G18 [일부 해소] commit OID 불일치, retry_from @ daemon_rules.json: 구조화
+   - G20 [일부 해소] 읽기 목록 @ daemon_rules.json: 목록에 넣기
+   - G21 [일부 해소] 비밀값 패턴 @ daemon_rules.json: 패턴 구조화
+   - G29 [새로 생김] lease_guards[].check, state_integrity.corruption.detect의 count(lease_record where ...) @ daemon_rules.json: count의 대상 범위(모든 과제 / 자기 과제)와 자기 과제의 곧 끝날 임대를 세는지 식에 없다. 가드(no_conflict_lease·single_writer·max_parallel_leases)와 손상 탐지(state_without_lease)가 같은 이름 lease_record를 서로 다른 범위로 쓴다
+   - G30 [새로 생김] transitions[recovery_decision→handoff].side_effects[set_handoff_field].args.value @ daemon_rules.json: 'isolate 또는 preserve_remote(로컬 커밋 있음)'라는 문장이다. phase를 고르는 구조화 규칙이 필요하다
+   - G31 [새로 생김] handoff_failure_policy.restart_resume.{preserve,preserve_remote,revoke_token,issue_next_lease} @ daemon_rules.json: 단계 id가 아니라 절차 문장('verify_local_commit … 있으면 preserve_remote, 없으면 confirm_quiescent')이다. {check, then, else}로 구조화해야 한다. 특히 preserve에서 로컬 커밋이 없으면 문장은 confirm_quiescent로 돌아가라고 하지만 코어는 정지 확인을 다시 하지 않는다
+   - G32 [새로 생김] transitions[building→handoff switch_signal].cond → switch_policy.allowed_sources @ daemon_rules.json: cond가 switch_policy.allowed_sources를 참조하는데 core_contract.reads에 switch_policy가 없다. reads에 넣거나 cond가 다른 경로를 가리켜야 한다. (이전 코어는 이 경로를 모르는 이름으로 보고 문자열끼리 비교해 조건이 항상 참이었다. 지금은 모르는 이름을 오류로 막는다)
+   - G33 [새로 생김] noop_rules[].when @ daemon_rules.json: 구조화 술어 목록인데 키 이름이 when이라 '자연어 when을 읽지 않는다'는 원칙·정적 검사와 이름이 겹친다. 키 이름을 cond로 바꾸거나 원칙에 예외를 명시해야 한다
+   - G34 [새로 생김] concurrency.lease_end.statuses ↔ store.lease_record.status, concurrency.lease_end.transitions @ daemon_rules.json: end_lease가 쓰는 completed·returned가 store.lease_record.status 열거(active|expired|revoked|handed_off)에 없다. lease_end.transitions의 [ci_failed→building], [changes_requested→building]은 side_effects에 end_lease가 없다(임대는 result_pr_opened에서 이미 끝났다)
+   - G35 [새로 생김] concurrency.fencing.on_lease_end ↔ 전이 side_effects의 같은 id @ daemon_rules.json: end_lease가 on_lease_end 항목을 내는데 같은 전이가 revoke_token·record_handoff 등을 또 직접 적는다(preserve_push_ok, state_corrupted). 중복 처리 규칙이 없다
+   - G36 [새로 생김] side_effect_ids(revoke_token, revoke_write_credential, revoke_preserve_credential) ↔ handoff_failure_policy.always_revoke(builder_token, builder_write_credential, preserve_credential) @ daemon_rules.json: 효과 id와 자격 이름의 대응이 구조화돼 있지 않다
+   - G37 [새로 생김] transitions[*→returned unmapped_condition] @ daemon_rules.json: side_effects가 record_r_code뿐이라 leased·building에서 반송되면 임대가 active로 남고 owner_resolved 뒤 queued→leased의 cond(lease_record.status not_in [active])가 막힌다. (비슷하게 merged_invalid_approval→cancelled(owner_cancelled)에는 set_cancelled가 없다)
+   - G38 [새로 생김] preserve_manifest.secret_patterns.on_match.event=secret_detected @ daemon_rules.json: secret_detected 전이는 building에서만 있어 인계 중(보존 전 검출)에는 받을 전이가 없다. scan 대상 '봉투·로그'의 검출 지점도 정해져 있지 않다
+   - G39 [새로 생김] handoff_failure_policy.retry_detail.index_lock.owner_alive_then @ daemon_rules.json: 이 필드를 참조하는 전이·효과가 없다(resume_from_phase는 retry_from만 쓴다)
+   - G40 [새로 생김] accept_envelope.checks_in_order 순서(lease_active_unexpired가 not_seen 앞) ↔ M34 @ daemon_rules.json: 임대를 끝내는 결과 봉투(result_pr_opened 등)가 같은 봉투로 다시 오면 임대가 이미 끝나 있어 envelope_duplicate_delivery가 아니라 late_envelope_rejected(R-11)가 된다. 05 §5 M34의 기대와 어긋난다
+   - G41 [새로 생김] store.outbox.void_reason=cancelled @ daemon_rules.json: 취소로 폐기된 임대의 pending을 cancelled로 기록하는 규칙이 없다(resend_outbox.on_fail.revoked_or_cancelled는 revoked만)
+   - G42 [새로 생김] state_integrity.corruption.detect[].pred @ daemon_rules.json: (a) 어느 과제에 적용하는지, (b) pred의 outbox가 행인지 컬렉션인지(generation_mismatch는 행, lease_without_outbox는 컬렉션), (c) max(journal.lease_generation)가 clock.expressions의 허용 식(+, *, coalesce, count)에 없다, (d) lease_id만 어긋난 outbox 행은 어떤 detect에도 걸리지 않는데 resend_outbox는 그것을 generation_or_lease_mismatch→state_corrupted로 보낸다
+   - G43 [새로 생김] state_integrity.normal_expiry.path, resend_outbox.on_fail.<key>.then @ daemon_rules.json: 만료 사건 이름(lease_expired, heartbeat_missed_twice)과 후속 사건(state_corrupted)이 문장 안에만 있다. 구조화 목록이 필요하다
+   - G44 [새로 생김] accept_envelope.checks_in_order[current_lease_rules].pred(envelope.kind) ↔ fence_violation_report.kind @ daemon_rules.json: envelope.kind(봉투 종류)와 위반 신고 봉투가 가진 필드 kind(direct_push 등)가 이름이 같다. 값 집합 'kind ∈ {…}'도 필수 목록 안의 문장이다
+   - G45 [새로 생김] lease_guards[lock_acquired], store.lease_lock @ daemon_rules.json: lease_lock을 누가 언제 잡고 풀고, holder 'self'가 데몬 인스턴스 id와 어떻게 대응하는지가 없다
+   - G46 [새로 생김] usage_recording, store.usage_record, lease_guards[usage_slot_ready] @ daemon_rules.json: (a) usage_record가 append-only라면서 슬롯 행의 calls·recorded_at을 나중에 채운다, (b) record_after_result의 runner·provider_family_label 열이 store.usage_record에 없다, (c) 거부된(늦은·중복) 결과 봉투의 사용량을 기록할지, (d) 슬롯을 만드는 주체(가드 평가 중 usage_record.slot() 호출)가 명시돼 있지 않다
+   - G47 [새로 생김] envelopes.instruction.limits.{max_wall_s,max_retries}.default @ daemon_rules.json: limits의 기본값이 reads 밖이다(reads는 envelopes.*.required만). 값을 어디서 가져오는지 정해져 있지 않다
+   - G48 [새로 생김] lease_guards[instruction_envelope_valid] 실패 → envelope_invalid @ daemon_rules.json: 봉투 검증 실패가 returned(R-13)로 가려면 누가 envelope_invalid 사건을 내는지(lease_guards_detail.on_fail은 reads 밖). 코어가 자동으로 잇는지 정해져 있지 않다
+   - G49 [새로 생김] envelopes.instruction.canon_change_approval.validate, real_data_allowed.value (M32) @ daemon_rules.json: 검증 규칙이 문장 목록이고 reads 밖이다(envelopes.*.required만 읽음). real_data_allowed는 코어가 결정 관문에서 계산하므로 '누락'을 만들 수 없다. 읽기 목록 안에 구조화한 검증 규칙이 없으면 M32를 데이터로 구동할 수 없다
+   - G50 [새로 생김] hard_stop.trigger[owner_stop, max_wall_s_exceeded] ↔ events(hard_stop_deadline) @ daemon_rules.json: 트리거 이름과 사건 이름의 대응이 없고 owner_stop에 해당하는 사건이 events에 없다

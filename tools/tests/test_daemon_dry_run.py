@@ -1,12 +1,14 @@
 """Dry run of the daemon core (tools/daemon): the T-OP-00 scenarios run on the shared core with mock adapters.
 
 What must hold:
-- every in-scope scenario (M28, M33-M44) ends with expected == actual on every check; checks marked GAP are
-  specification gaps and are listed, not hidden;
-- the core reads only the structured fields of daemon_rules.json: its view of the file has no `when`,
-  `note` or `_` keys, and replacing or deleting every such key changes no result;
-- the behavior comes from the data: changing a structured rule (resend checks, handoff order, thresholds,
-  expiry condition) changes the result, so the scenarios are not matched by separate logic;
+- every in-scope scenario (M26, M28-M30, M33-M44) ends with expected == actual on every check; checks marked GAP
+  are specification gaps and are listed, not hidden;
+- the core reads only the fields of core_contract.reads: its view of the file has no prose `when`, `note` or `_`
+  keys, and replacing or deleting every such key changes no result;
+- the behavior comes from the data: changing one structured field (resend checks, handoff order, thresholds,
+  expiry condition, guards, side effects, the read list ...) makes the scenario that depends on it fail, so the
+  scenarios are not matched by separate logic;
+- usage is recorded and never capped (U-05);
 - static checks: no merge API, no network or CLI, no wall clock, no start-up feature, one writer of
   lease_generation, one tree identity function, no model identifiers, no dry-run branch in the core.
 """
@@ -87,7 +89,8 @@ class Coverage(unittest.TestCase):
                   "restart-corrupt-record-returned", "lease-issue-atomic-single-owner", "envelope-id-distinct-events",
                   "duplicate-delivery-noop", "retry-new-idempotency-key", "late-result-no-state-change",
                   "preserve-failure-recoverable-stop", "daemon-restart-during-handoff",
-                  "handoff-quiescent-before-preserve", "preserve-manifest-same-function"}
+                  "handoff-quiescent-before-preserve", "preserve-manifest-same-function",
+                  "usage-recorded-not-capped", "handoff-order", "lease-guards-all-paths"}
         self.assertEqual(wanted - set(implemented), set())
 
     def test_every_scenario_prints_expected_and_actual(self):
@@ -97,11 +100,18 @@ class Coverage(unittest.TestCase):
                 self.assertIn("actual", c)
                 self.assertIn(c["status"], (sc.PASS, sc.FAIL, sc.GAP))
 
-    def test_gaps_are_listed_with_field_and_need(self):
-        from daemon.spec_gaps import SPEC_GAPS
+    def test_gaps_are_listed_with_field_status_and_need(self):
+        from daemon.spec_gaps import SPEC_GAPS, RESOLVED, PARTLY, OPEN, NEW
         self.assertGreater(len(SPEC_GAPS), 0)
+        ids = [g["id"] for g in SPEC_GAPS]
+        self.assertEqual(len(ids), len(set(ids)))
         for g in SPEC_GAPS:
             self.assertTrue(g["field"] and g["need"] and g["where"])
+            self.assertIn(g["status"], (RESOLVED, PARTLY, OPEN, NEW))
+            if g["status"] in (RESOLVED, PARTLY):
+                self.assertTrue(g.get("resolved_by"), g["id"])
+        # the 28 gaps reported first are all accounted for
+        self.assertEqual([f"G{n:02d}" for n in range(1, 29)], [i for i in ids if int(i[1:]) <= 28])
         gap_checks = [c for r in results().values() for c in r["checks"] if c["status"] == sc.GAP]
         self.assertTrue(all(c.get("note") for c in gap_checks))
 
@@ -116,20 +126,47 @@ class StructuredFieldsOnly(unittest.TestCase):
             elif isinstance(node, list):
                 for i, v in enumerate(node):
                     walk(v, f"{path}[{i}]")
-        walk(Rules(raw_rules(), {}).view)
+        walk(Rules(raw_rules()).view)
+
+    def test_structured_when_of_noop_rules_is_kept_as_cond(self):
+        rules = Rules(raw_rules())
+        raw = raw_rules()["noop_rules"]
+        self.assertEqual(len(rules.noop_rules), len(raw))
+        for r, orig in zip(rules.noop_rules, raw):
+            self.assertEqual(r["cond"], orig["when"])
+            self.assertNotIn("when", r)
+            self.assertNotIn("note", r)
 
     def test_view_is_a_subset_of_the_read_list(self):
-        view = Rules(raw_rules(), {}).view
-        allowed = {"core_contract", "transitions", "lease_guards", "handoff_sequence", "handoff_failure_policy",
-                   "concurrency", "envelopes", "state_integrity", "noop_events", "return_codes", "events", "hard_stop",
-                   "preserve_manifest"}
-        self.assertEqual(set(view) - allowed, set())
-        self.assertEqual(set(view["concurrency"]) - {"lease", "lease_issue", "quiescence", "idempotency_key", "fencing"}, set())
-        self.assertEqual(set(view["handoff_failure_policy"]), {"max_attempts", "always_revoke"})
+        raw = raw_rules()
+        rules = Rules(raw)
+        self.assertEqual(rules.unmatched_reads, [])
+        view = rules.view
+        tops = {e.replace("[]", "").split(".")[0] for e in raw["core_contract"]["reads"]} | {"switch_policy"}
+        self.assertEqual(set(view) - tops, set())
+        self.assertEqual(set(view["concurrency"]), {"lease", "fencing", "lease_end", "lease_issue", "quiescence",
+                                                    "idempotency_key", "max_parallel_leases", "branch_naming"})
+        self.assertEqual(set(view["concurrency"]["fencing"]), {"on_lease_end"})
+        self.assertEqual(set(view["handoff_failure_policy"]),
+                         {"max_attempts", "attempt_counting", "retry_detail", "restart_resume", "always_revoke"})
+        self.assertEqual(set(view["hard_stop"]), {"grace_s", "trigger"})
+        self.assertEqual(set(view["preserve_manifest"]), {"function", "excludes", "secret_patterns"})
+        self.assertEqual(set(view["switch_policy"]), {"allowed_sources"})
         for name, body in view["envelopes"].items():
             self.assertEqual(set(body), {"required"}, name)
         for tr in view["transitions"]:
-            self.assertEqual(set(tr) - {"from", "to", "event", "guard", "cond", "side_effects", "by"}, set())
+            self.assertEqual(set(tr) - {"from", "to", "event", "guard", "cond", "side_effects", "return_code", "on_cond_fail"}, set())
+        for rc in view["return_codes"]:
+            self.assertEqual(set(rc), {"code"})
+        self.assertEqual(len(view["transitions"]), len(raw["transitions"]))
+
+    def test_read_patterns_expand(self):
+        from daemon.core.rules import expand_pattern
+        seqs = expand_pattern("transitions[].{from,to}")
+        self.assertEqual(seqs, [[("key", "transitions"), ("each",), ("key", "from")],
+                                [("key", "transitions"), ("each",), ("key", "to")]])
+        self.assertEqual(len(expand_pattern("concurrency.{lease,fencing.on_lease_end}")), 2)
+        self.assertEqual(expand_pattern("envelopes.*.required"), [[("key", "envelopes"), ("all",), ("key", "required")]])
 
     def test_replacing_or_deleting_explanation_keys_changes_nothing(self):
         base = {mid: [(c["name"], c["status"], c["actual"]) for c in r["checks"]] for mid, r in results().items() if mid != "STATIC"}
@@ -142,56 +179,197 @@ class StructuredFieldsOnly(unittest.TestCase):
                 got = [(c["name"], c["status"], c["actual"]) for c in run_fn(e[3], alt)]
                 self.assertEqual(got, base[mid], f"{mode} {mid}")
 
+    def test_names_without_a_root_are_errors_not_literals(self):
+        from daemon.core.gate_evaluator import Ctx
+        from daemon.core.ports import SpecGap
+        ctx = Ctx(Rules(raw_rules()), {"event": {"at": 1}})
+        self.assertEqual(ctx.value("active"), "active")
+        self.assertEqual(ctx.value("R-08"), "R-08")
+        self.assertEqual(ctx.value("daemon"), "daemon")
+        self.assertEqual(ctx.value("event.at + 2"), 3)
+        self.assertEqual(ctx.value("coalesce(event.nothing, event.at) * 2"), 2)
+        with self.assertRaises(SpecGap):
+            ctx.value("no_such_root.field")
+        with self.assertRaises(SpecGap):
+            ctx.value("hard_stop.no_such_field")
+
+
+def _mutated(fn):
+    raw = raw_rules()
+    fn(raw)
+    return raw
+
+
+def _transition(raw, frm, event, to=None):
+    return [t for t in raw["transitions"] if t["from"] == frm and t["event"] == event and (to is None or t["to"] == to)][0]
+
 
 class BehaviorComesFromData(unittest.TestCase):
-    """Changing a structured rule must change the outcome; separate hard-coded logic would not notice."""
+    """Changing one structured field must make the scenario that depends on it fail; separate hard-coded logic
+    would not notice."""
+
+    def assertBreaks(self, scenario, fn, msg=""):
+        bad = failing(run_fn(scenario, _mutated(fn)))
+        self.assertNotEqual(bad, [], msg or "the scenario did not notice the change")
+
+    def test_baseline_is_clean(self):
+        for fn in (sc.m26, sc.m41, sc.m42):
+            self.assertEqual(failing(run_fn(fn, raw_rules())), [])
 
     def test_resend_checks_are_read_from_data(self):
-        raw = raw_rules()
-        raw["state_integrity"]["resend_same_envelope_id_only_if"] = raw["state_integrity"]["resend_same_envelope_id_only_if"][:1]
-        self.assertNotEqual(failing(run_fn(sc.m42, raw)), [])
+        def f(raw):
+            raw["core_contract"]["operations"]["resend_outbox"]["checks"] = raw["core_contract"]["operations"]["resend_outbox"]["checks"][:1]
+        self.assertBreaks(sc.m42, f)
+
+    def test_resend_on_fail_effects_are_read_from_data(self):
+        def f(raw):
+            raw["core_contract"]["operations"]["resend_outbox"]["on_fail"]["revoked_or_cancelled"]["effects"] = []
+        self.assertBreaks(sc.m42, f)
 
     def test_handoff_order_is_read_from_data(self):
-        raw = raw_rules()
-        seq = raw["handoff_sequence"]
-        i, j = seq.index("confirm_quiescent"), seq.index("preserve")
-        seq[i], seq[j] = seq[j], seq[i]
-        self.assertNotEqual(failing(run_fn(sc.m33, raw)), [])
+        def f(raw):
+            seq = raw["handoff_sequence"]
+            i, j = seq.index("confirm_quiescent"), seq.index("preserve")
+            seq[i], seq[j] = seq[j], seq[i]
+        self.assertBreaks(sc.m33, f)
+        self.assertBreaks(sc.m29, f)
 
-    def test_thresholds_are_read_from_data(self):
-        cfg = json.loads(TASKS.read_text(encoding="utf-8"))
-        cfg["parameters"]["handoff_failure_policy.max_attempts.quiescence_failed.value"] = 2
-        with tempfile.TemporaryDirectory() as tmp:
-            p = Path(tmp) / "tasks.json"
-            p.write_text(json.dumps(cfg), encoding="utf-8")
-            self.assertNotEqual(failing(run_fn(sc.m37, str(RULES), p)), [])
+    def test_max_attempts_are_read_from_data(self):
+        self.assertBreaks(sc.m37, lambda raw: raw["handoff_failure_policy"]["max_attempts"].update(quiescence_failed=2))
+
+    def test_attempt_comparison_is_read_from_data(self):
+        def f(raw):
+            _transition(raw, "handoff", "quiescence_failed", "handoff")["cond"][0]["op"] = "<"
+        self.assertBreaks(sc.m37, f)
 
     def test_expiry_condition_is_read_from_data(self):
-        raw = raw_rules()
-        tr = [t for t in raw["transitions"] if t["event"] == "lease_expired"][0]
-        tr["cond"][0]["value"] = "lease_record.issued_at + concurrency.lease.heartbeat_s*100000"
-        self.assertNotEqual(failing(run_fn(sc.m41, raw)), [])
+        def f(raw):
+            _transition(raw, "leased", "lease_expired")["cond"][1]["value"] = "lease_record.issued_at + concurrency.lease.heartbeat_s*100000"
+        self.assertBreaks(sc.m41, f)
+
+    def test_heartbeat_interval_is_read_from_data(self):
+        self.assertBreaks(sc.m41, lambda raw: raw["concurrency"]["lease"].update(heartbeat_s=100))
 
     def test_transition_target_is_read_from_data(self):
-        raw = raw_rules()
-        tr = [t for t in raw["transitions"] if t["event"] == "lease_expired"][0]
-        tr["to"] = "returned"
-        self.assertNotEqual(failing(run_fn(sc.m41, raw)), [])
+        self.assertBreaks(sc.m41, lambda raw: _transition(raw, "leased", "lease_expired").update(to="returned"))
 
-    def test_corruption_effects_list_is_read_from_data(self):
-        raw = raw_rules()
-        raw["state_integrity"]["corruption"]["effects"] = ["lease_record.status = revoked"]
-        self.assertNotEqual(failing(run_fn(sc.m44, raw)), [])
+    def test_corruption_effects_are_read_from_data(self):
+        def f(raw):
+            effs = _transition(raw, "*", "state_corrupted")["side_effects"]
+            effs[:] = [e for e in effs if e["id"] != "void_outbox"]
+        self.assertBreaks(sc.m44, f)
+
+    def test_corruption_detect_is_read_from_data(self):
+        def f(raw):
+            raw["state_integrity"]["corruption"]["detect"] = raw["state_integrity"]["corruption"]["detect"][2:]
+        self.assertBreaks(sc.m44, f)
 
     def test_always_revoke_list_is_read_from_data(self):
-        raw = raw_rules()
-        raw["handoff_failure_policy"]["always_revoke"] = ["builder_write_credential", "builder_token"]
-        self.assertNotEqual(failing(run_fn(sc.m37, raw)), [])
+        self.assertBreaks(sc.m37, lambda raw: raw["handoff_failure_policy"].update(always_revoke=["builder_write_credential", "builder_token"]))
 
     def test_noop_names_must_be_listed(self):
+        self.assertBreaks(sc.m34, lambda raw: raw["noop_events"].remove("envelope_duplicate_delivery"))
+
+    def test_noop_rules_are_read_from_data(self):
+        def f(raw):
+            raw["noop_rules"] = [r for r in raw["noop_rules"] if r["event"] != "lease_granted"]
+        self.assertBreaks(sc.m40, f)
+
+    def test_accept_envelope_check_order_is_read_from_data(self):
+        def f(raw):
+            checks = raw["core_contract"]["operations"]["accept_envelope"]["checks_in_order"]
+            ids = [c["id"] for c in checks]
+            checks.insert(ids.index("lease_matches"), checks.pop(ids.index("not_seen")))
+        self.assertBreaks(sc.m35, f)
+
+    def test_accept_envelope_on_fail_is_read_from_data(self):
+        def f(raw):
+            raw["core_contract"]["operations"]["accept_envelope"]["on_fail"]["late"]["return_code"] = None
+        self.assertBreaks(sc.m28, f)
+
+    def test_lease_guards_are_read_from_data(self):
+        def f(raw):
+            raw["lease_guards"] = [g for g in raw["lease_guards"] if g["id"] != "usage_slot_ready"]
+        self.assertBreaks(sc.m26, f)
+        self.assertBreaks(sc.m30, f)
+
+    def test_parallel_limit_is_read_from_data(self):
+        self.assertBreaks(sc.m30, lambda raw: raw["concurrency"].update(max_parallel_leases=5))
+
+    def test_retry_limit_is_read_from_data(self):
+        self.assertBreaks(sc.m26, lambda raw: raw["retry_limits"].update(consecutive_failed_tests=2))
+
+    def test_return_code_of_a_row_is_read_from_data(self):
+        def f(raw):
+            row = _transition(raw, "building", "result_failed_tests", "returned")
+            row["return_code"] = "R-07"
+            for e in row["side_effects"]:
+                if e["id"] == "record_r_code":
+                    e["args"]["code"] = "R-07"
+        self.assertBreaks(sc.m26, f)
+
+    def test_max_wall_s_cond_is_read_from_data(self):
+        def f(raw):
+            row = _transition(raw, "building", "hard_stop_deadline")
+            row["cond"][0]["value"][1]["value"] = "lease_record.issued_at + instruction.limits.max_wall_s + 5"
+        self.assertBreaks(sc.m26, f)
+
+    def test_on_lease_end_is_read_from_data(self):
+        self.assertBreaks(sc.m41, lambda raw: raw["concurrency"]["fencing"].update(on_lease_end=["revoke_write_credential", "revoke_token", "record_handoff"]))
+
+    def test_issue_lease_atomic_effects_are_read_from_data(self):
+        def f(raw):
+            effs = raw["core_contract"]["operations"]["issue_lease"]["effects_atomic"]
+            effs[:] = [e for e in effs if e["id"] != "create_outbox"]
+        self.assertBreaks(sc.m40, f)
+
+    def test_issue_reason_of_a_row_is_read_from_data(self):
+        def f(raw):
+            _transition(raw, "ci_failed", "lease_granted")["side_effects"][0]["args"]["reason"] = "retry_review"
+        self.assertBreaks(sc.m35, f)
+
+    def test_restart_resume_is_read_from_data(self):
+        def f(raw):
+            raw["handoff_failure_policy"]["restart_resume"]["confirm_quiescent"] = "confirm_quiescent"
+        self.assertBreaks(sc.m38, f)
+
+    def test_secret_patterns_are_read_from_data(self):
+        self.assertBreaks(sc.m36, lambda raw: raw["preserve_manifest"]["secret_patterns"].update(patterns=["never-matches-anything"]))
+
+    def test_manifest_excludes_are_read_from_data(self):
+        self.assertBreaks(sc.m36, lambda raw: raw["preserve_manifest"].update(excludes=[e for e in raw["preserve_manifest"]["excludes"] if e != "target/"]))
+
+    def test_usage_fields_to_record_are_read_from_data(self):
+        def f(raw):
+            raw["usage_recording"]["record_after_result"] = ["calls", "wall_s"]
+        self.assertBreaks(sc.m26, f)
+
+    def test_the_read_list_is_what_the_core_reads(self):
+        for entry in ("retry_limits", "usage_recording", "lease_guards[]"):
+            def f(raw, entry=entry):
+                raw["core_contract"]["reads"].remove(entry)
+            self.assertBreaks(sc.m26, f, entry)
+
+    def test_a_read_list_entry_without_a_field_stops_the_core(self):
+        def f(raw):
+            raw["core_contract"]["reads"].append("no_such_top_level_field")
+        self.assertBreaks(sc.m41, f)
+
+    def test_no_cost_cap_in_rules_or_core_and_a_cap_would_be_noticed(self):
+        self.assertEqual(static_checks.no_cost_cap(raw_rules(), TASKS), [])
         raw = raw_rules()
-        raw["noop_events"].remove("envelope_duplicate_delivery")
-        self.assertNotEqual(failing(run_fn(sc.m34, raw)), [])
+        raw["events"].append("budget_exhausted")
+        self.assertNotEqual(static_checks.no_cost_cap(raw, TASKS), [])
+
+    def test_usage_is_recorded_whatever_the_amount(self):
+        env = sc.MockEnv(str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        env.builder_for(sc.BASIC).send_result(env.instr(sc.BASIC), "failed_tests", cost_units=10 ** 30, calls=10 ** 12, wall_s=10 ** 9)
+        env.run_builders("first_heartbeat")
+        self.assertEqual((env.state(sc.BASIC), env.task(sc.BASIC)["lease_generation"]), ("building", 2))
+        rows = env.snap()["usage_record"]
+        self.assertEqual((rows[0]["cost_units"], rows[0]["calls"]), (10 ** 30, 10 ** 12))
+        self.assertEqual([r["return_code"] for r in env.journal() if r["kind"] == "return_record"], [])
 
 
 class Static(unittest.TestCase):
@@ -261,7 +439,7 @@ class Cli(unittest.TestCase):
 
     def test_exit_code_is_one_when_one_check_differs(self):
         raw = raw_rules()
-        raw["state_integrity"]["resend_same_envelope_id_only_if"] = raw["state_integrity"]["resend_same_envelope_id_only_if"][:1]
+        raw["core_contract"]["operations"]["resend_outbox"]["checks"] = raw["core_contract"]["operations"]["resend_outbox"]["checks"][:1]
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / "rules.json"
             p.write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")

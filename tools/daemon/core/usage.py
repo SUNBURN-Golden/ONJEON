@@ -6,7 +6,12 @@ into the slot. A recording failure after a result is a warning and a retry entry
 Nothing in this module reads an amount to decide anything.
 """
 
-RESULT_FIELDS = ("calls", "wall_s", "cost_units")
+
+def result_fields(core):
+    """usage_recording.record_after_result, as far as the store row has a column for it (store.usage_record)."""
+    wanted = core.rules.get("usage_recording.record_after_result")
+    columns = core.rules.get("core_contract.store.usage_record")
+    return [f for f in wanted if f in columns]
 
 
 def _rows(d):
@@ -53,7 +58,7 @@ def attach_envelope(core, d, task_id, generation, envelope_id):
 
 
 def _fill(core, d, row, values):
-    for k in RESULT_FIELDS:
+    for k in result_fields(core):
         if row[k] is None:
             row[k] = values.get(k)
     row["recorded_at"] = core.clock.now()
@@ -62,7 +67,7 @@ def _fill(core, d, row, values):
 def record_result(core, d, task_id, envelope):
     """record_after_result for an accepted result envelope."""
     gen = envelope.get("lease_generation")
-    values = {k: envelope.get(k) for k in RESULT_FIELDS}
+    values = {k: envelope.get(k) for k in result_fields(core)}
     if core.ports.faults.fails("usage:record_result"):
         d.setdefault("usage_retry", []).append({"task_id": task_id, "lease_generation": gen, **values})
         core.rec.diagnostic(d, task_id, "usage_record_failed_warning", lease_generation=gen, retry="queued")
@@ -93,7 +98,7 @@ def retry_pending(core):
                 _rows(d).append(row)
             _fill(core, d, row, item)
             core.rec.side_effect(d, item["task_id"], "record_usage", phase="after_result_retry",
-                                 lease_generation=item["lease_generation"], **{k: item.get(k) for k in RESULT_FIELDS})
+                                 lease_generation=item["lease_generation"], **{k: item.get(k) for k in result_fields(core)})
             done += 1
         d["usage_retry"] = keep
     return done

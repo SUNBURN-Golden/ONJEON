@@ -321,7 +321,7 @@ def run(repo):
            "bootstrap-clean-main": "order", "release-readiness-rejects-incomplete": "final",
            "event-duplicate-noop": "wait", "event-out-of-order": "wait", "docs-pr-complete": "wait",
            "eleventh-pr-audit": "wait", "mis-merge-not-done": "wait",
-           "budget-reserve-before-call": "latewrite", "hard-stop-heartbeating-job": "latewrite",
+           "usage-recorded-not-capped": "latewrite", "hard-stop-heartbeating-job": "latewrite",
            "switch-negative-test-output": "switch", "switch-negative-third-party-http": "switch",
            "d02-mock-start-allowed": "gates", "r2-local-work-allowed": "gates",
            "need-flow-keep-addnone-hold-unknown": "needcrit",
@@ -415,6 +415,12 @@ def run(repo):
     check("consistency", "G27 시험 프로필이 역사적 사례(historical_fixture)와 서비스 적합성(service_conformance)으로 나뉨", {"historical_fixture", "service_conformance"} <= set(prof), sorted(prof) or "없음")
     c02 = read("02_구현계약.md")
     check("consistency", "G28 02가 주장 종류별 근거 정책과 가격 관측의 보존·비교 자격 분리를 둠", "근거 정책" in c02 and "비교 자격" in c02, "", kind="존재 검사")
+    # U-05(2026-10-13) 비용 정책: 비용 상한 없음, 사용량 기록은 유지, 비용 누적으로 멈추지 않음
+    blob_d = json.dumps({k: v for k, v in D.items() if not k.startswith("_")}, ensure_ascii=False)
+    be = D.get("budget_enforcement") or D.get("usage_recording") or {}
+    cap_words = re.findall(r"max_cost_units|월 총비용 상한|월 총 비용 상한|예산 소진|budget_exhausted|cost_cap", blob_d)
+    ok = not cap_words and bool(D.get("usage_recording")) and not any("예산" in (r.get("when") or "") or "비용" in (r.get("when") or "") for r in D.get("return_codes", []))
+    check("latewrite", "G46 [U-05] 비용 상한·예산 소진 정지가 규칙에 없고 사용량 기록(usage_recording)은 있음", ok, {"남은 비용 상한 표현": sorted(set(cap_words)), "usage_recording": bool(D.get("usage_recording"))})
     # 다음 작업 2: 모의 검증과 실제 데몬이 같은 전이·검증 코어를 쓴다
     core = D.get("execution_core", {})
     check("wait", "G30 dry-run과 실제 실행기가 같은 전이·검증 코어를 쓴다(execution_core.shared_by)", {"dry_run", "real_executor"} <= set(core.get("shared_by", [])), core or "없음")

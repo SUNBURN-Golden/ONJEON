@@ -1320,7 +1320,7 @@
   "tasks": [
     {
       "id": "T-OP-00",
-      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M40을 공용 전이·검증 코어로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
+      "name": "데몬 모의 작업 도구(dry_run): daemon_rules.json을 데이터로 읽어 M1~M44를 공용 전이·검증 코어(core_contract)로 실행하고 기대 전이와 대조. 실제 모델·저장소·병합 API 미사용",
       "zone": "infra·ops",
       "stage": "S0",
       "twin_axis": false,
@@ -1329,8 +1329,8 @@
       "replaces_wp": [],
       "inputs": [
         "04_자동개발명세",
-        "daemon_rules.json",
-        "05_VM실행준비 §5"
+        "daemon_rules.json(core_contract·state_integrity·transitions[].cond)",
+        "05_VM실행준비 §5·§5a 모의 코어 인터페이스"
       ],
       "prereq_tasks": [],
       "decision_gates": {
@@ -1393,6 +1393,10 @@
         "시험 daemon-restart-during-handoff(M38, 재검토 T03): stop·isolate·confirm_quiescent·preserve(로컬)·푸시 각 단계에서 모의 데몬을 재시작하면 handoff_record.phase·preservation_state부터 재개하거나(쓰기 금지·자격 회수 재적용, 로컬 커밋은 tree OID로·원격은 ref로 확인) 확인 불가 시 handoff_blocked이며, 세대가 바뀌거나 봉투가 나가지 않는다",
         "시험 envelope-id-distinct-events(M39, 재검토 T04): 같은 세대에서 envelope_id가 다른 signal 봉투 둘은 각각 처리되고, 같은 envelope_id의 재전송은 noop이며, envelope_id 없는 봉투는 거부된다",
         "시험 lease-issue-atomic-single-owner(M40, 재검토 T04): 임대를 발급하는 모든 경로(초기·재임대·인계·복귀)가 issue_lease만 부르고 세대가 한 번만 바뀐다(두 경로가 같은 사건을 동시에 처리해도 한 번). 세대·임대 기록·outbox 기록이 한 트랜잭션으로 저장되고, 기록 사이에서 모의 재시작을 걸면 셋이 모두 있거나 모두 없으며 재시작 뒤 outbox pending부터 같은 envelope_id로 발송된다. 인계 단계와 전이 side_effects에 별도 증가 코드가 없다(정적 검사)",
+        "시험 restart-ttl-expired-no-resend(M41, 재검토 U02): issue_lease 직후 데몬이 중단되고 가상 시계가 TTL을 넘긴 뒤 재시작 → state_integrity.normal_expiry로 분류, pending outbox는 void(expired)로 재발송 0건, leased→queued(lease_expired) 전이, 그 뒤 queued→leased에서 issue_lease가 새 세대를 발급한다. 옛 envelope_id는 다시 쓰이지 않는다",
+        "시험 restart-revoked-pending-void(M42, 재검토 U02): 담당자 취소 또는 토큰 폐기로 폐기된 임대의 pending 봉투가 재시작 뒤 남아 있으면 void(revoked|cancelled)로 두고 재발송 0건, 상태 불변",
+        "시험 restart-valid-pending-resend(M43, 재검토 U02): 유효한(활성·미만료·세대 일치) 임대의 pending 봉투는 같은 envelope_id로 재발송되고 status=sent, 모의 빌더가 실행 전 receiver_validation(lease_id·lease_generation·fencing_token·lease_expires_at)을 통과한 뒤 first_heartbeat로 building. 같은 봉투가 두 번 도착하면 두 번째는 noop. 만료된 봉투를 받은 모의 빌더는 실행하지 않고 lease_invalid 결과만 보낸다",
+        "시험 restart-corrupt-record-returned(M44, 재검토 U02): outbox 없이 lease_record만 있는 손상 기록(또는 세대 불일치)으로 재시작 → corruption.effects(revoked·토큰 폐기·자격 회수·pending void(corrupt)) 뒤 returned(R-08). 자동 재발급 0건. owner_resolved 기록 뒤 queued→leased에서만 issue_lease가 새 세대를 발급한다",
         "시험 lease-guards-all-paths(M30): queued→leased, handoff→leased, paused_no_builder→leased, ci_failed→building, changes_requested→building, 시험 실패 뒤 재임대 각각에서 conflict_paths 충돌·잠금 실패·동시 임대 수 초과·예산 미예약·봉투 검증 실패 중 하나라도 있으면 임대가 발급되지 않는다(lease_guards). 통과하면 토큰이 +1 된다",
         "시험 merge-observation-fields(M31): squash 병합으로 merge_commit_sha ≠ approved_head_sha 여도 head_sha_at_merge == approved_head_sha 이고 base_sha 가 승인 시점과 같으면 merged 이며 completion_facts에 approved_head_sha·base_sha·head_sha_at_merge·merge_commit_sha·integration_check 가 기록된다. 승인 뒤 head가 바뀐 채 병합되면 merged_invalid_approval(R-12)",
         "시험 envelope-permission-rejects-missing(M32): (a) real_data_allowed 없는 지시 봉투 → envelope_validator 거부·발송 0건·returned(R-13) (b) 정본 변경 과제(어휘 정본 변경을 본뜬 T-MOCK-CANON, canon_change.required=true)에 canon_change_approval 없음 → R-13 (c) decision_ref가 decision_record에 없음 → R-13 (d) scope_paths에 allowed_paths 밖 경로 → R-13 (e) 올바른 승인 → 발송되고 scope_paths 안의 정본 수정이 R-01이 아님 (f) canon_change 없는 과제가 허용 경로에 든 정본 파일을 고치면 R-01 (g) real_data_allowed=false 봉투로 모의·로컬 작업은 진행된다",
@@ -1411,7 +1415,8 @@
         "시험 r2-local-work-allowed(M10b): 모의 과제(원본 보존 경로 과제를 본뜬 T-MOCK-ARCHIVE)가 real_data=[D-04]일 때 로컬 객체 저장소 경로 작업은 진행되고 R2 쓰기 단계만 real_data_allowed=false 로 막힌다"
       ],
       "done_criteria": [
-        "M1~M40 전부 기대 전이와 일치",
+        "M1~M44 전부 기대 전이와 일치",
+        "모의 코어는 daemon_rules.json의 구조화 필드(core_contract, transitions[].cond·guard·side_effects, state_integrity 등)만 읽고 자연어 when 문장을 읽지 않는다(정적 검사: when 키 접근 없음)",
         "병합 API·자동 병합 설정 호출 함수가 코드에 없다(정적 검사)",
         "네트워크·실제 CLI 호출이 없다",
         "가동 기능(스케줄러·실행기 연결)이 없다",
@@ -1448,7 +1453,11 @@
         "preserve-failure-recoverable-stop",
         "daemon-restart-during-handoff",
         "envelope-id-distinct-events",
-        "lease-issue-atomic-single-owner"
+        "lease-issue-atomic-single-owner",
+        "restart-ttl-expired-no-resend",
+        "restart-revoked-pending-void",
+        "restart-valid-pending-resend",
+        "restart-corrupt-record-returned"
       ],
       "features": [],
       "parallel_ok": true,
@@ -1520,7 +1529,7 @@
       "test_outputs_within_allowed": true,
       "outputs": [
         "실행기 검증 도구(T-MOCK-* 과제만, 제품 브랜치 쓰기·병합 없음)",
-        "R1~R18 결과 기록, §1b 확인표 채움(미확인은 미확인)"
+        "R1~R22 결과 기록, §1b 확인표 채움(미확인은 미확인)"
       ],
       "tests": [
         "bash tools/daemon/runner_verify/run.sh --remote <시험용 원격> --report docs/vm_check/<날짜>/runner_verify.json",
@@ -1538,10 +1547,14 @@
         "시험 preserve-failure-recoverable-stop(R15, 실제 실행기 필요, T03): 실제 index.lock 파일, 가득 찬 디스크(제한 마운트), 네트워크 차단·권한 거부·보호 브랜치 거부 각각에서 한도 안 재시도 뒤 handoff_blocked로 멈추고, 빌더 자격·preserve_credential이 회수되어 있으며(자격 저장소 확인), 작업 트리가 쓰기 금지이고, 새 임대·봉투가 없다. recovery_decision 뒤 푸시만 재시도해 성공한다",
         "시험 daemon-restart-during-handoff(R16, 실제 실행기 필요, T03): 인계 각 단계에서 실제 데몬 프로세스를 강제 종료·재시작해 phase·preservation_state부터 재개 또는 handoff_blocked를 확인. preserve_credential 재발급이 1회로 제한된다",
         "시험 envelope-id-distinct-events(R17, 실제 실행기, T04): 실제 어댑터가 보낸 signal 봉투 둘(다른 envelope_id)과 재전송(같은 envelope_id)이 구분된다",
-        "시험 lease-issue-atomic-single-owner(R18, 실제 실행기 필요, T04): 실제 상태 저장소에서 발급 트랜잭션 도중 프로세스를 죽여도 세대·임대·outbox가 모두 있거나 모두 없고, 재시작 뒤 outbox 복구로 봉투가 정확히 한 번 수락된다"
+        "시험 lease-issue-atomic-single-owner(R18, 실제 실행기 필요, T04): 실제 상태 저장소에서 발급 트랜잭션 도중 프로세스를 죽여도 세대·임대·outbox가 모두 있거나 모두 없고, 재시작 뒤 outbox 복구로 봉투가 정확히 한 번 수락된다",
+        "시험 restart-ttl-expired-no-resend(R19, 실제 실행기 필요, U02): 실제 발급 직후 데몬 강제 종료 → TTL 경과 → 재시작 시 재발송 0건·void(expired)·lease_expired 전이",
+        "시험 restart-revoked-pending-void(R20, 실제 실행기, U02): 취소·폐기된 pending 봉투 재발송 0건",
+        "시험 restart-valid-pending-resend(R21, 실제 실행기 필요, U02): 유효 pending 재발송(같은 envelope_id)과 실제 CLI 어댑터의 receiver_validation. 만료 봉투는 실행 없이 lease_invalid",
+        "시험 restart-corrupt-record-returned(R22, 실제 실행기 필요, U02): 상태 저장소 손상 주입 → returned(R-08), 자동 재발급 0건, owner_resolved 뒤에만 새 세대"
       ],
       "done_criteria": [
-        "R1~R18 결과가 기록되고 실패는 실패로 적힌다",
+        "R1~R22 결과가 기록되고 실패는 실패로 적힌다",
         "제품 브랜치에 쓰기·병합이 없다(정적·로그 검사)",
         "확인되지 않은 종료 코드는 runner_profile에 넣지 않는다",
         "이 과제 완료가 가동 승인이 아니다"
@@ -1561,7 +1574,11 @@
         "preserve-failure-recoverable-stop",
         "daemon-restart-during-handoff",
         "envelope-id-distinct-events",
-        "lease-issue-atomic-single-owner"
+        "lease-issue-atomic-single-owner",
+        "restart-ttl-expired-no-resend",
+        "restart-revoked-pending-void",
+        "restart-valid-pending-resend",
+        "restart-corrupt-record-returned"
       ],
       "features": [],
       "parallel_ok": false,
@@ -2694,7 +2711,7 @@
       "test_outputs_within_allowed": true,
       "outputs": [
         "config_select(snapshot, candidates, contract_date) → Selected|Blocked{assertion_id, status}. 후보는 ID로 정렬해 순서와 무관. 가입일에 적용되는 판매 구성이 여럿일 때만 Blocked(multiple_candidates). 한 판매 구성이 여러 약관 판(보통약관·특약)을 쓰는 것은 정상(S01)",
-        "resolve_chain(snapshot, config, as_of, requested_cov) → Linked{edition, coverage, rule} | Blocked{reason ∈ {no_uses_edition, multiple_candidates, scope_unknown, competing_editions, link_unapproved, edition_identity_unconfirmed, cov_not_in_edition, no_rule}}: 판매 구성(가입일에 하나) → 판 연결 검사(그 판매 구성의 uses_edition 중 어느 판인지 모르는 것(object 없음)이 하나라도 있으면 scope_unknown으로 보류 — 요청 담보와 무관하다는 근거가 없음; 판이 확인됐고 요청 담보가 승인된 in_edition으로 다른 판에 정의된 특약은 무관함이 확인된 것으로 보고 건너뜀, 그 연결이 hold여도 막지 않음) → 판 선택(요청 담보의 in_edition 판 중 그 판매 구성이 가입일에 쓰는 판. 같은 (판매 구성, 판) 연결의 근거 주장 여럿은 하나의 연결. 0개면 no_uses_edition, 요청 담보가 그 판매 구성이 쓰는 판 여럿에 정의되면 competing_editions, 요청 담보의 연결 주장에 미승인이 섞이면 link_unapproved) → edition_status=confirmed → 실행 규칙. 결과는 목록 순서와 무관. 요청이 넘긴 cov를 따로 신뢰하지 않는다",
+        "resolve_chain(snapshot, config, as_of, requested_cov) → Linked{edition, coverage, rule} | Blocked{reason ∈ {no_uses_edition, multiple_candidates, scope_unknown, application_scope_unverified, applies_from_other_edition_unmodeled, competing_editions, link_unapproved, edition_identity_unconfirmed, cov_not_in_edition, no_rule}}: 판매 구성(가입일에 하나) → 판 연결 검사(그 판매 구성의 uses_edition 중 어느 판인지 모르는 것(object 없음)이 하나라도 있으면 scope_unknown으로 보류 — 요청 담보와 무관하다는 근거가 없음; 다른 판을 건너뛸 수 있는 경우는 (가) 그 판매 구성의 적용·참조 관계를 모두 확인했다는 승인된 주장 application_scope_complete가 있고 (나) 그 판에서 요청 담보로 가는 applies_to(준용·제한 조건 등 적용 관계, in_edition 정의 위치와 구분)가 없을 때뿐. 그 외는 application_scope_unverified로 보류. 다른 판의 applies_to가 있는데 실행 규칙이 그 판을 근거로 다루지 않으면 applies_from_other_edition_unmodeled로 보류. 판 ID가 다르다는 사실만으로 무관함을 증명하지 않음) → 판 선택(요청 담보의 in_edition 판 중 그 판매 구성이 가입일에 쓰는 판. 같은 (판매 구성, 판) 연결의 근거 주장 여럿은 하나의 연결. 0개면 no_uses_edition, 요청 담보가 그 판매 구성이 쓰는 판 여럿에 정의되면 competing_editions, 요청 담보의 연결 주장에 미승인이 섞이면 link_unapproved) → edition_status=confirmed → 실행 규칙. 결과는 목록 순서와 무관. 요청이 넘긴 cov를 따로 신뢰하지 않는다",
         "input_stage::fill(rule.inputs_from_outside_dsl, facts, snapshot) → inputs + judgements[]",
         "CLI: stdin jobs → 엔진 결과 + judgements"
       ],
@@ -2707,14 +2724,16 @@
         "시험 input-link-order-independent(골든 E4): 후보 목록을 뒤집어도 Q1~Q10 결과·blocked 사유가 같다",
         "시험 input-link-multi-edition-config(골든 S01·S01b, 재검토 e02755a 재현): (a) 같은 (판매 구성, 판) 연결의 근거 주장을 하나 더 추가해도 Q1 결과 불변 (b) 보통약관 판과 미확인 다른 특약 판을 함께 연결해도 요청 담보의 결론은 그대로(무관한 판의 미확인은 막지 않음) (c) 요청 담보의 판 연결 주장에 hold가 섞이면 Blocked(link_unapproved), 엔진 호출 0건. 어느 경우도 '판매본 후보 복수'로 막지 않는다",
         "시험 input-link-unknown-scope-hold(골든 T01, 재검토 10f470c 재현): 같은 판매 구성·같은 효력 기간에 object 없음·hold인 uses_edition 연결을 추가하면 제약 위반 0이어도 Blocked(scope_unknown), 규칙 선택 없음, 엔진 호출 0건",
-        "시험 input-link-unrelated-rider-allowed(골든 T01): 판이 확인됐고 요청 담보가 승인된 in_edition으로 다른 판에 정의된 특약의 연결이 hold여도 요청 담보의 결론은 그대로(무관함 확인)",
+        "시험 input-link-unrelated-rider-allowed(골든 T01·U01): 그 판매 구성에 승인된 application_scope_complete 주장이 있고 다른 판에서 요청 담보로 가는 applies_to가 없을 때만, 그 판의 연결이 hold여도 요청 담보의 결론은 그대로(무관함 확인). 판 ID가 다르다는 사실만으로는 건너뛰지 않는다",
+        "시험 input-link-other-edition-applies-hold(재검토 U01): 다른 판(보통약관)에서 요청 담보로 가는 applies_to(준용·제한 조건)가 있는데 실행 규칙의 근거가 그 판을 다루지 않으면 Blocked(applies_from_other_edition_unmodeled), 엔진 호출 0건. 정의 위치(in_edition)가 하나여도 막는다",
+        "시험 input-link-application-scope-unverified-hold(재검토 U01): application_scope_complete 주장이 없는 요청(서비스 기본 상황)에서 다른 판의 연결이 있으면 Blocked(application_scope_unverified), 엔진 호출 0건. 건너뛰기는 허용되지 않는다",
         "시험 input-link-competing-editions-hold(골든 T01): 요청 담보가 그 판매 구성이 가입일에 쓰는 판 여럿에 정의되면 Blocked(competing_editions), 엔진 호출 0건. 후보 목록을 뒤집어도 같은 결과"
       ],
       "done_criteria": [
         "Q1~Q10 골든과 같은 입력 단계 판정·엔진 결과",
         "Q9·Q10에서 엔진이 호출되지 않는다",
         "엔진 호출 전에 DB·네트워크 접근이 없다",
-        "input-link-other-company·input-link-other-edition·input-link-multiple-candidates·input-link-order-independent·input-link-multi-edition-config·input-link-unknown-scope-hold·input-link-unrelated-rider-allowed·input-link-competing-editions-hold 통과: 연결이 없거나 모호하면 영향받는 결론만 보류하고 엔진 호출 0건. 한 판매 구성의 여러 약관 판은 모호함이 아니고, 어느 판인지 모르는 연결은 보류하며, 무관함이 확인된 특약은 건너뛴다",
+        "input-link-other-company·input-link-other-edition·input-link-multiple-candidates·input-link-order-independent·input-link-multi-edition-config·input-link-unknown-scope-hold·input-link-unrelated-rider-allowed·input-link-competing-editions-hold 통과: 연결이 없거나 모호하면 영향받는 결론만 보류하고 엔진 호출 0건. 한 판매 구성의 여러 약관 판은 모호함이 아니고, 어느 판인지 모르는 연결은 보류하며, 무관함이 확인된(application_scope_complete + applies_to 없음) 판만 건너뛴다. 정의 위치와 적용 관계를 구분한다(U01)",
         "edition_status가 confirmed가 아닌 판에서는 입력 단계가 계산하지 않는다"
       ],
       "required_test_ids": [
@@ -2725,7 +2744,9 @@
         "input-link-multi-edition-config",
         "input-link-unknown-scope-hold",
         "input-link-unrelated-rider-allowed",
-        "input-link-competing-editions-hold"
+        "input-link-competing-editions-hold",
+        "input-link-other-edition-applies-hold",
+        "input-link-application-scope-unverified-hold"
       ],
       "features": [
         "input-stage"

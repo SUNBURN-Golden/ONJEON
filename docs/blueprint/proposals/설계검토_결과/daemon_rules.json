@@ -637,7 +637,8 @@
     "lease_granted_duplicate",
     "switch_signal_during_handoff",
     "envelope_rejected_invalid",
-    "owner_stop_ignored_during_handoff"
+    "owner_stop_ignored_during_handoff",
+    "owner_stop_already_requested"
   ],
   "_noop_note": "noop_events는 상태를 바꾸지 않고 '수신·무시' 기록만 남긴다(event-duplicate-noop). 순서가 뒤바뀐 사건(예: review_approved가 ci_passed보다 먼저)은 보류 큐에 두었다가 적용 조건이 맞을 때 처리하고, SHA가 맞지 않으면 무효(R-04)로 기록한다(event-out-of-order). 전이표 밖 조건만 unmapped_condition으로 반송한다. late_envelope_rejected(R04②): lease_id가 현재 임대가 아니거나 토큰이 현재보다 작은 결과 봉투·푸시·PR 갱신·전환 신호는 거부하고 R-11을 기록만 한다. 현재 과제의 상태를 바꾸지 않는다(late-result-rejected). fence_violation 전이는 lease_id·토큰이 현재 임대인 봉투가 펜싱 규칙을 어긴 경우에만 쓴다. envelope_duplicate_delivery(S03): 같은 임대 세대에서 같은 멱등 키의 봉투가 다시 오면 상태를 바꾸지 않고 수신·무시 기록만 남긴다(duplicate-delivery-noop). 이전 세대 키로 온 늦은 봉투는 late_envelope_rejected와 같은 처리다",
   "record_separation": {
@@ -2858,7 +2859,8 @@
       ],
       "real_data_allowed": {
         "type": "bool",
-        "derive": "core_contract.operations.validate_instruction.derive[target=envelope.real_data_allowed]",
+        "derive": "core_contract.operations.validate_instruction.derive[target=expected.real_data_allowed]",
+        "derive_note": "derive는 기대값을 계산한다. 봉투에 값을 쓰는 것은 issue_lease의 create_outbox이고, 검증기는 받은 봉투의 값을 확인만 한다(6차 수정)",
         "checked_by": "core_contract.operations.validate_instruction.rules[id=real_data_allowed_matches_gates]",
         "false_means": "실제 제공자 검수·R2 쓰기·실제 민감자료·대량 조회 단계 금지. 모의·로컬 작업은 계속 가능",
         "derived_by": "daemon (core_contract.operations.validate_instruction)"
@@ -3870,11 +3872,9 @@
           "preserve_remote",
           "revoke_token",
           "issue_next_lease",
-          "_note",
-          "_forms",
           null
         ],
-        "handoff_record_phase_rule": "= handoff_failure_policy.restart_resume keys + null. set_handoff_field(phase) and create_handoff_record(phase) write only these values (G30: preserve_remote)"
+        "handoff_record_phase_rule": "= handoff_failure_policy.restart_resume stage keys (keys not starting with `_`; `_note`·`_forms` are documentation, not phases) + null. set_handoff_field(phase) and create_handoff_record(phase) write only these values (G30: preserve_remote)"
       }
     },
     "events_in": {
@@ -4505,6 +4505,7 @@
             "states": [
               "building"
             ],
+            "repeat": "building에서 stop_requested_at != null이면 owner_stop_already_requested(noop). 기한은 처음 요청 그대로",
             "other_states": "handoff·handoff_blocked는 owner_stop_ignored_during_handoff(noop), 그 밖은 unmapped_condition(R-03)"
           },
           "secret_detected": {
@@ -4550,7 +4551,7 @@
         "function": "envelope_validator",
         "derive": [
           {
-            "target": "envelope.real_data_allowed",
+            "target": "expected.real_data_allowed",
             "type": "bool",
             "pred": {
               "field": "task.decision_gates.real_data",
@@ -4559,7 +4560,9 @@
             },
             "null_list_is": "unevaluable",
             "on_unevaluable": "leave target unset (rule real_data_derivable fails, missing real_data_allowed)",
-            "order": "before_rules"
+            "writes_envelope": false,
+            "copied_into_envelope_by": "issue_lease.effects_atomic[id=create_outbox] (the composer writes this value into the instruction envelope it sends)",
+            "note": "6차 수정: target은 봉투 밖의 기대값이다. 이전 판은 target이 envelope.real_data_allowed라서 검증기가 규칙보다 먼저 봉투 값을 덮어썼고, 값이 없거나 gates와 다른 봉투가 real_data_allowed_is_bool·real_data_allowed_matches_gates를 통과했다. 검증기는 봉투 필드를 쓰지 않는다(result.envelope_read_only)"
           }
         ],
         "rules": [
@@ -4744,7 +4747,8 @@
           "null_allowed_in_required": [
             "canon_change_approval"
           ],
-          "missing_fields": "required fields absent ∪ rules[failed].missing, in rules order"
+          "missing_fields": "required fields absent ∪ rules[failed].missing, in rules order",
+          "envelope_read_only": "rules read envelope.* exactly as received; derive never writes envelope.* (derive[].writes_envelope = false). An envelope without real_data_allowed fails real_data_allowed_is_bool, and one whose value disagrees with decision_gates.real_data ⊆ decisions_recorded fails real_data_allowed_matches_gates → invalid, R-13, no send"
         },
         "on_fail": {
           "event": "envelope_invalid",
@@ -5040,6 +5044,23 @@
       ],
       "noop_event": "owner_stop_ignored_during_handoff",
       "note": "G50: 인계·보존 중에는 중단 지시가 보존을 끊지 않는다. 기록만"
+    },
+    {
+      "event": "owner_stop",
+      "when": [
+        {
+          "field": "task_state.state",
+          "op": "==",
+          "value": "building"
+        },
+        {
+          "field": "task_state.stop_requested_at",
+          "op": "!=",
+          "value": null
+        }
+      ],
+      "noop_event": "owner_stop_already_requested",
+      "note": "G50: 이미 stop을 요청한 building에서 다시 온 중단 지시는 기록만 한다. 기한(stop_requested_at + grace_s)을 늘리지도, 임대를 R-03으로 끝내지도 않는다. 기한이 지나면 hard_stop_deadline(R-07)이 끝낸다"
     }
   ],
   "t_op_00_followups": {
@@ -5363,7 +5384,7 @@
           "hard_stop.daemon_preserve",
           "hard_stop.order"
         ],
-        "summary": "owner_stop 사건과 전이를 더하고 트리거 ↔ 사건 대응표를 만든다. 중단 지시는 stop 요청, grace_s 뒤 hard_stop_deadline(R-07). hard_stop.procedure는 같은 전이 두 개(owner_stop, hard_stop_deadline)를 단계로 적는다. 데몬 보존 없음(daemon_preserve=false)",
+        "summary": "owner_stop 사건과 전이를 더하고 트리거 ↔ 사건 대응표를 만든다. 중단 지시는 stop 요청, grace_s 뒤 hard_stop_deadline(R-07). 이미 요청한 뒤의 중단 지시는 owner_stop_already_requested(noop). hard_stop.procedure는 같은 전이 두 개(owner_stop, hard_stop_deadline)를 단계로 적는다. 데몬 보존 없음(daemon_preserve=false)",
         "mock_core_reads": "yes",
         "scenarios": [
           "M27"
@@ -5481,9 +5502,9 @@
         {"gap": "G40", "check": "수락한 결과 봉투(result_pr_opened)의 재전달은 envelope_duplicate_delivery이고 late가 아니다. 처음 보는 봉투가 끝난 임대로 오면 late(R-11)"},
         {"gap": "G42", "check": "lease_id만 어긋난 outbox 행을 outbox_lease_id_mismatch가 잡는다"},
         {"gap": "G46", "check": "거부된(late·중복) 결과 봉투는 usage_record를 바꾸지 않는다"},
-        {"gap": "G50", "check": "building에서 owner_stop은 stop 요청만 하고 기한 뒤 hard_stop_deadline(R-07)으로 끝난다. 인계 중 owner_stop은 noop. 일을 시작하기 전(leased)의 owner_stop은 unmapped_condition(R-03)"},
+        {"gap": "G50", "check": "building에서 owner_stop은 stop 요청만 하고 기한 뒤 hard_stop_deadline(R-07)으로 끝난다. 같은 building에서 두 번째 owner_stop은 owner_stop_already_requested(noop)이고 stop_requested_at이 바뀌지 않는다. 인계 중 owner_stop은 noop. 일을 시작하기 전(leased)의 owner_stop은 unmapped_condition(R-03)"},
         {"gap": "G48", "check": "building(result_failed_tests 재임대)·handoff(preserved)·paused_no_builder·ci_failed·changes_requested에서 지시 봉투가 무효면 envelope_invalid → returned(R-13), 발송 0건. building에서는 지금 임대가 returned로 끝난다"},
-        {"gap": "G49", "check": "decision_gates.real_data ⊄ decisions_recorded인데 real_data_allowed=true인 봉투, 그리고 그 반대가 real_data_allowed_matches_gates로 invalid"}
+        {"gap": "G49", "check": "decision_gates.real_data ⊄ decisions_recorded인데 real_data_allowed=true인 봉투, 그리고 그 반대가 real_data_allowed_matches_gates로 invalid. real_data_allowed가 없는 봉투는 real_data_allowed_is_bool로 invalid(검증기가 값을 채우지 않는다). 검증 뒤 봉투의 real_data_allowed는 받은 값 그대로"}
       ]
     }
   }

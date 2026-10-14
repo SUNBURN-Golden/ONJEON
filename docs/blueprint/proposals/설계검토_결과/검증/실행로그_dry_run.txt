@@ -531,7 +531,7 @@
       실제: true
   [GAP] 임대를 끝낸 결과 봉투의 중복 전달 분류
       기대: "envelope_duplicate_delivery(noop)"
-      실제: "late_envelope_rejected(R-11)"
+      실제: "envelope_duplicate_delivery(None)"
       명세 공백: accept_envelope.checks_in_order에서 lease_active_unexpired(fail_key expired)가 not_seen(duplicate)보다 앞이다. result_pr_opened가 end_lease(completed)로 임대를 끝내므로 같은 결과 봉투의 재전달은 envelope_duplicate_delivery가 아니라 late_envelope_rejected(R-11)가 된다. 05 §5 M34는 envelope_duplicate_delivery를 기대한다
 == M35 retry-new-idempotency-key: 재개·재임대·인계·복귀마다 새 세대·새 키  [PASS]
   [PASS] 반송 뒤 재개(returned→queued→leased)
@@ -1351,33 +1351,11 @@
   검사 436건, 실패 0건, 명세 공백 표시 6건
   필수 시험 ID 33개 중 이번에 실행한 것 16개, 실행하지 않은 것 17개(이번 범위 밖)
   실행하지 않은 시험 ID: decision-gate-merge-only, stale-approval-invalidated, late-write-fenced, provider-scoped-switch, post-merge-prereq, event-duplicate-noop, event-out-of-order, docs-pr-complete, eleventh-pr-audit, mis-merge-not-done, hard-stop-heartbeating-job, switch-negative-test-output, switch-negative-third-party-http, d02-mock-start-allowed, r2-local-work-allowed, merge-observation-fields, envelope-permission-rejects-missing
-  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 7종(명세 공백 후보, --report에 목록)
-  명세 공백: 해소(필드) 22건, 남았거나 새로 생긴 것 28건
+  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 6종(명세 공백 후보, --report에 목록)
+  명세 공백: 해소(필드) 44건, 남았거나 새로 생긴 것 6건
    - G11 [일부 해소] 상태 변경 구조화 @ daemon_rules.json: 효과를 {id,args}로
    - G12 [일부 해소] 임대 종료 전이·이름 @ daemon_rules.json: 종료 전이와 이름 통일
    - G16 [일부 해소] revoke_token·issue_next_lease 단계의 재시작 @ daemon_rules.json: 받을 전이
    - G18 [일부 해소] commit OID 불일치, retry_from @ daemon_rules.json: 구조화
    - G20 [일부 해소] 읽기 목록 @ daemon_rules.json: 목록에 넣기
    - G21 [일부 해소] 비밀값 패턴 @ daemon_rules.json: 패턴 구조화
-   - G29 [새로 생김] lease_guards[].check, state_integrity.corruption.detect의 count(lease_record where ...) @ daemon_rules.json: count의 대상 범위(모든 과제 / 자기 과제)와 자기 과제의 곧 끝날 임대를 세는지 식에 없다. 가드(no_conflict_lease·single_writer·max_parallel_leases)와 손상 탐지(state_without_lease)가 같은 이름 lease_record를 서로 다른 범위로 쓴다
-   - G30 [새로 생김] transitions[recovery_decision→handoff].side_effects[set_handoff_field].args.value @ daemon_rules.json: 'isolate 또는 preserve_remote(로컬 커밋 있음)'라는 문장이다. phase를 고르는 구조화 규칙이 필요하다
-   - G31 [새로 생김] handoff_failure_policy.restart_resume.{preserve,preserve_remote,revoke_token,issue_next_lease} @ daemon_rules.json: 단계 id가 아니라 절차 문장('verify_local_commit … 있으면 preserve_remote, 없으면 confirm_quiescent')이다. {check, then, else}로 구조화해야 한다. 특히 preserve에서 로컬 커밋이 없으면 문장은 confirm_quiescent로 돌아가라고 하지만 코어는 정지 확인을 다시 하지 않는다
-   - G32 [새로 생김] transitions[building→handoff switch_signal].cond → switch_policy.allowed_sources @ daemon_rules.json: cond가 switch_policy.allowed_sources를 참조하는데 core_contract.reads에 switch_policy가 없다. reads에 넣거나 cond가 다른 경로를 가리켜야 한다. (이전 코어는 이 경로를 모르는 이름으로 보고 문자열끼리 비교해 조건이 항상 참이었다. 지금은 모르는 이름을 오류로 막는다)
-   - G33 [새로 생김] noop_rules[].when @ daemon_rules.json: 구조화 술어 목록인데 키 이름이 when이라 '자연어 when을 읽지 않는다'는 원칙·정적 검사와 이름이 겹친다. 키 이름을 cond로 바꾸거나 원칙에 예외를 명시해야 한다
-   - G34 [새로 생김] concurrency.lease_end.statuses ↔ store.lease_record.status, concurrency.lease_end.transitions @ daemon_rules.json: end_lease가 쓰는 completed·returned가 store.lease_record.status 열거(active|expired|revoked|handed_off)에 없다. lease_end.transitions의 [ci_failed→building], [changes_requested→building]은 side_effects에 end_lease가 없다(임대는 result_pr_opened에서 이미 끝났다)
-   - G35 [새로 생김] concurrency.fencing.on_lease_end ↔ 전이 side_effects의 같은 id @ daemon_rules.json: end_lease가 on_lease_end 항목을 내는데 같은 전이가 revoke_token·record_handoff 등을 또 직접 적는다(preserve_push_ok, state_corrupted). 중복 처리 규칙이 없다
-   - G36 [새로 생김] side_effect_ids(revoke_token, revoke_write_credential, revoke_preserve_credential) ↔ handoff_failure_policy.always_revoke(builder_token, builder_write_credential, preserve_credential) @ daemon_rules.json: 효과 id와 자격 이름의 대응이 구조화돼 있지 않다
-   - G37 [새로 생김] transitions[*→returned unmapped_condition] @ daemon_rules.json: side_effects가 record_r_code뿐이라 leased·building에서 반송되면 임대가 active로 남고 owner_resolved 뒤 queued→leased의 cond(lease_record.status not_in [active])가 막힌다. (비슷하게 merged_invalid_approval→cancelled(owner_cancelled)에는 set_cancelled가 없다)
-   - G38 [새로 생김] preserve_manifest.secret_patterns.on_match.event=secret_detected @ daemon_rules.json: secret_detected 전이는 building에서만 있어 인계 중(보존 전 검출)에는 받을 전이가 없다. scan 대상 '봉투·로그'의 검출 지점도 정해져 있지 않다
-   - G39 [새로 생김] handoff_failure_policy.retry_detail.index_lock.owner_alive_then @ daemon_rules.json: 이 필드를 참조하는 전이·효과가 없다(resume_from_phase는 retry_from만 쓴다)
-   - G40 [새로 생김] accept_envelope.checks_in_order 순서(lease_active_unexpired가 not_seen 앞) ↔ M34 @ daemon_rules.json: 임대를 끝내는 결과 봉투(result_pr_opened 등)가 같은 봉투로 다시 오면 임대가 이미 끝나 있어 envelope_duplicate_delivery가 아니라 late_envelope_rejected(R-11)가 된다. 05 §5 M34의 기대와 어긋난다
-   - G41 [새로 생김] store.outbox.void_reason=cancelled @ daemon_rules.json: 취소로 폐기된 임대의 pending을 cancelled로 기록하는 규칙이 없다(resend_outbox.on_fail.revoked_or_cancelled는 revoked만)
-   - G42 [새로 생김] state_integrity.corruption.detect[].pred @ daemon_rules.json: (a) 어느 과제에 적용하는지, (b) pred의 outbox가 행인지 컬렉션인지(generation_mismatch는 행, lease_without_outbox는 컬렉션), (c) max(journal.lease_generation)가 clock.expressions의 허용 식(+, *, coalesce, count)에 없다, (d) lease_id만 어긋난 outbox 행은 어떤 detect에도 걸리지 않는데 resend_outbox는 그것을 generation_or_lease_mismatch→state_corrupted로 보낸다
-   - G43 [새로 생김] state_integrity.normal_expiry.path, resend_outbox.on_fail.<key>.then @ daemon_rules.json: 만료 사건 이름(lease_expired, heartbeat_missed_twice)과 후속 사건(state_corrupted)이 문장 안에만 있다. 구조화 목록이 필요하다
-   - G44 [새로 생김] accept_envelope.checks_in_order[current_lease_rules].pred(envelope.kind) ↔ fence_violation_report.kind @ daemon_rules.json: envelope.kind(봉투 종류)와 위반 신고 봉투가 가진 필드 kind(direct_push 등)가 이름이 같다. 값 집합 'kind ∈ {…}'도 필수 목록 안의 문장이다
-   - G45 [새로 생김] lease_guards[lock_acquired], store.lease_lock @ daemon_rules.json: lease_lock을 누가 언제 잡고 풀고, holder 'self'가 데몬 인스턴스 id와 어떻게 대응하는지가 없다
-   - G46 [새로 생김] usage_recording, store.usage_record, lease_guards[usage_slot_ready] @ daemon_rules.json: (a) usage_record가 append-only라면서 슬롯 행의 calls·recorded_at을 나중에 채운다, (b) record_after_result의 runner·provider_family_label 열이 store.usage_record에 없다, (c) 거부된(늦은·중복) 결과 봉투의 사용량을 기록할지, (d) 슬롯을 만드는 주체(가드 평가 중 usage_record.slot() 호출)가 명시돼 있지 않다
-   - G47 [새로 생김] envelopes.instruction.limits.{max_wall_s,max_retries}.default @ daemon_rules.json: limits의 기본값이 reads 밖이다(reads는 envelopes.*.required만). 값을 어디서 가져오는지 정해져 있지 않다
-   - G48 [새로 생김] lease_guards[instruction_envelope_valid] 실패 → envelope_invalid @ daemon_rules.json: 봉투 검증 실패가 returned(R-13)로 가려면 누가 envelope_invalid 사건을 내는지(lease_guards_detail.on_fail은 reads 밖). 코어가 자동으로 잇는지 정해져 있지 않다
-   - G49 [새로 생김] envelopes.instruction.canon_change_approval.validate, real_data_allowed.value (M32) @ daemon_rules.json: 검증 규칙이 문장 목록이고 reads 밖이다(envelopes.*.required만 읽음). real_data_allowed는 코어가 결정 관문에서 계산하므로 '누락'을 만들 수 없다. 읽기 목록 안에 구조화한 검증 규칙이 없으면 M32를 데이터로 구동할 수 없다
-   - G50 [새로 생김] hard_stop.trigger[owner_stop, max_wall_s_exceeded] ↔ events(hard_stop_deadline) @ daemon_rules.json: 트리거 이름과 사건 이름의 대응이 없고 owner_stop에 해당하는 사건이 events에 없다

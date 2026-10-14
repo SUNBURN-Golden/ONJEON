@@ -1,13 +1,15 @@
 {
- "description": "T-OP-00 모의 코어용 모의 과제와 모의 설정. 숫자(ttl_s·heartbeat_s·window_s·grace_s·max_attempts·max_parallel_leases)는 daemon_rules.json이 직접 갖는다(G01). 이 파일은 과제 정의, 빌더 목록, 필수 시험 ID만 둔다.",
+ "description": "T-OP-00 모의 코어용 모의 과제와 모의 설정. 숫자(ttl_s·heartbeat_s·window_s·grace_s·max_attempts·max_parallel_leases)는 daemon_rules.json이 직접 갖는다(G01). 이 파일은 과제 정의, 빌더 목록(이름·실행기·계열), 필수 시험 ID만 둔다. 계열 이름은 모의 값이다. mock_steps는 모의 빌더가 실행하는 단계이며 real_data=true 단계는 지시 봉투의 real_data_allowed가 true일 때만 실행한다(rules_for_builder).",
  "builders": [
   {
    "name": "mock-builder-1",
-   "runner": "mock-runner-1"
+   "runner": "mock-runner-1",
+   "family": "mock-family-a"
   },
   {
    "name": "mock-builder-2",
-   "runner": "mock-runner-2"
+   "runner": "mock-runner-2",
+   "family": "mock-family-b"
   }
  ],
  "tasks": [
@@ -86,6 +88,386 @@
    ],
    "inputs": [
     "mock://input/other"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-SCHEMA",
+   "allowed_paths": [
+    "packages/schemas/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "packages/schemas/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-schema"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-GATED",
+   "allowed_paths": [
+    "tools/mock/gated/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/gated/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-gated"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": [
+     "D-MOCK-X"
+    ]
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-REVIEW",
+   "allowed_paths": [
+    "tools/mock/review/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/review/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-review"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [
+     "D-02"
+    ],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   },
+   "mock_steps": [
+    {
+     "id": "mock_provider_review",
+     "real_data": false
+    },
+    {
+     "id": "real_provider_review",
+     "real_data": true
+    }
+   ]
+  },
+  {
+   "task_id": "T-MOCK-ARCHIVE",
+   "allowed_paths": [
+    "tools/mock/archive/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/archive/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-archive"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [
+     "D-04"
+    ],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   },
+   "mock_steps": [
+    {
+     "id": "local_object_store_write",
+     "real_data": false
+    },
+    {
+     "id": "r2_write",
+     "real_data": true
+    }
+   ]
+  },
+  {
+   "task_id": "T-MOCK-CANON",
+   "allowed_paths": [
+    "tools/mock/canon/vocab.json",
+    "tools/mock/canon/**"
+   ],
+   "forbidden_paths": [
+    "docs/**",
+    "tools/mock/canon/vocab.json"
+   ],
+   "conflict_paths": [
+    "tools/mock/canon/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-canon"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": {
+    "required": true,
+    "approval": {
+     "decision_ref": "D-MOCK-CANON",
+     "scope_paths": [
+      "tools/mock/canon/vocab.json"
+     ]
+    }
+   },
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-CANON-FREE",
+   "allowed_paths": [
+    "tools/mock/canon/vocab.json",
+    "tools/mock/canon/**"
+   ],
+   "forbidden_paths": [
+    "docs/**",
+    "tools/mock/canon/vocab.json"
+   ],
+   "conflict_paths": [
+    "tools/mock/canon-free/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-canon-free"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-NOGATES",
+   "allowed_paths": [
+    "tools/mock/nogates/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/nogates/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-nogates"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": null,
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-DOCS",
+   "allowed_paths": [
+    "docs/mock/**"
+   ],
+   "forbidden_paths": [],
+   "conflict_paths": [
+    "docs/mock/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-docs"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-SUCC",
+   "allowed_paths": [
+    "tools/mock/succ/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/succ/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-succ"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   },
+   "prereq_tasks": [
+    "T-MOCK-BASIC"
+   ]
+  },
+  {
+   "task_id": "T-MOCK-KN",
+   "allowed_paths": [
+    "tools/mock/knowledge/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/knowledge/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-kn"
+   ],
+   "tests": [
+    "mock test"
+   ],
+   "done_criteria": [
+    "mock done"
+   ],
+   "decision_gates": {
+    "start": [],
+    "real_data": [],
+    "merge": []
+   },
+   "canon_change": null,
+   "limits": {
+    "max_wall_s": 14400,
+    "max_retries": 3
+   }
+  },
+  {
+   "task_id": "T-MOCK-KN-REL",
+   "allowed_paths": [
+    "tools/mock/knowledge/release/**"
+   ],
+   "forbidden_paths": [
+    "docs/**"
+   ],
+   "conflict_paths": [
+    "tools/mock/knowledge/release/**"
+   ],
+   "inputs": [
+    "mock://input/t-mock-kn-rel"
    ],
    "tests": [
     "mock test"

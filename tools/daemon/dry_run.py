@@ -1,9 +1,10 @@
-"""Dry run of the daemon core (T-OP-00): runs the in-scope scenarios on the shared core with mock adapters.
+"""Dry run of the daemon core (T-OP-00): runs scenarios M1-M44 (05 §5) on the shared core with mock adapters.
 
     python3 -I tools/daemon/dry_run.py --rules <daemon_rules.json> --tasks tools/daemon/mock_tasks.json --scenario all
 
-Prints expected and actual values side by side for every check. Exit code 1 if any check differs
-or a scenario raises. Checks marked GAP are specification gaps and do not change the exit code.
+Prints expected and actual values side by side for every check (the transition columns among them). Exit code 1 if
+any check differs or a scenario raises. Checks marked GAP are specification gaps and do not change the exit code.
+Scenarios without a required test id show "-". No network, no CLI, no model, no repository: mock adapters only.
 """
 import argparse
 import json
@@ -15,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from daemon import scenarios as sc  # noqa: E402
 from daemon.core import Rules  # noqa: E402
+from daemon.core.rules import OUTSIDE_READS  # noqa: E402
 from daemon.spec_gaps import SPEC_GAPS, open_gaps, resolved_gaps  # noqa: E402
 
 
@@ -99,13 +101,15 @@ def main(argv=None):
     if args.scenario == "all":
         print("  실행하지 않은 시험 ID: " + ", ".join(not_run))
     print(f"  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 {len(Rules.token_log)}종(명세 공백 후보, --report에 목록)")
+    print("  읽기 목록(core_contract.reads) 밖에서 읽는 값: " + ", ".join(f"{k}({v})" for k, v in OUTSIDE_READS.items()))
     print(f"  명세 공백: 해소(필드) {len(resolved_gaps())}건, 남았거나 새로 생긴 것 {len(open_gaps())}건")
     for g in open_gaps():
         print(f"   - {g['id']} [{g['status']}] {g['field']} @ {g['where']}: {g['need']}")
     if args.report:
         Path(args.report).parent.mkdir(parents=True, exist_ok=True)
         Path(args.report).write_text(json.dumps({"results": results, "not_run": not_run, "spec_gaps": SPEC_GAPS,
-                                                 "string_tokens": sorted(map(list, Rules.token_log))},
+                                                 "string_tokens": sorted(map(list, Rules.token_log)),
+                                                 "outside_reads": OUTSIDE_READS},
                                                 ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     code = 1 if failed else 0
     if args.require_all and not_run:

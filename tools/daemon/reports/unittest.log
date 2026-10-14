@@ -1,0 +1,7 @@
+# command: python3 -m unittest tools/tests/test_daemon_dry_run.py
+# base commit: 4b7b8d9dce6bca6e7a1f49fd3364876d882c554d (working tree with the T-OP-00 changes; exit code 0)
+.................................................................................................................................................
+----------------------------------------------------------------------
+Ran 145 tests in 63.213s
+
+OK

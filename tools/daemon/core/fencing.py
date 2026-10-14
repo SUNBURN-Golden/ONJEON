@@ -1,12 +1,13 @@
 """accept_envelope and fenced_write: ordered checks, then the noop kinds (late, duplicate, invalid) or the
 event transition. The checks, their fail keys and the on_fail table are all read from core_contract.operations."""
-from . import effects, envelope_validator as ev, transition_engine, usage
+from . import effects, envelope_validator as ev, observation, secret_scan, transition_engine, usage
+
+_SCANNED = ("result", "signal", "heartbeat")  # secret_patterns.scan[result_envelope].target
 
 
-def event_for(core, msg_type, envelope):
+def event_for(core, msg_type, envelope, task_id=None):
     if msg_type == "result":
-        name = "result_" + str(envelope.get("status"))
-        return name if name in core.rules.transition_events else "unmapped_condition"
+        return observation.result_event(core, task_id or envelope.get("task_id"), envelope)
     return msg_type
 
 
@@ -24,14 +25,28 @@ def _report(core, d, task_id, on_fail, envelope, check_id, fkey):
     return out
 
 
+def _secret_check(core, d, task_id, msg_type, envelope):
+    """scan[result_envelope]: at accept_envelope.before_inbox_seen, in the states it names. A match is
+    secret_detected (R-10); the envelope is not marked seen and not processed further."""
+    spec = secret_scan.scan_spec(core.rules, "result_envelope")
+    if ev.envelope_type(core.rules, msg_type) not in _SCANNED or d["tasks"][task_id]["task_state"]["state"] not in spec["states"]:
+        return None
+    n = secret_scan.count_in(secret_scan.patterns(core.rules), envelope)
+    if not n:
+        return None
+    event = core.rules.get("preserve_manifest.secret_patterns.on_match.event")
+    res = transition_engine.apply_event(core, d, task_id, event, secret_scan.event_payload(core.rules, "result_envelope", n))
+    return {"accepted": False, "noop": None, "return_code": None, "transition": res["transition"], "post": res["post"],
+            "secret_detected": n}
+
+
 def accept(core, d, task_id, msg_type, envelope):
     """Run inside a transaction. Returns an outcome dict."""
     rules = core.rules
     t = d["tasks"][task_id]
     key = ev.dedup_key(rules, task_id, msg_type, envelope)
     missing = ev.missing_fields(rules, msg_type, envelope)
-    view = dict(envelope)
-    view["kind"] = ev.envelope_name(rules, msg_type)  # envelope.kind is the kind of envelope, whatever its own fields say
+    view = ev.check_view(rules, msg_type, envelope)
     funcs = {
         "envelope.required": lambda _a: missing,
         "inbox_seen[key]": lambda _a: t["inbox_seen"].get(key),
@@ -44,15 +59,21 @@ def accept(core, d, task_id, msg_type, envelope):
             continue
         fkey = check["fail_key"]
         return _report(core, d, task_id, spec["on_fail"][fkey], envelope, check["id"], fkey)
+    found = _secret_check(core, d, task_id, msg_type, envelope)
+    if found is not None:
+        return found
     t["inbox_seen"][key] = {"first_seen_at": core.clock.now()}
     out = {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": []}
     if msg_type == "result":
         usage.record_result(core, d, task_id, envelope)  # record_after_result: never stops anything
-    name = event_for(core, msg_type, envelope)
+    name = event_for(core, msg_type, envelope, task_id)
     res = transition_engine.apply_event(core, d, task_id, name, {}, envelope=envelope)
+    if res["transition"] and res["transition"][1] == "pr_open":
+        observation.on_pr_opened(core, d, task_id, envelope)
     out["transition"] = res["transition"]
     out["post"] = res["post"]
     out["noop"] = res.get("noop")
+    out["emitted"] = res.get("emitted", [])
     return out
 
 

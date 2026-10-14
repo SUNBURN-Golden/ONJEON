@@ -7,7 +7,8 @@ args and in which order, is data. How an id acts on the store and on the adapter
 import re
 
 from . import lease as lease_mod
-from . import usage
+from . import secret_scan, usage
+from .gate_evaluator import Ctx
 from .ports import PreconditionFailed, SpecGap
 
 
@@ -19,14 +20,15 @@ class Env:
         self.only_envelope, self.out, self.recs = only_envelope, out, recs or []
 
 
-def credential_name(core, suffix):
-    """The always_revoke entry a side-effect id (revoke_token, revoke_write_credential,
-    revoke_preserve_credential) stands for: the one whose name ends with the id's last words."""
-    hits = [n for n in core.rules.always_revoke if n.endswith(suffix)]
-    core.rules.token_log.add(("side_effect_ids -> handoff_failure_policy.always_revoke", "name suffix: " + suffix))
-    if len(hits) != 1:
-        raise SpecGap(f"cannot tell which always_revoke entry '{suffix}' is: {hits}")
-    return hits[0]
+def credential_name(core, sid):
+    """The always_revoke entry a side-effect id stands for: expected_outputs.credential_of_effect (G36)."""
+    table = core.rules.get("core_contract.expected_outputs.credential_of_effect")
+    if sid not in table:
+        raise SpecGap(f"credential_of_effect has no entry for {sid}")
+    name = table[sid]
+    if name not in core.rules.always_revoke:
+        raise SpecGap(f"credential_of_effect[{sid}] = {name} is not in always_revoke")
+    return name
 
 
 def new_handoff_record(core, task_id, lease, phase, preservation_state):
@@ -78,6 +80,11 @@ def h_end_lease(core, d, task_id, args, ctx, env):
         core.rec.diagnostic(d, task_id, "end_lease_without_lease", status=ctx.value(args.get("status")))
         return
     status = ctx.value(args["status"])
+    active, recs = ctx.all(core.rules.get("concurrency.lease_end.applies_when"))
+    if not active:
+        # G34: end_lease changes only an active lease; an ended lease keeps the status it ended with
+        core.rec.diagnostic(d, task_id, "end_lease_not_active", status=status, current=lease["status"])
+        return
     lease["status"] = status
     core.rec.side_effect(d, task_id, "end_lease", lease_id=lease["lease_id"], lease_generation=lease["lease_generation"],
                          status=status)
@@ -97,11 +104,11 @@ def h_terminate_process(core, d, task_id, args, ctx, env):
     core.rec.side_effect(d, task_id, "terminate_process", lease_id=lease.get("lease_id"), terminated=alive)
 
 
-def _revoke_one(core, d, task_id, sid, suffix):
+def _revoke_one(core, d, task_id, sid):
     t = d["tasks"][task_id]
     hr = t.get("handoff_record")
     lease = t.get("lease_record") or {}
-    name = credential_name(core, suffix)
+    name = credential_name(core, sid)
     core.ports.credentials.revoke(name, task_id, lease.get("lease_id"))
     first = hr is None or name not in hr["credentials_revoked"]
     if hr is not None and name not in hr["credentials_revoked"]:
@@ -112,18 +119,16 @@ def _revoke_one(core, d, task_id, sid, suffix):
 
 
 def h_revoke_write_credential(core, d, task_id, args, ctx, env):
-    _revoke_one(core, d, task_id, "revoke_write_credential", "write_credential")
+    _revoke_one(core, d, task_id, "revoke_write_credential")
 
 
 def h_revoke_preserve_credential(core, d, task_id, args, ctx, env):
-    _revoke_one(core, d, task_id, "revoke_preserve_credential", "preserve_credential")
+    _revoke_one(core, d, task_id, "revoke_preserve_credential")
 
 
 def h_revoke_token(core, d, task_id, args, ctx, env):
-    lease = d["tasks"][task_id].get("lease_record")
-    _revoke_one(core, d, task_id, "revoke_token", "token")
-    if lease and lease["status"] == "active":
-        lease["status"] = "revoked"
+    # the lease status is end_lease's to change (store.enums.lease_record_status_set_by); this revokes the token only
+    _revoke_one(core, d, task_id, "revoke_token")
 
 
 def h_revoke_all(core, d, task_id, args, ctx, env):
@@ -210,7 +215,9 @@ def h_request_stop(core, d, task_id, args, ctx, env):
 def h_append_failure_log(core, d, task_id, args, ctx, env):
     hr = d["tasks"][task_id]["handoff_record"]
     event = ctx.value(args["event"])
-    hr["failure_log"].append({"event": event, "at": core.clock.now(), "reason": env.payload.get("reason")})
+    # failure_log is a log: the same journal_text scan applies before anything is kept (the record below queues the hit)
+    reason, _n = secret_scan.redact(secret_scan.patterns(core.rules), env.payload.get("reason"))
+    hr["failure_log"].append({"event": event, "at": core.clock.now(), "reason": reason})
     core.rec.side_effect(d, task_id, "append_failure_log", event=event, reason=env.payload.get("reason"))
 
 
@@ -227,43 +234,72 @@ def h_set_preservation_state(core, d, task_id, args, ctx, env):
     core.rec.side_effect(d, task_id, "set_preservation_state", value=hr["preservation_state"])
 
 
-def _stage_from_prose(core, hr, text):
-    """transitions[recovery_decision].set_handoff_field(phase) carries a sentence with two stage ids and a
-    condition ('isolate 또는 preserve_remote(로컬 커밋 있음)'). Narrowest reading: the stage ids named in the
-    sentence, the last one when a local commit exists, the first otherwise. Logged; reported as a gap."""
-    stages = core.rules.stages
-    named = []
-    for tok in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", text):
-        if tok in stages and tok not in named:
-            named.append(tok)
-    if not named:
-        raise SpecGap(f"no stage id in {text!r}")
-    core.rules.token_log.add(("transitions[].side_effects[set_handoff_field].args.value", "stage ids inside a sentence"))
-    return named[-1] if hr["preservation_state"] == "local_committed" else named[0]
-
-
 def h_set_handoff_field(core, d, task_id, args, ctx, env):
     hr = d["tasks"][task_id]["handoff_record"]
     field = args["field"]
     value = ctx.value(args["value"])
-    if field == "phase" and isinstance(value, str) and value not in core.rules.stages:
-        value = _stage_from_prose(core, hr, value)
+    if field == "phase" and value not in core.rules.phase_values:
+        raise SpecGap(f"set_handoff_field(phase) value {value!r} is not in store.enums.handoff_record_phase")
     hr[field] = value
     core.rec.side_effect(d, task_id, "set_handoff_field", field=field, value=value)
 
 
+_COMPARE = re.compile(r"^\s*(\S+)\s*(==|!=)\s*(\S+)\s*$")
+
+
+def _restart_check(core, d, task_id, check, ctx):
+    """restart_resume.<stage>.check (G31): kind=store evaluates pred; kind=adapter calls the named query and
+    compares its result with true_when (`result <op> <expression>`). Returns (holds, result)."""
+    if check["kind"] == "store":
+        ok, _ = ctx.all(check["pred"])
+        return ok, None
+    if check["kind"] != "adapter":
+        raise SpecGap(f"restart check kind {check['kind']!r}")
+    port_name, _, method = check["query"].partition(".")
+    fn = getattr(getattr(core.ports, port_name, None), method, None)
+    if not callable(fn):
+        raise SpecGap(f"restart check query {check['query']!r} has no adapter")
+    result = fn(*[ctx.value(a) for a in check["args"]])
+    m = _COMPARE.match(check["true_when"])
+    if not m or m.group(1) != "result":
+        raise SpecGap(f"true_when is not `result <op> <expression>`: {check['true_when']!r}")
+    rhs = None if m.group(3) == "null" else ctx.value(m.group(3))
+    return Ctx._compare(result, m.group(2), rhs), result
+
+
 def h_resume_from_phase(core, d, task_id, args, ctx, env):
+    from . import transition_engine
+    from .ports import QueryUnavailable
     hr = d["tasks"][task_id]["handoff_record"]
     spec = ctx.value(args["stage"])
-    if isinstance(spec, str) and spec in core.rules.stages:
+    if isinstance(spec, str) or spec is None:
+        if spec not in core.rules.phase_values:
+            raise SpecGap(f"resume stage {spec!r} is not a handoff_record phase")
         hr["phase"] = spec
-        kept = False
-    else:
-        # restart_resume[...] holds a procedure sentence for four phases: the phase is kept and the step
-        # itself checks what already exists (commit by tree OID, remote ref). Reported as a gap.
-        core.rules.token_log.add(("handoff_failure_policy.restart_resume", "procedure sentence: phase kept"))
-        kept = True
-    core.rec.side_effect(d, task_id, "resume_from_phase", stage=spec if not kept else None, phase=hr["phase"], kept=kept)
+        core.rec.side_effect(d, task_id, "resume_from_phase", stage=spec, phase=hr["phase"])
+        return
+    try:
+        holds, result = _restart_check(core, d, task_id, spec["check"], ctx)
+    except QueryUnavailable:
+        # cannot verify what already exists: the phase is unreadable, and the data's own row (phase == null)
+        # stops the handoff (handoff_blocked)
+        hr["phase"] = None
+        core.rec.side_effect(d, task_id, "resume_from_phase", check=spec["check"]["id"], holds=None, phase=None)
+        transition_engine.apply_event(core, d, task_id, env.tr["event"], {})
+        return
+    branch = spec["then"] if holds else spec["else"]
+    core.rec.side_effect(d, task_id, "resume_from_phase", check=spec["check"]["id"], holds=holds,
+                         branch="then" if holds else "else", stage=branch.get("stage"), emit=branch.get("event"))
+    if "stage" in branch:
+        if branch["stage"] not in core.rules.phase_values:
+            raise SpecGap(f"restart_resume branch stage {branch['stage']!r} is not a phase")
+        hr["phase"] = branch["stage"]
+    elif "event" in branch:
+        sub = core.ctx(d, task_id, extra_vars={"check": {"result": result}})
+        payload = {k: sub.value(v) for k, v in (branch.get("payload") or {}).items()}
+        transition_engine.apply_event(core, d, task_id, branch["event"], payload)
+    elif "noop" not in branch:
+        raise SpecGap(f"restart_resume branch has no stage, event or noop: {branch}")
 
 
 def h_issue_lease(core, d, task_id, args, ctx, env):

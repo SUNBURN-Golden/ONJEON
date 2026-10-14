@@ -2,11 +2,15 @@
 
 Everything a row does comes from its own fields: cond, guard, side_effects (in order; order=before_cond
 effects run before any cond of the event is looked at, once), return_code, on_cond_fail. noop_rules decide
-which events are noops. Events that no row maps are unmapped_condition (returned, R-03).
+which events are noops. Events that no row maps are unmapped_condition (returned, R-03). A lease guard that fails
+runs its own on_fail (lease_guards[].on_fail: wait, or emit_event, G48).
+
+`to` narrows the rows to one destination. It is used only for rows that share (from, event) and have no cond
+(merged -> audit_queued / done on impl_counter_incremented): the observation layer names the destination (G51).
 """
 import json
 
-from . import effects, lease as lease_mod
+from . import effects, lease as lease_mod, secret_scan
 from .ports import PreconditionFailed, SpecGap
 
 
@@ -37,7 +41,55 @@ def _noop_rule(core, d, task_id, name, payload, envelope):
     return None
 
 
-def apply_event(core, d, task_id, name, payload=None, envelope=None):
+def _guard_on_fail(core, d, task_id, gr, out):
+    """lease_guards[].on_fail of the guards that failed. emit_event runs only in its states and only when the
+    guards it depends on passed; everything else waits (no record beyond the diagnostic)."""
+    state = d["tasks"][task_id]["task_state"]["state"]
+    passed = {n for n, ok in gr.items if ok}
+    for guard in core.rules.view["lease_guards"]:
+        on_fail = guard.get("on_fail") or {}
+        if guard["id"] not in gr.failed or on_fail.get("action") != "emit_event":
+            continue
+        if state not in on_fail["only_in_states"] or not set(on_fail["only_if_guards_passed"]) <= passed:
+            continue
+        payload = {}
+        for k, v in on_fail["payload"].items():
+            payload[k] = gr.missing_fields if v == guard["check_function"] + ".missing_fields" else v
+        out["emitted"].append(apply_event(core, d, task_id, on_fail["event"], payload))
+        return
+
+
+def try_event(core, d, task_id, name, payload=None):
+    """Apply `name` only if a row leads out of the current state and its cond holds. Otherwise nothing at all is
+    recorded (clock-driven checks: normal expiry, hard stop deadline, follow-up events)."""
+    state = d["tasks"][task_id]["task_state"]["state"]
+    for tr in core.rules.transitions:
+        if tr["event"] == name and tr["from"] in (state, "*"):
+            ctx = core.ctx(d, task_id, event=payload)
+            if ctx.all(tr.get("cond"))[0]:
+                return apply_event(core, d, task_id, name, payload)
+    return None
+
+
+def settle_secrets(core, d):
+    """journal_text hits queued by the recorder become secret_detected in the states the scan names."""
+    hits = d.pop("secret_hits", [])
+    if not hits:
+        return
+    spec = secret_scan.scan_spec(core.rules, "journal_text")
+    event = core.rules.get("preserve_manifest.secret_patterns.on_match.event")
+    totals = {}
+    for h in hits:
+        if h["task_id"] in d["tasks"]:
+            totals[h["task_id"]] = totals.get(h["task_id"], 0) + h["match_count"]
+    for task_id, n in totals.items():
+        if d["tasks"][task_id]["task_state"]["state"] in spec["states"]:
+            apply_event(core, d, task_id, event, secret_scan.event_payload(core.rules, "journal_text", n))
+        else:
+            core.rec.diagnostic(d, task_id, "secret_redacted_outside_scan_states", match_count=n)
+
+
+def apply_event(core, d, task_id, name, payload=None, envelope=None, to=None):
     rules = core.rules
     t = d["tasks"][task_id]
     ts = t["task_state"]
@@ -57,7 +109,8 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None):
         core.rec.noop(d, task_id, name, envelope_id=(envelope or payload).get("envelope_id"))
         out["noop"] = name
         return out
-    cands = [tr for tr in rules.transitions if tr["event"] == name and tr["from"] in (ts["state"], "*")]
+    cands = [tr for tr in rules.transitions if tr["event"] == name and tr["from"] in (ts["state"], "*")
+             and (to is None or tr["to"] == to)]
     cands.sort(key=lambda tr: tr["from"] == "*")
     if name in rules.noop_events or not cands:
         core.rec.diagnostic(d, task_id, "no_row_for_state", event=name, state=ts["state"])
@@ -74,18 +127,21 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None):
                     seen.add(key)
                     pre.append(eff)
     effects.run_effects(core, d, task_id, pre, effects.Env(payload=payload, envelope=envelope))
-    first_fail = None
+    first_fail, guard_fail = None, None
     for tr in cands:
         reason = _issue_reason(tr)
         if reason is not None and payload.get("reason") not in (None, reason):
             continue  # lease_granted asked for another reason
-        ctx = core.ctx(d, task_id, event=payload, envelope=envelope, reason=reason or "from_queue")
+        ctx = core.ctx(d, task_id, event=payload, envelope=envelope, reason=reason)
         ok, recs = ctx.all(tr.get("cond"))
+        if reason is not None and not ok and any(r["field"] == "lease_guards" and not r["result"] for r in recs):
+            guard_fail = guard_fail or lease_mod.run_guards(core, d, task_id, reason)
         if ok and tr.get("guard"):
             gr = lease_mod.run_guards(core, d, task_id, reason or "from_queue")
             if not gr.all_pass:
                 core.rec.diagnostic(d, task_id, "guard_failed", event=name, guard=tr["guard"], failed=gr.failed)
                 out["rejected"] = ("guard", gr.failed)
+                _guard_on_fail(core, d, task_id, gr, out)
                 return out
         if not ok:
             if first_fail is None:
@@ -96,6 +152,9 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None):
     tr, recs = first_fail if first_fail else (None, [])
     core.rec.diagnostic(d, task_id, "cond_not_met", event=name, state=ts["state"], cond=recs)
     out["rejected"] = ("cond", recs)
+    if guard_fail is not None:
+        _guard_on_fail(core, d, task_id, guard_fail, out)
+        return out
     if tr is not None and tr.get("on_cond_fail"):
         emit = tr["on_cond_fail"]
         ctx = core.ctx(d, task_id, event=payload, envelope=envelope)

@@ -68,6 +68,12 @@ class VolatileTokensDoNotChangeTheHash(unittest.TestCase):
         changed = sub("[A]</title>", "[B]</title>")
         self.assertNotEqual(h.content_sha256(changed, "example.org"), h.content_sha256(FIXTURE, "example.org"))
 
+    def test_title_marker_host_match_is_a_domain_boundary(self):
+        changed = sub("[A]</title>", "[B]</title>")
+        for host in ("kbinsure.co.kr", "www.kbinsure.co.kr", "www.kbinsure.co.kr:443"):
+            self.assertEqual(h.content_sha256(changed, host), h.content_sha256(FIXTURE, host), host)
+        self.assertNotEqual(h.content_sha256(changed, "evilkbinsure.co.kr"), h.content_sha256(FIXTURE, "evilkbinsure.co.kr"))
+
 
 def page(href):
     return f'<html><body><a href="{href}">약관</a></body></html>'.encode()

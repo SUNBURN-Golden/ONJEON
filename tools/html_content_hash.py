@@ -42,7 +42,8 @@ RULE = "html-visible-text-v2"
 VOLATILE_TITLE = {"kbinsure.co.kr": re.compile(r"\s*\[[A-Z]\]\s*$")}
 # query names that only ever carry a session id: removed on every host
 SESSION_PARAMS = {"jsessionid", "sessionid", "phpsessid"}
-# host suffix -> extra query names that are volatile only on that host (observed, not guessed)
+# host suffix -> extra query names that are volatile only on that host. KB's `_t` is the one seen in
+# the fixture; whether the live page also varies sid/_/ts per fetch is unchecked (needs the R2 originals).
 HOST_VOLATILE_PARAMS = {"kbinsure.co.kr": {"_t"}}
 LINK_RE = re.compile(r"<(?:a|iframe|embed|object|form)\b[^>]*?\b(?:href|src|data|action)\s*=\s*(['\"])(.*?)\1", re.I | re.S)
 
@@ -90,7 +91,7 @@ def normalized_text(raw, host=""):
     def title(m):
         t = m.group(1)
         for suffix, pat in VOLATILE_TITLE.items():
-            if host.endswith(suffix):
+            if host_matches(host, suffix):
                 t = pat.sub("", t)
         return f" {t} "
     text = re.sub(r"<title\b[^>]*>(.*?)</title\s*>", title, text, flags=re.S | re.I)

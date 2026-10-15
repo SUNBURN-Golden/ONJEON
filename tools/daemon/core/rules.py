@@ -3,18 +3,24 @@
 The core never sees the whole file. build_view() copies only the fields listed in core_contract.reads (the
 canonical read list, G20) and sanitize() drops every explanation key wherever it appears: `note`, every key that
 starts with `_`, and `when` when its value is prose. (noop_rules[].when is a list of structured predicates, not
-prose; it is kept, see the specification gaps.) Anything the core needs beyond the read list is named in
-EXTENSIONS and reported as a specification gap.
+prose; it is kept: core_contract.condition_keys.)
+
+The observation layer (core/observation.py) needs a few structured values that are not on the read list. They are
+named in OUTSIDE_READS with the specification gap that reports them and are read only through Rules.outside().
+Nothing else outside the read list is reachable.
 """
 import copy
 import re
 
 from .ports import SpecGap
 
-# Fields outside core_contract.reads that the core still needs (reported as gaps in the run report).
-EXTENSIONS = (
-    "switch_policy.allowed_sources",
-)
+# Structured values outside core_contract.reads that the observation layer reads, each with its gap id.
+OUTSIDE_READS = {
+    "post_merge_states": "G51",
+    "audit_triggers.periodic.every": "G51",
+    "audit_triggers.immediate_audit_paths": "G51",
+    "record_separation.merge_observation_fields": "G51",
+}
 
 _MISSING = object()
 
@@ -121,8 +127,8 @@ def _combine(a, b):
 
 
 def build_view(raw):
-    """Project raw onto core_contract.reads (+ EXTENSIONS) and sanitize. Returns (view, unmatched entries)."""
-    reads = list(raw["core_contract"]["reads"]) + list(EXTENSIONS)
+    """Project raw onto core_contract.reads and sanitize. Returns (view, unmatched entries)."""
+    reads = list(raw["core_contract"]["reads"])
     view, unmatched = {}, []
     for entry in reads:
         hit = False
@@ -148,6 +154,21 @@ class Rules:
         self.view, self.unmatched_reads = build_view(raw)
         if "core_contract" not in self.view:
             raise SpecGap("core_contract.reads is missing")
+        self._outside = {}
+        for path in OUTSIDE_READS:
+            cur = raw
+            for seg in path.split("."):
+                cur = cur.get(seg) if isinstance(cur, dict) else None
+            if cur is not None:
+                self._outside[path] = sanitize(copy.deepcopy(cur))
+
+    def outside(self, path):
+        """A value outside the read list. Only the paths in OUTSIDE_READS (each reported as a gap)."""
+        if path not in OUTSIDE_READS:
+            raise SpecGap(f"not on the read list and not a reported outside read: {path}")
+        if path not in self._outside:
+            raise SpecGap(f"outside read not found in the file: {path}")
+        return self._outside[path]
 
     def get(self, path):
         cur = self.view
@@ -181,6 +202,11 @@ class Rules:
         return None
 
     # --- derived lists used in several places
+    @property
+    def predicate_ops(self):
+        ops = self.get("core_contract.predicate_ops")
+        return set(ops["implemented"]) | set(ops.get("added_by_G49", {}))
+
     @property
     def transitions(self):
         return self.view["transitions"]
@@ -225,6 +251,11 @@ class Rules:
     def stages(self):
         """Every stage id the contract names for resuming a handoff (the keys of restart_resume)."""
         return list(self.view["handoff_failure_policy"]["restart_resume"].keys())
+
+    @property
+    def phase_values(self):
+        """store.enums.handoff_record_phase: the values set_handoff_field(phase) may write (G30)."""
+        return list(self.get("core_contract.store.enums.handoff_record_phase"))
 
     @property
     def issue_reasons(self):

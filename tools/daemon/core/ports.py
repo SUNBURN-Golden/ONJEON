@@ -143,6 +143,18 @@ class BuilderPool(ABC):
     @abstractmethod
     def available(self, which, previous): ...
 
+    @abstractmethod
+    def family(self, builder):
+        """The provider family of a builder (roles.families in a real executor's configuration)."""
+
+
+class ReviewerPool(ABC):
+    """Reviewer candidates in the configured order: [{name, family, available}]. The core excludes the authors'
+    families itself (observation layer)."""
+
+    @abstractmethod
+    def candidates(self): ...
+
 
 class Catalog(ABC):
     @abstractmethod
@@ -176,7 +188,7 @@ class Faults(ABC):
 
 class Ports:
     def __init__(self, clock, store, sender, process, credentials, worktree, git, guards, builders, catalog, ids, faults,
-                 remote):
+                 remote, reviewers):
         self.clock = clock
         self.store = store
         self.sender = sender
@@ -190,3 +202,4 @@ class Ports:
         self.ids = ids
         self.faults = faults
         self.remote = remote
+        self.reviewers = reviewers

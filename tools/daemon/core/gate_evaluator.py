@@ -1,6 +1,7 @@
 """Predicate and expression evaluation for the structured conditions in daemon_rules.json.
 
-A predicate is {field, op, value}. op in {==, !=, <, <=, >, >=, in, not_in, all_pass, all_present, any, all}.
+A predicate is {field, op, value}. op is one of core_contract.predicate_ops (==, !=, <, <=, >, >=, in, not_in,
+all_pass, all_present, any, all, and subset_of, not_subset_of, is_bool, is_list added by G49).
 `field` is a store path, clock.now, a rules path, a function registered in `funcs`, or one of the special forms:
 "any" / "all" (value is a list of predicates), "true", `<rules list>[*].<attr>` (one boolean per list item) and
 `count(<collection> where <atom> and ...)`.
@@ -175,14 +176,17 @@ class Ctx:
     `collections` maps a collection name to its rows (count, max). `task_of(row)` gives the task definition of a
     row (the `task.` prefix inside a where clause)."""
 
-    def __init__(self, rules, roots, funcs=None, variables=None, collections=None, task_of=None):
+    def __init__(self, rules, roots, funcs=None, variables=None, collections=None, task_of=None, relation=None):
         self.rules = rules
+        # `a ∩ b` inside a where clause: the relation a guard names (lease_guards[].conflict_match.relation)
+        self.relation = relation
         self.roots = roots
         self.funcs = funcs or {}
         self.vars = variables or {}
         self.collections = collections or {}
         self.task_of = task_of
         self._rule_roots = set(rules.view.keys())
+        self._ops = rules.predicate_ops
 
     # ---- path resolution
     def _known(self, name):
@@ -318,7 +322,7 @@ class Ctx:
         m = re.fullmatch(r"(.+?)\s*∩\s*(.+?)\s*(==|!=)\s*∅", atom.strip())
         if m:
             a, b = self._row_path(m.group(1), row), self._rhs(m.group(2), row)
-            hit = bool(set(a or []) & set(b or []))
+            hit = intersects(a or [], b or [], self.relation)
             return hit if m.group(3) == "!=" else not hit
         m = re.fullmatch(r"(.+?)\s*(==|!=|<=|>=|<|>)\s*(.+)", atom.strip())
         if not m:
@@ -360,6 +364,8 @@ class Ctx:
 
     def predicate(self, p):
         field, op = p["field"], p["op"]
+        if op not in self._ops:
+            raise SpecGap(f"op {op!r} is not in core_contract.predicate_ops")
         raw_value = p.get("value")
         rec_extra = {}
         if field in ("any", "all") and isinstance(raw_value, list):
@@ -414,7 +420,52 @@ class Ctx:
             return any(left) == bool(right)
         if op == "all":
             return all(left) == bool(right)
+        if op in ("subset_of", "not_subset_of"):
+            if not isinstance(left, list) or not isinstance(right, list):
+                return False  # a list that is not there cannot be compared either way
+            inside = set(left) <= set(right)
+            return inside if op == "subset_of" else not inside
+        if op == "is_bool":
+            return isinstance(left, bool) == bool(right)
+        if op == "is_list":
+            return isinstance(left, list) == bool(right)
         raise SpecGap(f"unknown op {op}")
+
+
+# ---------------------------------------------------------------- path pattern relations
+def _literal_prefix(pattern):
+    """Text before the first glob character (* ? [)."""
+    cut = len(pattern)
+    for ch in "*?[":
+        i = pattern.find(ch)
+        if i != -1:
+            cut = min(cut, i)
+    return pattern[:cut]
+
+
+def patterns_overlap(a, b):
+    """lease_guards[no_conflict_lease].conflict_match (G29): equal, or one is <dir>/** and the other starts with
+    <dir>/. Any other glob is read as its literal prefix and overlaps everything under that prefix."""
+    if a == b:
+        return True
+    pa, pb = _literal_prefix(a), _literal_prefix(b)
+    if pa != a and b.startswith(pa):
+        return True
+    if pb != b and a.startswith(pb):
+        return True
+    return False
+
+
+RELATIONS = {"patterns_overlap": patterns_overlap}
+
+
+def intersects(a, b, relation=None):
+    if relation is None:
+        return bool(set(a) & set(b))
+    if relation not in RELATIONS:
+        raise SpecGap(f"unknown conflict_match.relation {relation}")
+    fn = RELATIONS[relation]
+    return any(fn(x, y) for x in a for y in b)
 
 
 def _jsonable(v):

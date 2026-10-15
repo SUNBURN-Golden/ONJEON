@@ -62,7 +62,7 @@ def accept(core, d, task_id, msg_type, envelope):
     found = _secret_check(core, d, task_id, msg_type, envelope)
     if found is not None:
         return found
-    t["inbox_seen"][key] = {"first_seen_at": core.clock.now()}
+    t["inbox_seen"][key] = {"first_seen_at": core.clock.now(), "lease_generation": envelope.get("lease_generation")}
     out = {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": []}
     if msg_type == "result":
         usage.record_result(core, d, task_id, envelope)  # record_after_result: never stops anything

@@ -29,6 +29,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from daemon import dry_run, scenarios as sc, scenarios_flow as fl, static_checks  # noqa: E402
 from daemon.core import Rules  # noqa: E402
+from daemon.mock_env import MockEnv  # noqa: E402
 
 RULES = ROOT / "docs/blueprint/proposals/설계검토_결과/daemon_rules.json"
 TASKS = ROOT / "tools/daemon/mock_tasks.json"
@@ -898,6 +899,25 @@ class Static(unittest.TestCase):
         for name, bad in static_checks.all_static(RULES):
             self.assertEqual(bad, [], name)
 
+    def _network_or_cli_in(self, source):
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "probe.py").write_text(source, encoding="utf-8")
+            return static_checks.no_network_or_cli(Path(d))
+
+    def test_dynamic_code_execution_and_import_are_noticed(self):
+        for source in ("eval('1')", "exec('x = 1')", "compile('1', 'f', 'eval')", "__import__('os')",
+                       "import importlib", "from importlib import import_module", "import importlib.util",
+                       "import runpy", "import builtins", "from builtins import eval", "f = eval",
+                       "import os\nos.__import__('x')", "x.import_module('y')", "from . import importlib"):
+            self.assertNotEqual(self._network_or_cli_in(source), [], source)
+
+    def test_ordinary_code_and_re_compile_are_not_flagged(self):
+        self.assertEqual(self._network_or_cli_in("import re\nimport json\nP = re.compile('a')\nv = json.loads('1')\n"), [])
+
+    def test_existing_network_and_cli_bans_still_hold(self):
+        for source in ("import subprocess", "import socket", "import os\nos.system('x')"):
+            self.assertNotEqual(self._network_or_cli_in(source), [], source)
+
     def test_this_test_file_has_no_model_identifiers(self):
         self.assertEqual(static_checks.no_model_identifiers([__file__]), [])
 
@@ -1233,6 +1253,42 @@ class Cli(unittest.TestCase):
     def test_unknown_scenario_is_an_error(self):
         with self.assertRaises(SystemExit):
             self.run_cli("--rules", str(RULES), "--tasks", str(TASKS), "--scenario", "M99")
+
+
+class InboxSeenPruning(unittest.TestCase):
+    """audit1: inbox_seen keeps the idempotency keys of the ended lease and of the live one, not of every generation."""
+
+    def generations(self, env, t):
+        return sorted({v["lease_generation"] for v in env.task(t)["inbox_seen"].values()})
+
+    def test_end_lease_drops_keys_of_older_generations_and_keeps_its_own(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        t = sc.BASIC
+        env.bring_to_building(t)
+        old, ob = copy.deepcopy(env.instr(t)), env.builder_for(t)
+        ob.send_result(old, "failed_tests")  # ends generation 1
+        self.assertEqual(self.generations(env, t), [1])  # the ended generation's own keys stay (nothing older to drop)
+        env.run_builders("first_heartbeat")  # re-lease: generation 2 starts
+        self.assertEqual(self.generations(env, t), [1, 2])  # superseded, but not yet pruned
+        instr2 = copy.deepcopy(env.instr(t))
+        env.submit(t, "heartbeat", ob.heartbeat_envelope(instr2))
+        env.builder_for(t).send_result(instr2, "failed_tests")  # ends generation 2
+        self.assertEqual(self.generations(env, t), [2])  # generation 1 keys are gone, generation 2's stay
+
+    def test_pruning_does_not_change_how_old_envelopes_are_classified(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        t = sc.BASIC
+        env.bring_to_building(t)
+        old, ob = copy.deepcopy(env.instr(t)), env.builder_for(t)
+        hb1 = ob.heartbeat_envelope(old)
+        env.submit(t, "heartbeat", copy.deepcopy(hb1))
+        ob.send_result(old, "failed_tests")
+        env.run_builders("first_heartbeat")
+        instr2 = copy.deepcopy(env.instr(t))
+        env.builder_for(t).send_result(instr2, "failed_tests")
+        self.assertEqual(self.generations(env, t), [2])
+        late = env.submit(t, "heartbeat", copy.deepcopy(hb1))  # generation 1 key is gone: still late, not accepted
+        self.assertEqual((late["accepted"], late["noop"], late["return_code"]), (False, "late_envelope_rejected", "R-11"))
 
 
 if __name__ == "__main__":

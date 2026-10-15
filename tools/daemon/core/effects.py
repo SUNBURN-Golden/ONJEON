@@ -81,6 +81,9 @@ def h_end_lease(core, d, task_id, args, ctx, env):
     lease["status"] = status
     core.rec.side_effect(d, task_id, "end_lease", lease_id=lease["lease_id"], lease_generation=lease["lease_generation"],
                          status=status)
+    # The ended generation's own keys stay (a re-delivery of its envelope keeps its classification until the next
+    # lease supersedes it); every older generation's keys are unreachable and go.
+    lease_mod.prune_inbox_seen(t, lease["lease_generation"])
     listed = {e["id"] for e in (env.tr or {}).get("side_effects", [])}
     for sid in core.rules.get("concurrency.fencing.on_lease_end"):
         if sid in listed:

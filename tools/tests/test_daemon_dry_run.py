@@ -932,6 +932,56 @@ class Journal(unittest.TestCase):
         self.assertEqual(env.clock.now(), 5)
 
 
+class ScopeForbiddenFirst(unittest.TestCase):
+    """R-01 (G54): a forbidden glob that is not <dir>/** still wins over a broader allowed <dir>/**."""
+
+    def out_of_scope(self, task, touched):
+        from types import SimpleNamespace
+        from daemon.core.observation import out_of_scope
+        core = SimpleNamespace(ports=SimpleNamespace(catalog=SimpleNamespace(task=lambda _tid: task)))
+        return out_of_scope(core, "T-X", touched)
+
+    def test_single_star_forbidden_glob_is_not_skipped(self):
+        task = {"allowed_paths": ["data/**"], "forbidden_paths": ["data/registry/*.csv"]}
+        self.assertTrue(self.out_of_scope(task, ["data/registry/x.csv"]))
+        self.assertFalse(self.out_of_scope(task, ["data/other/x.csv"]))
+
+    def test_dir_star_star_and_exact_forbidden_still_win(self):
+        task = {"allowed_paths": ["docs/**"], "forbidden_paths": ["docs/decisions/**", "docs/BLUEPRINT.md"]}
+        self.assertTrue(self.out_of_scope(task, ["docs/decisions/d.md"]))
+        self.assertTrue(self.out_of_scope(task, ["docs/BLUEPRINT.md"]))
+        self.assertFalse(self.out_of_scope(task, ["docs/notes.md"]))
+
+    def test_approved_canon_scope_is_the_only_exception(self):
+        task = {"allowed_paths": ["data/**"], "forbidden_paths": ["data/registry/*.csv"],
+                "canon_change": {"approval": {"scope_paths": ["data/registry/x.csv"]}}}
+        self.assertFalse(self.out_of_scope(task, ["data/registry/x.csv"]))
+        self.assertTrue(self.out_of_scope(task, ["data/registry/y.csv"]))
+
+
+class ReportValues(unittest.TestCase):
+    """The report shows the values as they were compared, not as the scenario left them afterwards."""
+
+    def test_check_keeps_a_copy_of_a_list_changed_later(self):
+        rep = sc.Report()
+        writes = []
+        rep.eq("원격 쓰기 0건", [], writes)
+        rep.gap("공백", "note", expected=[], actual=writes)
+        writes.append(("push", sc.BASIC, 2, "P-CUR"))
+        self.assertEqual([c["actual"] for c in rep.checks], [[], []])
+        self.assertEqual(rep.checks[0]["status"], sc.PASS)
+
+    def test_every_pass_row_prints_equal_expected_and_actual(self):
+        bad = [(mid, c["name"]) for mid, res in results().items() for c in res["checks"]
+               if c["status"] == sc.PASS and dry_run.compact(c["expected"]) != dry_run.compact(c["actual"])]
+        self.assertEqual(bad, [])
+
+    def test_late_result_row_shows_no_remote_write(self):
+        row = [c for c in results()["M28"]["checks"] if c["name"].startswith("현재 과제 전이 0건")][0]
+        self.assertEqual(row["status"], sc.PASS)
+        self.assertEqual(dry_run.compact(row["actual"]), dry_run.compact(([], False, [])))
+
+
 class Cli(unittest.TestCase):
     def run_cli(self, *args):
         buf = io.StringIO()

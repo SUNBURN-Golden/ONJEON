@@ -88,13 +88,19 @@ def _inside(path, patterns):
     return any(patterns_overlap(path, p) and (p == path or p.endswith("/**")) for p in patterns or [])
 
 
+def _touches_forbidden(path, patterns):
+    """forbidden_first fails closed: any other glob (e.g. <dir>/*.csv) is read by its literal prefix, as
+    patterns_overlap reads it (G29), so a forbidden pattern is never skipped because its glob form is unknown."""
+    return any(patterns_overlap(path, p) for p in patterns or [])
+
+
 def out_of_scope(core, task_id, touched):
     task = core.ports.catalog.task(task_id)
     approved = ((task.get("canon_change") or {}).get("approval") or {}).get("scope_paths") or []
     for path in touched:
         if path in approved:
             continue
-        if not _inside(path, task.get("allowed_paths")) or _inside(path, task.get("forbidden_paths")):
+        if not _inside(path, task.get("allowed_paths")) or _touches_forbidden(path, task.get("forbidden_paths")):
             return True
     return False
 

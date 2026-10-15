@@ -197,7 +197,7 @@ SPEC_GAPS = [
      "core_took": "관측 계층이 return_record(R-04·R-12)와 record_merge_observation을 직접 기록한다. task_state.return_code는 바꾸지 않는다(반송이 아니라 기록)"},
     {"id": "G54", "status": NEW, "field": "결과 봉투 → 사건(result_<status>), 04 §1 (c) touched_paths ⊄ allowed_paths", "where": D,
      "need": "R-01 판정(결과 봉투의 touched_paths가 허용 경로 밖·금지 경로 안이면 result_out_of_scope)이 문장뿐이고, 경로 패턴 비교 방법과 canon_change 승인 범위의 예외가 구조화돼 있지 않다. subset_of(scope_within_allowed_paths)는 글자 그대로의 목록 비교라 allowed_paths가 글롭이면 정본 파일을 따로 적어야 한다",
-     "core_took": "touched 경로마다: 승인 scope_paths에 있으면 통과, 아니면 allowed_paths 안(같음 또는 <dir>/**)이고 forbidden_paths 밖이어야 한다(forbidden_first). 아니면 result_out_of_scope(R-01)"},
+     "core_took": "touched 경로마다: 승인 scope_paths에 있으면 통과, 아니면 allowed_paths 안(같음 또는 <dir>/**)이고 forbidden_paths 밖이어야 한다(forbidden_first). 금지 쪽은 닫힌 쪽으로 판정한다: <dir>/** 밖의 글롭(<dir>/*.csv 등)은 글자 그대로의 앞부분으로 읽어 그 아래 전부를 금지로 본다(patterns_overlap, G29와 같은 읽기). 아니면 result_out_of_scope(R-01)"},
     {"id": "G55", "status": NEW, "field": "core_contract.store", "where": D,
      "need": "PR 기록(번호·head·base·변경 경로·리뷰/감리 결과·승인 SHA·merge_wait.reason), completion_facts, merged_impl_counter와 묶음, 보류 큐, 관측 멱등 키, 결정 기록 목록을 담을 store 항목이 없다",
      "core_took": "store에 pr, completion_facts(추가만), audit{merged_impl_counter, batches}, held, obs_seen, decisions를 둔다. 결정은 task_state.decisions_recorded에도 복사한다"},

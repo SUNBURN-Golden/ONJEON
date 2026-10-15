@@ -1,4 +1,6 @@
 """Shared bench for the scenarios: constants, the report object, journal views and handoff helpers."""
+import copy
+
 from .mock_env import MockEnv
 
 PASS, FAIL, GAP = "PASS", "FAIL", "GAP"
@@ -8,14 +10,18 @@ ALWAYS_REVOKE = ["builder_write_credential", "builder_token", "preserve_credenti
 
 
 class Report:
+    """Each check keeps a copy of the values as compared: a list the scenario changes later stays as it was checked."""
+
     def __init__(self):
         self.checks = []
 
     def eq(self, name, expected, actual):
+        expected, actual = copy.deepcopy(expected), copy.deepcopy(actual)
         ok = expected == actual
         self.checks.append({"name": name, "expected": expected, "actual": actual, "status": PASS if ok else FAIL})
 
     def gap(self, name, note, expected=None, actual=None):
+        expected, actual = copy.deepcopy(expected), copy.deepcopy(actual)
         self.checks.append({"name": name, "expected": expected, "actual": actual, "status": GAP, "note": note})
 
 

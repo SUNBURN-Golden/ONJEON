@@ -1,5 +1,5 @@
 # command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all
-# base commit: 4b7b8d9dce6bca6e7a1f49fd3364876d882c554d (working tree with the T-OP-00 changes; exit code 0)
+# base commit: 1ee58d71e26c61bdeb35df546acc4d371f4a1881 (working tree with the T-OP-00 fix round 6 changes; exit code 0)
 # virtual clock and generated ids are deterministic: a re-run gives the same output
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
   [PASS] 정상 흐름 전이 열: queued→…→merge_wait
@@ -482,7 +482,7 @@
       실제: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envel...
   [PASS] 현재 과제 전이 0건, fence_violation 없음, 원격 쓰기 0건
       기대: [[], false, []]
-      실제: [[], false, [["push", "T-MOCK-BASIC", 2, "P-CUR"]]]
+      실제: [[], false, []]
   [PASS] 현재 임대 B·상태·inbox_seen 불변
       기대: [{"lease_id": "01MOCK00000000000000000006", "task_id": "T-MOCK-BASIC", "lease_generation": 2, "fencing_token": 2, "builder": "mock-builder-1", "runner": "moc...
       실제: [{"lease_id": "01MOCK00000000000000000006", "task_id": "T-MOCK-BASIC", "lease_generation": 2, "fencing_token": 2, "builder": "mock-builder-1", "runner": "moc...

@@ -694,6 +694,12 @@ fn parse_typed(
                     if unit != DurUnit::Day && params.get("month_end").and_then(J::as_str) != Some("clamp") {
                         return Err(RuleError::at(&p, "month/year arithmetic requires month_end=\"clamp\" (never assume 365 days per year)"));
                     }
+                    // Exact key sets, like `multiply_rate`: day => {value, unit}; month/year => {value, unit, month_end}.
+                    let (allowed, expected_len) = if unit == DurUnit::Day { ("value and unit", 2) } else { ("value, unit and month_end", 3) };
+                    if params.len() != expected_len {
+                        let hint = if unit == DurUnit::Day && params.contains_key("month_end") { " (`month_end` applies only to calendar_month|calendar_year)" } else { "" };
+                        return Err(RuleError::at(&p, format!("only {allowed} are allowed for this unit{hint}")));
+                    }
                     let date = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Date)?);
                     (Expr::DateAdd { date, value, unit }, Ty::Date)
                 }

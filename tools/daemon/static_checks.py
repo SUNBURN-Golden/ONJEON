@@ -45,6 +45,19 @@ def no_natural_language_reads():
     return bad
 
 
+def outside_reads_only_in_observation():
+    """Values outside core_contract.reads are reached only through Rules.outside() and only by the observation
+    layer; no core module reads the raw file."""
+    bad = []
+    for p in _py_files(CORE):
+        src = p.read_text(encoding="utf-8")
+        if p.name not in ("observation.py", "rules.py") and ".outside(" in src:
+            bad.append(f"{p.name}: Rules.outside() outside the observation layer")
+        if p.name != "rules.py" and re.search(r"\.raw\b", src):
+            bad.append(f"{p.name}: reads the raw rules file")
+    return bad
+
+
 def no_dry_run_branch_in_core():
     bad = []
     for p in _py_files(CORE):
@@ -256,6 +269,7 @@ def all_static(rules_path, tasks_path=None):
     tasks_path = tasks_path or HERE / "mock_tasks.json"
     return [
         ("코어가 when·note·_ 키를 읽지 않음", no_natural_language_reads()),
+        ("읽기 목록 밖 값은 관측 계층의 Rules.outside()로만", outside_reads_only_in_observation()),
         ("코어에 dry_run·mock 분기 문자열 없음", no_dry_run_branch_in_core()),
         ("병합 API·자동 병합 호출 함수 없음", no_merge_api()),
         ("네트워크·실제 CLI·프로세스 실행·동적 코드 실행(eval·exec·compile·__import__·importlib) 없음", no_network_or_cli()),

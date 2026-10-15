@@ -1212,7 +1212,8 @@ class Cli(unittest.TestCase):
         the sources instead of a SHA they cannot match (README, "증거 기록")."""
         import hashlib
         files = sorted([str(p.relative_to(ROOT)) for p in (ROOT / "tools/daemon").rglob("*")
-                        if p.is_file() and "__pycache__" not in p.parts and (ROOT / "tools/daemon/reports") not in p.parents]
+                        if p.is_file() and "__pycache__" not in p.parts and (ROOT / "tools/daemon/reports") not in p.parents
+                        and (ROOT / "tools/daemon/runner_verify") not in p.parents]
                        + ["tools/tests/test_daemon_dry_run.py"], key=lambda x: x.encode())
         listing = "".join(f"{hashlib.sha256((ROOT / f).read_bytes()).hexdigest()}  {f}\n" for f in files)
         want = hashlib.sha256(listing.encode()).hexdigest()

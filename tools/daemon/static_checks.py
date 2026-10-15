@@ -16,9 +16,13 @@ _MODEL_WORDS = ["son" + "net", "op" + "us", "hai" + "ku", "fa" + "ble", "gr" + "
                 "dev" + "in", "swe" + "2", "cur" + "sor", "cla" + "ude", "anth" + "ropic", "mist" + "ral", "gem" + "ini"]
 
 
+RUNNER_VERIFY = HERE / "runner_verify"   # T-OP-09: the real-runner verification tool; it must launch processes, so it has its own checks
+
+
 def _py_files(root, include_self=False):
-    """The checker itself is left out: it has to name the patterns it looks for."""
-    return sorted(p for p in root.rglob("*.py") if include_self or p.name != "static_checks.py")
+    """The checker itself is left out: it has to name the patterns it looks for. So is runner_verify/ (T-OP-09):
+    it needs subprocess, time and signal by design, and the mock-daemon rules here do not apply to it."""
+    return sorted(p for p in root.rglob("*.py") if (include_self or p.name != "static_checks.py") and RUNNER_VERIFY not in p.parents)
 
 
 def _parse(path):
@@ -255,7 +259,7 @@ def single_tree_identity_function():
 
 def no_model_identifiers(extra_files=()):
     bad = []
-    files = [p for p in HERE.rglob("*") if p.is_file() and p.suffix in (".py", ".json")] + [Path(x) for x in extra_files]
+    files = [p for p in HERE.rglob("*") if p.is_file() and p.suffix in (".py", ".json") and RUNNER_VERIFY not in p.parents] + [Path(x) for x in extra_files]
     for p in files:
         text = p.read_text(encoding="utf-8").lower()
         for w in _MODEL_WORDS:

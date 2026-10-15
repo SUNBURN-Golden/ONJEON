@@ -5,11 +5,13 @@ The order of the steps comes from handoff_sequence. What a failure does comes fr
 event is fed back, the row counts the attempt, compares it with handoff_failure_policy.max_attempts and either
 sets the next phase (resume_from_phase) or goes to handoff_blocked. After a push is recorded the preserve_push_ok
 row itself revokes the token, ends the lease and moves the phase on to issue_next_lease.
-"""
-import re
 
-from . import effects, lease as lease_mod
-from .ports import (CommitFailed, DiskFullError, IndexLockError, PushFailed, QueryUnavailable, SimulatedCrash, SpecGap)
+After a daemon restart the transitions decide where to resume (daemon_restart_during_handoff, restart_resume
+{check, then, else}: an existing local commit is found by its tree OID and an existing remote ref is compared with
+wip_commit_sha there, G31). The step functions below only do their own step.
+"""
+from . import effects, lease as lease_mod, secret_scan
+from .ports import CommitFailed, DiskFullError, IndexLockError, PushFailed, SimulatedCrash, SpecGap
 
 WAIT = "wait"
 HANDLED = "handled"  # the failure was already turned into transitions by the engine
@@ -28,14 +30,16 @@ def _effect(core, d, task_id, sid, **args):
 
 # ---------------------------------------------------------------- secret patterns and the tree identity function
 def secret_files(core, path):
-    """preserve_manifest.secret_patterns: files that match are left out of what is preserved."""
-    spec = core.rules.get("preserve_manifest.secret_patterns")
-    pats = [re.compile(p) for p in spec["patterns"]]
-    flagged = []
+    """secret_patterns.scan[preserve_files]: (files that match, match count). Matching files are excluded from
+    the tree (on_match.exclude_from_preserve) and the handoff stops with secret_detected."""
+    pats = secret_scan.patterns(core.rules)
+    flagged, n = [], 0
     for rel, content in sorted(core.ports.git.included_files(path).items()):
-        if any(p.search(content) for p in pats):
+        k = secret_scan.count(pats, content)
+        if k:
             flagged.append(rel)
-    return flagged
+            n += k
+    return flagged, n
 
 
 def tree_oid(core, path, flagged):
@@ -83,9 +87,9 @@ def step_confirm_quiescent(core, task_id):
     try:
         if core.ports.process.alive_count(task_id) > 0:
             reasons.append("process_alive")
-        m1, o1 = core.ports.worktree.max_mtime(path), tree_oid(core, path, secret_files(core, path))
+        m1, o1 = core.ports.worktree.max_mtime(path), tree_oid(core, path, secret_files(core, path)[0])
         core.clock.sleep(window)
-        flagged = secret_files(core, path)
+        flagged, matches = secret_files(core, path)
         m2, o2 = core.ports.worktree.max_mtime(path), tree_oid(core, path, flagged)
         if core.ports.process.alive_count(task_id) > 0 and "process_alive" not in reasons:
             reasons.append("process_alive")
@@ -103,30 +107,16 @@ def step_confirm_quiescent(core, task_id):
         with core.ports.store.transaction() as d:
             core.rec.result(d, task_id, "confirm_quiescent", "not_quiescent", reasons=reasons)
         return ("quiescence_failed", {"reason": ",".join(reasons)})
+    spec = secret_scan.scan_spec(core.rules, "preserve_files")
+    if flagged and core.snapshot()["tasks"][task_id]["task_state"]["state"] in spec["states"]:
+        with core.ports.store.transaction() as d:
+            core.rec.result(d, task_id, "confirm_quiescent", "secret_detected", files=flagged, match_count=matches)
+        event = core.rules.get("preserve_manifest.secret_patterns.on_match.event")
+        return (event, secret_scan.event_payload(core.rules, "preserve_files", matches))
     with core.ports.store.transaction() as d:
         d["tasks"][task_id]["handoff_record"]["quiescent_tree_oid"] = o2
-        core.rec.result(d, task_id, "confirm_quiescent", "quiescent", quiescent_tree_oid=o2, excluded_secret_files=flagged)
+        core.rec.result(d, task_id, "confirm_quiescent", "quiescent", quiescent_tree_oid=o2)
     return None
-
-
-def _adopt_existing(core, task_id):
-    """Restart-safe reconciliation: adopt a local commit (by tree OID) or a remote ref that is already there."""
-    t, hr, lease, path = _info(core, task_id)
-    branch = lease["branch"]
-    if hr["preservation_state"] == "none" and hr["quiescent_tree_oid"]:
-        found = core.ports.git.find_commit_by_tree(branch, hr["quiescent_tree_oid"])
-        if found:
-            core.handle_event({"event": "preserve_commit_ok", "task_id": task_id,
-                               "payload": {"commit_tree_oid": hr["quiescent_tree_oid"], "wip_commit_sha": found}})
-            with core.ports.store.transaction() as d:
-                core.rec.result(d, task_id, "preserve_commit", "adopted_existing", wip_commit_sha=found)
-    t, hr, lease, path = _info(core, task_id)
-    if hr["preservation_state"] == "local_committed":
-        ref = core.ports.git.remote_ref(branch)
-        if ref is not None and ref == hr["wip_commit_sha"]:
-            core.handle_event({"event": "preserve_push_ok", "task_id": task_id, "payload": {"remote_ref_sha": ref}})
-            with core.ports.store.transaction() as d:
-                core.rec.result(d, task_id, "preserve_push", "adopted_existing", remote_ref_sha=ref)
 
 
 def _commit_part(core, task_id):
@@ -137,7 +127,7 @@ def _commit_part(core, task_id):
     with core.ports.store.transaction() as d:
         core.rec.intent(d, task_id, "preserve_commit", quiescent_tree_oid=hr["quiescent_tree_oid"])
     try:
-        res = core.ports.git.preserve_commit(path, lease["branch"], msg, excludes=tuple(secret_files(core, path)))
+        res = core.ports.git.preserve_commit(path, lease["branch"], msg, excludes=tuple(secret_files(core, path)[0]))
     except IndexLockError as e:
         return ("index_lock", {"owner_pid_alive": e.owner_pid_alive})
     except DiskFullError:
@@ -176,7 +166,7 @@ def _push_part(core, task_id):
 
 def _with_preserve_credential(core, task_id, fn):
     t, hr, lease, path = _info(core, task_id)
-    name = effects.credential_name(core, "preserve_credential")
+    name = effects.credential_name(core, "revoke_preserve_credential")
     core.ports.credentials.issue(name, task_id, hr["lease_id"])
     with core.ports.store.transaction() as d:
         rec = d["tasks"][task_id]["handoff_record"]
@@ -195,11 +185,6 @@ def _with_preserve_credential(core, task_id, fn):
 
 
 def step_preserve(core, task_id):
-    try:
-        _adopt_existing(core, task_id)
-    except QueryUnavailable:
-        return ("preserve_commit_failed", {"reason": "cannot_verify_existing_preservation"})
-
     def work():
         res = _commit_part(core, task_id)
         if res is not None:
@@ -210,10 +195,6 @@ def step_preserve(core, task_id):
 
 
 def step_preserve_remote(core, task_id):
-    try:
-        _adopt_existing(core, task_id)
-    except QueryUnavailable:
-        return ("preserve_push_failed", {"reason": "cannot_verify_existing_preservation"})
     return _with_preserve_credential(core, task_id, lambda: _push_part(core, task_id))
 
 
@@ -233,9 +214,9 @@ def step_revoke_token(core, task_id):
 
 def step_issue_next_lease(core, task_id):
     out = core.handle_event({"event": "preserved", "task_id": task_id, "payload": {}})
-    if not out["applied"]:
+    if not out["applied"] and core.snapshot()["tasks"][task_id]["task_state"]["state"] == "handoff":
         out = core.handle_event({"event": "no_builder", "task_id": task_id, "payload": {}})
-    return None if out["applied"] else WAIT
+    return None if out["applied"] or out.get("emitted") else WAIT
 
 
 STEPS = {"stop": step_stop, "isolate": step_isolate, "confirm_quiescent": step_confirm_quiescent,

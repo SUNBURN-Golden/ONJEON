@@ -130,6 +130,15 @@ def issue_lease(core, d, task_id, reason, tr, recs):
     return lease, row
 
 
+def prune_inbox_seen(t, keep_generation):
+    """Drop the idempotency keys of generations older than keep_generation. lease_matches runs before not_seen, so
+    an envelope of an older generation is late whatever inbox_seen holds: those keys can never be read again."""
+    seen = t["inbox_seen"]
+    for key in [k for k, v in seen.items() if v["lease_generation"] < keep_generation]:
+        del seen[key]
+    return len(seen)
+
+
 # ---- outbox
 def void_pending(core, d, task_id, reason, only_envelope=None):
     t = d["tasks"][task_id]

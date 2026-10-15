@@ -223,6 +223,35 @@ class DetectExit(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertNotIn("fetch_failed", summary)
 
+    def test_traversing_cache_path_is_not_fetched_or_written(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as t:
+            out = Path(t) / "out"
+            out.mkdir()
+            row = self.html_row(__import__("html_content_hash").RULE, b"x")
+            row["cache_path"] = "../escaped.html"
+            args = __import__("argparse").Namespace(raw=None, out=str(out), archive_new=False,
+                                                    report=str(Path(t) / "r.json"), endpoint_url=None,
+                                                    cache=None, derived=None, ocr=False)
+            fetch = mock.Mock(return_value=(b"y", "text/html"))
+            with mock.patch.object(vs, "rows", return_value=[row]), mock.patch.object(vs, "fetch", fetch), \
+                    mock.patch("sys.stdout", new_callable=__import__("io").StringIO):
+                code = vs.cmd_detect(args)
+            summary = json.loads(Path(args.report).read_text())["summary"]
+            self.assertEqual(code, 1)
+            self.assertEqual(summary, {"unsafe_cache_path": 1})
+            fetch.assert_not_called()
+            self.assertFalse((Path(t) / "escaped.html").exists())
+
+    def test_reproduce_ignores_cache_path_outside_cache(self):
+        with tempfile.TemporaryDirectory() as t:
+            cache = Path(t) / "cache"
+            cache.mkdir()
+            (Path(t) / "outside.pdf").write_bytes(b"x")
+            args = __import__("argparse").Namespace(raw=None, cache=str(cache))
+            paths = vs.materialize(args, [{"sample_id": "s", "cache_path": "../outside.pdf"}])
+            self.assertEqual(paths, {})
+
     def test_oversized_body_is_fetch_failed_too_large(self):
         from unittest import mock
         with tempfile.TemporaryDirectory() as d:

@@ -39,6 +39,7 @@
 | `static_types` | 로드 단계 타입 검사: 감사 예시 두 건, 연산자별 거부와 오류 경로, 올바른 타입은 그대로 로드·평가 |
 | `loader_and_arith` | 반올림 모드, 상한, `days_between` 포함 여부·역순 날짜 거부, 달력 연산, 로더 거부 규칙 |
 | `unknown_branch_errors` | 조건이 모름일 때 가지의 오류가 모름+blocker가 되는지, 선택된 가지·양쪽 가지의 오류는 유지되는지, trace 기록 |
+| `overflow` | `add`·`multiply_rate`의 `EvalError::Overflow` 경로를 `i64::MAX` 경계에서 직접 검증: 정확히 `MAX`는 통과, 1 초과는 오류(감김·포화 없음), 단위 올림(`ceil`/`half_up`/`half_even`)·`unspecified` 범위 상한·범위 입력의 한쪽 경계만 넘는 경우, 오류 경로 문자열. `min`/`max`/`apply_cap`은 넘치지 않음 |
 | `review_fixes` | 결과의 규칙 버전·릴리스·내용 해시·근거, 재로드 시 동일성, 범위의 연속 계산, 날짜 범위·오버플로(`i64::MIN`·`i64::MAX` 포함) |
 | 문서 테스트 | 로드된 규칙의 필드 수정이 컴파일되지 않음(`compile_fail`)과 같은 준비 코드의 정상 동작 |
 | 단위 | 진리표(§49.3), 날짜 변환, 요율 파싱 |

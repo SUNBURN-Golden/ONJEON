@@ -16,6 +16,7 @@ class MockBuilder:
         self.seen_instructions = {}
         self.executed = []
         self.invalid = []
+        self.steps = {}  # task_id -> [(step id, ran)]
         self.active = {}
         self.proc_options = {}
 
@@ -40,6 +41,10 @@ class MockBuilder:
         self.executed.append(instr["envelope_id"])
         self.active[instr["task_id"]] = instr
         t = instr["task_id"]
+        # rules_for_builder: real_data_allowed=false runs the mock/local steps only
+        task_def = self.env.ports.catalog.task(t)
+        self.steps[t] = [(s["id"], (not s["real_data"]) or instr.get("real_data_allowed") is True)
+                         for s in task_def.get("mock_steps", [])]
         creds = self.env.ports.credentials
         creds.issue("builder_write_credential", t, instr["lease_id"])
         creds.issue("builder_token", t, instr["lease_id"])
@@ -79,7 +84,7 @@ class MockBuilder:
 
 
 class MockEnv:
-    def __init__(self, rules_path, tasks_path):
+    def __init__(self, rules_path, tasks_path, builders=None):
         if isinstance(rules_path, dict):
             self.raw = rules_path
         else:
@@ -87,6 +92,8 @@ class MockEnv:
                 self.raw = json.load(f)
         with open(tasks_path, encoding="utf-8") as f:
             self.cfg = json.load(f)
+        if builders is not None:
+            self.cfg["builders"] = builders
         self.clock = VirtualClock()
         self.rules = Rules(self.raw)
         excludes = self.rules.view["preserve_manifest"]["excludes"]
@@ -131,9 +138,13 @@ class MockEnv:
     def submit(self, task_id, msg_type, envelope):
         return self.core.submit_envelope(task_id, msg_type, envelope)
 
+    def observe(self, task_id, kind, **payload):
+        return self.core.observe(task_id, kind, **payload)
+
     def start_task(self, task_id):
+        """Register the task as blocked; the core moves it to queued when its prerequisites and start gates hold."""
         self.core.register_task(task_id, "blocked")
-        self.event("prereqs_satisfied", task_id)
+        self.core.evaluate_prereqs(task_id)
 
     def grant(self, task_id, reason="from_queue"):
         return self.event("lease_granted", task_id, reason=reason)

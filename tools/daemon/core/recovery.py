@@ -1,21 +1,13 @@
 """restart_recovery, normal expiry and state corruption (state_integrity)."""
-import re
-
 from . import lease as lease_mod, transition_engine
 
 
-def expiry_events(core):
-    """The events that move an expired lease out of its state. state_integrity.normal_expiry.path names them in
-    a sentence; there is no structured list (reported as a gap)."""
-    path = core.rules.get("state_integrity.normal_expiry.path")
-    core.rules.token_log.add(("state_integrity.normal_expiry.path", "event names inside the path text"))
-    known = core.rules.transition_events
-    return [e for e in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", path) if e in known]
-
-
 def _expiry_rows(core, state):
-    names = expiry_events(core)
-    return [tr["event"] for tr in core.rules.transitions if tr["event"] in names and tr["from"] == state]
+    """state_integrity.normal_expiry.events_by_state (G43): the expiry event of a state, if it has a row."""
+    ev = core.rules.get("state_integrity.normal_expiry.events_by_state").get(state)
+    if ev is None:
+        return []
+    return [tr["event"] for tr in core.rules.transitions if tr["event"] == ev and tr["from"] == state][:1]
 
 
 def normal_expiry_due(core, d, task_id):
@@ -30,8 +22,8 @@ def normal_expiry_due(core, d, task_id):
 def follow_up(core, d, task_id, events, payload):
     """Try the follow-up events in order; the first one that moves the task wins."""
     for ev in events:
-        out = transition_engine.apply_event(core, d, task_id, ev, payload)
-        if out["applied"]:
+        out = transition_engine.try_event(core, d, task_id, ev, payload)
+        if out is not None and out["applied"]:
             return out
     return None
 
@@ -46,15 +38,12 @@ def expire(core, d, task_id):
 
 
 def detect_id(core, d, task_id):
-    """The id of the first state_integrity.corruption.detect item that holds, or None. The list does not say to
-    which tasks it applies (reported as a gap): the core applies it to tasks whose lease is active or whose state
-    holds a lease; a task that was already ended and returned is not classified again."""
-    t = d["tasks"][task_id]
-    holding = {tr["from"] for tr in core.rules.transitions if tr["event"] in expiry_events(core)}
-    if (t.get("lease_record") or {}).get("status") != "active" and t["task_state"]["state"] not in holding \
-            and t["task_state"]["state"] != "handoff":
-        return None
+    """The id of the first state_integrity.corruption.detect item that holds (detect_order first_true_wins), or
+    None. Only tasks that corruption.applies_to.cond selects are classified (G42)."""
     ctx = core.ctx(d, task_id)
+    applies, _ = ctx.all(core.rules.get("state_integrity.corruption.applies_to.cond"))
+    if not applies:
+        return None
     for item in core.rules.get("state_integrity.corruption.detect"):
         ok, _ = ctx.all(item["pred"])
         if ok:
@@ -70,6 +59,7 @@ def corrupt(core, d, task_id, found):
 
 def restart_recovery(core):
     """core_contract.operations.restart_recovery.order, per task."""
+    lease_mod.clear_foreign_locks(core)  # lock.restart: before classification
     snap = core.snapshot()
     post = []
     for task_id in sorted(snap["tasks"]):

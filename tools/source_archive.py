@@ -31,12 +31,14 @@ Never pass keys on the command line, never print them.
 Usage:
   source_archive.py archive-samples --cache DIR --raw T --derived T [--derived-src DIR]
   source_archive.py add-observation --file F --source-id ID --url U --observed-at TS --raw T
-  source_archive.py fetch --raw T --out DIR          # restore samples.csv originals by hash
+  source_archive.py fetch --raw T --out DIR          # restore samples.csv originals by hash (cache_path must stay inside DIR)
   source_archive.py copy --src file:///bundle/raw --dst s3://bucket   # no overwrite, conflicts abort
   source_archive.py verify --raw T [--report out.json]
   source_archive.py listing --src T --out listing.json   # key -> sha256 of every object (no content)
   source_archive.py verify-copy (--src T | --expected listing.json) --dst s3://bucket [--report out.json]
                                                      # download every key back and compare bytes
+Exit codes: 0 ok, 1 failed check, 3 conflict, 4 budget stop, 5 storage (botocore) error. On 5 only the
+exception type is printed: botocore messages and tracebacks contain the endpoint URL (R2 account id).
 """
 import argparse
 import base64
@@ -66,6 +68,23 @@ def object_key(digest):
 
 class Exists(Exception):
     pass
+
+
+class UnsafeCachePath(ValueError):
+    """A samples.csv cache_path would leave the cache/output directory (absolute path, `..`, symlink)."""
+
+
+def confined_path(base, rel):
+    """base/rel, resolved, only if it stays strictly inside base; else UnsafeCachePath.
+
+    samples.csv is data, not code: a row such as `../../x` or `/etc/x` must not make a tool read or
+    write outside the directory it was given. Symlinks are resolved before the check.
+    """
+    root = Path(base).resolve()
+    dest = (root / rel).resolve()
+    if dest == root or root not in dest.parents:
+        raise UnsafeCachePath(f"cache_path {rel!r} escapes {str(base)!r}")
+    return dest
 
 
 ABSENT = object()  # stored_sha256(): the key does not exist
@@ -300,7 +319,11 @@ def cmd_archive_samples(a):
     rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
     results = []
     for r in rows:
-        p = Path(a.cache) / r["cache_path"]
+        try:
+            p = confined_path(a.cache, r["cache_path"])
+        except UnsafeCachePath:
+            results.append({"sample_id": r["sample_id"], "status": "unsafe_cache_path"})
+            continue
         if not p.exists():
             results.append({"sample_id": r["sample_id"], "status": "missing_in_cache"})
             continue
@@ -380,7 +403,7 @@ def cmd_fetch(a):
     raw = store(a.raw, a.endpoint_url)
     out = Path(a.out)
     for r in csv.DictReader(SAMPLES.open(encoding="utf-8")):
-        dest = out / r["cache_path"]
+        dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
         dest.parent.mkdir(parents=True, exist_ok=True)
         body = raw.get(object_key(r["sha256"]))
         dest.write_bytes(body)
@@ -446,7 +469,8 @@ def cmd_listing(a):
 def cmd_verify_copy(a):
     """Download every key of the destination back and compare it with the source, byte for byte.
     Covers what verify does not: extra originals, every observation, derived outputs and manifests.
-    The source is a store (--src) or a pinned listing (--expected, from the listing command)."""
+    The source is a store (--src) or a pinned listing (--expected, from the listing command).
+    Keys in the destination that the source does not have (leaked objects) fail the check unless --allow-extra."""
     dst = store(a.dst, a.endpoint_url)
     if getattr(a, "expected", None):
         expected = json.loads(Path(a.expected).read_text(encoding="utf-8"))["objects"]
@@ -476,7 +500,8 @@ def cmd_verify_copy(a):
     if a.report:
         Path(a.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary))
-    return 0 if summary.get("byte_identical", 0) == len(src_keys) and src_keys else 1
+    identical = bool(src_keys) and summary.get("byte_identical", 0) == len(src_keys)
+    return 0 if identical and (a.allow_extra or not extra) else 1
 
 
 def main():
@@ -512,8 +537,19 @@ def main():
     g.add_argument("--expected", help="pinned listing JSON (key -> sha256) instead of a source store")
     s.add_argument("--dst", required=True)
     s.add_argument("--report")
+    s.add_argument("--allow-extra", action="store_true",
+                   help="report keys only present in the destination but do not fail on them")
     a = ap.parse_args()
     return with_budget(a.job, a.endpoint_url, lambda: run(a))
+
+
+def boto_errors():
+    """botocore's exception bases; empty when botocore is not installed (file:// targets never need it)."""
+    try:
+        from botocore.exceptions import BotoCoreError, ClientError
+    except ImportError:
+        return ()
+    return (BotoCoreError, ClientError)
 
 
 def with_budget(job, endpoint_url, fn):
@@ -530,10 +566,21 @@ def with_budget(job, endpoint_url, fn):
         print(f"conflict: {e}", file=sys.stderr)
         outcome, code = "conflict", 3
         return 3
+    except UnsafeCachePath as e:
+        print(f"unsafe cache_path: {e}", file=sys.stderr)
+        outcome, code = "unsafe_cache_path", 1
+        return 1
     except r2_budget.BudgetError as e:
         print(str(e), file=sys.stderr)
         outcome, code = "budget_stop", 4
         return 4
+    except Exception as e:
+        if not isinstance(e, boto_errors()):
+            raise
+        # Type only: a botocore message and traceback carry the endpoint URL (R2 account id).
+        print(f"storage error: {type(e).__name__} (message and endpoint withheld)", file=sys.stderr)
+        outcome, code = "storage_error", 5
+        return 5
     finally:
         if job:
             summary = r2_budget.finish(outcome)

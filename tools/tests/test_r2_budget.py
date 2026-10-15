@@ -16,6 +16,7 @@ recorded. What must hold:
 import hashlib
 import json
 import os
+import signal
 import sys
 import tempfile
 import unittest
@@ -186,6 +187,33 @@ class Reservation(Fixture):
             b.reserve(b.Ledger(Racing(), policy), policy, job, "run", MONTH, [])
         self.assertIn("job t", str(cm.exception))
         self.assertEqual(len(store.list(b.LEDGER_PREFIX)), 3)
+
+    def test_lost_race_relists_admissions(self):
+        """A retry reads fresh records; admissions made meanwhile must be counted too, or two racing
+        runs both reserve past the cap (another job's unsettled admission counts globally)."""
+        self.write_policy(class_a=65)  # 30 + 30 fits; 30 + 30 + one admission of 8 does not
+        policy, job = self.load()
+        store = self.ledger_store
+        other = {"done": False}
+
+        class Racing:
+            def list(self, prefix):
+                return store.list(prefix)
+
+            def get(self, key):
+                return store.get(key)
+
+            def put_new(self, key, body, ctype):
+                if not other["done"]:  # a competitor is admitted (other job) and reserves first
+                    other["done"] = True
+                    b.Ledger(store, policy).admit(dict(job, job_id="other"), "other-run", MONTH)
+                    b.reserve(b.Ledger(store, policy), policy, job, "other", MONTH, [])
+                return store.put_new(key, body, ctype)
+
+        with self.assertRaises(b.BudgetError) as cm:
+            b.reserve(b.Ledger(Racing(), policy), policy, job, "run", MONTH, [])
+        self.assertIn("global class_a", str(cm.exception))
+        self.assertEqual(len(store.list(b.LEDGER_PREFIX)), 1)  # only the competitor reserved
 
     def test_local_create_is_atomic(self):
         self.ledger_store.put_new("ledger/v1/x", b"a", "x")
@@ -481,6 +509,91 @@ class EndToEnd(Fixture):
             self.assertLessEqual(seen[d], ADMISSION[d], d)
         kinds = [k for k, *_ in self.stub.log[before:]]
         self.assertEqual(kinds[:3], ["head", "head", "put"])  # closure check, then the admission, then reads
+        s.settle("ok")
+
+
+@unittest.skipUnless(hasattr(signal, "SIGALRM"), "SIGALRM not available")
+class AlarmHandler(Fixture):
+    """The wall clock limit uses SIGALRM; settle() must give the process its previous handler back."""
+
+    def setUp(self):
+        super().setUp()
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=5)
+        self.before = signal.getsignal(signal.SIGALRM)
+        self.addCleanup(signal.signal, signal.SIGALRM, self.before)
+        self.addCleanup(signal.alarm, 0)
+
+    def session(self):
+        return b.Session(str(self.job_path), policy_path=self.policy_path, gate_dir=self.gate_dir,
+                         ledger_store=self.ledger_store)
+
+    def test_settle_restores_a_previous_python_handler(self):
+        def mine(signum, frame):
+            pass
+        signal.signal(signal.SIGALRM, mine)
+        s = self.session()
+        s.open()
+        self.assertIsNot(signal.getsignal(signal.SIGALRM), mine)  # ours is in place during the run
+        self.assertGreater(signal.alarm(0), 0)                    # and its timer is armed
+        rec = s.settle("ok")
+        self.assertEqual(rec.get("kind"), "settlement", rec)
+        self.assertIs(signal.getsignal(signal.SIGALRM), mine)
+        self.assertEqual(signal.alarm(0), 0)  # no timer left behind
+
+    def test_settle_restores_the_default_handler(self):
+        signal.signal(signal.SIGALRM, signal.SIG_DFL)
+        s = self.session()
+        s.open()
+        s.settle("ok")
+        self.assertEqual(signal.getsignal(signal.SIGALRM), signal.SIG_DFL)
+
+    def test_settle_restores_when_the_previous_handler_was_not_set_from_python(self):
+        with mock.patch.object(b.signal, "signal", wraps=signal.signal) as sig:
+            s = self.session()
+            s.open()
+            s._prev_alarm_handler = None  # signal.signal() returns None for a C-level handler
+            s.settle("ok")
+        self.assertEqual(sig.call_args_list[-1].args, (signal.SIGALRM, signal.SIG_DFL))
+        self.assertEqual(signal.getsignal(signal.SIGALRM), signal.SIG_DFL)
+
+    def test_settle_restores_even_when_the_settlement_write_fails(self):
+        def mine(signum, frame):
+            pass
+        signal.signal(signal.SIGALRM, mine)
+        s = self.session()
+        s.open()
+        with mock.patch.object(s.ledger, "append", side_effect=OSError("down")):
+            rec = s.settle("ok")
+        self.assertEqual(rec, {"settlement_failed": "OSError"})
+        self.assertIs(signal.getsignal(signal.SIGALRM), mine)
+
+    def test_settle_twice_does_not_clobber_a_handler_installed_after_the_first(self):
+        s = self.session()
+        s.open()
+        s.settle("ok")
+        def later(signum, frame):
+            pass
+        signal.signal(signal.SIGALRM, later)
+        s.settle("ok")
+        self.assertIs(signal.getsignal(signal.SIGALRM), later)
+
+    def test_a_refused_open_never_touches_the_handler(self):
+        def mine(signum, frame):
+            pass
+        signal.signal(signal.SIGALRM, mine)
+        self.write_job(admissions_per_month=5, class_a=40)  # a run never fits: refused before the handler is set
+        with self.assertRaises(b.BudgetError):
+            self.session().open()
+        self.assertIs(signal.getsignal(signal.SIGALRM), mine)
+
+    def test_the_run_time_limit_still_fires_during_the_run(self):
+        s = self.session()
+        s.open()
+        handler = signal.getsignal(signal.SIGALRM)
+        with self.assertRaises(b.BudgetError) as cm:
+            handler(signal.SIGALRM, None)
+        self.assertIn("run time limit", str(cm.exception))
         s.settle("ok")
 
 

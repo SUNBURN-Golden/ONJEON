@@ -140,7 +140,10 @@ def materialize(args, sample_rows):
                 paths[r["sample_id"]] = p
     else:
         for r in sample_rows:
-            p = Path(args.cache) / r["cache_path"]
+            try:
+                p = sa.confined_path(args.cache, r["cache_path"])
+            except sa.UnsafeCachePath:
+                continue  # treated as absent: a cache_path outside the cache is never read
             if p.exists():
                 paths[r["sample_id"]] = p
     return paths
@@ -353,12 +356,17 @@ def cmd_detect(args):
         sid = r["sample_id"]
         res = {"sample_id": sid, "url": r["url"], "baseline_sha256": r["sha256"], "observed_at": now()}
         try:
+            dest = sa.confined_path(out, r["cache_path"])
+        except sa.UnsafeCachePath as e:
+            res.update(status="unsafe_cache_path", detail=str(e)[:200])  # not fetched, not written; exit 1
+            results.append(res)
+            continue
+        try:
             body, ctype = fetch(r["url"])
         except Exception as e:
             res.update(status="fetch_failed", detail=f"{type(e).__name__}: {e}"[:200])
             results.append(res)
             continue
-        dest = out / r["cache_path"]
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
         digest = sa.sha256_bytes(body)

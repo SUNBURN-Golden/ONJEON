@@ -31,7 +31,7 @@ Never pass keys on the command line, never print them.
 Usage:
   source_archive.py archive-samples --cache DIR --raw T --derived T [--derived-src DIR]
   source_archive.py add-observation --file F --source-id ID --url U --observed-at TS --raw T
-  source_archive.py fetch --raw T --out DIR          # restore samples.csv originals by hash
+  source_archive.py fetch --raw T --out DIR          # restore samples.csv originals by hash (cache_path must stay inside DIR)
   source_archive.py copy --src file:///bundle/raw --dst s3://bucket   # no overwrite, conflicts abort
   source_archive.py verify --raw T [--report out.json]
   source_archive.py listing --src T --out listing.json   # key -> sha256 of every object (no content)
@@ -68,6 +68,23 @@ def object_key(digest):
 
 class Exists(Exception):
     pass
+
+
+class UnsafeCachePath(ValueError):
+    """A samples.csv cache_path would leave the cache/output directory (absolute path, `..`, symlink)."""
+
+
+def confined_path(base, rel):
+    """base/rel, resolved, only if it stays strictly inside base; else UnsafeCachePath.
+
+    samples.csv is data, not code: a row such as `../../x` or `/etc/x` must not make a tool read or
+    write outside the directory it was given. Symlinks are resolved before the check.
+    """
+    root = Path(base).resolve()
+    dest = (root / rel).resolve()
+    if dest == root or root not in dest.parents:
+        raise UnsafeCachePath(f"cache_path {rel!r} escapes {str(base)!r}")
+    return dest
 
 
 ABSENT = object()  # stored_sha256(): the key does not exist
@@ -302,7 +319,11 @@ def cmd_archive_samples(a):
     rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
     results = []
     for r in rows:
-        p = Path(a.cache) / r["cache_path"]
+        try:
+            p = confined_path(a.cache, r["cache_path"])
+        except UnsafeCachePath:
+            results.append({"sample_id": r["sample_id"], "status": "unsafe_cache_path"})
+            continue
         if not p.exists():
             results.append({"sample_id": r["sample_id"], "status": "missing_in_cache"})
             continue
@@ -382,7 +403,7 @@ def cmd_fetch(a):
     raw = store(a.raw, a.endpoint_url)
     out = Path(a.out)
     for r in csv.DictReader(SAMPLES.open(encoding="utf-8")):
-        dest = out / r["cache_path"]
+        dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
         dest.parent.mkdir(parents=True, exist_ok=True)
         body = raw.get(object_key(r["sha256"]))
         dest.write_bytes(body)
@@ -545,6 +566,10 @@ def with_budget(job, endpoint_url, fn):
         print(f"conflict: {e}", file=sys.stderr)
         outcome, code = "conflict", 3
         return 3
+    except UnsafeCachePath as e:
+        print(f"unsafe cache_path: {e}", file=sys.stderr)
+        outcome, code = "unsafe_cache_path", 1
+        return 1
     except r2_budget.BudgetError as e:
         print(str(e), file=sys.stderr)
         outcome, code = "budget_stop", 4

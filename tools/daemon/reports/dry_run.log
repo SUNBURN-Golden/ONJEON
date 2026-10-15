@@ -1,5 +1,5 @@
 # command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all
-# generated from parent commit 82e16da81650a9a8dfd2c1b002fb67700a039e26 + tree hash of tools/daemon sources sha256:fc2b7901d112b98ba117e0379b611db2225fb91f916fe85afeaedbc96dd24ea9 (tools/daemon without reports/ and __pycache__, plus tools/tests/test_daemon_dry_run.py; recompute with the command in tools/daemon/README.md; the PR head is this parent plus exactly one commit)
+# generated from parent commit 72489f1c22b55bfeb81d8115bceec6b71db32f1f + tree hash of tools/daemon sources sha256:fc2b7901d112b98ba117e0379b611db2225fb91f916fe85afeaedbc96dd24ea9 (tools/daemon without reports/ and __pycache__, plus tools/tests/test_daemon_dry_run.py; recompute with the command in tools/daemon/README.md; the PR head is this parent plus exactly one commit)
 # virtual clock and generated ids are deterministic: a re-run gives the same output
 # every check prints its expected and actual columns in full (no row is shortened)
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]

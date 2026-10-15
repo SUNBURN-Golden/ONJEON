@@ -35,7 +35,7 @@
 |---|---|
 | `golden` | §34.1 경계표 확장 14건(`packages/fixtures/rules/*.cases.json`), 재현성, trace |
 | `mutation` | 규칙을 의도적으로 망가뜨린 11개 변이가 골든 표에 모두 잡히는지 |
-| `soundness` | 입력을 숨겨도 확정 결과가 다른 확정 결과로 뒤집히지 않는지(I1). 합성 fixture와 `fixtures/rules/real/*.cases.json`의 실제 규칙 8개 전부에 적용하며, 모든 실제 규칙이 확정 케이스를 하나 이상 갖는지 확인한다. 모름을 `false`/`0`으로 바꾸는 평가기를 같은 검사기가 잡아내는지(음성 대조)도 본다 |
+| `soundness` | 입력을 숨겨도 확정 결과가 다른 확정 결과로 뒤집히지 않는지(I1). 합성 fixture와 `fixtures/rules/real/*.cases.json`의 실제 규칙 7개 전부에 적용하며, 모든 실제 규칙이 확정 케이스를 하나 이상 갖는지 확인한다. 모름을 `false`/`0`으로 바꾸는 평가기를 같은 검사기가 잡아내는지(음성 대조)도 본다 |
 | `static_types` | 로드 단계 타입 검사: 감사 예시 두 건, 연산자별 거부와 오류 경로, 올바른 타입은 그대로 로드·평가 |
 | `loader_and_arith` | 반올림 모드, 상한, `days_between` 포함 여부·역순 날짜 거부, 달력 연산, 로더 거부 규칙 |
 | `unknown_branch_errors` | 조건이 모름일 때 가지의 오류가 모름+blocker가 되는지, 선택된 가지·양쪽 가지의 오류는 유지되는지, trace 기록 |

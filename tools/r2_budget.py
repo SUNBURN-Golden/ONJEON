@@ -530,6 +530,8 @@ class Session:
         self.gate = LocalGate(self.policy, self.job["job_id"], gate_dir)
         self.reservation = None
         self.admitted = False
+        self._alarm_installed = False  # True while our SIGALRM handler is in place
+        self._prev_alarm_handler = None
 
     def _refuse_and_maybe_close(self, month, admissions, err):
         job_n = this_month(admissions, month, self.job["job_id"])
@@ -582,15 +584,29 @@ class Session:
         if hasattr(signal, "SIGALRM"):  # wall clock limit even while no request is in flight
             def alarm(signum, frame):
                 raise BudgetError(f"run time limit {self.job['per_run']['seconds']}s reached")
-            signal.signal(signal.SIGALRM, alarm)
+            self._prev_alarm_handler = signal.signal(signal.SIGALRM, alarm)
+            self._alarm_installed = True
             signal.alarm(self.job["per_run"]["seconds"])
         return remaining
+
+    def _restore_alarm(self):
+        """Stop our timer first, then put back the handler that was there before open()."""
+        if not self._alarm_installed:
+            return
+        signal.alarm(0)
+        prev = self._prev_alarm_handler
+        # signal.signal() returns None for a handler that was not installed from Python
+        signal.signal(signal.SIGALRM, signal.SIG_DFL if prev is None else prev)
+        self._alarm_installed = False
+        self._prev_alarm_handler = None
 
     def settle(self, outcome):
         """Record the measured use plus the worst case of this very write, capped at the reservation.
         If this fails the admission and the reservation simply keep counting in full."""
-        if hasattr(signal, "SIGALRM"):
-            signal.alarm(0)
+        try:
+            self._restore_alarm()
+        except BaseException:
+            pass  # never let the handler restore block the settlement itself
         try:
             if self.reservation is None:
                 return None

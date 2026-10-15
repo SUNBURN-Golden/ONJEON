@@ -1,5 +1,11 @@
-"""Journal records (core_contract.expected_outputs). The journal is append-only and lives in the store."""
+"""Journal records (core_contract.expected_outputs). The journal is append-only and lives in the store.
 
+Every record passes the journal_text secret scan (preserve_manifest.secret_patterns.scan[journal_text], G38) before
+it is appended: a matching string is replaced and only the match count is kept. The hit is queued in the store and
+turned into a secret_detected event by the engine at the end of the operation (transition_engine.settle_secrets).
+"""
+
+from . import secret_scan
 from .ports import SpecGap
 
 
@@ -9,10 +15,15 @@ class Recorder:
         self.clock = clock
         self._ids = set(rules.get("core_contract.expected_outputs.side_effect_ids"))
         self._noops = set(rules.noop_events)
+        self._pats = secret_scan.patterns(rules)
 
     def _add(self, d, kind, **fields):
+        clean, hits = secret_scan.redact(self._pats, fields)
+        if hits:
+            d.setdefault("secret_hits", []).append({"task_id": fields.get("task_id"), "scan_id": "journal_text",
+                                                    "match_count": hits, "record_kind": kind})
         rec = {"seq": len(d["journal"]) + 1, "kind": kind}
-        rec.update(fields)
+        rec.update(clean)
         d["journal"].append(rec)
         return rec
 

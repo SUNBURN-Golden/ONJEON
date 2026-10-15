@@ -1,0 +1,9 @@
+{
+ "origin": "fixture",
+ "fixture_only": true,
+ "description": "T-OP-09 시험 전용 fixture(origin=fixture). 실제 실행기 검증에서 쓰는 모의 빌더 두 개. 실행기는 standin.py(T-MOCK 과제만 다루는 스크립트 프로세스)이고 벤더 CLI가 아니다. probe의 {python}·{standin}은 시작할 때 실제 경로로 바뀐다. 계열 이름은 모의 값이다.",
+ "builders": [
+  {"name": "standin-builder-1", "runner": "standin-runner-1", "family": "standin-family-a", "probe": ["{python}", "-I", "{standin}"]},
+  {"name": "standin-builder-2", "runner": "standin-runner-2", "family": "standin-family-b", "probe": ["{python}", "-I", "{standin}"]}
+ ]
+}

@@ -1,0 +1,140 @@
+[
+ {
+  "runner": "claude CLI",
+  "role_name": "미확인",
+  "installed": true,
+  "version": "2.1.290 (Claude Code)",
+  "auth": "미확인(확인하지 않음)",
+  "model_evidence": [],
+  "model_matches_role": null,
+  "min_call": {
+   "ok": null,
+   "latency_ms": null,
+   "cost_units": null,
+   "note": "실제 제공자 호출은 하지 않았다. 시험 프록시 호출만 했다"
+  },
+  "exit_code_profile": {
+   "confirmed": false,
+   "source": "시험 프록시 재현",
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": []
+  },
+  "checked_at": "2026-10-15T12:06:45Z",
+  "host_hash": "4aa651d9ea11c72e"
+ },
+ {
+  "runner": "Cursor CLI",
+  "role_name": "미확인",
+  "installed": true,
+  "version": "2026.10.14-0f9edde",
+  "auth": "미확인(확인하지 않음)",
+  "model_evidence": [],
+  "model_matches_role": null,
+  "min_call": {
+   "ok": null,
+   "latency_ms": null,
+   "cost_units": null,
+   "note": "실제 제공자 호출은 하지 않았다. 시험 프록시 호출만 했다"
+  },
+  "exit_code_profile": {
+   "confirmed": false,
+   "source": "미확인",
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": []
+  },
+  "checked_at": "2026-10-15T12:06:45Z",
+  "host_hash": "4aa651d9ea11c72e"
+ },
+ {
+  "runner": "grokbuild CLI",
+  "role_name": "미확인",
+  "installed": false,
+  "version": null,
+  "auth": "미확인(확인하지 않음)",
+  "model_evidence": [],
+  "model_matches_role": null,
+  "min_call": {
+   "ok": null,
+   "latency_ms": null,
+   "cost_units": null,
+   "note": "실제 제공자 호출은 하지 않았다. 시험 프록시 호출만 했다"
+  },
+  "exit_code_profile": {
+   "confirmed": false,
+   "source": "미확인",
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": []
+  },
+  "checked_at": "2026-10-15T12:06:45Z",
+  "host_hash": "4aa651d9ea11c72e"
+ },
+ {
+  "runner": "Devin CLI",
+  "role_name": "미확인",
+  "installed": true,
+  "version": "devin 3000.11.92 (7f4e64980e22)",
+  "auth": "미확인(확인하지 않음)",
+  "model_evidence": [],
+  "model_matches_role": null,
+  "min_call": {
+   "ok": null,
+   "latency_ms": null,
+   "cost_units": null,
+   "note": "실제 제공자 호출은 하지 않았다. 시험 프록시 호출만 했다"
+  },
+  "exit_code_profile": {
+   "confirmed": false,
+   "source": "미확인",
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": []
+  },
+  "checked_at": "2026-10-15T12:06:45Z",
+  "host_hash": "4aa651d9ea11c72e"
+ },
+ {
+  "runner": "Claude Code(GLM 프로필)",
+  "role_name": "미확인",
+  "installed": false,
+  "version": null,
+  "auth": "미확인(확인하지 않음)",
+  "model_evidence": [],
+  "model_matches_role": null,
+  "min_call": {
+   "ok": null,
+   "latency_ms": null,
+   "cost_units": null,
+   "note": "실제 제공자 호출은 하지 않았다. 시험 프록시 호출만 했다"
+  },
+  "exit_code_profile": {
+   "confirmed": false,
+   "source": "미확인",
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": []
+  },
+  "checked_at": "2026-10-15T12:06:45Z",
+  "host_hash": "4aa651d9ea11c72e"
+ },
+ {
+  "runner": "대체 모델 경로(GPT 계열, 경로 미정)",
+  "role_name": "미확인",
+  "installed": false,
+  "version": null,
+  "auth": "미확인(확인하지 않음)",
+  "model_evidence": [],
+  "model_matches_role": null,
+  "min_call": {
+   "ok": null,
+   "latency_ms": null,
+   "cost_units": null,
+   "note": "실제 제공자 호출은 하지 않았다. 시험 프록시 호출만 했다"
+  },
+  "exit_code_profile": {
+   "confirmed": false,
+   "source": "미확인",
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": []
+  },
+  "checked_at": "2026-10-15T12:06:45Z",
+  "host_hash": "4aa651d9ea11c72e"
+ }
+]

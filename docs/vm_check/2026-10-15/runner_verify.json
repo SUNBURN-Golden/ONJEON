@@ -1,0 +1,7897 @@
+{
+ "tool": "tools/daemon/runner_verify",
+ "task": "T-OP-09",
+ "generated_at": "2026-10-15T12:06:45Z",
+ "target": {
+  "parent_commit": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
+  "branch": "grokbot/onjeon-T-OP-09"
+ },
+ "environment": {
+  "host_hash": "4aa651d9ea11c72e",
+  "os": "Linux 6.12.94+",
+  "python": "3.13.5",
+  "git": "git version 2.47.3",
+  "time_scale": 0.05,
+  "clock_advanced_by_harness_s": 8698,
+  "clock_scaled_sleep_s": 522,
+  "worlds": 72,
+  "remote_kind": "provisioned_local_bare_repository",
+  "vm_verified": false,
+  "vm_note": "이 실행은 사람이 준비한 VM의 CLI·원격·자격 설정이 아니라, 이 호스트에서 로컬 구성요소(bare 원격, hook, 스크립트 빌더, 시험 프록시)로 한 것이다. 실제 호스트의 보호 브랜치·단기 자격과 벤더 CLI(claude CLI 하나를 빼고)는 확인하지 못했다.",
+  "lsof": false,
+  "unshare_mount_namespace": true
+ },
+ "vm_approval": "이 과제의 완료는 가동 승인이 아니다. 가동 여부는 05 §7의 점검표와 사용자 결정으로만 정해진다.",
+ "summary": {
+  "scenarios": 22,
+  "status_counts": {
+   "PASS": 19,
+   "FAIL": 0,
+   "PARTIAL": 3,
+   "UNCONFIRMED": 0
+  },
+  "checks": 404,
+  "checks_failed": 0,
+  "checks_unconfirmed": 11,
+  "gaps": 1
+ },
+ "required_test_ids": {
+  "late-write-fenced": [
+   {
+    "r": "R1",
+    "status": "PASS"
+   },
+   {
+    "r": "R3",
+    "status": "PASS"
+   }
+  ],
+  "late-result-rejected": [
+   {
+    "r": "R2",
+    "status": "PASS"
+   }
+  ],
+  "resume-after-interrupt": [
+   {
+    "r": "R4",
+    "status": "PASS"
+   }
+  ],
+  "duplicate-run-prevented": [
+   {
+    "r": "R5",
+    "status": "PASS"
+   }
+  ],
+  "provider-scoped-switch": [
+   {
+    "r": "R6",
+    "status": "PARTIAL"
+   },
+   {
+    "r": "R7",
+    "status": "PARTIAL"
+   }
+  ],
+  "hard-stop-heartbeating-job": [
+   {
+    "r": "R9",
+    "status": "PARTIAL"
+   }
+  ],
+  "usage-recorded-not-capped": [
+   {
+    "r": "R10",
+    "status": "PASS"
+   }
+  ],
+  "handoff-quiescent-before-preserve": [
+   {
+    "r": "R11",
+    "status": "PASS"
+   }
+  ],
+  "duplicate-delivery-noop": [
+   {
+    "r": "R12",
+    "status": "PASS"
+   }
+  ],
+  "retry-new-idempotency-key": [
+   {
+    "r": "R13",
+    "status": "PASS"
+   }
+  ],
+  "preserve-manifest-same-function": [
+   {
+    "r": "R14",
+    "status": "PASS"
+   }
+  ],
+  "preserve-failure-recoverable-stop": [
+   {
+    "r": "R15",
+    "status": "PASS"
+   }
+  ],
+  "daemon-restart-during-handoff": [
+   {
+    "r": "R16",
+    "status": "PASS"
+   }
+  ],
+  "envelope-id-distinct-events": [
+   {
+    "r": "R17",
+    "status": "PASS"
+   }
+  ],
+  "lease-issue-atomic-single-owner": [
+   {
+    "r": "R18",
+    "status": "PASS"
+   }
+  ],
+  "restart-ttl-expired-no-resend": [
+   {
+    "r": "R19",
+    "status": "PASS"
+   }
+  ],
+  "restart-revoked-pending-void": [
+   {
+    "r": "R20",
+    "status": "PASS"
+   }
+  ],
+  "restart-valid-pending-resend": [
+   {
+    "r": "R21",
+    "status": "PASS"
+   }
+  ],
+  "restart-corrupt-record-returned": [
+   {
+    "r": "R22",
+    "status": "PASS"
+   }
+  ]
+ },
+ "runner_profile": {
+  "claude CLI": {
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": [],
+   "provider_documented_quota_types": [],
+   "confirmed": false,
+   "source": "시험 프록시 재현"
+  },
+  "Cursor CLI": {
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": [],
+   "provider_documented_quota_types": [],
+   "confirmed": false,
+   "source": "미확인"
+  },
+  "grokbuild CLI": {
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": [],
+   "provider_documented_quota_types": [],
+   "confirmed": false,
+   "source": "미확인"
+  },
+  "Devin CLI": {
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": [],
+   "provider_documented_quota_types": [],
+   "confirmed": false,
+   "source": "미확인"
+  },
+  "Claude Code(GLM 프로필)": {
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": [],
+   "provider_documented_quota_types": [],
+   "confirmed": false,
+   "source": "미확인"
+  },
+  "대체 모델 경로(GPT 계열, 경로 미정)": {
+   "limit_exit_codes": [],
+   "unavailable_exit_codes": [],
+   "provider_documented_quota_types": [],
+   "confirmed": false,
+   "source": "미확인"
+  }
+ },
+ "product_branch_check": {
+  "head_before": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
+  "head_after": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
+  "refs_unchanged": true,
+  "remotes_unchanged": true,
+  "test_remote_pushes": {
+   "accepted": 29,
+   "rejected": 14,
+   "applied_refs_outside_task": [],
+   "applied": 29
+  },
+  "merge_calls": 0,
+  "refs_applied_outside_task_branches": []
+ },
+ "results": [
+  {
+   "r": "R1",
+   "test_id": "late-write-fenced",
+   "title": "늦은 결과: 만료된 임대의 푸시",
+   "status": "PASS",
+   "seconds": 1.9,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님",
+    "TTL·grace 경과는 시계 offset으로 만든다(대기 아님)"
+   ],
+   "checks": [
+    {
+     "name": "시작: 임대 A(세대 1, token 1)로 building",
+     "status": "PASS",
+     "expected": [
+      "building",
+      1,
+      1
+     ],
+     "actual": [
+      "building",
+      1,
+      1
+     ]
+    },
+    {
+     "name": "하트비트 두 번 누락: building→returned(R-08)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "building",
+        "returned",
+        "heartbeat_missed_twice"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ],
+     "actual": [
+      [
+       [
+        "building",
+        "returned",
+        "heartbeat_missed_twice"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ]
+    },
+    {
+     "name": "임대 A 종료: 프로세스 그룹 종료·쓰기 자격 회수·토큰 회수가 기록된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "A의 프로세스 그룹은 실제로 사라졌다(종료 신호 -9)",
+     "status": "PASS",
+     "expected": [
+      true,
+      -9,
+      0
+     ],
+     "actual": [
+      true,
+      -9,
+      0
+     ]
+    },
+    {
+     "name": "교체 임대 B(세대 2, token 2)가 building이고 B의 데몬 경유 푸시는 실행된다",
+     "status": "PASS",
+     "expected": [
+      "building",
+      2,
+      2,
+      [
+       true
+      ]
+     ],
+     "actual": [
+      "building",
+      2,
+      2,
+      [
+       true
+      ]
+     ]
+    },
+    {
+     "name": "원격에는 B의 브랜치(task/…-a2)가 B의 커밋으로 생겼고 A의 브랜치·main은 그대로",
+     "status": "PASS",
+     "expected": [
+      "1539c94ae9ca100d68409ca84355beb9013a2eb1",
+      "a1a639126ebc3e55bb8444a957f961969be6620f",
+      null
+     ],
+     "actual": [
+      "1539c94ae9ca100d68409ca84355beb9013a2eb1",
+      "a1a639126ebc3e55bb8444a957f961969be6620f",
+      null
+     ]
+    },
+    {
+     "name": "A의 실제 푸시 셋: 회수된 자격으로 자기 브랜치(거부), 같은 브랜치 강제 푸시(거부), 보호 브랜치 main(거부)",
+     "status": "PASS",
+     "expected": [
+      [
+       "refs/heads/task/T-MOCK-BASIC-a1",
+       false,
+       "credential_revoked"
+      ],
+      [
+       "refs/heads/task/T-MOCK-BASIC-a1",
+       true,
+       "credential_revoked"
+      ],
+      [
+       "refs/heads/main",
+       false,
+       "protected_branch"
+      ]
+     ],
+     "actual": [
+      [
+       "refs/heads/task/T-MOCK-BASIC-a1",
+       false,
+       "credential_revoked"
+      ],
+      [
+       "refs/heads/task/T-MOCK-BASIC-a1",
+       true,
+       "credential_revoked"
+      ],
+      [
+       "refs/heads/main",
+       false,
+       "protected_branch"
+      ]
+     ]
+    },
+    {
+     "name": "두 푸시 모두 git 종료 코드가 0이 아니다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "원격 ref는 A의 늦은 푸시 전후로 같다(브랜치 SHA 불변)",
+     "status": "PASS",
+     "expected": {
+      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f",
+      "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"
+     },
+     "actual": {
+      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f",
+      "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"
+     }
+    },
+    {
+     "name": "원격 푸시 로그: 늦은 푸시 셋은 모두 rejected이고 수락 0건",
+     "status": "PASS",
+     "expected": [
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "protected_branch"
+      ]
+     ],
+     "actual": [
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "protected_branch"
+      ]
+     ]
+    },
+    {
+     "name": "거부된 자격은 A의 builder_write_credential이고 A의 임대 id를 달고 있다",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_write_credential"
+      ],
+      [
+       "01RV006CE68F51824A66816F6D"
+      ]
+     ],
+     "actual": [
+      [
+       "builder_write_credential"
+      ],
+      [
+       "01RV006CE68F51824A66816F6D"
+      ]
+     ]
+    },
+    {
+     "name": "A의 늦은 결과 봉투·푸시 요청·하트비트: late_envelope_rejected(R-11) 세 건",
+     "status": "PASS",
+     "expected": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ]
+     ],
+     "actual": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ]
+     ]
+    },
+    {
+     "name": "현재 임대 B의 상태·임대·inbox_seen·세대는 불변, 전이 0건",
+     "status": "PASS",
+     "expected": [
+      {
+       "task_state": {
+        "attempt": 2,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "a1a639126ebc3e55bb8444a957f961969be6620f",
+        "branch": "task/T-MOCK-BASIC-a2",
+        "builder": "standin-builder-1",
+        "expires_at": 1792070028,
+        "fencing_token": 2,
+        "issued_at": 1792066427,
+        "last_heartbeat_at": 1792066428,
+        "lease_generation": 2,
+        "lease_id": "01RVC944ED84C0B5448CB3FBBC",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065826,
+         "envelope_id": "01RV8201E21374DE4954B1D002",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV006CE68F51824A66816F6D",
+         "sent_at": 1792065826,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792066427,
+         "envelope_id": "01RV36FBCD1C4BA14A1A9C8352",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RVC944ED84C0B5448CB3FBBC",
+         "sent_at": 1792066427,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|signal|DA5AF30BA18940A78005F66FB8": {
+         "first_seen_at": 1792065826,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|2|signal|C27A1865B29D41839672EB05DF": {
+         "first_seen_at": 1792066428,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      },
+      []
+     ],
+     "actual": [
+      {
+       "task_state": {
+        "attempt": 2,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "a1a639126ebc3e55bb8444a957f961969be6620f",
+        "branch": "task/T-MOCK-BASIC-a2",
+        "builder": "standin-builder-1",
+        "expires_at": 1792070028,
+        "fencing_token": 2,
+        "issued_at": 1792066427,
+        "last_heartbeat_at": 1792066428,
+        "lease_generation": 2,
+        "lease_id": "01RVC944ED84C0B5448CB3FBBC",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065826,
+         "envelope_id": "01RV8201E21374DE4954B1D002",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV006CE68F51824A66816F6D",
+         "sent_at": 1792065826,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792066427,
+         "envelope_id": "01RV36FBCD1C4BA14A1A9C8352",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RVC944ED84C0B5448CB3FBBC",
+         "sent_at": 1792066427,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|signal|DA5AF30BA18940A78005F66FB8": {
+         "first_seen_at": 1792065826,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|2|signal|C27A1865B29D41839672EB05DF": {
+         "first_seen_at": 1792066428,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      },
+      []
+     ]
+    },
+    {
+     "name": "데몬이 낸 원격 쓰기는 B의 것 하나뿐(A의 푸시 요청은 원격 쓰기에 닿지 않았다)",
+     "status": "PASS",
+     "expected": [
+      [
+       true,
+       2
+      ]
+     ],
+     "actual": [
+      [
+       true,
+       2
+      ]
+     ]
+    }
+   ],
+   "evidence": {
+    "timeline": {
+     "a_lease": "01RV006CE68F51824A66816F6D",
+     "b_lease": "01RVC944ED84C0B5448CB3FBBC",
+     "late_push_log": [
+      {
+       "client": "builder",
+       "credential_name": "builder_write_credential",
+       "decision": "rejected",
+       "event": "pre_receive",
+       "lease_id": "01RV006CE68F51824A66816F6D",
+       "new": "2d82e61687917f202e64b13ecb8a324985b8d348",
+       "old": "0000000000000000000000000000000000000000",
+       "reason": "credential_revoked",
+       "ref": "refs/heads/task/T-MOCK-BASIC-a1",
+       "task_id": "T-MOCK-BASIC",
+       "ts_ns": 1792065827200259101
+      },
+      {
+       "client": "builder",
+       "credential_name": "builder_write_credential",
+       "decision": "rejected",
+       "event": "pre_receive",
+       "lease_id": "01RV006CE68F51824A66816F6D",
+       "new": "2d82e61687917f202e64b13ecb8a324985b8d348",
+       "old": "0000000000000000000000000000000000000000",
+       "reason": "credential_revoked",
+       "ref": "refs/heads/task/T-MOCK-BASIC-a1",
+       "task_id": "T-MOCK-BASIC",
+       "ts_ns": 1792065827233238995
+      },
+      {
+       "client": "builder",
+       "credential_name": null,
+       "decision": "rejected",
+       "event": "pre_receive",
+       "lease_id": null,
+       "new": "2d82e61687917f202e64b13ecb8a324985b8d348",
+       "old": "a1a639126ebc3e55bb8444a957f961969be6620f",
+       "reason": "protected_branch",
+       "ref": "refs/heads/main",
+       "task_id": null,
+       "ts_ns": 1792065827277186448
+      }
+     ],
+     "refs_before": {
+      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f"
+     },
+     "refs_after": {
+      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f",
+      "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"
+     },
+     "late_outcomes": [
+      {
+       "accepted": false,
+       "noop": "late_envelope_rejected",
+       "return_code": "R-11",
+       "transition": null,
+       "reason": "late"
+      },
+      {
+       "accepted": false,
+       "noop": "late_envelope_rejected",
+       "return_code": "R-11",
+       "transition": null,
+       "written": false,
+       "reason": "late"
+      },
+      {
+       "accepted": false,
+       "noop": "late_envelope_rejected",
+       "return_code": "R-11",
+       "transition": null,
+       "reason": "late"
+      }
+     ]
+    }
+   },
+   "not_proven": [
+    "원격 거부(직접 푸시)가 데몬의 R-11 기록으로 이어지는 경로는 명세에 없다: 데몬이 R-11을 남기는 것은 데몬 경유 푸시 요청·결과 봉투·하트비트뿐이다",
+    "실제 Git 호스트의 보호 브랜치와 단기 자격 발급·회수는 사람이 적용하는 설정이다(04 §8). 여기서는 로컬 bare 저장소의 hook이 그 역할을 했다",
+    "A는 벤더 CLI가 아니라 스크립트 프로세스(standin)다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R2",
+   "test_id": "late-result-rejected",
+   "title": "늦은 결과: 만료된 임대의 결과 봉투와 인계 순서",
+   "status": "PASS",
+   "seconds": 9.7,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "인계 결과: building→handoff→leased, 세대 2, 빌더 교체",
+     "status": "PASS",
+     "expected": [
+      "building",
+      2,
+      "standin-builder-2"
+     ],
+     "actual": [
+      "building",
+      2,
+      "standin-builder-2"
+     ]
+    },
+    {
+     "name": "실제 로그의 시각 순서: stop < isolate < 자격 회수 < preserve < revoke_token < issue_next_lease",
+     "status": "PASS",
+     "expected": [
+      "stop(SIGTERM 요청)",
+      "isolate(프로세스 그룹 종료)",
+      "빌더 쓰기 자격 회수",
+      "preserve(보존 자격의 푸시를 원격이 수락)",
+      "revoke_token",
+      "issue_next_lease(다음 지시 봉투 발송)"
+     ],
+     "actual": [
+      "stop(SIGTERM 요청)",
+      "isolate(프로세스 그룹 종료)",
+      "빌더 쓰기 자격 회수",
+      "preserve(보존 자격의 푸시를 원격이 수락)",
+      "revoke_token",
+      "issue_next_lease(다음 지시 봉투 발송)"
+     ]
+    },
+    {
+     "name": "시각이 서로 다르고 엄격히 증가한다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "데몬 저널의 순서도 같다(stop → isolate → confirm_quiescent → preserve(커밋 → 푸시) → revoke_token → issue_lease)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "A의 늦은 결과 봉투·푸시 요청·하트비트: late_envelope_rejected(R-11) 세 건",
+     "status": "PASS",
+     "expected": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ]
+     ],
+     "actual": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ]
+     ]
+    },
+    {
+     "name": "거부 이유는 lease_id·세대·토큰 불일치(lease_matches)",
+     "status": "PASS",
+     "expected": [
+      "lease_matches",
+      "lease_matches",
+      "lease_matches"
+     ],
+     "actual": [
+      "lease_matches",
+      "lease_matches",
+      "lease_matches"
+     ]
+    },
+    {
+     "name": "현재 임대 B의 상태 전이 0건, 상태·임대·inbox_seen 불변",
+     "status": "PASS",
+     "expected": [
+      [],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": 1792065828,
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "lease_record": {
+        "base_sha": "3e2f02aa4a7a444dd0937dac5f6015b488b76d5f",
+        "branch": "task/T-MOCK-HANDOFF-a1",
+        "builder": "standin-builder-2",
+        "expires_at": 1792069555,
+        "fencing_token": 2,
+        "issued_at": 1792065955,
+        "last_heartbeat_at": 1792065955,
+        "lease_generation": 2,
+        "lease_id": "01RV912C088F42B246FEB2AAA2",
+        "runner": "standin-runner-2",
+        "status": "active",
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065827,
+         "envelope_id": "01RVBB6C26148B9442B38C9248",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV171CB8CF73BF4202BC9D18",
+         "sent_at": 1792065828,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065955,
+         "envelope_id": "01RV90F538CF3C25442D8CBD5F",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV912C088F42B246FEB2AAA2",
+         "sent_at": 1792065955,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-HANDOFF|1|signal|4A6EA6347FC44AED93849976BC": {
+         "first_seen_at": 1792065828,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|1|signal|4C2A5158E36F40C9A8768A54B3": {
+         "first_seen_at": 1792065828,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|2|signal|3ED3425606FA4363B146B604CD": {
+         "first_seen_at": 1792065955,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ],
+     "actual": [
+      [],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": 1792065828,
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "lease_record": {
+        "base_sha": "3e2f02aa4a7a444dd0937dac5f6015b488b76d5f",
+        "branch": "task/T-MOCK-HANDOFF-a1",
+        "builder": "standin-builder-2",
+        "expires_at": 1792069555,
+        "fencing_token": 2,
+        "issued_at": 1792065955,
+        "last_heartbeat_at": 1792065955,
+        "lease_generation": 2,
+        "lease_id": "01RV912C088F42B246FEB2AAA2",
+        "runner": "standin-runner-2",
+        "status": "active",
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065827,
+         "envelope_id": "01RVBB6C26148B9442B38C9248",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV171CB8CF73BF4202BC9D18",
+         "sent_at": 1792065828,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065955,
+         "envelope_id": "01RV90F538CF3C25442D8CBD5F",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV912C088F42B246FEB2AAA2",
+         "sent_at": 1792065955,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-HANDOFF|1|signal|4A6EA6347FC44AED93849976BC": {
+         "first_seen_at": 1792065828,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|1|signal|4C2A5158E36F40C9A8768A54B3": {
+         "first_seen_at": 1792065828,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|2|signal|3ED3425606FA4363B146B604CD": {
+         "first_seen_at": 1792065955,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ]
+    },
+    {
+     "name": "A의 결과 봉투는 사용량 기록에 들어가지 않았다(거부된 봉투는 기록하지 않음)",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "원격은 A의 늦은 푸시를 거부(일반 푸시는 B가 쌓은 브랜치와 갈라져 git이 먼저 막고, 강제 푸시는 회수된 자격으로 원격이 막는다)",
+     "status": "PASS",
+     "expected": [
+      [
+       "refs/heads/task/T-MOCK-HANDOFF-a1",
+       false,
+       "non_fast_forward"
+      ],
+      [
+       "refs/heads/task/T-MOCK-HANDOFF-a1",
+       true,
+       "credential_revoked"
+      ],
+      [
+       "refs/heads/main",
+       false,
+       "protected_branch"
+      ]
+     ],
+     "actual": [
+      [
+       "refs/heads/task/T-MOCK-HANDOFF-a1",
+       false,
+       "non_fast_forward"
+      ],
+      [
+       "refs/heads/task/T-MOCK-HANDOFF-a1",
+       true,
+       "credential_revoked"
+      ],
+      [
+       "refs/heads/main",
+       false,
+       "protected_branch"
+      ]
+     ]
+    }
+   ],
+   "evidence": {
+    "handoff_timeline_ns": {
+     "stop(SIGTERM 요청)": 1792065828394024879,
+     "isolate(프로세스 그룹 종료)": 1792065835877169385,
+     "빌더 쓰기 자격 회수": 1792065835879947138,
+     "preserve(보존 자격의 푸시를 원격이 수락)": 1792065836252065505,
+     "revoke_token": 1792065836285873314,
+     "issue_next_lease(다음 지시 봉투 발송)": 1792065836560477299
+    },
+    "late_outcomes": [
+     {
+      "accepted": false,
+      "noop": "late_envelope_rejected",
+      "return_code": "R-11",
+      "transition": null,
+      "reason": "late"
+     },
+     {
+      "accepted": false,
+      "noop": "late_envelope_rejected",
+      "return_code": "R-11",
+      "transition": null,
+      "written": false,
+      "reason": "late"
+     },
+     {
+      "accepted": false,
+      "noop": "late_envelope_rejected",
+      "return_code": "R-11",
+      "transition": null,
+      "reason": "late"
+     }
+    ]
+   },
+   "not_proven": [
+    "순서 증거는 데몬이 남긴 로그, 프로세스 레지스터, 원격 hook 로그의 시각을 맞춰 본 것이다. 서로 다른 호스트의 시계는 맞추지 않았다(한 호스트)",
+    "A는 벤더 CLI가 아니라 스크립트 프로세스(standin)다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R3",
+   "test_id": "late-write-fenced",
+   "title": "교체 전후 동시 쓰기",
+   "status": "PASS",
+   "seconds": 10.5,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "쓰기 자격 구간이 임대마다 하나씩(A, B)",
+     "status": "PASS",
+     "expected": [
+      "01RV53A35AF167834B5B938C4A",
+      "01RV9BE0BCE5786E45FAAF897D"
+     ],
+     "actual": [
+      "01RV53A35AF167834B5B938C4A",
+      "01RV9BE0BCE5786E45FAAF897D"
+     ]
+    },
+    {
+     "name": "A의 쓰기 자격은 B의 자격이 발급되기 전에 회수되었다(두 자격이 동시에 있던 구간 없음)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "A": [
+       1792065837713550021,
+       1792065845884024916
+      ],
+      "B": [
+       1792065846676317986,
+       null
+      ]
+     }
+    },
+    {
+     "name": "A 프로세스 그룹 종료 로그 한 건, 남은 구성원 0, 프로세스 종료 신호 -9",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      -9
+     ],
+     "actual": [
+      1,
+      0,
+      -9
+     ]
+    },
+    {
+     "name": "A의 작업 트리는 읽기 전용(디렉터리와 파일에 쓰기 권한 없음)",
+     "status": "PASS",
+     "expected": [
+      false,
+      false,
+      false
+     ],
+     "actual": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "name": "A 트리에 대한 실제 쓰기 시도는 PermissionError로 막힌다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "다른 세션에 남은 A의 두 번째 쓰기 프로세스는 격리 뒤 쓰기 실패를 겪었다(EACCES 기록)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "격리 뒤 A 트리의 최대 mtime은 더 변하지 않는다",
+     "status": "PASS",
+     "expected": 1792065845877293420,
+     "actual": 1792065845877293420
+    },
+    {
+     "name": "보존 커밋의 tree OID == 정지 확인의 quiescent_tree_oid",
+     "status": "PASS",
+     "expected": "091e01ab408f18c6f80ceaa7a958937eee840bb6",
+     "actual": "091e01ab408f18c6f80ceaa7a958937eee840bb6"
+    },
+    {
+     "name": "원격이 수락한 푸시: A 임대에 대한 데몬 보존 자격 하나, 그다음 B의 빌더 자격 하나(A의 빌더 자격 푸시 0건)",
+     "status": "PASS",
+     "expected": [
+      [
+       "preserve_credential",
+       "01RV53A35AF167834B5B938C4A"
+      ],
+      [
+       "builder_write_credential",
+       "01RV9BE0BCE5786E45FAAF897D"
+      ]
+     ],
+     "actual": [
+      [
+       "preserve_credential",
+       "01RV53A35AF167834B5B938C4A"
+      ],
+      [
+       "builder_write_credential",
+       "01RV9BE0BCE5786E45FAAF897D"
+      ]
+     ]
+    },
+    {
+     "name": "원격 브랜치 끝 == B의 커밋(A의 WIP 위에 B가 쌓음)",
+     "status": "PASS",
+     "expected": [
+      "dbd5b57d202a0ca769dd40ae6404fa4e76d3d3ea",
+      "bbab67fcfeac0c63e944f1bd6b96de66776dac00"
+     ],
+     "actual": [
+      "dbd5b57d202a0ca769dd40ae6404fa4e76d3d3ea",
+      "bbab67fcfeac0c63e944f1bd6b96de66776dac00"
+     ]
+    },
+    {
+     "name": "같은 파일을 A는 tick 줄로, B는 'B edit'로 고쳤고 원격에는 B의 내용이 있다",
+     "status": "PASS",
+     "expected": [
+      "B edit",
+      true
+     ],
+     "actual": [
+      "B edit",
+      true
+     ]
+    },
+    {
+     "name": "A의 회수된 자격으로 지금 푸시해도 원격이 거부한다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    }
+   ],
+   "evidence": {
+    "credential_intervals_ns": {
+     "A": [
+      1792065837713550021,
+      1792065845884024916
+     ],
+     "B": [
+      1792065846676317986,
+      null
+     ]
+    }
+   },
+   "not_proven": [
+    "자격 구간은 데몬이 쓴 발급·회수 로그의 시각이다. 원격 hook은 푸시 시점에 같은 자격 기록을 읽는다. 실제 호스트의 토큰 만료·회수 전파 지연은 확인하지 못했다",
+    "읽기 전용 격리는 파일 권한이다. 같은 사용자의 살아 있는 프로세스가 권한을 되돌릴 수 있고, 그 경우를 막는 것은 프로세스 그룹 종료와 열린 쓰기 핸들 검사다(R11)",
+    "A·B는 벤더 CLI가 아니라 스크립트 프로세스(standin)다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R4",
+   "test_id": "resume-after-interrupt",
+   "title": "중단·재개",
+   "status": "PASS",
+   "seconds": 3.1,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님",
+    "강제 종료는 SIGKILL(전원 차단 아님)"
+   ],
+   "checks": [
+    {
+     "name": "[발송 직후 강제 종료] 데몬 프로세스가 SIGKILL로 끝났다(종료 코드 -9)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[발송 직후 강제 종료] 의도 기록만 있다: outbox pending, 의도 1, 결과 0, 지시 파일은 이미 나갔다",
+     "status": "PASS",
+     "expected": [
+      "pending",
+      1,
+      0,
+      1
+     ],
+     "actual": [
+      "pending",
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[발송 직후 강제 종료] 재시작이 정상 종료한다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "ok": true,
+      "result": {
+       "applied": false,
+       "restart": true
+      },
+      "instance_id": "01RV5897576B5AB345AFB0D0BE"
+     }
+    },
+    {
+     "name": "[발송 직후 강제 종료] 재시작: 같은 envelope_id로 다시 보내고 sent, 지시 파일은 하나(덮어씀)",
+     "status": "PASS",
+     "expected": [
+      [
+       "01RV722CBA81367B435B855A3D",
+       "01RV722CBA81367B435B855A3D"
+      ],
+      "sent",
+      1
+     ],
+     "actual": [
+      [
+       "01RV722CBA81367B435B855A3D",
+       "01RV722CBA81367B435B855A3D"
+      ],
+      "sent",
+      1
+     ]
+    },
+    {
+     "name": "[발송 직후 강제 종료] 빌더는 한 번만 시작되어 building",
+     "status": "PASS",
+     "expected": [
+      1,
+      "building"
+     ],
+     "actual": [
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] 데몬 프로세스가 SIGKILL로 끝났다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] 로컬 커밋은 있고 기록은 없다(preservation_state none), 원격 브랜치 없음",
+     "status": "PASS",
+     "expected": [
+      true,
+      "none",
+      null
+     ],
+     "actual": [
+      true,
+      "none",
+      null
+     ]
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] 재시작이 정상 종료한다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "ok": true,
+      "result": {
+       "applied": false,
+       "restart": true
+      },
+      "instance_id": "01RV6B8469DD7F164C3192362F"
+     }
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] 외부 상태(tree OID)로 복원: 커밋 1개, 원격 ref == WIP, 다음 임대(세대 2)",
+     "status": "PASS",
+     "expected": [
+      "1",
+      "d4039e8453a9d9460b130faf51ee0cb52d166033",
+      "leased",
+      2
+     ],
+     "actual": [
+      "1",
+      "d4039e8453a9d9460b130faf51ee0cb52d166033",
+      "leased",
+      2
+     ]
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] WIP 커밋에 A의 작업 파일이 들어 있다",
+     "status": "PASS",
+     "expected": [
+      "print('work')",
+      "n"
+     ],
+     "actual": [
+      "print('work')",
+      "n"
+     ]
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] 커밋 tree == 정지 확인 tree",
+     "status": "PASS",
+     "expected": "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+     "actual": "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] 원격이 수락한 푸시는 데몬 보존 자격 하나",
+     "status": "PASS",
+     "expected": [
+      [
+       "preserve_credential",
+       "01RV50A27EF95F0C4A57AA5F2A"
+      ]
+     ],
+     "actual": [
+      [
+       "preserve_credential",
+       "01RV50A27EF95F0C4A57AA5F2A"
+      ]
+     ]
+    },
+    {
+     "name": "[WIP 커밋 직후 강제 종료] 처리 도중 끝난 신호 파일의 재전달은 이전 세대로서 거부(R-11)이고 상태 불변",
+     "status": "PASS",
+     "expected": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      2,
+      "leased"
+     ],
+     "actual": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      2,
+      "leased"
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "강제 종료는 SIGKILL(커널이 프로세스를 즉시 없앰)이다. 전원 차단·디스크 캐시 유실은 시험하지 않았다(fsync는 호출하지만 하드웨어까지 확인하지 못했다)",
+    "A는 벤더 CLI가 아니라 스크립트 프로세스(standin)다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R5",
+   "test_id": "duplicate-run-prevented",
+   "title": "중복 실행",
+   "status": "PASS",
+   "seconds": 4.7,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "동시 인스턴스는 별도 OS 프로세스"
+   ],
+   "checks": [
+    {
+     "name": "인스턴스 1이 임대 잠금을 쥐고 있다(holder가 기록됨, 아직 임대 없음)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "holder": "01RV8B8A876122AE479786E8B7"
+     }
+    },
+    {
+     "name": "인스턴스 2: 잠금을 못 얻어 lock_acquired가 거짓, 임대 없음",
+     "status": "PASS",
+     "expected": [
+      [
+       "lock_acquired"
+      ],
+      0
+     ],
+     "actual": [
+      [
+       "lock_acquired"
+      ],
+      0
+     ]
+    },
+    {
+     "name": "인스턴스 1은 임대를 낸다: 세대 1, outbox 1행, 발송 1건",
+     "status": "PASS",
+     "expected": [
+      1,
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "name": "잠금은 풀려 있다",
+     "status": "PASS",
+     "expected": null,
+     "actual": null
+    },
+    {
+     "name": "두 인스턴스는 서로 다른 프로세스 id였다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "동시에 뜬 다섯 인스턴스가 같은 과제 임대를 시도: 세대 1, outbox 1행, 발송 1건, envelope_id 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      1,
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "name": "임대 기록은 하나이고 잠금은 풀려 있다",
+     "status": "PASS",
+     "expected": [
+      1,
+      null
+     ],
+     "actual": [
+      1,
+      null
+     ]
+    },
+    {
+     "name": "잠금을 쥔 인스턴스를 강제 종료하면 잠금 행이 남는다(커널 flock은 풀렸지만 임대 잠금 행은 holder가 죽은 인스턴스)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "holder": "01RVFA943CFCED82471280B39B"
+     }
+    },
+    {
+     "name": "새 인스턴스: 다른 holder의 잠금 때문에 임대 못 냄(lock_acquired 거짓), 세대 0",
+     "status": "PASS",
+     "expected": [
+      [
+       "lock_acquired"
+      ],
+      0
+     ],
+     "actual": [
+      [
+       "lock_acquired"
+      ],
+      0
+     ]
+    },
+    {
+     "name": "재시작이 낡은 잠금을 지운다(lock.restart)",
+     "status": "PASS",
+     "expected": null,
+     "actual": null
+    },
+    {
+     "name": "그 뒤 임대가 난다: 세대 1, 발송 1건",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "같은 task_id의 열린 PR 재사용(M12의 PR 부분)은 이 시험의 범위가 아니다(R5 통과 기준은 임대·봉투 하나)"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R6",
+   "test_id": "provider-scoped-switch",
+   "title": "전환 신호 실제 채널",
+   "status": "PARTIAL",
+   "seconds": 17.9,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)",
+    "claude CLI(시험 프록시, 더미 키)"
+   ],
+   "limits": [
+    "다른 CLI는 이 호스트에서 시험하지 못함(미확인)"
+   ],
+   "checks": [
+    {
+     "name": "[claude CLI, 프록시 429] 실제 CLI가 빌더 프로세스로 building이 되었다",
+     "status": "PASS",
+     "expected": [
+      "building",
+      "cli-builder-1"
+     ],
+     "actual": [
+      "building",
+      "cli-builder-1"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 429] 시험 프록시에 CLI의 모델 호출이 도달했다(상태 [429])",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "[claude CLI, 프록시 429] CLI의 구조화 출력(stream-json)에 제공자 HTTP 상태가 실린다: result.api_error_status",
+     "status": "PASS",
+     "expected": 429,
+     "actual": 429
+    },
+    {
+     "name": "[claude CLI, 프록시 429] 상태 채널에서 낸 전환 신호",
+     "status": "PASS",
+     "expected": [
+      "usage_limit"
+     ],
+     "actual": [
+      "usage_limit"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 429] 데몬이 신호를 받아 전환한다(building→handoff→leased, 두 번째 빌더)",
+     "status": "PASS",
+     "expected": [
+      [
+       "building",
+       "handoff",
+       "switch_signal"
+      ],
+      "leased",
+      "standin-builder-2"
+     ],
+     "actual": [
+      [
+       "building",
+       "handoff",
+       "switch_signal"
+      ],
+      "leased",
+      "standin-builder-2"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 429] 인계 뒤 CLI 프로세스 그룹이 남아 있지 않다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[claude CLI, 프록시 503 연속] 실제 CLI가 빌더 프로세스로 building이 되었다",
+     "status": "PASS",
+     "expected": [
+      "building",
+      "cli-builder-1"
+     ],
+     "actual": [
+      "building",
+      "cli-builder-1"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 503 연속] 시험 프록시에 CLI의 모델 호출이 도달했다(상태 [503])",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "[claude CLI, 프록시 503 연속] CLI의 구조화 출력(stream-json)에 제공자 HTTP 상태가 실린다: result.api_error_status",
+     "status": "PASS",
+     "expected": 503,
+     "actual": 503
+    },
+    {
+     "name": "[claude CLI, 프록시 503 연속] 상태 채널에서 낸 전환 신호",
+     "status": "PASS",
+     "expected": [
+      "service_unavailable"
+     ],
+     "actual": [
+      "service_unavailable"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 503 연속] 데몬이 신호를 받아 전환한다(building→handoff→leased, 두 번째 빌더)",
+     "status": "PASS",
+     "expected": [
+      [
+       "building",
+       "handoff",
+       "switch_signal"
+      ],
+      "leased",
+      "standin-builder-2"
+     ],
+     "actual": [
+      [
+       "building",
+       "handoff",
+       "switch_signal"
+      ],
+      "leased",
+      "standin-builder-2"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 503 연속] 인계 뒤 CLI 프로세스 그룹이 남아 있지 않다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[claude CLI, 프록시 401] 실제 CLI가 빌더 프로세스로 building이 되었다",
+     "status": "PASS",
+     "expected": [
+      "building",
+      "cli-builder-1"
+     ],
+     "actual": [
+      "building",
+      "cli-builder-1"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 401] 시험 프록시에 CLI의 모델 호출이 도달했다(상태 [401])",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "[claude CLI, 프록시 401] CLI의 구조화 출력(stream-json)에 제공자 HTTP 상태가 실린다: result.api_error_status",
+     "status": "PASS",
+     "expected": 401,
+     "actual": 401
+    },
+    {
+     "name": "[claude CLI, 프록시 401] 상태 채널에서 낸 전환 신호",
+     "status": "PASS",
+     "expected": [
+      "auth_failure"
+     ],
+     "actual": [
+      "auth_failure"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 401] 데몬이 신호를 받아 전환한다(building→handoff→leased, 두 번째 빌더)",
+     "status": "PASS",
+     "expected": [
+      [
+       "building",
+       "handoff",
+       "switch_signal"
+      ],
+      "leased",
+      "standin-builder-2"
+     ],
+     "actual": [
+      [
+       "building",
+       "handoff",
+       "switch_signal"
+      ],
+      "leased",
+      "standin-builder-2"
+     ]
+    },
+    {
+     "name": "[claude CLI, 프록시 401] 인계 뒤 CLI 프로세스 그룹이 남아 있지 않다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[음성] 정상 응답이지만 본문에 '429 rate limit'이 있는 CLI: 상태 채널은 신호를 내지 않는다",
+     "status": "PASS",
+     "expected": [
+      [],
+      0
+     ],
+     "actual": [
+      [],
+      0
+     ]
+    },
+    {
+     "name": "[음성] 자식 출력·시험 로그·수집 대상 403·저장소 API 401 출처의 신호는 전환시키지 않는다(실제 파일 큐 경로)",
+     "status": "PASS",
+     "expected": [
+      "building",
+      1,
+      []
+     ],
+     "actual": [
+      "building",
+      1,
+      []
+     ]
+    },
+    {
+     "name": "[스크립트 프로세스] 자식 출력 429 문구·수집 대상 403은 전환이 아니다(building 유지, 세대 1, 전이 0)",
+     "status": "PASS",
+     "expected": [
+      "building",
+      1,
+      []
+     ],
+     "actual": [
+      "building",
+      1,
+      []
+     ]
+    },
+    {
+     "name": "[Cursor CLI] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다 (설치 확인: 버전 2026.10.14-0f9edde)"
+    },
+    {
+     "name": "[grokbuild CLI] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "설치되어 있지 않다"
+    },
+    {
+     "name": "[Devin CLI] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다 (설치 확인: 버전 devin 3000.11.92 (7f4e64980e22))"
+    },
+    {
+     "name": "[Claude Code(GLM 프로필)] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "GLM 호환 주소와 별도 프로필이 이 호스트에 없다. 같은 CLI의 Anthropic 주소 프로필 결과를 대신 쓰지 않는다"
+    },
+    {
+     "name": "[대체 모델 경로(GPT 계열, 경로 미정)] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "사용할 CLI·API 경로가 정해지지 않았다(05 §1a)"
+    }
+   ],
+   "evidence": {
+    "claude_rows": [
+     {
+      "label": "claude CLI, 프록시 429",
+      "mode": "429",
+      "statuses": [
+       429
+      ],
+      "result": {
+       "api_error_status": 429,
+       "terminal_reason": "api_error",
+       "is_error": true
+      },
+      "signals": [
+       "usage_limit"
+      ],
+      "proxy_statuses": [
+       429
+      ]
+     },
+     {
+      "label": "claude CLI, 프록시 503 연속",
+      "mode": "503",
+      "statuses": [
+       503,
+       503,
+       503
+      ],
+      "result": {
+       "api_error_status": 503,
+       "terminal_reason": "api_error",
+       "is_error": true
+      },
+      "signals": [
+       "service_unavailable"
+      ],
+      "proxy_statuses": [
+       503
+      ]
+     },
+     {
+      "label": "claude CLI, 프록시 401",
+      "mode": "401",
+      "statuses": [
+       401
+      ],
+      "result": {
+       "api_error_status": 401,
+       "terminal_reason": "api_error",
+       "is_error": true
+      },
+      "signals": [
+       "auth_failure"
+      ],
+      "proxy_statuses": [
+       401
+      ]
+     }
+    ],
+    "runner_profile_for_unconfirmed": {
+     "limit_exit_codes": [],
+     "unavailable_exit_codes": [],
+     "note": "도달이 확인되지 않은 CLI는 provider_http_response·exit code 전환을 쓰지 않는다(그 CLI는 인증·버전 프로브로만 전환)"
+    }
+   },
+   "not_proven": [
+    "프록시는 CLI의 기본 주소 설정으로 가리킨 로컬 서버다. 실제 제공자가 내는 429·5xx 본문·헤더·재시도 지시와의 차이는 확인하지 못했다",
+    "확인한 것은 이 CLI 버전과 이 출력 모드(stream-json)에서의 상태 채널이다. 다른 모드·버전은 다시 확인해야 한다",
+    "claude CLI 밖의 실행 경로(Cursor, grokbuild, Devin, GLM 프로필, GPT Astra 경로)는 이 호스트에서 시험하지 못했다(§1b 확인표는 미확인으로 남는다)"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R7",
+   "test_id": "provider-scoped-switch",
+   "title": "종료 코드 확인표",
+   "status": "PARTIAL",
+   "seconds": 18.9,
+   "real_components": [
+    "claude CLI(시험 프록시)",
+    "시험 프록시"
+   ],
+   "limits": [
+    "다른 CLI는 미확인"
+   ],
+   "checks": [
+    {
+     "name": "[claude CLI] 프록시 429: result.api_error_status가 프록시가 돌려준 상태와 같다",
+     "status": "PASS",
+     "expected": [
+      429,
+      429
+     ],
+     "actual": [
+      429,
+      429
+     ]
+    },
+    {
+     "name": "[claude CLI] 프록시 500: result.api_error_status가 프록시가 돌려준 상태와 같다",
+     "status": "PASS",
+     "expected": [
+      500
+     ],
+     "actual": [
+      500
+     ]
+    },
+    {
+     "name": "[claude CLI] 프록시 503: result.api_error_status가 프록시가 돌려준 상태와 같다",
+     "status": "PASS",
+     "expected": [
+      503
+     ],
+     "actual": [
+      503
+     ]
+    },
+    {
+     "name": "[claude CLI] 프록시 529: result.api_error_status가 프록시가 돌려준 상태와 같다",
+     "status": "PASS",
+     "expected": [
+      529
+     ],
+     "actual": [
+      529
+     ]
+    },
+    {
+     "name": "[claude CLI] 프록시 401: result.api_error_status가 프록시가 돌려준 상태와 같다",
+     "status": "PASS",
+     "expected": [
+      401
+     ],
+     "actual": [
+      401
+     ]
+    },
+    {
+     "name": "[claude CLI] 프록시 403: result.api_error_status가 프록시가 돌려준 상태와 같다",
+     "status": "PASS",
+     "expected": [
+      403
+     ],
+     "actual": [
+      403
+     ]
+    },
+    {
+     "name": "[claude CLI] 프록시 400_quota: result.api_error_status가 프록시가 돌려준 상태와 같다",
+     "status": "PASS",
+     "expected": [
+      400
+     ],
+     "actual": [
+      400
+     ]
+    },
+    {
+     "name": "[claude CLI] 같은 상황을 두 번 돌린 429의 종료 코드가 같다(재현됨)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[claude CLI] runner_profile.limit_exit_codes는 한도 상황에만 나타난 종료 코드만 담는다(다른 실패와 겹치면 비어 있다)",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "[claude CLI] 확인되지 않은 종료 코드는 runner_profile에 넣지 않는다: 종료 코드가 한도·불가·인증·일반 실패에서 겹치면 두 목록 모두 비어 있다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[Cursor CLI] 종료 코드·구조화 오류 확인",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다"
+    },
+    {
+     "name": "[grokbuild CLI] 종료 코드·구조화 오류 확인",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "설치되어 있지 않다"
+    },
+    {
+     "name": "[Devin CLI] 종료 코드·구조화 오류 확인",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다"
+    },
+    {
+     "name": "[Claude Code(GLM 프로필)] 종료 코드·구조화 오류 확인",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "GLM 호환 주소와 별도 프로필이 이 호스트에 없다. 같은 CLI의 Anthropic 주소 프로필 결과를 대신 쓰지 않는다"
+    },
+    {
+     "name": "[대체 모델 경로(GPT 계열, 경로 미정)] 종료 코드·구조화 오류 확인",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "사용할 CLI·API 경로가 정해지지 않았다(05 §1a)"
+    }
+   ],
+   "evidence": {
+    "exit_code_table": {
+     "cli-claude": {
+      "label": "claude CLI",
+      "installed": true,
+      "version": "2.1.290 (Claude Code)",
+      "exit_codes": {
+       "codes_by_situation": {
+        "429": [
+         1
+        ],
+        "500": [
+         1
+        ],
+        "503": [
+         1
+        ],
+        "529": [
+         1
+        ],
+        "401": [
+         1
+        ],
+        "403": [
+         1
+        ],
+        "400_quota": [
+         1
+        ],
+        "ok": [
+         0
+        ],
+        "connection_refused": [
+         1
+        ],
+        "local_usage_error": [
+         1
+        ]
+       },
+       "limit_exit_codes": [],
+       "unavailable_exit_codes": [],
+       "confirmed": false
+      },
+      "situations": {
+       "429": [
+        {
+         "rc": 1,
+         "api_error_status": 429,
+         "retry_statuses": [
+          429
+         ],
+         "wall_s": 1.54
+        },
+        {
+         "rc": 1,
+         "api_error_status": 429,
+         "retry_statuses": [
+          429
+         ],
+         "wall_s": 1.58
+        }
+       ],
+       "500": [
+        {
+         "rc": 1,
+         "api_error_status": 500,
+         "retry_statuses": [
+          500,
+          500,
+          500
+         ],
+         "wall_s": 4.49
+        }
+       ],
+       "503": [
+        {
+         "rc": 1,
+         "api_error_status": 503,
+         "retry_statuses": [
+          503,
+          503,
+          503
+         ],
+         "wall_s": 4.19
+        }
+       ],
+       "529": [
+        {
+         "rc": 1,
+         "api_error_status": 529,
+         "retry_statuses": [
+          529,
+          529
+         ],
+         "wall_s": 2.32
+        }
+       ],
+       "401": [
+        {
+         "rc": 1,
+         "api_error_status": 401,
+         "retry_statuses": [
+          401
+         ],
+         "wall_s": 0.93
+        }
+       ],
+       "403": [
+        {
+         "rc": 1,
+         "api_error_status": 403,
+         "retry_statuses": [],
+         "wall_s": 0.56
+        }
+       ],
+       "400_quota": [
+        {
+         "rc": 1,
+         "api_error_status": 400,
+         "retry_statuses": [],
+         "wall_s": 0.66
+        }
+       ],
+       "ok": [
+        {
+         "rc": 0,
+         "api_error_status": null,
+         "retry_statuses": [],
+         "wall_s": 0.48
+        }
+       ],
+       "connection_refused": [
+        {
+         "rc": 1,
+         "api_error_status": null,
+         "retry_statuses": [
+          null
+         ],
+         "wall_s": 0.93
+        }
+       ],
+       "local_usage_error": [
+        {
+         "rc": 1,
+         "api_error_status": null,
+         "retry_statuses": [],
+         "wall_s": 0.12
+        }
+       ]
+      },
+      "status_channel": "stream-json: system/api_retry.error_status, result.api_error_status"
+     },
+     "cli-cursor": {
+      "label": "Cursor CLI",
+      "installed": true,
+      "version": "2026.10.14-0f9edde",
+      "exit_codes": null,
+      "unconfirmed_reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다"
+     },
+     "cli-grokbuild": {
+      "label": "grokbuild CLI",
+      "installed": false,
+      "version": null,
+      "exit_codes": null,
+      "unconfirmed_reason": "설치되어 있지 않다"
+     },
+     "cli-devin": {
+      "label": "Devin CLI",
+      "installed": true,
+      "version": "devin 3000.11.92 (7f4e64980e22)",
+      "exit_codes": null,
+      "unconfirmed_reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다"
+     },
+     "cli-claude-glm": {
+      "label": "Claude Code(GLM 프로필)",
+      "installed": false,
+      "version": null,
+      "exit_codes": null,
+      "unconfirmed_reason": "GLM 호환 주소와 별도 프로필이 이 호스트에 없다. 같은 CLI의 Anthropic 주소 프로필 결과를 대신 쓰지 않는다"
+     },
+     "cli-gpt-route": {
+      "label": "대체 모델 경로(GPT 계열, 경로 미정)",
+      "installed": false,
+      "version": null,
+      "exit_codes": null,
+      "unconfirmed_reason": "사용할 CLI·API 경로가 정해지지 않았다(05 §1a)"
+     }
+    }
+   },
+   "not_proven": [
+    "종료 코드는 시험 프록시가 만든 상황에서 얻은 값이다. 공식 문서의 종료 코드 표와 대조하지 않았다",
+    "§1b 확인표의 '모델 제공자 HTTP 응답을 데몬이 볼 수 있는 채널'은 claude CLI의 stream-json 출력(이 버전)만 확인되었다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R8",
+   "test_id": null,
+   "title": "반송 재개·결정 관문",
+   "status": "PASS",
+   "seconds": 2.5,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님",
+    "관측(CI·리뷰·결정 기록)은 도구가 넣은 입력"
+   ],
+   "checks": [
+    {
+     "name": "merge=[D-MOCK-X] 미기록, start=[] → 시작은 막히지 않는다",
+     "status": "PASS",
+     "expected": "queued",
+     "actual": "queued"
+    },
+    {
+     "name": "작성·리뷰까지 진행 → merge_wait(decision_pending)",
+     "status": "PASS",
+     "expected": [
+      "merge_wait",
+      "decision_pending"
+     ],
+     "actual": [
+      "merge_wait",
+      "decision_pending"
+     ]
+    },
+    {
+     "name": "결정 기록 뒤 decision_recorded → merge_wait(ready)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "merge_wait",
+        "merge_wait",
+        "decision_recorded"
+       ]
+      ],
+      "ready"
+     ],
+     "actual": [
+      [
+       [
+        "merge_wait",
+        "merge_wait",
+        "decision_recorded"
+       ]
+      ],
+      "ready"
+     ]
+    },
+    {
+     "name": "모든 단계에서 병합 호출 0건(원격에 기록된 병합 쓰기·task 브랜치 밖 쓰기 없음)",
+     "status": "PASS",
+     "expected": [
+      [],
+      0
+     ],
+     "actual": [
+      [],
+      0
+     ]
+    },
+    {
+     "name": "verdict_requested → returned(R-02)",
+     "status": "PASS",
+     "expected": [
+      "returned",
+      [
+       "R-02"
+      ]
+     ],
+     "actual": [
+      "returned",
+      [
+       "R-02"
+      ]
+     ]
+    },
+    {
+     "name": "resolution_ref 없는 해소 기록은 받지 않는다",
+     "status": "PASS",
+     "expected": [
+      [],
+      "returned"
+     ],
+     "actual": [
+      [],
+      "returned"
+     ]
+    },
+    {
+     "name": "owner_resolved → queued(attempt+1)",
+     "status": "PASS",
+     "expected": [
+      "queued",
+      2
+     ],
+     "actual": [
+      "queued",
+      2
+     ]
+    },
+    {
+     "name": "다음 임대는 새 토큰·새 브랜치(attempt 2)",
+     "status": "PASS",
+     "expected": [
+      2,
+      "task/T-MOCK-BASIC-a2"
+     ],
+     "actual": [
+      2,
+      "task/T-MOCK-BASIC-a2"
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "CI·리뷰·결정 기록 입력은 시험 도구가 관측 계층에 직접 넣은 것이다(실제 CI·리뷰 서비스 없음). 이 시험이 보는 것은 같은 규칙이 실제 상태 저장소·프로세스에서도 같은 전이를 낸다는 것이다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R9",
+   "test_id": "hard-stop-heartbeating-job",
+   "title": "강제 종료 기한",
+   "status": "PARTIAL",
+   "seconds": 13.3,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)",
+    "claude CLI(시험 프록시, 변형)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님",
+    "TTL·grace 경과는 시계 offset으로 만든다(대기 아님)"
+   ],
+   "checks": [
+    {
+     "name": "중단 지시 직후: 상태는 building(전이는 stop 요청), SIGTERM을 무시한 프로세스는 살아 있다",
+     "status": "PASS",
+     "expected": [
+      "building",
+      true
+     ],
+     "actual": [
+      "building",
+      true
+     ]
+    },
+    {
+     "name": "기한(grace_s) 전에는 하트비트가 계속 수락되고 building이 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "수락된 하트비트": 24,
+      "남은 초": 11
+     }
+    },
+    {
+     "name": "grace_s 경과: hard_stop_deadline → returned(R-07), 임대 종료(expired)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "building",
+        "returned",
+        "hard_stop_deadline"
+       ]
+      ],
+      [
+       "R-07"
+      ],
+      "expired"
+     ],
+     "actual": [
+      [
+       [
+        "building",
+        "returned",
+        "hard_stop_deadline"
+       ]
+      ],
+      [
+       "R-07"
+      ],
+      "expired"
+     ]
+    },
+    {
+     "name": "프로세스 그룹 종료·쓰기 자격 회수·토큰 회수가 기록된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "계속 하트비트를 보내던 실제 프로세스가 사라졌다(종료 신호 -9, 그룹 남은 구성원 0)",
+     "status": "PASS",
+     "expected": [
+      true,
+      -9,
+      0
+     ],
+     "actual": [
+      true,
+      -9,
+      0
+     ]
+    },
+    {
+     "name": "쓰기 자격은 원격 기록에서도 회수(원격이 revoked로 거절)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "죽기 직전에 쓴 하트비트가 남아 있었다면 모두 late로 거부된다(수락 0건)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": []
+    },
+    {
+     "name": "그룹이 죽은 뒤에는 새 하트비트 파일이 오지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "데몬 보존 없음(daemon_preserve=false): 커밋·푸시 기록 0, 원격에 task 브랜치 없음",
+     "status": "PASS",
+     "expected": [
+      0,
+      0,
+      []
+     ],
+     "actual": [
+      0,
+      0,
+      []
+     ]
+    },
+    {
+     "name": "그 뒤의 봉투(결과·푸시 요청·하트비트)는 late_envelope_rejected(R-11)",
+     "status": "PASS",
+     "expected": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ]
+     ],
+     "actual": [
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ],
+      [
+       "late_envelope_rejected",
+       "R-11"
+      ]
+     ]
+    },
+    {
+     "name": "상태 returned·임대 불변",
+     "status": "PASS",
+     "expected": [
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": "R-07",
+        "state": "returned",
+        "stop_requested_at": 1792065895,
+        "task_id": "T-MOCK-OTHER"
+       },
+       "lease_record": {
+        "base_sha": "67d3069bec288342bb747182dd05508ab58a05eb",
+        "branch": "task/T-MOCK-OTHER-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069616,
+        "fencing_token": 1,
+        "issued_at": 1792065895,
+        "last_heartbeat_at": 1792066016,
+        "lease_generation": 1,
+        "lease_id": "01RV3275069DA2B64FDD8F4E2A",
+        "runner": "standin-runner-1",
+        "status": "expired",
+        "task_id": "T-MOCK-OTHER"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065895,
+         "envelope_id": "01RV8F6E841883114DE4A251D2",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV3275069DA2B64FDD8F4E2A",
+         "sent_at": 1792065895,
+         "status": "sent",
+         "task_id": "T-MOCK-OTHER",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-OTHER|1|signal|051C1DFE3DA94C48B6836C60A1": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|0522D645251A4477965C540B2C": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|0BECCC4F02AC4250BEC101482E": {
+         "first_seen_at": 1792065978,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|159D87FEA4B9443FA74F784FB3": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|1EAFC77375A443549EF06B51EE": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|312D14F3E56D4427AC5C7E95EC": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|399499CE1AB54A36B01713FE8E": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|3A8B4C853AE24379971488DB80": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|438324483AD3490B81465EEBE4": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|43EC62C2188D4656A312CE1701": {
+         "first_seen_at": 1792065895,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|47F5838C89AA4D2783DF6CF98B": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|573F3F43539945F885D42F65E7": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|5F2AB119FD874B19B55ADC1778": {
+         "first_seen_at": 1792066004,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|6571F5BAF80C43318F1031BA77": {
+         "first_seen_at": 1792065978,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|76C90603C187450781F23ECA16": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|78EC4A87450245968B4BC9A1F3": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|79468E53D9ED4E93B0E7131FED": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|7DACE58B3DEC42CAB0AE22EECB": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|7F4CC120F83A412B9532B27983": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|9C6ABCBE0C074AE98C5726BAEE": {
+         "first_seen_at": 1792066004,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|ADBB0BCC402D4CF8B28C04574F": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|AF7B31AD9E0D414A87770526A9": {
+         "first_seen_at": 1792065895,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|B22E960913764E72A87C5EE8ED": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|BAE98AECF15C4A46AB24831038": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|C8077CD59F454760B701D84906": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|DB0FDE9A177943DE9A80E9D0FE": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|EFDF288CB5A74CBFA1FB36A9C7": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|F0453BED6DB34D67A5E765014B": {
+         "first_seen_at": 1792065978,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|F5D0FEC5714B4F99953FAA539A": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|FEEE4AB7D1CA49C8A21A41A027": {
+         "first_seen_at": 1792066004,
+         "lease_generation": 1
+        }
+       },
+       "lease_generation": 1
+      },
+      []
+     ],
+     "actual": [
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": "R-07",
+        "state": "returned",
+        "stop_requested_at": 1792065895,
+        "task_id": "T-MOCK-OTHER"
+       },
+       "lease_record": {
+        "base_sha": "67d3069bec288342bb747182dd05508ab58a05eb",
+        "branch": "task/T-MOCK-OTHER-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069616,
+        "fencing_token": 1,
+        "issued_at": 1792065895,
+        "last_heartbeat_at": 1792066016,
+        "lease_generation": 1,
+        "lease_id": "01RV3275069DA2B64FDD8F4E2A",
+        "runner": "standin-runner-1",
+        "status": "expired",
+        "task_id": "T-MOCK-OTHER"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065895,
+         "envelope_id": "01RV8F6E841883114DE4A251D2",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV3275069DA2B64FDD8F4E2A",
+         "sent_at": 1792065895,
+         "status": "sent",
+         "task_id": "T-MOCK-OTHER",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-OTHER|1|signal|051C1DFE3DA94C48B6836C60A1": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|0522D645251A4477965C540B2C": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|0BECCC4F02AC4250BEC101482E": {
+         "first_seen_at": 1792065978,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|159D87FEA4B9443FA74F784FB3": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|1EAFC77375A443549EF06B51EE": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|312D14F3E56D4427AC5C7E95EC": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|399499CE1AB54A36B01713FE8E": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|3A8B4C853AE24379971488DB80": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|438324483AD3490B81465EEBE4": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|43EC62C2188D4656A312CE1701": {
+         "first_seen_at": 1792065895,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|47F5838C89AA4D2783DF6CF98B": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|573F3F43539945F885D42F65E7": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|5F2AB119FD874B19B55ADC1778": {
+         "first_seen_at": 1792066004,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|6571F5BAF80C43318F1031BA77": {
+         "first_seen_at": 1792065978,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|76C90603C187450781F23ECA16": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|78EC4A87450245968B4BC9A1F3": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|79468E53D9ED4E93B0E7131FED": {
+         "first_seen_at": 1792065998,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|7DACE58B3DEC42CAB0AE22EECB": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|7F4CC120F83A412B9532B27983": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|9C6ABCBE0C074AE98C5726BAEE": {
+         "first_seen_at": 1792066004,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|ADBB0BCC402D4CF8B28C04574F": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|AF7B31AD9E0D414A87770526A9": {
+         "first_seen_at": 1792065895,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|B22E960913764E72A87C5EE8ED": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|BAE98AECF15C4A46AB24831038": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|C8077CD59F454760B701D84906": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|DB0FDE9A177943DE9A80E9D0FE": {
+         "first_seen_at": 1792066016,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|EFDF288CB5A74CBFA1FB36A9C7": {
+         "first_seen_at": 1792065957,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|F0453BED6DB34D67A5E765014B": {
+         "first_seen_at": 1792065978,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|F5D0FEC5714B4F99953FAA539A": {
+         "first_seen_at": 1792065916,
+         "lease_generation": 1
+        },
+        "T-MOCK-OTHER|1|signal|FEEE4AB7D1CA49C8A21A41A027": {
+         "first_seen_at": 1792066004,
+         "lease_generation": 1
+        }
+       },
+       "lease_generation": 1
+      },
+      []
+     ]
+    },
+    {
+     "name": "그 뒤의 푸시 셋은 원격이 거부한다",
+     "status": "PASS",
+     "expected": [
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "protected_branch"
+      ]
+     ],
+     "actual": [
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "credential_revoked"
+      ],
+      [
+       "rejected",
+       "protected_branch"
+      ]
+     ]
+    },
+    {
+     "name": "끝난 임대의 작업 트리는 읽기 전용으로 남는다(04 §8)",
+     "status": "GAP",
+     "expected": "읽기 전용",
+     "actual": "쓰기 가능",
+     "note": "hard_stop_deadline 전이의 부수 효과에 worktree_readonly가 없어 코어는 작업 트리를 읽기 전용으로 만들지 않는다. R9의 통과 기준(프로세스 그룹 종료·자격 회수·뒤의 푸시·봉투 거부)에는 들어 있지 않다"
+    },
+    {
+     "name": "[실제 CLI] CLI의 모델 호출이 프록시에 붙잡혀 있고 프로세스는 살아 있다(하트비트를 보내는 어댑터와 함께)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "[실제 CLI] SIGTERM을 무시하며 하트비트를 보내는 실제 CLI의 강제 종료(grace_s 뒤 그룹 종료)",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "이 CLI는 SIGTERM에 스스로 종료했다(셸 trap으로 무시를 물려줘도 자체 핸들러가 이를 덮었다). grace_s 뒤 그룹 종료가 이 CLI를 끝낸 것이 아니므로 그 부분은 스크립트 프로세스(standin) 결과만 있다"
+    },
+    {
+     "name": "[실제 CLI] grace_s 경과: hard_stop_deadline → returned(R-07)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "building",
+        "returned",
+        "hard_stop_deadline"
+       ]
+      ],
+      [
+       "R-07"
+      ]
+     ],
+     "actual": [
+      [
+       [
+        "building",
+        "returned",
+        "hard_stop_deadline"
+       ]
+      ],
+      [
+       "R-07"
+      ]
+     ]
+    },
+    {
+     "name": "[실제 CLI] 실제 CLI 프로세스 그룹이 사라졌다(남은 구성원 0)",
+     "status": "PASS",
+     "expected": [
+      true,
+      0
+     ],
+     "actual": [
+      true,
+      0
+     ]
+    },
+    {
+     "name": "[실제 CLI] 쓰기 자격 회수(자격 저장소에 살아 있는 자격 없음)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "[실제 CLI] 그 뒤 도착한 봉투는 모두 late로 거부된다(수락 0건)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    }
+   ],
+   "evidence": {
+    "claude_survived_sigterm": false
+   },
+   "not_proven": [
+    "SIGTERM을 무시하고 하트비트를 보내는 동작은 스크립트 프로세스(standin)로 시험했다. 벤더 CLI의 같은 동작은 R9 실제 CLI 변형(있으면 별도 기록)에서 본다",
+    "중단 지시를 빌더에게 전달하는 SIGTERM은 어댑터(sender.request_stop)가 보냈다. 코어의 request_stop 효과는 시각만 기록하고 전달 호출을 하지 않는다"
+   ],
+   "findings": [
+    {
+     "name": "끝난 임대의 작업 트리는 읽기 전용으로 남는다(04 §8)",
+     "note": "hard_stop_deadline 전이의 부수 효과에 worktree_readonly가 없어 코어는 작업 트리를 읽기 전용으로 만들지 않는다. R9의 통과 기준(프로세스 그룹 종료·자격 회수·뒤의 푸시·봉투 거부)에는 들어 있지 않다"
+    }
+   ],
+   "error": null
+  },
+  {
+   "r": "R10",
+   "test_id": "usage-recorded-not-capped",
+   "title": "사용량 기록(상한 없음, U-05)",
+   "status": "PASS",
+   "seconds": 8.3,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)",
+    "claude CLI(시험 프록시)",
+    "시험 프록시 계량"
+   ],
+   "limits": [
+    "cost_units 단위 미정의, 금액은 기록 불가"
+   ],
+   "checks": [
+    {
+     "name": "실제 CLI 실행이 끝났고 프록시가 모델 호출을 계량했다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "calls": 1,
+      "tokens_metered": 2845,
+      "cli_reported_cost_usd": 0.011396
+     }
+    },
+    {
+     "name": "usage_record(세대 1)에 calls·wall_s·cost_units가 기록된다",
+     "status": "PASS",
+     "expected": [
+      1,
+      1,
+      2845
+     ],
+     "actual": [
+      1,
+      1,
+      2845
+     ]
+    },
+    {
+     "name": "기록 뒤 같은 과제의 새 임대(세대 2)가 막히지 않는다",
+     "status": "PASS",
+     "expected": [
+      "building",
+      2
+     ],
+     "actual": [
+      "building",
+      2
+     ]
+    },
+    {
+     "name": "누적 사용량이 10^9여도 기록되고 거부되지 않는다",
+     "status": "PASS",
+     "expected": [
+      1000000000,
+      1000000000,
+      1000000000
+     ],
+     "actual": [
+      1000000000,
+      1000000000,
+      1000000000
+     ]
+    },
+    {
+     "name": "새 임대(같은 과제 세대 2)가 막히지 않았다",
+     "status": "PASS",
+     "expected": [
+      "building",
+      2
+     ],
+     "actual": [
+      "building",
+      2
+     ]
+    },
+    {
+     "name": "같은 실패 재시도 한도는 그대로: 세 번째 시험 실패에서 R-06 반송(전환이 아니다)",
+     "status": "PASS",
+     "expected": [
+      [
+       "R-06"
+      ],
+      "returned",
+      3
+     ],
+     "actual": [
+      [
+       "R-06"
+      ],
+      "returned",
+      3
+     ]
+    },
+    {
+     "name": "다른 과제의 새 임대도 막히지 않는다(누적 사용량이 커도)",
+     "status": "PASS",
+     "expected": "leased",
+     "actual": "leased"
+    },
+    {
+     "name": "응답 없음 정지는 그대로: 하트비트 두 번 누락이면 R-08",
+     "status": "PASS",
+     "expected": [
+      [
+       "R-08"
+      ],
+      "returned"
+     ],
+     "actual": [
+      [
+       "R-08"
+      ],
+      "returned"
+     ]
+    },
+    {
+     "name": "기록이 실패해도 결과 봉투는 수락되고 재임대가 이어진다(경고와 재시도 항목만)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "building",
+      2,
+      [
+       "usage_record_failed_warning"
+      ]
+     ],
+     "actual": [
+      true,
+      "building",
+      2,
+      [
+       "usage_record_failed_warning"
+      ]
+     ]
+    },
+    {
+     "name": "재시도 항목이 남아 있고, 비동기 재시도가 값을 채운다",
+     "status": "PASS",
+     "expected": [
+      1,
+      1,
+      [
+       3,
+       9,
+       7
+      ]
+     ],
+     "actual": [
+      1,
+      1,
+      [
+       3,
+       9,
+       7
+      ]
+     ]
+    }
+   ],
+   "evidence": {
+    "metering": {
+     "calls": "프록시 계량",
+     "wall_s": "호스트 측정",
+     "cost_units": "프록시가 센 토큰 수(단위는 명세에 없다)",
+     "cost_amount": "기록 불가(프록시는 단가표를 모른다; 제공자 청구 대조는 월 1회 사람)",
+     "cli_self_reported_cost_usd_reference": 0.011396
+    }
+   },
+   "not_proven": [
+    "호출 수·토큰은 프록시를 거친 호출만 계량한다. 프록시를 거치지 않는 직접 호출·제공자 청구액과의 대조는 하지 않았다(사람이 월 1회, 05 §3)",
+    "cost_units의 단위는 명세에 정의가 없다. 이 시험은 프록시가 센 토큰 수를 넣었고 금액이 아니다",
+    "누적 10^9는 스크립트 프로세스가 결과 봉투에 적은 자기 보고 값이다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R11",
+   "test_id": "handoff-quiescent-before-preserve",
+   "title": "정지 확인 뒤 보존",
+   "status": "PASS",
+   "seconds": 14.5,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님",
+    "lsof 대신 /proc 검사"
+   ],
+   "checks": [
+    {
+     "name": "시작 전: 빌더 그룹이 실제로 쓰는 중(쓰기 핸들 > 0)이고 stop 요청을 무시한다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "기록 순서: stop < isolate < confirm_quiescent(quiescent) < preserve 커밋 < preserve 푸시",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "stop 결과: 기한 경과(grace_expired) — 프로세스가 요청을 무시했다",
+     "status": "PASS",
+     "expected": "grace_expired",
+     "actual": "grace_expired"
+    },
+    {
+     "name": "isolate가 프로세스 그룹을 실제로 종료(구성원 2 이상, 남은 것 0)",
+     "status": "PASS",
+     "expected": [
+      true,
+      0
+     ],
+     "actual": [
+      true,
+      0
+     ]
+    },
+    {
+     "name": "정지 확인 시점의 실제 파일 시스템 조건: 생존 프로세스 0, 쓰기 핸들 0",
+     "status": "PASS",
+     "expected": [
+      0,
+      0
+     ],
+     "actual": [
+      0,
+      0
+     ]
+    },
+    {
+     "name": "격리 뒤 mtime 불변, tree OID 두 번 일치, 둘 다 quiescent_tree_oid와 같다",
+     "status": "PASS",
+     "expected": [
+      1792065925377293420,
+      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5",
+      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
+     ],
+     "actual": [
+      1792065925377293420,
+      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5",
+      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
+     ]
+    },
+    {
+     "name": "보존 커밋의 tree OID == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": "0c365bb4ffc32d18425d88aca4e18a46f56c11f5",
+     "actual": "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
+    },
+    {
+     "name": "다른 세션에 남은 쓰기 프로세스의 격리 뒤 쓰기는 실제로 실패했고(EACCES) 보존본에 섞이지 않았다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "보존 커밋의 파일 내용 == 격리 시점 디스크의 내용(격리 뒤 쓰기 없음)",
+     "status": "PASS",
+     "expected": "tick 1455\n",
+     "actual": "tick 1455\n"
+    },
+    {
+     "name": "원격이 수락한 푸시는 데몬 보존 자격 하나뿐, 빌더 토큰·자격으로 푸시된 보존 커밋 0건",
+     "status": "PASS",
+     "expected": [
+      [
+       "preserve_credential",
+       "01RV97B09B9E00F240F4B2A2C0"
+      ]
+     ],
+     "actual": [
+      [
+       "preserve_credential",
+       "01RV97B09B9E00F240F4B2A2C0"
+      ]
+     ]
+    },
+    {
+     "name": "빌더의 (회수된) 자격으로는 지금 푸시해도 거부된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "그룹 밖에서 열린 파일로 계속 쓰는 프로세스: 정지 확인이 실패를 반복하다 handoff_blocked(시도 4회)",
+     "status": "PASS",
+     "expected": [
+      "handoff_blocked",
+      4
+     ],
+     "actual": [
+      "handoff_blocked",
+      4
+     ]
+    },
+    {
+     "name": "실패 사유에 열린 쓰기 핸들이 실제 /proc 검사로 잡혔다(open_write_handle)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      "mtime_changed",
+      "open_write_handle",
+      "tree_oid_changed"
+     ]
+    },
+    {
+     "name": "mtime 변화도 실제 파일 시스템에서 잡혔다(mtime_changed)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      "mtime_changed",
+      "open_write_handle",
+      "tree_oid_changed"
+     ]
+    },
+    {
+     "name": "정지 확인 전: 커밋·푸시 0건(로컬 브랜치 없음, 원격 불변, 수락된 푸시 0)",
+     "status": "PASS",
+     "expected": [
+      0,
+      {
+       "refs/heads/main": "e7dac79c09ff752a95ddb70723df28c3b459c0c3"
+      },
+      0
+     ],
+     "actual": [
+      0,
+      {
+       "refs/heads/main": "e7dac79c09ff752a95ddb70723df28c3b459c0c3"
+      },
+      0
+     ]
+    },
+    {
+     "name": "새 임대 없음: 세대 1, issue_lease 0건, 두 번째 빌더 inbox 비어 있음",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      []
+     ],
+     "actual": [
+      1,
+      0,
+      []
+     ]
+    },
+    {
+     "name": "원인 제거(프로세스 종료) 뒤 recovery_decision(retry): 정지 확인을 통과해 보존하고 다음 임대(세대 2)",
+     "status": "PASS",
+     "expected": [
+      "leased",
+      2,
+      1
+     ],
+     "actual": [
+      "leased",
+      2,
+      1
+     ]
+    },
+    {
+     "name": "보존 커밋의 tree OID == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": "111896f00743a40bdf9f6b9dacae8ddcb506bb97",
+     "actual": "111896f00743a40bdf9f6b9dacae8ddcb506bb97"
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "쓰기 금지 격리는 파일 권한(chmod)이다. 같은 사용자의 프로세스는 권한을 되돌릴 수 있으므로 격리만으로 쓰기를 막았다고 말하지 않는다: 이 시험에서 쓰기를 막은 것은 프로세스 그룹 종료와, 그룹 밖 프로세스에 대한 열린 핸들 검사(정지 확인 실패)였다",
+    "lsof는 이 호스트에 없다. /proc/<pid>/fd와 fdinfo 검사로 대신했다(동등 수단)",
+    "쓰는 프로세스는 벤더 CLI가 아니라 스크립트 프로세스(standin)다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R12",
+   "test_id": "duplicate-delivery-noop",
+   "title": "중복 전달 noop",
+   "status": "PASS",
+   "seconds": 3.1,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)",
+    "파일 큐",
+    "HTTP(로컬)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "파일 큐에서 같은 하트비트가 세 번 도착: 처음 하나만 수락, 나머지 둘은 noop(envelope_duplicate_delivery)",
+     "status": "PASS",
+     "expected": [
+      [
+       true,
+       false,
+       false
+      ],
+      [
+       [
+        "heartbeat",
+        null
+       ],
+       [
+        "envelope_duplicate_delivery",
+        null
+       ],
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ]
+     ],
+     "actual": [
+      [
+       true,
+       false,
+       false
+      ],
+      [
+       [
+        "heartbeat",
+        null
+       ],
+       [
+        "envelope_duplicate_delivery",
+        null
+       ],
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ]
+     ]
+    },
+    {
+     "name": "한 번 더 도착해도 상태 저장소(상태·임대·inbox_seen)는 그대로",
+     "status": "PASS",
+     "expected": {
+      "task_state": {
+       "attempt": 1,
+       "cancelled": false,
+       "consecutive_failed_tests": 0,
+       "decisions_recorded": [],
+       "return_code": null,
+       "state": "building",
+       "stop_requested_at": null,
+       "task_id": "T-MOCK-BASIC"
+      },
+      "lease_record": {
+       "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+       "branch": "task/T-MOCK-BASIC-a1",
+       "builder": "standin-builder-1",
+       "expires_at": 1792069531,
+       "fencing_token": 1,
+       "issued_at": 1792065931,
+       "last_heartbeat_at": 1792065931,
+       "lease_generation": 1,
+       "lease_id": "01RVA50AEA33927E492ABDB39B",
+       "runner": "standin-runner-1",
+       "status": "active",
+       "task_id": "T-MOCK-BASIC"
+      },
+      "outbox": [
+       {
+        "created_at": 1792065931,
+        "envelope_id": "01RV675301D334484BFB8A4521",
+        "envelope_kind": "instruction",
+        "lease_generation": 1,
+        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "sent_at": 1792065931,
+        "status": "sent",
+        "task_id": "T-MOCK-BASIC",
+        "void_reason": null
+       }
+      ],
+      "inbox_seen": {
+       "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
+        "first_seen_at": 1792065931,
+        "lease_generation": 1
+       },
+       "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
+        "first_seen_at": 1792065931,
+        "lease_generation": 1
+       }
+      },
+      "lease_generation": 1
+     },
+     "actual": {
+      "task_state": {
+       "attempt": 1,
+       "cancelled": false,
+       "consecutive_failed_tests": 0,
+       "decisions_recorded": [],
+       "return_code": null,
+       "state": "building",
+       "stop_requested_at": null,
+       "task_id": "T-MOCK-BASIC"
+      },
+      "lease_record": {
+       "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+       "branch": "task/T-MOCK-BASIC-a1",
+       "builder": "standin-builder-1",
+       "expires_at": 1792069531,
+       "fencing_token": 1,
+       "issued_at": 1792065931,
+       "last_heartbeat_at": 1792065931,
+       "lease_generation": 1,
+       "lease_id": "01RVA50AEA33927E492ABDB39B",
+       "runner": "standin-runner-1",
+       "status": "active",
+       "task_id": "T-MOCK-BASIC"
+      },
+      "outbox": [
+       {
+        "created_at": 1792065931,
+        "envelope_id": "01RV675301D334484BFB8A4521",
+        "envelope_kind": "instruction",
+        "lease_generation": 1,
+        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "sent_at": 1792065931,
+        "status": "sent",
+        "task_id": "T-MOCK-BASIC",
+        "void_reason": null
+       }
+      ],
+      "inbox_seen": {
+       "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
+        "first_seen_at": 1792065931,
+        "lease_generation": 1
+       },
+       "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
+        "first_seen_at": 1792065931,
+        "lease_generation": 1
+       }
+      },
+      "lease_generation": 1
+     }
+    },
+    {
+     "name": "처리한 뒤 파일을 옮기기 전에 데몬이 죽었다: 파일은 큐에 남고 처리 결과는 저장되어 있다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "재시작 뒤 같은 파일이 다시 전달되면 noop이고 상태는 첫 처리 뒤와 같다",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "branch": "task/T-MOCK-BASIC-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069532,
+        "fencing_token": 1,
+        "issued_at": 1792065931,
+        "last_heartbeat_at": 1792065932,
+        "lease_generation": 1,
+        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065931,
+         "envelope_id": "01RV675301D334484BFB8A4521",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RVA50AEA33927E492ABDB39B",
+         "sent_at": 1792065931,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|R12-HB2": {
+         "first_seen_at": 1792065932,
+         "lease_generation": 1
+        }
+       },
+       "lease_generation": 1
+      }
+     ],
+     "actual": [
+      [
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "branch": "task/T-MOCK-BASIC-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069532,
+        "fencing_token": 1,
+        "issued_at": 1792065931,
+        "last_heartbeat_at": 1792065932,
+        "lease_generation": 1,
+        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065931,
+         "envelope_id": "01RV675301D334484BFB8A4521",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RVA50AEA33927E492ABDB39B",
+         "sent_at": 1792065931,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|R12-HB2": {
+         "first_seen_at": 1792065932,
+         "lease_generation": 1
+        }
+       },
+       "lease_generation": 1
+      }
+     ]
+    },
+    {
+     "name": "결과 봉투는 처음 처리되어 building→pr_open",
+     "status": "PASS",
+     "expected": [
+      [
+       "building",
+       "pr_open",
+       "result_pr_opened"
+      ]
+     ],
+     "actual": [
+      [
+       "building",
+       "pr_open",
+       "result_pr_opened"
+      ]
+     ]
+    },
+    {
+     "name": "임대를 끝낸 결과 봉투의 재전달은 envelope_duplicate_delivery(noop)이고 late가 아니다, 상태 불변",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "pr_open",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "branch": "task/T-MOCK-BASIC-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069532,
+        "fencing_token": 1,
+        "issued_at": 1792065931,
+        "last_heartbeat_at": 1792065932,
+        "lease_generation": 1,
+        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "runner": "standin-runner-1",
+        "status": "completed",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065931,
+         "envelope_id": "01RV675301D334484BFB8A4521",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RVA50AEA33927E492ABDB39B",
+         "sent_at": 1792065931,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|result|B429C0C98A314DB68BEA8E1C09": {
+         "first_seen_at": 1792065932,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|R12-HB2": {
+         "first_seen_at": 1792065932,
+         "lease_generation": 1
+        }
+       },
+       "lease_generation": 1
+      }
+     ],
+     "actual": [
+      [
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "pr_open",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "branch": "task/T-MOCK-BASIC-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069532,
+        "fencing_token": 1,
+        "issued_at": 1792065931,
+        "last_heartbeat_at": 1792065932,
+        "lease_generation": 1,
+        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "runner": "standin-runner-1",
+        "status": "completed",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065931,
+         "envelope_id": "01RV675301D334484BFB8A4521",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RVA50AEA33927E492ABDB39B",
+         "sent_at": 1792065931,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|result|B429C0C98A314DB68BEA8E1C09": {
+         "first_seen_at": 1792065932,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
+         "first_seen_at": 1792065931,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|R12-HB2": {
+         "first_seen_at": 1792065932,
+         "lease_generation": 1
+        }
+       },
+       "lease_generation": 1
+      }
+     ]
+    },
+    {
+     "name": "사용량 기록은 처음 수락한 한 번뿐",
+     "status": "PASS",
+     "expected": 1,
+     "actual": 1
+    },
+    {
+     "name": "HTTP: 첫 요청은 응답이 늦어 클라이언트가 시간 초과, 같은 봉투 재시도는 noop(envelope_duplicate_delivery)로 응답",
+     "status": "PASS",
+     "expected": [
+      [
+       "timeout",
+       null
+      ],
+      [
+       "ok",
+       "envelope_duplicate_delivery"
+      ]
+     ],
+     "actual": [
+      [
+       "timeout",
+       null
+      ],
+      [
+       "ok",
+       "envelope_duplicate_delivery"
+      ]
+     ]
+    },
+    {
+     "name": "서버 기록: 첫 처리는 수락(heartbeat), 둘째는 noop, 상태 저장소의 inbox_seen에는 키 하나만 늘었다",
+     "status": "PASS",
+     "expected": [
+      [
+       "heartbeat",
+       "envelope_duplicate_delivery"
+      ],
+      1
+     ],
+     "actual": [
+      [
+       "heartbeat",
+       "envelope_duplicate_delivery"
+      ],
+      1
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "HTTP는 같은 호스트의 로컬 서버다. 네트워크 지연·재정렬·부분 전송은 확인하지 못했다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R13",
+   "test_id": "retry-new-idempotency-key",
+   "title": "재시도 새 키",
+   "status": "PASS",
+   "seconds": 8.1,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "[시험 실패 뒤 재임대] 상태 저장소의 lease_generation이 바뀐다(1→2)와 지시 봉투 envelope_id가 다르다",
+     "status": "PASS",
+     "expected": [
+      2,
+      true
+     ],
+     "actual": [
+      2,
+      true
+     ]
+    },
+    {
+     "name": "[시험 실패 뒤 재임대] 새 세대의 첫 봉투(first_heartbeat)는 수락된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[시험 실패 뒤 재임대] 발급 사유",
+     "status": "PASS",
+     "expected": "retry_failed_tests",
+     "actual": "retry_failed_tests"
+    },
+    {
+     "name": "[시험 실패 뒤 재임대] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 1,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "d9846dba7c97347d856a43c974c87b674f8fa7cc",
+        "branch": "task/T-MOCK-BASIC-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069535,
+        "fencing_token": 2,
+        "issued_at": 1792065935,
+        "last_heartbeat_at": 1792065935,
+        "lease_generation": 2,
+        "lease_id": "01RVE28ADBAE918540FBB899AF",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065934,
+         "envelope_id": "01RVDE6FDA5F1BAC43648D3EE6",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV292FE4D00476488E8EB60F",
+         "sent_at": 1792065934,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065935,
+         "envelope_id": "01RVE014E08274A54DE6B76027",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RVE28ADBAE918540FBB899AF",
+         "sent_at": 1792065935,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|result|BA4AB0F3626D4CC4BD6122BE25": {
+         "first_seen_at": 1792065935,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|B0A484C0A3C846889D13C681AC": {
+         "first_seen_at": 1792065934,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|2|signal|78AF56D42A3F4B29B78D9DA29D": {
+         "first_seen_at": 1792065935,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ],
+     "actual": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 1,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "d9846dba7c97347d856a43c974c87b674f8fa7cc",
+        "branch": "task/T-MOCK-BASIC-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069535,
+        "fencing_token": 2,
+        "issued_at": 1792065935,
+        "last_heartbeat_at": 1792065935,
+        "lease_generation": 2,
+        "lease_id": "01RVE28ADBAE918540FBB899AF",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065934,
+         "envelope_id": "01RVDE6FDA5F1BAC43648D3EE6",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV292FE4D00476488E8EB60F",
+         "sent_at": 1792065934,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065935,
+         "envelope_id": "01RVE014E08274A54DE6B76027",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RVE28ADBAE918540FBB899AF",
+         "sent_at": 1792065935,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|result|BA4AB0F3626D4CC4BD6122BE25": {
+         "first_seen_at": 1792065935,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|B0A484C0A3C846889D13C681AC": {
+         "first_seen_at": 1792065934,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|2|signal|78AF56D42A3F4B29B78D9DA29D": {
+         "first_seen_at": 1792065935,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ]
+    },
+    {
+     "name": "[시험 실패 뒤 재임대] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다",
+     "status": "PASS",
+     "expected": [
+      1,
+      2
+     ],
+     "actual": [
+      1,
+      2
+     ]
+    },
+    {
+     "name": "[반송 뒤 재개] 상태 저장소의 lease_generation이 바뀐다(1→2)와 지시 봉투 envelope_id가 다르다",
+     "status": "PASS",
+     "expected": [
+      2,
+      true
+     ],
+     "actual": [
+      2,
+      true
+     ]
+    },
+    {
+     "name": "[반송 뒤 재개] 새 세대의 첫 봉투(first_heartbeat)는 수락된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[반송 뒤 재개] 발급 사유",
+     "status": "PASS",
+     "expected": "from_queue",
+     "actual": "from_queue"
+    },
+    {
+     "name": "[반송 뒤 재개] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 2,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "2e39c6f64996afa03ef4f36955b72af32b450ef4",
+        "branch": "task/T-MOCK-BASIC-a2",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069537,
+        "fencing_token": 2,
+        "issued_at": 1792065937,
+        "last_heartbeat_at": 1792065937,
+        "lease_generation": 2,
+        "lease_id": "01RV8717612D1F1E4A76BCC861",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065936,
+         "envelope_id": "01RVA9A53216FB3D4162BD7026",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RVC934AFCDFA644B159F8E09",
+         "sent_at": 1792065936,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065937,
+         "envelope_id": "01RV65C0129EAE954E19822C1B",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV8717612D1F1E4A76BCC861",
+         "sent_at": 1792065937,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|result|10CF06F8C1404AFDB9D98E8A88": {
+         "first_seen_at": 1792065936,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|C592186FA0D54D5292410A030F": {
+         "first_seen_at": 1792065936,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|2|signal|D4FD4E7EC1494C6DB23FC5E327": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ],
+     "actual": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 2,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": null,
+        "task_id": "T-MOCK-BASIC"
+       },
+       "lease_record": {
+        "base_sha": "2e39c6f64996afa03ef4f36955b72af32b450ef4",
+        "branch": "task/T-MOCK-BASIC-a2",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069537,
+        "fencing_token": 2,
+        "issued_at": 1792065937,
+        "last_heartbeat_at": 1792065937,
+        "lease_generation": 2,
+        "lease_id": "01RV8717612D1F1E4A76BCC861",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-BASIC"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065936,
+         "envelope_id": "01RVA9A53216FB3D4162BD7026",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RVC934AFCDFA644B159F8E09",
+         "sent_at": 1792065936,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065937,
+         "envelope_id": "01RV65C0129EAE954E19822C1B",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV8717612D1F1E4A76BCC861",
+         "sent_at": 1792065937,
+         "status": "sent",
+         "task_id": "T-MOCK-BASIC",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-BASIC|1|result|10CF06F8C1404AFDB9D98E8A88": {
+         "first_seen_at": 1792065936,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|1|signal|C592186FA0D54D5292410A030F": {
+         "first_seen_at": 1792065936,
+         "lease_generation": 1
+        },
+        "T-MOCK-BASIC|2|signal|D4FD4E7EC1494C6DB23FC5E327": {
+         "first_seen_at": 1792065937,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ]
+    },
+    {
+     "name": "[반송 뒤 재개] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다",
+     "status": "PASS",
+     "expected": [
+      1,
+      2
+     ],
+     "actual": [
+      1,
+      2
+     ]
+    },
+    {
+     "name": "[인계] 상태 저장소의 lease_generation이 바뀐다(1→2)와 지시 봉투 envelope_id가 다르다",
+     "status": "PASS",
+     "expected": [
+      2,
+      true
+     ],
+     "actual": [
+      2,
+      true
+     ]
+    },
+    {
+     "name": "[인계] 새 세대의 첫 봉투(first_heartbeat)는 수락된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[인계] 발급 사유",
+     "status": "PASS",
+     "expected": "handoff",
+     "actual": "handoff"
+    },
+    {
+     "name": "[인계] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": 1792065938,
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "lease_record": {
+        "base_sha": "650855b4d8894a52ac08202a51fad82a042f5692",
+        "branch": "task/T-MOCK-HANDOFF-a1",
+        "builder": "standin-builder-2",
+        "expires_at": 1792069544,
+        "fencing_token": 2,
+        "issued_at": 1792065944,
+        "last_heartbeat_at": 1792065944,
+        "lease_generation": 2,
+        "lease_id": "01RV9728F8E17DE34E6D9D1F54",
+        "runner": "standin-runner-2",
+        "status": "active",
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065938,
+         "envelope_id": "01RV07B2179D786F477A99473B",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV17CCF3D7D9034AEEA231FB",
+         "sent_at": 1792065938,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065944,
+         "envelope_id": "01RV120C2B191FFB47C3B0ABEF",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV9728F8E17DE34E6D9D1F54",
+         "sent_at": 1792065944,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-HANDOFF|1|signal|054E40C49677433D8796F63563": {
+         "first_seen_at": 1792065938,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|1|signal|84E306639BFA41AB9E4F0B796D": {
+         "first_seen_at": 1792065938,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|2|signal|D2FDE521202C4F5AB37A9D07F9": {
+         "first_seen_at": 1792065944,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ],
+     "actual": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": 1792065938,
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "lease_record": {
+        "base_sha": "650855b4d8894a52ac08202a51fad82a042f5692",
+        "branch": "task/T-MOCK-HANDOFF-a1",
+        "builder": "standin-builder-2",
+        "expires_at": 1792069544,
+        "fencing_token": 2,
+        "issued_at": 1792065944,
+        "last_heartbeat_at": 1792065944,
+        "lease_generation": 2,
+        "lease_id": "01RV9728F8E17DE34E6D9D1F54",
+        "runner": "standin-runner-2",
+        "status": "active",
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065938,
+         "envelope_id": "01RV07B2179D786F477A99473B",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV17CCF3D7D9034AEEA231FB",
+         "sent_at": 1792065938,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065944,
+         "envelope_id": "01RV120C2B191FFB47C3B0ABEF",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV9728F8E17DE34E6D9D1F54",
+         "sent_at": 1792065944,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-HANDOFF|1|signal|054E40C49677433D8796F63563": {
+         "first_seen_at": 1792065938,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|1|signal|84E306639BFA41AB9E4F0B796D": {
+         "first_seen_at": 1792065938,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|2|signal|D2FDE521202C4F5AB37A9D07F9": {
+         "first_seen_at": 1792065944,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ]
+    },
+    {
+     "name": "[인계] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다",
+     "status": "PASS",
+     "expected": [
+      1,
+      2
+     ],
+     "actual": [
+      1,
+      2
+     ]
+    },
+    {
+     "name": "[일시중단 뒤 복귀] 다음 빌더가 없으면 paused_no_builder, 돌아오면 leased",
+     "status": "PASS",
+     "expected": [
+      "paused_no_builder",
+      "leased"
+     ],
+     "actual": [
+      "paused_no_builder",
+      "leased"
+     ]
+    },
+    {
+     "name": "[일시중단 뒤 복귀] 상태 저장소의 lease_generation이 바뀐다(1→2)와 지시 봉투 envelope_id가 다르다",
+     "status": "PASS",
+     "expected": [
+      2,
+      true
+     ],
+     "actual": [
+      2,
+      true
+     ]
+    },
+    {
+     "name": "[일시중단 뒤 복귀] 새 세대의 첫 봉투(first_heartbeat)는 수락된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[일시중단 뒤 복귀] 발급 사유",
+     "status": "PASS",
+     "expected": "resume_paused",
+     "actual": "resume_paused"
+    },
+    {
+     "name": "[일시중단 뒤 복귀] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": 1792065940,
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "lease_record": {
+        "base_sha": "070ff21be17c7a9a9e459fcba83cd09afce7fa62",
+        "branch": "task/T-MOCK-HANDOFF-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069546,
+        "fencing_token": 2,
+        "issued_at": 1792065946,
+        "last_heartbeat_at": 1792065946,
+        "lease_generation": 2,
+        "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065940,
+         "envelope_id": "01RV448FCD3545BF4F59AC2925",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV965D18F33E9D42D69B1734",
+         "sent_at": 1792065940,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065946,
+         "envelope_id": "01RVA4A69FBA806540B89491A2",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
+         "sent_at": 1792065946,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-HANDOFF|1|signal|2A1300EDFE264E4D87CBFC3EBA": {
+         "first_seen_at": 1792065940,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|1|signal|5C70C1EE731E4EE3956E3C04A5": {
+         "first_seen_at": 1792065940,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|2|signal|6DD85FCB74A1404DB9B93B0460": {
+         "first_seen_at": 1792065946,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ],
+     "actual": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      {
+       "task_state": {
+        "attempt": 1,
+        "cancelled": false,
+        "consecutive_failed_tests": 0,
+        "decisions_recorded": [],
+        "return_code": null,
+        "state": "building",
+        "stop_requested_at": 1792065940,
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "lease_record": {
+        "base_sha": "070ff21be17c7a9a9e459fcba83cd09afce7fa62",
+        "branch": "task/T-MOCK-HANDOFF-a1",
+        "builder": "standin-builder-1",
+        "expires_at": 1792069546,
+        "fencing_token": 2,
+        "issued_at": 1792065946,
+        "last_heartbeat_at": 1792065946,
+        "lease_generation": 2,
+        "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
+        "runner": "standin-runner-1",
+        "status": "active",
+        "task_id": "T-MOCK-HANDOFF"
+       },
+       "outbox": [
+        {
+         "created_at": 1792065940,
+         "envelope_id": "01RV448FCD3545BF4F59AC2925",
+         "envelope_kind": "instruction",
+         "lease_generation": 1,
+         "lease_id": "01RV965D18F33E9D42D69B1734",
+         "sent_at": 1792065940,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        },
+        {
+         "created_at": 1792065946,
+         "envelope_id": "01RVA4A69FBA806540B89491A2",
+         "envelope_kind": "instruction",
+         "lease_generation": 2,
+         "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
+         "sent_at": 1792065946,
+         "status": "sent",
+         "task_id": "T-MOCK-HANDOFF",
+         "void_reason": null
+        }
+       ],
+       "inbox_seen": {
+        "T-MOCK-HANDOFF|1|signal|2A1300EDFE264E4D87CBFC3EBA": {
+         "first_seen_at": 1792065940,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|1|signal|5C70C1EE731E4EE3956E3C04A5": {
+         "first_seen_at": 1792065940,
+         "lease_generation": 1
+        },
+        "T-MOCK-HANDOFF|2|signal|6DD85FCB74A1404DB9B93B0460": {
+         "first_seen_at": 1792065946,
+         "lease_generation": 2
+        }
+       },
+       "lease_generation": 2
+      }
+     ]
+    },
+    {
+     "name": "[일시중단 뒤 복귀] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다",
+     "status": "PASS",
+     "expected": [
+      1,
+      2
+     ],
+     "actual": [
+      1,
+      2
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "재임대 경로는 모의 과제의 상태 기계 경로다. CI 실패 뒤 재임대(ci_failed→building)는 관측 계층 입력이 필요해 이 도구에서 시험하지 않았다(R8과 같은 관측 입력 경로)"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R14",
+   "test_id": "preserve-manifest-same-function",
+   "title": "보존 manifest",
+   "status": "PASS",
+   "seconds": 3.8,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "기준: 변경 없는 작업 트리의 tree OID는 기준 커밋의 tree와 같다",
+     "status": "PASS",
+     "expected": "8c246bb675443fa4dfddf6ed3246b76f9c7d6212",
+     "actual": "8c246bb675443fa4dfddf6ed3246b76f9c7d6212"
+    },
+    {
+     "name": "삭제된 추적 파일: 트리에서 항목이 없다(OID 변화)",
+     "status": "PASS",
+     "expected": "changes",
+     "actual": "changes"
+    },
+    {
+     "name": "미추적 파일 추가: 포함(OID 변화)",
+     "status": "PASS",
+     "expected": "changes",
+     "actual": "changes"
+    },
+    {
+     "name": "실행 권한 변경: 모드 100755(OID 변화)",
+     "status": "PASS",
+     "expected": "changes",
+     "actual": "changes"
+    },
+    {
+     "name": "심볼릭 링크: 120000, 대상 경로 문자열(OID 변화)",
+     "status": "PASS",
+     "expected": "changes",
+     "actual": "changes"
+    },
+    {
+     "name": "제외 경로(target/ node_modules/ build/ dist/ .venv/ __pycache__/ .env *.pem *.key *credentials* *secret*): OID 불변",
+     "status": "PASS",
+     "expected": "same",
+     "actual": "same"
+    },
+    {
+     "name": "빈 디렉터리: OID 불변",
+     "status": "PASS",
+     "expected": "same",
+     "actual": "same"
+    },
+    {
+     "name": ".gitignore 대상 파일은 트리에 들어가지 않는다(OID 불변)",
+     "status": "PASS",
+     "expected": "4b41e2bdd8ad28e29d7706f43c105d494b0fda39",
+     "actual": "4b41e2bdd8ad28e29d7706f43c105d494b0fda39"
+    },
+    {
+     "name": "정지 확인의 tree OID == 보존 커밋의 tree OID",
+     "status": "PASS",
+     "expected": "56880f5967588aa16992c77e8da8927174c2b965",
+     "actual": "56880f5967588aa16992c77e8da8927174c2b965"
+    },
+    {
+     "name": "커밋의 항목: 미추적 파일 포함, 실행 권한 100755, 심볼릭 링크 120000, .gitignore 포함",
+     "status": "PASS",
+     "expected": {
+      "src/keep.py": "100644",
+      "new_untracked.txt": "100644",
+      "run.sh": "100755",
+      "link": "120000",
+      ".gitignore": "100644"
+     },
+     "actual": {
+      "src/keep.py": "100644",
+      "new_untracked.txt": "100644",
+      "run.sh": "100755",
+      "link": "120000",
+      ".gitignore": "100644"
+     }
+    },
+    {
+     "name": "심볼릭 링크는 대상 경로 문자열로 저장된다",
+     "status": "PASS",
+     "expected": "src/keep.py",
+     "actual": "src/keep.py"
+    },
+    {
+     "name": "삭제한 추적 파일은 커밋에 없다",
+     "status": "PASS",
+     "expected": false,
+     "actual": false
+    },
+    {
+     "name": "제외 경로·무시 파일·빈 디렉터리 파일은 커밋에 없다",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "원격 ref == 보존 커밋",
+     "status": "PASS",
+     "expected": "776891e7072ae377d9145b9fcdf872479b36b3b1",
+     "actual": "776891e7072ae377d9145b9fcdf872479b36b3b1"
+    },
+    {
+     "name": "비밀값 모양 파일: handoff → returned(secret_detected, R-10)",
+     "status": "PASS",
+     "expected": [
+      "returned",
+      [
+       "R-10"
+      ]
+     ],
+     "actual": [
+      "returned",
+      [
+       "R-10"
+      ]
+     ]
+    },
+    {
+     "name": "보존 커밋·푸시 0건(로컬 브랜치 없음, 원격 불변, 수락된 푸시 0)",
+     "status": "PASS",
+     "expected": [
+      0,
+      {
+       "refs/heads/main": "478cb6daba5be3f21aade2d0b1e414b8d201cab5"
+      },
+      0
+     ],
+     "actual": [
+      0,
+      {
+       "refs/heads/main": "478cb6daba5be3f21aade2d0b1e414b8d201cab5"
+      },
+      0
+     ]
+    },
+    {
+     "name": "비밀값 원문은 저장소 기록에 남지 않는다",
+     "status": "PASS",
+     "expected": false,
+     "actual": false
+    },
+    {
+     "name": "새 임대 없음",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "트리 해시 함수가 하나라는 점(다른 해시 정의 없음)은 정적 검사가 본다. 여기서는 같은 함수의 결과가 실제 git 객체와 같다는 것을 확인했다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R15",
+   "test_id": "preserve-failure-recoverable-stop",
+   "title": "보존 실패 정리",
+   "status": "PASS",
+   "seconds": 14.8,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)",
+    "user namespace tmpfs(가득 찬 디스크)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님",
+    "원격 거부는 hook 제어 파일로 만든 것"
+   ],
+   "checks": [
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수",
+     "status": "PASS",
+     "expected": [
+      "handoff_blocked",
+      4
+     ],
+     "actual": [
+      "handoff_blocked",
+      4
+     ]
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 정지 사유(failure_log의 마지막 사건)",
+     "status": "PASS",
+     "expected": "index_lock",
+     "actual": "index_lock"
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 자격 세 가지 모두 회수 기록, 작업 트리 쓰기 금지 기록",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ],
+     "actual": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ]
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 자격 저장소에 살아 있는 자격 0",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 원격의 자격 기록에서도 세 자격 모두 revoked(저장소 쪽 회수 확인)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      [
+       "builder_token",
+       true
+      ],
+      [
+       "builder_write_credential",
+       true
+      ],
+      [
+       "preserve_credential",
+       true
+      ]
+     ]
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 작업 트리 쓰기 금지가 실제로 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 새 임대·봉투 0: 세대 1, issue_lease 0, 지시 봉투 하나뿐",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      1
+     ],
+     "actual": [
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 재시작·시간 경과로는 재개되지 않는다(recovery_decision 전)",
+     "status": "PASS",
+     "expected": [
+      [],
+      "handoff_blocked"
+     ],
+     "actual": [
+      [],
+      "handoff_blocked"
+     ]
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 복구: recovery_decision 뒤 isolate부터 재개해 끝낸다(새 임대, 세대 2)",
+     "status": "PASS",
+     "expected": [
+      [
+       "isolate"
+      ],
+      "leased",
+      2
+     ],
+     "actual": [
+      [
+       "isolate"
+      ],
+      "leased",
+      2
+     ]
+    },
+    {
+     "name": "[index.lock(남은 잠금 파일, 소유 프로세스 없음)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP",
+     "status": "PASS",
+     "expected": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "c75716932f4876dd64fe4b6b1a6d931ba9835f95"
+     ],
+     "actual": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "c75716932f4876dd64fe4b6b1a6d931ba9835f95"
+     ]
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수",
+     "status": "PASS",
+     "expected": [
+      "handoff_blocked",
+      4
+     ],
+     "actual": [
+      "handoff_blocked",
+      4
+     ]
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 정지 사유(failure_log의 마지막 사건)",
+     "status": "PASS",
+     "expected": "index_lock",
+     "actual": "index_lock"
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 자격 세 가지 모두 회수 기록, 작업 트리 쓰기 금지 기록",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ],
+     "actual": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ]
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 자격 저장소에 살아 있는 자격 0",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 원격의 자격 기록에서도 세 자격 모두 revoked(저장소 쪽 회수 확인)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      [
+       "builder_token",
+       true
+      ],
+      [
+       "builder_write_credential",
+       true
+      ],
+      [
+       "preserve_credential",
+       true
+      ]
+     ]
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 작업 트리 쓰기 금지가 실제로 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 새 임대·봉투 0: 세대 1, issue_lease 0, 지시 봉투 하나뿐",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      1
+     ],
+     "actual": [
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 재시작·시간 경과로는 재개되지 않는다(recovery_decision 전)",
+     "status": "PASS",
+     "expected": [
+      [],
+      "handoff_blocked"
+     ],
+     "actual": [
+      [],
+      "handoff_blocked"
+     ]
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 복구: recovery_decision 뒤 isolate부터 재개해 끝낸다(새 임대, 세대 2)",
+     "status": "PASS",
+     "expected": [
+      [
+       "isolate"
+      ],
+      "leased",
+      2
+     ],
+     "actual": [
+      [
+       "isolate"
+      ],
+      "leased",
+      2
+     ]
+    },
+    {
+     "name": "[index.lock(소유 프로세스가 살아 있음)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP",
+     "status": "PASS",
+     "expected": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "4c34ff9d3404129b8dc86842b3944c610b05547d"
+     ],
+     "actual": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "4c34ff9d3404129b8dc86842b3944c610b05547d"
+     ]
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수",
+     "status": "PASS",
+     "expected": [
+      "handoff_blocked",
+      null
+     ],
+     "actual": [
+      "handoff_blocked",
+      null
+     ]
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 정지 사유(failure_log의 마지막 사건)",
+     "status": "PASS",
+     "expected": "disk_full",
+     "actual": "disk_full"
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 자격 세 가지 모두 회수 기록, 작업 트리 쓰기 금지 기록",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ],
+     "actual": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ]
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 자격 저장소에 살아 있는 자격 0",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 원격의 자격 기록에서도 세 자격 모두 revoked(저장소 쪽 회수 확인)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      [
+       "builder_token",
+       true
+      ],
+      [
+       "builder_write_credential",
+       true
+      ]
+     ]
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 작업 트리 쓰기 금지가 실제로 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 새 임대·봉투 0: 세대 1, issue_lease 0, 지시 봉투 하나뿐",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      1
+     ],
+     "actual": [
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 재시작·시간 경과로는 재개되지 않는다(recovery_decision 전)",
+     "status": "PASS",
+     "expected": [
+      [],
+      "handoff_blocked"
+     ],
+     "actual": [
+      [],
+      "handoff_blocked"
+     ]
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 복구: recovery_decision 뒤 isolate부터 재개해 끝낸다(새 임대, 세대 2)",
+     "status": "PASS",
+     "expected": [
+      [
+       "isolate"
+      ],
+      "leased",
+      2
+     ],
+     "actual": [
+      [
+       "isolate"
+      ],
+      "leased",
+      2
+     ]
+    },
+    {
+     "name": "[가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP",
+     "status": "PASS",
+     "expected": [
+      1,
+      "ef1e2da66b935a9a0222b082ed852193fc0bc90f",
+      "1fea1ebae1260add3a38d7f2b81b14a260e490fd"
+     ],
+     "actual": [
+      1,
+      "ef1e2da66b935a9a0222b082ed852193fc0bc90f",
+      "1fea1ebae1260add3a38d7f2b81b14a260e490fd"
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수",
+     "status": "PASS",
+     "expected": [
+      "handoff_blocked",
+      4
+     ],
+     "actual": [
+      "handoff_blocked",
+      4
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 정지 사유(failure_log의 마지막 사건)",
+     "status": "PASS",
+     "expected": "preserve_push_failed",
+     "actual": "preserve_push_failed"
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 자격 세 가지 모두 회수 기록, 작업 트리 쓰기 금지 기록",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ],
+     "actual": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 자격 저장소에 살아 있는 자격 0",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 원격의 자격 기록에서도 세 자격 모두 revoked(저장소 쪽 회수 확인)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      [
+       "builder_token",
+       true
+      ],
+      [
+       "builder_write_credential",
+       true
+      ],
+      [
+       "preserve_credential",
+       true
+      ]
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 작업 트리 쓰기 금지가 실제로 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 새 임대·봉투 0: 세대 1, issue_lease 0, 지시 봉투 하나뿐",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      1
+     ],
+     "actual": [
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 재시작·시간 경과로는 재개되지 않는다(recovery_decision 전)",
+     "status": "PASS",
+     "expected": [
+      [],
+      "handoff_blocked"
+     ],
+     "actual": [
+      [],
+      "handoff_blocked"
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 복구: recovery_decision 뒤 preserve_remote부터 재개해 끝낸다(새 임대, 세대 2)",
+     "status": "PASS",
+     "expected": [
+      [
+       "preserve_remote"
+      ],
+      "leased",
+      2
+     ],
+     "actual": [
+      [
+       "preserve_remote"
+      ],
+      "leased",
+      2
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP",
+     "status": "PASS",
+     "expected": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "14f2a1318c3c0e9f84d99129efcb5a2c67eaf47c"
+     ],
+     "actual": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "14f2a1318c3c0e9f84d99129efcb5a2c67eaf47c"
+     ]
+    },
+    {
+     "name": "[네트워크 차단(닫힌 포트로 간 원격 주소)] 복구: 푸시만 다시 했다(새 커밋 없음)",
+     "status": "PASS",
+     "expected": 1,
+     "actual": 1
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수",
+     "status": "PASS",
+     "expected": [
+      "handoff_blocked",
+      1
+     ],
+     "actual": [
+      "handoff_blocked",
+      1
+     ]
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 정지 사유(failure_log의 마지막 사건)",
+     "status": "PASS",
+     "expected": "preserve_push_failed",
+     "actual": "preserve_push_failed"
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 자격 세 가지 모두 회수 기록, 작업 트리 쓰기 금지 기록",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ],
+     "actual": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ]
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 자격 저장소에 살아 있는 자격 0",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 원격의 자격 기록에서도 세 자격 모두 revoked(저장소 쪽 회수 확인)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      [
+       "builder_token",
+       true
+      ],
+      [
+       "builder_write_credential",
+       true
+      ],
+      [
+       "preserve_credential",
+       true
+      ]
+     ]
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 작업 트리 쓰기 금지가 실제로 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 새 임대·봉투 0: 세대 1, issue_lease 0, 지시 봉투 하나뿐",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      1
+     ],
+     "actual": [
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 재시작·시간 경과로는 재개되지 않는다(recovery_decision 전)",
+     "status": "PASS",
+     "expected": [
+      [],
+      "handoff_blocked"
+     ],
+     "actual": [
+      [],
+      "handoff_blocked"
+     ]
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 복구: recovery_decision 뒤 preserve_remote부터 재개해 끝낸다(새 임대, 세대 2)",
+     "status": "PASS",
+     "expected": [
+      [
+       "preserve_remote"
+      ],
+      "leased",
+      2
+     ],
+     "actual": [
+      [
+       "preserve_remote"
+      ],
+      "leased",
+      2
+     ]
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP",
+     "status": "PASS",
+     "expected": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "569fd5d3eb1531dd87704c9e2a353a726971a1d1"
+     ],
+     "actual": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "569fd5d3eb1531dd87704c9e2a353a726971a1d1"
+     ]
+    },
+    {
+     "name": "[권한 거부(원격이 보존 자격의 푸시를 거부)] 복구: 푸시만 다시 했다(새 커밋 없음)",
+     "status": "PASS",
+     "expected": 1,
+     "actual": 1
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수",
+     "status": "PASS",
+     "expected": [
+      "handoff_blocked",
+      1
+     ],
+     "actual": [
+      "handoff_blocked",
+      1
+     ]
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 정지 사유(failure_log의 마지막 사건)",
+     "status": "PASS",
+     "expected": "preserve_push_failed",
+     "actual": "preserve_push_failed"
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 자격 세 가지 모두 회수 기록, 작업 트리 쓰기 금지 기록",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ],
+     "actual": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true
+     ]
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 자격 저장소에 살아 있는 자격 0",
+     "status": "PASS",
+     "expected": [],
+     "actual": []
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 원격의 자격 기록에서도 세 자격 모두 revoked(저장소 쪽 회수 확인)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": [
+      [
+       "builder_token",
+       true
+      ],
+      [
+       "builder_write_credential",
+       true
+      ],
+      [
+       "preserve_credential",
+       true
+      ]
+     ]
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 작업 트리 쓰기 금지가 실제로 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 새 임대·봉투 0: 세대 1, issue_lease 0, 지시 봉투 하나뿐",
+     "status": "PASS",
+     "expected": [
+      1,
+      0,
+      1
+     ],
+     "actual": [
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 재시작·시간 경과로는 재개되지 않는다(recovery_decision 전)",
+     "status": "PASS",
+     "expected": [
+      [],
+      "handoff_blocked"
+     ],
+     "actual": [
+      [],
+      "handoff_blocked"
+     ]
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 복구: recovery_decision 뒤 preserve_remote부터 재개해 끝낸다(새 임대, 세대 2)",
+     "status": "PASS",
+     "expected": [
+      [
+       "preserve_remote"
+      ],
+      "leased",
+      2
+     ],
+     "actual": [
+      [
+       "preserve_remote"
+      ],
+      "leased",
+      2
+     ]
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP",
+     "status": "PASS",
+     "expected": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "02098baa54a1c0bb53b022a90f496c3c486ab815"
+     ],
+     "actual": [
+      1,
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4",
+      "02098baa54a1c0bb53b022a90f496c3c486ab815"
+     ]
+    },
+    {
+     "name": "[보호 브랜치 거부(원격이 그 브랜치를 보호)] 복구: 푸시만 다시 했다(새 커밋 없음)",
+     "status": "PASS",
+     "expected": 1,
+     "actual": 1
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "원격 푸시 실패 네 가지 중 '네트워크 차단'은 닫힌 로컬 포트로 간 주소이고 '권한·보호 규칙 거부'는 hook의 시험용 제어 파일이 만든 거부다. 실제 호스트의 거부 응답 형식은 확인하지 못했다",
+    "'가득 찬 디스크'는 새 git 객체가 쓰이는 디렉터리를 64 KiB tmpfs로 바꾼 것이다(같은 프로세스의 마운트 네임스페이스에서만). 저장소 전체가 찬 경우의 다른 실패 지점은 보지 않았다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R16",
+   "test_id": "daemon-restart-during-handoff",
+   "title": "인계 도중 데몬 재시작",
+   "status": "PASS",
+   "seconds": 17.4,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "[stop 단계] 실제 데몬 프로세스가 handoff:stop:start에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[stop 단계] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[stop 단계] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[stop 단계] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[stop 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "e8aa89d245d9a67648c04ec458cc5d01e926d7b3",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "e8aa89d245d9a67648c04ec458cc5d01e926d7b3",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[stop 단계] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[isolate 단계] 실제 데몬 프로세스가 handoff:isolate:start에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[isolate 단계] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[isolate 단계] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[isolate 단계] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[isolate 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "26ac2422463e22335cf32024328c08a742b7fb36",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "26ac2422463e22335cf32024328c08a742b7fb36",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[isolate 단계] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[confirm_quiescent 단계] 실제 데몬 프로세스가 handoff:confirm_quiescent:start에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[confirm_quiescent 단계] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[confirm_quiescent 단계] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[confirm_quiescent 단계] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[confirm_quiescent 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "6f7271ba6a0a49df3e17b3fb544ec942e8bb8767",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "6f7271ba6a0a49df3e17b3fb544ec942e8bb8767",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[confirm_quiescent 단계] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[preserve 단계(로컬 커밋 전)] 실제 데몬 프로세스가 handoff:preserve:start에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[preserve 단계(로컬 커밋 전)] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[preserve 단계(로컬 커밋 전)] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[preserve 단계(로컬 커밋 전)] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[preserve 단계(로컬 커밋 전)] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "0ce0ea71665e725ae66355f9e89752fc12512810",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "0ce0ea71665e725ae66355f9e89752fc12512810",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[preserve 단계(로컬 커밋 전)] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[로컬 커밋 직후·기록 전] 실제 데몬 프로세스가 handoff:preserve:after_local_commit_unrecorded에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[로컬 커밋 직후·기록 전] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[로컬 커밋 직후·기록 전] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[로컬 커밋 직후·기록 전] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[로컬 커밋 직후·기록 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "5a96132e4c327cb95040ad3e3f249805b5aea829",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "5a96132e4c327cb95040ad3e3f249805b5aea829",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[로컬 커밋 직후·기록 전] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[로컬 커밋 기록 뒤·푸시 전] 실제 데몬 프로세스가 handoff:preserve:after_local_commit_recorded에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[로컬 커밋 기록 뒤·푸시 전] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[로컬 커밋 기록 뒤·푸시 전] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[로컬 커밋 기록 뒤·푸시 전] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[로컬 커밋 기록 뒤·푸시 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "58abcaa3536e0d0307bfab691177ad27e6b24ef7",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "58abcaa3536e0d0307bfab691177ad27e6b24ef7",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[로컬 커밋 기록 뒤·푸시 전] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[푸시 직후·기록 전] 실제 데몬 프로세스가 handoff:preserve:after_push_unrecorded에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[푸시 직후·기록 전] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[푸시 직후·기록 전] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[푸시 직후·기록 전] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[푸시 직후·기록 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "ce860f5b4575eb8e704d0263aa23f4f8b78c5e93",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "ce860f5b4575eb8e704d0263aa23f4f8b78c5e93",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[푸시 직후·기록 전] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 실제 데몬 프로세스가 handoff:issue_next_lease:start에서 SIGKILL로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 재시작 사건이 한 번 기록되고 phase부터 재개되어 완료(세대 2, restart_count 1, remote_pushed)",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ],
+     "actual": [
+      true,
+      "leased",
+      2,
+      1,
+      "remote_pushed"
+     ]
+    },
+    {
+     "name": "[issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 세대는 마지막 issue_lease 한 번만 바뀌고 새 세대 지시 봉투는 하나",
+     "status": "PASS",
+     "expected": [
+      1,
+      [
+       2
+      ]
+     ],
+     "actual": [
+      1,
+      [
+       2
+      ]
+     ]
+    },
+    {
+     "name": "[issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 커밋 1개, 원격이 수락한 푸시 1건(이미 있는 것은 tree OID·ref로 확인해 다시 하지 않음)",
+     "status": "PASS",
+     "expected": [
+      1,
+      1
+     ],
+     "actual": [
+      1,
+      1
+     ]
+    },
+    {
+     "name": "[issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
+     "status": "PASS",
+     "expected": [
+      "5cb02799df91c04419b8e5a3fe3b7089c02f0a37",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ],
+     "actual": [
+      "5cb02799df91c04419b8e5a3fe3b7089c02f0a37",
+      "920cbc88c3a5da20347ebcc83a64df9422893cd4"
+     ]
+    },
+    {
+     "name": "[issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)",
+     "status": "PASS",
+     "expected": [
+      true,
+      true,
+      true
+     ],
+     "actual": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "name": "[두 번째 재시작] 첫 재시작도 인계 도중(preserve 시작)에 실제로 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": -9
+    },
+    {
+     "name": "[두 번째 재시작] 한도 초과: handoff_blocked",
+     "status": "PASS",
+     "expected": [
+      [
+       "handoff",
+       "handoff_blocked",
+       "daemon_restart_during_handoff"
+      ]
+     ],
+     "actual": [
+      [
+       "handoff",
+       "handoff_blocked",
+       "daemon_restart_during_handoff"
+      ]
+     ]
+    },
+    {
+     "name": "[두 번째 재시작] 자격 전부 회수·쓰기 금지·issue_lease 0·새 봉투 0",
+     "status": "PASS",
+     "expected": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true,
+      0,
+      1
+     ],
+     "actual": [
+      [
+       "builder_token",
+       "builder_write_credential",
+       "preserve_credential"
+      ],
+      true,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[두 번째 재시작] preserve_credential 발급은 더 늘지 않았다(재발급 1회 한도)",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[두 번째 재시작] 쓰기 금지가 실제로 유지된다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true
+    },
+    {
+     "name": "[phase 확인 불가] handoff_blocked, issue_lease 0, 세대 불변",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "handoff",
+        "handoff_blocked",
+        "daemon_restart_during_handoff"
+       ]
+      ],
+      0,
+      1
+     ],
+     "actual": [
+      [
+       [
+        "handoff",
+        "handoff_blocked",
+        "daemon_restart_during_handoff"
+       ]
+      ],
+      0,
+      1
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "재시작 시점은 데몬 코어의 fault 지점(SIGKILL로 죽는 위치)이다. 지점 사이에서 임의 시각에 죽는 경우는 R18의 저장 지점 훑기와 같은 방식으로만 보았다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R17",
+   "test_id": "envelope-id-distinct-events",
+   "title": "봉투 식별",
+   "status": "PASS",
+   "seconds": 2.8,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "실제 어댑터(스크립트 프로세스)가 보낸 하트비트 둘은 envelope_id가 다르다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "같은 세대·다른 envelope_id 둘은 각각 처리, 같은 envelope_id 재전송은 noop, envelope_id 없음은 거부(R-13)",
+     "status": "PASS",
+     "expected": [
+      [
+       "heartbeat",
+       null
+      ],
+      [
+       "heartbeat",
+       null
+      ],
+      [
+       "envelope_duplicate_delivery",
+       null
+      ],
+      [
+       "envelope_rejected_invalid",
+       "R-13"
+      ]
+     ],
+     "actual": [
+      [
+       "heartbeat",
+       null
+      ],
+      [
+       "heartbeat",
+       null
+      ],
+      [
+       "envelope_duplicate_delivery",
+       null
+      ],
+      [
+       "envelope_rejected_invalid",
+       "R-13"
+      ]
+     ]
+    },
+    {
+     "name": "전이 0건, inbox_seen에는 first_heartbeat와 하트비트 둘, 세 키",
+     "status": "PASS",
+     "expected": [
+      0,
+      3
+     ],
+     "actual": [
+      0,
+      3
+     ]
+    },
+    {
+     "name": "첫 signal이 인계를 시작하고 데몬이 isolate 시작 지점에서 죽었다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": "handoff"
+    },
+    {
+     "name": "죽은 데몬이 처리 중이던 첫 signal 파일의 재전달은 noop, 인계 중 같은 세대의 둘째 signal(다른 envelope_id)은 switch_signal_during_handoff(noop), 같은 envelope_id 재전송은 noop, envelope_id 없음은 R-13",
+     "status": "PASS",
+     "expected": [
+      [
+       "envelope_duplicate_delivery",
+       null
+      ],
+      [
+       "switch_signal_during_handoff",
+       null
+      ],
+      [
+       "envelope_duplicate_delivery",
+       null
+      ],
+      [
+       "envelope_rejected_invalid",
+       "R-13"
+      ]
+     ],
+     "actual": [
+      [
+       "envelope_duplicate_delivery",
+       null
+      ],
+      [
+       "switch_signal_during_handoff",
+       null
+      ],
+      [
+       "envelope_duplicate_delivery",
+       null
+      ],
+      [
+       "envelope_rejected_invalid",
+       "R-13"
+      ]
+     ]
+    },
+    {
+     "name": "전이 0건, 상태 handoff, 세대 1",
+     "status": "PASS",
+     "expected": [
+      [],
+      "handoff",
+      1
+     ],
+     "actual": [
+      [],
+      "handoff",
+      1
+     ]
+    },
+    {
+     "name": "재시작으로 인계가 끝나고 첫 signal은 building→handoff 한 번뿐",
+     "status": "PASS",
+     "expected": [
+      1,
+      "leased",
+      2
+     ],
+     "actual": [
+      1,
+      "leased",
+      2
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R18",
+   "test_id": "lease-issue-atomic-single-owner",
+   "title": "발급 원자성",
+   "status": "PASS",
+   "seconds": 15.7,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "SIGKILL 시험(전원 차단 아님)"
+   ],
+   "checks": [
+    {
+     "name": "[store:torn_write@0] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(none)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:torn_write@0] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:torn_write@0] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:torn_write@1] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(none)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:torn_write@1] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:torn_write@1] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:torn_write@2] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:torn_write@2] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:torn_write@2] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:torn_write@3] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:torn_write@3] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:torn_write@3] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:before_rename@0] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(none)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:before_rename@0] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:before_rename@0] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:before_rename@1] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(none)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:before_rename@1] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:before_rename@1] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:before_rename@2] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:before_rename@2] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:before_rename@2] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:before_rename@3] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 1
+     }
+    },
+    {
+     "name": "[store:before_rename@3] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:before_rename@3] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:after_rename@0] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(none)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 0
+     }
+    },
+    {
+     "name": "[store:after_rename@0] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:after_rename@0] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:after_rename@1] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 0
+     }
+    },
+    {
+     "name": "[store:after_rename@1] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:after_rename@1] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:after_rename@2] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 0
+     }
+    },
+    {
+     "name": "[store:after_rename@2] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:after_rename@2] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[store:after_rename@3] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 0
+     }
+    },
+    {
+     "name": "[store:after_rename@3] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[store:after_rename@3] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[issue_lease:staged] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(none)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 0
+     }
+    },
+    {
+     "name": "[issue_lease:staged] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[issue_lease:staged] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    },
+    {
+     "name": "[issue_lease:committed] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(all)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": {
+      "rc": -9,
+      "torn_temp_files": 0
+     }
+    },
+    {
+     "name": "[issue_lease:committed] 복구 뒤: 세대 1, 지시 봉투 하나(envelope_id 하나), 빌더 시작 1회, building",
+     "status": "PASS",
+     "expected": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ],
+     "actual": [
+      true,
+      1,
+      1,
+      1,
+      "building"
+     ]
+    },
+    {
+     "name": "[issue_lease:committed] 저장 파일에 낡은 임시 파일이 남지 않는다",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    }
+   ],
+   "evidence": {
+    "state_after_kill": {
+     "store:torn_write@0": "none",
+     "store:torn_write@1": "none",
+     "store:torn_write@2": "all",
+     "store:torn_write@3": "all",
+     "store:before_rename@0": "none",
+     "store:before_rename@1": "none",
+     "store:before_rename@2": "all",
+     "store:before_rename@3": "all",
+     "store:after_rename@0": "none",
+     "store:after_rename@1": "all",
+     "store:after_rename@2": "all",
+     "store:after_rename@3": "all",
+     "issue_lease:staged": "none",
+     "issue_lease:committed": "all"
+    }
+   },
+   "not_proven": [
+    "세대 증가의 단일 책임(issue_lease 한 곳)은 정적 검사가 본다. 여기서는 어느 저장 지점에서 죽어도 중간 상태가 없다는 것만 확인했다",
+    "SIGKILL 시험이다. 전원 차단 때 디스크가 쓰기 순서를 지키는지(fsync 의미)는 하드웨어·파일 시스템 몫이고 확인하지 못했다"
+   ],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R19",
+   "test_id": "restart-ttl-expired-no-resend",
+   "title": "발급 직후 중단 뒤 TTL 경과",
+   "status": "PASS",
+   "seconds": 1.4,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "TTL·grace 경과는 시계 offset으로 만든다(대기 아님)"
+   ],
+   "checks": [
+    {
+     "name": "발급 직후 강제 종료: 상태 leased, 세대 1, outbox pending, 발송 0",
+     "status": "PASS",
+     "expected": [
+      true,
+      "leased",
+      1,
+      "pending",
+      0
+     ],
+     "actual": [
+      true,
+      "leased",
+      1,
+      "pending",
+      0
+     ]
+    },
+    {
+     "name": "재시작: 정상 만료 전이(leased→queued, lease_expired)",
+     "status": "PASS",
+     "expected": [
+      [
+       "leased",
+       "queued",
+       "lease_expired"
+      ]
+     ],
+     "actual": [
+      [
+       "leased",
+       "queued",
+       "lease_expired"
+      ]
+     ]
+    },
+    {
+     "name": "pending은 void(expired), 재발송 0건(발송 기록·지시 파일 모두 없음)",
+     "status": "PASS",
+     "expected": [
+      [
+       "void",
+       "expired"
+      ],
+      0,
+      []
+     ],
+     "actual": [
+      [
+       "void",
+       "expired"
+      ],
+      0,
+      []
+     ]
+    },
+    {
+     "name": "자동 재발급 없음: 세대 1, 임대 expired, issue_lease 0건",
+     "status": "PASS",
+     "expected": [
+      1,
+      "expired",
+      0
+     ],
+     "actual": [
+      1,
+      "expired",
+      0
+     ]
+    },
+    {
+     "name": "다음 queued→leased가 새 세대(2)와 새 envelope_id를 낸다",
+     "status": "PASS",
+     "expected": [
+      2,
+      true,
+      [
+       "01RV96755C3955CF4A19929BB5"
+      ]
+     ],
+     "actual": [
+      2,
+      true,
+      [
+       "01RV96755C3955CF4A19929BB5"
+      ]
+     ]
+    },
+    {
+     "name": "두 번째 재시작은 새 임대를 그대로 둔다(발송 1건 유지)",
+     "status": "PASS",
+     "expected": [
+      "01RV96755C3955CF4A19929BB5"
+     ],
+     "actual": [
+      "01RV96755C3955CF4A19929BB5"
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R20",
+   "test_id": "restart-revoked-pending-void",
+   "title": "폐기된 pending",
+   "status": "PASS",
+   "seconds": 2.2,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "A 취소: 상태 cancelled, 임대 revoked, outbox는 아직 pending",
+     "status": "PASS",
+     "expected": [
+      "cancelled",
+      "revoked",
+      "pending"
+     ],
+     "actual": [
+      "cancelled",
+      "revoked",
+      "pending"
+     ]
+    },
+    {
+     "name": "A 재시작: 전이 없음, void 하나(revoked), 재발송 0건(발송 기록·지시 파일 없음), 세대 1",
+     "status": "PASS",
+     "expected": [
+      [],
+      [
+       "void_outbox"
+      ],
+      [
+       "void",
+       "revoked"
+      ],
+      0,
+      [],
+      1
+     ],
+     "actual": [
+      [],
+      [
+       "void_outbox"
+      ],
+      [
+       "void",
+       "revoked"
+      ],
+      0,
+      [],
+      1
+     ]
+    },
+    {
+     "name": "B 재임대 직후 강제 종료: 세대 2, 새 outbox 행 pending, 새 지시는 아직 나가지 않았다",
+     "status": "PASS",
+     "expected": [
+      true,
+      2,
+      "pending",
+      1
+     ],
+     "actual": [
+      true,
+      2,
+      "pending",
+      1
+     ]
+    },
+    {
+     "name": "B 폐기(현재 임대의 위반 신고): returned, 임대 revoked, outbox pending",
+     "status": "PASS",
+     "expected": [
+      "returned",
+      "revoked",
+      "pending"
+     ],
+     "actual": [
+      "returned",
+      "revoked",
+      "pending"
+     ]
+    },
+    {
+     "name": "B 재시작: 전이 없음, void(revoked) 하나, 재발송 0건(발송 1건 유지), 상태 returned",
+     "status": "PASS",
+     "expected": [
+      [],
+      [
+       "void_outbox"
+      ],
+      [
+       "void",
+       "revoked"
+      ],
+      1,
+      "returned"
+     ],
+     "actual": [
+      [],
+      [
+       "void_outbox"
+      ],
+      [
+       "void",
+       "revoked"
+      ],
+      1,
+      "returned"
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R21",
+   "test_id": "restart-valid-pending-resend",
+   "title": "유효 pending 재전송",
+   "status": "PASS",
+   "seconds": 1.7,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님",
+    "TTL·grace 경과는 시계 offset으로 만든다(대기 아님)"
+   ],
+   "checks": [
+    {
+     "name": "유효한 pending: 재시작에서 전이 없음, 같은 envelope_id로 재발송 한 번",
+     "status": "PASS",
+     "expected": [
+      [],
+      [
+       "send_envelope"
+      ],
+      [
+       "01RV023B735B2C8848E99593A0"
+      ]
+     ],
+     "actual": [
+      [],
+      [
+       "send_envelope"
+      ],
+      [
+       "01RV023B735B2C8848E99593A0"
+      ]
+     ]
+    },
+    {
+     "name": "실제 빌더 어댑터의 수신 측 검증(receiver_validation)이 통과한다",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "first_heartbeat로 leased→building",
+     "status": "PASS",
+     "expected": [
+      [
+       "leased",
+       "building",
+       "first_heartbeat"
+      ]
+     ],
+     "actual": [
+      [
+       "leased",
+       "building",
+       "first_heartbeat"
+      ]
+     ]
+    },
+    {
+     "name": "같은 지시가 두 번 도착해도 envelope_id가 같아 어댑터는 이미 시작한 것으로 본다(프로세스 1개)",
+     "status": "PASS",
+     "expected": [
+      2,
+      1
+     ],
+     "actual": [
+      2,
+      1
+     ]
+    },
+    {
+     "name": "그 지시에 대한 첫 하트비트의 중복 도착은 noop(envelope_duplicate_delivery), 전이 없음",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ],
+      []
+     ],
+     "actual": [
+      [
+       [
+        "envelope_duplicate_delivery",
+        null
+       ]
+      ],
+      []
+     ]
+    },
+    {
+     "name": "만료된 지시 봉투: 수신 측 검증이 실패한다(실행하지 않는다)",
+     "status": "PASS",
+     "expected": true,
+     "actual": true,
+     "detail": null
+    },
+    {
+     "name": "lease_invalid 결과는 late_envelope_rejected(R-11, noop), 상태 불변(leased)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      [],
+      "leased"
+     ],
+     "actual": [
+      [
+       [
+        "late_envelope_rejected",
+        "R-11"
+       ]
+      ],
+      [],
+      "leased"
+     ]
+    },
+    {
+     "name": "실행 없음: 작업 트리·프로세스·자격 발급이 생기지 않았다",
+     "status": "PASS",
+     "expected": [
+      [],
+      0,
+      []
+     ],
+     "actual": [
+      [],
+      0,
+      []
+     ]
+    }
+   ],
+   "evidence": {},
+   "not_proven": [],
+   "findings": [],
+   "error": null
+  },
+  {
+   "r": "R22",
+   "test_id": "restart-corrupt-record-returned",
+   "title": "손상 기록",
+   "status": "PASS",
+   "seconds": 4.1,
+   "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)"
+   ],
+   "limits": [
+    "빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님"
+   ],
+   "checks": [
+    {
+     "name": "[outbox 없이 lease_record만] 손상 분류: state_corrupted → returned(R-08)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "leased",
+        "returned",
+        "state_corrupted"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ],
+     "actual": [
+      [
+       [
+        "leased",
+        "returned",
+        "state_corrupted"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ]
+    },
+    {
+     "name": "[outbox 없이 lease_record만] 임대 revoked, 세대 불변, 발송 0건, issue_lease 0건",
+     "status": "PASS",
+     "expected": [
+      "revoked",
+      1,
+      0,
+      0
+     ],
+     "actual": [
+      "revoked",
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "[outbox 없이 lease_record만] 다시 재시작해도 자동 재발급 없음",
+     "status": "PASS",
+     "expected": [
+      [],
+      "returned",
+      1
+     ],
+     "actual": [
+      [],
+      "returned",
+      1
+     ]
+    },
+    {
+     "name": "[outbox 없이 lease_record만] owner_resolved → queued(attempt+1), 여기까지 issue_lease 0건",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "returned",
+        "queued",
+        "owner_resolved"
+       ]
+      ],
+      2,
+      0
+     ],
+     "actual": [
+      [
+       [
+        "returned",
+        "queued",
+        "owner_resolved"
+       ]
+      ],
+      2,
+      0
+     ]
+    },
+    {
+     "name": "[outbox 없이 lease_record만] queued→leased에서만 새 세대(2)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "queued",
+        "leased",
+        "lease_granted"
+       ]
+      ],
+      1,
+      2
+     ],
+     "actual": [
+      [
+       [
+        "queued",
+        "leased",
+        "lease_granted"
+       ]
+      ],
+      1,
+      2
+     ]
+    },
+    {
+     "name": "[outbox 세대 불일치] 손상 분류: state_corrupted → returned(R-08)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "leased",
+        "returned",
+        "state_corrupted"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ],
+     "actual": [
+      [
+       [
+        "leased",
+        "returned",
+        "state_corrupted"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ]
+    },
+    {
+     "name": "[outbox 세대 불일치] 임대 revoked, 세대 불변, 발송 0건, issue_lease 0건",
+     "status": "PASS",
+     "expected": [
+      "revoked",
+      1,
+      0,
+      0
+     ],
+     "actual": [
+      "revoked",
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "[outbox 세대 불일치] pending void(corrupt)",
+     "status": "PASS",
+     "expected": [
+      "void",
+      "corrupt"
+     ],
+     "actual": [
+      "void",
+      "corrupt"
+     ]
+    },
+    {
+     "name": "[outbox 세대 불일치] 다시 재시작해도 자동 재발급 없음",
+     "status": "PASS",
+     "expected": [
+      [],
+      "returned",
+      1
+     ],
+     "actual": [
+      [],
+      "returned",
+      1
+     ]
+    },
+    {
+     "name": "[outbox 세대 불일치] owner_resolved → queued(attempt+1), 여기까지 issue_lease 0건",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "returned",
+        "queued",
+        "owner_resolved"
+       ]
+      ],
+      2,
+      0
+     ],
+     "actual": [
+      [
+       [
+        "returned",
+        "queued",
+        "owner_resolved"
+       ]
+      ],
+      2,
+      0
+     ]
+    },
+    {
+     "name": "[outbox 세대 불일치] queued→leased에서만 새 세대(2)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "queued",
+        "leased",
+        "lease_granted"
+       ]
+      ],
+      1,
+      2
+     ],
+     "actual": [
+      [
+       [
+        "queued",
+        "leased",
+        "lease_granted"
+       ]
+      ],
+      1,
+      2
+     ]
+    },
+    {
+     "name": "[실행 중인 빌더] building에서 손상 분류: returned(R-08)",
+     "status": "PASS",
+     "expected": [
+      [
+       [
+        "building",
+        "returned",
+        "state_corrupted"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ],
+     "actual": [
+      [
+       [
+        "building",
+        "returned",
+        "state_corrupted"
+       ]
+      ],
+      [
+       "R-08"
+      ]
+     ]
+    },
+    {
+     "name": "[실행 중인 빌더] 실제 프로세스 그룹이 종료되고 쓰기 자격은 원격에서도 회수되었다",
+     "status": "PASS",
+     "expected": [
+      true,
+      -9,
+      true
+     ],
+     "actual": [
+      true,
+      -9,
+      true
+     ]
+    },
+    {
+     "name": "[실행 중인 빌더] 자동 재발급 0건, 지시 봉투 새로 나가지 않음",
+     "status": "PASS",
+     "expected": [
+      0,
+      1
+     ],
+     "actual": [
+      0,
+      1
+     ]
+    },
+    {
+     "name": "[저장 파일 손상] 읽을 수 없는 상태 파일: 데몬이 실패로 끝나고(종료 코드 0이 아님) 파일을 덮어쓰지 않는다",
+     "status": "PASS",
+     "expected": [
+      true,
+      "b'{\"journal\": [{\"at\": 1792066005, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792066005, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792066005, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV6D8F64BE678B48798C6FE0\", \"lease_generation\": 1, \"lease_id\": \"01RVD6E7B5E95FD54DDAAD5B91\", \"reason\": \"from_queue\"}, \"at\": 1792066005, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"
+     ],
+     "actual": [
+      true,
+      "b'{\"journal\": [{\"at\": 1792066005, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792066005, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792066005, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV6D8F64BE678B48798C6FE0\", \"lease_generation\": 1, \"lease_id\": \"01RVD6E7B5E95FD54DDAAD5B91\", \"reason\": \"from_queue\"}, \"at\": 1792066005, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"
+     ]
+    },
+    {
+     "name": "[저장 파일 손상] 발송·자동 재발급 0건",
+     "status": "PASS",
+     "expected": 0,
+     "actual": 0
+    }
+   ],
+   "evidence": {},
+   "not_proven": [
+    "파일 수준 손상에서 데몬은 멈추기만 한다(복구·소유자 결정 절차는 사람 몫이다). 명세가 파일 수준 손상의 R 코드를 정하지 않았다"
+   ],
+   "findings": [],
+   "error": null
+  }
+ ],
+ "static_checks": [
+  {
+   "name": "병합 API·호스팅 서비스 호출 없음",
+   "violations": []
+  },
+  {
+   "name": "제품 저장소 경로(ROOT)는 거부·읽기에만 쓴다",
+   "violations": []
+  },
+  {
+   "name": "git push 대상이 리터럴 주소·제품 원격이 아니다",
+   "violations": []
+  },
+  {
+   "name": "비밀값 패턴 없음(소스·fixture)",
+   "violations": []
+  },
+  {
+   "name": "모델 식별자 모양 없음(소스·fixture)",
+   "violations": []
+  },
+  {
+   "name": "fixture는 origin=fixture, fixture_only=true",
+   "violations": []
+  },
+  {
+   "name": "트리 해시(write-tree)는 Git 어댑터 한 곳",
+   "violations": []
+  },
+  {
+   "name": "산출물에 원문·세션 ID·사용자 경로 누출 없음",
+   "violations": []
+  },
+  {
+   "name": "산출물에 모델 식별자 모양·비밀값 없음",
+   "violations": []
+  },
+  {
+   "name": "runner_profile에는 확인된 종료 코드만",
+   "violations": []
+  },
+  {
+   "name": "제품 저장소의 ref·HEAD·원격이 실행 전후 같다",
+   "violations": []
+  },
+  {
+   "name": "시험 원격에 적용된 ref는 task/T-MOCK-* 브랜치뿐",
+   "violations": []
+  },
+  {
+   "name": "병합 호출 0건",
+   "violations": []
+  }
+ ]
+}

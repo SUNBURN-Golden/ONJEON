@@ -1,0 +1,6 @@
+# command: python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py
+..........................................................
+----------------------------------------------------------------------
+Ran 58 tests in 183.567s
+
+OK

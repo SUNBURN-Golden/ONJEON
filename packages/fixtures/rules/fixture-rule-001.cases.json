@@ -29,6 +29,8 @@
     { "id": "t13_rounding_floor", "inputs": {"elapsed_calendar_days": 0, "target_event": true, "excluded_X": false, "already_paid": false, "insured_amount_krw": 1001},
       "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 500}}, "missing_inputs": []} },
     { "id": "t14_all_unknown", "inputs": {},
-      "expect": {"eligibility": "unknown", "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}}, "missing_inputs": ["already_paid", "elapsed_calendar_days", "excluded_X", "insured_amount_krw", "target_event"]} }
+      "expect": {"eligibility": "unknown", "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}}, "missing_inputs": ["already_paid", "elapsed_calendar_days", "excluded_X", "insured_amount_krw", "target_event"]} },
+    { "id": "t15_rounding_floor_vs_half_even", "inputs": {"elapsed_calendar_days": 0, "target_event": true, "excluded_X": false, "already_paid": false, "insured_amount_krw": 1003},
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 501}}, "missing_inputs": []} }
   ]
 }

@@ -187,6 +187,33 @@ class Reservation(Fixture):
         self.assertIn("job t", str(cm.exception))
         self.assertEqual(len(store.list(b.LEDGER_PREFIX)), 3)
 
+    def test_lost_race_relists_admissions(self):
+        """A retry reads fresh records; admissions made meanwhile must be counted too, or two racing
+        runs both reserve past the cap (another job's unsettled admission counts globally)."""
+        self.write_policy(class_a=65)  # 30 + 30 fits; 30 + 30 + one admission of 8 does not
+        policy, job = self.load()
+        store = self.ledger_store
+        other = {"done": False}
+
+        class Racing:
+            def list(self, prefix):
+                return store.list(prefix)
+
+            def get(self, key):
+                return store.get(key)
+
+            def put_new(self, key, body, ctype):
+                if not other["done"]:  # a competitor is admitted (other job) and reserves first
+                    other["done"] = True
+                    b.Ledger(store, policy).admit(dict(job, job_id="other"), "other-run", MONTH)
+                    b.reserve(b.Ledger(store, policy), policy, job, "other", MONTH, [])
+                return store.put_new(key, body, ctype)
+
+        with self.assertRaises(b.BudgetError) as cm:
+            b.reserve(b.Ledger(Racing(), policy), policy, job, "run", MONTH, [])
+        self.assertIn("global class_a", str(cm.exception))
+        self.assertEqual(len(store.list(b.LEDGER_PREFIX)), 1)  # only the competitor reserved
+
     def test_local_create_is_atomic(self):
         self.ledger_store.put_new("ledger/v1/x", b"a", "x")
         with self.assertRaises(sa.Exists):

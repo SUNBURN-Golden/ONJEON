@@ -484,7 +484,9 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
     import source_archive as sa
     attempts = attempts or policy["per_request"]["reserve_attempts"]
     known = None
-    for _ in range(attempts):
+    for attempt in range(attempts):
+        if attempt:  # a lost race means other runs were admitted meanwhile: the headroom must see them
+            admissions = ledger.admissions()
         records, prev = ledger.read(known)
         known = (records, prev)
         glob, used_job = Ledger.usage(records, job["job_id"], month, admissions, policy["admission"]["limits"])
@@ -505,7 +507,7 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
             rec, rec_sha = ledger.append(body, len(records), prev)
             return rec, rec_sha, {d: policy["caps"][d] - glob[d] - want[d] for d in DIMENSIONS}
         except sa.Exists:
-            continue  # lost the race: read only the newer records and re-check
+            continue  # lost the race: read the newer records, re-list admissions, re-check
         except BudgetError:
             raise
         except Exception as e:

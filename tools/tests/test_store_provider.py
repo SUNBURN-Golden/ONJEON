@@ -181,9 +181,9 @@ class VerifyCopy(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def run_cmd(self):
+    def run_cmd(self, allow_extra=False):
         rep = Path(self.tmp.name) / "r.json"
-        a = mock.Mock(src=self.src_url, dst=self.dst_url, report=str(rep), endpoint_url=None, expected=None)
+        a = mock.Mock(src=self.src_url, dst=self.dst_url, report=str(rep), endpoint_url=None, expected=None, allow_extra=allow_extra)
         with redirect_stdout(io.StringIO()):
             code = sa.cmd_verify_copy(a)
         return code, json.loads(rep.read_text())
@@ -204,18 +204,38 @@ class VerifyCopy(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(r["summary"].get("hash_mismatch"), 1)
 
-    def test_extra_in_destination_is_reported(self):
+    def test_extra_in_destination_fails(self):
         self.dst.put_new("observations/s/9.json", b"{}", "application/json")
         code, r = self.run_cmd()
         self.assertEqual(r["extra_in_destination"], ["observations/s/9.json"])
-        self.assertEqual(code, 0)  # extra keys are reported; they are not a failed copy of the source
+        self.assertEqual(r["summary"], {"byte_identical": 2, "extra_in_destination": 1})
+        self.assertEqual(code, 1)  # a leaked object in the bucket is not a verified copy
+
+    def test_extra_in_destination_allowed_with_flag(self):
+        self.dst.put_new("observations/s/9.json", b"{}", "application/json")
+        code, r = self.run_cmd(allow_extra=True)
+        self.assertEqual(r["extra_in_destination"], ["observations/s/9.json"])  # still reported
+        self.assertEqual(code, 0)
+
+    def test_allow_extra_does_not_mask_missing(self):
+        self.src.put_new("observations/s/2.json", b"{}", "application/json")
+        self.dst.put_new("observations/s/9.json", b"{}", "application/json")
+        self.assertEqual(self.run_cmd(allow_extra=True)[0], 1)
+
+    def test_cli_flag_parses(self):
+        argv = ["source_archive.py", "verify-copy", "--expected", "x.json", "--dst", "file:///d"]
+        for extra, want in (([], False), (["--allow-extra"], True)):
+            with mock.patch("sys.argv", argv + extra), mock.patch.object(sa, "with_budget", lambda j, e, fn: fn()), \
+                    mock.patch.object(sa, "run") as run:
+                sa.main()
+            self.assertEqual(run.call_args.args[0].allow_extra, want)
 
     def test_pinned_listing_without_source_store(self):
         lst = Path(self.tmp.name) / "listing.json"
         with redirect_stdout(io.StringIO()):
             sa.cmd_listing(mock.Mock(src=self.src_url, out=str(lst), endpoint_url=None))
         rep = Path(self.tmp.name) / "r.json"
-        a = mock.Mock(src=None, expected=str(lst), dst=self.dst_url, report=str(rep), endpoint_url=None)
+        a = mock.Mock(src=None, expected=str(lst), dst=self.dst_url, report=str(rep), endpoint_url=None, allow_extra=False)
         with redirect_stdout(io.StringIO()):
             self.assertEqual(sa.cmd_verify_copy(a), 0)
         (Path(self.tmp.name) / "dst/observations/s/1.json").write_bytes(b"[]")

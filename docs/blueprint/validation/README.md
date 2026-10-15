@@ -36,7 +36,7 @@ python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --
 
 원본은 공개 저장소에 넣지 않는다. 보관소는 Cloudflare R2 비공개 버킷이다(ADR-0015·0016, `infra/r2/`). 2026-10-09 원본과 파생 v2를 R2에 보존하고 다시 받아 대조했다(아래 기록). 사용자에게 비공개로 전달한 묶음은 별도 사본이다. `samples.csv`의 `cache_path`는 캐시 기준 상대 경로이고, 보관소 키는 `sha256`에서 정해진다.
 
-동적 HTML은 받을 때마다 세션 ID 등으로 바이트가 달라진다. 받은 바이트는 매번 새 원본으로 보존한다. `content_sha256`(규칙 `content_hash_rule` = `html-visible-text-v1`)은 변경 감지의 보조 지표이고, 같아도 결과는 `bytes_changed_content_same`이지 바이트 일치가 아니다.
+동적 HTML은 받을 때마다 세션 ID 등으로 바이트가 달라진다. 받은 바이트는 매번 새 원본으로 보존한다. `content_sha256`(규칙 `content_hash_rule` = `html-visible-text-v1`)은 변경 감지의 보조 지표이고, 같아도 결과는 `bytes_changed_content_same`이지 바이트 일치가 아니다. 규칙은 v2로 올렸다: 링크의 `sid`·`_t`·`_`·`ts`·`timestamp`는 사이트에 따라 문서 식별자일 수 있어 호스트별 목록(`HOST_VOLATILE_PARAMS`, 현재 KB손해보험의 `_t`)에서만 제거하고, `jsessionid`·`sessionid`·`phpsessid`는 모든 호스트에서 제거한다. `samples.csv`에 기록된 v1 본문 해시는 v2와 비교하지 않으므로(규칙 이름이 다르면 `changed`로 보고) 원본이 있는 환경에서 다시 계산해 기준선을 갱신해야 한다.
 
 검사 기록 `source_checks/` (2026-10-09):
 

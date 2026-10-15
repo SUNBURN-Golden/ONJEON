@@ -1,4 +1,4 @@
-"""Tests for tools/html_content_hash.py (rule html-visible-text-v1).
+"""Tests for tools/html_content_hash.py (rule html-visible-text-v2).
 
 The fixture is synthetic. When ONJEON_ARCHIVE_RAW points at a local raw store (file layout of
 tools/source_archive.py), the same properties are also checked on the archived KB original and its
@@ -67,6 +67,62 @@ class VolatileTokensDoNotChangeTheHash(unittest.TestCase):
     def test_node_marker_is_host_specific(self):
         changed = sub("[A]</title>", "[B]</title>")
         self.assertNotEqual(h.content_sha256(changed, "example.org"), h.content_sha256(FIXTURE, "example.org"))
+
+
+def page(href):
+    return f'<html><body><a href="{href}">약관</a></body></html>'.encode()
+
+
+class SessionParamsAreScopedPerHost(unittest.TestCase):
+    """Audit 1: sid/_t/_/ts/timestamp were stripped on every host, hiding real link changes."""
+
+    def test_rule_version_was_bumped(self):
+        self.assertEqual(h.RULE, "html-visible-text-v2")
+
+    def test_sid_as_document_id_is_a_change_on_unlisted_hosts(self):
+        for host in ("example.org", "pub.insure.or.kr", ""):
+            for name in ("sid", "_t", "_", "ts", "timestamp"):
+                with self.subTest(host=host, param=name):
+                    a = h.content_sha256(page(f"/doc.do?{name}=1001"), host)
+                    b = h.content_sha256(page(f"/doc.do?{name}=1002"), host)
+                    self.assertNotEqual(a, b)
+
+    def test_unambiguous_session_ids_are_ignored_on_every_host(self):
+        for host in ("example.org", "www.kbinsure.co.kr", ""):
+            for old, new in (("jsessionid=AAA", "jsessionid=BBB"), ("sessionid=AAA", "sessionid=BBB"),
+                             ("PHPSESSID=AAA", "PHPSESSID=BBB")):
+                with self.subTest(host=host, param=old):
+                    self.assertEqual(h.content_sha256(page(f"/doc.do?id=7&{old}"), host),
+                                     h.content_sha256(page(f"/doc.do?id=7&{new}"), host))
+        self.assertEqual(h.content_sha256(page("/d.ec;jsessionid=AAA?id=7"), "example.org"),
+                         h.content_sha256(page("/d.ec;jsessionid=BBB?id=7"), "example.org"))
+
+    def test_listed_host_still_ignores_its_cache_buster(self):
+        for host in ("www.kbinsure.co.kr", "kbinsure.co.kr:443"):
+            self.assertEqual(h.content_sha256(page("/d.ec?id=7&_t=1"), host),
+                             h.content_sha256(page("/d.ec?id=7&_t=2"), host))
+
+    def test_listed_host_params_are_only_the_listed_names(self):
+        self.assertNotEqual(h.content_sha256(page("/d.ec?sid=1"), "www.kbinsure.co.kr"),
+                            h.content_sha256(page("/d.ec?sid=2"), "www.kbinsure.co.kr"))
+
+    def test_host_match_is_a_domain_boundary(self):
+        self.assertNotEqual(h.content_sha256(page("/d.ec?_t=1"), "evilkbinsure.co.kr"),
+                            h.content_sha256(page("/d.ec?_t=2"), "evilkbinsure.co.kr"))
+
+    def test_link_host_wins_over_page_host(self):
+        # a listed page linking out to another site: that site's _t is not known to be volatile
+        a = page("https://other.example/d?_t=1")
+        b = page("https://other.example/d?_t=2")
+        self.assertNotEqual(h.content_sha256(a, "www.kbinsure.co.kr"), h.content_sha256(b, "www.kbinsure.co.kr"))
+        # and a listed link host is cleaned even when the page host is not listed
+        a = page("https://www.kbinsure.co.kr/d?_t=1")
+        b = page("https://www.kbinsure.co.kr/d?_t=2")
+        self.assertEqual(h.content_sha256(a, "example.org"), h.content_sha256(b, "example.org"))
+
+    def test_other_parameters_are_kept_in_order(self):
+        text = h.normalized_text(page("/d?b=2&a=1&sid=9&jsessionid=X"), "example.org")
+        self.assertIn("[link:/d?b=2&a=1&sid=9]", text)
 
 
 class ArchivedOriginals(unittest.TestCase):

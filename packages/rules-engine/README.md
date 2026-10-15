@@ -10,7 +10,7 @@
 - 로드 단계에서 모든 식의 타입을 검사한다(bool·int·money·rate·date·string). `{"eq":["target_event",1]}`처럼 타입이 다른 값의 비교, bool·string의 순서 비교, `all`/`any`/`not`/`if` 조건에 쓴 비불리언, 금액 연산자에 쓴 비금액, 가지 타입이 다른 `if`, 불리언이 아닌 `eligibility`, 금액이 아닌 `amount`(`"amount": true`)는 오류 위치(경로)와 함께 로드에서 거부된다. 금액 `money`는 정확한 값과 범위를 구분하지 않으므로 범위를 비교하는 오류는 아직 평가 단계에서만 잡힌다(아래 "아직 없는 것").
 - 같은 입력·규칙·엔진 버전이면 바이트 단위로 같은 결과를 낸다. 결과에는 평가 trace, 결과를 막은 누락 입력, 입력 스냅샷 해시가 들어 있다.
 - 공개 가능한 규칙은 근거 참조가 하나 이상 있어야 하고 소속 릴리스(`release_id`)를 밝혀야 한다(불변 원칙 5). 합성 규칙은 `fixture_only`다.
-- 결과마다 `rule_version`, `release_id`, `rule_content_hash`, `evidence_refs`가 붙는다. `rule_content_hash`는 규칙 JSON을 정규화한 SHA-256이며 `release_id`는 제외한다. 버전을 올리지 않고 내용을 바꿔도 해시가 달라지므로 과거 계산이 어떤 규칙 내용을 썼는지 결과만으로 식별된다.
+- 결과마다 `rule_version`, `release_id`, `rule_content_hash`, `evidence_refs`가 붙는다. `rule_content_hash`는 규칙 JSON을 정규화(모든 객체 키를 `BTreeMap`으로 명시 정렬한 compact JSON)한 SHA-256이며 최상위 `release_id`는 제외한다. `serde_json`의 `preserve_order` 기능 여부와 무관하며, fixture 규칙의 해시는 `packages/fixtures/rules/fixture-rule-001.content_hash`에 고정되어 테스트로 검증된다. 버전을 올리지 않고 내용을 바꿔도 해시가 달라지므로 과거 계산이 어떤 규칙 내용을 썼는지 결과만으로 식별된다.
 - 로드된 `Rule`은 불변이다. 필드는 비공개이고 읽기 접근자만 있다. 규칙을 바꾸려면 `source_json()`을 복사해 고친 뒤 `Rule::from_json`으로 다시 로드해야 하며, 이때 재검증과 재해시가 일어난다. 따라서 결과에 붙는 해시와 실제로 실행된 논리가 어긋날 수 없다.
 - `if`의 조건이 모름이면 두 가지(then·else)를 모두 평가하되, 한쪽이 오류(오버플로·타입·날짜 범위)를 내도 규칙 전체를 실패시키지 않고 그 가지를 모름으로 취급한다. 결과는 모름이며 blocker는 조건의 모르는 입력과 다른 모르는 가지의 입력이다. 가지 하나가 오류여도 다른 가지의 값을 답으로 내지 않는다. 조건이 확정되어 선택된 가지의 오류, 두 가지 모두의 오류는 그대로 오류다. 흡수된 오류는 trace에 `error: ...` 항목으로 남는다.
 - 반올림 미지정으로 생긴 금액 범위는 이후 `multiply_rate`, `add`, `min`, `max`, `apply_cap`에서 하한·상한을 각각 계산해 이어진다.

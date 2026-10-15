@@ -13,6 +13,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import source_archive as sa  # noqa: E402
@@ -116,6 +117,61 @@ class CopyCommand(Base):
         self.assertEqual(code, 3)
         self.assertIn("conflict", err.getvalue())
         self.assertEqual(dst.get("observations/x/1.json"), b"different")
+
+
+class StorageErrors(unittest.TestCase):
+    """with_budget must not leak the endpoint (R2 account id) when botocore fails."""
+    ENDPOINT = "https://0123456789abcdef.r2.cloudflarestorage.com"
+
+    class FakeBotoError(Exception):
+        pass
+
+    def run_with(self, exc):
+        def boom():
+            raise exc
+        err = io.StringIO()
+        with mock.patch.object(sa, "boto_errors", lambda: (self.FakeBotoError,)), redirect_stderr(err):
+            code = sa.with_budget(None, None, boom)
+        return code, err.getvalue()
+
+    def test_boto_error_prints_type_only(self):
+        code, err = self.run_with(self.FakeBotoError(f'Could not connect to the endpoint URL: "{self.ENDPOINT}/bkt"'))
+        self.assertEqual(code, 5)
+        self.assertIn("FakeBotoError", err)
+        self.assertNotIn("0123456789abcdef", err)
+        self.assertNotIn("cloudflarestorage", err)
+        self.assertNotIn("Traceback", err)
+
+    def test_other_errors_still_propagate(self):
+        with self.assertRaises(ValueError):
+            self.run_with(ValueError("bug"))
+
+    def test_budget_settles_as_storage_error(self):
+        import r2_budget
+        with mock.patch.object(r2_budget, "start"), \
+                mock.patch.object(r2_budget, "finish", return_value=None) as fin, \
+                mock.patch.object(sa, "boto_errors", lambda: (self.FakeBotoError,)), \
+                redirect_stderr(io.StringIO()):
+            code = sa.with_budget("job", None, lambda: (_ for _ in ()).throw(self.FakeBotoError(self.ENDPOINT)))
+        self.assertEqual(code, 5)
+        fin.assert_called_once_with("storage_error")
+
+    def test_boto_errors_empty_without_botocore(self):
+        with mock.patch.dict(sys.modules, {"botocore": None, "botocore.exceptions": None}):
+            self.assertEqual(sa.boto_errors(), ())
+
+    def test_real_botocore_classes_when_installed(self):
+        try:
+            from botocore.exceptions import EndpointConnectionError
+        except ImportError:
+            self.skipTest("botocore not installed")
+        err = io.StringIO()
+        def boom():
+            raise EndpointConnectionError(endpoint_url=self.ENDPOINT)
+        with redirect_stderr(err):
+            self.assertEqual(sa.with_budget(None, None, boom), 5)
+        self.assertNotIn("0123456789abcdef", err.getvalue())
+        self.assertIn("EndpointConnectionError", err.getvalue())
 
 
 if __name__ == "__main__":

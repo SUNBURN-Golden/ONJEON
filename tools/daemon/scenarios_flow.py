@@ -161,6 +161,43 @@ def m4(rep, R, T):
     review(env, BASIC)
     rep.eq("리뷰 뒤 merge_wait(ready)", ("merge_wait", "ready"), (env.state(BASIC), pr_of(env, BASIC)["merge_wait_reason"]))
 
+    # self review: the family comes from the reviewer registry, never from the payload; a result that cannot be
+    # attributed is rejected (fail closed) and leaves no review record
+    def rejected(js):
+        return [(r["what"], r.get("reason")) for r in js if r["kind"] == "diagnostic_record"
+                and r["what"] in ("self_review_rejected", "review_result_rejected")]
+
+    env = MockEnv(R, T)
+    open_pr(env, BASIC)
+    cases = [
+        ("작성자 본인(mock-builder-1, 작성 계열) → self_review_rejected",
+         dict(reviewer="mock-builder-1", reviewer_family="mock-family-a"), [("self_review_rejected", None)]),
+        ("작성자가 다른 계열을 주장해도 레지스트리의 계열로 판정 → 거부(reviewer_family_mismatch)",
+         dict(reviewer="mock-builder-1", reviewer_family="mock-family-b"), [("review_result_rejected", "reviewer_family_mismatch")]),
+        ("reviewer_family 없음 → 거부(reviewer_family_missing)",
+         dict(reviewer="mock-builder-1"), [("review_result_rejected", "reviewer_family_missing")]),
+        ("reviewer_family가 빈 값 → 거부(reviewer_family_missing)",
+         dict(reviewer="mock-builder-2", reviewer_family=""), [("review_result_rejected", "reviewer_family_missing")]),
+        ("등록되지 않은 리뷰어 → 거부(reviewer_not_registered)",
+         dict(reviewer="mock-unknown", reviewer_family="mock-family-b"), [("review_result_rejected", "reviewer_not_registered")]),
+    ]
+    for label, extra, expect in cases:
+        m = mark(env)
+        env.observe(BASIC, "review_result", verdict="approved", sha=H1, **extra)
+        rep.eq(f"[리뷰어 배정 전] {label}: 전이·보류·리뷰 기록 없음",
+               (expect, [], "pr_open", 0, {}), (rejected(jr(env, m)), tr(jr(env, m)), env.state(BASIC),
+                                               len(pr_of(env, BASIC)["review_results"]), env.snap().get("held", {})))
+    env.observe(BASIC, "ci", conclusion="success", sha=H1)
+    m = mark(env)
+    env.observe(BASIC, "review_result", verdict="approved", sha=H1, reviewer="mock-builder-1", reviewer_family="mock-family-b")
+    rep.eq("[리뷰어 배정 뒤] 배정된 리뷰어(mock-builder-2)가 아닌 보고는 거부(reviewer_not_assigned)",
+           ([("review_result_rejected", "reviewer_not_assigned")], [], "review_in_progress"),
+           (rejected(jr(env, m)), tr(jr(env, m)), env.state(BASIC)))
+    m = mark(env)
+    review(env, BASIC)
+    rep.eq("배정된 리뷰어의 결과는 수락되어 merge_wait(ready)", ([], "merge_wait", "ready"),
+           (rejected(jr(env, m)), env.state(BASIC), pr_of(env, BASIC)["merge_wait_reason"]))
+
 
 # =============================================================== M5
 def m5(rep, R, T):
@@ -217,8 +254,11 @@ def m5(rep, R, T):
     open_pr(env, BASIC)
     env.observe(BASIC, "ci", conclusion="success", sha=H1)
     env.event("review_approved", BASIC)
-    rep.eq("[review_approved] 전이표 행을 직접 적용한 상태에서 head 변경 → pr_open(목적지는 pr_open 하나)",
-           [("review_approved", "pr_open", "head_sha_changed")], tr(head_change(env, BASIC, H2)))
+    js = head_change(env, BASIC, H2)
+    rep.eq("[review_approved] 전이표 행을 직접 적용한 상태에서 head 변경 → pr_open(목적지는 pr_open 하나). "
+           "직접 적용이라 무효로 만들 리뷰 결과가 없으므로 R-04도 없다(R-04는 위 다섯 상태에서 검사)",
+           ([("review_approved", "pr_open", "head_sha_changed")], [], None),
+           (tr(js), rets(js), pr_of(env, BASIC)["approved_head_sha"]))
     dests = sorted({x["to"] for x in env.raw["transitions"] if x["event"] == "head_sha_changed"})
     rep.eq("head_sha_changed 행의 목적지는 pr_open 하나(데이터)", ["pr_open"], dests)
 
@@ -314,6 +354,23 @@ def m8(rep, R, T):
     rep.eq("touched_paths에 허용 경로 밖(docs/BLUEPRINT.md) → result_out_of_scope → returned(R-01)",
            (("building", "returned", "result_out_of_scope"), ["R-01"], "returned"), (tr(js)[-1], rets(js), env.lease(BASIC)["status"]))
     rep.eq("PR 기록을 만들지 않는다", None, pr_of(env, BASIC))
+    # paths are normalized before they are compared: '..' segments, absolute paths and globs never count as inside
+    for label, bad in (("'..'로 허용 경로를 빠져나가는 경로", "tools/mock/basic/../../../docs/BLUEPRINT.md"),
+                       ("'..'로 허용 경로 안으로 돌아오는 경로도 거부", "tools/mock/basic/../basic/ok.py"),
+                       ("절대 경로", "/workspace/onjeon-run/tools/mock/basic/ok.py"),
+                       ("역슬래시 경로", "tools\\mock\\basic\\ok.py"),
+                       ("글롭 문자가 든 경로", "tools/mock/basic/*"),
+                       ("빈 경로", "")):
+        env = MockEnv(R, T)
+        m = mark(env)
+        open_pr(env, BASIC, touched=["tools/mock/basic/ok.py", bad])
+        rep.eq(f"{label}({bad!r}) → result_out_of_scope → returned(R-01), PR 기록 없음",
+               (("building", "returned", "result_out_of_scope"), ["R-01"], None), (tr(jr(env, m))[-1], rets(jr(env, m)), pr_of(env, BASIC)))
+    env = MockEnv(R, T)
+    m = mark(env)
+    open_pr(env, BASIC, touched=["tools/mock/basic/./sub//ok.py"])
+    rep.eq("'.' 조각과 겹친 슬래시는 정규화되어 허용 경로 안이면 통과, PR 기록은 정규형",
+           ("pr_open", ["tools/mock/basic/sub/ok.py"]), (env.state(BASIC), pr_of(env, BASIC)["changed_paths"]))
 
 
 def m9(rep, R, T):
@@ -693,6 +750,46 @@ def m25(rep, R, T):
         land(env, OTHER, head=H1, base="b" * 40)
         rep.eq(f"[{state_label}] 병합 관측 → merged_invalid_approval(R-12), done 아님",
                ([(before, "merged_invalid_approval", "merged_without_valid_approval")], ["R-12"]), (tr(jr(env, m)), rets(jr(env, m))))
+    # a state with no merged_without_valid_approval row: the engine falls through to unmapped_condition (R-03),
+    # and R-12 is not recorded on top of it
+    m = mark(env)
+    env.observe(OTHER, "landing", head_sha_at_merge=H2, base_sha_at_merge="b" * 40, merge_commit_sha="d" * 40,
+                integration_check="mock://ci/base")
+    rep.eq("[merged_invalid_approval] 행이 없는 상태에서 다른 병합 관측 → unmapped_condition(R-03)만, R-12 중복 없음",
+           ([("merged_invalid_approval", "returned", "unmapped_condition")], ["R-03"]), (tr(jr(env, m)), rets(jr(env, m))))
+    # a missing SHA is never a match (None == None must not validate a landing), and landings without a merge
+    # commit are told apart by their other fields
+    for label, wipe, extra in (("병합 시점 head 없음", {}, dict(head_sha_at_merge=None)),
+                               ("병합 시점 base 없음", {}, dict(base_sha_at_merge=None)),
+                               ("승인 SHA도 병합 시점 head도 없음(None == None)", dict(approved_head_sha=None), dict(head_sha_at_merge=None))):
+        env = MockEnv(R, T)
+        approve_to_wait(env, BASIC)
+        pr = pr_of(env, BASIC)
+        payload = dict(head_sha_at_merge=pr["approved_head_sha"], base_sha_at_merge=pr["approved_base_sha"],
+                       merge_commit_sha="e" * 40, integration_check="mock://ci/base")
+        payload.update(extra)
+        if wipe:
+            env.store.tamper(lambda d, w=wipe: d["pr"][BASIC].update(w))
+        m = mark(env)
+        env.observe(BASIC, "landing", **payload)
+        rep.eq(f"[merge_wait(ready)] {label} → merged_invalid_approval(R-12), 완료 사실 valid=False",
+               ([("merge_wait", "merged_invalid_approval", "merged_without_valid_approval")], ["R-12"], [False]),
+               (tr(jr(env, m)), rets(jr(env, m)), [f["valid"] for f in env.snap()["completion_facts"]]))
+    env = MockEnv(R, T)
+    approve_to_wait(env, BASIC)
+    m = mark(env)
+    env.observe(BASIC, "landing", head_sha_at_merge=H2, base_sha_at_merge="b" * 40, integration_check="mock://ci/base")
+    env.observe(BASIC, "landing", head_sha_at_merge=H2, base_sha_at_merge="b" * 40, integration_check="mock://ci/base")
+    env.observe(BASIC, "landing", head_sha_at_merge=H3, base_sha_at_merge="b" * 40, integration_check="mock://ci/base")
+    js = jr(env, m)
+    rep.eq("merge_commit_sha 없는 병합 관측: 같은 내용의 되풀이만 noop, 다른 관측은 따로 기록(합쳐지지 않음)",
+           ([("merge_wait", "merged_invalid_approval", "merged_without_valid_approval"),
+             ("merged_invalid_approval", "returned", "unmapped_condition")], [("pr_merged_observed_duplicate", None)], 2),
+           (tr(js), noops(js), len(env.snap()["completion_facts"])))
+
+    env = MockEnv(R, T)
+    prep(env)
+    land(env, OTHER, head=H1, base="b" * 40)
     m = mark(env)
     env.event("owner_cancelled", OTHER)
     rep.eq("merged_invalid_approval 취소에는 set_cancelled(G37)", (True, ["set_cancelled"]),
@@ -949,7 +1046,7 @@ FLOW_SCENARIOS = [
     ("M1", "-", "정상 흐름: queued→…→merge_wait(ready), 병합 API 0건", m1),
     ("M2", "-", "사용량 제한 전환: 429(model_provider) → handoff → 2순위 빌더", m2),
     ("M3", "-", "시험 실패는 전환이 아니다: 같은 빌더 재임대, 3회면 R-06", m3),
-    ("M4", "-", "리뷰어 없음 → merge_wait(reviewer_unavailable) → 복귀", m4),
+    ("M4", "-", "리뷰어 없음 → merge_wait(reviewer_unavailable) → 복귀, 작성 계열·귀속 불가 리뷰는 거부", m4),
     ("M5", "stale-approval-invalidated", "승인 뒤 코드 변경: pr_open, 옛 결과 무효(R-04)", m5),
     ("M6", "-", "즉시 감리: review_approved→audit_pending→merge_wait(ready)", m6),
     ("M7", "-", "정기 감리 카운터: 구현 PR만 세어 10번째에서 묶음", m7),

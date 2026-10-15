@@ -793,6 +793,12 @@ class FollowupBehavior(unittest.TestCase):
         value, n = secret_scan.redact(secret_scan.patterns(rules), {"a": ["x", "AKIA" + "Z" * 16]})
         self.assertEqual((value, n), ({"a": ["x", secret_scan.REDACTED]}, 1))
 
+    def test_redaction_looks_inside_tuples(self):
+        from daemon.core import secret_scan
+        rules = Rules(raw_rules())
+        value, n = secret_scan.redact(secret_scan.patterns(rules), {"g": ("ok", ("AKIA" + "Z" * 16,))})
+        self.assertEqual((value, n), ({"g": ("ok", (secret_scan.REDACTED,))}, 1))
+
 
 class NewPathsComeFromData(unittest.TestCase):
     """The paths added for G29-G50 and M1-M32 read their fields from the data, too."""
@@ -959,6 +965,179 @@ class ScopeForbiddenFirst(unittest.TestCase):
         self.assertTrue(self.out_of_scope(task, ["data/registry/y.csv"]))
 
 
+class ScopePathsAreNormalized(unittest.TestCase):
+    """R-01: a touched path is normalized before it is compared; what cannot be normalized is out of scope."""
+
+    def out_of_scope(self, touched, task=None):
+        return ScopeForbiddenFirst.out_of_scope(self, task or {"allowed_paths": ["tools/mock/basic/**"],
+                                                                "forbidden_paths": ["docs/**"]}, touched)
+
+    def test_dot_dot_that_leaves_the_allowed_directory_is_out_of_scope(self):
+        self.assertTrue(self.out_of_scope(["tools/mock/basic/../../../docs/x"]))
+        self.assertTrue(self.out_of_scope(["tools/mock/basic/../../../docs/BLUEPRINT.md"]))
+
+    def test_dot_dot_is_refused_even_when_it_would_stay_inside(self):
+        self.assertTrue(self.out_of_scope(["tools/mock/basic/../basic/ok.py"]))
+
+    def test_absolute_backslash_glob_and_empty_paths_are_out_of_scope(self):
+        for bad in ("/tools/mock/basic/ok.py", "C:/tools/mock/basic/ok.py", "tools\\mock\\basic\\ok.py",
+                    "tools/mock/basic/*", "tools/mock/basic/ok.p[y]", "", ".", "./", None, 7):
+            self.assertTrue(self.out_of_scope([bad]), repr(bad))
+
+    def test_dot_segments_and_double_slashes_are_dropped(self):
+        self.assertFalse(self.out_of_scope(["tools/mock/./basic//sub/ok.py"]))
+        self.assertTrue(self.out_of_scope(["tools/./docs//x"], {"allowed_paths": ["tools/**"], "forbidden_paths": ["tools/docs/**"]}))
+
+    def test_forbidden_wins_after_normalization(self):
+        task = {"allowed_paths": ["docs/**"], "forbidden_paths": ["docs/decisions/**"]}
+        self.assertTrue(self.out_of_scope(["docs/./decisions//d.md"], task))
+
+    def test_normalize_path(self):
+        from daemon.core.observation import normalize_path
+        self.assertEqual(normalize_path("a/./b//c"), "a/b/c")
+        for bad in ("../a", "a/../b", "/a", "a/..", "a\\b", "a*", ""):
+            self.assertIsNone(normalize_path(bad), bad)
+
+    def test_the_approved_scope_exception_is_normalized_too(self):
+        task = {"allowed_paths": ["data/**"], "forbidden_paths": ["data/registry/*.csv"],
+                "canon_change": {"approval": {"scope_paths": ["data/registry/x.csv", "data/registry/../registry/y.csv"]}}}
+        self.assertFalse(self.out_of_scope(["data/./registry/x.csv"], task))
+        self.assertTrue(self.out_of_scope(["data/registry/y.csv"], task))
+
+
+class ReviewerFamilyIsRegistered(unittest.TestCase):
+    """self_review_rejected fails closed: the family is read from the reviewer registry, not from the payload."""
+
+    def family(self, pr, payload):
+        from types import SimpleNamespace
+        from daemon.core.observation import reviewer_family
+        pool = [{"name": "r-a", "family": "fam-a", "available": True}, {"name": "r-b", "family": "fam-b", "available": True}]
+        core = SimpleNamespace(ports=SimpleNamespace(reviewers=SimpleNamespace(candidates=lambda: pool)))
+        return reviewer_family(core, pr, payload)
+
+    def test_family_comes_from_the_registry(self):
+        self.assertEqual(self.family({"reviewer": None}, {"reviewer": "r-b", "reviewer_family": "fam-b"}), ("fam-b", None))
+
+    def test_missing_or_empty_family_is_rejected(self):
+        for payload in ({"reviewer": "r-b"}, {"reviewer": "r-b", "reviewer_family": ""}, {"reviewer": "r-b", "reviewer_family": None}):
+            self.assertEqual(self.family({"reviewer": None}, payload), (None, "reviewer_family_missing"))
+
+    def test_claimed_family_must_match_the_registry(self):
+        self.assertEqual(self.family({"reviewer": None}, {"reviewer": "r-a", "reviewer_family": "fam-b"}),
+                         (None, "reviewer_family_mismatch"))
+
+    def test_unregistered_or_missing_reviewer_is_rejected(self):
+        self.assertEqual(self.family({"reviewer": None}, {"reviewer": "nobody", "reviewer_family": "fam-b"}),
+                         (None, "reviewer_not_registered"))
+        self.assertEqual(self.family({"reviewer": None}, {"reviewer_family": "fam-b"}), (None, "reviewer_not_registered"))
+
+    def test_only_the_assigned_reviewer_may_report(self):
+        pr = {"reviewer": "r-b"}
+        self.assertEqual(self.family(pr, {"reviewer": "r-b", "reviewer_family": "fam-b"}), ("fam-b", None))
+        self.assertEqual(self.family(pr, {"reviewer": "r-a", "reviewer_family": "fam-a"}), (None, "reviewer_not_assigned"))
+        self.assertEqual(self.family(pr, {"reviewer_family": "fam-b"}), (None, "reviewer_not_assigned"))
+
+    def test_self_review_of_an_assigned_author_family_is_rejected_end_to_end(self):
+        """The reviewer assigned earlier shares a family with an author who joined later (handoff): rejected."""
+        env = sc.MockEnv(str(RULES), str(TASKS))
+        fl.open_pr(env, fl.BASIC)
+        env.observe(fl.BASIC, "ci", conclusion="success", sha=fl.H1)
+        self.assertEqual(fl.pr_of(env, fl.BASIC)["reviewer"], "mock-builder-2")
+        env.store.tamper(lambda d: d["journal"].append({"kind": "side_effect_record", "id": "issue_lease", "task_id": fl.BASIC,
+                                                         "args": {"builder": "mock-builder-2"}, "seq": 10**6}))
+        mark = len(env.journal())
+        env.observe(fl.BASIC, "review_result", verdict="approved", sha=fl.H1, reviewer="mock-builder-2", reviewer_family="mock-family-b")
+        whats = [r["what"] for r in env.journal()[mark:] if r["kind"] == "diagnostic_record"]
+        self.assertEqual(whats, ["self_review_rejected"])
+        self.assertEqual(env.state(fl.BASIC), "review_in_progress")
+        self.assertEqual(fl.pr_of(env, fl.BASIC)["review_results"], [])
+
+
+class LandingValidation(unittest.TestCase):
+    """A missing SHA is never a match, and landings without a merge commit are not taken for one landing."""
+
+    def ready(self):
+        env = sc.MockEnv(str(RULES), str(TASKS))
+        fl.approve_to_wait(env, fl.BASIC)
+        return env, fl.pr_of(env, fl.BASIC)
+
+    def landing(self, env, **kw):
+        base = {"integration_check": "mock://ci/base"}
+        base.update(kw)
+        return env.observe(fl.BASIC, "landing", **base)
+
+    def test_complete_landing_is_valid(self):
+        env, pr = self.ready()
+        self.landing(env, head_sha_at_merge=pr["approved_head_sha"], base_sha_at_merge=pr["approved_base_sha"], merge_commit_sha="e" * 40)
+        self.assertEqual(env.state(fl.BASIC), "audit_queued")
+        self.assertTrue(env.snap()["completion_facts"][0]["valid"])
+
+    def test_missing_head_or_base_at_merge_is_invalid(self):
+        for missing in ("head_sha_at_merge", "base_sha_at_merge"):
+            env, pr = self.ready()
+            kw = dict(head_sha_at_merge=pr["approved_head_sha"], base_sha_at_merge=pr["approved_base_sha"], merge_commit_sha="e" * 40)
+            kw.pop(missing)
+            self.landing(env, **kw)
+            self.assertEqual(env.state(fl.BASIC), "merged_invalid_approval", missing)
+            self.assertFalse(env.snap()["completion_facts"][0]["valid"], missing)
+
+    def test_none_equal_none_does_not_validate(self):
+        env, pr = self.ready()
+        env.store.tamper(lambda d: d["pr"][fl.BASIC].update(approved_head_sha=None, approved_base_sha=None))
+        self.landing(env, merge_commit_sha="e" * 40)
+        self.assertEqual(env.state(fl.BASIC), "merged_invalid_approval")
+        self.assertFalse(env.snap()["completion_facts"][0]["valid"])
+
+    def test_empty_strings_do_not_validate(self):
+        env, pr = self.ready()
+        env.store.tamper(lambda d: d["pr"][fl.BASIC].update(approved_head_sha="", approved_base_sha=""))
+        self.landing(env, head_sha_at_merge="", base_sha_at_merge="", merge_commit_sha="e" * 40)
+        self.assertEqual(env.state(fl.BASIC), "merged_invalid_approval")
+
+    def test_landings_without_merge_commit_are_told_apart(self):
+        from daemon.core.observation import _landing_key
+        a = _landing_key("T", {"head_sha_at_merge": "1", "base_sha_at_merge": "b", "integration_check": "c"})
+        b = _landing_key("T", {"head_sha_at_merge": "2", "base_sha_at_merge": "b", "integration_check": "c"})
+        self.assertNotEqual(a, b)
+        self.assertEqual(a, _landing_key("T", {"head_sha_at_merge": "1", "base_sha_at_merge": "b", "integration_check": "c"}))
+        self.assertNotEqual(_landing_key("T", {"merge_commit_sha": "x"}), _landing_key("T", {}))
+        self.assertEqual(_landing_key("T", {"merge_commit_sha": "x", "head_sha_at_merge": "1"}),
+                         _landing_key("T", {"merge_commit_sha": "x", "head_sha_at_merge": "2"}))
+
+    def test_two_different_landings_without_merge_commit_are_both_recorded(self):
+        env, pr = self.ready()
+        self.landing(env, head_sha_at_merge=fl.H2, base_sha_at_merge="b" * 40)
+        self.landing(env, head_sha_at_merge=fl.H3, base_sha_at_merge="b" * 40)
+        self.assertEqual(len(env.snap()["completion_facts"]), 2)
+        self.landing(env, head_sha_at_merge=fl.H3, base_sha_at_merge="b" * 40)
+        self.assertEqual(len(env.snap()["completion_facts"]), 2)
+
+
+class FollowupRound8(unittest.TestCase):
+    def test_restart_with_unreadable_phase_counts_the_restart_once(self):
+        res = results()["M38"]
+        rows = [c for c in res["checks"] if "restart_count" in c["name"]]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["status"], sc.PASS)
+
+    def test_tick_settles_secret_hits_after_a_normal_expiry(self):
+        res = results()["M41"]
+        rows = [c for c in res["checks"] if "비밀값 검출" in c["name"]]
+        self.assertEqual([c["status"] for c in rows], [sc.PASS])
+
+    def test_mock_tasks_are_marked_as_fixture(self):
+        cfg = json.loads(TASKS.read_text(encoding="utf-8"))
+        self.assertEqual(cfg["origin"], "fixture")
+        self.assertIs(cfg["fixture_only"], True)
+
+    def test_readme_does_not_claim_mock_tasks_has_no_numbers(self):
+        text = (ROOT / "tools/daemon/README.md").read_text(encoding="utf-8")
+        row = [ln for ln in text.splitlines() if ln.startswith("| `mock_tasks.json`")][0]
+        self.assertIn("fixture", row)
+        self.assertNotIn("수치는 두지 않는다(G01)", row)
+        self.assertIn("max_wall_s", row)
+
+
 class ReportValues(unittest.TestCase):
     """The report shows the values as they were compared, not as the scenario left them afterwards."""
 
@@ -995,6 +1174,36 @@ class Cli(unittest.TestCase):
         self.assertIn("기대:", out)
         self.assertIn("실제:", out)
         self.assertIn("실행하지 않은 시험 ID", out)
+
+    def test_pass_rows_print_the_full_transition_columns(self):
+        """The report is what the final audit (T-OP-08) reads: no column is shortened, PASS rows included."""
+        for mid in ("M1", "M5", "M10", "M17"):
+            code, out = self.run_cli("--rules", str(RULES), "--tasks", str(TASKS), "--scenario", mid)
+            self.assertEqual(code, 0)
+            self.assertNotIn('..."', out)
+            for c in results()[mid]["checks"]:
+                self.assertIn(f"      기대: {dry_run.compact(c['expected'])}\n", out, (mid, c["name"]))
+                self.assertIn(f"      실제: {dry_run.compact(c['actual'])}\n", out, (mid, c["name"]))
+        row = [c for c in results()["M10"]["checks"] if "decision_pending" in c["name"]][0]
+        self.assertIn('"review_approved", "merge_wait"', dry_run.compact(row["actual"]))
+
+    def test_evidence_logs_name_the_parent_commit_and_source_hash(self):
+        """The logs are made before the commit that holds them, so they name the parent commit and a content hash of
+        the sources instead of a SHA they cannot match (README, "증거 기록")."""
+        import hashlib
+        files = sorted([str(p.relative_to(ROOT)) for p in (ROOT / "tools/daemon").rglob("*")
+                        if p.is_file() and "__pycache__" not in p.parts and (ROOT / "tools/daemon/reports") not in p.parents]
+                       + ["tools/tests/test_daemon_dry_run.py"], key=lambda x: x.encode())
+        listing = "".join(f"{hashlib.sha256((ROOT / f).read_bytes()).hexdigest()}  {f}\n" for f in files)
+        want = hashlib.sha256(listing.encode()).hexdigest()
+        for name in ("dry_run.log", "unittest.log"):
+            head = [ln for ln in (ROOT / "tools/daemon/reports" / name).read_text(encoding="utf-8").splitlines() if ln.startswith("#")]
+            line = [ln for ln in head if "generated from parent commit" in ln]
+            self.assertEqual(len(line), 1, (name, head))
+            self.assertRegex(line[0], r"parent commit [0-9a-f]{40} \+ tree hash of tools/daemon sources sha256:[0-9a-f]{64}")
+            self.assertIn("sha256:" + want, line[0], name)
+            self.assertNotIn("working tree", "\n".join(head), name)
+            self.assertNotIn("base commit", "\n".join(head), name)
 
     def test_single_scenario_by_number_and_by_test_id(self):
         for sel in ("M41", "restart-ttl-expired-no-resend"):

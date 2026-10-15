@@ -1,5 +1,7 @@
 {
- "description": "T-OP-00 모의 코어용 모의 과제와 모의 설정. 숫자(ttl_s·heartbeat_s·window_s·grace_s·max_attempts·max_parallel_leases)는 daemon_rules.json이 직접 갖는다(G01). 이 파일은 과제 정의, 빌더 목록(이름·실행기·계열), 필수 시험 ID만 둔다. 계열 이름은 모의 값이다. mock_steps는 모의 빌더가 실행하는 단계이며 real_data=true 단계는 지시 봉투의 real_data_allowed가 true일 때만 실행한다(rules_for_builder).",
+ "origin": "fixture",
+ "fixture_only": true,
+ "description": "시험 전용 fixture(origin=fixture). T-OP-00 모의 코어용 모의 과제와 모의 설정이며 제품 값이 아니다. 숫자(ttl_s·heartbeat_s·window_s·grace_s·max_attempts·max_parallel_leases)는 daemon_rules.json이 직접 갖는다(G01). 과제의 limits(max_wall_s·max_retries)만 이 파일에 있고, 확정되지 않은 초안 기본값을 따라 쓴 fixture 값이다(G47). 이 파일은 과제 정의, 빌더 목록(이름·실행기·계열), 필수 시험 ID를 둔다. 계열 이름은 모의 값이다. mock_steps는 모의 빌더가 실행하는 단계이며 real_data=true 단계는 지시 봉투의 real_data_allowed가 true일 때만 실행한다(rules_for_builder).",
  "builders": [
   {
    "name": "mock-builder-1",

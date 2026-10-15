@@ -1,7 +1,7 @@
 # command: python3 -m unittest tools/tests/test_daemon_dry_run.py
-# base commit: 1ee58d71e26c61bdeb35df546acc4d371f4a1881 (working tree with the T-OP-00 fix round 6 changes; exit code 0)
-.......................................................................................................................................................
+# generated from parent commit de1148cc28e58ac33d21989b058cc0d244e54007 + tree hash of tools/daemon sources sha256:fce0da7228f240fab9170ea0d46e57d0a2e5630e1f69317e018489b59212756e (tools/daemon without reports/ and __pycache__, plus tools/tests/test_daemon_dry_run.py; recompute with the command in tools/daemon/README.md; the PR head is this parent plus exactly one commit)
+.................................................................................................................................................................................
 ----------------------------------------------------------------------
-Ran 151 tests in 88.250s
+Ran 177 tests in 67.986s
 
 OK

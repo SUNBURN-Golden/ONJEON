@@ -46,13 +46,13 @@ def redact(pats, value):
             out[k], m = redact(pats, v)
             n += m
         return out, n
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple)):
         out, n = [], 0
         for v in value:
             x, m = redact(pats, v)
             out.append(x)
             n += m
-        return out, n
+        return type(value)(out), n
     return value, 0
 
 

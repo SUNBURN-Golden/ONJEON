@@ -198,6 +198,7 @@ class DaemonCore:
             with self.ports.store.transaction() as d:
                 if recovery.normal_expiry_due(self, d, task_id):
                     recovery.expire(self, d, task_id)
+                    transition_engine.settle_secrets(self, d)
                     continue
                 state = d["tasks"][task_id]["task_state"]["state"]
                 names = []

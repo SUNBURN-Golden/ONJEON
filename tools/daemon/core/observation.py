@@ -10,6 +10,8 @@ only through Rules.outside(), and every rule it applies in code is listed in spe
 It never decides what a row does: it picks the event (and, for the two rows that share (from, event) without a
 cond, the destination), then the transition engine applies the row from the data.
 """
+import json
+
 from . import transition_engine
 from .gate_evaluator import patterns_overlap
 
@@ -53,6 +55,25 @@ def _has_row(core, state, event):
     return any(tr["event"] == event and tr["from"] in (state, "*") for tr in core.rules.transitions)
 
 
+def reviewer_family(core, pr, p):
+    """The family of the reviewer of a review_result, read from the reviewer registry (ReviewerPool), never from
+    the payload. Once a reviewer is assigned (pr.reviewer) only that reviewer may report; a result that arrives
+    before the assignment (held, out of order) names its reviewer and that name must be registered.
+    Returns (family, reason); family is None when the result cannot be attributed (fail closed)."""
+    name = (pr or {}).get("reviewer") or p.get("reviewer")
+    if (pr or {}).get("reviewer") and p.get("reviewer") != pr["reviewer"]:
+        return None, "reviewer_not_assigned"
+    registered = {c["name"]: c["family"] for c in core.ports.reviewers.candidates()}
+    family = registered.get(name)
+    if family is None:
+        return None, "reviewer_not_registered"
+    if not p.get("reviewer_family"):
+        return None, "reviewer_family_missing"
+    if p["reviewer_family"] != family:
+        return None, "reviewer_family_mismatch"
+    return family, None
+
+
 def authors_families(core, d, task_id):
     """Families of every builder that held a lease of this task (from the issue_lease records)."""
     fams = []
@@ -94,10 +115,39 @@ def _touches_forbidden(path, patterns):
     return any(patterns_overlap(path, p) for p in patterns or [])
 
 
+def normalize_path(path):
+    """A touched path as a repository-relative file path, or None when it cannot be compared safely (R-01 fails
+    closed): not a string, empty, absolute (/, \\, drive letter), a '..' segment, a NUL, or a glob character.
+    '.' segments and repeated slashes are dropped; nothing is resolved against the file system."""
+    if not isinstance(path, str) or not path or "\0" in path or any(ch in path for ch in "*?[\\"):
+        return None
+    if path.startswith("/") or (len(path) > 1 and path[1] == ":"):
+        return None
+    parts = [seg for seg in path.split("/") if seg not in ("", ".")]
+    if not parts or ".." in parts:
+        return None
+    return "/".join(parts)
+
+
+def _clean_paths(paths):
+    """The normalized form of the touched paths that the PR record keeps (docs-only and immediate-audit checks
+    read it); result_event has already sent any path that does not normalize to result_out_of_scope."""
+    out = []
+    for raw in paths or []:
+        path = normalize_path(raw)
+        if path is not None and path not in out:
+            out.append(path)
+    return out
+
+
 def out_of_scope(core, task_id, touched):
     task = core.ports.catalog.task(task_id)
-    approved = ((task.get("canon_change") or {}).get("approval") or {}).get("scope_paths") or []
-    for path in touched:
+    approved = {normalize_path(a) for a in ((task.get("canon_change") or {}).get("approval") or {}).get("scope_paths") or []}
+    approved.discard(None)
+    for raw in touched:
+        path = normalize_path(raw)
+        if path is None:
+            return True
         if path in approved:
             continue
         if not _inside(path, task.get("allowed_paths")) or _touches_forbidden(path, task.get("forbidden_paths")):
@@ -111,13 +161,13 @@ def on_pr_opened(core, d, task_id, envelope):
     pr = _pr(d, task_id)
     if pr is None:
         pr = {"pr_number": envelope.get("pr_number"), "head_sha": envelope.get("head_sha"), "base_sha": lease.get("base_sha"),
-              "changed_paths": list(envelope.get("touched_paths") or []), "labels": list(envelope.get("labels") or []),
+              "changed_paths": _clean_paths(envelope.get("touched_paths")), "labels": list(envelope.get("labels") or []),
               "review_results": [], "audit_results": [], "reviewer": None, "merge_wait_reason": None,
               "approved_head_sha": None, "approved_base_sha": None, "auditor_available": True}
         d["pr"][task_id] = pr
         core.rec.diagnostic(d, task_id, "pr_record_created", pr_number=pr["pr_number"])
         return
-    for p in envelope.get("touched_paths") or []:
+    for p in _clean_paths(envelope.get("touched_paths")):
         if p not in pr["changed_paths"]:
             pr["changed_paths"].append(p)
     if envelope.get("head_sha") and envelope["head_sha"] != pr["head_sha"]:
@@ -369,11 +419,15 @@ def _observe(core, d, task_id, kind, p):
         out = _route(core, d, task_id, event, {}, sha=p["sha"])
     elif kind == "review_result":
         event = "review_approved" if p["verdict"] == "approved" else "review_changes_requested"
-        if _seen(core, d, f"{task_id}|review|{p['sha']}|{p.get('reviewer')}|{p['verdict']}"):
-            return _duplicate(core, d, task_id, event)
-        if p.get("reviewer_family") in authors_families(core, d, task_id):
+        family, why = reviewer_family(core, pr, p)
+        if family is None:
+            core.rec.diagnostic(d, task_id, "review_result_rejected", reviewer=p.get("reviewer"), reason=why)
+            return {"applied": False, "transition": None}
+        if family in authors_families(core, d, task_id):
             core.rec.diagnostic(d, task_id, "self_review_rejected", reviewer=p.get("reviewer"))
             return {"applied": False, "transition": None}
+        if _seen(core, d, f"{task_id}|review|{p['sha']}|{p.get('reviewer')}|{p['verdict']}"):
+            return _duplicate(core, d, task_id, event)
         if _has_row(core, _state(d, task_id), event) and pr is not None and p["sha"] != pr["head_sha"]:
             core.rec.diagnostic(d, task_id, "review_sha_mismatch", sha=p["sha"], head_sha=pr["head_sha"])
             core.rec.returned(d, task_id, STALE_RESULT)
@@ -424,14 +478,26 @@ def _observe(core, d, task_id, kind, p):
     return out
 
 
+def _landing_key(task_id, p):
+    """The merge commit identifies a landing. Without one, the other observed fields do, so that landings that
+    carry no merge_commit_sha are not all taken for the same one."""
+    if p.get("merge_commit_sha"):
+        return f"{task_id}|landing|{p['merge_commit_sha']}"
+    rest = [p.get("head_sha_at_merge"), p.get("base_sha_at_merge"), p.get("integration_check")]
+    return f"{task_id}|landing|no_merge_commit|" + json.dumps(rest)
+
+
 def _landing(core, d, task_id, pr, p):
     """A pull request was found landed (by a person). record_separation.merge_observation_fields go to the
     completion facts either way; valid only with reason ready, head_sha_at_merge == approved_head_sha and an
     unchanged base. merge_commit_sha is recorded, never compared."""
+    # a missing SHA is never a match: None == None must not make a landing valid
+    shas = (p.get("head_sha_at_merge"), p.get("base_sha_at_merge"))
+    approved = (pr or {}).get("approved_head_sha"), (pr or {}).get("approved_base_sha")
     valid = (pr is not None and _state(d, task_id) == "merge_wait" and pr["merge_wait_reason"] == "ready"
-             and p.get("head_sha_at_merge") == pr["approved_head_sha"] and p.get("base_sha_at_merge") == pr["approved_base_sha"])
+             and all(isinstance(x, str) and x for x in shas + approved) and shas == approved)
     event = "pr_merged_observed" if valid else "merged_without_valid_approval"
-    if _seen(core, d, f"{task_id}|landing|{p.get('merge_commit_sha')}"):
+    if _seen(core, d, _landing_key(task_id, p)):
         return _duplicate(core, d, task_id, event)
     values = {"approved_head_sha": (pr or {}).get("approved_head_sha"), "base_sha": (pr or {}).get("approved_base_sha"),
               "head_sha_at_merge": p.get("head_sha_at_merge"), "merge_commit_sha": p.get("merge_commit_sha"),
@@ -441,7 +507,9 @@ def _landing(core, d, task_id, pr, p):
                                                      observed_at=core.clock.now(), **fields))
     core.rec.side_effect(d, task_id, "record_merge_observation", valid=valid, **fields)
     out = _apply(core, d, task_id, event, {})
-    if not valid and out.get("applied"):
+    # R-12 only when the merged_without_valid_approval row itself applied; a state with no such row falls through
+    # to unmapped_condition, which already records its own R code
+    if not valid and (out.get("transition") or (None, None, None))[2] == event:
         core.rec.returned(d, task_id, INVALID_LANDING)
     return out
 

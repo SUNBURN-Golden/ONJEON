@@ -58,8 +58,12 @@ def m41(rep, R, T):
     env.restart()
     rep.eq("하트비트 없는 leased: 599초에는 정상(재발송)", ([], 1), (tr(jr(env, m)), len(sent_ids(env))))
     env.clock.advance(1)
+    env.store.tamper(lambda d: d.update(secret_hits=[{"task_id": BASIC, "match_count": 1}]))
     env.core.tick()
     rep.eq("600초(heartbeat_s*2)에 만료 전이", [("leased", "queued", "lease_expired")], tr(jr(env, m)))
+    rep.eq("정상 만료로 끝난 tick도 대기 중인 비밀값 검출을 처리한다(남기지 않음)",
+           (False, ["secret_redacted_outside_scan_states"]),
+           ("secret_hits" in env.snap(), [r["what"] for r in jr(env, m) if r["kind"] == "diagnostic_record" and r["what"].startswith("secret_")]))
 
 
 # =============================================================== M42
@@ -1013,6 +1017,8 @@ def m38(rep, R, T):
     rep.eq("[preserve, 로컬 커밋 확인 불가] phase를 읽을 수 없음 → handoff_blocked, issue_lease 0, 커밋 0",
            ([("handoff", "handoff", "daemon_restart_during_handoff"), ("handoff", "handoff_blocked", "daemon_restart_during_handoff")], 0, 0),
            (tr(js), len(se(js, "issue_lease")), env.ports.git.commit_count))
+    rep.eq("그 재시작은 restart_count를 한 번만 올린다(되먹임 사건이 다시 세지 않음)", 1,
+           env.task(HANDOFF)["handoff_record"]["restart_count"])
 
 
 # =============================================================== M30

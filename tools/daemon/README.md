@@ -8,7 +8,7 @@ python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토
 python3 -m unittest tools/tests/test_daemon_dry_run.py
 ```
 
-`--scenario`는 `all`, M 번호(`M41`), 또는 필수 시험 ID(`restart-ttl-expired-no-resend`)를 받는다. 하나라도 기대와 다르거나 시나리오가 예외로 멈추면 종료 코드는 1이다. 실행 기록과 보고서는 `reports/`에 있다.
+`--scenario`는 `all`, M 번호(`M41`), 또는 필수 시험 ID(`restart-ttl-expired-no-resend`)를 받는다. 하나라도 기대와 다르거나 시나리오가 예외로 멈추면 종료 코드는 1이다. 실행 기록과 보고서는 `reports/`에 있다. `reports/dry_run.log`가 보고서이고, 통과한 검사도 기대·실제 열(전이 열 포함)을 줄이지 않고 다 적는다. JSON이 필요하면 `--report`로 만든다.
 
 ## 구성
 
@@ -24,7 +24,7 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 | `core/secret_scan.py` | 비밀값 패턴의 세 검사 지점. 일치한 문자열은 기록하지 않는다 |
 | `core/observation.py` | CI·PR·리뷰·감리·병합 관측·결정 기록·선행 과제. 아래 "관측 계층" 참고 |
 | `mock_adapters.py`, `mock_env.py` | 가상 시계, 메모리 저장소, 모의 빌더(수신 측 검증, `real_data_allowed`에 따른 단계 실행), 모의 Git(트리 OID 모델), 모의 리뷰어. 네트워크·CLI·실제 저장소·모델 호출 없음 |
-| `mock_tasks.json` | 모의 과제(T-MOCK-*)와 모의 빌더(이름·실행기·계열). 수치는 두지 않는다(G01) |
+| `mock_tasks.json` | 시험 전용 fixture(`origin=fixture`, `fixture_only=true`). 모의 과제(T-MOCK-*)와 모의 빌더(이름·실행기·계열). 규칙의 수치(ttl_s·heartbeat_s·max_attempts 등)는 두지 않는다(G01). 과제 `limits`(max_wall_s·max_retries)는 확정되지 않은 초안 기본값을 따라 쓴 fixture 값이고 제품 값이 아니다(G47) |
 | `scenarios.py`, `scenarios_flow.py`, `bench.py` | M26·M28~M30·M33~M44(임대·봉투·재시작·인계)와 M1~M25·M27·M31·M32(큐에서 병합 관측·정기 감리까지, 중단·권한) |
 | `static_checks.py` | 병합 API·네트워크·CLI·벽시계·스케줄러·두 번째 해시·모델 식별자·비용 상한이 없음, 세대 대입은 `issue_lease` 안에서만 |
 | `spec_gaps.py` | 명세 공백 목록과 코어가 택한 해석 |
@@ -39,6 +39,17 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 - G29~G50: 코어가 새 필드를 읽는다(`spec_gaps.py`의 `core_reads`). G47만 일부다. 기본값이 든 `envelopes.instruction.limits`를 `core_contract.reads`에 넣는 일은 `daemon_rules.json` 변경이라 이 과제의 허용 경로 밖이다. 코어는 과제 정의의 limits를 쓴다.
 - 문장에서 꺼낸 토큰은 0종이다(`Rules.token_log`).
 - 새 명세 공백 G51~G57은 열려 있다. 설계 담당이 정할 일이다.
+
+## 증거 기록(reports/)
+
+`reports/dry_run.log`(보고서)와 `reports/unittest.log`(시험 실행)의 머리말은 `generated from parent commit <sha> + tree hash of tools/daemon sources`로 시작한다. 로그는 커밋 전에 만들므로 로그 자신이 들어갈 커밋의 SHA를 적을 수 없다. 그래서 부모 커밋(이 변경을 얹은 바로 앞 커밋)과, 그 위에 얹은 소스의 내용 해시를 적는다. PR head는 부모 커밋에 이 변경 커밋 하나를 더한 것과 정확히 같다. 해시는 `tools/daemon/`(`reports/`·`__pycache__` 제외)과 `tools/tests/test_daemon_dry_run.py`의 파일 내용으로 만들고, 같은 소스면 같은 값이 나온다. 저장소 루트에서 다시 계산한다.
+
+```sh
+{ find tools/daemon -path tools/daemon/reports -prune -o -path '*/__pycache__' -prune -o -type f -print; \
+  echo tools/tests/test_daemon_dry_run.py; } | LC_ALL=C sort | xargs sha256sum | sha256sum
+```
+
+`Cli.test_evidence_logs_name_the_parent_commit_and_source_hash`가 두 로그의 해시가 현재 소스와 맞는지 확인한다. 소스를 고치면 로그를 다시 만들어야 한다.
 
 ## 이 모의 검증이 증명하지 않는 것
 

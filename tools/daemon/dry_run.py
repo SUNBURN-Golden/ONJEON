@@ -2,7 +2,7 @@
 
     python3 -I tools/daemon/dry_run.py --rules <daemon_rules.json> --tasks tools/daemon/mock_tasks.json --scenario all
 
-Prints expected and actual values side by side for every check (the transition columns among them). Exit code 1 if
+Prints expected and actual values side by side, in full, for every check (the transition columns among them). Exit code 1 if
 any check differs or a scenario raises. Checks marked GAP are specification gaps and do not change the exit code.
 Scenarios without a required test id show "-". No network, no CLI, no model, no repository: mock adapters only.
 """
@@ -32,11 +32,8 @@ def run_scenario(entry, rules, tasks):
     return {"id": mid, "test_id": test_id, "title": title, "checks": rep.checks, "error": error}
 
 
-def compact(v, limit=None):
-    text = json.dumps(v, ensure_ascii=False, default=str)
-    if limit and len(text) > limit:
-        text = text[: limit - 3] + "..."
-    return text
+def compact(v):
+    return json.dumps(v, ensure_ascii=False, default=str)
 
 
 def scenario_status(res):
@@ -78,9 +75,9 @@ def main(argv=None):
             if args.quiet and c["status"] == sc.PASS:
                 continue
             print(f"  [{c['status']}] {c['name']}")
-            lim = None if c["status"] != sc.PASS else 160
-            print(f"      기대: {compact(c['expected'], lim)}")
-            print(f"      실제: {compact(c['actual'], lim)}")
+            # never shortened: the transition columns are the report the final audit (T-OP-08) reads
+            print(f"      기대: {compact(c['expected'])}")
+            print(f"      실제: {compact(c['actual'])}")
             if c.get("note"):
                 print(f"      명세 공백: {c['note']}")
         if res["error"]:

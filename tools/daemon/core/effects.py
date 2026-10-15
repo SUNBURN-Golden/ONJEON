@@ -285,7 +285,7 @@ def h_resume_from_phase(core, d, task_id, args, ctx, env):
         # stops the handoff (handoff_blocked)
         hr["phase"] = None
         core.rec.side_effect(d, task_id, "resume_from_phase", check=spec["check"]["id"], holds=None, phase=None)
-        transition_engine.apply_event(core, d, task_id, env.tr["event"], {})
+        transition_engine.apply_event(core, d, task_id, env.tr["event"], {}, recount=False)
         return
     branch = spec["then"] if holds else spec["else"]
     core.rec.side_effect(d, task_id, "resume_from_phase", check=spec["check"]["id"], holds=holds,

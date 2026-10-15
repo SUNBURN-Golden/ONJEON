@@ -89,7 +89,9 @@ def settle_secrets(core, d):
             core.rec.diagnostic(d, task_id, "secret_redacted_outside_scan_states", match_count=n)
 
 
-def apply_event(core, d, task_id, name, payload=None, envelope=None, to=None):
+def apply_event(core, d, task_id, name, payload=None, envelope=None, to=None, recount=True):
+    """recount=False: the event is fed back by an effect of the row that already counted it (before_cond
+    increment_counter), so the counter is not incremented a second time."""
     rules = core.rules
     t = d["tasks"][task_id]
     ts = t["task_state"]
@@ -121,7 +123,7 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None, to=None):
     pre, seen = [], set()
     for tr in cands:
         for eff in tr.get("side_effects", []):
-            if effects.is_before_cond(eff):
+            if effects.is_before_cond(eff) and (recount or eff["id"] != "increment_counter"):
                 key = json.dumps(eff, sort_keys=True)
                 if key not in seen:
                     seen.add(key)

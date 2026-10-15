@@ -1,0 +1,12 @@
+{
+  "hashes": {
+    "kb-driver-fine": "eda1d7d819794965e894ec3a45c511beadda3d2f01171dffef408cb0261f8197",
+    "kb-driver-lawyer-fee": "588d30e4fafd7942258a10480b2ce9ba534fd037e65218f8614339ffd5cc9b9a",
+    "kyobo-1995-cancer-waiting": "132ef2b019b7c004fbd5069b65cc9c33d610136bc257ff4e8d1fee35c0828217",
+    "kyobo-cancer-main-dx": "f6f60f39a0be49e7c9679832188a6b5a4c466268562736b907b107a128d6032e",
+    "kyobo-small-cancer-skin": "809c08ba9e72a8d851cafad2bb07b9e8f4afa172d98692b0905375b15b411f9a",
+    "kyobo-wholelife-accident-death": "f6e431ea77bf8e54a850de89a5645d9adae1febb690266711be4dc51a7b42051",
+    "kyobo-wholelife-disease-death": "6fdb3bc4092ef484e40cfc39b04cb42deb2b39c606038ff0afdf109b0f04bfd7"
+  },
+  "note": "rule_content_hash of every rules/real/*.json rule; update only when a rule changes on purpose"
+}

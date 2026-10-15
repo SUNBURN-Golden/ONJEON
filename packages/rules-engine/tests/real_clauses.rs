@@ -5,7 +5,7 @@ mod common;
 use common::*;
 use onjeon_rules_engine::Rule;
 use serde_json::{json, Value as J};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
 fn rules() -> BTreeMap<String, Rule> {
@@ -25,26 +25,158 @@ fn rules() -> BTreeMap<String, Rule> {
     rules
 }
 
+/// Every `*.cases.json` in the real-clause directory, sorted by file name.
+fn case_files() -> Vec<(String, J)> {
+    let mut out = Vec::new();
+    for e in std::fs::read_dir(real_dir()).unwrap() {
+        let p = e.unwrap().path();
+        let name = p.file_name().unwrap().to_string_lossy().to_string();
+        if name.ends_with(".cases.json") {
+            out.push((name, load_json(&p)));
+        }
+    }
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    out
+}
+
+/// Runs every case against its rule. Returns the ids of the rules the cases exercised, the
+/// number of cases run, and every problem found: a case naming no rule, a case (or a file-level
+/// `rule_id`) naming a rule that was not loaded, or an observed result differing from `expect`.
+fn run_cases(
+    files: &[(String, J)],
+    rules: &BTreeMap<String, Rule>,
+) -> (BTreeSet<String>, usize, Vec<String>) {
+    let mut exercised = BTreeSet::new();
+    let mut problems = Vec::new();
+    let mut n = 0;
+    for (name, file) in files {
+        if let Some(rid) = file.get("rule_id").and_then(J::as_str) {
+            if !rules.contains_key(rid) {
+                problems.push(format!("{name}: file rule_id `{rid}` names no loaded rule"));
+            }
+        }
+        for case in file["cases"].as_array().into_iter().flatten() {
+            let Some(rule_id) = case["rule"].as_str().or_else(|| file["rule_id"].as_str()) else {
+                problems.push(format!("{name}: case {} names no rule", case["id"]));
+                continue;
+            };
+            let Some(rule) = rules.get(rule_id) else {
+                problems.push(format!(
+                    "{name}: case {} names unknown rule `{rule_id}`",
+                    case["id"]
+                ));
+                continue;
+            };
+            exercised.insert(rule_id.to_string());
+            let inputs = merged(&file["base"], case.get("set"));
+            let observed = observe(rule, &inputs);
+            n += 1;
+            if observed != case["expect"] {
+                problems.push(format!(
+                    "{}: expected {} got {}",
+                    case["id"], case["expect"], observed
+                ));
+            }
+        }
+    }
+    (exercised, n, problems)
+}
+
+/// Loaded rules no case exercises (a rule that could silently regress).
+fn unexercised(exercised: &BTreeSet<String>, rules: &BTreeMap<String, Rule>) -> Vec<String> {
+    rules
+        .keys()
+        .filter(|id| !exercised.contains(*id))
+        .cloned()
+        .collect()
+}
+
 #[test]
 fn every_real_clause_case_matches() {
     let rules = rules();
-    let mut failures = Vec::new();
-    let mut n = 0;
-    for (case, rule_id, inputs) in real_cases() {
-        let rule = rules
-            .get(&rule_id)
-            .unwrap_or_else(|| panic!("unknown rule {rule_id}"));
-        let observed = observe(rule, &inputs);
-        n += 1;
-        if observed != case["expect"] {
-            failures.push(format!(
-                "{}: expected {} got {}",
-                case["id"], case["expect"], observed
-            ));
-        }
-    }
+    let (exercised, n, problems) = run_cases(&case_files(), &rules);
     assert!(n >= 40, "expected the full real-clause case set, ran {n}");
-    assert!(failures.is_empty(), "{}", failures.join("\n"));
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    // Each loaded rule is exercised, and each case's `rule` resolved to a loaded file (above).
+    assert_eq!(
+        exercised,
+        rules.keys().cloned().collect::<BTreeSet<_>>(),
+        "rules without any case: {:?}",
+        unexercised(&exercised, &rules)
+    );
+}
+
+#[test]
+fn case_coverage_check_catches_orphans_and_unknown_rules() {
+    let rules = rules();
+    let files = case_files();
+    let all: BTreeSet<_> = rules.keys().cloned().collect();
+
+    // Baseline is clean, so every failure below comes from the tamper alone.
+    let (exercised, _, problems) = run_cases(&files, &rules);
+    assert!(problems.is_empty(), "{problems:?}");
+    assert_eq!(exercised, all);
+
+    // Dropping a cases file (here the shared wholelife one) leaves two rules orphaned.
+    let without: Vec<_> = files
+        .iter()
+        .filter(|(n, _)| n != "kyobo-wholelife-death.cases.json")
+        .cloned()
+        .collect();
+    let (exercised, _, problems) = run_cases(&without, &rules);
+    assert!(problems.is_empty(), "{problems:?}");
+    assert_eq!(
+        unexercised(&exercised, &rules),
+        [
+            "kyobo-wholelife-accident-death",
+            "kyobo-wholelife-disease-death"
+        ]
+    );
+
+    // A shared-file case pointed at a rule that is not loaded is reported, not skipped.
+    let mut typo = files.clone();
+    let shared = typo
+        .iter_mut()
+        .find(|(n, _)| n == "kyobo-wholelife-death.cases.json")
+        .unwrap();
+    shared.1["cases"][0]["rule"] = json!("kyobo-wholelife-accident-dath");
+    let (_, _, problems) = run_cases(&typo, &rules);
+    assert!(
+        problems
+            .iter()
+            .any(|p| p.contains("unknown rule `kyobo-wholelife-accident-dath`")),
+        "{problems:?}"
+    );
+
+    // A file-level rule_id naming no loaded rule is reported even with zero cases.
+    let mut renamed = files.clone();
+    let f = renamed
+        .iter_mut()
+        .find(|(n, _)| n == "kb-driver-fine.cases.json")
+        .unwrap();
+    f.1["rule_id"] = json!("kb-driver-fine-v2");
+    f.1["cases"] = json!([]);
+    let (exercised, _, problems) = run_cases(&renamed, &rules);
+    assert!(
+        problems
+            .iter()
+            .any(|p| p.contains("file rule_id `kb-driver-fine-v2` names no loaded rule")),
+        "{problems:?}"
+    );
+    assert_eq!(unexercised(&exercised, &rules), ["kb-driver-fine"]);
+
+    // A case with no rule anywhere is reported.
+    let mut nameless = files.clone();
+    let shared = nameless
+        .iter_mut()
+        .find(|(n, _)| n == "kyobo-wholelife-death.cases.json")
+        .unwrap();
+    shared.1["cases"][0].as_object_mut().unwrap().remove("rule");
+    let (_, _, problems) = run_cases(&nameless, &rules);
+    assert!(
+        problems.iter().any(|p| p.contains("names no rule")),
+        "{problems:?}"
+    );
 }
 
 #[test]

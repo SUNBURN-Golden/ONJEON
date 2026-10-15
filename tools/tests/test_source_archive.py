@@ -174,6 +174,75 @@ class StorageErrors(unittest.TestCase):
         self.assertIn("EndpointConnectionError", err.getvalue())
 
 
+class ConfinedPath(unittest.TestCase):
+    """samples.csv cache_path is data: it must never reach outside the cache/output directory."""
+
+    def test_normal_relative_path_resolves_inside(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.assertEqual(sa.confined_path(t, "a/b.pdf"), Path(t).resolve() / "a" / "b.pdf")
+
+    def test_escapes_are_refused(self):
+        with tempfile.TemporaryDirectory() as t:
+            for bad in ("../x", "a/../../x", "/etc/x", "", ".", "a/.."):
+                with self.subTest(bad=bad), self.assertRaises(sa.UnsafeCachePath):
+                    sa.confined_path(t, bad)
+
+    def test_symlink_out_of_base_is_refused(self):
+        with tempfile.TemporaryDirectory() as t, tempfile.TemporaryDirectory() as outside:
+            (Path(t) / "link").symlink_to(outside)
+            with self.assertRaises(sa.UnsafeCachePath):
+                sa.confined_path(t, "link/x")
+
+    def rows(self, cache_path):
+        return [{"sample_id": "s", "cache_path": cache_path, "sha256": "0" * 64, "url": "u", "format": "html",
+                 "doc_role": "d", "retrieved_at": "t"}]
+
+    def test_fetch_refuses_traversal_before_writing(self):
+        with tempfile.TemporaryDirectory() as t:
+            out = Path(t) / "out"
+            out.mkdir()
+            raw = mock.Mock()
+            with mock.patch.object(sa, "store", return_value=raw), \
+                    mock.patch.object(sa, "SAMPLES", self.write_samples(t, "../escaped.txt")):
+                with self.assertRaises(sa.UnsafeCachePath):
+                    sa.cmd_fetch(mock.Mock(raw="file:///x", endpoint_url=None, out=str(out)))
+            raw.get.assert_not_called()
+            self.assertFalse((Path(t) / "escaped.txt").exists())
+
+    def test_fetch_exit_code_via_with_budget(self):
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(sa.with_budget(None, None, self.raise_unsafe), 1)
+
+    @staticmethod
+    def raise_unsafe():
+        raise sa.UnsafeCachePath("x")
+
+    def write_samples(self, t, cache_path):
+        import csv
+        p = Path(t) / "samples.csv"
+        rows = self.rows(cache_path)
+        with p.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w.writeheader()
+            w.writerows(rows)
+        return p
+
+    def test_archive_samples_does_not_upload_files_outside_cache(self):
+        with tempfile.TemporaryDirectory() as t:
+            cache = Path(t) / "cache"
+            cache.mkdir()
+            (Path(t) / "secret.txt").write_bytes(b"not a source")
+            args = mock.Mock(raw="file:///x", derived=None, endpoint_url=None, cache=str(cache))
+            with mock.patch.object(sa, "store", return_value=mock.Mock()), \
+                    mock.patch.object(sa, "put_raw") as put_raw, \
+                    mock.patch.object(sa, "SAMPLES", self.write_samples(t, "../secret.txt")), \
+                    redirect_stdout(io.StringIO()) as out:
+                code = sa.cmd_archive_samples(args)
+            put_raw.assert_not_called()
+            self.assertEqual(code, 1)
+            self.assertEqual(json.loads(out.getvalue())[0]["status"], "unsafe_cache_path")
+
+
 if __name__ == "__main__":
     unittest.main()
 

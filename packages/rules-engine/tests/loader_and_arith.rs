@@ -213,6 +213,26 @@ fn loader_enforces_rule_level_invariants() {
         "published rules need evidence (principle 5)"
     );
 
+    // A blank evidence ref satisfies "non-empty list" but cites nothing.
+    for state in ["released", "candidate", "fixture_only"] {
+        for refs in [json!([""]), json!(["  "]), json!(["clause-1", "\t\n"])] {
+            let mut j = base(json!(true), json!({"krw": 1}));
+            j["publication_state"] = json!(state);
+            j["release_id"] = json!("rel-1");
+            j["evidence_refs"] = refs.clone();
+            let e = Rule::from_json(&j).unwrap_err().to_string();
+            assert!(
+                e.contains("evidence_refs") && e.contains("blank"),
+                "{state} {refs}: blank evidence ref must be rejected, got {e}"
+            );
+        }
+    }
+    let mut j = base(json!(true), json!({"krw": 1}));
+    j["publication_state"] = json!("released");
+    j["release_id"] = json!("rel-1");
+    j["evidence_refs"] = json!(["clause-1"]);
+    assert!(Rule::from_json(&j).is_ok(), "non-blank ref still accepted");
+
     let mut j = base(json!(true), json!({"krw": 1}));
     j["extra_key"] = json!(1);
     assert!(Rule::from_json(&j).is_err());

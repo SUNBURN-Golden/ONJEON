@@ -13,6 +13,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import source_archive as sa  # noqa: E402
@@ -116,6 +117,130 @@ class CopyCommand(Base):
         self.assertEqual(code, 3)
         self.assertIn("conflict", err.getvalue())
         self.assertEqual(dst.get("observations/x/1.json"), b"different")
+
+
+class StorageErrors(unittest.TestCase):
+    """with_budget must not leak the endpoint (R2 account id) when botocore fails."""
+    ENDPOINT = "https://0123456789abcdef.r2.cloudflarestorage.com"
+
+    class FakeBotoError(Exception):
+        pass
+
+    def run_with(self, exc):
+        def boom():
+            raise exc
+        err = io.StringIO()
+        with mock.patch.object(sa, "boto_errors", lambda: (self.FakeBotoError,)), redirect_stderr(err):
+            code = sa.with_budget(None, None, boom)
+        return code, err.getvalue()
+
+    def test_boto_error_prints_type_only(self):
+        code, err = self.run_with(self.FakeBotoError(f'Could not connect to the endpoint URL: "{self.ENDPOINT}/bkt"'))
+        self.assertEqual(code, 5)
+        self.assertIn("FakeBotoError", err)
+        self.assertNotIn("0123456789abcdef", err)
+        self.assertNotIn("cloudflarestorage", err)
+        self.assertNotIn("Traceback", err)
+
+    def test_other_errors_still_propagate(self):
+        with self.assertRaises(ValueError):
+            self.run_with(ValueError("bug"))
+
+    def test_budget_settles_as_storage_error(self):
+        import r2_budget
+        with mock.patch.object(r2_budget, "start"), \
+                mock.patch.object(r2_budget, "finish", return_value=None) as fin, \
+                mock.patch.object(sa, "boto_errors", lambda: (self.FakeBotoError,)), \
+                redirect_stderr(io.StringIO()):
+            code = sa.with_budget("job", None, lambda: (_ for _ in ()).throw(self.FakeBotoError(self.ENDPOINT)))
+        self.assertEqual(code, 5)
+        fin.assert_called_once_with("storage_error")
+
+    def test_boto_errors_empty_without_botocore(self):
+        with mock.patch.dict(sys.modules, {"botocore": None, "botocore.exceptions": None}):
+            self.assertEqual(sa.boto_errors(), ())
+
+    def test_real_botocore_classes_when_installed(self):
+        try:
+            from botocore.exceptions import EndpointConnectionError
+        except ImportError:
+            self.skipTest("botocore not installed")
+        err = io.StringIO()
+        def boom():
+            raise EndpointConnectionError(endpoint_url=self.ENDPOINT)
+        with redirect_stderr(err):
+            self.assertEqual(sa.with_budget(None, None, boom), 5)
+        self.assertNotIn("0123456789abcdef", err.getvalue())
+        self.assertIn("EndpointConnectionError", err.getvalue())
+
+
+class ConfinedPath(unittest.TestCase):
+    """samples.csv cache_path is data: it must never reach outside the cache/output directory."""
+
+    def test_normal_relative_path_resolves_inside(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.assertEqual(sa.confined_path(t, "a/b.pdf"), Path(t).resolve() / "a" / "b.pdf")
+
+    def test_escapes_are_refused(self):
+        with tempfile.TemporaryDirectory() as t:
+            for bad in ("../x", "a/../../x", "/etc/x", "", ".", "a/.."):
+                with self.subTest(bad=bad), self.assertRaises(sa.UnsafeCachePath):
+                    sa.confined_path(t, bad)
+
+    def test_symlink_out_of_base_is_refused(self):
+        with tempfile.TemporaryDirectory() as t, tempfile.TemporaryDirectory() as outside:
+            (Path(t) / "link").symlink_to(outside)
+            with self.assertRaises(sa.UnsafeCachePath):
+                sa.confined_path(t, "link/x")
+
+    def rows(self, cache_path):
+        return [{"sample_id": "s", "cache_path": cache_path, "sha256": "0" * 64, "url": "u", "format": "html",
+                 "doc_role": "d", "retrieved_at": "t"}]
+
+    def test_fetch_refuses_traversal_before_writing(self):
+        with tempfile.TemporaryDirectory() as t:
+            out = Path(t) / "out"
+            out.mkdir()
+            raw = mock.Mock()
+            with mock.patch.object(sa, "store", return_value=raw), \
+                    mock.patch.object(sa, "SAMPLES", self.write_samples(t, "../escaped.txt")):
+                with self.assertRaises(sa.UnsafeCachePath):
+                    sa.cmd_fetch(mock.Mock(raw="file:///x", endpoint_url=None, out=str(out)))
+            raw.get.assert_not_called()
+            self.assertFalse((Path(t) / "escaped.txt").exists())
+
+    def test_fetch_exit_code_via_with_budget(self):
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(sa.with_budget(None, None, self.raise_unsafe), 1)
+
+    @staticmethod
+    def raise_unsafe():
+        raise sa.UnsafeCachePath("x")
+
+    def write_samples(self, t, cache_path):
+        import csv
+        p = Path(t) / "samples.csv"
+        rows = self.rows(cache_path)
+        with p.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w.writeheader()
+            w.writerows(rows)
+        return p
+
+    def test_archive_samples_does_not_upload_files_outside_cache(self):
+        with tempfile.TemporaryDirectory() as t:
+            cache = Path(t) / "cache"
+            cache.mkdir()
+            (Path(t) / "secret.txt").write_bytes(b"not a source")
+            args = mock.Mock(raw="file:///x", derived=None, endpoint_url=None, cache=str(cache))
+            with mock.patch.object(sa, "store", return_value=mock.Mock()), \
+                    mock.patch.object(sa, "put_raw") as put_raw, \
+                    mock.patch.object(sa, "SAMPLES", self.write_samples(t, "../secret.txt")), \
+                    redirect_stdout(io.StringIO()) as out:
+                code = sa.cmd_archive_samples(args)
+            put_raw.assert_not_called()
+            self.assertEqual(code, 1)
+            self.assertEqual(json.loads(out.getvalue())[0]["status"], "unsafe_cache_path")
 
 
 if __name__ == "__main__":

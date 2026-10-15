@@ -9,6 +9,9 @@ CORE = HERE / "core"
 FORBIDDEN_IMPORTS = {"socket", "ssl", "urllib", "http", "ftplib", "smtplib", "requests", "subprocess",
                      "asyncio", "multiprocessing", "xmlrpc", "telnetlib", "pty"}
 FORBIDDEN_CALLS = {"system", "popen", "execv", "execvp", "execl", "spawnl", "spawnv", "fork", "urlopen"}
+# Dynamic code execution and import: the daemon runs only the code that is in its sources.
+FORBIDDEN_DYNAMIC_IMPORTS = {"importlib", "runpy", "builtins", "code", "codeop", "imp", "pkgutil"}
+FORBIDDEN_DYNAMIC_NAMES = {"eval", "exec", "compile", "__import__"}
 _MODEL_WORDS = ["son" + "net", "op" + "us", "hai" + "ku", "fa" + "ble", "gr" + "ok", "g" + "pt", "g" + "lm",
                 "dev" + "in", "swe" + "2", "cur" + "sor", "cla" + "ude", "anth" + "ropic", "mist" + "ral", "gem" + "ini"]
 
@@ -64,21 +67,35 @@ def no_merge_api():
     return bad
 
 
-def no_network_or_cli():
+def no_network_or_cli(root=HERE):
+    """No network, CLI or process launch, and no dynamic code (eval, exec, compile, __import__, importlib ...).
+
+    A bare name is flagged wherever it appears (a call, an alias such as `f = eval`, a default argument), so
+    `re.compile` is fine and `compile(...)` is not. `builtins.eval(...)` is caught by the `builtins` import ban."""
     bad = []
-    for p in _py_files(HERE):
+    for p in _py_files(root):
         for node in ast.walk(_parse(p)):
             if isinstance(node, ast.Import):
                 for a in node.names:
-                    if a.name.split(".")[0] in FORBIDDEN_IMPORTS:
+                    top = a.name.split(".")[0]
+                    if top in FORBIDDEN_IMPORTS or top in FORBIDDEN_DYNAMIC_IMPORTS:
                         bad.append(f"{p.name}:{node.lineno}: import {a.name}")
-            elif isinstance(node, ast.ImportFrom) and node.module and node.module.split(".")[0] in FORBIDDEN_IMPORTS:
+            elif isinstance(node, ast.ImportFrom) and node.module and (
+                    node.module.split(".")[0] in FORBIDDEN_IMPORTS or node.module.split(".")[0] in FORBIDDEN_DYNAMIC_IMPORTS):
                 bad.append(f"{p.name}:{node.lineno}: from {node.module}")
+            elif isinstance(node, ast.ImportFrom) and not node.module:
+                for a in node.names:  # `from . import importlib` style relative imports
+                    if a.name in FORBIDDEN_DYNAMIC_IMPORTS:
+                        bad.append(f"{p.name}:{node.lineno}: from . import {a.name}")
             elif isinstance(node, ast.Call):
                 f = node.func
                 name = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
                 if name in FORBIDDEN_CALLS:
                     bad.append(f"{p.name}:{node.lineno}: call {name}")
+            if isinstance(node, ast.Name) and node.id in FORBIDDEN_DYNAMIC_NAMES:
+                bad.append(f"{p.name}:{node.lineno}: dynamic code {node.id}")
+            elif isinstance(node, ast.Attribute) and node.attr in ("__import__", "import_module"):
+                bad.append(f"{p.name}:{node.lineno}: dynamic import {node.attr}")
     return bad
 
 
@@ -241,7 +258,7 @@ def all_static(rules_path, tasks_path=None):
         ("코어가 when·note·_ 키를 읽지 않음", no_natural_language_reads()),
         ("코어에 dry_run·mock 분기 문자열 없음", no_dry_run_branch_in_core()),
         ("병합 API·자동 병합 호출 함수 없음", no_merge_api()),
-        ("네트워크·실제 CLI·프로세스 실행 없음", no_network_or_cli()),
+        ("네트워크·실제 CLI·프로세스 실행·동적 코드 실행(eval·exec·compile·__import__·importlib) 없음", no_network_or_cli()),
         ("벽시계 없음(time·datetime 미사용, 시간은 clock.now()만)", no_wall_clock()),
         ("스케줄러·상주 루프 없음", no_scheduler_or_runner()),
         ("lease_generation은 issue_lease 안에서만 대입", single_lease_generation_writer()),

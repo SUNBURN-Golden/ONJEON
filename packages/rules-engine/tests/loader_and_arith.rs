@@ -1,4 +1,4 @@
-use onjeon_rules_engine::{AmountOut, Payout, Rule};
+use onjeon_rules_engine::{AmountOut, EvalError, Payout, Rule};
 use serde_json::{json, Value as J};
 
 fn base(eligibility: J, amount: J) -> J {
@@ -112,11 +112,31 @@ fn days_between_inclusivity_is_explicit() {
     assert_eq!(gap(true, true, "2026-01-01", "2026-01-01"), "1");
     assert_eq!(gap(true, false, "2026-01-01", "2026-01-01"), "0");
     assert_eq!(gap(false, false, "2026-01-01", "2026-01-02"), "0");
-    assert_eq!(
-        gap(true, false, "2026-01-02", "2026-01-01"),
-        "-1",
-        "before start is reported as a negative gap"
-    );
+}
+
+#[test]
+fn days_between_rejects_reversed_dates_for_every_inclusivity() {
+    for (s, e) in [(false, false), (true, false), (false, true), (true, true)] {
+        let rule = Rule::from_json(&base(
+            json!({"gte": [{"days_between": ["d1", "d2", {"inclusive_start": s, "inclusive_end": e}]}, 0]}),
+            json!({"krw": 1}),
+        ))
+        .unwrap();
+        // Forward and same-day are fine; one day reversed is an error, not a negative number.
+        assert!(rule
+            .evaluate(&json!({"d1": "2026-01-01", "d2": "2026-01-01"}))
+            .is_ok());
+        let err = rule
+            .evaluate(&json!({"d1": "2026-01-02", "d2": "2026-01-01"}))
+            .unwrap_err();
+        assert!(
+            matches!(&err, EvalError::Type { message, .. } if message.contains("1 day(s) earlier")),
+            "inclusive_start={s} inclusive_end={e}: {err}"
+        );
+        assert!(rule
+            .evaluate(&json!({"d1": "2026-06-30", "d2": "2026-01-01"}))
+            .is_err());
+    }
 }
 
 #[test]
@@ -193,6 +213,26 @@ fn loader_enforces_rule_level_invariants() {
         "published rules need evidence (principle 5)"
     );
 
+    // A blank evidence ref satisfies "non-empty list" but cites nothing.
+    for state in ["released", "candidate", "fixture_only"] {
+        for refs in [json!([""]), json!(["  "]), json!(["clause-1", "\t\n"])] {
+            let mut j = base(json!(true), json!({"krw": 1}));
+            j["publication_state"] = json!(state);
+            j["release_id"] = json!("rel-1");
+            j["evidence_refs"] = refs.clone();
+            let e = Rule::from_json(&j).unwrap_err().to_string();
+            assert!(
+                e.contains("evidence_refs") && e.contains("blank"),
+                "{state} {refs}: blank evidence ref must be rejected, got {e}"
+            );
+        }
+    }
+    let mut j = base(json!(true), json!({"krw": 1}));
+    j["publication_state"] = json!("released");
+    j["release_id"] = json!("rel-1");
+    j["evidence_refs"] = json!(["clause-1"]);
+    assert!(Rule::from_json(&j).is_ok(), "non-blank ref still accepted");
+
     let mut j = base(json!(true), json!({"krw": 1}));
     j["extra_key"] = json!(1);
     assert!(Rule::from_json(&j).is_err());
@@ -219,4 +259,43 @@ fn evaluation_rejects_undeclared_or_mistyped_inputs() {
         rule.evaluate(&json!({"amt": -5})).is_err(),
         "negative money is rejected"
     );
+}
+
+#[test]
+fn date_add_params_are_a_closed_key_set() {
+    let err = |params: J| {
+        Rule::from_json(&base(
+            json!({"eq": [{"date_add": ["d1", params]}, "d2"]}),
+            json!({"krw": 1}),
+        ))
+        .unwrap_err()
+        .to_string()
+    };
+    // unknown key, on every unit
+    for unit in ["day", "calendar_month", "calendar_year"] {
+        let mut p = json!({"value": 1, "unit": unit, "extra": true});
+        if unit != "day" {
+            p["month_end"] = json!("clamp");
+        }
+        let e = err(p);
+        assert!(e.contains("only value"), "{unit}: {e}");
+    }
+    // month_end is meaningless for day arithmetic
+    let e = err(json!({"value": 90, "unit": "day", "month_end": "clamp"}));
+    assert!(
+        e.contains("month_end") && e.contains("only value and unit"),
+        "{e}"
+    );
+    // exact sets still load
+    for p in [
+        json!({"value": 90, "unit": "day"}),
+        json!({"value": 3, "unit": "calendar_month", "month_end": "clamp"}),
+        json!({"value": 1, "unit": "calendar_year", "month_end": "clamp"}),
+    ] {
+        Rule::from_json(&base(
+            json!({"eq": [{"date_add": ["d1", p]}, "d2"]}),
+            json!({"krw": 1}),
+        ))
+        .unwrap();
+    }
 }

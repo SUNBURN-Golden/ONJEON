@@ -22,6 +22,43 @@ pub enum InputType {
     Str,
 }
 
+/// Static type of an expression, checked while the rule loads. `Money` covers both an exact
+/// amount and a range from unspecified rounding; the range is a runtime value, not a type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Ty {
+    Bool,
+    Int,
+    Money,
+    Rate,
+    Date,
+    Str,
+}
+
+impl Ty {
+    fn name(self) -> &'static str {
+        match self {
+            Ty::Bool => "bool",
+            Ty::Int => "int",
+            Ty::Money => "money",
+            Ty::Rate => "rate",
+            Ty::Date => "date",
+            Ty::Str => "string",
+        }
+    }
+}
+
+impl From<InputType> for Ty {
+    fn from(t: InputType) -> Ty {
+        match t {
+            InputType::Bool => Ty::Bool,
+            InputType::Int => Ty::Int,
+            InputType::MoneyKrw => Ty::Money,
+            InputType::Date => Ty::Date,
+            InputType::Str => Ty::Str,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CmpOp {
     Eq,
@@ -282,6 +319,12 @@ impl Rule {
                 .collect::<Result<_, _>>()?,
             _ => return Err(RuleError::at("evidence_refs", "must be an array")),
         };
+        if let Some(i) = evidence_refs.iter().position(|r| r.trim().is_empty()) {
+            return Err(RuleError::at(
+                &format!("evidence_refs[{i}]"),
+                "evidence reference must not be blank",
+            ));
+        }
         if publication_state != "fixture_only" && evidence_refs.is_empty() {
             return Err(RuleError::at(
                 "evidence_refs",
@@ -321,12 +364,14 @@ impl Rule {
                 .ok_or_else(|| RuleError::at("eligibility", "missing"))?,
             &inputs,
             "eligibility",
+            Ty::Bool,
         )?;
         let amount = parse_expr(
             obj.get("amount")
                 .ok_or_else(|| RuleError::at("amount", "missing"))?,
             &inputs,
             "amount",
+            Ty::Money,
         )?;
         Ok(Rule {
             rule_id,
@@ -383,15 +428,49 @@ impl Rule {
     }
 }
 
-/// SHA-256 over the canonical serialization (serde_json sorts object keys),
-/// excluding `release_id` so re-releasing identical content keeps the same hash.
-fn content_hash(v: &J) -> String {
-    let mut canonical = v.clone();
-    if let Some(o) = canonical.as_object_mut() {
+/// Canonical JSON tree for hashing. Objects are `BTreeMap`s, so keys are emitted in
+/// byte-wise order no matter how `serde_json::Map` is configured (its `preserve_order`
+/// feature, enabled by any crate in the build graph, would otherwise make the hash
+/// depend on key order in the file).
+#[derive(serde::Serialize)]
+#[serde(untagged)]
+enum Canon {
+    Null,
+    Bool(bool),
+    Number(serde_json::Number),
+    String(String),
+    Array(Vec<Canon>),
+    Object(BTreeMap<String, Canon>),
+}
+
+fn canonicalize(v: &J) -> Canon {
+    match v {
+        J::Null => Canon::Null,
+        J::Bool(b) => Canon::Bool(*b),
+        J::Number(n) => Canon::Number(n.clone()),
+        J::String(s) => Canon::String(s.clone()),
+        J::Array(a) => Canon::Array(a.iter().map(canonicalize).collect()),
+        J::Object(o) => Canon::Object(
+            o.iter()
+                .map(|(k, x)| (k.clone(), canonicalize(x)))
+                .collect(),
+        ),
+    }
+}
+
+/// Compact JSON with recursively sorted keys, excluding the top-level `release_id`
+/// so re-releasing identical content keeps the same hash.
+fn canonical_bytes(v: &J) -> Vec<u8> {
+    let mut canonical = canonicalize(v);
+    if let Canon::Object(o) = &mut canonical {
         o.remove("release_id");
     }
-    let bytes = serde_json::to_vec(&canonical).expect("a parsed JSON value always serializes");
-    Sha256::digest(bytes)
+    serde_json::to_vec(&canonical).expect("a canonical JSON tree always serializes")
+}
+
+/// SHA-256 (lowercase hex) over [`canonical_bytes`].
+fn content_hash(v: &J) -> String {
+    Sha256::digest(canonical_bytes(v))
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect()
@@ -410,21 +489,43 @@ fn args<'a>(v: &'a J, min: usize, max: usize, path: &str) -> Result<&'a Vec<J>, 
     Ok(a)
 }
 
-fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result<Expr, RuleError> {
+/// Parses `v` and requires it to have static type `want`, so a type mismatch is a load error
+/// (invariant I5) instead of an evaluation error on whichever input happens to reach it.
+fn parse_expr(
+    v: &J,
+    inputs: &BTreeMap<String, InputType>,
+    path: &str,
+    want: Ty,
+) -> Result<Expr, RuleError> {
+    let (e, got) = parse_typed(v, inputs, path)?;
+    if got != want {
+        return Err(RuleError::at(
+            path,
+            format!("expected {}, found {}", want.name(), got.name()),
+        ));
+    }
+    Ok(e)
+}
+
+fn parse_typed(
+    v: &J,
+    inputs: &BTreeMap<String, InputType>,
+    path: &str,
+) -> Result<(Expr, Ty), RuleError> {
     match v {
-        J::Bool(b) => Ok(Expr::Lit(Value::Bool(*b))),
+        J::Bool(b) => Ok((Expr::Lit(Value::Bool(*b)), Ty::Bool)),
         J::Number(n) => match n.as_i64() {
-            Some(i) => Ok(Expr::Lit(Value::Int(i))),
+            Some(i) => Ok((Expr::Lit(Value::Int(i)), Ty::Int)),
             None => Err(RuleError::at(
                 path,
                 "floating-point numbers are not allowed; use a decimal string for rates",
             )),
         },
         J::String(s) => {
-            if inputs.contains_key(s) {
-                Ok(Expr::Input(s.clone()))
+            if let Some(t) = inputs.get(s) {
+                Ok((Expr::Input(s.clone()), Ty::from(*t)))
             } else if let Some(r) = parse_rate(s) {
-                Ok(Expr::Lit(r))
+                Ok((Expr::Lit(r), Ty::Rate))
             } else {
                 Err(RuleError::at(
                     path,
@@ -444,11 +545,10 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                         "an `if` object must have exactly if/then/else",
                     ));
                 }
-                return Ok(Expr::If(
-                    Box::new(parse_expr(&map["if"], inputs, &format!("{path}.if"))?),
-                    Box::new(parse_expr(&map["then"], inputs, &format!("{path}.then"))?),
-                    Box::new(parse_expr(&map["else"], inputs, &format!("{path}.else"))?),
-                ));
+                let cond = parse_expr(&map["if"], inputs, &format!("{path}.if"), Ty::Bool)?;
+                let (then, ty) = parse_typed(&map["then"], inputs, &format!("{path}.then"))?;
+                let els = parse_expr(&map["else"], inputs, &format!("{path}.else"), ty)?;
+                return Ok((Expr::If(Box::new(cond), Box::new(then), Box::new(els)), ty));
             }
             if map.len() != 1 {
                 return Err(RuleError::at(
@@ -458,27 +558,43 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
             }
             let (op, a) = map.iter().next().expect("len checked");
             let p = format!("{path}.{op}");
-            let list = |a: &J, min: usize, p: &str| -> Result<Vec<Expr>, RuleError> {
+            // Every argument of an n-ary operator must have type `want`.
+            let list = |a: &J, min: usize, p: &str, want: Ty| -> Result<Vec<Expr>, RuleError> {
                 let items = args(a, min, 64, p)?;
                 items
                     .iter()
                     .enumerate()
-                    .map(|(i, x)| parse_expr(x, inputs, &format!("{p}[{i}]")))
+                    .map(|(i, x)| parse_expr(x, inputs, &format!("{p}[{i}]"), want))
                     .collect()
             };
-            let two = |a: &J, p: &str| -> Result<(Box<Expr>, Box<Expr>), RuleError> {
+            let two = |a: &J, p: &str, want: Ty| -> Result<(Box<Expr>, Box<Expr>), RuleError> {
                 let items = args(a, 2, 2, p)?;
                 Ok((
-                    Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"))?),
-                    Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"))?),
+                    Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), want)?),
+                    Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), want)?),
                 ))
             };
-            match op.as_str() {
-                "all" => Ok(Expr::All(list(a, 1, &p)?)),
-                "any" => Ok(Expr::Any(list(a, 1, &p)?)),
-                "not" => Ok(Expr::Not(Box::new(parse_expr(a, inputs, &p)?))),
+            let typed = match op.as_str() {
+                "all" => (Expr::All(list(a, 1, &p, Ty::Bool)?), Ty::Bool),
+                "any" => (Expr::Any(list(a, 1, &p, Ty::Bool)?), Ty::Bool),
+                "not" => (Expr::Not(Box::new(parse_expr(a, inputs, &p, Ty::Bool)?)), Ty::Bool),
                 "eq" | "ne" | "lt" | "lte" | "gt" | "gte" => {
-                    let (l, r) = two(a, &p)?;
+                    let items = args(a, 2, 2, &p)?;
+                    let (l, lt) = parse_typed(&items[0], inputs, &format!("{p}[0]"))?;
+                    let (r, rt) = parse_typed(&items[1], inputs, &format!("{p}[1]"))?;
+                    if lt != rt {
+                        return Err(RuleError::at(
+                            &p,
+                            format!("cannot compare {} with {}", lt.name(), rt.name()),
+                        ));
+                    }
+                    if matches!(lt, Ty::Bool | Ty::Str) && !matches!(op.as_str(), "eq" | "ne") {
+                        return Err(RuleError::at(
+                            &p,
+                            format!("ordering comparison is not defined for {}", lt.name()),
+                        ));
+                    }
+                    let (l, r) = (Box::new(l), Box::new(r));
                     let cmp = match op.as_str() {
                         "eq" => CmpOp::Eq,
                         "ne" => CmpOp::Ne,
@@ -487,27 +603,27 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                         "gt" => CmpOp::Gt,
                         _ => CmpOp::Gte,
                     };
-                    Ok(Expr::Cmp(cmp, l, r))
+                    (Expr::Cmp(cmp, l, r), Ty::Bool)
                 }
-                "input" => match a.as_str() {
-                    Some(name) if inputs.contains_key(name) => Ok(Expr::Input(name.to_string())),
-                    _ => Err(RuleError::at(&p, "must name a declared input")),
+                "input" => match a.as_str().and_then(|name| inputs.get(name).map(|t| (name, *t))) {
+                    Some((name, t)) => (Expr::Input(name.to_string()), Ty::from(t)),
+                    None => return Err(RuleError::at(&p, "must name a declared input")),
                 },
                 "rate" => a
                     .as_str()
                     .and_then(parse_rate)
-                    .map(Expr::Lit)
-                    .ok_or_else(|| RuleError::at(&p, "must be a non-negative decimal string")),
+                    .map(|r| (Expr::Lit(r), Ty::Rate))
+                    .ok_or_else(|| RuleError::at(&p, "must be a non-negative decimal string"))?,
                 "krw" => match a.as_i64() {
-                    Some(n) if n >= 0 => Ok(Expr::Lit(Value::Money(n))),
-                    _ => Err(RuleError::at(&p, "must be a non-negative integer")),
+                    Some(n) if n >= 0 => (Expr::Lit(Value::Money(n)), Ty::Money),
+                    _ => return Err(RuleError::at(&p, "must be a non-negative integer")),
                 },
                 "date" => a
                     .as_str()
                     .and_then(crate::date::parse_date)
-                    .map(|d| Expr::Lit(Value::Date(d)))
-                    .ok_or_else(|| RuleError::at(&p, "must be a valid YYYY-MM-DD date")),
-                "multiply" => Err(RuleError::at(&p, "`multiply` is not allowed; use `multiply_rate` with explicit rounding and unit")),
+                    .map(|d| (Expr::Lit(Value::Date(d)), Ty::Date))
+                    .ok_or_else(|| RuleError::at(&p, "must be a valid YYYY-MM-DD date"))?,
+                "multiply" => return Err(RuleError::at(&p, "`multiply` is not allowed; use `multiply_rate` with explicit rounding and unit")),
                 "multiply_rate" => {
                     let items = args(a, 3, 3, &p)?;
                     let params = items[2].as_object().ok_or_else(|| RuleError::at(&p, "third argument must be {rounding, unit}"))?;
@@ -526,19 +642,16 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                     if params.len() != 2 {
                         return Err(RuleError::at(&p, "only rounding and unit are allowed"));
                     }
-                    Ok(Expr::MultiplyRate {
-                        money: Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"))?),
-                        rate: Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"))?),
-                        rounding,
-                        unit,
-                    })
+                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
+                    let rate = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Rate)?);
+                    (Expr::MultiplyRate { money, rate, rounding, unit }, Ty::Money)
                 }
-                "add" => Ok(Expr::Add(list(a, 2, &p)?)),
-                "min" => Ok(Expr::Min(list(a, 2, &p)?)),
-                "max" => Ok(Expr::Max(list(a, 2, &p)?)),
+                "add" => (Expr::Add(list(a, 2, &p, Ty::Money)?), Ty::Money),
+                "min" => (Expr::Min(list(a, 2, &p, Ty::Money)?), Ty::Money),
+                "max" => (Expr::Max(list(a, 2, &p, Ty::Money)?), Ty::Money),
                 "apply_cap" => {
-                    let (m, c) = two(a, &p)?;
-                    Ok(Expr::ApplyCap(m, c))
+                    let (m, c) = two(a, &p, Ty::Money)?;
+                    (Expr::ApplyCap(m, c), Ty::Money)
                 }
                 "days_between" => {
                     let items = args(a, 3, 3, &p)?;
@@ -552,12 +665,11 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                     if params.len() != 2 {
                         return Err(RuleError::at(&p, "only inclusive_start and inclusive_end are allowed"));
                     }
-                    Ok(Expr::DaysBetween {
-                        a: Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"))?),
-                        b: Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"))?),
-                        inclusive_start: s,
-                        inclusive_end: e,
-                    })
+                    let (a, b) = (
+                        Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Date)?),
+                        Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Date)?),
+                    );
+                    (Expr::DaysBetween { a, b, inclusive_start: s, inclusive_end: e }, Ty::Int)
                 }
                 "date_add" => {
                     let items = args(a, 2, 2, &p)?;
@@ -582,10 +694,45 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                     if unit != DurUnit::Day && params.get("month_end").and_then(J::as_str) != Some("clamp") {
                         return Err(RuleError::at(&p, "month/year arithmetic requires month_end=\"clamp\" (never assume 365 days per year)"));
                     }
-                    Ok(Expr::DateAdd { date: Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"))?), value, unit })
+                    // Exact key sets, like `multiply_rate`: day => {value, unit}; month/year => {value, unit, month_end}.
+                    let (allowed, expected_len) = if unit == DurUnit::Day { ("value and unit", 2) } else { ("value, unit and month_end", 3) };
+                    if params.len() != expected_len {
+                        let hint = if unit == DurUnit::Day && params.contains_key("month_end") { " (`month_end` applies only to calendar_month|calendar_year)" } else { "" };
+                        return Err(RuleError::at(&p, format!("only {allowed} are allowed for this unit{hint}")));
+                    }
+                    let date = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Date)?);
+                    (Expr::DateAdd { date, value, unit }, Ty::Date)
                 }
-                other => Err(RuleError::at(path, format!("operator `{other}` is not in the allow-list"))),
-            }
+                other => return Err(RuleError::at(path, format!("operator `{other}` is not in the allow-list"))),
+            };
+            Ok(typed)
         }
+    }
+}
+
+#[cfg(test)]
+mod canonical_tests {
+    use super::*;
+
+    #[test]
+    fn canonical_bytes_sort_keys_recursively_and_drop_release_id() {
+        let v: J = serde_json::from_str(
+            r#"{"z":1,"release_id":"r","a":{"y":[{"d":null,"c":true}],"b":"x"},"m":{"release_id":"kept"}}"#,
+        )
+        .unwrap();
+        assert_eq!(
+            String::from_utf8(canonical_bytes(&v)).unwrap(),
+            r#"{"a":{"b":"x","y":[{"c":true,"d":null}]},"m":{"release_id":"kept"},"z":1}"#
+        );
+    }
+
+    #[test]
+    fn content_hash_matches_independent_sha256_of_the_canonical_text() {
+        // sha256 of the exact bytes `{"a":1,"b":2}` (computed outside this crate)
+        let v: J = serde_json::from_str(r#"{"b":2,"a":1,"release_id":"x"}"#).unwrap();
+        assert_eq!(
+            content_hash(&v),
+            "43258cff783fe7036d8a43033f830adfc60ec037382473548ac742b888292777"
+        );
     }
 }

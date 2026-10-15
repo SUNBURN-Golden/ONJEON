@@ -484,7 +484,9 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
     import source_archive as sa
     attempts = attempts or policy["per_request"]["reserve_attempts"]
     known = None
-    for _ in range(attempts):
+    for attempt in range(attempts):
+        if attempt:  # a lost race means other runs were admitted meanwhile: the headroom must see them
+            admissions = ledger.admissions()
         records, prev = ledger.read(known)
         known = (records, prev)
         glob, used_job = Ledger.usage(records, job["job_id"], month, admissions, policy["admission"]["limits"])
@@ -505,7 +507,7 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
             rec, rec_sha = ledger.append(body, len(records), prev)
             return rec, rec_sha, {d: policy["caps"][d] - glob[d] - want[d] for d in DIMENSIONS}
         except sa.Exists:
-            continue  # lost the race: read only the newer records and re-check
+            continue  # lost the race: read the newer records, re-list admissions, re-check
         except BudgetError:
             raise
         except Exception as e:
@@ -528,6 +530,8 @@ class Session:
         self.gate = LocalGate(self.policy, self.job["job_id"], gate_dir)
         self.reservation = None
         self.admitted = False
+        self._alarm_installed = False  # True while our SIGALRM handler is in place
+        self._prev_alarm_handler = None
 
     def _refuse_and_maybe_close(self, month, admissions, err):
         job_n = this_month(admissions, month, self.job["job_id"])
@@ -580,15 +584,29 @@ class Session:
         if hasattr(signal, "SIGALRM"):  # wall clock limit even while no request is in flight
             def alarm(signum, frame):
                 raise BudgetError(f"run time limit {self.job['per_run']['seconds']}s reached")
-            signal.signal(signal.SIGALRM, alarm)
+            self._prev_alarm_handler = signal.signal(signal.SIGALRM, alarm)
+            self._alarm_installed = True
             signal.alarm(self.job["per_run"]["seconds"])
         return remaining
+
+    def _restore_alarm(self):
+        """Stop our timer first, then put back the handler that was there before open()."""
+        if not self._alarm_installed:
+            return
+        signal.alarm(0)
+        prev = self._prev_alarm_handler
+        # signal.signal() returns None for a handler that was not installed from Python
+        signal.signal(signal.SIGALRM, signal.SIG_DFL if prev is None else prev)
+        self._alarm_installed = False
+        self._prev_alarm_handler = None
 
     def settle(self, outcome):
         """Record the measured use plus the worst case of this very write, capped at the reservation.
         If this fails the admission and the reservation simply keep counting in full."""
-        if hasattr(signal, "SIGALRM"):
-            signal.alarm(0)
+        try:
+            self._restore_alarm()
+        except BaseException:
+            pass  # never let the handler restore block the settlement itself
         try:
             if self.reservation is None:
                 return None

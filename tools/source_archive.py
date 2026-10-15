@@ -37,6 +37,8 @@ Usage:
   source_archive.py listing --src T --out listing.json   # key -> sha256 of every object (no content)
   source_archive.py verify-copy (--src T | --expected listing.json) --dst s3://bucket [--report out.json]
                                                      # download every key back and compare bytes
+Exit codes: 0 ok, 1 failed check, 3 conflict, 4 budget stop, 5 storage (botocore) error. On 5 only the
+exception type is printed: botocore messages and tracebacks contain the endpoint URL (R2 account id).
 """
 import argparse
 import base64
@@ -520,6 +522,15 @@ def main():
     return with_budget(a.job, a.endpoint_url, lambda: run(a))
 
 
+def boto_errors():
+    """botocore's exception bases; empty when botocore is not installed (file:// targets never need it)."""
+    try:
+        from botocore.exceptions import BotoCoreError, ClientError
+    except ImportError:
+        return ()
+    return (BotoCoreError, ClientError)
+
+
 def with_budget(job, endpoint_url, fn):
     """Run fn inside a budget session when a job is given; always settle; print the usage."""
     import r2_budget
@@ -538,6 +549,13 @@ def with_budget(job, endpoint_url, fn):
         print(str(e), file=sys.stderr)
         outcome, code = "budget_stop", 4
         return 4
+    except Exception as e:
+        if not isinstance(e, boto_errors()):
+            raise
+        # Type only: a botocore message and traceback carry the endpoint URL (R2 account id).
+        print(f"storage error: {type(e).__name__} (message and endpoint withheld)", file=sys.stderr)
+        outcome, code = "storage_error", 5
+        return 5
     finally:
         if job:
             summary = r2_budget.finish(outcome)

@@ -463,12 +463,21 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
             match (&x.v, &y.v) {
                 (Value::Date(s), Value::Date(e)) => {
                     let diff = e - s;
-                    // Negative: the second date is before the first; report the raw signed gap.
-                    let n = if diff < 0 {
-                        diff
-                    } else {
-                        (diff - 1 + i64::from(*inclusive_start) + i64::from(*inclusive_end)).max(0)
-                    };
+                    // Inclusivity is defined for a forward interval only; a raw negative gap
+                    // would be a different scale (and 0 would be ambiguous), so reject it.
+                    if diff < 0 {
+                        return Err(type_err(
+                            path,
+                            format!(
+                                "days_between needs the first date on or before the second, \
+                                 found the second {} day(s) earlier; compare the dates with \
+                                 lt/gt instead",
+                                -diff
+                            ),
+                        ));
+                    }
+                    let n =
+                        (diff - 1 + i64::from(*inclusive_start) + i64::from(*inclusive_end)).max(0);
                     Ok(Ev::known(Value::Int(n)))
                 }
                 (p, q) => Err(type_err(

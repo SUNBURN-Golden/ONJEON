@@ -10,7 +10,16 @@ pub fn fixtures_dir() -> PathBuf {
 pub fn rule_json() -> J {
     let s = std::fs::read_to_string(fixtures_dir().join("fixture-rule-001.json"))
         .expect("rule fixture");
-    serde_json::from_str(&s).expect("valid json")
+    let j: J = serde_json::from_str(&s).expect("valid json");
+    assert_eq!(
+        j["publication_state"], "fixture_only",
+        "fixture-rule-001.json is synthetic and must never be publishable"
+    );
+    assert_eq!(
+        j["example_kind"], "synthetic_not_a_real_product",
+        "fixture-rule-001.json must keep its synthetic marker"
+    );
+    j
 }
 
 pub fn cases() -> Vec<J> {

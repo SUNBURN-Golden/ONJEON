@@ -1,6 +1,7 @@
 mod common;
 use common::*;
 use onjeon_rules_engine::Rule;
+use serde_json::Value as J;
 
 #[test]
 fn golden_table_matches_expert_expectations() {
@@ -57,4 +58,100 @@ fn synthetic_fixture_rule_is_fixture_only() {
         rule.source_json()["example_kind"],
         "synthetic_not_a_real_product"
     );
+}
+
+fn pinned_hash(file: &str) -> String {
+    std::fs::read_to_string(fixtures_dir().join(file))
+        .expect("pinned hash fixture")
+        .trim()
+        .to_string()
+}
+
+/// The golden table also pins the audit fields: per-case `trace` and `input_snapshot_hash`
+/// (in `fixture-rule-001.golden.json`) and the rule's `rule_content_hash`
+/// (in `fixture-rule-001.content_hash`). `expect` stays outcome-only.
+#[test]
+fn golden_table_pins_trace_and_hashes() {
+    let rule = Rule::from_json(&rule_json()).unwrap();
+    let golden = load_json(&fixtures_dir().join("fixture-rule-001.golden.json"));
+    let pinned = golden["cases"].as_object().expect("golden cases object");
+    let rule_hash = pinned_hash("fixture-rule-001.content_hash");
+    let all = cases();
+    assert_eq!(
+        pinned.len(),
+        all.len(),
+        "golden.json must pin exactly the cases in cases.json"
+    );
+    let mut failures = Vec::new();
+    for case in &all {
+        let id = case["id"].as_str().unwrap();
+        let Some(want) = pinned.get(id) else {
+            failures.push(format!("{id}: no pinned trace/hash"));
+            continue;
+        };
+        let got = observe_full(&rule, &case["inputs"]);
+        let mut expected = case["expect"].clone();
+        expected["trace"] = want["trace"].clone();
+        expected["input_snapshot_hash"] = want["input_snapshot_hash"].clone();
+        expected["rule_content_hash"] = J::String(rule_hash.clone());
+        if got != expected {
+            failures.push(format!("{id}: expected {expected} but got {got}"));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "golden trace/hash failures:\n{}",
+        failures.join("\n")
+    );
+}
+
+#[test]
+fn pinned_input_snapshot_hashes_are_distinct_per_distinct_input() {
+    let golden = load_json(&fixtures_dir().join("fixture-rule-001.golden.json"));
+    let mut by_hash: std::collections::BTreeMap<String, String> = Default::default();
+    for case in cases() {
+        let id = case["id"].as_str().unwrap().to_string();
+        let h = golden["cases"][&id]["input_snapshot_hash"]
+            .as_str()
+            .unwrap_or_else(|| panic!("{id}: missing pinned input_snapshot_hash"))
+            .to_string();
+        assert_eq!(h.len(), 64, "{id}");
+        if let Some(prev) = by_hash.insert(h, id.clone()) {
+            let inputs =
+                |n: &str| cases().into_iter().find(|c| c["id"] == n).unwrap()["inputs"].clone();
+            assert_eq!(
+                inputs(&prev),
+                inputs(&id),
+                "{prev} and {id} share a hash but differ in inputs"
+            );
+        }
+    }
+}
+
+/// Every real rule's `rule_content_hash` is pinned in `real.content_hashes.json`, so an edit to
+/// a published-style rule cannot change what a result claims to have run without a visible diff.
+#[test]
+fn real_rule_content_hashes_are_pinned() {
+    let pinned = load_json(&fixtures_dir().join("real.content_hashes.json"));
+    let pinned = pinned["hashes"].as_object().expect("hashes object");
+    let rules = real_rules();
+    let have: Vec<&String> = rules.keys().collect();
+    let want: Vec<&String> = pinned.keys().collect();
+    assert_eq!(
+        have, want,
+        "pinned set must equal the rules in fixtures/rules/real"
+    );
+    for (id, rule) in &rules {
+        assert_eq!(
+            Some(rule.content_hash()),
+            pinned[id].as_str(),
+            "{id}: rule_content_hash changed; update real.content_hashes.json only if intended"
+        );
+        // The result reports the same hash that is pinned.
+        let case = real_cases().into_iter().find(|(_, r, _)| r == id);
+        if let Some((_, _, inputs)) = case {
+            let got = observe_full(rule, &inputs);
+            assert_eq!(got["rule_content_hash"], pinned[id], "{id}");
+        }
+    }
 }

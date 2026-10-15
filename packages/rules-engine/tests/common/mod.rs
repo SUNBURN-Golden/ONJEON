@@ -42,6 +42,19 @@ pub fn observe(rule: &Rule, inputs: &J) -> J {
     })
 }
 
+/// `observe` plus the audit fields a regression could silently change: the evaluation
+/// `trace`, `rule_content_hash` and `input_snapshot_hash`.
+pub fn observe_full(rule: &Rule, inputs: &J) -> J {
+    let r = rule
+        .evaluate(inputs)
+        .expect("evaluation must not error on fixture inputs");
+    let mut out = observe(rule, inputs);
+    out["trace"] = serde_json::to_value(&r.trace).unwrap();
+    out["rule_content_hash"] = json!(r.rule_content_hash);
+    out["input_snapshot_hash"] = json!(r.input_snapshot_hash);
+    out
+}
+
 pub fn case_passes(rule: &Rule, case: &J) -> bool {
     observe(rule, &case["inputs"]) == case["expect"]
 }

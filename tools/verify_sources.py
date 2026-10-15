@@ -11,7 +11,7 @@ detect     현재 출처 변경 감지 — fetch each recorded URL now and compa
            a different document is a new version candidate to archive and review. It never
            replaces the past original and never turns a past reproduction into a failure.
            Status codes: vocabulary axis `source_change`. For HTML the content hash
-           (tools/html_content_hash.py, rule html-visible-text-v1) is an auxiliary signal; equal
+           (tools/html_content_hash.py, rule html-visible-text-v2) is an auxiliary signal; equal
            content with different bytes is `bytes_changed_content_same`, never byte identity.
 
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a

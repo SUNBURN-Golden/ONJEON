@@ -223,6 +223,35 @@ class DetectExit(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertNotIn("fetch_failed", summary)
 
+    def html_row(self, rule, body):
+        import html_content_hash as hch
+        return {"sample_id": "s1", "url": "https://example.org/p", "sha256": "0" * 64, "format": "html",
+                "cache_path": "s1/page.html", "content_sha256": hch.content_sha256(body, "example.org"),
+                "content_hash_rule": rule}
+
+    def detect_html(self, rule, before, after):
+        from unittest import mock
+        row = self.html_row(rule, before)
+        with mock.patch.object(vs, "rows", return_value=[row]):
+            return self.run_detect(lambda url: (after, "text/html"))[1]
+
+    def test_current_rule_hash_reports_bytes_changed_content_same(self):
+        import html_content_hash as hch
+        a = b'<a href="/d?id=7&jsessionid=A">x</a>'
+        b = b'<a href="/d?id=7&jsessionid=B">x</a>'
+        self.assertEqual(self.detect_html(hch.RULE, a, b), {"bytes_changed_content_same": 1})
+
+    def test_sid_document_id_change_is_changed_not_same(self):
+        import html_content_hash as hch
+        a = b'<a href="/d?sid=1001">x</a>'
+        b = b'<a href="/d?sid=1002">x</a>'
+        self.assertEqual(self.detect_html(hch.RULE, a, b), {"changed": 1})
+
+    def test_baseline_under_an_older_rule_is_not_compared(self):
+        a = b'<a href="/d?id=7&jsessionid=A">x</a>'
+        b = b'<a href="/d?id=7&jsessionid=B">x</a>'
+        self.assertEqual(self.detect_html("html-visible-text-v1", a, b), {"changed": 1})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -48,3 +48,13 @@ fn trace_records_every_evaluated_node_and_hash_changes_with_input() {
     let r2 = rule.evaluate(&serde_json::json!({"elapsed_calendar_days": 1, "target_event": true, "excluded_X": false, "already_paid": false, "insured_amount_krw": 10000000})).unwrap();
     assert_ne!(r1.input_snapshot_hash, r2.input_snapshot_hash);
 }
+
+#[test]
+fn synthetic_fixture_rule_is_fixture_only() {
+    let rule = Rule::from_json(&rule_json()).unwrap();
+    assert_eq!(rule.publication_state(), "fixture_only");
+    assert_eq!(
+        rule.source_json()["example_kind"],
+        "synthetic_not_a_real_product"
+    );
+}

@@ -240,3 +240,42 @@ fn evaluation_rejects_undeclared_or_mistyped_inputs() {
         "negative money is rejected"
     );
 }
+
+#[test]
+fn date_add_params_are_a_closed_key_set() {
+    let err = |params: J| {
+        Rule::from_json(&base(
+            json!({"eq": [{"date_add": ["d1", params]}, "d2"]}),
+            json!({"krw": 1}),
+        ))
+        .unwrap_err()
+        .to_string()
+    };
+    // unknown key, on every unit
+    for unit in ["day", "calendar_month", "calendar_year"] {
+        let mut p = json!({"value": 1, "unit": unit, "extra": true});
+        if unit != "day" {
+            p["month_end"] = json!("clamp");
+        }
+        let e = err(p);
+        assert!(e.contains("only value"), "{unit}: {e}");
+    }
+    // month_end is meaningless for day arithmetic
+    let e = err(json!({"value": 90, "unit": "day", "month_end": "clamp"}));
+    assert!(
+        e.contains("month_end") && e.contains("only value and unit"),
+        "{e}"
+    );
+    // exact sets still load
+    for p in [
+        json!({"value": 90, "unit": "day"}),
+        json!({"value": 3, "unit": "calendar_month", "month_end": "clamp"}),
+        json!({"value": 1, "unit": "calendar_year", "month_end": "clamp"}),
+    ] {
+        Rule::from_json(&base(
+            json!({"eq": [{"date_add": ["d1", p]}, "d2"]}),
+            json!({"krw": 1}),
+        ))
+        .unwrap();
+    }
+}

@@ -383,15 +383,49 @@ impl Rule {
     }
 }
 
-/// SHA-256 over the canonical serialization (serde_json sorts object keys),
-/// excluding `release_id` so re-releasing identical content keeps the same hash.
-fn content_hash(v: &J) -> String {
-    let mut canonical = v.clone();
-    if let Some(o) = canonical.as_object_mut() {
+/// Canonical JSON tree for hashing. Objects are `BTreeMap`s, so keys are emitted in
+/// byte-wise order no matter how `serde_json::Map` is configured (its `preserve_order`
+/// feature, enabled by any crate in the build graph, would otherwise make the hash
+/// depend on key order in the file).
+#[derive(serde::Serialize)]
+#[serde(untagged)]
+enum Canon {
+    Null,
+    Bool(bool),
+    Number(serde_json::Number),
+    String(String),
+    Array(Vec<Canon>),
+    Object(BTreeMap<String, Canon>),
+}
+
+fn canonicalize(v: &J) -> Canon {
+    match v {
+        J::Null => Canon::Null,
+        J::Bool(b) => Canon::Bool(*b),
+        J::Number(n) => Canon::Number(n.clone()),
+        J::String(s) => Canon::String(s.clone()),
+        J::Array(a) => Canon::Array(a.iter().map(canonicalize).collect()),
+        J::Object(o) => Canon::Object(
+            o.iter()
+                .map(|(k, x)| (k.clone(), canonicalize(x)))
+                .collect(),
+        ),
+    }
+}
+
+/// Compact JSON with recursively sorted keys, excluding the top-level `release_id`
+/// so re-releasing identical content keeps the same hash.
+fn canonical_bytes(v: &J) -> Vec<u8> {
+    let mut canonical = canonicalize(v);
+    if let Canon::Object(o) = &mut canonical {
         o.remove("release_id");
     }
-    let bytes = serde_json::to_vec(&canonical).expect("a parsed JSON value always serializes");
-    Sha256::digest(bytes)
+    serde_json::to_vec(&canonical).expect("a canonical JSON tree always serializes")
+}
+
+/// SHA-256 (lowercase hex) over [`canonical_bytes`].
+fn content_hash(v: &J) -> String {
+    Sha256::digest(canonical_bytes(v))
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect()
@@ -587,5 +621,32 @@ fn parse_expr(v: &J, inputs: &BTreeMap<String, InputType>, path: &str) -> Result
                 other => Err(RuleError::at(path, format!("operator `{other}` is not in the allow-list"))),
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod canonical_tests {
+    use super::*;
+
+    #[test]
+    fn canonical_bytes_sort_keys_recursively_and_drop_release_id() {
+        let v: J = serde_json::from_str(
+            r#"{"z":1,"release_id":"r","a":{"y":[{"d":null,"c":true}],"b":"x"},"m":{"release_id":"kept"}}"#,
+        )
+        .unwrap();
+        assert_eq!(
+            String::from_utf8(canonical_bytes(&v)).unwrap(),
+            r#"{"a":{"b":"x","y":[{"c":true,"d":null}]},"m":{"release_id":"kept"},"z":1}"#
+        );
+    }
+
+    #[test]
+    fn content_hash_matches_independent_sha256_of_the_canonical_text() {
+        // sha256 of the exact bytes `{"a":1,"b":2}` (computed outside this crate)
+        let v: J = serde_json::from_str(r#"{"b":2,"a":1,"release_id":"x"}"#).unwrap();
+        assert_eq!(
+            content_hash(&v),
+            "43258cff783fe7036d8a43033f830adfc60ec037382473548ac742b888292777"
+        );
     }
 }

@@ -2,6 +2,7 @@
 //! 1. results must identify the exact rule content, version, release and evidence;
 //! 2. ranges from unspecified rounding must flow through later multiplication;
 //! 3. date arithmetic must reject out-of-range values instead of overflowing.
+mod common;
 use onjeon_rules_engine::{AmountOut, EvalError, Payout, Rule};
 use serde_json::{json, Value as J};
 
@@ -259,4 +260,15 @@ fn reloading_the_source_json_reproduces_the_same_rule_identity() {
             amount: AmountOut::Exact { krw: 2 }
         }
     );
+}
+
+#[test]
+fn fixture_rule_content_hash_is_pinned() {
+    // The hash is part of the audit trail: it must not change unless the canonical form
+    // or the fixture content changes on purpose (then update the .content_hash file).
+    let pinned =
+        std::fs::read_to_string(common::fixtures_dir().join("fixture-rule-001.content_hash"))
+            .expect("pinned hash fixture");
+    let rule = Rule::from_json(&common::rule_json()).unwrap();
+    assert_eq!(rule.content_hash(), pinned.trim());
 }

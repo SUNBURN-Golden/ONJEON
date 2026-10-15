@@ -4,49 +4,25 @@
 mod common;
 use common::*;
 use onjeon_rules_engine::Rule;
-use serde_json::{json, Map, Value as J};
+use serde_json::{json, Value as J};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-fn real_dir() -> PathBuf {
-    fixtures_dir().join("real")
-}
-
-fn load(path: &PathBuf) -> J {
-    serde_json::from_str(&std::fs::read_to_string(path).expect("readable")).expect("valid json")
-}
-
 fn rules() -> BTreeMap<String, Rule> {
-    let mut out = BTreeMap::new();
-    for e in std::fs::read_dir(real_dir()).unwrap() {
-        let p = e.unwrap().path();
-        let name = p.file_name().unwrap().to_string_lossy().to_string();
-        if name.ends_with(".json") && !name.ends_with(".cases.json") {
-            let rule = Rule::from_json(&load(&p)).unwrap_or_else(|e| panic!("{name}: {e}"));
-            assert_eq!(
-                rule.publication_state(),
-                "fixture_only",
-                "{name}: real-clause validation rules must never be publishable"
-            );
-            assert_eq!(
-                rule.source_json()["example_kind"],
-                "real_clause_design_validation",
-                "{name}"
-            );
-            out.insert(rule.rule_id().to_string(), rule);
-        }
+    let rules = real_rules();
+    for (id, rule) in &rules {
+        assert_eq!(
+            rule.publication_state(),
+            "fixture_only",
+            "{id}: real-clause validation rules must never be publishable"
+        );
+        assert_eq!(
+            rule.source_json()["example_kind"],
+            "real_clause_design_validation",
+            "{id}"
+        );
     }
-    out
-}
-
-fn merged(base: &J, set: Option<&J>) -> J {
-    let mut m: Map<String, J> = base.as_object().cloned().unwrap_or_default();
-    if let Some(J::Object(s)) = set {
-        for (k, v) in s {
-            m.insert(k.clone(), v.clone());
-        }
-    }
-    J::Object(m)
+    rules
 }
 
 #[test]
@@ -54,29 +30,17 @@ fn every_real_clause_case_matches() {
     let rules = rules();
     let mut failures = Vec::new();
     let mut n = 0;
-    for e in std::fs::read_dir(real_dir()).unwrap() {
-        let p = e.unwrap().path();
-        if !p.to_string_lossy().ends_with(".cases.json") {
-            continue;
-        }
-        let file = load(&p);
-        for case in file["cases"].as_array().unwrap() {
-            let rule_id = case["rule"]
-                .as_str()
-                .or_else(|| file["rule_id"].as_str())
-                .unwrap_or_else(|| panic!("{}: case {} names no rule", p.display(), case["id"]));
-            let rule = rules
-                .get(rule_id)
-                .unwrap_or_else(|| panic!("unknown rule {rule_id}"));
-            let inputs = merged(&file["base"], case.get("set"));
-            let observed = observe(rule, &inputs);
-            n += 1;
-            if observed != case["expect"] {
-                failures.push(format!(
-                    "{}: expected {} got {}",
-                    case["id"], case["expect"], observed
-                ));
-            }
+    for (case, rule_id, inputs) in real_cases() {
+        let rule = rules
+            .get(&rule_id)
+            .unwrap_or_else(|| panic!("unknown rule {rule_id}"));
+        let observed = observe(rule, &inputs);
+        n += 1;
+        if observed != case["expect"] {
+            failures.push(format!(
+                "{}: expected {} got {}",
+                case["id"], case["expect"], observed
+            ));
         }
     }
     assert!(n >= 40, "expected the full real-clause case set, ran {n}");
@@ -152,7 +116,7 @@ fn every_real_rule_evidence_ref_names_an_encoded_clause() {
             let (file, clause) = r
                 .split_once('#')
                 .unwrap_or_else(|| panic!("{id}: evidence ref `{r}` must be <file>#<clause_id>"));
-            let doc = load(&encoded.join(format!("{file}.json")));
+            let doc = load_json(&encoded.join(format!("{file}.json")));
             let found = doc["clauses"]
                 .as_array()
                 .unwrap()
@@ -273,7 +237,7 @@ fn screen_errors(screen: &J, rules: &BTreeMap<String, Rule>) -> Vec<String> {
 }
 
 fn detail_screen() -> J {
-    load(
+    load_json(
         &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../docs/blueprint/validation/screen/coverage_detail.cancer.json"),
     )

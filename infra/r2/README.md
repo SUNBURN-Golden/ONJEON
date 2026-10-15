@@ -77,6 +77,8 @@ python3 -I tools/verify_sources.py --job "$J" reproduce --raw s3://onjeon-raw-so
 python3 -I tools/r2_budget.py status --job "$J"     # 남은 한도
 ```
 
+`verify-copy`는 고정 목록에 없는 키가 버킷에 있으면(유출·잘못 올린 객체) 보고하고 종료 코드 1로 실패한다. 의도적으로 허용할 때만 `--allow-extra`를 붙인다(보고서에는 계속 남는다).
+
 종료 코드: 0 성공, 1 검사 실패, 3 쓰기 충돌(덮어쓰지 않음), 4 비용 한도 도달 또는 원장 검증 실패(요청 전 중단). 필요한 것: Python 3, `pip install "boto3>=1.35" pdfplumber==0.11.10`(boto3 1.35 미만은 조건부 쓰기를 보내지 못해 도구가 쓰기 전에 멈춘다), poppler-utils(`pdftotext`), OCR 재실행 시 tesseract(kor).
 
 ## 6. 검증한 것과 하지 않은 것 (2026-10-09)

@@ -446,7 +446,8 @@ def cmd_listing(a):
 def cmd_verify_copy(a):
     """Download every key of the destination back and compare it with the source, byte for byte.
     Covers what verify does not: extra originals, every observation, derived outputs and manifests.
-    The source is a store (--src) or a pinned listing (--expected, from the listing command)."""
+    The source is a store (--src) or a pinned listing (--expected, from the listing command).
+    Keys in the destination that the source does not have (leaked objects) fail the check unless --allow-extra."""
     dst = store(a.dst, a.endpoint_url)
     if getattr(a, "expected", None):
         expected = json.loads(Path(a.expected).read_text(encoding="utf-8"))["objects"]
@@ -476,7 +477,8 @@ def cmd_verify_copy(a):
     if a.report:
         Path(a.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary))
-    return 0 if summary.get("byte_identical", 0) == len(src_keys) and src_keys else 1
+    identical = bool(src_keys) and summary.get("byte_identical", 0) == len(src_keys)
+    return 0 if identical and (a.allow_extra or not extra) else 1
 
 
 def main():
@@ -512,6 +514,8 @@ def main():
     g.add_argument("--expected", help="pinned listing JSON (key -> sha256) instead of a source store")
     s.add_argument("--dst", required=True)
     s.add_argument("--report")
+    s.add_argument("--allow-extra", action="store_true",
+                   help="report keys only present in the destination but do not fail on them")
     a = ap.parse_args()
     return with_budget(a.job, a.endpoint_url, lambda: run(a))
 

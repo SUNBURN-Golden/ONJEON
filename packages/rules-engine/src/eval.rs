@@ -263,6 +263,23 @@ fn eval(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalError> {
     Ok(out)
 }
 
+/// Evaluates a branch whose selection is still undecided. A failure is returned instead of
+/// aborting the rule, and its partial trace is replaced by one `error:` entry so the trace
+/// shows why the branch contributed nothing.
+fn eval_untaken(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalError> {
+    let mark = ctx.trace.len();
+    let out = eval(expr, path, ctx);
+    if let Err(err) = &out {
+        ctx.trace.truncate(mark);
+        ctx.trace.push(TraceEntry {
+            path: path.to_string(),
+            op: expr.op_name(),
+            result: format!("error: {err}"),
+        });
+    }
+    out
+}
+
 fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalError> {
     match expr {
         Expr::Lit(v) => Ok(Ev::known(v.clone())),
@@ -328,14 +345,26 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
                 Tri::True => eval(t, &format!("{path}.then"), ctx),
                 Tri::False => eval(e, &format!("{path}.else"), ctx),
                 Tri::Unknown => {
-                    let a = eval(t, &format!("{path}.then"), ctx)?;
-                    let b = eval(e, &format!("{path}.else"), ctx)?;
+                    let then_path = format!("{path}.then");
+                    let else_path = format!("{path}.else");
+                    let a = eval_untaken(t, &then_path, ctx);
+                    let b = eval_untaken(e, &else_path, ctx);
+                    // An error in a branch only matters if that branch is taken, and the
+                    // condition is undecided. If both branches fail the rule fails either
+                    // way, so that error is real; otherwise the failed branch is unknown.
+                    let (a, b) = match (a, b) {
+                        (Err(err), Err(_)) => return Err(err),
+                        (a, b) => (
+                            a.unwrap_or_else(|_| Ev::unknown(BTreeSet::new())),
+                            b.unwrap_or_else(|_| Ev::unknown(BTreeSet::new())),
+                        ),
+                    };
                     if !a.v.is_unknown() && a.v == b.v {
                         Ok(a)
                     } else {
                         // The condition is undecided and the branches disagree (or one is
-                        // itself unknown). Blockers are the condition's unknown inputs plus
-                        // the unknown inputs inside any unknown branch.
+                        // itself unknown or failed). Blockers are the condition's unknown
+                        // inputs plus the unknown inputs inside any unknown branch.
                         let mut blockers = cond.blockers;
                         blockers.extend(union_unknown([&a, &b]));
                         Ok(Ev::unknown(blockers))

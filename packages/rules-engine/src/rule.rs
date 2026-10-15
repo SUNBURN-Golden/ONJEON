@@ -319,6 +319,12 @@ impl Rule {
                 .collect::<Result<_, _>>()?,
             _ => return Err(RuleError::at("evidence_refs", "must be an array")),
         };
+        if let Some(i) = evidence_refs.iter().position(|r| r.trim().is_empty()) {
+            return Err(RuleError::at(
+                &format!("evidence_refs[{i}]"),
+                "evidence reference must not be blank",
+            ));
+        }
         if publication_state != "fixture_only" && evidence_refs.is_empty() {
             return Err(RuleError::at(
                 "evidence_refs",

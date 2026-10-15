@@ -7,7 +7,10 @@ instead of the stdlib's first-match-wins with literal paths: the longest matchin
 Outcomes per host (RFC 9309, plus the project rule "when in doubt, do not fetch"):
   200            parse; Disallow/Allow honoured for our product token; Crawl-delay returned (else None)
   other 2xx      treated as 200
-  4xx except 401/403   robots.txt not found => everything allowed
+  4xx except 401/403/429   robots.txt not found => everything allowed
+  429            rate limited: host DEFERRED for the rest of the UTC day, reason robots_rate_limited
+  2xx larger than the cap with nothing parseable (declared Content-Length too big, or no full line
+                 within the cap): host DEFERRED, reason robots_too_large (never "allow everything")
   401, 403       host BLOCKED: deferred for the rest of the UTC day, reason robots_forbidden
   5xx, timeout, network error, bad/cross-host redirect, 1xx/other => host DEFERRED for the rest of the UTC
                  day; the host is never fetched meanwhile
@@ -144,9 +147,15 @@ class RobotsCache:
         if status in (401, 403):
             self._defer(host, now, "robots_forbidden", blocked=True)
             return None
+        if status == 429:
+            self._defer(host, now, "robots_rate_limited")
+            return None
         if 400 <= status < 500:
             entry = _Entry(now, None, None, "robots_not_found")
         elif 200 <= status < 300:
+            if body is None:  # over the cap and nothing usable: we cannot know the rules, so do not fetch
+                self._defer(host, now, "robots_too_large")
+                return None
             entry = _parse(now, body)
         else:  # 5xx, 1xx, anything unexpected
             self._defer(host, now, "robots_server_error")
@@ -155,15 +164,19 @@ class RobotsCache:
         return entry
 
 
-def _read_capped(resp) -> bytes:
-    """Whole robots body, at most ROBOTS_MAX_BYTES; an over-long file is cut at the last full line."""
+def _read_capped(resp) -> Optional[bytes]:
+    """Whole robots body, at most ROBOTS_MAX_BYTES; an over-long file is cut at the last full line.
+
+    None when the cap was hit and no full line was read (e.g. the transport refused on a declared
+    Content-Length before yielding anything): an empty result must not be mistaken for "no rules".
+    """
     buf = bytearray()
     try:
         for chunk in resp.body_iter:
             buf += chunk
     except BodyTooLargeError:
         cut = buf.rfind(b"\n")
-        return bytes(buf[:cut + 1] if cut >= 0 else b"")
+        return bytes(buf[:cut + 1]) if cut >= 0 else None
     return bytes(buf)
 
 

@@ -140,10 +140,6 @@ class ConfigTest(unittest.TestCase):
         self.assertNotIn("getenv", src)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 # ---- user agent ----
 
 class UserAgentTest(unittest.TestCase):
@@ -194,10 +190,6 @@ class UserAgentTest(unittest.TestCase):
                 self.assertNotIn(word, name.lower(), name)
         funcs = [n for n in public if callable(getattr(u, n)) and getattr(getattr(u, n), "__module__", "") == u.__name__]
         self.assertEqual(sorted(funcs), ["UserAgentError", "build_user_agent"])
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 # ---- robots ----
@@ -383,7 +375,7 @@ class RobotsTest(unittest.TestCase):
                 self.assertEqual(len(t.requests), 1)
 
     def test_404_and_other_4xx_allow_everything(self):
-        for status in (404, 410, 400, 429 - 1):
+        for status in (404, 410, 400, 428):
             with self.subTest(status=status):
                 c, t, clock = make({ROBOTS: (status, {}, b"<html>not found</html>")})
                 d = c.check("https://a.example/anything")
@@ -393,6 +385,14 @@ class RobotsTest(unittest.TestCase):
                 self.assertIsNone(d.crawl_delay)
                 c.check("https://a.example/more")
                 self.assertEqual(len(t.requests), 1)  # cached for the TTL too
+
+    def test_429_defers_the_host(self):
+        c, t, _ = make({ROBOTS: (429, {}, b"")})
+        d = c.check("https://a.example/x")
+        self.assertTrue(d.deferred and not d.allowed and not d.blocked)
+        self.assertEqual(d.reason, "robots_rate_limited")
+        c.check("https://a.example/y")
+        self.assertEqual(len(t.requests), 1)
 
     def test_same_host_redirect_followed_cross_host_refused(self):
         c, t, _ = make({ROBOTS: (301, {"Location": "https://a.example/new-robots.txt"}, b""),
@@ -423,6 +423,29 @@ class RobotsTest(unittest.TestCase):
         self.assertTrue(c.check("https://a.example/b").allowed)  # incomplete rule dropped, not half-applied
         self.assertEqual(t.requests[0][3], r.ROBOTS_MAX_BYTES)
 
+    def test_oversize_robots_with_nothing_readable_defers_the_host(self):
+        # the real transport raises on a declared Content-Length > cap before yielding a single byte
+        def refused(url):
+            def it():
+                raise BodyTooLargeError("declared Content-Length exceeds the cap")
+                yield b""
+            return Response(200, {}, it())
+        c, t, _ = make({ROBOTS: refused})
+        d = c.check("https://a.example/private")
+        self.assertTrue(d.deferred and not d.allowed)
+        self.assertEqual(d.reason, "robots_too_large")
+        self.assertFalse(c.check("https://a.example/other").allowed)
+        self.assertEqual(len(t.requests), 1)
+
+    def test_oversize_robots_without_any_full_line_defers_the_host(self):
+        def big(url):
+            def it():
+                yield b"User-agent: *"  # no newline before the cap
+                raise BodyTooLargeError("cap")
+            return Response(200, {}, it())
+        c, _, _ = make({ROBOTS: big})
+        self.assertEqual(c.check("https://a.example/x").reason, "robots_too_large")
+
     def test_network_disabled_propagates_and_does_not_defer(self):
         c, _, _ = make({ROBOTS: NetworkDisabledError("off")})
         with self.assertRaises(NetworkDisabledError):
@@ -443,10 +466,6 @@ class RobotsTest(unittest.TestCase):
         c, t, _ = make({"http://[::1]:8080/robots.txt": (404, {}, b"")})
         self.assertTrue(c.check("http://[::1]:8080/x").allowed)
         self.assertEqual(t.urls, ["http://[::1]:8080/robots.txt"])
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 # ---- transport ----
@@ -568,7 +587,7 @@ class OpenerTest(NoSocketCase):
             self.assertEqual(urllib.request.getproxies()["http"], "http://proxy.invalid:3128")  # the env is hostile
             tr = t.UrllibTransport(cfg())
             # ProxyHandler({}) defines no *_open methods, so OpenerDirector does not even list it: no proxy
-            # handler (and no env lookup) exists in the opener. The explicit call is pinned by test_crawler_static.
+            # handler (and no env lookup) exists in the opener. The explicit call is pinned by StaticTest below.
             self.assertFalse(any(isinstance(h, urllib.request.ProxyHandler) for h in tr._opener.handlers))
             with mock.patch.object(urllib.request.HTTPHandler, "do_open", fake_do_open):
                 tr.request("http://127.0.0.1:1/x", None, 5, 10).close()
@@ -712,10 +731,6 @@ class FakeTransportTest(unittest.TestCase):
         self.assertFalse(any("fake" in p.name.lower() for p in (Path(t.__file__).parent).glob("*.py")))
         with self.assertRaises(AssertionError):
             FakeTransport().request("https://x.example/", None, 1, 1)
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 # ---- static guard ----

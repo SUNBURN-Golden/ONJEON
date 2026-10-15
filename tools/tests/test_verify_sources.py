@@ -223,6 +223,22 @@ class DetectExit(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertNotIn("fetch_failed", summary)
 
+    def test_oversized_body_is_fetch_failed_too_large(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as d:
+            import argparse
+            args = argparse.Namespace(raw=None, out=d, archive_new=False, report=str(Path(d) / "r.json"),
+                                      endpoint_url=None, cache=None, derived=None, ocr=False)
+            with mock.patch.object(vs, "fetch", side_effect=vs.FetchTooLarge("body exceeds 5 bytes")), \
+                    mock.patch("sys.stdout", new_callable=__import__("io").StringIO):
+                code = vs.cmd_detect(args)
+            doc = json.loads(Path(args.report).read_text())
+            self.assertEqual(code, 1)
+            self.assertEqual(doc["summary"], {"fetch_failed": len(doc["results"])})
+            self.assertTrue(all(x["detail"].startswith("too_large:") for x in doc["results"]))
+            self.assertFalse(any("sha256_now" in x for x in doc["results"]))
+            self.assertEqual(list(Path(d).glob("*/")), [])  # nothing written for a refused body
+
     def html_row(self, rule, body):
         import html_content_hash as hch
         return {"sample_id": "s1", "url": "https://example.org/p", "sha256": "0" * 64, "format": "html",
@@ -251,6 +267,58 @@ class DetectExit(unittest.TestCase):
         a = b'<a href="/d?id=7&jsessionid=A">x</a>'
         b = b'<a href="/d?id=7&jsessionid=B">x</a>'
         self.assertEqual(self.detect_html("html-visible-text-v1", a, b), {"changed": 1})
+
+
+class FetchSizeCap(unittest.TestCase):
+    """fetch() must stop reading at the cap instead of buffering an unbounded body (audit 1)."""
+
+    class Resp:
+        def __init__(self, data, length=None):
+            import io
+            self.buf, self.reads = io.BytesIO(data), 0
+            self.headers = mock_headers(length)
+
+        def read(self, n=-1):
+            self.reads += 1
+            return self.buf.read(n)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def fetch_with(self, resp, max_bytes):
+        from unittest import mock
+        resp.headers.get_content_type = lambda: "application/pdf"
+        with mock.patch.object(vs.urllib.request, "urlopen", return_value=resp):
+            return vs.fetch("https://example.org/x", max_bytes=max_bytes)
+
+    def test_body_at_the_cap_is_returned(self):
+        body, ctype = self.fetch_with(self.Resp(b"x" * 10), 10)
+        self.assertEqual((body, ctype), (b"x" * 10, "application/pdf"))
+
+    def test_streamed_body_over_the_cap_is_refused(self):
+        resp = self.Resp(b"x" * 100)
+        with self.assertRaises(vs.FetchTooLarge):
+            self.fetch_with(resp, 10)
+        self.assertEqual(resp.buf.tell(), 11)  # stopped one byte past the cap, did not drain the rest
+
+    def test_declared_content_length_over_the_cap_is_refused_unread(self):
+        resp = self.Resp(b"x" * 100, length="100")
+        with self.assertRaises(vs.FetchTooLarge):
+            self.fetch_with(resp, 10)
+        self.assertEqual(resp.reads, 0)
+
+
+def mock_headers(length):
+    class H(dict):
+        def get_content_type(self):
+            return "application/pdf"
+    h = H()
+    if length is not None:
+        h["Content-Length"] = length
+    return h
 
 
 if __name__ == "__main__":

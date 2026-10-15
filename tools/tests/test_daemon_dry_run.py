@@ -377,6 +377,25 @@ class Static(unittest.TestCase):
         for name, bad in static_checks.all_static(RULES):
             self.assertEqual(bad, [], name)
 
+    def _network_or_cli_in(self, source):
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "probe.py").write_text(source, encoding="utf-8")
+            return static_checks.no_network_or_cli(Path(d))
+
+    def test_dynamic_code_execution_and_import_are_noticed(self):
+        for source in ("eval('1')", "exec('x = 1')", "compile('1', 'f', 'eval')", "__import__('os')",
+                       "import importlib", "from importlib import import_module", "import importlib.util",
+                       "import runpy", "import builtins", "from builtins import eval", "f = eval",
+                       "import os\nos.__import__('x')", "x.import_module('y')", "from . import importlib"):
+            self.assertNotEqual(self._network_or_cli_in(source), [], source)
+
+    def test_ordinary_code_and_re_compile_are_not_flagged(self):
+        self.assertEqual(self._network_or_cli_in("import re\nimport json\nP = re.compile('a')\nv = json.loads('1')\n"), [])
+
+    def test_existing_network_and_cli_bans_still_hold(self):
+        for source in ("import subprocess", "import socket", "import os\nos.system('x')"):
+            self.assertNotEqual(self._network_or_cli_in(source), [], source)
+
     def test_this_test_file_has_no_model_identifiers(self):
         self.assertEqual(static_checks.no_model_identifiers([__file__]), [])
 

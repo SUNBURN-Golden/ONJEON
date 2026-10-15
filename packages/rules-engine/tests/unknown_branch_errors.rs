@@ -57,7 +57,10 @@ fn blockers_include_the_other_unknown_branch() {
 
 #[test]
 fn type_errors_in_a_branch_are_absorbed_too() {
-    let bad = json!({"add": [{"krw": 1}, {"lt": ["amt", 1]}]});
+    // Comparing an unspecified-rounding range is the one type error left for evaluation: whether
+    // a money expression holds a range is a runtime fact, so the static pass cannot reject it.
+    let range = json!({"multiply_rate": ["amt", "0.5", {"rounding": "unspecified", "unit": 10}]});
+    let bad = json!({"if": {"lt": [range, {"krw": 1}]}, "then": {"krw": 1}, "else": {"krw": 2}});
     let r = rule(json!(true), if_flag(json!({"krw": 7}), bad));
     let (amt, missing) = payable_amount(&r, json!({"amt": 5}));
     assert_eq!(amt, AmountOut::Unknown);

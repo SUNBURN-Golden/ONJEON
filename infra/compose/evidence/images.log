@@ -1,0 +1,5 @@
+# fix round 4 실제 기동 시험이 레지스트리에서 당긴 이미지(docker images --digests). 세 태그가 존재하고 이 다이제스트로 기동했다.
+# Docker 29.9.1, Docker Compose v5.6.0 (작업 VM에 임시 기동, Linux x86_64)
+amazon/aws-cli:2.38.1  sha256:733d5be1015825e4038c6016f3fa9954868ddee1f611b73be795a9cc2e706bfd  733d5be10158  649MB
+chrislusf/seaweedfs:4.48  sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d  4e61d15fd359  724MB
+postgres:16.15-alpine  sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea  721873c34ceb  420MB

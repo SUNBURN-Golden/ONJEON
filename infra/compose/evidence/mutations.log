@@ -1,0 +1,12 @@
+# fix round 4 변이 확인(실제 Docker, 위 smoke.log와 같은 환경). 시험이 결함을 실제로 잡는지 보인다.
+## 1) 개인 DB에서 log_min_messages=log를 뺀 복사본으로 smoke.sh 실행(ONJEON_SMOKE_SKIP_STATIC=1; 정적 시험은 이 설정을 요구해 먼저 막힌다)
+  종료 코드 1. ok 항목 43개, FAIL·LIVE 줄:
+  FAIL 개인 DB 로그에 값이 남았다
+  FAIL 개인 DB 로그에 ERROR·STATEMENT·DETAIL 줄이 있다
+  LIVE: FAILED
+## 2) 신원 파일 권한: render_s3_config가 만든 파일(디렉터리 700, 파일 644)을 비root 컨테이너 사용자로 읽기(docker run --user 65534:65534 --entrypoint sh ... grep identities)
+  파일 600, 컨테이너 사용자 uid 65534: 종료 코드 2 grep: /x: Permission denied
+  파일 644, 컨테이너 사용자 uid 65534: 종료 코드 0 
+  이미지 기본 사용자 uid: 0
+## 3) check-objects.sh를 죽은 endpoint에 돌리면 16항목 전부 FAIL, "거부"로 통과하는 항목 0: component_object_store.log 마지막 줄
+## 4) smoke.sh의 denied·unreachable 도우미는 정적 시험(test_smoke_helpers_reject_wrong_kinds_of_failure)이 가짜 명령으로 돌린다: 다른 오류·성공·명령 없음은 모두 FAIL

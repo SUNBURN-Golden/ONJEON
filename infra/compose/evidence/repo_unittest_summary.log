@@ -1,0 +1,4 @@
+$ python3 -m unittest discover -s tools/tests   (CI 단계와 같은 명령, 마지막 줄들; fix round 4, 이 VM에는 boto3·pdftotext 등 선택 의존성이 없어 그 시험들이 skip된다)
+Ran 305 tests in 75.810s
+
+OK (skipped=21)

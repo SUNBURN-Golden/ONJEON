@@ -1,6 +1,13 @@
 use crate::date::format_date;
 use std::fmt;
 
+/// One event of a `class_money_list` input: an equivalence class and an amount that may be unknown.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ListItem {
+    pub class: String,
+    pub krw: Option<i64>,
+}
+
 /// Runtime values. `Unknown` is a value of any type and is never coerced to zero.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Value {
@@ -21,6 +28,8 @@ pub enum Value {
     /// Days since 1970-01-01.
     Date(i64),
     Str(String),
+    /// Events of one moment, each with an equivalence class (rule-0.2).
+    List(Vec<ListItem>),
     Unknown,
 }
 
@@ -34,6 +43,7 @@ impl Value {
             Value::Rate { .. } => "rate",
             Value::Date(_) => "date",
             Value::Str(_) => "string",
+            Value::List(_) => "class_money_list",
             Value::Unknown => "unknown",
         }
     }
@@ -53,6 +63,19 @@ impl fmt::Display for Value {
             Value::Rate { num, den } => write!(f, "{num}/{den}"),
             Value::Date(d) => write!(f, "{}", format_date(*d)),
             Value::Str(s) => write!(f, "{s:?}"),
+            Value::List(items) => {
+                write!(f, "[")?;
+                for (i, it) in items.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ",")?;
+                    }
+                    match it.krw {
+                        Some(k) => write!(f, "{:?}={k}", it.class)?,
+                        None => write!(f, "{:?}=unknown", it.class)?,
+                    }
+                }
+                write!(f, "]")
+            }
             Value::Unknown => write!(f, "unknown"),
         }
     }

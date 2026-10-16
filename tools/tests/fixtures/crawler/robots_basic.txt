@@ -1,0 +1,9 @@
+# origin=fixture (synthetic robots.txt for tests; not a real site)
+User-agent: *
+Disallow: /private/
+Crawl-delay: 2
+
+User-agent: ONJEON-SourceArchiver
+Disallow: /admin/
+Allow: /admin/public/
+Crawl-delay: 10

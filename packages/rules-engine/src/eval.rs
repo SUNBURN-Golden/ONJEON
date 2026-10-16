@@ -4,10 +4,10 @@
 //! (`blockers`). A definite result (for example `false AND unknown`) has no
 //! blockers, so `missing_inputs` lists only inputs that actually matter.
 
-use crate::date::{add_days, add_months_clamped, parse_date};
-use crate::rule::{CmpOp, DurUnit, Expr, InputType, Rounding, Rule};
+use crate::date::{add_days, add_months_clamped, civil_from_days, parse_date};
+use crate::rule::{Boundary, CmpOp, ContractEffect, DurUnit, Expr, InputType, Rounding, Rule};
 use crate::tri::Tri;
-use crate::value::Value;
+use crate::value::{ListItem, Value};
 use serde::Serialize;
 use serde_json::Value as J;
 use sha2::{Digest, Sha256};
@@ -87,6 +87,19 @@ pub enum Payout {
     Undetermined { conditional_amount: AmountOut },
 }
 
+/// The contract-level consequence of the rule (rule-0.2). Unknown eligibility is never `None`
+/// unless the rule itself declares no effect.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum ContractEffectOut {
+    /// The rule declares no effect, or its eligibility is false.
+    None,
+    /// Eligibility is established, so the effect applies.
+    Applies { effect: ContractEffect },
+    /// Eligibility cannot be decided yet; this is what would happen if it holds.
+    Undetermined { conditional_effect: ContractEffect },
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EvaluationResult {
     pub rule_id: String,
@@ -102,6 +115,7 @@ pub struct EvaluationResult {
     pub engine_version: &'static str,
     pub eligibility: Tri,
     pub payout: Payout,
+    pub contract_effect: ContractEffectOut,
     pub missing_inputs: Vec<String>,
     pub trace: Vec<TraceEntry>,
     pub input_snapshot_hash: String,
@@ -250,6 +264,44 @@ fn multiply_rate(
             Ok(Value::Money(pick(q)?))
         }
         Rounding::Unspecified => Ok(money_value(pick(floor)?, pick(ceil)?)),
+    }
+}
+
+/// Scales an amount (or an amount range) by `num/den`. The factor is non-negative, so the
+/// product is monotonic and each bound maps to the matching bound of the result.
+fn scale_money(
+    m: &Value,
+    num: i64,
+    den: i64,
+    rounding: Rounding,
+    unit: i64,
+    path: &str,
+) -> Result<Value, EvalError> {
+    match m {
+        Value::Money(x) => multiply_rate(*x, num, den, rounding, unit, path),
+        Value::MoneyRange { min, max } => {
+            let lo_v = multiply_rate(*min, num, den, rounding, unit, path)?;
+            let hi_v = multiply_rate(*max, num, den, rounding, unit, path)?;
+            let (lo, _) = money_bounds(&lo_v, path)?;
+            let (_, hi) = money_bounds(&hi_v, path)?;
+            Ok(money_value(lo, hi))
+        }
+        other => Err(type_err(
+            path,
+            format!("expected money, found {}", other.type_name()),
+        )),
+    }
+}
+
+/// Completed years from `from` to `at` (`from <= at`) and whether `at` is exactly an anniversary.
+/// An anniversary that does not exist (Feb 29 in a common year) falls on the last day of the month.
+fn completed_years(from: i64, at: i64) -> (i64, bool) {
+    let mut k = civil_from_days(at).0 - civil_from_days(from).0;
+    loop {
+        match add_months_clamped(from, k * 12) {
+            Some(d) if d <= at => return (k, d == at),
+            _ => k -= 1,
+        }
     }
 }
 
@@ -490,6 +542,201 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
                 )),
             }
         }
+        Expr::MultiplyCount(money, count) => {
+            let m = eval(money, &format!("{path}.multiply_count[0]"), ctx)?;
+            let c = eval(count, &format!("{path}.multiply_count[1]"), ctx)?;
+            if m.v.is_unknown() || c.v.is_unknown() {
+                return Ok(Ev::unknown(union_unknown([&m, &c])));
+            }
+            let (lo, hi) = money_bounds(&m.v, path)?;
+            let n = match &c.v {
+                Value::Int(n) if *n >= 0 => *n,
+                Value::Int(n) => {
+                    return Err(type_err(path, format!("count must be >= 0, found {n}")))
+                }
+                other => {
+                    return Err(type_err(
+                        path,
+                        format!(
+                            "multiply_count needs an int count, found {}",
+                            other.type_name()
+                        ),
+                    ))
+                }
+            };
+            let ov = || EvalError::Overflow {
+                path: path.to_string(),
+            };
+            Ok(Ev::known(money_value(
+                lo.checked_mul(n).ok_or_else(ov)?,
+                hi.checked_mul(n).ok_or_else(ov)?,
+            )))
+        }
+        Expr::SubtractFloor0(a, b) => {
+            let x = eval(a, &format!("{path}.subtract_floor0[0]"), ctx)?;
+            let y = eval(b, &format!("{path}.subtract_floor0[1]"), ctx)?;
+            if x.v.is_unknown() || y.v.is_unknown() {
+                return Ok(Ev::unknown(union_unknown([&x, &y])));
+            }
+            let (xlo, xhi) = money_bounds(&x.v, path)?;
+            let (ylo, yhi) = money_bounds(&y.v, path)?;
+            // Amounts are non-negative, so the differences cannot overflow.
+            Ok(Ev::known(money_value(
+                (xlo - yhi).max(0),
+                (xhi - ylo).max(0),
+            )))
+        }
+        Expr::ProRata {
+            money,
+            part,
+            whole,
+            rounding,
+            unit,
+        } => {
+            let m = eval(money, &format!("{path}.pro_rata[0]"), ctx)?;
+            let p = eval(part, &format!("{path}.pro_rata[1]"), ctx)?;
+            let w = eval(whole, &format!("{path}.pro_rata[2]"), ctx)?;
+            if m.v.is_unknown() || p.v.is_unknown() || w.v.is_unknown() {
+                return Ok(Ev::unknown(union_unknown([&m, &p, &w])));
+            }
+            let (pn, wn) = match (&p.v, &w.v) {
+                (Value::Int(a), Value::Int(b)) | (Value::Money(a), Value::Money(b)) => (*a, *b),
+                (a, b) => {
+                    return Err(type_err(
+                        path,
+                        format!(
+                            "pro_rata needs part and whole as int or exact money, found {} and {}",
+                            a.type_name(),
+                            b.type_name()
+                        ),
+                    ))
+                }
+            };
+            if pn < 0 || wn < 0 {
+                return Err(type_err(path, "part and whole must be non-negative"));
+            }
+            // A zero whole has no share: the answer is unknown, not an error and not zero.
+            if wn == 0 {
+                return Ok(Ev::unknown(BTreeSet::new()));
+            }
+            if pn > wn {
+                return Err(type_err(path, format!("part {pn} exceeds whole {wn}")));
+            }
+            Ok(Ev::known(scale_money(
+                &m.v, pn, wn, *rounding, *unit, path,
+            )?))
+        }
+        Expr::DivideCount {
+            money,
+            count,
+            rounding,
+            unit,
+        } => {
+            let m = eval(money, &format!("{path}.divide_count[0]"), ctx)?;
+            let c = eval(count, &format!("{path}.divide_count[1]"), ctx)?;
+            if m.v.is_unknown() || c.v.is_unknown() {
+                return Ok(Ev::unknown(union_unknown([&m, &c])));
+            }
+            let n = match &c.v {
+                Value::Int(n) if *n >= 0 => *n,
+                Value::Int(n) => {
+                    return Err(type_err(path, format!("count must be >= 0, found {n}")))
+                }
+                other => {
+                    return Err(type_err(
+                        path,
+                        format!(
+                            "divide_count needs an int count, found {}",
+                            other.type_name()
+                        ),
+                    ))
+                }
+            };
+            // Dividing among zero has no answer: unknown, never zero.
+            if n == 0 {
+                return Ok(Ev::unknown(BTreeSet::new()));
+            }
+            Ok(Ev::known(scale_money(&m.v, 1, n, *rounding, *unit, path)?))
+        }
+        Expr::AnniversaryBand {
+            from,
+            at,
+            bands,
+            boundary,
+        } => {
+            let f = eval(from, &format!("{path}.anniversary_band[0]"), ctx)?;
+            let a = eval(at, &format!("{path}.anniversary_band[1]"), ctx)?;
+            if f.v.is_unknown() || a.v.is_unknown() {
+                return Ok(Ev::unknown(union_unknown([&f, &a])));
+            }
+            let (Value::Date(fd), Value::Date(ad)) = (&f.v, &a.v) else {
+                return Err(type_err(
+                    path,
+                    format!(
+                        "anniversary_band needs dates, found {} and {}",
+                        f.v.type_name(),
+                        a.v.type_name()
+                    ),
+                ));
+            };
+            if ad < fd {
+                return Err(type_err(
+                    path,
+                    format!(
+                        "anniversary_band needs `at` on or after `from`, found {} day(s) earlier",
+                        fd - ad
+                    ),
+                ));
+            }
+            let (years, exact) = completed_years(*fd, *ad);
+            // The first band is the base and always applies. A later band applies once its start
+            // anniversary is reached (lower_inclusive) or passed (upper_inclusive).
+            let applies = |i: usize, start: i64| {
+                i == 0
+                    || match boundary {
+                        Boundary::Lower => start <= years,
+                        Boundary::Upper => start < years || (start == years && !exact),
+                    }
+            };
+            let value = bands
+                .iter()
+                .enumerate()
+                .rfind(|(i, (start, _))| applies(*i, *start))
+                .map(|(_, (_, v))| v.clone())
+                .expect("the first band always applies");
+            Ok(Ev::known(value))
+        }
+        Expr::MaxOver(name) => {
+            let list = match ctx.inputs.get(name) {
+                Some(Value::List(items)) => items,
+                Some(Value::Unknown) | None => {
+                    return Ok(Ev::unknown(BTreeSet::from([name.clone()])))
+                }
+                Some(other) => {
+                    return Err(type_err(
+                        path,
+                        format!("max_over needs a list, found {}", other.type_name()),
+                    ))
+                }
+            };
+            // An event with an unknown amount may be the largest of its class, so the total is unknown.
+            if list.iter().any(|it| it.krw.is_none()) {
+                return Ok(Ev::unknown(BTreeSet::from([name.clone()])));
+            }
+            let mut best: BTreeMap<&str, i64> = BTreeMap::new();
+            for it in list {
+                let k = it.krw.expect("checked above");
+                let slot = best.entry(it.class.as_str()).or_insert(0);
+                *slot = (*slot).max(k);
+            }
+            let mut total = 0_i64;
+            for v in best.values() {
+                total = total.checked_add(*v).ok_or_else(|| EvalError::Overflow {
+                    path: path.to_string(),
+                })?;
+            }
+            Ok(Ev::known(Value::Money(total)))
+        }
         Expr::DateAdd { date, value, unit } => {
             let d = eval(date, &format!("{path}.date_add[0]"), ctx)?;
             if d.v.is_unknown() {
@@ -563,6 +810,37 @@ fn convert_inputs(rule: &Rule, inputs: &J) -> Result<BTreeMap<String, Value>, Ev
                     InputType::Str => {
                         Value::Str(j.as_str().ok_or_else(|| bad("a string"))?.to_string())
                     }
+                    InputType::ClassMoneyList => {
+                        const WANT: &str = "a list of {class, krw} (class: non-empty string, krw: non-negative integer or null)";
+                        let arr = j
+                            .as_array()
+                            .filter(|a| a.len() <= 1000)
+                            .ok_or_else(|| bad(WANT))?;
+                        let mut items = Vec::with_capacity(arr.len());
+                        for e in arr {
+                            let o = e
+                                .as_object()
+                                .filter(|o| o.len() == 2)
+                                .ok_or_else(|| bad(WANT))?;
+                            let class = o
+                                .get("class")
+                                .and_then(J::as_str)
+                                .filter(|c| !c.trim().is_empty())
+                                .ok_or_else(|| bad(WANT))?;
+                            let krw = match o.get("krw") {
+                                Some(J::Null) => None,
+                                Some(k) => {
+                                    Some(k.as_i64().filter(|n| *n >= 0).ok_or_else(|| bad(WANT))?)
+                                }
+                                None => return Err(bad(WANT)),
+                            };
+                            items.push(ListItem {
+                                class: class.to_string(),
+                                krw,
+                            });
+                        }
+                        Value::List(items)
+                    }
                 }
             }
         };
@@ -622,6 +900,13 @@ impl Rule {
                 )
             }
         };
+        let contract_effect = match (eligibility, self.contract_effect) {
+            (_, ContractEffect::None) | (Tri::False, _) => ContractEffectOut::None,
+            (Tri::True, effect) => ContractEffectOut::Applies { effect },
+            (Tri::Unknown, effect) => ContractEffectOut::Undetermined {
+                conditional_effect: effect,
+            },
+        };
         Ok(EvaluationResult {
             rule_id: self.rule_id.clone(),
             rule_version: self.rule_version.clone(),
@@ -632,6 +917,7 @@ impl Rule {
             engine_version: crate::ENGINE_VERSION,
             eligibility,
             payout,
+            contract_effect,
             missing_inputs: missing.into_iter().collect(),
             trace: ctx.trace,
             input_snapshot_hash: snapshot_hash(&values),

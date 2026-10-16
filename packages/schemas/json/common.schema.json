@@ -1,0 +1,498 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common.schema.json",
+  "description": "공용 정의: ID, evidence_ref, 금액, 결과 상태, 의존 기록. 루트 타입 없음",
+  "$defs": {
+    "Sha256Hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "소문자 16진 SHA-256"
+    },
+    "Timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$",
+      "format": "date-time",
+      "description": "RFC 3339 시각"
+    },
+    "IsoDate": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "format": "date",
+      "description": "날짜 YYYY-MM-DD"
+    },
+    "SemVer": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "x.y.z"
+    },
+    "Identifier": {
+      "type": "string",
+      "pattern": "^\\S+$",
+      "description": "공백 없는 비어 있지 않은 식별자. 형식이 02_구현계약 §1.1에 아직 고정되지 않은 ID에 쓴다"
+    },
+    "Krw": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "정수 원(부동소수점 없음). 0 이상"
+    },
+    "ReleaseId": {
+      "type": "string",
+      "pattern": "^rel:[0-9]{8}-[0-9]+$",
+      "description": "릴리스 ID rel:<yyyymmdd>-<n> (02 §1.1)"
+    },
+    "CriteriaReleaseId": {
+      "type": "string",
+      "pattern": "^crel:[0-9]{8}-[0-9]+$",
+      "description": "판단 기준 릴리스 ID crel:<yyyymmdd>-<n> (02 §1.1)"
+    },
+    "AssertionId": {
+      "type": "string",
+      "pattern": "^a:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "주장 ID a:<ulid> (02 §1.1)"
+    },
+    "ReviewDecisionId": {
+      "type": "string",
+      "pattern": "^rd:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "검수 결정 ID rd:<ulid>"
+    },
+    "PremiumId": {
+      "type": "string",
+      "pattern": "^premium:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "가격 관측 ID premium:<ulid>"
+    },
+    "PlanId": {
+      "type": "string",
+      "pattern": "^plan:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "PlanView 초안 ID plan:<ulid>"
+    },
+    "ContractId": {
+      "type": "string",
+      "pattern": "^contract:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "개인 계약 ID contract:<ulid>. 공개 영역에 나타나면 K8 위반"
+    },
+    "PersonId": {
+      "type": "string",
+      "pattern": "^person:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "개인 프로필 ID person:<ulid>. 개인 영역 전용"
+    },
+    "UploadId": {
+      "type": "string",
+      "pattern": "^upload:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "개인 업로드 ID upload:<ulid>. 개인 영역 전용"
+    },
+    "SalesConfigId": {
+      "type": "string",
+      "pattern": "^sc:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "판매 구성 ID sc:<ulid>"
+    },
+    "TermsEditionId": {
+      "type": "string",
+      "pattern": "^ted:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "약관 본문 판 ID ted:<ulid>. 파일 해시가 아니다"
+    },
+    "GapId": {
+      "type": "string",
+      "pattern": "^gap:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "지식 공백 ID gap:<ulid>"
+    },
+    "CoverageId": {
+      "type": "string",
+      "pattern": "^cov:ted:[0-9A-HJKMNP-TV-Z]{26}/\\S+$",
+      "description": "담보 ID cov:<ted_id>/<path_slug>"
+    },
+    "AssumptionRef": {
+      "type": "string",
+      "pattern": "^assume:[0-9A-HJKMNP-TV-Z]{26}@[0-9]+$",
+      "description": "사용자 가정의 판 assume:<ulid>@<n>. 개인 영역"
+    },
+    "AmountSource": {
+      "type": "string",
+      "pattern": "^(scenario|premium|candidate|clause):\\S+$",
+      "description": "금액의 출처: scenario:(엔진 시나리오) premium:(가격 관측치) candidate:(후보 가입금액) clause:(조항 문구). 화면 설계서 §11"
+    },
+    "SegmentRef": {
+      "type": "string",
+      "pattern": "^seg:[0-9a-f]{12,64}:p[0-9]+-[0-9]+:[a-z][a-z0-9_]*:[A-Za-z0-9._-]+$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "ClauseRef": {
+      "type": "string",
+      "pattern": "^clause:seg:[0-9a-f]{12,64}:p[0-9]+-[0-9]+:[a-z][a-z0-9_]*:[A-Za-z0-9._-]+/[^\\s#]+#p[0-9]+:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+(@[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+)?$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "EditionRef": {
+      "type": "string",
+      "pattern": "^ted:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "PremiumRef": {
+      "type": "string",
+      "pattern": "^premium:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "AssertionRef": {
+      "type": "string",
+      "pattern": "^assertion:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "RuleEvidenceRef": {
+      "type": "string",
+      "pattern": "^rule:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+#[0-9a-f]{12}$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "ObservationRef": {
+      "type": "string",
+      "pattern": "^obs:src:[^\\s]+/[0-9]{4}-[0-9]{2}-[0-9]{2}T[^\\s/]+/[0-9a-f]{16}$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "RawRef": {
+      "type": "string",
+      "pattern": "^raw:sha256:[0-9a-f]{64}$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "EvaluationRef": {
+      "type": "string",
+      "pattern": "^eval:[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "CriterionRef": {
+      "type": "string",
+      "pattern": "^crit:[a-z0-9_-]+@[0-9]+$",
+      "description": "evidence_ref 문법의 한 형식 (packages/schemas/evidence_ref.md)"
+    },
+    "EvidenceRef": {
+      "type": "string",
+      "pattern": "^(?:seg:[0-9a-f]{12,64}:p[0-9]+-[0-9]+:[a-z][a-z0-9_]*:[A-Za-z0-9._-]+|clause:seg:[0-9a-f]{12,64}:p[0-9]+-[0-9]+:[a-z][a-z0-9_]*:[A-Za-z0-9._-]+/[^\\s#]+#p[0-9]+:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+(@[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+)?|ted:[0-9A-HJKMNP-TV-Z]{26}|premium:[0-9A-HJKMNP-TV-Z]{26}|assertion:[0-9A-HJKMNP-TV-Z]{26}|rule:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+#[0-9a-f]{12}|obs:src:[^\\s]+/[0-9]{4}-[0-9]{2}-[0-9]{2}T[^\\s/]+/[0-9a-f]{16}|raw:sha256:[0-9a-f]{64}|eval:[0-9A-HJKMNP-TV-Z]{26}|crit:[a-z0-9_-]+@[0-9]+)$",
+      "description": "evidence_ref 전체 (02_구현계약 §6.1). 개별 형식 정규식의 합집합이며 시험이 일치를 검사한다"
+    },
+    "Fingerprint": {
+      "type": "object",
+      "description": "본문 지문. 지문은 근거 중 하나일 뿐 판 동일성을 승인하지 않는다(K14)",
+      "properties": {
+        "rule": {
+          "type": "string",
+          "pattern": "^\\S+$",
+          "description": "정규화 규칙 (예: fp-0.1)"
+        },
+        "sha256": {
+          "$ref": "common.schema.json#/$defs/Sha256Hex"
+        }
+      },
+      "required": [
+        "rule",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "RuleIdentity": {
+      "type": "object",
+      "description": "결과를 만든 규칙의 신원 (화면 §11 `rule{id, version, content_hash, release_id}`)",
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "content_hash": {
+          "$ref": "common.schema.json#/$defs/Sha256Hex"
+        },
+        "release_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^rel:[0-9]{8}-[0-9]+$",
+          "description": "소속 릴리스. fixture 규칙만 null"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "content_hash",
+        "release_id"
+      ],
+      "additionalProperties": false
+    },
+    "Amount": {
+      "type": "object",
+      "description": "금액과 출처. 화면의 금액은 금액마다 출처를 선언한다(화면 설계서 §11, 02 §2.4)",
+      "properties": {
+        "krw": {
+          "$ref": "common.schema.json#/$defs/Krw"
+        },
+        "source": {
+          "$ref": "common.schema.json#/$defs/AmountSource"
+        },
+        "evidence_kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "evidence_kind",
+          "description": "근거 종류: terms, summary, disclosure, user_input (02 §2.4). 어휘 축 승격 대기"
+        },
+        "applicability": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "applicability",
+          "description": "이 상황에 적용되는지: applies, not_applies, unverified (02 §2.4). 어휘 축 승격 대기"
+        }
+      },
+      "required": [
+        "krw",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "ResultState": {
+      "type": "object",
+      "description": "결과 상태 네 축 (02 §1.4). 입력 최신성·지식 최신성·사용 제한·재현 가능",
+      "properties": {
+        "input_freshness": {
+          "$ref": "vocabulary.schema.json#/$defs/freshness"
+        },
+        "knowledge_freshness": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "knowledge_freshness",
+          "description": "fresh, stale, withdrawn. 어휘 축 승격 대기"
+        },
+        "usage_restriction": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "usage_restriction",
+          "description": "none, hold, circuit_breaker. 어휘 축 승격 대기"
+        },
+        "reproducible": {
+          "type": "boolean",
+          "description": "릴리스가 철회·제한되어도 과거 결과는 그 릴리스로 재현된다"
+        }
+      },
+      "required": [
+        "input_freshness",
+        "knowledge_freshness",
+        "usage_restriction",
+        "reproducible"
+      ],
+      "additionalProperties": false
+    },
+    "UnknownOverlap": {
+      "type": "object",
+      "description": "결론이 기대는 미확인 항목 (02 §1.6)",
+      "properties": {
+        "ref": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "state": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "overlap_state",
+          "description": "not_found, hold, conflicting, ambiguous, input_missing. 어휘 축 승격 대기"
+        }
+      },
+      "required": [
+        "ref",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "DependencyInfo": {
+      "type": "object",
+      "description": "결론별 부분 보류 표시 (02 §1.6·§2.4)",
+      "properties": {
+        "dependency_state": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "dependency_state",
+          "description": "kept, held, partial. 어휘 축 승격 대기"
+        },
+        "excluded_contracts": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ContractId"
+          },
+          "description": "합산에서 제외된 계약(partial일 때)"
+        },
+        "unknown_overlap": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnknownOverlap"
+          }
+        }
+      },
+      "required": [
+        "dependency_state",
+        "excluded_contracts",
+        "unknown_overlap"
+      ],
+      "additionalProperties": false
+    },
+    "EvidenceLink": {
+      "type": "object",
+      "description": "근거 한 건과 역할 (02 §1.2 evidence[])",
+      "properties": {
+        "ref": {
+          "$ref": "common.schema.json#/$defs/EvidenceRef"
+        },
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "evidence_role",
+          "description": "basis, cross_check, observation (02 §6.1). 어휘 축 승격 대기"
+        }
+      },
+      "required": [
+        "ref",
+        "role"
+      ],
+      "additionalProperties": false
+    },
+    "ViewValue": {
+      "type": "object",
+      "description": "문구에 들어간 값(날짜·기간·비율 등)과 그 출처",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "화면에 보이는 값"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^\\S+$",
+          "description": "값의 출처 선언"
+        },
+        "unit_path": {
+          "type": "string",
+          "pattern": "^\\S+$",
+          "description": "단위를 읽는 위치"
+        }
+      },
+      "required": [
+        "text",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "ViewLine": {
+      "type": "object",
+      "description": "뷰모델의 한 줄. 모든 줄은 근거를 가리키고 금액이 있으면 금액마다 출처를 선언한다(I6)",
+      "properties": {
+        "line": {
+          "type": "string",
+          "description": "화면 문구"
+        },
+        "display_status": {
+          "$ref": "vocabulary.schema.json#/$defs/display_status"
+        },
+        "kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "line_kind",
+          "description": "줄의 종류(예: 면책, 감액, 정의상 제외). 어휘 축 승격 대기"
+        },
+        "refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EvidenceRef"
+          },
+          "description": "근거 참조. 근거 사슬이 끊긴 줄은 사실로 표시하지 않는다(display_status=data_missing)"
+        },
+        "amounts": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Amount"
+          }
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ViewValue"
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/GapId"
+          }
+        },
+        "dependency": {
+          "$ref": "common.schema.json#/$defs/DependencyInfo"
+        }
+      },
+      "required": [
+        "line",
+        "display_status",
+        "refs"
+      ],
+      "additionalProperties": false
+    },
+    "ConclusionDeps": {
+      "type": "object",
+      "description": "결론이 의존하는 집합 (02 §1.6)",
+      "properties": {
+        "assertions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/AssertionId"
+          }
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^fact:\\S+$"
+          },
+          "description": "계약 사실·사용자 사실·가정"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/RuleEvidenceRef"
+          }
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CriterionRef"
+          }
+        }
+      },
+      "required": [
+        "assertions",
+        "facts",
+        "rules",
+        "criteria"
+      ],
+      "additionalProperties": false
+    },
+    "ConclusionDependency": {
+      "type": "object",
+      "description": "결론별 의존 기록. 그 결론을 만든 기능이 생성한다(D1)",
+      "properties": {
+        "conclusion_id": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "deps": {
+          "$ref": "common.schema.json#/$defs/ConclusionDeps"
+        },
+        "unknown_overlap": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/UnknownOverlap"
+          }
+        },
+        "produced_by": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "dependency_producer",
+          "description": "engine_trace, compare, need_assessment, compose. 어휘 축 승격 대기"
+        }
+      },
+      "required": [
+        "conclusion_id",
+        "deps",
+        "unknown_overlap",
+        "produced_by"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

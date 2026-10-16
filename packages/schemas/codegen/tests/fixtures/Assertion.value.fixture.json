@@ -1,0 +1,46 @@
+{
+  "id": "a:01BX5ZZKBKACTAV9WEVGEMMVRY",
+  "subject": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+  "predicate": "waiting_days",
+  "scope": {
+    "sales_config": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
+    "contract_kind": [
+      "main"
+    ]
+  },
+  "time": {
+    "effective_from": "2026-01-01",
+    "recorded_at": "2026-10-01T09:00:00Z",
+    "observed_at": "2026-10-01T09:00:00Z"
+  },
+  "evidence": [
+    {
+      "ref": "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0",
+      "role": "basis"
+    },
+    {
+      "ref": "raw:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "role": "observation"
+    }
+  ],
+  "criticality": "c0",
+  "value_state": "observed",
+  "review_status": "hold",
+  "extractor": {
+    "tool": "docproc-text",
+    "version": "1.0"
+  },
+  "origin": "fixture",
+  "onto_version": "onto-0.2",
+  "created_by_run": "run-fixture-1",
+  "value": {
+    "raw": "90",
+    "normalized": 90,
+    "unit": "day",
+    "value_kind": "fixed",
+    "amount_form": "fixed_krw"
+  },
+  "hold_reason": "agent_disagreement",
+  "supersedes": "a:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+  "correction_reason": "fixture correction"
+}

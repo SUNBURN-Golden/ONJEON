@@ -1,0 +1,7 @@
+{
+  "name": "onjeon-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generated ONJEON contract types",
+  "types": "index.ts"
+}

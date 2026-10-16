@@ -1,0 +1,384 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vocabulary.schema.json",
+  "title": "Vocabulary",
+  "description": "GENERATED from packages/schemas/vocabulary.json by codegen/gen.py. Do not edit.",
+  "x-onjeon-vocabulary-version": "1.5.0",
+  "$defs": {
+    "acquisition_status": {
+      "type": "string",
+      "description": "수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가",
+      "enum": [
+        "unqueried",
+        "blocked",
+        "failed",
+        "not_found",
+        "not_disclosed",
+        "archived"
+      ]
+    },
+    "archive_reproduction": {
+      "type": "string",
+      "description": "보관본 재현 결과: 당시 보존한 원본으로 해시·페이지·인용·추출 결과를 다시 확인한 결과. 현재 출처의 변경과 무관하다",
+      "enum": [
+        "reproduced",
+        "hash_mismatch",
+        "quote_mismatch",
+        "derived_record_invalid",
+        "derived_mismatch",
+        "derived_unverified",
+        "missing",
+        "ocr_not_rerun"
+      ]
+    },
+    "source_change": {
+      "type": "string",
+      "description": "현재 출처 변경 감지: 원 URL의 현재 문서가 마지막 관측과 같은가. 바뀌었으면 새 원본으로 추가하고 별도 검수 후 새 릴리스에 반영한다. 과거 원본을 교체하거나 과거 검증을 실패로 바꾸지 않는다",
+      "enum": [
+        "unchanged_bytes",
+        "bytes_changed_content_same",
+        "changed",
+        "fetch_failed"
+      ]
+    },
+    "entity_evidence": {
+      "type": "string",
+      "description": "기관 존재 근거: 이 기관이 대상이라는 근거가 몇 개의 서로 다른 기관 출처에서 나왔는가(같은 기관의 여러 페이지는 하나로 셈)",
+      "enum": [
+        "two_or_more_sources",
+        "one_source",
+        "seed"
+      ]
+    },
+    "host_access": {
+      "type": "string",
+      "description": "호스트 접근 결과: 이 환경에서 요청했을 때의 결과. acquisition_status로 요약된다(대응은 maps_to)",
+      "enum": [
+        "not_checked",
+        "reachable",
+        "js_shell",
+        "geo_blocked",
+        "service_outage",
+        "origin_denied",
+        "rate_limited",
+        "connection_reset",
+        "tls_error",
+        "timeout",
+        "empty_reply",
+        "redirect_loop",
+        "proxy_error"
+      ]
+    },
+    "pipeline_stage": {
+      "type": "string",
+      "description": "처리 단계: 마지막으로 완료한 처리 단계. 보류·실패는 pipeline_block 축",
+      "enum": [
+        "discovered",
+        "archived",
+        "parsed",
+        "labeled",
+        "validated",
+        "compiled",
+        "candidate",
+        "released"
+      ]
+    },
+    "pipeline_block": {
+      "type": "string",
+      "description": "처리 차단: 다음 단계로 못 가는 이유",
+      "enum": [
+        "none",
+        "hold",
+        "failed"
+      ]
+    },
+    "value_state": {
+      "type": "string",
+      "description": "필드 값 상태: 이 값에 대해 무엇을 알고 있는가. 검수 여부는 review_status 축",
+      "enum": [
+        "observed",
+        "derived",
+        "not_found",
+        "unreadable",
+        "conflicting",
+        "not_applicable",
+        "not_disclosed"
+      ]
+    },
+    "review_status": {
+      "type": "string",
+      "description": "검수 상태: AI 검수 결과(ADR-0006). 사람 검수 아님",
+      "enum": [
+        "pending",
+        "accepted",
+        "hold",
+        "rejected"
+      ]
+    },
+    "clause_path_basis": {
+      "type": "string",
+      "description": "조항 경로 근거: 조·항·호 번호를 원문 글자에서 읽었는가, 순서·참조로 추정했는가. 추정이면 경로를 근거로 한 자동 매핑을 막는다",
+      "enum": [
+        "printed",
+        "inferred"
+      ]
+    },
+    "relation_type": {
+      "type": "string",
+      "description": "관계 유형: 그래프 간선의 종류. 모든 간선은 근거 조항을 가진다",
+      "enum": [
+        "attached_to",
+        "mandatory_with",
+        "terminates_with",
+        "renewal_bounded_by",
+        "excludes",
+        "shares_limit",
+        "routes_to",
+        "parameter_from",
+        "defined_by",
+        "same_benefit_as"
+      ]
+    },
+    "amount_form": {
+      "type": "string",
+      "description": "금액 표현 형식: 원문이 금액을 어떤 형식으로 적었는가. 형식이 다른 금액을 같은 것처럼 합산·환산하지 않는다",
+      "enum": [
+        "fixed_krw",
+        "rate_of_insured_amount",
+        "example_amount",
+        "per_unit_krw",
+        "indemnity",
+        "external_parameter",
+        "max_of"
+      ]
+    },
+    "hold_reason": {
+      "type": "string",
+      "description": "보류 사유: 왜 보류했는가",
+      "enum": [
+        "agent_disagreement",
+        "counterexample",
+        "quote_mismatch",
+        "code_check_failed",
+        "reference_unresolved",
+        "conflicting_sources",
+        "circuit_breaker",
+        "extraction_uncertain"
+      ]
+    },
+    "capability": {
+      "type": "string",
+      "description": "기능 자격: 무엇을 해도 되는가. 각 기능은 독립이며 하나가 다른 것을 자동으로 켜지 않는다(ADR-0012)",
+      "enum": [
+        "search",
+        "explain",
+        "compare_conditions",
+        "compare_price",
+        "simulate",
+        "quote"
+      ]
+    },
+    "capability_state": {
+      "type": "string",
+      "description": "기능 자격 상태: 켜졌는가. 꺼졌으면 막은 이유를 함께 저장",
+      "enum": [
+        "enabled",
+        "blocked"
+      ]
+    },
+    "display_status": {
+      "type": "string",
+      "description": "화면 데이터 상태: value_state·review_status·사용자 입력에서 서버가 계산하는 표시 상태. 저장하지 않고 파생한다",
+      "enum": [
+        "confirmed",
+        "input_missing",
+        "data_missing",
+        "under_review",
+        "hold",
+        "not_applicable"
+      ]
+    },
+    "plan_action": {
+      "type": "string",
+      "description": "초안 행동: 사용자가 이 초안에서 무엇을 하려는가. AI가 정답으로 지정하지 않는다",
+      "enum": [
+        "keep",
+        "add",
+        "remove",
+        "modify"
+      ]
+    },
+    "row_label": {
+      "type": "string",
+      "description": "행 라벨: 미해결 항목(input_missing·data_missing·hold)이 있으면 needs_condition, 없으면 plan_action 문구",
+      "enum": [
+        "needs_condition",
+        "from_plan_action"
+      ]
+    },
+    "tri": {
+      "type": "string",
+      "description": "3값: Kleene 3값 논리",
+      "enum": [
+        "true",
+        "false",
+        "unknown"
+      ]
+    },
+    "payout": {
+      "type": "string",
+      "description": "지급 판정: 규칙을 입력 가정에 적용한 결과. 보험사 지급 결정이 아님",
+      "enum": [
+        "not_payable",
+        "payable",
+        "undetermined"
+      ]
+    },
+    "amount_kind": {
+      "type": "string",
+      "description": "금액 형태: 금액이 하나인가, 범위인가, 모르는가",
+      "enum": [
+        "exact",
+        "range",
+        "unknown"
+      ]
+    },
+    "price_basis": {
+      "type": "string",
+      "description": "가격 근거: 이 가격이 어떤 종류의 근거인가. 신뢰 순위가 아니다",
+      "enum": [
+        "illustrative",
+        "table_derived",
+        "contract_observed",
+        "quoted"
+      ]
+    },
+    "price_unavailable_reason": {
+      "type": "string",
+      "description": "가격 미확인 사유: 가격을 보여줄 수 없는 이유. 0원·예산 초과로 바꾸지 않는다",
+      "enum": [
+        "unqueried",
+        "blocked",
+        "failed",
+        "not_found",
+        "not_disclosed",
+        "unreadable",
+        "conflicting",
+        "under_review",
+        "hold",
+        "condition_mismatch"
+      ]
+    },
+    "freshness": {
+      "type": "string",
+      "description": "최신성: 정책 기한 안에 다시 확인했는가. 값의 존재와 별개 축",
+      "enum": [
+        "fresh",
+        "stale"
+      ]
+    },
+    "policy_holdings_status": {
+      "type": "string",
+      "description": "가입내역 상태: 이 프로필의 기존 계약을 얼마나 알고 있는가",
+      "enum": [
+        "confirmed",
+        "pending_confirmation",
+        "none_declared",
+        "unknown",
+        "skipped"
+      ]
+    },
+    "contract_version_match": {
+      "type": "string",
+      "description": "계약 버전 매칭: 내 계약이 어느 상품 버전인지",
+      "enum": [
+        "matched",
+        "ambiguous",
+        "unmatched"
+      ]
+    },
+    "sensitivity": {
+      "type": "string",
+      "description": "민감도: 저장·권한·로그 경계. 파생물로 상속된다",
+      "enum": [
+        "public_product",
+        "private_policy",
+        "private_health",
+        "genetic_private"
+      ]
+    },
+    "criticality": {
+      "type": "string",
+      "description": "중요도: 결과를 바꾸면 c0로 승격",
+      "enum": [
+        "c0",
+        "c1",
+        "c2"
+      ]
+    },
+    "diff_group": {
+      "type": "string",
+      "description": "차이 묶음: 네 묶음은 같은 시각 비중으로 보인다",
+      "enum": [
+        "added",
+        "reduced",
+        "unchanged",
+        "cost_and_unknown"
+      ]
+    },
+    "diff_type": {
+      "type": "string",
+      "description": "차이 유형: 각 유형은 하나의 diff_group에 속한다(group 필드)",
+      "enum": [
+        "gain_coverage",
+        "gain_amount",
+        "lose_coverage",
+        "lose_amount",
+        "new_waiting",
+        "new_reduction",
+        "new_exclusion",
+        "term_change",
+        "limit_change",
+        "surrender_loss",
+        "unchanged",
+        "renewal_change",
+        "price_basis_diff",
+        "underwriting_unknown",
+        "unknown"
+      ]
+    },
+    "doc_role": {
+      "type": "string",
+      "description": "문서 역할: 이 문서가 무엇인가",
+      "enum": [
+        "terms",
+        "rider_terms",
+        "annex",
+        "business_method",
+        "summary",
+        "price_table",
+        "standard_terms",
+        "disclosure_page",
+        "notice"
+      ]
+    },
+    "sale_status": {
+      "type": "string",
+      "description": "판매 상태: 판매 중인가",
+      "enum": [
+        "on_sale",
+        "discontinued",
+        "unknown"
+      ]
+    },
+    "publication_state": {
+      "type": "string",
+      "description": "규칙 공개 상태: 합성 픽스처와 실제 규칙을 구분",
+      "enum": [
+        "fixture_only",
+        "candidate",
+        "released"
+      ]
+    }
+  }
+}

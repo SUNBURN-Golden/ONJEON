@@ -14,6 +14,12 @@ use crate::{
 /// Stays a string until the `assertion_origin` axis enters the vocabulary.
 pub const ORIGIN_FIXTURE: &str = "fixture";
 
+/// `contract_effect.kind` values (02_구현계약 G23, rule-0.2): the engine's `ContractEffectOut`
+/// tag. Strings until the `contract_effect_kind` axis enters the vocabulary.
+pub const CONTRACT_EFFECT_NONE: &str = "none";
+pub const CONTRACT_EFFECT_APPLIES: &str = "applies";
+pub const CONTRACT_EFFECT_UNDETERMINED: &str = "undetermined";
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Violation {
     /// Constraint or rule name, for example `chk_accepted_needs_decision`.
@@ -143,9 +149,9 @@ pub fn check_evaluation_result(e: &EvaluationResult) -> Vec<Violation> {
     }
     if let Some(ce) = &e.contract_effect {
         let fields = match ce.kind.as_str() {
-            "none" => Some((false, false)),
-            "applies" => Some((true, false)),
-            "undetermined" => Some((false, true)),
+            CONTRACT_EFFECT_NONE => Some((false, false)),
+            CONTRACT_EFFECT_APPLIES => Some((true, false)),
+            CONTRACT_EFFECT_UNDETERMINED => Some((false, true)),
             _ => None,
         };
         match fields {
@@ -166,9 +172,13 @@ pub fn check_evaluation_result(e: &EvaluationResult) -> Vec<Violation> {
                     ));
                 }
                 let allowed = match e.eligibility {
-                    Tri::False => ce.kind == "none",
-                    Tri::True => ce.kind == "none" || ce.kind == "applies",
-                    Tri::Unknown => ce.kind == "none" || ce.kind == "undetermined",
+                    Tri::False => ce.kind == CONTRACT_EFFECT_NONE,
+                    Tri::True => {
+                        ce.kind == CONTRACT_EFFECT_NONE || ce.kind == CONTRACT_EFFECT_APPLIES
+                    }
+                    Tri::Unknown => {
+                        ce.kind == CONTRACT_EFFECT_NONE || ce.kind == CONTRACT_EFFECT_UNDETERMINED
+                    }
                 };
                 if !allowed {
                     out.push(v(

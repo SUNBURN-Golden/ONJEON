@@ -34,7 +34,7 @@ compat() { python3 -I "$here/compat.py" "$@"; }
 probe() {
   local out rc=0
   out="$(mktemp -d "$tmp/probe.XXXXXX")"
-  compat --probe "$out" --prev "$1" --new "$2" "${lock[@]}" >/dev/null || return 2
+  compat --probe "$out" --prev "$1" --new "$2" ${lock[@]+"${lock[@]}"} >/dev/null || return 2
   (cd "$out" && cargo run --quiet) || rc=$?
   case "$rc" in
     0|1) return "$rc" ;;

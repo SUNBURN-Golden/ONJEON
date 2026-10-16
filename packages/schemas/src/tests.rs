@@ -218,7 +218,7 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
             );
             if let Some(ce) = &typed.contract_effect {
                 assert_eq!(
-                    ce.kind, "none",
+                    ce.kind, CONTRACT_EFFECT_NONE,
                     "fixture rules are rule-0.1: no effect declared"
                 );
                 with_effect += 1;
@@ -233,8 +233,12 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
     );
 }
 
-/// `applies` and `undetermined` effects come only from rule-0.2 rules. An engine build without
-/// rule-0.2 (before PR #105) rejects the rule; the fixture shapes are then the only check.
+/// `applies` and `undetermined` effects come only from rule-0.2 rules.
+///
+/// An engine build without rule-0.2 (this branch forked before PR #105 landed on `main`) rejects
+/// the probe rule. The test then checks nothing beyond the reason for the rejection and returns:
+/// it is vacuous on such a build and says so. It runs in full against the engine on `main`, which
+/// CI builds (the PR merged with `main`). `ONJ_REQUIRE_RULE_02=1` turns the skip into a failure.
 #[test]
 fn rule_02_contract_effects_round_trip_when_the_engine_supports_them() {
     use onjeon_rules_engine::Rule;
@@ -246,21 +250,36 @@ fn rule_02_contract_effects_round_trip_when_the_engine_supports_them() {
         "unknown_policy": "use_three_valued_logic_never_default_to_zero",
         "evidence_refs": [], "publication_state": "fixture_only"
     });
-    let Ok(rule) = Rule::from_json(&rule) else {
-        eprintln!("engine without rule-0.2: contract_effect shapes are checked from fixtures only");
-        return;
+    let rule = match Rule::from_json(&rule) {
+        Ok(rule) => rule,
+        Err(e) => {
+            // A pre-rule-0.2 engine objects to the `contract_effect` key or to the schema
+            // version. Any other rejection means the probe rule itself is broken.
+            assert!(
+                e.message.contains("contract_effect") || e.path == "schema_version",
+                "probe rule rejected for a reason other than missing rule-0.2 support: {e}"
+            );
+            assert!(
+                std::env::var_os("ONJ_REQUIRE_RULE_02").is_none(),
+                "ONJ_REQUIRE_RULE_02 is set but this engine build has no rule-0.2: {e}"
+            );
+            eprintln!(
+                "VACUOUS: engine without rule-0.2 ({e}); contract_effect shapes were checked from fixtures only"
+            );
+            return;
+        }
     };
     let shapes = [
         (
             json!({"hit": true, "insured_amount_krw": 100}),
-            "applies",
+            CONTRACT_EFFECT_APPLIES,
             Some("void_refund_premium"),
             None,
         ),
-        (json!({"hit": false}), "none", None, None),
+        (json!({"hit": false}), CONTRACT_EFFECT_NONE, None, None),
         (
             json!({"insured_amount_krw": 100}),
-            "undetermined",
+            CONTRACT_EFFECT_UNDETERMINED,
             None,
             Some("void_refund_premium"),
         ),

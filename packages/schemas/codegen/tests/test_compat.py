@@ -180,7 +180,7 @@ class CheckCompatScript(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.target, ignore_errors=True)
 
-    def repo(self, tagged=True):
+    def repo(self, tagged=True, lockfile=True):
         root = Path(tempfile.mkdtemp(dir=self.target))
         dst = root / "packages" / "schemas"
         (dst).mkdir(parents=True)
@@ -188,7 +188,8 @@ class CheckCompatScript(unittest.TestCase):
         shutil.copytree(sm.SCHEMAS_DIR / "codegen", dst / "codegen", ignore=shutil.ignore_patterns("tests", "generated", "__pycache__"))
         shutil.copy(sm.VOCAB_PATH, dst / "vocabulary.json")
         shutil.copy(sm.SCHEMAS_DIR / "Cargo.toml", dst / "Cargo.toml")
-        shutil.copy(REPO_LOCK, root / "Cargo.lock")  # the script pins the probe with the repository lockfile
+        if lockfile:
+            shutil.copy(REPO_LOCK, root / "Cargo.lock")  # the script pins the probe with the repository lockfile
         git = ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid"]
         subprocess.run(["git", "init", "-q", str(root)], check=True)
         subprocess.run([*git, "-C", str(root), "add", "-A"], check=True)
@@ -212,6 +213,16 @@ class CheckCompatScript(unittest.TestCase):
         self.assertEqual(rc, 0, out)
         self.assertIn("compile probe", out)
         self.assertIn("compatible with contracts-0.1.0", out)
+
+    def test_selftest_runs_without_a_repository_lockfile(self):
+        """No Cargo.lock: the probe resolves serde itself. The script's empty `--lock` argument list must
+        expand to nothing under `set -u` (bash before 4.4 fails on an empty array), so the self-test still runs."""
+        root, dst = self.repo(tagged=False, lockfile=False)
+        self.assertFalse((root / "Cargo.lock").exists())
+        rc, out = self.run_check(root, dst, "--selftest")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("compile probe: previous client cannot read", out)
+        self.assertIn("self-test ok", out)
 
     def test_a_deleted_field_fails_without_a_major_bump(self):
         root, dst = self.repo()

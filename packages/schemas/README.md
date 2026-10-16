@@ -27,7 +27,7 @@ bash packages/schemas/codegen/check_compat.sh <prev_tag> # 이전 태그와 호�
 bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣으면 실패하는지 자체 시험
 ```
 
-`build_check.sh`는 TypeScript는 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능), Dart는 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 그 언어는 **빌드하지 않은 것**이고 `SKIPPED`와 종료 코드 3을 낸다. `ONJ_REQUIRE_TOOLCHAINS=1`이면 실패다.
+`build_check.sh`는 TypeScript는 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능), Dart는 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 그 언어는 **빌드하지 않은 것**이고 `SKIPPED`와 종료 코드 3을 낸다. `ONJ_REQUIRE_TOOLCHAINS=1`이면 실패다. 기존 CI 워크플로는 TypeScript·Dart를 빌드하지 않으므로(아래 '한계'), 세 언어 빌드의 근거는 PR마다 `ONJ_REQUIRE_TOOLCHAINS=1`로 돌린 이 스크립트의 로그(`RESULT: all three languages build`, tsc·Dart 버전 포함)를 PR 본문에 붙이는 것이다.
 
 ## 규칙
 
@@ -37,7 +37,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 - 금액은 정수 원(`Krw`). 부동소수점은 화면 표시 전용 만원 값(`Budget.*_man`, `CurrentPaid.man`, `PriceLine.man`)에만 있고, 예산 판정과 정렬은 원 단위로 한다(화면 설계서 §11). 시험이 부동소수점 필드 목록을 고정한다.
 - 시각 필드는 어휘 정본의 이름만 쓴다: 02가 쓴 `valid_from`·`valid_to`는 폐기 별칭이라 `effective_from`·`effective_to`, 가격 기준일은 `source_as_of`. 모델 식별자 원문은 싣지 않고 `model_ref_hash`만 싣는다.
 - 교차 필드 불변식은 `src/checks.rs`에서 검사한다: accepted ⇒ 검수 결정, `origin=fixture` ⇒ accepted 불가, 주장은 `object` 또는 `value` 하나, 가격 비교 자격의 조건(K13), 막힌 시나리오는 엔진 결과 없음, 엔진 결과 모양(`payout`·`contract_effect`가 `eligibility`를 따르고 `kind`마다 그 kind의 필드만 있음), 오류 클래스와 코드의 일치. DB 제약(T-CT-05)과 릴리스 빌더(T-KN-07)의 대체가 아니다.
-- 규칙 엔진 직렬화와 `EvaluationResult`가 같은 모양인지는 엔진을 실제로 돌려 확인한다(`rule_engine_output_deserializes_into_evaluation_result`; rule-0.2 규칙의 효과는 `rule_02_contract_effects_round_trip_when_the_engine_supports_them`). `contract_effect`(rule-0.2, G23)는 엔진이 rule-0.2를 지원한 뒤(PR #105)로 모든 결과에 실린다. 그 전 엔진 빌드의 결과에는 없으므로 계약에서는 **선택 필드**다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이고, 효과 없음은 `kind=none`이다. 필수로 올리는 것은 깨지는 변경(§5)이라 다음 계약 판의 몫이다.
+- 규칙 엔진 직렬화와 `EvaluationResult`가 같은 모양인지는 엔진을 실제로 돌려 확인한다(`rule_engine_output_deserializes_into_evaluation_result`; rule-0.2 규칙의 효과는 `rule_02_contract_effects_round_trip_when_the_engine_supports_them`). 후자는 엔진이 rule-0.2 규칙을 거부하면(이 브랜치가 갈라진 시점의 엔진, PR #105 이전) 거부 이유만 확인하고 `VACUOUS:`를 찍은 채 끝난다. 즉 그 엔진에서는 **아무것도 검증하지 않는다.** `main`(#105 병합 후)의 엔진과 합친 빌드(CI가 시험하는 것)에서만 세 모양(`applies`·`none`·`undetermined`)을 실제로 돌린다. `ONJ_REQUIRE_RULE_02=1 cargo test -p onjeon-contracts`는 그 건너뜀을 실패로 만든다. `contract_effect`(rule-0.2, G23)는 엔진이 rule-0.2를 지원한 뒤(PR #105)로 모든 결과에 실린다. 그 전 엔진 빌드의 결과에는 없으므로 계약에서는 **선택 필드**다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이고, 효과 없음은 `kind=none`이다. 필수로 올리는 것은 깨지는 변경(§5)이라 다음 계약 판의 몫이다.
 
 ## 버전과 호환 검사 (02 §5)
 
@@ -49,7 +49,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 
 ## 한계와 열린 항목
 
-- **CI 워크플로 단계는 아직 연결되지 않았다(후속 과제로 남김).** 대신 `cargo test --all`이 `gen.py --check`, 파이썬 시험 묶음, `check_compat.sh --selftest`(필드 삭제 시 실패 확인)를 실행하므로 기존 CI의 cargo 단계가 이 셋을 지킨다. TypeScript·Dart 빌드는 도구가 필요해 cargo가 돌리지 않는다. `.github/workflows/`는 이 과제의 허용 경로 밖이다. 연결할 때 추가할 단계: `python3 -I packages/schemas/codegen/gen.py --check`, `python3 -I -m unittest discover -s packages/schemas/codegen/tests`, `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`(tsc·Dart SDK 설치 필요), 태그가 생긴 뒤 `bash packages/schemas/codegen/check_compat.sh contracts-<이전>`. 이 단계는 `git fetch --tags` 후 `ONJ_REQUIRE_BASELINE=1`로 돌려 태그가 없을 때 조용히 통과하지 않게 한다(`check_compat.sh`는 이 값이 1이면 태그 부재를 오류 2로 처리). 후속 연결 담당: **구현자(사람)**. 과제 그래프(tasks.json)는 `.github/workflows/**`를 어느 과제의 허용 경로에도 넣지 않고 구현자 관리로 둔다(T-CT-06 비고와 같은 규칙).
+- **CI 워크플로 단계는 아직 연결되지 않았다(후속 과제로 남김).** 대신 `cargo test --all`이 `gen.py --check`, 파이썬 시험 묶음, `check_compat.sh --selftest`(필드 삭제 시 실패 확인)를 실행하므로 기존 CI의 cargo 단계가 이 셋을 지킨다. TypeScript·Dart 빌드는 도구가 필요해 cargo가 돌리지 않는다. `.github/workflows/`는 이 과제의 허용 경로 밖이다. 연결할 때 추가할 단계: `python3 -I packages/schemas/codegen/gen.py --check`, `python3 -I -m unittest discover -s packages/schemas/codegen/tests`, `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`(tsc·Dart SDK 설치 필요), `ONJ_REQUIRE_RULE_02=1 cargo test -p onjeon-contracts`(엔진이 rule-0.2를 지원하는 `main`에서 round-trip 시험이 건너뛰지 않게), 태그가 생긴 뒤 `bash packages/schemas/codegen/check_compat.sh contracts-<이전>`. 이 단계는 `git fetch --tags` 후 `ONJ_REQUIRE_BASELINE=1`로 돌려 태그가 없을 때 조용히 통과하지 않게 한다(`check_compat.sh`는 이 값이 1이면 태그 부재를 오류 2로 처리). 후속 연결 담당: **구현자(사람)**. 과제 그래프(tasks.json)는 `.github/workflows/**`를 어느 과제의 허용 경로에도 넣지 않고 구현자 관리로 둔다(T-CT-06 비고와 같은 규칙).
 - 호환 컴파일 탐침은 Rust만이다. TypeScript·Dart는 현재 스키마의 빌드와 픽스처 확인만 하고 이전 태그 생성물로의 교차 컴파일은 하지 않는다. 구조 비교는 세 언어에 공통이다.
 - 첫 `contracts-*` 태그는 아직 없다. 태그를 찍는 것은 릴리스 절차의 몫이다.
 - 02가 닫지 않은 것: 주장 ID 표기(`a:` 대 `assertion:`, `evidence_ref.md`), `release_hash`와 `content_sha256`의 관계(스키마는 `content_sha256`만), `need_result.id`·`conclusion_id` 형식, `special_conditions`·`usage_counters` 항목 형식(임의 JSON), `scope_relation`·`judged_by` 등의 값 집합. 임의로 정하지 않고 자리만 두었다.

@@ -65,6 +65,10 @@ fi
 
 if ! git -C "$repo" rev-parse --verify --quiet "refs/tags/$arg^{commit}" >/dev/null; then
   if [ -z "$(git -C "$repo" tag --list 'contracts-*')" ]; then
+    if [ "${ONJ_REQUIRE_BASELINE:-0}" = "1" ]; then
+      echo "error: no contracts-* tag found (shallow clone without tags?); ONJ_REQUIRE_BASELINE=1 forbids the first-release pass" >&2
+      exit 2
+    fi
     echo "BASELINE: no contracts-* tag exists yet (first release); nothing to compare with."
     selftest
     exit $?

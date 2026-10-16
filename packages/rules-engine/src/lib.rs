@@ -1,4 +1,4 @@
-//! ONJEON deterministic rule evaluator (DSL v0.1).
+//! ONJEON deterministic rule evaluator (DSL v0.1, plus the rule-0.2 operators).
 //!
 //! Design rules (see docs/masterplan, part 3 section 49):
 //! - Three-valued logic: true / false / unknown. Unknown never defaults to zero.
@@ -13,8 +13,8 @@ pub mod rule;
 pub mod tri;
 pub mod value;
 
-pub use eval::{AmountOut, EvalError, EvaluationResult, Payout, TraceEntry};
-pub use rule::{Rule, RuleError};
+pub use eval::{AmountOut, ContractEffectOut, EvalError, EvaluationResult, Payout, TraceEntry};
+pub use rule::{ContractEffect, Rule, RuleError};
 pub use tri::Tri;
 
 /// Engine version recorded in every result.

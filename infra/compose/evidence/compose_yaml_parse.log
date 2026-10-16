@@ -1,0 +1,1 @@
+compose yaml parse ok; services: ['db-private', 'db-public', 's3', 's3-check', 's3-init']

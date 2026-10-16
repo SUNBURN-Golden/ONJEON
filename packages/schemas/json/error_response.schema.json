@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "error_response.schema.json",
+  "title": "ErrorResponse",
+  "type": "object",
+  "description": "오류 응답 (02_구현계약 §4). 미확인·보류는 오류가 아니라 HTTP 200의 정상 결과다",
+  "properties": {
+    "error_class": {
+      "type": "string",
+      "pattern": "^[VANSLUXT]$",
+      "x-onjeon-pending-axis": "error_class",
+      "description": "V 입력 검증, A 인증·권한, N 없음, S 상태 충돌, L 한도, U 미지원, X 내부, T 타임아웃 (02 §4.2). 어휘 축 승격 대기"
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^ONJ-(CT|DT|KN|TW|PS|AP|OP)-[VANSLUXT]-[0-9]{3}$",
+      "description": "ONJ-<구역 2자>-<클래스 1자>-<번호 3자>"
+    },
+    "message_key": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "trace_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    }
+  },
+  "required": [
+    "error_class",
+    "code",
+    "message_key",
+    "retryable",
+    "trace_id"
+  ],
+  "additionalProperties": false,
+  "x-onjeon-invariants": [
+    "error_class는 code의 클래스 글자와 같다"
+  ]
+}

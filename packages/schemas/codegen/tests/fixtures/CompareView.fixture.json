@@ -1,0 +1,77 @@
+{
+  "release_id": "rel:20261001-1",
+  "comparison_basis_id": "cb-fixture",
+  "columns": [
+    {
+      "sc_id": "sc:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+      "cov_id": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+      "capability_state": "enabled",
+      "display_status": "confirmed"
+    },
+    {
+      "sc_id": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
+      "cov_id": "cov:ted:01H8XGJWBWBAQ4Z4RN3XPQ3BDY/art2",
+      "capability_state": "blocked",
+      "display_status": "data_missing"
+    }
+  ],
+  "axes": [
+    {
+      "concept_axis": "waiting_period",
+      "per_column": [
+        {
+          "sc_id": "sc:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          "value": "90일",
+          "evidence_kind": "terms",
+          "applicability": "applies",
+          "display_status": "confirmed"
+        },
+        {
+          "sc_id": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
+          "value": "확인 필요",
+          "evidence_kind": "summary",
+          "applicability": "unverified",
+          "display_status": "data_missing",
+          "amounts": [
+            {
+              "krw": 10000000,
+              "source": "candidate:01BX5ZZKBKACTAV9WEVGEMMVRY"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scope_relations": [
+    {
+      "a": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+      "b": "cov:ted:01H8XGJWBWBAQ4Z4RN3XPQ3BDY/art2",
+      "value": "superset",
+      "derived_from": "codeset-hash-1"
+    }
+  ],
+  "price": {
+    "basis_id": "cb-fixture",
+    "comparable_columns": [
+      "sc:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+    ],
+    "unpriced_columns": [
+      {
+        "sc_id": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
+        "reason": "not_found"
+      }
+    ]
+  },
+  "not_comparable_reasons": [
+    {
+      "column": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
+      "reason": "terms_missing"
+    }
+  ],
+  "result_state": {
+    "input_freshness": "fresh",
+    "knowledge_freshness": "fresh",
+    "usage_restriction": "none",
+    "reproducible": true
+  }
+}

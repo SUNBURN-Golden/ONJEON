@@ -20,7 +20,7 @@
 - 관제 응답의 `release_id`는 응답 시점의 현재 공개 릴리스이고, 첫 릴리스 전에는 `null`이다(키는 필수).
 - 개인·관제 문서: 오류를 포함한 모든 응답이 `Cache-Control` 헤더를 선언하고 값이 `private, no-store` 하나로 고정된다. 문서 최상위 `x-onjeon-cache-policy`가 금지 지시어(`public`, `s-maxage`, `max-age`, `stale-while-revalidate`, `stale-if-error`, `immutable`)를 적고, 개인·관제 연산에는 `x-onjeon-cache-key`가 없다.
 - 공개 문서: GET만 공개 캐시 가능하고 캐시 키에 `release_id`가 있다. 비교·시나리오처럼 입력이 결과를 정하는 POST는 `no-store`다(서버 안 캐시 키는 입력 해시 + `release_id` + `comparison_basis_id`).
-- 업로드·계산 요청(`policy-imports`, `scenarios`, `evaluations`, `need-assessments`, `plans`)은 본문에 필수 `idempotency_key`가 있고 상태 조회 경로가 있다.
+- 업로드·계산 요청(`policy-imports`, `scenarios`, `evaluations`, `need-assessments`(공개·개인), `plans`)은 본문에 필수 `idempotency_key`가 있다(시험 `test_calculation_and_upload_requests_carry_an_idempotency_key`; 생성기 lint가 아니다). 상태·결과 조회 경로(`GET`)는 `policy-imports`, `evaluations`, `plans`에만 있다. 시나리오·필요 진단 결과는 저장하지 않으므로 조회 경로가 없고, 이를 검사하는 lint나 시험도 없다.
 - 알 수 없는 enum은 오류다(어휘 `$ref`만 쓰고 생성 타입이 역직렬화에서 거부한다).
 - 금액은 정수 원(`Krw`). 부동소수점은 원본 영역 bbox 좌표뿐이다(시험이 고정).
 
@@ -56,13 +56,15 @@ bash packages/schemas/codegen/gen.sh --check   # 최신 여부(CI)
 
 ## 증거와 한계
 
-- 실행 로그는 `packages/schemas/codegen/evidence/ct03/`에 커밋돼 있다(`EVIDENCE.md`가 색인).
+- 실행 로그는 `packages/schemas/codegen/evidence/ct03/`에 커밋돼 있다(`ct03/EVIDENCE.md`가 색인).
 - **인증 수단은 정해지지 않았다.** `POST /v1/auth/sessions`는 `provider`·`credential`을 불투명 값으로 받는 자리표시다(인증 설계는 제3부 §54.2 6번). 자격 증명은 저장·로그 금지.
 - **D-11(비회원 서버 저장 없는 계산)은 보류.** `POST /v1/evaluations`에 `ephemeral` 모드는 없고 연산에 `x-onjeon-pending-decision: D-11`만 적었다.
 - 내보내기는 기계 판독 JSON만 정했다. 사람용 PDF(제3부 §46.4)는 이 초안에 없다.
 - 다음 값 집합은 어휘 정본에 아직 없어 소문자 snake_case 패턴 문자열이고 설명에만 후보를 적었다: 확보 층 이름, 가져오기·삭제·확보 작업 상태, 삭제 단계, 확인 주체, 신고 분류, 검수 역할, 감사 행위, 품질 지표, 임계값 이름, 비용 분류. 어휘에 들어오는 과제(T-CT-02)가 `$ref`로 바꾼다. 이 값들은 이 문서가 새로 만든 것이므로 확정이 아니다.
 - 오류 코드 표와 `message_key`는 T-CT-04의 몫이다. 이 문서는 어떤 코드가 어느 응답에 쓰이는지 정하지 않고 오류 클래스(V·A·N·S·L·U·X·T)에 해당하는 상태 코드(400·401·403·404·409·429·422·500·504)만 고른다.
 - `Cache-Control`의 유효 시간 숫자는 정하지 않았다(T-AP-01).
+- 생성된 Dart `fromJson`과 TS 타입은 관제 본문에 `release_id` 키가 없어도 받는다(T-CT-01 §6.5와 같은 한계). 키 존재는 Rust만 강제한다.
+- 민감 필드(`SessionRequest.credential`, `PolicyImportForm.password`)를 가진 생성 Rust 타입은 `Debug`를 파생하므로 `{:?}`로 로그하면 값이 찍힌다. 로그 금지는 사용처의 규칙이다. 가림 처리는 T-AP-01 전에 생성기에 더할 후속이다.
 - `cov_ids` xor `concept_id`, `contract_ids` xor `cov_ids`는 JSON Schema 부분집합으로 쓸 수 없어 `onjeon-api-types`의 `checks`가 검사한다. 그 외 제약(`pattern`·`minimum`)은 파이썬 시험용 검증기만 확인하고 생성 타입은 강제하지 않는다(contracts와 같다).
 - **OpenAPI diff 호환 검사(02 §5의 "공개·개인·관제 API 경로 `/v1`")는 아직 없다.** `check_compat.sh`는 `json/` 스키마만 비교한다. 필드 삭제를 `/v2`로 강제하는 검사는 후속이다.
 - CI 워크플로(`.github/workflows/`)는 이 과제의 허용 경로 밖이라 연결하지 않았다. `cargo test --all`이 `gen.py --check`와 OpenAPI 시험을 돌리므로 기존 cargo 단계가 그것을 지킨다. TypeScript·Dart 빌드는 도구가 필요해 CI가 돌리지 않고, 근거는 커밋된 로그뿐이다.

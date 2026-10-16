@@ -60,7 +60,7 @@ if command -v dart >/dev/null 2>&1; then
   printf "import 'package:onjeon_api/onjeon_api.dart';\nvoid main() { print(skeletonOperations); }\n" > "$api_scratch/dart-api/bin/leak.dart"
   if (cd "$api_scratch/dart-api" && dart pub get --offline >/dev/null 2>&1; \
       dart analyze --fatal-infos --fatal-warnings lib bin/api_roundtrip.dart && dart run bin/api_roundtrip.dart "$here/tests/api_fixtures") \
-     && ! (cd "$api_scratch/dart-api" && dart analyze bin/leak.dart >/dev/null 2>&1); then
+     && (cd "$api_scratch/dart-api" && ! dart analyze bin/leak.dart 2>&1 | tee "$api_scratch/leak.out" >/dev/null; grep -q skeletonOperations "$api_scratch/leak.out"); then
     echo "Dart API: analyzed, round-tripped, skeleton not exported by onjeon_api.dart"
   else echo "Dart API: FAILED"; failed=1; fi
   rm -rf "$api_scratch"

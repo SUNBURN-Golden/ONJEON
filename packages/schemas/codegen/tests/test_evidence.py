@@ -96,6 +96,22 @@ class EvidenceFiles(unittest.TestCase):
         self.assertIn("tree_hash.sh", text)
         self.assertIn("T-CT-01", text)
 
+    def test_ct03_logs_are_complete_and_indexed(self):
+        ct03 = EVIDENCE / "ct03"
+        index = (ct03 / "EVIDENCE.md").read_text(encoding="utf-8")
+        self.assertRegex(index, r"\b[0-9a-f]{64}\b", "sha256 of the packages/schemas tree")
+        self.assertIn("tree_hash.sh", index)
+        self.assertIn("T-CT-03", index)
+        logs = sorted(ct03.glob("*.log"))
+        self.assertTrue(logs)
+        for path in logs:
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(path.name, index, f"{path.name} not listed in ct03/EVIDENCE.md")
+            self.assertTrue(text.startswith("$ "), f"{path.name}: first line must be the command")
+            self.assertEqual(exit_codes(text)[-1:], [0], path.name)
+            self.assertNotIn("FAILED", text, path.name)
+        self.assertNotIn("SKIPPED", (ct03 / "build_check.log").read_text(encoding="utf-8"))
+
     def test_no_leaks(self):
         # subdirectories hold other tasks' evidence (ct03/) and are held to the same rules
         for path in sorted(p for p in EVIDENCE.rglob("*") if p.is_file()):

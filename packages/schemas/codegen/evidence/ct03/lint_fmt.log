@@ -1,3 +1,5 @@
-$ cargo fmt --all -- --check && cargo clippy --all-targets -p onjeon-api-types
+$ cargo fmt --all -- --check && cargo clippy --all-targets -- -D warnings && cargo clippy -p onjeon-api-types --features skeleton --all-targets -- -D warnings
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+    Checking onjeon-api-types v0.1.0 (<repo>/packages/api-types)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.79s
 exit code: 0

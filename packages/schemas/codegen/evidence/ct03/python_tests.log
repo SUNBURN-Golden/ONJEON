@@ -32,6 +32,7 @@ test_version_rule (test_compat.Versions.test_version_rule) ... ok
 test_build_check_log_proves_all_three_languages (test_evidence.EvidenceFiles.test_build_check_log_proves_all_three_languages) ... ok
 test_cargo_test_logs_pass (test_evidence.EvidenceFiles.test_cargo_test_logs_pass) ... ok
 test_check_compat_log_runs_the_selftest_and_is_honest_about_the_baseline (test_evidence.EvidenceFiles.test_check_compat_log_runs_the_selftest_and_is_honest_about_the_baseline) ... ok
+test_ct03_logs_are_complete_and_indexed (test_evidence.EvidenceFiles.test_ct03_logs_are_complete_and_indexed) ... ok
 test_each_log_starts_with_its_command_and_records_exit_codes (test_evidence.EvidenceFiles.test_each_log_starts_with_its_command_and_records_exit_codes) ... ok
 test_every_log_and_the_index_exist (test_evidence.EvidenceFiles.test_every_log_and_the_index_exist) ... ok
 test_index_names_every_log_and_pins_the_tree (test_evidence.EvidenceFiles.test_index_names_every_log_and_pins_the_tree) ... ok
@@ -106,7 +107,7 @@ test_pending_axes_must_move_to_the_vocabulary_once_it_has_them (test_schemas.Lin
 test_pending_axis_table_matches_the_schemas (test_schemas.Readme.test_pending_axis_table_matches_the_schemas) ... ok
 
 ----------------------------------------------------------------------
-Ran 101 tests in 26.933s
+Ran 102 tests in 19.562s
 
 OK
 exit code: 0

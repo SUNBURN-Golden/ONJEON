@@ -35,6 +35,31 @@ def models(mutate_json=None, mutate_vocab=None):
         return prev, compat.model_of(d)
 
 
+def mutated_copy(root, mutate_vocab):
+    """A copy of the current schemas under `root` with the vocabulary mutated and its schema regenerated."""
+    d = copy_schemas(Path(root))
+    edit(d / "vocabulary.json", mutate_vocab)
+    (d / "json" / sm.VOCAB_FILE).write_text(
+        json.dumps(sm.vocabulary_schema(sm.load_vocab(d / "vocabulary.json")), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8")
+    return d
+
+
+def insert_first(axis_id, code):
+    """Vocabulary mutator: a new value at the FRONT of an axis (the position minimal_value used to pick blindly)."""
+    def go(v):
+        axis = next(a for a in v["axes"] if a["id"] == axis_id)
+        axis["values"].insert(0, {"code": code, "concept_ko": "x", "screen_ko": "x", "deprecated_aliases": []})
+    return go
+
+
+def remove_value(axis_id, code):
+    def go(v):
+        axis = next(a for a in v["axes"] if a["id"] == axis_id)
+        axis["values"] = [x for x in axis["values"] if x["code"] != code]
+    return go
+
+
 def prop(file, type_name=None):
     """Return a mutator editing properties of `type_name` (a $defs entry, or the root when None)."""
     def wrap(fn):
@@ -167,6 +192,41 @@ class Probe(unittest.TestCase):
             doc = json.loads((Path(t) / "docs" / "EvaluationResult.json").read_text(encoding="utf-8"))
             self.assertIn("contract_effect", doc)  # optional fields are filled so the old client reads them too
 
+    def test_probe_documents_use_enum_values_the_previous_client_knows(self):
+        """A new enum value inserted FIRST is a compatible change; the probe must not feed it to the old client."""
+        with tempfile.TemporaryDirectory() as t:
+            new_dir = mutated_copy(Path(t) / "new", insert_first("criticality", "zz_new_first"))
+            prev, new = compat.model_of(sm.SCHEMAS_DIR), compat.model_of(new_dir)
+            self.assertEqual(compat.diff(prev, new), ([], ["enum value added: criticality.zz_new_first"]))
+            self.assertEqual([v["code"] for v in new.axes["criticality"].values][0], "zz_new_first")
+            self.assertEqual(compat.enum_sample(new, prev, "criticality"), "c0")
+            out = Path(t) / "probe"
+            compat.write_probe(out, sm.SCHEMAS_DIR, new_dir)
+            doc = json.loads((out / "docs" / "Assertion.json").read_text(encoding="utf-8"))
+            self.assertEqual(doc["criticality"], "c0")
+            self.assertNotIn("zz_new_first", (out / "docs" / "Assertion.json").read_text(encoding="utf-8"))
+            # the previous client's types do not know the new value at all
+            self.assertNotIn("ZzNewFirst", (out / "src" / "vocabulary.rs").read_text(encoding="utf-8"))
+
+    def test_enum_sample_fallbacks(self):
+        model = compat.model_of(sm.SCHEMAS_DIR)
+        first = model.axes["criticality"].values[0]["code"]
+        self.assertEqual(compat.enum_sample(model, None, "criticality"), first)  # no previous model
+        with tempfile.TemporaryDirectory() as t:
+            # an axis the previous version did not have: first new code
+            def add_axis(v):
+                v["axes"].append({"id": "zz_axis", "name_ko": "x", "applies_to": "x", "layer": "x", "concept_ko": "x",
+                                  "values": [{"code": "only", "concept_ko": "x", "screen_ko": "x", "deprecated_aliases": []}]})
+            new = compat.model_of(mutated_copy(Path(t) / "a", add_axis))
+            self.assertEqual(compat.enum_sample(new, model, "zz_axis"), "only")
+            # every previous value removed (breaking, reported by diff): still a well-formed value
+            def replace_all(v):
+                axis = next(a for a in v["axes"] if a["id"] == "criticality")
+                axis["values"] = [{"code": "zz_only", "concept_ko": "x", "screen_ko": "x", "deprecated_aliases": []}]
+            new = compat.model_of(mutated_copy(Path(t) / "b", replace_all))
+            self.assertEqual(compat.enum_sample(new, model, "criticality"), "zz_only")
+            self.assertTrue(any(b.startswith("enum value removed: criticality.") for b in compat.diff(model, new)[0]))
+
 
 class CheckCompatScript(unittest.TestCase):
     """Runs the shipped script in a throwaway repo with a real tag, so tag lookup and `git archive` are exercised."""
@@ -185,7 +245,7 @@ class CheckCompatScript(unittest.TestCase):
         dst = root / "packages" / "schemas"
         (dst).mkdir(parents=True)
         shutil.copytree(sm.JSON_DIR, dst / "json")
-        shutil.copytree(sm.SCHEMAS_DIR / "codegen", dst / "codegen", ignore=shutil.ignore_patterns("tests", "generated", "__pycache__"))
+        shutil.copytree(sm.SCHEMAS_DIR / "codegen", dst / "codegen", ignore=shutil.ignore_patterns("tests", "generated", "evidence", "__pycache__"))
         shutil.copy(sm.VOCAB_PATH, dst / "vocabulary.json")
         shutil.copy(sm.SCHEMAS_DIR / "Cargo.toml", dst / "Cargo.toml")
         if lockfile:
@@ -251,6 +311,34 @@ class CheckCompatScript(unittest.TestCase):
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 0, out)
         self.assertIn("compile probe", out)
+
+    def mutate_vocab(self, dst, fn):
+        edit(dst / "vocabulary.json", fn)
+        (dst / "json" / sm.VOCAB_FILE).write_text(
+            json.dumps(sm.vocabulary_schema(sm.load_vocab(dst / "vocabulary.json")), ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8")
+
+    def test_a_new_enum_value_inserted_first_is_compatible_including_the_compile_probe(self):
+        """Regression: the probe used to take values[0] of the NEW axis, so a value added at the front
+        reached the previous client as an unknown enum value and the check reported a false INCOMPATIBLE."""
+        root, dst = self.repo()
+        self.mutate_vocab(dst, insert_first("criticality", "zz_new_first"))
+        self.bump(dst, "0.1.1")
+        rc, out = self.run_check(root, dst, "contracts-0.1.0")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("compatible enum value added: criticality.zz_new_first", out)
+        self.assertIn("compile probe", out)
+        self.assertIn("compatible with contracts-0.1.0", out)
+        self.assertNotIn("INCOMPATIBLE", out)
+
+    def test_a_removed_enum_value_fails_without_a_major_bump(self):
+        root, dst = self.repo()
+        self.mutate_vocab(dst, remove_value("criticality", "c2"))
+        self.bump(dst, "0.1.1")
+        rc, out = self.run_check(root, dst, "contracts-0.1.0")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("BREAKING   enum value removed: criticality.c2", out)
+        self.assertIn("breaking change needs a new minor (0.x", out)
 
     def test_a_probe_that_cannot_be_prepared_is_a_setup_error_not_a_verdict(self):
         root, dst = self.repo()

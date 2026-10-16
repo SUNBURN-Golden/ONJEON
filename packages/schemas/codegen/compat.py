@@ -102,8 +102,12 @@ def required_bump_ok(prev_v: str, new_v: str, breaking: bool, changed: bool) -> 
 
 # ---- probe crate -------------------------------------------------------------
 
-def minimal_value(model: sm.Model, t: sm.Type, files: dict, depth: int = 0):
-    """Smallest valid value for a type, all optional fields filled once so every field is read."""
+def minimal_value(model: sm.Model, t: sm.Type, files: dict, depth: int = 0, prev: sm.Model | None = None):
+    """Smallest valid value for a type, all optional fields filled once so every field is read.
+
+    `prev` is the model the probe documents will be READ with (the previous client). Enum values are
+    then chosen from the codes both versions share (see `enum_sample`); without `prev` the first code
+    of `model` is used."""
     if t.kind == "string":
         pattern = dict(t.constraints).get("pattern")
         return sample_string(pattern, dict(t.constraints).get("format"))
@@ -116,17 +120,37 @@ def minimal_value(model: sm.Model, t: sm.Type, files: dict, depth: int = 0):
     if t.kind == "any":
         return {"probe": 1}
     if t.kind == "enum":
-        return model.axes[t.name].values[0]["code"]
+        return enum_sample(model, prev, t.name)
     if t.kind == "array":
-        return [minimal_value(model, t.item, files, depth + 1)]
+        return [minimal_value(model, t.item, files, depth + 1, prev)]
     if t.kind == "map":
-        return {"k": minimal_value(model, t.item, files, depth + 1)}
+        return {"k": minimal_value(model, t.item, files, depth + 1, prev)}
     if t.kind == "ref":
         if depth > 12:
             raise RuntimeError(f"recursive type {t.name}")
         st = model.structs[t.name]
-        return {f.name: minimal_value(model, f.type, files, depth + 1) for f in st.fields}
+        return {f.name: minimal_value(model, f.type, files, depth + 1, prev) for f in st.fields}
     raise AssertionError(t.kind)
+
+
+def enum_sample(new: sm.Model, prev: sm.Model | None, axis_id: str) -> str:
+    """A code of `axis_id` that the previous client can read.
+
+    The probe documents are built from the NEW schemas but deserialized by the PREVIOUS generated
+    types, which reject unknown enum values. A value that is new in this version is a compatible
+    (minor) change and must not make the probe fail, so the first code in new-vocabulary order that
+    also exists in `prev` is used (a new value inserted at the front is skipped).
+    Fallbacks, both documented here: no `prev`, or an axis the previous version did not have (only
+    reachable through a field the previous client ignores), uses the first code of the new axis; an
+    axis whose every previous value was removed also falls back to the first new code, because that
+    removal is a breaking change the structural diff already reports before any probe runs."""
+    new_codes = [v["code"] for v in new.axes[axis_id].values]
+    if prev is not None and axis_id in prev.axes:
+        old_codes = {v["code"] for v in prev.axes[axis_id].values}
+        for code in new_codes:
+            if code in old_codes:
+                return code
+    return new_codes[0]
 
 
 def sample_string(pattern: str | None, fmt: str | None) -> str:
@@ -183,7 +207,7 @@ def write_probe(out: Path, prev_dir: Path, new_dir: Path, lock: Path | None = No
     for st in roots:
         if st.name not in prev.structs:
             continue  # new in this version: no previous client exists
-        doc = minimal_value(new, sm.Type("ref", name=st.name), None)
+        doc = minimal_value(new, sm.Type("ref", name=st.name), None, prev=prev)
         (out / "docs" / f"{st.name}.json").write_text(json.dumps(doc, indent=1), encoding="utf-8")
         arms.append(st.name)
     body = "\n".join(

@@ -1133,6 +1133,34 @@ class TraceEntry {
       };
 }
 
+/// 계약 효과 결과. kind에 따라 effect(applies) 또는 conditional_effect(undetermined). 엔진 ContractEffectOut과 같은 형태
+class ContractEffectResult {
+  /// none(효과 없음 또는 지급 사유 불성립), applies(성립), undetermined(판정 불가). 어휘 축 승격 대기
+  final String kind;
+  /// kind=applies일 때. none, void_refund_premium(무효·보험료 반환), terminated_pay_reserve(해지·책임준비금 지급). 어휘 축 승격 대기
+  final String? effect;
+  /// kind=undetermined일 때, 지급 사유가 성립하면 적용될 효과. 값은 effect와 같은 축
+  final String? conditionalEffect;
+
+  const ContractEffectResult({
+    required this.kind,
+    this.effect,
+    this.conditionalEffect,
+  });
+
+  factory ContractEffectResult.fromJson(Map<String, dynamic> json) => ContractEffectResult(
+        kind: json['kind'] as String,
+        effect: json['effect'] == null ? null : json['effect'] as String,
+        conditionalEffect: json['conditional_effect'] == null ? null : json['conditional_effect'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'kind': kind,
+        if (effect != null) 'effect': effect!,
+        if (conditionalEffect != null) 'conditional_effect': conditionalEffect!,
+      };
+}
+
 /// 규칙 엔진 평가 결과. packages/rules-engine의 직렬화와 같은 형태다(시험이 엔진 출력으로 확인한다)
 class EvaluationResult {
   final String ruleId;
@@ -1147,6 +1175,8 @@ class EvaluationResult {
   final String engineVersion;
   final Tri eligibility;
   final PayoutResult payout;
+  /// 규칙이 계약 자체에 미치는 효과(rule-0.2, G23). 엔진이 rule-0.2를 지원한 뒤(PR #105)로는 항상 실린다. 그 전 엔진 빌드의 결과에는 없으므로 선택 필드다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이다
+  final ContractEffectResult? contractEffect;
   final List<String> missingInputs;
   final List<TraceEntry> trace;
   final String inputSnapshotHash;
@@ -1161,6 +1191,7 @@ class EvaluationResult {
     required this.engineVersion,
     required this.eligibility,
     required this.payout,
+    this.contractEffect,
     required this.missingInputs,
     required this.trace,
     required this.inputSnapshotHash,
@@ -1176,6 +1207,7 @@ class EvaluationResult {
         engineVersion: json['engine_version'] as String,
         eligibility: Tri.fromJson(json['eligibility'] as String),
         payout: PayoutResult.fromJson(json['payout'] as Map<String, dynamic>),
+        contractEffect: json['contract_effect'] == null ? null : ContractEffectResult.fromJson(json['contract_effect'] as Map<String, dynamic>),
         missingInputs: (json['missing_inputs'] as List<dynamic>).map((e) => e as String).toList(),
         trace: (json['trace'] as List<dynamic>).map((e) => TraceEntry.fromJson(e as Map<String, dynamic>)).toList(),
         inputSnapshotHash: json['input_snapshot_hash'] as String,
@@ -1191,6 +1223,7 @@ class EvaluationResult {
         'engine_version': engineVersion,
         'eligibility': eligibility.toJson(),
         'payout': payout.toJson(),
+        if (contractEffect != null) 'contract_effect': contractEffect!.toJson(),
         'missing_inputs': missingInputs.map((e) => e).toList(),
         'trace': trace.map((e) => e.toJson()).toList(),
         'input_snapshot_hash': inputSnapshotHash,

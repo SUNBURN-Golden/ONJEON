@@ -533,6 +533,24 @@ export interface TraceEntry {
 }
 
 /**
+ * 계약 효과 결과. kind에 따라 effect(applies) 또는 conditional_effect(undetermined). 엔진 ContractEffectOut과 같은 형태
+ */
+export interface ContractEffectResult {
+  /**
+   * none(효과 없음 또는 지급 사유 불성립), applies(성립), undetermined(판정 불가). 어휘 축 승격 대기
+   */
+  kind: string;
+  /**
+   * kind=applies일 때. none, void_refund_premium(무효·보험료 반환), terminated_pay_reserve(해지·책임준비금 지급). 어휘 축 승격 대기
+   */
+  effect?: string;
+  /**
+   * kind=undetermined일 때, 지급 사유가 성립하면 적용될 효과. 값은 effect와 같은 축
+   */
+  conditional_effect?: string;
+}
+
+/**
  * 규칙 엔진 평가 결과. packages/rules-engine의 직렬화와 같은 형태다(시험이 엔진 출력으로 확인한다)
  */
 export interface EvaluationResult {
@@ -554,6 +572,10 @@ export interface EvaluationResult {
   engine_version: string;
   eligibility: Tri;
   payout: PayoutResult;
+  /**
+   * 규칙이 계약 자체에 미치는 효과(rule-0.2, G23). 엔진이 rule-0.2를 지원한 뒤(PR #105)로는 항상 실린다. 그 전 엔진 빌드의 결과에는 없으므로 선택 필드다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이다
+   */
+  contract_effect?: ContractEffectResult;
   missing_inputs: string[];
   trace: TraceEntry[];
   input_snapshot_hash: string;

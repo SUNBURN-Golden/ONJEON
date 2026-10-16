@@ -151,16 +151,29 @@ def sample_string(pattern: str | None, fmt: str | None) -> str:
     raise RuntimeError(f"probe has no sample for pattern {pattern!r}; add one to the candidates in compat.sample_string")
 
 
-def write_probe(out: Path, prev_dir: Path, new_dir: Path):
+def probe_crate_name(out: Path) -> str:
+    """One crate name per probe directory. Probes share CARGO_TARGET_DIR (the dependency build is
+    cached), and cargo uplifts every bin to <target>/debug/<crate name>: two concurrent probes with
+    the same name would run each other's binary."""
+    import hashlib
+
+    return "compat_probe_" + hashlib.sha256(str(out.resolve()).encode("utf-8")).hexdigest()[:12]
+
+
+def write_probe(out: Path, prev_dir: Path, new_dir: Path, lock: Path | None = None) -> list:
     prev = model_of(prev_dir)
     new = model_of(new_dir)
     (out / "src").mkdir(parents=True, exist_ok=True)
     (out / "docs").mkdir(parents=True, exist_ok=True)
     (out / "Cargo.toml").write_text(
-        '[package]\nname = "compat-probe"\nversion = "0.0.0"\nedition = "2021"\npublish = false\n\n'
+        f'[package]\nname = "{probe_crate_name(out)}"\nversion = "0.0.0"\nedition = "2021"\npublish = false\n\n'
         '[workspace]\n\n[dependencies]\nserde = { version = "1", features = ["derive"] }\nserde_json = "1"\n',
         encoding="utf-8",
     )
+    if lock is not None:
+        # pin serde/serde_json to the repository's locked versions: no fresh resolution, no drift,
+        # and no registry access when the crates are already in the local cargo cache
+        (out / "Cargo.lock").write_text(lock.read_text(encoding="utf-8"), encoding="utf-8")
     rs = emit_rust.emit(prev)
     (out / "src" / "vocabulary.rs").write_text(rs["vocabulary.rs"], encoding="utf-8")
     types = rs["types.rs"].replace("use super::vocabulary::*;", "use crate::vocabulary::*;")
@@ -216,6 +229,7 @@ def main(argv: list) -> int:
     ap.add_argument("--prev", type=Path, required=True)
     ap.add_argument("--new", type=Path, default=sm.SCHEMAS_DIR)
     ap.add_argument("--probe", type=Path, help="write the probe crate here instead of diffing")
+    ap.add_argument("--lock", type=Path, help="Cargo.lock to pin the probe's dependencies with (usually the repository's)")
     ap.add_argument("--make-mutant", type=Path, metavar="OUT", help="copy --prev to OUT with one field deleted (self-test)")
     ap.add_argument("--drop", metavar="TYPE.FIELD", help="field to delete for --make-mutant")
     args = ap.parse_args(argv[1:])
@@ -224,8 +238,10 @@ def main(argv: list) -> int:
             make_mutant(args.prev, args.make_mutant, args.drop)
             return 0
         if args.probe:
-            names = write_probe(args.probe, args.prev, args.new)
-            print(f"probe written: {len(names)} documents")
+            if args.lock is not None and not args.lock.is_file():
+                raise OSError(f"--lock {args.lock}: no such file")
+            names = write_probe(args.probe, args.prev, args.new, args.lock)
+            print(f"probe written: {len(names)} documents, crate {probe_crate_name(args.probe)}")
             return 0
         prev, new = model_of(args.prev), model_of(args.new)
         breaking, compatible = diff(prev, new)

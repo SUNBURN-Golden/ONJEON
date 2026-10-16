@@ -19,6 +19,9 @@
         "krw": 5000000
       }
     },
+    "contract_effect": {
+      "kind": "none"
+    },
     "missing_inputs": [],
     "trace": [
       {

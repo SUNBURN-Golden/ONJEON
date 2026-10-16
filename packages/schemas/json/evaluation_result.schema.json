@@ -43,6 +43,10 @@
     "payout": {
       "$ref": "#/$defs/PayoutResult"
     },
+    "contract_effect": {
+      "$ref": "#/$defs/ContractEffectResult",
+      "description": "규칙이 계약 자체에 미치는 효과(rule-0.2, G23). 엔진이 rule-0.2를 지원한 뒤(PR #105)로는 항상 실린다. 그 전 엔진 빌드의 결과에는 없으므로 선택 필드다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이다"
+    },
     "missing_inputs": {
       "type": "array",
       "items": {
@@ -138,6 +142,41 @@
         "result"
       ],
       "additionalProperties": false
+    },
+    "ContractEffectResult": {
+      "type": "object",
+      "description": "계약 효과 결과. kind에 따라 effect(applies) 또는 conditional_effect(undetermined). 엔진 ContractEffectOut과 같은 형태",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "contract_effect_kind",
+          "description": "none(효과 없음 또는 지급 사유 불성립), applies(성립), undetermined(판정 불가). 어휘 축 승격 대기"
+        },
+        "effect": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "contract_effect",
+          "description": "kind=applies일 때. none, void_refund_premium(무효·보험료 반환), terminated_pay_reserve(해지·책임준비금 지급). 어휘 축 승격 대기"
+        },
+        "conditional_effect": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "contract_effect",
+          "description": "kind=undetermined일 때, 지급 사유가 성립하면 적용될 효과. 값은 effect와 같은 축"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
     }
-  }
+  },
+  "x-onjeon-invariants": [
+    "eligibility=true ⇒ payout.kind=payable, false ⇒ not_payable, unknown ⇒ undetermined",
+    "payout.kind=payable ⇒ amount만, undetermined ⇒ conditional_amount만, not_payable ⇒둘 다 없음",
+    "AmountOut.kind=exact ⇒ krw만, range ⇒ min_krw·max_krw(min ≤ max)만, unknown ⇒ 금액 없음",
+    "contract_effect.kind=applies ⇒ effect만, undetermined ⇒ conditional_effect만, none ⇒ 둘 다 없음",
+    "eligibility=false ⇒ contract_effect.kind=none, true ⇒ none|applies, unknown ⇒ none|undetermined"
+  ]
 }

@@ -114,7 +114,9 @@ def emit_types(model: Model) -> str:
                 attrs.append("default")
                 attrs.append('skip_serializing_if = "Option::is_none"')
             elif f.type.nullable:
-                attrs.append("default")
+                # required but nullable: the key must be present (null is fine). serde's derive
+                # would otherwise treat a missing Option key as None.
+                attrs.append('deserialize_with = "Option::deserialize"')
             if f.type.kind == "any" and optional:
                 ty = "Option<serde_json::Value>"
             if attrs:

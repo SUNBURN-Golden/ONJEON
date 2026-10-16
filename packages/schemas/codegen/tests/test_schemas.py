@@ -268,22 +268,24 @@ class Fixtures(unittest.TestCase):
             self.assertEqual(self.v.validate(doc, name.split(".")[0]), [], name)
 
     def test_fixtures_are_marked_test_only(self):
-        # origin=fixture is the rule. The one exception: an accepted row cannot be origin=fixture
-        # (chk_fixture_never_accepted), so the eligible premium fixture is marked by its file name
-        # (*.fixture.json under tests/fixtures/) and its "cb-fixture" comparison basis; this pins it.
-        exceptions = {name for name, doc in self.docs.items() if "origin" in doc and doc["origin"] != "fixture"}
-        self.assertEqual(exceptions, {"PremiumObservation.eligible.fixture.json"})
-        doc = self.docs["PremiumObservation.eligible.fixture.json"]
-        self.assertEqual(doc["review_status"], "accepted")
-        self.assertIn("review_decision_id", doc)
-        self.assertTrue(doc["comparison_basis_id"].startswith("cb-fixture"))
+        # Every fixture that carries an origin is origin=fixture and none is accepted, without
+        # exception. An accepted (comparison-eligible) observation cannot be origin=fixture
+        # (chk_fixture_never_accepted), so that case is built in memory by the Rust tests from the
+        # fully populated fixture; it is never stored as a file that looks like real data.
+        with_origin = {name: doc for name, doc in self.docs.items() if "origin" in doc}
+        self.assertEqual(set(with_origin), {
+            "Assertion.relation.fixture.json", "Assertion.value.fixture.json",
+            "PremiumObservation.full.fixture.json", "PremiumObservation.raw.fixture.json",
+        })
+        for name, doc in with_origin.items():
+            self.assertEqual(doc["origin"], "fixture", name)
+            self.assertNotEqual(doc["review_status"], "accepted", name)
         for name, doc in self.docs.items():
-            if name not in exceptions and "origin" in doc:
-                self.assertNotEqual(doc.get("review_status"), "accepted", name)
-        self.assertEqual(self.docs["Assertion.relation.fixture.json"]["origin"], "fixture")
-        self.assertEqual(self.docs["PremiumObservation.raw.fixture.json"]["origin"], "fixture")
-        self.assertNotEqual(self.docs["Assertion.relation.fixture.json"]["review_status"], "accepted")
-        self.assertNotEqual(self.docs["Assertion.value.fixture.json"]["review_status"], "accepted")
+            self.assertFalse(doc.get("comparison_eligible", False), name)
+        full = self.docs["PremiumObservation.full.fixture.json"]
+        self.assertTrue(full["comparison_basis_id"].startswith("cb-fixture"))
+        for key in ("conditions", "package_binding", "source_as_of", "payment_cycle"):
+            self.assertIn(key, full)  # the fully populated shape is what the Dart/TS builds exercise
 
     def broken(self, name, fn):
         doc = copy.deepcopy(self.docs[name])

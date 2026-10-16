@@ -22,9 +22,8 @@
   "package_binding": "none",
   "missing_dimensions": [],
   "comparison_basis_id": "cb-fixture",
-  "comparison_eligible": true,
+  "comparison_eligible": false,
   "value_state": "observed",
-  "review_status": "accepted",
-  "review_decision_id": "rd:01ARZ3NDEKTSV4RRFFQ69G5FAV",
-  "origin": "pipeline"
+  "review_status": "pending",
+  "origin": "fixture"
 }

@@ -13,6 +13,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
+REPO_LOCK = HERE.parents[3] / "Cargo.lock"
 
 import compat  # noqa: E402
 import schema_model as sm  # noqa: E402
@@ -143,6 +144,30 @@ class Versions(unittest.TestCase):
         self.assertIn("backwards", ok("1.2.0", "1.1.0", False, False))
 
 
+class Probe(unittest.TestCase):
+    def test_each_probe_directory_gets_its_own_crate_name(self):
+        with tempfile.TemporaryDirectory() as t:
+            a, b = Path(t) / "a", Path(t) / "b"
+            compat.write_probe(a, sm.SCHEMAS_DIR, sm.SCHEMAS_DIR)
+            compat.write_probe(b, sm.SCHEMAS_DIR, sm.SCHEMAS_DIR, lock=REPO_LOCK)
+            names = {d: compat.probe_crate_name(d) for d in (a, b)}
+            self.assertNotEqual(names[a], names[b])
+            for d, name in names.items():
+                self.assertRegex(name, r"^compat_probe_[0-9a-f]{12}$")
+                self.assertIn(f'name = "{name}"', (d / "Cargo.toml").read_text(encoding="utf-8"))
+            self.assertFalse((a / "Cargo.lock").exists())
+            self.assertEqual((b / "Cargo.lock").read_text(encoding="utf-8"), REPO_LOCK.read_text(encoding="utf-8"))
+            self.assertEqual(compat.probe_crate_name(a), names[a])  # stable for the same directory
+
+    def test_probe_fills_every_root_document_and_only_known_previous_types(self):
+        with tempfile.TemporaryDirectory() as t:
+            names = compat.write_probe(Path(t), sm.SCHEMAS_DIR, sm.SCHEMAS_DIR)
+            roots = {s.name for s in sm.build_model().structs.values() if s.root}
+            self.assertEqual(set(names), roots)
+            doc = json.loads((Path(t) / "docs" / "EvaluationResult.json").read_text(encoding="utf-8"))
+            self.assertIn("contract_effect", doc)  # optional fields are filled so the old client reads them too
+
+
 class CheckCompatScript(unittest.TestCase):
     """Runs the shipped script in a throwaway repo with a real tag, so tag lookup and `git archive` are exercised."""
 
@@ -163,6 +188,7 @@ class CheckCompatScript(unittest.TestCase):
         shutil.copytree(sm.SCHEMAS_DIR / "codegen", dst / "codegen", ignore=shutil.ignore_patterns("tests", "generated", "__pycache__"))
         shutil.copy(sm.VOCAB_PATH, dst / "vocabulary.json")
         shutil.copy(sm.SCHEMAS_DIR / "Cargo.toml", dst / "Cargo.toml")
+        shutil.copy(REPO_LOCK, root / "Cargo.lock")  # the script pins the probe with the repository lockfile
         git = ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid"]
         subprocess.run(["git", "init", "-q", str(root)], check=True)
         subprocess.run([*git, "-C", str(root), "add", "-A"], check=True)
@@ -214,6 +240,17 @@ class CheckCompatScript(unittest.TestCase):
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 0, out)
         self.assertIn("compile probe", out)
+
+    def test_a_probe_that_cannot_be_prepared_is_a_setup_error_not_a_verdict(self):
+        root, dst = self.repo()
+        # an optional field whose pattern no probe sample satisfies: the probe cannot be generated
+        edit(dst / "json" / "error_response.schema.json",
+             lambda d: d["properties"].update(hint={"type": "string", "pattern": "^zzz[0-9]{5}$"}))
+        self.bump(dst, "0.1.1")
+        rc, out = self.run_check(root, dst, "contracts-0.1.0")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("could not be prepared or built", out)
+        self.assertNotIn("INCOMPATIBLE", out)
 
     def test_unknown_tag_is_an_error_once_a_contracts_tag_exists(self):
         root, dst = self.repo()

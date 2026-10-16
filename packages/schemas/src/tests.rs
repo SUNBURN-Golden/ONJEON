@@ -56,7 +56,7 @@ fn every_fixture_round_trips_through_its_type() {
     round_trip::<EvidenceView>(fixture!("EvidenceView"));
     round_trip::<NeedResult>(fixture!("NeedResult"));
     round_trip::<PremiumObservation>(fixture!("PremiumObservation.raw"));
-    round_trip::<PremiumObservation>(fixture!("PremiumObservation.eligible"));
+    round_trip::<PremiumObservation>(fixture!("PremiumObservation.full"));
     round_trip::<ContractSnapshot>(fixture!("ContractSnapshot"));
     round_trip::<ErrorResponse>(fixture!("ErrorResponse"));
 }
@@ -87,6 +87,9 @@ fn missing_required_field_is_an_error() {
     let mut e: Value = serde_json::from_str(fixture!("EvaluationResult.payable")).unwrap();
     assert!(e["release_id"].is_null());
     e["release_id"] = json!(5);
+    assert!(serde_json::from_value::<EvaluationResult>(e.clone()).is_err());
+    // null is a value; an absent key is not
+    e.as_object_mut().unwrap().remove("release_id");
     assert!(serde_json::from_value::<EvaluationResult>(e).is_err());
 }
 
@@ -190,6 +193,7 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
     use onjeon_rules_engine::Rule;
     let dir = schemas_dir().join("../fixtures/rules");
     let mut checked = 0;
+    let mut with_effect = 0;
     for rule_file in [
         "fixture-rule-001",
         "real/kyobo-cancer-main-dx",
@@ -206,11 +210,72 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
                 continue;
             };
             let wire = serde_json::to_string(&result).unwrap();
-            round_trip::<EvaluationResult>(&wire);
+            let typed = round_trip::<EvaluationResult>(&wire);
+            assert_eq!(
+                check_evaluation_result(&typed),
+                vec![],
+                "engine result breaks a contract invariant: {wire}"
+            );
+            if let Some(ce) = &typed.contract_effect {
+                assert_eq!(
+                    ce.kind, "none",
+                    "fixture rules are rule-0.1: no effect declared"
+                );
+                with_effect += 1;
+            }
             checked += 1;
         }
     }
     assert!(checked >= 10, "expected many engine results, got {checked}");
+    assert!(
+        with_effect == 0 || with_effect == checked,
+        "an engine build reports contract_effect on every result or on none ({with_effect}/{checked})"
+    );
+}
+
+/// `applies` and `undetermined` effects come only from rule-0.2 rules. An engine build without
+/// rule-0.2 (before PR #105) rejects the rule; the fixture shapes are then the only check.
+#[test]
+fn rule_02_contract_effects_round_trip_when_the_engine_supports_them() {
+    use onjeon_rules_engine::Rule;
+    let rule = json!({
+        "rule_id": "contract-effect-probe", "rule_version": "1", "schema_version": "rule-0.2",
+        "inputs": {"hit": "bool", "insured_amount_krw": "money_krw"},
+        "eligibility": "hit", "amount": "insured_amount_krw",
+        "contract_effect": "void_refund_premium",
+        "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+        "evidence_refs": [], "publication_state": "fixture_only"
+    });
+    let Ok(rule) = Rule::from_json(&rule) else {
+        eprintln!("engine without rule-0.2: contract_effect shapes are checked from fixtures only");
+        return;
+    };
+    let shapes = [
+        (
+            json!({"hit": true, "insured_amount_krw": 100}),
+            "applies",
+            Some("void_refund_premium"),
+            None,
+        ),
+        (json!({"hit": false}), "none", None, None),
+        (
+            json!({"insured_amount_krw": 100}),
+            "undetermined",
+            None,
+            Some("void_refund_premium"),
+        ),
+    ];
+    for (inputs, kind, effect, conditional) in shapes {
+        let wire = serde_json::to_string(&rule.evaluate(&inputs).unwrap()).unwrap();
+        let typed = round_trip::<EvaluationResult>(&wire);
+        assert_eq!(check_evaluation_result(&typed), vec![], "{wire}");
+        let ce = typed
+            .contract_effect
+            .expect("a rule-0.2 engine reports contract_effect");
+        assert_eq!(ce.kind, kind);
+        assert_eq!(ce.effect.as_deref(), effect);
+        assert_eq!(ce.conditional_effect.as_deref(), conditional);
+    }
 }
 
 #[test]
@@ -279,9 +344,29 @@ fn premium_comparison_eligibility_needs_the_full_condition_set() {
         check_premium_observation(&raw).is_empty(),
         "raw observation with gaps is preserved"
     );
-    let eligible: PremiumObservation =
-        serde_json::from_str(fixture!("PremiumObservation.eligible")).unwrap();
+    let full: PremiumObservation =
+        serde_json::from_str(fixture!("PremiumObservation.full")).unwrap();
+    assert!(check_premium_observation(&full).is_empty());
+    assert!(
+        !full.comparison_eligible,
+        "no fixture file is comparison-eligible: that needs accepted, which origin=fixture never is"
+    );
+
+    // the eligible case exists only here, in memory: accepted pipeline data with every condition
+    let mut eligible = full.clone();
+    eligible.comparison_eligible = true;
+    eligible.review_status = ReviewStatus::Accepted;
+    eligible.review_decision_id = Some("rd:01ARZ3NDEKTSV4RRFFQ69G5FAV".into());
+    eligible.origin = "pipeline".into();
     assert!(check_premium_observation(&eligible).is_empty());
+
+    let mut still_fixture = eligible.clone();
+    still_fixture.origin = ORIGIN_FIXTURE.into();
+    let rules: Vec<_> = check_premium_observation(&still_fixture)
+        .iter()
+        .map(|v| v.rule)
+        .collect();
+    assert_eq!(rules, vec!["chk_fixture_never_accepted"]);
 
     let mut bad = raw.clone();
     bad.comparison_eligible = true;
@@ -309,6 +394,109 @@ fn blocked_scenario_carries_no_engine_result() {
         check_scenario_result(&bad)[0].rule,
         "blocked_means_no_engine_call"
     );
+}
+
+#[test]
+fn evaluation_result_invariants_catch_mismatched_kinds() {
+    let payable: EvaluationResult =
+        serde_json::from_str(fixture!("EvaluationResult.payable")).unwrap();
+    let undetermined: EvaluationResult =
+        serde_json::from_str(fixture!("EvaluationResult.undetermined")).unwrap();
+    assert!(check_evaluation_result(&payable).is_empty());
+    assert!(check_evaluation_result(&undetermined).is_empty());
+    let rules = |e: &EvaluationResult| {
+        check_evaluation_result(e)
+            .iter()
+            .map(|v| v.rule)
+            .collect::<Vec<_>>()
+    };
+
+    let mut e = payable.clone();
+    e.eligibility = Tri::False;
+    assert_eq!(
+        rules(&e),
+        vec![
+            "payout_matches_eligibility",
+            "contract_effect_matches_eligibility"
+        ]
+    );
+
+    let mut e = payable.clone();
+    e.payout.conditional_amount = e.payout.amount.clone();
+    assert_eq!(rules(&e), vec!["payout_fields_match_kind"]);
+
+    let mut e = payable.clone();
+    e.payout.amount.as_mut().unwrap().min_krw = Some(1);
+    assert_eq!(rules(&e), vec!["amount_fields_match_kind"]);
+
+    let mut e = undetermined.clone();
+    let a = e.payout.conditional_amount.as_mut().unwrap();
+    std::mem::swap(&mut a.min_krw, &mut a.max_krw); // min > max
+    assert_eq!(rules(&e), vec!["amount_fields_match_kind"]);
+
+    let mut e = payable.clone();
+    let ce = e.contract_effect.as_mut().unwrap();
+    ce.conditional_effect = ce.effect.clone();
+    assert_eq!(rules(&e), vec!["contract_effect_fields_match_kind"]);
+
+    let mut e = payable.clone();
+    e.contract_effect.as_mut().unwrap().kind = "cancelled".into();
+    assert_eq!(rules(&e), vec!["contract_effect_kind_known"]);
+
+    let mut e = undetermined.clone();
+    e.contract_effect.as_mut().unwrap().kind = "applies".into();
+    assert_eq!(
+        rules(&e),
+        vec![
+            "contract_effect_fields_match_kind",
+            "contract_effect_matches_eligibility"
+        ]
+    );
+
+    // a result from an engine build before rule-0.2 support carries no contract_effect at all
+    let mut e = payable.clone();
+    e.contract_effect = None;
+    assert!(check_evaluation_result(&e).is_empty());
+}
+
+#[test]
+fn every_fixture_satisfies_the_cross_field_checks_and_is_test_only() {
+    for src in [fixture!("Assertion.relation"), fixture!("Assertion.value")] {
+        let a: Assertion = serde_json::from_str(src).unwrap();
+        assert_eq!(check_assertion(&a), vec![]);
+        assert_eq!(a.origin, ORIGIN_FIXTURE);
+        assert_ne!(a.review_status, ReviewStatus::Accepted);
+    }
+    for src in [
+        fixture!("PremiumObservation.raw"),
+        fixture!("PremiumObservation.full"),
+    ] {
+        let p: PremiumObservation = serde_json::from_str(src).unwrap();
+        assert_eq!(check_premium_observation(&p), vec![]);
+        assert_eq!(p.origin, ORIGIN_FIXTURE);
+        assert_ne!(p.review_status, ReviewStatus::Accepted);
+        assert!(!p.comparison_eligible);
+    }
+    for src in [
+        fixture!("ScenarioResult.evaluated"),
+        fixture!("ScenarioResult.blocked"),
+    ] {
+        let s: ScenarioResult = serde_json::from_str(src).unwrap();
+        assert_eq!(check_scenario_result(&s), vec![]);
+    }
+    for src in [
+        fixture!("EvaluationResult.payable"),
+        fixture!("EvaluationResult.undetermined"),
+    ] {
+        let e: EvaluationResult = serde_json::from_str(src).unwrap();
+        assert_eq!(check_evaluation_result(&e), vec![]);
+        assert!(
+            e.contract_effect.is_some(),
+            "fixtures show the rule-0.2 shape"
+        );
+    }
+    let e: ErrorResponse = serde_json::from_str(fixture!("ErrorResponse")).unwrap();
+    assert_eq!(check_error_response(&e), vec![]);
 }
 
 #[test]

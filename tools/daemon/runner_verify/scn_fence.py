@@ -127,6 +127,10 @@ def r1(rep, cx):
         rep.evid("timeline", {"a_lease": instr_a["lease_id"], "b_lease": instr_b["lease_id"],
                               "late_push_log": new_push_log, "refs_before": refs0, "refs_after": w.remote_refs(),
                               "late_outcomes": [i["outcome"] for i in out if i.get("ok")]})
+        rep.gap("R1 기대 문장 '원격 거부 + 데몬 R-11 기록'은 두 개의 별개 관찰이다",
+                "원격이 직접 푸시를 거부하는 것(hook 로그)과 데몬이 R-11을 남기는 것(A의 데몬 경유 봉투)은 서로 다른 경로다. 직접 푸시의 거부가 R-11 기록을 만들지는 않는다. "
+                "R1의 통과 기준(원격 거부, 원격 브랜치 SHA 불변, 데몬 경유 늦은 봉투의 R-11)은 각각 따로 확인했다",
+                expected="직접 푸시 거부가 R-11로 이어짐", actual="거부(원격)와 R-11(데몬 경유 봉투)이 별개")
         rep.not_proved("원격 거부(직접 푸시)가 데몬의 R-11 기록으로 이어지는 경로는 명세에 없다: 데몬이 R-11을 남기는 것은 데몬 경유 푸시 요청·결과 봉투·하트비트뿐이다",
                        "실제 Git 호스트의 보호 브랜치와 단기 자격 발급·회수는 사람이 적용하는 설정이다(04 §8). 여기서는 로컬 bare 저장소의 hook이 그 역할을 했다",
                        "A는 벤더 CLI가 아니라 스크립트 프로세스(standin)다")

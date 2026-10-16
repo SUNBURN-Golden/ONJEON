@@ -44,6 +44,6 @@ python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py
 
 결과 값은 `PASS` / `FAIL` / `UNCONFIRMED`(측정할 수 없었음, 사유를 적는다) / `PARTIAL`(일부만 측정) / `GAP`(명세 문장과 관찰이 다르지만 그 R의 통과 기준은 아님)이다. 05 §6의 규칙대로 어느 장치에도 "검증됨"을 쓰지 않는다.
 
-## T-OP-00 정적 검사와의 충돌 (이 과제 허용 경로 밖)
+## T-OP-00 정적 검사와의 관계 (T-OP-00b에서 해결됨)
 
-`tools/daemon/static_checks.py`는 `tools/daemon/` 아래 모든 `*.py`를 `rglob`으로 훑고(네트워크·프로세스 실행·`time`·`sha256`·모델 식별자 단어·`while True` 금지 등), `tools/tests/test_daemon_dry_run.py`의 증거 해시(`tools/daemon/reports/*.log` 머리말)는 `tools/daemon/` 전체의 내용 해시다. 이 도구는 프로세스·git·시계·HTTP가 본질이라 그 검사를 통과할 수 없고, 파일을 더하는 것만으로도 해시가 달라진다. 두 파일은 이 과제의 허용 경로(`tools/daemon/runner_verify/**`, `docs/vm_check/**`) 밖이라 고치지 않았다. 필요한 변경은 T-OP-00 쪽의 한 줄 예외(`runner_verify/` 제외)와 증거 로그 재생성이다. 내용은 `docs/vm_check/<날짜>/T-OP-00_충돌.md`에 시험 결과와 함께 적었다.
+이 도구는 프로세스·git·시계·HTTP가 본질이라 T-OP-00 데몬 코어의 정적 검사(`tools/daemon/static_checks.py`)와 증거 해시(`tools/tests/test_daemon_dry_run.py`, `tools/daemon/README.md`의 해시 명령)를 통과할 수 없다. T-OP-00b(커밋 `1daa4d1`)가 `runner_verify/`를 그 두 검사의 대상에서 뺐다. 이 도구는 자체 `static_checks.py`와 `docs/vm_check/<날짜>/static_checks.log`로 따로 검사한다. 확인: `docs/vm_check/<날짜>/unittest_T-OP-00.log`(T-OP-00 시험, `runner_verify/`가 있는 작업 트리에서 통과).

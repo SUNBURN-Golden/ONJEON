@@ -1,15 +1,15 @@
 # T-OP-09 실제 실행기 검증 결과 (R1~R22)
 
-생성 2026-10-15T12:06:45Z · 대상 {'parent_commit': 'c74a545a45d1aba9eee71b76d81b3017ac16bbbb', 'branch': 'grokbot/onjeon-T-OP-09'}
+생성 2026-10-16T00:00:48Z · 대상 {'parent_commit': '2f2d7a790747caf11ce5e3848789028624593d11', 'branch': 'grokbot/onjeon-T-OP-09'}
 
 > 이 실행은 사람이 준비한 VM의 CLI·원격·자격 설정이 아니라, 이 호스트에서 로컬 구성요소(bare 원격, hook, 스크립트 빌더, 시험 프록시)로 한 것이다. 실제 호스트의 보호 브랜치·단기 자격과 벤더 CLI(claude CLI 하나를 빼고)는 확인하지 못했다.
 > 이 과제의 완료는 가동 승인이 아니다. 가동 여부는 05 §7의 점검표와 사용자 결정으로만 정해진다.
 
-시나리오 22개: PASS 19, FAIL 0, PARTIAL 3, UNCONFIRMED 0. 검사 404건 중 실패 0건, 미확인 11건, 명세 불일치(GAP) 1건.
+시나리오 22개: PASS 17, FAIL 0, PARTIAL 5, UNCONFIRMED 0. 검사 407건 중 실패 0건, 미확인 13건, 명세 불일치(GAP) 2건.
 
 | R | 필수 시험 ID | 항목 | 결과 | 검사 | 실제로 쓴 구성 | 한계·대체물 |
 |---|---|---|---|---|---|---|
-| R1 | late-write-fenced | 늦은 결과: 만료된 임대의 푸시 | **PASS** | 14/14 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; TTL·grace 경과는 시계 offset으로 만든다(대기 아님) |
+| R1 | late-write-fenced | 늦은 결과: 만료된 임대의 푸시 | **PASS** | 14/15 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; TTL·grace 경과는 시계 offset으로 만든다(대기 아님) |
 | R2 | late-result-rejected | 늦은 결과: 만료된 임대의 결과 봉투와 인계 순서 | **PASS** | 9/9 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님 |
 | R3 | late-write-fenced | 교체 전후 동시 쓰기 | **PASS** | 12/12 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님 |
 | R4 | resume-after-interrupt | 중단·재개 | **PASS** | 13/13 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; 강제 종료는 SIGKILL(전원 차단 아님) |
@@ -19,7 +19,7 @@
 | R8 | - | 반송 재개·결정 관문 | **PASS** | 8/8 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; 관측(CI·리뷰·결정 기록)은 도구가 넣은 입력 |
 | R9 | hard-stop-heartbeating-job | 강제 종료 기한 | **PARTIAL** | 17/19 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core); claude CLI(시험 프록시, 변형) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; TTL·grace 경과는 시계 offset으로 만든다(대기 아님) |
 | R10 | usage-recorded-not-capped | 사용량 기록(상한 없음, U-05) | **PASS** | 10/10 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core); claude CLI(시험 프록시); 시험 프록시 계량 | cost_units 단위 미정의, 금액은 기록 불가 |
-| R11 | handoff-quiescent-before-preserve | 정지 확인 뒤 보존 | **PASS** | 18/18 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; lsof 대신 /proc 검사 |
+| R11 | handoff-quiescent-before-preserve | 정지 확인 뒤 보존 | **PARTIAL** | 18/19 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; lsof 대신 /proc 검사 |
 | R12 | duplicate-delivery-noop | 중복 전달 noop | **PASS** | 9/9 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core); 파일 큐; HTTP(로컬) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님 |
 | R13 | retry-new-idempotency-key | 재시도 새 키 | **PASS** | 21/21 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님 |
 | R14 | preserve-manifest-same-function | 보존 manifest | **PASS** | 18/18 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님 |
@@ -29,11 +29,12 @@
 | R18 | lease-issue-atomic-single-owner | 발급 원자성 | **PASS** | 42/42 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | SIGKILL 시험(전원 차단 아님) |
 | R19 | restart-ttl-expired-no-resend | 발급 직후 중단 뒤 TTL 경과 | **PASS** | 6/6 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | TTL·grace 경과는 시계 offset으로 만든다(대기 아님) |
 | R20 | restart-revoked-pending-void | 폐기된 pending | **PASS** | 5/5 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님 |
-| R21 | restart-valid-pending-resend | 유효 pending 재전송 | **PASS** | 8/8 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; TTL·grace 경과는 시계 offset으로 만든다(대기 아님) |
+| R21 | restart-valid-pending-resend | 유효 pending 재전송 | **PARTIAL** | 8/9 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; TTL·grace 경과는 시계 offset으로 만든다(대기 아님) |
 | R22 | restart-corrupt-record-returned | 손상 기록 | **PASS** | 16/16 | OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core) | 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님 |
 
 ## 실패와 미확인
 
+- **GAP** R1 R1 기대 문장 '원격 거부 + 데몬 R-11 기록'은 두 개의 별개 관찰이다 — 원격이 직접 푸시를 거부하는 것(hook 로그)과 데몬이 R-11을 남기는 것(A의 데몬 경유 봉투)은 서로 다른 경로다. 직접 푸시의 거부가 R-11 기록을 만들지는 않는다. R1의 통과 기준(원격 거부, 원격 브랜치 SHA 불변, 데몬 경유 늦은 봉투의 R-11)은 각각 따로 확인했다
 - **UNCONFIRMED** R6 [Cursor CLI] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지 — 기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다 (설치 확인: 버전 2026.10.14-0f9edde)
 - **UNCONFIRMED** R6 [grokbuild CLI] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지 — 설치되어 있지 않다
 - **UNCONFIRMED** R6 [Devin CLI] 모델 제공자 상태가 CLI의 상태 채널로 데몬에 도달하는지 — 기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다 (설치 확인: 버전 devin 3000.11.92 (7f4e64980e22))
@@ -46,6 +47,8 @@
 - **UNCONFIRMED** R7 [대체 모델 경로(GPT 계열, 경로 미정)] 종료 코드·구조화 오류 확인 — 사용할 CLI·API 경로가 정해지지 않았다(05 §1a)
 - **GAP** R9 끝난 임대의 작업 트리는 읽기 전용으로 남는다(04 §8) — hard_stop_deadline 전이의 부수 효과에 worktree_readonly가 없어 코어는 작업 트리를 읽기 전용으로 만들지 않는다. R9의 통과 기준(프로세스 그룹 종료·자격 회수·뒤의 푸시·봉투 거부)에는 들어 있지 않다
 - **UNCONFIRMED** R9 [실제 CLI] SIGTERM을 무시하며 하트비트를 보내는 실제 CLI의 강제 종료(grace_s 뒤 그룹 종료) — 이 CLI는 SIGTERM에 스스로 종료했다(셸 trap으로 무시를 물려줘도 자체 핸들러가 이를 덮었다). grace_s 뒤 그룹 종료가 이 CLI를 끝낸 것이 아니므로 그 부분은 스크립트 프로세스(standin) 결과만 있다
+- **UNCONFIRMED** R11 [R11 실제 CLI 변형] stop을 무시하고 루프로 파일을 쓰는 실제 벤더 CLI 프로세스 — 쓰는 프로세스는 스크립트 프로세스(standin)다. 벤더 CLI에게 stop 무시·쓰기 루프를 시키는 방법이 확인되지 않아 시험하지 않았다
+- **UNCONFIRMED** R21 [R21 실제 CLI 어댑터] 벤더 CLI를 띄우는 어댑터의 receiver_validation — 위 수신 측 검증은 이 도구의 빌더 쪽 어댑터(context.py)와 스크립트 프로세스(standin)가 한다. 벤더 CLI를 띄우는 실제 어댑터는 이 저장소에 없어 시험하지 않았다
 
 ## 증명하지 않은 것 (시나리오별)
 
@@ -88,8 +91,8 @@
 
 ```json
 {
- "head_before": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
- "head_after": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
+ "head_before": "2f2d7a790747caf11ce5e3848789028624593d11",
+ "head_after": "2f2d7a790747caf11ce5e3848789028624593d11",
  "refs_unchanged": true,
  "remotes_unchanged": true,
  "test_remote_pushes": {

@@ -1,9 +1,9 @@
 {
  "tool": "tools/daemon/runner_verify",
  "task": "T-OP-09",
- "generated_at": "2026-10-15T12:06:45Z",
+ "generated_at": "2026-10-16T00:00:48Z",
  "target": {
-  "parent_commit": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
+  "parent_commit": "2f2d7a790747caf11ce5e3848789028624593d11",
   "branch": "grokbot/onjeon-T-OP-09"
  },
  "environment": {
@@ -12,7 +12,7 @@
   "python": "3.13.5",
   "git": "git version 2.47.3",
   "time_scale": 0.05,
-  "clock_advanced_by_harness_s": 8698,
+  "clock_advanced_by_harness_s": 8699,
   "clock_scaled_sleep_s": 522,
   "worlds": 72,
   "remote_kind": "provisioned_local_bare_repository",
@@ -25,15 +25,15 @@
  "summary": {
   "scenarios": 22,
   "status_counts": {
-   "PASS": 19,
+   "PASS": 17,
    "FAIL": 0,
-   "PARTIAL": 3,
+   "PARTIAL": 5,
    "UNCONFIRMED": 0
   },
-  "checks": 404,
+  "checks": 407,
   "checks_failed": 0,
-  "checks_unconfirmed": 11,
-  "gaps": 1
+  "checks_unconfirmed": 13,
+  "gaps": 2
  },
  "required_test_ids": {
   "late-write-fenced": [
@@ -89,7 +89,7 @@
   "handoff-quiescent-before-preserve": [
    {
     "r": "R11",
-    "status": "PASS"
+    "status": "PARTIAL"
    }
   ],
   "duplicate-delivery-noop": [
@@ -149,7 +149,7 @@
   "restart-valid-pending-resend": [
    {
     "r": "R21",
-    "status": "PASS"
+    "status": "PARTIAL"
    }
   ],
   "restart-corrupt-record-returned": [
@@ -204,8 +204,8 @@
   }
  },
  "product_branch_check": {
-  "head_before": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
-  "head_after": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
+  "head_before": "2f2d7a790747caf11ce5e3848789028624593d11",
+  "head_after": "2f2d7a790747caf11ce5e3848789028624593d11",
   "refs_unchanged": true,
   "remotes_unchanged": true,
   "test_remote_pushes": {
@@ -323,13 +323,13 @@
      "name": "원격에는 B의 브랜치(task/…-a2)가 B의 커밋으로 생겼고 A의 브랜치·main은 그대로",
      "status": "PASS",
      "expected": [
-      "1539c94ae9ca100d68409ca84355beb9013a2eb1",
-      "a1a639126ebc3e55bb8444a957f961969be6620f",
+      "02fcf952887219053e1d9c5c08863e65dff31523",
+      "37433c6d19f866b82e7128f18026c34863b90b6c",
       null
      ],
      "actual": [
-      "1539c94ae9ca100d68409ca84355beb9013a2eb1",
-      "a1a639126ebc3e55bb8444a957f961969be6620f",
+      "02fcf952887219053e1d9c5c08863e65dff31523",
+      "37433c6d19f866b82e7128f18026c34863b90b6c",
       null
      ]
     },
@@ -382,12 +382,12 @@
      "name": "원격 ref는 A의 늦은 푸시 전후로 같다(브랜치 SHA 불변)",
      "status": "PASS",
      "expected": {
-      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f",
-      "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"
+      "refs/heads/main": "37433c6d19f866b82e7128f18026c34863b90b6c",
+      "refs/heads/task/T-MOCK-BASIC-a2": "02fcf952887219053e1d9c5c08863e65dff31523"
      },
      "actual": {
-      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f",
-      "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"
+      "refs/heads/main": "37433c6d19f866b82e7128f18026c34863b90b6c",
+      "refs/heads/task/T-MOCK-BASIC-a2": "02fcf952887219053e1d9c5c08863e65dff31523"
      }
     },
     {
@@ -430,7 +430,7 @@
        "builder_write_credential"
       ],
       [
-       "01RV006CE68F51824A66816F6D"
+       "01RV0F3D2616AA80464FAE1E1B"
       ]
      ],
      "actual": [
@@ -438,7 +438,7 @@
        "builder_write_credential"
       ],
       [
-       "01RV006CE68F51824A66816F6D"
+       "01RV0F3D2616AA80464FAE1E1B"
       ]
      ]
     },
@@ -490,50 +490,50 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "a1a639126ebc3e55bb8444a957f961969be6620f",
+        "base_sha": "37433c6d19f866b82e7128f18026c34863b90b6c",
         "branch": "task/T-MOCK-BASIC-a2",
         "builder": "standin-builder-1",
-        "expires_at": 1792070028,
+        "expires_at": 1792112869,
         "fencing_token": 2,
-        "issued_at": 1792066427,
-        "last_heartbeat_at": 1792066428,
+        "issued_at": 1792109269,
+        "last_heartbeat_at": 1792109269,
         "lease_generation": 2,
-        "lease_id": "01RVC944ED84C0B5448CB3FBBC",
+        "lease_id": "01RV53E92E7311764B17B11B67",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065826,
-         "envelope_id": "01RV8201E21374DE4954B1D002",
+         "created_at": 1792108667,
+         "envelope_id": "01RVE45D2E714BBE448C84FC7A",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV006CE68F51824A66816F6D",
-         "sent_at": 1792065826,
+         "lease_id": "01RV0F3D2616AA80464FAE1E1B",
+         "sent_at": 1792108667,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         },
         {
-         "created_at": 1792066427,
-         "envelope_id": "01RV36FBCD1C4BA14A1A9C8352",
+         "created_at": 1792109269,
+         "envelope_id": "01RV218D27F904A645239F25CA",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RVC944ED84C0B5448CB3FBBC",
-         "sent_at": 1792066427,
+         "lease_id": "01RV53E92E7311764B17B11B67",
+         "sent_at": 1792109269,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|signal|DA5AF30BA18940A78005F66FB8": {
-         "first_seen_at": 1792065826,
+        "T-MOCK-BASIC|1|signal|28C6EB04427A4E8190C3A7E6DD": {
+         "first_seen_at": 1792108667,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|2|signal|C27A1865B29D41839672EB05DF": {
-         "first_seen_at": 1792066428,
+        "T-MOCK-BASIC|2|signal|D81AB03A51B04001A3723797BB": {
+         "first_seen_at": 1792109269,
          "lease_generation": 2
         }
        },
@@ -554,50 +554,50 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "a1a639126ebc3e55bb8444a957f961969be6620f",
+        "base_sha": "37433c6d19f866b82e7128f18026c34863b90b6c",
         "branch": "task/T-MOCK-BASIC-a2",
         "builder": "standin-builder-1",
-        "expires_at": 1792070028,
+        "expires_at": 1792112869,
         "fencing_token": 2,
-        "issued_at": 1792066427,
-        "last_heartbeat_at": 1792066428,
+        "issued_at": 1792109269,
+        "last_heartbeat_at": 1792109269,
         "lease_generation": 2,
-        "lease_id": "01RVC944ED84C0B5448CB3FBBC",
+        "lease_id": "01RV53E92E7311764B17B11B67",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065826,
-         "envelope_id": "01RV8201E21374DE4954B1D002",
+         "created_at": 1792108667,
+         "envelope_id": "01RVE45D2E714BBE448C84FC7A",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV006CE68F51824A66816F6D",
-         "sent_at": 1792065826,
+         "lease_id": "01RV0F3D2616AA80464FAE1E1B",
+         "sent_at": 1792108667,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         },
         {
-         "created_at": 1792066427,
-         "envelope_id": "01RV36FBCD1C4BA14A1A9C8352",
+         "created_at": 1792109269,
+         "envelope_id": "01RV218D27F904A645239F25CA",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RVC944ED84C0B5448CB3FBBC",
-         "sent_at": 1792066427,
+         "lease_id": "01RV53E92E7311764B17B11B67",
+         "sent_at": 1792109269,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|signal|DA5AF30BA18940A78005F66FB8": {
-         "first_seen_at": 1792065826,
+        "T-MOCK-BASIC|1|signal|28C6EB04427A4E8190C3A7E6DD": {
+         "first_seen_at": 1792108667,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|2|signal|C27A1865B29D41839672EB05DF": {
-         "first_seen_at": 1792066428,
+        "T-MOCK-BASIC|2|signal|D81AB03A51B04001A3723797BB": {
+         "first_seen_at": 1792109269,
          "lease_generation": 2
         }
        },
@@ -621,38 +621,45 @@
        2
       ]
      ]
+    },
+    {
+     "name": "R1 기대 문장 '원격 거부 + 데몬 R-11 기록'은 두 개의 별개 관찰이다",
+     "status": "GAP",
+     "expected": "직접 푸시 거부가 R-11로 이어짐",
+     "actual": "거부(원격)와 R-11(데몬 경유 봉투)이 별개",
+     "note": "원격이 직접 푸시를 거부하는 것(hook 로그)과 데몬이 R-11을 남기는 것(A의 데몬 경유 봉투)은 서로 다른 경로다. 직접 푸시의 거부가 R-11 기록을 만들지는 않는다. R1의 통과 기준(원격 거부, 원격 브랜치 SHA 불변, 데몬 경유 늦은 봉투의 R-11)은 각각 따로 확인했다"
     }
    ],
    "evidence": {
     "timeline": {
-     "a_lease": "01RV006CE68F51824A66816F6D",
-     "b_lease": "01RVC944ED84C0B5448CB3FBBC",
+     "a_lease": "01RV0F3D2616AA80464FAE1E1B",
+     "b_lease": "01RV53E92E7311764B17B11B67",
      "late_push_log": [
       {
        "client": "builder",
        "credential_name": "builder_write_credential",
        "decision": "rejected",
        "event": "pre_receive",
-       "lease_id": "01RV006CE68F51824A66816F6D",
-       "new": "2d82e61687917f202e64b13ecb8a324985b8d348",
+       "lease_id": "01RV0F3D2616AA80464FAE1E1B",
+       "new": "64c7675464dbd43c531bb66282d5379c259957c1",
        "old": "0000000000000000000000000000000000000000",
        "reason": "credential_revoked",
        "ref": "refs/heads/task/T-MOCK-BASIC-a1",
        "task_id": "T-MOCK-BASIC",
-       "ts_ns": 1792065827200259101
+       "ts_ns": 1792108668828276642
       },
       {
        "client": "builder",
        "credential_name": "builder_write_credential",
        "decision": "rejected",
        "event": "pre_receive",
-       "lease_id": "01RV006CE68F51824A66816F6D",
-       "new": "2d82e61687917f202e64b13ecb8a324985b8d348",
+       "lease_id": "01RV0F3D2616AA80464FAE1E1B",
+       "new": "64c7675464dbd43c531bb66282d5379c259957c1",
        "old": "0000000000000000000000000000000000000000",
        "reason": "credential_revoked",
        "ref": "refs/heads/task/T-MOCK-BASIC-a1",
        "task_id": "T-MOCK-BASIC",
-       "ts_ns": 1792065827233238995
+       "ts_ns": 1792108668868293067
       },
       {
        "client": "builder",
@@ -660,20 +667,20 @@
        "decision": "rejected",
        "event": "pre_receive",
        "lease_id": null,
-       "new": "2d82e61687917f202e64b13ecb8a324985b8d348",
-       "old": "a1a639126ebc3e55bb8444a957f961969be6620f",
+       "new": "64c7675464dbd43c531bb66282d5379c259957c1",
+       "old": "37433c6d19f866b82e7128f18026c34863b90b6c",
        "reason": "protected_branch",
        "ref": "refs/heads/main",
        "task_id": null,
-       "ts_ns": 1792065827277186448
+       "ts_ns": 1792108668904182778
       }
      ],
      "refs_before": {
-      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f"
+      "refs/heads/main": "37433c6d19f866b82e7128f18026c34863b90b6c"
      },
      "refs_after": {
-      "refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f",
-      "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"
+      "refs/heads/main": "37433c6d19f866b82e7128f18026c34863b90b6c",
+      "refs/heads/task/T-MOCK-BASIC-a2": "02fcf952887219053e1d9c5c08863e65dff31523"
      },
      "late_outcomes": [
       {
@@ -706,7 +713,12 @@
     "실제 Git 호스트의 보호 브랜치와 단기 자격 발급·회수는 사람이 적용하는 설정이다(04 §8). 여기서는 로컬 bare 저장소의 hook이 그 역할을 했다",
     "A는 벤더 CLI가 아니라 스크립트 프로세스(standin)다"
    ],
-   "findings": [],
+   "findings": [
+    {
+     "name": "R1 기대 문장 '원격 거부 + 데몬 R-11 기록'은 두 개의 별개 관찰이다",
+     "note": "원격이 직접 푸시를 거부하는 것(hook 로그)과 데몬이 R-11을 남기는 것(A의 데몬 경유 봉투)은 서로 다른 경로다. 직접 푸시의 거부가 R-11 기록을 만들지는 않는다. R1의 통과 기준(원격 거부, 원격 브랜치 SHA 불변, 데몬 경유 늦은 봉투의 R-11)은 각각 따로 확인했다"
+    }
+   ],
    "error": null
   },
   {
@@ -714,7 +726,7 @@
    "test_id": "late-result-rejected",
    "title": "늦은 결과: 만료된 임대의 결과 봉투와 인계 순서",
    "status": "PASS",
-   "seconds": 9.7,
+   "seconds": 9.6,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -833,58 +845,58 @@
         "decisions_recorded": [],
         "return_code": null,
         "state": "building",
-        "stop_requested_at": 1792065828,
+        "stop_requested_at": 1792108669,
         "task_id": "T-MOCK-HANDOFF"
        },
        "lease_record": {
-        "base_sha": "3e2f02aa4a7a444dd0937dac5f6015b488b76d5f",
+        "base_sha": "cc7b25f7de48ec236d55814dc808680bba38acdb",
         "branch": "task/T-MOCK-HANDOFF-a1",
         "builder": "standin-builder-2",
-        "expires_at": 1792069555,
+        "expires_at": 1792112397,
         "fencing_token": 2,
-        "issued_at": 1792065955,
-        "last_heartbeat_at": 1792065955,
+        "issued_at": 1792108796,
+        "last_heartbeat_at": 1792108797,
         "lease_generation": 2,
-        "lease_id": "01RV912C088F42B246FEB2AAA2",
+        "lease_id": "01RVECF8C015BD904BF286E461",
         "runner": "standin-runner-2",
         "status": "active",
         "task_id": "T-MOCK-HANDOFF"
        },
        "outbox": [
         {
-         "created_at": 1792065827,
-         "envelope_id": "01RVBB6C26148B9442B38C9248",
+         "created_at": 1792108669,
+         "envelope_id": "01RVB9F65A5CEF384BAF8DC2E8",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV171CB8CF73BF4202BC9D18",
-         "sent_at": 1792065828,
+         "lease_id": "01RV9AE1D73B7F45477FB01A8D",
+         "sent_at": 1792108669,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         },
         {
-         "created_at": 1792065955,
-         "envelope_id": "01RV90F538CF3C25442D8CBD5F",
+         "created_at": 1792108796,
+         "envelope_id": "01RV06729F74B74A48F59C94E4",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV912C088F42B246FEB2AAA2",
-         "sent_at": 1792065955,
+         "lease_id": "01RVECF8C015BD904BF286E461",
+         "sent_at": 1792108796,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-HANDOFF|1|signal|4A6EA6347FC44AED93849976BC": {
-         "first_seen_at": 1792065828,
+        "T-MOCK-HANDOFF|1|signal|7BDBCBD71B714846A912778000": {
+         "first_seen_at": 1792108669,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|1|signal|4C2A5158E36F40C9A8768A54B3": {
-         "first_seen_at": 1792065828,
+        "T-MOCK-HANDOFF|1|signal|F8B9CC0F54BE4218933B9054A3": {
+         "first_seen_at": 1792108669,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|2|signal|3ED3425606FA4363B146B604CD": {
-         "first_seen_at": 1792065955,
+        "T-MOCK-HANDOFF|2|signal|77B43588C0D54EABB353231D51": {
+         "first_seen_at": 1792108797,
          "lease_generation": 2
         }
        },
@@ -901,58 +913,58 @@
         "decisions_recorded": [],
         "return_code": null,
         "state": "building",
-        "stop_requested_at": 1792065828,
+        "stop_requested_at": 1792108669,
         "task_id": "T-MOCK-HANDOFF"
        },
        "lease_record": {
-        "base_sha": "3e2f02aa4a7a444dd0937dac5f6015b488b76d5f",
+        "base_sha": "cc7b25f7de48ec236d55814dc808680bba38acdb",
         "branch": "task/T-MOCK-HANDOFF-a1",
         "builder": "standin-builder-2",
-        "expires_at": 1792069555,
+        "expires_at": 1792112397,
         "fencing_token": 2,
-        "issued_at": 1792065955,
-        "last_heartbeat_at": 1792065955,
+        "issued_at": 1792108796,
+        "last_heartbeat_at": 1792108797,
         "lease_generation": 2,
-        "lease_id": "01RV912C088F42B246FEB2AAA2",
+        "lease_id": "01RVECF8C015BD904BF286E461",
         "runner": "standin-runner-2",
         "status": "active",
         "task_id": "T-MOCK-HANDOFF"
        },
        "outbox": [
         {
-         "created_at": 1792065827,
-         "envelope_id": "01RVBB6C26148B9442B38C9248",
+         "created_at": 1792108669,
+         "envelope_id": "01RVB9F65A5CEF384BAF8DC2E8",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV171CB8CF73BF4202BC9D18",
-         "sent_at": 1792065828,
+         "lease_id": "01RV9AE1D73B7F45477FB01A8D",
+         "sent_at": 1792108669,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         },
         {
-         "created_at": 1792065955,
-         "envelope_id": "01RV90F538CF3C25442D8CBD5F",
+         "created_at": 1792108796,
+         "envelope_id": "01RV06729F74B74A48F59C94E4",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV912C088F42B246FEB2AAA2",
-         "sent_at": 1792065955,
+         "lease_id": "01RVECF8C015BD904BF286E461",
+         "sent_at": 1792108796,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-HANDOFF|1|signal|4A6EA6347FC44AED93849976BC": {
-         "first_seen_at": 1792065828,
+        "T-MOCK-HANDOFF|1|signal|7BDBCBD71B714846A912778000": {
+         "first_seen_at": 1792108669,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|1|signal|4C2A5158E36F40C9A8768A54B3": {
-         "first_seen_at": 1792065828,
+        "T-MOCK-HANDOFF|1|signal|F8B9CC0F54BE4218933B9054A3": {
+         "first_seen_at": 1792108669,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|2|signal|3ED3425606FA4363B146B604CD": {
-         "first_seen_at": 1792065955,
+        "T-MOCK-HANDOFF|2|signal|77B43588C0D54EABB353231D51": {
+         "first_seen_at": 1792108797,
          "lease_generation": 2
         }
        },
@@ -1007,12 +1019,12 @@
    ],
    "evidence": {
     "handoff_timeline_ns": {
-     "stop(SIGTERM 요청)": 1792065828394024879,
-     "isolate(프로세스 그룹 종료)": 1792065835877169385,
-     "빌더 쓰기 자격 회수": 1792065835879947138,
-     "preserve(보존 자격의 푸시를 원격이 수락)": 1792065836252065505,
-     "revoke_token": 1792065836285873314,
-     "issue_next_lease(다음 지시 봉투 발송)": 1792065836560477299
+     "stop(SIGTERM 요청)": 1792108669995867546,
+     "isolate(프로세스 그룹 종료)": 1792108677354418994,
+     "빌더 쓰기 자격 회수": 1792108677357885499,
+     "preserve(보존 자격의 푸시를 원격이 수락)": 1792108677787644661,
+     "revoke_token": 1792108677827688400,
+     "issue_next_lease(다음 지시 봉투 발송)": 1792108678114555589
     },
     "late_outcomes": [
      {
@@ -1051,7 +1063,7 @@
    "test_id": "late-write-fenced",
    "title": "교체 전후 동시 쓰기",
    "status": "PASS",
-   "seconds": 10.5,
+   "seconds": 10.0,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -1068,12 +1080,12 @@
      "name": "쓰기 자격 구간이 임대마다 하나씩(A, B)",
      "status": "PASS",
      "expected": [
-      "01RV53A35AF167834B5B938C4A",
-      "01RV9BE0BCE5786E45FAAF897D"
+      "01RV8C55D9EC998A4C8A9CCBC4",
+      "01RV060B30F118F24E389962EC"
      ],
      "actual": [
-      "01RV53A35AF167834B5B938C4A",
-      "01RV9BE0BCE5786E45FAAF897D"
+      "01RV8C55D9EC998A4C8A9CCBC4",
+      "01RV060B30F118F24E389962EC"
      ]
     },
     {
@@ -1083,11 +1095,11 @@
      "actual": true,
      "detail": {
       "A": [
-       1792065837713550021,
-       1792065845884024916
+       1792108679439890274,
+       1792108686986327669
       ],
       "B": [
-       1792065846676317986,
+       1792108687776119844,
        null
       ]
      }
@@ -1137,14 +1149,14 @@
     {
      "name": "격리 뒤 A 트리의 최대 mtime은 더 변하지 않는다",
      "status": "PASS",
-     "expected": 1792065845877293420,
-     "actual": 1792065845877293420
+     "expected": 1792108686974542285,
+     "actual": 1792108686974542285
     },
     {
      "name": "보존 커밋의 tree OID == 정지 확인의 quiescent_tree_oid",
      "status": "PASS",
-     "expected": "091e01ab408f18c6f80ceaa7a958937eee840bb6",
-     "actual": "091e01ab408f18c6f80ceaa7a958937eee840bb6"
+     "expected": "bf623dc4c4499ab0f9544db176158ed040d154a7",
+     "actual": "bf623dc4c4499ab0f9544db176158ed040d154a7"
     },
     {
      "name": "원격이 수락한 푸시: A 임대에 대한 데몬 보존 자격 하나, 그다음 B의 빌더 자격 하나(A의 빌더 자격 푸시 0건)",
@@ -1152,21 +1164,21 @@
      "expected": [
       [
        "preserve_credential",
-       "01RV53A35AF167834B5B938C4A"
+       "01RV8C55D9EC998A4C8A9CCBC4"
       ],
       [
        "builder_write_credential",
-       "01RV9BE0BCE5786E45FAAF897D"
+       "01RV060B30F118F24E389962EC"
       ]
      ],
      "actual": [
       [
        "preserve_credential",
-       "01RV53A35AF167834B5B938C4A"
+       "01RV8C55D9EC998A4C8A9CCBC4"
       ],
       [
        "builder_write_credential",
-       "01RV9BE0BCE5786E45FAAF897D"
+       "01RV060B30F118F24E389962EC"
       ]
      ]
     },
@@ -1174,12 +1186,12 @@
      "name": "원격 브랜치 끝 == B의 커밋(A의 WIP 위에 B가 쌓음)",
      "status": "PASS",
      "expected": [
-      "dbd5b57d202a0ca769dd40ae6404fa4e76d3d3ea",
-      "bbab67fcfeac0c63e944f1bd6b96de66776dac00"
+      "9964051448ae1431a2b6530175318cd717ea4b3b",
+      "4be2386302536c7b0c2c5e688f90da93b7a231c9"
      ],
      "actual": [
-      "dbd5b57d202a0ca769dd40ae6404fa4e76d3d3ea",
-      "bbab67fcfeac0c63e944f1bd6b96de66776dac00"
+      "9964051448ae1431a2b6530175318cd717ea4b3b",
+      "4be2386302536c7b0c2c5e688f90da93b7a231c9"
      ]
     },
     {
@@ -1205,11 +1217,11 @@
    "evidence": {
     "credential_intervals_ns": {
      "A": [
-      1792065837713550021,
-      1792065845884024916
+      1792108679439890274,
+      1792108686986327669
      ],
      "B": [
-      1792065846676317986,
+      1792108687776119844,
       null
      ]
     }
@@ -1227,7 +1239,7 @@
    "test_id": "resume-after-interrupt",
    "title": "중단·재개",
    "status": "PASS",
-   "seconds": 3.1,
+   "seconds": 2.7,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -1275,7 +1287,7 @@
        "applied": false,
        "restart": true
       },
-      "instance_id": "01RV5897576B5AB345AFB0D0BE"
+      "instance_id": "01RVD6D42326664C47CE8264C5"
      }
     },
     {
@@ -1283,16 +1295,16 @@
      "status": "PASS",
      "expected": [
       [
-       "01RV722CBA81367B435B855A3D",
-       "01RV722CBA81367B435B855A3D"
+       "01RVC816736E87D446D7AD76CA",
+       "01RVC816736E87D446D7AD76CA"
       ],
       "sent",
       1
      ],
      "actual": [
       [
-       "01RV722CBA81367B435B855A3D",
-       "01RV722CBA81367B435B855A3D"
+       "01RVC816736E87D446D7AD76CA",
+       "01RVC816736E87D446D7AD76CA"
       ],
       "sent",
       1
@@ -1342,7 +1354,7 @@
        "applied": false,
        "restart": true
       },
-      "instance_id": "01RV6B8469DD7F164C3192362F"
+      "instance_id": "01RVBF01EF5D74214CB3ABC5C0"
      }
     },
     {
@@ -1350,13 +1362,13 @@
      "status": "PASS",
      "expected": [
       "1",
-      "d4039e8453a9d9460b130faf51ee0cb52d166033",
+      "ec6700760698b6998f24e75f9646936680218e6a",
       "leased",
       2
      ],
      "actual": [
       "1",
-      "d4039e8453a9d9460b130faf51ee0cb52d166033",
+      "ec6700760698b6998f24e75f9646936680218e6a",
       "leased",
       2
      ]
@@ -1385,13 +1397,13 @@
      "expected": [
       [
        "preserve_credential",
-       "01RV50A27EF95F0C4A57AA5F2A"
+       "01RV6669E946A7824887B9E3DA"
       ]
      ],
      "actual": [
       [
        "preserve_credential",
-       "01RV50A27EF95F0C4A57AA5F2A"
+       "01RV6669E946A7824887B9E3DA"
       ]
      ]
     },
@@ -1448,7 +1460,7 @@
      "expected": true,
      "actual": true,
      "detail": {
-      "holder": "01RV8B8A876122AE479786E8B7"
+      "holder": "01RV75FD7BF1DFB44C4E8782FC"
      }
     },
     {
@@ -1528,7 +1540,7 @@
      "expected": true,
      "actual": true,
      "detail": {
-      "holder": "01RVFA943CFCED82471280B39B"
+      "holder": "01RV01BD82C8860E47EAAB01FC"
      }
     },
     {
@@ -1578,7 +1590,7 @@
    "test_id": "provider-scoped-switch",
    "title": "전환 신호 실제 채널",
    "status": "PARTIAL",
-   "seconds": 17.9,
+   "seconds": 18.2,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -2121,7 +2133,7 @@
          "retry_statuses": [
           429
          ],
-         "wall_s": 1.54
+         "wall_s": 1.45
         },
         {
          "rc": 1,
@@ -2129,7 +2141,7 @@
          "retry_statuses": [
           429
          ],
-         "wall_s": 1.58
+         "wall_s": 1.43
         }
        ],
        "500": [
@@ -2141,7 +2153,7 @@
           500,
           500
          ],
-         "wall_s": 4.49
+         "wall_s": 4.55
         }
        ],
        "503": [
@@ -2153,7 +2165,7 @@
           503,
           503
          ],
-         "wall_s": 4.19
+         "wall_s": 5.13
         }
        ],
        "529": [
@@ -2164,7 +2176,7 @@
           529,
           529
          ],
-         "wall_s": 2.32
+         "wall_s": 2.05
         }
        ],
        "401": [
@@ -2174,7 +2186,7 @@
          "retry_statuses": [
           401
          ],
-         "wall_s": 0.93
+         "wall_s": 0.99
         }
        ],
        "403": [
@@ -2182,7 +2194,7 @@
          "rc": 1,
          "api_error_status": 403,
          "retry_statuses": [],
-         "wall_s": 0.56
+         "wall_s": 0.41
         }
        ],
        "400_quota": [
@@ -2190,7 +2202,7 @@
          "rc": 1,
          "api_error_status": 400,
          "retry_statuses": [],
-         "wall_s": 0.66
+         "wall_s": 0.49
         }
        ],
        "ok": [
@@ -2198,7 +2210,7 @@
          "rc": 0,
          "api_error_status": null,
          "retry_statuses": [],
-         "wall_s": 0.48
+         "wall_s": 0.39
         }
        ],
        "connection_refused": [
@@ -2208,7 +2220,7 @@
          "retry_statuses": [
           null
          ],
-         "wall_s": 0.93
+         "wall_s": 0.94
         }
        ],
        "local_usage_error": [
@@ -2216,7 +2228,7 @@
          "rc": 1,
          "api_error_status": null,
          "retry_statuses": [],
-         "wall_s": 0.12
+         "wall_s": 0.11
         }
        ]
       },
@@ -2271,7 +2283,7 @@
    "test_id": null,
    "title": "반송 재개·결정 관문",
    "status": "PASS",
-   "seconds": 2.5,
+   "seconds": 3.0,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -2404,7 +2416,7 @@
    "test_id": "hard-stop-heartbeating-job",
    "title": "강제 종료 기한",
    "status": "PARTIAL",
-   "seconds": 13.3,
+   "seconds": 13.4,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -2438,7 +2450,7 @@
      "actual": true,
      "detail": {
       "수락된 하트비트": 24,
-      "남은 초": 11
+      "남은 초": 12
      }
     },
     {
@@ -2569,155 +2581,155 @@
         "decisions_recorded": [],
         "return_code": "R-07",
         "state": "returned",
-        "stop_requested_at": 1792065895,
+        "stop_requested_at": 1792108737,
         "task_id": "T-MOCK-OTHER"
        },
        "lease_record": {
-        "base_sha": "67d3069bec288342bb747182dd05508ab58a05eb",
+        "base_sha": "fc93c7291df2c4bb91f165b202b4b41633bc7728",
         "branch": "task/T-MOCK-OTHER-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069616,
+        "expires_at": 1792112459,
         "fencing_token": 1,
-        "issued_at": 1792065895,
-        "last_heartbeat_at": 1792066016,
+        "issued_at": 1792108736,
+        "last_heartbeat_at": 1792108859,
         "lease_generation": 1,
-        "lease_id": "01RV3275069DA2B64FDD8F4E2A",
+        "lease_id": "01RVB88517EE88984289945127",
         "runner": "standin-runner-1",
         "status": "expired",
         "task_id": "T-MOCK-OTHER"
        },
        "outbox": [
         {
-         "created_at": 1792065895,
-         "envelope_id": "01RV8F6E841883114DE4A251D2",
+         "created_at": 1792108736,
+         "envelope_id": "01RV8C457DE2D3D04C0B85C041",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV3275069DA2B64FDD8F4E2A",
-         "sent_at": 1792065895,
+         "lease_id": "01RVB88517EE88984289945127",
+         "sent_at": 1792108736,
          "status": "sent",
          "task_id": "T-MOCK-OTHER",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-OTHER|1|signal|051C1DFE3DA94C48B6836C60A1": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|0C6A05F9514E438F9399709534": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|0522D645251A4477965C540B2C": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|11DDED4ED0F846208351C1AFC4": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|0BECCC4F02AC4250BEC101482E": {
-         "first_seen_at": 1792065978,
+        "T-MOCK-OTHER|1|signal|326692299D104AE4984415E588": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|159D87FEA4B9443FA74F784FB3": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|384B7C6DAB6F484F97944A78F1": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|1EAFC77375A443549EF06B51EE": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|48D4C49F41624F2B9162D9216B": {
+         "first_seen_at": 1792108845,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|312D14F3E56D4427AC5C7E95EC": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|50D2CBD139C54B72B7F197E140": {
+         "first_seen_at": 1792108819,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|399499CE1AB54A36B01713FE8E": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|510D34EE75004F0EB0630BF083": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|3A8B4C853AE24379971488DB80": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|51D3ABB6C2B646FD9B8E284952": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|438324483AD3490B81465EEBE4": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|57E793A8BDB04305953CCF854F": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|43EC62C2188D4656A312CE1701": {
-         "first_seen_at": 1792065895,
+        "T-MOCK-OTHER|1|signal|679EC88E217249EFBDBEEB4856": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|47F5838C89AA4D2783DF6CF98B": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|68F522106A294EC8B4EC6A6BD7": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|573F3F43539945F885D42F65E7": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|69FB21A6C728497F904315E2B1": {
+         "first_seen_at": 1792108819,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|5F2AB119FD874B19B55ADC1778": {
-         "first_seen_at": 1792066004,
+        "T-MOCK-OTHER|1|signal|6C6ABF5DE3694BAF8280FD15F6": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|6571F5BAF80C43318F1031BA77": {
-         "first_seen_at": 1792065978,
+        "T-MOCK-OTHER|1|signal|796A5DFCF3E442DD9C0D2E5603": {
+         "first_seen_at": 1792108845,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|76C90603C187450781F23ECA16": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|7DE0F42DF8AB4657A4AFDAB97A": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|78EC4A87450245968B4BC9A1F3": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|8EADF3072F654520824DB1DAFB": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|79468E53D9ED4E93B0E7131FED": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|9D0A5013A43E4543AE4BE2C965": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|7DACE58B3DEC42CAB0AE22EECB": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-OTHER|1|signal|A7F43D6E8A9B4065B8A4228E0D": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|7F4CC120F83A412B9532B27983": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|B5D972A0ADF04D4BA2F92A5C45": {
+         "first_seen_at": 1792108845,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|9C6ABCBE0C074AE98C5726BAEE": {
-         "first_seen_at": 1792066004,
+        "T-MOCK-OTHER|1|signal|B8222634F1A8494787A52C43D7": {
+         "first_seen_at": 1792108736,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|ADBB0BCC402D4CF8B28C04574F": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|CBD152C3784C492B8ADEB240AF": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|AF7B31AD9E0D414A87770526A9": {
-         "first_seen_at": 1792065895,
+        "T-MOCK-OTHER|1|signal|D31C74D85BA145D9BCDE9E5D0E": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|B22E960913764E72A87C5EE8ED": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|DD50EBDDF87A41A6984B3C0F95": {
+         "first_seen_at": 1792108819,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|BAE98AECF15C4A46AB24831038": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-OTHER|1|signal|DF5DD37BAB23403CA3FFBC28FC": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|C8077CD59F454760B701D84906": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-OTHER|1|signal|E0424172C6754D60B8C16949D0": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|DB0FDE9A177943DE9A80E9D0FE": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|E0F30411D71D46439233170DEB": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|EFDF288CB5A74CBFA1FB36A9C7": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|E454F70C77C244B2A5390179AC": {
+         "first_seen_at": 1792108736,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|F0453BED6DB34D67A5E765014B": {
-         "first_seen_at": 1792065978,
+        "T-MOCK-OTHER|1|signal|E5C4D0BD659E4567BDBA988477": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|F5D0FEC5714B4F99953FAA539A": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|EE65F799A5564616A44917ACEA": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|FEEE4AB7D1CA49C8A21A41A027": {
-         "first_seen_at": 1792066004,
+        "T-MOCK-OTHER|1|signal|F2D5DBEFACDA461C9A0F0A25D4": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         }
        },
@@ -2734,155 +2746,155 @@
         "decisions_recorded": [],
         "return_code": "R-07",
         "state": "returned",
-        "stop_requested_at": 1792065895,
+        "stop_requested_at": 1792108737,
         "task_id": "T-MOCK-OTHER"
        },
        "lease_record": {
-        "base_sha": "67d3069bec288342bb747182dd05508ab58a05eb",
+        "base_sha": "fc93c7291df2c4bb91f165b202b4b41633bc7728",
         "branch": "task/T-MOCK-OTHER-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069616,
+        "expires_at": 1792112459,
         "fencing_token": 1,
-        "issued_at": 1792065895,
-        "last_heartbeat_at": 1792066016,
+        "issued_at": 1792108736,
+        "last_heartbeat_at": 1792108859,
         "lease_generation": 1,
-        "lease_id": "01RV3275069DA2B64FDD8F4E2A",
+        "lease_id": "01RVB88517EE88984289945127",
         "runner": "standin-runner-1",
         "status": "expired",
         "task_id": "T-MOCK-OTHER"
        },
        "outbox": [
         {
-         "created_at": 1792065895,
-         "envelope_id": "01RV8F6E841883114DE4A251D2",
+         "created_at": 1792108736,
+         "envelope_id": "01RV8C457DE2D3D04C0B85C041",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV3275069DA2B64FDD8F4E2A",
-         "sent_at": 1792065895,
+         "lease_id": "01RVB88517EE88984289945127",
+         "sent_at": 1792108736,
          "status": "sent",
          "task_id": "T-MOCK-OTHER",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-OTHER|1|signal|051C1DFE3DA94C48B6836C60A1": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|0C6A05F9514E438F9399709534": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|0522D645251A4477965C540B2C": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|11DDED4ED0F846208351C1AFC4": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|0BECCC4F02AC4250BEC101482E": {
-         "first_seen_at": 1792065978,
+        "T-MOCK-OTHER|1|signal|326692299D104AE4984415E588": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|159D87FEA4B9443FA74F784FB3": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|384B7C6DAB6F484F97944A78F1": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|1EAFC77375A443549EF06B51EE": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|48D4C49F41624F2B9162D9216B": {
+         "first_seen_at": 1792108845,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|312D14F3E56D4427AC5C7E95EC": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|50D2CBD139C54B72B7F197E140": {
+         "first_seen_at": 1792108819,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|399499CE1AB54A36B01713FE8E": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|510D34EE75004F0EB0630BF083": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|3A8B4C853AE24379971488DB80": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|51D3ABB6C2B646FD9B8E284952": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|438324483AD3490B81465EEBE4": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|57E793A8BDB04305953CCF854F": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|43EC62C2188D4656A312CE1701": {
-         "first_seen_at": 1792065895,
+        "T-MOCK-OTHER|1|signal|679EC88E217249EFBDBEEB4856": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|47F5838C89AA4D2783DF6CF98B": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|68F522106A294EC8B4EC6A6BD7": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|573F3F43539945F885D42F65E7": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|69FB21A6C728497F904315E2B1": {
+         "first_seen_at": 1792108819,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|5F2AB119FD874B19B55ADC1778": {
-         "first_seen_at": 1792066004,
+        "T-MOCK-OTHER|1|signal|6C6ABF5DE3694BAF8280FD15F6": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|6571F5BAF80C43318F1031BA77": {
-         "first_seen_at": 1792065978,
+        "T-MOCK-OTHER|1|signal|796A5DFCF3E442DD9C0D2E5603": {
+         "first_seen_at": 1792108845,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|76C90603C187450781F23ECA16": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|7DE0F42DF8AB4657A4AFDAB97A": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|78EC4A87450245968B4BC9A1F3": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|8EADF3072F654520824DB1DAFB": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|79468E53D9ED4E93B0E7131FED": {
-         "first_seen_at": 1792065998,
+        "T-MOCK-OTHER|1|signal|9D0A5013A43E4543AE4BE2C965": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|7DACE58B3DEC42CAB0AE22EECB": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-OTHER|1|signal|A7F43D6E8A9B4065B8A4228E0D": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|7F4CC120F83A412B9532B27983": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|B5D972A0ADF04D4BA2F92A5C45": {
+         "first_seen_at": 1792108845,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|9C6ABCBE0C074AE98C5726BAEE": {
-         "first_seen_at": 1792066004,
+        "T-MOCK-OTHER|1|signal|B8222634F1A8494787A52C43D7": {
+         "first_seen_at": 1792108736,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|ADBB0BCC402D4CF8B28C04574F": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|CBD152C3784C492B8ADEB240AF": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|AF7B31AD9E0D414A87770526A9": {
-         "first_seen_at": 1792065895,
+        "T-MOCK-OTHER|1|signal|D31C74D85BA145D9BCDE9E5D0E": {
+         "first_seen_at": 1792108859,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|B22E960913764E72A87C5EE8ED": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|DD50EBDDF87A41A6984B3C0F95": {
+         "first_seen_at": 1792108819,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|BAE98AECF15C4A46AB24831038": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-OTHER|1|signal|DF5DD37BAB23403CA3FFBC28FC": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|C8077CD59F454760B701D84906": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-OTHER|1|signal|E0424172C6754D60B8C16949D0": {
+         "first_seen_at": 1792108799,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|DB0FDE9A177943DE9A80E9D0FE": {
-         "first_seen_at": 1792066016,
+        "T-MOCK-OTHER|1|signal|E0F30411D71D46439233170DEB": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|EFDF288CB5A74CBFA1FB36A9C7": {
-         "first_seen_at": 1792065957,
+        "T-MOCK-OTHER|1|signal|E454F70C77C244B2A5390179AC": {
+         "first_seen_at": 1792108736,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|F0453BED6DB34D67A5E765014B": {
-         "first_seen_at": 1792065978,
+        "T-MOCK-OTHER|1|signal|E5C4D0BD659E4567BDBA988477": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|F5D0FEC5714B4F99953FAA539A": {
-         "first_seen_at": 1792065916,
+        "T-MOCK-OTHER|1|signal|EE65F799A5564616A44917ACEA": {
+         "first_seen_at": 1792108840,
          "lease_generation": 1
         },
-        "T-MOCK-OTHER|1|signal|FEEE4AB7D1CA49C8A21A41A027": {
-         "first_seen_at": 1792066004,
+        "T-MOCK-OTHER|1|signal|F2D5DBEFACDA461C9A0F0A25D4": {
+         "first_seen_at": 1792108758,
          "lease_generation": 1
         }
        },
@@ -3019,7 +3031,7 @@
    "test_id": "usage-recorded-not-capped",
    "title": "사용량 기록(상한 없음, U-05)",
    "status": "PASS",
-   "seconds": 8.3,
+   "seconds": 8.5,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -3201,7 +3213,7 @@
    "r": "R11",
    "test_id": "handoff-quiescent-before-preserve",
    "title": "정지 확인 뒤 보존",
-   "status": "PASS",
+   "status": "PARTIAL",
    "seconds": 14.5,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
@@ -3263,21 +3275,21 @@
      "name": "격리 뒤 mtime 불변, tree OID 두 번 일치, 둘 다 quiescent_tree_oid와 같다",
      "status": "PASS",
      "expected": [
-      1792065925377293420,
-      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5",
-      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
+      1792108767242542285,
+      "8835ee41e85e5f647247afc19fe45f123842719d",
+      "8835ee41e85e5f647247afc19fe45f123842719d"
      ],
      "actual": [
-      1792065925377293420,
-      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5",
-      "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
+      1792108767242542285,
+      "8835ee41e85e5f647247afc19fe45f123842719d",
+      "8835ee41e85e5f647247afc19fe45f123842719d"
      ]
     },
     {
      "name": "보존 커밋의 tree OID == quiescent_tree_oid",
      "status": "PASS",
-     "expected": "0c365bb4ffc32d18425d88aca4e18a46f56c11f5",
-     "actual": "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
+     "expected": "8835ee41e85e5f647247afc19fe45f123842719d",
+     "actual": "8835ee41e85e5f647247afc19fe45f123842719d"
     },
     {
      "name": "다른 세션에 남은 쓰기 프로세스의 격리 뒤 쓰기는 실제로 실패했고(EACCES) 보존본에 섞이지 않았다",
@@ -3289,8 +3301,8 @@
     {
      "name": "보존 커밋의 파일 내용 == 격리 시점 디스크의 내용(격리 뒤 쓰기 없음)",
      "status": "PASS",
-     "expected": "tick 1455\n",
-     "actual": "tick 1455\n"
+     "expected": "tick 1491\n",
+     "actual": "tick 1491\n"
     },
     {
      "name": "원격이 수락한 푸시는 데몬 보존 자격 하나뿐, 빌더 토큰·자격으로 푸시된 보존 커밋 0건",
@@ -3298,13 +3310,13 @@
      "expected": [
       [
        "preserve_credential",
-       "01RV97B09B9E00F240F4B2A2C0"
+       "01RV44AF822281CE421285C114"
       ]
      ],
      "actual": [
       [
        "preserve_credential",
-       "01RV97B09B9E00F240F4B2A2C0"
+       "01RV44AF822281CE421285C114"
       ]
      ]
     },
@@ -3355,14 +3367,14 @@
      "expected": [
       0,
       {
-       "refs/heads/main": "e7dac79c09ff752a95ddb70723df28c3b459c0c3"
+       "refs/heads/main": "e81c292f34a41165c30ccaa9bb7985e16d46b3a9"
       },
       0
      ],
      "actual": [
       0,
       {
-       "refs/heads/main": "e7dac79c09ff752a95ddb70723df28c3b459c0c3"
+       "refs/heads/main": "e81c292f34a41165c30ccaa9bb7985e16d46b3a9"
       },
       0
      ]
@@ -3398,8 +3410,15 @@
     {
      "name": "보존 커밋의 tree OID == quiescent_tree_oid",
      "status": "PASS",
-     "expected": "111896f00743a40bdf9f6b9dacae8ddcb506bb97",
-     "actual": "111896f00743a40bdf9f6b9dacae8ddcb506bb97"
+     "expected": "a45e8dd8805bcc2ed2fb44806d987988b31efdd4",
+     "actual": "a45e8dd8805bcc2ed2fb44806d987988b31efdd4"
+    },
+    {
+     "name": "[R11 실제 CLI 변형] stop을 무시하고 루프로 파일을 쓰는 실제 벤더 CLI 프로세스",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "쓰는 프로세스는 스크립트 프로세스(standin)다. 벤더 CLI에게 stop 무시·쓰기 루프를 시키는 방법이 확인되지 않아 시험하지 않았다"
     }
    ],
    "evidence": {},
@@ -3492,39 +3511,39 @@
        "task_id": "T-MOCK-BASIC"
       },
       "lease_record": {
-       "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+       "base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c",
        "branch": "task/T-MOCK-BASIC-a1",
        "builder": "standin-builder-1",
-       "expires_at": 1792069531,
+       "expires_at": 1792112373,
        "fencing_token": 1,
-       "issued_at": 1792065931,
-       "last_heartbeat_at": 1792065931,
+       "issued_at": 1792108773,
+       "last_heartbeat_at": 1792108773,
        "lease_generation": 1,
-       "lease_id": "01RVA50AEA33927E492ABDB39B",
+       "lease_id": "01RVE8E12D0F42CD4411B04A01",
        "runner": "standin-runner-1",
        "status": "active",
        "task_id": "T-MOCK-BASIC"
       },
       "outbox": [
        {
-        "created_at": 1792065931,
-        "envelope_id": "01RV675301D334484BFB8A4521",
+        "created_at": 1792108773,
+        "envelope_id": "01RVB1982CECEBFF4AE694A538",
         "envelope_kind": "instruction",
         "lease_generation": 1,
-        "lease_id": "01RVA50AEA33927E492ABDB39B",
-        "sent_at": 1792065931,
+        "lease_id": "01RVE8E12D0F42CD4411B04A01",
+        "sent_at": 1792108773,
         "status": "sent",
         "task_id": "T-MOCK-BASIC",
         "void_reason": null
        }
       ],
       "inbox_seen": {
-       "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
-        "first_seen_at": 1792065931,
+       "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {
+        "first_seen_at": 1792108773,
         "lease_generation": 1
        },
-       "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
-        "first_seen_at": 1792065931,
+       "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {
+        "first_seen_at": 1792108773,
         "lease_generation": 1
        }
       },
@@ -3542,39 +3561,39 @@
        "task_id": "T-MOCK-BASIC"
       },
       "lease_record": {
-       "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+       "base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c",
        "branch": "task/T-MOCK-BASIC-a1",
        "builder": "standin-builder-1",
-       "expires_at": 1792069531,
+       "expires_at": 1792112373,
        "fencing_token": 1,
-       "issued_at": 1792065931,
-       "last_heartbeat_at": 1792065931,
+       "issued_at": 1792108773,
+       "last_heartbeat_at": 1792108773,
        "lease_generation": 1,
-       "lease_id": "01RVA50AEA33927E492ABDB39B",
+       "lease_id": "01RVE8E12D0F42CD4411B04A01",
        "runner": "standin-runner-1",
        "status": "active",
        "task_id": "T-MOCK-BASIC"
       },
       "outbox": [
        {
-        "created_at": 1792065931,
-        "envelope_id": "01RV675301D334484BFB8A4521",
+        "created_at": 1792108773,
+        "envelope_id": "01RVB1982CECEBFF4AE694A538",
         "envelope_kind": "instruction",
         "lease_generation": 1,
-        "lease_id": "01RVA50AEA33927E492ABDB39B",
-        "sent_at": 1792065931,
+        "lease_id": "01RVE8E12D0F42CD4411B04A01",
+        "sent_at": 1792108773,
         "status": "sent",
         "task_id": "T-MOCK-BASIC",
         "void_reason": null
        }
       ],
       "inbox_seen": {
-       "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
-        "first_seen_at": 1792065931,
+       "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {
+        "first_seen_at": 1792108773,
         "lease_generation": 1
        },
-       "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
-        "first_seen_at": 1792065931,
+       "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {
+        "first_seen_at": 1792108773,
         "lease_generation": 1
        }
       },
@@ -3610,43 +3629,43 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c",
         "branch": "task/T-MOCK-BASIC-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069532,
+        "expires_at": 1792112373,
         "fencing_token": 1,
-        "issued_at": 1792065931,
-        "last_heartbeat_at": 1792065932,
+        "issued_at": 1792108773,
+        "last_heartbeat_at": 1792108773,
         "lease_generation": 1,
-        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "lease_id": "01RVE8E12D0F42CD4411B04A01",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065931,
-         "envelope_id": "01RV675301D334484BFB8A4521",
+         "created_at": 1792108773,
+         "envelope_id": "01RVB1982CECEBFF4AE694A538",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RVA50AEA33927E492ABDB39B",
-         "sent_at": 1792065931,
+         "lease_id": "01RVE8E12D0F42CD4411B04A01",
+         "sent_at": 1792108773,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
         "T-MOCK-BASIC|1|signal|R12-HB2": {
-         "first_seen_at": 1792065932,
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         }
        },
@@ -3672,43 +3691,43 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c",
         "branch": "task/T-MOCK-BASIC-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069532,
+        "expires_at": 1792112373,
         "fencing_token": 1,
-        "issued_at": 1792065931,
-        "last_heartbeat_at": 1792065932,
+        "issued_at": 1792108773,
+        "last_heartbeat_at": 1792108773,
         "lease_generation": 1,
-        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "lease_id": "01RVE8E12D0F42CD4411B04A01",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065931,
-         "envelope_id": "01RV675301D334484BFB8A4521",
+         "created_at": 1792108773,
+         "envelope_id": "01RVB1982CECEBFF4AE694A538",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RVA50AEA33927E492ABDB39B",
-         "sent_at": 1792065931,
+         "lease_id": "01RVE8E12D0F42CD4411B04A01",
+         "sent_at": 1792108773,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
         "T-MOCK-BASIC|1|signal|R12-HB2": {
-         "first_seen_at": 1792065932,
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         }
        },
@@ -3756,47 +3775,47 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c",
         "branch": "task/T-MOCK-BASIC-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069532,
+        "expires_at": 1792112373,
         "fencing_token": 1,
-        "issued_at": 1792065931,
-        "last_heartbeat_at": 1792065932,
+        "issued_at": 1792108773,
+        "last_heartbeat_at": 1792108773,
         "lease_generation": 1,
-        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "lease_id": "01RVE8E12D0F42CD4411B04A01",
         "runner": "standin-runner-1",
         "status": "completed",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065931,
-         "envelope_id": "01RV675301D334484BFB8A4521",
+         "created_at": 1792108773,
+         "envelope_id": "01RVB1982CECEBFF4AE694A538",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RVA50AEA33927E492ABDB39B",
-         "sent_at": 1792065931,
+         "lease_id": "01RVE8E12D0F42CD4411B04A01",
+         "sent_at": 1792108773,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|result|B429C0C98A314DB68BEA8E1C09": {
-         "first_seen_at": 1792065932,
+        "T-MOCK-BASIC|1|result|17B7F6F2AC7944F6B6960A4BD5": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
         "T-MOCK-BASIC|1|signal|R12-HB2": {
-         "first_seen_at": 1792065932,
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         }
        },
@@ -3822,47 +3841,47 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058",
+        "base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c",
         "branch": "task/T-MOCK-BASIC-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069532,
+        "expires_at": 1792112373,
         "fencing_token": 1,
-        "issued_at": 1792065931,
-        "last_heartbeat_at": 1792065932,
+        "issued_at": 1792108773,
+        "last_heartbeat_at": 1792108773,
         "lease_generation": 1,
-        "lease_id": "01RVA50AEA33927E492ABDB39B",
+        "lease_id": "01RVE8E12D0F42CD4411B04A01",
         "runner": "standin-runner-1",
         "status": "completed",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065931,
-         "envelope_id": "01RV675301D334484BFB8A4521",
+         "created_at": 1792108773,
+         "envelope_id": "01RVB1982CECEBFF4AE694A538",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RVA50AEA33927E492ABDB39B",
-         "sent_at": 1792065931,
+         "lease_id": "01RVE8E12D0F42CD4411B04A01",
+         "sent_at": 1792108773,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|result|B429C0C98A314DB68BEA8E1C09": {
-         "first_seen_at": 1792065932,
+        "T-MOCK-BASIC|1|result|17B7F6F2AC7944F6B6960A4BD5": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {
-         "first_seen_at": 1792065931,
+        "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         },
         "T-MOCK-BASIC|1|signal|R12-HB2": {
-         "first_seen_at": 1792065932,
+         "first_seen_at": 1792108773,
          "lease_generation": 1
         }
        },
@@ -3931,7 +3950,7 @@
    "test_id": "retry-new-idempotency-key",
    "title": "재시도 새 키",
    "status": "PASS",
-   "seconds": 8.1,
+   "seconds": 7.7,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -3990,54 +4009,54 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "d9846dba7c97347d856a43c974c87b674f8fa7cc",
+        "base_sha": "2e7dbf0ca561fc1907a7d8f10e73b4fbdccf1ae9",
         "branch": "task/T-MOCK-BASIC-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069535,
+        "expires_at": 1792112377,
         "fencing_token": 2,
-        "issued_at": 1792065935,
-        "last_heartbeat_at": 1792065935,
+        "issued_at": 1792108776,
+        "last_heartbeat_at": 1792108777,
         "lease_generation": 2,
-        "lease_id": "01RVE28ADBAE918540FBB899AF",
+        "lease_id": "01RV3BECAC531C954176A056CC",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065934,
-         "envelope_id": "01RVDE6FDA5F1BAC43648D3EE6",
+         "created_at": 1792108776,
+         "envelope_id": "01RV2CEBB3FDA8EA46E78197AC",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV292FE4D00476488E8EB60F",
-         "sent_at": 1792065934,
+         "lease_id": "01RV93F685E2B4BB48018B6031",
+         "sent_at": 1792108776,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         },
         {
-         "created_at": 1792065935,
-         "envelope_id": "01RVE014E08274A54DE6B76027",
+         "created_at": 1792108776,
+         "envelope_id": "01RVF946C3D45C154E2A944A2C",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RVE28ADBAE918540FBB899AF",
-         "sent_at": 1792065935,
+         "lease_id": "01RV3BECAC531C954176A056CC",
+         "sent_at": 1792108777,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|result|BA4AB0F3626D4CC4BD6122BE25": {
-         "first_seen_at": 1792065935,
+        "T-MOCK-BASIC|1|result|ACC55BA7C50345A5B577878AC0": {
+         "first_seen_at": 1792108776,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|B0A484C0A3C846889D13C681AC": {
-         "first_seen_at": 1792065934,
+        "T-MOCK-BASIC|1|signal|99D485DDD8D44843BF122385FE": {
+         "first_seen_at": 1792108776,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|2|signal|78AF56D42A3F4B29B78D9DA29D": {
-         "first_seen_at": 1792065935,
+        "T-MOCK-BASIC|2|signal|F4227552C1154CFF80AD4616C5": {
+         "first_seen_at": 1792108777,
          "lease_generation": 2
         }
        },
@@ -4063,54 +4082,54 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "d9846dba7c97347d856a43c974c87b674f8fa7cc",
+        "base_sha": "2e7dbf0ca561fc1907a7d8f10e73b4fbdccf1ae9",
         "branch": "task/T-MOCK-BASIC-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069535,
+        "expires_at": 1792112377,
         "fencing_token": 2,
-        "issued_at": 1792065935,
-        "last_heartbeat_at": 1792065935,
+        "issued_at": 1792108776,
+        "last_heartbeat_at": 1792108777,
         "lease_generation": 2,
-        "lease_id": "01RVE28ADBAE918540FBB899AF",
+        "lease_id": "01RV3BECAC531C954176A056CC",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065934,
-         "envelope_id": "01RVDE6FDA5F1BAC43648D3EE6",
+         "created_at": 1792108776,
+         "envelope_id": "01RV2CEBB3FDA8EA46E78197AC",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV292FE4D00476488E8EB60F",
-         "sent_at": 1792065934,
+         "lease_id": "01RV93F685E2B4BB48018B6031",
+         "sent_at": 1792108776,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         },
         {
-         "created_at": 1792065935,
-         "envelope_id": "01RVE014E08274A54DE6B76027",
+         "created_at": 1792108776,
+         "envelope_id": "01RVF946C3D45C154E2A944A2C",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RVE28ADBAE918540FBB899AF",
-         "sent_at": 1792065935,
+         "lease_id": "01RV3BECAC531C954176A056CC",
+         "sent_at": 1792108777,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|result|BA4AB0F3626D4CC4BD6122BE25": {
-         "first_seen_at": 1792065935,
+        "T-MOCK-BASIC|1|result|ACC55BA7C50345A5B577878AC0": {
+         "first_seen_at": 1792108776,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|B0A484C0A3C846889D13C681AC": {
-         "first_seen_at": 1792065934,
+        "T-MOCK-BASIC|1|signal|99D485DDD8D44843BF122385FE": {
+         "first_seen_at": 1792108776,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|2|signal|78AF56D42A3F4B29B78D9DA29D": {
-         "first_seen_at": 1792065935,
+        "T-MOCK-BASIC|2|signal|F4227552C1154CFF80AD4616C5": {
+         "first_seen_at": 1792108777,
          "lease_generation": 2
         }
        },
@@ -4176,54 +4195,54 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "2e39c6f64996afa03ef4f36955b72af32b450ef4",
+        "base_sha": "31945aa80d26134ab5df94f443c42c1488555f6a",
         "branch": "task/T-MOCK-BASIC-a2",
         "builder": "standin-builder-1",
-        "expires_at": 1792069537,
+        "expires_at": 1792112378,
         "fencing_token": 2,
-        "issued_at": 1792065937,
-        "last_heartbeat_at": 1792065937,
+        "issued_at": 1792108778,
+        "last_heartbeat_at": 1792108778,
         "lease_generation": 2,
-        "lease_id": "01RV8717612D1F1E4A76BCC861",
+        "lease_id": "01RVC7262A4F721944EAB440A0",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065936,
-         "envelope_id": "01RVA9A53216FB3D4162BD7026",
+         "created_at": 1792108777,
+         "envelope_id": "01RVEBE15C28E8A247BC93348B",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RVC934AFCDFA644B159F8E09",
-         "sent_at": 1792065936,
+         "lease_id": "01RV87E2674B582C4326A48922",
+         "sent_at": 1792108777,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         },
         {
-         "created_at": 1792065937,
-         "envelope_id": "01RV65C0129EAE954E19822C1B",
+         "created_at": 1792108778,
+         "envelope_id": "01RVE6CF41F09BFC4377B54CFF",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV8717612D1F1E4A76BCC861",
-         "sent_at": 1792065937,
+         "lease_id": "01RVC7262A4F721944EAB440A0",
+         "sent_at": 1792108778,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|result|10CF06F8C1404AFDB9D98E8A88": {
-         "first_seen_at": 1792065936,
+        "T-MOCK-BASIC|1|result|72B5441C31B549C5A12EEC59FC": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|C592186FA0D54D5292410A030F": {
-         "first_seen_at": 1792065936,
+        "T-MOCK-BASIC|1|signal|4B0289E4A33C4CB8B128C23D1E": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|2|signal|D4FD4E7EC1494C6DB23FC5E327": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-BASIC|2|signal|0DF4F83B1499438BB2D4CAB820": {
+         "first_seen_at": 1792108778,
          "lease_generation": 2
         }
        },
@@ -4249,54 +4268,54 @@
         "task_id": "T-MOCK-BASIC"
        },
        "lease_record": {
-        "base_sha": "2e39c6f64996afa03ef4f36955b72af32b450ef4",
+        "base_sha": "31945aa80d26134ab5df94f443c42c1488555f6a",
         "branch": "task/T-MOCK-BASIC-a2",
         "builder": "standin-builder-1",
-        "expires_at": 1792069537,
+        "expires_at": 1792112378,
         "fencing_token": 2,
-        "issued_at": 1792065937,
-        "last_heartbeat_at": 1792065937,
+        "issued_at": 1792108778,
+        "last_heartbeat_at": 1792108778,
         "lease_generation": 2,
-        "lease_id": "01RV8717612D1F1E4A76BCC861",
+        "lease_id": "01RVC7262A4F721944EAB440A0",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-BASIC"
        },
        "outbox": [
         {
-         "created_at": 1792065936,
-         "envelope_id": "01RVA9A53216FB3D4162BD7026",
+         "created_at": 1792108777,
+         "envelope_id": "01RVEBE15C28E8A247BC93348B",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RVC934AFCDFA644B159F8E09",
-         "sent_at": 1792065936,
+         "lease_id": "01RV87E2674B582C4326A48922",
+         "sent_at": 1792108777,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         },
         {
-         "created_at": 1792065937,
-         "envelope_id": "01RV65C0129EAE954E19822C1B",
+         "created_at": 1792108778,
+         "envelope_id": "01RVE6CF41F09BFC4377B54CFF",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV8717612D1F1E4A76BCC861",
-         "sent_at": 1792065937,
+         "lease_id": "01RVC7262A4F721944EAB440A0",
+         "sent_at": 1792108778,
          "status": "sent",
          "task_id": "T-MOCK-BASIC",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-BASIC|1|result|10CF06F8C1404AFDB9D98E8A88": {
-         "first_seen_at": 1792065936,
+        "T-MOCK-BASIC|1|result|72B5441C31B549C5A12EEC59FC": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|1|signal|C592186FA0D54D5292410A030F": {
-         "first_seen_at": 1792065936,
+        "T-MOCK-BASIC|1|signal|4B0289E4A33C4CB8B128C23D1E": {
+         "first_seen_at": 1792108778,
          "lease_generation": 1
         },
-        "T-MOCK-BASIC|2|signal|D4FD4E7EC1494C6DB23FC5E327": {
-         "first_seen_at": 1792065937,
+        "T-MOCK-BASIC|2|signal|0DF4F83B1499438BB2D4CAB820": {
+         "first_seen_at": 1792108778,
          "lease_generation": 2
         }
        },
@@ -4358,58 +4377,58 @@
         "decisions_recorded": [],
         "return_code": null,
         "state": "building",
-        "stop_requested_at": 1792065938,
+        "stop_requested_at": 1792108780,
         "task_id": "T-MOCK-HANDOFF"
        },
        "lease_record": {
-        "base_sha": "650855b4d8894a52ac08202a51fad82a042f5692",
+        "base_sha": "7055aa1196133f3ce0fdc9f732e3e6708e396697",
         "branch": "task/T-MOCK-HANDOFF-a1",
         "builder": "standin-builder-2",
-        "expires_at": 1792069544,
+        "expires_at": 1792112385,
         "fencing_token": 2,
-        "issued_at": 1792065944,
-        "last_heartbeat_at": 1792065944,
+        "issued_at": 1792108785,
+        "last_heartbeat_at": 1792108785,
         "lease_generation": 2,
-        "lease_id": "01RV9728F8E17DE34E6D9D1F54",
+        "lease_id": "01RV6EC74D46E95645EFB2C0BA",
         "runner": "standin-runner-2",
         "status": "active",
         "task_id": "T-MOCK-HANDOFF"
        },
        "outbox": [
         {
-         "created_at": 1792065938,
-         "envelope_id": "01RV07B2179D786F477A99473B",
+         "created_at": 1792108779,
+         "envelope_id": "01RV7EB6ED63D37C4AC6857A3A",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV17CCF3D7D9034AEEA231FB",
-         "sent_at": 1792065938,
+         "lease_id": "01RV34163E08747644D7BDFDE1",
+         "sent_at": 1792108779,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         },
         {
-         "created_at": 1792065944,
-         "envelope_id": "01RV120C2B191FFB47C3B0ABEF",
+         "created_at": 1792108785,
+         "envelope_id": "01RV62EE9CC97C6C49AE80FCA7",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV9728F8E17DE34E6D9D1F54",
-         "sent_at": 1792065944,
+         "lease_id": "01RV6EC74D46E95645EFB2C0BA",
+         "sent_at": 1792108785,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-HANDOFF|1|signal|054E40C49677433D8796F63563": {
-         "first_seen_at": 1792065938,
+        "T-MOCK-HANDOFF|1|signal|669E9D1BCFD142DDB7189E9749": {
+         "first_seen_at": 1792108780,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|1|signal|84E306639BFA41AB9E4F0B796D": {
-         "first_seen_at": 1792065938,
+        "T-MOCK-HANDOFF|1|signal|A5C45236FA3D4C1DA7CB6CE60F": {
+         "first_seen_at": 1792108779,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|2|signal|D2FDE521202C4F5AB37A9D07F9": {
-         "first_seen_at": 1792065944,
+        "T-MOCK-HANDOFF|2|signal|5BE87E0F7F7746FBAD435FCD13": {
+         "first_seen_at": 1792108785,
          "lease_generation": 2
         }
        },
@@ -4431,58 +4450,58 @@
         "decisions_recorded": [],
         "return_code": null,
         "state": "building",
-        "stop_requested_at": 1792065938,
+        "stop_requested_at": 1792108780,
         "task_id": "T-MOCK-HANDOFF"
        },
        "lease_record": {
-        "base_sha": "650855b4d8894a52ac08202a51fad82a042f5692",
+        "base_sha": "7055aa1196133f3ce0fdc9f732e3e6708e396697",
         "branch": "task/T-MOCK-HANDOFF-a1",
         "builder": "standin-builder-2",
-        "expires_at": 1792069544,
+        "expires_at": 1792112385,
         "fencing_token": 2,
-        "issued_at": 1792065944,
-        "last_heartbeat_at": 1792065944,
+        "issued_at": 1792108785,
+        "last_heartbeat_at": 1792108785,
         "lease_generation": 2,
-        "lease_id": "01RV9728F8E17DE34E6D9D1F54",
+        "lease_id": "01RV6EC74D46E95645EFB2C0BA",
         "runner": "standin-runner-2",
         "status": "active",
         "task_id": "T-MOCK-HANDOFF"
        },
        "outbox": [
         {
-         "created_at": 1792065938,
-         "envelope_id": "01RV07B2179D786F477A99473B",
+         "created_at": 1792108779,
+         "envelope_id": "01RV7EB6ED63D37C4AC6857A3A",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV17CCF3D7D9034AEEA231FB",
-         "sent_at": 1792065938,
+         "lease_id": "01RV34163E08747644D7BDFDE1",
+         "sent_at": 1792108779,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         },
         {
-         "created_at": 1792065944,
-         "envelope_id": "01RV120C2B191FFB47C3B0ABEF",
+         "created_at": 1792108785,
+         "envelope_id": "01RV62EE9CC97C6C49AE80FCA7",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV9728F8E17DE34E6D9D1F54",
-         "sent_at": 1792065944,
+         "lease_id": "01RV6EC74D46E95645EFB2C0BA",
+         "sent_at": 1792108785,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-HANDOFF|1|signal|054E40C49677433D8796F63563": {
-         "first_seen_at": 1792065938,
+        "T-MOCK-HANDOFF|1|signal|669E9D1BCFD142DDB7189E9749": {
+         "first_seen_at": 1792108780,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|1|signal|84E306639BFA41AB9E4F0B796D": {
-         "first_seen_at": 1792065938,
+        "T-MOCK-HANDOFF|1|signal|A5C45236FA3D4C1DA7CB6CE60F": {
+         "first_seen_at": 1792108779,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|2|signal|D2FDE521202C4F5AB37A9D07F9": {
-         "first_seen_at": 1792065944,
+        "T-MOCK-HANDOFF|2|signal|5BE87E0F7F7746FBAD435FCD13": {
+         "first_seen_at": 1792108785,
          "lease_generation": 2
         }
        },
@@ -4556,58 +4575,58 @@
         "decisions_recorded": [],
         "return_code": null,
         "state": "building",
-        "stop_requested_at": 1792065940,
+        "stop_requested_at": 1792108782,
         "task_id": "T-MOCK-HANDOFF"
        },
        "lease_record": {
-        "base_sha": "070ff21be17c7a9a9e459fcba83cd09afce7fa62",
+        "base_sha": "05c73a8d93dff98073c3d1a1e7958990ecf4be4f",
         "branch": "task/T-MOCK-HANDOFF-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069546,
+        "expires_at": 1792112388,
         "fencing_token": 2,
-        "issued_at": 1792065946,
-        "last_heartbeat_at": 1792065946,
+        "issued_at": 1792108787,
+        "last_heartbeat_at": 1792108788,
         "lease_generation": 2,
-        "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
+        "lease_id": "01RVCFBC2EA55A164A3BB4ED39",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-HANDOFF"
        },
        "outbox": [
         {
-         "created_at": 1792065940,
-         "envelope_id": "01RV448FCD3545BF4F59AC2925",
+         "created_at": 1792108781,
+         "envelope_id": "01RV45CF4761FF204616B3AF2D",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV965D18F33E9D42D69B1734",
-         "sent_at": 1792065940,
+         "lease_id": "01RV1745C4453C714C5DA7381C",
+         "sent_at": 1792108781,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         },
         {
-         "created_at": 1792065946,
-         "envelope_id": "01RVA4A69FBA806540B89491A2",
+         "created_at": 1792108787,
+         "envelope_id": "01RVC72B76C47A5F40A0B2911F",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
-         "sent_at": 1792065946,
+         "lease_id": "01RVCFBC2EA55A164A3BB4ED39",
+         "sent_at": 1792108787,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-HANDOFF|1|signal|2A1300EDFE264E4D87CBFC3EBA": {
-         "first_seen_at": 1792065940,
+        "T-MOCK-HANDOFF|1|signal|B1F46D9CD15B42C2AAAC2E91E2": {
+         "first_seen_at": 1792108782,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|1|signal|5C70C1EE731E4EE3956E3C04A5": {
-         "first_seen_at": 1792065940,
+        "T-MOCK-HANDOFF|1|signal|D589B4E95CA34CC58F52D70591": {
+         "first_seen_at": 1792108782,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|2|signal|6DD85FCB74A1404DB9B93B0460": {
-         "first_seen_at": 1792065946,
+        "T-MOCK-HANDOFF|2|signal|A460EEA7EF454028AB6B3339BB": {
+         "first_seen_at": 1792108788,
          "lease_generation": 2
         }
        },
@@ -4629,58 +4648,58 @@
         "decisions_recorded": [],
         "return_code": null,
         "state": "building",
-        "stop_requested_at": 1792065940,
+        "stop_requested_at": 1792108782,
         "task_id": "T-MOCK-HANDOFF"
        },
        "lease_record": {
-        "base_sha": "070ff21be17c7a9a9e459fcba83cd09afce7fa62",
+        "base_sha": "05c73a8d93dff98073c3d1a1e7958990ecf4be4f",
         "branch": "task/T-MOCK-HANDOFF-a1",
         "builder": "standin-builder-1",
-        "expires_at": 1792069546,
+        "expires_at": 1792112388,
         "fencing_token": 2,
-        "issued_at": 1792065946,
-        "last_heartbeat_at": 1792065946,
+        "issued_at": 1792108787,
+        "last_heartbeat_at": 1792108788,
         "lease_generation": 2,
-        "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
+        "lease_id": "01RVCFBC2EA55A164A3BB4ED39",
         "runner": "standin-runner-1",
         "status": "active",
         "task_id": "T-MOCK-HANDOFF"
        },
        "outbox": [
         {
-         "created_at": 1792065940,
-         "envelope_id": "01RV448FCD3545BF4F59AC2925",
+         "created_at": 1792108781,
+         "envelope_id": "01RV45CF4761FF204616B3AF2D",
          "envelope_kind": "instruction",
          "lease_generation": 1,
-         "lease_id": "01RV965D18F33E9D42D69B1734",
-         "sent_at": 1792065940,
+         "lease_id": "01RV1745C4453C714C5DA7381C",
+         "sent_at": 1792108781,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         },
         {
-         "created_at": 1792065946,
-         "envelope_id": "01RVA4A69FBA806540B89491A2",
+         "created_at": 1792108787,
+         "envelope_id": "01RVC72B76C47A5F40A0B2911F",
          "envelope_kind": "instruction",
          "lease_generation": 2,
-         "lease_id": "01RV5FEDD5E5C97E4693A1AE2F",
-         "sent_at": 1792065946,
+         "lease_id": "01RVCFBC2EA55A164A3BB4ED39",
+         "sent_at": 1792108787,
          "status": "sent",
          "task_id": "T-MOCK-HANDOFF",
          "void_reason": null
         }
        ],
        "inbox_seen": {
-        "T-MOCK-HANDOFF|1|signal|2A1300EDFE264E4D87CBFC3EBA": {
-         "first_seen_at": 1792065940,
+        "T-MOCK-HANDOFF|1|signal|B1F46D9CD15B42C2AAAC2E91E2": {
+         "first_seen_at": 1792108782,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|1|signal|5C70C1EE731E4EE3956E3C04A5": {
-         "first_seen_at": 1792065940,
+        "T-MOCK-HANDOFF|1|signal|D589B4E95CA34CC58F52D70591": {
+         "first_seen_at": 1792108782,
          "lease_generation": 1
         },
-        "T-MOCK-HANDOFF|2|signal|6DD85FCB74A1404DB9B93B0460": {
-         "first_seen_at": 1792065946,
+        "T-MOCK-HANDOFF|2|signal|A460EEA7EF454028AB6B3339BB": {
+         "first_seen_at": 1792108788,
          "lease_generation": 2
         }
        },
@@ -4713,7 +4732,7 @@
    "test_id": "preserve-manifest-same-function",
    "title": "보존 manifest",
    "status": "PASS",
-   "seconds": 3.8,
+   "seconds": 3.9,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -4819,8 +4838,8 @@
     {
      "name": "원격 ref == 보존 커밋",
      "status": "PASS",
-     "expected": "776891e7072ae377d9145b9fcdf872479b36b3b1",
-     "actual": "776891e7072ae377d9145b9fcdf872479b36b3b1"
+     "expected": "5a38fcf41a6b47a91ad6ef623af6075a7a6196dd",
+     "actual": "5a38fcf41a6b47a91ad6ef623af6075a7a6196dd"
     },
     {
      "name": "비밀값 모양 파일: handoff → returned(secret_detected, R-10)",
@@ -4844,14 +4863,14 @@
      "expected": [
       0,
       {
-       "refs/heads/main": "478cb6daba5be3f21aade2d0b1e414b8d201cab5"
+       "refs/heads/main": "37bbe8bac2518ef57b94e643abc5eb8457f5edaa"
       },
       0
      ],
      "actual": [
       0,
       {
-       "refs/heads/main": "478cb6daba5be3f21aade2d0b1e414b8d201cab5"
+       "refs/heads/main": "37bbe8bac2518ef57b94e643abc5eb8457f5edaa"
       },
       0
      ]
@@ -4881,7 +4900,7 @@
    "test_id": "preserve-failure-recoverable-stop",
    "title": "보존 실패 정리",
    "status": "PASS",
-   "seconds": 14.8,
+   "seconds": 14.5,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -5016,12 +5035,12 @@
      "expected": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "c75716932f4876dd64fe4b6b1a6d931ba9835f95"
+      "8faf64e3f859b2bbef4429eff50f4e9bda1ba69e"
      ],
      "actual": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "c75716932f4876dd64fe4b6b1a6d931ba9835f95"
+      "8faf64e3f859b2bbef4429eff50f4e9bda1ba69e"
      ]
     },
     {
@@ -5144,12 +5163,12 @@
      "expected": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "4c34ff9d3404129b8dc86842b3944c610b05547d"
+      "63dae58085ef573fc81e46aa65501ab0825b1467"
      ],
      "actual": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "4c34ff9d3404129b8dc86842b3944c610b05547d"
+      "63dae58085ef573fc81e46aa65501ab0825b1467"
      ]
     },
     {
@@ -5267,13 +5286,13 @@
      "status": "PASS",
      "expected": [
       1,
-      "ef1e2da66b935a9a0222b082ed852193fc0bc90f",
-      "1fea1ebae1260add3a38d7f2b81b14a260e490fd"
+      "03bf432a61ab72d184fcf86131829b10c16b921b",
+      "87b6f8bdae5921693923c095fdb219341d35dfa4"
      ],
      "actual": [
       1,
-      "ef1e2da66b935a9a0222b082ed852193fc0bc90f",
-      "1fea1ebae1260add3a38d7f2b81b14a260e490fd"
+      "03bf432a61ab72d184fcf86131829b10c16b921b",
+      "87b6f8bdae5921693923c095fdb219341d35dfa4"
      ]
     },
     {
@@ -5396,12 +5415,12 @@
      "expected": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "14f2a1318c3c0e9f84d99129efcb5a2c67eaf47c"
+      "3f203aeabea4a6a5ee7a2b97fce52c37b61ca156"
      ],
      "actual": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "14f2a1318c3c0e9f84d99129efcb5a2c67eaf47c"
+      "3f203aeabea4a6a5ee7a2b97fce52c37b61ca156"
      ]
     },
     {
@@ -5530,12 +5549,12 @@
      "expected": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "569fd5d3eb1531dd87704c9e2a353a726971a1d1"
+      "737248a76c2471269accfbfc0efdd0684dcbac26"
      ],
      "actual": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "569fd5d3eb1531dd87704c9e2a353a726971a1d1"
+      "737248a76c2471269accfbfc0efdd0684dcbac26"
      ]
     },
     {
@@ -5664,12 +5683,12 @@
      "expected": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "02098baa54a1c0bb53b022a90f496c3c486ab815"
+      "49af741826e70d5ab0986afecb25399db806b1bc"
      ],
      "actual": [
       1,
       "920cbc88c3a5da20347ebcc83a64df9422893cd4",
-      "02098baa54a1c0bb53b022a90f496c3c486ab815"
+      "49af741826e70d5ab0986afecb25399db806b1bc"
      ]
     },
     {
@@ -5692,7 +5711,7 @@
    "test_id": "daemon-restart-during-handoff",
    "title": "인계 도중 데몬 재시작",
    "status": "PASS",
-   "seconds": 17.4,
+   "seconds": 18.1,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -5762,11 +5781,11 @@
      "name": "[stop 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "e8aa89d245d9a67648c04ec458cc5d01e926d7b3",
+      "25e776ba4d1b3acf2e4dd5322850443a21f36f36",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "e8aa89d245d9a67648c04ec458cc5d01e926d7b3",
+      "25e776ba4d1b3acf2e4dd5322850443a21f36f36",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -5841,11 +5860,11 @@
      "name": "[isolate 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "26ac2422463e22335cf32024328c08a742b7fb36",
+      "ab98f4be012f0dcb595d4bfbdb45f9587a023765",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "26ac2422463e22335cf32024328c08a742b7fb36",
+      "ab98f4be012f0dcb595d4bfbdb45f9587a023765",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -5920,11 +5939,11 @@
      "name": "[confirm_quiescent 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "6f7271ba6a0a49df3e17b3fb544ec942e8bb8767",
+      "3b6ac96b396066e227ab4710b5f61d6b3539cabe",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "6f7271ba6a0a49df3e17b3fb544ec942e8bb8767",
+      "3b6ac96b396066e227ab4710b5f61d6b3539cabe",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -5999,11 +6018,11 @@
      "name": "[preserve 단계(로컬 커밋 전)] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "0ce0ea71665e725ae66355f9e89752fc12512810",
+      "67c576dcb8071872fc019f7b0ceafada13a534e3",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "0ce0ea71665e725ae66355f9e89752fc12512810",
+      "67c576dcb8071872fc019f7b0ceafada13a534e3",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -6078,11 +6097,11 @@
      "name": "[로컬 커밋 직후·기록 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "5a96132e4c327cb95040ad3e3f249805b5aea829",
+      "32bae13742a98cfd3b75c8246d8f6b7178fd7ff6",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "5a96132e4c327cb95040ad3e3f249805b5aea829",
+      "32bae13742a98cfd3b75c8246d8f6b7178fd7ff6",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -6157,11 +6176,11 @@
      "name": "[로컬 커밋 기록 뒤·푸시 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "58abcaa3536e0d0307bfab691177ad27e6b24ef7",
+      "0a593d47a367100d45a9cf568a7b2811d972616b",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "58abcaa3536e0d0307bfab691177ad27e6b24ef7",
+      "0a593d47a367100d45a9cf568a7b2811d972616b",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -6236,11 +6255,11 @@
      "name": "[푸시 직후·기록 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "ce860f5b4575eb8e704d0263aa23f4f8b78c5e93",
+      "4c6bae6f0802670a65a42e6bfa31133a6a2a0e7c",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "ce860f5b4575eb8e704d0263aa23f4f8b78c5e93",
+      "4c6bae6f0802670a65a42e6bfa31133a6a2a0e7c",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -6315,11 +6334,11 @@
      "name": "[issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid",
      "status": "PASS",
      "expected": [
-      "5cb02799df91c04419b8e5a3fe3b7089c02f0a37",
+      "5b1bac1e7dbd7a2d589b165a7746fb30c7ee2fda",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ],
      "actual": [
-      "5cb02799df91c04419b8e5a3fe3b7089c02f0a37",
+      "5b1bac1e7dbd7a2d589b165a7746fb30c7ee2fda",
       "920cbc88c3a5da20347ebcc83a64df9422893cd4"
      ]
     },
@@ -6437,7 +6456,7 @@
    "test_id": "envelope-id-distinct-events",
    "title": "봉투 식별",
    "status": "PASS",
-   "seconds": 2.8,
+   "seconds": 2.9,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -6595,7 +6614,7 @@
    "test_id": "lease-issue-atomic-single-owner",
    "title": "발급 원자성",
    "status": "PASS",
-   "seconds": 15.7,
+   "seconds": 16.2,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -7115,7 +7134,7 @@
    "test_id": "restart-ttl-expired-no-resend",
    "title": "발급 직후 중단 뒤 TTL 경과",
    "status": "PASS",
-   "seconds": 1.4,
+   "seconds": 1.2,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -7205,14 +7224,14 @@
       2,
       true,
       [
-       "01RV96755C3955CF4A19929BB5"
+       "01RV44665956FA054355A6B4C7"
       ]
      ],
      "actual": [
       2,
       true,
       [
-       "01RV96755C3955CF4A19929BB5"
+       "01RV44665956FA054355A6B4C7"
       ]
      ]
     },
@@ -7220,10 +7239,10 @@
      "name": "두 번째 재시작은 새 임대를 그대로 둔다(발송 1건 유지)",
      "status": "PASS",
      "expected": [
-      "01RV96755C3955CF4A19929BB5"
+      "01RV44665956FA054355A6B4C7"
      ],
      "actual": [
-      "01RV96755C3955CF4A19929BB5"
+      "01RV44665956FA054355A6B4C7"
      ]
     }
    ],
@@ -7237,7 +7256,7 @@
    "test_id": "restart-revoked-pending-void",
    "title": "폐기된 pending",
    "status": "PASS",
-   "seconds": 2.2,
+   "seconds": 2.4,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
     "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
@@ -7362,7 +7381,7 @@
    "r": "R21",
    "test_id": "restart-valid-pending-resend",
    "title": "유효 pending 재전송",
-   "status": "PASS",
+   "status": "PARTIAL",
    "seconds": 1.7,
    "real_components": [
     "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
@@ -7386,7 +7405,7 @@
        "send_envelope"
       ],
       [
-       "01RV023B735B2C8848E99593A0"
+       "01RVA197E0BA6FC84DAFBD2000"
       ]
      ],
      "actual": [
@@ -7395,7 +7414,7 @@
        "send_envelope"
       ],
       [
-       "01RV023B735B2C8848E99593A0"
+       "01RVA197E0BA6FC84DAFBD2000"
       ]
      ]
     },
@@ -7502,6 +7521,13 @@
       0,
       []
      ]
+    },
+    {
+     "name": "[R21 실제 CLI 어댑터] 벤더 CLI를 띄우는 어댑터의 receiver_validation",
+     "status": "UNCONFIRMED",
+     "expected": null,
+     "actual": null,
+     "reason": "위 수신 측 검증은 이 도구의 빌더 쪽 어댑터(context.py)와 스크립트 프로세스(standin)가 한다. 벤더 CLI를 띄우는 실제 어댑터는 이 저장소에 없어 시험하지 않았다"
     }
    ],
    "evidence": {},
@@ -7818,11 +7844,11 @@
      "status": "PASS",
      "expected": [
       true,
-      "b'{\"journal\": [{\"at\": 1792066005, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792066005, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792066005, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV6D8F64BE678B48798C6FE0\", \"lease_generation\": 1, \"lease_id\": \"01RVD6E7B5E95FD54DDAAD5B91\", \"reason\": \"from_queue\"}, \"at\": 1792066005, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"
+      "b'{\"journal\": [{\"at\": 1792108847, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792108847, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792108848, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV96A2EC06F46E43B5AC6CDA\", \"lease_generation\": 1, \"lease_id\": \"01RVA412853CD75F4CCB872E29\", \"reason\": \"from_queue\"}, \"at\": 1792108848, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"
      ],
      "actual": [
       true,
-      "b'{\"journal\": [{\"at\": 1792066005, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792066005, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792066005, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV6D8F64BE678B48798C6FE0\", \"lease_generation\": 1, \"lease_id\": \"01RVD6E7B5E95FD54DDAAD5B91\", \"reason\": \"from_queue\"}, \"at\": 1792066005, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"
+      "b'{\"journal\": [{\"at\": 1792108847, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792108847, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792108848, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV96A2EC06F46E43B5AC6CDA\", \"lease_generation\": 1, \"lease_id\": \"01RVA412853CD75F4CCB872E29\", \"reason\": \"from_queue\"}, \"at\": 1792108848, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"
      ]
     },
     {

@@ -135,6 +135,8 @@ def r11(rep, cx):
         rep.eq("원인 제거(프로세스 종료) 뒤 recovery_decision(retry): 정지 확인을 통과해 보존하고 다음 임대(세대 2)", ("leased", 2, 1),
                (t["task_state"]["state"], t["lease_generation"], commits_on(w, instr)))
         rep.eq("보존 커밋의 tree OID == quiescent_tree_oid", t["handoff_record"]["quiescent_tree_oid"], tree_of(w, t["handoff_record"]["wip_commit_sha"]))
+    rep.unconfirmed("[R11 실제 CLI 변형] stop을 무시하고 루프로 파일을 쓰는 실제 벤더 CLI 프로세스",
+                    "쓰는 프로세스는 스크립트 프로세스(standin)다. 벤더 CLI에게 stop 무시·쓰기 루프를 시키는 방법이 확인되지 않아 시험하지 않았다")
     rep.not_proved("쓰기 금지 격리는 파일 권한(chmod)이다. 같은 사용자의 프로세스는 권한을 되돌릴 수 있으므로 격리만으로 쓰기를 막았다고 말하지 않는다: 이 시험에서 쓰기를 막은 것은 프로세스 그룹 종료와, 그룹 밖 프로세스에 대한 열린 핸들 검사(정지 확인 실패)였다",
                    "lsof는 이 호스트에 없다. /proc/<pid>/fd와 fdinfo 검사로 대신했다(동등 수단)",
                    "쓰는 프로세스는 벤더 CLI가 아니라 스크립트 프로세스(standin)다")

@@ -1,5 +1,5 @@
-# runner_verify log (T-OP-09)  generated_at=2026-10-15T12:06:45Z
-# target: {'parent_commit': 'c74a545a45d1aba9eee71b76d81b3017ac16bbbb', 'branch': 'grokbot/onjeon-T-OP-09'}
+# runner_verify log (T-OP-09)  generated_at=2026-10-16T00:00:48Z
+# target: {'parent_commit': '2f2d7a790747caf11ce5e3848789028624593d11', 'branch': 'grokbot/onjeon-T-OP-09'}
 # 이 실행은 사람이 준비한 VM의 CLI·원격·자격 설정이 아니라, 이 호스트에서 로컬 구성요소(bare 원격, hook, 스크립트 빌더, 시험 프록시)로 한 것이다. 실제 호스트의 보호 브랜치·단기 자격과 벤더 CLI(claude CLI 하나를 빼고)는 확인하지 못했다.
 # 이 과제의 완료는 가동 승인이 아니다. 가동 여부는 05 §7의 점검표와 사용자 결정으로만 정해진다.
 
@@ -22,8 +22,8 @@
       기대: ["building", 2, 2, [true]]
       실제: ["building", 2, 2, [true]]
   [PASS] 원격에는 B의 브랜치(task/…-a2)가 B의 커밋으로 생겼고 A의 브랜치·main은 그대로
-      기대: ["1539c94ae9ca100d68409ca84355beb9013a2eb1", "a1a639126ebc3e55bb8444a957f961969be6620f", null]
-      실제: ["1539c94ae9ca100d68409ca84355beb9013a2eb1", "a1a639126ebc3e55bb8444a957f961969be6620f", null]
+      기대: ["02fcf952887219053e1d9c5c08863e65dff31523", "37433c6d19f866b82e7128f18026c34863b90b6c", null]
+      실제: ["02fcf952887219053e1d9c5c08863e65dff31523", "37433c6d19f866b82e7128f18026c34863b90b6c", null]
   [PASS] A의 실제 푸시 셋: 회수된 자격으로 자기 브랜치(거부), 같은 브랜치 강제 푸시(거부), 보호 브랜치 main(거부)
       기대: [["refs/heads/task/T-MOCK-BASIC-a1", false, "credential_revoked"], ["refs/heads/task/T-MOCK-BASIC-a1", true, "credential_revoked"], ["refs/heads/main", false, "protected_branch"]]
       실제: [["refs/heads/task/T-MOCK-BASIC-a1", false, "credential_revoked"], ["refs/heads/task/T-MOCK-BASIC-a1", true, "credential_revoked"], ["refs/heads/main", false, "protected_branch"]]
@@ -31,28 +31,32 @@
       기대: true
       실제: true
   [PASS] 원격 ref는 A의 늦은 푸시 전후로 같다(브랜치 SHA 불변)
-      기대: {"refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f", "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"}
-      실제: {"refs/heads/main": "a1a639126ebc3e55bb8444a957f961969be6620f", "refs/heads/task/T-MOCK-BASIC-a2": "1539c94ae9ca100d68409ca84355beb9013a2eb1"}
+      기대: {"refs/heads/main": "37433c6d19f866b82e7128f18026c34863b90b6c", "refs/heads/task/T-MOCK-BASIC-a2": "02fcf952887219053e1d9c5c08863e65dff31523"}
+      실제: {"refs/heads/main": "37433c6d19f866b82e7128f18026c34863b90b6c", "refs/heads/task/T-MOCK-BASIC-a2": "02fcf952887219053e1d9c5c08863e65dff31523"}
   [PASS] 원격 푸시 로그: 늦은 푸시 셋은 모두 rejected이고 수락 0건
       기대: [["rejected", "credential_revoked"], ["rejected", "credential_revoked"], ["rejected", "protected_branch"]]
       실제: [["rejected", "credential_revoked"], ["rejected", "credential_revoked"], ["rejected", "protected_branch"]]
   [PASS] 거부된 자격은 A의 builder_write_credential이고 A의 임대 id를 달고 있다
-      기대: [["builder_write_credential"], ["01RV006CE68F51824A66816F6D"]]
-      실제: [["builder_write_credential"], ["01RV006CE68F51824A66816F6D"]]
+      기대: [["builder_write_credential"], ["01RV0F3D2616AA80464FAE1E1B"]]
+      실제: [["builder_write_credential"], ["01RV0F3D2616AA80464FAE1E1B"]]
   [PASS] A의 늦은 결과 봉투·푸시 요청·하트비트: late_envelope_rejected(R-11) 세 건
       기대: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"]]
       실제: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"]]
   [PASS] 현재 임대 B의 상태·임대·inbox_seen·세대는 불변, 전이 0건
-      기대: [{"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a1a639126ebc3e55bb8444a957f961969be6620f", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792070028, "fencing_token": 2, "issued_at": 1792066427, "last_heartbeat_at": 1792066428, "lease_generation": 2, "lease_id": "01RVC944ED84C0B5448CB3FBBC", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065826, "envelope_id": "01RV8201E21374DE4954B1D002", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV006CE68F51824A66816F6D", "sent_at": 1792065826, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792066427, "envelope_id": "01RV36FBCD1C4BA14A1A9C8352", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVC944ED84C0B5448CB3FBBC", "sent_at": 1792066427, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|DA5AF30BA18940A78005F66FB8": {"first_seen_at": 1792065826, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|C27A1865B29D41839672EB05DF": {"first_seen_at": 1792066428, "lease_generation": 2}}, "lease_generation": 2}, []]
-      실제: [{"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a1a639126ebc3e55bb8444a957f961969be6620f", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792070028, "fencing_token": 2, "issued_at": 1792066427, "last_heartbeat_at": 1792066428, "lease_generation": 2, "lease_id": "01RVC944ED84C0B5448CB3FBBC", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065826, "envelope_id": "01RV8201E21374DE4954B1D002", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV006CE68F51824A66816F6D", "sent_at": 1792065826, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792066427, "envelope_id": "01RV36FBCD1C4BA14A1A9C8352", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVC944ED84C0B5448CB3FBBC", "sent_at": 1792066427, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|DA5AF30BA18940A78005F66FB8": {"first_seen_at": 1792065826, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|C27A1865B29D41839672EB05DF": {"first_seen_at": 1792066428, "lease_generation": 2}}, "lease_generation": 2}, []]
+      기대: [{"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "37433c6d19f866b82e7128f18026c34863b90b6c", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792112869, "fencing_token": 2, "issued_at": 1792109269, "last_heartbeat_at": 1792109269, "lease_generation": 2, "lease_id": "01RV53E92E7311764B17B11B67", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108667, "envelope_id": "01RVE45D2E714BBE448C84FC7A", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV0F3D2616AA80464FAE1E1B", "sent_at": 1792108667, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792109269, "envelope_id": "01RV218D27F904A645239F25CA", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV53E92E7311764B17B11B67", "sent_at": 1792109269, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|28C6EB04427A4E8190C3A7E6DD": {"first_seen_at": 1792108667, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|D81AB03A51B04001A3723797BB": {"first_seen_at": 1792109269, "lease_generation": 2}}, "lease_generation": 2}, []]
+      실제: [{"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "37433c6d19f866b82e7128f18026c34863b90b6c", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792112869, "fencing_token": 2, "issued_at": 1792109269, "last_heartbeat_at": 1792109269, "lease_generation": 2, "lease_id": "01RV53E92E7311764B17B11B67", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108667, "envelope_id": "01RVE45D2E714BBE448C84FC7A", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV0F3D2616AA80464FAE1E1B", "sent_at": 1792108667, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792109269, "envelope_id": "01RV218D27F904A645239F25CA", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV53E92E7311764B17B11B67", "sent_at": 1792109269, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|28C6EB04427A4E8190C3A7E6DD": {"first_seen_at": 1792108667, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|D81AB03A51B04001A3723797BB": {"first_seen_at": 1792109269, "lease_generation": 2}}, "lease_generation": 2}, []]
   [PASS] 데몬이 낸 원격 쓰기는 B의 것 하나뿐(A의 푸시 요청은 원격 쓰기에 닿지 않았다)
       기대: [[true, 2]]
       실제: [[true, 2]]
+  [GAP] R1 기대 문장 '원격 거부 + 데몬 R-11 기록'은 두 개의 별개 관찰이다
+      기대: "직접 푸시 거부가 R-11로 이어짐"
+      실제: "거부(원격)와 R-11(데몬 경유 봉투)이 별개"
+      note: "원격이 직접 푸시를 거부하는 것(hook 로그)과 데몬이 R-11을 남기는 것(A의 데몬 경유 봉투)은 서로 다른 경로다. 직접 푸시의 거부가 R-11 기록을 만들지는 않는다. R1의 통과 기준(원격 거부, 원격 브랜치 SHA 불변, 데몬 경유 늦은 봉투의 R-11)은 각각 따로 확인했다"
   [증명하지 않은 것] 원격 거부(직접 푸시)가 데몬의 R-11 기록으로 이어지는 경로는 명세에 없다: 데몬이 R-11을 남기는 것은 데몬 경유 푸시 요청·결과 봉투·하트비트뿐이다
   [증명하지 않은 것] 실제 Git 호스트의 보호 브랜치와 단기 자격 발급·회수는 사람이 적용하는 설정이다(04 §8). 여기서는 로컬 bare 저장소의 hook이 그 역할을 했다
   [증명하지 않은 것] A는 벤더 CLI가 아니라 스크립트 프로세스(standin)다
 
-== R2 late-result-rejected: 늦은 결과: 만료된 임대의 결과 봉투와 인계 순서  [PASS]  (9.7 s)
+== R2 late-result-rejected: 늦은 결과: 만료된 임대의 결과 봉투와 인계 순서  [PASS]  (9.6 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님
   [PASS] 인계 결과: building→handoff→leased, 세대 2, 빌더 교체
@@ -74,8 +78,8 @@
       기대: ["lease_matches", "lease_matches", "lease_matches"]
       실제: ["lease_matches", "lease_matches", "lease_matches"]
   [PASS] 현재 임대 B의 상태 전이 0건, 상태·임대·inbox_seen 불변
-      기대: [[], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792065828, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "3e2f02aa4a7a444dd0937dac5f6015b488b76d5f", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792069555, "fencing_token": 2, "issued_at": 1792065955, "last_heartbeat_at": 1792065955, "lease_generation": 2, "lease_id": "01RV912C088F42B246FEB2AAA2", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792065827, "envelope_id": "01RVBB6C26148B9442B38C9248", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV171CB8CF73BF4202BC9D18", "sent_at": 1792065828, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792065955, "envelope_id": "01RV90F538CF3C25442D8CBD5F", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV912C088F42B246FEB2AAA2", "sent_at": 1792065955, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|4A6EA6347FC44AED93849976BC": {"first_seen_at": 1792065828, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|4C2A5158E36F40C9A8768A54B3": {"first_seen_at": 1792065828, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|3ED3425606FA4363B146B604CD": {"first_seen_at": 1792065955, "lease_generation": 2}}, "lease_generation": 2}]
-      실제: [[], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792065828, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "3e2f02aa4a7a444dd0937dac5f6015b488b76d5f", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792069555, "fencing_token": 2, "issued_at": 1792065955, "last_heartbeat_at": 1792065955, "lease_generation": 2, "lease_id": "01RV912C088F42B246FEB2AAA2", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792065827, "envelope_id": "01RVBB6C26148B9442B38C9248", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV171CB8CF73BF4202BC9D18", "sent_at": 1792065828, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792065955, "envelope_id": "01RV90F538CF3C25442D8CBD5F", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV912C088F42B246FEB2AAA2", "sent_at": 1792065955, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|4A6EA6347FC44AED93849976BC": {"first_seen_at": 1792065828, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|4C2A5158E36F40C9A8768A54B3": {"first_seen_at": 1792065828, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|3ED3425606FA4363B146B604CD": {"first_seen_at": 1792065955, "lease_generation": 2}}, "lease_generation": 2}]
+      기대: [[], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792108669, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "cc7b25f7de48ec236d55814dc808680bba38acdb", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792112397, "fencing_token": 2, "issued_at": 1792108796, "last_heartbeat_at": 1792108797, "lease_generation": 2, "lease_id": "01RVECF8C015BD904BF286E461", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792108669, "envelope_id": "01RVB9F65A5CEF384BAF8DC2E8", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV9AE1D73B7F45477FB01A8D", "sent_at": 1792108669, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792108796, "envelope_id": "01RV06729F74B74A48F59C94E4", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVECF8C015BD904BF286E461", "sent_at": 1792108796, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|7BDBCBD71B714846A912778000": {"first_seen_at": 1792108669, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|F8B9CC0F54BE4218933B9054A3": {"first_seen_at": 1792108669, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|77B43588C0D54EABB353231D51": {"first_seen_at": 1792108797, "lease_generation": 2}}, "lease_generation": 2}]
+      실제: [[], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792108669, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "cc7b25f7de48ec236d55814dc808680bba38acdb", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792112397, "fencing_token": 2, "issued_at": 1792108796, "last_heartbeat_at": 1792108797, "lease_generation": 2, "lease_id": "01RVECF8C015BD904BF286E461", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792108669, "envelope_id": "01RVB9F65A5CEF384BAF8DC2E8", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV9AE1D73B7F45477FB01A8D", "sent_at": 1792108669, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792108796, "envelope_id": "01RV06729F74B74A48F59C94E4", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVECF8C015BD904BF286E461", "sent_at": 1792108796, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|7BDBCBD71B714846A912778000": {"first_seen_at": 1792108669, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|F8B9CC0F54BE4218933B9054A3": {"first_seen_at": 1792108669, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|77B43588C0D54EABB353231D51": {"first_seen_at": 1792108797, "lease_generation": 2}}, "lease_generation": 2}]
   [PASS] A의 결과 봉투는 사용량 기록에 들어가지 않았다(거부된 봉투는 기록하지 않음)
       기대: 0
       실제: 0
@@ -85,16 +89,16 @@
   [증명하지 않은 것] 순서 증거는 데몬이 남긴 로그, 프로세스 레지스터, 원격 hook 로그의 시각을 맞춰 본 것이다. 서로 다른 호스트의 시계는 맞추지 않았다(한 호스트)
   [증명하지 않은 것] A는 벤더 CLI가 아니라 스크립트 프로세스(standin)다
 
-== R3 late-write-fenced: 교체 전후 동시 쓰기  [PASS]  (10.5 s)
+== R3 late-write-fenced: 교체 전후 동시 쓰기  [PASS]  (10.0 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님
   [PASS] 쓰기 자격 구간이 임대마다 하나씩(A, B)
-      기대: ["01RV53A35AF167834B5B938C4A", "01RV9BE0BCE5786E45FAAF897D"]
-      실제: ["01RV53A35AF167834B5B938C4A", "01RV9BE0BCE5786E45FAAF897D"]
+      기대: ["01RV8C55D9EC998A4C8A9CCBC4", "01RV060B30F118F24E389962EC"]
+      실제: ["01RV8C55D9EC998A4C8A9CCBC4", "01RV060B30F118F24E389962EC"]
   [PASS] A의 쓰기 자격은 B의 자격이 발급되기 전에 회수되었다(두 자격이 동시에 있던 구간 없음)
       기대: true
       실제: true
-      detail: {"A": [1792065837713550021, 1792065845884024916], "B": [1792065846676317986, null]}
+      detail: {"A": [1792108679439890274, 1792108686986327669], "B": [1792108687776119844, null]}
   [PASS] A 프로세스 그룹 종료 로그 한 건, 남은 구성원 0, 프로세스 종료 신호 -9
       기대: [1, 0, -9]
       실제: [1, 0, -9]
@@ -108,17 +112,17 @@
       기대: true
       실제: true
   [PASS] 격리 뒤 A 트리의 최대 mtime은 더 변하지 않는다
-      기대: 1792065845877293420
-      실제: 1792065845877293420
+      기대: 1792108686974542285
+      실제: 1792108686974542285
   [PASS] 보존 커밋의 tree OID == 정지 확인의 quiescent_tree_oid
-      기대: "091e01ab408f18c6f80ceaa7a958937eee840bb6"
-      실제: "091e01ab408f18c6f80ceaa7a958937eee840bb6"
+      기대: "bf623dc4c4499ab0f9544db176158ed040d154a7"
+      실제: "bf623dc4c4499ab0f9544db176158ed040d154a7"
   [PASS] 원격이 수락한 푸시: A 임대에 대한 데몬 보존 자격 하나, 그다음 B의 빌더 자격 하나(A의 빌더 자격 푸시 0건)
-      기대: [["preserve_credential", "01RV53A35AF167834B5B938C4A"], ["builder_write_credential", "01RV9BE0BCE5786E45FAAF897D"]]
-      실제: [["preserve_credential", "01RV53A35AF167834B5B938C4A"], ["builder_write_credential", "01RV9BE0BCE5786E45FAAF897D"]]
+      기대: [["preserve_credential", "01RV8C55D9EC998A4C8A9CCBC4"], ["builder_write_credential", "01RV060B30F118F24E389962EC"]]
+      실제: [["preserve_credential", "01RV8C55D9EC998A4C8A9CCBC4"], ["builder_write_credential", "01RV060B30F118F24E389962EC"]]
   [PASS] 원격 브랜치 끝 == B의 커밋(A의 WIP 위에 B가 쌓음)
-      기대: ["dbd5b57d202a0ca769dd40ae6404fa4e76d3d3ea", "bbab67fcfeac0c63e944f1bd6b96de66776dac00"]
-      실제: ["dbd5b57d202a0ca769dd40ae6404fa4e76d3d3ea", "bbab67fcfeac0c63e944f1bd6b96de66776dac00"]
+      기대: ["9964051448ae1431a2b6530175318cd717ea4b3b", "4be2386302536c7b0c2c5e688f90da93b7a231c9"]
+      실제: ["9964051448ae1431a2b6530175318cd717ea4b3b", "4be2386302536c7b0c2c5e688f90da93b7a231c9"]
   [PASS] 같은 파일을 A는 tick 줄로, B는 'B edit'로 고쳤고 원격에는 B의 내용이 있다
       기대: ["B edit", true]
       실제: ["B edit", true]
@@ -129,7 +133,7 @@
   [증명하지 않은 것] 읽기 전용 격리는 파일 권한이다. 같은 사용자의 살아 있는 프로세스가 권한을 되돌릴 수 있고, 그 경우를 막는 것은 프로세스 그룹 종료와 열린 쓰기 핸들 검사다(R11)
   [증명하지 않은 것] A·B는 벤더 CLI가 아니라 스크립트 프로세스(standin)다
 
-== R4 resume-after-interrupt: 중단·재개  [PASS]  (3.1 s)
+== R4 resume-after-interrupt: 중단·재개  [PASS]  (2.7 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; 강제 종료는 SIGKILL(전원 차단 아님)
   [PASS] [발송 직후 강제 종료] 데몬 프로세스가 SIGKILL로 끝났다(종료 코드 -9)
@@ -142,10 +146,10 @@
   [PASS] [발송 직후 강제 종료] 재시작이 정상 종료한다
       기대: true
       실제: true
-      detail: {"ok": true, "result": {"applied": false, "restart": true}, "instance_id": "01RV5897576B5AB345AFB0D0BE"}
+      detail: {"ok": true, "result": {"applied": false, "restart": true}, "instance_id": "01RVD6D42326664C47CE8264C5"}
   [PASS] [발송 직후 강제 종료] 재시작: 같은 envelope_id로 다시 보내고 sent, 지시 파일은 하나(덮어씀)
-      기대: [["01RV722CBA81367B435B855A3D", "01RV722CBA81367B435B855A3D"], "sent", 1]
-      실제: [["01RV722CBA81367B435B855A3D", "01RV722CBA81367B435B855A3D"], "sent", 1]
+      기대: [["01RVC816736E87D446D7AD76CA", "01RVC816736E87D446D7AD76CA"], "sent", 1]
+      실제: [["01RVC816736E87D446D7AD76CA", "01RVC816736E87D446D7AD76CA"], "sent", 1]
   [PASS] [발송 직후 강제 종료] 빌더는 한 번만 시작되어 building
       기대: [1, "building"]
       실제: [1, "building"]
@@ -159,10 +163,10 @@
   [PASS] [WIP 커밋 직후 강제 종료] 재시작이 정상 종료한다
       기대: true
       실제: true
-      detail: {"ok": true, "result": {"applied": false, "restart": true}, "instance_id": "01RV6B8469DD7F164C3192362F"}
+      detail: {"ok": true, "result": {"applied": false, "restart": true}, "instance_id": "01RVBF01EF5D74214CB3ABC5C0"}
   [PASS] [WIP 커밋 직후 강제 종료] 외부 상태(tree OID)로 복원: 커밋 1개, 원격 ref == WIP, 다음 임대(세대 2)
-      기대: ["1", "d4039e8453a9d9460b130faf51ee0cb52d166033", "leased", 2]
-      실제: ["1", "d4039e8453a9d9460b130faf51ee0cb52d166033", "leased", 2]
+      기대: ["1", "ec6700760698b6998f24e75f9646936680218e6a", "leased", 2]
+      실제: ["1", "ec6700760698b6998f24e75f9646936680218e6a", "leased", 2]
   [PASS] [WIP 커밋 직후 강제 종료] WIP 커밋에 A의 작업 파일이 들어 있다
       기대: ["print('work')", "n"]
       실제: ["print('work')", "n"]
@@ -170,8 +174,8 @@
       기대: "920cbc88c3a5da20347ebcc83a64df9422893cd4"
       실제: "920cbc88c3a5da20347ebcc83a64df9422893cd4"
   [PASS] [WIP 커밋 직후 강제 종료] 원격이 수락한 푸시는 데몬 보존 자격 하나
-      기대: [["preserve_credential", "01RV50A27EF95F0C4A57AA5F2A"]]
-      실제: [["preserve_credential", "01RV50A27EF95F0C4A57AA5F2A"]]
+      기대: [["preserve_credential", "01RV6669E946A7824887B9E3DA"]]
+      실제: [["preserve_credential", "01RV6669E946A7824887B9E3DA"]]
   [PASS] [WIP 커밋 직후 강제 종료] 처리 도중 끝난 신호 파일의 재전달은 이전 세대로서 거부(R-11)이고 상태 불변
       기대: [["late_envelope_rejected", "R-11"], 2, "leased"]
       실제: [["late_envelope_rejected", "R-11"], 2, "leased"]
@@ -184,7 +188,7 @@
   [PASS] 인스턴스 1이 임대 잠금을 쥐고 있다(holder가 기록됨, 아직 임대 없음)
       기대: true
       실제: true
-      detail: {"holder": "01RV8B8A876122AE479786E8B7"}
+      detail: {"holder": "01RV75FD7BF1DFB44C4E8782FC"}
   [PASS] 인스턴스 2: 잠금을 못 얻어 lock_acquired가 거짓, 임대 없음
       기대: [["lock_acquired"], 0]
       실제: [["lock_acquired"], 0]
@@ -206,7 +210,7 @@
   [PASS] 잠금을 쥔 인스턴스를 강제 종료하면 잠금 행이 남는다(커널 flock은 풀렸지만 임대 잠금 행은 holder가 죽은 인스턴스)
       기대: true
       실제: true
-      detail: {"holder": "01RVFA943CFCED82471280B39B"}
+      detail: {"holder": "01RV01BD82C8860E47EAAB01FC"}
   [PASS] 새 인스턴스: 다른 holder의 잠금 때문에 임대 못 냄(lock_acquired 거짓), 세대 0
       기대: [["lock_acquired"], 0]
       실제: [["lock_acquired"], 0]
@@ -218,7 +222,7 @@
       실제: [1, 1]
   [증명하지 않은 것] 같은 task_id의 열린 PR 재사용(M12의 PR 부분)은 이 시험의 범위가 아니다(R5 통과 기준은 임대·봉투 하나)
 
-== R6 provider-scoped-switch: 전환 신호 실제 채널  [PARTIAL]  (17.9 s)
+== R6 provider-scoped-switch: 전환 신호 실제 채널  [PARTIAL]  (18.2 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core); claude CLI(시험 프록시, 더미 키)
    한계: 다른 CLI는 이 호스트에서 시험하지 못함(미확인)
   [PASS] [claude CLI, 프록시 429] 실제 CLI가 빌더 프로세스로 building이 되었다
@@ -364,7 +368,7 @@
   [증명하지 않은 것] 종료 코드는 시험 프록시가 만든 상황에서 얻은 값이다. 공식 문서의 종료 코드 표와 대조하지 않았다
   [증명하지 않은 것] §1b 확인표의 '모델 제공자 HTTP 응답을 데몬이 볼 수 있는 채널'은 claude CLI의 stream-json 출력(이 버전)만 확인되었다
 
-== R8 -: 반송 재개·결정 관문  [PASS]  (2.5 s)
+== R8 -: 반송 재개·결정 관문  [PASS]  (3.0 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; 관측(CI·리뷰·결정 기록)은 도구가 넣은 입력
   [PASS] merge=[D-MOCK-X] 미기록, start=[] → 시작은 막히지 않는다
@@ -393,7 +397,7 @@
       실제: [2, "task/T-MOCK-BASIC-a2"]
   [증명하지 않은 것] CI·리뷰·결정 기록 입력은 시험 도구가 관측 계층에 직접 넣은 것이다(실제 CI·리뷰 서비스 없음). 이 시험이 보는 것은 같은 규칙이 실제 상태 저장소·프로세스에서도 같은 전이를 낸다는 것이다
 
-== R9 hard-stop-heartbeating-job: 강제 종료 기한  [PARTIAL]  (13.3 s)
+== R9 hard-stop-heartbeating-job: 강제 종료 기한  [PARTIAL]  (13.4 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core); claude CLI(시험 프록시, 변형)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; TTL·grace 경과는 시계 offset으로 만든다(대기 아님)
   [PASS] 중단 지시 직후: 상태는 building(전이는 stop 요청), SIGTERM을 무시한 프로세스는 살아 있다
@@ -402,7 +406,7 @@
   [PASS] 기한(grace_s) 전에는 하트비트가 계속 수락되고 building이 유지된다
       기대: true
       실제: true
-      detail: {"수락된 하트비트": 24, "남은 초": 11}
+      detail: {"수락된 하트비트": 24, "남은 초": 12}
   [PASS] grace_s 경과: hard_stop_deadline → returned(R-07), 임대 종료(expired)
       기대: [[["building", "returned", "hard_stop_deadline"]], ["R-07"], "expired"]
       실제: [[["building", "returned", "hard_stop_deadline"]], ["R-07"], "expired"]
@@ -428,8 +432,8 @@
       기대: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"]]
       실제: [["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"], ["late_envelope_rejected", "R-11"]]
   [PASS] 상태 returned·임대 불변
-      기대: [{"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": "R-07", "state": "returned", "stop_requested_at": 1792065895, "task_id": "T-MOCK-OTHER"}, "lease_record": {"base_sha": "67d3069bec288342bb747182dd05508ab58a05eb", "branch": "task/T-MOCK-OTHER-a1", "builder": "standin-builder-1", "expires_at": 1792069616, "fencing_token": 1, "issued_at": 1792065895, "last_heartbeat_at": 1792066016, "lease_generation": 1, "lease_id": "01RV3275069DA2B64FDD8F4E2A", "runner": "standin-runner-1", "status": "expired", "task_id": "T-MOCK-OTHER"}, "outbox": [{"created_at": 1792065895, "envelope_id": "01RV8F6E841883114DE4A251D2", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV3275069DA2B64FDD8F4E2A", "sent_at": 1792065895, "status": "sent", "task_id": "T-MOCK-OTHER", "void_reason": null}], "inbox_seen": {"T-MOCK-OTHER|1|signal|051C1DFE3DA94C48B6836C60A1": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|0522D645251A4477965C540B2C": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|0BECCC4F02AC4250BEC101482E": {"first_seen_at": 1792065978, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|159D87FEA4B9443FA74F784FB3": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|1EAFC77375A443549EF06B51EE": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|312D14F3E56D4427AC5C7E95EC": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|399499CE1AB54A36B01713FE8E": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|3A8B4C853AE24379971488DB80": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|438324483AD3490B81465EEBE4": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|43EC62C2188D4656A312CE1701": {"first_seen_at": 1792065895, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|47F5838C89AA4D2783DF6CF98B": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|573F3F43539945F885D42F65E7": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|5F2AB119FD874B19B55ADC1778": {"first_seen_at": 1792066004, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|6571F5BAF80C43318F1031BA77": {"first_seen_at": 1792065978, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|76C90603C187450781F23ECA16": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|78EC4A87450245968B4BC9A1F3": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|79468E53D9ED4E93B0E7131FED": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|7DACE58B3DEC42CAB0AE22EECB": {"first_seen_at": 1792065937, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|7F4CC120F83A412B9532B27983": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|9C6ABCBE0C074AE98C5726BAEE": {"first_seen_at": 1792066004, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|ADBB0BCC402D4CF8B28C04574F": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|AF7B31AD9E0D414A87770526A9": {"first_seen_at": 1792065895, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|B22E960913764E72A87C5EE8ED": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|BAE98AECF15C4A46AB24831038": {"first_seen_at": 1792065937, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|C8077CD59F454760B701D84906": {"first_seen_at": 1792065937, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|DB0FDE9A177943DE9A80E9D0FE": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|EFDF288CB5A74CBFA1FB36A9C7": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|F0453BED6DB34D67A5E765014B": {"first_seen_at": 1792065978, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|F5D0FEC5714B4F99953FAA539A": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|FEEE4AB7D1CA49C8A21A41A027": {"first_seen_at": 1792066004, "lease_generation": 1}}, "lease_generation": 1}, []]
-      실제: [{"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": "R-07", "state": "returned", "stop_requested_at": 1792065895, "task_id": "T-MOCK-OTHER"}, "lease_record": {"base_sha": "67d3069bec288342bb747182dd05508ab58a05eb", "branch": "task/T-MOCK-OTHER-a1", "builder": "standin-builder-1", "expires_at": 1792069616, "fencing_token": 1, "issued_at": 1792065895, "last_heartbeat_at": 1792066016, "lease_generation": 1, "lease_id": "01RV3275069DA2B64FDD8F4E2A", "runner": "standin-runner-1", "status": "expired", "task_id": "T-MOCK-OTHER"}, "outbox": [{"created_at": 1792065895, "envelope_id": "01RV8F6E841883114DE4A251D2", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV3275069DA2B64FDD8F4E2A", "sent_at": 1792065895, "status": "sent", "task_id": "T-MOCK-OTHER", "void_reason": null}], "inbox_seen": {"T-MOCK-OTHER|1|signal|051C1DFE3DA94C48B6836C60A1": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|0522D645251A4477965C540B2C": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|0BECCC4F02AC4250BEC101482E": {"first_seen_at": 1792065978, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|159D87FEA4B9443FA74F784FB3": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|1EAFC77375A443549EF06B51EE": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|312D14F3E56D4427AC5C7E95EC": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|399499CE1AB54A36B01713FE8E": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|3A8B4C853AE24379971488DB80": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|438324483AD3490B81465EEBE4": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|43EC62C2188D4656A312CE1701": {"first_seen_at": 1792065895, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|47F5838C89AA4D2783DF6CF98B": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|573F3F43539945F885D42F65E7": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|5F2AB119FD874B19B55ADC1778": {"first_seen_at": 1792066004, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|6571F5BAF80C43318F1031BA77": {"first_seen_at": 1792065978, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|76C90603C187450781F23ECA16": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|78EC4A87450245968B4BC9A1F3": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|79468E53D9ED4E93B0E7131FED": {"first_seen_at": 1792065998, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|7DACE58B3DEC42CAB0AE22EECB": {"first_seen_at": 1792065937, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|7F4CC120F83A412B9532B27983": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|9C6ABCBE0C074AE98C5726BAEE": {"first_seen_at": 1792066004, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|ADBB0BCC402D4CF8B28C04574F": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|AF7B31AD9E0D414A87770526A9": {"first_seen_at": 1792065895, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|B22E960913764E72A87C5EE8ED": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|BAE98AECF15C4A46AB24831038": {"first_seen_at": 1792065937, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|C8077CD59F454760B701D84906": {"first_seen_at": 1792065937, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|DB0FDE9A177943DE9A80E9D0FE": {"first_seen_at": 1792066016, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|EFDF288CB5A74CBFA1FB36A9C7": {"first_seen_at": 1792065957, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|F0453BED6DB34D67A5E765014B": {"first_seen_at": 1792065978, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|F5D0FEC5714B4F99953FAA539A": {"first_seen_at": 1792065916, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|FEEE4AB7D1CA49C8A21A41A027": {"first_seen_at": 1792066004, "lease_generation": 1}}, "lease_generation": 1}, []]
+      기대: [{"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": "R-07", "state": "returned", "stop_requested_at": 1792108737, "task_id": "T-MOCK-OTHER"}, "lease_record": {"base_sha": "fc93c7291df2c4bb91f165b202b4b41633bc7728", "branch": "task/T-MOCK-OTHER-a1", "builder": "standin-builder-1", "expires_at": 1792112459, "fencing_token": 1, "issued_at": 1792108736, "last_heartbeat_at": 1792108859, "lease_generation": 1, "lease_id": "01RVB88517EE88984289945127", "runner": "standin-runner-1", "status": "expired", "task_id": "T-MOCK-OTHER"}, "outbox": [{"created_at": 1792108736, "envelope_id": "01RV8C457DE2D3D04C0B85C041", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVB88517EE88984289945127", "sent_at": 1792108736, "status": "sent", "task_id": "T-MOCK-OTHER", "void_reason": null}], "inbox_seen": {"T-MOCK-OTHER|1|signal|0C6A05F9514E438F9399709534": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|11DDED4ED0F846208351C1AFC4": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|326692299D104AE4984415E588": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|384B7C6DAB6F484F97944A78F1": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|48D4C49F41624F2B9162D9216B": {"first_seen_at": 1792108845, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|50D2CBD139C54B72B7F197E140": {"first_seen_at": 1792108819, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|510D34EE75004F0EB0630BF083": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|51D3ABB6C2B646FD9B8E284952": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|57E793A8BDB04305953CCF854F": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|679EC88E217249EFBDBEEB4856": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|68F522106A294EC8B4EC6A6BD7": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|69FB21A6C728497F904315E2B1": {"first_seen_at": 1792108819, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|6C6ABF5DE3694BAF8280FD15F6": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|796A5DFCF3E442DD9C0D2E5603": {"first_seen_at": 1792108845, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|7DE0F42DF8AB4657A4AFDAB97A": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|8EADF3072F654520824DB1DAFB": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|9D0A5013A43E4543AE4BE2C965": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|A7F43D6E8A9B4065B8A4228E0D": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|B5D972A0ADF04D4BA2F92A5C45": {"first_seen_at": 1792108845, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|B8222634F1A8494787A52C43D7": {"first_seen_at": 1792108736, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|CBD152C3784C492B8ADEB240AF": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|D31C74D85BA145D9BCDE9E5D0E": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|DD50EBDDF87A41A6984B3C0F95": {"first_seen_at": 1792108819, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|DF5DD37BAB23403CA3FFBC28FC": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E0424172C6754D60B8C16949D0": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E0F30411D71D46439233170DEB": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E454F70C77C244B2A5390179AC": {"first_seen_at": 1792108736, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E5C4D0BD659E4567BDBA988477": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|EE65F799A5564616A44917ACEA": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|F2D5DBEFACDA461C9A0F0A25D4": {"first_seen_at": 1792108758, "lease_generation": 1}}, "lease_generation": 1}, []]
+      실제: [{"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": "R-07", "state": "returned", "stop_requested_at": 1792108737, "task_id": "T-MOCK-OTHER"}, "lease_record": {"base_sha": "fc93c7291df2c4bb91f165b202b4b41633bc7728", "branch": "task/T-MOCK-OTHER-a1", "builder": "standin-builder-1", "expires_at": 1792112459, "fencing_token": 1, "issued_at": 1792108736, "last_heartbeat_at": 1792108859, "lease_generation": 1, "lease_id": "01RVB88517EE88984289945127", "runner": "standin-runner-1", "status": "expired", "task_id": "T-MOCK-OTHER"}, "outbox": [{"created_at": 1792108736, "envelope_id": "01RV8C457DE2D3D04C0B85C041", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVB88517EE88984289945127", "sent_at": 1792108736, "status": "sent", "task_id": "T-MOCK-OTHER", "void_reason": null}], "inbox_seen": {"T-MOCK-OTHER|1|signal|0C6A05F9514E438F9399709534": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|11DDED4ED0F846208351C1AFC4": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|326692299D104AE4984415E588": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|384B7C6DAB6F484F97944A78F1": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|48D4C49F41624F2B9162D9216B": {"first_seen_at": 1792108845, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|50D2CBD139C54B72B7F197E140": {"first_seen_at": 1792108819, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|510D34EE75004F0EB0630BF083": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|51D3ABB6C2B646FD9B8E284952": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|57E793A8BDB04305953CCF854F": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|679EC88E217249EFBDBEEB4856": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|68F522106A294EC8B4EC6A6BD7": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|69FB21A6C728497F904315E2B1": {"first_seen_at": 1792108819, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|6C6ABF5DE3694BAF8280FD15F6": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|796A5DFCF3E442DD9C0D2E5603": {"first_seen_at": 1792108845, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|7DE0F42DF8AB4657A4AFDAB97A": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|8EADF3072F654520824DB1DAFB": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|9D0A5013A43E4543AE4BE2C965": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|A7F43D6E8A9B4065B8A4228E0D": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|B5D972A0ADF04D4BA2F92A5C45": {"first_seen_at": 1792108845, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|B8222634F1A8494787A52C43D7": {"first_seen_at": 1792108736, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|CBD152C3784C492B8ADEB240AF": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|D31C74D85BA145D9BCDE9E5D0E": {"first_seen_at": 1792108859, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|DD50EBDDF87A41A6984B3C0F95": {"first_seen_at": 1792108819, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|DF5DD37BAB23403CA3FFBC28FC": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E0424172C6754D60B8C16949D0": {"first_seen_at": 1792108799, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E0F30411D71D46439233170DEB": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E454F70C77C244B2A5390179AC": {"first_seen_at": 1792108736, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|E5C4D0BD659E4567BDBA988477": {"first_seen_at": 1792108758, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|EE65F799A5564616A44917ACEA": {"first_seen_at": 1792108840, "lease_generation": 1}, "T-MOCK-OTHER|1|signal|F2D5DBEFACDA461C9A0F0A25D4": {"first_seen_at": 1792108758, "lease_generation": 1}}, "lease_generation": 1}, []]
   [PASS] 그 뒤의 푸시 셋은 원격이 거부한다
       기대: [["rejected", "credential_revoked"], ["rejected", "credential_revoked"], ["rejected", "protected_branch"]]
       실제: [["rejected", "credential_revoked"], ["rejected", "credential_revoked"], ["rejected", "protected_branch"]]
@@ -459,7 +463,7 @@
   [증명하지 않은 것] SIGTERM을 무시하고 하트비트를 보내는 동작은 스크립트 프로세스(standin)로 시험했다. 벤더 CLI의 같은 동작은 R9 실제 CLI 변형(있으면 별도 기록)에서 본다
   [증명하지 않은 것] 중단 지시를 빌더에게 전달하는 SIGTERM은 어댑터(sender.request_stop)가 보냈다. 코어의 request_stop 효과는 시각만 기록하고 전달 호출을 하지 않는다
 
-== R10 usage-recorded-not-capped: 사용량 기록(상한 없음, U-05)  [PASS]  (8.3 s)
+== R10 usage-recorded-not-capped: 사용량 기록(상한 없음, U-05)  [PASS]  (8.5 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core); claude CLI(시험 프록시); 시험 프록시 계량
    한계: cost_units 단위 미정의, 금액은 기록 불가
   [PASS] 실제 CLI 실행이 끝났고 프록시가 모델 호출을 계량했다
@@ -497,7 +501,7 @@
   [증명하지 않은 것] cost_units의 단위는 명세에 정의가 없다. 이 시험은 프록시가 센 토큰 수를 넣었고 금액이 아니다
   [증명하지 않은 것] 누적 10^9는 스크립트 프로세스가 결과 봉투에 적은 자기 보고 값이다
 
-== R11 handoff-quiescent-before-preserve: 정지 확인 뒤 보존  [PASS]  (14.5 s)
+== R11 handoff-quiescent-before-preserve: 정지 확인 뒤 보존  [PARTIAL]  (14.5 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; lsof 대신 /proc 검사
   [PASS] 시작 전: 빌더 그룹이 실제로 쓰는 중(쓰기 핸들 > 0)이고 stop 요청을 무시한다
@@ -516,20 +520,20 @@
       기대: [0, 0]
       실제: [0, 0]
   [PASS] 격리 뒤 mtime 불변, tree OID 두 번 일치, 둘 다 quiescent_tree_oid와 같다
-      기대: [1792065925377293420, "0c365bb4ffc32d18425d88aca4e18a46f56c11f5", "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"]
-      실제: [1792065925377293420, "0c365bb4ffc32d18425d88aca4e18a46f56c11f5", "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"]
+      기대: [1792108767242542285, "8835ee41e85e5f647247afc19fe45f123842719d", "8835ee41e85e5f647247afc19fe45f123842719d"]
+      실제: [1792108767242542285, "8835ee41e85e5f647247afc19fe45f123842719d", "8835ee41e85e5f647247afc19fe45f123842719d"]
   [PASS] 보존 커밋의 tree OID == quiescent_tree_oid
-      기대: "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
-      실제: "0c365bb4ffc32d18425d88aca4e18a46f56c11f5"
+      기대: "8835ee41e85e5f647247afc19fe45f123842719d"
+      실제: "8835ee41e85e5f647247afc19fe45f123842719d"
   [PASS] 다른 세션에 남은 쓰기 프로세스의 격리 뒤 쓰기는 실제로 실패했고(EACCES) 보존본에 섞이지 않았다
       기대: true
       실제: true
   [PASS] 보존 커밋의 파일 내용 == 격리 시점 디스크의 내용(격리 뒤 쓰기 없음)
-      기대: "tick 1455\n"
-      실제: "tick 1455\n"
+      기대: "tick 1491\n"
+      실제: "tick 1491\n"
   [PASS] 원격이 수락한 푸시는 데몬 보존 자격 하나뿐, 빌더 토큰·자격으로 푸시된 보존 커밋 0건
-      기대: [["preserve_credential", "01RV97B09B9E00F240F4B2A2C0"]]
-      실제: [["preserve_credential", "01RV97B09B9E00F240F4B2A2C0"]]
+      기대: [["preserve_credential", "01RV44AF822281CE421285C114"]]
+      실제: [["preserve_credential", "01RV44AF822281CE421285C114"]]
   [PASS] 빌더의 (회수된) 자격으로는 지금 푸시해도 거부된다
       기대: true
       실제: true
@@ -545,8 +549,8 @@
       실제: true
       detail: ["mtime_changed", "open_write_handle", "tree_oid_changed"]
   [PASS] 정지 확인 전: 커밋·푸시 0건(로컬 브랜치 없음, 원격 불변, 수락된 푸시 0)
-      기대: [0, {"refs/heads/main": "e7dac79c09ff752a95ddb70723df28c3b459c0c3"}, 0]
-      실제: [0, {"refs/heads/main": "e7dac79c09ff752a95ddb70723df28c3b459c0c3"}, 0]
+      기대: [0, {"refs/heads/main": "e81c292f34a41165c30ccaa9bb7985e16d46b3a9"}, 0]
+      실제: [0, {"refs/heads/main": "e81c292f34a41165c30ccaa9bb7985e16d46b3a9"}, 0]
   [PASS] 새 임대 없음: 세대 1, issue_lease 0건, 두 번째 빌더 inbox 비어 있음
       기대: [1, 0, []]
       실제: [1, 0, []]
@@ -554,8 +558,12 @@
       기대: ["leased", 2, 1]
       실제: ["leased", 2, 1]
   [PASS] 보존 커밋의 tree OID == quiescent_tree_oid
-      기대: "111896f00743a40bdf9f6b9dacae8ddcb506bb97"
-      실제: "111896f00743a40bdf9f6b9dacae8ddcb506bb97"
+      기대: "a45e8dd8805bcc2ed2fb44806d987988b31efdd4"
+      실제: "a45e8dd8805bcc2ed2fb44806d987988b31efdd4"
+  [UNCONFIRMED] [R11 실제 CLI 변형] stop을 무시하고 루프로 파일을 쓰는 실제 벤더 CLI 프로세스
+      기대: null
+      실제: null
+      reason: "쓰는 프로세스는 스크립트 프로세스(standin)다. 벤더 CLI에게 stop 무시·쓰기 루프를 시키는 방법이 확인되지 않아 시험하지 않았다"
   [증명하지 않은 것] 쓰기 금지 격리는 파일 권한(chmod)이다. 같은 사용자의 프로세스는 권한을 되돌릴 수 있으므로 격리만으로 쓰기를 막았다고 말하지 않는다: 이 시험에서 쓰기를 막은 것은 프로세스 그룹 종료와, 그룹 밖 프로세스에 대한 열린 핸들 검사(정지 확인 실패)였다
   [증명하지 않은 것] lsof는 이 호스트에 없다. /proc/<pid>/fd와 fdinfo 검사로 대신했다(동등 수단)
   [증명하지 않은 것] 쓰는 프로세스는 벤더 CLI가 아니라 스크립트 프로세스(standin)다
@@ -567,20 +575,20 @@
       기대: [[true, false, false], [["heartbeat", null], ["envelope_duplicate_delivery", null], ["envelope_duplicate_delivery", null]]]
       실제: [[true, false, false], [["heartbeat", null], ["envelope_duplicate_delivery", null], ["envelope_duplicate_delivery", null]]]
   [PASS] 한 번 더 도착해도 상태 저장소(상태·임대·inbox_seen)는 그대로
-      기대: {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069531, "fencing_token": 1, "issued_at": 1792065931, "last_heartbeat_at": 1792065931, "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065931, "envelope_id": "01RV675301D334484BFB8A4521", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "sent_at": 1792065931, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {"first_seen_at": 1792065931, "lease_generation": 1}}, "lease_generation": 1}
-      실제: {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069531, "fencing_token": 1, "issued_at": 1792065931, "last_heartbeat_at": 1792065931, "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065931, "envelope_id": "01RV675301D334484BFB8A4521", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "sent_at": 1792065931, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {"first_seen_at": 1792065931, "lease_generation": 1}}, "lease_generation": 1}
+      기대: {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112373, "fencing_token": 1, "issued_at": 1792108773, "last_heartbeat_at": 1792108773, "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108773, "envelope_id": "01RVB1982CECEBFF4AE694A538", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "sent_at": 1792108773, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {"first_seen_at": 1792108773, "lease_generation": 1}}, "lease_generation": 1}
+      실제: {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112373, "fencing_token": 1, "issued_at": 1792108773, "last_heartbeat_at": 1792108773, "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108773, "envelope_id": "01RVB1982CECEBFF4AE694A538", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "sent_at": 1792108773, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {"first_seen_at": 1792108773, "lease_generation": 1}}, "lease_generation": 1}
   [PASS] 처리한 뒤 파일을 옮기기 전에 데몬이 죽었다: 파일은 큐에 남고 처리 결과는 저장되어 있다
       기대: true
       실제: true
   [PASS] 재시작 뒤 같은 파일이 다시 전달되면 noop이고 상태는 첫 처리 뒤와 같다
-      기대: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069532, "fencing_token": 1, "issued_at": 1792065931, "last_heartbeat_at": 1792065932, "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065931, "envelope_id": "01RV675301D334484BFB8A4521", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "sent_at": 1792065931, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792065932, "lease_generation": 1}}, "lease_generation": 1}]
-      실제: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069532, "fencing_token": 1, "issued_at": 1792065931, "last_heartbeat_at": 1792065932, "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065931, "envelope_id": "01RV675301D334484BFB8A4521", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "sent_at": 1792065931, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792065932, "lease_generation": 1}}, "lease_generation": 1}]
+      기대: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112373, "fencing_token": 1, "issued_at": 1792108773, "last_heartbeat_at": 1792108773, "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108773, "envelope_id": "01RVB1982CECEBFF4AE694A538", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "sent_at": 1792108773, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792108773, "lease_generation": 1}}, "lease_generation": 1}]
+      실제: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112373, "fencing_token": 1, "issued_at": 1792108773, "last_heartbeat_at": 1792108773, "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108773, "envelope_id": "01RVB1982CECEBFF4AE694A538", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "sent_at": 1792108773, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792108773, "lease_generation": 1}}, "lease_generation": 1}]
   [PASS] 결과 봉투는 처음 처리되어 building→pr_open
       기대: [["building", "pr_open", "result_pr_opened"]]
       실제: [["building", "pr_open", "result_pr_opened"]]
   [PASS] 임대를 끝낸 결과 봉투의 재전달은 envelope_duplicate_delivery(noop)이고 late가 아니다, 상태 불변
-      기대: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "pr_open", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069532, "fencing_token": 1, "issued_at": 1792065931, "last_heartbeat_at": 1792065932, "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "runner": "standin-runner-1", "status": "completed", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065931, "envelope_id": "01RV675301D334484BFB8A4521", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "sent_at": 1792065931, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|B429C0C98A314DB68BEA8E1C09": {"first_seen_at": 1792065932, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792065932, "lease_generation": 1}}, "lease_generation": 1}]
-      실제: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "pr_open", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "4332d91a1aa68d8a0d6fe29cdbedafa87a213058", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069532, "fencing_token": 1, "issued_at": 1792065931, "last_heartbeat_at": 1792065932, "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "runner": "standin-runner-1", "status": "completed", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065931, "envelope_id": "01RV675301D334484BFB8A4521", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVA50AEA33927E492ABDB39B", "sent_at": 1792065931, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|B429C0C98A314DB68BEA8E1C09": {"first_seen_at": 1792065932, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|0DA12CE82ED2403F88484DBA65": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|3C827C7B530F4D928F82AB85D5": {"first_seen_at": 1792065931, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792065932, "lease_generation": 1}}, "lease_generation": 1}]
+      기대: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "pr_open", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112373, "fencing_token": 1, "issued_at": 1792108773, "last_heartbeat_at": 1792108773, "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "runner": "standin-runner-1", "status": "completed", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108773, "envelope_id": "01RVB1982CECEBFF4AE694A538", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "sent_at": 1792108773, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|17B7F6F2AC7944F6B6960A4BD5": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792108773, "lease_generation": 1}}, "lease_generation": 1}]
+      실제: [[["envelope_duplicate_delivery", null]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "pr_open", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "a8f8142eeafb1f4c31b315350693e3921d621e8c", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112373, "fencing_token": 1, "issued_at": 1792108773, "last_heartbeat_at": 1792108773, "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "runner": "standin-runner-1", "status": "completed", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108773, "envelope_id": "01RVB1982CECEBFF4AE694A538", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVE8E12D0F42CD4411B04A01", "sent_at": 1792108773, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|17B7F6F2AC7944F6B6960A4BD5": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|AAFEF2C4564644D596584DF901": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C9C5C0A7B3D6458EAB17A3465E": {"first_seen_at": 1792108773, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|R12-HB2": {"first_seen_at": 1792108773, "lease_generation": 1}}, "lease_generation": 1}]
   [PASS] 사용량 기록은 처음 수락한 한 번뿐
       기대: 1
       실제: 1
@@ -592,7 +600,7 @@
       실제: [["heartbeat", "envelope_duplicate_delivery"], 1]
   [증명하지 않은 것] HTTP는 같은 호스트의 로컬 서버다. 네트워크 지연·재정렬·부분 전송은 확인하지 못했다
 
-== R13 retry-new-idempotency-key: 재시도 새 키  [PASS]  (8.1 s)
+== R13 retry-new-idempotency-key: 재시도 새 키  [PASS]  (7.7 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님
   [PASS] [시험 실패 뒤 재임대] 상태 저장소의 lease_generation이 바뀐다(1→2)와 지시 봉투 envelope_id가 다르다
@@ -605,8 +613,8 @@
       기대: "retry_failed_tests"
       실제: "retry_failed_tests"
   [PASS] [시험 실패 뒤 재임대] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변
-      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 1, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "d9846dba7c97347d856a43c974c87b674f8fa7cc", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069535, "fencing_token": 2, "issued_at": 1792065935, "last_heartbeat_at": 1792065935, "lease_generation": 2, "lease_id": "01RVE28ADBAE918540FBB899AF", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065934, "envelope_id": "01RVDE6FDA5F1BAC43648D3EE6", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV292FE4D00476488E8EB60F", "sent_at": 1792065934, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792065935, "envelope_id": "01RVE014E08274A54DE6B76027", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVE28ADBAE918540FBB899AF", "sent_at": 1792065935, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|BA4AB0F3626D4CC4BD6122BE25": {"first_seen_at": 1792065935, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|B0A484C0A3C846889D13C681AC": {"first_seen_at": 1792065934, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|78AF56D42A3F4B29B78D9DA29D": {"first_seen_at": 1792065935, "lease_generation": 2}}, "lease_generation": 2}]
-      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 1, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "d9846dba7c97347d856a43c974c87b674f8fa7cc", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792069535, "fencing_token": 2, "issued_at": 1792065935, "last_heartbeat_at": 1792065935, "lease_generation": 2, "lease_id": "01RVE28ADBAE918540FBB899AF", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065934, "envelope_id": "01RVDE6FDA5F1BAC43648D3EE6", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV292FE4D00476488E8EB60F", "sent_at": 1792065934, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792065935, "envelope_id": "01RVE014E08274A54DE6B76027", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVE28ADBAE918540FBB899AF", "sent_at": 1792065935, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|BA4AB0F3626D4CC4BD6122BE25": {"first_seen_at": 1792065935, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|B0A484C0A3C846889D13C681AC": {"first_seen_at": 1792065934, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|78AF56D42A3F4B29B78D9DA29D": {"first_seen_at": 1792065935, "lease_generation": 2}}, "lease_generation": 2}]
+      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 1, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "2e7dbf0ca561fc1907a7d8f10e73b4fbdccf1ae9", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112377, "fencing_token": 2, "issued_at": 1792108776, "last_heartbeat_at": 1792108777, "lease_generation": 2, "lease_id": "01RV3BECAC531C954176A056CC", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108776, "envelope_id": "01RV2CEBB3FDA8EA46E78197AC", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV93F685E2B4BB48018B6031", "sent_at": 1792108776, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792108776, "envelope_id": "01RVF946C3D45C154E2A944A2C", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV3BECAC531C954176A056CC", "sent_at": 1792108777, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|ACC55BA7C50345A5B577878AC0": {"first_seen_at": 1792108776, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|99D485DDD8D44843BF122385FE": {"first_seen_at": 1792108776, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|F4227552C1154CFF80AD4616C5": {"first_seen_at": 1792108777, "lease_generation": 2}}, "lease_generation": 2}]
+      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 1, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "2e7dbf0ca561fc1907a7d8f10e73b4fbdccf1ae9", "branch": "task/T-MOCK-BASIC-a1", "builder": "standin-builder-1", "expires_at": 1792112377, "fencing_token": 2, "issued_at": 1792108776, "last_heartbeat_at": 1792108777, "lease_generation": 2, "lease_id": "01RV3BECAC531C954176A056CC", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108776, "envelope_id": "01RV2CEBB3FDA8EA46E78197AC", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV93F685E2B4BB48018B6031", "sent_at": 1792108776, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792108776, "envelope_id": "01RVF946C3D45C154E2A944A2C", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV3BECAC531C954176A056CC", "sent_at": 1792108777, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|ACC55BA7C50345A5B577878AC0": {"first_seen_at": 1792108776, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|99D485DDD8D44843BF122385FE": {"first_seen_at": 1792108776, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|F4227552C1154CFF80AD4616C5": {"first_seen_at": 1792108777, "lease_generation": 2}}, "lease_generation": 2}]
   [PASS] [시험 실패 뒤 재임대] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다
       기대: [1, 2]
       실제: [1, 2]
@@ -620,8 +628,8 @@
       기대: "from_queue"
       실제: "from_queue"
   [PASS] [반송 뒤 재개] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변
-      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "2e39c6f64996afa03ef4f36955b72af32b450ef4", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792069537, "fencing_token": 2, "issued_at": 1792065937, "last_heartbeat_at": 1792065937, "lease_generation": 2, "lease_id": "01RV8717612D1F1E4A76BCC861", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065936, "envelope_id": "01RVA9A53216FB3D4162BD7026", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVC934AFCDFA644B159F8E09", "sent_at": 1792065936, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792065937, "envelope_id": "01RV65C0129EAE954E19822C1B", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV8717612D1F1E4A76BCC861", "sent_at": 1792065937, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|10CF06F8C1404AFDB9D98E8A88": {"first_seen_at": 1792065936, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C592186FA0D54D5292410A030F": {"first_seen_at": 1792065936, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|D4FD4E7EC1494C6DB23FC5E327": {"first_seen_at": 1792065937, "lease_generation": 2}}, "lease_generation": 2}]
-      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "2e39c6f64996afa03ef4f36955b72af32b450ef4", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792069537, "fencing_token": 2, "issued_at": 1792065937, "last_heartbeat_at": 1792065937, "lease_generation": 2, "lease_id": "01RV8717612D1F1E4A76BCC861", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792065936, "envelope_id": "01RVA9A53216FB3D4162BD7026", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RVC934AFCDFA644B159F8E09", "sent_at": 1792065936, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792065937, "envelope_id": "01RV65C0129EAE954E19822C1B", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV8717612D1F1E4A76BCC861", "sent_at": 1792065937, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|10CF06F8C1404AFDB9D98E8A88": {"first_seen_at": 1792065936, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|C592186FA0D54D5292410A030F": {"first_seen_at": 1792065936, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|D4FD4E7EC1494C6DB23FC5E327": {"first_seen_at": 1792065937, "lease_generation": 2}}, "lease_generation": 2}]
+      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "31945aa80d26134ab5df94f443c42c1488555f6a", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792112378, "fencing_token": 2, "issued_at": 1792108778, "last_heartbeat_at": 1792108778, "lease_generation": 2, "lease_id": "01RVC7262A4F721944EAB440A0", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108777, "envelope_id": "01RVEBE15C28E8A247BC93348B", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV87E2674B582C4326A48922", "sent_at": 1792108777, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792108778, "envelope_id": "01RVE6CF41F09BFC4377B54CFF", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVC7262A4F721944EAB440A0", "sent_at": 1792108778, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|72B5441C31B549C5A12EEC59FC": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|4B0289E4A33C4CB8B128C23D1E": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|0DF4F83B1499438BB2D4CAB820": {"first_seen_at": 1792108778, "lease_generation": 2}}, "lease_generation": 2}]
+      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 2, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": null, "task_id": "T-MOCK-BASIC"}, "lease_record": {"base_sha": "31945aa80d26134ab5df94f443c42c1488555f6a", "branch": "task/T-MOCK-BASIC-a2", "builder": "standin-builder-1", "expires_at": 1792112378, "fencing_token": 2, "issued_at": 1792108778, "last_heartbeat_at": 1792108778, "lease_generation": 2, "lease_id": "01RVC7262A4F721944EAB440A0", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-BASIC"}, "outbox": [{"created_at": 1792108777, "envelope_id": "01RVEBE15C28E8A247BC93348B", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV87E2674B582C4326A48922", "sent_at": 1792108777, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}, {"created_at": 1792108778, "envelope_id": "01RVE6CF41F09BFC4377B54CFF", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVC7262A4F721944EAB440A0", "sent_at": 1792108778, "status": "sent", "task_id": "T-MOCK-BASIC", "void_reason": null}], "inbox_seen": {"T-MOCK-BASIC|1|result|72B5441C31B549C5A12EEC59FC": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-BASIC|1|signal|4B0289E4A33C4CB8B128C23D1E": {"first_seen_at": 1792108778, "lease_generation": 1}, "T-MOCK-BASIC|2|signal|0DF4F83B1499438BB2D4CAB820": {"first_seen_at": 1792108778, "lease_generation": 2}}, "lease_generation": 2}]
   [PASS] [반송 뒤 재개] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다
       기대: [1, 2]
       실제: [1, 2]
@@ -635,8 +643,8 @@
       기대: "handoff"
       실제: "handoff"
   [PASS] [인계] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변
-      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792065938, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "650855b4d8894a52ac08202a51fad82a042f5692", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792069544, "fencing_token": 2, "issued_at": 1792065944, "last_heartbeat_at": 1792065944, "lease_generation": 2, "lease_id": "01RV9728F8E17DE34E6D9D1F54", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792065938, "envelope_id": "01RV07B2179D786F477A99473B", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV17CCF3D7D9034AEEA231FB", "sent_at": 1792065938, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792065944, "envelope_id": "01RV120C2B191FFB47C3B0ABEF", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV9728F8E17DE34E6D9D1F54", "sent_at": 1792065944, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|054E40C49677433D8796F63563": {"first_seen_at": 1792065938, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|84E306639BFA41AB9E4F0B796D": {"first_seen_at": 1792065938, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|D2FDE521202C4F5AB37A9D07F9": {"first_seen_at": 1792065944, "lease_generation": 2}}, "lease_generation": 2}]
-      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792065938, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "650855b4d8894a52ac08202a51fad82a042f5692", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792069544, "fencing_token": 2, "issued_at": 1792065944, "last_heartbeat_at": 1792065944, "lease_generation": 2, "lease_id": "01RV9728F8E17DE34E6D9D1F54", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792065938, "envelope_id": "01RV07B2179D786F477A99473B", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV17CCF3D7D9034AEEA231FB", "sent_at": 1792065938, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792065944, "envelope_id": "01RV120C2B191FFB47C3B0ABEF", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV9728F8E17DE34E6D9D1F54", "sent_at": 1792065944, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|054E40C49677433D8796F63563": {"first_seen_at": 1792065938, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|84E306639BFA41AB9E4F0B796D": {"first_seen_at": 1792065938, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|D2FDE521202C4F5AB37A9D07F9": {"first_seen_at": 1792065944, "lease_generation": 2}}, "lease_generation": 2}]
+      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792108780, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "7055aa1196133f3ce0fdc9f732e3e6708e396697", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792112385, "fencing_token": 2, "issued_at": 1792108785, "last_heartbeat_at": 1792108785, "lease_generation": 2, "lease_id": "01RV6EC74D46E95645EFB2C0BA", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792108779, "envelope_id": "01RV7EB6ED63D37C4AC6857A3A", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV34163E08747644D7BDFDE1", "sent_at": 1792108779, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792108785, "envelope_id": "01RV62EE9CC97C6C49AE80FCA7", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV6EC74D46E95645EFB2C0BA", "sent_at": 1792108785, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|669E9D1BCFD142DDB7189E9749": {"first_seen_at": 1792108780, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|A5C45236FA3D4C1DA7CB6CE60F": {"first_seen_at": 1792108779, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|5BE87E0F7F7746FBAD435FCD13": {"first_seen_at": 1792108785, "lease_generation": 2}}, "lease_generation": 2}]
+      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792108780, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "7055aa1196133f3ce0fdc9f732e3e6708e396697", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-2", "expires_at": 1792112385, "fencing_token": 2, "issued_at": 1792108785, "last_heartbeat_at": 1792108785, "lease_generation": 2, "lease_id": "01RV6EC74D46E95645EFB2C0BA", "runner": "standin-runner-2", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792108779, "envelope_id": "01RV7EB6ED63D37C4AC6857A3A", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV34163E08747644D7BDFDE1", "sent_at": 1792108779, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792108785, "envelope_id": "01RV62EE9CC97C6C49AE80FCA7", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV6EC74D46E95645EFB2C0BA", "sent_at": 1792108785, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|669E9D1BCFD142DDB7189E9749": {"first_seen_at": 1792108780, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|A5C45236FA3D4C1DA7CB6CE60F": {"first_seen_at": 1792108779, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|5BE87E0F7F7746FBAD435FCD13": {"first_seen_at": 1792108785, "lease_generation": 2}}, "lease_generation": 2}]
   [PASS] [인계] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다
       기대: [1, 2]
       실제: [1, 2]
@@ -653,14 +661,14 @@
       기대: "resume_paused"
       실제: "resume_paused"
   [PASS] [일시중단 뒤 복귀] 이전 세대 키의 늦은 봉투는 late_envelope_rejected(R-11)이고 상태 불변
-      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792065940, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "070ff21be17c7a9a9e459fcba83cd09afce7fa62", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-1", "expires_at": 1792069546, "fencing_token": 2, "issued_at": 1792065946, "last_heartbeat_at": 1792065946, "lease_generation": 2, "lease_id": "01RV5FEDD5E5C97E4693A1AE2F", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792065940, "envelope_id": "01RV448FCD3545BF4F59AC2925", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV965D18F33E9D42D69B1734", "sent_at": 1792065940, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792065946, "envelope_id": "01RVA4A69FBA806540B89491A2", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV5FEDD5E5C97E4693A1AE2F", "sent_at": 1792065946, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|2A1300EDFE264E4D87CBFC3EBA": {"first_seen_at": 1792065940, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|5C70C1EE731E4EE3956E3C04A5": {"first_seen_at": 1792065940, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|6DD85FCB74A1404DB9B93B0460": {"first_seen_at": 1792065946, "lease_generation": 2}}, "lease_generation": 2}]
-      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792065940, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "070ff21be17c7a9a9e459fcba83cd09afce7fa62", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-1", "expires_at": 1792069546, "fencing_token": 2, "issued_at": 1792065946, "last_heartbeat_at": 1792065946, "lease_generation": 2, "lease_id": "01RV5FEDD5E5C97E4693A1AE2F", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792065940, "envelope_id": "01RV448FCD3545BF4F59AC2925", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV965D18F33E9D42D69B1734", "sent_at": 1792065940, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792065946, "envelope_id": "01RVA4A69FBA806540B89491A2", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RV5FEDD5E5C97E4693A1AE2F", "sent_at": 1792065946, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|2A1300EDFE264E4D87CBFC3EBA": {"first_seen_at": 1792065940, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|5C70C1EE731E4EE3956E3C04A5": {"first_seen_at": 1792065940, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|6DD85FCB74A1404DB9B93B0460": {"first_seen_at": 1792065946, "lease_generation": 2}}, "lease_generation": 2}]
+      기대: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792108782, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "05c73a8d93dff98073c3d1a1e7958990ecf4be4f", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-1", "expires_at": 1792112388, "fencing_token": 2, "issued_at": 1792108787, "last_heartbeat_at": 1792108788, "lease_generation": 2, "lease_id": "01RVCFBC2EA55A164A3BB4ED39", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792108781, "envelope_id": "01RV45CF4761FF204616B3AF2D", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV1745C4453C714C5DA7381C", "sent_at": 1792108781, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792108787, "envelope_id": "01RVC72B76C47A5F40A0B2911F", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVCFBC2EA55A164A3BB4ED39", "sent_at": 1792108787, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|B1F46D9CD15B42C2AAAC2E91E2": {"first_seen_at": 1792108782, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|D589B4E95CA34CC58F52D70591": {"first_seen_at": 1792108782, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|A460EEA7EF454028AB6B3339BB": {"first_seen_at": 1792108788, "lease_generation": 2}}, "lease_generation": 2}]
+      실제: [[["late_envelope_rejected", "R-11"]], {"task_state": {"attempt": 1, "cancelled": false, "consecutive_failed_tests": 0, "decisions_recorded": [], "return_code": null, "state": "building", "stop_requested_at": 1792108782, "task_id": "T-MOCK-HANDOFF"}, "lease_record": {"base_sha": "05c73a8d93dff98073c3d1a1e7958990ecf4be4f", "branch": "task/T-MOCK-HANDOFF-a1", "builder": "standin-builder-1", "expires_at": 1792112388, "fencing_token": 2, "issued_at": 1792108787, "last_heartbeat_at": 1792108788, "lease_generation": 2, "lease_id": "01RVCFBC2EA55A164A3BB4ED39", "runner": "standin-runner-1", "status": "active", "task_id": "T-MOCK-HANDOFF"}, "outbox": [{"created_at": 1792108781, "envelope_id": "01RV45CF4761FF204616B3AF2D", "envelope_kind": "instruction", "lease_generation": 1, "lease_id": "01RV1745C4453C714C5DA7381C", "sent_at": 1792108781, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}, {"created_at": 1792108787, "envelope_id": "01RVC72B76C47A5F40A0B2911F", "envelope_kind": "instruction", "lease_generation": 2, "lease_id": "01RVCFBC2EA55A164A3BB4ED39", "sent_at": 1792108787, "status": "sent", "task_id": "T-MOCK-HANDOFF", "void_reason": null}], "inbox_seen": {"T-MOCK-HANDOFF|1|signal|B1F46D9CD15B42C2AAAC2E91E2": {"first_seen_at": 1792108782, "lease_generation": 1}, "T-MOCK-HANDOFF|1|signal|D589B4E95CA34CC58F52D70591": {"first_seen_at": 1792108782, "lease_generation": 1}, "T-MOCK-HANDOFF|2|signal|A460EEA7EF454028AB6B3339BB": {"first_seen_at": 1792108788, "lease_generation": 2}}, "lease_generation": 2}]
   [PASS] [일시중단 뒤 복귀] 멱등 키(task|세대|종류|envelope_id)에 새 세대 키가 생기고 그 이전 세대의 키는 남지 않는다
       기대: [1, 2]
       실제: [1, 2]
   [증명하지 않은 것] 재임대 경로는 모의 과제의 상태 기계 경로다. CI 실패 뒤 재임대(ci_failed→building)는 관측 계층 입력이 필요해 이 도구에서 시험하지 않았다(R8과 같은 관측 입력 경로)
 
-== R14 preserve-manifest-same-function: 보존 manifest  [PASS]  (3.8 s)
+== R14 preserve-manifest-same-function: 보존 manifest  [PASS]  (3.9 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님
   [PASS] 기준: 변경 없는 작업 트리의 tree OID는 기준 커밋의 tree와 같다
@@ -703,14 +711,14 @@
       기대: []
       실제: []
   [PASS] 원격 ref == 보존 커밋
-      기대: "776891e7072ae377d9145b9fcdf872479b36b3b1"
-      실제: "776891e7072ae377d9145b9fcdf872479b36b3b1"
+      기대: "5a38fcf41a6b47a91ad6ef623af6075a7a6196dd"
+      실제: "5a38fcf41a6b47a91ad6ef623af6075a7a6196dd"
   [PASS] 비밀값 모양 파일: handoff → returned(secret_detected, R-10)
       기대: ["returned", ["R-10"]]
       실제: ["returned", ["R-10"]]
   [PASS] 보존 커밋·푸시 0건(로컬 브랜치 없음, 원격 불변, 수락된 푸시 0)
-      기대: [0, {"refs/heads/main": "478cb6daba5be3f21aade2d0b1e414b8d201cab5"}, 0]
-      실제: [0, {"refs/heads/main": "478cb6daba5be3f21aade2d0b1e414b8d201cab5"}, 0]
+      기대: [0, {"refs/heads/main": "37bbe8bac2518ef57b94e643abc5eb8457f5edaa"}, 0]
+      실제: [0, {"refs/heads/main": "37bbe8bac2518ef57b94e643abc5eb8457f5edaa"}, 0]
   [PASS] 비밀값 원문은 저장소 기록에 남지 않는다
       기대: false
       실제: false
@@ -719,7 +727,7 @@
       실제: 0
   [증명하지 않은 것] 트리 해시 함수가 하나라는 점(다른 해시 정의 없음)은 정적 검사가 본다. 여기서는 같은 함수의 결과가 실제 git 객체와 같다는 것을 확인했다
 
-== R15 preserve-failure-recoverable-stop: 보존 실패 정리  [PASS]  (14.8 s)
+== R15 preserve-failure-recoverable-stop: 보존 실패 정리  [PASS]  (14.5 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core); user namespace tmpfs(가득 찬 디스크)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; 원격 거부는 hook 제어 파일로 만든 것
   [PASS] [index.lock(남은 잠금 파일, 소유 프로세스 없음)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수
@@ -751,8 +759,8 @@
       기대: [["isolate"], "leased", 2]
       실제: [["isolate"], "leased", 2]
   [PASS] [index.lock(남은 잠금 파일, 소유 프로세스 없음)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP
-      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "c75716932f4876dd64fe4b6b1a6d931ba9835f95"]
-      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "c75716932f4876dd64fe4b6b1a6d931ba9835f95"]
+      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "8faf64e3f859b2bbef4429eff50f4e9bda1ba69e"]
+      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "8faf64e3f859b2bbef4429eff50f4e9bda1ba69e"]
   [PASS] [index.lock(소유 프로세스가 살아 있음)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수
       기대: ["handoff_blocked", 4]
       실제: ["handoff_blocked", 4]
@@ -782,8 +790,8 @@
       기대: [["isolate"], "leased", 2]
       실제: [["isolate"], "leased", 2]
   [PASS] [index.lock(소유 프로세스가 살아 있음)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP
-      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "4c34ff9d3404129b8dc86842b3944c610b05547d"]
-      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "4c34ff9d3404129b8dc86842b3944c610b05547d"]
+      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "63dae58085ef573fc81e46aa65501ab0825b1467"]
+      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "63dae58085ef573fc81e46aa65501ab0825b1467"]
   [PASS] [가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수
       기대: ["handoff_blocked", null]
       실제: ["handoff_blocked", null]
@@ -813,8 +821,8 @@
       기대: [["isolate"], "leased", 2]
       실제: [["isolate"], "leased", 2]
   [PASS] [가득 찬 디스크(64 KiB tmpfs 마운트에 새 git 객체)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP
-      기대: [1, "ef1e2da66b935a9a0222b082ed852193fc0bc90f", "1fea1ebae1260add3a38d7f2b81b14a260e490fd"]
-      실제: [1, "ef1e2da66b935a9a0222b082ed852193fc0bc90f", "1fea1ebae1260add3a38d7f2b81b14a260e490fd"]
+      기대: [1, "03bf432a61ab72d184fcf86131829b10c16b921b", "87b6f8bdae5921693923c095fdb219341d35dfa4"]
+      실제: [1, "03bf432a61ab72d184fcf86131829b10c16b921b", "87b6f8bdae5921693923c095fdb219341d35dfa4"]
   [PASS] [네트워크 차단(닫힌 포트로 간 원격 주소)] 한도 안 재시도 뒤 handoff_blocked, 시도 횟수
       기대: ["handoff_blocked", 4]
       실제: ["handoff_blocked", 4]
@@ -844,8 +852,8 @@
       기대: [["preserve_remote"], "leased", 2]
       실제: [["preserve_remote"], "leased", 2]
   [PASS] [네트워크 차단(닫힌 포트로 간 원격 주소)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP
-      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "14f2a1318c3c0e9f84d99129efcb5a2c67eaf47c"]
-      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "14f2a1318c3c0e9f84d99129efcb5a2c67eaf47c"]
+      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "3f203aeabea4a6a5ee7a2b97fce52c37b61ca156"]
+      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "3f203aeabea4a6a5ee7a2b97fce52c37b61ca156"]
   [PASS] [네트워크 차단(닫힌 포트로 간 원격 주소)] 복구: 푸시만 다시 했다(새 커밋 없음)
       기대: 1
       실제: 1
@@ -878,8 +886,8 @@
       기대: [["preserve_remote"], "leased", 2]
       실제: [["preserve_remote"], "leased", 2]
   [PASS] [권한 거부(원격이 보존 자격의 푸시를 거부)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP
-      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "569fd5d3eb1531dd87704c9e2a353a726971a1d1"]
-      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "569fd5d3eb1531dd87704c9e2a353a726971a1d1"]
+      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "737248a76c2471269accfbfc0efdd0684dcbac26"]
+      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "737248a76c2471269accfbfc0efdd0684dcbac26"]
   [PASS] [권한 거부(원격이 보존 자격의 푸시를 거부)] 복구: 푸시만 다시 했다(새 커밋 없음)
       기대: 1
       실제: 1
@@ -912,15 +920,15 @@
       기대: [["preserve_remote"], "leased", 2]
       실제: [["preserve_remote"], "leased", 2]
   [PASS] [보호 브랜치 거부(원격이 그 브랜치를 보호)] 복구 뒤 보존: 커밋 1개, tree == quiescent_tree_oid, 원격 ref == WIP
-      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "02098baa54a1c0bb53b022a90f496c3c486ab815"]
-      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "02098baa54a1c0bb53b022a90f496c3c486ab815"]
+      기대: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "49af741826e70d5ab0986afecb25399db806b1bc"]
+      실제: [1, "920cbc88c3a5da20347ebcc83a64df9422893cd4", "49af741826e70d5ab0986afecb25399db806b1bc"]
   [PASS] [보호 브랜치 거부(원격이 그 브랜치를 보호)] 복구: 푸시만 다시 했다(새 커밋 없음)
       기대: 1
       실제: 1
   [증명하지 않은 것] 원격 푸시 실패 네 가지 중 '네트워크 차단'은 닫힌 로컬 포트로 간 주소이고 '권한·보호 규칙 거부'는 hook의 시험용 제어 파일이 만든 거부다. 실제 호스트의 거부 응답 형식은 확인하지 못했다
   [증명하지 않은 것] '가득 찬 디스크'는 새 git 객체가 쓰이는 디렉터리를 64 KiB tmpfs로 바꾼 것이다(같은 프로세스의 마운트 네임스페이스에서만). 저장소 전체가 찬 경우의 다른 실패 지점은 보지 않았다
 
-== R16 daemon-restart-during-handoff: 인계 도중 데몬 재시작  [PASS]  (17.4 s)
+== R16 daemon-restart-during-handoff: 인계 도중 데몬 재시작  [PASS]  (18.1 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님
   [PASS] [stop 단계] 실제 데몬 프로세스가 handoff:stop:start에서 SIGKILL로 죽었다
@@ -937,8 +945,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [stop 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["e8aa89d245d9a67648c04ec458cc5d01e926d7b3", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["e8aa89d245d9a67648c04ec458cc5d01e926d7b3", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["25e776ba4d1b3acf2e4dd5322850443a21f36f36", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["25e776ba4d1b3acf2e4dd5322850443a21f36f36", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [stop 단계] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -956,8 +964,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [isolate 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["26ac2422463e22335cf32024328c08a742b7fb36", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["26ac2422463e22335cf32024328c08a742b7fb36", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["ab98f4be012f0dcb595d4bfbdb45f9587a023765", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["ab98f4be012f0dcb595d4bfbdb45f9587a023765", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [isolate 단계] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -975,8 +983,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [confirm_quiescent 단계] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["6f7271ba6a0a49df3e17b3fb544ec942e8bb8767", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["6f7271ba6a0a49df3e17b3fb544ec942e8bb8767", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["3b6ac96b396066e227ab4710b5f61d6b3539cabe", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["3b6ac96b396066e227ab4710b5f61d6b3539cabe", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [confirm_quiescent 단계] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -994,8 +1002,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [preserve 단계(로컬 커밋 전)] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["0ce0ea71665e725ae66355f9e89752fc12512810", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["0ce0ea71665e725ae66355f9e89752fc12512810", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["67c576dcb8071872fc019f7b0ceafada13a534e3", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["67c576dcb8071872fc019f7b0ceafada13a534e3", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [preserve 단계(로컬 커밋 전)] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -1013,8 +1021,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [로컬 커밋 직후·기록 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["5a96132e4c327cb95040ad3e3f249805b5aea829", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["5a96132e4c327cb95040ad3e3f249805b5aea829", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["32bae13742a98cfd3b75c8246d8f6b7178fd7ff6", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["32bae13742a98cfd3b75c8246d8f6b7178fd7ff6", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [로컬 커밋 직후·기록 전] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -1032,8 +1040,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [로컬 커밋 기록 뒤·푸시 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["58abcaa3536e0d0307bfab691177ad27e6b24ef7", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["58abcaa3536e0d0307bfab691177ad27e6b24ef7", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["0a593d47a367100d45a9cf568a7b2811d972616b", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["0a593d47a367100d45a9cf568a7b2811d972616b", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [로컬 커밋 기록 뒤·푸시 전] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -1051,8 +1059,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [푸시 직후·기록 전] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["ce860f5b4575eb8e704d0263aa23f4f8b78c5e93", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["ce860f5b4575eb8e704d0263aa23f4f8b78c5e93", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["4c6bae6f0802670a65a42e6bfa31133a6a2a0e7c", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["4c6bae6f0802670a65a42e6bfa31133a6a2a0e7c", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [푸시 직후·기록 전] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -1070,8 +1078,8 @@
       기대: [1, 1]
       실제: [1, 1]
   [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 원격 ref == 보존 커밋, 커밋 tree == quiescent_tree_oid
-      기대: ["5cb02799df91c04419b8e5a3fe3b7089c02f0a37", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
-      실제: ["5cb02799df91c04419b8e5a3fe3b7089c02f0a37", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      기대: ["5b1bac1e7dbd7a2d589b165a7746fb30c7ee2fda", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
+      실제: ["5b1bac1e7dbd7a2d589b165a7746fb30c7ee2fda", "920cbc88c3a5da20347ebcc83a64df9422893cd4"]
   [PASS] [issue_next_lease 단계(토큰 폐기 뒤·다음 발급 전)] 쓰기 금지 유지, 보존 자격 회수, preserve_credential 발급 2회 이하(재발급은 1회까지)
       기대: [true, true, true]
       실제: [true, true, true]
@@ -1096,7 +1104,7 @@
       실제: [[["handoff", "handoff_blocked", "daemon_restart_during_handoff"]], 0, 1]
   [증명하지 않은 것] 재시작 시점은 데몬 코어의 fault 지점(SIGKILL로 죽는 위치)이다. 지점 사이에서 임의 시각에 죽는 경우는 R18의 저장 지점 훑기와 같은 방식으로만 보았다
 
-== R17 envelope-id-distinct-events: 봉투 식별  [PASS]  (2.8 s)
+== R17 envelope-id-distinct-events: 봉투 식별  [PASS]  (2.9 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님
   [PASS] 실제 어댑터(스크립트 프로세스)가 보낸 하트비트 둘은 envelope_id가 다르다
@@ -1122,7 +1130,7 @@
       기대: [1, "leased", 2]
       실제: [1, "leased", 2]
 
-== R18 lease-issue-atomic-single-owner: 발급 원자성  [PASS]  (15.7 s)
+== R18 lease-issue-atomic-single-owner: 발급 원자성  [PASS]  (16.2 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: SIGKILL 시험(전원 차단 아님)
   [PASS] [store:torn_write@0] 강제 종료(-9) 뒤 저장 파일이 읽히고 세대·임대·outbox가 모두 있거나 모두 없다(none)
@@ -1268,7 +1276,7 @@
   [증명하지 않은 것] 세대 증가의 단일 책임(issue_lease 한 곳)은 정적 검사가 본다. 여기서는 어느 저장 지점에서 죽어도 중간 상태가 없다는 것만 확인했다
   [증명하지 않은 것] SIGKILL 시험이다. 전원 차단 때 디스크가 쓰기 순서를 지키는지(fsync 의미)는 하드웨어·파일 시스템 몫이고 확인하지 못했다
 
-== R19 restart-ttl-expired-no-resend: 발급 직후 중단 뒤 TTL 경과  [PASS]  (1.4 s)
+== R19 restart-ttl-expired-no-resend: 발급 직후 중단 뒤 TTL 경과  [PASS]  (1.2 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: TTL·grace 경과는 시계 offset으로 만든다(대기 아님)
   [PASS] 발급 직후 강제 종료: 상태 leased, 세대 1, outbox pending, 발송 0
@@ -1284,13 +1292,13 @@
       기대: [1, "expired", 0]
       실제: [1, "expired", 0]
   [PASS] 다음 queued→leased가 새 세대(2)와 새 envelope_id를 낸다
-      기대: [2, true, ["01RV96755C3955CF4A19929BB5"]]
-      실제: [2, true, ["01RV96755C3955CF4A19929BB5"]]
+      기대: [2, true, ["01RV44665956FA054355A6B4C7"]]
+      실제: [2, true, ["01RV44665956FA054355A6B4C7"]]
   [PASS] 두 번째 재시작은 새 임대를 그대로 둔다(발송 1건 유지)
-      기대: ["01RV96755C3955CF4A19929BB5"]
-      실제: ["01RV96755C3955CF4A19929BB5"]
+      기대: ["01RV44665956FA054355A6B4C7"]
+      실제: ["01RV44665956FA054355A6B4C7"]
 
-== R20 restart-revoked-pending-void: 폐기된 pending  [PASS]  (2.2 s)
+== R20 restart-revoked-pending-void: 폐기된 pending  [PASS]  (2.4 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님
   [PASS] A 취소: 상태 cancelled, 임대 revoked, outbox는 아직 pending
@@ -1309,12 +1317,12 @@
       기대: [[], ["void_outbox"], ["void", "revoked"], 1, "returned"]
       실제: [[], ["void_outbox"], ["void", "revoked"], 1, "returned"]
 
-== R21 restart-valid-pending-resend: 유효 pending 재전송  [PASS]  (1.7 s)
+== R21 restart-valid-pending-resend: 유효 pending 재전송  [PARTIAL]  (1.7 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
    한계: 빌더 프로세스는 스크립트(standin) — 벤더 CLI 아님; TTL·grace 경과는 시계 offset으로 만든다(대기 아님)
   [PASS] 유효한 pending: 재시작에서 전이 없음, 같은 envelope_id로 재발송 한 번
-      기대: [[], ["send_envelope"], ["01RV023B735B2C8848E99593A0"]]
-      실제: [[], ["send_envelope"], ["01RV023B735B2C8848E99593A0"]]
+      기대: [[], ["send_envelope"], ["01RVA197E0BA6FC84DAFBD2000"]]
+      실제: [[], ["send_envelope"], ["01RVA197E0BA6FC84DAFBD2000"]]
   [PASS] 실제 빌더 어댑터의 수신 측 검증(receiver_validation)이 통과한다
       기대: true
       실제: true
@@ -1336,6 +1344,10 @@
   [PASS] 실행 없음: 작업 트리·프로세스·자격 발급이 생기지 않았다
       기대: [[], 0, []]
       실제: [[], 0, []]
+  [UNCONFIRMED] [R21 실제 CLI 어댑터] 벤더 CLI를 띄우는 어댑터의 receiver_validation
+      기대: null
+      실제: null
+      reason: "위 수신 측 검증은 이 도구의 빌더 쪽 어댑터(context.py)와 스크립트 프로세스(standin)가 한다. 벤더 CLI를 띄우는 실제 어댑터는 이 저장소에 없어 시험하지 않았다"
 
 == R22 restart-corrupt-record-returned: 손상 기록  [PASS]  (4.1 s)
    실제로 쓴 구성: OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL); 실제 파일 시스템(권한·mtime·/proc 핸들 검사); 실제 git(worktree·임시 인덱스·write-tree·push); 로컬 bare 원격(보호 브랜치·단기 자격 hook); 파일 잠금+원자적 rename 상태 저장소; 공용 전이·검증 코어(tools/daemon/core)
@@ -1383,15 +1395,15 @@
       기대: [0, 1]
       실제: [0, 1]
   [PASS] [저장 파일 손상] 읽을 수 없는 상태 파일: 데몬이 실패로 끝나고(종료 코드 0이 아님) 파일을 덮어쓰지 않는다
-      기대: [true, "b'{\"journal\": [{\"at\": 1792066005, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792066005, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792066005, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV6D8F64BE678B48798C6FE0\", \"lease_generation\": 1, \"lease_id\": \"01RVD6E7B5E95FD54DDAAD5B91\", \"reason\": \"from_queue\"}, \"at\": 1792066005, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"]
-      실제: [true, "b'{\"journal\": [{\"at\": 1792066005, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792066005, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792066005, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV6D8F64BE678B48798C6FE0\", \"lease_generation\": 1, \"lease_id\": \"01RVD6E7B5E95FD54DDAAD5B91\", \"reason\": \"from_queue\"}, \"at\": 1792066005, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"]
+      기대: [true, "b'{\"journal\": [{\"at\": 1792108847, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792108847, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792108848, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV96A2EC06F46E43B5AC6CDA\", \"lease_generation\": 1, \"lease_id\": \"01RVA412853CD75F4CCB872E29\", \"reason\": \"from_queue\"}, \"at\": 1792108848, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"]
+      실제: [true, "b'{\"journal\": [{\"at\": 1792108847, \"cond_evaluated\": [], \"event\": \"prereqs_satisfied\", \"from\": \"blocked\", \"kind\": \"transition_record\", \"seq\": 1, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"queued\"}, {\"args\": {\"lease_generation\": 1, \"phase\": \"before_send\"}, \"at\": 1792108847, \"id\": \"record_usage\", \"kind\": \"side_effect_record\", \"seq\": 2, \"task_id\": \"T-MOCK-BASIC\"}, {\"at\": 1792108848, \"cond_evaluated\": [{\"field\": \"lease_guards\", \"left\": {\"guards\": [[\"builder_available\", true], [\"no_conflict_lease\", true], [\"lock_acquired\", true], [\"single_writer\", true], [\"max_parallel_leases\", true], [\"usage_slot_ready\", true], [\"instruction_envelope_valid\", true]]}, \"op\": \"all_pass\", \"result\": true, \"value\": true}, {\"field\": \"lease_record.status\", \"left\": null, \"op\": \"not_in\", \"result\": true, \"value\": [\"active\"]}, {\"field\": \"task_state.state\", \"left\": \"queued\", \"op\": \"==\", \"result\": true, \"value\": \"queued\"}], \"event\": \"lease_granted\", \"from\": \"queued\", \"kind\": \"transition_record\", \"seq\": 3, \"source\": \"transitions\", \"task_id\": \"T-MOCK-BASIC\", \"to\": \"leased\"}, {\"args\": {\"builder\": \"standin-builder-1\", \"envelope_id\": \"01RV96A2EC06F46E43B5AC6CDA\", \"lease_generation\": 1, \"lease_id\": \"01RVA412853CD75F4CCB872E29\", \"reason\": \"from_queue\"}, \"at\": 1792108848, \"id\": \"issue_lease\", \"kind\": \"side_effect_recor'"]
   [PASS] [저장 파일 손상] 발송·자동 재발급 0건
       기대: 0
       실제: 0
   [증명하지 않은 것] 파일 수준 손상에서 데몬은 멈추기만 한다(복구·소유자 결정 절차는 사람 몫이다). 명세가 파일 수준 손상의 R 코드를 정하지 않았다
 
 == 요약
-  R1   late-write-fenced                      PASS         검사 14건 중 통과 14
+  R1   late-write-fenced                      PASS         검사 15건 중 통과 14
   R2   late-result-rejected                   PASS         검사 9건 중 통과 9
   R3   late-write-fenced                      PASS         검사 12건 중 통과 12
   R4   resume-after-interrupt                 PASS         검사 13건 중 통과 13
@@ -1401,7 +1413,7 @@
   R8   -                                      PASS         검사 8건 중 통과 8
   R9   hard-stop-heartbeating-job             PARTIAL      검사 19건 중 통과 17
   R10  usage-recorded-not-capped              PASS         검사 10건 중 통과 10
-  R11  handoff-quiescent-before-preserve      PASS         검사 18건 중 통과 18
+  R11  handoff-quiescent-before-preserve      PARTIAL      검사 19건 중 통과 18
   R12  duplicate-delivery-noop                PASS         검사 9건 중 통과 9
   R13  retry-new-idempotency-key              PASS         검사 21건 중 통과 21
   R14  preserve-manifest-same-function        PASS         검사 18건 중 통과 18
@@ -1411,7 +1423,7 @@
   R18  lease-issue-atomic-single-owner        PASS         검사 42건 중 통과 42
   R19  restart-ttl-expired-no-resend          PASS         검사 6건 중 통과 6
   R20  restart-revoked-pending-void           PASS         검사 5건 중 통과 5
-  R21  restart-valid-pending-resend           PASS         검사 8건 중 통과 8
+  R21  restart-valid-pending-resend           PARTIAL      검사 9건 중 통과 8
   R22  restart-corrupt-record-returned        PASS         검사 16건 중 통과 16
-  시나리오 22개: {'PASS': 19, 'FAIL': 0, 'PARTIAL': 3, 'UNCONFIRMED': 0}  검사 404건, 실패 0건, 미확인 11건, 명세 불일치(GAP) 1건
-  필수 시험 ID: {'late-write-fenced': [{'r': 'R1', 'status': 'PASS'}, {'r': 'R3', 'status': 'PASS'}], 'late-result-rejected': [{'r': 'R2', 'status': 'PASS'}], 'resume-after-interrupt': [{'r': 'R4', 'status': 'PASS'}], 'duplicate-run-prevented': [{'r': 'R5', 'status': 'PASS'}], 'provider-scoped-switch': [{'r': 'R6', 'status': 'PARTIAL'}, {'r': 'R7', 'status': 'PARTIAL'}], 'hard-stop-heartbeating-job': [{'r': 'R9', 'status': 'PARTIAL'}], 'usage-recorded-not-capped': [{'r': 'R10', 'status': 'PASS'}], 'handoff-quiescent-before-preserve': [{'r': 'R11', 'status': 'PASS'}], 'duplicate-delivery-noop': [{'r': 'R12', 'status': 'PASS'}], 'retry-new-idempotency-key': [{'r': 'R13', 'status': 'PASS'}], 'preserve-manifest-same-function': [{'r': 'R14', 'status': 'PASS'}], 'preserve-failure-recoverable-stop': [{'r': 'R15', 'status': 'PASS'}], 'daemon-restart-during-handoff': [{'r': 'R16', 'status': 'PASS'}], 'envelope-id-distinct-events': [{'r': 'R17', 'status': 'PASS'}], 'lease-issue-atomic-single-owner': [{'r': 'R18', 'status': 'PASS'}], 'restart-ttl-expired-no-resend': [{'r': 'R19', 'status': 'PASS'}], 'restart-revoked-pending-void': [{'r': 'R20', 'status': 'PASS'}], 'restart-valid-pending-resend': [{'r': 'R21', 'status': 'PASS'}], 'restart-corrupt-record-returned': [{'r': 'R22', 'status': 'PASS'}]}
+  시나리오 22개: {'PASS': 17, 'FAIL': 0, 'PARTIAL': 5, 'UNCONFIRMED': 0}  검사 407건, 실패 0건, 미확인 13건, 명세 불일치(GAP) 2건
+  필수 시험 ID: {'late-write-fenced': [{'r': 'R1', 'status': 'PASS'}, {'r': 'R3', 'status': 'PASS'}], 'late-result-rejected': [{'r': 'R2', 'status': 'PASS'}], 'resume-after-interrupt': [{'r': 'R4', 'status': 'PASS'}], 'duplicate-run-prevented': [{'r': 'R5', 'status': 'PASS'}], 'provider-scoped-switch': [{'r': 'R6', 'status': 'PARTIAL'}, {'r': 'R7', 'status': 'PARTIAL'}], 'hard-stop-heartbeating-job': [{'r': 'R9', 'status': 'PARTIAL'}], 'usage-recorded-not-capped': [{'r': 'R10', 'status': 'PASS'}], 'handoff-quiescent-before-preserve': [{'r': 'R11', 'status': 'PARTIAL'}], 'duplicate-delivery-noop': [{'r': 'R12', 'status': 'PASS'}], 'retry-new-idempotency-key': [{'r': 'R13', 'status': 'PASS'}], 'preserve-manifest-same-function': [{'r': 'R14', 'status': 'PASS'}], 'preserve-failure-recoverable-stop': [{'r': 'R15', 'status': 'PASS'}], 'daemon-restart-during-handoff': [{'r': 'R16', 'status': 'PASS'}], 'envelope-id-distinct-events': [{'r': 'R17', 'status': 'PASS'}], 'lease-issue-atomic-single-owner': [{'r': 'R18', 'status': 'PASS'}], 'restart-ttl-expired-no-resend': [{'r': 'R19', 'status': 'PASS'}], 'restart-revoked-pending-void': [{'r': 'R20', 'status': 'PASS'}], 'restart-valid-pending-resend': [{'r': 'R21', 'status': 'PARTIAL'}], 'restart-corrupt-record-returned': [{'r': 'R22', 'status': 'PASS'}]}

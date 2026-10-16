@@ -330,6 +330,8 @@ def r21(rep, cx):
                (noops(js), tr(js), w.state(BASIC)))
         rep.eq("실행 없음: 작업 트리·프로세스·자격 발급이 생기지 않았다", (before_trees, 0, []),
                (sorted(p.name for p in (w.layout.worktrees).glob("*")), len(w.handles), w.cred_log()))
+    rep.unconfirmed("[R21 실제 CLI 어댑터] 벤더 CLI를 띄우는 어댑터의 receiver_validation",
+                    "위 수신 측 검증은 이 도구의 빌더 쪽 어댑터(context.py)와 스크립트 프로세스(standin)가 한다. 벤더 CLI를 띄우는 실제 어댑터는 이 저장소에 없어 시험하지 않았다")
 
 
 # =============================================================== R22

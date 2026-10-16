@@ -1,0 +1,47 @@
+$ env ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh
+== generated files are up to date
+ok: 30 generated files are up to date
+== Rust: cargo build -p onjeon-contracts -p onjeon-api-types (default and --features skeleton)
+Rust: built
+Rust API: built (default and skeleton feature)
+== TypeScript: tsc --noEmit
+TypeScript: built, fixtures type-check (node /tmp/tsc/tsc.js Version 5.9.3)
+TypeScript API: built, fixtures type-check, skeleton not exported by index.ts
+== Dart: dart analyze + fixture round trip
+Analyzing ....
+No issues found!
+ok   Assertion.relation.fixture.json
+ok   Assertion.value.fixture.json
+ok   CompareView.fixture.json
+ok   ContractSnapshot.fixture.json
+ok   CoverageDetail.fixture.json
+ok   ErrorResponse.fixture.json
+ok   EvaluationResult.payable.fixture.json
+ok   EvaluationResult.undetermined.fixture.json
+ok   EvidenceView.fixture.json
+ok   NeedResult.fixture.json
+ok   PlanView.fixture.json
+ok   PremiumObservation.full.fixture.json
+ok   PremiumObservation.raw.fixture.json
+ok   ReleaseManifest.fixture.json
+ok   ScenarioResult.blocked.fixture.json
+ok   ScenarioResult.evaluated.fixture.json
+ok   unknown criticality rejected
+ok   missing required field rejected
+Dart: analyzed and round-tripped (Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on "linux_x64")
+Analyzing lib, api_roundtrip.dart...
+No issues found!
+ok   CurrentReleaseResponse.fixture.json
+ok   DeletionJobResponse.fixture.json
+ok   EvaluationResponse.fixture.json
+ok   ListProductsQuery.fixture.json
+ok   PolicyImportDetail.fixture.json
+ok   PolicyUpdateRequest.fixture.json
+ok   ProductListResponse.fixture.json
+ok   ReleaseListResponse.fixture.json
+ok   body without release_id rejected
+ok   unknown sale_status rejected
+ok   default operations contain no skeleton operation
+Dart API: analyzed, round-tripped, skeleton not exported by onjeon_api.dart
+RESULT: all three languages build
+exit code: 0

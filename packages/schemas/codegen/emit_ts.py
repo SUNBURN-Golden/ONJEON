@@ -74,10 +74,13 @@ def used_axes(model: Model) -> set:
     return found
 
 
-def emit_types(model: Model) -> str:
-    enums = sorted({pascal(a) for a in used_axes(model)})
-    out = [HEADER, "\nimport type {\n" + "".join(f"  {e},\n" for e in enums) + '} from "./vocabulary";\n']
-    for st in model.structs.values():
+def emit_types(model: Model, structs=None, imports: str | None = None, header: str = HEADER) -> str:
+    """`structs`/`imports`/`header` let emit_api reuse this for the API client."""
+    if imports is None:
+        enums = sorted({pascal(a) for a in used_axes(model)})
+        imports = "\nimport type {\n" + "".join(f"  {e},\n" for e in enums) + '} from "./vocabulary";\n'
+    out = [header, imports]
+    for st in (model.structs.values() if structs is None else structs):
         out.append("\n" + doc(st.description or st.name))
         out.append(f"export interface {st.name} {{\n")
         for f in st.fields:

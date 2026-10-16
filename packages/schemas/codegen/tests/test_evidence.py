@@ -97,11 +97,13 @@ class EvidenceFiles(unittest.TestCase):
         self.assertIn("T-CT-01", text)
 
     def test_no_leaks(self):
-        for path in sorted(EVIDENCE.iterdir()):
+        # subdirectories hold other tasks' evidence (ct03/) and are held to the same rules
+        for path in sorted(p for p in EVIDENCE.rglob("*") if p.is_file()):
+            name = str(path.relative_to(EVIDENCE))
             text = path.read_text(encoding="utf-8")
-            self.assertIsNone(LEAK.search(text), f"{path.name}: {LEAK.search(text) and LEAK.search(text).group(0)!r}")
+            self.assertIsNone(LEAK.search(text), f"{name}: {LEAK.search(text) and LEAK.search(text).group(0)!r}")
             bad = [m for m in VERSIONED_NAME.findall(text) if not ALLOWED_VERSIONED.match(m)]
-            self.assertEqual(bad, [], f"{path.name}: versioned identifiers quoted verbatim")
+            self.assertEqual(bad, [], f"{name}: versioned identifiers quoted verbatim")
 
 
 if __name__ == "__main__":

@@ -93,10 +93,15 @@ def emit_vocabulary(model: Model) -> str:
     return "".join(out).rstrip() + "\n"
 
 
-def emit_types(model: Model) -> str:
-    out = [HEADER, "use super::vocabulary::*;\nuse serde::{Deserialize, Serialize};\n\n"]
-    for st in model.structs.values():
+def emit_types(model: Model, structs=None, preamble: str | None = None, header: str = HEADER, cfg: dict | None = None) -> str:
+    """`structs`/`preamble`/`header`/`cfg` let emit_api reuse this for the API crate (cfg: struct name -> attribute line)."""
+    if preamble is None:
+        preamble = "use super::vocabulary::*;\nuse serde::{Deserialize, Serialize};\n\n"
+    out = [header, preamble]
+    for st in (model.structs.values() if structs is None else structs):
         out.append(doc(st.description or st.name))
+        if cfg and st.name in cfg:
+            out.append(cfg[st.name] + "\n")
         out.append("#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]\n")
         out.append(f"pub struct {st.name} {{\n")
         for f in st.fields:
@@ -113,7 +118,7 @@ def emit_types(model: Model) -> str:
             if optional:
                 attrs.append("default")
                 attrs.append('skip_serializing_if = "Option::is_none"')
-            elif f.type.nullable:
+            elif f.type.nullable and f.type.kind != "any":
                 # required but nullable: the key must be present (null is fine). serde's derive
                 # would otherwise treat a missing Option key as None.
                 attrs.append('deserialize_with = "Option::deserialize"')

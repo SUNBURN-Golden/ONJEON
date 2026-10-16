@@ -1,0 +1,72 @@
+$ cargo test -p onjeon-api-types && cargo test -p onjeon-api-types --features skeleton
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_api_types-7c4a02dd950953e7)
+
+running 16 tests
+test tests::money_in_requests_is_integer_won ... ok
+test tests::fixtures_round_trip ... ok
+test tests::every_response_body_type_has_a_required_release_id ... ok
+test tests::multipart_form_has_no_binary_field_and_keeps_the_password_out_of_other_types ... ok
+test tests::operation_ids_and_routes_are_unique ... ok
+test tests::a_required_any_value_must_be_present ... ok
+test tests::lookup_helpers ... ok
+test tests::comparison_and_evaluation_targets_are_exactly_one ... ok
+test tests::skeleton_operations_are_not_exposed_by_default ... ok
+test tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required ... ok
+test tests::personal_and_console_are_never_publicly_cacheable ... ok
+test tests::unknown_enum_values_fail_instead_of_defaulting ... ok
+test tests::the_spec_pins_private_no_store_on_every_personal_and_console_response ... ok
+test tests::operation_table_matches_the_openapi_documents ... ok
+....ok: 30 generated files are up to date
+test tests::generated_files_are_up_to_date ... ok
+.................................
+----------------------------------------------------------------------
+Ran 37 tests in 0.266s
+
+OK
+test tests::python_openapi_suite_passes ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+   Doc-tests onjeon_api_types
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_api_types-76a16fa506a7a95f)
+
+running 16 tests
+test tests::comparison_and_evaluation_targets_are_exactly_one ... ok
+test tests::fixtures_round_trip ... ok
+test tests::money_in_requests_is_integer_won ... ok
+test tests::every_response_body_type_has_a_required_release_id ... ok
+test tests::multipart_form_has_no_binary_field_and_keeps_the_password_out_of_other_types ... ok
+test tests::a_required_any_value_must_be_present ... ok
+test tests::lookup_helpers ... ok
+test tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required ... ok
+test tests::unknown_enum_values_fail_instead_of_defaulting ... ok
+test tests::personal_and_console_are_never_publicly_cacheable ... ok
+test tests::skeleton_operations_exist_only_behind_the_feature_and_every_flag_is_named ... ok
+test tests::operation_ids_and_routes_are_unique ... ok
+test tests::the_spec_pins_private_no_store_on_every_personal_and_console_response ... ok
+test tests::operation_table_matches_the_openapi_documents ... ok
+ok: 30 generated files are up to date
+....test tests::generated_files_are_up_to_date ... ok
+.................................
+----------------------------------------------------------------------
+Ran 37 tests in 0.286s
+
+OK
+test tests::python_openapi_suite_passes ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+   Doc-tests onjeon_api_types
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit code: 0

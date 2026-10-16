@@ -1,0 +1,3 @@
+# origin=fixture (synthetic robots.txt for tests; not a real site)
+User-agent: SomeOtherBot
+Disallow: /

@@ -42,10 +42,10 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 
 ## 증거 기록(reports/)
 
-`reports/dry_run.log`(보고서)와 `reports/unittest.log`(시험 실행)의 머리말은 `generated from parent commit <sha> + tree hash of tools/daemon sources`로 시작한다. 로그는 커밋 전에 만들므로 로그 자신이 들어갈 커밋의 SHA를 적을 수 없다. 그래서 부모 커밋(이 변경을 얹은 바로 앞 커밋)과, 그 위에 얹은 소스의 내용 해시를 적는다. PR head는 부모 커밋에 이 변경 커밋 하나를 더한 것과 정확히 같다. 해시는 `tools/daemon/`(`reports/`·`__pycache__` 제외)과 `tools/tests/test_daemon_dry_run.py`의 파일 내용으로 만들고, 같은 소스면 같은 값이 나온다. 저장소 루트에서 다시 계산한다.
+`reports/dry_run.log`(보고서)와 `reports/unittest.log`(시험 실행)의 머리말은 `generated from parent commit <sha> + tree hash of tools/daemon sources`로 시작한다. 로그는 커밋 전에 만들므로 로그 자신이 들어갈 커밋의 SHA를 적을 수 없다. 그래서 부모 커밋(이 변경을 얹은 바로 앞 커밋)과, 그 위에 얹은 소스의 내용 해시를 적는다. PR head는 부모 커밋에 이 변경 커밋 하나를 더한 것과 정확히 같다. 해시는 `tools/daemon/`(`reports/`·`runner_verify/`·`__pycache__` 제외)과 `tools/tests/test_daemon_dry_run.py`의 파일 내용으로 만들고, 같은 소스면 같은 값이 나온다. 저장소 루트에서 다시 계산한다.
 
 ```sh
-{ find tools/daemon -path tools/daemon/reports -prune -o -path '*/__pycache__' -prune -o -type f -print; \
+{ find tools/daemon -path tools/daemon/reports -prune -o -path tools/daemon/runner_verify -prune -o -path '*/__pycache__' -prune -o -type f -print; \
   echo tools/tests/test_daemon_dry_run.py; } | LC_ALL=C sort | xargs sha256sum | sha256sum
 ```
 

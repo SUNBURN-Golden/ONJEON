@@ -1,0 +1,89 @@
+# command: python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py -v
+# parent commit: 2f2d7a790747caf11ce5e3848789028624593d11 + this fix round's working tree
+test_clock_offset_and_scaled_sleep (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_clock_offset_and_scaled_sleep) ... ok
+test_exclude_pathspecs_cover_the_manifest (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_exclude_pathspecs_cover_the_manifest) ... ok
+test_faults_kill_only_the_armed_point (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_faults_kill_only_the_armed_point) ... ok
+test_push_failure_classes (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_push_failure_classes) ... ok
+test_store_refuses_nested_transactions (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_refuses_nested_transactions) ... ok
+test_store_survives_a_kill_in_the_middle_of_a_write (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_survives_a_kill_in_the_middle_of_a_write) ... ok
+test_store_transaction_is_all_or_nothing (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_transaction_is_all_or_nothing) ... ok
+test_a_remote_url_is_refused_with_exit_code_2 (tools.daemon.runner_verify.tests.test_runner_verify.Cli.test_a_remote_url_is_refused_with_exit_code_2) ... ok
+test_checked_in_result_files_are_consistent_with_their_report (tools.daemon.runner_verify.tests.test_runner_verify.Cli.test_checked_in_result_files_are_consistent_with_their_report) ... ok
+test_two_scenarios_end_to_end_write_every_output_file (tools.daemon.runner_verify.tests.test_runner_verify.Cli.test_two_scenarios_end_to_end_write_every_output_file) ... ok
+test_modes_and_metering (tools.daemon.runner_verify.tests.test_runner_verify.ProxyTests.test_modes_and_metering) ... ----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 40246)
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/server.py", line 438, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/server.py", line 404, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/usr/lib/python3.13/socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+----------------------------------------
+ok
+test_a_marked_repository_is_accepted (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_a_marked_repository_is_accepted) ... ok
+test_an_unmarked_bare_repository_is_refused (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_an_unmarked_bare_repository_is_refused) ... ok
+test_credential_lifecycle_decides_the_push (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_credential_lifecycle_decides_the_push) ... ok
+test_every_decision_is_logged (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_every_decision_is_logged) ... ok
+test_only_task_branches_of_mock_tasks_are_writable (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_only_task_branches_of_mock_tasks_are_writable) ... ok
+test_protected_main_refuses_even_a_valid_credential (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_protected_main_refuses_even_a_valid_credential) ... ok
+test_urls_and_the_product_repository_are_refused (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_urls_and_the_product_repository_are_refused) ... ok
+test_a_failure_is_recorded_as_a_failure (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_a_failure_is_recorded_as_a_failure) ... ok
+test_registry_covers_r1_to_r22_and_all_required_test_ids (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_registry_covers_r1_to_r22_and_all_required_test_ids) ... ok
+test_scenario_status (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_scenario_status) ... ok
+test_spec_tests_name_the_runner_script (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_spec_tests_name_the_runner_script) ... ok
+test_every_required_test_id_was_run_and_none_failed (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_every_required_test_id_was_run_and_none_failed) ... ok
+test_no_secret_or_raw_output_in_the_results (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_no_secret_or_raw_output_in_the_results) ... ok
+test_the_exit_code_profile_of_the_real_cli_is_empty_unless_confirmed (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_the_exit_code_profile_of_the_real_cli_is_empty_unless_confirmed) ... ok
+test_unconfirmed_parts_are_exactly_the_ones_without_a_path_on_this_host (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_unconfirmed_parts_are_exactly_the_ones_without_a_path_on_this_host)
+A part may be UNCONFIRMED only for a runner path that has no confirmed way to be driven here. ... ok
+test_R10_usage_recorded_not_capped (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R10_usage_recorded_not_capped) ... ok
+test_R11_handoff_quiescent_before_preserve (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R11_handoff_quiescent_before_preserve) ... ok
+test_R12_duplicate_delivery_noop (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R12_duplicate_delivery_noop) ... ok
+test_R13_retry_new_idempotency_key (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R13_retry_new_idempotency_key) ... ok
+test_R14_preserve_manifest_same_function (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R14_preserve_manifest_same_function) ... ok
+test_R15_preserve_failure_recoverable_stop (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R15_preserve_failure_recoverable_stop) ... ok
+test_R16_daemon_restart_during_handoff (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R16_daemon_restart_during_handoff) ... ok
+test_R17_envelope_id_distinct_events (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R17_envelope_id_distinct_events) ... ok
+test_R18_lease_issue_atomic_single_owner (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R18_lease_issue_atomic_single_owner) ... ok
+test_R19_restart_ttl_expired_no_resend (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R19_restart_ttl_expired_no_resend) ... ok
+test_R1_late_write_fenced (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R1_late_write_fenced) ... ok
+test_R20_restart_revoked_pending_void (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R20_restart_revoked_pending_void) ... ok
+test_R21_restart_valid_pending_resend (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R21_restart_valid_pending_resend) ... ok
+test_R22_restart_corrupt_record_returned (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R22_restart_corrupt_record_returned) ... ok
+test_R2_late_result_rejected (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R2_late_result_rejected) ... ok
+test_R3_late_write_fenced (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R3_late_write_fenced) ... ok
+test_R4_resume_after_interrupt (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R4_resume_after_interrupt) ... ok
+test_R5_duplicate_run_prevented (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R5_duplicate_run_prevented) ... ok
+test_R6_provider_scoped_switch (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R6_provider_scoped_switch) ... ok
+test_R7_provider_scoped_switch (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R7_provider_scoped_switch) ... ok
+test_R8_decision_gate_and_resume (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R8_decision_gate_and_resume) ... ok
+test_R9_hard_stop_heartbeating_job (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R9_hard_stop_heartbeating_job) ... ok
+test_a_merge_function_would_be_caught (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_a_merge_function_would_be_caught) ... ok
+test_all_static_checks_pass (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_all_static_checks_pass) ... ok
+test_checks_can_fail (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_checks_can_fail) ... ok
+test_the_tool_never_writes_outside_its_own_paths_by_construction (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_the_tool_never_writes_outside_its_own_paths_by_construction) ... ok
+test_429_is_a_usage_limit_only_through_the_status_channel (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_429_is_a_usage_limit_only_through_the_status_channel) ... ok
+test_auth_failure (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_auth_failure) ... ok
+test_every_cli_target_without_a_proxy_path_says_why (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_every_cli_target_without_a_proxy_path_says_why) ... ok
+test_exit_codes_enter_the_profile_only_if_unique_to_the_situation (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_exit_codes_enter_the_profile_only_if_unique_to_the_situation) ... ok
+test_service_unavailable_needs_three_in_a_row (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_service_unavailable_needs_three_in_a_row) ... ok
+test_stream_parser_keeps_only_structured_fields (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_stream_parser_keeps_only_structured_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 58 tests in 218.625s
+
+OK

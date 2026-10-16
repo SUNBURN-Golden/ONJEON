@@ -1,7 +1,7 @@
 # command: python3 -m unittest tools/tests/test_daemon_dry_run.py
-# generated from parent commit 72489f1c22b55bfeb81d8115bceec6b71db32f1f + tree hash of tools/daemon sources sha256:fc2b7901d112b98ba117e0379b611db2225fb91f916fe85afeaedbc96dd24ea9 (tools/daemon without reports/ and __pycache__, plus tools/tests/test_daemon_dry_run.py; recompute with the command in tools/daemon/README.md; the PR head is this parent plus exactly one commit)
+# generated from parent commit 04334a70e07d98abecc255d0a66630778a459e43 + tree hash of tools/daemon sources sha256:efe9cef74450cc0e09cf43ac9d9066dee4c8e3f8fc1d912af4057582b5692bbe (tools/daemon without reports/ and __pycache__, plus tools/tests/test_daemon_dry_run.py; recompute with the command in tools/daemon/README.md; the PR head is this parent plus exactly one commit)
 ......................................................................................................................................................................................
 ----------------------------------------------------------------------
-Ran 182 tests in 64.588s
+Ran 182 tests in 64.903s
 
 OK

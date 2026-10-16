@@ -1,0 +1,22 @@
+$ git tag --list 'contracts-*'   # (empty: no contracts tag exists in this repository, so no real previous tag has been compared)
+exit code: 0
+(no output above = no tag)
+
+$ bash packages/schemas/codegen/check_compat.sh --selftest
+== self-test: a deleted field must fail the check
+   structural diff: deleted field detected
+   compile probe: previous client cannot read documents without the deleted field
+self-test ok
+exit code: 0
+
+$ bash packages/schemas/codegen/check_compat.sh contracts-0.1.0   # the <prev_tag> form of tests[]; the tag does not exist yet
+BASELINE: no contracts-* tag exists yet (first release); nothing to compare with.
+== self-test: a deleted field must fail the check
+   structural diff: deleted field detected
+   compile probe: previous client cannot read documents without the deleted field
+self-test ok
+exit code: 0
+
+$ ONJ_REQUIRE_BASELINE=1 bash packages/schemas/codegen/check_compat.sh contracts-0.1.0   # how CI must call it once a tag exists: the first-release pass is refused
+error: no contracts-* tag found (shallow clone without tags?); ONJ_REQUIRE_BASELINE=1 forbids the first-release pass
+exit code: 2

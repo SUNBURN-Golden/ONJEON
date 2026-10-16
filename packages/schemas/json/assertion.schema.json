@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assertion.schema.json",
+  "title": "Assertion",
+  "type": "object",
+  "description": "주장 한 건. 불변이며 정정은 새 주장과 supersedes (02_구현계약 §1.2).",
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/AssertionId"
+    },
+    "subject": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "predicate": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "속성 이름 또는 T-box 관계 ID"
+    },
+    "object": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "관계 주장의 객체"
+    },
+    "value": {
+      "$ref": "#/$defs/AssertionValue",
+      "description": "속성 값 주장의 값"
+    },
+    "scope": {
+      "$ref": "#/$defs/AssertionScope"
+    },
+    "time": {
+      "$ref": "#/$defs/AssertionTime"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/EvidenceLink"
+      },
+      "minItems": 1,
+      "description": "근거 1개 이상"
+    },
+    "criticality": {
+      "$ref": "vocabulary.schema.json#/$defs/criticality"
+    },
+    "value_state": {
+      "$ref": "vocabulary.schema.json#/$defs/value_state"
+    },
+    "review_status": {
+      "$ref": "vocabulary.schema.json#/$defs/review_status"
+    },
+    "hold_reason": {
+      "$ref": "vocabulary.schema.json#/$defs/hold_reason"
+    },
+    "review_decision_id": {
+      "$ref": "common.schema.json#/$defs/ReviewDecisionId",
+      "description": "accepted이면 필수 (검사: onjeon_contracts::checks)"
+    },
+    "supersedes": {
+      "$ref": "common.schema.json#/$defs/AssertionId"
+    },
+    "correction_reason": {
+      "type": "string"
+    },
+    "extractor": {
+      "$ref": "#/$defs/Extractor"
+    },
+    "origin": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "x-onjeon-pending-axis": "assertion_origin",
+      "description": "pipeline, fixture (02 §1.2). 어휘 축 승격 대기"
+    },
+    "onto_version": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "created_by_run": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    }
+  },
+  "required": [
+    "id",
+    "subject",
+    "predicate",
+    "scope",
+    "time",
+    "evidence",
+    "criticality",
+    "value_state",
+    "review_status",
+    "extractor",
+    "origin",
+    "onto_version",
+    "created_by_run"
+  ],
+  "additionalProperties": false,
+  "x-onjeon-invariants": [
+    "review_status=accepted => review_decision_id 있음 (chk_accepted_needs_decision)",
+    "origin=fixture => review_status<>accepted (chk_fixture_never_accepted)",
+    "object와 value 중 하나만 있다(관계 주장 또는 속성 값 주장)"
+  ],
+  "$defs": {
+    "AssertionValue": {
+      "type": "object",
+      "description": "속성 값 주장의 값 (02 §1.2)",
+      "properties": {
+        "raw": {
+          "type": "string",
+          "description": "원문 그대로의 값"
+        },
+        "normalized": {
+          "description": "정규화된 값(문자열·숫자·불리언·구조). 형식은 predicate가 정한다"
+        },
+        "unit": {
+          "type": "string",
+          "description": "단위"
+        },
+        "value_kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "value_kind",
+          "description": "fixed, upper_bound, contract_selected (DATA_PIPELINE_CONTRACT §4). 어휘 축 승격 대기"
+        },
+        "amount_form": {
+          "$ref": "vocabulary.schema.json#/$defs/amount_form"
+        }
+      },
+      "required": [
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "AssertionScope": {
+      "type": "object",
+      "description": "주장의 적용 범위 (02 §1.2)",
+      "properties": {
+        "document": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "sales_config": {
+          "$ref": "common.schema.json#/$defs/SalesConfigId"
+        },
+        "contract_kind": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "component_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "insured_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "AssertionTime": {
+      "type": "object",
+      "description": "시간 필드. 어휘 정본의 시각 이름만 쓴다(valid_from은 폐기 별칭이라 effective_from)",
+      "properties": {
+        "effective_from": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        },
+        "effective_to": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        },
+        "recorded_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        },
+        "observed_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        },
+        "judged_as_of": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        }
+      },
+      "required": [
+        "recorded_at",
+        "observed_at"
+      ],
+      "additionalProperties": false
+    },
+    "Extractor": {
+      "type": "object",
+      "description": "추출기 신원",
+      "properties": {
+        "tool": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "prompt_version": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        }
+      },
+      "required": [
+        "tool",
+        "version"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

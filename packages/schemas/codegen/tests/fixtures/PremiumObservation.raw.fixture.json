@@ -1,0 +1,20 @@
+{
+  "id": "premium:01H8XGJWBWBAQ4Z4RN3XPQ3BDY",
+  "evidence": [
+    {
+      "ref": "raw:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "role": "observation"
+    }
+  ],
+  "raw_amount": 51290,
+  "price_basis": "illustrative",
+  "observed_at": "2026-10-01T09:00:00Z",
+  "missing_dimensions": [
+    "channel",
+    "risk_class"
+  ],
+  "comparison_eligible": false,
+  "value_state": "observed",
+  "review_status": "pending",
+  "origin": "fixture"
+}

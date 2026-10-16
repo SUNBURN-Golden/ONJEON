@@ -1,0 +1,67 @@
+$ cargo fmt --all -- --check   # last 5 lines
+exit code: 0
+
+$ cargo clippy --all-targets -- -D warnings   # last 3 lines
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+exit code: 0
+
+$ cargo test --all   # 'Running' and 'test result' lines only
+     Running unittests src/lib.rs (target/debug/deps/onjeon_contracts-a6f716113cd32f4d)
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.18s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/golden.rs (target/debug/deps/golden-b070bb5f85ed9bcc)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-581a38e2763dfe88)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/mutation.rs (target/debug/deps/mutation-30bcc153d15232c8)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/overflow.rs (target/debug/deps/overflow-a7a24fbf3280fcac)
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/real_clauses.rs (target/debug/deps/real_clauses-15dc6296a8f95d44)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests/review_fixes.rs (target/debug/deps/review_fixes-89e86f8d87d7639f)
+test result_identifies_rule_version_release_content_and_evidence ... ok
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/rule_02.rs (target/debug/deps/rule_02-c69f0843eb660f70)
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/soundness.rs (target/debug/deps/soundness-7683122ddc54e9c2)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests/static_types.rs (target/debug/deps/static_types-e121bb97a3bf2b90)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/unknown_branch_errors.rs (target/debug/deps/unknown_branch_errors-042ef5e7e77aab11)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/vocabulary.rs (target/debug/deps/vocabulary-45281aec3561603e)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+exit code: 0
+
+$ python3 -m unittest discover -s tools/tests   # last 3 lines
+Ran 388 tests in 73.699s
+
+OK (skipped=21)
+exit code: 0
+
+$ python3 tools/vocab_check.py   # last 1 lines
+vocabulary ok: 33 axes, 177 values
+exit code: 0
+
+$ python3 tools/validation_check.py   # last 1 lines
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+exit code: 0
+
+$ python3 tools/validation_check.py --selftest   # last 1 lines
+selftest ok: 38 mutations, each caught for its intended reason
+exit code: 0
+
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py   # last 3 lines
+요약: 기계 검사 44/44 · 존재 검사 72/72 · 전체 통과
+주의: '기계' 검사는 JSON 구조·그래프를 계산해서 판정하지만, 명세의 정합성만 본다. 실제 데몬·서비스의 동작 검증이 아니다.
+      '존재 검사'는 필드·문구가 있는지만 본다. 판단 기준 관리·부분 보류 등 제품 의미의 적절성은 사람 검토 대상이다.
+exit code: 0
+
+$ python3 -I packages/schemas/codegen/gen.py --check   # last 1 lines
+ok: 14 generated files are up to date
+exit code: 0
+

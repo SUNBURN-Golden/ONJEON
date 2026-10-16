@@ -47,7 +47,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 
 ## 한계와 열린 항목
 
-- **CI 단계는 아직 연결되지 않았다.** `.github/workflows/`는 이 과제의 허용 경로 밖이다. 연결할 때 추가할 단계: `python3 -I packages/schemas/codegen/gen.py --check`, `python3 -I -m unittest discover -s packages/schemas/codegen/tests`, `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`(tsc·Dart SDK 설치 필요), 태그가 생긴 뒤 `bash packages/schemas/codegen/check_compat.sh contracts-<이전>`.
+- **CI 워크플로 단계는 아직 연결되지 않았다(후속 과제로 남김).** 대신 `cargo test --all`이 `gen.py --check`, 파이썬 시험 묶음, `check_compat.sh --selftest`(필드 삭제 시 실패 확인)를 실행하므로 기존 CI의 cargo 단계가 이 셋을 지킨다. TypeScript·Dart 빌드는 도구가 필요해 cargo가 돌리지 않는다. `.github/workflows/`는 이 과제의 허용 경로 밖이다. 연결할 때 추가할 단계: `python3 -I packages/schemas/codegen/gen.py --check`, `python3 -I -m unittest discover -s packages/schemas/codegen/tests`, `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`(tsc·Dart SDK 설치 필요), 태그가 생긴 뒤 `bash packages/schemas/codegen/check_compat.sh contracts-<이전>`.
 - 호환 컴파일 탐침은 Rust만이다. TypeScript·Dart는 현재 스키마의 빌드와 픽스처 확인만 하고 이전 태그 생성물로의 교차 컴파일은 하지 않는다. 구조 비교는 세 언어에 공통이다.
 - 첫 `contracts-*` 태그는 아직 없다. 태그를 찍는 것은 릴리스 절차의 몫이다.
 - 02가 닫지 않은 것: 주장 ID 표기(`a:` 대 `assertion:`, `evidence_ref.md`), `release_hash`와 `content_sha256`의 관계(스키마는 `content_sha256`만), `need_result.id`·`conclusion_id` 형식, `special_conditions`·`usage_counters` 항목 형식(임의 JSON), `scope_relation`·`judged_by` 등의 값 집합. 임의로 정하지 않고 자리만 두었다.
@@ -86,3 +86,5 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 | `statement_kind` | `NeedReason.statement_kind` |
 | `usage_restriction` | `ResultState.usage_restriction` |
 | `value_kind` | `AssertionValue.value_kind` |
+
+- **제약은 생성물이 강제하지 않는다.** `pattern`·`minimum`·`minItems`는 시험용 `validate.py`만 검사한다. 세 언어 클라이언트는 음수 `Krw`나 잘못된 ID도 역직렬화한다.

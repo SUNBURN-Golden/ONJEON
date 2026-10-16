@@ -156,6 +156,27 @@ fn generated_files_are_up_to_date() {
 }
 
 #[test]
+fn python_codegen_suite_passes() {
+    let status = std::process::Command::new("python3")
+        .args(["-I", "-m", "unittest", "discover", "-s"])
+        .arg(schemas_dir().join("codegen/tests"))
+        .status()
+        .expect("python3 is required to run the codegen suite");
+    assert!(status.success(), "packages/schemas/codegen/tests failed");
+}
+
+/// A deleted field must fail the compatibility check (structural diff and compile probe).
+#[test]
+fn compat_check_selftest_detects_a_deleted_field() {
+    let status = std::process::Command::new("bash")
+        .arg(schemas_dir().join("codegen/check_compat.sh"))
+        .arg("--selftest")
+        .status()
+        .expect("bash is required to run the compat self-test");
+    assert!(status.success(), "check_compat.sh --selftest failed");
+}
+
+#[test]
 fn contracts_version_matches_the_generated_clients() {
     let ts =
         std::fs::read_to_string(schemas_dir().join("codegen/generated/ts/package.json")).unwrap();

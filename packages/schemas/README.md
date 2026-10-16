@@ -43,7 +43,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 
 패키지 버전은 이 디렉터리 `Cargo.toml`의 `version`이고 태그는 `contracts-x.y.z`다. 깨지는 변경 = 필드 삭제·타입 변경·필수 ↔ 선택 변경·필수 필드 추가·enum 값 삭제·타입 삭제(major, `0.x`에서는 minor를 올려야 한다). 선택 필드·타입·enum 값 추가는 버전을 올리면 된다. 스키마가 바뀌었는데 버전이 그대로면 실패한다.
 
-`check_compat.sh <prev_tag>`는 (1) 이전 태그의 스키마와 구조 비교, (2) 깨지는 변경이 없으면 이전 태그에서 생성한 Rust 클라이언트로 새 스키마에서 만든 최소 문서를 읽는 컴파일 탐침을 돌린다. 깨지는 변경을 major 상향으로 선언했으면 탐침은 건너뛴다. `contracts-*` 태그가 하나도 없으면(첫 릴리스) 비교 대상이 없다고 밝히고 자체 시험만 돌린다.
+`check_compat.sh <prev_tag>`는 (1) 이전 태그의 스키마와 구조 비교, (2) 깨지는 변경이 없으면 이전 태그의 스키마에서 현재 생성기(`emit_rust`)로 다시 만든 Rust 클라이언트(태그에 커밋된 생성물 그대로가 아니다)로 새 스키마에서 만든 최소 문서를 읽는 컴파일 탐침을 돌린다. 깨지는 변경을 major 상향으로 선언했으면 탐침은 건너뛴다. `contracts-*` 태그가 하나도 없으면(첫 릴리스) 비교 대상이 없다고 밝히고 자체 시험만 돌린다.
 
 ## 한계와 열린 항목
 
@@ -53,7 +53,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 - 02가 닫지 않은 것: 주장 ID 표기(`a:` 대 `assertion:`, `evidence_ref.md`), `release_hash`와 `content_sha256`의 관계(스키마는 `content_sha256`만), `need_result.id`·`conclusion_id` 형식, `special_conditions`·`usage_counters` 항목 형식(임의 JSON), `scope_relation`·`judged_by` 등의 값 집합. 임의로 정하지 않고 자리만 두었다.
 - `PlanView`는 화면 설계서 §11을 따른다. 검증 표본(`docs/blueprint/validation/screen/*.json`)은 `won`·`man_display` 같은 §11에 없는 필드를 쓰는 설계 검증용 사본이라 이 스키마에 맞추지 않았다.
 - OpenAPI(T-CT-03), 오류 코드 표·분석 이벤트·도메인 이벤트(T-CT-04)는 이 과제에 없다. `ErrorResponse`는 형태만 정의한다.
-- 픽스처는 시험 전용이다. 제품 코드에서 쓰지 않으며 `origin=fixture`를 유지한다.
+- 픽스처는 시험 전용이다. 제품 코드에서 쓰지 않으며 `origin=fixture`를 유지한다. 단 하나의 예외: `PremiumObservation.eligible.fixture.json`은 `review_status=accepted`(비교 자격 조건 시험용)라서 `chk_fixture_never_accepted`상 `origin=fixture`일 수 없고 `origin=pipeline`이다. 이 파일은 `tests/fixtures/*.fixture.json` 경로와 `comparison_basis_id=cb-fixture`로 시험 전용임을 표시하며, `test_fixtures_are_marked_test_only`가 예외가 이 파일 하나뿐임을 고정한다.
 
 ### 어휘 승격 대기 축 (`x-onjeon-pending-axis`)
 

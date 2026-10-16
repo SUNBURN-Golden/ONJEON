@@ -268,10 +268,18 @@ class Fixtures(unittest.TestCase):
             self.assertEqual(self.v.validate(doc, name.split(".")[0]), [], name)
 
     def test_fixtures_are_marked_test_only(self):
-        # the only rows that can be accepted-looking are explicit pipeline rows with a decision
+        # origin=fixture is the rule. The one exception: an accepted row cannot be origin=fixture
+        # (chk_fixture_never_accepted), so the eligible premium fixture is marked by its file name
+        # (*.fixture.json under tests/fixtures/) and its "cb-fixture" comparison basis; this pins it.
+        exceptions = {name for name, doc in self.docs.items() if "origin" in doc and doc["origin"] != "fixture"}
+        self.assertEqual(exceptions, {"PremiumObservation.eligible.fixture.json"})
+        doc = self.docs["PremiumObservation.eligible.fixture.json"]
+        self.assertEqual(doc["review_status"], "accepted")
+        self.assertIn("review_decision_id", doc)
+        self.assertTrue(doc["comparison_basis_id"].startswith("cb-fixture"))
         for name, doc in self.docs.items():
-            if "origin" in doc and doc["origin"] != "fixture":
-                self.assertEqual(doc["review_status"], "accepted" if "review_decision_id" in doc else doc["review_status"], name)
+            if name not in exceptions and "origin" in doc:
+                self.assertNotEqual(doc.get("review_status"), "accepted", name)
         self.assertEqual(self.docs["Assertion.relation.fixture.json"]["origin"], "fixture")
         self.assertEqual(self.docs["PremiumObservation.raw.fixture.json"]["origin"], "fixture")
         self.assertNotEqual(self.docs["Assertion.relation.fixture.json"]["review_status"], "accepted")

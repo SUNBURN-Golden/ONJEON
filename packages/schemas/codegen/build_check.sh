@@ -25,7 +25,7 @@ elif command -v tsc >/dev/null 2>&1; then tsc_cmd=(tsc)
 elif command -v npx >/dev/null 2>&1 && (cd "$here" && npx --no-install tsc --version >/dev/null 2>&1); then tsc_cmd=(npx --no-install tsc)
 fi
 if [ "${#tsc_cmd[@]}" -eq 0 ]; then
-  echo "TypeScript: SKIPPED (no tsc; set TSC="node /path/to/tsc.js")"; skipped=1
+  echo "TypeScript: SKIPPED (no tsc; set TSC='node /path/to/tsc.js')"; skipped=1
 else
   ts_scratch="$(mktemp -d)"
   cp -R "$here/generated/ts/." "$ts_scratch/"

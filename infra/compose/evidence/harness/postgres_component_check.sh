@@ -2,14 +2,14 @@
 # 실제 PostgreSQL 16으로 zone-init 흐름을 재현(이미지 안의 psql 경로만 시험용으로 바꿈)
 set -u
 P=/tmp/pgx/pixeltable_pgserver/pginstall/bin; export PATH=$P:$PATH
-SRC=/workspace/onjeon-run/wt/T-OP-01/infra/compose/initdb
+SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../initdb" && pwd)"
 B=/tmp/pgrun2; pkill -f "$B/" 2>/dev/null; rm -rf $B; mkdir -p $B
 sed "s#/opt/onjeon/zone-init.psql#$SRC/zone-init.psql#" $SRC/10-zone.sh > $B/10-zone.sh
-declare -A PORT=([public]=58741 [private]=58742) ADM=([public]=pub_admin [private]=prv_admin) APP=([public]=pub_app [private]=prv_app) DB=([public]=db_public [private]=db_private)
+declare -A PORT=([public]=48741 [private]=48742) ADM=([public]=pub_admin [private]=prv_admin) APP=([public]=pub_app [private]=prv_app) DB=([public]=db_public [private]=db_private)
 for z in public private; do
   echo -n "adminpw-$z" > $B/pw-$z
   initdb -D $B/$z -U ${ADM[$z]} --pwfile=$B/pw-$z --auth-host=scram-sha-256 --auth-local=trust --data-checksums >/dev/null 2>&1
-  extra=""; [ $z = private ] && extra="-c log_statement=none -c log_min_duration_statement=-1 -c log_min_error_statement=panic"
+  extra=""; [ $z = private ] && extra="-c log_statement=none -c log_min_duration_statement=-1 -c log_min_error_statement=panic -c log_error_verbosity=terse -c log_min_messages=log"
   pg_ctl -D $B/$z -o "-p ${PORT[$z]} -c unix_socket_directories=$B -c password_encryption=scram-sha-256 -c listen_addresses=127.0.0.1 $extra" -l $B/log-$z -w start >/dev/null
   psql -h $B -p ${PORT[$z]} -U ${ADM[$z]} -d postgres -qc "create database ${DB[$z]}"
   ( export PGHOST=$B PGPORT=${PORT[$z]} PGPASSWORD=adminpw-$z POSTGRES_USER=${ADM[$z]} POSTGRES_DB=${DB[$z]} APP_DB_USER=${APP[$z]} APP_DB_PASSWORD=apppw-$z ONJEON_ZONE=$z
@@ -43,5 +43,8 @@ ps_ private ${APP[private]} apppw-private ${DB[private]} "SELECT 'SECRET-LITERAL
 ps_ private ${APP[private]} apppw-private ${DB[private]} "SELECT 1/0" >/dev/null 2>&1
 t "private log has no literal" "! grep -q SECRET-LITERAL $B/log-private"
 t "private log has no failing statement" "! grep -q '1/0' $B/log-private"
+ps_ private ${APP[private]} apppw-private ${DB[private]} "SELECT 'LEAKMARK-CAST'::int" >/dev/null 2>&1
+ps_ private ${APP[private]} apppw-private ${DB[private]} "INSERT INTO queue.jobs (queue_name,state,payload) VALUES ('x','running','{\"k\":\"LEAKMARK-ROW\"}')" >/dev/null 2>&1
+t "private log has no value quoted in error text" "! grep -q LEAKMARK $B/log-private"
 for z in public private; do pg_ctl -D $B/$z -m fast stop >/dev/null; done
 exit $fail

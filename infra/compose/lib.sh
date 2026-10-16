@@ -18,11 +18,18 @@ rand_hex() {
   od -An -N"$1" -tx1 /dev/urandom | tr -d ' \n'
 }
 
-# .env가 없으면 .env.example을 복사하고, 비어 있는 비밀값만 채운다. 이미 채워진 값은 바꾸지 않는다.
+# .env가 없으면 .env.example을 복사하고, 빠진 키를 덧붙이고, 비어 있는 비밀값만 채운다. 이미 채워진 값은 바꾸지 않는다.
 ensure_env() {
   mkdir -p "$STATE_DIR"
   [ -f "$ENV_FILE" ] || { (umask 077; cp "$COMPOSE_DIR/.env.example" "$ENV_FILE"); }
   chmod 600 "$ENV_FILE"
+  # .env.example에 새로 생긴 키를 기존 .env에 덧붙인다(이미 있는 키는 건드리지 않는다).
+  local ex_line ex_key
+  while IFS= read -r ex_line || [ -n "$ex_line" ]; do
+    [[ "$ex_line" =~ ^[A-Z0-9_]+= ]] || continue
+    ex_key="${ex_line%%=*}"
+    grep -q "^$ex_key=" "$ENV_FILE" || printf '%s\n' "$ex_line" >>"$ENV_FILE"
+  done <"$COMPOSE_DIR/.env.example"
   local tmp key val
   tmp="$(mktemp "$STATE_DIR/.env.XXXXXX")"
   chmod 600 "$tmp"
@@ -56,6 +63,8 @@ check_ident() {
 
 # 객체 저장소 신원 파일을 만든다. 공개 영역 신원은 공개 버킷 둘에만, 개인 영역 신원은 개인 버킷에만 권한이 있다.
 # 관리 신원은 버킷 생성과 시험 정리에만 쓴다. 파일에는 비밀키가 들어 있으므로 .generated(gitignore)에만 둔다.
+# 권한: 디렉터리 700(다른 호스트 사용자는 파일에 이르지 못한다), 파일 644. 컨테이너에 바인드 마운트되는 것은 파일이므로
+# 컨테이너 사용자가 root도 호스트 사용자도 아닐 때(비root 이미지, rootless Docker) 600이면 읽지 못한다.
 render_s3_config() {
   local k
   for k in S3_ADMIN_ACCESS_KEY S3_ADMIN_SECRET_KEY S3_PUBLIC_ACCESS_KEY S3_PUBLIC_SECRET_KEY \
@@ -80,7 +89,7 @@ render_s3_config() {
       "$(env_get S3_PRIVATE_ACCESS_KEY)" "$(env_get S3_PRIVATE_SECRET_KEY)" "$private" "$private" "$private"
     printf '  ]\n}\n'
   } >"$S3_CONFIG_FILE.tmp"
-  chmod 600 "$S3_CONFIG_FILE.tmp"
+  chmod 644 "$S3_CONFIG_FILE.tmp"
   mv "$S3_CONFIG_FILE.tmp" "$S3_CONFIG_FILE"
 }
 

@@ -1,4 +1,4 @@
-# 실제 PostgreSQL 16.14 서버(pip로 받은 번들 바이너리)에서 zone-init 흐름 재현. 이미지 안의 psql 경로만 시험용으로 바꿨다.
+# 실제 PostgreSQL 16.14 서버(pip로 받은 번들 바이너리)에서 zone-init 흐름 재현. 이미지 안의 psql 경로만 시험용으로 바꿨다. 개인 서버는 compose와 같은 로그 설정(log_statement=none, log_min_error_statement=panic, log_error_verbosity=terse, log_min_messages=log). Docker 없는 환경의 보조 기록이며 smoke.log의 실제 기동 시험을 대신하지 않는다.
 ok   public zone marker
 ok   public queue claim
 ok   public app cannot create table
@@ -26,4 +26,4 @@ ok   wrong password
 -- private log leak check (literal in statement should not be in log)
 ok   private log has no literal
 ok   private log has no failing statement
-exit 0
+ok   private log has no value quoted in error text

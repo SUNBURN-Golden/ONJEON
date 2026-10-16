@@ -6,6 +6,8 @@
 - 호스트 포트는 127.0.0.1에만 묶이고, 이미지는 태그가 고정되어 있다.
 - up.sh가 만드는 .env는 모든 비밀값이 채워지고 서로 다르며, 다시 실행해도 바뀌지 않는다.
 - 객체 저장소 신원 파일은 공개 영역 신원에 공개 버킷만, 개인 영역 신원에 개인 버킷만 준다.
+- 신원 파일은 소유자만 여는 디렉터리(700) 안의 644 파일이다: 다른 호스트 사용자는 못 읽고, 컨테이너 사용자는 root가 아니어도 읽는다.
+- smoke.sh의 부정 검사는 임의의 실패를 통과로 세지 않는다(거부 사유·응답 없음·접근 거부 응답을 요구).
 """
 import json
 import os
@@ -151,6 +153,13 @@ class ComposeShape(unittest.TestCase):
         prv = self.services["db-private"]
         self.assertIn("log_statement=none", prv)
         self.assertIn("log_min_duration_statement=-1", prv)
+        # 제약 위반의 DETAIL("Failing row contains (...)")에 값이 실리지 않게 한다.
+        self.assertIn("log_error_verbosity=terse", prv)
+        self.assertIn("log_min_error_statement=panic", prv)
+        # 오류 본문이 값을 인용할 수 있으므로 ERROR 수준 자체를 서버 로그에서 뺀다.
+        self.assertIn("log_min_messages=log", prv)
+        self.assertNotIn("log_min_messages", self.services["db-public"])
+        self.assertNotIn("log_statement", self.services["db-public"])
 
     def test_databases_use_scram_and_health_check_over_tcp(self):
         for name in ("db-public", "db-private"):
@@ -195,6 +204,17 @@ class EnvGeneration(unittest.TestCase):
         self.assertEqual(run_lib(self.tmp, "ensure_env").returncode, 0)
         self.assertEqual(parse_env(self.tmp / ".env")["PUBLIC_DB_ADMIN_PASSWORD"], "chosen-by-user")
 
+    def test_ensure_env_adds_keys_new_in_example_without_touching_existing(self):
+        # 예전에 만든 .env는 이후 .env.example에 키가 늘어도 그대로 쓸 수 있어야 한다.
+        (self.tmp / ".env").write_text("PUBLIC_DB_ADMIN_PASSWORD=chosen-by-user\nPUBLIC_DB_NAME=my_db\n", encoding="utf-8")
+        self.assertEqual(run_lib(self.tmp, "ensure_env").returncode, 0)
+        env = parse_env(self.tmp / ".env")
+        example = parse_env(COMPOSE / ".env.example")
+        self.assertEqual(set(example) - set(env), set())
+        self.assertEqual(env["PUBLIC_DB_NAME"], "my_db")
+        self.assertEqual(env["PUBLIC_DB_ADMIN_PASSWORD"], "chosen-by-user")
+        self.assertTrue(env["PRIVATE_DB_ADMIN_PASSWORD"])
+
     def test_ensure_env_leaves_no_temp_files(self):
         run_lib(self.tmp, "ensure_env")
         self.assertEqual(sorted(p.name for p in self.tmp.iterdir()), [".env"])
@@ -212,7 +232,6 @@ class ObjectStoreIdentities(unittest.TestCase):
         r = self.render()
         self.assertEqual(r.returncode, 0, r.stderr)
         path = self.tmp / ".generated" / "s3.json"
-        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
         env = parse_env(self.tmp / ".env")
         ids = {i["name"]: i for i in json.loads(path.read_text(encoding="utf-8"))["identities"]}
         self.assertEqual(set(ids), {"admin", "public-zone", "private-zone"})
@@ -229,6 +248,15 @@ class ObjectStoreIdentities(unittest.TestCase):
         self.assertEqual(len(set(secrets)), 3)
         self.assertEqual(ids["public-zone"]["credentials"][0]["accessKey"], env["S3_PUBLIC_ACCESS_KEY"])
         self.assertEqual(ids["private-zone"]["credentials"][0]["secretKey"], env["S3_PRIVATE_SECRET_KEY"])
+
+    def test_identity_file_is_closed_to_other_host_users_but_readable_by_any_container_user(self):
+        # 바인드 마운트되는 것은 파일이므로 컨테이너 사용자(root가 아닐 수 있다)가 읽어야 한다: 644.
+        # 호스트 쪽 보호는 디렉터리가 맡는다: 700이면 다른 호스트 사용자는 파일에 이르지 못한다. smoke.sh가 비root 컨테이너 사용자로 실제로 읽어 본다.
+        r = self.render()
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(stat.S_IMODE((self.tmp / ".generated").stat().st_mode), 0o700)
+        self.assertEqual(stat.S_IMODE((self.tmp / ".generated" / "s3.json").stat().st_mode), 0o644)
+        self.assertFalse((self.tmp / ".generated" / "s3.json.tmp").exists())
 
     def test_render_refuses_unusable_values(self):
         run_lib(self.tmp, "ensure_env")
@@ -281,20 +309,64 @@ class Scripts(unittest.TestCase):
         # 이미지가 실행 비트 없는 .sh를 source할 수 있다. exec이면 이미지의 초기화 흐름이 끊긴다.
         self.assertNotRegex(read("initdb/10-zone.sh"), r"(?m)^\s*exec\b")
 
-    def test_smoke_without_docker_reports_skip_and_can_be_made_to_fail(self):
+    def test_smoke_without_docker_fails_unless_static_only_is_requested(self):
+        # 실제 기동 시험을 못 돌린 실행이 종료 코드 0(성공)으로 끝나면 안 된다.
         bin_dir = Path(tempfile.mkdtemp(prefix="onjeon-nodocker-"))
         self.addCleanup(shutil.rmtree, bin_dir, True)
-        for tool in ("dirname",):
-            os.symlink(shutil.which(tool), bin_dir / tool)
+        os.symlink(shutil.which("dirname"), bin_dir / "dirname")
         base = dict(os.environ, PATH=str(bin_dir), ONJEON_SMOKE_SKIP_STATIC="1")
+        base.pop("ONJEON_SMOKE_STATIC_ONLY", None)
         run = lambda extra: subprocess.run(["/bin/bash", str(COMPOSE / "smoke.sh")], env=dict(base, **extra),
                                            capture_output=True, text=True)
         r = run({})
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("LIVE: FAILED", r.stderr)
+        self.assertNotIn("PASSED", r.stdout + r.stderr)
+        r = run({"ONJEON_SMOKE_STATIC_ONLY": "1"})
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("LIVE: SKIPPED", r.stdout)
         self.assertNotIn("PASSED", r.stdout)
-        r = run({"ONJEON_SMOKE_REQUIRE_DOCKER": "1"})
-        self.assertNotEqual(r.returncode, 0)
+
+    def test_smoke_negative_checks_do_not_pass_on_arbitrary_failure(self):
+        text = read("smoke.sh")
+        # 어떤 실패든 "ok"로 세는 도우미가 남아 있으면 안 된다(컨테이너가 죽어도 통과하는 시험이 된다).
+        self.assertNotIn("check_not", text)
+        self.assertIn("denied()", text)
+        # 교차 영역 자격 증명 시험은 인증 실패 사유를, 앱 역할 권한 시험은 권한 거부 사유를 요구한다.
+        self.assertRegex(text, r"denied \"공개 DB 자격으로 개인 DB에 들어갈 수 없다\(관리\)\" 'password authentication failed")
+        self.assertRegex(text, r"denied \"앱 역할은 관리용 DB에 접속할 수 없다\(공개\)\" 'permission denied for database'")
+        # 영역 간 도달 불가는 pg_isready의 "응답 없음"(종료 코드 2)만 인정한다. 0·1은 닿은 것이고 그 밖은 격리가 아닌 오류다.
+        self.assertIn("unreachable()", text)
+        self.assertRegex(text, r"(?m)^\s+2\) echo \"ok")
+        self.assertRegex(text, r"(?m)^\s+0\|1\) echo \"FAIL")
+        self.assertRegex(text, r"(?m)^\s+\*\) echo \"FAIL")
+        self.assertRegex(text, r'unreachable "공개 DB 컨테이너에서 개인 DB 서버 주소에 닿지 않는다" dc exec -T db-public pg_isready')
+        # 신원 파일은 비root 컨테이너 사용자로도 실제로 읽어 본다.
+        self.assertIn("--user 65534:65534", text)
+        self.assertIn("LIVE: PASSED", text)
+
+    def test_smoke_helpers_reject_wrong_kinds_of_failure(self):
+        # smoke.sh의 부정 검사 도우미를 그대로 떼어 가짜 명령으로 돌린다: 올바른 사유의 실패만 ok, 그 밖(다른 오류·성공·명령 없음)은 FAIL.
+        text = read("smoke.sh")
+        defs = "".join(re.findall(r"(?ms)^((?:denied|unreachable)\(\) \{.*?^\}\n)", text))
+        self.assertIn("denied()", defs)
+        self.assertIn("unreachable()", defs)
+
+        def run(call):
+            r = subprocess.run(["bash", "-c", f"fail=0\n{defs}\n{call}\necho fail=$fail"], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            return r.stdout
+
+        self.assertIn("ok   a\nfail=0", run("denied a 'permission denied' sh -c 'echo permission denied for database >&2; exit 1'"))
+        self.assertIn("FAIL b (거부 사유가 아닌 오류)\nfail=1", run("denied b 'permission denied' sh -c 'echo connection refused >&2; exit 2'"))
+        self.assertIn("FAIL c (거부되지 않음)\nfail=1", run("denied c 'permission denied' sh -c 'echo permission denied; exit 0'"))
+        self.assertIn("FAIL d (거부 사유가 아닌 오류)\nfail=1", run("denied d 'permission denied' no-such-command-onjeon"))
+        self.assertIn("ok   e\nfail=0", run("unreachable e sh -c 'exit 2'"))
+        for rc in (0, 1):
+            self.assertIn(f"FAIL f (닿았다: pg_isready 종료 코드 {rc})\nfail=1", run(f"unreachable f sh -c 'exit {rc}'"))
+        for rc in (3, 126, 127):
+            self.assertIn(f"FAIL g (격리가 아닌 오류: 종료 코드 {rc})\nfail=1", run(f"unreachable g sh -c 'exit {rc}'"))
+        self.assertIn("FAIL h (격리가 아닌 오류: 종료 코드 127)\nfail=1", run("unreachable h no-such-command-onjeon"))
 
     def test_down_refuses_unknown_option(self):
         r = subprocess.run(["bash", str(COMPOSE / "down.sh"), "--wipe"], capture_output=True, text=True)

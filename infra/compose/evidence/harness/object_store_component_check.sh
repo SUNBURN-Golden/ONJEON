@@ -1,7 +1,7 @@
 #!/bin/bash
 # 실제 SeaweedFS 4.48 바이너리에 저장소의 신원 파일 생성기·init-objects.sh·check-objects.sh를 실행한다(Docker 대체 검증).
 set -u
-C=/workspace/onjeon-run/wt/T-OP-01/infra/compose
+C="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 rm -rf /tmp/weedstate /tmp/weeddata; mkdir -p /tmp/weeddata
 echo "weed: $(/tmp/weed/weed version | head -1 | sed -E 's/ [0-9a-f]{40}//')"
 ONJEON_COMPOSE_STATE_DIR=/tmp/weedstate bash -c ". $C/lib.sh; ensure_env; render_s3_config; echo 'identities rendered (mode '\$(stat -c %a \$S3_CONFIG_FILE)')'"

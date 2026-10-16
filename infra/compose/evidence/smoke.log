@@ -1,4 +1,5 @@
-$ bash infra/compose/smoke.sh
+# 실제 Docker 기동 시험(fix round 4). 작업 VM에 임시로 올린 Docker 29.9.1 + Compose v5.6.0. 이 디렉터리의 최종 내용으로 실행했고, 이미지 세 개를 지운 뒤 시작해 이 실행에서 레지스트리에서 다시 당겼다(아래 "Image ... Pulling/Pulled" 줄, 다이제스트는 images.log).
+# 명령: bash infra/compose/smoke.sh  (이미지 계층 진행 줄만 지웠다). 환경 한계는 README 참고.
 == 1) 정적 시험 ==
 test_compose_files_referenced_by_mounts_exist (test_compose_static.ComposeShape.test_compose_files_referenced_by_mounts_exist) ... ok
 test_databases_use_scram_and_health_check_over_tcp (test_compose_static.ComposeShape.test_databases_use_scram_and_health_check_over_tcp) ... ok
@@ -9,6 +10,7 @@ test_images_are_pinned (test_compose_static.ComposeShape.test_images_are_pinned)
 test_object_store_is_in_both_zones_and_check_service_is_opt_in (test_compose_static.ComposeShape.test_object_store_is_in_both_zones_and_check_service_is_opt_in) ... ok
 test_private_database_does_not_log_statements (test_compose_static.ComposeShape.test_private_database_does_not_log_statements) ... ok
 test_public_and_private_databases_share_nothing (test_compose_static.ComposeShape.test_public_and_private_databases_share_nothing) ... ok
+test_ensure_env_adds_keys_new_in_example_without_touching_existing (test_compose_static.EnvGeneration.test_ensure_env_adds_keys_new_in_example_without_touching_existing) ... ok
 test_ensure_env_fills_unique_secrets_and_is_idempotent (test_compose_static.EnvGeneration.test_ensure_env_fills_unique_secrets_and_is_idempotent) ... ok
 test_ensure_env_keeps_a_value_the_user_set (test_compose_static.EnvGeneration.test_ensure_env_keeps_a_value_the_user_set) ... ok
 test_ensure_env_leaves_no_temp_files (test_compose_static.EnvGeneration.test_ensure_env_leaves_no_temp_files) ... ok
@@ -19,6 +21,7 @@ test_no_model_identifiers_in_shipped_files (test_compose_static.NoSecrets.test_n
 test_no_secret_looking_strings_in_shipped_files (test_compose_static.NoSecrets.test_no_secret_looking_strings_in_shipped_files) ... ok
 test_zone_sql_takes_values_from_environment (test_compose_static.NoSecrets.test_zone_sql_takes_values_from_environment) ... ok
 test_each_zone_identity_reaches_only_its_buckets (test_compose_static.ObjectStoreIdentities.test_each_zone_identity_reaches_only_its_buckets) ... ok
+test_identity_file_is_closed_to_other_host_users_but_readable_by_any_container_user (test_compose_static.ObjectStoreIdentities.test_identity_file_is_closed_to_other_host_users_but_readable_by_any_container_user) ... ok
 test_render_refuses_unusable_values (test_compose_static.ObjectStoreIdentities.test_render_refuses_unusable_values) ... ok
 test_denial_checks_accept_only_access_denied (test_compose_static.Scripts.test_denial_checks_accept_only_access_denied) ... ok
 test_down_refuses_unknown_option (test_compose_static.Scripts.test_down_refuses_unknown_option) ... ok
@@ -26,13 +29,164 @@ test_entry_scripts_are_executable_and_strict (test_compose_static.Scripts.test_e
 test_object_scripts_bound_their_waiting (test_compose_static.Scripts.test_object_scripts_bound_their_waiting) ... ok
 test_shell_syntax (test_compose_static.Scripts.test_shell_syntax) ... ok
 test_shellcheck (test_compose_static.Scripts.test_shellcheck) ... skipped 'shellcheck not installed'
-test_smoke_without_docker_reports_skip_and_can_be_made_to_fail (test_compose_static.Scripts.test_smoke_without_docker_reports_skip_and_can_be_made_to_fail) ... ok
+test_smoke_helpers_reject_wrong_kinds_of_failure (test_compose_static.Scripts.test_smoke_helpers_reject_wrong_kinds_of_failure) ... ok
+test_smoke_negative_checks_do_not_pass_on_arbitrary_failure (test_compose_static.Scripts.test_smoke_negative_checks_do_not_pass_on_arbitrary_failure) ... ok
+test_smoke_without_docker_fails_unless_static_only_is_requested (test_compose_static.Scripts.test_smoke_without_docker_fails_unless_static_only_is_requested) ... ok
 test_zone_init_script_does_not_exec_psql (test_compose_static.Scripts.test_zone_init_script_does_not_exec_psql) ... ok
 
 ----------------------------------------------------------------------
-Ran 28 tests in 0.364s
+Ran 32 tests in 0.770s
 
 OK (skipped=1)
 == 2) 실제 기동 시험 ==
-LIVE: SKIPPED (docker compose 없음). 한 명령 기동·종료와 영역 분리는 이 환경에서 실행으로 확인하지 못했다.
-exit code: 0
+-- 한 명령으로 기동 (두 번: 멱등)
+ Image chrislusf/seaweedfs:4.48 Pulling 
+ Image postgres:16.15-alpine Pulling 
+ Image postgres:16.15-alpine Pulling 
+ Image postgres:16.15-alpine Pulled 
+ Image chrislusf/seaweedfs:4.48 Pulled 
+ Image postgres:16.15-alpine Pulled 
+ Volume onjeon-smoke-501483_s3-data Creating 
+ Volume onjeon-smoke-501483_s3-data Creating 
+ Volume onjeon-smoke-501483_public-db-data Creating 
+ Volume onjeon-smoke-501483_public-db-data Creating 
+ Volume onjeon-smoke-501483_private-db-data Creating 
+ Network onjeon-smoke-501483_public-zone Creating 
+ Network onjeon-smoke-501483_public-zone Creating 
+ Network onjeon-smoke-501483_private-zone Creating 
+ Volume onjeon-smoke-501483_private-db-data Creating 
+ Network onjeon-smoke-501483_private-zone Creating 
+ Volume onjeon-smoke-501483_s3-data Created 
+ Volume onjeon-smoke-501483_s3-data Created 
+ Volume onjeon-smoke-501483_public-db-data Created 
+ Volume onjeon-smoke-501483_public-db-data Created 
+ Volume onjeon-smoke-501483_private-db-data Created 
+ Volume onjeon-smoke-501483_private-db-data Created 
+ Network onjeon-smoke-501483_private-zone Created 
+ Network onjeon-smoke-501483_private-zone Created 
+ Container onjeon-smoke-501483-db-private-1 Creating 
+ Network onjeon-smoke-501483_public-zone Created 
+ Network onjeon-smoke-501483_public-zone Created 
+ Container onjeon-smoke-501483-db-public-1 Creating 
+ Container onjeon-smoke-501483-s3-1 Creating 
+ Container onjeon-smoke-501483-db-public-1 Created 
+ Container onjeon-smoke-501483-s3-1 Created 
+ Container onjeon-smoke-501483-db-private-1 Created 
+ Container onjeon-smoke-501483-db-public-1 Starting 
+ Container onjeon-smoke-501483-db-private-1 Starting 
+ Container onjeon-smoke-501483-s3-1 Starting 
+ Container onjeon-smoke-501483-db-public-1 Started 
+ Container onjeon-smoke-501483-db-private-1 Started 
+ Container onjeon-smoke-501483-s3-1 Started 
+ Container onjeon-smoke-501483-db-private-1 Waiting 
+ Container onjeon-smoke-501483-s3-1 Waiting 
+ Container onjeon-smoke-501483-db-public-1 Waiting 
+ Container onjeon-smoke-501483-db-public-1 Healthy 
+ Container onjeon-smoke-501483-s3-1 Healthy 
+ Container onjeon-smoke-501483-db-private-1 Healthy 
+ Container onjeon-smoke-501483-s3-1 Running 
+ Image amazon/aws-cli:2.38.1 Pulling 
+ Image amazon/aws-cli:2.38.1 Pulled 
+ Container onjeon-smoke-501483-s3-1 Waiting 
+ Container onjeon-smoke-501483-s3-1 Healthy 
+ Container onjeon-smoke-501483-s3-init-run-4d5deb944eed Creating 
+ Container onjeon-smoke-501483-s3-init-run-4d5deb944eed Created 
+s3-init: onjeon-raw-sources created
+s3-init: onjeon-derived-sources created
+s3-init: onjeon-private-contracts created
+up: 로컬 스택이 떴다 (자격 증명: /tmp/onjeon-compose-smoke.K3AgA0/.env)
+  공개 DB   127.0.0.1:32775  db=onjeon_public  user=onjeon_pub_app
+  개인 DB   127.0.0.1:32776  db=onjeon_private  user=onjeon_prv_app
+  객체 저장소 http://127.0.0.1:32777  (공개 영역·개인 영역 신원이 따로 있다)
+내리기: bash infra/compose/down.sh   (데이터까지 지우기: down.sh --purge)
+ Container onjeon-smoke-501483-db-public-1 Running 
+ Container onjeon-smoke-501483-db-private-1 Running 
+ Container onjeon-smoke-501483-s3-1 Running 
+ Container onjeon-smoke-501483-db-private-1 Waiting 
+ Container onjeon-smoke-501483-s3-1 Waiting 
+ Container onjeon-smoke-501483-db-public-1 Waiting 
+ Container onjeon-smoke-501483-db-private-1 Healthy 
+ Container onjeon-smoke-501483-db-public-1 Healthy 
+ Container onjeon-smoke-501483-s3-1 Healthy 
+ Container onjeon-smoke-501483-s3-1 Running 
+ Container onjeon-smoke-501483-s3-1 Waiting 
+ Container onjeon-smoke-501483-s3-1 Healthy 
+ Container onjeon-smoke-501483-s3-init-run-a1fd5ef6aa6e Creating 
+ Container onjeon-smoke-501483-s3-init-run-a1fd5ef6aa6e Created 
+ok   up.sh 두 번 실행
+-- 자격 증명 분리
+ok   비밀값이 모두 채워져 있고 서로 다르다
+ok   공개·개인 DB의 사용자와 비밀번호가 다르다
+-- 영역별 DB
+ok   공개 DB의 영역 표지
+ok   개인 DB의 영역 표지
+ok   공개 DB 큐에 앱 역할이 넣고 꺼낸다
+ok   개인 DB 큐에 앱 역할이 넣고 꺼낸다
+ok   앱 역할은 관리용 DB에 접속할 수 없다(공개)
+ok   앱 역할은 관리용 DB에 접속할 수 없다(개인)
+ok   공개 DB 앱 역할은 테이블을 만들 수 없다
+ok   개인 DB 앱 역할은 테이블을 만들 수 없다
+ok   앱 역할은 슈퍼유저가 아니다
+ok   공개 DB 자격으로 개인 DB에 들어갈 수 없다(관리)
+ok   공개 DB 자격으로 개인 DB에 들어갈 수 없다(앱)
+ok   개인 DB 자격으로 공개 DB에 들어갈 수 없다(관리)
+ok   개인 DB 자격으로 공개 DB에 들어갈 수 없다(앱)
+ok   두 DB 컨테이너의 주소가 다르다
+ok   공개 DB 컨테이너는 자기 영역 주소에 닿는다(대조)
+ok   개인 DB 컨테이너는 자기 영역 주소에 닿는다(대조)
+ok   공개 DB 컨테이너에서 개인 DB 서버 주소에 닿지 않는다
+ok   개인 DB 컨테이너에서 공개 DB 서버 주소에 닿지 않는다
+ok   객체 저장소는 두 영역 모두에서 풀린다(대조)
+ok   객체 저장소는 두 영역 모두에서 풀린다(대조, 개인)
+-- 객체 저장소 신원 파일
+ok   신원 파일은 컨테이너 사용자가 root가 아니어도 읽힌다
+-- 개인 DB 서버 로그에 값이 남지 않는다(I11 서버 설정 부분)
+ok   (대조) 접속 실패(FATAL)는 로그에 남는다
+ok   개인 DB 로그에 payload·질의 값이 없다
+ok   개인 DB 로그에 ERROR·STATEMENT·DETAIL 줄이 없다
+-- 객체 저장소 영역 권한
+ Container onjeon-smoke-501483-s3-check-run-af297933b052 Creating 
+ Container onjeon-smoke-501483-s3-check-run-af297933b052 Created 
+ok   허용: 공개 영역 신원이 onjeon-raw-sources 에 쓴다
+ok   허용: 공개 영역 신원이 onjeon-raw-sources 를 읽는다
+ok   거부: 개인 영역 신원이 onjeon-raw-sources 에 쓴다
+ok   거부: 개인 영역 신원이 onjeon-raw-sources 를 읽는다
+ok   허용: 공개 영역 신원이 onjeon-derived-sources 에 쓴다
+ok   허용: 공개 영역 신원이 onjeon-derived-sources 를 읽는다
+ok   거부: 개인 영역 신원이 onjeon-derived-sources 에 쓴다
+ok   거부: 개인 영역 신원이 onjeon-derived-sources 를 읽는다
+ok   허용: 개인 영역 신원이 onjeon-private-contracts 에 쓴다
+ok   허용: 개인 영역 신원이 onjeon-private-contracts 를 읽는다
+ok   거부: 공개 영역 신원이 onjeon-private-contracts 에 쓴다
+ok   거부: 공개 영역 신원이 onjeon-private-contracts 를 읽는다
+ok   공개 영역 신원에게는 공개 버킷만 보인다
+ok   개인 영역 신원에게는 개인 버킷만 보인다
+ok   거부: 공개 영역 신원이 버킷을 만든다
+ok   거부: 개인 영역 신원이 버킷을 만든다
+ok   객체 저장소 권한 분리
+-- 내리기
+ Container onjeon-smoke-501483-db-private-1 Stopping 
+ Container onjeon-smoke-501483-db-public-1 Stopping 
+ Container onjeon-smoke-501483-s3-1 Stopping 
+ Container onjeon-smoke-501483-db-public-1 Stopped 
+ Container onjeon-smoke-501483-db-public-1 Removing 
+ Container onjeon-smoke-501483-db-private-1 Stopped 
+ Container onjeon-smoke-501483-db-private-1 Removing 
+ Container onjeon-smoke-501483-db-public-1 Removed 
+ Container onjeon-smoke-501483-db-private-1 Removed 
+ Container onjeon-smoke-501483-s3-1 Stopped 
+ Container onjeon-smoke-501483-s3-1 Removing 
+ Container onjeon-smoke-501483-s3-1 Removed 
+ Volume onjeon-smoke-501483_private-db-data Removing 
+ Volume onjeon-smoke-501483_s3-data Removing 
+ Volume onjeon-smoke-501483_public-db-data Removing 
+ Network onjeon-smoke-501483_public-zone Removing 
+ Network onjeon-smoke-501483_private-zone Removing 
+ Volume onjeon-smoke-501483_private-db-data Removed 
+ Volume onjeon-smoke-501483_s3-data Removed 
+ Volume onjeon-smoke-501483_public-db-data Removed 
+ Network onjeon-smoke-501483_public-zone Removed 
+ Network onjeon-smoke-501483_private-zone Removed 
+down: 컨테이너·네트워크·볼륨·생성 파일을 지웠다
+ok   내린 뒤 컨테이너·볼륨·네트워크가 남지 않았다
+LIVE: PASSED

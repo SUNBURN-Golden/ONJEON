@@ -693,6 +693,17 @@ class HeadersAndLimitsTest(NoSocketCase):
         self.assertEqual(resp.read_sizes, [])
         self.assertTrue(resp.closed)
 
+    def test_hostile_content_length_never_raises_valueerror(self):
+        for value, oversize in (("\u00b2", False), ("9" * 5000, True), ("abc", False), ("-5", False)):
+            resp = FakeHttpResponse(200, {"Content-Length": value}, b"ok")
+            with mock.patch.object(self.tr._opener, "open", return_value=resp):
+                r = self.tr.request("http://127.0.0.1:1/x", None, 5, 100)
+                if oversize:
+                    with self.assertRaises(t.BodyTooLargeError):
+                        next(r.body_iter)
+                else:
+                    self.assertEqual(b"".join(r.body_iter), b"ok")
+
     def test_close_without_iterating_closes_the_connection(self):
         resp = FakeHttpResponse(200, {}, b"abc")
         with mock.patch.object(self.tr._opener, "open", return_value=resp):

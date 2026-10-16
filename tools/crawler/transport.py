@@ -153,9 +153,20 @@ class UrllibTransport(Transport):
         return Response(resp.status, hdrs, _stream(resp, hdrs.get("content-length"), max_bytes), resp.close)
 
 
+def _declared_length(value: Optional[str]) -> Optional[int]:
+    """Parse Content-Length; anything unparsable (non-ASCII digits, absurd length) counts as unknown."""
+    if not value:
+        return None
+    value = value.strip()
+    if not (value.isascii() and value.isdigit()):
+        return None
+    return int(value) if len(value) <= 18 else 1 << 62
+
+
 def _stream(resp, content_length: Optional[str], max_bytes: int) -> Iterator[bytes]:
     try:
-        if content_length and content_length.strip().isdigit() and int(content_length) > max_bytes:
+        declared = _declared_length(content_length)
+        if declared is not None and declared > max_bytes:
             raise BodyTooLargeError("declared Content-Length exceeds the cap")
         total = 0
         while True:

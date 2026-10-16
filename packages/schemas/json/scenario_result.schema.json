@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scenario_result.schema.json",
+  "title": "ScenarioResult",
+  "type": "object",
+  "description": "시나리오 결과: EvaluationResult + 입력 단계 판정 + 설명 + 막힘 (02_구현계약 §2.1·§2.4)",
+  "properties": {
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/ReleaseId",
+      "description": "모든 응답은 release_id를 echo한다"
+    },
+    "cov_id": {
+      "$ref": "common.schema.json#/$defs/CoverageId"
+    },
+    "evaluation": {
+      "$ref": "evaluation_result.schema.json",
+      "description": "엔진 결과. 막혔으면(blocked_by) 엔진 호출 0건이라 없다"
+    },
+    "judgements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InputJudgement"
+      }
+    },
+    "blocked_by": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/BlockedBy"
+      }
+    },
+    "remaining_gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/GapId"
+      }
+    },
+    "explain": {
+      "$ref": "#/$defs/Explain"
+    },
+    "display_status": {
+      "$ref": "vocabulary.schema.json#/$defs/display_status"
+    },
+    "result_state": {
+      "$ref": "common.schema.json#/$defs/ResultState"
+    },
+    "dependency": {
+      "$ref": "common.schema.json#/$defs/DependencyInfo"
+    }
+  },
+  "required": [
+    "release_id",
+    "cov_id",
+    "judgements",
+    "blocked_by",
+    "remaining_gaps",
+    "display_status",
+    "result_state"
+  ],
+  "additionalProperties": false,
+  "x-onjeon-invariants": [
+    "blocked_by가 비어 있지 않으면 evaluation과 explain은 없다(엔진 호출 0건, 02 §1.7)"
+  ],
+  "$defs": {
+    "InputJudgement": {
+      "type": "object",
+      "description": "입력 단계 판정. 규칙 근거와 분리한다 (02 §2.4)",
+      "properties": {
+        "input_name": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "value": {
+          "$ref": "vocabulary.schema.json#/$defs/tri"
+        },
+        "judged_by": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "judged_by",
+          "description": "판정 주체. 02 §2.4에 값 집합이 없다. 어휘 축 승격 대기"
+        },
+        "evidence_assertion_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/AssertionId"
+          }
+        }
+      },
+      "required": [
+        "input_name",
+        "value",
+        "judged_by",
+        "evidence_assertion_ids"
+      ],
+      "additionalProperties": false
+    },
+    "BlockedBy": {
+      "type": "object",
+      "description": "입력 단계가 계산을 막은 이유 (02 §1.7 resolve_chain Blocked)",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "blocked_reason",
+          "description": "no_uses_edition, multiple_candidates, scope_unknown, application_scope_unverified, applies_from_other_edition_unmodeled, competing_editions, link_unapproved, edition_identity_unconfirmed, cov_not_in_edition, no_rule. 어휘 축 승격 대기"
+        },
+        "held_conclusions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        }
+      },
+      "required": [
+        "reason",
+        "held_conclusions"
+      ],
+      "additionalProperties": false
+    },
+    "Explain": {
+      "type": "object",
+      "description": "설명 문장. 금액은 금액마다 출처를 선언한다",
+      "properties": {
+        "template_id": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "text": {
+          "type": "string"
+        },
+        "amounts": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Amount"
+          }
+        }
+      },
+      "required": [
+        "template_id",
+        "text",
+        "amounts"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

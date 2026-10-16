@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evaluation_result.schema.json",
+  "title": "EvaluationResult",
+  "type": "object",
+  "description": "규칙 엔진 평가 결과. packages/rules-engine의 직렬화와 같은 형태다(시험이 엔진 출력으로 확인한다)",
+  "properties": {
+    "rule_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "rule_version": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "release_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^rel:[0-9]{8}-[0-9]+$",
+      "description": "규칙이 속한 릴리스. fixture 규칙만 null"
+    },
+    "rule_content_hash": {
+      "$ref": "common.schema.json#/$defs/Sha256Hex"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "규칙이 인코딩한 근거 조항(불변 원칙 5)"
+    },
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "규칙 DSL 판"
+    },
+    "engine_version": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "eligibility": {
+      "$ref": "vocabulary.schema.json#/$defs/tri"
+    },
+    "payout": {
+      "$ref": "#/$defs/PayoutResult"
+    },
+    "missing_inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TraceEntry"
+      }
+    },
+    "input_snapshot_hash": {
+      "$ref": "common.schema.json#/$defs/Sha256Hex"
+    }
+  },
+  "required": [
+    "rule_id",
+    "rule_version",
+    "release_id",
+    "rule_content_hash",
+    "evidence_refs",
+    "schema_version",
+    "engine_version",
+    "eligibility",
+    "payout",
+    "missing_inputs",
+    "trace",
+    "input_snapshot_hash"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "AmountOut": {
+      "type": "object",
+      "description": "엔진 금액 결과. kind에 따라 krw 또는 min_krw·max_krw",
+      "properties": {
+        "kind": {
+          "$ref": "vocabulary.schema.json#/$defs/amount_kind"
+        },
+        "krw": {
+          "$ref": "common.schema.json#/$defs/Krw"
+        },
+        "min_krw": {
+          "$ref": "common.schema.json#/$defs/Krw"
+        },
+        "max_krw": {
+          "$ref": "common.schema.json#/$defs/Krw"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "PayoutResult": {
+      "type": "object",
+      "description": "지급 결과. 판정 불가를 0원과 구분한다",
+      "properties": {
+        "kind": {
+          "$ref": "vocabulary.schema.json#/$defs/payout"
+        },
+        "amount": {
+          "$ref": "#/$defs/AmountOut",
+          "description": "payable일 때"
+        },
+        "conditional_amount": {
+          "$ref": "#/$defs/AmountOut",
+          "description": "undetermined일 때, 지급 사유가 성립하면 지급될 금액"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "TraceEntry": {
+      "type": "object",
+      "description": "평가 trace 한 노드",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "op": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "op",
+        "result"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

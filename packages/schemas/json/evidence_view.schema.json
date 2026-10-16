@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evidence_view.schema.json",
+  "title": "EvidenceView",
+  "type": "object",
+  "description": "근거 사슬 뷰 (02_구현계약 §2.1·§2.4·§6.2). 조항 -> 구획 -> 본문 판/원본 -> 관측",
+  "properties": {
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/ReleaseId"
+    },
+    "ref": {
+      "$ref": "common.schema.json#/$defs/EvidenceRef"
+    },
+    "chain": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ChainStep"
+      },
+      "minItems": 1
+    },
+    "quote_shown": {
+      "type": "boolean",
+      "description": "인용 표시 여부(D-12 플래그)"
+    },
+    "result_state": {
+      "$ref": "common.schema.json#/$defs/ResultState"
+    }
+  },
+  "required": [
+    "release_id",
+    "ref",
+    "chain",
+    "quote_shown",
+    "result_state"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ChainStep": {
+      "type": "object",
+      "description": "근거 사슬의 한 단계",
+      "properties": {
+        "level": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "chain_level",
+          "description": "viewmodel, evaluation, rule, assertion, clause, segment, edition, raw, source, criterion (02 §2.4). 어휘 축 승격 대기"
+        },
+        "ref": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "display": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string",
+          "description": "출처 URL (source 단계)"
+        },
+        "observed_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "level",
+        "ref",
+        "display"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

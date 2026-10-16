@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "plan_view.schema.json",
+  "title": "PlanView",
+  "type": "object",
+  "description": "내 설계 탭 뷰모델 (화면 설계서 §11, 02_구현계약 §2.4). 화면은 이 구조만 받아 그린다",
+  "properties": {
+    "view": {
+      "type": "string",
+      "pattern": "^my_design$",
+      "description": "뷰 이름"
+    },
+    "plan_id": {
+      "$ref": "common.schema.json#/$defs/PlanId"
+    },
+    "input_hash": {
+      "$ref": "common.schema.json#/$defs/Sha256Hex"
+    },
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/ReleaseId"
+    },
+    "data_as_of": {
+      "$ref": "common.schema.json#/$defs/IsoDate"
+    },
+    "budget": {
+      "$ref": "#/$defs/Budget"
+    },
+    "tab": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "x-onjeon-pending-axis": "plan_tab",
+      "description": "current, proposal (화면 설계서 §4.3). 어휘 축 승격 대기"
+    },
+    "comparison_basis_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "price_caption": {
+      "$ref": "#/$defs/PriceCaption"
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PlanGroup"
+      }
+    },
+    "data_missing_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "unpriced_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "diff_available": {
+      "type": "boolean"
+    },
+    "synthetic": {
+      "type": "boolean",
+      "description": "합성 데이터로 만든 화면이면 true"
+    },
+    "diff": {
+      "$ref": "#/$defs/PlanDiff"
+    },
+    "result_state": {
+      "$ref": "common.schema.json#/$defs/ResultState"
+    }
+  },
+  "required": [
+    "view",
+    "plan_id",
+    "input_hash",
+    "release_id",
+    "data_as_of",
+    "budget",
+    "tab",
+    "comparison_basis_id",
+    "price_caption",
+    "groups",
+    "data_missing_count",
+    "unpriced_count",
+    "diff_available",
+    "synthetic",
+    "result_state"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "CurrentPaid": {
+      "type": "object",
+      "description": "내 계약 납입액(현재 유지 기준선)",
+      "properties": {
+        "man": {
+          "type": "number",
+          "description": "만원, 보기용"
+        },
+        "basis": {
+          "$ref": "vocabulary.schema.json#/$defs/price_basis"
+        },
+        "as_of": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        }
+      },
+      "required": [
+        "man",
+        "basis",
+        "as_of"
+      ],
+      "additionalProperties": false
+    },
+    "Budget": {
+      "type": "object",
+      "description": "월 예산 슬라이더. 단위는 만원이며 판정과 정렬은 원 단위 정확값으로 한다",
+      "properties": {
+        "value_man": {
+          "type": "number"
+        },
+        "set_by_user": {
+          "type": "boolean"
+        },
+        "min_man": {
+          "type": "number"
+        },
+        "max_man": {
+          "type": "number"
+        },
+        "step_man": {
+          "type": "number"
+        },
+        "current_paid": {
+          "$ref": "#/$defs/CurrentPaid"
+        }
+      },
+      "required": [
+        "value_man",
+        "set_by_user",
+        "min_man",
+        "max_man",
+        "step_man"
+      ],
+      "additionalProperties": false
+    },
+    "PriceCaption": {
+      "type": "object",
+      "description": "가격 비교 기준 캡션(C1)",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "conditions_ref": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        }
+      },
+      "required": [
+        "text",
+        "conditions_ref"
+      ],
+      "additionalProperties": false
+    },
+    "ConditionMatch": {
+      "type": "object",
+      "description": "공시 가격을 사용자 프로필에 대 본 결과. 원문에 없는 조건은 일치로 보지 않는다",
+      "properties": {
+        "matched": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mismatched": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "not_in_source": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "matched",
+        "mismatched",
+        "not_in_source"
+      ],
+      "additionalProperties": false
+    },
+    "PriceLine": {
+      "type": "object",
+      "description": "가격 줄. 후보 범위의 두 값은 서로 다른 후보 상품의 확인된 가격이며 보간 값이 아니다",
+      "properties": {
+        "basis": {
+          "$ref": "vocabulary.schema.json#/$defs/price_basis"
+        },
+        "man": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 2,
+          "description": "만원, 보기용. 후보 범위면 두 값(최저·최고)"
+        },
+        "candidates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        },
+        "unpriced": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "price_unavailable_reason": {
+          "$ref": "vocabulary.schema.json#/$defs/price_unavailable_reason"
+        },
+        "condition_match": {
+          "$ref": "#/$defs/ConditionMatch"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "UnresolvedItem": {
+      "type": "object",
+      "description": "해소되지 않은 항목. 행의 hold_count·data_missing_count는 이 목록에서 센다",
+      "properties": {
+        "display_status": {
+          "$ref": "vocabulary.schema.json#/$defs/display_status"
+        },
+        "line": {
+          "type": "string"
+        },
+        "refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EvidenceRef"
+          }
+        }
+      },
+      "required": [
+        "display_status",
+        "line",
+        "refs"
+      ],
+      "additionalProperties": false
+    },
+    "PlanGroup": {
+      "type": "object",
+      "description": "보장 묶음 한 행",
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "plan_action": {
+          "$ref": "vocabulary.schema.json#/$defs/plan_action"
+        },
+        "row_label": {
+          "$ref": "vocabulary.schema.json#/$defs/row_label"
+        },
+        "price_line": {
+          "$ref": "#/$defs/PriceLine"
+        },
+        "coverage_occurrence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/CoverageId"
+          }
+        },
+        "premium_observation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/PremiumId"
+          }
+        },
+        "unresolved_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnresolvedItem"
+          }
+        },
+        "need": {
+          "$ref": "#/$defs/NeedSummary"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "plan_action",
+        "row_label",
+        "price_line",
+        "coverage_occurrence_ids",
+        "premium_observation_ids",
+        "unresolved_items"
+      ],
+      "additionalProperties": false
+    },
+    "NeedSummary": {
+      "type": "object",
+      "description": "필요 담보 행에 붙는 필요성 요약 (02 §2.4)",
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "need_verdict",
+          "description": "keep, no_add, hold, review_add. 어휘 축 승격 대기"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "need_result.schema.json#/$defs/NeedReason"
+          }
+        }
+      },
+      "required": [
+        "verdict",
+        "reasons"
+      ],
+      "additionalProperties": false
+    },
+    "DiffItem": {
+      "type": "object",
+      "description": "차이 항목 하나. 줄어드는 것도 항상 계산한다(I9)",
+      "properties": {
+        "diff_type": {
+          "$ref": "vocabulary.schema.json#/$defs/diff_type"
+        },
+        "amounts": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Amount"
+          }
+        }
+      },
+      "required": [
+        "diff_type",
+        "amounts"
+      ],
+      "additionalProperties": false
+    },
+    "PlanDiffGroup": {
+      "type": "object",
+      "description": "차이 묶음",
+      "properties": {
+        "group": {
+          "$ref": "vocabulary.schema.json#/$defs/diff_group"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DiffItem"
+          }
+        }
+      },
+      "required": [
+        "group",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "PlanDiff": {
+      "type": "object",
+      "description": "두 안의 차이",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PlanDiffGroup"
+          }
+        }
+      },
+      "required": [
+        "groups"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

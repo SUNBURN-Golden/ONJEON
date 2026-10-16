@@ -1,0 +1,30 @@
+{
+  "id": "premium:01J0000000000000000000000A",
+  "evidence": [
+    {
+      "ref": "raw:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "role": "observation"
+    }
+  ],
+  "raw_amount": 51290,
+  "price_basis": "illustrative",
+  "observed_at": "2026-10-01T09:00:00Z",
+  "source_published_at": "2026-10-01T09:00:00Z",
+  "source_as_of": "2026-06-29",
+  "payment_cycle": "monthly",
+  "conditions": {
+    "age": "40",
+    "sex": "male"
+  },
+  "condition_sources": {
+    "age": "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0"
+  },
+  "package_binding": "none",
+  "missing_dimensions": [],
+  "comparison_basis_id": "cb-fixture",
+  "comparison_eligible": true,
+  "value_state": "observed",
+  "review_status": "accepted",
+  "review_decision_id": "rd:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+  "origin": "pipeline"
+}

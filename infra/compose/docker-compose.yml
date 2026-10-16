@@ -1,0 +1,147 @@
+# 로컬 개발용 스택. 운영 구성이 아니다(TLS 없음, 127.0.0.1 전용).
+# 직접 실행하지 말고 up.sh / down.sh를 쓴다. 자격 증명은 .env에서 오며 이 파일에는 값이 없다.
+name: onjeon-local
+
+x-postgres: &postgres
+  image: postgres:16.15-alpine
+  restart: unless-stopped
+  environment: &postgres-env
+    POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
+  stop_grace_period: 30s
+
+services:
+  db-public:
+    <<: *postgres
+    environment:
+      <<: *postgres-env
+      POSTGRES_DB: ${PUBLIC_DB_NAME:-onjeon_public}
+      POSTGRES_USER: ${PUBLIC_DB_ADMIN_USER:-onjeon_pub_admin}
+      POSTGRES_PASSWORD: ${PUBLIC_DB_ADMIN_PASSWORD:?run infra/compose/up.sh}
+      APP_DB_USER: ${PUBLIC_DB_APP_USER:-onjeon_pub_app}
+      APP_DB_PASSWORD: ${PUBLIC_DB_APP_PASSWORD:?run infra/compose/up.sh}
+      ONJEON_ZONE: public
+    command: ["postgres", "-c", "password_encryption=scram-sha-256"]
+    ports:
+      - "127.0.0.1:${PUBLIC_DB_PORT-15432}:5432"
+    volumes:
+      - public-db-data:/var/lib/postgresql/data
+      - ./initdb/10-zone.sh:/docker-entrypoint-initdb.d/10-zone.sh:ro
+      - ./initdb/zone-init.psql:/opt/onjeon/zone-init.psql:ro
+    networks: [public-zone]
+    healthcheck:
+      # -h 127.0.0.1: 초기화 중의 임시 서버는 소켓만 열므로 TCP로 확인해야 초기화 완료 뒤에야 정상이 된다.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+  db-private:
+    <<: *postgres
+    environment:
+      <<: *postgres-env
+      POSTGRES_DB: ${PRIVATE_DB_NAME:-onjeon_private}
+      POSTGRES_USER: ${PRIVATE_DB_ADMIN_USER:-onjeon_prv_admin}
+      POSTGRES_PASSWORD: ${PRIVATE_DB_ADMIN_PASSWORD:?run infra/compose/up.sh}
+      APP_DB_USER: ${PRIVATE_DB_APP_USER:-onjeon_prv_app}
+      APP_DB_PASSWORD: ${PRIVATE_DB_APP_PASSWORD:?run infra/compose/up.sh}
+      ONJEON_ZONE: private
+    # 질의문 리터럴(개인 값)이 서버 로그에 남지 않게 한다(BLUEPRINT I11).
+    command:
+      - postgres
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - log_statement=none
+      - -c
+      - log_min_duration_statement=-1
+      - -c
+      - log_min_error_statement=panic
+    ports:
+      - "127.0.0.1:${PRIVATE_DB_PORT-15433}:5432"
+    volumes:
+      - private-db-data:/var/lib/postgresql/data
+      - ./initdb/10-zone.sh:/docker-entrypoint-initdb.d/10-zone.sh:ro
+      - ./initdb/zone-init.psql:/opt/onjeon/zone-init.psql:ro
+    networks: [private-zone]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+  s3:
+    image: chrislusf/seaweedfs:4.48
+    restart: unless-stopped
+    # 신원(자격 증명과 버킷별 권한)은 up.sh가 .env에서 만든 파일이다. 저장소에는 없다.
+    command:
+      - server
+      - -dir=/data
+      - -ip.bind=0.0.0.0
+      - -s3
+      - -s3.port=8333
+      - -s3.config=/etc/seaweedfs/s3.json
+      - -master.volumeSizeLimitMB=128
+      - -volume.max=0
+    ports:
+      - "127.0.0.1:${S3_API_PORT-18333}:8333"
+    volumes:
+      - s3-data:/data
+      - ${ONJEON_S3_CONFIG:?run infra/compose/up.sh}:/etc/seaweedfs/s3.json:ro
+    networks: [public-zone, private-zone]
+    healthcheck:
+      # 인증 없는 요청은 403이다. 응답 줄이 오면 게이트웨이는 떠 있다.
+      test: ["CMD-SHELL", "wget -S -O /dev/null http://127.0.0.1:8333/ 2>&1 | grep -q 'HTTP/'"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 5s
+
+  # 버킷 생성(일회성, 멱등). up.sh가 완료를 기다린다.
+  s3-init:
+    image: amazon/aws-cli:2.38.1
+    restart: "no"
+    depends_on:
+      s3:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/scripts/init-objects.sh"]
+    environment: &aws-env
+      AWS_ENDPOINT_URL: http://s3:8333
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_EC2_METADATA_DISABLED: "true"
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      S3_ADMIN_ACCESS_KEY: ${S3_ADMIN_ACCESS_KEY:?run infra/compose/up.sh}
+      S3_ADMIN_SECRET_KEY: ${S3_ADMIN_SECRET_KEY:?run infra/compose/up.sh}
+      S3_PUBLIC_RAW_BUCKET: ${S3_PUBLIC_RAW_BUCKET:-onjeon-raw-sources}
+      S3_PUBLIC_DERIVED_BUCKET: ${S3_PUBLIC_DERIVED_BUCKET:-onjeon-derived-sources}
+      S3_PRIVATE_BUCKET: ${S3_PRIVATE_BUCKET:-onjeon-private-contracts}
+    volumes:
+      - ./scripts:/scripts:ro
+    networks: [public-zone]
+
+  # 영역 간 권한 분리 확인(시험용, 기본 기동 대상 아님). smoke.sh가 실행한다.
+  s3-check:
+    image: amazon/aws-cli:2.38.1
+    profiles: [check]
+    restart: "no"
+    entrypoint: ["/bin/sh", "/scripts/check-objects.sh"]
+    environment:
+      <<: *aws-env
+      S3_PUBLIC_ACCESS_KEY: ${S3_PUBLIC_ACCESS_KEY:?run infra/compose/up.sh}
+      S3_PUBLIC_SECRET_KEY: ${S3_PUBLIC_SECRET_KEY:?run infra/compose/up.sh}
+      S3_PRIVATE_ACCESS_KEY: ${S3_PRIVATE_ACCESS_KEY:?run infra/compose/up.sh}
+      S3_PRIVATE_SECRET_KEY: ${S3_PRIVATE_SECRET_KEY:?run infra/compose/up.sh}
+    volumes:
+      - ./scripts:/scripts:ro
+    networks: [public-zone]
+
+networks:
+  public-zone: {}
+  private-zone: {}
+
+volumes:
+  public-db-data: {}
+  private-db-data: {}
+  s3-data: {}

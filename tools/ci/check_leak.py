@@ -30,7 +30,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ci_common as C  # noqa: E402
 
-COMMENT = re.compile(r"^\s*(//|#|/\*|--|<!--)")
+COMMENT = re.compile(r"^\s*(//|#(?!!?\[)|/\*|--|<!--)")
 CAMEL_A = re.compile(r"([A-Z]+)([A-Z][a-z])")
 CAMEL_B = re.compile(r"([a-z0-9])([A-Z])")
 
@@ -60,7 +60,7 @@ def comment_lines(lines):
 
 
 def word_re(words):
-    alt = "|".join(re.escape(w) for w in sorted(words, key=len, reverse=True))
+    alt = "|".join(re.escape(w).replace("\\ ", r"\s+") for w in sorted(words, key=len, reverse=True))
     return re.compile(rf"(?<![A-Za-z0-9])(?:{alt})(?![A-Za-z0-9])", re.I)
 
 
@@ -161,6 +161,10 @@ def selftest_cases():
         ("camelCase commission field in a Dart sort", {"apps/mobile/lib/plans.dart": "plans.sort((a, b) => b.commissionRate - a.commissionRate);\n"}, "LEAK-I10"),
         ("camelCase ad cost in a TypeScript sortBy", {"apps/web/src/list.ts": "const k = rows.sortBy(r => r.adCost);\n"}, "LEAK-I10"),
         ("rustfmt operator continuation line is not a comment", {"services/api/src/x.rs": "fn recommend(p: &Plan) -> f64 {\n    let score = base\n        * (1.0 + p.commission_rate);\n    score\n}\n"}, "LEAK-I10"),
+        ("SQL ORDER BY a commission column", {"services/api/queries/plans.sql": "SELECT * FROM plans ORDER BY commission_rate DESC;\n"}, "LEAK-I10"),
+        ("Rust eprintln of a private field", {"services/personal/src/x.rs": 'eprintln!("{}", family_history);\n'}, "LEAK-I11-LOG"),
+        ("Rust print! of a private field", {"services/personal/src/x.rs": 'print!("{}", family_history);\n'}, "LEAK-I11-LOG"),
+        ("serde attribute naming a label in a public serializer", {"services/api/src/public/plan.rs": '#[serde(rename = "genetic_private")]\nstruct A;\n'}, "LEAK-I11-PUBLIC"),
         ("block comment body does not fail", {"services/api/src/x.rs": "/*\n * sort by commission_rate is forbidden\n */\nfn f() {}\n"}, None),
         ("camelCase private field in a Dart log call", {"apps/mobile/lib/crash/x.dart": "debugPrint(profile.familyHistory);\n"}, "LEAK-I11-LOG"),
         ("camelCase private field in Dart crash code", {"apps/mobile/lib/crash/x.dart": "report.add(profile.familyHistory);\n"}, "LEAK-I11-ANALYTICS"),

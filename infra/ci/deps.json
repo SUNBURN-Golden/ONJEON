@@ -226,6 +226,7 @@
         "sort",
         "sorted",
         "order_by",
+        "order by",
         "orderby",
         "rank",
         "ranking",
@@ -283,7 +284,7 @@
         "services/ai-gateway/**"
       ],
       "gateway_note": "No sensitivity label reaches the external-AI gateway in this stage. private_* waits for decision D-17; genetic_private never goes (consent cannot lift it)",
-      "log_call_pattern": "\\b(?:trace|debug|info|warn|error)!\\s*\\(|\\bprintln!\\s*\\(|\\bdbg!\\s*\\(|\\bconsole\\.(?:log|info|warn|error|debug)\\s*\\(|\\blogger\\.(?:debug|info|warning|warn|error|exception)\\s*\\(|\\blogging\\.(?:debug|info|warning|error)\\s*\\(|\\bprint\\s*\\(|\\bdebugPrint\\s*\\(",
+      "log_call_pattern": "\\b(?:trace|debug|info|warn|error)!\\s*\\(|\\b(?:e?println|e?print)!\\s*\\(|\\bdbg!\\s*\\(|\\bconsole\\.(?:log|info|warn|error|debug)\\s*\\(|\\blogger\\.(?:debug|info|warning|warn|error|exception)\\s*\\(|\\blogging\\.(?:debug|info|warning|error)\\s*\\(|\\bprint\\s*\\(|\\bdebugPrint\\s*\\(",
       "private_field_names": [
         "policy_number",
         "family_history",

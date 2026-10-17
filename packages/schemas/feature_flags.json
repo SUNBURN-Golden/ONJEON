@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "note": "Skeleton feature flags (Part 3 §58). Every flag is off. Turning one on is a separate decision that passes the gate named in enable_gate first; this file is never the place to do it. tools/ci/check_skeleton.py rejects a default other than false. The statuses a disabled route may answer with are the editable inactive_response below; the task that registers the routes may narrow them.",
+  "note": "Skeleton feature flags (Part 3 §58). Every flag is off. Turning one on is a separate decision that passes the gate named in enable_gate first; this file is never the place to do it. tools/ci/check_skeleton.py rejects a default other than false. The statuses a disabled route may answer with are the editable inactive_response below; the task that registers the routes may narrow them. Paths are the contract paths (packages/schemas/openapi/personal.v1.yaml); the static checks also match them without the /v1 prefix.",
   "inactive_response": {
     "statuses": [404, 501]
   },
@@ -12,7 +12,7 @@
       "feature": "consultation_request",
       "enable_gate": "Opens together with the agent portal (Part 3 §45.3 note); separate decision",
       "inactive_routes": [
-        { "method": "POST", "path": "/consultation-requests" }
+        { "method": "POST", "path": "/v1/consultation-requests" }
       ],
       "forbidden_surfaces": ["screen", "navigation", "web_page", "ad_slot"]
     },
@@ -34,7 +34,7 @@
       "feature": "personal_quote",
       "enable_gate": "Separate quote-integration gate. Public prices and budget are in the first release and do not use this flag",
       "inactive_routes": [
-        { "method": "POST", "path": "/quote-requests" }
+        { "method": "POST", "path": "/v1/quote-requests" }
       ],
       "forbidden_surfaces": ["screen", "navigation", "web_page", "ad_slot"]
     },

@@ -59,14 +59,19 @@ def check_flags(flags, required):
     return out
 
 
+def bare(path):
+    """A route without its /v1 version prefix, so '/v1/agent' and '/agent' are the same surface."""
+    return path[3:] if path.startswith("/v1/") else path
+
+
 def check_tree(root, rules, flags):
     S = rules["skeleton"]
     out = []
     ids = [f["id"] for f in flags["flags"] if "id" in f]
-    paths = sorted({r["path"] for f in flags["flags"] for r in f.get("inactive_routes", [])})
+    paths = sorted({bare(r["path"]) for f in flags["flags"] for r in f.get("inactive_routes", [])})
     id_re = re.compile(r"(?<![A-Za-z0-9_])(?:" + "|".join(map(re.escape, ids)) + r")(?![A-Za-z0-9_])") if ids else None
     on_re = (re.compile(r"(?<![A-Za-z0-9])(" + "|".join(map(re.escape, ids)) + r")[\"']?\s*[:=]\s*[\"']?(?:true|1|on|yes)\b", re.I)) if ids else None
-    route_re = re.compile(r"""["'`](?:%s)(?:["'`/?$]|\{)""" % "|".join(map(re.escape, paths))) if paths else None
+    route_re = re.compile(r"""["'`](?:/v1)?(?:%s)(?:["'`/?$]|\{)""" % "|".join(map(re.escape, paths))) if paths else None
     cfg_ext = set(S["config_extensions"])
     for rel, full in C.iter_files(root, rules["scan"]["ignore"] + S["config_ignore"], None):
         text = C.read_text(full)
@@ -120,7 +125,8 @@ def probe_ui_routes(ui_routes, flags):
     out = []
     for route in ui_routes:
         for p in paths:
-            if route == p or route.startswith(p.rstrip("/") + "/"):
+            b, r = bare(p), bare(route)
+            if r == b or r.startswith(b.rstrip("/") + "/"):
                 out.append(C.Finding("SKEL-EXPOSED-UI", route, 0, f"UI route exposes skeleton path '{p}'"))
     return out
 
@@ -166,6 +172,9 @@ def selftest():
     cases.append(("a flag set to false in config passes", good, {"infra/compose/env.yaml": "consultation_enabled: false\n"}, None, None, None))
     cases.append(("web page links a skeleton route", good, {"apps/web/src/nav.tsx": "<Link href=\"/agent\">Agents</Link>\n"}, "SKEL-EXPOSED-UI", None, None))
     cases.append(("app code calls the consultation route", good, {"apps/mobile/lib/c.dart": "post('/consultation-requests', body);\n"}, "SKEL-EXPOSED-UI", None, None))
+    cases.append(("app code calls the versioned consultation route", good, {"apps/mobile/lib/c.dart": "post('/v1/consultation-requests', body);\n"}, "SKEL-EXPOSED-UI", None, None))
+    cases.append(("app code calls the versioned quote route", good, {"apps/web/src/q.ts": "fetch(`/v1/quote-requests`, { method: 'POST' });\n"}, "SKEL-EXPOSED-UI", None, None))
+    cases.append(("web page links the versioned agent path", good, {"apps/web/src/nav.tsx": "<Link href=\"/v1/agent\">Agents</Link>\n"}, "SKEL-EXPOSED-UI", None, None))
     cases.append(("app code reads a skeleton flag", good, {"apps/web/src/f.ts": "if (flags.agent_portal_enabled) show();\n"}, "SKEL-EXPOSED-UI", None, None))
     cases.append(("an unrelated '/agents-guide' string is not the skeleton route", good, {"apps/web/src/a.ts": "const p = '/agents-guide';\n"}, None, None, None))
     cases.append(("inactive route answers 404", good, {}, None, "http://x", ok_fetch))
@@ -180,7 +189,7 @@ def selftest():
         if code:
             bad.append(name)
     # UI route table template helper
-    if not probe_ui_routes(["/agent/home"], good) or probe_ui_routes(["/coverage", "/legal"], good):
+    if not probe_ui_routes(["/agent/home"], good) or not probe_ui_routes(["/v1/agent"], good) or not probe_ui_routes(["/v1/quote-requests"], good) or probe_ui_routes(["/coverage", "/legal"], good):
         bad.append("probe_ui_routes")
     if bad:
         print(f"check_skeleton selftest failed: {bad}")

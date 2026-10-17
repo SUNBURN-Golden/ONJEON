@@ -197,7 +197,7 @@ class FlagsFile(unittest.TestCase):
     def test_spec_58_routes_are_reserved(self):
         flags = C.load_json(C.FLAGS_PATH)
         routes = {(r["method"], r["path"]) for f in flags["flags"] for r in f["inactive_routes"]}
-        self.assertIn(("POST", "/consultation-requests"), routes)
+        self.assertIn(("POST", "/v1/consultation-requests"), routes)
         self.assertIn(("GET", "/agent"), routes)
 
     def test_no_model_identifiers_or_absolute_paths_in_rule_files(self):

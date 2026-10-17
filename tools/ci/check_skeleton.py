@@ -65,7 +65,7 @@ def check_tree(root, rules, flags):
     ids = [f["id"] for f in flags["flags"] if "id" in f]
     paths = sorted({r["path"] for f in flags["flags"] for r in f.get("inactive_routes", [])})
     id_re = re.compile(r"(?<![A-Za-z0-9_])(?:" + "|".join(map(re.escape, ids)) + r")(?![A-Za-z0-9_])") if ids else None
-    on_re = (re.compile(r"(?<![A-Za-z0-9_])(" + "|".join(map(re.escape, ids)) + r")[\"']?\s*[:=]\s*[\"']?(?:true|1|on|yes)\b", re.I)) if ids else None
+    on_re = (re.compile(r"(?<![A-Za-z0-9])(" + "|".join(map(re.escape, ids)) + r")[\"']?\s*[:=]\s*[\"']?(?:true|1|on|yes)\b", re.I)) if ids else None
     route_re = re.compile(r"""["'`](?:%s)(?:["'`/?$]|\{)""" % "|".join(map(re.escape, paths))) if paths else None
     cfg_ext = set(S["config_extensions"])
     for rel, full in C.iter_files(root, rules["scan"]["ignore"] + S["config_ignore"], None):
@@ -160,6 +160,9 @@ def selftest():
     cases.append(("a flag that is not marked skeleton", mutate(lambda f: f["flags"][1].update(skeleton=False)), {}, "SKEL-FLAGS-FILE", None, None))
     cases.append(("compose file switches a flag on", good, {"infra/compose/env.yaml": "consultation_enabled: true\n"}, "SKEL-ENABLED-CONFIG", None, None))
     cases.append(("env file switches a flag on", good, {"deploy/.env": "quotes_enabled=1\n"}, "SKEL-ENABLED-CONFIG", None, None))
+    cases.append(("prefixed env var in yaml switches a flag on", good, {"infra/compose/env.yaml": "ONJEON_QUOTES_ENABLED: true\n"}, "SKEL-ENABLED-CONFIG", None, None))
+    cases.append(("prefixed env var in .env switches a flag on", good, {"deploy/.env": "ONJ_CONSULTATION_ENABLED=1\n"}, "SKEL-ENABLED-CONFIG", None, None))
+    cases.append(("a prefixed flag set to false passes", good, {"deploy/.env": "ONJ_QUOTES_ENABLED=false\n"}, None, None, None))
     cases.append(("a flag set to false in config passes", good, {"infra/compose/env.yaml": "consultation_enabled: false\n"}, None, None, None))
     cases.append(("web page links a skeleton route", good, {"apps/web/src/nav.tsx": "<Link href=\"/agent\">Agents</Link>\n"}, "SKEL-EXPOSED-UI", None, None))
     cases.append(("app code calls the consultation route", good, {"apps/mobile/lib/c.dart": "post('/consultation-requests', body);\n"}, "SKEL-EXPOSED-UI", None, None))

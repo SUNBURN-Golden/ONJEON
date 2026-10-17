@@ -1,7 +1,7 @@
 """Shared helpers for the CI checkers in tools/ci (stdlib only, no repo imports).
 
 Findings carry a stable rule id. Every checker's --selftest plants one violation per rule and
-requires that exactly that rule id is reported, so a check can only pass for the intended reason.
+requires that the intended rule id is among those reported, so a check can only pass for the intended reason.
 """
 import json
 import os
@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 RULES_PATH = ROOT / "infra/ci/deps.json"
 FLAGS_PATH = ROOT / "packages/schemas/feature_flags.json"
-PRUNE_DIRS = {".git", "target", "node_modules", ".dart_tool", "__pycache__"}
+PRUNE_DIRS = {".git", "node_modules", ".dart_tool", "__pycache__"}  # "target" only beside a Cargo.toml, see iter_files
 
 
 @dataclass(frozen=True)
@@ -67,7 +67,8 @@ def iter_files(root, ignore, exts=None):
     """Yield (relative posix path, Path) of files under root, skipping ignored globs."""
     root = Path(root)
     for base, dirs, files in os.walk(root):
-        dirs[:] = sorted(d for d in dirs if d not in PRUNE_DIRS)
+        cargo = "Cargo.toml" in files
+        dirs[:] = sorted(d for d in dirs if d not in PRUNE_DIRS and not (d == "target" and cargo))
         for name in sorted(files):
             full = Path(base) / name
             rel = full.relative_to(root).as_posix()

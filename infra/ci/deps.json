@@ -136,7 +136,21 @@
       "langchain_openai",
       "langchain_anthropic",
       "rig-core",
-      "aws-sdk-bedrockruntime"
+      "aws-sdk-bedrockruntime",
+      "litellm",
+      "groq",
+      "vertexai",
+      "google-cloud-aiplatform",
+      "firebase_vertexai",
+      "openai_dart",
+      "dart_openai",
+      "async-anthropic",
+      "misanthropic",
+      "@langchain/openai",
+      "@langchain/anthropic",
+      "@ai-sdk/openai",
+      "@ai-sdk/anthropic",
+      "@ai-sdk/google"
     ]
   },
   "client_rules": {

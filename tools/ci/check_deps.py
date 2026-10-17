@@ -256,6 +256,9 @@ def check_imports(root, rules, Z, pkg_zone, owners):
                 if ext == ".py" or not zone:
                     continue
                 dst = pkg_zone.get(key)
+                own = owner_of(rel, owners)
+                if own and key == C.norm_pkg(own):
+                    continue  # an app importing its own package (e.g. Flutter's generated widget test)
                 if zone == "client" and any(target.startswith(ns) or f"package:{target}".startswith(ns) for ns in namespaces) and key not in generated:
                     findings.append(C.Finding("IMP-CLIENT", rel, line, f"mobile/web may import only the generated contracts client, not '{target}'"))
                 elif dst and not Z.allowed(zone, dst, target) and not Z.excepted(owner_of(rel, owners), target, "dev"):
@@ -344,6 +347,8 @@ def selftest_cases():
         ("ts relative import reaching a service from the web app", with_(**{"apps/web/package.json": '{"name": "onjeon-web"}', "apps/web/src/a.ts": "import { x } from '../../../services/api/src/x';\n"}), "IMP-CLIENT"),
         ("ts import of a non-generated internal package", with_(**{"apps/web/package.json": '{"name": "onjeon-web"}', "apps/web/src/a.ts": "import { e } from '@onjeon/rules-engine';\n"}), "IMP-CLIENT"),
         ("dart import of a non-generated internal package", with_(**{"apps/mobile/pubspec.yaml": "name: onjeon_mobile\n", "apps/mobile/lib/a.dart": "import 'package:onjeon_twin/x.dart';\n"}), "IMP-CLIENT"),
+        ("dart app importing its own package passes", with_(**{"apps/mobile/pubspec.yaml": "name: onjeon_mobile\n", "apps/mobile/test/w_test.dart": "import 'package:onjeon_mobile/main.dart';\n"}), None),
+        ("ts app importing its own package passes", with_(**{"apps/web/package.json": '{"name": "@onjeon/web"}', "apps/web/src/a.ts": "import { z } from '@onjeon/web/lib';\n"}), None),
         ("ts import of the generated client passes", with_(**{"apps/web/package.json": '{"name": "onjeon-web"}', "apps/web/src/a.ts": "import { Krw } from '@onjeon/contracts';\nimport { y } from './y';\n"}), None),
         ("ts relative import from knowledge into api", with_(**{"services/knowledge/ts/a.ts": "import x from '../../api/src/x';\n"}), "IMP-ZONE"),
     ]

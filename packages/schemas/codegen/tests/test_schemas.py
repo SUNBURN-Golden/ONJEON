@@ -101,12 +101,13 @@ class Lint(unittest.TestCase):
             m for p in sm.JSON_DIR.glob("*.schema.json")
             for m in re.findall(r'"x-onjeon-pending-axis": "([a-z_]+)"', p.read_text(encoding="utf-8"))
         }
-        self.assertIn("need_verdict", pending)
+        self.assertIn("judged_by", pending)
+        self.assertNotIn("need_verdict", pending, "need_verdict entered the vocabulary in 1.6.0 and must be a $ref")
         self.assertFalse(pending & {a["id"] for a in sm.load_vocab()["axes"]})
 
         def add_axis(v):
-            v["axes"].append({"id": "need_verdict", "name_ko": "x", "applies_to": "x", "layer": "x", "concept_ko": "x",
-                              "values": [{"code": "keep", "concept_ko": "x", "screen_ko": "x", "deprecated_aliases": []}]})
+            v["axes"].append({"id": "judged_by", "name_ko": "x", "applies_to": "x", "layer": "x", "concept_ko": "x",
+                              "values": [{"code": "engine", "concept_ko": "x", "screen_ko": "x", "deprecated_aliases": []}]})
         def regen(d):
             pass
         with tempfile.TemporaryDirectory() as t:
@@ -114,7 +115,7 @@ class Lint(unittest.TestCase):
             edit(d / "vocabulary.json", add_axis)
             (d / "json" / sm.VOCAB_FILE).write_text(json.dumps(sm.vocabulary_schema(sm.load_vocab(d / "vocabulary.json")), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             errors = sm.build_model(d / "json", d / "vocabulary.json", strict=False).errors
-        self.assertTrue(any("pending axis 'need_verdict' now exists" in e for e in errors), errors)
+        self.assertTrue(any("pending axis 'judged_by' now exists" in e for e in errors), errors)
 
     def test_inline_objects_unknown_keywords_and_open_structs_are_rejected(self):
         def inline(d):

@@ -1,0 +1,15 @@
+{
+  "release_id": "rel:20261001-1",
+  "created_at": "2026-10-01T00:00:00Z",
+  "onto_version": "onto-1.0",
+  "coverage_summary": {
+    "denominator_version": "denominator-fixture-1",
+    "layers": [
+      {
+        "layer": "listing",
+        "acquired_count": 1,
+        "denominator_count": 2
+      }
+    ]
+  }
+}

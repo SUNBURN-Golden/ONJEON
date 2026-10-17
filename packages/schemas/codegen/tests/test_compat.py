@@ -111,8 +111,8 @@ class Diff(unittest.TestCase):
         self.assertEqual(breaking, ["field no longer required: Assertion.scope"])
 
     def test_type_pattern_and_nullability_changes_are_breaking(self):
-        breaking, _ = compat.diff(*models(prop("assertion.schema.json")(lambda t: t["properties"]["correction_reason"].update(type="integer"))))
-        self.assertTrue(breaking[0].startswith("field type changed: Assertion.correction_reason"))
+        breaking, _ = compat.diff(*models(prop("coverage_detail.schema.json")(lambda t: t["properties"]["title"].update(type="integer"))))
+        self.assertTrue(breaking[0].startswith("field type changed: CoverageDetail.title"))
         breaking, _ = compat.diff(*models(prop("error_response.schema.json")(lambda t: t["properties"]["code"].update(pattern="^ONJ-.*$"))))
         self.assertTrue(breaking[0].startswith("field type changed: ErrorResponse.code"))
         breaking, _ = compat.diff(*models(prop("evaluation_result.schema.json")(lambda t: t["properties"]["release_id"].update(type="string"))))

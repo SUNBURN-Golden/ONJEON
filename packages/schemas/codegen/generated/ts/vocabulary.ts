@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /** Version of packages/schemas/vocabulary.json these unions were generated from. */
-export const VOCABULARY_VERSION = "1.5.0";
+export const VOCABULARY_VERSION = "1.6.0";
 
 /**
  * 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
@@ -459,7 +459,7 @@ export function parseDiffType(value: unknown): DiffType {
  *
  * Axis `doc_role`.
  */
-export const DocRole = ["terms", "rider_terms", "annex", "business_method", "summary", "price_table", "standard_terms", "disclosure_page", "notice"] as const;
+export const DocRole = ["terms", "rider_terms", "annex", "business_method", "summary", "price_table", "standard_terms", "disclosure_page", "notice", "disclosure_list", "guide_page"] as const;
 export type DocRole = (typeof DocRole)[number];
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseDocRole(value: unknown): DocRole {
@@ -497,4 +497,184 @@ export function parsePublicationState(value: unknown): PublicationState {
     return value as PublicationState;
   }
   throw new Error(`unknown publication_state: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 근거 역할: 주장이 이 근거에 어떻게 기대는가. basis는 약관 조항 근거로 C0 내용 주장이 accepted 되려면 필수다. 요약서·공시·안내 쪽만으로는 accepted가 될 수 없다
+ *
+ * Axis `evidence_role`.
+ */
+export const EvidenceRole = ["basis", "cross_check", "observation"] as const;
+export type EvidenceRole = (typeof EvidenceRole)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseEvidenceRole(value: unknown): EvidenceRole {
+  if (typeof value === "string" && (EvidenceRole as readonly string[]).includes(value)) {
+    return value as EvidenceRole;
+  }
+  throw new Error(`unknown evidence_role: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 범위 관계: 두 질병 범주의 범위가 어떻게 겹치는가. 양쪽 코드 집합에서 계산한 값만 쓴다. 이름으로 추정하지 않는다
+ *
+ * Axis `scope_relation`.
+ */
+export const ScopeRelation = ["same_scope", "narrower", "broader", "overlaps", "disjoint", "not_comparable"] as const;
+export type ScopeRelation = (typeof ScopeRelation)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseScopeRelation(value: unknown): ScopeRelation {
+  if (typeof value === "string" && (ScopeRelation as readonly string[]).includes(value)) {
+    return value as ScopeRelation;
+  }
+  throw new Error(`unknown scope_relation: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 정정 사유: 이전 판을 대체하는 새 판을 만든 이유. 정정은 고치지 않고 새 판 + supersedes로 남긴다
+ *
+ * Axis `correction_reason`.
+ */
+export const CorrectionReason = ["error_correction", "source_changed", "interpretation_improved", "rule_changed"] as const;
+export type CorrectionReason = (typeof CorrectionReason)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseCorrectionReason(value: unknown): CorrectionReason {
+  if (typeof value === "string" && (CorrectionReason as readonly string[]).includes(value)) {
+    return value as CorrectionReason;
+  }
+  throw new Error(`unknown correction_reason: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 주장 출처 구분: 주장을 만든 경로. fixture는 시험 전용이며 accepted가 될 수 없고 서비스 릴리스에 들어갈 수 없다
+ *
+ * Axis `assertion_origin`.
+ */
+export const AssertionOrigin = ["pipeline", "fixture"] as const;
+export type AssertionOrigin = (typeof AssertionOrigin)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseAssertionOrigin(value: unknown): AssertionOrigin {
+  if (typeof value === "string" && (AssertionOrigin as readonly string[]).includes(value)) {
+    return value as AssertionOrigin;
+  }
+  throw new Error(`unknown assertion_origin: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 정보 출처: 개인 계약 정보가 어디서 왔는가. 확인 여부(policy_holdings_status)·실제/가정(fact_kind)과 섞지 않는다
+ *
+ * Axis `fact_source`.
+ */
+export const FactSource = ["pdf_extracted", "user_stated", "user_confirmed_extract", "assumed", "release_derived"] as const;
+export type FactSource = (typeof FactSource)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseFactSource(value: unknown): FactSource {
+  if (typeof value === "string" && (FactSource as readonly string[]).includes(value)) {
+    return value as FactSource;
+  }
+  throw new Error(`unknown fact_source: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 실제·가정 구분: 그 값이 실제 계약의 사실인가, 가정인가
+ *
+ * Axis `fact_kind`.
+ */
+export const FactKind = ["actual", "hypothetical"] as const;
+export type FactKind = (typeof FactKind)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseFactKind(value: unknown): FactKind {
+  if (typeof value === "string" && (FactKind as readonly string[]).includes(value)) {
+    return value as FactKind;
+  }
+  throw new Error(`unknown fact_kind: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 확인 주체: 그 값을 누가 확인했는가
+ *
+ * Axis `confirm_party`.
+ */
+export const ConfirmParty = ["user", "insurer", "document", "none"] as const;
+export type ConfirmParty = (typeof ConfirmParty)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseConfirmParty(value: unknown): ConfirmParty {
+  if (typeof value === "string" && (ConfirmParty as readonly string[]).includes(value)) {
+    return value as ConfirmParty;
+  }
+  throw new Error(`unknown confirm_party: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 오류 클래스: 오류 코드 ONJ-<구역>-<클래스 1자>-<번호>의 클래스. 미확인·보류·판단 불가는 오류가 아니라 정상 결과이며 이 축을 쓰지 않는다. 오류 코드의 클래스 문자는 각 값 정의에 적는다
+ *
+ * Axis `error_class`.
+ */
+export const ErrorClass = ["validation", "auth", "not_found", "state_conflict", "limit", "unsupported", "internal", "timeout"] as const;
+export type ErrorClass = (typeof ErrorClass)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseErrorClass(value: unknown): ErrorClass {
+  if (typeof value === "string" && (ErrorClass as readonly string[]).includes(value)) {
+    return value as ErrorClass;
+  }
+  throw new Error(`unknown error_class: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 사용 제한: 오류에 따라 결과를 어디까지 쓸 수 있는가
+ *
+ * Axis `usage_restriction`.
+ */
+export const UsageRestriction = ["none", "hold", "circuit_breaker"] as const;
+export type UsageRestriction = (typeof UsageRestriction)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseUsageRestriction(value: unknown): UsageRestriction {
+  if (typeof value === "string" && (UsageRestriction as readonly string[]).includes(value)) {
+    return value as UsageRestriction;
+  }
+  throw new Error(`unknown usage_restriction: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 지식 최신성: 결과가 기댄 지식(릴리스·주장·기준 판)이 지금도 유효한가. 입력 최신성(freshness)과 다른 축이다
+ *
+ * Axis `knowledge_freshness`.
+ */
+export const KnowledgeFreshness = ["fresh", "stale", "withdrawn"] as const;
+export type KnowledgeFreshness = (typeof KnowledgeFreshness)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseKnowledgeFreshness(value: unknown): KnowledgeFreshness {
+  if (typeof value === "string" && (KnowledgeFreshness as readonly string[]).includes(value)) {
+    return value as KnowledgeFreshness;
+  }
+  throw new Error(`unknown knowledge_freshness: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 필요성 판단 결과: 추가 가입 필요성 판단의 결과. 네 값 모두 정상 결과이며 종합 점수·순위는 만들지 않는다. 가족력만으로 review_add가 나오지 않는다
+ *
+ * Axis `need_verdict`.
+ */
+export const NeedVerdict = ["keep", "no_add", "hold", "review_add"] as const;
+export type NeedVerdict = (typeof NeedVerdict)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseNeedVerdict(value: unknown): NeedVerdict {
+  if (typeof value === "string" && (NeedVerdict as readonly string[]).includes(value)) {
+    return value as NeedVerdict;
+  }
+  throw new Error(`unknown need_verdict: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 기준 출처 종류: 판단 기준 판의 출처가 어떤 종류인가. 출처가 없는 판은 기준 릴리스에 들어가지 못한다
+ *
+ * Axis `criterion_source_kind`.
+ */
+export const CriterionSourceKind = ["public_statistic", "statute", "regulator_notice", "terms_fact", "editorial"] as const;
+export type CriterionSourceKind = (typeof CriterionSourceKind)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseCriterionSourceKind(value: unknown): CriterionSourceKind {
+  if (typeof value === "string" && (CriterionSourceKind as readonly string[]).includes(value)) {
+    return value as CriterionSourceKind;
+  }
+  throw new Error(`unknown criterion_source_kind: ${JSON.stringify(value)}`);
 }

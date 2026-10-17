@@ -114,16 +114,12 @@
           "$ref": "common.schema.json#/$defs/Krw"
         },
         "fact_source": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "fact_source",
-          "description": "pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4). 어휘 축 승격 대기"
+          "$ref": "vocabulary.schema.json#/$defs/fact_source",
+          "description": "pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4)"
         },
         "confirm_party": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "confirm_party",
-          "description": "user, insurer, document, none (02 §1.4). 어휘 축 승격 대기"
+          "$ref": "vocabulary.schema.json#/$defs/confirm_party",
+          "description": "user, insurer, document, none (02 §1.4)"
         },
         "as_of": {
           "$ref": "common.schema.json#/$defs/IsoDate"

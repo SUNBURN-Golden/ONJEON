@@ -1,0 +1,22 @@
+{
+  "release_id": "rel:20261001-1",
+  "upload_id": "upload:01BX5ZZKBKACTAV9WEVGEMMVRY",
+  "state": "awaiting_confirmation",
+  "extracted": [
+    {
+      "field": "fixture_field",
+      "read_value": "fixture value",
+      "source_region": {
+        "page": 1,
+        "x0": 0.5,
+        "y0": 0.5,
+        "x1": 10.5,
+        "y1": 20.5
+      }
+    }
+  ],
+  "contract_version_match": "ambiguous",
+  "version_candidates": [
+    "ted:01BX5ZZKBKACTAV9WEVGEMMVRY"
+  ]
+}

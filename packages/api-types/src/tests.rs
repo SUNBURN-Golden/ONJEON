@@ -264,6 +264,14 @@ fn unknown_enum_values_fail_instead_of_defaulting() {
 }
 
 #[test]
+fn an_unknown_confirm_party_fails_instead_of_passing_as_a_string() {
+    let mut e = fixture("EvaluationResponse");
+    assert!(serde_json::from_value::<EvaluationResponse>(e.clone()).is_ok());
+    e["unresolved"][0]["confirm_party"] = "someone".into();
+    assert!(serde_json::from_value::<EvaluationResponse>(e).is_err());
+}
+
+#[test]
 fn a_required_any_value_must_be_present() {
     let ok = serde_json::json!({"name": "assumption_a", "value": null});
     assert!(serde_json::from_value::<AssumptionRequest>(ok).is_ok());

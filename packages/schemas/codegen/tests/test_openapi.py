@@ -228,6 +228,35 @@ class Mutations(unittest.TestCase):
             d["public"]["paths"]["/v1/gaps"]["get"]["x-onjeon-skeleton"] = True
         self.assertTrue(any("belong to the personal document" in e for e in self.errors(m)))
 
+    @staticmethod
+    def open_snake_strings(docs):
+        """(document, schema, property, description) of every open snake_case string (pattern only, no $ref)."""
+        snake = "^[a-z][a-z0-9_]*$"
+        for name, doc in docs.items():
+            for sname, s in doc["components"]["schemas"].items():
+                for pname, ps in s.get("properties", {}).items():
+                    if ps.get("pattern") == snake or (ps.get("items") or {}).get("pattern") == snake:
+                        yield name, sname, pname, ps.get("description", "")
+
+    def promoted_axis_clashes(self, docs):
+        axes = {a["id"]: {v["code"] for v in a["values"]} for a in sm.load_vocab()["axes"]}
+        out = []
+        for doc, sname, pname, desc in self.open_snake_strings(docs):
+            words = set(re.findall(r"[a-z][a-z0-9_]+", desc))
+            if pname in axes:
+                out.append(f"{doc}.{sname}.{pname}: the vocabulary has axis '{pname}'")
+            out += [f"{doc}.{sname}.{pname}: candidates are the values of axis '{a}'" for a, codes in axes.items() if len(words) >= 2 and words <= codes]
+        return out
+
+    def test_open_strings_do_not_cover_an_axis_the_vocabulary_now_has(self):
+        self.assertEqual(self.promoted_axis_clashes(self.docs), [])
+
+    def test_the_promotion_check_catches_confirm_party_as_an_open_string(self):
+        docs = copy.deepcopy(self.docs)
+        docs["personal"]["components"]["schemas"]["UnresolvedFact"]["properties"]["confirm_party"] = {
+            "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "확인 주체(어휘 승격 대기)"}
+        self.assertTrue(any("confirm_party" in e for e in self.promoted_axis_clashes(docs)))
+
     def test_an_unknown_enum_reference_is_a_lint_error(self):
         def m(d):
             d["public"]["components"]["schemas"]["ProductListItem"]["properties"]["sale_status"] = {"$ref": "../json/vocabulary.schema.json#/$defs/no_such_axis"}

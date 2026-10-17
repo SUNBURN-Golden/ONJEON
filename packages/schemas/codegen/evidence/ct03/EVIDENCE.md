@@ -6,10 +6,10 @@
 
 | 항목 | 값 |
 |---|---|
-| 과제 ID | T-CT-03 (fix round 1) |
+| 과제 ID | T-CT-03 (fix round 2) |
 | 작성 | 모델 역할: 구현자(작성 계열). 실행 경로: 감독자가 띄운 격리 작업 트리(worktree)에서 에이전트가 직접 명령 실행. 리뷰어는 별도 계열 |
-| 부모 커밋(로그 생성 시 HEAD) | `1aef1e7fcc1019a534a40b356109f9afb1cffd30` + 이 라운드의 변경(커밋·푸시는 감독자) |
-| `packages/schemas` 트리 sha256 (`codegen/evidence/` 제외) | `1f20600aa79bf2a5c4cb061f94a3de27f619693ffe484c782161efb8a02e8ee7` |
+| 부모 커밋(로그 생성 시 HEAD) | `7d61a403145c6fa12bba135c0116ec53e3b9eec3`(main 병합 포함, 어휘 1.6.0) + 이 라운드의 변경(커밋·푸시는 감독자) |
+| `packages/schemas` 트리 sha256 (`codegen/evidence/` 제외) | `39c0c6e99d9bfccafcdaa42ed7798d0d3ff62432c385278af268511dd1cb111f` |
 | 계산 명령 | `bash packages/schemas/codegen/tree_hash.sh` |
 | 대상 SHA(PR head) | **감독자가 채운다.** 그 커밋에서 `tree_hash.sh`가 위 값을 내면 이 로그는 그 커밋의 코드에서 나온 것이다. 다르면 낡은 로그이므로 §3 명령을 다시 돌린다 |
 | 실행 일시 | 2026-10-17 (VM 시계) |
@@ -24,11 +24,11 @@ cargo/rustc 1.98.1, python3 3.13.5(`-I`), node v20.19.2, tsc 5.9.3(`TSC='node /t
 |---|---|---|---|
 | `gen_and_build.log` | `gen.sh && cargo build -p onjeon-api-types` | 0 | 생성·빌드 |
 | `gen_check.log` | `gen.sh --check` | 0 | 생성물 30개 최신 |
-| `api_types_test.log` | `cargo test -p onjeon-api-types` 및 `--features skeleton` | 0 | 각 16개 통과(스켈레톤 피처 쪽에 피처 전용 시험 포함) |
+| `api_types_test.log` | `cargo test -p onjeon-api-types` 및 `--features skeleton` | 0 | 각 17개 통과(스켈레톤 피처 쪽에 피처 전용 시험 포함) |
 | `lint_fmt.log` | `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, 스켈레톤 피처 clippy `-D warnings` | 0 | 경고 없음 |
-| `python_tests.log` | `python3 -I -m unittest discover -s packages/schemas/codegen/tests -v` | 0 | 102개 OK(OpenAPI lint·캐시 헤더·스켈레톤 비노출·누출 정적 검사 포함) |
+| `python_tests.log` | `python3 -I -m unittest discover -s packages/schemas/codegen/tests -v` | 0 | 104개 OK(OpenAPI lint·캐시 헤더·스켈레톤 비노출·누출 정적 검사 포함) |
 | `build_check.log` | `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh` | 0 | Rust·TS·Dart 빌드, Dart는 기본 진입점 스켈레톤 사용 코드가 `skeletonOperations` 오류로 거부됨을 확인. `SKIPPED` 없음 |
-| `cargo_test_all.log` | `cargo test --all` (CI와 같은 명령) | 0 | 전부 통과 |
+| `cargo_test_all.log` | `cargo test --all` (CI와 같은 명령) | 0 | 전부 통과(`onjeon_contracts` 25개 포함) |
 
 ## 4. 수락 항목 대응
 

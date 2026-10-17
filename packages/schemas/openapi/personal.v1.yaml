@@ -1961,9 +1961,8 @@
             "type": "string"
           },
           "confirm_party": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9_]*$",
-            "description": "확인 주체(어휘 승격 대기)"
+            "$ref": "../json/vocabulary.schema.json#/$defs/confirm_party",
+            "description": "확인 주체"
           }
         },
         "required": [

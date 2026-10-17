@@ -44,4 +44,5 @@ ok   unknown sale_status rejected
 ok   default operations contain no skeleton operation
 Dart API: analyzed, round-tripped, skeleton not exported by onjeon_api.dart
 RESULT: all three languages build
+
 exit code: 0

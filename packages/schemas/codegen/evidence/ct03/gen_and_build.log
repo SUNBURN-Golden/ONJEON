@@ -1,3 +1,4 @@
 $ bash packages/schemas/codegen/gen.sh && cargo build -p onjeon-api-types
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+
 exit code: 0

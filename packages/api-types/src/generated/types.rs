@@ -471,8 +471,8 @@ pub struct ContractScenarioResult {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UnresolvedFact {
     pub what: String,
-    /// 확인 주체(어휘 승격 대기)
-    pub confirm_party: String,
+    /// 확인 주체
+    pub confirm_party: ConfirmParty,
 }
 
 /// 계산 결과 (POST /v1/evaluations, GET /v1/evaluations/{id})

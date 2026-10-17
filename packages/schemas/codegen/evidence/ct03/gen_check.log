@@ -1,3 +1,4 @@
 $ bash packages/schemas/codegen/gen.sh --check
 ok: 30 generated files are up to date
+
 exit code: 0

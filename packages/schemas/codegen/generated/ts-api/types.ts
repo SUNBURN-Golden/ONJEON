@@ -4,6 +4,7 @@
 import type {
   AcquisitionStatus,
   CapabilityStatus,
+  ConfirmParty,
   ContractSnapshot,
   ContractVersionMatch,
   Criticality,
@@ -625,9 +626,9 @@ export interface ContractScenarioResult {
 export interface UnresolvedFact {
   what: string;
   /**
-   * 확인 주체(어휘 승격 대기)
+   * 확인 주체
    */
-  confirm_party: string;
+  confirm_party: ConfirmParty;
 }
 
 /**

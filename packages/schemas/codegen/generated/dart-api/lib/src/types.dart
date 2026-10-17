@@ -1235,8 +1235,8 @@ class ContractScenarioResult {
 /// 아직 확정하지 못한 것과 확인할 주체
 class UnresolvedFact {
   final String what;
-  /// 확인 주체(어휘 승격 대기)
-  final String confirmParty;
+  /// 확인 주체
+  final ConfirmParty confirmParty;
 
   const UnresolvedFact({
     required this.what,
@@ -1245,12 +1245,12 @@ class UnresolvedFact {
 
   factory UnresolvedFact.fromJson(Map<String, dynamic> json) => UnresolvedFact(
         what: json['what'] as String,
-        confirmParty: json['confirm_party'] as String,
+        confirmParty: ConfirmParty.fromJson(json['confirm_party'] as String),
       );
 
   Map<String, dynamic> toJson() => {
         'what': what,
-        'confirm_party': confirmParty,
+        'confirm_party': confirmParty.toJson(),
       };
 }
 

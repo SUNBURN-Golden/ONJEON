@@ -1,0 +1,68 @@
+{
+  "release_id": "rel:20261001-1",
+  "cov_id": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+  "title": "fixture title",
+  "data_as_of": "2026-10-01",
+  "display_status": "under_review",
+  "capabilities": [
+    {
+      "capability": "explain",
+      "state": "enabled"
+    },
+    {
+      "capability": "compare_price",
+      "state": "blocked"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "what_is_covered",
+      "lines": [
+        {
+          "line": "fixture line 0",
+          "display_status": "confirmed",
+          "refs": [
+            "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "layer": "when_not_paid",
+      "lines": [
+        {
+          "line": "fixture line",
+          "display_status": "under_review",
+          "kind": "waiting",
+          "refs": [
+            "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0"
+          ],
+          "amounts": [
+            {
+              "krw": 0,
+              "source": "scenario:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+              "evidence_kind": "terms",
+              "applicability": "applies"
+            }
+          ],
+          "values": [
+            {
+              "text": "90일",
+              "source": "clause:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+              "unit_path": "length_unit"
+            }
+          ],
+          "gaps": [
+            "gap:01J0000000000000000000000A"
+          ]
+        }
+      ]
+    }
+  ],
+  "result_state": {
+    "input_freshness": "fresh",
+    "knowledge_freshness": "fresh",
+    "usage_restriction": "none",
+    "reproducible": true
+  }
+}

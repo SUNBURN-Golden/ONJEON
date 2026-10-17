@@ -3,7 +3,7 @@
   "$id": "vocabulary.schema.json",
   "title": "Vocabulary",
   "description": "GENERATED from packages/schemas/vocabulary.json by codegen/gen.py. Do not edit.",
-  "x-onjeon-vocabulary-version": "1.5.0",
+  "x-onjeon-vocabulary-version": "1.6.0",
   "$defs": {
     "acquisition_status": {
       "type": "string",
@@ -359,7 +359,9 @@
         "price_table",
         "standard_terms",
         "disclosure_page",
-        "notice"
+        "notice",
+        "disclosure_list",
+        "guide_page"
       ]
     },
     "sale_status": {
@@ -378,6 +380,127 @@
         "fixture_only",
         "candidate",
         "released"
+      ]
+    },
+    "evidence_role": {
+      "type": "string",
+      "description": "근거 역할: 주장이 이 근거에 어떻게 기대는가. basis는 약관 조항 근거로 C0 내용 주장이 accepted 되려면 필수다. 요약서·공시·안내 쪽만으로는 accepted가 될 수 없다",
+      "enum": [
+        "basis",
+        "cross_check",
+        "observation"
+      ]
+    },
+    "scope_relation": {
+      "type": "string",
+      "description": "범위 관계: 두 질병 범주의 범위가 어떻게 겹치는가. 양쪽 코드 집합에서 계산한 값만 쓴다. 이름으로 추정하지 않는다",
+      "enum": [
+        "same_scope",
+        "narrower",
+        "broader",
+        "overlaps",
+        "disjoint",
+        "not_comparable"
+      ]
+    },
+    "correction_reason": {
+      "type": "string",
+      "description": "정정 사유: 이전 판을 대체하는 새 판을 만든 이유. 정정은 고치지 않고 새 판 + supersedes로 남긴다",
+      "enum": [
+        "error_correction",
+        "source_changed",
+        "interpretation_improved",
+        "rule_changed"
+      ]
+    },
+    "assertion_origin": {
+      "type": "string",
+      "description": "주장 출처 구분: 주장을 만든 경로. fixture는 시험 전용이며 accepted가 될 수 없고 서비스 릴리스에 들어갈 수 없다",
+      "enum": [
+        "pipeline",
+        "fixture"
+      ]
+    },
+    "fact_source": {
+      "type": "string",
+      "description": "정보 출처: 개인 계약 정보가 어디서 왔는가. 확인 여부(policy_holdings_status)·실제/가정(fact_kind)과 섞지 않는다",
+      "enum": [
+        "pdf_extracted",
+        "user_stated",
+        "user_confirmed_extract",
+        "assumed",
+        "release_derived"
+      ]
+    },
+    "fact_kind": {
+      "type": "string",
+      "description": "실제·가정 구분: 그 값이 실제 계약의 사실인가, 가정인가",
+      "enum": [
+        "actual",
+        "hypothetical"
+      ]
+    },
+    "confirm_party": {
+      "type": "string",
+      "description": "확인 주체: 그 값을 누가 확인했는가",
+      "enum": [
+        "user",
+        "insurer",
+        "document",
+        "none"
+      ]
+    },
+    "error_class": {
+      "type": "string",
+      "description": "오류 클래스: 오류 코드 ONJ-<구역>-<클래스 1자>-<번호>의 클래스. 미확인·보류·판단 불가는 오류가 아니라 정상 결과이며 이 축을 쓰지 않는다. 오류 코드의 클래스 문자는 각 값 정의에 적는다",
+      "enum": [
+        "validation",
+        "auth",
+        "not_found",
+        "state_conflict",
+        "limit",
+        "unsupported",
+        "internal",
+        "timeout"
+      ]
+    },
+    "usage_restriction": {
+      "type": "string",
+      "description": "사용 제한: 오류에 따라 결과를 어디까지 쓸 수 있는가",
+      "enum": [
+        "none",
+        "hold",
+        "circuit_breaker"
+      ]
+    },
+    "knowledge_freshness": {
+      "type": "string",
+      "description": "지식 최신성: 결과가 기댄 지식(릴리스·주장·기준 판)이 지금도 유효한가. 입력 최신성(freshness)과 다른 축이다",
+      "enum": [
+        "fresh",
+        "stale",
+        "withdrawn"
+      ]
+    },
+    "need_verdict": {
+      "type": "string",
+      "description": "필요성 판단 결과: 추가 가입 필요성 판단의 결과. 네 값 모두 정상 결과이며 종합 점수·순위는 만들지 않는다. 가족력만으로 review_add가 나오지 않는다",
+      "enum": [
+        "keep",
+        "no_add",
+        "hold",
+        "review_add"
+      ]
+    },
+    "criterion_source_kind": {
+      "type": "string",
+      "description": "기준 출처 종류: 판단 기준 판의 출처가 어떤 종류인가. 출처가 없는 판은 기준 릴리스에 들어가지 못한다",
+      "enum": [
+        "public_statistic",
+        "statute",
+        "regulator_notice",
+        "terms_fact",
+        "editorial"
       ]
     }
   }

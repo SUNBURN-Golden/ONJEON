@@ -336,7 +336,7 @@ fn fixture_assertion_is_valid_but_never_accepted() {
 #[test]
 fn accepted_assertion_needs_a_review_decision() {
     let mut a = assertion();
-    a.origin = "pipeline".into();
+    a.origin = AssertionOrigin::Pipeline;
     a.review_status = ReviewStatus::Accepted;
     let rules: Vec<_> = check_assertion(&a).iter().map(|v| v.rule).collect();
     assert_eq!(rules, vec!["chk_accepted_needs_decision"]);
@@ -376,11 +376,11 @@ fn premium_comparison_eligibility_needs_the_full_condition_set() {
     eligible.comparison_eligible = true;
     eligible.review_status = ReviewStatus::Accepted;
     eligible.review_decision_id = Some("rd:01ARZ3NDEKTSV4RRFFQ69G5FAV".into());
-    eligible.origin = "pipeline".into();
+    eligible.origin = AssertionOrigin::Pipeline;
     assert!(check_premium_observation(&eligible).is_empty());
 
     let mut still_fixture = eligible.clone();
-    still_fixture.origin = ORIGIN_FIXTURE.into();
+    still_fixture.origin = ORIGIN_FIXTURE;
     let rules: Vec<_> = check_premium_observation(&still_fixture)
         .iter()
         .map(|v| v.rule)
@@ -522,8 +522,53 @@ fn every_fixture_satisfies_the_cross_field_checks_and_is_test_only() {
 fn error_class_must_match_the_code() {
     let mut e: ErrorResponse = serde_json::from_str(fixture!("ErrorResponse")).unwrap();
     assert!(check_error_response(&e).is_empty());
-    e.error_class = "N".into();
+    e.error_class = ErrorClass::NotFound;
     assert_eq!(check_error_response(&e)[0].rule, "error_class_matches_code");
+}
+
+#[test]
+fn error_class_words_and_code_letters_correspond_one_to_one() {
+    // the letter set of the `code` pattern (02 §4.2) and the vocabulary axis are the same closed set
+    let letters: String = ErrorClass::ALL
+        .iter()
+        .map(|c| error_class_letter(*c))
+        .collect();
+    assert_eq!(letters, "VANSLUXT");
+    for class in ErrorClass::ALL {
+        let letter = error_class_letter(*class).to_string();
+        assert_eq!(error_class_for_letter(&letter), Some(*class));
+        let e = ErrorResponse {
+            error_class: *class,
+            code: format!("ONJ-AP-{letter}-001"),
+            message_key: "error.any".into(),
+            retryable: false,
+            trace_id: "trace-fixture-1".into(),
+        };
+        assert_eq!(check_error_response(&e), vec![]);
+    }
+    assert_eq!(error_class_for_letter("Z"), None);
+    assert_eq!(error_class_for_letter(""), None);
+}
+
+#[test]
+fn a_class_letter_is_no_longer_a_valid_error_class_on_the_wire() {
+    // 1.5.0 clients sent the letter; since vocabulary 1.6.0 the field is the enum word
+    let doc = json!({"error_class": "V", "code": "ONJ-AP-V-001", "message_key": "k", "retryable": false, "trace_id": "t"});
+    assert!(serde_json::from_value::<ErrorResponse>(doc).is_err());
+}
+
+#[test]
+fn promoted_axes_reject_unknown_values_instead_of_keeping_a_string() {
+    // the eleven fields that were pending-axis strings in 1.5.0 are closed vocabulary enums now
+    let mut a: Value = serde_json::from_str(fixture!("Assertion.value")).unwrap();
+    a["origin"] = json!("synthetic");
+    assert!(serde_json::from_value::<Assertion>(a).is_err());
+    let mut c: Value = serde_json::from_str(fixture!("CompareView")).unwrap();
+    c["scope_relations"][0]["value"] = json!("superset");
+    assert!(serde_json::from_value::<CompareView>(c).is_err());
+    let mut n: Value = serde_json::from_str(fixture!("NeedResult")).unwrap();
+    n["verdict"] = json!("buy");
+    assert!(serde_json::from_value::<NeedResult>(n).is_err());
 }
 
 #[test]

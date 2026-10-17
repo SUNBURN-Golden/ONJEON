@@ -1,0 +1,314 @@
+{
+  "version": "1.0.0",
+  "note": "Zone dependency and leak rules read by tools/ci/check_deps.py, check_leak.py and check_skeleton.py. Source: 01_code_design section 2 (allowed dependencies, O15), 02_implementation_contract 7.1, Part 3 section 52.3 and 58. Matching is by path glob (** crosses directories). A dependency or import not allowed here fails; there is no default allow. Zones not yet built (services/*) are listed so the first crate in each is checked from day one.",
+  "scan": {
+    "ignore": [
+      ".git/**",
+      "target/**",
+      "**/target/**",
+      "**/node_modules/**",
+      "wt/**",
+      "docs/**",
+      "**/.dart_tool/**",
+      "tools/tests/**",
+      "tools/ci/**"
+    ],
+    "manifest_ignore": [
+      "docs/**",
+      "**/target/**",
+      "wt/**"
+    ]
+  },
+  "zones": {
+    "contracts": {
+      "paths": [
+        "packages/schemas/**",
+        "packages/api-types/**"
+      ],
+      "allow_zones": [],
+      "allow_packages": []
+    },
+    "data": {
+      "paths": [
+        "services/collect/**",
+        "services/docproc/**",
+        "tools/crawler/**"
+      ],
+      "allow_zones": [
+        "contracts"
+      ],
+      "allow_packages": []
+    },
+    "knowledge": {
+      "paths": [
+        "services/knowledge/**",
+        "services/ai-review/**",
+        "services/ai-gateway/**",
+        "services/criteria/**",
+        "packages/ontology/**"
+      ],
+      "allow_zones": [
+        "contracts"
+      ],
+      "allow_packages": []
+    },
+    "twin": {
+      "paths": [
+        "packages/rules-engine/**",
+        "packages/twin-runtime/**"
+      ],
+      "allow_zones": [
+        "contracts"
+      ],
+      "allow_packages": [
+        "onjeon-ontology"
+      ]
+    },
+    "api": {
+      "paths": [
+        "services/api/**"
+      ],
+      "allow_zones": [
+        "contracts",
+        "twin"
+      ],
+      "allow_packages": [
+        "onjeon-personal-client"
+      ]
+    },
+    "personal": {
+      "paths": [
+        "services/personal/**"
+      ],
+      "allow_zones": [
+        "contracts",
+        "twin"
+      ],
+      "allow_packages": [
+        "onjeon-docproc-personal"
+      ]
+    },
+    "client": {
+      "paths": [
+        "apps/**"
+      ],
+      "allow_zones": [
+        "contracts"
+      ],
+      "allow_packages": []
+    }
+  },
+  "dependency_exceptions": [
+    {
+      "from": "onjeon-contracts",
+      "to": "onjeon-rules-engine",
+      "kind": "dev",
+      "reason": "T-CT-01 round-trip test: the real engine output must deserialize into EvaluationResult. Test-only, not linked into the library"
+    }
+  ],
+  "provider_sdk": {
+    "rule": "Direct dependency on an AI provider SDK is allowed only in the services/ai-gateway crate",
+    "only_in": [
+      "services/ai-gateway/**"
+    ],
+    "packages": [
+      "anthropic",
+      "async-openai",
+      "openai",
+      "openai-api-rs",
+      "genai",
+      "google-generativeai",
+      "google-genai",
+      "google_generative_ai",
+      "ollama-rs",
+      "ollama",
+      "mistralai",
+      "mistralai_azure",
+      "cohere",
+      "cohere-rust",
+      "@anthropic-ai/sdk",
+      "@google/generative-ai",
+      "@google/genai",
+      "@mistralai/mistralai",
+      "cohere-ai",
+      "langchain-openai",
+      "langchain-anthropic",
+      "langchain_openai",
+      "langchain_anthropic",
+      "rig-core",
+      "aws-sdk-bedrockruntime"
+    ]
+  },
+  "client_rules": {
+    "note": "mobile/web may import only the client generated from contracts (O15). Relative imports must stay inside the app or reach a contracts path",
+    "internal_namespaces": [
+      "@onjeon/",
+      "package:onjeon_",
+      "package:onjeon/"
+    ],
+    "generated_client_packages": [
+      "@onjeon/contracts",
+      "onjeon_contracts",
+      "@onjeon/api-types",
+      "onjeon_api_types"
+    ],
+    "forbidden_import_paths": [
+      "services/",
+      "packages/rules-engine",
+      "packages/twin-runtime",
+      "packages/ontology"
+    ]
+  },
+  "leak": {
+    "note": "Static leak rules. I10: ad and commission fields never feed sort or recommendation code. I11 and 52.3: sensitivity labels stay out of public serializers, analytics, logs, agent/consultation modules and the external-AI gateway. Hits are line- or path-based, so a hit can be a false positive; add an allow entry with a reason rather than weakening a pattern.",
+    "scan_extensions": [
+      ".rs",
+      ".py",
+      ".ts",
+      ".tsx",
+      ".js",
+      ".jsx",
+      ".dart",
+      ".sql",
+      ".toml",
+      ".yaml",
+      ".yml",
+      ".json"
+    ],
+    "scan_ignore": [
+      "packages/schemas/vocabulary.json",
+      "packages/schemas/json/**",
+      "packages/schemas/codegen/**",
+      "packages/schemas/src/**",
+      "packages/schemas/feature_flags.json",
+      "infra/ci/**",
+      "tools/vocab_check.py",
+      "tools/validation_check.py"
+    ],
+    "i10": {
+      "money_fields": [
+        "ad_cost",
+        "ad_fee",
+        "ad_spend",
+        "ad_revenue",
+        "ad_budget",
+        "ad_bid",
+        "advertising_fee",
+        "advertising_cost",
+        "commission",
+        "commission_rate",
+        "commission_fee",
+        "sales_commission",
+        "referral_fee",
+        "kickback",
+        "sponsor_fee",
+        "sponsorship",
+        "revenue_share",
+        "광고비",
+        "수수료율",
+        "판매수수료"
+      ],
+      "ranking_words": [
+        "sort",
+        "sorted",
+        "order_by",
+        "orderby",
+        "rank",
+        "ranking",
+        "recommend",
+        "recommendation",
+        "score",
+        "weight",
+        "priority",
+        "compare_by",
+        "min_by",
+        "max_by"
+      ],
+      "ranking_path_globs": [
+        "**/*sort*",
+        "**/*rank*",
+        "**/*recommend*"
+      ],
+      "allow": []
+    },
+    "i11": {
+      "sensitive_labels": [
+        "private_policy",
+        "private_health",
+        "genetic_private",
+        "PrivatePolicy",
+        "PrivateHealth",
+        "GeneticPrivate"
+      ],
+      "vocabulary_axis": "sensitivity",
+      "public_value": "public_product",
+      "public_serializer_globs": [
+        "services/api/src/public/**",
+        "services/api/src/**/public_*",
+        "services/api/src/**/*public_response*",
+        "services/api/src/**/serializers/public*",
+        "services/api/src/**/view_models/public*"
+      ],
+      "analytics_globs": [
+        "**/analytics/**",
+        "**/analytics.*",
+        "**/telemetry/**",
+        "**/crash/**",
+        "**/crash_report*"
+      ],
+      "agent_globs": [
+        "**/agent/**",
+        "**/consultation/**",
+        "**/agent_portal/**"
+      ],
+      "gateway_globs": [
+        "services/ai-gateway/**"
+      ],
+      "gateway_note": "No sensitivity label reaches the external-AI gateway in this stage. private_* waits for decision D-17; genetic_private never goes (consent cannot lift it)",
+      "log_call_pattern": "\\b(?:trace|debug|info|warn|error)!\\s*\\(|\\bprintln!\\s*\\(|\\bdbg!\\s*\\(|\\bconsole\\.(?:log|info|warn|error|debug)\\s*\\(|\\blogger\\.(?:debug|info|warning|warn|error|exception)\\s*\\(|\\blogging\\.(?:debug|info|warning|error)\\s*\\(|\\bprint\\s*\\(|\\bdebugPrint\\s*\\(",
+      "private_field_names": [
+        "policy_number",
+        "family_history",
+        "dna",
+        "pdf_password",
+        "resident_number",
+        "diagnosis_code"
+      ],
+      "allow": []
+    },
+    "analytics": {
+      "note": "Calls that send an analytics event may carry only fields in allowed_fields (52.3: code that sends fields outside the event schema). Empty until the event schema exists; until then any literal field key in an event call fails.",
+      "call_pattern": "\\b(?:track|log_event|logEvent|send_event|sendEvent|emit_event|logAnalytics)\\s*\\(\\s*[\"'][A-Za-z0-9_.:-]+[\"']\\s*,\\s*\\{([^{}]*)\\}",
+      "allowed_fields": []
+    }
+  },
+  "skeleton": {
+    "note": "Part 3 section 58 skeleton checks (tools/ci/check_skeleton.py). The flags file is packages/schemas/feature_flags.json.",
+    "required_flags": [
+      "consultation_enabled",
+      "agent_portal_enabled",
+      "quotes_enabled",
+      "proposal_verification_enabled",
+      "content_ads_subscription_enabled",
+      "family_link_enabled",
+      "dna_enabled"
+    ],
+    "ui_globs": [
+      "apps/**"
+    ],
+    "config_extensions": [
+      ".yaml",
+      ".yml",
+      ".toml",
+      ".json",
+      ".env",
+      ".sh",
+      ".ini",
+      ".cfg"
+    ],
+    "config_ignore": [
+      "packages/schemas/feature_flags.json",
+      "infra/ci/**"
+    ]
+  }
+}

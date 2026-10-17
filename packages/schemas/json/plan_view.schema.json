@@ -307,10 +307,8 @@
       "description": "필요 담보 행에 붙는 필요성 요약 (02 §2.4)",
       "properties": {
         "verdict": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "need_verdict",
-          "description": "keep, no_add, hold, review_add. 어휘 축 승격 대기"
+          "$ref": "vocabulary.schema.json#/$defs/need_verdict",
+          "description": "keep, no_add, hold, review_add"
         },
         "reasons": {
           "type": "array",

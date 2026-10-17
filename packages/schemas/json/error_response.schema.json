@@ -6,10 +6,8 @@
   "description": "오류 응답 (02_구현계약 §4). 미확인·보류는 오류가 아니라 HTTP 200의 정상 결과다",
   "properties": {
     "error_class": {
-      "type": "string",
-      "pattern": "^[VANSLUXT]$",
-      "x-onjeon-pending-axis": "error_class",
-      "description": "V 입력 검증, A 인증·권한, N 없음, S 상태 충돌, L 한도, U 미지원, X 내부, T 타임아웃 (02 §4.2). 어휘 축 승격 대기"
+      "$ref": "vocabulary.schema.json#/$defs/error_class",
+      "description": "오류 클래스. code의 클래스 글자(V A N S L U X T)와 대응한다(02 §4.2). 대응은 checks.rs가 확인"
     },
     "code": {
       "type": "string",

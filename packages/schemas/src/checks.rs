@@ -6,13 +6,13 @@
 //! name of the database constraint or contract rule it mirrors.
 
 use crate::{
-    AmountKind, AmountOut, Assertion, ErrorResponse, EvaluationResult, Payout, PremiumObservation,
-    ReviewStatus, ScenarioResult, Tri,
+    AmountKind, AmountOut, Assertion, AssertionOrigin, ErrorClass, ErrorResponse, EvaluationResult,
+    Payout, PremiumObservation, ReviewStatus, ScenarioResult, Tri,
 };
 
-/// `origin` value of rows that exist only for tests (02_구현계약 §1.2, §8).
-/// Stays a string until the `assertion_origin` axis enters the vocabulary.
-pub const ORIGIN_FIXTURE: &str = "fixture";
+/// `origin` value of rows that exist only for tests (02_구현계약 §1.2, §8): vocabulary axis
+/// `assertion_origin` (1.6.0). A fixture row is never accepted and never comparison-eligible.
+pub const ORIGIN_FIXTURE: AssertionOrigin = AssertionOrigin::Fixture;
 
 /// `contract_effect.kind` values (02_구현계약 G23, rule-0.2): the engine's `ContractEffectOut`
 /// tag. Strings until the `contract_effect_kind` axis enters the vocabulary.
@@ -213,13 +213,37 @@ fn check_amount_out(a: &AmountOut) -> Vec<Violation> {
     }
 }
 
-/// `error_class` is the class letter of `code` (`ONJ-<zone>-<class>-<nnn>`).
+/// The class letter that an `error_class` value carries inside `code`
+/// (`ONJ-<zone>-<class letter>-<nnn>`, 02_구현계약 §4.2). The vocabulary axis `error_class`
+/// names the classes with words; the letter set `VANSLUXT` of the `code` pattern is fixed here.
+pub fn error_class_letter(class: ErrorClass) -> char {
+    match class {
+        ErrorClass::Validation => 'V',
+        ErrorClass::Auth => 'A',
+        ErrorClass::NotFound => 'N',
+        ErrorClass::StateConflict => 'S',
+        ErrorClass::Limit => 'L',
+        ErrorClass::Unsupported => 'U',
+        ErrorClass::Internal => 'X',
+        ErrorClass::Timeout => 'T',
+    }
+}
+
+/// The `error_class` value for a class letter of `code`; `None` for a letter outside `VANSLUXT`.
+pub fn error_class_for_letter(letter: &str) -> Option<ErrorClass> {
+    ErrorClass::ALL
+        .iter()
+        .copied()
+        .find(|c| error_class_letter(*c).to_string() == letter)
+}
+
+/// `error_class` is the vocabulary word for the class letter of `code` (`ONJ-<zone>-<class>-<nnn>`).
 pub fn check_error_response(e: &ErrorResponse) -> Vec<Violation> {
     let class = e.code.split('-').nth(2).unwrap_or("");
-    if class != e.error_class {
+    if error_class_for_letter(class) != Some(e.error_class) {
         return vec![v(
             "error_class_matches_code",
-            "error_class differs from the class letter in code",
+            "error_class does not correspond to the class letter in code",
         )];
     }
     Vec::new()

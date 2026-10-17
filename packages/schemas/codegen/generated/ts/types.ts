@@ -4,23 +4,33 @@
 import type {
   AmountForm,
   AmountKind,
+  AssertionOrigin,
   Capability,
   CapabilityState,
+  ConfirmParty,
   ContractVersionMatch,
+  CorrectionReason,
   Criticality,
   DiffGroup,
   DiffType,
   DisplayStatus,
+  ErrorClass,
+  EvidenceRole,
+  FactSource,
   Freshness,
   HoldReason,
+  KnowledgeFreshness,
+  NeedVerdict,
   Payout,
   PlanAction,
   PriceBasis,
   PriceUnavailableReason,
   ReviewStatus,
   RowLabel,
+  ScopeRelation,
   Sensitivity,
   Tri,
+  UsageRestriction,
   ValueState,
 } from "./vocabulary";
 
@@ -111,12 +121,15 @@ export interface Assertion {
    */
   review_decision_id?: string;
   supersedes?: string;
-  correction_reason?: string;
+  /**
+   * supersedes가 있는 판의 정정 사유(어휘 correction_reason, 온톨로지 설계안 §13)
+   */
+  correction_reason?: CorrectionReason;
   extractor: Extractor;
   /**
-   * pipeline, fixture (02 §1.2). 어휘 축 승격 대기
+   * pipeline, fixture (02 §1.2)
    */
-  origin: string;
+  origin: AssertionOrigin;
   onto_version: string;
   created_by_run: string;
 }
@@ -167,13 +180,13 @@ export interface Amount {
 export interface ResultState {
   input_freshness: Freshness;
   /**
-   * fresh, stale, withdrawn. 어휘 축 승격 대기
+   * fresh, stale, withdrawn
    */
-  knowledge_freshness: string;
+  knowledge_freshness: KnowledgeFreshness;
   /**
-   * none, hold, circuit_breaker. 어휘 축 승격 대기
+   * none, hold, circuit_breaker
    */
-  usage_restriction: string;
+  usage_restriction: UsageRestriction;
   /**
    * 릴리스가 철회·제한되어도 과거 결과는 그 릴리스로 재현된다
    */
@@ -212,9 +225,9 @@ export interface DependencyInfo {
 export interface EvidenceLink {
   ref: string;
   /**
-   * basis, cross_check, observation (02 §6.1). 어휘 축 승격 대기
+   * basis, cross_check, observation (02 §6.1)
    */
-  role: string;
+  role: EvidenceRole;
 }
 
 /**
@@ -326,16 +339,16 @@ export interface CompareAxis {
 /**
  * 범위 관계. derived만(계산, 코드 우주 해시)
  */
-export interface ScopeRelation {
+export interface ScopeRelationEntry {
   /**
    * 열 식별자(sc_id 또는 cov_id)
    */
   a: string;
   b: string;
   /**
-   * 범위 관계 값. 02에 값 집합이 없다. 어휘 축 승격 대기
+   * 범위 관계 값(온톨로지 설계안 §13)
    */
-  value: string;
+  value: ScopeRelation;
   derived_from: string;
 }
 
@@ -378,7 +391,7 @@ export interface CompareView {
   comparison_basis_id?: string;
   columns: CompareColumn[];
   axes: CompareAxis[];
-  scope_relations: ScopeRelation[];
+  scope_relations: ScopeRelationEntry[];
   price?: ComparePrice;
   not_comparable_reasons: NotComparableReason[];
   result_state: ResultState;
@@ -410,13 +423,13 @@ export interface SnapshotComponent {
   cov_ref: string;
   insured_amount_krw: number;
   /**
-   * pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4). 어휘 축 승격 대기
+   * pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4)
    */
-  fact_source: string;
+  fact_source: FactSource;
   /**
-   * user, insurer, document, none (02 §1.4). 어휘 축 승격 대기
+   * user, insurer, document, none (02 §1.4)
    */
-  confirm_party: string;
+  confirm_party: ConfirmParty;
   as_of: string;
 }
 
@@ -486,9 +499,9 @@ export interface CoverageDetail {
  */
 export interface ErrorResponse {
   /**
-   * V 입력 검증, A 인증·권한, N 없음, S 상태 충돌, L 한도, U 미지원, X 내부, T 타임아웃 (02 §4.2). 어휘 축 승격 대기
+   * 오류 클래스. code의 클래스 글자(V A N S L U X T)와 대응한다(02 §4.2). 대응은 checks.rs가 확인
    */
-  error_class: string;
+  error_class: ErrorClass;
   /**
    * ONJ-<구역 2자>-<클래스 1자>-<번호 3자>
    */
@@ -667,9 +680,9 @@ export interface NeedResult {
   criteria_release_id?: string;
   input_hash: string;
   /**
-   * keep, no_add, hold, review_add. 종합 점수·순위는 없다. 어휘 축 승격 대기
+   * keep, no_add, hold, review_add. 종합 점수·순위는 없다
    */
-  verdict: string;
+  verdict: NeedVerdict;
   reasons: NeedReason[];
   decisive_inputs: DecisiveInput[];
   deps?: ConclusionDependency;
@@ -764,9 +777,9 @@ export interface PlanGroup {
  */
 export interface NeedSummary {
   /**
-   * keep, no_add, hold, review_add. 어휘 축 승격 대기
+   * keep, no_add, hold, review_add
    */
-  verdict: string;
+  verdict: NeedVerdict;
   reasons: NeedReason[];
 }
 
@@ -873,9 +886,9 @@ export interface PremiumObservation {
   review_status: ReviewStatus;
   review_decision_id?: string;
   /**
-   * pipeline, fixture. 어휘 축 승격 대기
+   * pipeline, fixture
    */
-  origin: string;
+  origin: AssertionOrigin;
 }
 
 /**

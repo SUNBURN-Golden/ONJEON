@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 use serde::{Deserialize, Serialize};
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-pub const VOCABULARY_VERSION: &str = "1.5.0";
+pub const VOCABULARY_VERSION: &str = "1.6.0";
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
 /// Axis `acquisition_status`. Unknown values fail to deserialize (never a default).
@@ -1385,6 +1385,12 @@ pub enum DocRole {
     /// 개정·판매중지 공지
     #[serde(rename = "notice")]
     Notice,
+    /// 공시 목록(공시 행·회사 목록처럼 판매 구성과 판의 대응을 관측하는 문서 구획)
+    #[serde(rename = "disclosure_list")]
+    DisclosureList,
+    /// 상품 안내 쪽(상품안내 표 등 교차 확인에 쓰는 구획)
+    #[serde(rename = "guide_page")]
+    GuidePage,
 }
 
 impl DocRole {
@@ -1399,6 +1405,8 @@ impl DocRole {
         DocRole::StandardTerms,
         DocRole::DisclosurePage,
         DocRole::Notice,
+        DocRole::DisclosureList,
+        DocRole::GuidePage,
     ];
 
     pub fn as_str(self) -> &'static str {
@@ -1412,6 +1420,8 @@ impl DocRole {
             DocRole::StandardTerms => "standard_terms",
             DocRole::DisclosurePage => "disclosure_page",
             DocRole::Notice => "notice",
+            DocRole::DisclosureList => "disclosure_list",
+            DocRole::GuidePage => "guide_page",
         }
     }
 }
@@ -1482,6 +1492,467 @@ impl PublicationState {
     }
 }
 
+/// 근거 역할: 주장이 이 근거에 어떻게 기대는가. basis는 약관 조항 근거로 C0 내용 주장이 accepted 되려면 필수다. 요약서·공시·안내 쪽만으로는 accepted가 될 수 없다
+///
+/// Axis `evidence_role`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum EvidenceRole {
+    /// 약관 구획(보통약관·특약 약관·별표)의 조항으로, 그 구획이 accepted realizes로 약관 본문 판에 이어진 것. C0 내용 주장의 필수 근거
+    #[serde(rename = "basis")]
+    Basis,
+    /// 상품요약서·사업방법서·공시·상품안내 표처럼 교차 확인에만 쓰는 근거. 단독으로는 accepted가 될 수 없음
+    #[serde(rename = "cross_check")]
+    CrossCheck,
+    /// 공시 행·회사 목록·문서 구획(본문 지문)처럼 구조 주장(판매 구성과 판의 대응, 구획과 판의 대응)을 세우는 관측 근거
+    #[serde(rename = "observation")]
+    Observation,
+}
+
+impl EvidenceRole {
+    pub const AXIS: &'static str = "evidence_role";
+    pub const ALL: &'static [EvidenceRole] = &[
+        EvidenceRole::Basis,
+        EvidenceRole::CrossCheck,
+        EvidenceRole::Observation,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            EvidenceRole::Basis => "basis",
+            EvidenceRole::CrossCheck => "cross_check",
+            EvidenceRole::Observation => "observation",
+        }
+    }
+}
+
+/// 범위 관계: 두 질병 범주의 범위가 어떻게 겹치는가. 양쪽 코드 집합에서 계산한 값만 쓴다. 이름으로 추정하지 않는다
+///
+/// Axis `scope_relation`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ScopeRelation {
+    /// 두 범주의 코드 집합이 같음
+    #[serde(rename = "same_scope")]
+    SameScope,
+    /// 관계의 주어 범주가 대상 범주보다 좁음(코드 집합이 포함됨)
+    #[serde(rename = "narrower")]
+    Narrower,
+    /// 관계의 주어 범주가 대상 범주보다 넓음(코드 집합이 포함함)
+    #[serde(rename = "broader")]
+    Broader,
+    /// 두 코드 집합이 일부만 겹침
+    #[serde(rename = "overlaps")]
+    Overlaps,
+    /// 두 코드 집합이 겹치지 않음
+    #[serde(rename = "disjoint")]
+    Disjoint,
+    /// 정의나 코드 집합을 확정하지 못해 계산할 수 없음. 출처 주장은 hold이고 accepted가 될 수 없음
+    #[serde(rename = "not_comparable")]
+    NotComparable,
+}
+
+impl ScopeRelation {
+    pub const AXIS: &'static str = "scope_relation";
+    pub const ALL: &'static [ScopeRelation] = &[
+        ScopeRelation::SameScope,
+        ScopeRelation::Narrower,
+        ScopeRelation::Broader,
+        ScopeRelation::Overlaps,
+        ScopeRelation::Disjoint,
+        ScopeRelation::NotComparable,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ScopeRelation::SameScope => "same_scope",
+            ScopeRelation::Narrower => "narrower",
+            ScopeRelation::Broader => "broader",
+            ScopeRelation::Overlaps => "overlaps",
+            ScopeRelation::Disjoint => "disjoint",
+            ScopeRelation::NotComparable => "not_comparable",
+        }
+    }
+}
+
+/// 정정 사유: 이전 판을 대체하는 새 판을 만든 이유. 정정은 고치지 않고 새 판 + supersedes로 남긴다
+///
+/// Axis `correction_reason`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum CorrectionReason {
+    /// 오류 정정: 이전 판이 틀렸음
+    #[serde(rename = "error_correction")]
+    ErrorCorrection,
+    /// 출처 변경: 근거로 삼은 출처가 바뀜
+    #[serde(rename = "source_changed")]
+    SourceChanged,
+    /// 해석 개선: 같은 근거를 더 정확히 해석함
+    #[serde(rename = "interpretation_improved")]
+    InterpretationImproved,
+    /// 규칙 변경: 적용하는 규칙이 바뀜
+    #[serde(rename = "rule_changed")]
+    RuleChanged,
+}
+
+impl CorrectionReason {
+    pub const AXIS: &'static str = "correction_reason";
+    pub const ALL: &'static [CorrectionReason] = &[
+        CorrectionReason::ErrorCorrection,
+        CorrectionReason::SourceChanged,
+        CorrectionReason::InterpretationImproved,
+        CorrectionReason::RuleChanged,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            CorrectionReason::ErrorCorrection => "error_correction",
+            CorrectionReason::SourceChanged => "source_changed",
+            CorrectionReason::InterpretationImproved => "interpretation_improved",
+            CorrectionReason::RuleChanged => "rule_changed",
+        }
+    }
+}
+
+/// 주장 출처 구분: 주장을 만든 경로. fixture는 시험 전용이며 accepted가 될 수 없고 서비스 릴리스에 들어갈 수 없다
+///
+/// Axis `assertion_origin`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum AssertionOrigin {
+    /// 수집·추출 파이프라인이 만든 주장
+    #[serde(rename = "pipeline")]
+    Pipeline,
+    /// 시험 전용 자료에서 만든 주장. pending·hold·rejected만 가능
+    #[serde(rename = "fixture")]
+    Fixture,
+}
+
+impl AssertionOrigin {
+    pub const AXIS: &'static str = "assertion_origin";
+    pub const ALL: &'static [AssertionOrigin] = &[
+        AssertionOrigin::Pipeline,
+        AssertionOrigin::Fixture,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            AssertionOrigin::Pipeline => "pipeline",
+            AssertionOrigin::Fixture => "fixture",
+        }
+    }
+}
+
+/// 정보 출처: 개인 계약 정보가 어디서 왔는가. 확인 여부(policy_holdings_status)·실제/가정(fact_kind)과 섞지 않는다
+///
+/// Axis `fact_source`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum FactSource {
+    /// 사용자가 올린 문서(PDF)에서 추출함
+    #[serde(rename = "pdf_extracted")]
+    PdfExtracted,
+    /// 사용자가 직접 입력함
+    #[serde(rename = "user_stated")]
+    UserStated,
+    /// 문서에서 추출한 값을 사용자가 확인함
+    #[serde(rename = "user_confirmed_extract")]
+    UserConfirmedExtract,
+    /// 사용자 가정 등 실제 확인된 값이 아님
+    #[serde(rename = "assumed")]
+    Assumed,
+    /// 공개 지식 릴리스에서 가져옴
+    #[serde(rename = "release_derived")]
+    ReleaseDerived,
+}
+
+impl FactSource {
+    pub const AXIS: &'static str = "fact_source";
+    pub const ALL: &'static [FactSource] = &[
+        FactSource::PdfExtracted,
+        FactSource::UserStated,
+        FactSource::UserConfirmedExtract,
+        FactSource::Assumed,
+        FactSource::ReleaseDerived,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            FactSource::PdfExtracted => "pdf_extracted",
+            FactSource::UserStated => "user_stated",
+            FactSource::UserConfirmedExtract => "user_confirmed_extract",
+            FactSource::Assumed => "assumed",
+            FactSource::ReleaseDerived => "release_derived",
+        }
+    }
+}
+
+/// 실제·가정 구분: 그 값이 실제 계약의 사실인가, 가정인가
+///
+/// Axis `fact_kind`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum FactKind {
+    /// 실제 계약의 사실
+    #[serde(rename = "actual")]
+    Actual,
+    /// 가정한 값(가입 전 검토·시나리오 등)
+    #[serde(rename = "hypothetical")]
+    Hypothetical,
+}
+
+impl FactKind {
+    pub const AXIS: &'static str = "fact_kind";
+    pub const ALL: &'static [FactKind] = &[
+        FactKind::Actual,
+        FactKind::Hypothetical,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            FactKind::Actual => "actual",
+            FactKind::Hypothetical => "hypothetical",
+        }
+    }
+}
+
+/// 확인 주체: 그 값을 누가 확인했는가
+///
+/// Axis `confirm_party`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ConfirmParty {
+    /// 사용자가 확인함
+    #[serde(rename = "user")]
+    User,
+    /// 보험사가 확인함
+    #[serde(rename = "insurer")]
+    Insurer,
+    /// 문서(증권·약관 등)가 근거임
+    #[serde(rename = "document")]
+    Document,
+    /// 아직 확인한 주체가 없음
+    #[serde(rename = "none")]
+    None,
+}
+
+impl ConfirmParty {
+    pub const AXIS: &'static str = "confirm_party";
+    pub const ALL: &'static [ConfirmParty] = &[
+        ConfirmParty::User,
+        ConfirmParty::Insurer,
+        ConfirmParty::Document,
+        ConfirmParty::None,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ConfirmParty::User => "user",
+            ConfirmParty::Insurer => "insurer",
+            ConfirmParty::Document => "document",
+            ConfirmParty::None => "none",
+        }
+    }
+}
+
+/// 오류 클래스: 오류 코드 ONJ-<구역>-<클래스 1자>-<번호>의 클래스. 미확인·보류·판단 불가는 오류가 아니라 정상 결과이며 이 축을 쓰지 않는다. 오류 코드의 클래스 문자는 각 값 정의에 적는다
+///
+/// Axis `error_class`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ErrorClass {
+    /// 입력 검증 실패(V). 예: 알 수 없는 enum 값
+    #[serde(rename = "validation")]
+    Validation,
+    /// 인증·권한 실패(A). 다른 프로필·계정의 자료는 존재 여부도 알리지 않는다(ONJ-PS-A-030)
+    #[serde(rename = "auth")]
+    Auth,
+    /// 대상 없음(N). 예: release_id 없음
+    #[serde(rename = "not_found")]
+    NotFound,
+    /// 상태 충돌(S). 예: 멱등 키 재사용, 릴리스 철회
+    #[serde(rename = "state_conflict")]
+    StateConflict,
+    /// 한도 초과(L). 예: 요청 제한, 비용 상한
+    #[serde(rename = "limit")]
+    Limit,
+    /// 미지원(U). 예: 엔진 미지원 의미론, 범위 밖 날짜
+    #[serde(rename = "unsupported")]
+    Unsupported,
+    /// 내부 오류(X)
+    #[serde(rename = "internal")]
+    Internal,
+    /// 타임아웃(T). 지급 불가로 바꾸지 않고 마지막 성공 결과와 실패 사실을 보임
+    #[serde(rename = "timeout")]
+    Timeout,
+}
+
+impl ErrorClass {
+    pub const AXIS: &'static str = "error_class";
+    pub const ALL: &'static [ErrorClass] = &[
+        ErrorClass::Validation,
+        ErrorClass::Auth,
+        ErrorClass::NotFound,
+        ErrorClass::StateConflict,
+        ErrorClass::Limit,
+        ErrorClass::Unsupported,
+        ErrorClass::Internal,
+        ErrorClass::Timeout,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ErrorClass::Validation => "validation",
+            ErrorClass::Auth => "auth",
+            ErrorClass::NotFound => "not_found",
+            ErrorClass::StateConflict => "state_conflict",
+            ErrorClass::Limit => "limit",
+            ErrorClass::Unsupported => "unsupported",
+            ErrorClass::Internal => "internal",
+            ErrorClass::Timeout => "timeout",
+        }
+    }
+}
+
+/// 사용 제한: 오류에 따라 결과를 어디까지 쓸 수 있는가
+///
+/// Axis `usage_restriction`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum UsageRestriction {
+    /// 제한 없음
+    #[serde(rename = "none")]
+    None,
+    /// 보류: 기댄 릴리스·판에 사용 제한 공지가 있어 새 계산에는 쓰지 않음. 저장된 결과는 reproducible=true로 재현·표시된다
+    #[serde(rename = "hold")]
+    Hold,
+    /// 회로 차단: 오류가 반복되어 해당 범위(규칙·회사·개념)의 새 계산을 자동으로 멈춤(ops.circuit_breaker.tripped/reset). 저장된 결과는 재현된다
+    #[serde(rename = "circuit_breaker")]
+    CircuitBreaker,
+}
+
+impl UsageRestriction {
+    pub const AXIS: &'static str = "usage_restriction";
+    pub const ALL: &'static [UsageRestriction] = &[
+        UsageRestriction::None,
+        UsageRestriction::Hold,
+        UsageRestriction::CircuitBreaker,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            UsageRestriction::None => "none",
+            UsageRestriction::Hold => "hold",
+            UsageRestriction::CircuitBreaker => "circuit_breaker",
+        }
+    }
+}
+
+/// 지식 최신성: 결과가 기댄 지식(릴리스·주장·기준 판)이 지금도 유효한가. 입력 최신성(freshness)과 다른 축이다
+///
+/// Axis `knowledge_freshness`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum KnowledgeFreshness {
+    /// 기댄 지식이 최신임
+    #[serde(rename = "fresh")]
+    Fresh,
+    /// 기댄 지식(릴리스·주장·기준 판)이 정정됨. 정정된 기준 판에 의존한 결과도 해당. 오래됨(기한 경과)은 입력 최신성 freshness.stale의 몫
+    #[serde(rename = "stale")]
+    Stale,
+    /// 기댄 지식이 철회됨
+    #[serde(rename = "withdrawn")]
+    Withdrawn,
+}
+
+impl KnowledgeFreshness {
+    pub const AXIS: &'static str = "knowledge_freshness";
+    pub const ALL: &'static [KnowledgeFreshness] = &[
+        KnowledgeFreshness::Fresh,
+        KnowledgeFreshness::Stale,
+        KnowledgeFreshness::Withdrawn,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            KnowledgeFreshness::Fresh => "fresh",
+            KnowledgeFreshness::Stale => "stale",
+            KnowledgeFreshness::Withdrawn => "withdrawn",
+        }
+    }
+}
+
+/// 필요성 판단 결과: 추가 가입 필요성 판단의 결과. 네 값 모두 정상 결과이며 종합 점수·순위는 만들지 않는다. 가족력만으로 review_add가 나오지 않는다
+///
+/// Axis `need_verdict`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum NeedVerdict {
+    /// 유지
+    #[serde(rename = "keep")]
+    Keep,
+    /// 추가 가입 없음
+    #[serde(rename = "no_add")]
+    NoAdd,
+    /// 보류: 결론을 바꾸는 입력이 비어 있음
+    #[serde(rename = "hold")]
+    Hold,
+    /// 추가 검토
+    #[serde(rename = "review_add")]
+    ReviewAdd,
+}
+
+impl NeedVerdict {
+    pub const AXIS: &'static str = "need_verdict";
+    pub const ALL: &'static [NeedVerdict] = &[
+        NeedVerdict::Keep,
+        NeedVerdict::NoAdd,
+        NeedVerdict::Hold,
+        NeedVerdict::ReviewAdd,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            NeedVerdict::Keep => "keep",
+            NeedVerdict::NoAdd => "no_add",
+            NeedVerdict::Hold => "hold",
+            NeedVerdict::ReviewAdd => "review_add",
+        }
+    }
+}
+
+/// 기준 출처 종류: 판단 기준 판의 출처가 어떤 종류인가. 출처가 없는 판은 기준 릴리스에 들어가지 못한다
+///
+/// Axis `criterion_source_kind`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum CriterionSourceKind {
+    /// 공공 통계
+    #[serde(rename = "public_statistic")]
+    PublicStatistic,
+    /// 법령
+    #[serde(rename = "statute")]
+    Statute,
+    /// 감독 고시
+    #[serde(rename = "regulator_notice")]
+    RegulatorNotice,
+    /// 약관 사실
+    #[serde(rename = "terms_fact")]
+    TermsFact,
+    /// 온전의 편집 판단. 참고 통계로 표시하지 않는다
+    #[serde(rename = "editorial")]
+    Editorial,
+}
+
+impl CriterionSourceKind {
+    pub const AXIS: &'static str = "criterion_source_kind";
+    pub const ALL: &'static [CriterionSourceKind] = &[
+        CriterionSourceKind::PublicStatistic,
+        CriterionSourceKind::Statute,
+        CriterionSourceKind::RegulatorNotice,
+        CriterionSourceKind::TermsFact,
+        CriterionSourceKind::Editorial,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            CriterionSourceKind::PublicStatistic => "public_statistic",
+            CriterionSourceKind::Statute => "statute",
+            CriterionSourceKind::RegulatorNotice => "regulator_notice",
+            CriterionSourceKind::TermsFact => "terms_fact",
+            CriterionSourceKind::Editorial => "editorial",
+        }
+    }
+}
+
 /// Every axis with its codes, in vocabulary order. Used by tests to compare with vocabulary.json.
 pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {
     vec![
@@ -1518,5 +1989,17 @@ pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {
         (DocRole::AXIS, DocRole::ALL.iter().map(|v| v.as_str()).collect()),
         (SaleStatus::AXIS, SaleStatus::ALL.iter().map(|v| v.as_str()).collect()),
         (PublicationState::AXIS, PublicationState::ALL.iter().map(|v| v.as_str()).collect()),
+        (EvidenceRole::AXIS, EvidenceRole::ALL.iter().map(|v| v.as_str()).collect()),
+        (ScopeRelation::AXIS, ScopeRelation::ALL.iter().map(|v| v.as_str()).collect()),
+        (CorrectionReason::AXIS, CorrectionReason::ALL.iter().map(|v| v.as_str()).collect()),
+        (AssertionOrigin::AXIS, AssertionOrigin::ALL.iter().map(|v| v.as_str()).collect()),
+        (FactSource::AXIS, FactSource::ALL.iter().map(|v| v.as_str()).collect()),
+        (FactKind::AXIS, FactKind::ALL.iter().map(|v| v.as_str()).collect()),
+        (ConfirmParty::AXIS, ConfirmParty::ALL.iter().map(|v| v.as_str()).collect()),
+        (ErrorClass::AXIS, ErrorClass::ALL.iter().map(|v| v.as_str()).collect()),
+        (UsageRestriction::AXIS, UsageRestriction::ALL.iter().map(|v| v.as_str()).collect()),
+        (KnowledgeFreshness::AXIS, KnowledgeFreshness::ALL.iter().map(|v| v.as_str()).collect()),
+        (NeedVerdict::AXIS, NeedVerdict::ALL.iter().map(|v| v.as_str()).collect()),
+        (CriterionSourceKind::AXIS, CriterionSourceKind::ALL.iter().map(|v| v.as_str()).collect()),
     ]
 }

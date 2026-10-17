@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-const String vocabularyVersion = '1.5.0';
+const String vocabularyVersion = '1.6.0';
 
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
@@ -919,7 +919,11 @@ enum DocRole {
   /// 공시 웹페이지
   disclosurePage('disclosure_page'),
   /// 개정·판매중지 공지
-  notice('notice');
+  notice('notice'),
+  /// 공시 목록(공시 행·회사 목록처럼 판매 구성과 판의 대응을 관측하는 문서 구획)
+  disclosureList('disclosure_list'),
+  /// 상품 안내 쪽(상품안내 표 등 교차 확인에 쓰는 구획)
+  guidePage('guide_page');
 
   const DocRole(this.code);
 
@@ -980,6 +984,332 @@ enum PublicationState {
       if (v.code == code) return v;
     }
     throw FormatException('unknown publication_state: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 근거 역할: 주장이 이 근거에 어떻게 기대는가. basis는 약관 조항 근거로 C0 내용 주장이 accepted 되려면 필수다. 요약서·공시·안내 쪽만으로는 accepted가 될 수 없다
+///
+/// Axis `evidence_role`. Unknown values throw (never a default).
+enum EvidenceRole {
+  /// 약관 구획(보통약관·특약 약관·별표)의 조항으로, 그 구획이 accepted realizes로 약관 본문 판에 이어진 것. C0 내용 주장의 필수 근거
+  basis('basis'),
+  /// 상품요약서·사업방법서·공시·상품안내 표처럼 교차 확인에만 쓰는 근거. 단독으로는 accepted가 될 수 없음
+  crossCheck('cross_check'),
+  /// 공시 행·회사 목록·문서 구획(본문 지문)처럼 구조 주장(판매 구성과 판의 대응, 구획과 판의 대응)을 세우는 관측 근거
+  observation('observation');
+
+  const EvidenceRole(this.code);
+
+  final String code;
+
+  static EvidenceRole fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown evidence_role: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 범위 관계: 두 질병 범주의 범위가 어떻게 겹치는가. 양쪽 코드 집합에서 계산한 값만 쓴다. 이름으로 추정하지 않는다
+///
+/// Axis `scope_relation`. Unknown values throw (never a default).
+enum ScopeRelation {
+  /// 두 범주의 코드 집합이 같음
+  sameScope('same_scope'),
+  /// 관계의 주어 범주가 대상 범주보다 좁음(코드 집합이 포함됨)
+  narrower('narrower'),
+  /// 관계의 주어 범주가 대상 범주보다 넓음(코드 집합이 포함함)
+  broader('broader'),
+  /// 두 코드 집합이 일부만 겹침
+  overlaps('overlaps'),
+  /// 두 코드 집합이 겹치지 않음
+  disjoint('disjoint'),
+  /// 정의나 코드 집합을 확정하지 못해 계산할 수 없음. 출처 주장은 hold이고 accepted가 될 수 없음
+  notComparable('not_comparable');
+
+  const ScopeRelation(this.code);
+
+  final String code;
+
+  static ScopeRelation fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown scope_relation: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 정정 사유: 이전 판을 대체하는 새 판을 만든 이유. 정정은 고치지 않고 새 판 + supersedes로 남긴다
+///
+/// Axis `correction_reason`. Unknown values throw (never a default).
+enum CorrectionReason {
+  /// 오류 정정: 이전 판이 틀렸음
+  errorCorrection('error_correction'),
+  /// 출처 변경: 근거로 삼은 출처가 바뀜
+  sourceChanged('source_changed'),
+  /// 해석 개선: 같은 근거를 더 정확히 해석함
+  interpretationImproved('interpretation_improved'),
+  /// 규칙 변경: 적용하는 규칙이 바뀜
+  ruleChanged('rule_changed');
+
+  const CorrectionReason(this.code);
+
+  final String code;
+
+  static CorrectionReason fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown correction_reason: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 주장 출처 구분: 주장을 만든 경로. fixture는 시험 전용이며 accepted가 될 수 없고 서비스 릴리스에 들어갈 수 없다
+///
+/// Axis `assertion_origin`. Unknown values throw (never a default).
+enum AssertionOrigin {
+  /// 수집·추출 파이프라인이 만든 주장
+  pipeline('pipeline'),
+  /// 시험 전용 자료에서 만든 주장. pending·hold·rejected만 가능
+  fixture('fixture');
+
+  const AssertionOrigin(this.code);
+
+  final String code;
+
+  static AssertionOrigin fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown assertion_origin: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 정보 출처: 개인 계약 정보가 어디서 왔는가. 확인 여부(policy_holdings_status)·실제/가정(fact_kind)과 섞지 않는다
+///
+/// Axis `fact_source`. Unknown values throw (never a default).
+enum FactSource {
+  /// 사용자가 올린 문서(PDF)에서 추출함
+  pdfExtracted('pdf_extracted'),
+  /// 사용자가 직접 입력함
+  userStated('user_stated'),
+  /// 문서에서 추출한 값을 사용자가 확인함
+  userConfirmedExtract('user_confirmed_extract'),
+  /// 사용자 가정 등 실제 확인된 값이 아님
+  assumed('assumed'),
+  /// 공개 지식 릴리스에서 가져옴
+  releaseDerived('release_derived');
+
+  const FactSource(this.code);
+
+  final String code;
+
+  static FactSource fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown fact_source: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 실제·가정 구분: 그 값이 실제 계약의 사실인가, 가정인가
+///
+/// Axis `fact_kind`. Unknown values throw (never a default).
+enum FactKind {
+  /// 실제 계약의 사실
+  actual('actual'),
+  /// 가정한 값(가입 전 검토·시나리오 등)
+  hypothetical('hypothetical');
+
+  const FactKind(this.code);
+
+  final String code;
+
+  static FactKind fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown fact_kind: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 확인 주체: 그 값을 누가 확인했는가
+///
+/// Axis `confirm_party`. Unknown values throw (never a default).
+enum ConfirmParty {
+  /// 사용자가 확인함
+  user('user'),
+  /// 보험사가 확인함
+  insurer('insurer'),
+  /// 문서(증권·약관 등)가 근거임
+  document('document'),
+  /// 아직 확인한 주체가 없음
+  none('none');
+
+  const ConfirmParty(this.code);
+
+  final String code;
+
+  static ConfirmParty fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown confirm_party: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 오류 클래스: 오류 코드 ONJ-<구역>-<클래스 1자>-<번호>의 클래스. 미확인·보류·판단 불가는 오류가 아니라 정상 결과이며 이 축을 쓰지 않는다. 오류 코드의 클래스 문자는 각 값 정의에 적는다
+///
+/// Axis `error_class`. Unknown values throw (never a default).
+enum ErrorClass {
+  /// 입력 검증 실패(V). 예: 알 수 없는 enum 값
+  validation('validation'),
+  /// 인증·권한 실패(A). 다른 프로필·계정의 자료는 존재 여부도 알리지 않는다(ONJ-PS-A-030)
+  auth('auth'),
+  /// 대상 없음(N). 예: release_id 없음
+  notFound('not_found'),
+  /// 상태 충돌(S). 예: 멱등 키 재사용, 릴리스 철회
+  stateConflict('state_conflict'),
+  /// 한도 초과(L). 예: 요청 제한, 비용 상한
+  limit('limit'),
+  /// 미지원(U). 예: 엔진 미지원 의미론, 범위 밖 날짜
+  unsupported('unsupported'),
+  /// 내부 오류(X)
+  internal('internal'),
+  /// 타임아웃(T). 지급 불가로 바꾸지 않고 마지막 성공 결과와 실패 사실을 보임
+  timeout('timeout');
+
+  const ErrorClass(this.code);
+
+  final String code;
+
+  static ErrorClass fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown error_class: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 사용 제한: 오류에 따라 결과를 어디까지 쓸 수 있는가
+///
+/// Axis `usage_restriction`. Unknown values throw (never a default).
+enum UsageRestriction {
+  /// 제한 없음
+  none('none'),
+  /// 보류: 기댄 릴리스·판에 사용 제한 공지가 있어 새 계산에는 쓰지 않음. 저장된 결과는 reproducible=true로 재현·표시된다
+  hold('hold'),
+  /// 회로 차단: 오류가 반복되어 해당 범위(규칙·회사·개념)의 새 계산을 자동으로 멈춤(ops.circuit_breaker.tripped/reset). 저장된 결과는 재현된다
+  circuitBreaker('circuit_breaker');
+
+  const UsageRestriction(this.code);
+
+  final String code;
+
+  static UsageRestriction fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown usage_restriction: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 지식 최신성: 결과가 기댄 지식(릴리스·주장·기준 판)이 지금도 유효한가. 입력 최신성(freshness)과 다른 축이다
+///
+/// Axis `knowledge_freshness`. Unknown values throw (never a default).
+enum KnowledgeFreshness {
+  /// 기댄 지식이 최신임
+  fresh('fresh'),
+  /// 기댄 지식(릴리스·주장·기준 판)이 정정됨. 정정된 기준 판에 의존한 결과도 해당. 오래됨(기한 경과)은 입력 최신성 freshness.stale의 몫
+  stale('stale'),
+  /// 기댄 지식이 철회됨
+  withdrawn('withdrawn');
+
+  const KnowledgeFreshness(this.code);
+
+  final String code;
+
+  static KnowledgeFreshness fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown knowledge_freshness: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 필요성 판단 결과: 추가 가입 필요성 판단의 결과. 네 값 모두 정상 결과이며 종합 점수·순위는 만들지 않는다. 가족력만으로 review_add가 나오지 않는다
+///
+/// Axis `need_verdict`. Unknown values throw (never a default).
+enum NeedVerdict {
+  /// 유지
+  keep('keep'),
+  /// 추가 가입 없음
+  noAdd('no_add'),
+  /// 보류: 결론을 바꾸는 입력이 비어 있음
+  hold('hold'),
+  /// 추가 검토
+  reviewAdd('review_add');
+
+  const NeedVerdict(this.code);
+
+  final String code;
+
+  static NeedVerdict fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown need_verdict: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 기준 출처 종류: 판단 기준 판의 출처가 어떤 종류인가. 출처가 없는 판은 기준 릴리스에 들어가지 못한다
+///
+/// Axis `criterion_source_kind`. Unknown values throw (never a default).
+enum CriterionSourceKind {
+  /// 공공 통계
+  publicStatistic('public_statistic'),
+  /// 법령
+  statute('statute'),
+  /// 감독 고시
+  regulatorNotice('regulator_notice'),
+  /// 약관 사실
+  termsFact('terms_fact'),
+  /// 온전의 편집 판단. 참고 통계로 표시하지 않는다
+  editorial('editorial');
+
+  const CriterionSourceKind(this.code);
+
+  final String code;
+
+  static CriterionSourceKind fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown criterion_source_kind: $code');
   }
 
   String toJson() => code;

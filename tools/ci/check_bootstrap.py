@@ -65,7 +65,8 @@ def ancestors(tasks, tid, memo):
 def repo_crates(root):
     out = set()
     for cargo in glob.glob(os.path.join(str(root), "**", "Cargo.toml"), recursive=True):
-        if "/target/" in cargo or "/docs/" in cargo:
+        rel = os.path.relpath(cargo, str(root)).replace(os.sep, "/")
+        if "/target/" in "/" + rel or rel.startswith("docs/") or "/docs/" in rel:
             continue
         try:
             name = (tomllib.loads(Path(cargo).read_text(encoding="utf-8")).get("package") or {}).get("name")

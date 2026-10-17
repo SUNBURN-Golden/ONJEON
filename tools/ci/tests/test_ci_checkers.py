@@ -161,6 +161,7 @@ class SkeletonRuntime(unittest.TestCase):
         live = check_skeleton.probe_routes(self.serve(200), flags)
         self.assertEqual({"SKEL-ROUTE-LIVE"}, {f.rule for f in live})
         self.assertEqual(3, len(live))  # consultation, agent and quote routes
+
     def test_template_runs_green_and_red(self):
         tmpl = (CI / "templates/test_skeleton_unexposed.py.tmpl").read_text(encoding="utf-8")
         with tempfile.TemporaryDirectory() as tmp:
@@ -173,13 +174,16 @@ class SkeletonRuntime(unittest.TestCase):
                 env = dict(os.environ, ONJ_SKELETON_BASE_URL=base or "", ONJ_UI_ROUTES_JSON=str(ui))
                 return subprocess.run([sys.executable, "-I", str(test_file)], cwd=tmp, env=env, capture_output=True, text=True)
 
-            self.assertEqual(0, run(self.serve(404), routes).returncode)
-            self.assertNotEqual(0, run(self.serve(200), routes).returncode, "live skeleton route must fail the template")
-            routes.write_text(json.dumps(["/", "/agent/home"]))
-            self.assertNotEqual(0, run(self.serve(404), routes).returncode, "exposed UI route must fail the template")
-            self.assertNotEqual(0, run("", routes).returncode, "missing base URL must fail, not skip")
-            self.assertNotEqual(0, run(self.serve(404), Path(tmp) / "absent.json").returncode, "missing UI routes input must fail, not skip")
+            def fails_with(proc, marker, why):
+                self.assertNotEqual(0, proc.returncode, why)
+                self.assertIn(marker, proc.stdout + proc.stderr, why)
 
+            self.assertEqual(0, run(self.serve(404), routes).returncode)
+            fails_with(run(self.serve(200), routes), "SKEL-ROUTE-LIVE", "live skeleton route must fail the template")
+            routes.write_text(json.dumps(["/", "/agent/home"]))
+            fails_with(run(self.serve(404), routes), "SKEL-EXPOSED-UI", "exposed UI route must fail the template")
+            fails_with(run("", routes), "ONJ_SKELETON_BASE_URL", "missing base URL must fail, not skip")
+            fails_with(run(self.serve(404), Path(tmp) / "absent.json"), "ONJ_UI_ROUTES_JSON", "missing UI routes input must fail, not skip")
 
 class FlagsFile(unittest.TestCase):
     def test_all_skeleton_flags_default_off_and_have_gates(self):

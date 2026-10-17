@@ -272,7 +272,11 @@
       ],
       "agent_globs": [
         "**/agent/**",
+        "**/agent.*",
+        "**/agent_*",
         "**/consultation/**",
+        "**/consultation.*",
+        "**/consultation_*",
         "**/agent_portal/**"
       ],
       "gateway_globs": [

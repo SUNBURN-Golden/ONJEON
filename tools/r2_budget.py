@@ -17,6 +17,9 @@ this client before each request is sent:
                                                      one per run, written before any read
   closed     s3://<ledger>/closed/v1/<YYYY-MM>/<job | _global>.json
                                                      admissions for the month used up
+  checkpoint s3://<ledger>/checkpoint/v1/<seq>.json  write-once summary of ledger records 1..seq
+                                                     (infra/r2/checkpoint/DESIGN.md); a run reads the
+                                                     newest checkpoint plus the records after it
 
 Run control, in this order (each step before any later request):
   1. local gate (no network): one run at a time on this machine, a runs-per-hour limit, and a
@@ -34,6 +37,10 @@ Run control, in this order (each step before any later request):
      itself (every attempt, its bytes, its retries, its timeouts), never more than reserved. A run
      that never settles keeps its admission and its whole reservation.
 
+Ledger size: records are never deleted, so a run reads the newest checkpoint plus the records after it
+(`checkpoint` writes one, `audit` recomputes all of them from the raw records, `lock-rules` checks the
+bucket lock proposal offline; infra/r2/checkpoint/DESIGN.md).
+
 Every request goes through Meter (botocore event hooks): only Get/Head/Put/ListObjectsV2, only the
 job's buckets and the ledger prefixes, only pinned keys and pinned bytes, Standard storage only;
 every HTTP attempt (retries included) is charged as Class A or B, with request bytes, response
@@ -43,6 +50,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import re
 import signal
 import time
 import uuid
@@ -52,13 +60,20 @@ ROOT = Path(__file__).resolve().parent.parent
 LEDGER_PREFIX = "ledger/v1/"
 ADMISSION_PREFIX = "admission/v1/"
 CLOSED_PREFIX = "closed/v1/"
-CONTROL_PREFIXES = (LEDGER_PREFIX, ADMISSION_PREFIX, CLOSED_PREFIX)
+CHECKPOINT_PREFIX = "checkpoint/v1/"
+CONTROL_PREFIXES = (LEDGER_PREFIX, ADMISSION_PREFIX, CLOSED_PREFIX, CHECKPOINT_PREFIX)
 DIMENSIONS = ("put_bytes", "get_bytes", "class_a", "class_b", "retries", "seconds")
 CLASS_A = {"PutObject", "ListObjectsV2"}
 CLASS_B = {"GetObject", "HeadObject"}
 ALLOWED_OPS = CLASS_A | CLASS_B
 MONTHLY = ("get_bytes", "class_a", "class_b", "retries", "seconds")  # put_bytes is all-time (storage)
 RECORD_BYTES = 4096  # upper bound for one ledger, admission or closure record
+CHECKPOINT_BYTES = 8192  # upper bound for one checkpoint: what a 32768-byte profile has left after
+#                          its admission (12288) and its settlement's worst case (3 x 4096)
+OPEN_GRACE_S = 86400  # an unsettled reservation older than this is a dead run; a checkpoint folds it in full
+LEDGER_BLOCK = 1000  # ledger keys are listed by block of 1000 sequence numbers once a checkpoint exists
+CHECKPOINT_FORMAT = "onjeon-budget-checkpoint-v1"
+PAST = "1970-01-01T00:00:00Z"  # stands for "a month before the checkpoint's month": only all-time sums count
 CONNECT_TIMEOUT, READ_TIMEOUT = 10, 120  # also used by source_archive.S3Store
 
 
@@ -332,11 +347,19 @@ class LocalGate:
             self._lock = None
 
 
+LEDGER_KEY = re.compile(r"^ledger/v1/(\d{10})\.json$")
+CHECKPOINT_KEY = re.compile(r"^checkpoint/v1/(\d{10})\.json$")
+
+
 class Ledger:
-    """Write-once control records in the ledger bucket (S3Store or LocalStore)."""
+    """Write-once control records in the ledger bucket (S3Store or LocalStore). With a checkpoint
+    (CHECKPOINT_PREFIX) a run reads the newest checkpoint plus the records after it; self.base is that
+    checkpoint (None before the first one) and self.base_seq the last record it covers."""
 
     def __init__(self, st, policy):
         self.st, self.policy = st, policy
+        self.base, self.base_seq, self.base_sha, self.genesis_sha = None, 0, None, None
+        self.hashes = {}  # seq -> SHA-256 of every record read (audit compares checkpoints with these)
 
     def _list(self, prefix):
         try:
@@ -346,47 +369,123 @@ class Ledger:
         except Exception as e:  # cannot see the records -> cannot know what is left
             raise BudgetError(f"ledger list failed ({type(e).__name__}); not running")
 
-    def read(self, known=None):
-        """All sequence records, verified. With known=(records, prev) only newer records are fetched."""
+    def _get(self, key, what):
+        try:
+            return self.st.get(key)
+        except BudgetError:
+            raise
+        except Exception as e:
+            raise BudgetError(f"{what} {key} unreadable ({type(e).__name__})")
+
+    def checkpoints(self):
+        keys = sorted(self._list(CHECKPOINT_PREFIX))
+        for k in keys:
+            if not CHECKPOINT_KEY.match(k):
+                raise BudgetError(f"foreign key in checkpoints: {k}")
+        return keys
+
+    def load_base(self):
+        """The newest checkpoint (one LIST, one GET), checked against the policy. None if there is none."""
         import source_archive as sa
-        keys = sorted(self._list(LEDGER_PREFIX))
+        self.base, self.base_seq, self.base_sha = None, 0, None
+        keys = self.checkpoints()
+        if not keys:
+            return None
+        raw = self._get(keys[-1], "checkpoint")
+        try:
+            cp = json.loads(raw)
+        except ValueError:
+            raise BudgetError(f"checkpoint {keys[-1]} is not JSON")
+        check_checkpoint(cp, keys[-1], self.policy)
+        self.base, self.base_seq, self.base_sha, self.genesis_sha = cp, cp["seq"], sa.sha256_bytes(raw), cp["genesis_sha256"]
+        return cp
+
+    def _list_block(self, block):
+        import source_archive as sa
+        prefix = f"{LEDGER_PREFIX}{block:07d}"
+        if isinstance(self.st, sa.LocalStore):  # LocalStore lists directories, not key prefixes
+            return [k for k in self._list(LEDGER_PREFIX) if k.startswith(prefix)]
+        return self._list(prefix)
+
+    def _segment_keys(self, limit=None):
+        """Keys of the records after the checkpoint. Without a checkpoint: the whole ledger prefix. With
+        one: only the 1000-record blocks that can hold them (one LIST unless a block is full), so the
+        listing does not grow with the age of the ledger. limit stops early (limit + 1 keys are enough)."""
+        if not self.base:
+            return sorted(self._list(LEDGER_PREFIX))
+        found, block = [], (self.base_seq + 1) // LEDGER_BLOCK
+        while True:
+            for k in self._list_block(block):
+                m = LEDGER_KEY.match(k)
+                if not m:
+                    raise BudgetError(f"ledger gap or foreign key at {k}")
+                if int(m.group(1)) > self.base_seq:
+                    found.append(k)
+            found.sort()
+            full = bool(found) and int(LEDGER_KEY.match(found[-1]).group(1)) % LEDGER_BLOCK == LEDGER_BLOCK - 1
+            if not full or (limit is not None and len(found) > limit):
+                return found
+            block += 1
+
+    def read(self, known=None, full=False):
+        """All sequence records after the checkpoint (all of them with full=True, which ignores
+        checkpoints and the record limit: audit only), verified. With known=(records, prev) only newer
+        records are fetched."""
+        import source_archive as sa
+        if full:
+            self.base, self.base_seq, self.base_sha, self.hashes = None, 0, None, {}
+        elif known is None:
+            self.load_base()
         limit = self.policy["per_request"]["max_ledger_records"]
-        if len(keys) > limit:
-            raise BudgetError(f"ledger has {len(keys)} records > {limit}; checkpoint before running")
-        records, prev = (list(known[0]), known[1]) if known else ([], None)
-        for i, key in enumerate(keys, start=1):
+        keys = self._segment_keys(None if full else limit)
+        if not full and len(keys) > limit:
+            raise BudgetError(f"ledger has {len(keys)} records after the last checkpoint > {limit}; "
+                              "checkpoint before running")
+        first = self.base_seq + 1
+        for i, key in enumerate(keys, start=first):
             if key != f"{LEDGER_PREFIX}{i:010d}.json":
                 raise BudgetError(f"ledger gap or foreign key at {key} (expected seq {i})")
+        records, prev = (list(known[0]), known[1]) if known else ([], self.base and self.base["tail_sha256"])
         if len(keys) < len(records):
             raise BudgetError("ledger lost records while this run was reading it")
-        for i in range(len(records) + 1, len(keys) + 1):
-            key = keys[i - 1]
+        for i in range(first + len(records), first + len(keys)):
+            key = keys[i - first]
+            raw = self._get(key, "ledger record")
             try:
-                raw = self.st.get(key)
                 rec = json.loads(raw)
-            except BudgetError:
-                raise
-            except Exception as e:
-                raise BudgetError(f"ledger record {key} unreadable ({type(e).__name__})")
+            except ValueError:
+                raise BudgetError(f"ledger record {key} unreadable (not JSON)")
             if rec.get("seq") != i or rec.get("prev_sha256") != prev:
                 raise BudgetError(f"ledger chain broken at {key}")
             if rec.get("policy_sha256") not in self.policy["_accepted_sha256"]:
                 raise BudgetError(f"ledger record {key} was written under an unknown policy")
-            if i == 1 and self.policy.get("ledger_genesis_sha256") not in (None, sa.sha256_bytes(raw)):
-                raise BudgetError("ledger does not start with the genesis record pinned in the policy; not running")
+            if i == 1:
+                self.genesis_sha = sa.sha256_bytes(raw)
+                if self.policy.get("ledger_genesis_sha256") not in (None, self.genesis_sha):
+                    raise BudgetError("ledger does not start with the genesis record pinned in the policy; not running")
             prev = sa.sha256_bytes(raw)
+            self.hashes[i] = prev
             records.append(rec)
-        if self.policy.get("ledger_genesis_sha256") and not records:
+        if self.policy.get("ledger_genesis_sha256") and not records and not self.base:
             raise BudgetError("ledger is empty but the policy pins a genesis record; not running")
+        if self.base and not records:  # nothing after the checkpoint: its last record must still be there
+            if sa.sha256_bytes(self._get(f"{LEDGER_PREFIX}{self.base_seq:010d}.json", "ledger record")) != prev:
+                raise BudgetError("the checkpoint's last ledger record is missing or was replaced; not running")
         return records, prev
 
     def tail(self):
-        """Next sequence number and the hash of the last record: one LIST and one GET."""
+        """Last sequence number and the hash of the last record: one LIST and one GET (the LIST covers
+        only the records after the checkpoint this ledger last read)."""
         import source_archive as sa
-        keys = sorted(self._list(LEDGER_PREFIX))
-        if not keys or keys[-1] != f"{LEDGER_PREFIX}{len(keys):010d}.json":
+        keys = self._segment_keys()
+        first = self.base_seq + 1
+        if not keys:
+            if self.base:
+                return self.base_seq, self.base["tail_sha256"]
             raise BudgetError("ledger tail is not contiguous")
-        return len(keys), sa.sha256_bytes(self.st.get(keys[-1]))
+        if keys != [f"{LEDGER_PREFIX}{i:010d}.json" for i in range(first, first + len(keys))]:
+            raise BudgetError("ledger tail is not contiguous")
+        return first + len(keys) - 1, sa.sha256_bytes(self._get(keys[-1], "ledger record"))
 
     def admissions(self):
         """(month, job_id, run_id) of every admission ever made: LIST only, no GETs. Job caps are
@@ -422,11 +521,24 @@ class Ledger:
         return None
 
     @staticmethod
-    def usage(records, job_id, month, admissions=(), admission_limits=None):
+    def usage(records, job_id, month, admissions=(), admission_limits=None, base=None):
         """A reservation counts in full until its own run settles it; then it counts what the run
         measured (never more than reserved). An admission whose run never settled counts at the
         admission limits. Re-running or running in parallel therefore counts against the caps (as far as
-        this ledger sees; unrecorded requests are listed in infra/r2/BUDGET.md section 5)."""
+        this ledger sees; unrecorded requests are listed in infra/r2/BUDGET.md section 5).
+        With base (a checkpoint) records are only those after it; the checkpoint supplies the rest and
+        the result equals the one computed from all records (infra/r2/checkpoint/DESIGN.md)."""
+        records = list(records)
+        acct = {}
+        if base:
+            state = base["state"]
+            valid = {r["seq"] for r in state["open"]} | {r["seq"] for r in records if r.get("kind") == "reservation"}
+            records = ([{"kind": "pre_ledger_usage", "job_id": t["job"], "at": PAST if t["month"] == "past"
+                         else f"{t['month']}-01T00:00:00Z", "amounts": dict(zip(DIMENSIONS, t["amounts"]))}
+                        for t in state["totals"]]
+                       + [dict(r, kind="reservation") for r in state["open"]]
+                       + [r for r in records if r.get("kind") != "settlement" or r.get("reservation_seq") in valid])
+            acct = {(a["month"], a["job"]): a["count"] for a in state["settled_runs"]}
         settled = {}
         for r in records:
             if r.get("kind") == "settlement":
@@ -437,13 +549,13 @@ class Ledger:
         glob = {d: 0 for d in DIMENSIONS}
         job = {d: 0 for d in DIMENSIONS}
 
-        def add(amounts, at, rec_job):
+        def add(amounts, at, rec_job, n=1):
             for d in DIMENSIONS:
-                n = int(amounts.get(d, 0))
+                v = int(amounts.get(d, 0)) * n
                 if d not in MONTHLY or month_of(at) == month:
-                    glob[d] += n
+                    glob[d] += v
                 if rec_job == job_id:
-                    job[d] += n
+                    job[d] += v
 
         for r in records:
             if r.get("kind") not in ("reservation", "pre_ledger_usage"):
@@ -452,9 +564,14 @@ class Ledger:
             amounts = {d: min(int(r["amounts"].get(d, 0)), actual[d]) if actual else int(r["amounts"].get(d, 0))
                        for d in DIMENSIONS}
             add(amounts, r["at"], r.get("job_id"))
+        unsettled = {}
         for adm_month, adm_job, run_id in admissions:
             if run_id not in settled_runs:
-                add(admission_limits, f"{adm_month}-01T00:00:00Z", adm_job)
+                grp = ("past" if base and adm_month < base["month"] else adm_month, adm_job)
+                unsettled[grp] = unsettled.get(grp, 0) + 1
+        for (grp_month, grp_job), n in unsettled.items():  # runs settled before the checkpoint are in acct
+            n = max(n - acct.get((grp_month, grp_job), 0), 0)
+            add(admission_limits, PAST if grp_month == "past" else f"{grp_month}-01T00:00:00Z", grp_job, n)
         return glob, job
 
     def append(self, record_body, count, prev):
@@ -489,7 +606,8 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
             admissions = ledger.admissions()
         records, prev = ledger.read(known)
         known = (records, prev)
-        glob, used_job = Ledger.usage(records, job["job_id"], month, admissions, policy["admission"]["limits"])
+        glob, used_job = Ledger.usage(records, job["job_id"], month, admissions, policy["admission"]["limits"],
+                                      ledger.base)
         room_glob, room_job = headroom(policy, job, admissions, job["job_id"], month)
         want = job["per_run"]
         for d in DIMENSIONS:
@@ -504,7 +622,7 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
                 "job_sha256": job["_sha256"], "profile": job["_profile"], "run_id": run_id,
                 "at": stamp(), "amounts": dict(want)}
         try:
-            rec, rec_sha = ledger.append(body, len(records), prev)
+            rec, rec_sha = ledger.append(body, ledger.base_seq + len(records), prev)
             return rec, rec_sha, {d: policy["caps"][d] - glob[d] - want[d] for d in DIMENSIONS}
         except sa.Exists:
             continue  # lost the race: read the newer records, re-list admissions, re-check
@@ -513,6 +631,187 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
         except Exception as e:
             raise BudgetError(f"ledger write failed ({type(e).__name__}); not running")
     raise BudgetError(f"could not reserve after {attempts} attempts (concurrent runs)")
+
+
+def check_checkpoint(cp, key, policy):
+    """A checkpoint this run is willing to rely on: its shape, its place, and the policy's genesis pin."""
+    m = CHECKPOINT_KEY.match(key)
+    state = cp.get("state") if isinstance(cp, dict) else None
+    if (not isinstance(state, dict) or cp.get("format") != CHECKPOINT_FORMAT or not m
+            or cp.get("seq") != int(m.group(1)) or not isinstance(cp["seq"], int) or cp["seq"] < 1
+            or not all(isinstance(cp.get(k), str) for k in ("tail_sha256", "genesis_sha256", "month", "at"))
+            or not all(isinstance(state.get(k), list) for k in ("totals", "open", "settled_runs"))):
+        raise BudgetError(f"checkpoint {key} is malformed")
+    if cp.get("policy_sha256") not in policy["_accepted_sha256"]:
+        raise BudgetError(f"checkpoint {key} was written under an unknown policy")
+    if policy.get("ledger_genesis_sha256") not in (None, cp["genesis_sha256"]):
+        raise BudgetError(f"checkpoint {key} does not start from the genesis record pinned in the policy")
+
+
+def _age_seconds(now, then):
+    parse = lambda t: dt.datetime.strptime(t, "%Y-%m-%dT%H:%M:%SZ")  # noqa: E731
+    return (parse(now) - parse(then)).total_seconds()
+
+
+def checkpoint_state(base, records, admissions, at):
+    """The summary of the ledger up to the last of records, on top of the checkpoint base (None = from
+    the start). Reservations that settled count what they measured; open ones (younger than
+    OPEN_GRACE_S) are carried so a later settlement can still find them; older ones count in full for
+    good. Months before at's month are folded into job totals (only all-time sums can use them)."""
+    month = month_of(at)
+    prior = base["state"] if base else {"totals": [], "open": [], "settled_runs": []}
+    totals = {(t["month"], t["job"]): list(t["amounts"]) for t in prior["totals"]}
+    acct = {(a["month"], a["job"]): a["count"] for a in prior["settled_runs"]}
+    reservations = [dict(r) for r in prior["open"]] + [r for r in records if r.get("kind") == "reservation"]
+    valid = {r["seq"] for r in reservations}
+    settled = {}
+    for r in records:
+        if r.get("kind") == "settlement" and r.get("reservation_seq") in valid:
+            key = (r["reservation_seq"], r.get("run_id"))
+            prev = settled.get(key, {})
+            settled[key] = {d: max(int(r["amounts"].get(d, 0)), prev.get(d, 0)) for d in DIMENSIONS}
+    admitted = {run: (m, job) for m, job, run in admissions}
+
+    def put(m, job, amounts):
+        row = totals.setdefault((m, job), [0] * len(DIMENSIONS))
+        for i, d in enumerate(DIMENSIONS):
+            row[i] += int(amounts.get(d, 0))
+
+    open_now = []
+    for r in reservations:
+        actual = settled.get((r["seq"], r.get("run_id")))
+        if actual:
+            put(month_of(r["at"]), r["job_id"], {d: min(int(r["amounts"].get(d, 0)), actual[d]) for d in DIMENSIONS})
+            if r.get("run_id") in admitted:
+                m, job = admitted[r["run_id"]]
+                acct[(m, job)] = acct.get((m, job), 0) + 1
+        elif _age_seconds(at, r["at"]) > OPEN_GRACE_S:
+            put(month_of(r["at"]), r["job_id"], r["amounts"])
+        else:
+            open_now.append({k: r[k] for k in ("seq", "run_id", "job_id", "at", "amounts")})
+    for r in records:
+        if r.get("kind") == "pre_ledger_usage":
+            put(month_of(r["at"]), r["job_id"], r["amounts"])
+    folded, folded_acct = {}, {}
+    for (m, job), row in totals.items():
+        k = ("past" if m < month else m, job)
+        folded[k] = [a + b for a, b in zip(folded.get(k, [0] * len(DIMENSIONS)), row)]
+    for (m, job), n in acct.items():
+        k = ("past" if m < month else m, job)
+        folded_acct[k] = folded_acct.get(k, 0) + n
+    return {"totals": [{"month": m, "job": j, "amounts": folded[(m, j)]} for m, j in sorted(folded)],
+            "open": sorted(open_now, key=lambda r: r["seq"]),
+            "settled_runs": [{"month": m, "job": j, "count": folded_acct[(m, j)]} for m, j in sorted(folded_acct)]}
+
+
+def build_checkpoint(ledger, records, prev, admissions, at):
+    """records/prev as returned by ledger.read(): everything after ledger.base, verified."""
+    return {"format": CHECKPOINT_FORMAT, "seq": ledger.base_seq + len(records), "tail_sha256": prev, "at": at,
+            "month": month_of(at), "policy_sha256": ledger.policy["_sha256"], "genesis_sha256": ledger.genesis_sha,
+            "prev_checkpoint": {"seq": ledger.base_seq, "sha256": ledger.base_sha} if ledger.base else None,
+            "state": checkpoint_state(ledger.base, records, admissions, at)}
+
+
+def write_checkpoint(ledger, at=None):
+    """Summarise the ledger up to its current last record into checkpoint/v1/<seq>.json (write-once)."""
+    import source_archive as sa
+    records, prev = ledger.read()
+    if not records:
+        return {"status": "nothing_new", "seq": ledger.base_seq}
+    cp = build_checkpoint(ledger, records, prev, ledger.admissions(), at or stamp())
+    body = json.dumps(cp, ensure_ascii=False, sort_keys=True, indent=1).encode() + b"\n"
+    if len(body) > CHECKPOINT_BYTES:
+        raise BudgetError(f"checkpoint would be {len(body)} bytes > {CHECKPOINT_BYTES}; nothing was written")
+    key = f"{CHECKPOINT_PREFIX}{cp['seq']:010d}.json"
+    try:
+        ledger.st.put_new(key, body, "application/json")
+    except sa.Exists:
+        other = json.loads(ledger._get(key, "checkpoint"))
+        if {k: v for k, v in other.items() if k != "at"} != {k: v for k, v in cp.items() if k != "at"}:
+            raise BudgetError(f"{key} already holds a different checkpoint; run audit")
+        return {"status": "already_present", "seq": cp["seq"]}
+    except BudgetError:
+        raise
+    except Exception as e:
+        raise BudgetError(f"checkpoint write failed ({type(e).__name__})")
+    return {"status": "written", "seq": cp["seq"], "bytes": len(body), "records_summarised": len(records)}
+
+
+def audit_checkpoints(ledger):
+    """Recompute every checkpoint from the raw records and compare. The records are never deleted by
+    this tool, so a checkpoint that understates the ledger (or any replaced record) shows here."""
+    import source_archive as sa
+    keys = ledger.checkpoints()
+    records, _ = ledger.read(full=True)
+    admissions = ledger.admissions()
+    base, prev_raw_sha = None, None
+    for key in keys:
+        raw = ledger._get(key, "checkpoint")
+        cp = json.loads(raw)
+        check_checkpoint(cp, key, ledger.policy)
+        lo = base["seq"] if base else 0
+        if cp["seq"] > len(records):
+            raise BudgetError(f"{key}: covers records the ledger does not have")
+        if ledger.hashes[cp["seq"]] != cp["tail_sha256"]:
+            raise BudgetError(f"{key}: tail hash differs from ledger record {cp['seq']}")
+        if cp["genesis_sha256"] != ledger.hashes[1]:
+            raise BudgetError(f"{key}: genesis hash differs from ledger record 1")
+        want_prev = {"seq": lo, "sha256": prev_raw_sha} if base else None
+        if cp["prev_checkpoint"] != want_prev:
+            raise BudgetError(f"{key}: checkpoint chain broken")
+        expect = checkpoint_state(base, records[lo:cp["seq"]], admissions, cp["at"])
+        if expect != cp["state"]:
+            raise BudgetError(f"{key}: summary differs from the ledger records it covers")
+        base, prev_raw_sha = cp, sa.sha256_bytes(raw)
+    return {"checkpoints": len(keys), "records": len(records), "last_checkpoint_seq": base and base["seq"]}
+
+
+LOCK_RULES = ROOT / "infra/r2/checkpoint/lock_rules.json"
+LOCK_BUCKETS = ("onjeon-raw-sources", "onjeon-derived-sources", "onjeon-budget-ledger")
+MAX_LOCK_DAYS = 3650  # a finite period; anything longer is an indefinite lock by another name
+
+
+def check_lock_rules(doc):
+    """Problems in a bucket lock rule file (O14). Never indefinite; periods are decided by the owner,
+    so a rule file with an unset period is a proposal and may not claim to be approved or applied."""
+    bad = []
+    if doc.get("format") != "onjeon-bucket-lock-rules-v1":
+        bad.append("unknown format")
+    status = doc.get("status")
+    if status not in ("proposed_not_applied", "approved", "applied"):
+        bad.append(f"unknown status {status!r}")
+    rules = doc.get("rules")
+    if not isinstance(rules, list) or not rules:
+        return bad + ["no rules"]
+    ids = [r.get("id") for r in rules]
+    if len(set(ids)) != len(ids):
+        bad.append("duplicate rule id")
+    unset = []
+    for r in rules:
+        rid = r.get("id")
+        cond = r.get("condition") or {}
+        if r.get("bucket") not in LOCK_BUCKETS:
+            bad.append(f"{rid}: bucket outside the three archive buckets")
+        if not str(r.get("prefix", "")).endswith("/"):
+            bad.append(f"{rid}: prefix must name a directory ending in /")
+        if cond.get("type") != "Age":
+            bad.append(f"{rid}: only Age conditions are allowed (no Indefinite, no fixed Date)")
+        days = cond.get("max_age_days")
+        if days is None:
+            unset.append(rid)
+        elif not isinstance(days, int) or isinstance(days, bool) or not 1 <= days <= MAX_LOCK_DAYS:
+            bad.append(f"{rid}: max_age_days must be an integer from 1 to {MAX_LOCK_DAYS} (no indefinite lock)")
+        if r.get("enabled") is not False and status == "proposed_not_applied":
+            bad.append(f"{rid}: a proposal must not be enabled")
+    if status in ("approved", "applied"):
+        if unset:
+            bad.append(f"status {status} but periods are unset: {', '.join(unset)}")
+        appr = doc.get("approval") or {}
+        if not (appr.get("by") and appr.get("at") and appr.get("record")):
+            bad.append(f"status {status} needs approval.by, approval.at and approval.record")
+    elif doc.get("approval") is not None:
+        bad.append("a proposal carries no approval")
+    return bad
 
 
 class Session:
@@ -663,10 +962,36 @@ def _cli():
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("status")
     s.add_argument("--job", required=True)
+    s = sub.add_parser("checkpoint", help="summarise the ledger records written since the last checkpoint")
+    s.add_argument("--job", required=True)
+    s = sub.add_parser("audit", help="recompute every checkpoint from the raw ledger records")
+    s.add_argument("--job", required=True)
+    s = sub.add_parser("lock-rules", help="check infra/r2/checkpoint/lock_rules.json (no request)")
+    s.add_argument("--file", default=str(LOCK_RULES))
     s = sub.add_parser("init-pre-ledger")
     s.add_argument("--job", required=True)
     s.add_argument("--amounts", required=True, help="JSON file: amounts per dimension and a note")
     a = ap.parse_args()
+    if a.cmd == "lock-rules":
+        doc = json.loads(Path(a.file).read_text(encoding="utf-8"))
+        problems = check_lock_rules(doc)
+        print(json.dumps({"status": doc.get("status"), "rules": len(doc.get("rules", [])), "problems": problems}))
+        return 1 if problems else 0
+    if a.cmd in ("checkpoint", "audit"):  # budgeted runs: admitted, reserved, settled like status
+        path = a.job.partition("#")[0]
+        profile = "status" if a.cmd == "checkpoint" else "verify"
+        policy = load_policy()
+        need = (policy["admission"]["limits"]["put_bytes"] + settlement_worst_case(policy)["put_bytes"]
+                + (CHECKPOINT_BYTES if a.cmd == "checkpoint" else 0))
+        if load_job(f"{path}#{profile}", policy)["per_run"]["put_bytes"] < need:
+            raise BudgetError(f"profile {profile!r} cannot pay for a checkpoint write ({need} bytes needed)")
+        s = start(f"{path}#{profile}", a.endpoint_url)
+        try:
+            out = write_checkpoint(s.ledger) if a.cmd == "checkpoint" else audit_checkpoints(s.ledger)
+            print(json.dumps(out, indent=1))
+        finally:
+            print("budget " + json.dumps(finish("ok")), file=sys.stderr)
+        return 0
     if a.cmd == "status":  # reading the ledger costs requests too, so status is an admitted, reserved run
         path = a.job.partition("#")[0]
         s = start(f"{path}#status", a.endpoint_url)
@@ -675,10 +1000,11 @@ def _cli():
             records, _ = s.ledger.read()
             admissions = s.ledger.admissions()
             lim = s.policy["admission"]["limits"]
-            glob, used_job = Ledger.usage(records, s.job["job_id"], month, admissions, lim)
+            glob, used_job = Ledger.usage(records, s.job["job_id"], month, admissions, lim, s.ledger.base)
             verify = load_job(f"{path}#verify", s.policy)["per_run"]
             room_glob, room_job = headroom(s.policy, s.job, admissions, s.job["job_id"], month)
-            print(json.dumps({"records": len(records), "month": month,
+            print(json.dumps({"records": s.ledger.base_seq + len(records), "after_checkpoint": len(records),
+                              "month": month,
                               "admissions_this_month": this_month(admissions, month),
                               "global_used": glob, "global_caps": s.policy["caps"],
                               "job_used_including_this_status": used_job, "job_caps": s.job["job_caps"],

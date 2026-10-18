@@ -64,15 +64,20 @@ fn parse_code(c: &str) -> Result<Code<'_>> {
     })
 }
 
-/// Is `code` inside `range` (`C16`, `C16.2`, `C00-C14`)? A major-only range covers every minor.
+/// Is `code` inside `range` (`C16`, `C16.2`, `C00-C14`, `C00-D48`)? A major-only range covers every minor;
+/// a hyphenated range compares (letter, major) and its bounds must not carry minors.
 pub fn in_range(code: &str, range: &str) -> Result<bool> {
     let c = parse_code(code)?;
     if let Some((a, b)) = range.split_once('-') {
         let (a, b) = (parse_code(a)?, parse_code(b)?);
-        return Ok(c.letter == a.letter
-            && a.letter == b.letter
-            && a.major <= c.major
-            && c.major <= b.major);
+        // A bound with a minor digit has no defined meaning here; refuse instead of guessing.
+        if a.minor.is_some() || b.minor.is_some() {
+            return Err(OntologyError::BadCode(format!(
+                "range bound with minor: {range}"
+            )));
+        }
+        let key = (c.letter, c.major);
+        return Ok((a.letter, a.major) <= key && key <= (b.letter, b.major));
     }
     let r = parse_code(range)?;
     if c.letter != r.letter || c.major != r.major {
@@ -295,4 +300,27 @@ pub fn scope_relation(
     } else {
         ScopeRelation::Disjoint
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn range_spans_letters() {
+        assert!(in_range("C16", "C00-D48").unwrap());
+        assert!(in_range("D10.3", "C00-D48").unwrap());
+        assert!(!in_range("D49", "C00-D48").unwrap());
+        assert!(in_range("A05", "A00-B99").unwrap());
+        assert!(!in_range("C16", "A00-B99").unwrap());
+        assert!(in_range("C16.9", "C16-C17").unwrap());
+    }
+
+    #[test]
+    fn range_bound_with_minor_is_rejected() {
+        assert!(matches!(
+            in_range("C16.0", "C16.2-C17"),
+            Err(OntologyError::BadCode(_))
+        ));
+    }
 }

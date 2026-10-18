@@ -31,7 +31,7 @@
 
 ## 골든 (`tests/golden/`)
 
-토의 자료의 사례 A-box(`abox_cases.json`, 전부 `origin=fixture`)와 규칙 파일, 참조 구현의 출력(`reference_results.txt`)이다. 서비스 데이터가 아니다. 릴리스 내용 해시 세 개는 `reference_results.txt`와 일치한다(`golden.rs`).
+토의 자료의 사례 A-box(`abox_cases.json`; 일부 레코드만 `origin=fixture`를 달고, `tests/golden/` 디렉터리 전체가 시험 전용이다)와 규칙 파일, 참조 구현의 출력(`reference_results.txt`)이다. 서비스 데이터가 아니다. 릴리스 내용 해시 세 개는 `reference_results.txt`와 일치한다(`golden.rs`).
 
 | 시험 파일 | 골든 |
 |---|---|

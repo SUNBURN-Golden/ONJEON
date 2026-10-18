@@ -14,6 +14,16 @@ class SyntheticBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
     if (!session.synthetic) return const SizedBox.shrink();
+    return Material(
+      color: OnjeonColors.segSelected,
+      child: SafeArea(
+        bottom: false,
+        child: _bannerBody(session),
+      ),
+    );
+  }
+
+  Widget _bannerBody(AppSession session) {
     return Container(
       key: const Key('synthetic-banner'),
       width: double.infinity,
@@ -50,6 +60,27 @@ class SyntheticBanner extends StatelessWidget {
   }
 }
 
+/// Puts the banner above every route (tabs, entry, evidence, not-found) and takes the
+/// top inset off the page below it once the banner has used it.
+class SyntheticFrame extends StatelessWidget {
+  const SyntheticFrame({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final on = SessionScope.of(context).synthetic;
+    return Column(
+      children: [
+        const SyntheticBanner(),
+        Expanded(
+          child: on ? MediaQuery.removePadding(context: context, removeTop: true, child: child) : child,
+        ),
+      ],
+    );
+  }
+}
+
 /// Four tabs. Switching keeps each tab's own state (section 4.8 of the screen spec).
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.shell});
@@ -64,7 +95,6 @@ class AppShell extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const SyntheticBanner(),
             Expanded(child: shell),
           ],
         ),

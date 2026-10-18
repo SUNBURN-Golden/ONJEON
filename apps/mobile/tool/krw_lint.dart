@@ -170,6 +170,8 @@ int _chainStart(String s, int start) {
   }
 }
 
+bool _isWs(String c) => c == ' ' || c == '\n' || c == '\t' || c == '\r';
+
 int _line(String s, int index) => '\n'.allMatches(s.substring(0, index)).length + 1;
 
 List<KrwFinding> lintSource(String path, String source) {
@@ -204,11 +206,11 @@ List<KrwFinding> lintSource(String path, String source) {
     final end = _chainEnd(code, m.start);
     final start = _chainStart(code, m.start);
     var r = end;
-    while (r < code.length && code[r] == ' ') {
+    while (r < code.length && _isWs(code[r])) {
       r++;
     }
     var l = start - 1;
-    while (l >= 0 && code[l] == ' ') {
+    while (l >= 0 && _isWs(code[l])) {
       l--;
     }
     final next = r < code.length ? code[r] : '';

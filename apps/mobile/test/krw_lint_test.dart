@@ -9,6 +9,9 @@ List<String> lint(String src) => lintSource('x.dart', src).map((f) => f.message)
 void main() {
   group('krw arithmetic is rejected', () {
     const bad = <String, String>{
+      'operator at line end': 'final t = 10 +\n    row.krw;',
+      'operator at next line start': 'final t = row.krw\n    * 2;',
+      'tab-indented wrap': 'final t = row.krw\n\t\t- other;',
       'addition': 'final t = a.insuredAmountKrw + b.insuredAmountKrw;',
       'addition on the right only': 'final t = 10 + row.krw;',
       'subtraction': 'final d = row.minKrw - row.maxKrw;',

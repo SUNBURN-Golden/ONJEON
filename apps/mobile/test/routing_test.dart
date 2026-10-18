@@ -129,6 +129,16 @@ void main() {
   });
 
   group('example mode', () {
+    testWidgets('banner is also on the evidence screen and the not-found page', (tester) async {
+      for (final path in [AppPaths.evidence('x'), '/no-such-page']) {
+        final session = AppSession()..enter(EntryPoint.example);
+        await pumpApp(tester, location: path, session: session);
+        expect(find.byKey(const Key('synthetic-banner')), findsOneWidget, reason: path);
+        expect(find.text('synthetic=true'), findsOneWidget, reason: path);
+        expect(find.text('화면 예시 · 실제 견적 아님'), findsOneWidget, reason: path);
+      }
+    });
+
     testWidgets('banner shows the wording and synthetic=true on every tab', (tester) async {
       final session = AppSession()..enter(EntryPoint.example);
       await pumpApp(tester, location: AppPaths.home, session: session);

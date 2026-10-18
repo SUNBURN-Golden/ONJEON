@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../design/theme.dart';
 import '../session/app_session.dart';
 import 'router.dart';
+import 'shell.dart';
 import 'routes.dart';
 
 class OnjeonApp extends StatefulWidget {
@@ -37,6 +38,7 @@ class _OnjeonAppState extends State<OnjeonApp> {
         title: '온전',
         theme: buildTheme(),
         routerConfig: _router,
+        builder: (context, child) => SyntheticFrame(child: child ?? const SizedBox.shrink()),
         debugShowCheckedModeBanner: false,
       ),
     );

@@ -44,7 +44,7 @@ CREATE FUNCTION chk_no_private_ids() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE hit text;
 BEGIN
   SELECT s INTO hit FROM jsonb_all_strings(to_jsonb(NEW)) AS s
-   WHERE s ~ '(^|[^a-z0-9_])(contract|person|upload|del|consent|assume):' LIMIT 1;
+   WHERE s ~* '(^|[^a-z0-9_])(contract|person|upload|del|consent|assume):' LIMIT 1;
   IF hit IS NOT NULL THEN
     RAISE EXCEPTION 'chk_no_private_ids: private identifier prefix in %.%', TG_TABLE_SCHEMA, TG_TABLE_NAME
       USING ERRCODE = '23514', CONSTRAINT = 'chk_no_private_ids';
@@ -266,7 +266,7 @@ CREATE TABLE assertion (
     ref_segment  text GENERATED ALWAYS AS (CASE WHEN predicate IN ('realizes', 'segment_of') THEN subject
                                                 WHEN predicate = 'in_segment' THEN object END) STORED,
     ref_edition  text GENERATED ALWAYS AS (CASE WHEN predicate IN ('realizes', 'uses_edition', 'in_edition') THEN object
-                                                WHEN predicate IN ('edition_of', 'applies_to') THEN subject END) STORED,
+                                                WHEN predicate = 'edition_of' OR (predicate = 'applies_to' AND subject LIKE 'ted:%') THEN subject END) STORED,
     ref_raw      text GENERATED ALWAYS AS (CASE WHEN predicate = 'segment_of' THEN object END) STORED,
     ref_lineage  text GENERATED ALWAYS AS (CASE WHEN predicate = 'edition_of' THEN object END) STORED,
     ref_clause   text GENERATED ALWAYS AS (CASE WHEN predicate = 'in_segment' THEN subject END) STORED,
@@ -387,7 +387,7 @@ CREATE CONSTRAINT TRIGGER chk_supersedes_linear AFTER INSERT ON assertion
   DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION assertion_supersedes_linear();
 
 -- ---------------------------------------------------------------------------------------------
--- 가격 관측(불변): premium_observation. 원시 관측은 공백이 있어도 보존하고 비교 자격은 따로 둔다(I7·K13).
+-- 가격 관측(불변): premium_observation. 조건 없는 가격 행은 저장하지 못한다(I7). 특약 구성·기준일 공백은 보존하되 비교 자격은 따로 둔다(K13).
 -- ---------------------------------------------------------------------------------------------
 CREATE TABLE premium_observation (
     id                  text PRIMARY KEY CHECK (id ~ '^premium:[0-9A-HJKMNP-TV-Z]{26}$'),
@@ -411,8 +411,8 @@ CREATE TABLE premium_observation (
     recorded_at         timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT chk_accepted_needs_decision CHECK (review_status <> 'accepted' OR review_decision_id IS NOT NULL),
     CONSTRAINT chk_fixture_never_accepted CHECK (origin <> 'fixture' OR review_status <> 'accepted'),
-    -- 비어 있는 조건·구성·기준일은 숨기지 않고 missing_dimensions에 적는다. 적은 것과 실제 공백이 다르면 거부한다.
-    CONSTRAINT chk_premium_missing_conditions CHECK ((coalesce(conditions, '{}'::jsonb) = '{}'::jsonb) = ('conditions' = ANY (missing_dimensions))),
+    -- I7: 조건이 없는 가격 행은 저장하지 않는다. 구성·기준일 공백은 숨기지 않고 missing_dimensions에 적는다(적은 것과 실제 공백이 다르면 거부).
+    CONSTRAINT chk_premium_conditions_required CHECK (conditions IS NOT NULL AND conditions <> '{}'::jsonb),
     CONSTRAINT chk_premium_missing_package CHECK ((package_binding IS NULL) = ('package_binding' = ANY (missing_dimensions))),
     CONSTRAINT chk_premium_missing_as_of CHECK ((source_as_of IS NULL) = ('as_of' = ANY (missing_dimensions))),
     -- I7·K13: 비교 자격은 조건·특약 구성·기준일이 모두 있고 근거(NOT NULL)가 있으며 accepted일 때만 true다.

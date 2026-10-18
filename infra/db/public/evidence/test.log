@@ -22,14 +22,15 @@ PASS  review_decision with one model family is refused
 PASS  review_decision accepted with a red-team counterexample is refused
 PASS  segment id that lies about its page range is refused
 == I7: 가격 ==
-PASS  I7 price row claiming comparison_eligible without conditions is rejected
+PASS  I7 price row without conditions (empty object) is rejected
+PASS  I7 price row without conditions (NULL) is rejected
 PASS  I7 eligible row without package binding is rejected
 PASS  I7 eligible row without as-of date is rejected
 PASS  I7 eligible row that is still pending is rejected
-PASS  I7 raw row that hides its blank conditions is rejected
+PASS  I7 raw row with blank conditions is rejected even when it admits the blank
 PASS  price row without evidence is rejected
 PASS  accepted price row without review_decision is rejected
-PASS  raw price row with honest missing_dimensions is preserved, not eligible (02 §1.2)
+PASS  price row with conditions but blank package/as-of is preserved with honest missing_dimensions, not eligible
 PASS  complete accepted price row is eligible
 == K8: 공개 스키마에 개인 식별자 접두어 ==
 PASS  K8 node.label with 'contract:' is rejected
@@ -38,6 +39,7 @@ PASS  K8 node.label with 'upload:' is rejected
 PASS  K8 node.label with 'del:' is rejected
 PASS  K8 node.label with 'consent:' is rejected
 PASS  K8 node.label with 'assume:' is rejected
+PASS  K8 prefix in upper case is rejected
 PASS  K8 prefix hidden inside jsonb is rejected
 PASS  K8 prefix hidden in a text[] column is rejected
 PASS  K8 prefix in an assertion evidence ref is rejected
@@ -56,6 +58,8 @@ PASS  evidence with an unknown role is rejected
 PASS  basis evidence that is not a clause is rejected
 PASS  assertion with empty evidence is rejected
 == FK: realizes 대상, 구획→원본, 조항→구획 ==
+PASS  applies_to with a clause subject is stored (tbox domain TermsEdition|ClauseOccurrence)
+PASS  applies_to with a missing edition subject is rejected
 PASS  realizes to a missing edition is rejected
 PASS  realizes from a missing segment is rejected
 PASS  segment_of a missing raw asset is rejected
@@ -166,5 +170,5 @@ PASS  B7: no packages/fixtures or docs/blueprint reference in migrations
 PASS  no secret-looking literals
 PASS  no model identifier strings in db files
 
-RESULT: passed=149 failed=0
+RESULT: passed=153 failed=0
 DB CONSTRAINTS: PASSED

@@ -21,7 +21,7 @@ bash infra/db/personal/apply.sh postgresql://<admin>@<private-db-host>:<port>/<d
 ## 시험
 
 ```sh
-bash infra/db/public/test.sh    # 공개·criteria·개인 스키마를 임시 DB에 적용하고 149개 점검을 돌린다
+bash infra/db/public/test.sh    # 공개·criteria·개인 스키마를 임시 DB에 적용하고 153개 점검을 돌린다
 
 # compose 스택(bash infra/compose/up.sh)의 공개 DB에서 돌릴 때. 관리 역할 이름은 .env의 PUBLIC_DB_ADMIN_USER,
 # 비밀번호는 .env의 PUBLIC_DB_ADMIN_PASSWORD 값을 PGPASSWORD 환경 변수로만 넘긴다(명령줄·URL·파일에 쓰지 않는다).
@@ -50,7 +50,7 @@ PGPASSWORD="<.env의 PUBLIC_DB_ADMIN_PASSWORD>" ONJEON_DB_ADMIN_URL=postgresql:/
 
 | 요구 | 제약 | 위치 |
 |---|---|---|
-| I7 가격은 조건·구성·기준일·근거 없이 비교에 쓰이지 않는다 | `chk_premium_raw_vs_eligible`, `chk_premium_missing_*`, `evidence`·`raw_amount`·`observed_at` NOT NULL | `premium_observation` |
+| I7 가격은 조건·구성·기준일·근거 없이 비교에 쓰이지 않는다 | `chk_premium_raw_vs_eligible`, `chk_premium_conditions_required`, `chk_premium_missing_*`, `evidence`·`raw_amount`·`observed_at` NOT NULL | `premium_observation` |
 | K8 / I12 공개 스키마에 개인 식별자 금지 | `chk_no_private_ids` 트리거(모든 텍스트 열·jsonb 값과 키·배열), `personal` 역할의 쓰기 권한 없음 | 모든 공개·criteria 테이블 |
 | accepted ⇒ ReviewDecision | `chk_accepted_needs_decision`(CHECK + 결정 outcome=accepted 확인), `review_decision`의 `chk_review_families`(계열 2개 이상)·`chk_review_accepted_complete` | `assertion`, `premium_observation` |
 | fixture ⇒ not accepted | `chk_fixture_never_accepted` | `assertion`, `premium_observation` |
@@ -67,11 +67,11 @@ PGPASSWORD="<.env의 PUBLIC_DB_ADMIN_PASSWORD>" ONJEON_DB_ADMIN_URL=postgresql:/
 
 ## 해석과 한계 (정직한 기록)
 
-- **I7 해석.** BLUEPRINT I7("가격은 조건·구성·기준일·근거 없이 저장되지 않는다")과 02 §1.2의 `chk_premium_raw_vs_eligible`("원시 관측은 공백이 있어도 보존, 비교 자격은 따로")은 문구가 다르다. 구현은 후자를 따랐다: **근거·금액·관측 시각은 항상 필수**이고, 조건·구성·기준일이 빈 행은 저장되되 `comparison_eligible=false` + `missing_dimensions`에 빈 차원을 정직하게 적어야 한다(적은 것과 실제 공백이 다르면 거부). `comparison_eligible=true`는 셋이 모두 있고 accepted일 때만 가능하다. 공백 행을 아예 저장하지 못하게 하려면 BLUEPRINT 쪽이 이기는 것이므로 설계 담당 확인이 필요하다(원시 보존을 원하는 T-KN-04의 `price-raw-kept-comparison-gated`와 충돌한다).
+- **I7 해석.** BLUEPRINT I7("가격은 조건·구성·기준일·근거 없이 저장되지 않는다")과 이 과제의 수락 기준("조건 없는 가격 행 삽입이 거부된다")을 따랐다: `premium_observation`은 **조건(`conditions`)이 비어 있거나 NULL이면 삽입이 거부된다**(`chk_premium_conditions_required`). 근거·금액·관측 시각도 항상 필수다. 특약 구성·기준일이 빈 행은 저장되되 `comparison_eligible=false`이고 `missing_dimensions`에 빈 차원을 정직하게 적어야 한다(적은 것과 실제 공백이 다르면 거부). `comparison_eligible=true`는 조건·구성·기준일이 모두 있고 accepted일 때만 가능하다. 조건 없는 원시 관측의 보존(02 §1.2, T-KN-04 `price-raw-kept-comparison-gated`)은 이 표의 몫이 아니며 별도 경로가 필요하다 — 설계 담당 확인 사항.
 - **K16(판의 근거 묶음 완전성)·K12·B1·B4는 DB가 아니다.** 판 구성 덮음 여부, 코드 우주 비교, R2 관측 목록 대조, 적재기 경로 allowlist는 적재기·릴리스 빌더(T-KN-04·T-KN-07) 몫이다. 이 스키마는 `terms_edition.parts`(역할·지문)와 `realizes` 지문 요건까지만 강제한다. `fk_evidence_clause`는 계약대로 FK가 아니며 `evidence`는 jsonb다.
 - `content_sha256` 재계산, `criteria_release`·`criteria_application`(서비스 적용 승인 관문, D-08), `release_notice`, 오류 신고 격리 테이블, `need_result`는 이 과제의 산출물 목록 밖이다.
 - K8은 문자열 접두어 검사다: `contract:` 등이 **값의 시작이거나 영문·숫자·밑줄이 아닌 문자 바로 뒤**에 오면 거부한다. 자연어 설명에 우연히 들어간 같은 모양도 거부된다(허용 쪽 오류보다 거부 쪽 오류를 택했다).
 - 개인 영역의 `components`·`plan.items` 등 jsonb 안쪽은 어휘 값과 필수 키만 확인한다. 나머지 모양은 `packages/schemas`의 JSON 스키마 검증 몫이다.
 - 원문 발췌는 저장하지 않는다(`clause.quote_sha256`만). PDF 비밀번호 열은 없다.
 - 이 스키마의 설계 근거 문서가 아직 채택본이 아니므로 이름·열은 채택 과정에서 바뀔 수 있다. 바뀌면 새 번호 마이그레이션이다.
-- 시험은 PostgreSQL 17.11(임시 클러스터)과 compose가 쓰는 16.15(두 서버)에서 실행했고 결과가 같다(149/0). 다른 메이저 판은 확인하지 않았다. 생성 열, 도메인, 지연 제약 트리거, jsonb만 쓴다.
+- 시험은 PostgreSQL 17.11(임시 클러스터)과 compose가 쓰는 16.15(두 서버)에서 실행했고 결과가 같다(149/0, 수정 라운드 1 이전 기록은 16.15 쪽만 해당하며 이후 17.11에서 153/0). 다른 메이저 판은 확인하지 않았다. 생성 열, 도메인, 지연 제약 트리거, jsonb만 쓴다.

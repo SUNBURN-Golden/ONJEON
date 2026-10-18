@@ -170,22 +170,24 @@ must_fail "segment id that lies about its page range is refused" "$PUB" admin "c
 INSERT INTO document_segment (id,raw_asset_id,page_from,page_to,doc_role,seg_rule_ver) VALUES ('seg:aaaaaaaaaaaa:p9-9:terms:segrule-1','$RAW',1,2,'terms','segrule-1');"
 
 say "== I7: 가격 =="
-must_fail "I7 price row claiming comparison_eligible without conditions is rejected" "$PUB" knowledge_writer "chk_premium_raw_vs_eligible" \
+must_fail "I7 price row without conditions (empty object) is rejected" "$PUB" knowledge_writer "chk_premium_conditions_required" \
   "$(P 1 true accepted pipeline "'$RD_OK'" "'{}'::jsonb" "'none'" "'2026-01-01'" "'{conditions}'")"
+must_fail "I7 price row without conditions (NULL) is rejected" "$PUB" data_writer "chk_premium_conditions_required" \
+  "$(P 10 false pending pipeline NULL "NULL" "'none'" "'2026-01-01'" "'{}'")"
 must_fail "I7 eligible row without package binding is rejected" "$PUB" knowledge_writer "chk_premium_raw_vs_eligible" \
   "$(P 2 true accepted pipeline "'$RD_OK'" "'{\"age\":\"40\"}'::jsonb" "NULL" "'2026-01-01'" "'{package_binding}'")"
 must_fail "I7 eligible row without as-of date is rejected" "$PUB" knowledge_writer "chk_premium_raw_vs_eligible" \
   "$(P 3 true accepted pipeline "'$RD_OK'" "'{\"age\":\"40\"}'::jsonb" "'none'" "NULL" "'{as_of}'")"
 must_fail "I7 eligible row that is still pending is rejected" "$PUB" knowledge_writer "chk_premium_raw_vs_eligible" \
   "$(P 4 true pending pipeline NULL "'{\"age\":\"40\"}'::jsonb" "'none'" "'2026-01-01'" "'{}'")"
-must_fail "I7 raw row that hides its blank conditions is rejected" "$PUB" data_writer "chk_premium_missing_conditions" \
-  "$(P 5 false pending pipeline NULL "'{}'::jsonb" "'none'" "'2026-01-01'" "'{}'")"
+must_fail "I7 raw row with blank conditions is rejected even when it admits the blank" "$PUB" data_writer "chk_premium_conditions_required" \
+  "$(P 5 false pending pipeline NULL "'{}'::jsonb" "'none'" "'2026-01-01'" "'{conditions}'")"
 must_fail "price row without evidence is rejected" "$PUB" data_writer "evidence" \
   "INSERT INTO premium_observation (id,raw_amount,price_basis,observed_at,missing_dimensions,comparison_eligible,value_state,review_status,origin) VALUES ('premium:$(uid 6)',12000,'table_derived',now(),'{conditions,package_binding,as_of}',false,'observed','pending','pipeline');"
 must_fail "accepted price row without review_decision is rejected" "$PUB" knowledge_writer "chk_accepted_needs_decision" \
   "$(P 7 false accepted pipeline NULL "'{\"age\":\"40\"}'::jsonb" "'none'" "'2026-01-01'" "'{}'")"
-must_ok "raw price row with honest missing_dimensions is preserved, not eligible (02 §1.2)" "$PUB" data_writer \
-  "$(P 8 false pending pipeline NULL "'{}'::jsonb" "NULL" "NULL" "'{conditions,package_binding,as_of}'")"
+must_ok "price row with conditions but blank package/as-of is preserved with honest missing_dimensions, not eligible" "$PUB" data_writer \
+  "$(P 8 false pending pipeline NULL "'{\"age\":\"40\"}'::jsonb" "NULL" "NULL" "'{package_binding,as_of}'")"
 must_ok "complete accepted price row is eligible" "$PUB" knowledge_writer \
   "$(P 9 true accepted pipeline "'$RD_OK'" "'{\"age\":\"40\"}'::jsonb" "'none'" "'2026-01-01'" "'{}'")"
 
@@ -194,10 +196,12 @@ for pfx in contract person upload del consent assume; do
   must_fail "K8 node.label with '$pfx:' is rejected" "$PUB" knowledge_writer "chk_no_private_ids" \
     "INSERT INTO node (id,kind,label,onto_version,origin) VALUES ('n:k8$pfx','Condition','$pfx:$(uid 1)','onto-0.2','pipeline');"
 done
+must_fail "K8 prefix in upper case is rejected" "$PUB" knowledge_writer "chk_no_private_ids" \
+  "INSERT INTO node (id,kind,label,onto_version,origin) VALUES ('n:k8case','Condition','Contract:$(uid 1)','onto-0.2','pipeline');"
 must_fail "K8 prefix hidden inside jsonb is rejected" "$PUB" knowledge_writer "chk_no_private_ids" \
   "INSERT INTO node (id,kind,attrs,onto_version,origin) VALUES ('n:k8json','Condition','{\"a\":{\"b\":[\"x\",\"person:$(uid 1)\"]}}','onto-0.2','pipeline');"
 must_fail "K8 prefix hidden in a text[] column is rejected" "$PUB" data_writer "chk_no_private_ids" \
-  "$(P 20 false pending pipeline NULL "'{}'::jsonb" "NULL" "NULL" "'{conditions,package_binding,as_of,upload:x}'")"
+  "$(P 20 false pending pipeline NULL "'{\"age\":\"40\"}'::jsonb" "NULL" "NULL" "'{package_binding,as_of,upload:x}'")"
 must_fail "K8 prefix in an assertion evidence ref is rejected" "$PUB" knowledge_writer "chk_no_private_ids" \
   "$(A 30 "n:x" has_condition "'n:y'" pending c1 pipeline NULL '[{"ref":"obs:src:a/2026-01-01T00:00:00Z/aaaaaaaaaaaaaaaa contract:1","role":"observation"}]')"
 must_fail "K8 prefix in a gap subject is rejected" "$PUB" data_writer "chk_no_private_ids" \
@@ -230,6 +234,10 @@ must_fail "assertion with empty evidence is rejected" "$PUB" knowledge_writer "a
   "$(A 51 "n:x" has_condition "'n:y'" pending c1 pipeline NULL '[]')"
 
 say "== FK: realizes 대상, 구획→원본, 조항→구획 =="
+must_ok "applies_to with a clause subject is stored (tbox domain TermsEdition|ClauseOccurrence)" "$PUB" knowledge_writer \
+  "$(A 910 "$CL" applies_to "'n:y'" pending c1 pipeline NULL "$EV_OBS_SEG")"
+must_fail "applies_to with a missing edition subject is rejected" "$PUB" knowledge_writer "fk_realizes_edition" \
+  "$(A 911 "ted:$(uid 98)" applies_to "'n:y'" pending c1 pipeline NULL "$EV_OBS_SEG")"
 must_fail "realizes to a missing edition is rejected" "$PUB" knowledge_writer "fk_realizes_edition" \
   "$(A 60 "$SEG" realizes "'ted:$(uid 99)'" pending c1 pipeline NULL "$EV_OBS_SEG")"
 must_fail "realizes from a missing segment is rejected" "$PUB" knowledge_writer "fk_realizes_segment" \
@@ -429,7 +437,7 @@ mutate() { # NAME DB SETUP_SQL VERIFY_SQL ROLE  — 변이마다 새 복제본�
 }
 mutate "chk_fixture_never_accepted" x "ALTER TABLE assertion DROP CONSTRAINT chk_fixture_never_accepted;" "$(A 200 "n:x" has_condition "'n:y'" accepted c1 fixture "'$RD_OK'" "$EV_OBS_SEG")" knowledge_writer
 mutate "chk_accepted_needs_decision" x "ALTER TABLE assertion DROP CONSTRAINT chk_accepted_needs_decision; DROP TRIGGER assertion_guard ON assertion;" "$(A 201 "n:x" has_condition "'n:y'" accepted c1 pipeline NULL "$EV_OBS_SEG")" knowledge_writer
-mutate "chk_premium_raw_vs_eligible" x "ALTER TABLE premium_observation DROP CONSTRAINT chk_premium_raw_vs_eligible;" "$(P 202 true accepted pipeline "'$RD_OK'" "'{}'::jsonb" "'none'" "'2026-01-01'" "'{conditions}'")" knowledge_writer
+mutate "chk_premium_raw_vs_eligible" x "ALTER TABLE premium_observation DROP CONSTRAINT chk_premium_raw_vs_eligible;" "$(P 202 true accepted pipeline "'$RD_OK'" "'{\"age\":\"40\"}'::jsonb" "NULL" "'2026-01-01'" "'{package_binding}'")" knowledge_writer
 mutate "chk_no_private_ids" x "DROP TRIGGER chk_no_private_ids ON node;" "INSERT INTO node (id,kind,label,onto_version,origin) VALUES ('n:mut','Condition','contract:$(uid 1)','onto-0.2','pipeline');" knowledge_writer
 mutate "I12 grants" x "GRANT INSERT ON node TO personal;" "INSERT INTO node (id,kind,onto_version,origin) VALUES ('n:mut2','Condition','onto-0.2','pipeline');" personal
 mutate "fk_realizes_edition" x "ALTER TABLE assertion DROP CONSTRAINT fk_realizes_edition;" "$(A 203 "$SEG" realizes "'ted:$(uid 99)'" pending c1 pipeline NULL "$EV_OBS_SEG")" knowledge_writer

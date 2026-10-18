@@ -1,0 +1,2329 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ONJEON 개인 API v1 (초안)",
+    "version": "1.0.0-draft.1",
+    "description": "C-15. 인증 필수. 모든 응답(오류 포함)은 `Cache-Control: private, no-store`이고 공개 캐시를 금지한다. 로그에 본문을 남기지 않는다. 모든 2xx 응답 본문에 release_id가 있다. 스켈레톤 경로는 `x-onjeon-skeleton: true`이고 플래그 기본 off다. 근거: 02_구현계약 §2.2·§4, 제3부 §46.4·§58."
+  },
+  "x-onjeon-surface": "personal",
+  "security": [
+    {
+      "session": []
+    }
+  ],
+  "x-onjeon-cache-policy": {
+    "kind": "private_no_store",
+    "public_cache": "forbidden",
+    "forbidden_directives": [
+      "public",
+      "s-maxage",
+      "max-age",
+      "stale-while-revalidate",
+      "stale-if-error",
+      "immutable"
+    ]
+  },
+  "x-onjeon-logging": "request and response bodies are never logged",
+  "paths": {
+    "/v1/auth/sessions": {
+      "post": {
+        "operationId": "create_session",
+        "summary": "세션 만들기",
+        "tags": [
+          "auth"
+        ],
+        "description": "제3부 §46.4의 `POST /auth/*`. 인증 수단은 인증 설계 대기. 자격 증명은 저장·로그 금지.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        },
+        "security": []
+      }
+    },
+    "/v1/auth/sessions/current": {
+      "delete": {
+        "operationId": "end_session",
+        "summary": "세션 끝내기",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionEnded"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "get_me",
+        "summary": "내 계정",
+        "tags": [
+          "me"
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/me/export": {
+      "get": {
+        "operationId": "export_me",
+        "summary": "내 데이터 내보내기(JSON)",
+        "tags": [
+          "me"
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/me/data": {
+      "delete": {
+        "operationId": "delete_my_data",
+        "summary": "내 데이터 삭제 시작",
+        "tags": [
+          "me"
+        ],
+        "description": "확인된 본인만. 즉시 접근 차단 후 유예 기간을 둔다. 삭제 진행 중 계정에 늦게 도착한 쓰기는 409로 거부한다.",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionJobResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/me/deletion-jobs/{id}": {
+      "get": {
+        "operationId": "get_deletion_job",
+        "summary": "삭제 작업 상태",
+        "tags": [
+          "me"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "삭제 작업 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/Identifier"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/consents": {
+      "post": {
+        "operationId": "create_consent",
+        "summary": "동의 기록",
+        "tags": [
+          "consents"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/consents/{id}": {
+      "delete": {
+        "operationId": "withdraw_consent",
+        "summary": "동의 철회",
+        "tags": [
+          "consents"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "동의 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/Identifier"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentWithdrawal"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/profiles": {
+      "post": {
+        "operationId": "create_profile",
+        "summary": "프로필 만들기",
+        "tags": [
+          "profiles"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/profiles/{id}": {
+      "get": {
+        "operationId": "get_profile",
+        "summary": "프로필 읽기",
+        "tags": [
+          "profiles"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "프로필 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/PersonId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/policy-imports": {
+      "post": {
+        "operationId": "create_policy_import",
+        "summary": "보험 PDF 가져오기",
+        "tags": [
+          "policy-imports"
+        ],
+        "description": "멀티파트. 본인 인증·처리 동의·격리 저장. 멱등 키와 상태 조회(GET /v1/policy-imports/{id})를 제공한다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyImportForm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "접수됨. 비동기로 처리한다",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyImportAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/policy-imports/{id}": {
+      "get": {
+        "operationId": "get_policy_import",
+        "summary": "가져오기 상태와 추출 결과",
+        "tags": [
+          "policy-imports"
+        ],
+        "description": "확인 전에는 계산이 없다.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "업로드 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/UploadId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyImportDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/policy-imports/{id}/confirm": {
+      "post": {
+        "operationId": "confirm_policy_import",
+        "summary": "추출 결과 확인",
+        "tags": [
+          "policy-imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "업로드 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/UploadId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyImportConfirmRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyImportConfirmed"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/v1/family-history": {
+      "post": {
+        "operationId": "save_family_history",
+        "summary": "선택 가족력 저장",
+        "tags": [
+          "profiles"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FamilyHistoryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyHistoryAck"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/evaluations": {
+      "post": {
+        "operationId": "create_evaluation",
+        "summary": "상황 계산",
+        "tags": [
+          "evaluations"
+        ],
+        "description": "contract_ids 또는 cov_ids 중 정확히 하나. 합산은 dependency가 partial이고 excluded_contracts를 싣는다. D-11(비회원 서버 저장 없는 계산) 결정 전: `ephemeral` 모드는 이 초안에 없다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unsupported"
+          },
+          "504": {
+            "$ref": "#/components/responses/Timeout"
+          }
+        },
+        "x-onjeon-pending-decision": "D-11"
+      }
+    },
+    "/v1/evaluations/{id}": {
+      "get": {
+        "operationId": "get_evaluation",
+        "summary": "저장된 계산 결과",
+        "tags": [
+          "evaluations"
+        ],
+        "description": "철회된 릴리스로 계산된 결과는 knowledge_freshness=withdrawn으로 보이고 reproducible=true를 유지한다.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "계산 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/EvaluationRef"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/me/need-assessments": {
+      "post": {
+        "operationId": "create_personal_need_assessment",
+        "summary": "필요성 판단(개인 모드)",
+        "tags": [
+          "need"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalNeedRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../json/need_result.schema.json"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/v1/me/assumptions": {
+      "post": {
+        "operationId": "create_assumption",
+        "summary": "가정 저장",
+        "tags": [
+          "need"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssumptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssumptionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/plans": {
+      "post": {
+        "operationId": "create_plan",
+        "summary": "개인 비교 초안",
+        "tags": [
+          "plans"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../json/plan_view.schema.json"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unsupported"
+          }
+        }
+      }
+    },
+    "/v1/plans/{id}": {
+      "get": {
+        "operationId": "get_plan",
+        "summary": "초안 읽기",
+        "tags": [
+          "plans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "초안 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/PlanId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../json/plan_view.schema.json"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/plans/{id}/diff": {
+      "post": {
+        "operationId": "diff_plan",
+        "summary": "두 안 차이",
+        "tags": [
+          "plans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "초안 ID",
+            "schema": {
+              "$ref": "../json/common.schema.json#/$defs/PlanId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanDiffRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanDiffResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        }
+      }
+    },
+    "/v1/consultation-requests": {
+      "post": {
+        "operationId": "create_consultation_request",
+        "summary": "[스켈레톤] 상담 요청",
+        "tags": [
+          "skeleton"
+        ],
+        "description": "스켈레톤(제3부 §58): 경로와 권한 이름만 예약한다. 플래그가 꺼져 있으면 404. 화면·설계사 목록·예약은 없다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsultationRequestCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultationRequestReceipt"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        },
+        "x-onjeon-skeleton": true,
+        "x-onjeon-flag": "consultation_enabled",
+        "x-onjeon-flag-default": false
+      }
+    },
+    "/v1/quote-requests": {
+      "post": {
+        "operationId": "create_quote_request",
+        "summary": "[스켈레톤] 개인 실견적 요청",
+        "tags": [
+          "skeleton"
+        ],
+        "description": "스켈레톤(제3부 §58): 견적 요청 인터페이스 초안. 플래그가 꺼져 있으면 404. 개인 견적 연계는 별도 게이트다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteRequestCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Onjeon-Release-Id": {
+                "$ref": "#/components/headers/ReleaseId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteRequestReceipt"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Internal"
+          }
+        },
+        "x-onjeon-skeleton": true,
+        "x-onjeon-flag": "quotes_enabled",
+        "x-onjeon-flag-default": false
+      }
+    }
+  },
+  "components": {
+    "headers": {
+      "ReleaseId": {
+        "description": "응답이 기댄 릴리스. 본문 release_id와 같다. 오류 응답에서는 릴리스가 정해지지 않았으면 없다",
+        "schema": {
+          "$ref": "../json/common.schema.json#/$defs/ReleaseId"
+        }
+      },
+      "CacheControl": {
+        "description": "개인 응답은 공개 캐시에 저장하지 않는다. public·s-maxage·max-age 등 공유 캐시 지시어 금지",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "private, no-store"
+          ]
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "입력 검증 실패(클래스 V). 알 수 없는 enum 값은 성공으로 기본 처리하지 않는다",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "없음(클래스 N). 릴리스가 없거나 철회됐을 때도 이 응답이다",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "상태 충돌(클래스 S). 멱등 키를 다른 내용으로 다시 썼거나 릴리스가 철회됨",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "한도(클래스 L). 요청 제한 또는 비용 상한",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "Unsupported": {
+        "description": "미지원(클래스 U). 엔진이 지원하지 않는 의미론 또는 범위 밖 날짜",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "Internal": {
+        "description": "내부 오류(클래스 X)",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "Timeout": {
+        "description": "상류 타임아웃(클래스 T). 지급 불가로 바꾸지 않는다. 화면은 마지막 성공 결과와 실패 사실을 보인다",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "인증 실패(클래스 A, 401)",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "권한 없음(클래스 A, 403). 다른 계정·프로필 자료의 존재 여부도 알리지 않는다",
+        "headers": {
+          "Cache-Control": {
+            "$ref": "#/components/headers/CacheControl"
+          },
+          "X-Onjeon-Release-Id": {
+            "$ref": "#/components/headers/ReleaseId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../json/error_response.schema.json"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "SessionRequest": {
+        "type": "object",
+        "description": "세션 만들기. 인증 수단은 인증 설계(제3부 §54.2 6번)가 정한다. 자격 증명은 요청 본문에만 있고 저장·로그 금지",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "인증 수단 코드(인증 설계 대기)"
+          },
+          "credential": {
+            "type": "string",
+            "description": "공급자가 준 불투명 값"
+          }
+        },
+        "required": [
+          "provider",
+          "credential"
+        ],
+        "additionalProperties": false
+      },
+      "SessionResponse": {
+        "type": "object",
+        "description": "세션 (POST /v1/auth/sessions)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "session_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "expires_at": {
+            "$ref": "../json/common.schema.json#/$defs/Timestamp"
+          }
+        },
+        "required": [
+          "release_id",
+          "session_id",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "SessionEnded": {
+        "type": "object",
+        "description": "세션 종료 (DELETE /v1/auth/sessions/current)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "ended_at": {
+            "$ref": "../json/common.schema.json#/$defs/Timestamp"
+          }
+        },
+        "required": [
+          "release_id",
+          "ended_at"
+        ],
+        "additionalProperties": false
+      },
+      "MeResponse": {
+        "type": "object",
+        "description": "내 계정 (GET /v1/me)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "account_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "deletion_pending": {
+            "type": "boolean",
+            "description": "삭제 유예 중이면 true(즉시 접근 차단, 유예 중 복구 가능)"
+          }
+        },
+        "required": [
+          "release_id",
+          "account_id",
+          "deletion_pending"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileCreateRequest": {
+        "type": "object",
+        "description": "프로필 만들기. 관계 라벨과 출생 연도만. 이름·주민번호 없음",
+        "properties": {
+          "relation_label": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "birth_year": {
+            "type": "integer",
+            "minimum": 1900,
+            "description": "출생 연도"
+          }
+        },
+        "required": [
+          "relation_label"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileResponse": {
+        "type": "object",
+        "description": "프로필 (POST /v1/profiles, GET /v1/profiles/{id})",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "profile_id": {
+            "$ref": "../json/common.schema.json#/$defs/PersonId"
+          },
+          "relation_label": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "birth_year": {
+            "type": "integer",
+            "minimum": 1900
+          },
+          "policy_holdings_status": {
+            "$ref": "../json/vocabulary.schema.json#/$defs/policy_holdings_status"
+          }
+        },
+        "required": [
+          "release_id",
+          "profile_id",
+          "relation_label",
+          "policy_holdings_status"
+        ],
+        "additionalProperties": false
+      },
+      "ConsentRequest": {
+        "type": "object",
+        "description": "동의 한 건. 한 화면 한 목적",
+        "properties": {
+          "purpose": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "version": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "purpose",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "ConsentResponse": {
+        "type": "object",
+        "description": "동의 기록 (POST /v1/consents)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "consent_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "purpose": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "version": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "granted_at": {
+            "$ref": "../json/common.schema.json#/$defs/Timestamp"
+          }
+        },
+        "required": [
+          "release_id",
+          "consent_id",
+          "purpose",
+          "version",
+          "granted_at"
+        ],
+        "additionalProperties": false
+      },
+      "ConsentWithdrawal": {
+        "type": "object",
+        "description": "동의 철회 (DELETE /v1/consents/{id})",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "consent_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "withdrawn_at": {
+            "$ref": "../json/common.schema.json#/$defs/Timestamp"
+          },
+          "disabled_features": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/common.schema.json#/$defs/Identifier"
+            },
+            "description": "철회로 꺼지는 기능"
+          }
+        },
+        "required": [
+          "release_id",
+          "consent_id",
+          "withdrawn_at",
+          "disabled_features"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyImportForm": {
+        "type": "object",
+        "description": "멀티파트 폼. `file`은 PDF 바이너리 파트이고 생성 타입에는 없다. 비밀번호는 이 요청에만 있고 처리 직후 폐기한다(저장·로그 금지)",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "profile_id": {
+            "$ref": "../json/common.schema.json#/$defs/PersonId"
+          },
+          "idempotency_key": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "password": {
+            "type": "string",
+            "description": "PDF 비밀번호. 선택"
+          }
+        },
+        "required": [
+          "file",
+          "profile_id",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyImportAccepted": {
+        "type": "object",
+        "description": "가져오기 접수 (POST /v1/policy-imports)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "upload_id": {
+            "$ref": "../json/common.schema.json#/$defs/UploadId"
+          },
+          "state": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "received, extracting, awaiting_confirmation, failed (어휘 승격 대기)"
+          }
+        },
+        "required": [
+          "release_id",
+          "upload_id",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "SourceRegion": {
+        "type": "object",
+        "description": "원본 영역 bbox. 쪽은 1부터",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "x0": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y0": {
+            "type": "number",
+            "minimum": 0
+          },
+          "x1": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y1": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "page",
+          "x0",
+          "y0",
+          "x1",
+          "y1"
+        ],
+        "additionalProperties": false
+      },
+      "ExtractedField": {
+        "type": "object",
+        "description": "추출한 필드 하나. 사용자가 확인하기 전에는 계산하지 않는다",
+        "properties": {
+          "field": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "read_value": {
+            "type": "string",
+            "description": "AI가 읽은 내용"
+          },
+          "source_region": {
+            "$ref": "#/components/schemas/SourceRegion"
+          }
+        },
+        "required": [
+          "field",
+          "read_value"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyImportDetail": {
+        "type": "object",
+        "description": "가져오기 상태와 추출 결과 (GET /v1/policy-imports/{id})",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "upload_id": {
+            "$ref": "../json/common.schema.json#/$defs/UploadId"
+          },
+          "state": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "가져오기 상태(어휘 승격 대기)"
+          },
+          "extracted": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExtractedField"
+            }
+          },
+          "contract_version_match": {
+            "$ref": "../json/vocabulary.schema.json#/$defs/contract_version_match"
+          },
+          "version_candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/common.schema.json#/$defs/EditionRef"
+            },
+            "description": "버전 후보"
+          }
+        },
+        "required": [
+          "release_id",
+          "upload_id",
+          "state",
+          "extracted"
+        ],
+        "additionalProperties": false
+      },
+      "FieldConfirmation": {
+        "type": "object",
+        "description": "필드별 확인·수정",
+        "properties": {
+          "field": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "confirmed_value": {
+            "type": "string"
+          },
+          "edited": {
+            "type": "boolean",
+            "description": "사용자가 읽은 값을 고쳤으면 true"
+          }
+        },
+        "required": [
+          "field",
+          "confirmed_value",
+          "edited"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyImportConfirmRequest": {
+        "type": "object",
+        "description": "확인 요청. fact_source=user_confirmed_extract로 기록된다",
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldConfirmation"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "fields"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyImportConfirmed": {
+        "type": "object",
+        "description": "확인 완료 (POST /v1/policy-imports/{id}/confirm)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "contract_id": {
+            "$ref": "../json/common.schema.json#/$defs/ContractId"
+          }
+        },
+        "required": [
+          "release_id",
+          "contract_id"
+        ],
+        "additionalProperties": false
+      },
+      "FamilyHistoryItem": {
+        "type": "object",
+        "description": "가족력 한 항목. 가족 이름·연락처·검사 원본은 받지 않는다",
+        "properties": {
+          "topic": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "state": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "present, absent, unknown, skipped (어휘 승격 대기)"
+          }
+        },
+        "required": [
+          "topic",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "FamilyHistoryRequest": {
+        "type": "object",
+        "description": "선택 가족력(본인 프로필만). 확률·필요액·순위를 만들지 않는다",
+        "properties": {
+          "profile_id": {
+            "$ref": "../json/common.schema.json#/$defs/PersonId"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FamilyHistoryItem"
+            }
+          }
+        },
+        "required": [
+          "profile_id",
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "FamilyHistoryAck": {
+        "type": "object",
+        "description": "가족력 저장 (POST /v1/family-history)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "profile_id": {
+            "$ref": "../json/common.schema.json#/$defs/PersonId"
+          }
+        },
+        "required": [
+          "release_id",
+          "profile_id"
+        ],
+        "additionalProperties": false
+      },
+      "EvaluationRequest": {
+        "type": "object",
+        "description": "계산 요청. contract_ids와 cov_ids 중 정확히 하나",
+        "properties": {
+          "contract_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/common.schema.json#/$defs/ContractId"
+            },
+            "minItems": 1
+          },
+          "cov_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/common.schema.json#/$defs/CoverageId"
+            },
+            "minItems": 1
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/EvaluationScenario"
+          },
+          "confirmed_facts": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "확인된 사실"
+          },
+          "idempotency_key": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "scenario",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "EvaluationScenario": {
+        "type": "object",
+        "description": "시나리오 사실과 가정",
+        "properties": {
+          "facts": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "사실"
+          },
+          "assumptions": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "가정"
+          }
+        },
+        "required": [
+          "facts"
+        ],
+        "additionalProperties": false
+      },
+      "ContractScenarioResult": {
+        "type": "object",
+        "description": "계약 하나의 결과. 버전이 ambiguous·unmatched인 계약에 기대는 결론만 보류되고 다른 계약의 독립 결과는 실린다",
+        "properties": {
+          "contract_id": {
+            "$ref": "../json/common.schema.json#/$defs/ContractId"
+          },
+          "result": {
+            "$ref": "../json/scenario_result.schema.json"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "UnresolvedFact": {
+        "type": "object",
+        "description": "아직 확정하지 못한 것과 확인할 주체",
+        "properties": {
+          "what": {
+            "type": "string"
+          },
+          "confirm_party": {
+            "$ref": "../json/vocabulary.schema.json#/$defs/confirm_party",
+            "description": "확인 주체"
+          }
+        },
+        "required": [
+          "what",
+          "confirm_party"
+        ],
+        "additionalProperties": false
+      },
+      "EvaluationResponse": {
+        "type": "object",
+        "description": "계산 결과 (POST /v1/evaluations, GET /v1/evaluations/{id})",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "evaluation_id": {
+            "$ref": "../json/common.schema.json#/$defs/EvaluationRef"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractScenarioResult"
+            }
+          },
+          "unresolved": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnresolvedFact"
+            }
+          },
+          "dependency": {
+            "$ref": "../json/common.schema.json#/$defs/DependencyInfo"
+          },
+          "result_state": {
+            "$ref": "../json/common.schema.json#/$defs/ResultState"
+          }
+        },
+        "required": [
+          "release_id",
+          "evaluation_id",
+          "results",
+          "unresolved",
+          "dependency",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "AssumptionRequest": {
+        "type": "object",
+        "description": "사용자 가정. 가정은 판으로 저장하고 정정은 새 판",
+        "properties": {
+          "name": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "value": {
+            "description": "가정 값"
+          },
+          "supersedes": {
+            "$ref": "../json/common.schema.json#/$defs/AssumptionRef"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "additionalProperties": false
+      },
+      "AssumptionResponse": {
+        "type": "object",
+        "description": "가정 저장 (POST /v1/me/assumptions)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "assumption_ref": {
+            "$ref": "../json/common.schema.json#/$defs/AssumptionRef"
+          }
+        },
+        "required": [
+          "release_id",
+          "assumption_ref"
+        ],
+        "additionalProperties": false
+      },
+      "PersonalNeedRequest": {
+        "type": "object",
+        "description": "개인 모드 필요성 판단",
+        "properties": {
+          "contract_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/common.schema.json#/$defs/ContractId"
+            }
+          },
+          "assumption_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/common.schema.json#/$defs/AssumptionRef"
+            }
+          },
+          "idempotency_key": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "PlanActionEdit": {
+        "type": "object",
+        "description": "초안 편집 한 건",
+        "properties": {
+          "target": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "action": {
+            "$ref": "../json/vocabulary.schema.json#/$defs/plan_action"
+          }
+        },
+        "required": [
+          "target",
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "PlanCreateRequest": {
+        "type": "object",
+        "description": "개인 비교 초안 만들기. 예산은 원 단위 정수",
+        "properties": {
+          "budget_krw": {
+            "$ref": "../json/common.schema.json#/$defs/Krw"
+          },
+          "edits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanActionEdit"
+            }
+          },
+          "comparison_basis_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "idempotency_key": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "edits",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "PlanDiffRequest": {
+        "type": "object",
+        "description": "두 안 비교. 줄어드는 것도 항상 계산한다(I9)",
+        "properties": {
+          "against_plan_id": {
+            "$ref": "../json/common.schema.json#/$defs/PlanId"
+          }
+        },
+        "required": [
+          "against_plan_id"
+        ],
+        "additionalProperties": false
+      },
+      "PlanDiffResponse": {
+        "type": "object",
+        "description": "두 안 차이 (POST /v1/plans/{id}/diff)",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "plan_id": {
+            "$ref": "../json/common.schema.json#/$defs/PlanId"
+          },
+          "against_plan_id": {
+            "$ref": "../json/common.schema.json#/$defs/PlanId"
+          },
+          "diff": {
+            "$ref": "../json/plan_view.schema.json#/$defs/PlanDiff"
+          }
+        },
+        "required": [
+          "release_id",
+          "plan_id",
+          "against_plan_id",
+          "diff"
+        ],
+        "additionalProperties": false
+      },
+      "ExportResponse": {
+        "type": "object",
+        "description": "내보내기: 기계 판독 JSON (GET /v1/me/export). 사람용 PDF는 이 초안에서 정하지 않았다",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "generated_at": {
+            "$ref": "../json/common.schema.json#/$defs/Timestamp"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfileResponse"
+            }
+          },
+          "contracts": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/contract_snapshot.schema.json"
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "../json/scenario_result.schema.json"
+            }
+          }
+        },
+        "required": [
+          "release_id",
+          "generated_at",
+          "profiles",
+          "contracts",
+          "results"
+        ],
+        "additionalProperties": false
+      },
+      "DeletionStep": {
+        "type": "object",
+        "description": "삭제 단계 한 칸. 순서: 원본→추출값→색인→캐시→파생 결과→외부 처리본",
+        "properties": {
+          "step": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "source_files, extracted_values, index, cache, derived_results, external_processing (어휘 승격 대기)"
+          },
+          "state": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "pending, running, done, failed (어휘 승격 대기)"
+          }
+        },
+        "required": [
+          "step",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "DeletionJobResponse": {
+        "type": "object",
+        "description": "삭제 작업 (DELETE /v1/me/data, GET /v1/me/deletion-jobs/{id})",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "deletion_job_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          },
+          "state": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "삭제 작업 상태(어휘 승격 대기). 백업 보존 기간과 완료의 의미는 출시 전 확정이라 완료를 약속하지 않는다"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeletionStep"
+            }
+          }
+        },
+        "required": [
+          "release_id",
+          "deletion_job_id",
+          "state",
+          "steps"
+        ],
+        "additionalProperties": false
+      },
+      "ConsultationRequestCreate": {
+        "type": "object",
+        "description": "[스켈레톤] 상담 요청 초안. 미래 기능용 사용자 데이터는 받지 않는다",
+        "properties": {
+          "profile_id": {
+            "$ref": "../json/common.schema.json#/$defs/PersonId"
+          },
+          "idempotency_key": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "profile_id",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "ConsultationRequestReceipt": {
+        "type": "object",
+        "description": "[스켈레톤] 상담 요청 접수",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "consultation_request_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "release_id",
+          "consultation_request_id"
+        ],
+        "additionalProperties": false
+      },
+      "QuoteRequestCreate": {
+        "type": "object",
+        "description": "[스켈레톤] 개인 실견적 요청 초안. 개인 견적 연계는 별도 게이트",
+        "properties": {
+          "profile_id": {
+            "$ref": "../json/common.schema.json#/$defs/PersonId"
+          },
+          "idempotency_key": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "profile_id",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "QuoteRequestReceipt": {
+        "type": "object",
+        "description": "[스켈레톤] 견적 요청 접수",
+        "properties": {
+          "release_id": {
+            "$ref": "../json/common.schema.json#/$defs/ReleaseId",
+            "description": "모든 응답은 release_id를 echo한다"
+          },
+          "quote_request_id": {
+            "$ref": "../json/common.schema.json#/$defs/Identifier"
+          }
+        },
+        "required": [
+          "release_id",
+          "quote_request_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "session": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "POST /v1/auth/sessions가 준 세션"
+      }
+    }
+  }
+}

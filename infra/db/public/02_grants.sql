@@ -24,3 +24,6 @@ GRANT SELECT ON raw_asset, observation, document_segment, clause TO knowledge_wr
 -- 개인 영역 서비스: 공개 지식 읽기 전용. 원본·관측·검수 결정·확보 작업은 읽지 못한다.
 GRANT SELECT ON release_manifest, terms_edition, terms_lineage, node, clause, document_segment, assertion,
                 premium_observation, conflict, conflict_member, gap, code_system TO personal;
+
+-- 임시 테이블로 가드 함수가 읽는 표를 가리지 못하게 한다(가드 함수도 search_path를 고정한다).
+DO $$ BEGIN EXECUTE format('REVOKE TEMPORARY ON DATABASE %I FROM PUBLIC', current_database()); END $$;

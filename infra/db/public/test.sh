@@ -67,7 +67,7 @@ fi
 run_sql() {
   local db="$1" role="$2" sql="$3" pre=""
   [ "$role" != "admin" ] && pre="SET ROLE $role;"
-  out="$(printf '%s\n%s\n' "$pre" "$sql" | psql_admin "$db" -f - 2>&1)"; rc=$?
+  out="$(printf '%s\n%s\n' "$pre" "$sql" | psql_admin "$db" -t -A -f - 2>&1)"; rc=$?
 }
 must_ok() { # NAME DB ROLE SQL
   run_sql "$2" "$3" "$4"
@@ -169,6 +169,13 @@ INSERT INTO review_decision (id,environment,outcome,provider_family_labels,famil
 must_fail "segment id that lies about its page range is refused" "$PUB" admin "chk_segment_id_fields" "
 INSERT INTO document_segment (id,raw_asset_id,page_from,page_to,doc_role,seg_rule_ver) VALUES ('seg:aaaaaaaaaaaa:p9-9:terms:segrule-1','$RAW',1,2,'terms','segrule-1');"
 
+say "== 구조 주장의 대상 (FK 우회 방지) =="
+must_fail "realizes with only a value (no object) is rejected" "$PUB" knowledge_writer "chk_structural_ref_object" \
+  "INSERT INTO assertion (id,subject,predicate,value,scope,recorded_at,observed_at,evidence,criticality,value_state,review_status,extractor_tool,extractor_version,origin,onto_version,created_by_run) VALUES ('a:$(uid 920)','$SEG','realizes','{\"raw\":\"x\"}','{}',now(),now(),'$EV_OBS_SEG'::jsonb,'c1','observed','pending','tool','1','pipeline','onto-0.2','run-1');"
+must_fail "personal/writer roles cannot shadow guard tables with TEMP tables" "$PUB" knowledge_writer "permission denied" "CREATE TEMP TABLE review_decision (id text);"
+run_sql "$PUB" admin "SELECT count(*) FROM pg_proc p WHERE p.proname IN ('assertion_guard','premium_guard','release_manifest_guard') AND p.proconfig::text LIKE '%search_path=public, pg_temp%';"
+if [ "$(printf '%s' "$out" | tr -d '[:space:]')" = "3" ]; then ok "guard functions pin search_path"; else bad "guard functions pin search_path" "$out"; fi
+
 say "== I7: 가격 =="
 must_fail "I7 price row without conditions (empty object) is rejected" "$PUB" knowledge_writer "chk_premium_conditions_required" \
   "$(P 1 true accepted pipeline "'$RD_OK'" "'{}'::jsonb" "'none'" "'2026-01-01'" "'{conditions}'")"
@@ -182,6 +189,8 @@ must_fail "I7 eligible row that is still pending is rejected" "$PUB" knowledge_w
   "$(P 4 true pending pipeline NULL "'{\"age\":\"40\"}'::jsonb" "'none'" "'2026-01-01'" "'{}'")"
 must_fail "I7 raw row with blank conditions is rejected even when it admits the blank" "$PUB" data_writer "chk_premium_conditions_required" \
   "$(P 5 false pending pipeline NULL "'{}'::jsonb" "'none'" "'2026-01-01'" "'{conditions}'")"
+must_fail "I7 missing_dimensions with a NULL element cannot hide a blank package binding" "$PUB" data_writer "chk_premium_missing_no_null" \
+  "$(P 12 false pending pipeline NULL "'{\"age\":\"40\"}'::jsonb" "NULL" "'2026-01-01'" "'{NULL}'")"
 must_fail "price row without evidence is rejected" "$PUB" data_writer "evidence" \
   "INSERT INTO premium_observation (id,raw_amount,price_basis,observed_at,missing_dimensions,comparison_eligible,value_state,review_status,origin) VALUES ('premium:$(uid 6)',12000,'table_derived',now(),'{conditions,package_binding,as_of}',false,'observed','pending','pipeline');"
 must_fail "accepted price row without review_decision is rejected" "$PUB" knowledge_writer "chk_accepted_needs_decision" \
@@ -312,6 +321,14 @@ must_ok "clean production release is stored" "$PUB" knowledge_writer "$(R 6 prod
 must_fail "frozen release content cannot be changed" "$PUB" knowledge_writer "permission denied" "UPDATE release_manifest SET engine_version='x' WHERE release_id='rel:20260101-6';"
 must_fail "even the owner cannot change frozen release content" "$PUB" admin "append_only" "UPDATE release_manifest SET engine_version='x' WHERE release_id='rel:20260101-6';"
 must_ok "withdrawal mark is allowed" "$PUB" knowledge_writer "UPDATE release_manifest SET withdrawn_at=now(), withdrawal_reason='error confirmed' WHERE release_id='rel:20260101-6';"
+must_fail "a withdrawal cannot be undone" "$PUB" knowledge_writer "append_only" "UPDATE release_manifest SET withdrawn_at=NULL, withdrawal_reason=NULL WHERE release_id='rel:20260101-6';"
+must_fail "a withdrawal reason cannot be rewritten" "$PUB" knowledge_writer "append_only" "UPDATE release_manifest SET withdrawal_reason='other' WHERE release_id='rel:20260101-6';"
+must_fail "a release cannot supersede itself" "$PUB" knowledge_writer "append_only" "UPDATE release_manifest SET superseded_by='rel:20260101-5' WHERE release_id='rel:20260101-5' ;"
+must_ok "superseded_by can be set once" "$PUB" knowledge_writer "UPDATE release_manifest SET superseded_by='rel:20260101-6' WHERE release_id='rel:20260101-5';"
+must_fail "superseded_by cannot be re-pointed" "$PUB" knowledge_writer "append_only" "UPDATE release_manifest SET superseded_by=NULL WHERE release_id='rel:20260101-5';"
+must_ok "seed: fixture node" "$PUB" knowledge_writer "INSERT INTO node (id,kind,label,onto_version,origin) VALUES ('n:fixnode','Condition','fixture node','onto-0.2','fixture');"
+must_fail "production release with a fixture node is rejected" "$PUB" knowledge_writer "chk_release_production_clean" \
+  "$(R 7 production "$(members "[]" | sed 's/"nodes":\[\]/"nodes":["n:fixnode"]/')")"
 must_fail "release rows cannot be deleted" "$PUB" admin "append_only" "DELETE FROM release_manifest;"
 
 say "== CodeSystem (B8) =="
@@ -441,6 +458,8 @@ mutate "chk_premium_raw_vs_eligible" x "ALTER TABLE premium_observation DROP CON
 mutate "chk_no_private_ids" x "DROP TRIGGER chk_no_private_ids ON node;" "INSERT INTO node (id,kind,label,onto_version,origin) VALUES ('n:mut','Condition','contract:$(uid 1)','onto-0.2','pipeline');" knowledge_writer
 mutate "I12 grants" x "GRANT INSERT ON node TO personal;" "INSERT INTO node (id,kind,onto_version,origin) VALUES ('n:mut2','Condition','onto-0.2','pipeline');" personal
 mutate "fk_realizes_edition" x "ALTER TABLE assertion DROP CONSTRAINT fk_realizes_edition;" "$(A 203 "$SEG" realizes "'ted:$(uid 99)'" pending c1 pipeline NULL "$EV_OBS_SEG")" knowledge_writer
+mutate "chk_structural_ref_object" x "ALTER TABLE assertion DROP CONSTRAINT chk_structural_ref_object;" "INSERT INTO assertion (id,subject,predicate,value,scope,recorded_at,observed_at,evidence,criticality,value_state,review_status,extractor_tool,extractor_version,origin,onto_version,created_by_run) VALUES ('a:$(uid 921)','$SEG','realizes','{\"raw\":\"x\"}','{}',now(),now(),'$EV_OBS_SEG'::jsonb,'c1','observed','pending','tool','1','pipeline','onto-0.2','run-1');" knowledge_writer
+mutate "chk_premium_missing_no_null" x "ALTER TABLE premium_observation DROP CONSTRAINT chk_premium_missing_no_null;" "$(P 205 false pending pipeline NULL "'{\"age\":\"40\"}'::jsonb" "NULL" "'2026-01-01'" "'{NULL}'")" data_writer
 mutate "chk_c0_basis" x "DROP TRIGGER assertion_guard ON assertion;" "$(A 204 "n:cov9" has_condition "'n:y'" accepted c0 pipeline "'$RD_OK'" "$EV_BASIS_SUM")" knowledge_writer
 
 say "== 정적 검사 =="

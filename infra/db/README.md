@@ -21,7 +21,7 @@ bash infra/db/personal/apply.sh postgresql://<admin>@<private-db-host>:<port>/<d
 ## 시험
 
 ```sh
-bash infra/db/public/test.sh    # 공개·criteria·개인 스키마를 임시 DB에 적용하고 153개 점검을 돌린다
+bash infra/db/public/test.sh    # 공개·criteria·개인 스키마를 임시 DB에 적용하고 166개 점검을 돌린다
 
 # compose 스택(bash infra/compose/up.sh)의 공개 DB에서 돌릴 때. 관리 역할 이름은 .env의 PUBLIC_DB_ADMIN_USER,
 # 비밀번호는 .env의 PUBLIC_DB_ADMIN_PASSWORD 값을 PGPASSWORD 환경 변수로만 넘긴다(명령줄·URL·파일에 쓰지 않는다).
@@ -74,4 +74,5 @@ PGPASSWORD="<.env의 PUBLIC_DB_ADMIN_PASSWORD>" ONJEON_DB_ADMIN_URL=postgresql:/
 - 개인 영역의 `components`·`plan.items` 등 jsonb 안쪽은 어휘 값과 필수 키만 확인한다. 나머지 모양은 `packages/schemas`의 JSON 스키마 검증 몫이다.
 - 원문 발췌는 저장하지 않는다(`clause.quote_sha256`만). PDF 비밀번호 열은 없다.
 - 이 스키마의 설계 근거 문서가 아직 채택본이 아니므로 이름·열은 채택 과정에서 바뀔 수 있다. 바뀌면 새 번호 마이그레이션이다.
-- 시험은 PostgreSQL 17.11(임시 클러스터)과 compose가 쓰는 16.15(두 서버)에서 실행했고 결과가 같다(149/0, 수정 라운드 1 이전 기록은 16.15 쪽만 해당하며 이후 17.11에서 153/0). 다른 메이저 판은 확인하지 않았다. 생성 열, 도메인, 지연 제약 트리거, jsonb만 쓴다.
+- 현재 스키마는 PostgreSQL 17.11(임시 클러스터)에서만 166/0으로 확인했다. compose가 쓰는 16.15(두 서버)에서는 수정 라운드 1 이전 스키마로 149/0이었고 이후 재실행하지 못했으니 같은 시험이 아니다. 다른 메이저 판은 확인하지 않았다. 생성 열, 도메인, 지연 제약 트리거, jsonb만 쓴다.
+- **가드 함수와 TEMP.** 다른 표를 읽는 가드 함수(`assertion_guard`·`premium_guard`·`release_manifest_guard`)는 `search_path = public, pg_temp`로 고정하고 `02_grants.sql`이 데이터베이스의 TEMPORARY 권한을 PUBLIC에서 회수한다. 슈퍼유저·DB 소유자는 여전히 임시 표를 만들 수 있다. 릴리스의 철회·대체 표시는 한 방향이다(철회 취소·사유 변경·대체 대상 재지정·자기 대체 거부). B5(fixture_only 규칙 거부)는 DB가 아니라 릴리스 빌더 몫이다. `conditions`는 비어 있지 않은 객체이기만 하면 되며 값의 의미는 보지 않는다.

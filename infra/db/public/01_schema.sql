@@ -272,6 +272,10 @@ CREATE TABLE assertion (
     ref_clause   text GENERATED ALWAYS AS (CASE WHEN predicate = 'in_segment' THEN subject END) STORED,
 
     CONSTRAINT chk_assertion_object_xor_value CHECK (num_nonnulls(object, value) = 1),
+    -- 타입 있는 참조 열이 NULL이면 FK가 적용되지 않는다(MATCH SIMPLE). 참조를 대상으로 삼는 구조 술어는 대상(object)이 있어야 한다.
+    CONSTRAINT chk_structural_ref_object CHECK (
+        predicate NOT IN ('realizes', 'segment_of', 'in_segment', 'edition_of', 'uses_edition', 'in_edition') OR (object IS NOT NULL AND value IS NULL)
+    ),
     CONSTRAINT chk_assertion_time_order CHECK (effective_to IS NULL OR effective_from IS NULL OR effective_to >= effective_from),
     CONSTRAINT chk_assertion_hold_reason CHECK ((review_status = 'hold') = (hold_reason IS NOT NULL)),
     CONSTRAINT chk_assertion_correction CHECK ((supersedes IS NULL) = (correction_reason IS NULL)),
@@ -295,7 +299,7 @@ CREATE FUNCTION structural_predicate(p text) RETURNS boolean LANGUAGE sql IMMUTA
 $$;
 
 -- 다른 테이블을 보는 제약(CHECK로 쓸 수 없는 것): chk_accepted_needs_decision의 결정 결과, chk_c0_basis, chk_realizes_fingerprint, B9.
-CREATE FUNCTION assertion_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION assertion_guard() RETURNS trigger LANGUAGE plpgsql SET search_path = public, pg_temp AS $$
 DECLARE
   d review_decision%ROWTYPE;
   seg document_segment%ROWTYPE;
@@ -413,6 +417,7 @@ CREATE TABLE premium_observation (
     CONSTRAINT chk_fixture_never_accepted CHECK (origin <> 'fixture' OR review_status <> 'accepted'),
     -- I7: 조건이 없는 가격 행은 저장하지 않는다. 구성·기준일 공백은 숨기지 않고 missing_dimensions에 적는다(적은 것과 실제 공백이 다르면 거부).
     CONSTRAINT chk_premium_conditions_required CHECK (conditions IS NOT NULL AND conditions <> '{}'::jsonb),
+    CONSTRAINT chk_premium_missing_no_null CHECK (array_position(missing_dimensions, NULL) IS NULL),   -- NULL 원소는 아래 두 검사를 NULL(통과)로 만든다
     CONSTRAINT chk_premium_missing_package CHECK ((package_binding IS NULL) = ('package_binding' = ANY (missing_dimensions))),
     CONSTRAINT chk_premium_missing_as_of CHECK ((source_as_of IS NULL) = ('as_of' = ANY (missing_dimensions))),
     -- I7·K13: 비교 자격은 조건·특약 구성·기준일이 모두 있고 근거(NOT NULL)가 있으며 accepted일 때만 true다.
@@ -426,7 +431,7 @@ CREATE TABLE premium_observation (
     )
 );
 
-CREATE FUNCTION premium_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION premium_guard() RETURNS trigger LANGUAGE plpgsql SET search_path = public, pg_temp AS $$
 DECLARE d review_decision%ROWTYPE;
 BEGIN
   IF NEW.review_status = 'accepted' THEN
@@ -495,9 +500,9 @@ CREATE TABLE release_manifest (
     )
 );
 
--- 구성원 검사(K15·I3, B3·B5·B10): 구성원 목록은 정렬된 유일한 ID이고 모두 저장소에 있어야 한다.
--- production 릴리스에는 픽스처 행과 environment=test 결정이 섞이지 못한다.
-CREATE FUNCTION release_manifest_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+-- 구성원 검사(K15·I3, B3·B10): 구성원 목록은 정렬된 유일한 ID이고 모두 저장소에 있어야 한다. B5(fixture_only 규칙 거부)는 DB 몫이 아니다(rule_files는 객체 모양만 본다).
+-- production 릴리스에는 픽스처 행(주장·가격·노드)과 environment=test 결정이 섞이지 못한다.
+CREATE FUNCTION release_manifest_guard() RETURNS trigger LANGUAGE plpgsql SET search_path = public, pg_temp AS $$
 DECLARE
   k text; tbl text; bad text; ids text[];
 BEGIN
@@ -508,6 +513,16 @@ BEGIN
     IF (to_jsonb(NEW) - 'superseded_by' - 'withdrawn_at' - 'withdrawal_reason') IS DISTINCT FROM
        (to_jsonb(OLD) - 'superseded_by' - 'withdrawn_at' - 'withdrawal_reason') THEN
       RAISE EXCEPTION 'append_only: a frozen release changes only superseded_by and withdrawal fields' USING ERRCODE = '55000', CONSTRAINT = 'append_only';
+    END IF;
+    -- 철회·대체는 한 방향이다: 철회를 되돌리거나 사유를 바꾸지 못하고, 대체 대상은 한 번만 정하며 자기 자신일 수 없다.
+    IF OLD.withdrawn_at IS NOT NULL AND (NEW.withdrawn_at IS DISTINCT FROM OLD.withdrawn_at OR NEW.withdrawal_reason IS DISTINCT FROM OLD.withdrawal_reason) THEN
+      RAISE EXCEPTION 'append_only: a withdrawal cannot be undone or changed' USING ERRCODE = '55000', CONSTRAINT = 'append_only';
+    END IF;
+    IF OLD.superseded_by IS NOT NULL AND NEW.superseded_by IS DISTINCT FROM OLD.superseded_by THEN
+      RAISE EXCEPTION 'append_only: superseded_by is set once' USING ERRCODE = '55000', CONSTRAINT = 'append_only';
+    END IF;
+    IF NEW.superseded_by = NEW.release_id THEN
+      RAISE EXCEPTION 'append_only: a release cannot supersede itself' USING ERRCODE = '55000', CONSTRAINT = 'append_only';
     END IF;
     RETURN NEW;
   END IF;
@@ -538,6 +553,9 @@ BEGIN
         FROM premium_observation p LEFT JOIN review_decision d ON d.id = p.review_decision_id
        WHERE p.id IN (SELECT jsonb_array_elements_text(NEW.members -> 'premium_observations'))
          AND (p.origin = 'fixture' OR d.environment = 'test') LIMIT 1;
+    END IF;
+    IF bad IS NULL THEN
+      SELECT n.id INTO bad FROM node n WHERE n.id IN (SELECT jsonb_array_elements_text(NEW.members -> 'nodes')) AND n.origin = 'fixture' LIMIT 1;
     END IF;
     IF bad IS NOT NULL THEN
       RAISE EXCEPTION 'chk_release_production_clean: production release contains fixture or test-environment row %', bad USING ERRCODE = '23514', CONSTRAINT = 'chk_release_production_clean';

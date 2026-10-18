@@ -21,6 +21,10 @@ PASS  seed: raw, segments, clause, edition, lineage, decisions
 PASS  review_decision with one model family is refused
 PASS  review_decision accepted with a red-team counterexample is refused
 PASS  segment id that lies about its page range is refused
+== 구조 주장의 대상 (FK 우회 방지) ==
+PASS  realizes with only a value (no object) is rejected
+PASS  personal/writer roles cannot shadow guard tables with TEMP tables
+PASS  guard functions pin search_path
 == I7: 가격 ==
 PASS  I7 price row without conditions (empty object) is rejected
 PASS  I7 price row without conditions (NULL) is rejected
@@ -28,6 +32,7 @@ PASS  I7 eligible row without package binding is rejected
 PASS  I7 eligible row without as-of date is rejected
 PASS  I7 eligible row that is still pending is rejected
 PASS  I7 raw row with blank conditions is rejected even when it admits the blank
+PASS  I7 missing_dimensions with a NULL element cannot hide a blank package binding
 PASS  price row without evidence is rejected
 PASS  accepted price row without review_decision is rejected
 PASS  price row with conditions but blank package/as-of is preserved with honest missing_dimensions, not eligible
@@ -97,6 +102,13 @@ PASS  clean production release is stored
 PASS  frozen release content cannot be changed
 PASS  even the owner cannot change frozen release content
 PASS  withdrawal mark is allowed
+PASS  a withdrawal cannot be undone
+PASS  a withdrawal reason cannot be rewritten
+PASS  a release cannot supersede itself
+PASS  superseded_by can be set once
+PASS  superseded_by cannot be re-pointed
+PASS  seed: fixture node
+PASS  production release with a fixture node is rejected
 PASS  release rows cannot be deleted
 == CodeSystem (B8) ==
 PASS  service CodeSystem without official source raw asset is rejected
@@ -164,11 +176,13 @@ PASS  mutation 'chk_premium_raw_vs_eligible': input now passes, so the real cons
 PASS  mutation 'chk_no_private_ids': input now passes, so the real constraint was what rejected it
 PASS  mutation 'I12 grants': input now passes, so the real constraint was what rejected it
 PASS  mutation 'fk_realizes_edition': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_structural_ref_object': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_premium_missing_no_null': input now passes, so the real constraint was what rejected it
 PASS  mutation 'chk_c0_basis': input now passes, so the real constraint was what rejected it
 == 정적 검사 ==
 PASS  B7: no packages/fixtures or docs/blueprint reference in migrations
 PASS  no secret-looking literals
 PASS  no model identifier strings in db files
 
-RESULT: passed=153 failed=0
+RESULT: passed=166 failed=0
 DB CONSTRAINTS: PASSED

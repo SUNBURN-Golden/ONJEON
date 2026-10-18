@@ -93,6 +93,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "onjeon-ontology"
+version = "0.1.0"
+dependencies = [
+ "onjeon-contracts",
+ "onjeon-rules-engine",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "onjeon-rules-engine"
 version = "0.1.0"
 dependencies = [

@@ -1,0 +1,486 @@
+{
+  "$comment": "도메인 이벤트 색인 (02_구현계약 §3.1, C-21). 스키마 검사는 src/events.rs 시험이 한다. contracts_version은 packages/schemas/Cargo.toml의 version과 같아야 한다(C-23).",
+  "contracts_version": "0.1.0",
+  "queues": {
+    "domain": "내부 큐. 개인정보 없음",
+    "personal": "개인 영역 전용 큐. 이 큐의 이벤트는 큐 밖으로 나가지 않는다"
+  },
+  "events": [
+    {
+      "event": "data.raw.archived",
+      "schema": "data.raw.archived.schema.json",
+      "queue": "domain",
+      "publisher": "collect",
+      "consumers": [
+        "knowledge"
+      ],
+      "example": {
+        "event": "data.raw.archived",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "raw_id": "raw:sha256:abababababababababababababababababababababababababababababababab",
+          "source_id": "src:life-hanwha/disclosure/1",
+          "observed_at": "2026-10-17T03:04:05Z",
+          "sha256": "abababababababababababababababababababababababababababababababab",
+          "byte_len": 1234,
+          "mime": "application/pdf"
+        }
+      }
+    },
+    {
+      "event": "data.source.changed",
+      "schema": "data.source.changed.schema.json",
+      "queue": "domain",
+      "publisher": "collect",
+      "consumers": [
+        "knowledge",
+        "console"
+      ],
+      "example": {
+        "event": "data.source.changed",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "source_id": "src:life-hanwha/disclosure/1",
+          "old_raw": "raw:sha256:abababababababababababababababababababababababababababababababab",
+          "new_raw": "raw:sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "change": "changed"
+        }
+      }
+    },
+    {
+      "event": "data.segment.extracted",
+      "schema": "data.segment.extracted.schema.json",
+      "queue": "domain",
+      "publisher": "docproc",
+      "consumers": [
+        "knowledge"
+      ],
+      "example": {
+        "event": "data.segment.extracted",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "raw_id": "raw:sha256:abababababababababababababababababababababababababababababababab",
+          "segment_ids": [
+            {
+              "id": "seg:0123456789ab:p1-4:terms:seg-0.1",
+              "pages": {
+                "from": 1,
+                "to": 4
+              },
+              "doc_role": "terms",
+              "fingerprint": {
+                "rule": "fp-0.1",
+                "sha256": "abababababababababababababababababababababababababababababababab"
+              }
+            }
+          ],
+          "extractor": {
+            "tool": "docproc",
+            "version": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "event": "data.clause.extracted",
+      "schema": "data.clause.extracted.schema.json",
+      "queue": "domain",
+      "publisher": "docproc",
+      "consumers": [
+        "knowledge"
+      ],
+      "example": {
+        "event": "data.clause.extracted",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "raw_id": "raw:sha256:abababababababababababababababababababababababababababababababab",
+          "segment_ids": [
+            {
+              "id": "seg:0123456789ab:p1-4:terms:seg-0.1",
+              "pages": {
+                "from": 1,
+                "to": 4
+              },
+              "doc_role": "terms",
+              "fingerprint": {
+                "rule": "fp-0.1",
+                "sha256": "abababababababababababababababababababababababababababababababab"
+              }
+            }
+          ],
+          "clause_ids": [
+            "clause:seg:0123456789ab:p1-4:terms:seg-0.1/art1#p2:docproc-text@1.0"
+          ],
+          "extractor": {
+            "tool": "docproc",
+            "version": "1.0"
+          }
+        }
+      }
+    },
+    {
+      "event": "knowledge.assertion.proposed",
+      "schema": "knowledge.assertion.proposed.schema.json",
+      "queue": "domain",
+      "publisher": "ai-review",
+      "consumers": [
+        "knowledge"
+      ],
+      "note_ko": "제안된 주장은 review_status=pending이다",
+      "example": {
+        "event": "knowledge.assertion.proposed",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "assertion_id": "a:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+        }
+      }
+    },
+    {
+      "event": "knowledge.review.decided",
+      "schema": "knowledge.review.decided.schema.json",
+      "queue": "domain",
+      "publisher": "ai-review",
+      "consumers": [
+        "knowledge",
+        "console"
+      ],
+      "example": {
+        "event": "knowledge.review.decided",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "review_decision_id": "rd:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          "outcome": "accepted",
+          "families_count": 2,
+          "code_checks": [
+            "quote_match"
+          ],
+          "redteam_findings": 0
+        }
+      }
+    },
+    {
+      "event": "knowledge.assertion.superseded",
+      "schema": "knowledge.assertion.superseded.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "twin",
+        "api",
+        "console"
+      ],
+      "example": {
+        "event": "knowledge.assertion.superseded",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "old_id": "a:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          "new_id": "a:01BX5ZZKBKACTAV9WEVGEMMVRY",
+          "correction_reason": "error_correction"
+        }
+      }
+    },
+    {
+      "event": "knowledge.conflict.opened",
+      "schema": "knowledge.conflict.opened.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "console",
+        "api"
+      ],
+      "example": {
+        "event": "knowledge.conflict.opened",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "conflict_id": "conflict-1",
+          "assertion_ids": [
+            "a:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+          ]
+        }
+      }
+    },
+    {
+      "event": "knowledge.conflict.resolved",
+      "schema": "knowledge.conflict.resolved.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "console",
+        "api"
+      ],
+      "example": {
+        "event": "knowledge.conflict.resolved",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "conflict_id": "conflict-1",
+          "assertion_ids": [
+            "a:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+          ]
+        }
+      }
+    },
+    {
+      "event": "knowledge.release.candidate",
+      "schema": "knowledge.release.candidate.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "twin",
+        "api",
+        "console",
+        "web"
+      ],
+      "example": {
+        "event": "knowledge.release.candidate",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "release_id": "rel:20261017-1",
+          "release_hash": "abababababababababababababababababababababababababababababababab",
+          "constraint_report_id": "cr-1",
+          "shadow_report_id": "sr-1"
+        }
+      }
+    },
+    {
+      "event": "knowledge.release.published",
+      "schema": "knowledge.release.published.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "twin",
+        "api",
+        "console",
+        "web"
+      ],
+      "example": {
+        "event": "knowledge.release.published",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "release_id": "rel:20261017-1",
+          "release_hash": "abababababababababababababababababababababababababababababababab",
+          "constraint_report_id": "cr-1",
+          "shadow_report_id": "sr-1"
+        }
+      }
+    },
+    {
+      "event": "knowledge.release.withdrawn",
+      "schema": "knowledge.release.withdrawn.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "twin",
+        "api",
+        "console",
+        "web"
+      ],
+      "example": {
+        "event": "knowledge.release.withdrawn",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "release_id": "rel:20261017-1",
+          "release_hash": "abababababababababababababababababababababababababababababababab",
+          "constraint_report_id": "cr-1",
+          "shadow_report_id": "sr-1"
+        }
+      }
+    },
+    {
+      "event": "twin.shadow.compared",
+      "schema": "twin.shadow.compared.schema.json",
+      "queue": "domain",
+      "publisher": "twin",
+      "consumers": [
+        "knowledge",
+        "console"
+      ],
+      "example": {
+        "event": "twin.shadow.compared",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "old_release": "rel:20261016-1",
+          "new_release": "rel:20261017-1",
+          "diff_count": 3,
+          "unexplained_count": 0
+        }
+      }
+    },
+    {
+      "event": "knowledge.gap.opened",
+      "schema": "knowledge.gap.opened.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "console"
+      ],
+      "note_ko": "state의 값 집합은 02에 없다(어휘 축 대기)",
+      "example": {
+        "event": "knowledge.gap.opened",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "gap_id": "gap:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          "state": "open"
+        }
+      }
+    },
+    {
+      "event": "knowledge.gap.updated",
+      "schema": "knowledge.gap.updated.schema.json",
+      "queue": "domain",
+      "publisher": "knowledge",
+      "consumers": [
+        "console"
+      ],
+      "note_ko": "state의 값 집합은 02에 없다(어휘 축 대기)",
+      "example": {
+        "event": "knowledge.gap.updated",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "gap_id": "gap:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          "state": "closed"
+        }
+      }
+    },
+    {
+      "event": "knowledge.task.updated",
+      "schema": "knowledge.task.updated.schema.json",
+      "queue": "domain",
+      "publisher": "data",
+      "consumers": [
+        "console"
+      ],
+      "note_ko": "state의 값 집합은 02에 없다(어휘 축 대기). 발행: knowledge 또는 data",
+      "example": {
+        "event": "knowledge.task.updated",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "task_id": "task:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          "state": "running"
+        }
+      }
+    },
+    {
+      "event": "ops.circuit_breaker.tripped",
+      "schema": "ops.circuit_breaker.tripped.schema.json",
+      "queue": "domain",
+      "publisher": "api",
+      "consumers": [
+        "console",
+        "api"
+      ],
+      "note_ko": "발행: api 또는 knowledge",
+      "example": {
+        "event": "ops.circuit_breaker.tripped",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "scope": {
+            "kind": "rule_id",
+            "value": "r-1"
+          },
+          "reason": "quote_mismatch_rate"
+        }
+      }
+    },
+    {
+      "event": "ops.circuit_breaker.reset",
+      "schema": "ops.circuit_breaker.reset.schema.json",
+      "queue": "domain",
+      "publisher": "api",
+      "consumers": [
+        "console",
+        "api"
+      ],
+      "note_ko": "발행: api 또는 knowledge",
+      "example": {
+        "event": "ops.circuit_breaker.reset",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "scope": {
+            "kind": "rule_id",
+            "value": "r-1"
+          },
+          "reason": "fixed"
+        }
+      }
+    },
+    {
+      "event": "personal.import.completed",
+      "schema": "personal.import.completed.schema.json",
+      "queue": "personal",
+      "publisher": "personal",
+      "consumers": [
+        "personal"
+      ],
+      "example": {
+        "event": "personal.import.completed",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "upload_id": "upload:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+        }
+      }
+    },
+    {
+      "event": "personal.import.confirmed",
+      "schema": "personal.import.confirmed.schema.json",
+      "queue": "personal",
+      "publisher": "personal",
+      "consumers": [
+        "personal"
+      ],
+      "example": {
+        "event": "personal.import.confirmed",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "contract_id": "contract:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+        }
+      }
+    },
+    {
+      "event": "personal.deletion.step",
+      "schema": "personal.deletion.step.schema.json",
+      "queue": "personal",
+      "publisher": "personal",
+      "consumers": [
+        "personal"
+      ],
+      "example": {
+        "event": "personal.deletion.step",
+        "event_id": "evt-1",
+        "occurred_at": "2026-10-17T03:04:05Z",
+        "payload": {
+          "del_id": "del:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+        }
+      }
+    }
+  ],
+  "not_sent": [
+    {
+      "event": "personal.denominator_signal",
+      "reason_ko": "ADR-0018 §6·O18: 초기에는 자동 전달이 없다. 스키마를 두지 않는다."
+    }
+  ],
+  "open_items_ko": [
+    "02 §3.1은 `knowledge.gap.opened/updated`, `knowledge.task.updated`의 state 값 집합과 `conflict_id`·`constraint_report_id`·`shadow_report_id`·`task_id` 외의 ID 형식을 정하지 않았다. Identifier(공백 없는 문자열)로 두었다.",
+    "`data.segment.extracted`와 `data.clause.extracted`는 02에서 한 행이다. 구획 이벤트는 clause_ids가 없고 조항 이벤트에는 있다.",
+    "`knowledge.review.decided`의 `code_checks[]`는 검사 이름 목록, `redteam_findings`는 지적 수로 읽었다(02에 형식이 없다)."
+  ]
+}

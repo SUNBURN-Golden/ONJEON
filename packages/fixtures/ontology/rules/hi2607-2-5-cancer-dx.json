@@ -1,0 +1,60 @@
+{
+  "example_kind": "ontology_case_validation",
+  "rule_id": "hi2607-2-5-cancer-dx",
+  "rule_version": "v1-ontology-case",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "contract_date": "date",
+    "diagnosis_date": "date",
+    "policy_end_date": "date",
+    "dx_in_category": "bool",
+    "already_paid": "bool",
+    "insured_amount_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      {
+        "gte": [
+          "diagnosis_date",
+          {
+            "date_add": [
+              "contract_date",
+              {
+                "value": 90,
+                "unit": "day"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "lte": [
+          "diagnosis_date",
+          "policy_end_date"
+        ]
+      },
+      {
+        "eq": [
+          "dx_in_category",
+          true
+        ]
+      },
+      {
+        "eq": [
+          "already_paid",
+          false
+        ]
+      }
+    ]
+  },
+  "amount": "insured_amount_krw",
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "clause:seg:9401e98e8894:p305-305:특약 약관:manual-0.1/c_2_5_art1#p305:manual-case@0.1",
+    "clause:seg:9401e98e8894:p305-305:특약 약관:manual-0.1/c_2_5_art2_1#p305:manual-case@0.1",
+    "clause:seg:9401e98e8894:p305-305:특약 약관:manual-0.1/c_2_5_art3_1#p305:manual-case@0.1",
+    "clause:seg:9401e98e8894:p1223-1223:별표:manual-0.1/annex2#p1223:manual-case@0.1"
+  ],
+  "publication_state": "fixture_only"
+}

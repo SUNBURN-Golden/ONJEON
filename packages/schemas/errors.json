@@ -1,0 +1,211 @@
+{
+  "$comment": "오류 코드 정본 (02_구현계약 §4, C-22). 검사: src/errors.rs. classes는 코드의 클래스 글자와 어휘 축 error_class 값(vocabulary.json 1.6.0)의 대응이며, ErrorResponse.error_class에는 어휘 값을 싣고 code에는 글자를 싣는다(checks.rs가 대응을 확인). 계약 판 고정: contracts_version은 packages/schemas/Cargo.toml의 version과 같아야 한다(C-23).",
+  "contracts_version": "0.1.0",
+  "code_format": "ONJ-<zone>-<class>-<nnn>",
+  "zones": {
+    "CT": "contracts",
+    "DT": "data",
+    "KN": "knowledge",
+    "TW": "twin",
+    "PS": "personal",
+    "AP": "api",
+    "OP": "ops"
+  },
+  "classes": {
+    "V": { "vocabulary": "validation", "name_ko": "입력 검증" },
+    "A": { "vocabulary": "auth", "name_ko": "인증·권한" },
+    "N": { "vocabulary": "not_found", "name_ko": "없음" },
+    "S": { "vocabulary": "state_conflict", "name_ko": "상태 충돌(멱등 키 재사용·릴리스 철회)" },
+    "L": { "vocabulary": "limit", "name_ko": "한도(rate limit·비용 상한)" },
+    "U": { "vocabulary": "unsupported", "name_ko": "미지원(엔진 미지원 의미론·범위 밖 날짜)" },
+    "X": { "vocabulary": "internal", "name_ko": "내부" },
+    "T": { "vocabulary": "timeout", "name_ko": "타임아웃" }
+  },
+  "deliveries": {
+    "http_error": "HTTP 4xx/5xx와 ErrorResponse{error_class, code, message_key, retryable, trace_id}",
+    "result_state": "HTTP 200 정상 결과. 상태·코드는 결과 안에 실리고 ErrorResponse가 아니다(02 §4.1)",
+    "operational": "소비자 응답이 없다. 작업·빌더를 중단하고 관제에 기록한다"
+  },
+  "screen_states": {
+    "partial": {
+      "name_ko": "부분",
+      "rule_ko": "아는 부분만 표시. 합계 금액 표시 금지. \"확인 필요 n건\" 배지"
+    },
+    "undeterminable": {
+      "name_ko": "판단 불가",
+      "rule_ko": "추가 질문 1개 또는 범위 표시. 금액 크게 표시 금지"
+    },
+    "error": {
+      "name_ko": "오류",
+      "rule_ko": "마지막 성공 결과 + 실패 사실. 재시도"
+    },
+    "changed": {
+      "name_ko": "변경됨",
+      "rule_ko": "새 릴리스로 결과가 바뀜. 이전·이후 차이와 원인"
+    },
+    "operational": {
+      "name_ko": "운영 오류",
+      "rule_ko": "소비자 화면 없음. 관제 콘솔에만 표시"
+    }
+  },
+  "screen_states_source": "제3부 구현계획 §44.2 공통 화면 상태 (오류·변경됨·부분·판단 불가). operational은 02 §4.2의 '운영 오류'이며 §44.2에 없는 관제 쪽 상태다",
+  "codes": [
+    {
+      "code": "ONJ-AP-V-001",
+      "error_class": "V",
+      "zone": "AP",
+      "meaning_ko": "알 수 없는 enum 값",
+      "delivery": "http_error",
+      "http_status": 400,
+      "retryable": false,
+      "screen_state": "error",
+      "screen_ko": "오류(재시도 없음)",
+      "message_key": "err.unknown_enum_value",
+      "note_ko": "성공으로 기본 처리하지 않는다(어휘 규칙 4)"
+    },
+    {
+      "code": "ONJ-AP-N-002",
+      "error_class": "N",
+      "zone": "AP",
+      "meaning_ko": "release_id 없음/철회됨",
+      "delivery": "http_error",
+      "http_status": 404,
+      "retryable": false,
+      "screen_state": "changed",
+      "screen_ko": "변경됨(현재 릴리스로 재요청 안내)",
+      "message_key": "err.release_not_found"
+    },
+    {
+      "code": "ONJ-TW-U-010",
+      "error_class": "U",
+      "zone": "TW",
+      "meaning_ko": "규칙이 요구한 연산을 엔진이 지원하지 않음",
+      "delivery": "result_state",
+      "http_status": 200,
+      "retryable": false,
+      "screen_state": "partial",
+      "screen_ko": "부분(\"아직 계산하지 않아요\")",
+      "message_key": "err.engine_operation_unsupported",
+      "note_ko": "capability blocked로 기록한다. 오류 응답이 아니라 정상 결과의 상태다(02 §4.1)"
+    },
+    {
+      "code": "ONJ-TW-U-011",
+      "error_class": "U",
+      "zone": "TW",
+      "meaning_ko": "날짜 범위 밖(1900~2199)",
+      "delivery": "result_state",
+      "http_status": 200,
+      "retryable": false,
+      "screen_state": "undeterminable",
+      "screen_ko": "판단 불가",
+      "message_key": "err.date_out_of_range",
+      "note_ko": "정상 결과의 상태로 전달한다(02 §4.1)"
+    },
+    {
+      "code": "ONJ-AP-L-020",
+      "error_class": "L",
+      "zone": "AP",
+      "meaning_ko": "AI·계산 호출 비용 상한",
+      "delivery": "http_error",
+      "http_status": 429,
+      "retryable": false,
+      "screen_state": "error",
+      "screen_ko": "오류 + 기능 저하 표시(숨기지 않음)",
+      "message_key": "err.cost_cap_reached"
+    },
+    {
+      "code": "ONJ-PS-A-030",
+      "error_class": "A",
+      "zone": "PS",
+      "meaning_ko": "다른 프로필·계정의 자료 접근",
+      "delivery": "http_error",
+      "http_status": 403,
+      "retryable": false,
+      "screen_state": "error",
+      "screen_ko": "오류(403). 존재 여부도 알리지 않음",
+      "message_key": "err.forbidden",
+      "note_ko": "메시지와 응답 모양이 '없는 자료'와 구별되지 않아야 한다"
+    },
+    {
+      "code": "ONJ-PS-S-031",
+      "error_class": "S",
+      "zone": "PS",
+      "meaning_ko": "삭제 진행 중 계정에 늦게 도착한 쓰기",
+      "delivery": "http_error",
+      "http_status": 409,
+      "retryable": false,
+      "screen_state": "error",
+      "screen_ko": "오류(409). 쓰기 거부, 카운터 증가",
+      "message_key": "err.write_during_deletion"
+    },
+    {
+      "code": "ONJ-DT-S-040",
+      "error_class": "S",
+      "zone": "DT",
+      "meaning_ko": "같은 키 다른 바이트(덮어쓰기 시도)",
+      "delivery": "operational",
+      "http_status": null,
+      "retryable": false,
+      "screen_state": "operational",
+      "screen_ko": "운영 오류. 중단",
+      "message_key": "err.object_overwrite_attempt",
+      "note_ko": "소비자 화면이 없다. 수집 작업을 중단하고 관제에 알린다"
+    },
+    {
+      "code": "ONJ-KN-S-050",
+      "error_class": "S",
+      "zone": "KN",
+      "meaning_ko": "fixture_only 규칙 또는 origin=fixture 주장의 릴리스 포함 시도",
+      "delivery": "operational",
+      "http_status": null,
+      "retryable": false,
+      "screen_state": "operational",
+      "screen_ko": "릴리스 빌더 중단(§8)",
+      "message_key": "err.fixture_in_release",
+      "note_ko": "소비자 화면이 없다"
+    },
+    {
+      "code": "ONJ-KN-S-051",
+      "error_class": "S",
+      "zone": "KN",
+      "meaning_ko": "K1~K16 위반 있는 후보 릴리스",
+      "delivery": "operational",
+      "http_status": null,
+      "retryable": false,
+      "screen_state": "operational",
+      "screen_ko": "릴리스 빌더 중단",
+      "message_key": "err.release_constraint_violation",
+      "note_ko": "소비자 화면이 없다"
+    },
+    {
+      "code": "ONJ-KN-S-052",
+      "error_class": "S",
+      "zone": "KN",
+      "meaning_ko": "고정된 릴리스의 구성원 누락·내용 해시 불일치(K15)",
+      "delivery": "operational",
+      "http_status": null,
+      "retryable": false,
+      "screen_state": "operational",
+      "screen_ko": "그 릴리스 읽기 중단, 운영 오류",
+      "message_key": "err.release_integrity_failure",
+      "note_ko": "그 릴리스는 읽지 않는다. 다른 릴리스로 대신하지 않는다"
+    },
+    {
+      "code": "ONJ-AP-T-090",
+      "error_class": "T",
+      "zone": "AP",
+      "meaning_ko": "상류 타임아웃",
+      "delivery": "http_error",
+      "http_status": 504,
+      "retryable": true,
+      "screen_state": "error",
+      "screen_ko": "오류: 마지막 성공 결과 + 실패 사실",
+      "message_key": "err.upstream_timeout",
+      "note_ko": "타임아웃을 지급 불가·판단 결과로 바꾸지 않는다(SYSTEM_CONTRACT §10)"
+    }
+  ],
+  "open_items_ko": [
+    "02 §5 마지막 행의 `ONJ-AP-S` 오류(앱이 지원하는 contracts·릴리스 판 범위 밖)는 번호가 정해지지 않아 코드로 넣지 않았다. 번호는 설계 담당이 정한다(T-CT-03 OpenAPI와 함께).",
+    "message_key는 문구 사전이 아직 없어 이 파일의 안정된 키 이름만 정했다. 문구는 앱·웹 문구 사전의 몫이다."
+  ]
+}

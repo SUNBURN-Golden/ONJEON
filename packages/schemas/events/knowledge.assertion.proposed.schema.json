@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge.assertion.proposed.schema.json",
+  "title": "KnowledgeAssertionProposedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 knowledge.assertion.proposed (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "knowledge.assertion.proposed"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "assertion_id": {
+          "$ref": "common.schema.json#/$defs/AssertionId"
+        }
+      },
+      "required": [
+        "assertion_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

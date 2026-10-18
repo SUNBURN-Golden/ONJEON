@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "data.raw.archived.schema.json",
+  "title": "DataRawArchivedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 data.raw.archived (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "data.raw.archived"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "raw_id": {
+          "$ref": "common.schema.json#/$defs/RawRef"
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^src:\\S+/\\S+/[0-9]+$",
+          "description": "소스 ID src:<org>/<channel>/<n> (02 §1.1)"
+        },
+        "observed_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        },
+        "sha256": {
+          "$ref": "common.schema.json#/$defs/Sha256Hex"
+        },
+        "byte_len": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "바이트 수"
+        },
+        "mime": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "raw_id",
+        "source_id",
+        "observed_at",
+        "sha256",
+        "byte_len",
+        "mime"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

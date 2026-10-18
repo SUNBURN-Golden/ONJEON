@@ -28,6 +28,7 @@
 - `membership`의 `as_of`는 주장의 유효 기간(`valid_from/valid_to`) 필터로만 쓴다. 코드 집합의 시행일·개정차수로 고르는 판정 시점 규칙은 없다(골든 사례에 시간 있는 포함·제외 주장이 없다).
 - K8은 참조 구현과 같이 공개 구역 JSON 전체에서 `contract:`·`person:`·`upload:` 부분 문자열을 찾는다.
 - 설명 문장(`explain`)은 크레이트가 아니라 시험 보조(`tests/common`)에 있다. 시험은 결과·근거 사슬이 같은지 구조적으로 비교한다.
+- 시험 전용 dev-dependency `onjeon-rules-engine`(골든 질문 11의 결과를 실제 엔진으로 재현, `tests/common`)은 `infra/ci/deps.json`의 구역 규칙(knowledge → contracts만)과 어긋나 `tools/ci/check_deps.py`가 보고한다. 라이브러리(`src/`)는 엔진에 링크되지 않는다. `dependency_exceptions`에 dev 예외를 더하는 일은 그 규칙 파일을 맡은 과제의 몫이다.
 
 ## 골든 (`tests/golden/`)
 

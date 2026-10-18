@@ -96,12 +96,30 @@ class EvidenceFiles(unittest.TestCase):
         self.assertIn("tree_hash.sh", text)
         self.assertIn("T-CT-01", text)
 
-    def test_no_leaks(self):
-        for path in sorted(EVIDENCE.iterdir()):
+    def test_ct03_logs_are_complete_and_indexed(self):
+        ct03 = EVIDENCE / "ct03"
+        index = (ct03 / "EVIDENCE.md").read_text(encoding="utf-8")
+        self.assertRegex(index, r"\b[0-9a-f]{64}\b", "sha256 of the packages/schemas tree")
+        self.assertIn("tree_hash.sh", index)
+        self.assertIn("T-CT-03", index)
+        logs = sorted(ct03.glob("*.log"))
+        self.assertTrue(logs)
+        for path in logs:
             text = path.read_text(encoding="utf-8")
-            self.assertIsNone(LEAK.search(text), f"{path.name}: {LEAK.search(text) and LEAK.search(text).group(0)!r}")
+            self.assertIn(path.name, index, f"{path.name} not listed in ct03/EVIDENCE.md")
+            self.assertTrue(text.startswith("$ "), f"{path.name}: first line must be the command")
+            self.assertEqual(exit_codes(text)[-1:], [0], path.name)
+            self.assertNotIn("FAILED", text, path.name)
+        self.assertNotIn("SKIPPED", (ct03 / "build_check.log").read_text(encoding="utf-8"))
+
+    def test_no_leaks(self):
+        # subdirectories hold other tasks' evidence (ct03/) and are held to the same rules
+        for path in sorted(p for p in EVIDENCE.rglob("*") if p.is_file()):
+            name = str(path.relative_to(EVIDENCE))
+            text = path.read_text(encoding="utf-8")
+            self.assertIsNone(LEAK.search(text), f"{name}: {LEAK.search(text) and LEAK.search(text).group(0)!r}")
             bad = [m for m in VERSIONED_NAME.findall(text) if not ALLOWED_VERSIONED.match(m)]
-            self.assertEqual(bad, [], f"{path.name}: versioned identifiers quoted verbatim")
+            self.assertEqual(bad, [], f"{name}: versioned identifiers quoted verbatim")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,3 @@
+$ bash packages/schemas/codegen/tree_hash.sh
+bb2ff999d7348cb71af9c2fa28f5fb736b82dae1e0aa10904f414fedf136280a
+exit code: 0

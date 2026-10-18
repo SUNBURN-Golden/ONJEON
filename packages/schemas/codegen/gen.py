@@ -9,6 +9,10 @@ Outputs
   packages/schemas/src/generated/                Rust (serde)
   packages/schemas/codegen/generated/ts/         TypeScript
   packages/schemas/codegen/generated/dart/       Dart
+  packages/api-types/src/generated/              Rust API types (crate onjeon-api-types)
+  packages/schemas/codegen/generated/ts-api/     TypeScript API client types
+  packages/schemas/codegen/generated/dart-api/   Dart API client types
+  (the three API outputs come from packages/schemas/openapi/*.v1.yaml)
 
 Enum arrays are produced only here, only from packages/schemas/vocabulary.json.
 """
@@ -20,15 +24,30 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import emit_api  # noqa: E402
 import emit_dart  # noqa: E402
 import emit_rust  # noqa: E402
 import emit_ts  # noqa: E402
+import openapi_model as om  # noqa: E402
 import schema_model as sm  # noqa: E402
 
 RUST_DIR = sm.SCHEMAS_DIR / "src" / "generated"
 TS_DIR = sm.SCHEMAS_DIR / "codegen" / "generated" / "ts"
 DART_DIR = sm.SCHEMAS_DIR / "codegen" / "generated" / "dart"
 VOCAB_SCHEMA = sm.JSON_DIR / sm.VOCAB_FILE
+API_RUST_DIR = sm.SCHEMAS_DIR.parent / "api-types" / "src" / "generated"
+API_TS_DIR = sm.SCHEMAS_DIR / "codegen" / "generated" / "ts-api"
+API_DART_DIR = sm.SCHEMAS_DIR / "codegen" / "generated" / "dart-api"
+
+
+def rel(path: Path) -> str:
+    """Path for messages: relative to packages/schemas, or to packages/ for the API crate."""
+    for base in (sm.SCHEMAS_DIR, sm.SCHEMAS_DIR.parent):
+        try:
+            return str(path.relative_to(base))
+        except ValueError:
+            continue
+    return str(path)
 
 
 def vocabulary_schema_text(vocab: dict) -> str:
@@ -52,26 +71,42 @@ def expected_outputs(json_dir: Path = sm.JSON_DIR, vocab_path: Path = sm.VOCAB_P
         out[TS_DIR / rel] = text
     for rel, text in emit_dart.emit(model, version).items():
         out[DART_DIR / rel] = text
+    out.update(api_outputs(json_dir, vocab_path, version))
+    return out
+
+
+def api_outputs(json_dir: Path = sm.JSON_DIR, vocab_path: Path = sm.VOCAB_PATH, version: str | None = None,
+                docs: dict | None = None) -> dict:
+    if version is None:
+        version = sm.contracts_version(sm.SCHEMAS_DIR / "Cargo.toml")
+    am = om.build(docs, json_dir, vocab_path)
+    if am.errors:
+        raise sm.SchemaError("openapi lint failed:\n  " + "\n  ".join(am.errors))
+    emitted = emit_api.emit(am, version)
+    out = {}
+    for base, key in ((API_RUST_DIR, "rust"), (API_TS_DIR, "ts"), (API_DART_DIR, "dart")):
+        for rel, text in emitted[key].items():
+            out[base / rel] = text
     return out
 
 
 def generated_dirs():
-    return [RUST_DIR, TS_DIR, DART_DIR]
+    return [RUST_DIR, TS_DIR, DART_DIR, API_RUST_DIR, API_TS_DIR, API_DART_DIR]
 
 
 def stale(outputs: dict) -> list:
     problems = []
     for path, text in outputs.items():
         if not path.exists():
-            problems.append(f"missing {path.relative_to(sm.SCHEMAS_DIR)}")
+            problems.append(f"missing {rel(path)}")
         elif path.read_text(encoding="utf-8") != text:
-            problems.append(f"stale   {path.relative_to(sm.SCHEMAS_DIR)}")
+            problems.append(f"stale   {rel(path)}")
     expected = set(outputs)
     for d in generated_dirs():
         if d.exists():
             for p in sorted(d.rglob("*")):
                 if p.is_file() and p not in expected:
-                    problems.append(f"orphan  {p.relative_to(sm.SCHEMAS_DIR)}")
+                    problems.append(f"orphan  {rel(p)}")
     return problems
 
 
@@ -95,7 +130,7 @@ def main(argv: list) -> int:
             path.parent.mkdir(parents=True, exist_ok=True)
             if not path.exists() or path.read_text(encoding="utf-8") != text:
                 path.write_text(text, encoding="utf-8")
-                print(f"wrote {path.relative_to(sm.SCHEMAS_DIR)}")
+                print(f"wrote {rel(path)}")
         return 0
     problems = stale(outputs)
     if problems:

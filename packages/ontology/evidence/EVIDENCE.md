@@ -1,6 +1,6 @@
 # T-KN-01 증거
 
-- 과제: T-KN-01 (`packages/ontology`, 크레이트 `onjeon-ontology`). 대상 기준 커밋: `57f14e7`(main) 위의 작업 트리. 리뷰 대상 HEAD `6e40c50`(수정 라운드 2 변경은 감독자가 커밋할 때 새 SHA가 붙는다).
+- 과제: T-KN-01 (`packages/ontology`, 크레이트 `onjeon-ontology`). 대상 기준 커밋: 처음에는 `57f14e7`(main), 수정 라운드 4에서 `origin/main` `464ba25`를 병합했다. 리뷰 대상 HEAD는 `6e08f5d`(수정 라운드 2) 위에 라운드 4의 병합·변경을 감독자가 커밋한 SHA다(커밋 시점에 붙는다).
 - 작성: 구현자 역할의 AI 에이전트(Claude 계열) 단독, 실행 경로는 감독자가 띄운 워크트리(`wt/T-KN-01`)의 비대화형 에이전트 세션. 독립 리뷰는 작성 계열이 아닌 리뷰어가 대상 SHA에 고정해서 해야 한다(아직 없음).
 - 실행한 명령과 로그: `cargo test -p onjeon-ontology` → `cargo_test.log`(통과 67개, 실패 0), `cargo clippy --workspace --all-targets -- -D warnings` + `cargo fmt --check` → `clippy.log`(경고 없음).
 - 다른 크레이트: `cargo test -p onjeon-contracts -p onjeon-rules-engine` 통과(워크스페이스 멤버 추가 영향 없음 확인).
@@ -18,3 +18,12 @@
 - `scope_relation`: 코드가 빈 `CodeUniverse`는 `not_comparable`.
 - K4: narrower/broader 순환을 길이와 무관하게 검사(참조 구현은 narrower 2-순환만).
 - 알려진 한계(유지): `resolve_chain`은 `View::integrity`(K15)를 보지 않는다 — 호출자가 `check_constraints`를 먼저 돌린다. 내용 해시는 참조 구현·골든대로 `input_stage_edition`을 포함하지 않는다(T-KN-07 서비스 릴리스 구성 시 결정 필요).
+
+## 수정 라운드 4
+- 실패 원인: 세 라운드 연속 `CI FAIL:no-ci-runs`. 코드·시험 실패가 아니라 PR #126이 main과 `Cargo.toml`(`workspace.members`: main은 `packages/api-types`를, 이 가지는 `packages/ontology`를 같은 줄에 더함)에서 충돌 상태였고, GitHub는 충돌 중인 PR에 `pull_request` 워크플로를 실행하지 않으므로 체크 실행이 하나도 생기지 않았다. 라운드 1~3은 이 원인을 보지 못했다.
+- 조치: `origin/main`(`464ba25`)을 이 가지에 병합(merge, force push 없음). `Cargo.toml`은 두 의도를 모두 유지(members 4개, main 대비 한 줄 차이 = 이 과제의 크레이트 추가). `Cargo.lock`은 cargo가 재생성(main 대비 `onjeon-ontology` 항목 추가만, `cargo metadata --locked` 통과). 병합 커밋은 감독자가 만든다.
+- main의 `onjeon-contracts`(어휘 1.6.0 적응, T-CT-02)에서 `checks::ORIGIN_FIXTURE`가 `&str`에서 `AssertionOrigin` 상수로 바뀌어 `src/check.rs`의 서비스 프로필 검사 한 줄을 `ORIGIN_FIXTURE.as_str()` 비교로 맞췄다(A-box의 `origin`은 문자열로 읽는다). 동작·시험 결과 변화 없음.
+- 실행(병합 뒤): 감독자 test_cmd 전체 통과 — `vocab_check`(45축·228값), `validation_check` + `--selftest`(변이 38 전부 포착), `tools/tests` 388 OK(skipped=6), `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test --all`(실패 0), `spec_check` 44/44·72/72. `cargo test -p onjeon-ontology` 67 통과·0 실패 → `cargo_test.log`(재생성, 경로는 `<repo>`로 치환). `clippy.log` 재생성(경고 없음, fmt-ok). CI `design-specs` 작업도 같은 명령으로 실행: 참조 러너 빌드 + `ontology_check.py` → 질문 11/11·제약 변이 15/15·릴리스·문서 모델 25/25 전체 통과.
+- main의 `tools/ci`(T-CT-06) 정적 검사: `check_leak`(누출 없음)·`check_skeleton`(플래그 off, 비노출)·`check_bootstrap`과 각 `--selftest`, `tools/ci/tests` 통과.
+- 열린 항목(이 과제의 allowed_paths 밖): `tools/ci/check_deps.py`가 `onjeon-ontology`의 dev-dependency `onjeon-rules-engine`(twin 구역)을 DEP-ZONE(`packages/ontology/Cargo.toml`)·IMP-ZONE(`tests/common/mod.rs`)으로 보고한다. 골든 질문 11의 결과(지급 금액)를 실제 엔진으로 재현하는 시험 전용 의존이며 라이브러리에는 링크되지 않는다. `infra/ci/deps.json`의 `dependency_exceptions`에 `{from: onjeon-ontology, to: onjeon-rules-engine, kind: dev}`(T-CT-01의 contracts→rules-engine 예외와 같은 방식)를 더하면 두 보고가 사라진다. 그 파일은 여기서 고칠 수 없고, `check_deps`는 아직 CI·test_cmd에 연결되어 있지 않다.
+- 경로: 변경 파일 30개 전부 allowed_paths 안(`packages/ontology/**`, `packages/schemas/ontology/tbox.json`, `Cargo.toml` 한 줄, `Cargo.lock`). main에서 병합되어 들어온 파일은 main과 같으므로 이 과제의 변경이 아니다.

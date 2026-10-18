@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge.release.withdrawn.schema.json",
+  "title": "KnowledgeReleaseWithdrawnEvent",
+  "type": "object",
+  "description": "도메인 이벤트 knowledge.release.withdrawn (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "knowledge.release.withdrawn"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "release_id": {
+          "$ref": "common.schema.json#/$defs/ReleaseId"
+        },
+        "release_hash": {
+          "$ref": "common.schema.json#/$defs/Sha256Hex"
+        },
+        "constraint_report_id": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "shadow_report_id": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        }
+      },
+      "required": [
+        "release_id",
+        "release_hash",
+        "constraint_report_id",
+        "shadow_report_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

@@ -535,7 +535,7 @@ fn profile_fixture(view: &View, v: &mut Vec<Violation>) {
         if a.review_status != ReviewStatus::Accepted {
             continue;
         }
-        if a.origin.as_deref() == Some(ORIGIN_FIXTURE) {
+        if a.origin.as_deref() == Some(ORIGIN_FIXTURE.as_str()) {
             v.push(Violation::new(
                 PROFILE_VIOLATION,
                 &a.id,

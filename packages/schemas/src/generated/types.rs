@@ -85,11 +85,12 @@ pub struct Assertion {
     pub review_decision_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub supersedes: Option<String>,
+    /// supersedes가 있는 판의 정정 사유(어휘 correction_reason, 온톨로지 설계안 §13)
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub correction_reason: Option<String>,
+    pub correction_reason: Option<CorrectionReason>,
     pub extractor: Extractor,
-    /// pipeline, fixture (02 §1.2). 어휘 축 승격 대기
-    pub origin: String,
+    /// pipeline, fixture (02 §1.2)
+    pub origin: AssertionOrigin,
     pub onto_version: String,
     pub created_by_run: String,
 }
@@ -130,10 +131,10 @@ pub struct Amount {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResultState {
     pub input_freshness: Freshness,
-    /// fresh, stale, withdrawn. 어휘 축 승격 대기
-    pub knowledge_freshness: String,
-    /// none, hold, circuit_breaker. 어휘 축 승격 대기
-    pub usage_restriction: String,
+    /// fresh, stale, withdrawn
+    pub knowledge_freshness: KnowledgeFreshness,
+    /// none, hold, circuit_breaker
+    pub usage_restriction: UsageRestriction,
     /// 릴리스가 철회·제한되어도 과거 결과는 그 릴리스로 재현된다
     pub reproducible: bool,
 }
@@ -162,8 +163,8 @@ pub struct DependencyInfo {
 pub struct EvidenceLink {
     #[serde(rename = "ref")]
     pub ref_: String,
-    /// basis, cross_check, observation (02 §6.1). 어휘 축 승격 대기
-    pub role: String,
+    /// basis, cross_check, observation (02 §6.1)
+    pub role: EvidenceRole,
 }
 
 /// 문구에 들어간 값(날짜·기간·비율 등)과 그 출처
@@ -252,12 +253,12 @@ pub struct CompareAxis {
 
 /// 범위 관계. derived만(계산, 코드 우주 해시)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ScopeRelation {
+pub struct ScopeRelationEntry {
     /// 열 식별자(sc_id 또는 cov_id)
     pub a: String,
     pub b: String,
-    /// 범위 관계 값. 02에 값 집합이 없다. 어휘 축 승격 대기
-    pub value: String,
+    /// 범위 관계 값(온톨로지 설계안 §13)
+    pub value: ScopeRelation,
     pub derived_from: String,
 }
 
@@ -293,7 +294,7 @@ pub struct CompareView {
     pub comparison_basis_id: Option<String>,
     pub columns: Vec<CompareColumn>,
     pub axes: Vec<CompareAxis>,
-    pub scope_relations: Vec<ScopeRelation>,
+    pub scope_relations: Vec<ScopeRelationEntry>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub price: Option<ComparePrice>,
     pub not_comparable_reasons: Vec<NotComparableReason>,
@@ -324,10 +325,10 @@ pub struct AppliedEdition {
 pub struct SnapshotComponent {
     pub cov_ref: String,
     pub insured_amount_krw: i64,
-    /// pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4). 어휘 축 승격 대기
-    pub fact_source: String,
-    /// user, insurer, document, none (02 §1.4). 어휘 축 승격 대기
-    pub confirm_party: String,
+    /// pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4)
+    pub fact_source: FactSource,
+    /// user, insurer, document, none (02 §1.4)
+    pub confirm_party: ConfirmParty,
     pub as_of: String,
 }
 
@@ -384,8 +385,8 @@ pub struct CoverageDetail {
 /// 오류 응답 (02_구현계약 §4). 미확인·보류는 오류가 아니라 HTTP 200의 정상 결과다
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ErrorResponse {
-    /// V 입력 검증, A 인증·권한, N 없음, S 상태 충돌, L 한도, U 미지원, X 내부, T 타임아웃 (02 §4.2). 어휘 축 승격 대기
-    pub error_class: String,
+    /// 오류 클래스. code의 클래스 글자(V A N S L U X T)와 대응한다(02 §4.2). 대응은 checks.rs가 확인
+    pub error_class: ErrorClass,
     /// ONJ-<구역 2자>-<클래스 1자>-<번호 3자>
     pub code: String,
     pub message_key: String,
@@ -529,8 +530,8 @@ pub struct NeedResult {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub criteria_release_id: Option<String>,
     pub input_hash: String,
-    /// keep, no_add, hold, review_add. 종합 점수·순위는 없다. 어휘 축 승격 대기
-    pub verdict: String,
+    /// keep, no_add, hold, review_add. 종합 점수·순위는 없다
+    pub verdict: NeedVerdict,
     pub reasons: Vec<NeedReason>,
     pub decisive_inputs: Vec<DecisiveInput>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -624,8 +625,8 @@ pub struct PlanGroup {
 /// 필요 담보 행에 붙는 필요성 요약 (02 §2.4)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NeedSummary {
-    /// keep, no_add, hold, review_add. 어휘 축 승격 대기
-    pub verdict: String,
+    /// keep, no_add, hold, review_add
+    pub verdict: NeedVerdict,
     pub reasons: Vec<NeedReason>,
 }
 
@@ -711,8 +712,8 @@ pub struct PremiumObservation {
     pub review_status: ReviewStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub review_decision_id: Option<String>,
-    /// pipeline, fixture. 어휘 축 승격 대기
-    pub origin: String,
+    /// pipeline, fixture
+    pub origin: AssertionOrigin,
 }
 
 /// 릴리스가 읽는 구성원 ID 목록(정렬). 이 목록뿐이다 (02 §1.3)

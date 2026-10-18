@@ -20,10 +20,8 @@
       "$ref": "common.schema.json#/$defs/Sha256Hex"
     },
     "verdict": {
-      "type": "string",
-      "pattern": "^[a-z][a-z0-9_]*$",
-      "x-onjeon-pending-axis": "need_verdict",
-      "description": "keep, no_add, hold, review_add. 종합 점수·순위는 없다. 어휘 축 승격 대기"
+      "$ref": "vocabulary.schema.json#/$defs/need_verdict",
+      "description": "keep, no_add, hold, review_add. 종합 점수·순위는 없다"
     },
     "reasons": {
       "type": "array",

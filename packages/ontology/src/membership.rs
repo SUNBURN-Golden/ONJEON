@@ -273,6 +273,9 @@ pub fn scope_relation(
     let Some(u) = universe else {
         return Ok(ScopeRelation::NotComparable);
     };
+    if u.codes().is_empty() {
+        return Ok(ScopeRelation::NotComparable);
+    }
     let (mut sa, mut sb) = (BTreeSet::new(), BTreeSet::new());
     for code in u.codes() {
         let (ma, mb) = (

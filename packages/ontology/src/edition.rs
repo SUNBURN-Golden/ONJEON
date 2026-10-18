@@ -100,6 +100,7 @@ fn status_of(view: &View, edition: &str) -> EditionStatus {
         .expect("checked by caller");
     let mut covered: BTreeSet<Fingerprint> = BTreeSet::new();
     let (mut accepted, mut mismatch) = (Vec::new(), Vec::new());
+    let mut unreviewed = false;
     for a in view.current() {
         if a.predicate != "realizes" || a.object.as_deref() != Some(edition) || !a.accepted() {
             continue;
@@ -108,6 +109,11 @@ fn status_of(view: &View, edition: &str) -> EditionStatus {
             continue;
         };
         accepted.push(a.id.clone());
+        // 지문은 검수의 근거일 뿐 판 동일성은 검수 결정이다: 결정 출처가 검수/픽스처 가정이 아니면 확정하지 않는다.
+        let by = a.decision.as_ref().and_then(|d| d.by.as_deref());
+        if !matches!(by, Some("review_decision" | "fixture_assumption")) {
+            unreviewed = true;
+        }
         let reviewed_cover = a
             .decision
             .as_ref()
@@ -146,11 +152,12 @@ fn status_of(view: &View, edition: &str) -> EditionStatus {
             fingerprint: p.fingerprint.clone(),
         })
         .collect();
-    let state = if !accepted.is_empty() && missing_parts.is_empty() && mismatch.is_empty() {
-        EditionState::Confirmed
-    } else {
-        EditionState::IdentityUnconfirmed
-    };
+    let state =
+        if !accepted.is_empty() && missing_parts.is_empty() && mismatch.is_empty() && !unreviewed {
+            EditionState::Confirmed
+        } else {
+            EditionState::IdentityUnconfirmed
+        };
     EditionStatus {
         edition: edition.to_string(),
         state,

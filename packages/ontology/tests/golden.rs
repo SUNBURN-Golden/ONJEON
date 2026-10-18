@@ -100,6 +100,18 @@ fn scope_relation_hana_vs_hyundai_is_narrower_and_needs_a_code_system() {
 }
 
 #[test]
+fn scope_relation_with_an_empty_universe_is_not_comparable() {
+    let a = abox();
+    let v = release_view(&a, CURRENT);
+    let u = CodeUniverse::new("codes:c44", "ed", vec![]).unwrap();
+    let h = "cat:hana_cancer_x_breast_genital";
+    assert_eq!(
+        scope_relation(&v, h, "cat:hi_cancer_x_similar", Some(&u)).unwrap(),
+        ScopeRelation::NotComparable
+    );
+}
+
+#[test]
 fn scope_relation_with_unknown_membership_is_not_comparable() {
     let a = abox();
     let v = release_view(&a, CURRENT);

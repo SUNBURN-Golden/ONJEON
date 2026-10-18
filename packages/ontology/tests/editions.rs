@@ -92,8 +92,14 @@ fn edition_not_auto_by_fingerprint() {
     let st = edition_status(&candidate_view(&a).unwrap(), HANA_ED).unwrap();
     assert_eq!(
         st.state,
-        EditionState::Confirmed,
-        "status follows the bundle; the approval defect is K14's"
+        EditionState::IdentityUnconfirmed,
+        "a fingerprint-only approval never confirms an edition (K14 flags it, the input stage blocks)"
+    );
+    let ans = answer(&candidate_view(&a).unwrap(), &question("Q1"));
+    assert_eq!(ans.engine_calls, 0);
+    assert_eq!(
+        ans.chain.blocked().map(|b| b.reason),
+        Some(BlockReason::EditionIdentityUnconfirmed)
     );
 }
 

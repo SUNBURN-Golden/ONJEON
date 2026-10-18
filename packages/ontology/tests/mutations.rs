@@ -85,6 +85,34 @@ fn k4_narrower_cycle() {
 }
 
 #[test]
+fn k4_mixed_narrower_broader_cycle() {
+    let a = broken(|a| {
+        for (id, s, o, rel) in [
+            (
+                "a:c1",
+                "cat:lotte_general_cancer",
+                "cat:hana_cancer_x_breast_genital",
+                "narrower",
+            ),
+            (
+                "a:c2",
+                "cat:lotte_general_cancer",
+                "cat:hana_cancer_x_breast_genital",
+                "broader",
+            ),
+        ] {
+            push(
+                a,
+                "assertions",
+                json!({"id": id, "subject": s, "predicate": "scope_relation", "object": o, "value": rel, "criticality": "C1",
+                "evidence": [{"ref": "lotte_2604_smry#term_general_cancer", "role": "cross_check"}], "value_state": "observed", "review_status": "hold"}),
+            );
+        }
+    });
+    caught("K4", &a);
+}
+
+#[test]
 fn k5_valid_from_after_valid_to() {
     caught(
         "K5",

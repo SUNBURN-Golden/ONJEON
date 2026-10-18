@@ -156,15 +156,34 @@ fn k3_k8_nodes(view: &View, cur: &[&Assertion], v: &mut Vec<Violation>) {
             }
         }
     }
-    // K4 narrower cycles (pairs, as in the reference)
-    let edges: BTreeSet<(&str, &str)> = cur
-        .iter()
-        .filter(|a| a.predicate == "scope_relation" && a.value_str() == Some("narrower"))
-        .filter_map(|a| a.object.as_deref().map(|o| (a.subject.as_str(), o)))
-        .collect();
-    for (s, o) in &edges {
-        if edges.contains(&(*o, *s)) {
-            v.push(Violation::new("K4", s, "narrower 순환"));
+    // K4 narrower/broader cycles of any length (edge = "is contained in")
+    let mut edges: BTreeSet<(&str, &str)> = BTreeSet::new();
+    for a in cur.iter().filter(|a| a.predicate == "scope_relation") {
+        if let (Some(o), Some(rel)) = (a.object.as_deref(), a.value_str()) {
+            match rel {
+                "narrower" => edges.insert((a.subject.as_str(), o)),
+                "broader" => edges.insert((o, a.subject.as_str())),
+                _ => false,
+            };
+        }
+    }
+    let starts: BTreeSet<&str> = edges.iter().map(|(s, _)| *s).collect();
+    for s in starts {
+        let mut seen: BTreeSet<&str> = BTreeSet::new();
+        let mut stack = vec![s];
+        let mut cyclic = false;
+        while let Some(n) = stack.pop() {
+            for (_, t) in edges.range((n, "")..).take_while(|(f, _)| *f == n) {
+                if *t == s {
+                    cyclic = true;
+                }
+                if seen.insert(*t) {
+                    stack.push(*t);
+                }
+            }
+        }
+        if cyclic {
+            v.push(Violation::new("K4", s, "narrower/broader 순환"));
         }
     }
     // K5

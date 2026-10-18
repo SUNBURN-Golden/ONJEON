@@ -61,18 +61,29 @@ fn is_hex64(s: &str) -> bool {
     s.len() == 64 && s.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
 }
 
-fn fixture_origin_all_claims() {
-    let d = doc();
+/// The marker check proper; the mutation test feeds it altered documents.
+fn check_claim_markers(d: &Value) {
     let claims = d["assertions"].as_array().unwrap();
     assert!(!claims.is_empty());
     for a in claims {
         let id = a["id"].as_str().unwrap();
         assert_eq!(a["origin"], "fixture", "{id}");
-        assert!(
-            a.get("review_decision_id").is_none(),
+        assert_ne!(
+            a["decision"]["by"], "review_decision",
             "{id}: a fixture claim has no ReviewDecision"
         );
     }
+}
+
+fn check_rule_marker(name: &str, r: &Value) {
+    assert_eq!(r["publication_state"], "fixture_only", "{name}");
+    assert!(r.get("release_id").is_none(), "{name}");
+}
+
+fn fixture_origin_all_claims() {
+    let d = doc();
+    check_claim_markers(&d);
+    let claims = d["assertions"].as_array().unwrap();
     // _review_note is kept as the proposal has it
     let src = json_of(&repo().join("docs/blueprint/proposals/온톨로지/abox_cases.json"));
     for s in src["assertions"].as_array().unwrap() {
@@ -97,8 +108,7 @@ fn fixture_origin_rules_are_all_fixture_only() {
     let rules = rule_files();
     assert_eq!(rules.len(), 2);
     for (name, r) in &rules {
-        assert_eq!(r["publication_state"], "fixture_only", "{name}");
-        assert!(r.get("release_id").is_none(), "{name}");
+        check_rule_marker(name, r);
     }
     // every rule file an assertion names is one of these, under rules/
     let d = doc();
@@ -127,8 +137,11 @@ fn fixture_origin_hashes_not_in_r2_listing() {
     // sanity: the listing really holds hashes, otherwise "not found" proves nothing
     let mut all = Vec::new();
     strings(&listing, &mut all);
-    let listed: Vec<&String> = all.iter().filter(|s| s.len() >= 16).collect();
-    assert!(!listed.is_empty(), "listing has no searchable keys");
+    assert!(
+        all.iter()
+            .any(|s| s.len() >= 16 && s.split(|c: char| !c.is_ascii_hexdigit()).any(is_hex64)),
+        "listing holds no sha256 values"
+    );
 
     let d = doc();
     let raws = d["raw_assets"].as_array().unwrap();
@@ -331,14 +344,26 @@ fn fixture_origin_checks_pass_as_historical_and_flag_as_service() {
     assert!(!accepted.is_empty() && accepted.is_superset(&flagged) && !flagged.is_empty());
 }
 
-/// Mutating a marker must be caught: the test above is not vacuous.
+/// Mutating a marker must be caught: the real checks above are not vacuous.
 #[test]
 fn fixture_origin_marker_mutations_are_detected() {
+    let fails = |f: &(dyn Fn() + std::panic::RefUnwindSafe)| std::panic::catch_unwind(f).is_err();
+
     let mut d = doc();
+    check_claim_markers(&d);
     d["assertions"][0]["origin"] = Value::String("pipeline".into());
-    let res = std::panic::catch_unwind(|| {
-        let claims = d["assertions"].as_array().unwrap().clone();
-        assert!(claims.iter().all(|a| a["origin"] == "fixture"));
-    });
-    assert!(res.is_err());
+    assert!(fails(&|| check_claim_markers(&d)));
+
+    let mut d = doc();
+    d["assertions"][0]["decision"] = serde_json::json!({"by": "review_decision"});
+    assert!(fails(&|| check_claim_markers(&d)));
+
+    let (name, rule) = rule_files().remove(0);
+    check_rule_marker(&name, &rule);
+    let mut r = rule.clone();
+    r["publication_state"] = Value::String("published".into());
+    assert!(fails(&|| check_rule_marker(&name, &r)));
+    let mut r = rule;
+    r["release_id"] = Value::String("rel:x".into());
+    assert!(fails(&|| check_rule_marker(&name, &r)));
 }

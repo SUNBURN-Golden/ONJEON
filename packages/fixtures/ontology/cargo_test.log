@@ -1,94 +1,96 @@
+   Compiling onjeon-ontology v0.1.0 (
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.23s
      Running unittests src/lib.rs (target/debug/deps/onjeon_ontology-d2fa4407d026d278)
 
 running 2 tests
-test membership::tests::range_spans_letters ... ok
 test membership::tests::range_bound_with_minor_is_rejected ... ok
+test membership::tests::range_spans_letters ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
      Running tests/editions.rs (target/debug/deps/editions-782d4e67fe6d3aaf)
 
 running 11 tests
-test edition_annex_missing_unconfirmed ... ok
 test d2_raw_hash_alone_cannot_realize_an_edition ... ok
-test edition_bundle_split_files ... ok
 test edition_annex_content_changed ... ok
-test edition_ocr_normalization ... ok
-test unknown_edition_is_an_error_and_unconfirmed_when_resolving ... ok
+test edition_annex_missing_unconfirmed ... ok
+test edition_bundle_split_files ... ok
 test edition_composition_annex ... ok
-test edition_not_auto_by_fingerprint ... ok
 test edition_integrated_vs_separate_file ... ok
-test edition_repack_same ... ok
+test edition_not_auto_by_fingerprint ... ok
+test edition_ocr_normalization ... ok
 test edition_one_rider_revised_in_integrated ... ok
+test edition_repack_same ... ok
+test unknown_edition_is_an_error_and_unconfirmed_when_resolving ... ok
 
-test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
 
      Running tests/fixture_origin/main.rs (target/debug/deps/fixture_origin-3ea185bb6e232327)
 
 running 6 tests
+test fixture_origin_checks_pass_as_historical_and_flag_as_service ... ok
 test fixture_origin_claims_are_all_fixture ... ok
 test fixture_origin_evidence_refs_are_formal_except_listed ... ok
+test fixture_origin_hashes_not_in_r2_listing ... ok
 test fixture_origin_marker_mutations_are_detected ... ok
 test fixture_origin_rules_are_all_fixture_only ... ok
-test fixture_origin_hashes_not_in_r2_listing ... ok
-test fixture_origin_checks_pass_as_historical_and_flag_as_service ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
      Running tests/golden.rs (target/debug/deps/golden-62f0e3e1d2d2aad1)
 
 running 9 tests
+test correction_history_is_reproduced_per_release ... ok
 test judgement_names_trail_and_code_sets ... ok
 test q1_explanation_reaches_page_and_file ... ok
+test r24_has_exactly_one_k1_violation_and_r25_r26_none ... ok
+test releases_reproduce_the_reference_hashes_and_integrity ... ok
+test scope_relation_hana_vs_hyundai_is_narrower_and_needs_a_code_system ... ok
 test scope_relation_with_an_empty_universe_is_not_comparable ... ok
 test scope_relation_with_unknown_membership_is_not_comparable ... ok
 test the_eleven_questions_match_the_reference ... ok
-test correction_history_is_reproduced_per_release ... ok
-test r24_has_exactly_one_k1_violation_and_r25_r26_none ... ok
-test scope_relation_hana_vs_hyundai_is_narrower_and_needs_a_code_system ... ok
-test releases_reproduce_the_reference_hashes_and_integrity ... ok
 
-test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
 
      Running tests/input_link.rs (target/debug/deps/input_link-3dd43bde879adebe)
 
 running 10 tests
-test e2_coverage_of_another_edition_on_the_same_configuration ... ok
-test s01b_unapproved_duplicate_link_of_the_requested_edition_blocks ... ok
-test q9_and_q10_are_blocked_with_a_reason ... ok
 test e1_other_company_coverage_on_a_hana_configuration ... ok
+test e2_coverage_of_another_edition_on_the_same_configuration ... ok
 test e3_several_configurations_apply_on_the_contract_date ... ok
 test e4_candidate_order_does_not_matter ... ok
-test simulate_is_blocked_by_open_conflict_and_missing_rule ... ok
+test q9_and_q10_are_blocked_with_a_reason ... ok
 test s01_extra_evidence_and_a_second_unrelated_edition_do_not_block ... ok
+test s01b_unapproved_duplicate_link_of_the_requested_edition_blocks ... ok
+test simulate_is_blocked_by_open_conflict_and_missing_rule ... ok
 test t01_unknown_scope_blocks_unrelated_rider_passes_competing_edition_blocks_order_independent ... ok
 test u01_definition_site_and_application_relation_are_different ... ok
 
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
 
      Running tests/mutations.rs (target/debug/deps/mutations-c5fc521483de5686)
 
 running 18 tests
+test k10_two_claims_supersede_the_same_one ... ok
 test k11_enabled_with_hold_claims ... ok
-test k1_accepted_c0_without_terms_basis ... ok
-test k13_comparison_eligible_price_without_conditions ... ok
-test k12_scope_relation_differs_from_computation ... ok
 test k12_accepted_relation_without_a_code_universe_is_not_computable ... ok
-test k2_same_benefit_without_both_sides ... ok
+test k12_scope_relation_differs_from_computation ... ok
+test k13_comparison_eligible_price_without_conditions ... ok
 test k14_fingerprint_match_is_not_an_approval ... ok
 test k16_annex_fingerprint_changed_in_place ... ok
+test k1_accepted_c0_without_terms_basis ... ok
+test k2_same_benefit_without_both_sides ... ok
 test k3_code_set_without_edition ... ok
-test k6_different_units_called_equal ... ok
-test k4_narrower_cycle ... ok
-test k7_reduction_without_target ... ok
 test k4_mixed_narrower_broader_cycle ... ok
-test unbroken_candidate_is_clean ... ok
-test k10_two_claims_supersede_the_same_one ... ok
-test k9_rule_evidence_outside_basis ... ok
+test k4_narrower_cycle ... ok
 test k5_valid_from_after_valid_to ... ok
+test k6_different_units_called_equal ... ok
+test k7_reduction_without_target ... ok
 test k8_private_id_in_public_zone ... ok
+test k9_rule_evidence_outside_basis ... ok
+test unbroken_candidate_is_clean ... ok
 
-test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
 
      Running tests/profile.rs (target/debug/deps/profile-8b1cdfc4e066d5b6)
 
@@ -97,33 +99,33 @@ test a_review_decision_realizes_passes_the_service_profile ... ok
 test p1_raw_price_observation_is_kept_and_comparison_needs_dimensions ... ok
 test profile_check_flags_fixture ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
 
      Running tests/releases.rs (target/debug/deps/releases-7266e1953d9cab12)
 
 running 9 tests
-test i6_in_place_edit_of_a_reference_node_is_k15 ... ok
-test unknown_release_is_an_error ... ok
-test i2_in_place_edit_is_k15 ... ok
 test freeze_is_order_independent_and_hash_covers_rule_files ... ok
+test i2_in_place_edit_is_k15 ... ok
 test i3_deleted_member_is_k15 ... ok
 test i4_swapped_rule_file_is_k15 ... ok
 test i5_replaced_reference_nodes_and_links_do_not_change_the_frozen_release ... ok
+test i6_in_place_edit_of_a_reference_node_is_k15 ... ok
 test i7_notice_restricts_service_not_reproduction ... ok
 test release_future_supersedes_frozen ... ok
+test unknown_release_is_an_error ... ok
 
-test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
 
      Running tests/tbox.rs (target/debug/deps/tbox-0baa9bfe62e9dc04)
 
 running 5 tests
-test no_database_or_network_dependency ... ok
+test every_constraint_the_checker_reports_is_defined_in_the_tbox ... ok
 test loads_the_schemas_copy ... ok
+test no_database_or_network_dependency ... ok
 test rejects_other_versions_and_incomplete_constraint_lists ... ok
 test schemas_copy_is_identical_to_the_design_proposal_when_it_is_present ... ok
-test every_constraint_the_checker_reports_is_defined_in_the_tbox ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
 
    Doc-tests onjeon_ontology
 

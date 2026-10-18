@@ -24,7 +24,7 @@
 pub mod fixture_only;
 pub mod schema;
 
-use onjeon_contracts::{ErrorClass, ErrorResponse, ModelVersion};
+use onjeon_contracts::{ErrorResponse, ModelVersion};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -65,7 +65,7 @@ pub struct Limits {
     pub max_retries: u32,
 }
 
-/// Calendar keys come from the caller so the gateway has no clock dependency.
+/// Calendar keys come from the caller so the gateway reads no wall clock (latency uses a monotonic `Instant`).
 #[derive(Debug, Clone)]
 pub struct Request<'a> {
     pub run_id: &'a str,
@@ -120,6 +120,8 @@ pub struct Degraded {
 pub enum GatewayError {
     CapExceeded(Degraded),
     UnknownFamily,
+    /// `prompt_version` is empty or contains whitespace (`ModelVersion` pattern `^\S+$`).
+    InvalidPromptVersion,
     /// The caller's schema uses keywords the validator cannot enforce; no provider was called.
     UnsupportedSchema(Vec<String>),
 }
@@ -136,6 +138,10 @@ pub struct Gateway {
     limits: Limits,
     state: Mutex<State>,
 }
+
+/// Hashed in place of a model ref when the provider failed before naming a
+/// model, so every record's `model_ref_hash` stays a valid `Sha256Hex`.
+pub const NO_MODEL_REF: &str = "";
 
 pub fn model_ref_hash(model_ref: &str) -> String {
     Sha256::digest(model_ref.as_bytes())
@@ -179,13 +185,9 @@ impl Gateway {
 
     fn degraded(req: &Request) -> GatewayError {
         GatewayError::CapExceeded(Degraded {
-            error: ErrorResponse {
-                error_class: ErrorClass::Limit,
-                code: CODE_COST_CAP.to_string(),
-                message_key: "ai_cost_cap_degraded".to_string(),
-                retryable: false,
-                trace_id: req.run_id.to_string(),
-            },
+            error: onjeon_contracts::errors::catalog()
+                .error_response(CODE_COST_CAP, req.run_id)
+                .expect("ONJ-AP-L-020 is an http_error code in errors.json"),
             degraded: true,
         })
     }
@@ -198,6 +200,9 @@ impl Gateway {
             .iter()
             .find(|p| p.family_label() == family)
             .ok_or(GatewayError::UnknownFamily)?;
+        if req.prompt_version.is_empty() || req.prompt_version.chars().any(char::is_whitespace) {
+            return Err(GatewayError::InvalidPromptVersion);
+        }
         let bad = schema::unsupported(req.schema);
         if !bad.is_empty() {
             return Err(GatewayError::UnsupportedSchema(bad));
@@ -244,7 +249,7 @@ impl Gateway {
                         model_ref_hash: model_ref
                             .as_deref()
                             .map(model_ref_hash)
-                            .unwrap_or_default(),
+                            .unwrap_or_else(|| model_ref_hash(NO_MODEL_REF)),
                         prompt_version: req.prompt_version.to_string(),
                     },
                     schema_version: req.schema_version.to_string(),

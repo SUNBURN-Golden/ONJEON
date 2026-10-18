@@ -129,6 +129,11 @@ fn monthly_cap_degrades_with_l020() {
     assert_eq!(d.error.code, "ONJ-AP-L-020");
     assert_eq!(d.error.error_class, onjeon_contracts::ErrorClass::Limit);
     assert!(d.degraded);
+    assert_eq!(d.error.message_key, "err.cost_cap_reached");
+    assert_eq!(
+        Some(d.error.clone()),
+        onjeon_contracts::errors::catalog().error_response("ONJ-AP-L-020", "run-1")
+    );
     assert_eq!(g.records().len(), 1, "no provider call after cap");
 }
 
@@ -225,9 +230,16 @@ fn non_retryable_error_is_not_retried() {
     let r = g.records();
     assert_eq!(r.len(), 1);
     assert_eq!(
-        r[0].model.model_ref_hash, "",
-        "no model ref on provider error"
+        r[0].model.model_ref_hash,
+        model_ref_hash(onjeon_ai_gateway::NO_MODEL_REF),
+        "sentinel hash on provider error"
     );
+    assert_eq!(r[0].model.model_ref_hash.len(), 64);
+    assert!(r[0]
+        .model
+        .model_ref_hash
+        .bytes()
+        .all(|b| b.is_ascii_hexdigit()));
 }
 
 #[test]
@@ -266,13 +278,33 @@ fn cost_accumulation_saturates() {
     let g = Gateway::new(
         vec![Box::new(P::new(
             "fam-a",
-            vec![P::reply(OUT, u64::MAX), P::reply(OUT, u64::MAX)],
+            vec![P::reply(OUT, u64::MAX - 1), P::reply(OUT, 2)],
         ))],
         limits(u64::MAX, u64::MAX, 0),
     );
     let s = schema();
     g.call("fam-a", &req(&s, Some("u"), "d")).unwrap();
-    let _ = g.call("fam-a", &req(&s, Some("u"), "d"));
+    // would overflow without saturating_add; lands exactly on the cap
+    g.call("fam-a", &req(&s, Some("u"), "d")).unwrap();
+    assert!(matches!(
+        g.call("fam-a", &req(&s, Some("u"), "d")),
+        Err(GatewayError::CapExceeded(_))
+    ));
+}
+
+#[test]
+fn bad_prompt_version_is_rejected_before_any_call() {
+    let g = Gateway::new(
+        vec![Box::new(P::new("fam-a", vec![P::reply(OUT, 1)]))],
+        limits(100, 100, 0),
+    );
+    let s = schema();
+    for bad in ["", "a b", "a\tb"] {
+        let mut r = req(&s, None, "d");
+        r.prompt_version = bad;
+        assert_eq!(g.call("fam-a", &r), Err(GatewayError::InvalidPromptVersion));
+    }
+    assert!(g.records().is_empty());
 }
 
 #[test]

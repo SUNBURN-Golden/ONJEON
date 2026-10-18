@@ -120,6 +120,8 @@ pub struct Degraded {
 pub enum GatewayError {
     CapExceeded(Degraded),
     UnknownFamily,
+    /// The caller's schema uses keywords the validator cannot enforce; no provider was called.
+    UnsupportedSchema(Vec<String>),
 }
 
 #[derive(Default)]
@@ -196,6 +198,10 @@ impl Gateway {
             .iter()
             .find(|p| p.family_label() == family)
             .ok_or(GatewayError::UnknownFamily)?;
+        let bad = schema::unsupported(req.schema);
+        if !bad.is_empty() {
+            return Err(GatewayError::UnsupportedSchema(bad));
+        }
         for attempt in 0..=self.limits.max_retries {
             if self.cap_hit(req) {
                 return Err(Self::degraded(req));
@@ -203,8 +209,12 @@ impl Gateway {
             let started = Instant::now();
             let reply = provider.complete(req.prompt);
             let latency_ms = started.elapsed().as_millis() as u64;
+            let mut retry = true;
             let (status, cost, model_ref, parsed) = match reply {
-                Err(_) => (AttemptStatus::ProviderError, 0, String::new(), None),
+                Err(e) => {
+                    retry = e.retryable;
+                    (AttemptStatus::ProviderError, 0, None, None)
+                }
                 Ok(r) => {
                     let ok = serde_json::from_str::<serde_json::Value>(&r.text)
                         .ok()
@@ -214,21 +224,27 @@ impl Gateway {
                     } else {
                         AttemptStatus::SchemaInvalid
                     };
-                    (st, r.cost_micro_units, r.model_ref, ok)
+                    (st, r.cost_micro_units, Some(r.model_ref), ok)
                 }
             };
             {
                 let mut s = self.state.lock().unwrap();
-                *s.month.entry(req.month.to_string()).or_default() += cost;
+                let m = s.month.entry(req.month.to_string()).or_default();
+                *m = m.saturating_add(cost);
                 if let Some(u) = req.user_id {
-                    *s.user_day
+                    let d = s
+                        .user_day
                         .entry((u.to_string(), req.day.to_string()))
-                        .or_default() += cost;
+                        .or_default();
+                    *d = d.saturating_add(cost);
                 }
                 s.records.push(CallRecord {
                     model: ModelVersion {
                         provider_family_label: family.to_string(),
-                        model_ref_hash: model_ref_hash(&model_ref),
+                        model_ref_hash: model_ref
+                            .as_deref()
+                            .map(model_ref_hash)
+                            .unwrap_or_default(),
                         prompt_version: req.prompt_version.to_string(),
                     },
                     schema_version: req.schema_version.to_string(),
@@ -241,6 +257,9 @@ impl Gateway {
             }
             if let Some(v) = parsed {
                 return Ok(Outcome::Resolved(v));
+            }
+            if !retry {
+                break;
             }
         }
         Ok(Outcome::Unresolved)

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge.gap.updated.schema.json",
+  "title": "KnowledgeGapUpdatedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 knowledge.gap.updated (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "knowledge.gap.updated"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "gap_id": {
+          "$ref": "common.schema.json#/$defs/GapId"
+        },
+        "state": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        }
+      },
+      "required": [
+        "gap_id",
+        "state"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

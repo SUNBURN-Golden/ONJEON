@@ -32,6 +32,37 @@ pub fn validate(schema: &Value, value: &Value) -> Vec<String> {
     out
 }
 
+/// Checks the schema itself: returns unsupported keywords/forms (empty means usable).
+pub fn unsupported(schema: &Value) -> Vec<String> {
+    let mut out = Vec::new();
+    walk(schema, "", &mut out);
+    out
+}
+
+fn walk(schema: &Value, path: &str, out: &mut Vec<String>) {
+    let p = if path.is_empty() { "/" } else { path };
+    let Some(s) = schema.as_object() else {
+        if schema != &Value::Bool(true) {
+            out.push(format!("{p}: unsupported schema form"));
+        }
+        return;
+    };
+    for k in s.keys().filter(|k| !KNOWN.contains(&k.as_str())) {
+        out.push(format!("{p}: unsupported keyword {k}"));
+    }
+    if let Some(items) = s.get("items") {
+        walk(items, &format!("{path}/items"), out);
+    }
+    if let Some(sub @ Value::Object(_)) = s.get("additionalProperties") {
+        walk(sub, &format!("{path}/additionalProperties"), out);
+    }
+    if let Some(Value::Object(ps)) = s.get("properties") {
+        for (k, x) in ps {
+            walk(x, &format!("{path}/{k}"), out);
+        }
+    }
+}
+
 fn type_ok(t: &str, v: &Value) -> bool {
     match t {
         "object" => v.is_object(),
@@ -39,7 +70,7 @@ fn type_ok(t: &str, v: &Value) -> bool {
         "string" => v.is_string(),
         "boolean" => v.is_boolean(),
         "null" => v.is_null(),
-        "integer" => v.is_i64() || v.is_u64(),
+        "integer" => v.is_i64() || v.is_u64() || v.as_f64().is_some_and(|f| f.fract() == 0.0),
         "number" => v.is_number(),
         _ => false,
     }

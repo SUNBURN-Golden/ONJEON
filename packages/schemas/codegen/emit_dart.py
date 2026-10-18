@@ -137,9 +137,12 @@ def emit_vocabulary(model: Model) -> str:
     return "".join(out)
 
 
-def emit_types(model: Model) -> str:
-    out = [HEADER, "\nimport 'vocabulary.dart';\n"]
-    for st in model.structs.values():
+def emit_types(model: Model, structs=None, imports: str | None = None, header: str = HEADER) -> str:
+    """`structs`/`imports`/`header` let emit_api reuse this for the API client."""
+    if imports is None:
+        imports = "\nimport 'vocabulary.dart';\n"
+    out = [header, imports]
+    for st in (model.structs.values() if structs is None else structs):
         out.append("\n" + doc(st.description or st.name))
         out.append(f"class {st.name} {{\n")
         for f in st.fields:

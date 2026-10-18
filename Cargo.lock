@@ -85,12 +85,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "onjeon-api-types"
+version = "0.1.0"
+dependencies = [
+ "onjeon-contracts",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "onjeon-contracts"
 version = "0.1.0"
 dependencies = [
  "onjeon-rules-engine",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "onjeon-ontology"
+version = "0.1.0"
+dependencies = [
+ "onjeon-contracts",
+ "onjeon-rules-engine",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]

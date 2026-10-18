@@ -23,6 +23,17 @@ const SDKS: &[&str] = &[
     "llm",
     "aws-sdk-bedrockruntime",
     "vertexai",
+    "groq",
+    "litellm",
+    "misanthropic",
+    "async-anthropic",
+    "mistralai_azure",
+    "google_generative_ai",
+    "google-genai",
+    "google-generativeai",
+    "cohere",
+    "mistralai",
+    "ollama",
 ];
 const GATEWAY: &str = "onjeon-ai-gateway";
 

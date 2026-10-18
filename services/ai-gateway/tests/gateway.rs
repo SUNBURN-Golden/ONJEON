@@ -207,3 +207,77 @@ fn schema_subset_checks() {
         "unsupported keyword must not pass silently"
     );
 }
+
+#[test]
+fn non_retryable_error_is_not_retried() {
+    let g = Gateway::new(
+        vec![Box::new(P::new(
+            "fam-a",
+            vec![Err(ProviderError { retryable: false }), P::reply(OUT, 1)],
+        ))],
+        limits(100, 100, 3),
+    );
+    let s = schema();
+    assert_eq!(
+        g.call("fam-a", &req(&s, None, "d")).unwrap(),
+        Outcome::Unresolved
+    );
+    let r = g.records();
+    assert_eq!(r.len(), 1);
+    assert_eq!(
+        r[0].model.model_ref_hash, "",
+        "no model ref on provider error"
+    );
+}
+
+#[test]
+fn retryable_error_is_retried() {
+    let g = Gateway::new(
+        vec![Box::new(P::new(
+            "fam-a",
+            vec![Err(ProviderError { retryable: true }), P::reply(OUT, 1)],
+        ))],
+        limits(100, 100, 1),
+    );
+    let s = schema();
+    assert!(matches!(
+        g.call("fam-a", &req(&s, None, "d")).unwrap(),
+        Outcome::Resolved(_)
+    ));
+    assert_eq!(g.records().len(), 2);
+}
+
+#[test]
+fn unsupported_schema_fails_before_any_provider_call() {
+    let g = Gateway::new(
+        vec![Box::new(P::new("fam-a", vec![P::reply(OUT, 5)]))],
+        limits(100, 100, 2),
+    );
+    let s = json!({"type":"object","properties":{"a":{"pattern":"x"}}});
+    assert!(matches!(
+        g.call("fam-a", &req(&s, None, "d")),
+        Err(GatewayError::UnsupportedSchema(_))
+    ));
+    assert!(g.records().is_empty());
+}
+
+#[test]
+fn cost_accumulation_saturates() {
+    let g = Gateway::new(
+        vec![Box::new(P::new(
+            "fam-a",
+            vec![P::reply(OUT, u64::MAX), P::reply(OUT, u64::MAX)],
+        ))],
+        limits(u64::MAX, u64::MAX, 0),
+    );
+    let s = schema();
+    g.call("fam-a", &req(&s, Some("u"), "d")).unwrap();
+    let _ = g.call("fam-a", &req(&s, Some("u"), "d"));
+}
+
+#[test]
+fn integer_accepts_integral_float() {
+    let s = json!({"type":"integer"});
+    assert!(schema::validate(&s, &json!(1.0)).is_empty());
+    assert!(!schema::validate(&s, &json!(1.5)).is_empty());
+}

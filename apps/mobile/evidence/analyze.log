@@ -1,0 +1,4 @@
+$ cd apps/mobile && flutter analyze
+Analyzing mobile...                                             
+No issues found! (ran in 4.6s)
+exit code: 0

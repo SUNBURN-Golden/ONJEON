@@ -1,0 +1,3 @@
+$ cd apps/mobile && dart run tool/krw_lint.dart
+krw_lint: clean (lib)
+exit code: 0

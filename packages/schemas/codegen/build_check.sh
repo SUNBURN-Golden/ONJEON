@@ -15,8 +15,10 @@ failed=0; skipped=0
 echo "== generated files are up to date"
 python3 -I "$here/gen.py" --check || failed=1
 
-echo "== Rust: cargo build -p onjeon-contracts"
+echo "== Rust: cargo build -p onjeon-contracts -p onjeon-api-types (default and --features skeleton)"
 (cd "$repo" && cargo build -p onjeon-contracts --quiet) && echo "Rust: built" || { echo "Rust: FAILED"; failed=1; }
+(cd "$repo" && cargo build -p onjeon-api-types --quiet && cargo build -p onjeon-api-types --features skeleton --quiet) \
+  && echo "Rust API: built (default and skeleton feature)" || { echo "Rust API: FAILED"; failed=1; }
 
 echo "== TypeScript: tsc --noEmit"
 tsc_cmd=()
@@ -28,10 +30,15 @@ if [ "${#tsc_cmd[@]}" -eq 0 ]; then
   echo "TypeScript: SKIPPED (no tsc; set TSC='node /path/to/tsc.js')"; skipped=1
 else
   ts_scratch="$(mktemp -d)"
-  cp -R "$here/generated/ts/." "$ts_scratch/"
-  python3 -I "$here/ts_fixtures.py" "$ts_scratch"   # every fixture as a typed constant + two expected type errors
-  if "${tsc_cmd[@]}" -p "$ts_scratch/tsconfig.json"; then echo "TypeScript: built, fixtures type-check (${tsc_cmd[*]} $("${tsc_cmd[@]}" --version))"
+  mkdir -p "$ts_scratch/ts" "$ts_scratch/ts-api"
+  cp -R "$here/generated/ts/." "$ts_scratch/ts/"
+  cp -R "$here/generated/ts-api/." "$ts_scratch/ts-api/"
+  python3 -I "$here/ts_fixtures.py" "$ts_scratch/ts"   # every fixture as a typed constant + two expected type errors
+  if "${tsc_cmd[@]}" -p "$ts_scratch/ts/tsconfig.json"; then echo "TypeScript: built, fixtures type-check (${tsc_cmd[*]} $("${tsc_cmd[@]}" --version))"
   else echo "TypeScript: FAILED"; failed=1; fi
+  python3 -I "$here/ts_api_fixtures.py" "$ts_scratch/ts-api"   # API fixtures + release_id, enum and skeleton-export errors
+  if "${tsc_cmd[@]}" -p "$ts_scratch/ts-api/tsconfig.json"; then echo "TypeScript API: built, fixtures type-check, skeleton not exported by index.ts"
+  else echo "TypeScript API: FAILED"; failed=1; fi
   rm -rf "$ts_scratch"
 fi
 
@@ -44,6 +51,19 @@ if command -v dart >/dev/null 2>&1; then
     echo "Dart: analyzed and round-tripped ($(dart --version 2>&1))"
   else echo "Dart: FAILED"; failed=1; fi
   rm -rf "$scratch"
+  api_scratch="$(mktemp -d)"
+  mkdir -p "$api_scratch/dart" "$api_scratch/dart-api"
+  cp -R "$here/generated/dart/." "$api_scratch/dart/"
+  cp -R "$here/generated/dart-api/." "$api_scratch/dart-api/"
+  mkdir -p "$api_scratch/dart-api/bin" && cp "$here/tests/dart_api_roundtrip.dart" "$api_scratch/dart-api/bin/api_roundtrip.dart"
+  # a file that uses the skeleton through the default entry point must NOT analyze
+  printf "import 'package:onjeon_api/onjeon_api.dart';\nvoid main() { print(skeletonOperations); }\n" > "$api_scratch/dart-api/bin/leak.dart"
+  if (cd "$api_scratch/dart-api" && dart pub get --offline >/dev/null 2>&1; \
+      dart analyze --fatal-infos --fatal-warnings lib bin/api_roundtrip.dart && dart run bin/api_roundtrip.dart "$here/tests/api_fixtures") \
+     && (cd "$api_scratch/dart-api" && ! dart analyze bin/leak.dart 2>&1 | tee "$api_scratch/leak.out" >/dev/null; grep -q skeletonOperations "$api_scratch/leak.out"); then
+    echo "Dart API: analyzed, round-tripped, skeleton not exported by onjeon_api.dart"
+  else echo "Dart API: FAILED"; failed=1; fi
+  rm -rf "$api_scratch"
 else
   echo "Dart: SKIPPED (dart SDK not installed)"; skipped=1
 fi

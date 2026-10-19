@@ -57,16 +57,15 @@
       "$ref": "common.schema.json#/$defs/AssertionId"
     },
     "correction_reason": {
-      "type": "string"
+      "$ref": "vocabulary.schema.json#/$defs/correction_reason",
+      "description": "supersedes가 있는 판의 정정 사유(어휘 correction_reason, 온톨로지 설계안 §13)"
     },
     "extractor": {
       "$ref": "#/$defs/Extractor"
     },
     "origin": {
-      "type": "string",
-      "pattern": "^[a-z][a-z0-9_]*$",
-      "x-onjeon-pending-axis": "assertion_origin",
-      "description": "pipeline, fixture (02 §1.2). 어휘 축 승격 대기"
+      "$ref": "vocabulary.schema.json#/$defs/assertion_origin",
+      "description": "pipeline, fixture (02 §1.2)"
     },
     "onto_version": {
       "$ref": "common.schema.json#/$defs/Identifier"

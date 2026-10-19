@@ -42,5 +42,5 @@
   },
   "hold_reason": "agent_disagreement",
   "supersedes": "a:01ARZ3NDEKTSV4RRFFQ69G5FAV",
-  "correction_reason": "fixture correction"
+  "correction_reason": "error_correction"
 }

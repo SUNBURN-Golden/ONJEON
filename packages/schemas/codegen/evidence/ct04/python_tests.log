@@ -1,0 +1,140 @@
+$ python3 -I -m unittest discover -s packages/schemas/codegen/tests -v
+test_a_field_outside_the_list_fails_and_is_named (test_allowlist.CheckEvent.test_a_field_outside_the_list_fails_and_is_named) ... ok
+test_field_names_for_the_leak_scanner (test_allowlist.CheckEvent.test_field_names_for_the_leak_scanner) ... ok
+test_purpose_only_on_consent_changed (test_allowlist.CheckEvent.test_purpose_only_on_consent_changed) ... ok
+test_required_fields_event_names_and_shape (test_allowlist.CheckEvent.test_required_fields_event_names_and_shape) ... ok
+test_value_shapes (test_allowlist.CheckEvent.test_value_shapes) ... ok
+test_checks_event_files (test_allowlist.CommandLine.test_checks_event_files) ... ok
+test_fails_on_a_leaking_copy (test_allowlist.CommandLine.test_fails_on_a_leaking_copy) ... ok
+test_passes_on_the_committed_file (test_allowlist.CommandLine.test_passes_on_the_committed_file) ... ok
+test_selftest_option (test_allowlist.CommandLine.test_selftest_option) ... ok
+test_setup_errors_exit_2 (test_allowlist.CommandLine.test_setup_errors_exit_2) ... ok
+test_contracts_version_is_the_crate_version (test_allowlist.CommittedFile.test_contracts_version_is_the_crate_version) ... ok
+test_error_class_is_the_vocabulary_axis (test_allowlist.CommittedFile.test_error_class_is_the_vocabulary_axis) ... ok
+test_every_02_event_and_field_is_listed (test_allowlist.CommittedFile.test_every_02_event_and_field_is_listed) ... ok
+test_examples_pass_and_fail_as_declared (test_allowlist.CommittedFile.test_examples_pass_and_fail_as_declared) ... ok
+test_file_is_consistent (test_allowlist.CommittedFile.test_file_is_consistent) ... ok
+test_forbidden_categories_cover_the_02_list (test_allowlist.CommittedFile.test_forbidden_categories_cover_the_02_list) ... ok
+test_logs_are_complete_and_indexed (test_allowlist.Ct04Evidence.test_logs_are_complete_and_indexed) ... ok
+test_an_event_rule_naming_an_unlisted_field_is_a_problem (test_allowlist.PlantedDefects.test_an_event_rule_naming_an_unlisted_field_is_a_problem) ... ok
+test_listing_a_forbidden_looking_field_is_a_problem (test_allowlist.PlantedDefects.test_listing_a_forbidden_looking_field_is_a_problem) ... ok
+test_listing_a_passing_example_as_rejected_fails (test_allowlist.PlantedDefects.test_listing_a_passing_example_as_rejected_fails) ... ok
+test_moving_a_rejected_example_to_valid_fails (test_allowlist.PlantedDefects.test_moving_a_rejected_example_to_valid_fails) ... ok
+test_only_events_is_enforced_both_ways (test_allowlist.PlantedDefects.test_only_events_is_enforced_both_ways) ... ok
+test_selftest_passes_on_the_committed_file (test_allowlist.PlantedDefects.test_selftest_passes_on_the_committed_file) ... ok
+test_unknown_axis_and_kind_are_problems (test_allowlist.PlantedDefects.test_unknown_axis_and_kind_are_problems) ... ok
+test_version_drift_is_a_problem (test_allowlist.PlantedDefects.test_version_drift_is_a_problem) ... ok
+test_a_deleted_field_fails_without_a_major_bump (test_compat.CheckCompatScript.test_a_deleted_field_fails_without_a_major_bump) ... ok
+test_a_deleted_field_with_a_major_bump_is_accepted_as_declared (test_compat.CheckCompatScript.test_a_deleted_field_with_a_major_bump_is_accepted_as_declared) ... ok
+test_a_new_enum_value_inserted_first_is_compatible_including_the_compile_probe (test_compat.CheckCompatScript.test_a_new_enum_value_inserted_first_is_compatible_including_the_compile_probe)
+Regression: the probe used to take values[0] of the NEW axis, so a value added at the front ... ok
+test_a_probe_that_cannot_be_prepared_is_a_setup_error_not_a_verdict (test_compat.CheckCompatScript.test_a_probe_that_cannot_be_prepared_is_a_setup_error_not_a_verdict) ... ok
+test_a_removed_enum_value_fails_without_a_major_bump (test_compat.CheckCompatScript.test_a_removed_enum_value_fails_without_a_major_bump) ... ok
+test_an_added_optional_field_needs_a_version_bump (test_compat.CheckCompatScript.test_an_added_optional_field_needs_a_version_bump) ... ok
+test_missing_argument_is_a_usage_error (test_compat.CheckCompatScript.test_missing_argument_is_a_usage_error) ... ok
+test_selftest_runs_without_a_repository_lockfile (test_compat.CheckCompatScript.test_selftest_runs_without_a_repository_lockfile)
+No Cargo.lock: the probe resolves serde itself. The script's empty `--lock` argument list must ... ok
+test_unchanged_schemas_pass_against_the_tag_including_the_compile_probe (test_compat.CheckCompatScript.test_unchanged_schemas_pass_against_the_tag_including_the_compile_probe) ... ok
+test_unknown_tag_is_an_error_once_a_contracts_tag_exists (test_compat.CheckCompatScript.test_unknown_tag_is_an_error_once_a_contracts_tag_exists) ... ok
+test_without_any_tag_the_check_says_so_and_runs_the_self_test (test_compat.CheckCompatScript.test_without_any_tag_the_check_says_so_and_runs_the_self_test) ... ok
+test_deleting_an_optional_field_is_breaking_too (test_compat.Diff.test_deleting_an_optional_field_is_breaking_too) ... ok
+test_enum_axis_removal_is_breaking (test_compat.Diff.test_enum_axis_removal_is_breaking) ... ok
+test_enum_value_removal_is_breaking_and_addition_is_compatible (test_compat.Diff.test_enum_value_removal_is_breaking_and_addition_is_compatible) ... ok
+test_field_deletion_is_breaking (test_compat.Diff.test_field_deletion_is_breaking) ... ok
+test_identical_schemas_have_no_changes (test_compat.Diff.test_identical_schemas_have_no_changes) ... ok
+test_making_a_field_required_or_optional_is_breaking (test_compat.Diff.test_making_a_field_required_or_optional_is_breaking) ... ok
+test_nested_definition_field_deletion_is_breaking (test_compat.Diff.test_nested_definition_field_deletion_is_breaking) ... ok
+test_optional_field_addition_is_compatible (test_compat.Diff.test_optional_field_addition_is_compatible) ... ok
+test_required_field_addition_is_breaking (test_compat.Diff.test_required_field_addition_is_breaking) ... ok
+test_type_pattern_and_nullability_changes_are_breaking (test_compat.Diff.test_type_pattern_and_nullability_changes_are_breaking) ... ok
+test_type_removal_and_addition (test_compat.Diff.test_type_removal_and_addition) ... ok
+test_each_probe_directory_gets_its_own_crate_name (test_compat.Probe.test_each_probe_directory_gets_its_own_crate_name) ... ok
+test_enum_sample_fallbacks (test_compat.Probe.test_enum_sample_fallbacks) ... ok
+test_probe_documents_use_enum_values_the_previous_client_knows (test_compat.Probe.test_probe_documents_use_enum_values_the_previous_client_knows)
+A new enum value inserted FIRST is a compatible change; the probe must not feed it to the old client. ... ok
+test_probe_fills_every_root_document_and_only_known_previous_types (test_compat.Probe.test_probe_fills_every_root_document_and_only_known_previous_types) ... ok
+test_version_rule (test_compat.Versions.test_version_rule) ... ok
+test_build_check_log_proves_all_three_languages (test_evidence.EvidenceFiles.test_build_check_log_proves_all_three_languages) ... ok
+test_cargo_test_logs_pass (test_evidence.EvidenceFiles.test_cargo_test_logs_pass) ... ok
+test_check_compat_log_runs_the_selftest_and_is_honest_about_the_baseline (test_evidence.EvidenceFiles.test_check_compat_log_runs_the_selftest_and_is_honest_about_the_baseline) ... ok
+test_ct03_logs_are_complete_and_indexed (test_evidence.EvidenceFiles.test_ct03_logs_are_complete_and_indexed) ... ok
+test_each_log_starts_with_its_command_and_records_exit_codes (test_evidence.EvidenceFiles.test_each_log_starts_with_its_command_and_records_exit_codes) ... ok
+test_every_log_and_the_index_exist (test_evidence.EvidenceFiles.test_every_log_and_the_index_exist) ... ok
+test_index_names_every_log_and_pins_the_tree (test_evidence.EvidenceFiles.test_index_names_every_log_and_pins_the_tree) ... ok
+test_no_leaks (test_evidence.EvidenceFiles.test_no_leaks) ... ok
+test_rule02_log_is_not_vacuous (test_evidence.EvidenceFiles.test_rule02_log_is_not_vacuous) ... ok
+test_vocab_check_log_passes (test_evidence.EvidenceFiles.test_vocab_check_log_passes) ... ok
+test_broken_documents_are_rejected (test_openapi.ApiFixtures.test_broken_documents_are_rejected) ... ok
+test_fixtures_are_test_only_and_use_no_real_looking_data (test_openapi.ApiFixtures.test_fixtures_are_test_only_and_use_no_real_looking_data) ... ok
+test_fixtures_exist_and_validate (test_openapi.ApiFixtures.test_fixtures_exist_and_validate) ... ok
+test_money_in_api_requests_is_integer_won_and_there_are_no_float_money_fields (test_openapi.ApiFixtures.test_money_in_api_requests_is_integer_won_and_there_are_no_float_money_fields) ... ok
+test_api_outputs_are_up_to_date_and_say_they_are_generated (test_openapi.Generated.test_api_outputs_are_up_to_date_and_say_they_are_generated) ... ok
+test_contract_types_are_not_redefined_by_the_api_crate (test_openapi.Generated.test_contract_types_are_not_redefined_by_the_api_crate) ... ok
+test_every_default_operation_and_api_type_is_in_all_three_languages (test_openapi.Generated.test_every_default_operation_and_api_type_is_in_all_three_languages) ... ok
+test_a_body_without_release_id_fails (test_openapi.Mutations.test_a_body_without_release_id_fails) ... ok
+test_a_cache_key_on_a_personal_operation_fails (test_openapi.Mutations.test_a_cache_key_on_a_personal_operation_fails) ... ok
+test_a_missing_echo_header_fails (test_openapi.Mutations.test_a_missing_echo_header_fails) ... ok
+test_a_personal_response_without_cache_control_fails (test_openapi.Mutations.test_a_personal_response_without_cache_control_fails) ... ok
+test_a_public_cache_header_on_a_personal_response_fails (test_openapi.Mutations.test_a_public_cache_header_on_a_personal_response_fails) ... ok
+test_a_public_get_that_is_not_cacheable_or_not_keyed_fails (test_openapi.Mutations.test_a_public_get_that_is_not_cacheable_or_not_keyed_fails) ... ok
+test_a_skeleton_operation_must_be_flagged_and_off (test_openapi.Mutations.test_a_skeleton_operation_must_be_flagged_and_off) ... ok
+test_a_skeleton_route_in_the_public_document_fails (test_openapi.Mutations.test_a_skeleton_route_in_the_public_document_fails) ... ok
+test_an_inline_enum_in_a_component_is_a_lint_error (test_openapi.Mutations.test_an_inline_enum_in_a_component_is_a_lint_error) ... ok
+test_an_optional_release_id_fails (test_openapi.Mutations.test_an_optional_release_id_fails) ... ok
+test_an_unknown_enum_reference_is_a_lint_error (test_openapi.Mutations.test_an_unknown_enum_reference_is_a_lint_error) ... ok
+test_an_unmarked_skeleton_route_fails (test_openapi.Mutations.test_an_unmarked_skeleton_route_fails) ... ok
+test_dropping_the_forbidden_directive_list_fails (test_openapi.Mutations.test_dropping_the_forbidden_directive_list_fails) ... ok
+test_duplicate_operation_ids_and_routes_fail (test_openapi.Mutations.test_duplicate_operation_ids_and_routes_fail) ... ok
+test_open_strings_do_not_cover_an_axis_the_vocabulary_now_has (test_openapi.Mutations.test_open_strings_do_not_cover_an_axis_the_vocabulary_now_has) ... ok
+test_the_promotion_check_catches_confirm_party_as_an_open_string (test_openapi.Mutations.test_the_promotion_check_catches_confirm_party_as_an_open_string) ... ok
+test_default_generated_surface_never_names_a_skeleton_thing (test_openapi.Skeleton.test_default_generated_surface_never_names_a_skeleton_thing) ... ok
+test_every_skeleton_item_is_gated_and_the_skeleton_files_are_not_exported (test_openapi.Skeleton.test_every_skeleton_item_is_gated_and_the_skeleton_files_are_not_exported) ... ok
+test_exactly_the_reserved_features_are_skeleton_and_all_flags_are_off (test_openapi.Skeleton.test_exactly_the_reserved_features_are_skeleton_and_all_flags_are_off) ... ok
+test_leak_static_check_skeleton_tokens_stay_inside_skeleton_operations (test_openapi.Skeleton.test_leak_static_check_skeleton_tokens_stay_inside_skeleton_operations)
+Delete the skeleton operations and their schemas from the personal document: no token may remain ... ok
+test_skeleton_only_types_are_exactly_the_ones_no_default_operation_reaches (test_openapi.Skeleton.test_skeleton_only_types_are_exactly_the_ones_no_default_operation_reaches) ... ok
+test_skeleton_types_do_not_collect_user_data_for_future_features (test_openapi.Skeleton.test_skeleton_types_do_not_collect_user_data_for_future_features) ... ok
+test_calculation_and_upload_requests_carry_an_idempotency_key (test_openapi.Spec.test_calculation_and_upload_requests_carry_an_idempotency_key) ... ok
+test_console_has_no_send_or_approve_route (test_openapi.Spec.test_console_has_no_send_or_approve_route) ... ok
+test_documents_hold_no_secret_path_or_model_identifier (test_openapi.Spec.test_documents_hold_no_secret_path_or_model_identifier) ... ok
+test_documents_pass_the_lint (test_openapi.Spec.test_documents_pass_the_lint) ... ok
+test_every_success_body_requires_release_id_independently_of_the_lint (test_openapi.Spec.test_every_success_body_requires_release_id_independently_of_the_lint) ... ok
+test_no_personal_or_health_field_names_in_public_or_console (test_openapi.Spec.test_no_personal_or_health_field_names_in_public_or_console) ... ok
+test_only_public_gets_are_publicly_cacheable_and_keyed_by_release (test_openapi.Spec.test_only_public_gets_are_publicly_cacheable_and_keyed_by_release) ... ok
+test_personal_and_console_responses_forbid_a_public_cache (test_openapi.Spec.test_personal_and_console_responses_forbid_a_public_cache) ... ok
+test_the_drafted_routes_are_exactly_the_contract_routes (test_openapi.Spec.test_the_drafted_routes_are_exactly_the_contract_routes) ... ok
+test_the_pdf_password_is_only_a_form_field_and_the_binary_part_is_not_a_type_field (test_openapi.Spec.test_the_pdf_password_is_only_a_form_field_and_the_binary_part_is_not_a_type_field) ... ok
+test_each_form_accepts_its_sample_and_only_its_sample (test_schemas.EvidenceRefs.test_each_form_accepts_its_sample_and_only_its_sample) ... ok
+test_evidence_ref_is_exactly_the_union_of_the_forms (test_schemas.EvidenceRefs.test_evidence_ref_is_exactly_the_union_of_the_forms) ... ok
+test_malformed_refs_are_rejected (test_schemas.EvidenceRefs.test_malformed_refs_are_rejected) ... ok
+test_the_grammar_doc_lists_every_form (test_schemas.EvidenceRefs.test_the_grammar_doc_lists_every_form) ... ok
+test_all_fixtures_validate (test_schemas.Fixtures.test_all_fixtures_validate) ... ok
+test_every_required_type_has_a_fixture (test_schemas.Fixtures.test_every_required_type_has_a_fixture) ... ok
+test_fixtures_are_marked_test_only (test_schemas.Fixtures.test_fixtures_are_marked_test_only) ... ok
+test_missing_required_unknown_field_bad_enum_bad_pattern_are_rejected (test_schemas.Fixtures.test_missing_required_unknown_field_bad_enum_bad_pattern_are_rejected) ... ok
+test_money_must_be_integer_krw (test_schemas.Fixtures.test_money_must_be_integer_krw) ... ok
+test_pending_axes_are_closed_by_pattern_not_open_text (test_schemas.Fixtures.test_pending_axes_are_closed_by_pattern_not_open_text) ... ok
+test_retired_and_estimated_prices_are_rejected (test_schemas.Fixtures.test_retired_and_estimated_prices_are_rejected) ... ok
+test_unknown_states_are_not_silently_accepted (test_schemas.Fixtures.test_unknown_states_are_not_silently_accepted) ... ok
+test_all_three_languages_carry_every_axis_and_type (test_schemas.Generated.test_all_three_languages_carry_every_axis_and_type) ... ok
+test_dart_reserved_words_and_unknown_values (test_schemas.Generated.test_dart_reserved_words_and_unknown_values) ... ok
+test_generated_files_are_up_to_date (test_schemas.Generated.test_generated_files_are_up_to_date) ... ok
+test_generated_files_say_they_are_generated (test_schemas.Generated.test_generated_files_say_they_are_generated) ... ok
+test_generation_is_deterministic (test_schemas.Generated.test_generation_is_deterministic) ... ok
+test_a_hand_edited_vocabulary_schema_is_a_lint_error (test_schemas.Lint.test_a_hand_edited_vocabulary_schema_is_a_lint_error) ... ok
+test_a_vocabulary_change_without_regeneration_is_a_lint_error (test_schemas.Lint.test_a_vocabulary_change_without_regeneration_is_a_lint_error) ... ok
+test_an_enum_in_a_schema_is_a_lint_error (test_schemas.Lint.test_an_enum_in_a_schema_is_a_lint_error) ... ok
+test_current_schemas_pass_the_lint (test_schemas.Lint.test_current_schemas_pass_the_lint) ... ok
+test_deprecated_names_are_not_used_as_field_names (test_schemas.Lint.test_deprecated_names_are_not_used_as_field_names) ... ok
+test_every_enum_comes_only_from_the_vocabulary (test_schemas.Lint.test_every_enum_comes_only_from_the_vocabulary) ... ok
+test_every_vocabulary_reference_points_at_a_live_axis (test_schemas.Lint.test_every_vocabulary_reference_points_at_a_live_axis) ... ok
+test_inline_objects_unknown_keywords_and_open_structs_are_rejected (test_schemas.Lint.test_inline_objects_unknown_keywords_and_open_structs_are_rejected) ... ok
+test_money_is_integer_krw (test_schemas.Lint.test_money_is_integer_krw) ... ok
+test_pending_axes_must_move_to_the_vocabulary_once_it_has_them (test_schemas.Lint.test_pending_axes_must_move_to_the_vocabulary_once_it_has_them) ... ok
+test_pending_axis_table_matches_the_schemas (test_schemas.Readme.test_pending_axis_table_matches_the_schemas) ... ok
+
+----------------------------------------------------------------------
+Ran 129 tests in 22.119s
+
+OK
+exit code: 0

@@ -1,0 +1,108 @@
+$ cd apps/mobile && flutter test --reporter expanded
+Resolving dependencies...
+Downloading packages...
+  go_router 17.5.0 (18.1.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.15 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading <repo>/apps/mobile/test/krw_lint_test.dart
+00:00 +0: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected operator at line end
+00:00 +1: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected operator at next line start
+00:00 +2: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected tab-indented wrap
+00:00 +3: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected addition
+00:00 +4: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected addition on the right only
+00:00 +5: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected subtraction
+00:00 +6: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected multiplication
+00:00 +7: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected division
+00:00 +8: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected integer division
+00:00 +9: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected modulo
+00:00 +10: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected compound assignment
+00:00 +11: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected negation
+00:00 +12: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected increment
+00:00 +13: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected null-safe chain
+00:00 +14: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected indexed chain
+00:00 +15: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected inside interpolation
+00:00 +16: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected rounding
+00:00 +17: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected abs
+00:00 +18: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected clamp
+00:00 +19: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected toDouble
+00:00 +20: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected fold
+00:00 +21: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected reduce
+00:00 +22: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected alias then arithmetic
+00:00 +23: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected two-step alias
+00:00 +24: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected camel and snake
+00:00 +25: <repo>/apps/mobile/test/krw_lint_test.dart: krw arithmetic is rejected line number is reported
+00:00 +26: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass pass through
+00:00 +27: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass comparison
+00:00 +28: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass null default
+00:00 +29: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass ternary
+00:00 +30: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass argument list
+00:00 +31: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass comment arithmetic
+00:00 +32: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass block comment
+00:00 +33: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass string text
+00:00 +34: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass arithmetic on other names
+00:00 +35: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass url slash
+00:00 +36: <repo>/apps/mobile/test/krw_lint_test.dart: allowed uses pass word containing no krw
+00:00 +37: <repo>/apps/mobile/test/krw_lint_test.dart: screen code under lib has no amount arithmetic
+00:00 +38: <repo>/apps/mobile/test/krw_lint_test.dart: the lint covers every Dart file in lib (not an empty scan)
+00:00 +39: <repo>/apps/mobile/test/states_test.dart: the common states are exactly the seven of Part 3 section 44.2
+00:00 +40: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +41: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +42: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +43: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +44: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +45: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +46: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +47: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +48: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +49: <repo>/apps/mobile/test/states_test.dart: every state has its own frame
+00:00 +50: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:00 +51: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:00 +52: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:00 +53: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:00 +54: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:01 +55: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:01 +56: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:01 +57: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:01 +58: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:01 +59: <repo>/apps/mobile/test/routing_test.dart: entry points first run shows all three and nothing else is required
+00:01 +60: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +61: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +62: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +63: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +64: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +65: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +66: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +67: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +68: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests
+00:01 +69: <repo>/apps/mobile/test/routing_test.dart: entry points 예시로 둘러보기 opens 홈 in example mode
+00:01 +70: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/consultation-requests/child
+00:01 +71: <repo>/apps/mobile/test/routing_test.dart: entry points 처음부터 준비하기 opens 홈 without the banner
+00:01 +72: <repo>/apps/mobile/test/routing_test.dart: entry points 처음부터 준비하기 opens 홈 without the banner
+00:01 +73: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /consultation-requests/child
+00:01 +74: <repo>/apps/mobile/test/routing_test.dart: entry points 가입내역 PDF 올리기 goes to 내 정보 and does not claim holdings
+00:01 +75: <repo>/apps/mobile/test/routing_test.dart: entry points 가입내역 PDF 올리기 goes to 내 정보 and does not claim holdings
+00:01 +76: <repo>/apps/mobile/test/routing_test.dart: entry points 가입내역 PDF 올리기 goes to 내 정보 and does not claim holdings
+00:01 +77: <repo>/apps/mobile/test/routing_test.dart: entry points 가입내역 PDF 올리기 goes to 내 정보 and does not claim holdings
+00:01 +78: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /v1/quote-requests/child
+00:01 +79: <repo>/apps/mobile/test/routing_test.dart: entry points 홈 offers the entry points when none was chosen, and hides them after
+00:01 +80: <repo>/apps/mobile/test/routing_test.dart: entry points 홈 offers the entry points when none was chosen, and hides them after
+00:01 +81: <repo>/apps/mobile/test/skeleton_unexposed_test.dart: deep links to disabled surfaces land on not-found, with no tab bar /quote-requests/child
+00:01 +82: <repo>/apps/mobile/test/routing_test.dart: tabs each tab opens its screen
+00:01 +83: <repo>/apps/mobile/test/routing_test.dart: tabs each tab opens its screen
+00:01 +84: <repo>/apps/mobile/test/routing_test.dart: tabs switching tabs keeps the state of the tab left behind
+00:02 +85: <repo>/apps/mobile/test/routing_test.dart: tabs 내 설계 and 홈 start in the empty state with the holdings status
+00:02 +86: <repo>/apps/mobile/test/routing_test.dart: tabs 만약에 asks one question instead of showing an amount
+00:02 +87: <repo>/apps/mobile/test/routing_test.dart: evidence is reachable by link with no entry choice, PDF, consent or consultation
+00:02 +88: <repo>/apps/mobile/test/routing_test.dart: evidence back without history goes to 홈
+00:02 +89: <repo>/apps/mobile/test/routing_test.dart: evidence a reference with a slash stays one path segment
+00:02 +90: <repo>/apps/mobile/test/routing_test.dart: example mode banner is also on the evidence screen and the not-found page
+00:02 +91: <repo>/apps/mobile/test/routing_test.dart: example mode banner shows the wording and synthetic=true on every tab
+00:02 +92: <repo>/apps/mobile/test/routing_test.dart: example mode banner is also on the first-run screen once example mode is on
+00:02 +93: <repo>/apps/mobile/test/routing_test.dart: example mode banner is absent outside example mode
+00:02 +94: <repo>/apps/mobile/test/routing_test.dart: example mode 예시 끝내기 removes the banner
+00:02 +95: <repo>/apps/mobile/test/routing_test.dart: example mode the banner carries a semantics label with synthetic=true
+00:02 +96: <repo>/apps/mobile/test/routing_test.dart: layout every tab fits 360px at 1.6x text
+00:02 +97: All tests passed!

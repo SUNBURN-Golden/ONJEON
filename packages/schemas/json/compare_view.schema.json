@@ -27,7 +27,7 @@
     "scope_relations": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/ScopeRelation"
+        "$ref": "#/$defs/ScopeRelationEntry"
       }
     },
     "price": {
@@ -140,7 +140,7 @@
       ],
       "additionalProperties": false
     },
-    "ScopeRelation": {
+    "ScopeRelationEntry": {
       "type": "object",
       "description": "범위 관계. derived만(계산, 코드 우주 해시)",
       "properties": {
@@ -152,10 +152,8 @@
           "$ref": "common.schema.json#/$defs/Identifier"
         },
         "value": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "scope_relation",
-          "description": "범위 관계 값. 02에 값 집합이 없다. 어휘 축 승격 대기"
+          "$ref": "vocabulary.schema.json#/$defs/scope_relation",
+          "description": "범위 관계 값(온톨로지 설계안 §13)"
         },
         "derived_from": {
           "$ref": "common.schema.json#/$defs/Identifier"

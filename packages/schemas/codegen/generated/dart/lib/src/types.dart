@@ -152,10 +152,11 @@ class Assertion {
   /// accepted이면 필수 (검사: onjeon_contracts::checks)
   final String? reviewDecisionId;
   final String? supersedes;
-  final String? correctionReason;
+  /// supersedes가 있는 판의 정정 사유(어휘 correction_reason, 온톨로지 설계안 §13)
+  final CorrectionReason? correctionReason;
   final Extractor extractor;
-  /// pipeline, fixture (02 §1.2). 어휘 축 승격 대기
-  final String origin;
+  /// pipeline, fixture (02 §1.2)
+  final AssertionOrigin origin;
   final String ontoVersion;
   final String createdByRun;
 
@@ -196,9 +197,9 @@ class Assertion {
         holdReason: json['hold_reason'] == null ? null : HoldReason.fromJson(json['hold_reason'] as String),
         reviewDecisionId: json['review_decision_id'] == null ? null : json['review_decision_id'] as String,
         supersedes: json['supersedes'] == null ? null : json['supersedes'] as String,
-        correctionReason: json['correction_reason'] == null ? null : json['correction_reason'] as String,
+        correctionReason: json['correction_reason'] == null ? null : CorrectionReason.fromJson(json['correction_reason'] as String),
         extractor: Extractor.fromJson(json['extractor'] as Map<String, dynamic>),
-        origin: json['origin'] as String,
+        origin: AssertionOrigin.fromJson(json['origin'] as String),
         ontoVersion: json['onto_version'] as String,
         createdByRun: json['created_by_run'] as String,
       );
@@ -218,9 +219,9 @@ class Assertion {
         if (holdReason != null) 'hold_reason': holdReason!.toJson(),
         if (reviewDecisionId != null) 'review_decision_id': reviewDecisionId!,
         if (supersedes != null) 'supersedes': supersedes!,
-        if (correctionReason != null) 'correction_reason': correctionReason!,
+        if (correctionReason != null) 'correction_reason': correctionReason!.toJson(),
         'extractor': extractor.toJson(),
-        'origin': origin,
+        'origin': origin.toJson(),
         'onto_version': ontoVersion,
         'created_by_run': createdByRun,
       };
@@ -312,10 +313,10 @@ class Amount {
 /// 결과 상태 네 축 (02 §1.4). 입력 최신성·지식 최신성·사용 제한·재현 가능
 class ResultState {
   final Freshness inputFreshness;
-  /// fresh, stale, withdrawn. 어휘 축 승격 대기
-  final String knowledgeFreshness;
-  /// none, hold, circuit_breaker. 어휘 축 승격 대기
-  final String usageRestriction;
+  /// fresh, stale, withdrawn
+  final KnowledgeFreshness knowledgeFreshness;
+  /// none, hold, circuit_breaker
+  final UsageRestriction usageRestriction;
   /// 릴리스가 철회·제한되어도 과거 결과는 그 릴리스로 재현된다
   final bool reproducible;
 
@@ -328,15 +329,15 @@ class ResultState {
 
   factory ResultState.fromJson(Map<String, dynamic> json) => ResultState(
         inputFreshness: Freshness.fromJson(json['input_freshness'] as String),
-        knowledgeFreshness: json['knowledge_freshness'] as String,
-        usageRestriction: json['usage_restriction'] as String,
+        knowledgeFreshness: KnowledgeFreshness.fromJson(json['knowledge_freshness'] as String),
+        usageRestriction: UsageRestriction.fromJson(json['usage_restriction'] as String),
         reproducible: json['reproducible'] as bool,
       );
 
   Map<String, dynamic> toJson() => {
         'input_freshness': inputFreshness.toJson(),
-        'knowledge_freshness': knowledgeFreshness,
-        'usage_restriction': usageRestriction,
+        'knowledge_freshness': knowledgeFreshness.toJson(),
+        'usage_restriction': usageRestriction.toJson(),
         'reproducible': reproducible,
       };
 }
@@ -393,8 +394,8 @@ class DependencyInfo {
 /// 근거 한 건과 역할 (02 §1.2 evidence[])
 class EvidenceLink {
   final String ref;
-  /// basis, cross_check, observation (02 §6.1). 어휘 축 승격 대기
-  final String role;
+  /// basis, cross_check, observation (02 §6.1)
+  final EvidenceRole role;
 
   const EvidenceLink({
     required this.ref,
@@ -403,12 +404,12 @@ class EvidenceLink {
 
   factory EvidenceLink.fromJson(Map<String, dynamic> json) => EvidenceLink(
         ref: json['ref'] as String,
-        role: json['role'] as String,
+        role: EvidenceRole.fromJson(json['role'] as String),
       );
 
   Map<String, dynamic> toJson() => {
         'ref': ref,
-        'role': role,
+        'role': role.toJson(),
       };
 }
 
@@ -639,32 +640,32 @@ class CompareAxis {
 }
 
 /// 범위 관계. derived만(계산, 코드 우주 해시)
-class ScopeRelation {
+class ScopeRelationEntry {
   /// 열 식별자(sc_id 또는 cov_id)
   final String a;
   final String b;
-  /// 범위 관계 값. 02에 값 집합이 없다. 어휘 축 승격 대기
-  final String value;
+  /// 범위 관계 값(온톨로지 설계안 §13)
+  final ScopeRelation value;
   final String derivedFrom;
 
-  const ScopeRelation({
+  const ScopeRelationEntry({
     required this.a,
     required this.b,
     required this.value,
     required this.derivedFrom,
   });
 
-  factory ScopeRelation.fromJson(Map<String, dynamic> json) => ScopeRelation(
+  factory ScopeRelationEntry.fromJson(Map<String, dynamic> json) => ScopeRelationEntry(
         a: json['a'] as String,
         b: json['b'] as String,
-        value: json['value'] as String,
+        value: ScopeRelation.fromJson(json['value'] as String),
         derivedFrom: json['derived_from'] as String,
       );
 
   Map<String, dynamic> toJson() => {
         'a': a,
         'b': b,
-        'value': value,
+        'value': value.toJson(),
         'derived_from': derivedFrom,
       };
 }
@@ -744,7 +745,7 @@ class CompareView {
   final String? comparisonBasisId;
   final List<CompareColumn> columns;
   final List<CompareAxis> axes;
-  final List<ScopeRelation> scopeRelations;
+  final List<ScopeRelationEntry> scopeRelations;
   final ComparePrice? price;
   final List<NotComparableReason> notComparableReasons;
   final ResultState resultState;
@@ -765,7 +766,7 @@ class CompareView {
         comparisonBasisId: json['comparison_basis_id'] == null ? null : json['comparison_basis_id'] as String,
         columns: (json['columns'] as List<dynamic>).map((e) => CompareColumn.fromJson(e as Map<String, dynamic>)).toList(),
         axes: (json['axes'] as List<dynamic>).map((e) => CompareAxis.fromJson(e as Map<String, dynamic>)).toList(),
-        scopeRelations: (json['scope_relations'] as List<dynamic>).map((e) => ScopeRelation.fromJson(e as Map<String, dynamic>)).toList(),
+        scopeRelations: (json['scope_relations'] as List<dynamic>).map((e) => ScopeRelationEntry.fromJson(e as Map<String, dynamic>)).toList(),
         price: json['price'] == null ? null : ComparePrice.fromJson(json['price'] as Map<String, dynamic>),
         notComparableReasons: (json['not_comparable_reasons'] as List<dynamic>).map((e) => NotComparableReason.fromJson(e as Map<String, dynamic>)).toList(),
         resultState: ResultState.fromJson(json['result_state'] as Map<String, dynamic>),
@@ -841,10 +842,10 @@ class AppliedEdition {
 class SnapshotComponent {
   final String covRef;
   final int insuredAmountKrw;
-  /// pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4). 어휘 축 승격 대기
-  final String factSource;
-  /// user, insurer, document, none (02 §1.4). 어휘 축 승격 대기
-  final String confirmParty;
+  /// pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4)
+  final FactSource factSource;
+  /// user, insurer, document, none (02 §1.4)
+  final ConfirmParty confirmParty;
   final String asOf;
 
   const SnapshotComponent({
@@ -858,16 +859,16 @@ class SnapshotComponent {
   factory SnapshotComponent.fromJson(Map<String, dynamic> json) => SnapshotComponent(
         covRef: json['cov_ref'] as String,
         insuredAmountKrw: json['insured_amount_krw'] as int,
-        factSource: json['fact_source'] as String,
-        confirmParty: json['confirm_party'] as String,
+        factSource: FactSource.fromJson(json['fact_source'] as String),
+        confirmParty: ConfirmParty.fromJson(json['confirm_party'] as String),
         asOf: json['as_of'] as String,
       );
 
   Map<String, dynamic> toJson() => {
         'cov_ref': covRef,
         'insured_amount_krw': insuredAmountKrw,
-        'fact_source': factSource,
-        'confirm_party': confirmParty,
+        'fact_source': factSource.toJson(),
+        'confirm_party': confirmParty.toJson(),
         'as_of': asOf,
       };
 }
@@ -1019,8 +1020,8 @@ class CoverageDetail {
 
 /// 오류 응답 (02_구현계약 §4). 미확인·보류는 오류가 아니라 HTTP 200의 정상 결과다
 class ErrorResponse {
-  /// V 입력 검증, A 인증·권한, N 없음, S 상태 충돌, L 한도, U 미지원, X 내부, T 타임아웃 (02 §4.2). 어휘 축 승격 대기
-  final String errorClass;
+  /// 오류 클래스. code의 클래스 글자(V A N S L U X T)와 대응한다(02 §4.2). 대응은 checks.rs가 확인
+  final ErrorClass errorClass;
   /// ONJ-<구역 2자>-<클래스 1자>-<번호 3자>
   final String code;
   final String messageKey;
@@ -1036,7 +1037,7 @@ class ErrorResponse {
   });
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) => ErrorResponse(
-        errorClass: json['error_class'] as String,
+        errorClass: ErrorClass.fromJson(json['error_class'] as String),
         code: json['code'] as String,
         messageKey: json['message_key'] as String,
         retryable: json['retryable'] as bool,
@@ -1044,7 +1045,7 @@ class ErrorResponse {
       );
 
   Map<String, dynamic> toJson() => {
-        'error_class': errorClass,
+        'error_class': errorClass.toJson(),
         'code': code,
         'message_key': messageKey,
         'retryable': retryable,
@@ -1379,8 +1380,8 @@ class NeedResult {
   /// 적용 승인된 기준 릴리스가 있을 때만
   final String? criteriaReleaseId;
   final String inputHash;
-  /// keep, no_add, hold, review_add. 종합 점수·순위는 없다. 어휘 축 승격 대기
-  final String verdict;
+  /// keep, no_add, hold, review_add. 종합 점수·순위는 없다
+  final NeedVerdict verdict;
   final List<NeedReason> reasons;
   final List<DecisiveInput> decisiveInputs;
   final ConclusionDependency? deps;
@@ -1405,7 +1406,7 @@ class NeedResult {
         releaseId: json['release_id'] as String,
         criteriaReleaseId: json['criteria_release_id'] == null ? null : json['criteria_release_id'] as String,
         inputHash: json['input_hash'] as String,
-        verdict: json['verdict'] as String,
+        verdict: NeedVerdict.fromJson(json['verdict'] as String),
         reasons: (json['reasons'] as List<dynamic>).map((e) => NeedReason.fromJson(e as Map<String, dynamic>)).toList(),
         decisiveInputs: (json['decisive_inputs'] as List<dynamic>).map((e) => DecisiveInput.fromJson(e as Map<String, dynamic>)).toList(),
         deps: json['deps'] == null ? null : ConclusionDependency.fromJson(json['deps'] as Map<String, dynamic>),
@@ -1418,7 +1419,7 @@ class NeedResult {
         'release_id': releaseId,
         if (criteriaReleaseId != null) 'criteria_release_id': criteriaReleaseId!,
         'input_hash': inputHash,
-        'verdict': verdict,
+        'verdict': verdict.toJson(),
         'reasons': reasons.map((e) => e.toJson()).toList(),
         'decisive_inputs': decisiveInputs.map((e) => e.toJson()).toList(),
         if (deps != null) 'deps': deps!.toJson(),
@@ -1658,8 +1659,8 @@ class PlanGroup {
 
 /// 필요 담보 행에 붙는 필요성 요약 (02 §2.4)
 class NeedSummary {
-  /// keep, no_add, hold, review_add. 어휘 축 승격 대기
-  final String verdict;
+  /// keep, no_add, hold, review_add
+  final NeedVerdict verdict;
   final List<NeedReason> reasons;
 
   const NeedSummary({
@@ -1668,12 +1669,12 @@ class NeedSummary {
   });
 
   factory NeedSummary.fromJson(Map<String, dynamic> json) => NeedSummary(
-        verdict: json['verdict'] as String,
+        verdict: NeedVerdict.fromJson(json['verdict'] as String),
         reasons: (json['reasons'] as List<dynamic>).map((e) => NeedReason.fromJson(e as Map<String, dynamic>)).toList(),
       );
 
   Map<String, dynamic> toJson() => {
-        'verdict': verdict,
+        'verdict': verdict.toJson(),
         'reasons': reasons.map((e) => e.toJson()).toList(),
       };
 }
@@ -1845,8 +1846,8 @@ class PremiumObservation {
   final ValueState valueState;
   final ReviewStatus reviewStatus;
   final String? reviewDecisionId;
-  /// pipeline, fixture. 어휘 축 승격 대기
-  final String origin;
+  /// pipeline, fixture
+  final AssertionOrigin origin;
 
   const PremiumObservation({
     required this.id,
@@ -1887,7 +1888,7 @@ class PremiumObservation {
         valueState: ValueState.fromJson(json['value_state'] as String),
         reviewStatus: ReviewStatus.fromJson(json['review_status'] as String),
         reviewDecisionId: json['review_decision_id'] == null ? null : json['review_decision_id'] as String,
-        origin: json['origin'] as String,
+        origin: AssertionOrigin.fromJson(json['origin'] as String),
       );
 
   Map<String, dynamic> toJson() => {
@@ -1908,7 +1909,7 @@ class PremiumObservation {
         'value_state': valueState.toJson(),
         'review_status': reviewStatus.toJson(),
         if (reviewDecisionId != null) 'review_decision_id': reviewDecisionId!,
-        'origin': origin,
+        'origin': origin.toJson(),
       };
 }
 

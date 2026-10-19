@@ -1,28 +1,31 @@
 $ cargo test -p onjeon-contracts
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
-     Running unittests src/lib.rs (target/debug/deps/onjeon_contracts-a6f716113cd32f4d)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_contracts-90943f69f2b35e41)
 
-running 22 tests
+running 25 tests
 test tests::contracts_version_matches_the_generated_clients ... ok
-test tests::assertion_is_a_relation_or_a_value_never_both_or_neither ... ok
-test tests::accepted_assertion_needs_a_review_decision ... ok
-test tests::enum_serialization_uses_the_vocabulary_code ... ok
-test tests::blocked_scenario_carries_no_engine_result ... ok
-test tests::evaluation_result_invariants_catch_mismatched_kinds ... ok
+test tests::a_class_letter_is_no_longer_a_valid_error_class_on_the_wire ... ok
 test tests::error_class_must_match_the_code ... ok
-test tests::fixture_assertion_is_valid_but_never_accepted ... ok
+test tests::enum_serialization_uses_the_vocabulary_code ... ok
+test tests::accepted_assertion_needs_a_review_decision ... ok
+test tests::evaluation_result_invariants_catch_mismatched_kinds ... ok
+test tests::blocked_scenario_carries_no_engine_result ... ok
+test tests::assertion_is_a_relation_or_a_value_never_both_or_neither ... ok
 test tests::every_fixture_satisfies_the_cross_field_checks_and_is_test_only ... ok
-test tests::missing_required_field_is_an_error ... ok
+test tests::error_class_words_and_code_letters_correspond_one_to_one ... ok
+test tests::engine_payout_kinds_are_the_contract_payout_axis ... ok
 test tests::no_wire_type_exposes_floating_point_money ... ok
 test tests::premium_comparison_eligibility_needs_the_full_condition_set ... ok
-test tests::engine_payout_kinds_are_the_contract_payout_axis ... ok
-test tests::generated_enums_equal_the_vocabulary_exactly ... ok
-test tests::unknown_fields_are_ignored_so_minor_additions_do_not_break_old_clients ... ok
-test tests::rule_02_contract_effects_round_trip_when_the_engine_supports_them ... ok
-test tests::unknown_enum_values_are_errors_not_defaults ... ok
 test tests::every_fixture_round_trips_through_its_type ... ok
-== self-test: a deleted field must fail the check
+test tests::fixture_assertion_is_valid_but_never_accepted ... ok
+test tests::missing_required_field_is_an_error ... ok
+test tests::unknown_enum_values_are_errors_not_defaults ... ok
+test tests::unknown_fields_are_ignored_so_minor_additions_do_not_break_old_clients ... ok
+test tests::promoted_axes_reject_unknown_values_instead_of_keeping_a_string ... ok
+test tests::generated_enums_equal_the_vocabulary_exactly ... ok
+test tests::rule_02_contract_effects_round_trip_when_the_engine_supports_them ... ok
 test tests::rule_engine_output_deserializes_into_evaluation_result ... ok
+== self-test: a deleted field must fail the check
 ok: 14 generated files are up to date
 test tests::generated_files_are_up_to_date ... ok
 .   structural diff: deleted field detected
@@ -31,12 +34,12 @@ self-test ok
 test tests::compat_check_selftest_detects_a_deleted_field ... ok
 ...........................................................
 ----------------------------------------------------------------------
-Ran 64 tests in 34.457s
+Ran 64 tests in 25.436s
 
 OK
 test tests::python_codegen_suite_passes ... ok
 
-test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.53s
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 25.51s
 
    Doc-tests onjeon_contracts
 

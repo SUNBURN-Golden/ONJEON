@@ -251,16 +251,12 @@
           "$ref": "vocabulary.schema.json#/$defs/freshness"
         },
         "knowledge_freshness": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "knowledge_freshness",
-          "description": "fresh, stale, withdrawn. 어휘 축 승격 대기"
+          "$ref": "vocabulary.schema.json#/$defs/knowledge_freshness",
+          "description": "fresh, stale, withdrawn"
         },
         "usage_restriction": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "usage_restriction",
-          "description": "none, hold, circuit_breaker. 어휘 축 승격 대기"
+          "$ref": "vocabulary.schema.json#/$defs/usage_restriction",
+          "description": "none, hold, circuit_breaker"
         },
         "reproducible": {
           "type": "boolean",
@@ -334,10 +330,8 @@
           "$ref": "common.schema.json#/$defs/EvidenceRef"
         },
         "role": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "evidence_role",
-          "description": "basis, cross_check, observation (02 §6.1). 어휘 축 승격 대기"
+          "$ref": "vocabulary.schema.json#/$defs/evidence_role",
+          "description": "basis, cross_check, observation (02 §6.1)"
         }
       },
       "required": [

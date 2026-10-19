@@ -83,10 +83,8 @@
       "$ref": "common.schema.json#/$defs/ReviewDecisionId"
     },
     "origin": {
-      "type": "string",
-      "pattern": "^[a-z][a-z0-9_]*$",
-      "x-onjeon-pending-axis": "assertion_origin",
-      "description": "pipeline, fixture. 어휘 축 승격 대기"
+      "$ref": "vocabulary.schema.json#/$defs/assertion_origin",
+      "description": "pipeline, fixture"
     }
   },
   "required": [

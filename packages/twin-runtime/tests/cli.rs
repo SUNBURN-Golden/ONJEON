@@ -148,6 +148,27 @@ fn a_job_cannot_declare_or_bypass_judged_inputs() {
     assert_eq!(bad["engine_calls"], 0);
 }
 
+/// A `rule_path` that is present but not a string is still a legacy job — and it is a
+/// `job_error`, not a panic: one bad job never stops the rest of the batch.
+#[test]
+fn a_malformed_rule_path_fails_without_affecting_others() {
+    let (out, _) = run_cli(
+        r#"[{"case_id":"null-path","rule_path":null},
+           {"case_id":"num-path","rule_path":5},
+           {"case_id":"obj-path","rule_path":{}},
+           {"case_id":"legacy-hana","rule_path":"packages/ontology/tests/golden/규칙/hana-2601-3d-cancer-dx.json",
+            "inputs":{"contract_date":"2026-08-20","is_initial_contract":true,"renewal_date":null,
+                      "diagnosis_date":"2027-04-20","policy_end_date":"2046-08-20",
+                      "dx_in_category":true,"already_paid":false,"insured_amount_krw":10000000}}]"#,
+    );
+    for id in ["null-path", "num-path", "obj-path"] {
+        let j = by_id(&out, id);
+        assert_eq!(j["outcome"], "job_error", "{id}");
+        assert_eq!(j["engine_calls"], 0, "{id}");
+    }
+    assert_eq!(by_id(&out, "legacy-hana")["outcome"], "evaluated");
+}
+
 /// K15: a member edited in place after the freeze is an integrity finding — the job is
 /// blocked before the chain and the engine never sees the tampered bytes.
 #[test]

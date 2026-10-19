@@ -17,8 +17,9 @@
 //!   malformed contract date stop the run with zero engine calls.
 //! - [`harness`]: the `case-runner` job format and the per-job pipeline the CLI runs.
 //!
-//! No database, no network. The library never reads files: the caller hands it a
-//! [`Snapshot`] and rule bytes pinned by the release.
+//! No database, no network. The request pipeline never reads files: the caller hands it
+//! a [`Snapshot`] and rule bytes pinned by the release. Only [`harness`] touches the
+//! file system — the A-box directory and legacy rule files a job names.
 
 pub mod config_select;
 pub mod harness;

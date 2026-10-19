@@ -114,7 +114,10 @@ fn legacy_engine_fields(rule: &Rule, r: &onjeon_rules_engine::EvaluationResult) 
 
 /// The absorbed verifier job: `{case_id, rule_path, inputs}` → engine result.
 fn run_legacy(job: &Value, root: &Path) -> Result<Value, HarnessError> {
-    let path: PathBuf = root.join(s(job, "rule_path").expect("rule_path"));
+    let rule_path = s(job, "rule_path").ok_or_else(|| {
+        HarnessError::Json(serde::de::Error::custom("`rule_path` must be a string"))
+    })?;
+    let path: PathBuf = root.join(rule_path);
     let text = std::fs::read_to_string(&path).map_err(|e| {
         HarnessError::Io(std::io::Error::new(
             e.kind(),

@@ -66,6 +66,31 @@ fn a_malformed_contract_date_is_rejected() {
     }
 }
 
+/// A `contract_date` inside `facts` cannot disagree with the request's: the chain is
+/// judged on `Request.contract_date`, and that same date is the one the engine sees.
+#[test]
+fn the_request_contract_date_overrides_the_fact() {
+    let snap = declared_snapshot();
+    let q = q1();
+    let mut facts = facts_of(&q);
+    facts.insert("contract_date".into(), json!("1999-01-01"));
+    let out = evaluate_request(
+        &snap,
+        &Request {
+            candidates: &q.configs,
+            contract_date: q.contract_date,
+            coverage: q.cov,
+            facts: &facts,
+        },
+    );
+    assert_eq!(out.engine_calls, 1);
+    assert_eq!(outcome(&out), Outcome::Payable(5_000_000));
+    assert_eq!(
+        out.filled.as_ref().unwrap().inputs.get("contract_date"),
+        Some(&json!("2026-08-20"))
+    );
+}
+
 /// A coverage linked into the edition but with no `implemented_by` rule is `no_rule`
 /// (one of the contract's ten reasons), with zero engine calls.
 #[test]

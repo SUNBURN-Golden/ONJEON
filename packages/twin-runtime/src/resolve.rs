@@ -172,8 +172,9 @@ pub struct Request<'a> {
     /// The contract date (`YYYY-MM-DD`); picks the sales configuration and the links in force.
     pub contract_date: &'a str,
     pub coverage: &'a str,
-    /// Flat facts: assumptions merged with `contract_date`, `diagnosis_date`, `dx_code`, ...
-    /// A `contract_date` key absent here is filled from `contract_date`.
+    /// Flat facts: assumptions merged with `diagnosis_date`, `dx_code`, ... A
+    /// `contract_date` key here is overridden by `contract_date` — the engine sees the
+    /// same date the chain was judged on.
     pub facts: &'a Map<String, Value>,
 }
 
@@ -270,9 +271,8 @@ pub fn evaluate_request(snap: &Snapshot, req: &Request<'_>) -> RequestOutcome {
         Err(e) => return fail(format!("{}: rule load failed: {e}", linked.rule_path)),
     };
     let mut facts = req.facts.clone();
-    facts
-        .entry("contract_date".to_string())
-        .or_insert_with(|| json!(req.contract_date));
+    // the date the chain was judged on is the one the engine sees
+    facts.insert("contract_date".to_string(), json!(req.contract_date));
     let filled = match fill(
         &outside,
         &FillRequest {

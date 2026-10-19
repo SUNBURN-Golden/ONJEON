@@ -269,6 +269,32 @@ class Reads(LedgerFixture):
         self.assertEqual(len(led2._segment_keys()), 4)
         self.assertEqual(led2.st.lists, [f"{b.LEDGER_PREFIX}0000000"])
 
+    def test_listing_stops_when_the_tail_ends_at_a_block_boundary(self):
+        # "Full" is judged from the block just listed, not from the accumulated keys: a tail ending at
+        # seq % 1000 == 999 must still stop after the next (empty) block, not list blocks forever.
+        def fake(keys):
+            class S:
+                lists = []
+
+                def list(self, prefix):
+                    self.lists.append(prefix)
+                    return sorted(k for k in keys if k.startswith(prefix))
+            return S()
+        key = lambda i: f"{b.LEDGER_PREFIX}{i:010d}.json"  # noqa: E731
+        led = b.Ledger(fake([key(i) for i in range(1, 2000)]), self.policy)
+        led.base, led.base_seq = {"tail_sha256": "x"}, 1500
+        keys = led._segment_keys()
+        self.assertEqual((keys[0], keys[-1], len(keys)), (key(1501), key(1999), 499))
+        self.assertEqual(led.st.lists, [f"{b.LEDGER_PREFIX}0000001", f"{b.LEDGER_PREFIX}0000002"])
+        led2 = b.Ledger(fake([key(i) for i in range(1, 2000)]), self.policy)
+        led2.base, led2.base_seq = {"tail_sha256": "x"}, 1999      # checkpoint at the tail itself
+        self.assertEqual(led2._segment_keys(), [])
+        self.assertEqual(led2.st.lists, [f"{b.LEDGER_PREFIX}0000002"])
+        led3 = b.Ledger(fake([key(i) for i in range(1, 2000)]), self.policy)
+        led3.base, led3.base_seq = {"tail_sha256": "x"}, 1990      # same edge with a read limit
+        self.assertEqual(len(led3._segment_keys(limit=100)), 9)
+        self.assertEqual(led3.st.lists, [f"{b.LEDGER_PREFIX}0000001", f"{b.LEDGER_PREFIX}0000002"])
+
 
 class Distrust(LedgerFixture):
     def setUp(self):

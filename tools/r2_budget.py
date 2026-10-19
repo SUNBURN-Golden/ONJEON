@@ -415,14 +415,19 @@ class Ledger:
             return sorted(self._list(LEDGER_PREFIX))
         found, block = [], (self.base_seq + 1) // LEDGER_BLOCK
         while True:
+            last = None
             for k in self._list_block(block):
                 m = LEDGER_KEY.match(k)
                 if not m:
                     raise BudgetError(f"ledger gap or foreign key at {k}")
-                if int(m.group(1)) > self.base_seq:
+                seq = int(m.group(1))
+                if seq > self.base_seq:
                     found.append(k)
+                last = seq if last is None else max(last, seq)
             found.sort()
-            full = bool(found) and int(LEDGER_KEY.match(found[-1]).group(1)) % LEDGER_BLOCK == LEDGER_BLOCK - 1
+            # A block holds seqs block*1000..block*1000+999; only when the block just listed reached its
+            # last slot can a later block hold more records. An empty or short block is the tail.
+            full = last is not None and last % LEDGER_BLOCK == LEDGER_BLOCK - 1
             if not full or (limit is not None and len(found) > limit):
                 return found
             block += 1

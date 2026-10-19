@@ -19,7 +19,10 @@ import source_archive as sa  # noqa: E402
 W = Path(sys.argv[1])
 STEP = sys.argv[2]
 EP = os.environ["R2_ENDPOINT"]
-LEDGER_B, ARCH_B = "onjeon-t-op-04-test-ledger", "onjeon-t-op-04-test-archive"
+# Test buckets only; the names can be overridden so a supplementary run can use a second test
+# ledger (the first is month-closed and stays untouched). Production buckets are never named here.
+LEDGER_B = os.environ.get("ONJEON_TEST_LEDGER_BUCKET", "onjeon-t-op-04-test-ledger")
+ARCH_B = os.environ.get("ONJEON_TEST_ARCHIVE_BUCKET", "onjeon-t-op-04-test-archive")
 BODY = b"t-op-04 real r2 conditional write probe\n"
 KEY = sa.object_key(hashlib.sha256(BODY).hexdigest())
 POLICY, JOB, GATE = W / "policy.json", W / "job.json", W / "gate"

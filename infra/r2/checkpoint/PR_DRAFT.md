@@ -24,7 +24,7 @@
 
 - 수락 사례: 체크포인트+이후 기록의 사용량 = 전체 기록의 사용량(분할 위치 전부, 체크포인트 연쇄, 달 변경), 이후 기록만 읽기, 100건 상한은 체크포인트 뒤부터, 변조·정책·genesis·체인·꼬리 교체 거부와 audit, 쓰기 경쟁, 잠금 규칙 검사(무기한·미승인 거부)
 - 실제 수행한 검증 및 결과: `python3 -m unittest discover -s tools/tests -v` 로그는 `test_log.txt`. 합성(로컬 저장소·S3 스텁) 시험 + 아래 실제 R2 검증
-- **실제 R2 검증: 실행함, 완료 아님**(`real_r2_record.json` `executed_with_failures`, 상세 VERIFICATION.md). 11개 중 pass 8, **fail 1**(`token-scope-no-admin`: 자격이 계정 전체 범위), **미확인 2**(`settlement-worst-case`, `meter-matches-server-count`: 토큰에 계정 분석 권한 없음). 한도 소진·마감은 시험 원장에서만 시험했고, 시험 버킷 2개는 삭제 금지로 남겨 소유자가 정리한다. 인수 기준의 실제 R2 검증 기록은 있으나 위 실패·미확인 때문에 과제를 done으로 두지 않는다
+- **실제 R2 검증: 실행함, 완료 아님**(`real_r2_record.json` `executed_with_failures`, 상세 VERIFICATION.md). 11개 중 pass 8, **fail 1**(`token-scope-no-admin`: 자격이 계정 전체 범위), **미확인 2**(`settlement-worst-case`, `meter-matches-server-count`: 토큰에 계정 분석 권한 없음). 한도 소진·마감은 시험 원장에서만 시험했고, 시험 버킷 3개는 삭제 금지로 남겨 소유자가 정리한다. 첫 범위 프로브가 승인 범위를 넘어 운영 보관 버킷에 읽기 2회를 보낸 일탈은 `scope_note`에 기록했고, 시험 범위로 고친 프로브로 재확인했다(판정 불변). 인수 기준의 실제 R2 검증 기록은 있으나 위 실패·미확인 때문에 과제를 done으로 두지 않는다
 - 미정 또는 지원하지 않는 동작: 잠금 기간 N·잘못 올린 객체 처리·파생 버킷 선택(O14), 범위 제한 토큰 재발급(소유자, fail 항목의 해소 조건), R2 분석 대조(사람), 환경 사이 동시성(운영 규칙)
 
 ## 확인

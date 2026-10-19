@@ -1,0 +1,23 @@
+{
+ "format": "onjeon-bucket-lock-rules-v1",
+ "status": "proposed_not_applied",
+ "note": "Proposal for O14 (DEC-O14: conservative default, no indefinite lock, not applied before the owner approves). Every period is unset (null): DEC-O14 gives no value for N and none is invented here. Applying a rule needs max_age_days set for every rule, an approval record, and status approved/applied; `python3 -I tools/r2_budget.py lock-rules` checks that (no request).",
+ "approval": null,
+ "release_authority": "Admin-permission token or the dashboard account only. Collection, verification and ledger tokens never get Admin permission (infra/r2/README.md section 3).",
+ "rules": [
+  {"id": "raw-objects", "bucket": "onjeon-raw-sources", "prefix": "objects/", "condition": {"type": "Age", "max_age_days": null}, "enabled": false,
+   "why": "Originals may not be obtainable again (dynamic HTML, withdrawn disclosures)."},
+  {"id": "raw-observations", "bucket": "onjeon-raw-sources", "prefix": "observations/", "condition": {"type": "Age", "max_age_days": null}, "enabled": false,
+   "why": "Observation history shows which bytes were seen when."},
+  {"id": "ledger-records", "bucket": "onjeon-budget-ledger", "prefix": "ledger/v1/", "condition": {"type": "Age", "max_age_days": null}, "enabled": false,
+   "why": "Deleting the last record is not detected by the tool (BUDGET.md section 5); audit recomputes checkpoints from these records."},
+  {"id": "ledger-checkpoints", "bucket": "onjeon-budget-ledger", "prefix": "checkpoint/v1/", "condition": {"type": "Age", "max_age_days": null}, "enabled": false,
+   "why": "A deleted newest checkpoint falls back to an older one plus records; a replaced one is caught by audit only while the raw records exist."},
+  {"id": "ledger-admissions", "bucket": "onjeon-budget-ledger", "prefix": "admission/v1/", "condition": {"type": "Age", "max_age_days": null}, "enabled": false,
+   "why": "Admissions count against the caps; deleting them lowers the counted usage."},
+  {"id": "ledger-closures", "bucket": "onjeon-budget-ledger", "prefix": "closed/v1/", "condition": {"type": "Age", "max_age_days": null}, "enabled": false,
+   "why": "A closure marker stops a month's runs; deleting it reopens the month early."}
+ ],
+ "derived_bucket": {"locked": null, "note": "미정 — DEC-O14 does not choose between 'not locked' and 'locked only briefly'; derived data can be rebuilt from the originals."},
+ "wrong_upload_procedure": "미정 — 적용 전에 정해야 함 (DEC-O14). Until then: verify-copy reports keys outside the pinned list and exits 1; nothing is deleted by this tool."
+}

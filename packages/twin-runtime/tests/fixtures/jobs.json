@@ -1,0 +1,137 @@
+[
+  {
+    "case_id": "Q1",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hana_2601_3d_v20260701", "sc:hana_2601_3d_v20260101"],
+    "cov": "cov:hana_2_1",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2027-04-20", "dx_code": "C16"},
+    "assume": {"policy_end_date": "2046-08-20", "already_paid": false, "is_initial_contract": true, "renewal_date": null, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q2",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hana_2601_3d_v20260701"],
+    "cov": "cov:hana_2_1",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2028-08-20", "dx_code": "C16"},
+    "assume": {"policy_end_date": "2046-08-20", "already_paid": false, "is_initial_contract": true, "renewal_date": null, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q3",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hana_2601_3d_v20260701"],
+    "cov": "cov:hana_2_1",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2026-11-17", "dx_code": "C16"},
+    "assume": {"policy_end_date": "2046-08-20", "already_paid": false, "is_initial_contract": true, "renewal_date": null, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q3b",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hana_2601_3d_v20260701"],
+    "cov": "cov:hana_2_1",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2026-11-18", "dx_code": "C16"},
+    "assume": {"policy_end_date": "2046-08-20", "already_paid": false, "is_initial_contract": true, "renewal_date": null, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q4",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hana_2601_3d_v20260701"],
+    "cov": "cov:hana_2_1",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2027-04-20", "dx_code": "C50"},
+    "assume": {"policy_end_date": "2046-08-20", "already_paid": false, "is_initial_contract": true, "renewal_date": null, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q5",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hana_2601_3d_v20260701"],
+    "cov": "cov:hana_2_1",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2027-04-20", "dx_code": null},
+    "assume": {"policy_end_date": "2046-08-20", "already_paid": false, "is_initial_contract": true, "renewal_date": null, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q6",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hi2607_general"],
+    "cov": "cov:hi_2_5",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2027-04-20", "dx_code": "C16"},
+    "assume": {"policy_end_date": "2126-08-20", "already_paid": false, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q7",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hi2607_general"],
+    "cov": "cov:hi_2_5",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2027-04-20", "dx_code": "D00.2"},
+    "assume": {"policy_end_date": "2126-08-20", "already_paid": false, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q8",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hi2607_general"],
+    "cov": "cov:hi_2_5",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2027-04-20", "dx_code": "C50"},
+    "assume": {"policy_end_date": "2126-08-20", "already_paid": false, "insured_amount_krw": 10000000},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q9",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:lotte_2604_type1"],
+    "cov": "cov:lotte_general_dx",
+    "contract_date": "2026-08-20",
+    "facts": {"diagnosis_date": "2027-04-20", "dx_code": "C16"},
+    "assume": {},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "Q10",
+    "abox": "packages/ontology/tests/golden",
+    "release": "rel:case-r26",
+    "configs": ["sc:hana_2601_3d_v20260701", "sc:hana_2601_3d_v20260101"],
+    "cov": "cov:hana_2_1",
+    "contract_date": "2026-03-15",
+    "facts": {"diagnosis_date": "2027-01-10", "dx_code": "C16"},
+    "assume": {},
+    "outside": [{"name": "dx_in_category", "judged_by": "ontology", "code_fact": "dx_code", "as_of_fact": "diagnosis_date"}]
+  },
+  {
+    "case_id": "legacy-hana",
+    "rule_path": "packages/ontology/tests/golden/규칙/hana-2601-3d-cancer-dx.json",
+    "inputs": {
+      "contract_date": "2026-08-20",
+      "is_initial_contract": true,
+      "renewal_date": null,
+      "diagnosis_date": "2027-04-20",
+      "policy_end_date": "2046-08-20",
+      "dx_in_category": true,
+      "already_paid": false,
+      "insured_amount_krw": 10000000
+    }
+  }
+]

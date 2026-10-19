@@ -2,8 +2,9 @@
 //!
 //! A [`Snapshot`] is what a request reads: the typed view of one frozen release plus the
 //! rule bytes the release pinned. Members outside the release list are invisible, and an
-//! in-place edit, a missing member or a swapped rule file surfaces in `integrity` (K15),
-//! which callers should treat as findings rather than silently proceed on.
+//! in-place edit, a missing member or a swapped rule file surfaces in `integrity` (K15).
+//! [`crate::evaluate_request`] treats a non-empty list as a gate — it stops before the
+//! chain with zero engine calls; lower-level reads (`view`, `rule_bytes`) only expose it.
 
 use onjeon_ontology::{candidate_view, view, Abox, Result, View};
 

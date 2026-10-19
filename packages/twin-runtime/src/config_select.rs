@@ -43,13 +43,13 @@ pub enum ConfigBlock {
 }
 
 impl ConfigBlock {
-    /// The ontology block reason this maps to once the chain runs.
-    pub fn reason(&self) -> onjeon_ontology::BlockReason {
+    /// The block reason this maps to once the chain runs.
+    pub fn reason(&self) -> crate::resolve::BlockReason {
         match self {
             ConfigBlock::MultipleCandidates { .. } => {
-                onjeon_ontology::BlockReason::MultipleCandidates
+                crate::resolve::BlockReason::MultipleCandidates
             }
-            ConfigBlock::NoApplicableConfig { .. } => onjeon_ontology::BlockReason::NoUsesEdition,
+            ConfigBlock::NoApplicableConfig { .. } => crate::resolve::BlockReason::NoUsesEdition,
         }
     }
 

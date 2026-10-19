@@ -6,15 +6,18 @@ use common::*;
 use onjeon_twin_runtime::*;
 use serde_json::{json, Value};
 
-/// A linked chain + rule to exercise `fill` against (golden Q1 on rel:case-r26).
+/// A linked chain + rule artifact to exercise `fill` against (golden Q1 on
+/// rel:declared-r26, whose rule file carries the C-08 declaration).
 fn linked_and_rule() -> (Snapshot, Linked, onjeon_rules_engine::Rule) {
-    let snap = release_snapshot();
+    let snap = declared_snapshot();
     let chain = resolve_request(&snap, &[HANA_NEW, HANA_OLD], "2026-08-20", "cov:hana_2_1");
     let l = chain.linked().expect("Q1 links").clone();
-    let rule = onjeon_rules_engine::Rule::from_json_str(
-        std::str::from_utf8(snap.rule_bytes(&l.rule_path).unwrap()).unwrap(),
-    )
-    .unwrap();
+    let (rule, outside) = load_rule_artifact(snap.rule_bytes(&l.rule_path).unwrap()).unwrap();
+    assert_eq!(
+        outside,
+        dx_outside(),
+        "the artifact declares dx_in_category"
+    );
     (snap, l, rule)
 }
 
@@ -73,9 +76,9 @@ fn unsupported_judged_by_fails_explicitly() {
     let bad = vec![OutsideInput {
         name: "already_paid".to_string(),
         judged_by: JudgedBy::ContractTwin,
+        evidence_required: None,
         code_fact: None,
         as_of_fact: None,
-        category: None,
         anchor_fact: None,
         duration: None,
         anchor_day_counted: None,
@@ -101,9 +104,9 @@ fn a_declaration_naming_no_rule_input_is_rejected() {
     let bad = vec![OutsideInput {
         name: "no_such_input".to_string(),
         judged_by: JudgedBy::Ontology,
+        evidence_required: None,
         code_fact: Some("dx_code".to_string()),
         as_of_fact: None,
-        category: None,
         anchor_fact: None,
         duration: None,
         anchor_day_counted: None,
@@ -276,9 +279,9 @@ fn fill_time_stage_judgement_and_its_boundary_travel() {
     let outside = vec![OutsideInput {
         name: "already_paid".to_string(),
         judged_by: JudgedBy::TimeStage,
+        evidence_required: None,
         code_fact: None,
         as_of_fact: None,
-        category: None,
         anchor_fact: Some("contract_date".to_string()),
         duration: Some(TimeDuration {
             value: 90,
@@ -303,4 +306,97 @@ fn fill_time_stage_judgement_and_its_boundary_travel() {
     assert_eq!(j.judged_by, JudgedBy::TimeStage);
     assert_eq!(j.boundary.as_deref(), Some("2026-11-18"));
     assert_eq!(j.value, onjeon_contracts::Tri::False);
+}
+
+// ---------- as_of_fact: declared dates are validated, never silently dropped ----------
+
+#[test]
+fn a_missing_as_of_fact_is_unknown_not_an_undated_answer() {
+    let (snap, l, rule) = linked_and_rule();
+    let mut facts = facts_of(&question("Q1"));
+    facts.remove("diagnosis_date");
+    let out = fill(
+        &dx_outside(),
+        &FillRequest {
+            snapshot: &snap,
+            linked: &l,
+            rule: &rule,
+            facts: &facts,
+        },
+    )
+    .unwrap();
+    assert_eq!(out.inputs["dx_in_category"], Value::Null);
+    assert_eq!(out.judgements[0].value, onjeon_contracts::Tri::Unknown);
+    assert_eq!(out.judgements[0].judged_as_of, None);
+}
+
+#[test]
+fn a_malformed_as_of_fact_is_an_error_not_a_guess() {
+    let (snap, l, rule) = linked_and_rule();
+    for bad in [json!("not-a-date"), json!(20270420)] {
+        let mut facts = facts_of(&question("Q1"));
+        facts.insert("diagnosis_date".into(), bad.clone());
+        let e = fill(
+            &dx_outside(),
+            &FillRequest {
+                snapshot: &snap,
+                linked: &l,
+                rule: &rule,
+                facts: &facts,
+            },
+        )
+        .unwrap_err();
+        assert!(matches!(e, FillError::BadFact(_)), "{bad}: {e}");
+    }
+}
+
+#[test]
+fn evidence_required_false_is_a_bad_declaration() {
+    let (snap, l, rule) = linked_and_rule();
+    let outside: Vec<OutsideInput> = serde_json::from_value(json!([{
+        "name": "dx_in_category", "judged_by": "ontology",
+        "code_fact": "dx_code", "evidence_required": false
+    }]))
+    .unwrap();
+    let e = fill(
+        &outside,
+        &FillRequest {
+            snapshot: &snap,
+            linked: &l,
+            rule: &rule,
+            facts: &facts_of(&question("Q1")),
+        },
+    )
+    .unwrap_err();
+    assert!(matches!(e, FillError::BadDeclaration(_)), "{e}");
+}
+
+// ---------- load_rule_artifact: the declaration is part of the rule file (C-08) ----------
+
+#[test]
+fn the_artifact_carries_the_declaration_and_the_engine_never_sees_it() {
+    let snap = declared_snapshot();
+    let chain = resolve_request(&snap, &[HANA_NEW, HANA_OLD], "2026-08-20", "cov:hana_2_1");
+    let l = chain.linked().unwrap().clone();
+    let bytes = snap.rule_bytes(&l.rule_path).unwrap();
+    let (rule, outside) = load_rule_artifact(bytes).unwrap();
+    assert_eq!(outside, dx_outside());
+    // the engine's view of the artifact is the bare rule-0.1 body
+    assert!(rule.source_json().get("inputs_from_outside_dsl").is_none());
+    // a file without the key declares nothing
+    let plain = std::fs::read(golden_dir().join("규칙/hana-2601-3d-cancer-dx.json")).unwrap();
+    let (_, outside) = load_rule_artifact(&plain).unwrap();
+    assert!(outside.is_empty());
+}
+
+#[test]
+fn a_stale_or_unknown_key_in_the_declaration_fails_loudly() {
+    // a `category` override once existed on the request side; the artifact must not
+    // silently ignore it — the category always comes from the linked coverage
+    let mut v: Value =
+        serde_json::from_slice(&declared_abox().rule_files["규칙/hana-2601-3d-cancer-dx.json"])
+            .unwrap();
+    v["inputs_from_outside_dsl"][0]["category"] = json!("cat:other");
+    let e = load_rule_artifact(&serde_json::to_vec(&v).unwrap()).unwrap_err();
+    assert!(e.contains("inputs_from_outside_dsl"), "{e}");
 }

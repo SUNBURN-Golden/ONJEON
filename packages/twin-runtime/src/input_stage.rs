@@ -2,11 +2,15 @@
 //! request's facts and from judgements computed outside the DSL.
 //!
 //! A rule names the inputs it cannot compute itself in `inputs_from_outside_dsl`
-//! (C-08). Only those are judged here: `judged_by = "ontology"` inputs go through code
-//! membership against the category the linked coverage uses, with the evidence trail of
-//! every assertion the answer rests on. `time_stage`, `contract_twin` and
-//! `parameter_table` judgements are not part of this skeleton — declaring one fails
-//! explicitly instead of filling a value from nothing (I1, O12).
+//! (C-08). The declaration is part of the **rule artifact** — the rule file the release
+//! pins — so [`load_rule_artifact`] lifts it off the artifact's JSON before the DSL
+//! loader sees the body (rule-0.1 knows only the DSL keys). A request can neither add
+//! nor omit judged inputs, and only declared ones are judged here: `judged_by =
+//! "ontology"` inputs go through code membership against the category the linked
+//! coverage uses (`uses_definition`), with the evidence trail of every assertion the
+//! answer rests on. `time_stage` judgements run through [`judge_time`]; `contract_twin`
+//! and `parameter_table` are not part of this skeleton — declaring one fails explicitly
+//! instead of filling a value from nothing (I1, O12).
 //!
 //! Inputs that are not judged at all are copied from the request facts; a missing fact
 //! stays `null` and the engine reports it as missing — the stage never invents a value.
@@ -67,24 +71,28 @@ impl<'de> Deserialize<'de> for JudgedBy {
     }
 }
 
-/// One entry of a rule's `inputs_from_outside_dsl` (C-08): which engine input is judged
-/// outside the DSL, by whom, and which facts feed the judgement.
+/// One entry of a rule artifact's `inputs_from_outside_dsl` (C-08): which engine input
+/// is judged outside the DSL, by whom, and which facts feed the judgement. Unknown keys
+/// are rejected — a stale or misspelt key must fail loudly, not be silently ignored.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct OutsideInput {
     /// The engine input name (must appear in the rule's `inputs`).
     pub name: String,
     pub judged_by: JudgedBy,
+    /// C-08 fixes `evidence_required` to `true`: a judgement must carry its evidence.
+    /// `Some(false)` is a bad declaration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence_required: Option<bool>,
     /// `judged_by = "ontology"`: the fact key holding the diagnosis code (e.g. `dx_code`).
-    /// The category comes from the linked coverage (`uses_definition`), not the request.
+    /// The category comes from the linked coverage (`uses_definition`), never the request.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub code_fact: Option<String>,
     /// `judged_by = "ontology"`: the fact key holding the date to judge as of.
-    /// Absent means no validity filter on membership claims.
+    /// Absent means no validity filter on membership claims; present but not a date is
+    /// an error — a bad date must never silently judge a different day.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub as_of_fact: Option<String>,
-    /// Overrides the category the linked coverage points at. Rare; left unset normally.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub category: Option<String>,
     /// `judged_by = "time_stage"`: the fact key holding the anchor date the period
     /// starts from (e.g. `contract_date`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -237,8 +245,29 @@ impl fmt::Display for FillError {
 
 impl std::error::Error for FillError {}
 
+/// Loads a rule artifact: the DSL body for the engine plus the C-08
+/// `inputs_from_outside_dsl` declaration for the input stage. The declaration is part
+/// of the rule file the release pins; the engine's loader knows only the DSL keys, so
+/// the key is lifted off the JSON before `Rule::from_json` sees the body. A file
+/// without the key declares no outside inputs.
+pub fn load_rule_artifact(bytes: &[u8]) -> Result<(Rule, Vec<OutsideInput>), String> {
+    let mut v: Value = serde_json::from_slice(bytes).map_err(|e| format!("invalid JSON: {e}"))?;
+    let decl = v
+        .as_object_mut()
+        .and_then(|o| o.remove("inputs_from_outside_dsl"));
+    let outside: Vec<OutsideInput> = match decl {
+        None | Some(Value::Null) => Vec::new(),
+        Some(d) => {
+            serde_json::from_value(d).map_err(|e| format!("inputs_from_outside_dsl: {e}"))?
+        }
+    };
+    let rule = Rule::from_json(&v).map_err(|e| e.to_string())?;
+    Ok((rule, outside))
+}
+
 /// Fills `rule`'s declared inputs for [`FillRequest`], honouring `outside`
-/// (the rule's `inputs_from_outside_dsl`) and producing a judgement per judged input.
+/// (the rule artifact's `inputs_from_outside_dsl`) and producing a judgement per
+/// judged input.
 pub fn fill(outside: &[OutsideInput], req: &FillRequest<'_>) -> Result<Filled, FillError> {
     let mut inputs = Map::new();
     let mut judgements = Vec::new();
@@ -251,6 +280,12 @@ pub fn fill(outside: &[OutsideInput], req: &FillRequest<'_>) -> Result<Filled, F
                 );
             }
             Some(o) => {
+                if o.evidence_required == Some(false) {
+                    return Err(FillError::BadDeclaration(format!(
+                        "{}: evidence_required is always true (C-08)",
+                        o.name
+                    )));
+                }
                 let (v, j) = judge(o, req)?;
                 inputs.insert(name.clone(), v);
                 judgements.push(j);
@@ -272,22 +307,17 @@ pub fn fill(outside: &[OutsideInput], req: &FillRequest<'_>) -> Result<Filled, F
 fn judge(o: &OutsideInput, req: &FillRequest<'_>) -> Result<(Value, StageJudgement), FillError> {
     match o.judged_by {
         JudgedBy::Ontology => {
-            let cat = o
+            // the category is the linked coverage's `uses_definition`, never an override
+            let cat = req
+                .linked
                 .category
                 .clone()
-                .or_else(|| req.linked.category.clone())
                 .ok_or_else(|| FillError::NoCategory {
                     input: o.name.clone(),
                 })?;
             let code_key = o.code_fact.as_deref().ok_or_else(|| {
                 FillError::BadDeclaration(format!("{}: ontology judgement needs code_fact", o.name))
             })?;
-            let as_of = o
-                .as_of_fact
-                .as_deref()
-                .and_then(|k| req.facts.get(k))
-                .and_then(Value::as_str)
-                .map(str::to_string);
             let code = req.facts.get(code_key).and_then(Value::as_str);
             let Some(code) = code else {
                 // No code fact: nothing to judge — the input stays unknown and the engine
@@ -300,11 +330,42 @@ fn judge(o: &OutsideInput, req: &FillRequest<'_>) -> Result<(Value, StageJudgeme
                         judged_by: JudgedBy::Ontology,
                         evidence_assertion_ids: Vec::new(),
                         code_system_refs: Vec::new(),
-                        judged_as_of: as_of,
+                        judged_as_of: None,
                         boundary: None,
                         assumptions: Vec::new(),
                     },
                 ));
+            };
+            let as_of = match o.as_of_fact.as_deref() {
+                None => None,
+                Some(k) => match req.facts.get(k) {
+                    // the date the judgement is for is unknown too — same answer, and the
+                    // judgement says so instead of judging with no validity filter
+                    None | Some(Value::Null) => {
+                        return Ok((
+                            Value::Null,
+                            StageJudgement {
+                                input_name: o.name.clone(),
+                                value: onjeon_contracts::Tri::Unknown,
+                                judged_by: JudgedBy::Ontology,
+                                evidence_assertion_ids: Vec::new(),
+                                code_system_refs: Vec::new(),
+                                judged_as_of: None,
+                                boundary: None,
+                                assumptions: Vec::new(),
+                            },
+                        ))
+                    }
+                    Some(v) => {
+                        let s = v
+                            .as_str()
+                            .ok_or_else(|| FillError::BadFact(format!("{k}: not a date fact")))?;
+                        if onjeon_rules_engine::date::parse_date(s).is_none() {
+                            return Err(FillError::BadFact(format!("{k}: not a date: {s}")));
+                        }
+                        Some(s.to_string())
+                    }
+                },
             };
             let j = membership(req.snapshot.view(), &cat, code, as_of.as_deref())
                 .map_err(FillError::Ontology)?;

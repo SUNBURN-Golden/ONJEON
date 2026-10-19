@@ -3,10 +3,12 @@
 //! Two job shapes:
 //!
 //! - **twin job** — the full input stage. `{case_id, abox, release?, configs[], cov,
-//!   contract_date, facts{}, assume{}, outside[]}`. The A-box directory is read once,
-//!   the named release (or a candidate view, when `release` is absent) is the snapshot,
-//!   and the engine runs only when the chain links — rule bytes come from the snapshot,
-//!   not the file system.
+//!   contract_date, facts{}, assume{}}`. The A-box directory is read once, the named
+//!   release (or a candidate view, when `release` is absent) is the snapshot, and the
+//!   engine runs only when the chain links — rule bytes come from the snapshot, not the
+//!   file system, and the judged inputs a rule needs are declared inside those bytes
+//!   (`inputs_from_outside_dsl`, C-08). A job carries no `outside`: a caller can neither
+//!   add nor omit judged inputs.
 //! - **legacy job** — the absorbed verifier runner: `{case_id, rule_path, inputs}` goes
 //!   straight to the engine and reports the same fields the old runner printed, plus
 //!   `judgements` (always empty — there is no input stage on that path).
@@ -14,7 +16,7 @@
 //! `root` prefixes relative `abox`/`rule_path` values. No database, no network: the only
 //! I/O is reading the A-box and legacy rule files the job names.
 
-use crate::input_stage::OutsideInput;
+use crate::input_stage::load_rule_artifact;
 use crate::resolve::{evaluate_request, Request, RequestOutcome};
 use crate::snapshot::Snapshot;
 use onjeon_ontology::{Abox, OntologyError};
@@ -119,11 +121,11 @@ fn run_legacy(job: &Value, root: &Path) -> Result<Value, HarnessError> {
             format!("{}: {e}", path.display()),
         ))
     })?;
-    let rule = match Rule::from_json_str(&text) {
-        Ok(r) => r,
+    let rule = match load_rule_artifact(text.as_bytes()) {
+        Ok((r, _outside)) => r,
         Err(e) => {
             return Ok(json!({
-                "outcome": "load_error", "error": format!("{e}"),
+                "outcome": "load_error", "error": e.to_string(),
                 "engine_calls": 0, "judgements": [],
             }))
         }
@@ -146,6 +148,14 @@ fn run_legacy(job: &Value, root: &Path) -> Result<Value, HarnessError> {
 fn run_twin(job: &Value, root: &Path) -> Result<Value, HarnessError> {
     let missing =
         |k: &str| HarnessError::Json(serde::de::Error::custom(format!("job needs `{k}`")));
+    let bad = |m: &str| HarnessError::Json(serde::de::Error::custom(m.to_string()));
+    // judged inputs are declared by the rule artifact, never by the job (C-08)
+    match job.get("outside") {
+        None | Some(Value::Null) => {}
+        Some(_) => return Err(bad(
+            "`outside` is not a job field: `inputs_from_outside_dsl` lives in the rule artifact",
+        )),
+    }
     let abox_dir = root.join(s(job, "abox").ok_or_else(|| missing("abox"))?);
     let abox = Abox::from_dir(&abox_dir)?;
     let snap = match s(job, "release") {
@@ -157,25 +167,26 @@ fn run_twin(job: &Value, root: &Path) -> Result<Value, HarnessError> {
         .and_then(Value::as_array)
         .ok_or_else(|| missing("configs"))?
         .iter()
-        .filter_map(|c| c.as_str().map(str::to_string))
-        .collect();
+        .map(|c| {
+            c.as_str()
+                .map(str::to_string)
+                .ok_or_else(|| bad("configs entries must be strings"))
+        })
+        .collect::<Result<_, _>>()?;
     let contract_date = s(job, "contract_date")
         .or_else(|| job.pointer("/facts/contract_date").and_then(Value::as_str))
         .ok_or_else(|| missing("contract_date"))?;
     let cov = s(job, "cov").ok_or_else(|| missing("cov"))?;
-    let outside: Vec<OutsideInput> = match job.get("outside") {
-        None | Some(Value::Null) => Vec::new(),
-        Some(v) => serde_json::from_value(v.clone())?,
+    let obj = |k: &str| -> Result<Map<String, Value>, HarnessError> {
+        match job.get(k) {
+            None | Some(Value::Null) => Ok(Map::new()),
+            Some(Value::Object(m)) => Ok(m.clone()),
+            Some(_) => Err(bad(&format!("`{k}` must be an object"))),
+        }
     };
     // flat facts: assumptions ∪ facts ∪ contract_date (the rule sees one input map)
-    let mut facts: Map<String, Value> = job
-        .get("assume")
-        .and_then(Value::as_object)
-        .cloned()
-        .unwrap_or_default();
-    if let Some(f) = job.get("facts").and_then(Value::as_object) {
-        facts.extend(f.iter().map(|(k, v)| (k.clone(), v.clone())));
-    }
+    let mut facts = obj("assume")?;
+    facts.extend(obj("facts")?);
     facts.insert("contract_date".to_string(), json!(contract_date));
     let cfg_refs: Vec<&str> = configs.iter().map(String::as_str).collect();
     let out = evaluate_request(
@@ -184,26 +195,32 @@ fn run_twin(job: &Value, root: &Path) -> Result<Value, HarnessError> {
             candidates: &cfg_refs,
             contract_date,
             coverage: cov,
-            outside: &outside,
             facts: &facts,
         },
     );
-    Ok(twin_result(&snap, job, &out))
+    Ok(twin_result(&snap, &out))
 }
 
-fn twin_result(snap: &Snapshot, job: &Value, out: &RequestOutcome) -> Value {
+fn twin_result(snap: &Snapshot, out: &RequestOutcome) -> Value {
     let mut o = Map::new();
     o.insert(
         "release_id".into(),
         snap.release_id.clone().map_or(Value::Null, Value::String),
     );
-    let k15 = snap.integrity_findings().len();
-    if k15 > 0 {
-        o.insert("integrity_findings".into(), json!(k15));
+    if !out.integrity_findings.is_empty() {
+        o.insert(
+            "integrity_findings".into(),
+            Value::Array(
+                out.integrity_findings
+                    .iter()
+                    .map(|v| json!({"code": v.code, "subject": v.subject, "message": v.message}))
+                    .collect(),
+            ),
+        );
     }
     o.insert("engine_calls".into(), json!(out.engine_calls));
     match &out.chain {
-        crate::Chain::Linked(l) => {
+        Some(crate::Chain::Linked(l)) => {
             o.insert(
                 "chain".into(),
                 json!({
@@ -218,7 +235,7 @@ fn twin_result(snap: &Snapshot, job: &Value, out: &RequestOutcome) -> Value {
                 }),
             );
         }
-        crate::Chain::Blocked(b) => {
+        Some(crate::Chain::Blocked(b)) => {
             o.insert(
                 "chain".into(),
                 json!({
@@ -229,6 +246,7 @@ fn twin_result(snap: &Snapshot, job: &Value, out: &RequestOutcome) -> Value {
                 }),
             );
         }
+        None => {}
     }
     o.insert(
         "judgements".into(),
@@ -237,11 +255,17 @@ fn twin_result(snap: &Snapshot, job: &Value, out: &RequestOutcome) -> Value {
     if let Some(f) = &out.filled {
         o.insert("inputs".into(), Value::Object(f.inputs.clone()));
     }
-    let outcome = match (&out.eval, &out.pre_engine_error) {
-        (Some(Ok(_)), _) => "evaluated",
-        (Some(Err(_)), _) => "eval_error",
-        (None, Some(_)) if out.chain.linked().is_some() => "pre_engine_error",
-        _ => "blocked",
+    let outcome = if !out.integrity_findings.is_empty() {
+        "integrity_blocked"
+    } else if out.request_error.is_some() {
+        "request_error"
+    } else {
+        match (&out.eval, &out.pre_engine_error) {
+            (Some(Ok(_)), _) => "evaluated",
+            (Some(Err(_)), _) => "eval_error",
+            (None, Some(_)) => "pre_engine_error",
+            _ => "blocked",
+        }
     };
     o.insert("outcome".into(), json!(outcome));
     match &out.eval {
@@ -257,8 +281,10 @@ fn twin_result(snap: &Snapshot, job: &Value, out: &RequestOutcome) -> Value {
             if let Some(e) = &out.pre_engine_error {
                 o.insert("error".into(), json!(e));
             }
+            if let Some(e) = &out.request_error {
+                o.insert("error".into(), json!(e));
+            }
         }
     }
-    let _ = job;
     Value::Object(o)
 }

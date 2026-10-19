@@ -12,7 +12,7 @@ fn q1() -> Question {
 }
 
 fn base_q1() -> Outcome {
-    outcome(&run(&release_snapshot(), &q1()))
+    outcome(&run(&declared_snapshot(), &q1()))
 }
 
 /// input-link-other-company (golden E1, 재검토 R02 재현): a Hana sales configuration,
@@ -20,7 +20,7 @@ fn base_q1() -> Outcome {
 /// the edition this configuration uses, so nothing links and the engine never runs.
 #[test]
 fn input_link_other_company() {
-    let snap = release_snapshot();
+    let snap = declared_snapshot();
     let mut q = q1();
     q.cov = "cov:hi_2_5";
     let out = run(&snap, &q);
@@ -35,7 +35,7 @@ fn input_link_other_company() {
 /// the same sales configuration, is `cov_not_in_edition` with zero engine calls.
 #[test]
 fn input_link_other_edition() {
-    let mut a = abox();
+    let mut a = declared_abox();
     push(
         &mut a,
         "nodes",
@@ -57,7 +57,7 @@ fn input_link_other_edition() {
 /// on the contract date is the only ambiguity that is `multiple_candidates`.
 #[test]
 fn input_link_multiple_candidates() {
-    let mut a = abox();
+    let mut a = declared_abox();
     push(
         &mut a,
         "nodes",
@@ -96,7 +96,7 @@ fn input_link_multiple_candidates() {
 /// assertion order, changes neither the outcomes nor the blocked reasons.
 #[test]
 fn input_link_order_independent() {
-    let snap = release_snapshot();
+    let snap = declared_snapshot();
     for id in ["Q1", "Q9", "Q10"] {
         let q = question(id);
         let mut rev = question(id);
@@ -107,7 +107,7 @@ fn input_link_order_independent() {
         assert_eq!(a.engine_calls, b.engine_calls, "{id}");
     }
     // reversed stored order too
-    let mut a = abox();
+    let mut a = declared_abox();
     let hl = get(&a, "assertions", "a:hana_doc_link");
     push(
         &mut a,
@@ -130,7 +130,7 @@ fn input_link_order_independent() {
 #[test]
 fn input_link_multi_edition_config() {
     // (a) one more evidence assertion for the same (config, edition) link changes nothing
-    let mut a = abox();
+    let mut a = declared_abox();
     let hl = get(&a, "assertions", "a:hana_doc_link");
     push(
         &mut a,
@@ -140,13 +140,17 @@ fn input_link_multi_edition_config() {
     let out = run(&candidate_snapshot(&a), &q1());
     assert_eq!(outcome(&out), base_q1());
     assert_eq!(
-        out.chain.linked().unwrap().link_assertions,
+        out.chain
+            .as_ref()
+            .and_then(|c| c.linked())
+            .unwrap()
+            .link_assertions,
         ["a:hana_doc_link", "a:hana_doc_link_more_evidence"]
     );
 
     // (b) a second edition (e.g. 보통약관 + another 특약 판) on the same configuration is
     // not ambiguity; with the scope confirmed complete the conclusion stands.
-    let mut a = abox();
+    let mut a = declared_abox();
     let ed = get(&a, "terms_editions", HANA_ED);
     for id in ["ted:synthetic_main@2607", "ted:synthetic_rider2@2607"] {
         push(
@@ -192,7 +196,7 @@ fn input_link_multi_edition_config() {
     assert_eq!(out.engine_calls, 1);
 
     // (c) an unapproved link of the requested edition holds the conclusion, engine 0 calls
-    let mut a = abox();
+    let mut a = declared_abox();
     push(
         &mut a,
         "assertions",
@@ -216,7 +220,7 @@ fn input_link_multi_edition_config() {
 /// the conclusion holds as `scope_unknown` even with zero constraint violations.
 #[test]
 fn input_link_unknown_scope_hold() {
-    let mut a = abox();
+    let mut a = declared_abox();
     let hl = get(&a, "assertions", "a:hana_doc_link");
     push(
         &mut a,
@@ -241,7 +245,7 @@ fn input_link_unknown_scope_hold() {
     );
 
     // the golden Q9/Q10 are scope_unknown for the same reason on the frozen release
-    let snap = release_snapshot();
+    let snap = declared_snapshot();
     for (id, held) in [("Q9", "a:lotte_doc_link"), ("Q10", "a:hana_old_doc_link")] {
         let out = run(&snap, &question(id));
         let b = blocked(&out);
@@ -256,7 +260,7 @@ fn input_link_unknown_scope_hold() {
 /// from that edition. Then even a held link of that edition does not block.
 #[test]
 fn input_link_unrelated_rider_allowed() {
-    let mut a = abox();
+    let mut a = declared_abox();
     let ed = get(&a, "terms_editions", HANA_ED);
     push(
         &mut a,
@@ -294,7 +298,7 @@ fn input_link_unrelated_rider_allowed() {
 /// two editions the configuration uses is `competing_editions`; order changes nothing.
 #[test]
 fn input_link_competing_editions_hold() {
-    let mut a = abox();
+    let mut a = declared_abox();
     let ed = get(&a, "terms_editions", HANA_ED);
     push(
         &mut a,
@@ -341,7 +345,7 @@ fn input_link_competing_editions_hold() {
 }
 
 fn with_other_main(applies: Option<&str>, complete: Option<&str>) -> Snapshot {
-    let mut a = abox();
+    let mut a = declared_abox();
     let ed = get(&a, "terms_editions", HANA_ED);
     push(
         &mut a,

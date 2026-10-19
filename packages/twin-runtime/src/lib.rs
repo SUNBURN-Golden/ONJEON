@@ -10,8 +10,11 @@
 //!   edition → coverage → rule. A `Blocked` chain means zero engine calls; the coverage a
 //!   request names is never trusted on its own.
 //! - [`input_stage::fill`]: fills the inputs a rule declares from request facts and from
-//!   input-stage judgements (code membership). A judgement carries its evidence trail;
-//!   unsupported judgement kinds fail explicitly instead of guessing.
+//!   input-stage judgements (code membership). What a rule needs judged is declared by
+//!   the rule artifact itself (`inputs_from_outside_dsl`, C-08) — never by the request —
+//!   and a judgement carries its evidence trail.
+//! - [`evaluate_request`]: gates before the chain — K15 release-integrity findings and a
+//!   malformed contract date stop the run with zero engine calls.
 //! - [`harness`]: the `case-runner` job format and the per-job pipeline the CLI runs.
 //!
 //! No database, no network. The library never reads files: the caller hands it a
@@ -25,9 +28,12 @@ pub mod snapshot;
 
 pub use config_select::{config_select, ConfigBlock, ConfigSelection, HeldLink};
 pub use input_stage::{
-    fill, judge_time, DurUnit, FillError, FillRequest, Filled, JudgedBy, OutsideInput,
-    StageJudgement, TimeDuration, TimeJudgement,
+    fill, judge_time, load_rule_artifact, DurUnit, FillError, FillRequest, Filled, JudgedBy,
+    OutsideInput, StageJudgement, TimeDuration, TimeJudgement,
 };
-pub use onjeon_ontology::{BlockReason, Blocked, Chain, Linked};
-pub use resolve::{evaluate_request, resolve_chain, resolve_request, Request, RequestOutcome};
+pub use onjeon_ontology::Linked;
+pub use resolve::{
+    evaluate_request, resolve_chain, resolve_request, BlockReason, Blocked, Chain, Request,
+    RequestOutcome,
+};
 pub use snapshot::Snapshot;

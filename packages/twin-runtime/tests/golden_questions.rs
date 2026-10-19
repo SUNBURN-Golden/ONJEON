@@ -1,6 +1,7 @@
 //! The 11 golden questions of `packages/ontology/tests/golden` through the twin-runtime
-//! pipeline on `rel:case-r26`: same input-stage judgements, same engine outcomes, and
-//! zero engine calls on the blocked questions (Q9, Q10).
+//! pipeline on `rel:declared-r26` (`rel:case-r26`'s members re-frozen over rule files
+//! carrying the C-08 declaration): same input-stage judgements, same engine outcomes,
+//! and zero engine calls on the blocked questions (Q9, Q10).
 
 mod common;
 use common::*;
@@ -9,7 +10,7 @@ use serde_json::json;
 
 #[test]
 fn the_eleven_questions_match_the_reference() {
-    let snap = release_snapshot();
+    let snap = declared_snapshot();
     let qs = questions();
     assert_eq!(qs.len(), 11);
     for q in &qs {
@@ -26,7 +27,7 @@ fn the_eleven_questions_match_the_reference() {
 
 #[test]
 fn q9_and_q10_never_reach_the_engine() {
-    let snap = release_snapshot();
+    let snap = declared_snapshot();
     for id in ["Q9", "Q10"] {
         let out = run(&snap, &question(id));
         assert_eq!(out.engine_calls, 0, "{id}");
@@ -63,7 +64,7 @@ fn q1() -> Question {
 
 #[test]
 fn the_membership_judgement_carries_its_evidence() {
-    let snap = release_snapshot();
+    let snap = declared_snapshot();
     let out = run(&snap, &q1());
     assert_eq!(out.judgements.len(), 1);
     let j = &out.judgements[0];

@@ -1,0 +1,149 @@
+{
+  "task_id": "T-DT-01",
+  "base_sha": "2621d66367637c649e7761c0ed70708d1636a6d2",
+  "files_sha256": {
+    "Cargo.toml": "11fe303cb877080e0f54441cbf0bd8cfd43dc6b63eaf569505009a16bbeb5dfa",
+    "Cargo.lock": "ab03a8e07336338a36909be5187cbbee90f4be1b4d246bd9cbb8414cd60ad298",
+    "services/collect/src/archive.rs": "5fdcf711635e957dac4e2fed083fc2330a9edcf61b1a4b7b4392ca335a207053",
+    "services/collect/src/budget.rs": "8932a59aae185b0477a371699a998494e8223df9d19f476a8c2f186a3dc6d5d1",
+    "services/collect/src/digest.rs": "5154677d62d441328528e6594fa23ac30546c27e887937cb277f0dff9a8e7d4c",
+    "services/collect/src/format.rs": "9475ccc8ae5765a3c9f207f6d2c0c174afc946ae6c6dcd42f256bf8778f1640c",
+    "services/collect/src/http.rs": "01c861db3b0a64c1d088b4a08c0e913cc229343921ac15bf254a6f028341468f",
+    "services/collect/src/keys.rs": "b0ee9cdf8b0f45b8309fbeee029a499edc5822ee36a0dbfae334fb8076407314",
+    "services/collect/src/lib.rs": "c7666d454b38c87b3cd5d0e6c037ac5bace37f306a05e24e91d9ac870ae08e87",
+    "services/collect/src/main.rs": "9f088255668a4db5f353c8b82725402c6db58b674a0b6ae3bd1b748f684f1e73",
+    "services/collect/src/s3.rs": "6204c0878679ece3428ef8cd877f09a63f367a78c903c9f5c611931bbf5d1485",
+    "services/collect/src/s3xml.rs": "ab5ec2150b04db63b1019a239b4937ea679e2e3a1add93697a9f0c5a1e899272",
+    "services/collect/src/sigv4.rs": "c08251d77dd99dcefa60af1d2475d1c61b9718afe880cb7accc7d945be81bfc3",
+    "services/collect/src/store.rs": "de8aa5a0346eefd84389d2194e7f17c3d299a5c2078ad33d48c04d8444c484c4",
+    "services/collect/src/time.rs": "48e1ee0cee740e7e513058a4dd48e44cffaa96fb15de00188ef7db49e9da86d7",
+    "services/collect/tests/conformance.rs": "c6a0b7737a68ddae1eed209506d7a39712377bfc178778c0677002c7e73d0452",
+    "services/collect/tests/http_conformance.rs": "dcdf1317513da1f5a1737eb7626083ec507d869c060737e6f34bd13f0fd72519",
+    "services/collect/tests/s3_conformance.rs": "8966dc5d6e06935e8c71d6caba17c9188832c421007040a5a8552810a6efd8b5",
+    "services/collect/tests/test_python_conformance.py": "ee21d093f7719048e91821dc35bd64be94b79efa048d7033b0bd42fe4382ae2b",
+    "services/collect/tests/verify.py": "4baa7a0d929e454a5f1600c025565a2b2b9d5179191868362c71bf54e6fc6e23",
+    "services/collect/Cargo.toml": "0b5e33362c7f5dbe783857bf35a7de0c9b52caf2c226f8d40baedcaef2981fa7"
+  },
+  "results": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "-p",
+        "onjeon-collect",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "verification-00.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "onjeon-collect",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "verification-01.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace"
+      ],
+      "exit_code": 0,
+      "log": "verification-02.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "onjeon-collect"
+      ],
+      "exit_code": 0,
+      "log": "verification-03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "services/collect/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "verification-04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "verification-05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_deps.py"
+      ],
+      "exit_code": 1,
+      "log": "verification-06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_leak.py"
+      ],
+      "exit_code": 0,
+      "log": "verification-07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_leak.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "log": "verification-08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_skeleton.py"
+      ],
+      "exit_code": 0,
+      "log": "verification-09.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_skeleton.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "log": "verification-10.log"
+    }
+  ]
+}

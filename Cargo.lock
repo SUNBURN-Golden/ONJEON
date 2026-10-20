@@ -94,6 +94,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "onjeon-collect"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "onjeon-contracts",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "onjeon-contracts"
 version = "0.1.0"
 dependencies = [

@@ -255,7 +255,8 @@ fn json_path<'a>(v: &'a serde_json::Value, path: &str) -> Option<&'a serde_json:
     Some(cur)
 }
 
-/// All `href="…"`/`href='…'` attribute values in order.
+/// All `href="…"`/`href='…'` attribute values in order, entity-decoded the way a real
+/// HTML parser hands them back (`&amp;` is a literal `&`).
 ///
 /// Attribute *names* are matched on a lowercased copy (`HREF` matches), but values are
 /// sliced from the original document: an id like `tptyCode=PB15` is case-significant —
@@ -293,11 +294,75 @@ fn href_values(html: &str) -> Vec<String> {
                 }
             });
         if let Some((s, len)) = val {
-            out.push(html[at + s..at + s + len].to_string());
+            out.push(unescape_entities(&html[at + s..at + s + len]));
         }
         rest = at + 4;
     }
     out
+}
+
+/// Entity-decode an attribute value (`html.unescape` subset). A page that writes its
+/// query separators as `&amp;` yields `?a=1&amp;id=2` in the raw markup; splitting that
+/// on `&` alone turns the second key into `amp;id`, silently dropping the item — and a
+/// page whose links are all entity-encoded then looks like a *verified empty list*,
+/// fabrication in the unsafe direction. Unknown or malformed entities stay literal.
+fn unescape_entities(s: &str) -> String {
+    if !s.contains('&') {
+        return s.to_string();
+    }
+    let mut out = String::with_capacity(s.len());
+    let mut rest = s;
+    while let Some(i) = rest.find('&') {
+        out.push_str(&rest[..i]);
+        let tail = &rest[i + 1..];
+        match decode_entity(tail) {
+            Some((c, consumed)) => {
+                out.push(c);
+                rest = &tail[consumed..];
+            }
+            None => {
+                out.push('&');
+                rest = tail;
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+/// `name;` at the head of `tail` → (decoded char, bytes consumed including the `;`).
+/// The named set is the HTML-required five plus `&apos;`; numeric decimal/hex
+/// references are decoded by code point.
+fn decode_entity(tail: &str) -> Option<(char, usize)> {
+    let end = tail.find(';')?;
+    let name = &tail[..end];
+    if name.is_empty() || name.len() > 10 {
+        return None;
+    }
+    let c = match name {
+        "amp" => '&',
+        "lt" => '<',
+        "gt" => '>',
+        "quot" => '"',
+        "apos" => '\'',
+        _ => {
+            let digits = name.strip_prefix('#')?;
+            let v = match digits
+                .strip_prefix('x')
+                .or_else(|| digits.strip_prefix('X'))
+            {
+                Some(h) if !h.is_empty() && h.bytes().all(|b| b.is_ascii_hexdigit()) => {
+                    u32::from_str_radix(h, 16).ok()?
+                }
+                _ if !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()) => {
+                    digits.parse::<u32>().ok()?
+                }
+                _ => return None,
+            };
+            char::from_u32(v)?
+        }
+    };
+    Some((c, end + 1))
 }
 
 fn query_value(href: &str, key: &str) -> Option<String> {

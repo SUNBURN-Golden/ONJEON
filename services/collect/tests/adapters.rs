@@ -544,6 +544,62 @@ mod adapters {
         ));
     }
 
+    /// CPython `RobotFileParser` 의미론(tools/crawler/robots.py `_group`의 참조): agents에
+    /// `*`를 포함한 엔트리는 default 엔트리로, 모든 특정 엔트리 뒤에만 참조된다. 표준
+    /// 레이아웃(맨 앞 `User-agent: *` + Allow, 뒤의 특정 Disallow)에서 파일 순서대로 첫
+    /// 매치를 취하면 `*`의 Allow가 특정 Disallow를 무력화한다 — 참조 파서가 금지하는
+    /// 경로를 가져오는, 안전하지 않은 방향의 우회다.
+    #[test]
+    fn robots_star_entry_is_default_consulted_after_specific_entries() {
+        // `archiver`는 우리 토큰(onjeon-sourcearchiver)의 부분 문자열 — 뒤의 특정
+        // 엔트리가 맞고 앞의 `* Allow: /`를 이긴다.
+        let mut ff = FixtureFetch::new();
+        ff.add(
+            "https://h.fixture/robots.txt",
+            200,
+            "User-agent: *\nAllow: /\n\nUser-agent: archiver\nDisallow: /\n",
+        );
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/list", NOW),
+            RobotsVerdict::Disallow
+        ));
+
+        // 특정 엔트리가 우리 토큰과 맞지 않으면 `*` 엔트리는 여전히 적용된다.
+        let mut ff = FixtureFetch::new();
+        ff.add(
+            "https://h.fixture/robots.txt",
+            200,
+            "User-agent: *\nDisallow: /private\n\nUser-agent: otherbot\nDisallow: /\n",
+        );
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/private/x", NOW),
+            RobotsVerdict::Disallow
+        ));
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/public/x", NOW),
+            RobotsVerdict::Allow { .. }
+        ));
+
+        // 첫 `*` 엔트리가 default다 — 파이썬처럼 뒤의 `*` 엔트리는 통째로 버려진다.
+        let mut ff = FixtureFetch::new();
+        ff.add(
+            "https://h.fixture/robots.txt",
+            200,
+            "User-agent: *\nDisallow: /a\n\nUser-agent: *\nDisallow: /\n",
+        );
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/a", NOW),
+            RobotsVerdict::Disallow
+        ));
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/b", NOW),
+            RobotsVerdict::Allow { .. }
+        ));
+    }
+
     /// IPv6 호스트의 robots URL은 [::1]:8080 꼴이다 — 포트가 괄호 안에 들어간
     /// [::1:8080]은 다른 호스트로 다시 파싱돼 틀린 요청이 된다.
     #[test]
@@ -1326,6 +1382,64 @@ mod adapters {
         )
         .unwrap();
         assert_eq!(parsed.item_ids, vec!["1".to_string()]);
+    }
+
+    /// `&amp;`·`&#38;`로 인코딩된 쿼리 구분자는 실제 HTML 파서가 `&`로 돌려준다.
+    /// 디코딩 없이 `&`로만 자르면 두 번째 매개변수의 id 키가 `amp;tptyCode`가 돼 항목이
+    /// 조용히 빠진다 — 협회 어댑터 둘 다 id 키를 두 번째 매개변수에 둔다.
+    #[test]
+    fn entity_encoded_query_separators_do_not_drop_items() {
+        let parsed = parse_page(
+            &ListParser::HtmlLinks {
+                link_substring: "disclosurePopup.do".into(),
+                id_query_key: "tptyCode".into(),
+                total_marker: None,
+            },
+            b"<a href=\"disclosurePopup.do?tabType=1&amp;tptyCode=PB15\">a</a>\
+              <a href='disclosurePopup.do?tabType=2&#38;tptyCode=PB16'>b</a>\
+              <a href='disclosurePopup.do?tabType=3&amp;tptyCode=PB15'>dup</a>",
+        )
+        .unwrap();
+        // 중복 제거는 디코딩된 id 위에서 일어난다.
+        assert_eq!(
+            parsed.item_ids,
+            vec!["PB15".to_string(), "PB16".to_string()]
+        );
+    }
+
+    /// 링크가 모두 `&amp;`로 인코딩된 단일 페이지는 0건 '검증된 빈 목록'(EnumeratedEmpty)이
+    /// 아니다 — 항목이 실제로 열거된다.
+    #[test]
+    fn fully_entity_encoded_list_page_is_not_a_fabricated_empty() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add(
+            "https://h.fixture/list",
+            200,
+            "<a href=\"item.do?x=1&amp;id=1\">a</a><a href=\"item.do?x=2&amp;id=2\">b</a>",
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/list");
+        p.pagination = Pagination::SinglePage;
+        p.parser = ListParser::HtmlLinks {
+            link_substring: "item.do".into(),
+            id_query_key: "id".into(),
+            total_marker: None,
+        };
+        let m = en.run(&p, &meta());
+        assert_eq!(m.result.unique_item_count, 2);
+        assert!(!m.result.empty_success);
+        assert!(matches!(
+            m.termination,
+            Termination::NextPointerAbsent { .. }
+        ));
     }
 
     /// type = "password"처럼 공백이 있는 속성도 로그인 표지다.

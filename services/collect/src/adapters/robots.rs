@@ -331,12 +331,20 @@ struct Group {
     rules: Vec<(bool, String)>,
 }
 
-/// The group that applies to [`PRODUCT_TOKEN`] (first matching entry; a `*` entry applies
-/// to everything) plus its `Crawl-delay` if the matching entry declares one.
+/// The group that applies to [`PRODUCT_TOKEN`] plus its `Crawl-delay` if the matching
+/// entry declares one.
 ///
-/// Entry splitting is the CPython `RobotFileParser.parse` state machine (the same one
-/// `tools/crawler/robots.py` runs on): a *raw* empty line after collected agents discards
-/// them, a raw empty line after rules closes the entry; comment-only lines never split.
+/// Selection is the CPython `RobotFileParser` pair `_add_entry` + `can_fetch` (the same
+/// one `tools/crawler/robots.py::_group` delegates to): an entry carrying `*` in its
+/// agents becomes the *default* entry — consulted only after every specific entry fails
+/// to match, and the first default wins (later `*` entries are dropped entirely). Picking
+/// the first matching entry in file order instead would let the standard layout
+/// (`User-agent: *` + `Allow` first, a specific `Disallow` later) disarm the specific
+/// rules — the gate would fetch what the reference parser forbids.
+///
+/// Entry splitting is the `RobotFileParser.parse` state machine: a *raw* empty line after
+/// collected agents discards them, a raw empty line after rules closes the entry;
+/// comment-only lines never split.
 fn parse_group(text: &str) -> (Group, Option<f64>) {
     let mut entries: Vec<(Group, Option<f64>)> = Vec::new();
     let mut cur = Group::default();
@@ -390,13 +398,24 @@ fn parse_group(text: &str) -> (Group, Option<f64>) {
     if !cur.agents.is_empty() || !cur.rules.is_empty() {
         entries.push((cur, cur_delay));
     }
-    let token = PRODUCT_TOKEN.to_ascii_lowercase();
+    // `applies_to` parity: our token lowercased and cut at the first `/` (the product
+    // token carries no `/`, but the reference splits it); a declared agent matches when
+    // it is a substring of the token — an empty agent string is a substring of every
+    // token, exactly as `'' in ua` is True in Python.
+    let token = PRODUCT_TOKEN
+        .split('/')
+        .next()
+        .unwrap_or(PRODUCT_TOKEN)
+        .to_ascii_lowercase();
+    let mut default_entry: Option<(&Group, &Option<f64>)> = None;
     for (entry, delay) in &entries {
-        if entry
-            .agents
-            .iter()
-            .any(|a| a == "*" || (!a.is_empty() && token.contains(a.as_str())))
-        {
+        if entry.agents.iter().any(|a| a == "*") {
+            if default_entry.is_none() {
+                default_entry = Some((entry, delay));
+            }
+            continue;
+        }
+        if entry.agents.iter().any(|a| token.contains(a.as_str())) {
             return (
                 Group {
                     agents: entry.agents.clone(),
@@ -406,7 +425,16 @@ fn parse_group(text: &str) -> (Group, Option<f64>) {
             );
         }
     }
-    (Group::default(), None)
+    match default_entry {
+        Some((entry, delay)) => (
+            Group {
+                agents: entry.agents.clone(),
+                rules: entry.rules.clone(),
+            },
+            *delay,
+        ),
+        None => (Group::default(), None),
+    }
 }
 
 /// RFC 9309 selection: the longest matching rule wins; Allow wins a tie.
@@ -427,7 +455,9 @@ fn can_fetch(group: &Group, path_and_query: &str) -> bool {
         if pattern.is_empty() || !rule_matches(&pattern, &path) {
             continue;
         }
-        let len = pattern.len() as i64;
+        // `len(pattern)` parity: Python counts characters, not bytes — on multibyte
+        // rule paths a longer-bytes Allow must not outrank a longer-chars Disallow.
+        let len = pattern.chars().count() as i64;
         if len > best_len || (len == best_len && *allow) {
             best_len = len;
             allowed = *allow;

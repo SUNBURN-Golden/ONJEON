@@ -374,13 +374,13 @@ test_checkpoint_is_write_once_and_a_second_writer_may_agree_but_not_diverge (tes
 test_nothing_new_writes_nothing (test_r2_checkpoint.Writing.test_nothing_new_writes_nothing) ... ok
 test_realistic_state_fits_with_room_to_spare (test_r2_checkpoint.Writing.test_realistic_state_fits_with_room_to_spare) ... ok
 test_second_checkpoint_chains_to_the_first (test_r2_checkpoint.Writing.test_second_checkpoint_chains_to_the_first) ... ok
-test_archive_samples_does_not_upload_files_outside_cache (test_source_archive.ConfinedPath.test_archive_samples_does_not_upload_files_outside_cache) ... <worktree>/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp_mnbkrbq/samples.csv' mode='r' encoding='utf-8'>
+test_archive_samples_does_not_upload_files_outside_cache (test_source_archive.ConfinedPath.test_archive_samples_does_not_upload_files_outside_cache) ... <worktree>/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpnor81tl0/samples.csv' mode='r' encoding='utf-8'>
   rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_escapes_are_refused (test_source_archive.ConfinedPath.test_escapes_are_refused) ... ok
 test_fetch_exit_code_via_with_budget (test_source_archive.ConfinedPath.test_fetch_exit_code_via_with_budget) ... ok
-test_fetch_refuses_traversal_before_writing (test_source_archive.ConfinedPath.test_fetch_refuses_traversal_before_writing) ... <worktree>/tools/source_archive.py:406: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpd0ihhr3s/samples.csv' mode='r' encoding='utf-8'>
+test_fetch_refuses_traversal_before_writing (test_source_archive.ConfinedPath.test_fetch_refuses_traversal_before_writing) ... <worktree>/tools/source_archive.py:406: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy022c3wm/samples.csv' mode='r' encoding='utf-8'>
   dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -459,7 +459,7 @@ test_unlisted_output_in_store_is_invalid (test_verify_sources.VerifyDerived.test
 test_unregenerable_output_is_unverified (test_verify_sources.VerifyDerived.test_unregenerable_output_is_unverified) ... ok
 
 ----------------------------------------------------------------------
-Ran 433 tests in 71.388s
+Ran 433 tests in 72.460s
 
 OK (skipped=6)
 

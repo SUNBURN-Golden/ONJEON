@@ -1,71 +1,116 @@
 """Polite HTTP fetcher: robots check -> host rate limit -> transport, with typed outcomes.
 
 Rules:
-- max 3 attempts per request (configurable), exponential backoff + injected jitter for
-  timeouts and 5xx (except 503 with Retry-After);
-- 429/503 honor Retry-After; a second 429 the same day stops the host for the day;
-- 401/403, captcha/login/bot-block/geo-block markers, or a redirect to another host stop
-  immediately with a typed Outcome and no retry / no header change / no alternate path;
-- per-source daily request cap enforced (cap reached => Outcome deferred_cap);
-- no way to alter headers per retry is exposed.
+- at most `config.max_attempts` attempts per request (default 3), exponential backoff + injected
+  jitter for transient failures: timeouts, connection resets and 5xx (except 503 carrying
+  Retry-After, which is handled like 429);
+- 429 and 503-with-Retry-After honour Retry-After (delta seconds or HTTP-date): no request to
+  that host is made before then; a second 429 the same UTC day stops the host for the day;
+- 401/403, captcha/login/bot-block/geo-block markers in a bounded prefix of a textual body, an
+  empty 2xx body, or any redirect (same host or another host: redirects are never followed)
+  stop immediately with a typed Outcome: no retry, no header change, no alternate path;
+- the robots check may fetch robots.txt through the injected transport before the first attempt;
+  the limiter reservation covers the page attempts, and hosts of different sources share one
+  limiter budget;
+- per-source daily request cap enforced (cap reached => Outcome kind deferred_cap);
+- headers are fixed when fetch() is called; nothing here can change them per retry.
 
-All body inspection works on a bounded prefix (BODY_PREFIX_BYTES) so memory stays small.
+Reason strings come from the registry host_access vocabulary (reachable, origin_denied,
+rate_limited, service_outage, connection_reset, tls_error, timeout, empty_reply, geo_blocked,
+js_shell, redirect_loop, not_checked); "deferred_cap" is the cap outcome's own kind.
+Body inspection works on a bounded prefix (BODY_PREFIX_BYTES) so memory stays small.
 """
 import email.utils
-import re
 import threading
 import time
 from dataclasses import dataclass
+from datetime import timezone
 from typing import Callable, Dict, Iterable, Iterator, Mapping, Optional, Tuple
 from urllib.parse import urlsplit
 
 from .config import CrawlerConfig
 from .hostlimit import HostAtCapError, HostBusyError, HostRateLimiter
 from .robots import RobotsCache, RobotsDecision
-from .transport import Response, Transport, TransportError
+from .transport import (BodyTooLargeError, NetworkDisabledError, Response, Transport,
+                        TransportError)
 
 DAY_S = 86400
 BODY_PREFIX_BYTES = 32 * 1024
 
+# Marker lists are deliberately specific: a bare "login"/"로그인"/"봇" appears in ordinary page
+# chrome (login links, chatbot widgets) and would false-block healthy pages. A block means stop
+# and record a gap — but we only stop on signals that really mean "we are not welcome here".
 DEFAULT_BLOCK_MARKERS: Tuple[str, ...] = (
     "captcha",
     "recaptcha",
     "g-recaptcha",
-    "로그인",
-    "login",
+    "hcaptcha",
     "bot detected",
-    "bot block",
     "access denied",
     "your ip has been blocked",
-    "차단",
-    "봇",
+    "unusual traffic",
+    "automated requests",
+    "too many requests",
+    "please log in",
+    "login required",
+    "sign in to continue",
+    "로그인이 필요",
+    "로그인 후 이용",
+    "회원 전용",
+    "접근이 차단",
+    "접근 차단",
+    "비정상적인 접근",
+    "자동화된 접근",
+    "봇 차단",
 )
 
 DEFAULT_GEO_MARKERS: Tuple[str, ...] = (
     "geo-block",
     "geoblock",
     "geo block",
+    "not available in your country",
+    "not available in your region",
     "해외 접근",
     "해외 ip",
+    "해외에서 접속",
+    "국내에서만",
 )
 
 DEFAULT_SERVICE_OUTAGE_MARKERS: Tuple[str, ...] = (
-    "점검",
+    "서비스 점검",
+    "시스템 점검",
+    "정기 점검",
+    "작업 중입니다",
     "service outage",
-    "maintenance",
     "scheduled maintenance",
+    "under maintenance",
     "일시적인 오류",
     "일시적 오류",
 )
 
 DEFAULT_JS_SHELL_MARKERS: Tuple[str, ...] = (
     "window.__initial_state__",
-    "window.__data__",
-    "reactroot",
-    "vue.js",
+    "window.__next_data__",
+    "id=\"react-root\"",
+    "id='react-root'",
+    "id=\"root\"></div><script",
 )
 
-RETRYABLE_STATUS = frozenset({408})
+RETRYABLE_STATUS = frozenset({408})  # Request Timeout: transient, retried like a timeout
+
+_TEXTUAL_TYPES = ("text", "html", "xml", "json", "javascript", "x-www-form-urlencoded")
+
+_ROBOTS_REASONS = {
+    "bad_url": "not_checked",
+    "unsupported_scheme": "not_checked",
+    "robots_forbidden": "origin_denied",
+    "robots_disallow": "origin_denied",
+    "robots_rate_limited": "rate_limited",
+    "robots_server_error": "service_outage",
+    "robots_unreachable": "connection_reset",
+    "robots_too_large": "empty_reply",
+    "robots_redirect_refused": "redirect_loop",
+}
 
 
 @dataclass
@@ -116,9 +161,9 @@ class PoliteFetcher:
         self._service_markers = tuple(m.lower() for m in (service_outage_markers or DEFAULT_SERVICE_OUTAGE_MARKERS))
         self._js_markers = tuple(m.lower() for m in (js_shell_markers or DEFAULT_JS_SHELL_MARKERS))
         self._lock = threading.Lock()
-        # source -> (day_start_epoch, count)
+        # source -> (day_start_epoch, request_count)
         self._daily: Dict[str, Tuple[float, int]] = {}
-        # host -> (count, day_start_epoch)
+        # host -> (429_count, day_start_epoch)
         self._host_429_day: Dict[str, Tuple[int, float]] = {}
         # host -> stop_until_epoch
         self._host_stop_until: Dict[str, float] = {}
@@ -132,46 +177,58 @@ class PoliteFetcher:
         max_bytes: Optional[int] = None,
     ) -> Outcome:
         if not isinstance(url, str) or not url:
-            return Outcome("blocked", "empty_reply", url or "")
+            return Outcome("blocked", "not_checked", url or "")
         if not isinstance(source, str) or not source:
-            return Outcome("blocked", "empty_reply", url)
+            return Outcome("blocked", "not_checked", url)
+        host = _host(url)
+        if not host:
+            return Outcome("blocked", "not_checked", url)
         if timeout is None:
             timeout = 30.0
         if max_bytes is None:
             max_bytes = self._config.object_cap_bytes
 
-        robots = self._robots.check(url)
+        # Over the per-source daily cap: no request of any kind, not even robots.txt.
+        until = self._cap_blocked_until(source)
+        if until is not None:
+            return Outcome("deferred_cap", "deferred_cap", url, blocked_until=until)
+
+        # Host stopped by an earlier 429/Retry-After: no request before then.
+        stop = self._host_stop_until.get(host)
+        if stop is not None and self._clock() < stop:
+            return Outcome("rate_limited", "rate_limited", url, blocked_until=stop)
+
+        # One header set for the whole fetch: the robots check and every attempt see the same
+        # headers, so a block can never be worked around by varying them between sub-requests.
+        request_headers = dict(headers) if headers else {}
+        robots = self._robots.check(url, request_headers)
         if not robots.allowed:
             return self._robots_outcome(url, robots)
 
-        host = _host(url)
-        robots_delay = robots.crawl_delay
-        request_headers = dict(headers) if headers else {}
-
         for attempt in range(1, self._config.max_attempts + 1):
-            cap = self._check_and_bump_daily_cap(source)
-            if cap is not None:
-                return cap
-
-            stop = self._host_stop_until.get(host)
-            if stop is not None and self._clock() < stop:
-                return Outcome("rate_limited", "rate_limited", url, blocked_until=stop)
-
             try:
-                self._limiter.acquire(host, robots_delay)
+                self._limiter.acquire(host, robots.crawl_delay)
             except (HostAtCapError, HostBusyError):
                 return Outcome("blocked", "rate_limited", url)
+
+            until = self._bump_daily(source)
+            if until is not None:
+                self._limiter.release(host)
+                return Outcome("deferred_cap", "deferred_cap", url, blocked_until=until)
 
             try:
                 response = self._transport.request(url, request_headers, timeout, max_bytes)
             except TransportError as exc:
                 self._limiter.release(host)
-                kind, reason = _classify_transport_error(exc)
-                if attempt == self._config.max_attempts:
+                if isinstance(exc, NetworkDisabledError):
+                    raise  # local policy refusal, not a host outcome: never retry, never swallow
+                kind, reason, retryable = _classify_transport_error(exc)
+                if not retryable or attempt == self._config.max_attempts:
                     return Outcome(kind, reason, url, attempts=attempt)
                 self._sleep(_backoff(attempt, self._rng))
                 continue
 
+            outcome = None
             try:
                 outcome = self._handle_response(url, host, response, attempt)
             finally:
@@ -181,7 +238,8 @@ class PoliteFetcher:
 
             if outcome.kind == "retry":
                 if attempt == self._config.max_attempts:
-                    return Outcome("blocked", "service_outage", url, status=response.status, attempts=attempt)
+                    kind = "timeout" if outcome.reason == "timeout" else "blocked"
+                    return Outcome(kind, outcome.reason, url, status=response.status, attempts=attempt)
                 self._sleep(_backoff(attempt, self._rng))
                 continue
 
@@ -194,19 +252,19 @@ class PoliteFetcher:
         status = response.status
 
         if 300 <= status < 400:
-            location = response.headers.get("location", "")
-            target = _host(location) if location else ""
-            if target and target != host:
-                return Outcome("redirect", "redirect_loop", url, status=status, attempts=attempt)
+            # Redirects are never followed — same host or not. A cross-host Location is a block.
             return Outcome("redirect", "redirect_loop", url, status=status, attempts=attempt)
 
         if status in (401, 403):
             prefix = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
-            reason = _block_reason(prefix, self._block_markers, self._geo_markers)
+            reason = _block_reason(prefix, self._geo_markers)
             return Outcome("blocked", reason, url, status=status, attempts=attempt)
 
         if status == 429 or (status == 503 and "retry-after" in response.headers):
             return self._rate_limit_outcome(url, host, response, attempt)
+
+        if status in RETRYABLE_STATUS:
+            return Outcome("retry", "timeout", url, status=status, attempts=attempt)
 
         if 500 <= status < 600:
             return Outcome("retry", "service_outage", url, status=status, attempts=attempt)
@@ -215,16 +273,20 @@ class PoliteFetcher:
             return Outcome("blocked", "origin_denied", url, status=status, attempts=attempt)
 
         if 200 <= status < 300:
-            prefix, rest = _peek_prefix(response.body_iter, BODY_PREFIX_BYTES)
-            text = prefix.decode("utf-8", errors="ignore").lower()
-            if _has_marker(text, self._block_markers):
-                reason = _geo_or_origin(text, self._geo_markers)
-                return Outcome("blocked", reason, url, status=status, attempts=attempt)
-            if _has_marker(text, self._service_markers):
-                return Outcome("blocked", "service_outage", url, status=status, attempts=attempt)
-            if _has_marker(text, self._js_markers):
-                return Outcome("blocked", "js_shell", url, status=status, attempts=attempt)
-            wrapped = _BodyChain(rest, response.body_iter, response.close)
+            head = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
+            if not head:
+                return Outcome("blocked", "empty_reply", url, status=status, attempts=attempt)
+            if _is_textual(response.headers.get("content-type")):
+                text = head[:BODY_PREFIX_BYTES].decode("utf-8", errors="ignore").lower()
+                if _has_marker(text, self._geo_markers):
+                    return Outcome("blocked", "geo_blocked", url, status=status, attempts=attempt)
+                if _has_marker(text, self._block_markers):
+                    return Outcome("blocked", "origin_denied", url, status=status, attempts=attempt)
+                if _has_marker(text, self._service_markers):
+                    return Outcome("blocked", "service_outage", url, status=status, attempts=attempt)
+                if _has_marker(text, self._js_markers):
+                    return Outcome("blocked", "js_shell", url, status=status, attempts=attempt)
+            wrapped = _BodyChain(head, response.body_iter, response.close)
             return Outcome(
                 "success",
                 "reachable",
@@ -245,6 +307,7 @@ class PoliteFetcher:
             count = 0
         retry_after = _parse_retry_after(response.headers.get("retry-after"), now)
         if count >= 1:
+            # A second 429 the same UTC day: stop the host for the rest of the day.
             stop = _day_end(now)
         else:
             stop = retry_after if retry_after is not None else now
@@ -261,27 +324,37 @@ class PoliteFetcher:
         )
 
     def _robots_outcome(self, url: str, decision: RobotsDecision) -> Outcome:
-        if decision.deferred:
-            if decision.blocked or decision.reason == "robots_forbidden":
-                return Outcome("blocked", "origin_denied", url, blocked_until=decision.deferred_until)
-            if decision.reason == "robots_rate_limited":
-                return Outcome("rate_limited", "rate_limited", url, blocked_until=decision.deferred_until)
-            return Outcome("blocked", "service_outage", url, blocked_until=decision.deferred_until)
-        return Outcome("blocked", "origin_denied", url)
+        reason = _ROBOTS_REASONS.get(decision.reason, "service_outage")
+        kind = "rate_limited" if reason == "rate_limited" else "blocked"
+        return Outcome(kind, reason, url, blocked_until=decision.deferred_until)
 
-    def _check_and_bump_daily_cap(self, source: str) -> Optional[Outcome]:
+    def _cap_blocked_until(self, source: str) -> Optional[float]:
+        """Day-end epoch if the source is over its daily request cap, else None. Does not count."""
+        with self._lock:
+            now = self._clock()
+            day_start, count = self._daily.get(source, (_day_start(now), 0))
+            if now >= day_start + DAY_S:
+                return None
+            if count >= self._config.daily_request_cap_default:
+                return day_start + DAY_S
+            return None
+
+    def _bump_daily(self, source: str) -> Optional[float]:
+        """Count one real request; returns the day-end epoch if the cap was already reached."""
         with self._lock:
             now = self._clock()
             day_start, count = self._daily.get(source, (_day_start(now), 0))
             if now >= day_start + DAY_S:
                 day_start, count = _day_start(now), 0
             if count >= self._config.daily_request_cap_default:
-                return Outcome("deferred_cap", "deferred_cap", "", blocked_until=day_start + DAY_S)
+                return day_start + DAY_S
             self._daily[source] = (day_start, count + 1)
-        return None
+            return None
 
 
 class _BodyChain:
+    """Yields the already-consumed head chunk(s), then the rest of the stream, then closes."""
+
     __slots__ = ("_first", "_rest", "_close", "_done")
 
     def __init__(self, first: bytes, rest: Iterator[bytes], close: Callable[[], None]):
@@ -333,6 +406,7 @@ def _backoff(attempts_so_far: int, rng: Callable[[], float]) -> float:
 
 
 def _parse_retry_after(value: Optional[str], now: float) -> Optional[float]:
+    """Retry-After as an absolute epoch: delta-seconds or HTTP-date (GMT; naive treated as UTC)."""
     if not value:
         return None
     value = value.strip()
@@ -340,50 +414,52 @@ def _parse_retry_after(value: Optional[str], now: float) -> Optional[float]:
         return now + int(value)
     try:
         dt = email.utils.parsedate_to_datetime(value)
-        if dt.tzinfo is None:
-            return dt.timestamp()
-        return dt.astimezone(time.timezone.utc).timestamp()
     except (TypeError, ValueError):
         return None
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.timestamp()
 
 
-def _classify_transport_error(exc: TransportError) -> Tuple[str, str]:
+def _classify_transport_error(exc: TransportError) -> Tuple[str, str, bool]:
+    """(outcome kind, host_access reason, retryable) for a transport failure."""
+    if isinstance(exc, BodyTooLargeError):
+        return "blocked", "empty_reply", False  # unusable reply, not transient
     msg = str(exc).lower()
     if "timeouterror" in msg:
-        return "timeout", "timeout"
+        return "timeout", "timeout", True
     if "tls" in msg or "ssl" in msg:
-        return "tls_error", "tls_error"
+        return "tls_error", "tls_error", False  # renegotiation/cipher failures are not transient
     if "connectionreseterror" in msg:
-        return "connection_reset", "connection_reset"
-    return "connection_reset", "connection_reset"
+        return "connection_reset", "connection_reset", True
+    return "connection_reset", "connection_reset", True
 
 
 def _read_prefix(body_iter: Iterator[bytes], max_bytes: int) -> bytes:
+    """Consume up to max_bytes (plus at most one chunk already taken) for marker scanning.
+
+    The returned bytes were consumed from the iterator; a caller that keeps reading the body
+    must hand them back first. A TransportError mid-body just truncates the prefix.
+    """
     buf = bytearray()
-    for chunk in body_iter:
-        need = max_bytes - len(buf)
-        if need <= 0:
-            break
-        buf.extend(chunk[:need])
+    try:
+        for chunk in body_iter:
+            buf.extend(chunk)
+            if len(buf) >= max_bytes:
+                break
+    except TransportError:
+        pass
     return bytes(buf)
 
 
-def _peek_prefix(body_iter: Iterator[bytes], max_bytes: int) -> Tuple[bytes, bytes]:
-    buf = bytearray()
-    leftover = b""
-    for chunk in body_iter:
-        if len(buf) >= max_bytes:
-            leftover = chunk
-            break
-        need = max_bytes - len(buf)
-        if len(chunk) <= need:
-            buf.extend(chunk)
-        else:
-            buf.extend(chunk[:need])
-            leftover = chunk[need:]
-        if len(buf) >= max_bytes:
-            break
-    return bytes(buf), leftover
+def _is_textual(content_type: Optional[str]) -> bool:
+    """Marker scanning applies to textual/HTML bodies only; binary bodies (PDF, images) skip it."""
+    if not content_type:
+        return True
+    low = content_type.lower()
+    return any(tok in low for tok in _TEXTUAL_TYPES)
 
 
 def _has_marker(text: str, markers: Tuple[str, ...]) -> bool:
@@ -393,12 +469,9 @@ def _has_marker(text: str, markers: Tuple[str, ...]) -> bool:
     return False
 
 
-def _geo_or_origin(text: str, geo_markers: Tuple[str, ...]) -> str:
+def _block_reason(prefix: bytes, geo_markers: Tuple[str, ...]) -> str:
+    # The status already says "denied"; body markers only refine the reason.
+    text = prefix.decode("utf-8", errors="ignore").lower()
     if _has_marker(text, geo_markers):
         return "geo_blocked"
     return "origin_denied"
-
-
-def _block_reason(prefix: bytes, block_markers: Tuple[str, ...], geo_markers: Tuple[str, ...]) -> str:
-    text = prefix.decode("utf-8", errors="ignore").lower()
-    return _geo_or_origin(text, geo_markers) if _has_marker(text, block_markers) else "origin_denied"

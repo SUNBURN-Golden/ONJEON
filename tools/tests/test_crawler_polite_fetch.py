@@ -2,7 +2,7 @@
 
 No real network, no sleeping, no randomness except the injected rng.
 """
-import ast
+import email.utils
 import re
 import sys
 import unittest
@@ -103,6 +103,16 @@ class HostRateLimiterTest(unittest.TestCase):
         lim.acquire("a.example", robots_delay=10.0)
         self.assertEqual(sleep.sleeps, [10.0])
 
+    def test_robots_delay_below_config_min_uses_config(self):
+        clock = FakeClock(1000.0)
+        sleep = FakeSleeper(clock)
+        cfg = CrawlerConfig(contact="ops@example.org", per_host_min_interval_s=5)
+        lim = HostRateLimiter(cfg, clock=clock, sleep=sleep)
+        lim.acquire("a.example", robots_delay=2.0)
+        lim.release("a.example")
+        lim.acquire("a.example", robots_delay=2.0)
+        self.assertEqual(sleep.sleeps, [5.0])
+
     def test_concurrency_one_per_host(self):
         cfg = CrawlerConfig(contact="ops@example.org")
         lim = HostRateLimiter(cfg)
@@ -166,6 +176,16 @@ class PoliteFetcherSuccessTest(unittest.TestCase):
         self.assertEqual(sleep.sleeps, [5.0])
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 2)
 
+    def test_empty_2xx_body_is_empty_reply(self):
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": (200, {}, b""),
+        })
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "blocked")
+        self.assertEqual(out.reason, "empty_reply")
+        self.assertEqual(out.attempts, 1)
+
 
 class PoliteFetcherRetryTest(unittest.TestCase):
     def test_500_is_retried_three_times_then_blocked(self):
@@ -217,6 +237,17 @@ class PoliteFetcherStopTest(unittest.TestCase):
         self.assertEqual(out.attempts, 1)
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
 
+    def test_401_stops_immediately_no_retry(self):
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": (401, {}, b"unauthorized"),
+        })
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "blocked")
+        self.assertEqual(out.reason, "origin_denied")
+        self.assertEqual(out.attempts, 1)
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
+
     def test_captcha_marker_in_200_body_stops_immediately(self):
         f, t, _, _ = make_fetcher({
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
@@ -228,6 +259,18 @@ class PoliteFetcherStopTest(unittest.TestCase):
         self.assertEqual(out.attempts, 1)
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
 
+    def test_geo_block_marker_in_200_body_stops_immediately(self):
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": (200, {"Content-Type": "text/html"},
+                                     b"<p>this video is not available in your region</p>"),
+        })
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "blocked")
+        self.assertEqual(out.reason, "geo_blocked")
+        self.assertEqual(out.attempts, 1)
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
+
     def test_redirect_to_other_host_is_not_followed(self):
         f, t, _, _ = make_fetcher({
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
@@ -236,6 +279,16 @@ class PoliteFetcherStopTest(unittest.TestCase):
         out = f.fetch("https://a.example/page", "src1")
         self.assertEqual(out.kind, "redirect")
         self.assertEqual(out.reason, "redirect_loop")
+        self.assertEqual(out.attempts, 1)
+        self.assertEqual([u for u in t.urls if u != ROBOTS], ["https://a.example/page"])
+
+    def test_redirect_to_same_host_is_not_followed_either(self):
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": (301, {"Location": "https://a.example/other"}, b""),
+        })
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "redirect")
         self.assertEqual(out.attempts, 1)
         self.assertEqual([u for u in t.urls if u != ROBOTS], ["https://a.example/page"])
 
@@ -252,6 +305,40 @@ class PoliteFetcherRateLimitTest(unittest.TestCase):
         self.assertEqual(out.reason, "rate_limited")
         self.assertEqual(out.retry_after, clock.now + 120)
         self.assertEqual(out.blocked_until, clock.now + 120)
+
+    def test_429_honours_retry_after_http_date(self):
+        clock = FakeClock(1_800_000_000.0)
+        http_date = email.utils.formatdate(clock.now + 600, usegmt=True)
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": (429, {"Retry-After": http_date}, b""),
+        }, clock=clock)
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "rate_limited")
+        self.assertEqual(out.retry_after, clock.now + 600)
+        self.assertEqual(out.blocked_until, clock.now + 600)
+
+    def test_no_request_to_host_before_retry_after(self):
+        clock = FakeClock(1_800_000_000.0)
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": (429, {"Retry-After": "120"}, b""),
+        }, clock=clock)
+        f.fetch("https://a.example/page", "src1")
+        clock.advance(60)  # still inside the Retry-After window
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "rate_limited")
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
+
+    def test_503_with_retry_after_is_rate_limited(self):
+        clock = FakeClock(1_800_000_000.0)
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": (503, {"Retry-After": "30"}, b""),
+        }, clock=clock)
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "rate_limited")
+        self.assertEqual(out.blocked_until, clock.now + 30)
 
     def test_second_429_same_day_stops_host_for_the_day(self):
         clock = FakeClock(1_800_000_000.0)
@@ -300,9 +387,10 @@ class StaticPoliteTest(unittest.TestCase):
         text = "\n".join(p.read_text() for p in files)
         # ProxyHandler is allowed only as the explicit empty handler in transport.py.
         for m in re.finditer(r"ProxyHandler", text):
-            start = max(0, m.start() - 30)
-            snippet = text[start:m.end() + 1]
-            self.assertEqual(snippet, "urllib.request.ProxyHandler({})", f"unexpected ProxyHandler at {m.start()}")
+            self.assertEqual(text[max(0, m.start() - 15):m.start()], "urllib.request.",
+                             f"unexpected ProxyHandler at {m.start()}")
+            self.assertEqual(text[m.end():m.end() + 4], "({})",
+                             f"unexpected ProxyHandler at {m.start()}")
         self.assertNotIn("X-Forwarded", text)
         self.assertNotIn("user_agents", text.lower())
         self.assertFalse(re.search(r"random\.choice\s*\([^)]*[Uu]ser[-_]?[Aa]gent", text, re.DOTALL))

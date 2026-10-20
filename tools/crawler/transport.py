@@ -9,7 +9,7 @@ UrllibTransport (stdlib) rules:
   If-None-Match / If-Modified-Since; anything else a caller passes is an error, never silently sent.
 - redirects are NOT followed: a 3xx is returned and the caller validates the target (same host).
   Non-2xx statuses are returned as responses, not raised.
-- environment proxies are ignored (ProxyHandler({})); there is no proxy support.
+- environment proxies are ignored (an explicit empty proxy handler); there is no proxy support.
 - the body is streamed in bounded chunks and never exceeds max_bytes (BodyTooLargeError).
 """
 import abc

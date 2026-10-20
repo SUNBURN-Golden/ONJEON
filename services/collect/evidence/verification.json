@@ -1,9 +1,9 @@
 {
   "task_id": "T-DT-01",
-  "base_sha": "2621d66367637c649e7761c0ed70708d1636a6d2",
+  "base_sha": "9c8c742b1870d163361d5f962e17a03e7b66552c",
   "files_sha256": {
-    "Cargo.toml": "11fe303cb877080e0f54441cbf0bd8cfd43dc6b63eaf569505009a16bbeb5dfa",
-    "Cargo.lock": "ab03a8e07336338a36909be5187cbbee90f4be1b4d246bd9cbb8414cd60ad298",
+    "Cargo.toml": "ad44abe732edafa7fee0a49ef73d040764283308749d7b32eb8df0b57a851925",
+    "Cargo.lock": "6c4f6e6b3ea235c5eb3c857e4e02f039e769bf65a900fa65bf0b911313c0bffa",
     "services/collect/src/archive.rs": "5fdcf711635e957dac4e2fed083fc2330a9edcf61b1a4b7b4392ca335a207053",
     "services/collect/src/budget.rs": "8932a59aae185b0477a371699a998494e8223df9d19f476a8c2f186a3dc6d5d1",
     "services/collect/src/digest.rs": "5154677d62d441328528e6594fa23ac30546c27e887937cb277f0dff9a8e7d4c",

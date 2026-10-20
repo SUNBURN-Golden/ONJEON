@@ -329,13 +329,58 @@ test_unsettled_admissions_count_at_the_admission_limits_in_every_month (test_r2_
 test_unsettled_runs_count_in_full_and_settlements_must_match_their_run (test_r2_budget.Reservation.test_unsettled_runs_count_in_full_and_settlements_must_match_their_run) ... ok
 test_metered_store_refuses_before_the_request (test_r2_budget.StoreNeedsBudget.test_metered_store_refuses_before_the_request) ... ok
 test_r2_without_a_job_sends_nothing (test_r2_budget.StoreNeedsBudget.test_r2_without_a_job_sends_nothing) ... ok
-test_archive_samples_does_not_upload_files_outside_cache (test_source_archive.ConfinedPath.test_archive_samples_does_not_upload_files_outside_cache) ... <worktree>/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp27zlg00l/samples.csv' mode='r' encoding='utf-8'>
+test_a_record_after_the_checkpoint_must_chain_to_it (test_r2_checkpoint.Distrust.test_a_record_after_the_checkpoint_must_chain_to_it) ... ok
+test_audit_accepts_an_honest_chain_and_catches_an_understating_checkpoint (test_r2_checkpoint.Distrust.test_audit_accepts_an_honest_chain_and_catches_an_understating_checkpoint) ... ok
+test_audit_catches_a_broken_chain_and_a_wrong_tail (test_r2_checkpoint.Distrust.test_audit_catches_a_broken_chain_and_a_wrong_tail) ... ok
+test_checkpoint_ahead_of_the_ledger (test_r2_checkpoint.Distrust.test_checkpoint_ahead_of_the_ledger) ... ok
+test_foreign_key_among_checkpoints (test_r2_checkpoint.Distrust.test_foreign_key_among_checkpoints) ... ok
+test_genesis_pin (test_r2_checkpoint.Distrust.test_genesis_pin) ... ok
+test_good_checkpoint_is_read (test_r2_checkpoint.Distrust.test_good_checkpoint_is_read) ... ok
+test_key_and_document_must_agree (test_r2_checkpoint.Distrust.test_key_and_document_must_agree) ... ok
+test_malformed (test_r2_checkpoint.Distrust.test_malformed) ... ok
+test_the_last_record_replaced_or_removed_after_the_checkpoint (test_r2_checkpoint.Distrust.test_the_last_record_replaced_or_removed_after_the_checkpoint) ... ok
+test_unknown_policy (test_r2_checkpoint.Distrust.test_unknown_policy) ... ok
+test_meter_charges_the_checkpoint_write (test_r2_checkpoint.EndToEnd.test_meter_charges_the_checkpoint_write) ... ok
+test_runs_after_a_checkpoint_read_only_what_follows_it (test_r2_checkpoint.EndToEnd.test_runs_after_a_checkpoint_read_only_what_follows_it) ... ok
+test_settlement_after_a_checkpoint_written_during_the_run (test_r2_checkpoint.EndToEnd.test_settlement_after_a_checkpoint_written_during_the_run) ... ok
+test_a_chain_of_two_checkpoints_equals_all_records (test_r2_checkpoint.Equivalence.test_a_chain_of_two_checkpoints_equals_all_records) ... ok
+test_a_late_settlement_of_a_dead_reservation_is_ignored (test_r2_checkpoint.Equivalence.test_a_late_settlement_of_a_dead_reservation_is_ignored) ... ok
+test_checkpoint_plus_tail_equals_all_records (test_r2_checkpoint.Equivalence.test_checkpoint_plus_tail_equals_all_records) ... ok
+test_months_before_the_checkpoint_are_folded_into_job_totals (test_r2_checkpoint.Equivalence.test_months_before_the_checkpoint_are_folded_into_job_totals) ... ok
+test_open_reservation_settles_after_the_checkpoint (test_r2_checkpoint.Equivalence.test_open_reservation_settles_after_the_checkpoint) ... ok
+test_checker_rejects_enabled_proposal_foreign_bucket_and_bad_prefix (test_r2_checkpoint.LockRules.test_checker_rejects_enabled_proposal_foreign_bucket_and_bad_prefix) ... ok
+test_checker_rejects_indefinite_and_unbounded_locks (test_r2_checkpoint.LockRules.test_checker_rejects_indefinite_and_unbounded_locks) ... ok
+test_checker_rejects_unapproved_or_incomplete_approval (test_r2_checkpoint.LockRules.test_checker_rejects_unapproved_or_incomplete_approval) ... ok
+test_cli_checks_the_shipped_file_without_a_request (test_r2_checkpoint.LockRules.test_cli_checks_the_shipped_file_without_a_request) ... ok
+test_proposal_covers_the_o14_targets (test_r2_checkpoint.LockRules.test_proposal_covers_the_o14_targets) ... ok
+test_shipped_rules_are_a_proposal_without_any_indefinite_lock (test_r2_checkpoint.LockRules.test_shipped_rules_are_a_proposal_without_any_indefinite_lock) ... ok
+test_ledger_role_may_touch_checkpoints_but_not_head_them (test_r2_checkpoint.MeterAndProfiles.test_ledger_role_may_touch_checkpoints_but_not_head_them) ... ok
+test_shipped_status_profile_can_pay_for_a_checkpoint_write (test_r2_checkpoint.MeterAndProfiles.test_shipped_status_profile_can_pay_for_a_checkpoint_write) ... ok
+test_checkpoint_then_more_records (test_r2_checkpoint.Reads.test_checkpoint_then_more_records) ... ok
+test_listing_follows_full_blocks (test_r2_checkpoint.Reads.test_listing_follows_full_blocks) ... ok
+test_listing_stops_when_the_tail_ends_at_a_block_boundary (test_r2_checkpoint.Reads.test_listing_stops_when_the_tail_ends_at_a_block_boundary) ... ok
+test_no_checkpoint_behaves_as_before (test_r2_checkpoint.Reads.test_no_checkpoint_behaves_as_before) ... ok
+test_nothing_after_the_checkpoint_costs_two_gets (test_r2_checkpoint.Reads.test_nothing_after_the_checkpoint_costs_two_gets) ... ok
+test_reads_do_not_grow_with_the_age_of_the_ledger (test_r2_checkpoint.Reads.test_reads_do_not_grow_with_the_age_of_the_ledger) ... ok
+test_record_limit_applies_after_the_checkpoint (test_r2_checkpoint.Reads.test_record_limit_applies_after_the_checkpoint) ... ok
+test_files_exist (test_r2_checkpoint.RecordsAndDocs.test_files_exist) ... ok
+test_no_indefinite_lock_and_none_applied (test_r2_checkpoint.RecordsAndDocs.test_no_indefinite_lock_and_none_applied) ... ok
+test_no_secret_endpoint_or_model_id_under_the_checkpoint_directory (test_r2_checkpoint.RecordsAndDocs.test_no_secret_endpoint_or_model_id_under_the_checkpoint_directory) ... ok
+test_real_r2_record_and_verification_doc_agree (test_r2_checkpoint.RecordsAndDocs.test_real_r2_record_and_verification_doc_agree) ... ok
+test_real_r2_record_is_honest (test_r2_checkpoint.RecordsAndDocs.test_real_r2_record_is_honest) ... ok
+test_record_checks_are_the_o17_verification_items (test_r2_checkpoint.RecordsAndDocs.test_record_checks_are_the_o17_verification_items) ... ok
+test_a_checkpoint_too_big_for_the_profile_is_not_written (test_r2_checkpoint.Writing.test_a_checkpoint_too_big_for_the_profile_is_not_written) ... ok
+test_checkpoint_is_write_once_and_a_second_writer_may_agree_but_not_diverge (test_r2_checkpoint.Writing.test_checkpoint_is_write_once_and_a_second_writer_may_agree_but_not_diverge) ... ok
+test_nothing_new_writes_nothing (test_r2_checkpoint.Writing.test_nothing_new_writes_nothing) ... ok
+test_realistic_state_fits_with_room_to_spare (test_r2_checkpoint.Writing.test_realistic_state_fits_with_room_to_spare) ... ok
+test_second_checkpoint_chains_to_the_first (test_r2_checkpoint.Writing.test_second_checkpoint_chains_to_the_first) ... ok
+test_archive_samples_does_not_upload_files_outside_cache (test_source_archive.ConfinedPath.test_archive_samples_does_not_upload_files_outside_cache) ... <worktree>/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzb2ds9l/samples.csv' mode='r' encoding='utf-8'>
   rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
 test_escapes_are_refused (test_source_archive.ConfinedPath.test_escapes_are_refused) ... ok
 test_fetch_exit_code_via_with_budget (test_source_archive.ConfinedPath.test_fetch_exit_code_via_with_budget) ... ok
-test_fetch_refuses_traversal_before_writing (test_source_archive.ConfinedPath.test_fetch_refuses_traversal_before_writing) ... <worktree>/tools/source_archive.py:406: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp9127ss5z/samples.csv' mode='r' encoding='utf-8'>
+test_fetch_refuses_traversal_before_writing (test_source_archive.ConfinedPath.test_fetch_refuses_traversal_before_writing) ... <worktree>/tools/source_archive.py:406: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpt8m80nz0/samples.csv' mode='r' encoding='utf-8'>
   dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -414,7 +459,7 @@ test_unlisted_output_in_store_is_invalid (test_verify_sources.VerifyDerived.test
 test_unregenerable_output_is_unverified (test_verify_sources.VerifyDerived.test_unregenerable_output_is_unverified) ... ok
 
 ----------------------------------------------------------------------
-Ran 388 tests in 60.720s
+Ran 433 tests in 72.212s
 
 OK (skipped=6)
 

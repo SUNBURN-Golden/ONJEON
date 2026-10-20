@@ -1,0 +1,94 @@
+# cargo test -p onjeon-criteria defaults — T-KN-13 시험 로그
+#
+# 경로 정책 상태(자세한 것은 ../README.md "경로 상태" 절):
+# 이 과제의 allowed_paths는 data/criteria/defaults/** 와
+# services/criteria/src/defaults/** 뿐이다. `pub mod defaults;`를 적는
+# src/lib.rs는 허용 밖이라 이 모듈은 배송 상태에서 컴파일되지 않는다.
+#
+# 아래 §1은 배선을 임시로 켠 채(로컬 작업 트리 한정, 이후 되돌림) 실제로
+# 실행한 결과다 — 모듈 시험 17개 전부 통과. §2는 배송 상태 그대로의 같은
+# 명령 결과다 — 모듈이 배선되지 않아 일치 시험 0개. 이 명령이 0개로
+# 통과하는 것이 시험 통과를 뜻하지 않음을 명시한다. 배선은 경로 정책이
+# 허용하는 후속 라운드·과제에서 한다.
+#
+# ============================================================
+# §1 배선 임시 적용 상태(검증용, 이후 src/lib.rs 복원):
+#   $ cargo test -p onjeon-criteria defaults
+# ============================================================
+test defaults::tests::candidates_never_reach_service_reads ... ok
+test defaults::tests::correction_chain_loads_and_tips ... ok
+test defaults::tests::display_is_reference_statistic_never_fact ... ok
+test defaults::tests::malformed_source_ref_is_rejected ... ok
+test defaults::tests::shipped_defaults_dir_loads_clean ... ok
+test defaults::tests::private_id_prefixes_are_rejected ... ok
+test defaults::tests::unsourced_version_is_rejected ... ok
+test defaults::tests::user_assumption_is_never_overwritten ... ok
+test defaults::tests::unknown_keys_are_rejected ... ok
+test defaults::tests::scope_and_update_cycle_are_required ... ok
+test defaults::tests::non_statistic_evidence_kinds_are_rejected ... ok
+test defaults::tests::version_two_without_supersedes_is_rejected ... ok
+test defaults::tests::value_fields_must_match_their_kind ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conformance.rs (target/debug/deps/conformance-9c33d52e6f813826)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/load_validate.rs (target/debug/deps/load_validate-0bdfcc8692a31c8b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/release_changes.rs (target/debug/deps/release_changes-630460bddf3604be)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/versioning.rs (target/debug/deps/versioning-0945c4417cb34a83)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+
+
+# ============================================================
+# §2 배송 상태(src/lib.rs 원본 — 모듈 미배선):
+#   $ cargo test -p onjeon-criteria defaults
+# ============================================================
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_criteria-52d9bb73ad12e5b2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conformance.rs (target/debug/deps/conformance-9c33d52e6f813826)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/load_validate.rs (target/debug/deps/load_validate-0bdfcc8692a31c8b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/release_changes.rs (target/debug/deps/release_changes-630460bddf3604be)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/versioning.rs (target/debug/deps/versioning-0945c4417cb34a83)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+

@@ -176,8 +176,12 @@ pub fn klia() -> AssociationAdapter {
 }
 
 /// 손해보험협회 공시실 (KNIA, `kpub.knia.or.kr`). Entrypoints observed in the registry
-/// survey (`sources.csv`) and the 2026-10-10 group-B survey: 정기경영공시 회사 목록과
-/// 공시 목록 팝업.
+/// survey (`sources.csv`) and the 2026-10-10 group-B survey: the 정기경영공시 회사 목록
+/// page is the only entrypoint a GET/HTML request shape was observed for.
+/// `/popup/disclosureList.do` answered only POST returning a JS object literal
+/// (`{list:[{TP_NAME:'…'}]}`, B_knia §2, requests/B_knia.tsv) — a shape this adapter's
+/// GET transport and HTML parser cannot reproduce, so the `documents` axis gets no plan
+/// and stays unexplored instead of guessing a request the survey never saw.
 pub fn knia() -> AssociationAdapter {
     AssociationAdapter::new(
         AdapterManifest {
@@ -186,7 +190,6 @@ pub fn knia() -> AssociationAdapter {
             allowed_hosts: vec!["kpub.knia.or.kr".into()],
             inventory_entrypoints: vec![
                 "https://kpub.knia.or.kr/managementDisc/regularly/regularlyDisclosure.do".into(),
-                "https://kpub.knia.or.kr/popup/disclosureList.do".into(),
             ],
             query_matrix_version: "qm-knia-0.1".into(),
             acquisition_method: "static_html".into(),
@@ -195,40 +198,27 @@ pub fn knia() -> AssociationAdapter {
             supported_document_roles: vec!["disclosure_list".into()],
             pagination_termination_rule: "advertised_total_or_empty_page".into(),
             known_limitations: vec![
+                "robots.txt(2026-10-10 관측)가 403(WAF Block URL List) — 규칙 확인 불가로 게이트는 호스트를 robots_forbidden 차단으로 기록한다".into(),
                 "상품비교공시 판매본 키는 H1 반례로 불안정 — 판매본 식별은 별도 관문".into(),
                 "사업방법서·약관은 협회 비교공시에 없어 회사 공시실에서 열거한다(B_knia)".into(),
+                "/popup/disclosureList.do는 POST+JS 객체 리터럴로만 관측됨 — GET·HTML 계획으로 재현할 검증된 요청 형태가 없어 documents 축은 미탐색으로 남는다(B_knia §2)".into(),
             ],
             owner: "collect".into(),
         },
-        vec![
-            AssociationPlan {
-                axis: "institution",
-                query_signature: "scope=regularly_disclosure_company_list".into(),
-                entrypoint:
-                    "https://kpub.knia.or.kr/managementDisc/regularly/regularlyDisclosure.do".into(),
-                pagination: Pagination::SinglePage,
-                parser: ListParser::HtmlLinks {
-                    link_substring: "disclosurePopup.do".into(),
-                    id_query_key: "tptyCode".into(),
-                    total_marker: None,
-                },
-                doc_roles: vec!["disclosure_list".into()],
-                max_pages: 1,
+        vec![AssociationPlan {
+            axis: "institution",
+            query_signature: "scope=regularly_disclosure_company_list".into(),
+            entrypoint:
+                "https://kpub.knia.or.kr/managementDisc/regularly/regularlyDisclosure.do".into(),
+            pagination: Pagination::SinglePage,
+            parser: ListParser::HtmlLinks {
+                link_substring: "disclosurePopup.do".into(),
+                id_query_key: "tptyCode".into(),
+                total_marker: None,
             },
-            AssociationPlan {
-                axis: "documents",
-                query_signature: "scope=disclosure_list_popup".into(),
-                entrypoint: "https://kpub.knia.or.kr/popup/disclosureList.do".into(),
-                pagination: Pagination::SinglePage,
-                parser: ListParser::HtmlLinks {
-                    link_substring: "/file/download/".into(),
-                    id_query_key: String::new(),
-                    total_marker: None,
-                },
-                doc_roles: vec!["disclosure_list".into()],
-                max_pages: 1,
-            },
-        ],
+            doc_roles: vec!["disclosure_list".into()],
+            max_pages: 1,
+        }],
     )
 }
 
@@ -334,13 +324,15 @@ impl<'a> DiscoveryAdapter for InsurerAdapter<'a> {
         &self.manifest
     }
 
-    /// One product-list plan per verified disclosure entrypoint. The plan is only emitted
-    /// when the registry recorded the entrypoint as reachable (`disclosure_access` =
-    /// `reachable`) and secured (`disclosure_status` = `archived`); a `js_shell` home page
-    /// or a missing URL yields nothing — the scope stays unexplored with the recorded
-    /// reason.
-    fn plans(&self, entry: &DenomEntry) -> Vec<ListPlan> {
-        let row = &entry.row;
+    /// One product-list plan per verified disclosure entrypoint. The plan is bound to
+    /// the entry the adapter was built for (`for_entry`) — the trait parameter is
+    /// ignored so a plan can never describe an institution outside this manifest's
+    /// `allowed_hosts`/`inventory_entrypoints`. It is only emitted when the registry
+    /// recorded the entrypoint as reachable (`disclosure_access` = `reachable`) and
+    /// secured (`disclosure_status` = `archived`); a `js_shell` home page or a missing
+    /// URL yields nothing — the scope stays unexplored with the recorded reason.
+    fn plans(&self, _entry: &DenomEntry) -> Vec<ListPlan> {
+        let row = &self.entry.row;
         let verified = row.disclosure_status == Some(AcquisitionStatus::Archived)
             && row.disclosure_access == HostAccess::Reachable
             && !row.disclosure_url.is_empty();

@@ -10,10 +10,11 @@ mod adapters {
 
     use onjeon_collect::adapters::manifest::ScopeDesc;
     use onjeon_collect::adapters::{
-        self, company_doc_roles, exploration_state_of, klia, unenumerated_manifest,
-        AcquisitionEvidence, AssociationPlan, DenominatorItem, DiscoveryAdapter, Enumerator,
-        ExplorationState, Fetch, FetchError, FetchResponse, InsurerAdapter, ListParser, ListPlan,
-        Pagination, ProgressTable, RobotsGate, RobotsVerdict, RunMeta, Termination,
+        self, company_doc_roles, exploration_state_of, klia, knia, parse_page,
+        unenumerated_manifest, AcquisitionEvidence, AssociationPlan, DenominatorItem,
+        DiscoveryAdapter, Enumerator, ExplorationState, Fetch, FetchError, FetchResponse,
+        InsurerAdapter, ListParser, ListPlan, Pagination, ProgressTable, RobotsGate, RobotsVerdict,
+        RunMeta, Termination,
     };
     use onjeon_collect::Store;
     use onjeon_contracts::{AcquisitionStatus, DocRole, HostAccess};
@@ -33,6 +34,7 @@ mod adapters {
             status: u16,
             headers: Vec<(String, String)>,
             body: Vec<u8>,
+            truncated: bool,
         },
         Err(FetchError),
     }
@@ -45,22 +47,40 @@ mod adapters {
             }
         }
         fn add(&mut self, url: &str, status: u16, body: &str) {
-            self.responses.insert(
-                url.into(),
-                FixtureResponse::Ok {
-                    status,
-                    headers: vec![("content-type".into(), "text/html".into())],
-                    body: body.as_bytes().to_vec(),
-                },
+            self.add_full(
+                url,
+                status,
+                vec![("content-type".into(), "text/html".into())],
+                body.as_bytes(),
+                false,
             );
         }
         fn add_json(&mut self, url: &str, status: u16, body: &str) {
+            self.add_full(
+                url,
+                status,
+                vec![("content-type".into(), "application/json".into())],
+                body.as_bytes(),
+                false,
+            );
+        }
+        /// A response that hit the transport's byte cap (`truncated`), or one with
+        /// caller-chosen headers (e.g. none — a transport that returns no Content-Type).
+        fn add_full(
+            &mut self,
+            url: &str,
+            status: u16,
+            headers: Vec<(String, String)>,
+            body: &[u8],
+            truncated: bool,
+        ) {
             self.responses.insert(
                 url.into(),
                 FixtureResponse::Ok {
                     status,
-                    headers: vec![("content-type".into(), "application/json".into())],
-                    body: body.as_bytes().to_vec(),
+                    headers,
+                    body: body.to_vec(),
+                    truncated,
                 },
             );
         }
@@ -80,11 +100,12 @@ mod adapters {
                     status,
                     headers,
                     body,
+                    truncated,
                 }) => Ok(FetchResponse {
                     status: *status,
                     headers: headers.clone(),
                     body: body.clone(),
-                    truncated: false,
+                    truncated: *truncated,
                 }),
                 Some(FixtureResponse::Err(e)) => Err(*e),
                 None => Err(FetchError::Network),
@@ -383,6 +404,8 @@ mod adapters {
         let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
         assert!(matches!(m.termination, Termination::RobotsBlocked { .. }));
         assert_eq!(m.gaps[0].kind, "blocked");
+        // 첫 페이지도 가져오기 전의 차단은 남은 페이지가 아니라 범위 전체다.
+        assert_eq!(m.gaps[0].range, "whole_scope");
         assert_eq!(
             ff.requested(),
             vec!["https://h.fixture/robots.txt".to_string()]
@@ -500,7 +523,8 @@ mod adapters {
 
     // ---------- termination evidence ----------
 
-    /// 페이지 번호 열거: 항목이 있는 페이지 → 빈 페이지 도달이 종료 증거다.
+    /// 페이지 번호 열거: 항목이 있는 페이지 뒤의 빈 페이지는 목록의 끝(다음 포인터
+    /// 없음)이다 — 빈 목록(EnumeratedEmpty)이 아니라 Enumerated로 끝난다.
     #[test]
     fn enumeration_terminates_on_empty_page() {
         let mut ff = FixtureFetch::new();
@@ -525,7 +549,15 @@ mod adapters {
             rate_policy: "default".into(),
         };
         let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
-        assert!(matches!(m.termination, Termination::EmptyPage { .. }));
+        assert!(matches!(
+            m.termination,
+            Termination::NextPointerAbsent { .. }
+        ));
+        assert!(!m.result.empty_success);
+        assert_eq!(
+            exploration_state_of(&m.termination),
+            ExplorationState::Enumerated
+        );
         assert_eq!(m.result.unique_item_count, 3);
         assert_eq!(m.pages.len(), 3);
         assert_eq!(m.pages[0].first_item_id.as_deref(), Some("1"));
@@ -822,5 +854,355 @@ mod adapters {
             max_pages: 1,
         };
         let _ = HostAccess::NotChecked;
+    }
+
+    // ---------- an empty page is not blindly a success ----------
+
+    /// {"items":[],"total":5}인 첫 페이지는 '성공한 빈 목록'이 아니다 — 끝점이 5건을
+    /// 공시했으니 범위는 미탐색 정지로 남는다 (Masterplan §23.2 건수 일치 확인).
+    #[test]
+    fn empty_first_page_with_advertised_total_is_unexplored() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_json(
+            "https://h.fixture/api?p=1",
+            200,
+            r#"{"items":[],"total":5}"#,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/api?p={cursor}");
+        p.parser = ListParser::Json {
+            items_path: "items".into(),
+            id_field: "id".into(),
+            total_field: Some("total".into()),
+            next_field: None,
+        };
+        let m = en.run(&p, &meta());
+        assert!(!m.result.empty_success);
+        assert!(matches!(
+            m.termination,
+            Termination::Stall {
+                unique_items: 0,
+                advertised_total: 5,
+                ..
+            }
+        ));
+        assert!(m.gaps.iter().any(|g| g.kind == "unexplored"));
+        assert!(matches!(
+            exploration_state_of(&m.termination),
+            ExplorationState::PartiallyEnumerated { .. }
+        ));
+    }
+
+    /// 열거 도중의 빈 페이지도 공시 건수에 못 미치면 정지 — 남은 꼬리는 미탐색이다.
+    #[test]
+    fn mid_walk_empty_page_before_total_is_unexplored() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_json(
+            "https://h.fixture/api?p=1",
+            200,
+            r#"{"items":[{"id":"a"},{"id":"b"}],"total":5}"#,
+        );
+        ff.add_json(
+            "https://h.fixture/api?p=2",
+            200,
+            r#"{"items":[],"total":5}"#,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/api?p={cursor}");
+        p.parser = ListParser::Json {
+            items_path: "items".into(),
+            id_field: "id".into(),
+            total_field: Some("total".into()),
+            next_field: None,
+        };
+        let m = en.run(&p, &meta());
+        assert!(!m.result.empty_success);
+        assert!(matches!(
+            m.termination,
+            Termination::Stall {
+                unique_items: 2,
+                advertised_total: 5,
+                ..
+            }
+        ));
+        assert!(m
+            .gaps
+            .iter()
+            .any(|g| g.kind == "unexplored" && g.reason == "empty_page_before_advertised_total"));
+        assert!(matches!(
+            exploration_state_of(&m.termination),
+            ExplorationState::PartiallyEnumerated { .. }
+        ));
+    }
+
+    /// 끝점이 다음 포인터를 계속 주면 빈 페이지는 종료 증거가 아니다 — 걸음을 계속한다.
+    #[test]
+    fn empty_page_with_next_cursor_keeps_walking() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_json(
+            "https://h.fixture/api?c=c1",
+            200,
+            r#"{"items":[],"total":1,"next":"c2"}"#,
+        );
+        ff.add_json(
+            "https://h.fixture/api?c=c2",
+            200,
+            r#"{"items":[{"id":"a"}],"total":1,"next":null}"#,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/api?c={cursor}");
+        p.pagination = Pagination::Cursor {
+            first_cursor: "c1".into(),
+        };
+        p.parser = ListParser::Json {
+            items_path: "items".into(),
+            id_field: "id".into(),
+            total_field: Some("total".into()),
+            next_field: Some("next".into()),
+        };
+        let m = en.run(&p, &meta());
+        assert!(matches!(
+            m.termination,
+            Termination::AdvertisedTotalReached {
+                unique_items: 1,
+                advertised_total: 1
+            }
+        ));
+        assert_eq!(m.result.unique_item_count, 1);
+        assert_eq!(m.pages.len(), 2);
+    }
+
+    /// 빈 문자열 next는 '다음 없음'이다 — "" 커서를 따라가지 않는다.
+    #[test]
+    fn empty_string_next_cursor_is_absent() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_json(
+            "https://h.fixture/api?c=c1",
+            200,
+            r#"{"items":[{"id":"a"}],"next":""}"#,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/api?c={cursor}");
+        p.pagination = Pagination::Cursor {
+            first_cursor: "c1".into(),
+        };
+        p.parser = ListParser::Json {
+            items_path: "items".into(),
+            id_field: "id".into(),
+            total_field: None,
+            next_field: Some("next".into()),
+        };
+        let m = en.run(&p, &meta());
+        assert!(matches!(
+            m.termination,
+            Termination::NextPointerAbsent { .. }
+        ));
+        assert_eq!(ff.requested().len(), 2); // robots + page one only
+    }
+
+    /// Content-Type이 없고 본문이 마크업도 아니면 목록이 아니다 — '성공한 빈 목록'이
+    /// 아니라 not_list_content 실패다.
+    #[test]
+    fn missing_content_type_binary_body_is_not_a_list() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_full(
+            "https://h.fixture/list?page=1",
+            200,
+            vec![],
+            b"\x00\x01\x02not a page",
+            false,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
+        assert!(matches!(m.termination, Termination::ParseFailed { .. }));
+        assert!(!m.result.empty_success);
+        assert_eq!(m.result.unique_item_count, 0);
+        assert_eq!(m.pages[0].page_kind, "not_list_content");
+        assert_eq!(m.gaps[0].reason, "not_list_content");
+    }
+
+    /// 목록 URL의 401/403은 접근 거부다 — gap 종류는 failed가 아니라 blocked.
+    #[test]
+    fn http_403_list_page_records_blocked_gap() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add("https://h.fixture/list?page=1", 403, "forbidden");
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
+        assert!(matches!(m.termination, Termination::FetchFailed { .. }));
+        assert_eq!(m.gaps[0].kind, "blocked");
+        assert_eq!(m.gaps[0].reason, "access_denied");
+    }
+
+    /// href 값은 원문 대소문자를 보존한다: 설정 문자열은 페이지의 실제 대소문자와
+    /// 매칭되고 id도 원형으로 남는다 — `coId=Ab12`는 "ab12"로 바뀌지 않고, 대소문자만
+    /// 다른 두 항목은 하나로 합쳐지지 않는다.
+    #[test]
+    fn href_extraction_preserves_value_case() {
+        let parsed = parse_page(
+            &ListParser::HtmlLinks {
+                link_substring: "mngtDis".into(),
+                id_query_key: "coId".into(),
+                total_marker: None,
+            },
+            b"<a href=\"/mngtDis/list.do?coId=Ab12\">x</a><a HREF=\"/mngtDis/list.do?coId=ab12\">y</a>",
+        )
+        .unwrap();
+        assert_eq!(
+            parsed.item_ids,
+            vec!["Ab12".to_string(), "ab12".to_string()]
+        );
+    }
+
+    /// data-href·xhref 같은 이름은 href 속성이 아니다 — 항목으로 세지 않는다.
+    #[test]
+    fn href_extraction_ignores_non_href_attribute_names() {
+        let parsed = parse_page(
+            &ListParser::HtmlLinks {
+                link_substring: String::new(),
+                id_query_key: "id".into(),
+                total_marker: None,
+            },
+            b"<div data-href=\"item.do?id=9\" xhref='item.do?id=8'></div><a href='item.do?id=1'>a</a>",
+        )
+        .unwrap();
+        assert_eq!(parsed.item_ids, vec!["1".to_string()]);
+    }
+
+    /// type = "password"처럼 공백이 있는 속성도 로그인 표지다.
+    #[test]
+    fn login_detection_tolerates_attribute_spacing() {
+        assert!(adapters::looks_like_login(
+            b"<form><input type = \"password\" name='pw'></form>"
+        ));
+        assert!(adapters::looks_like_login(
+            b"<form><input type= \"password\"></form>"
+        ));
+    }
+
+    /// robots.txt가 잘려도 마지막 불완전 줄은 규칙으로 파싱하지 않는다
+    /// (tools/crawler/robots.py `_read_capped` 이식) — 잘린 Allow: 줄이 허용 범위를
+    /// 키우는 방향은 안전하지 않다.
+    #[test]
+    fn truncated_robots_ignores_partial_last_line() {
+        let mut ff = FixtureFetch::new();
+        // 본문이 "Allow: /p" 중간에서 잘렸다 — 완전한 규칙은 Disallow: / 뿐이다.
+        ff.add_full(
+            "https://h.fixture/robots.txt",
+            200,
+            vec![("content-type".into(), "text/plain".into())],
+            b"User-agent: *\nDisallow: /\nAllow: /p",
+            true,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/public", NOW),
+            RobotsVerdict::Disallow
+        ));
+    }
+
+    /// 제외 파일의 legacy `status` 열도 알 수 없는 라벨은 실패다 — 기본값으로 삼지
+    /// 않는다 (어휘 규칙 4). 빈 값은 기존 호환을 유지한다.
+    #[test]
+    fn excluded_rows_reject_unknown_legacy_status() {
+        let mut row = fixture_row("hist-x");
+        row.remove("entity_evidence");
+        row.insert("status".into(), "definitely_not_a_label".into());
+        assert!(adapters::denominator_from_rows(vec![], vec![], vec![row]).is_err());
+        let mut row = fixture_row("hist-y");
+        row.remove("entity_evidence");
+        row.insert("status".into(), "".into());
+        let denom = adapters::denominator_from_rows(vec![], vec![], vec![row]).unwrap();
+        assert_eq!(denom.exclusions[0].reason, "historical_or_non_insurer");
+    }
+
+    /// KNIA documents 축은 GET·HTML로 재현할 검증된 요청 형태가 없다
+    /// (/popup/disclosureList.do는 POST+JS 객체 리터럴로만 관측, B_knia §2) — 계획을
+    /// 만들지 않고 한계로 선언한다. 관측된 robots 403(WAF)도 한계로 드러낸다.
+    #[test]
+    fn knia_documents_axis_is_unexplored_not_planned() {
+        let adapter = knia();
+        let denom =
+            adapters::denominator_from_rows(vec![fixture_row("ins-a")], vec![], vec![]).unwrap();
+        let plans = adapter.plans(&denom.in_scope[0]);
+        assert!(!plans.is_empty());
+        assert!(plans.iter().all(|p| p.scope.axis != "documents"));
+        let m = adapter.manifest();
+        assert!(m
+            .known_limitations
+            .iter()
+            .any(|l| l.contains("disclosureList.do") && l.contains("POST")));
+        assert!(m
+            .known_limitations
+            .iter()
+            .any(|l| l.contains("robots") && l.contains("403")));
+    }
+
+    /// InsurerAdapter 계획은 생성자에 묶인 기관 것이다 — 다른 entry를 넘겨도 그 기관
+    /// 바깥의 진입점(manifest의 allowed_hosts 밖)을 가리키지 않는다.
+    #[test]
+    fn insurer_adapter_plan_is_bound_to_its_entry() {
+        let mut row_a = fixture_row("ins-a");
+        row_a.insert("disclosure_url".into(), "https://a.fixture/disc".into());
+        row_a.insert("disclosure_access".into(), "reachable".into());
+        row_a.insert("disclosure_status".into(), "archived".into());
+        let mut row_b = fixture_row("ins-b");
+        row_b.insert("disclosure_url".into(), "https://b.fixture/disc".into());
+        row_b.insert("disclosure_access".into(), "reachable".into());
+        row_b.insert("disclosure_status".into(), "archived".into());
+        let denom = adapters::denominator_from_rows(vec![row_a, row_b], vec![], vec![]).unwrap();
+        let adapter = InsurerAdapter::for_entry(&denom.in_scope[0]); // ins-a
+                                                                     // ins-b를 넘겨도 계획은 ins-a의 진입점·범위다.
+        let plans = adapter.plans(&denom.in_scope[1]);
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].scope.institution_id, "ins-a");
+        assert_eq!(plans[0].entrypoint, "https://a.fixture/disc");
     }
 }

@@ -1,5 +1,11 @@
 $ cargo test --workspace
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/packages/rules-engine)
+   Compiling onjeon-ontology v0.1.0 (<worktree>/packages/ontology)
+   Compiling onjeon-ai-gateway v0.1.0 (<worktree>/services/ai-gateway)
+   Compiling onjeon-api-types v0.1.0 (<worktree>/packages/api-types)
+   Compiling onjeon-twin-runtime v0.1.0 (<worktree>/packages/twin-runtime)
+   Compiling onjeon-contracts v0.1.0 (<worktree>/packages/schemas)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.23s
      Running unittests src/lib.rs (target/debug/deps/onjeon_ai_gateway-30ef85d975ea53d9)
 
 running 0 tests
@@ -10,20 +16,20 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 15 tests
 test bad_prompt_version_is_rejected_before_any_call ... ok
-test non_retryable_error_is_not_retried ... ok
-test multiple_families_and_unknown_family ... ok
 test integer_accepts_integral_float ... ok
-test resolves_valid_output_and_records_without_bodies ... ok
-test cost_accumulation_saturates ... ok
-test cap_crossed_mid_retry_stops_retries ... ok
-test monthly_cap_degrades_with_l020 ... ok
-test unsupported_schema_fails_before_any_provider_call ... ok
-test retry_recovers ... ok
-test schema_subset_checks ... ok
-test retryable_error_is_retried ... ok
-test schema_failure_retries_then_unresolved ... ok
-test user_daily_cap_is_per_user_and_per_day ... ok
+test multiple_families_and_unknown_family ... ok
 test provider_error_is_recorded_and_unresolved ... ok
+test cap_crossed_mid_retry_stops_retries ... ok
+test retry_recovers ... ok
+test cost_accumulation_saturates ... ok
+test non_retryable_error_is_not_retried ... ok
+test retryable_error_is_retried ... ok
+test monthly_cap_degrades_with_l020 ... ok
+test schema_failure_retries_then_unresolved ... ok
+test unsupported_schema_fails_before_any_provider_call ... ok
+test schema_subset_checks ... ok
+test resolves_valid_output_and_records_without_bodies ... ok
+test user_daily_cap_is_per_user_and_per_day ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -38,31 +44,31 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running unittests src/lib.rs (target/debug/deps/onjeon_api_types-7c4a02dd950953e7)
 
 running 17 tests
-test tests::comparison_and_evaluation_targets_are_exactly_one ... ok
 test tests::a_required_any_value_must_be_present ... ok
 test tests::money_in_requests_is_integer_won ... ok
 test tests::an_unknown_confirm_party_fails_instead_of_passing_as_a_string ... ok
-test tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required ... ok
-test tests::every_response_body_type_has_a_required_release_id ... ok
-test tests::fixtures_round_trip ... ok
 test tests::multipart_form_has_no_binary_field_and_keeps_the_password_out_of_other_types ... ok
+test tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required ... ok
+test tests::comparison_and_evaluation_targets_are_exactly_one ... ok
 test tests::personal_and_console_are_never_publicly_cacheable ... ok
 test tests::operation_ids_and_routes_are_unique ... ok
 test tests::skeleton_operations_are_not_exposed_by_default ... ok
 test tests::unknown_enum_values_fail_instead_of_defaulting ... ok
+test tests::every_response_body_type_has_a_required_release_id ... ok
+test tests::fixtures_round_trip ... ok
 test tests::lookup_helpers ... ok
-test tests::the_spec_pins_private_no_store_on_every_personal_and_console_response ... ok
 test tests::operation_table_matches_the_openapi_documents ... ok
-ok: 30 generated files are up to date
-....test tests::generated_files_are_up_to_date ... ok
+test tests::the_spec_pins_private_no_store_on_every_personal_and_console_response ... ok
+..ok: 30 generated files are up to date
+..test tests::generated_files_are_up_to_date ... ok
 ...................................
 ----------------------------------------------------------------------
-Ran 39 tests in 0.235s
+Ran 39 tests in 0.248s
 
 OK
 test tests::python_openapi_suite_passes ... ok
 
-test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
 
      Running unittests src/lib.rs (target/debug/deps/onjeon_collect-12e9f749582ab16b)
 
@@ -73,7 +79,7 @@ test store::tests::archive_local_rejects_traversal_keys ... ok
 test sigv4::tests::archive_sigv4_matches_aws_example ... ok
 test store::tests::archive_local_put_new_is_atomic ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
      Running unittests src/main.rs (target/debug/deps/onjeon_collect-0d938c33ba987883)
 
@@ -83,47 +89,60 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
      Running tests/adapters.rs (target/debug/deps/adapters-458b3584b816d350)
 
-running 22 tests
+running 35 tests
 test adapters::association_adapter_manifest_is_honest_config ... ok
-test adapters::acquisition_reason_not_counted ... ok
-test adapters::denominator_rejects_unknown_vocabulary ... ok
+test adapters::csv_parser_handles_quotes_commas_newlines ... ok
 test adapters::denominator_seed_rows_are_excluded ... ok
+test adapters::denominator_rejects_unknown_vocabulary ... ok
+test adapters::acquisition_reason_not_counted ... ok
+test adapters::association_adapter_records_robots_block ... ok
+test adapters::empty_first_page_is_a_successful_empty_list ... ok
+test adapters::empty_first_page_with_advertised_total_is_unexplored ... ok
+test adapters::enumeration_terminates_on_advertised_total ... ok
+test adapters::empty_string_next_cursor_is_absent ... ok
+test adapters::empty_page_with_next_cursor_keeps_walking ... ok
+test adapters::http_403_list_page_records_blocked_gap ... ok
+test adapters::href_extraction_ignores_non_href_attribute_names ... ok
+test adapters::href_extraction_preserves_value_case ... ok
 test adapters::insurer_adapter_only_plans_verified_entrypoints ... ok
 test adapters::login_detection_markers ... ok
 test adapters::enumeration_terminates_on_empty_page ... ok
+test adapters::login_detection_tolerates_attribute_spacing ... ok
+test adapters::knia_documents_axis_is_unexplored_not_planned ... ok
+test adapters::insurer_adapter_plan_is_bound_to_its_entry ... ok
+test adapters::excluded_rows_reject_unknown_legacy_status ... ok
 test adapters::login_html_200_is_blocked_not_enumerated ... ok
-test adapters::empty_first_page_is_a_successful_empty_list ... ok
-test adapters::enumeration_terminates_on_advertised_total ... ok
-test adapters::repeated_last_page_is_not_a_success ... ok
-test adapters::csv_parser_handles_quotes_commas_newlines ... ok
-test adapters::robots_404_means_no_rules ... ok
 test adapters::robots_disallow_blocks_without_fetching ... ok
-test adapters::robots_forbidden_blocks_host ... ok
+test adapters::missing_content_type_binary_body_is_not_a_list ... ok
+test adapters::mid_walk_empty_page_before_total_is_unexplored ... ok
 test adapters::max_pages_records_unexplored_tail ... ok
-test adapters::association_adapter_records_robots_block ... ok
+test adapters::repeated_last_page_is_not_a_success ... ok
+test adapters::robots_forbidden_blocks_host ... ok
+test adapters::robots_404_means_no_rules ... ok
 test adapters::robots_longest_match_and_wildcards ... ok
 test adapters::robots_unverifiable_holds_host_and_never_fetches ... ok
 test adapters::stall_before_advertised_total_is_unexplored ... ok
-test adapters::manifest_is_stored_write_once ... ok
+test adapters::truncated_robots_ignores_partial_last_line ... ok
 test adapters::denominator_loads_registry_with_adr0018_scope ... ok
+test adapters::manifest_is_stored_write_once ... ok
 
-test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
      Running tests/conformance.rs (target/debug/deps/conformance-9976efb6de68b741)
 
 running 10 tests
 test invalid_listings_do_not_silently_drop_entries ... ok
 test python_put_once_same_and_different_bytes ... ok
+test python_symlink_escape_is_refused_for_reads_writes_and_listing ... ok
 test python_raw_hash_layout_idempotence_and_corruption ... ok
 test concurrent_writers_never_replace_the_winner ... ok
-test python_symlink_escape_is_refused_for_reads_writes_and_listing ... ok
 test python_observation_conflict_and_reserved_metadata_refusal ... ok
 test missing_documents_have_separate_reason_records ... ok
 test python_copy_conflict_and_verify_all_outcomes ... ok
 test invalid_responses_are_only_quarantined ... ok
 test observations_preserve_url_changes_provenance_and_all_roles ... ok
 
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 
      Running tests/http_conformance.rs (target/debug/deps/http_conformance-8497427e04334c66)
 
@@ -144,77 +163,77 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 54 tests
 test allowlist::tests::allowlist_checks_required_fields_and_event_names ... ok
-test allowlist::tests::allowlist_event_with_a_field_outside_the_list_fails ... ok
 test allowlist::tests::allowlist_field_names_for_the_leak_scanner ... ok
-test errors::tests::errors_broken_catalogs_are_reported ... ok
+test allowlist::tests::allowlist_event_with_a_field_outside_the_list_fails ... ok
 test errors::tests::errors_catalog_has_the_codes_of_the_contract ... ok
 test errors::tests::errors_catalog_keeps_its_rules ... ok
+test errors::tests::errors_broken_catalogs_are_reported ... ok
+test errors::tests::errors_class_letters_name_their_vocabulary_values ... ok
 test errors::tests::errors_every_code_maps_to_a_screen_state ... ok
-test errors::tests::errors_classes_match_the_error_response_schema ... ok
 test errors::tests::errors_http_codes_build_valid_error_responses ... ok
 test errors::tests::errors_unmapped_screen_state_is_reported ... ok
-test errors::tests::errors_class_letters_name_their_vocabulary_values ... ok
-test allowlist::tests::allowlist_file_is_consistent ... ok
-test events::tests::events_each_event_has_exactly_one_schema_file ... ok
+test errors::tests::errors_classes_match_the_error_response_schema ... ok
 test events::tests::events_index_lists_every_event_of_the_contract ... ok
 test events::tests::events_personal_ids_stay_on_the_personal_queue ... ok
-test evidence_ref::tests::evidence_ref_every_kind_round_trips ... ok
+test allowlist::tests::allowlist_file_is_consistent ... ok
 test evidence_ref::tests::evidence_ref_clause_variants_round_trip ... ok
+test evidence_ref::tests::evidence_ref_every_kind_round_trips ... ok
 test evidence_ref::tests::evidence_ref_fixture_converter_rejects_unmapped_or_inconsistent_input ... ok
-test allowlist::tests::allowlist_listed_examples_pass_and_fail_as_declared ... ok
-test evidence_ref::tests::evidence_ref_rejects_malformed ... ok
 test evidence_ref::tests::evidence_ref_fixture_ids_convert_to_canonical_refs ... ok
-test evidence_ref::tests::evidence_ref_rfc3339_accepts_offsets_and_fractions_only_when_real ... ok
-test tests::a_class_letter_is_no_longer_a_valid_error_class_on_the_wire ... ok
 test evidence_ref::tests::evidence_ref_matches_the_schema_alternatives ... ok
-test tests::accepted_assertion_needs_a_review_decision ... ok
+test evidence_ref::tests::evidence_ref_rejects_malformed ... ok
+test evidence_ref::tests::evidence_ref_rfc3339_accepts_offsets_and_fractions_only_when_real ... ok
 test evidence_ref::tests::evidence_ref_validate_checks_what_the_grammar_cannot ... ok
+test tests::a_class_letter_is_no_longer_a_valid_error_class_on_the_wire ... ok
+test tests::accepted_assertion_needs_a_review_decision ... ok
 test tests::assertion_is_a_relation_or_a_value_never_both_or_neither ... ok
 test tests::blocked_scenario_carries_no_engine_result ... ok
+test allowlist::tests::allowlist_listed_examples_pass_and_fail_as_declared ... ok
 test tests::contracts_version_matches_the_generated_clients ... ok
+test events::tests::events_each_event_has_exactly_one_schema_file ... ok
 test tests::enum_serialization_uses_the_vocabulary_code ... ok
 test tests::error_class_must_match_the_code ... ok
 test tests::error_class_words_and_code_letters_correspond_one_to_one ... ok
 test tests::evaluation_result_invariants_catch_mismatched_kinds ... ok
-test tests::engine_payout_kinds_are_the_contract_payout_axis ... ok
 test tests::every_fixture_round_trips_through_its_type ... ok
+test tests::engine_payout_kinds_are_the_contract_payout_axis ... ok
 test tests::every_fixture_satisfies_the_cross_field_checks_and_is_test_only ... ok
 test tests::fixture_assertion_is_valid_but_never_accepted ... ok
-test allowlist::tests::allowlist_listing_a_forbidden_looking_field_is_a_problem ... ok
+test tests::generated_enums_equal_the_vocabulary_exactly ... ok
 test tests::missing_required_field_is_an_error ... ok
 test tests::no_wire_type_exposes_floating_point_money ... ok
 test tests::premium_comparison_eligibility_needs_the_full_condition_set ... ok
 test tests::promoted_axes_reject_unknown_values_instead_of_keeping_a_string ... ok
-== self-test: a deleted field must fail the check
-test tests::generated_enums_equal_the_vocabulary_exactly ... ok
 test allowlist::tests::allowlist_checks_value_shapes ... ok
 test tests::rule_02_contract_effects_round_trip_when_the_engine_supports_them ... ok
+== self-test: a deleted field must fail the check
+test allowlist::tests::allowlist_listing_a_forbidden_looking_field_is_a_problem ... ok
 test tests::unknown_enum_values_are_errors_not_defaults ... ok
 test tests::unknown_fields_are_ignored_so_minor_additions_do_not_break_old_clients ... ok
 test tests::rule_engine_output_deserializes_into_evaluation_result ... ok
-test events::tests::events_examples_validate ... ok
 test events::tests::events_check_vocabulary_ids_and_counts ... ok
 test events::tests::events_reject_extra_missing_and_wrong_shape ... ok
-ok: 30 generated files are up to date
-.......test tests::generated_files_are_up_to_date ... ok
-..................   structural diff: deleted field detected
+test events::tests::events_examples_validate ... ok
+.........ok: 30 generated files are up to date
+........test tests::generated_files_are_up_to_date ... ok
+........   structural diff: deleted field detected
 .....   compile probe: previous client cannot read documents without the deleted field
 self-test ok
 test tests::compat_check_selftest_detects_a_deleted_field ... ok
 ...................................................................................................
 ----------------------------------------------------------------------
-Ran 129 tests in 26.384s
+Ran 129 tests in 31.432s
 
 OK
 test tests::python_codegen_suite_passes ... ok
 
-test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 26.46s
+test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 31.51s
 
      Running unittests src/lib.rs (target/debug/deps/onjeon_ontology-dd70b7f222cd519b)
 
 running 2 tests
-test membership::tests::range_spans_letters ... ok
 test membership::tests::range_bound_with_minor_is_rejected ... ok
+test membership::tests::range_spans_letters ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -223,13 +242,13 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 11 tests
 test d2_raw_hash_alone_cannot_realize_an_edition ... ok
 test edition_annex_missing_unconfirmed ... ok
-test edition_composition_annex ... ok
-test edition_integrated_vs_separate_file ... ok
 test edition_bundle_split_files ... ok
 test edition_annex_content_changed ... ok
-test edition_not_auto_by_fingerprint ... ok
 test edition_ocr_normalization ... ok
+test edition_composition_annex ... ok
 test unknown_edition_is_an_error_and_unconfirmed_when_resolving ... ok
+test edition_integrated_vs_separate_file ... ok
+test edition_not_auto_by_fingerprint ... ok
 test edition_repack_same ... ok
 test edition_one_rider_revised_in_integrated ... ok
 
@@ -238,11 +257,11 @@ test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
      Running tests/fixture_origin/main.rs (target/debug/deps/fixture_origin-6100793664c375aa)
 
 running 6 tests
-test fixture_origin_rules_are_all_fixture_only ... ok
-test fixture_origin_evidence_refs_are_formal_except_listed ... ok
 test fixture_origin_hashes_not_in_r2_listing ... ok
-test fixture_origin_claims_are_all_fixture ... ok
+test fixture_origin_evidence_refs_are_formal_except_listed ... ok
 test fixture_origin_marker_mutations_are_detected ... ok
+test fixture_origin_rules_are_all_fixture_only ... ok
+test fixture_origin_claims_are_all_fixture ... ok
 test fixture_origin_checks_pass_as_historical_and_flag_as_service ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
@@ -250,55 +269,55 @@ test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/golden.rs (target/debug/deps/golden-d8a64bd75aa36b14)
 
 running 9 tests
-test scope_relation_with_an_empty_universe_is_not_comparable ... ok
 test judgement_names_trail_and_code_sets ... ok
-test scope_relation_with_unknown_membership_is_not_comparable ... ok
-test q1_explanation_reaches_page_and_file ... ok
-test the_eleven_questions_match_the_reference ... ok
-test correction_history_is_reproduced_per_release ... ok
-test r24_has_exactly_one_k1_violation_and_r25_r26_none ... ok
+test scope_relation_with_an_empty_universe_is_not_comparable ... ok
 test releases_reproduce_the_reference_hashes_and_integrity ... ok
+test the_eleven_questions_match_the_reference ... ok
+test r24_has_exactly_one_k1_violation_and_r25_r26_none ... ok
+test q1_explanation_reaches_page_and_file ... ok
+test scope_relation_with_unknown_membership_is_not_comparable ... ok
 test scope_relation_hana_vs_hyundai_is_narrower_and_needs_a_code_system ... ok
+test correction_history_is_reproduced_per_release ... ok
 
-test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
      Running tests/input_link.rs (target/debug/deps/input_link-1231b0b0d3aeb649)
 
 running 10 tests
-test e2_coverage_of_another_edition_on_the_same_configuration ... ok
 test s01b_unapproved_duplicate_link_of_the_requested_edition_blocks ... ok
-test e1_other_company_coverage_on_a_hana_configuration ... ok
 test e3_several_configurations_apply_on_the_contract_date ... ok
+test e2_coverage_of_another_edition_on_the_same_configuration ... ok
+test e1_other_company_coverage_on_a_hana_configuration ... ok
 test q9_and_q10_are_blocked_with_a_reason ... ok
 test simulate_is_blocked_by_open_conflict_and_missing_rule ... ok
 test e4_candidate_order_does_not_matter ... ok
+test t01_unknown_scope_blocks_unrelated_rider_passes_competing_edition_blocks_order_independent ... ok
 test s01_extra_evidence_and_a_second_unrelated_edition_do_not_block ... ok
 test u01_definition_site_and_application_relation_are_different ... ok
-test t01_unknown_scope_blocks_unrelated_rider_passes_competing_edition_blocks_order_independent ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
      Running tests/mutations.rs (target/debug/deps/mutations-2fe0b5e130225d6c)
 
 running 18 tests
-test k10_two_claims_supersede_the_same_one ... ok
-test k13_comparison_eligible_price_without_conditions ... ok
 test k1_accepted_c0_without_terms_basis ... ok
 test k14_fingerprint_match_is_not_an_approval ... ok
-test k11_enabled_with_hold_claims ... ok
 test k16_annex_fingerprint_changed_in_place ... ok
-test k2_same_benefit_without_both_sides ... ok
-test k12_scope_relation_differs_from_computation ... ok
-test k4_narrower_cycle ... ok
+test k13_comparison_eligible_price_without_conditions ... ok
+test k11_enabled_with_hold_claims ... ok
+test k10_two_claims_supersede_the_same_one ... ok
 test k3_code_set_without_edition ... ok
-test k5_valid_from_after_valid_to ... ok
+test k2_same_benefit_without_both_sides ... ok
+test k4_narrower_cycle ... ok
 test k12_accepted_relation_without_a_code_universe_is_not_computable ... ok
 test k4_mixed_narrower_broader_cycle ... ok
 test k6_different_units_called_equal ... ok
-test k7_reduction_without_target ... ok
+test k9_rule_evidence_outside_basis ... ok
 test k8_private_id_in_public_zone ... ok
 test unbroken_candidate_is_clean ... ok
-test k9_rule_evidence_outside_basis ... ok
+test k7_reduction_without_target ... ok
+test k5_valid_from_after_valid_to ... ok
+test k12_scope_relation_differs_from_computation ... ok
 
 test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
@@ -318,8 +337,8 @@ test i6_in_place_edit_of_a_reference_node_is_k15 ... ok
 test i3_deleted_member_is_k15 ... ok
 test i2_in_place_edit_is_k15 ... ok
 test unknown_release_is_an_error ... ok
-test freeze_is_order_independent_and_hash_covers_rule_files ... ok
 test i4_swapped_rule_file_is_k15 ... ok
+test freeze_is_order_independent_and_hash_covers_rule_files ... ok
 test i7_notice_restricts_service_not_reproduction ... ok
 test release_future_supersedes_frozen ... ok
 test i5_replaced_reference_nodes_and_links_do_not_change_the_frozen_release ... ok
@@ -330,8 +349,8 @@ test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 5 tests
 test schemas_copy_is_identical_to_the_design_proposal_when_it_is_present ... ok
-test no_database_or_network_dependency ... ok
 test loads_the_schemas_copy ... ok
+test no_database_or_network_dependency ... ok
 test rejects_other_versions_and_incomplete_constraint_lists ... ok
 test every_constraint_the_checker_reports_is_defined_in_the_tbox ... ok
 
@@ -340,12 +359,12 @@ test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running unittests src/lib.rs (target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
 
 running 7 tests
-test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test tri::tests::truth_table_matches_spec_49_3 ... ok
 test date::tests::roundtrip_and_known_dates ... ok
 test value::tests::rate_parsing ... ok
-test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
-test tri::tests::truth_table_matches_spec_49_3 ... ok
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
 test date::tests::month_end_clamps ... ok
+test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
 test rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text ... ok
 
 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
@@ -353,12 +372,12 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/golden.rs (target/debug/deps/golden-b070bb5f85ed9bcc)
 
 running 7 tests
-test synthetic_fixture_rule_is_fixture_only ... ok
 test trace_records_every_evaluated_node_and_hash_changes_with_input ... ok
-test pinned_input_snapshot_hashes_are_distinct_per_distinct_input ... ok
+test synthetic_fixture_rule_is_fixture_only ... ok
 test golden_table_matches_expert_expectations ... ok
-test golden_table_pins_trace_and_hashes ... ok
+test pinned_input_snapshot_hashes_are_distinct_per_distinct_input ... ok
 test same_input_gives_byte_identical_output ... ok
+test golden_table_pins_trace_and_hashes ... ok
 test real_rule_content_hashes_are_pinned ... ok
 
 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
@@ -367,11 +386,11 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 10 tests
 test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
-test loader_enforces_rule_level_invariants ... ok
-test date_add_never_assumes_365_days_per_year ... ok
 test date_add_params_are_a_closed_key_set ... ok
 test cap_min_max_add_with_ranges ... ok
+test date_add_never_assumes_365_days_per_year ... ok
 test days_between_rejects_reversed_dates_for_every_inclusivity ... ok
+test loader_enforces_rule_level_invariants ... ok
 test days_between_inclusivity_is_explicit ... ok
 test loader_rejects_everything_outside_the_allow_list ... ok
 test rounding_to_unit ... ok
@@ -389,18 +408,18 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/overflow.rs (target/debug/deps/overflow-a7a24fbf3280fcac)
 
 running 12 tests
-test add_overflow_in_a_nested_expression_reports_the_inner_path ... ok
-test add_overflow_is_found_in_any_position_of_a_long_sum ... ok
 test multiply_rate_is_exact_when_the_result_is_i64_max ... ok
 test add_is_exact_up_to_i64_max ... ok
+test add_overflow_in_a_nested_expression_reports_the_inner_path ... ok
 test add_past_i64_max_overflows_instead_of_wrapping ... ok
 test multiply_rate_on_a_range_overflows_on_either_bound ... ok
 test add_overflows_on_the_upper_bound_of_a_range_alone ... ok
-test min_max_and_cap_at_i64_max_never_overflow ... ok
-test unspecified_rounding_overflows_when_only_the_upper_bound_does ... ok
-test multiply_rate_overflows_when_rounding_up_to_the_unit_exceeds_i64_max ... ok
-test multiply_rate_product_past_i64_max_overflows ... ok
 test overflow_is_an_error_not_an_unknown_amount ... ok
+test unspecified_rounding_overflows_when_only_the_upper_bound_does ... ok
+test add_overflow_is_found_in_any_position_of_a_long_sum ... ok
+test multiply_rate_product_past_i64_max_overflows ... ok
+test min_max_and_cap_at_i64_max_never_overflow ... ok
+test multiply_rate_overflows_when_rounding_up_to_the_unit_exceeds_i64_max ... ok
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -411,26 +430,26 @@ test waiting_period_units_are_not_interchangeable ... ok
 test screen_payout_text_and_amounts_come_from_the_engine ... ok
 test every_real_clause_case_matches ... ok
 test screen_check_catches_tampered_numbers ... ok
-test case_coverage_check_catches_orphans_and_unknown_rules ... ok
 test whole_life_accident_and_disease_death_never_both_pay ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
 test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
 
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
      Running tests/review_fixes.rs (target/debug/deps/review_fixes-89e86f8d87d7639f)
 
 running 11 tests
 test content_hash_is_independent_of_key_order_in_the_file ... ok
-test content_hash_changes_with_content_even_if_version_is_not_bumped ... ok
+test fixture_rule_content_hash_is_pinned ... ok
 test input_dates_outside_supported_range_are_rejected ... ok
+test content_hash_changes_with_content_even_if_version_is_not_bumped ... ok
+test loader_rejects_huge_date_offsets ... ok
 test date_arithmetic_beyond_supported_range_is_an_error_not_a_panic ... ok
 test content_hash_ignores_formatting_and_release_but_not_evidence ... ok
-test loader_rejects_huge_date_offsets ... ok
 test reloading_the_source_json_reproduces_the_same_rule_identity ... ok
-test version_and_release_are_enforced_at_load_time ... ok
-test fixture_rule_content_hash_is_pinned ... ok
 test result_identifies_rule_version_release_content_and_evidence ... ok
 test unspecified_rounding_range_flows_through_a_second_multiplication ... ok
+test version_and_release_are_enforced_at_load_time ... ok
 
 test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -438,43 +457,43 @@ test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 running 41 tests
 test anniversary_band_rejects_reversed_dates_and_propagates_unknown ... ok
+test anniversary_band_upper_inclusive_boundaries ... ok
+test anniversary_band_table_is_validated_at_load ... ok
+test anniversary_band_lower_inclusive_boundaries ... ok
+test contract_effect_follows_eligibility ... ok
 test composes_with_rule_01_operators ... ok
 test contract_effect_defaults_to_none_and_is_validated ... ok
-test contract_effect_follows_eligibility ... ok
-test anniversary_band_lower_inclusive_boundaries ... ok
 test anniversary_band_leap_day_anniversary_is_the_last_day_of_february ... ok
-test anniversary_band_table_is_validated_at_load ... ok
-test anniversary_band_upper_inclusive_boundaries ... ok
 test contract_effect_is_part_of_the_content_hash ... ok
-test divide_count_unknown_inputs_block ... ok
-test divide_count_rounds_the_bounds_of_a_range ... ok
-test list_inputs_are_validated ... ok
 test max_over_and_lists_are_typed_at_load ... ok
-test max_over_overflow_is_an_error ... ok
-test divide_count_zero_count_is_unknown ... ok
-test max_over_takes_the_highest_per_class_and_sums_classes ... ok
+test list_inputs_are_validated ... ok
+test divide_count_rounds_the_bounds_of_a_range ... ok
 test list_input_changes_the_snapshot_hash ... ok
-test divide_count_golden_and_boundaries ... ok
+test divide_count_zero_count_is_unknown ... ok
+test divide_count_unknown_inputs_block ... ok
+test max_over_overflow_is_an_error ... ok
 test max_over_unknown_list_or_amount_is_unknown_not_zero ... ok
-test multiply_count_type_checks_at_load ... ok
-test multiply_count_golden_and_boundaries ... ok
-test multiply_count_unknown_is_never_zero ... ok
+test max_over_takes_the_highest_per_class_and_sums_classes ... ok
 test multiply_count_keeps_ranges ... ok
+test multiply_count_golden_and_boundaries ... ok
+test divide_count_golden_and_boundaries ... ok
+test multiply_count_type_checks_at_load ... ok
+test multiply_count_unknown_is_never_zero ... ok
 test pro_rata_accepts_int_parts_and_rejects_mixed_types ... ok
-test pro_rata_applies_to_ranges ... ok
 test pro_rata_requires_explicit_rounding ... ok
+test pro_rata_applies_to_ranges ... ok
 test pro_rata_boundaries ... ok
 test pro_rata_unknown_inputs_block ... ok
 test rule_01_documents_cannot_use_rule_02_features ... ok
+test rule_02_results_are_reproducible_and_identify_the_schema ... ok
+test subtract_floor0_golden_and_boundaries ... ok
 test rule_01_results_report_no_contract_effect ... ok
 test pro_rata_golden_and_rounding ... ok
-test pro_rata_whole_zero_is_unknown_not_error_not_zero ... ok
-test subtract_floor0_golden_and_boundaries ... ok
-test subtract_floor0_unknown_is_not_floored_to_zero ... ok
-test subtract_floor0_range_bounds_are_conservative ... ok
 test undetermined_eligibility_never_reports_no_effect ... ok
+test pro_rata_whole_zero_is_unknown_not_error_not_zero ... ok
+test subtract_floor0_range_bounds_are_conservative ... ok
+test subtract_floor0_unknown_is_not_floored_to_zero ... ok
 test unknown_eligibility_with_rule_02_amount_stays_undetermined ... ok
-test rule_02_results_are_reproducible_and_identify_the_schema ... ok
 test zero_operands_that_are_known_differ_from_unknown_ones ... ok
 test rule_02_operators_are_sound_under_hidden_inputs ... ok
 test mutated_rule_02_operators_are_caught ... ok
@@ -489,17 +508,17 @@ test hiding_an_input_never_changes_a_definite_answer ... ok
 test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
 test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
      Running tests/static_types.rs (target/debug/deps/static_types-e121bb97a3bf2b90)
 
 running 10 tests
 test audit_examples_are_rejected_at_load ... ok
-test ordering_on_bool_or_string_is_rejected_at_load ... ok
-test logic_operators_need_boolean_arguments ... ok
-test top_level_expressions_must_be_bool_and_money ... ok
-test date_operators_need_date_arguments ... ok
 test literal_forms_carry_their_types ... ok
+test logic_operators_need_boolean_arguments ... ok
+test date_operators_need_date_arguments ... ok
+test top_level_expressions_must_be_bool_and_money ... ok
+test ordering_on_bool_or_string_is_rejected_at_load ... ok
 test well_typed_rules_still_evaluate_as_before ... ok
 test if_needs_boolean_condition_and_same_typed_branches ... ok
 test comparisons_need_matching_operand_types ... ok
@@ -511,23 +530,23 @@ test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 running 8 tests
 test a_failing_branch_never_makes_the_other_branch_the_answer ... ok
-test both_branches_failing_is_still_an_error ... ok
 test a_selected_failing_branch_is_still_an_error ... ok
-test blockers_include_the_other_unknown_branch ... ok
-test eligibility_branch_errors_leave_eligibility_unknown ... ok
-test trace_records_the_absorbed_error_and_is_deterministic ... ok
-test failing_branch_under_unknown_condition_is_unknown_with_blockers ... ok
 test type_errors_in_a_branch_are_absorbed_too ... ok
+test trace_records_the_absorbed_error_and_is_deterministic ... ok
+test eligibility_branch_errors_leave_eligibility_unknown ... ok
+test both_branches_failing_is_still_an_error ... ok
+test failing_branch_under_unknown_condition_is_unknown_with_blockers ... ok
+test blockers_include_the_other_unknown_branch ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
      Running tests/vocabulary.rs (target/debug/deps/vocabulary-45281aec3561603e)
 
 running 4 tests
-test publication_states_are_canonical ... ok
-test amount_kind_names_are_canonical ... ok
-test payout_names_are_canonical ... ok
 test tri_names_are_canonical ... ok
+test amount_kind_names_are_canonical ... ok
+test publication_states_are_canonical ... ok
+test payout_names_are_canonical ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -552,16 +571,16 @@ test integrity_findings_block_the_job_before_the_engine ... ok
 test a_job_cannot_declare_or_bypass_judged_inputs ... ok
 test golden_jobs_through_the_cli ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 
      Running tests/config_select.rs (target/debug/deps/config_select-b5858dc26ccb15b4)
 
 running 6 tests
-test one_configuration_using_several_editions_is_not_ambiguous ... ok
 test several_applicable_configurations_block ... ok
+test one_configuration_using_several_editions_is_not_ambiguous ... ok
+test no_applicable_configuration_reports_the_considered_links ... ok
 test a_configuration_without_any_link_blocks ... ok
 test candidate_order_and_duplicates_change_nothing ... ok
-test no_applicable_configuration_reports_the_considered_links ... ok
 test selects_the_configuration_in_force_on_the_contract_date ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
@@ -570,8 +589,8 @@ test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 4 tests
 test an_unconfirmed_edition_holds_before_the_engine ... ok
-test q9_and_q10_never_reach_the_engine ... ok
 test the_membership_judgement_carries_its_evidence ... ok
+test q9_and_q10_never_reach_the_engine ... ok
 test the_eleven_questions_match_the_reference ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
@@ -581,11 +600,11 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 10 tests
 test input_link_other_edition ... ok
 test input_link_multiple_candidates ... ok
-test input_link_competing_editions_hold ... ok
 test input_link_other_company ... ok
+test input_link_competing_editions_hold ... ok
 test input_link_other_edition_applies_hold ... ok
-test input_link_order_independent ... ok
 test input_link_unknown_scope_hold ... ok
+test input_link_order_independent ... ok
 test input_link_unrelated_rider_allowed ... ok
 test input_link_application_scope_unverified_hold ... ok
 test input_link_multi_edition_config ... ok
@@ -596,32 +615,32 @@ test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 running 15 tests
 test a_stale_or_unknown_key_in_the_declaration_fails_loudly ... ok
-test a_malformed_code_fact_is_an_error_not_a_guess ... ok
 test evidence_required_false_is_a_bad_declaration ... ok
-test a_malformed_as_of_fact_is_an_error_not_a_guess ... ok
+test a_malformed_code_fact_is_an_error_not_a_guess ... ok
 test a_missing_code_fact_leaves_the_input_unknown_with_a_judgement ... ok
+test a_malformed_as_of_fact_is_an_error_not_a_guess ... ok
+test a_missing_as_of_fact_is_unknown_not_an_undated_answer ... ok
+test a_declaration_naming_no_rule_input_is_rejected ... ok
 test judge_time_calendar_month_and_year_clamp ... ok
 test judge_time_day_duration_anchor_counted_and_not ... ok
 test judge_time_records_the_assumed_counting_rule ... ok
 test judge_time_refuses_bad_input_and_never_guesses ... ok
-test a_declaration_naming_no_rule_input_is_rejected ... ok
 test fill_produces_inputs_and_the_membership_judgement ... ok
-test a_missing_as_of_fact_is_unknown_not_an_undated_answer ... ok
-test fill_time_stage_judgement_and_its_boundary_travel ... ok
 test unsupported_judged_by_fails_explicitly ... ok
 test the_artifact_carries_the_declaration_and_the_engine_never_sees_it ... ok
+test fill_time_stage_judgement_and_its_boundary_travel ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
      Running tests/integrity.rs (target/debug/deps/integrity-a5b7140d654b6380)
 
 running 6 tests
-test a_swapped_rule_file_is_an_integrity_block_not_an_evaluation ... ok
 test a_coverage_without_a_rule_is_no_rule ... ok
-test unapproved_claims_in_scope_hold_as_link_unapproved ... ok
+test a_swapped_rule_file_is_an_integrity_block_not_an_evaluation ... ok
 test integrity_findings_stop_the_run_before_the_chain ... ok
-test a_malformed_contract_date_is_rejected ... ok
 test the_request_contract_date_overrides_the_fact ... ok
+test unapproved_claims_in_scope_hold_as_link_unapproved ... ok
+test a_malformed_contract_date_is_rejected ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
@@ -636,8 +655,8 @@ test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; fini
      Running tests/static_guards.rs (target/debug/deps/static_guards-edd3894a383e4a7c)
 
 running 3 tests
-test no_skeleton_markers_or_fixture_data_in_src ... ok
 test no_secrets_or_model_identifiers_in_src ... ok
+test no_skeleton_markers_or_fixture_data_in_src ... ok
 test no_database_or_network_access_before_the_engine ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

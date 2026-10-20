@@ -3,9 +3,14 @@
 //!
 //! Termination is evidence, not a guess (Masterplan §23.2):
 //! - `advertised_total_reached`: unique items reach the total the list advertises.
-//! - `empty_page`: a page after the first returns zero items. A *first* empty page is a
-//!   successful empty list (`empty_success`), never an error.
-//! - `next_pointer_absent`: the list itself says there is no next page.
+//! - `empty_page`: the *first* fetched page returns zero items while the endpoint
+//!   advertises no total and offers no next pointer — a successful empty list
+//!   (`empty_success`), never an error. An empty page that contradicts the endpoint is
+//!   not termination evidence: while the endpoint still offers a next pointer the walk
+//!   continues, and an empty page fetched before the advertised total was reached is a
+//!   `stall` with an unexplored tail.
+//! - `next_pointer_absent`: the list itself says there is no next page (a mid-walk empty
+//!   page with no shortfall ends here too — it is `Enumerated`, never `EnumeratedEmpty`).
 //! - `page_repeat`: a new cursor returned an identical page hash — the walk stalls; the
 //!   tail is unexplored. A repeated last page is never a successful end.
 //! - `stall`: no next pointer but the advertised total was not reached — unexplored tail.
@@ -100,7 +105,15 @@ impl<'a> Enumerator<'a> {
                     termination = Some(Termination::RobotsBlocked {
                         reason: "robots_disallow".into(),
                     });
-                    gaps.push(gap("blocked", "remaining_pages", "robots_disallow"));
+                    gaps.push(gap(
+                        "blocked",
+                        if pages.is_empty() {
+                            "whole_scope"
+                        } else {
+                            "remaining_pages"
+                        },
+                        "robots_disallow",
+                    ));
                     break;
                 }
                 RobotsVerdict::Forbidden => {
@@ -174,7 +187,18 @@ impl<'a> Enumerator<'a> {
                         }
                     }
                     PageClass::ErrorPage => {
-                        gaps.push(gap("failed", &format!("page_{cursor}"), "http_error"));
+                        // 401/403 is access denial — `blocked`, not `failed` (the
+                        // GapRecord kinds count access denial under `blocked`).
+                        let denied = resp.status == 401 || resp.status == 403;
+                        gaps.push(gap(
+                            if denied { "blocked" } else { "failed" },
+                            &format!("page_{cursor}"),
+                            if denied {
+                                "access_denied"
+                            } else {
+                                "http_error"
+                            },
+                        ));
                         Termination::FetchFailed {
                             at_cursor: cursor.clone(),
                             detail: format!("http_status_{}", resp.status),
@@ -256,12 +280,6 @@ impl<'a> Enumerator<'a> {
             }
             prev_hash = Some(page_hash);
             let unique = seen.len() as u64;
-            if parsed.item_ids.is_empty() {
-                termination = Some(Termination::EmptyPage {
-                    at_cursor: cursor.clone(),
-                });
-                break;
-            }
             if let Some(total) = advertised_total {
                 if unique >= total {
                     termination = Some(Termination::AdvertisedTotalReached {
@@ -270,6 +288,44 @@ impl<'a> Enumerator<'a> {
                     });
                     break;
                 }
+            }
+            if parsed.item_ids.is_empty() {
+                // Reconcile the endpoint's own signals before accepting an empty page
+                // as the end of the list (§23.2): an unreached advertised total and a
+                // next pointer the endpoint still offers both contradict it.
+                match next_pointer {
+                    // The endpoint advertises another page — the empty page is not
+                    // termination evidence; keep walking (bounded by repeat/max_pages).
+                    Some(next) => cursor = next,
+                    None => {
+                        termination = Some(match advertised_total {
+                            // Empty before the advertised total: same stall as a
+                            // missing next pointer — the tail stays unexplored.
+                            Some(total) if unique < total => {
+                                gaps.push(gap(
+                                    "unexplored",
+                                    &format!("tail_after_{cursor}"),
+                                    "empty_page_before_advertised_total",
+                                ));
+                                Termination::Stall {
+                                    at_cursor: cursor.clone(),
+                                    unique_items: unique,
+                                    advertised_total: total,
+                                }
+                            }
+                            // Only a first empty page is a verified empty list; a
+                            // mid-walk empty page ends a non-empty list — Enumerated.
+                            _ if pages.len() == 1 => Termination::EmptyPage {
+                                at_cursor: cursor.clone(),
+                            },
+                            _ => Termination::NextPointerAbsent {
+                                at_cursor: cursor.clone(),
+                            },
+                        });
+                        break;
+                    }
+                }
+                continue;
             }
             match next_pointer {
                 Some(next) => cursor = next,

@@ -37,7 +37,7 @@ pub enum RobotsVerdict {
     Disallow,
     /// robots.txt could not be checked: the host is on hold for the rest of the UTC day.
     /// Reason: `robots_unreachable` | `robots_server_error` | `robots_rate_limited` |
-    /// `robots_too_large` | `robots_redirect_refused`.
+    /// `robots_too_large` | `robots_redirect_refused` | `bad_url`.
     Unverifiable { reason: &'static str },
     /// robots.txt itself answered 401/403 (`robots_forbidden`): the host is blocked.
     Forbidden,
@@ -241,12 +241,23 @@ impl RobotsGate {
             self.defer(host, now, "robots_server_error", false);
             return None;
         }
-        if truncated && !body.contains(&b'\n') {
-            // Over the cap and nothing usable: we cannot know the rules, so do not fetch.
-            self.defer(host, now, "robots_too_large", false);
-            return None;
-        }
-        let group = parse_group(&String::from_utf8_lossy(&body));
+        let text = if truncated {
+            // `_read_capped` parity: an over-long body is cut at the last full line. A
+            // partial trailing rule must not be parsed — a truncated `Allow:` could
+            // over-allow, the unsafe direction.
+            match body.iter().rposition(|b| *b == b'\n') {
+                // Over the cap and not one full line: we cannot know the rules, so do
+                // not fetch.
+                None => {
+                    self.defer(host, now, "robots_too_large", false);
+                    return None;
+                }
+                Some(i) => String::from_utf8_lossy(&body[..i + 1]).into_owned(),
+            }
+        } else {
+            String::from_utf8_lossy(&body).into_owned()
+        };
+        let group = parse_group(&text);
         self.entries.insert(
             origin,
             Entry {

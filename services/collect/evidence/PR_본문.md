@@ -18,10 +18,11 @@
 ## 실제 검증과 한계
 
 - 재실행: `python3 services/collect/tests/verify.py`. 전체 명령·종료 코드·파일별 SHA-256: `verification.json`.
-- `cargo test -p onjeon-collect adapters` 22개 통과(필수 시험 `acquisition_reason_not_counted` 포함). 전체 workspace 통과. fmt·clippy·누출·스켈레톤 정적 검사 통과.
+- `cargo test -p onjeon-collect adapters` 35개 통과(필수 시험 `acquisition_reason_not_counted` 포함). 전체 workspace 통과. fmt·clippy·누출·스켈레톤 정적 검사 통과.
 - 의존 경계 검사는 실패: 수정하지 않은 packages/ontology의 knowledge→twin 위반 3개(T-DT-01과 동일, `verification-07.log`). 허용 경로 밖이라 수정하지 않았다.
 - 실제 열거는 없었다: 네트워크 Fetch 구현을 넣지 않았고(HTTPS 미구축, 실제 수집은 D-04·O17 관문), 모든 어댑터 시험은 합성 fixture transport로 했다.
-- 협회 어댑터의 진입점은 레지스트리·2026-10-10 조사에서 실제 관측한 URL만 쓴다. 비교공시 판매본 키는 H1 반례로 불안정해 known_limitations로 선언하고 지어내지 않았다.
+- 협회 어댑터의 진입점은 레지스트리·2026-10-10 조사에서 실제 관측한 URL만 쓴다. 비교공시 판매본 키는 H1 반례로 불안정해 known_limitations로 선언하고 지어내지 않았다. KNIA `/popup/disclosureList.do`는 POST+JS 객체 리터럴로만 관측돼 GET·HTML 계획으로 재현할 수 없으므로 documents 축은 계획 없이 미탐색으로 남겼다(관측된 robots.txt 403도 한계로 선언).
+- 빈 페이지는 끝점의 공시 건수·다음 포인터와 대사한 뒤에만 종료 증거다: 첫 페이지가 빈 목록(건수 공시 없음·다음 없음)일 때만 '성공한 빈 목록'이고, 공시 건수 미달의 빈 페이지는 미탐색 정지, 끝점이 다음을 주면 계속 걷는다.
 - 보험사 어댑터는 registry가 `disclosure_status=archived`+`reachable`로 검증한 진입점(53곳 중 8곳)에만 계획을 만든다. 나머지는 기록된 미확보 사유를 진행표 상태로 이어간다.
 - 합성 fixture 검증만으로 P01·P02 실제 데이터 확보율이나 /coverage 렌더링, 첫 출시 완료를 선언하지 않는다.
 

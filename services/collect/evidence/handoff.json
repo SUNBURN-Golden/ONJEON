@@ -37,7 +37,7 @@
     ]
   },
   "verification_summary": {
-    "adapters_rust_tests": "22 passed (cargo test -p onjeon-collect adapters)",
+    "adapters_rust_tests": "35 passed (cargo test -p onjeon-collect adapters)",
     "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
     "workspace_rust": "passed",
     "python_tools": "passed",
@@ -73,7 +73,7 @@
     "robots gate port of tools/crawler/robots.py: unverifiable robots defers the host to end of UTC day (hold), 401/403 blocked, 4xx no-rules, RFC 9309 longest-match with */$ for the ONJEON-SourceArchiver token",
     "list page classification: a 200 login HTML records a blocked login_page range and never an item count",
     "declarative ListParser (JSON items path / HTML link extraction) configured per institution",
-    "pagination driver with termination evidence: advertised_total_reached, empty_page (successful empty list), next_pointer_absent; page_repeat/stall/max_pages recorded as unexplored — a repeated last page is never a success",
+    "pagination driver with termination evidence: advertised_total_reached, empty_page (a first-page verified empty list only — an empty page contradicting the advertised total or a still-offered next pointer is a stall/continued walk, never a success), next_pointer_absent; page_repeat/stall/max_pages recorded as unexplored — a repeated last page is never a success",
     "DiscoveryManifest records (scope 회사×판매상태×채널×기간×문서종류, page records, discovered ids, hold/blocked/unexplored/failed ranges) persisted write-once under manifests/discovery/",
     "unenumerated-scope manifests so every institution scope leaves a record",
     "institution denominator loading from data/registry CSVs with ADR-0018 scope mapping: 53 insurers + public-epost in scope (54), coop/seed/ksure/historical excluded with reasons and provenance",
@@ -87,7 +87,7 @@
   },
   "limits": [
     "No live enumeration was performed: the crate ships no network Fetch implementation (https is not built; D-04/O17 gates real collection). All adapter tests use synthetic fixture transports.",
-    "Association adapter plans cover only entrypoints observed in the registry survey and 2026-10-10 source survey; product-level comparison-disclosure enumeration keys are declared unstable (H1 counterexample) and left unexplored rather than invented.",
+    "Association adapter plans cover only entrypoints observed in the registry survey and 2026-10-10 source survey; product-level comparison-disclosure enumeration keys are declared unstable (H1 counterexample) and left unexplored rather than invented. KNIA /popup/disclosureList.do was observed only as POST returning a JS object literal, which the GET/HTML plan shape cannot reproduce — the documents axis carries no plan and stays unexplored (declared in known_limitations, along with the observed robots.txt 403/WAF).",
     "InsurerAdapter emits a plan only when the registry recorded disclosure_status=archived and disclosure_access=reachable (8 of 53 insurers); other institutions carry their registry-recorded gap reasons into the progress table.",
     "The generic insurer plan is an entry-page link probe, not a per-site product parser; per-site parsers follow site verification.",
     "Progress counting models the P02 three-part rule as flags (raw_stored, segment_extracted, edition_link_accepted); actual DocumentSegment/realizes production belongs to T-DT-02/03 and the ontology layer.",

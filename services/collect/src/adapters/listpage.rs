@@ -47,7 +47,9 @@ pub fn classify(
             PageClass::NotListContent
         };
     }
-    if ct.starts_with("text/html") || ct.is_empty() || body_is_markup(body) {
+    // A body must look like markup (or be declared HTML) to be list content — a 200
+    // with no Content-Type and a non-markup body is `NotListContent`, not an empty list.
+    if ct.starts_with("text/html") || body_is_markup(body) {
         return if looks_like_login(body) {
             PageClass::LoginPage
         } else {
@@ -71,9 +73,12 @@ fn body_is_markup(body: &[u8]) -> bool {
 /// Case-insensitive ASCII scan over tags and attributes.
 pub fn looks_like_login(body: &[u8]) -> bool {
     let html = String::from_utf8_lossy(body).to_ascii_lowercase();
-    if html.contains("type=\"password\"")
-        || html.contains("type='password'")
-        || html.contains("type=password")
+    // `type = "password"` — whitespace around `=` inside a tag is legal HTML, so the
+    // attribute markers are checked on a whitespace-free copy as well.
+    let squashed: String = html.split_whitespace().collect();
+    if squashed.contains("type=\"password\"")
+        || squashed.contains("type='password'")
+        || squashed.contains("type=password")
     {
         return true;
     }
@@ -90,7 +95,7 @@ pub fn looks_like_login(body: &[u8]) -> bool {
         "name=\"loginpw\"",
         "name=\"mb_password\"",
     ] {
-        if html.contains(marker) {
+        if html.contains(marker) || squashed.contains(marker) {
             return true;
         }
     }
@@ -197,7 +202,7 @@ pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'stat
             if let Some(n) = next_field {
                 out.next_cursor = json_path(&v, n).and_then(|v| {
                     v.as_str()
-                        .map(String::from)
+                        .and_then(|s| (!s.is_empty()).then(|| s.to_string()))
                         .or_else(|| v.as_u64().map(|x| x.to_string()))
                 });
             }
@@ -249,29 +254,42 @@ fn json_path<'a>(v: &'a serde_json::Value, path: &str) -> Option<&'a serde_json:
 }
 
 /// All `href="…"`/`href='…'` attribute values in order.
+///
+/// Attribute *names* are matched on a lowercased copy (`HREF` matches), but values are
+/// sliced from the original document: an id like `tptyCode=PB15` is case-significant —
+/// lowercasing it would mangle the id and merge case-distinct items into one. `href`
+/// must start an attribute word: `data-href`, `xhref` and similar names do not count.
 fn href_values(html: &str) -> Vec<String> {
     let low = html.to_ascii_lowercase();
+    let bytes = low.as_bytes();
     let mut out = Vec::new();
     let mut rest = 0usize;
     while let Some(i) = low[rest..].find("href") {
         let at = rest + i;
+        if at > 0 && matches!(bytes[at - 1], b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_') {
+            rest = at + 4;
+            continue;
+        }
         let tail = &low[at..];
         let val = tail
             .strip_prefix("href")
             .and_then(|t| t.trim_start().strip_prefix('='))
             .map(|t| t.trim_start())
             .and_then(|t| {
+                // (offset, len) of the value inside `tail`, so the slice can come from
+                // the original document, not the lowercased copy.
+                let start = tail.len() - t.len();
                 if let Some(q) = t.strip_prefix('"') {
-                    q.find('"').map(|e| q[..e].to_string())
+                    q.find('"').map(|e| (start + 1, e))
                 } else if let Some(q) = t.strip_prefix('\'') {
-                    q.find('\'').map(|e| q[..e].to_string())
+                    q.find('\'').map(|e| (start + 1, e))
                 } else {
                     t.find(|c: char| c.is_whitespace() || c == '>')
-                        .map(|e| t[..e].to_string())
+                        .map(|e| (start, e))
                 }
             });
-        if let Some(v) = val {
-            out.push(v);
+        if let Some((s, len)) = val {
+            out.push(html[at + s..at + s + len].to_string());
         }
         rest = at + 4;
     }

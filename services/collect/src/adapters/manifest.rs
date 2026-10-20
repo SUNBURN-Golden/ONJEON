@@ -78,7 +78,9 @@ pub enum Termination {
         unique_items: u64,
         advertised_total: u64,
     },
-    /// A page after the first came back with zero items.
+    /// The first fetched page came back with zero items while the endpoint advertised
+    /// no total and offered no next pointer — a verified empty list. An empty page that
+    /// contradicts the endpoint never reaches this variant (see `Stall`).
     EmptyPage { at_cursor: String },
     /// The last page declared no next pointer (no advertised total existed or it matched).
     NextPointerAbsent { at_cursor: String },

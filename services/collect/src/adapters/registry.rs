@@ -349,12 +349,20 @@ impl InstitutionRow {
             Some(v) if !v.is_empty() => vocab::<EntityEvidence>(file, "entity_evidence", v)?,
             _ => {
                 // excluded_or_historical has no entity_evidence column; its `status`
-                // column carries the legacy label.
+                // column carries the legacy label. An unknown non-empty label is an
+                // error (vocabulary rule 4), never a silent default.
                 match row.get("status").map(String::as_str) {
                     Some("verified_2_sources") | Some("two_or_more_sources") => {
                         EntityEvidence::TwoOrMoreSources
                     }
                     Some("one_source") | Some("verified_1_source") => EntityEvidence::OneSource,
+                    Some(v) if !v.is_empty() => {
+                        return Err(LoadError::BadValue {
+                            file: file.into(),
+                            field: "status",
+                            value: v.into(),
+                        })
+                    }
                     _ => EntityEvidence::OneSource,
                 }
             }

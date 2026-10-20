@@ -5,23 +5,41 @@
 후보는 서비스 적용 승인(`criteria_application`, T-KN-14, D-08) 전에는 사용자에게
 보이지 않는다. 기본값이 없으면 사용자 직접 가정만 쓴다(O05).
 
-## 경로 상태(T-KN-13 fix round 1)
+## 경로 상태(T-KN-13 fix round 5)
 
 이 과제의 `allowed_paths`는 `data/criteria/defaults/**`와
 `services/criteria/src/defaults/**`뿐이다. 그런데:
 
 - `src/defaults/` 모듈은 `src/lib.rs`의 `pub mod defaults;` 선언 없이는
-  컴파일되지 않는다 — `lib.rs`는 허용 경로 밖이다(가드가 거부).
+  컴파일되지 않는다 — `lib.rs`는 허용 경로 밖이다(빌드 라운드에서 가드가
+  거부했다).
 - `data/criteria/defaults/`를 만들면 `services/criteria/tests/conformance.rs`
   의 기존 단정 `assert!(!repo("data/criteria/defaults").exists())`이 깨진다 —
   시험 파일도 허용 경로 밖이라 고칠 수 없다.
 
-따라서 이 라운드의 산출물은 허용 경로 안에 둔다: 모듈 소스(`*.rs`), 후보 파일
-계약(`default-file.schema.json`), 이 문서, 시험 로그(`evidence/`). 후보 데이터의
-정식 적재 위치는 `data/criteria/defaults/candidates/`로 계약은 그대로이며,
-`lib.rs` 배선(`pub mod defaults;`)과 conformance 단정 갱신은 경로 정책이
-허용하는 후속 라운드·과제의 몫이다. 시험 로그는 임시 배선 상태에서 실제로
-실행해 확인한 뒤 배선을 되돌린 결과다(증거 `evidence/cargo_test_defaults.log`).
+fix round 1의 독립 리뷰(PR #147 @ f8ca0d8)는 이 상태를 두 차단 사유로
+지적했다: 배선되지 않은 모듈은 컴파일되지 않아 필수 시험 명령
+`cargo test -p onjeon-criteria defaults`가 일치 시험 0개로 끝난다(F1),
+명세의 `produces` 경로 `data/criteria/defaults/**`가 트리에 없다(F2).
+리뷰의 해소 경로도 같은 결론이다 — 빌더 오류가 아니라 명세 수정이다:
+`allowed_paths`에 `services/criteria/src/lib.rs`와
+`services/criteria/tests/conformance.rs`(또는 `services/criteria/tests/**`)를
+추가한 뒤 배선·단정 갱신·데이터 경로 생성을 한 라운드에서 해야 한다.
+
+fix round 2는 그 해소안을 작업 트리 루트 `DECISION_REQUIRED.md`로 감독
+판단에 올렸으나, fix round 4부터 `DECISION_REQUIRED.md` 자체가 금지
+경로에 들어갔고 fix round 5의 차단 사유는 그 파일의 존재였다. 따라서
+이 라운드는 그 파일을 작업 트리에서 제거했다 — 요청 내용은 이 문서와
+`evidence/PR_본문.md`에 그대로 남긴다. 허용 경로 안 해소책은 여전히
+없다(`lib.rs` 배선·`conformance.rs` 단정 갱신·`Cargo.toml` 표적 선언·
+`tests/` shim 전부 허용 밖 파일이 필요하다).
+
+fix round 4는 허용 경로 안에서 `default-file.schema.json`의
+`structure_item`을 적재기 규칙(수치 1개 이상)과 맞췄다. fix round 5는
+문서를 이 상태로 맞추고 검증을 다시 실행해 `evidence/cargo_test_defaults.log`
+§5에 기록했다: 배송 상태 필수 명령 일치 0개, 크레이트 전체 33/33,
+`cargo test --all` 통과, leak·skeleton 정적 검사 0건, 프로브(임시
+`pub mod defaults;`, 검증 후 되돌림) 17/17·전체 50/50·clippy 통과.
 
 ## 후보 파일 계약
 

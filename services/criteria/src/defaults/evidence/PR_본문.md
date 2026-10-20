@@ -56,32 +56,43 @@
   남아 있고 후보는 0건이다(확정된 공공 통계 RawAsset이 저장소에 아직 없음)
 - 화면·가격·규칙·공유 스키마·개인 영역 객체 변경 없음
 
-### 경로 정책 상태 (fix round 1 — 명세상 허용 경로:
+### 경로 정책 상태 (fix round 5 — 명세상 허용 경로:
 ### `data/criteria/defaults/**`, `services/criteria/src/defaults/**`만)
 
 빌드 라운드는 `src/lib.rs`(`pub mod defaults;`)와 `tests/conformance.rs`
 (후보 적재 단언으로의 교체) 두 파일을 허용 경로 밖 최소 편차로 바꿨으나
 가드가 거부했고, fix round 1 지시에 따라 둘 다 원본으로 되돌렸다.
 
-되돌린 뒤 남는 구조적 제약 두 가지:
+fix round 1의 독립 리뷰는 이 상태를 차단했다: (F1) 미배선 모듈은
+컴파일되지 않아 필수 시험 명령 `cargo test -p onjeon-criteria defaults`가
+일치 시험 0개로 끝난다. (F2) 명세 `produces` 경로
+`data/criteria/defaults/**`가 트리에 없다. 리뷰는 원인을 빌더 오류가
+아니라 명세 충돌로 지목했고, 해소는 `allowed_paths` 확장 뒤 한 라운드의
+배선·단정 갱신·경로 생성이라고 적었다.
 
-- `src/defaults/` 디렉터리 모듈은 `src/lib.rs`의 `pub mod defaults;` 선언
-  없이는 컴파일되지 않는다 — 모듈 소스·시험(17개)은 존재하되 배송 상태에서
-  실행되지 않는다. 실행 확인은 배선을 임시로 켠 로컬 상태에서 수행하고
-  되돌렸다(`evidence/cargo_test_defaults.log` §1·§2).
-- `services/criteria/tests/conformance.rs`의 기존 단언
-  `assert!(!repo("data/criteria/defaults").exists())`이 이 과제의 산출 경로
-  존재 자체를 금지한다. 시험 파일도 허용 밖이라 고칠 수 없어,
-  `cargo test --all`(CI 등가 명령)을 유지하기 위해 `data/criteria/defaults/`를
-  작업 트리에서 제거하고 계약 문서·스키마·증거는 허용 경로 안(`src/defaults/`)으로
-  옮겼다.
+fix round 2는 명세 충돌의 해소안을 작업 트리 루트 `DECISION_REQUIRED.md`로
+감독 판단에 올렸고, fix round 3도 같은 결론(허용 경로 안 해소 불가)으로
+끝났다. fix round 4부터 `DECISION_REQUIRED.md` 자체가 금지 경로에 들어갔고,
+fix round 5의 차단 사유는 그 파일이 작업 트리에 남아 있다는 점이었다.
+이 라운드는 그 파일을 제거했다 — 두 차단 사유를 허용 경로 안 편집만으로
+해소할 방법은 여전히 없다(확인: 모듈 배선은 `lib.rs`·Cargo 표적 선언·
+`tests/` shim 모두 허용 밖 파일이 필요하고, `data/criteria/defaults/` 생성은
+`cargo test --all`이 도는 conformance 단정과 충돌한다).
 
-해소에 필요한 명세 변경(후속 라운드·과제의 몫): 이 과제의 `allowed_paths`에
-`services/criteria/src/lib.rs`와 `services/criteria/tests/conformance.rs`
-(또는 `services/criteria/tests/**`)를 예외로 추가하면, `pub mod defaults;`
-배선과 conformance 단언 갱신, `data/criteria/defaults/` 생성을 한 번에
-할 수 있다. 같은 공백은 `src/<하위>/**`로 좁혀진 다른 지식·서비스 과제
-(T-KN-14의 `src/application/**` 등)에도 그대로 적용된다.
+fix round 4가 허용 경로 안에서 한 일: (a) `default-file.schema.json`의
+`structure_item`에 `anyOf`를 추가해 적재기 `check_value`(항목마다 수치 1개
+이상)와의 어긋남 해소 — 라벨만 있는 항목이 스키마는 통과·적재는 거부이던
+상태를 맞췄다. (b) 증거 로그 §1을 fix round 4 프로브 재실행 출력으로
+갱신해 시험 17줄 전부를 verbatim으로 남겼다. fix round 5는 배송 상태
+재검증과 프로브 재실행을 `evidence/cargo_test_defaults.log` §5에 기록했다.
+
+해소에 필요한 명세 변경(감독 판단 사항 — fix round 2의 요청 그대로):
+이 과제의 `allowed_paths`에 `services/criteria/src/lib.rs`와
+`services/criteria/tests/conformance.rs`(또는 `services/criteria/tests/**`)를
+예외로 추가하면, `pub mod defaults;` 배선과 conformance 단정을 후보 적재
+단정으로 갱신하고 `data/criteria/defaults/`를 만들 수 있다. 같은 공백은
+`src/<하위>/**`로 좁혀진 다른 지식·서비스 과제(T-KN-14의
+`src/application/**` 등)에도 그대로 적용된다.
 
 ## 검증과 한계
 
@@ -93,8 +104,9 @@
   않음(`DisplayKind` 단일 변형 시험), 후보는 `applied=false`로만 적재되고
   `for_service`가 항상 비어 서비스에 나가지 않음
 - 배송 상태(배선 없음)에서는 같은 명령이 일치 시험 0개로 종료한다
-  (`evidence/cargo_test_defaults.log` §2) — 이것을 시험 통과로 주장하지
-  않는다. 모듈 시험이 CI에서 실제로 도는 것은 배선이 허용된 뒤다
+  (`evidence/cargo_test_defaults.log` §2 — fix round 5에서도 재확인,
+  §5). 이것을 시험 통과로 주장하지 않는다.
+  모듈 시험이 CI에서 실제로 도는 것은 배선이 허용된 뒤다
 - 실제 수행한 검증 및 결과(배송 상태):
   - `cargo test -p onjeon-criteria` → 33/33 통과(T-KN-12 원본 conformance 포함)
   - `cargo test --all` → 전 워크스페이스 통과

@@ -132,6 +132,12 @@
       "type": "object",
       "required": ["label"],
       "additionalProperties": false,
+      "description": "구간 라벨과 수치 하나 이상 — amount_krw·rate_bp·count 중 적어도 하나는 있어야 한다(적재기 check_value와 같은 규칙)",
+      "anyOf": [
+        { "required": ["amount_krw"] },
+        { "required": ["rate_bp"] },
+        { "required": ["count"] }
+      ],
       "properties": {
         "label": { "type": "string", "minLength": 1 },
         "amount_krw": { "type": "integer", "minimum": 0 },

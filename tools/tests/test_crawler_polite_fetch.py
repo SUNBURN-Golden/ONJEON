@@ -13,9 +13,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import crawler  # noqa: E402
 from crawler.config import CrawlerConfig  # noqa: E402
 from crawler.hostlimit import HostAtCapError, HostBusyError, HostRateLimiter  # noqa: E402
-from crawler.polite import Outcome, PoliteFetcher  # noqa: E402
+from crawler.polite import BODY_PREFIX_BYTES, Outcome, PoliteFetcher  # noqa: E402
 from crawler.robots import RobotsCache  # noqa: E402
-from crawler.transport import Response, Transport, TransportError  # noqa: E402
+from crawler.transport import (BodyTooLargeError, RefusedRequestError, Response,  # noqa: E402
+                               Transport, TransportError)
 
 UA = f"ONJEON-SourceArchiver/{crawler.__version__} (+ops@example.org)"
 ROBOTS = "https://a.example/robots.txt"
@@ -213,16 +214,17 @@ class PoliteFetcherRetryTest(unittest.TestCase):
         self.assertEqual(sleep.sleeps, [2.5, 4.25])
 
     def test_headers_are_identical_across_retries(self):
-        headers = {"If-None-Match": '"abc"'}
+        headers = {"If-None-Match": '"abc"', "Accept": "text/plain"}
         f, t, _, _ = make_fetcher({
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
             "https://a.example/page": (500, {}, b"x"),
         }, config=CrawlerConfig(contact="ops@example.org", max_attempts=3))
         out = f.fetch("https://a.example/page", "src1", headers=headers)
         self.assertEqual(out.attempts, 3)
-        for _, h, _, _ in t.requests:
-            if h:
-                self.assertEqual(h.get("If-None-Match"), '"abc"')
+        page_headers = [h for url, h, _, _ in t.requests if url == "https://a.example/page"]
+        self.assertEqual(page_headers, [dict(headers)] * 3)
+        # the robots.txt sub-request saw the same caller headers too (Accept stays text/plain)
+        self.assertEqual(t.requests[0][1]["If-None-Match"], '"abc"')
 
 
 class PoliteFetcherStopTest(unittest.TestCase):
@@ -355,6 +357,127 @@ class PoliteFetcherRateLimitTest(unittest.TestCase):
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 2)
 
 
+class PoliteFetcherBodyStreamTest(unittest.TestCase):
+    """A body stream that dies inside the marker-scan prefix must never become a silent
+    truncated success; past the prefix the failure reaches the body consumer instead."""
+
+    @staticmethod
+    def _route_with_failing_body(error):
+        """A fresh 200 Response per request: one chunk, then the stream dies."""
+        def route(url):
+            def body():
+                yield b"x" * 100
+                raise error
+            return Response(200, {}, body())
+        return route
+
+    def test_mid_prefix_transport_error_is_retried_then_typed_failure(self):
+        f, t, _, sleep = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": self._route_with_failing_body(
+                TransportError("read failed: ConnectionResetError")),
+        }, config=CrawlerConfig(contact="ops@example.org", max_attempts=3, per_host_min_interval_s=1))
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "connection_reset")
+        self.assertEqual(out.reason, "connection_reset")
+        self.assertEqual(out.attempts, 3)
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 3)
+        self.assertEqual(sleep.sleeps, [2.0, 4.0])
+
+    def test_mid_prefix_timeout_is_retried_then_timeout(self):
+        f, t, _, sleep = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": self._route_with_failing_body(
+                TransportError("read failed: TimeoutError")),
+        }, config=CrawlerConfig(contact="ops@example.org", max_attempts=2, per_host_min_interval_s=1))
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "timeout")
+        self.assertEqual(out.reason, "timeout")
+        self.assertEqual(out.attempts, 2)
+        self.assertEqual(sleep.sleeps, [2.0])
+
+    def test_mid_prefix_body_too_large_is_blocked_without_retry(self):
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": self._route_with_failing_body(
+                BodyTooLargeError("body exceeds the cap")),
+        }, config=CrawlerConfig(contact="ops@example.org", max_attempts=3, per_host_min_interval_s=1))
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "blocked")
+        self.assertEqual(out.reason, "empty_reply")
+        self.assertEqual(out.attempts, 1)
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
+
+    def test_failure_past_the_prefix_reaches_the_body_consumer(self):
+        def route(url):
+            def body():
+                yield b"y" * (BODY_PREFIX_BYTES + 10)
+                yield b"tail"
+                raise TransportError("read failed: ConnectionResetError")
+            return Response(200, {}, body())
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": route,
+        }, config=CrawlerConfig(contact="ops@example.org", per_host_min_interval_s=1))
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "success")
+        got = bytearray()
+        with self.assertRaises(TransportError):
+            for chunk in out.body_iter:
+                got += chunk
+        self.assertEqual(got, b"y" * (BODY_PREFIX_BYTES + 10) + b"tail")
+
+    def test_403_with_dying_body_still_stops_immediately(self):
+        def route(url):
+            def body():
+                yield b"den"
+                raise TransportError("read failed: ConnectionResetError")
+            return Response(403, {}, body())
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": route,
+        })
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "blocked")
+        self.assertEqual(out.reason, "origin_denied")
+        self.assertEqual(out.attempts, 1)
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
+
+
+class PoliteFetcherLocalRefusalTest(unittest.TestCase):
+    """Errors raised by transport.request before anything reaches the wire must not leak the
+    host reservation or spend daily budget."""
+
+    def test_non_transport_error_frees_host_and_refunds_budget(self):
+        cfg = CrawlerConfig(contact="ops@example.org", daily_request_cap_default=1,
+                            max_attempts=1, per_host_min_interval_s=1)
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": ValueError("header not allowed: X-Test"),
+        }, config=cfg)
+        with self.assertRaises(ValueError):
+            f.fetch("https://a.example/page", "src1")
+        t.routes["https://a.example/page"] = (200, {}, b"ok")
+        # host reservation was released and the failed call did not spend the cap
+        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")
+        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "deferred_cap")
+
+    def test_refused_request_is_a_typed_block_once_and_not_billed(self):
+        cfg = CrawlerConfig(contact="ops@example.org", daily_request_cap_default=1,
+                            max_attempts=3, per_host_min_interval_s=1)
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": RefusedRequestError("URLs with credentials are refused"),
+        }, config=cfg)
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual((out.kind, out.reason), ("blocked", "not_checked"))
+        self.assertEqual(out.attempts, 1)
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
+        t.routes["https://a.example/page"] = (200, {}, b"ok")
+        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")  # refunded
+        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "deferred_cap")
+
+
 class PoliteFetcherCapTest(unittest.TestCase):
     def test_daily_cap_reached_returns_deferred_cap(self):
         f, t, _, _ = make_fetcher({
@@ -383,7 +506,8 @@ class PoliteFetcherCapTest(unittest.TestCase):
 class StaticPoliteTest(unittest.TestCase):
     def test_no_proxy_vpn_rotation_spoof_tokens_in_fetch_code(self):
         crawler_dir = Path(__file__).resolve().parent.parent / "crawler"
-        files = sorted(crawler_dir.glob("*.py"))
+        files = sorted(crawler_dir.rglob("*.py"))
+        self.assertTrue(files)
         text = "\n".join(p.read_text() for p in files)
         # ProxyHandler is allowed only as the explicit empty handler in transport.py.
         for m in re.finditer(r"ProxyHandler", text):

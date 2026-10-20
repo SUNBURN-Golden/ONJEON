@@ -71,5 +71,6 @@ class HostRateLimiter:
     def release(self, host: str) -> None:
         host = host.lower().strip()
         with self._lock:
-            self._active.discard(host)
-            self._last[host] = self._clock()
+            if host in self._active:
+                self._active.discard(host)
+                self._last[host] = self._clock()

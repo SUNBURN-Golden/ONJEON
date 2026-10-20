@@ -9,6 +9,11 @@ Rules:
 - 401/403, captcha/login/bot-block/geo-block markers in a bounded prefix of a textual body, an
   empty 2xx body, or any redirect (same host or another host: redirects are never followed)
   stop immediately with a typed Outcome: no retry, no header change, no alternate path;
+- a body stream that fails inside the marker prefix is the same class of failure as request()
+  raising (classified the same way, retried only if transient); past the prefix a TransportError
+  reaches the body consumer, so a truncated body is never reported as a successful fetch;
+- a refusal before the wire (NetworkDisabledError, RefusedRequestError, or a caller-side error
+  like a disallowed header) is not a billable request and never leaks the host reservation;
 - the robots check may fetch robots.txt through the injected transport before the first attempt;
   the limiter reservation covers the page attempts, and hosts of different sources share one
   limiter budget;
@@ -21,6 +26,7 @@ js_shell, redirect_loop, not_checked); "deferred_cap" is the cap outcome's own k
 Body inspection works on a bounded prefix (BODY_PREFIX_BYTES) so memory stays small.
 """
 import email.utils
+import random
 import threading
 import time
 from dataclasses import dataclass
@@ -31,8 +37,8 @@ from urllib.parse import urlsplit
 from .config import CrawlerConfig
 from .hostlimit import HostAtCapError, HostBusyError, HostRateLimiter
 from .robots import RobotsCache, RobotsDecision
-from .transport import (BodyTooLargeError, NetworkDisabledError, Response, Transport,
-                        TransportError)
+from .transport import (BodyTooLargeError, NetworkDisabledError, RefusedRequestError, Response,
+                        Transport, TransportError)
 
 DAY_S = 86400
 BODY_PREFIX_BYTES = 32 * 1024
@@ -143,7 +149,7 @@ class PoliteFetcher:
         config: CrawlerConfig,
         clock: Callable[[], float] = time.time,
         sleep: Callable[[float], None] = time.sleep,
-        rng: Callable[[], float] = lambda: 0.0,
+        rng: Callable[[], float] = random.random,
         block_markers: Optional[Iterable[str]] = None,
         geo_markers: Optional[Iterable[str]] = None,
         service_outage_markers: Optional[Iterable[str]] = None,
@@ -216,10 +222,15 @@ class PoliteFetcher:
                 self._limiter.release(host)
                 return Outcome("deferred_cap", "deferred_cap", url, blocked_until=until)
 
+            response = None
             try:
                 response = self._transport.request(url, request_headers, timeout, max_bytes)
             except TransportError as exc:
+                # Free the host at failure time so the backoff below counts toward the
+                # minimum interval; the repeat release in the finally is a no-op.
                 self._limiter.release(host)
+                if isinstance(exc, (NetworkDisabledError, RefusedRequestError)):
+                    self._unbump_daily(source)  # refused before the wire: not a billable request
                 if isinstance(exc, NetworkDisabledError):
                     raise  # local policy refusal, not a host outcome: never retry, never swallow
                 kind, reason, retryable = _classify_transport_error(exc)
@@ -227,6 +238,15 @@ class PoliteFetcher:
                     return Outcome(kind, reason, url, attempts=attempt)
                 self._sleep(_backoff(attempt, self._rng))
                 continue
+            except Exception:
+                # Not a TransportError (caller misuse such as a disallowed header or a bad
+                # timeout, or a transport bug): nothing reached the wire, so refund the
+                # budget. The finally frees the host, then the error fails loudly.
+                self._unbump_daily(source)
+                raise
+            finally:
+                if response is None:
+                    self._limiter.release(host)
 
             outcome = None
             try:
@@ -256,7 +276,7 @@ class PoliteFetcher:
             return Outcome("redirect", "redirect_loop", url, status=status, attempts=attempt)
 
         if status in (401, 403):
-            prefix = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
+            prefix, _ = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
             reason = _block_reason(prefix, self._geo_markers)
             return Outcome("blocked", reason, url, status=status, attempts=attempt)
 
@@ -273,7 +293,15 @@ class PoliteFetcher:
             return Outcome("blocked", "origin_denied", url, status=status, attempts=attempt)
 
         if 200 <= status < 300:
-            head = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
+            head, body_error = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
+            if body_error is not None:
+                # A stream that dies inside the prefix window is the same class of failure
+                # request() would have raised: classify it (and retry if transient) the same
+                # way. Reporting success here would archive a truncated body as complete.
+                kind, reason, retryable = _classify_transport_error(body_error)
+                if not retryable or attempt == self._config.max_attempts:
+                    return Outcome(kind, reason, url, status=status, attempts=attempt)
+                return Outcome("retry", reason, url, status=status, attempts=attempt)
             if not head:
                 return Outcome("blocked", "empty_reply", url, status=status, attempts=attempt)
             if _is_textual(response.headers.get("content-type")):
@@ -351,6 +379,13 @@ class PoliteFetcher:
             self._daily[source] = (day_start, count + 1)
             return None
 
+    def _unbump_daily(self, source: str) -> None:
+        """Refund one counted request when the attempt never reached the wire."""
+        with self._lock:
+            day_start, count = self._daily.get(source, (_day_start(self._clock()), 0))
+            if count > 0:
+                self._daily[source] = (day_start, count - 1)
+
 
 class _BodyChain:
     """Yields the already-consumed head chunk(s), then the rest of the stream, then closes."""
@@ -427,6 +462,8 @@ def _classify_transport_error(exc: TransportError) -> Tuple[str, str, bool]:
     """(outcome kind, host_access reason, retryable) for a transport failure."""
     if isinstance(exc, BodyTooLargeError):
         return "blocked", "empty_reply", False  # unusable reply, not transient
+    if isinstance(exc, RefusedRequestError):
+        return "blocked", "not_checked", False  # a local refusal: retrying changes nothing
     msg = str(exc).lower()
     if "timeouterror" in msg:
         return "timeout", "timeout", True
@@ -437,11 +474,13 @@ def _classify_transport_error(exc: TransportError) -> Tuple[str, str, bool]:
     return "connection_reset", "connection_reset", True
 
 
-def _read_prefix(body_iter: Iterator[bytes], max_bytes: int) -> bytes:
+def _read_prefix(body_iter: Iterator[bytes], max_bytes: int) -> Tuple[bytes, Optional[TransportError]]:
     """Consume up to max_bytes (plus at most one chunk already taken) for marker scanning.
 
+    Returns (prefix, error): error is the TransportError that ended the stream early, else
+    None — a prefix shorter than max_bytes with a None error means the stream ended cleanly.
     The returned bytes were consumed from the iterator; a caller that keeps reading the body
-    must hand them back first. A TransportError mid-body just truncates the prefix.
+    must hand them back first.
     """
     buf = bytearray()
     try:
@@ -449,9 +488,9 @@ def _read_prefix(body_iter: Iterator[bytes], max_bytes: int) -> bytes:
             buf.extend(chunk)
             if len(buf) >= max_bytes:
                 break
-    except TransportError:
-        pass
-    return bytes(buf)
+    except TransportError as exc:
+        return bytes(buf), exc
+    return bytes(buf), None
 
 
 def _is_textual(content_type: Optional[str]) -> bool:

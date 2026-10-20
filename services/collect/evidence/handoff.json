@@ -37,7 +37,7 @@
     ]
   },
   "verification_summary": {
-    "adapters_rust_tests": "35 passed (cargo test -p onjeon-collect adapters)",
+    "adapters_rust_tests": "41 passed (cargo test -p onjeon-collect adapters)",
     "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
     "workspace_rust": "passed",
     "python_tools": "passed",

@@ -60,6 +60,8 @@ pub fn classify(
 }
 
 fn body_is_markup(body: &[u8]) -> bool {
+    // A leading UTF-8 BOM is not markup text — tolerate it before the first tag.
+    let body = body.strip_prefix(&[0xEF, 0xBB, 0xBF]).unwrap_or(body);
     body.iter()
         .position(|b| !b.is_ascii_whitespace())
         .map(|i| body[i] == b'<')
@@ -258,7 +260,9 @@ fn json_path<'a>(v: &'a serde_json::Value, path: &str) -> Option<&'a serde_json:
 /// Attribute *names* are matched on a lowercased copy (`HREF` matches), but values are
 /// sliced from the original document: an id like `tptyCode=PB15` is case-significant —
 /// lowercasing it would mangle the id and merge case-distinct items into one. `href`
-/// must start an attribute word: `data-href`, `xhref` and similar names do not count.
+/// must start an attribute word: `data-href`, `xhref` and similar names do not count,
+/// and neither does `location.href='…'` inside script text — an attribute name is
+/// preceded by whitespace (or `/` in a tolerated self-close).
 fn href_values(html: &str) -> Vec<String> {
     let low = html.to_ascii_lowercase();
     let bytes = low.as_bytes();
@@ -266,7 +270,7 @@ fn href_values(html: &str) -> Vec<String> {
     let mut rest = 0usize;
     while let Some(i) = low[rest..].find("href") {
         let at = rest + i;
-        if at > 0 && matches!(bytes[at - 1], b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_') {
+        if at == 0 || !(bytes[at - 1].is_ascii_whitespace() || bytes[at - 1] == b'/') {
             rest = at + 4;
             continue;
         }

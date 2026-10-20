@@ -9,6 +9,10 @@
 //! - 429, 5xx, network error, over-cap body without a full line, bad/cross-host redirect:
 //!   host `Unverifiable` — **deferred, never fetched meanwhile** (the "robots 확인 불가
 //!   호스트는 보류" rule). Deferral lasts until the end of the UTC day, as in Python.
+//! - A transport `Refused` (no socket opened, e.g. network disabled) is recorded as
+//!   `transport_refused` — the refusal is ours, not the host's — and still defers.
+//!   The Python port raises `NetworkDisabledError`; the deferred hold is the
+//!   fail-soft equivalent for an injected transport.
 //!
 //! Verdicts feed the manifest's `blocked`/`hold` ranges; an unverifiable host's scopes stay
 //! unexplored with their hold reason — they are never counted as enumerated or acquired.
@@ -37,7 +41,7 @@ pub enum RobotsVerdict {
     Disallow,
     /// robots.txt could not be checked: the host is on hold for the rest of the UTC day.
     /// Reason: `robots_unreachable` | `robots_server_error` | `robots_rate_limited` |
-    /// `robots_too_large` | `robots_redirect_refused` | `bad_url`.
+    /// `robots_too_large` | `robots_redirect_refused` | `transport_refused` | `bad_url`.
     Unverifiable { reason: &'static str },
     /// robots.txt itself answered 401/403 (`robots_forbidden`): the host is blocked.
     Forbidden,
@@ -161,15 +165,15 @@ impl RobotsGate {
         now: u64,
     ) -> Option<()> {
         let default_port = if scheme == "https" { 443 } else { 80 };
-        let authority = if port == default_port {
+        let host_part = if host.contains(':') {
+            format!("[{host}]")
+        } else {
             host.to_string()
-        } else {
-            format!("{host}:{port}")
         };
-        let authority = if host.contains(':') {
-            format!("[{authority}]")
+        let authority = if port == default_port {
+            host_part
         } else {
-            authority
+            format!("{host_part}:{port}")
         };
         let mut url = format!("{scheme}://{authority}/robots.txt");
         let mut status = 0u16;
@@ -184,6 +188,10 @@ impl RobotsGate {
                 }
                 Err(FetchError::BadUrl) => {
                     self.defer(host, now, "robots_redirect_refused", false);
+                    return None;
+                }
+                Err(FetchError::Refused) => {
+                    self.defer(host, now, "transport_refused", false);
                     return None;
                 }
                 Err(_) => {
@@ -241,6 +249,7 @@ impl RobotsGate {
             self.defer(host, now, "robots_server_error", false);
             return None;
         }
+        let body = strip_utf8_bom(&body);
         let text = if truncated {
             // `_read_capped` parity: an over-long body is cut at the last full line. A
             // partial trailing rule must not be parsed — a truncated `Allow:` could
@@ -255,7 +264,7 @@ impl RobotsGate {
                 Some(i) => String::from_utf8_lossy(&body[..i + 1]).into_owned(),
             }
         } else {
-            String::from_utf8_lossy(&body).into_owned()
+            String::from_utf8_lossy(body).into_owned()
         };
         let group = parse_group(&text);
         self.entries.insert(
@@ -271,6 +280,14 @@ impl RobotsGate {
     }
 }
 
+/// `utf-8-sig` parity (`tools/crawler/robots.py::_parse`): a leading UTF-8 BOM is not
+/// content. Without this the first line of a BOM'd file decodes as
+/// `\u{feff}User-agent: …`, the field name never matches, the whole group ends up
+/// with zero agents — and an empty rule set allows every path, the unsafe direction.
+fn strip_utf8_bom(body: &[u8]) -> &[u8] {
+    body.strip_prefix(&[0xEF, 0xBB, 0xBF]).unwrap_or(body)
+}
+
 /// `urljoin(url, target)` for the shapes robots redirects produce: absolute URLs and
 /// scheme/host/path-relative references inside the same origin.
 fn join_url(base: &str, target: &str) -> String {
@@ -280,10 +297,15 @@ fn join_url(base: &str, target: &str) -> String {
     }
     if let Ok((scheme, host, port, _)) = split_url(base) {
         let default = if scheme == "https" { 443 } else { 80 };
-        let authority = if port == default {
-            host.to_string()
+        let host_part = if host.contains(':') {
+            format!("[{host}]")
         } else {
-            format!("{host}:{port}")
+            host.to_string()
+        };
+        let authority = if port == default {
+            host_part
+        } else {
+            format!("{host_part}:{port}")
         };
         if let Some(rest) = t.strip_prefix("//") {
             return format!("{scheme}://{rest}");

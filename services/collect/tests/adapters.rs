@@ -3,7 +3,7 @@
 //! transport carries the `origin=fixture` marker in spirit (fixture-only code paths).
 
 mod adapters {
-    use std::collections::BTreeMap;
+    use std::collections::{BTreeMap, VecDeque};
     use std::path::PathBuf;
     use std::sync::atomic::{AtomicU64, Ordering};
     use std::sync::Mutex;
@@ -25,6 +25,7 @@ mod adapters {
     /// records every requested URL. Missing URLs answer `FetchError::Network`.
     struct FixtureFetch {
         responses: BTreeMap<String, FixtureResponse>,
+        sequences: Mutex<BTreeMap<String, VecDeque<FixtureResponse>>>,
         requested: Mutex<Vec<String>>,
     }
 
@@ -43,6 +44,7 @@ mod adapters {
         fn new() -> Self {
             Self {
                 responses: BTreeMap::new(),
+                sequences: Mutex::new(BTreeMap::new()),
                 requested: Mutex::new(Vec::new()),
             }
         }
@@ -87,6 +89,14 @@ mod adapters {
         fn add_err(&mut self, url: &str, e: FetchError) {
             self.responses.insert(url.into(), FixtureResponse::Err(e));
         }
+        /// Queue different responses for repeated requests to the same URL (e.g. a
+        /// robots.txt that turns unreachable mid-walk).
+        fn add_seq(&mut self, url: &str, seq: Vec<FixtureResponse>) {
+            self.sequences
+                .lock()
+                .unwrap()
+                .insert(url.into(), VecDeque::from(seq));
+        }
         fn requested(&self) -> Vec<String> {
             self.requested.lock().unwrap().clone()
         }
@@ -95,6 +105,28 @@ mod adapters {
     impl Fetch for FixtureFetch {
         fn fetch(&self, url: &str, _max_bytes: usize) -> Result<FetchResponse, FetchError> {
             self.requested.lock().unwrap().push(url.to_string());
+            if let Some(r) = self
+                .sequences
+                .lock()
+                .unwrap()
+                .get_mut(url)
+                .and_then(|q| q.pop_front())
+            {
+                return match r {
+                    FixtureResponse::Ok {
+                        status,
+                        headers,
+                        body,
+                        truncated,
+                    } => Ok(FetchResponse {
+                        status,
+                        headers,
+                        body,
+                        truncated,
+                    }),
+                    FixtureResponse::Err(e) => Err(e),
+                };
+            }
             match self.responses.get(url) {
                 Some(FixtureResponse::Ok {
                     status,
@@ -472,6 +504,170 @@ mod adapters {
         };
         let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
         assert_eq!(m.result.unique_item_count, 1);
+    }
+
+    /// BOM이 붙은 robots.txt도 규칙을 그대로 적용한다(tools/crawler/robots.py의
+    /// utf-8-sig 이식). BOM 때문에 첫 `User-agent:` 줄이 필드로 인식되지 않으면
+    /// 그룹 전체가 비어 모든 경로가 허용되는 방향은 안 된다 — Disallow:/도 우회다.
+    #[test]
+    fn robots_utf8_bom_does_not_disarm_disallow() {
+        let mut ff = FixtureFetch::new();
+        ff.add_full(
+            "https://h.fixture/robots.txt",
+            200,
+            vec![("content-type".into(), "text/plain".into())],
+            b"\xEF\xBB\xBFUser-agent: *\nDisallow: /\n",
+            false,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/list", NOW),
+            RobotsVerdict::Disallow
+        ));
+        // BOM 뒤의 Allow 규칙도 살아 있다.
+        let mut ff = FixtureFetch::new();
+        ff.add_full(
+            "https://h.fixture/robots.txt",
+            200,
+            vec![("content-type".into(), "text/plain".into())],
+            b"\xEF\xBB\xBFUser-agent: *\nDisallow: /secret\nAllow: /\n",
+            false,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/open", NOW),
+            RobotsVerdict::Allow { .. }
+        ));
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/secret/x", NOW),
+            RobotsVerdict::Disallow
+        ));
+    }
+
+    /// IPv6 호스트의 robots URL은 [::1]:8080 꼴이다 — 포트가 괄호 안에 들어간
+    /// [::1:8080]은 다른 호스트로 다시 파싱돼 틀린 요청이 된다.
+    #[test]
+    fn robots_url_brackets_ipv6_host_before_port() {
+        let mut ff = FixtureFetch::new();
+        ff.add("http://[::1]:8080/robots.txt", 404, "");
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "http://[::1]:8080/a", NOW),
+            RobotsVerdict::Allow {
+                reason: "robots_not_found",
+                ..
+            }
+        ));
+        assert_eq!(
+            ff.requested(),
+            vec!["http://[::1]:8080/robots.txt".to_string()]
+        );
+    }
+
+    /// 주입 transport가 소켓을 열기 전 거절(Refused)하면 원격 unreachable이 아니라
+    /// 우리 쪽 거절(transport_refused)로 기록한다 — 보류·미요청 규칙은 같다.
+    #[test]
+    fn transport_refused_is_recorded_not_blamed_on_remote() {
+        let mut ff = FixtureFetch::new();
+        ff.add_err("https://h.fixture/robots.txt", FetchError::Refused);
+        let mut gate = RobotsGate::new(86_400);
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/a", NOW),
+            RobotsVerdict::Unverifiable {
+                reason: "transport_refused"
+            }
+        ));
+        // 같은 UTC 일 안에서는 보류가 유지되고 재요청하지 않는다.
+        assert!(matches!(
+            gate.check(&ff, "https://h.fixture/b", NOW + 60),
+            RobotsVerdict::Unverifiable {
+                reason: "transport_refused"
+            }
+        ));
+        assert_eq!(ff.requested().len(), 1);
+    }
+
+    /// 열거 도중 robots 재확인이 불가해지면 이미 가져온 페이지는 기록된 채고 보류는
+    /// 남은 페이지뿐이다 — 범위를 whole_scope로 과소 신고하지 않는다.
+    #[test]
+    fn mid_walk_robots_hold_records_remaining_pages() {
+        let mut ff = FixtureFetch::new();
+        ff.add_seq(
+            "https://h.fixture/robots.txt",
+            vec![
+                FixtureResponse::Ok {
+                    status: 200,
+                    headers: vec![("content-type".into(), "text/plain".into())],
+                    body: b"User-agent: *\nAllow: /\n".to_vec(),
+                    truncated: false,
+                },
+                FixtureResponse::Err(FetchError::Network),
+            ],
+        );
+        ff.add(
+            "https://h.fixture/list?page=1",
+            200,
+            "<a href='item.do?id=1'>a</a>",
+        );
+        let mut gate = RobotsGate::new(0); // TTL 0 — 매 페이지마다 robots를 다시 확인한다.
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
+        assert!(matches!(m.termination, Termination::RobotsHold { .. }));
+        assert_eq!(m.pages.len(), 1);
+        assert!(m
+            .gaps
+            .iter()
+            .any(|g| g.kind == "hold" && g.range == "remaining_pages"));
+        assert!(!m.gaps.iter().any(|g| g.range == "whole_scope"));
+    }
+
+    /// 열거 도중 robots가 403으로 돌아서도 차단 범위는 남은 페이지다.
+    #[test]
+    fn mid_walk_robots_forbidden_records_remaining_pages() {
+        let mut ff = FixtureFetch::new();
+        ff.add_seq(
+            "https://h.fixture/robots.txt",
+            vec![
+                FixtureResponse::Ok {
+                    status: 200,
+                    headers: vec![("content-type".into(), "text/plain".into())],
+                    body: b"User-agent: *\nAllow: /\n".to_vec(),
+                    truncated: false,
+                },
+                FixtureResponse::Ok {
+                    status: 403,
+                    headers: vec![],
+                    body: Vec::new(),
+                    truncated: false,
+                },
+            ],
+        );
+        ff.add(
+            "https://h.fixture/list?page=1",
+            200,
+            "<a href='item.do?id=1'>a</a>",
+        );
+        let mut gate = RobotsGate::new(0);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
+        assert!(matches!(m.termination, Termination::RobotsBlocked { .. }));
+        assert_eq!(m.pages.len(), 1);
+        assert!(m
+            .gaps
+            .iter()
+            .any(|g| g.kind == "blocked" && g.range == "remaining_pages"));
     }
 
     // ---------- login page is not a success ----------
@@ -1111,6 +1307,22 @@ mod adapters {
                 total_marker: None,
             },
             b"<div data-href=\"item.do?id=9\" xhref='item.do?id=8'></div><a href='item.do?id=1'>a</a>",
+        )
+        .unwrap();
+        assert_eq!(parsed.item_ids, vec!["1".to_string()]);
+    }
+
+    /// 스크립트 안의 `location.href='…'`는 속성이 아니다 — 항목으로 세지 않는다.
+    /// 속성 이름 앞에는 공백(또는 관용적 `/`)만 온다.
+    #[test]
+    fn href_in_script_text_is_not_counted() {
+        let parsed = parse_page(
+            &ListParser::HtmlLinks {
+                link_substring: String::new(),
+                id_query_key: "id".into(),
+                total_marker: None,
+            },
+            b"<script>location.href='item.do?id=9';window.href='item.do?id=8';</script><a href='item.do?id=1'>a</a>",
         )
         .unwrap();
         assert_eq!(parsed.item_ids, vec!["1".to_string()]);

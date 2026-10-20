@@ -105,29 +105,21 @@ impl<'a> Enumerator<'a> {
                     termination = Some(Termination::RobotsBlocked {
                         reason: "robots_disallow".into(),
                     });
-                    gaps.push(gap(
-                        "blocked",
-                        if pages.is_empty() {
-                            "whole_scope"
-                        } else {
-                            "remaining_pages"
-                        },
-                        "robots_disallow",
-                    ));
+                    gaps.push(gap("blocked", unreached_range(&pages), "robots_disallow"));
                     break;
                 }
                 RobotsVerdict::Forbidden => {
                     termination = Some(Termination::RobotsBlocked {
                         reason: "robots_forbidden".into(),
                     });
-                    gaps.push(gap("blocked", "whole_scope", "robots_forbidden"));
+                    gaps.push(gap("blocked", unreached_range(&pages), "robots_forbidden"));
                     break;
                 }
                 RobotsVerdict::Unverifiable { reason } => {
                     termination = Some(Termination::RobotsHold {
                         reason: reason.to_string(),
                     });
-                    gaps.push(gap("hold", "whole_scope", reason));
+                    gaps.push(gap("hold", unreached_range(&pages), reason));
                     break;
                 }
                 RobotsVerdict::Allow { .. } => {}
@@ -428,6 +420,16 @@ fn next_pointer(
         }
         Pagination::Cursor { .. } => parsed.next_cursor.clone(),
         Pagination::SinglePage => None,
+    }
+}
+
+/// The slice a robots stop leaves unrecorded: `whole_scope` before the first page,
+/// `remaining_pages` once earlier pages were fetched and recorded.
+fn unreached_range(pages: &[PageRecord]) -> &'static str {
+    if pages.is_empty() {
+        "whole_scope"
+    } else {
+        "remaining_pages"
     }
 }
 

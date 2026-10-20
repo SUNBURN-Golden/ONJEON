@@ -226,8 +226,9 @@ pub fn knia() -> AssociationAdapter {
 ///
 /// The adapter's only verified entrypoint is the registry's `disclosure_url`. When it is
 /// empty or the registry already records the entry as not secured, the adapter emits no
-/// plan — `preflight_states` carries the registry-recorded status into the institution's
-/// exploration table instead (기록된 미확보 사유를 다시 시도로 위장하지 않는다).
+/// plan — `preflight_states` exposes the registry-recorded status so the caller can
+/// record the same state through a manifest instead of a fresh attempt (기록된 미확보
+/// 사유를 다시 시도로 위장하지 않는다).
 pub struct InsurerAdapter<'a> {
     entry: &'a DenomEntry,
     manifest: AdapterManifest,
@@ -341,7 +342,7 @@ impl<'a> DiscoveryAdapter for InsurerAdapter<'a> {
         }
         vec![ListPlan {
             scope: ScopeDesc {
-                axis: "product_list".into(),
+                axis: "disclosure_entry".into(),
                 institution_id: row.insurer_id.clone(),
                 sale_status: None,
                 channel: None,
@@ -349,18 +350,14 @@ impl<'a> DiscoveryAdapter for InsurerAdapter<'a> {
                 period_to: None,
                 doc_roles: vec!["disclosure_list".into()],
             },
-            query_signature: "scope=company_disclosure_product_list".into(),
+            query_signature: "scope=company_disclosure_entry_probe".into(),
             entrypoint: row.disclosure_url.clone(),
             // 회사 공시실 목록은 보통 단일 화면+탭이다. 페이지 매개변수는 기관 검증 전까지
             // 만들지 않는다 — 첫 화면이 전부인지는 종료 증거로만 판단한다.
             pagination: Pagination::SinglePage,
             // 프로브: 진입 페이지의 모든 링크를 관측 항목으로 기록한다(빈 id_query_key는
             // href 전체를 id로 쓴다). 기관별 판매본 파서는 사이트 검증 뒤에 온다.
-            parser: ListParser::HtmlLinks {
-                link_substring: String::new(),
-                id_query_key: String::new(),
-                total_marker: None,
-            },
+            parser: ListParser::EntryProbe,
             max_pages: 1,
         }]
     }

@@ -141,6 +141,7 @@ pub struct ParsedPage {
 /// Declarative extraction, configured per institution adapter.
 #[derive(Debug, Clone)]
 pub enum ListParser {
+    EntryProbe,
     /// The body is JSON: `items_path` is a `.`-separated path to the item array and
     /// `id_field` the field inside each item object. `total_field` is a `.`-separated path
     /// to the advertised total, if the endpoint reports one.
@@ -172,6 +173,9 @@ impl ListParser {
 /// page is not an empty list.
 pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'static str> {
     match parser {
+        ListParser::EntryProbe => {
+            Err("entry probe has no verified list parser or termination mechanism")
+        }
         ListParser::Json {
             items_path,
             id_field,
@@ -234,6 +238,20 @@ pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'stat
             }
             if let Some(marker) = total_marker {
                 out.advertised_total = total_after_marker(&html, marker);
+            }
+            if id_query_key.is_empty() {
+                return Err("HTML list requires a site-specific item selector and key");
+            }
+            // A plan that declares a `total_marker` expects the page to prove it is the
+            // configured list shape: `total=0` is verified-empty evidence, while a
+            // missing or non-zero total on a zero-item page means the selector saw
+            // nothing it could vouch for — never a fabricated empty list. A plan with
+            // no declared marker carries no count signal, so a zero-item page is an
+            // honest empty page the enumerator reconciles against the endpoint's own
+            // next pointers and termination rules (§23.2).
+            if out.item_ids.is_empty() && total_marker.is_some() && out.advertised_total != Some(0)
+            {
+                return Err("HTML list structure or verified empty-state evidence absent");
             }
             Ok(out)
         }

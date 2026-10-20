@@ -179,6 +179,7 @@ impl RobotsGate {
         let mut status = 0u16;
         let mut body = Vec::new();
         let mut truncated = false;
+        let mut content_type = String::new();
         for _ in 0..=MAX_REDIRECTS {
             let resp = match fetch.fetch(&url, ROBOTS_MAX_BYTES + 1) {
                 Ok(r) => r,
@@ -215,6 +216,10 @@ impl RobotsGate {
                 url = joined;
                 continue;
             }
+            content_type = resp
+                .header("content-type")
+                .unwrap_or("")
+                .to_ascii_lowercase();
             body = resp.body;
             truncated = resp.truncated;
             break;
@@ -266,6 +271,32 @@ impl RobotsGate {
         } else {
             String::from_utf8_lossy(body).into_owned()
         };
+        let markup = text.contains('<') || text.contains('>');
+        let valid_lines = text.lines().all(|line| {
+            let line = line.split('#').next().unwrap_or("").trim();
+            line.is_empty()
+                || line.split_once(':').is_some_and(|(field, _)| {
+                    matches!(
+                        field.trim().to_ascii_lowercase().as_str(),
+                        "user-agent"
+                            | "allow"
+                            | "disallow"
+                            | "crawl-delay"
+                            | "sitemap"
+                            | "host"
+                            | "request-rate"
+                    )
+                })
+        });
+        let has_agent = text.lines().any(|line| {
+            line.split_once(':').is_some_and(|(field, value)| {
+                field.trim().eq_ignore_ascii_case("user-agent") && !value.trim().is_empty()
+            })
+        });
+        if (content_type.contains("html") && !has_agent) || markup || !valid_lines {
+            self.defer(host, now, "robots_invalid_content", false);
+            return None;
+        }
         let group = parse_group(&text);
         self.entries.insert(
             origin,

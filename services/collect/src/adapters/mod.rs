@@ -30,6 +30,9 @@ pub mod progress;
 pub mod registry;
 pub mod robots;
 
+#[cfg(test)]
+mod regression;
+
 pub use enumerate::{
     exploration_state_of, unenumerated_manifest, Enumerator, ListPlan, Pagination, RunMeta,
     LIST_PAGE_MAX_BYTES,

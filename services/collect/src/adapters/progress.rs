@@ -66,6 +66,7 @@ pub struct InstitutionProgress {
     /// Scope axis -> state, e.g. `product_list` -> `unexplored(<reason>)`.
     pub exploration: BTreeMap<String, ExplorationState>,
     pub items: Vec<DenominatorItem>,
+    pub unknown_denominators: BTreeMap<DocRole, ExplorationState>,
 }
 
 /// Where a scope axis of an institution stands after enumeration.
@@ -105,6 +106,7 @@ impl ExplorationState {
 pub struct RoleCoverage {
     /// Denominator size for this role.
     pub expected: usize,
+    pub unknown_scopes: usize,
     /// Items with all three evidence parts — the numerator of the acquisition rate.
     pub acquired: usize,
     /// Unacquired items by `acquisition_status` reason (plus `partial_evidence` for items
@@ -116,7 +118,7 @@ impl RoleCoverage {
     /// The acquisition rate, or `None` when the role has no denominator items. Never a
     /// NaN, never above 1.
     pub fn rate(&self) -> Option<f64> {
-        if self.expected == 0 {
+        if self.expected == 0 || self.unknown_scopes > 0 {
             return None;
         }
         Some(self.acquired as f64 / self.expected as f64)
@@ -131,7 +133,13 @@ pub struct ProgressTable {
 }
 
 impl ProgressTable {
-    /// Build one row per in-scope institution; product/document axes start `Unqueried`.
+    /// Build one row per in-scope institution; every scope axis starts `Unqueried`.
+    ///
+    /// The table records what *this* enumeration round has attempted — registry-carried
+    /// statuses (`preflight_states`) are not pre-seeded here; they reach the table the
+    /// same way runtime results do, through `apply_discovery`. Likewise
+    /// `unknown_denominators` starts empty: it marks a role whose denominator a manifest
+    /// showed unverifiable, not a role that was simply never queried.
     pub fn for_denominator<'a>(entries: impl Iterator<Item = &'a DenomEntry>) -> Self {
         let mut rows = Vec::new();
         for e in entries {
@@ -145,10 +153,100 @@ impl ProgressTable {
                 kind: e.kind,
                 exploration,
                 items: Vec::new(),
+                unknown_denominators: BTreeMap::new(),
             });
         }
         rows.sort_by(|a, b| a.institution_id.cmp(&b.institution_id));
         Self { rows }
+    }
+
+    pub fn from_discoveries(
+        denominator: &super::registry::Denominator,
+        manifests: &[super::manifest::DiscoveryManifest],
+    ) -> Result<Self, &'static str> {
+        let mut table = Self::for_denominator(denominator.in_scope.iter());
+        for manifest in manifests {
+            table.apply_discovery(manifest)?;
+        }
+        Ok(table)
+    }
+
+    pub fn apply_discovery(
+        &mut self,
+        manifest: &super::manifest::DiscoveryManifest,
+    ) -> Result<(), &'static str> {
+        let row = self
+            .row_mut(&manifest.scope.institution_id)
+            .ok_or("institution outside denominator")?;
+        let state = super::enumerate::exploration_state_of(&manifest.termination);
+        row.exploration
+            .insert(manifest.scope.axis.clone(), state.clone());
+        if manifest.scope.axis == "documents" {
+            let reason = manifest
+                .gaps
+                .iter()
+                .map(|g| g.reason.as_str())
+                .collect::<Vec<_>>()
+                .join("; ");
+            let reason = if reason.is_empty() {
+                "discovered document lacks acquisition evidence".into()
+            } else {
+                reason
+            };
+            let status = match state {
+                ExplorationState::Blocked { .. } => AcquisitionStatus::Blocked,
+                ExplorationState::Failed { .. } => AcquisitionStatus::Failed,
+                _ => AcquisitionStatus::Unqueried,
+            };
+            for role in DENOMINATOR_DOC_ROLES {
+                if !manifest.scope.doc_roles.iter().any(|r| r == role.as_str()) {
+                    continue;
+                }
+                if state.reached_evidence() {
+                    row.unknown_denominators.remove(&role);
+                } else {
+                    row.unknown_denominators.insert(role, state.clone());
+                }
+                for item in row
+                    .items
+                    .iter_mut()
+                    .filter(|i| i.doc_role == role && !i.is_acquired())
+                {
+                    item.unacquired = Some((status, reason.clone()));
+                }
+            }
+            return Ok(());
+        }
+        if manifest.scope.axis != "product_list" {
+            return Ok(());
+        }
+        if matches!(
+            state,
+            ExplorationState::Enumerated | ExplorationState::EnumeratedEmpty
+        ) {
+            row.unknown_denominators.clear();
+        } else {
+            for role in DENOMINATOR_DOC_ROLES {
+                row.unknown_denominators.insert(role, state.clone());
+            }
+        }
+        for id in &manifest.discovered_ids {
+            for role in DENOMINATOR_DOC_ROLES {
+                let item_id = format!("{id}:{}", role.as_str());
+                if !row.items.iter().any(|item| item.item_id == item_id) {
+                    row.items.push(DenominatorItem {
+                        item_id,
+                        doc_role: role,
+                        evidence: AcquisitionEvidence::default(),
+                        unacquired: Some((
+                            AcquisitionStatus::Unqueried,
+                            "document not acquired; product discovered".into(),
+                        )),
+                    });
+                }
+            }
+        }
+        Ok(())
     }
 
     pub fn row_mut(&mut self, institution_id: &str) -> Option<&mut InstitutionProgress> {
@@ -166,7 +264,17 @@ impl ProgressTable {
             .find(|r| r.institution_id == institution_id)
             .map(|r| &r.items)
             .unwrap_or(&empty);
-        coverage(items)
+        let mut out = coverage(items);
+        if let Some(row) = self
+            .rows
+            .iter()
+            .find(|r| r.institution_id == institution_id)
+        {
+            for role in row.unknown_denominators.keys() {
+                out.entry(*role).or_default().unknown_scopes += 1;
+            }
+        }
+        out
     }
 
     /// Per-role coverage over every institution's items (the aggregate the coverage
@@ -177,7 +285,13 @@ impl ProgressTable {
             .iter()
             .flat_map(|r| r.items.iter().cloned())
             .collect();
-        coverage(&items)
+        let mut out = coverage(&items);
+        for row in &self.rows {
+            for role in row.unknown_denominators.keys() {
+                out.entry(*role).or_default().unknown_scopes += 1;
+            }
+        }
+        out
     }
 }
 

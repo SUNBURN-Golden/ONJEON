@@ -1,0 +1,33 @@
+{
+  "task_id": "T-DT-04",
+  "round": 4,
+  "base_sha": "a8f6791d22a1ad0c1aa37c2c5529be7e47b8e85a",
+  "target": "uncommitted worktree delta; final target SHA must be assigned by supervisor",
+  "author_role": "implementation_and_regression_testing",
+  "execution_path": "local_cli_in_task_worktree",
+  "independent_review": "not performed in this execution; supervisor must pin final SHA and attest distinct author/reviewer families using opaque role references",
+  "acceptance": "NOT PASSED: existing integration assertions and independent review evidence remain unresolved",
+  "results": [
+    {"command": "cargo test -p onjeon-collect --lib", "exit_code": 0, "result": "9 passed, including 4 new adapter regressions"},
+    {"command": "cargo test --workspace --no-fail-fast", "exit_code": 101, "result": "collect adapter integration target: 40 passed, 4 failed; all other executed targets passed", "failures": [
+      {"test": "acquisition_reason_not_counted", "detail": "tests/adapters.rs:219 expects Some(0.0); unknown institution denominator now returns None; numerator remains zero"},
+      {"test": "empty_first_page_is_a_successful_empty_list", "detail": "tests/adapters.rs:940 expects empty_success for HTML lacking positive list/empty evidence"},
+      {"test": "enumeration_terminates_on_empty_page", "detail": "tests/adapters.rs:804 expects NextPointerAbsent for HTML lacking positive empty evidence"},
+      {"test": "denominator_loads_registry_with_adr0018_scope", "detail": "tests/adapters.rs:336 expects all Unqueried, contrary to applying registry preflight states"}
+    ]},
+    {"command": "cargo clippy -p onjeon-collect --all-targets -- -D warnings", "exit_code": 0},
+    {"command": "cargo fmt -p onjeon-collect -- --check", "exit_code": 0},
+    {"command": "python3 -m unittest discover -s services/collect/tests -p 'test_*.py' -v", "exit_code": 0, "result": "2 passed"},
+    {"command": "python3 -I tools/ci/check_leak.py", "exit_code": 0, "result": "no leak patterns"},
+    {"command": "python3 -I tools/ci/check_leak.py --selftest", "exit_code": 0, "result": "29 violations caught; 5 clean cases pass"},
+    {"command": "python3 -I tools/ci/check_skeleton.py", "exit_code": 0, "result": "flags off; no static exposure; runtime routes not probed"},
+    {"command": "python3 -I tools/ci/check_skeleton.py --selftest", "exit_code": 0, "result": "18 violations caught; 5 clean cases pass"},
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "scope": "All edits confined to services/collect/src/adapters/. Existing tests and evidence outside that path were not changed.",
+  "remaining_supervisor_actions": [
+    "Authorize and update existing integration assertions and explicit empty-list fixtures outside the adapter path, then rerun the full suite; do not count the current failed run as acceptance.",
+    "Assign final commit SHA and obtain independent review tied to that SHA with opaque family-provenance attestation.",
+    "Finalize PR A/Q/L/I/M and R requirements metadata against the final SHA; existing external handoff metadata was not modified."
+  ]
+}

@@ -8,6 +8,7 @@ EVIDENCE = ROOT / "services/collect/evidence"
 COMMANDS = [
     ["cargo", "fmt", "-p", "onjeon-collect", "--", "--check"],
     ["cargo", "clippy", "-p", "onjeon-collect", "--all-targets", "--", "-D", "warnings"],
+    ["cargo", "test", "-p", "onjeon-collect", "adapters"],
     ["cargo", "test", "--workspace"],
     ["cargo", "build", "-p", "onjeon-collect"],
     ["python3", "-m", "unittest", "discover", "-s", "services/collect/tests", "-p", "test_*.py", "-v"],
@@ -31,7 +32,7 @@ def main():
         print(f"exit={result.returncode}: {' '.join(command)}", flush=True)
     files = [ROOT / "Cargo.toml", ROOT / "Cargo.lock"] + sorted((ROOT / "services/collect").rglob("*.rs")) + sorted((ROOT / "services/collect/tests").glob("*.py")) + [ROOT / "services/collect/Cargo.toml"]
     manifest = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
-    (EVIDENCE / "verification.json").write_text(json.dumps({"task_id": "T-DT-01", "base_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(), "files_sha256": manifest, "results": results}, indent=2) + "\n")
+    (EVIDENCE / "verification.json").write_text(json.dumps({"task_id": "T-DT-04", "base_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(), "files_sha256": manifest, "results": results}, indent=2) + "\n")
     return int(any(r["exit_code"] for r in results))
 
 

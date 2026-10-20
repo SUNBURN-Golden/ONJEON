@@ -1,13 +1,12 @@
 {
-  "task_id": "T-DT-01",
+  "task_id": "T-DT-04",
   "purpose": {
     "A": [
       "A1",
       "A2",
-      "A4"
+      "A3"
     ],
     "Q": [
-      "Q1",
       "Q2",
       "Q4",
       "Q7"
@@ -18,42 +17,42 @@
     "I": [
       "I6",
       "I11",
-      "I12"
+      "I17"
     ],
     "M": [
-      "M2"
+      "M3"
     ],
     "requirements": [
-      "R04"
+      "R02",
+      "R03",
+      "R26"
     ],
     "supporting_requirements": [
-      "R02",
-      "R10",
-      "R21",
-      "R22"
+      "R04",
+      "R10"
     ],
     "product_purpose_rows": [
-      "P02",
-      "P03"
+      "P01",
+      "P02"
     ]
   },
   "verification_summary": {
-    "collect_rust_tests": "18 passed",
-    "cross_language_python_tests": "2 passed",
+    "adapters_rust_tests": "22 passed (cargo test -p onjeon-collect adapters)",
+    "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
     "workspace_rust": "passed",
-    "python_tools": "388 run, 6 skipped, no failures",
+    "python_tools": "passed",
     "format_and_clippy": "passed",
     "leak_and_skeleton_static_and_selftests": "passed",
-    "dependency_boundary": "failed: 3 unchanged packages/ontology knowledge-to-twin dependencies/imports; see verification-06.log. git diff --quiet -- packages/ontology exited 0. Not repaired outside allowed scope.",
-    "all_checks_green": false,
-    "fix_round_1": "merged origin/main; all checks identical to round 1 (ontology boundary findings unchanged, still out of scope)"
+    "dependency_boundary": "failed: 3 unchanged packages/ontology knowledge-to-twin dependencies/imports; identical to the T-DT-01 finding, see verification-07.log. Nothing under packages/ontology was modified (forbidden/out of allowed paths).",
+    "all_checks_green": false
   },
   "change_kind": "existing_design_implementation",
   "references": [
-    "DATA_PIPELINE_CONTRACT 3.1",
-    "ADR-0015",
-    "ADR-0016",
-    "ADR-0017"
+    "DATA_PIPELINE_CONTRACT §1·§2·§8",
+    "ADR-0018 §3·§4",
+    "조사 H1~H14",
+    "Masterplan §23·§24",
+    "09_제품목적_대응표 P01·P02"
   ],
   "author": {
     "role": "implementation_and_self_verification",
@@ -61,7 +60,7 @@
     "model_identity": "intentionally_not_recorded",
     "independent_reviewer": false
   },
-  "base_sha": "2621d66367637c649e7761c0ed70708d1636a6d2",
+  "base_sha": "ea23bb57307a5a9669c6252418a3caf13a56fff5",
   "target_sha": null,
   "target_sha_reason": "Supervisor creates the commit; this session is forbidden to commit. verification.json pins source bytes by SHA-256, not a nonexistent commit.",
   "review": {
@@ -70,73 +69,48 @@
     "note": "New merge commit changes target SHA; independent review must re-pin to the supervisor-created SHA."
   },
   "implemented": [
-    "SHA-256 raw object layout",
-    "atomic create-if-absent local writes",
-    "same bytes verified without rewriting",
-    "different bytes conflict without replacing old bytes",
-    "new bytes at the same URL retain both originals and observations",
-    "document role, source URL and observation time",
-    "invalid responses quarantined outside objects and observations",
-    "reasoned unacquired records outside observations",
-    "sorted key-hash listing and full download verification",
-    "copy aborts on conflict",
-    "local loopback S3 conditional writes, checksum, signing and readback",
-    "cloud construction refused before transport without job and ledger",
-    "CLI has no deletion command",
-    "Python/Rust byte-compatible local observations and listing"
+    "injected Fetch transport (GET only, no redirect following, bounded body; no network impl shipped)",
+    "robots gate port of tools/crawler/robots.py: unverifiable robots defers the host to end of UTC day (hold), 401/403 blocked, 4xx no-rules, RFC 9309 longest-match with */$ for the ONJEON-SourceArchiver token",
+    "list page classification: a 200 login HTML records a blocked login_page range and never an item count",
+    "declarative ListParser (JSON items path / HTML link extraction) configured per institution",
+    "pagination driver with termination evidence: advertised_total_reached, empty_page (successful empty list), next_pointer_absent; page_repeat/stall/max_pages recorded as unexplored — a repeated last page is never a success",
+    "DiscoveryManifest records (scope 회사×판매상태×채널×기간×문서종류, page records, discovered ids, hold/blocked/unexplored/failed ranges) persisted write-once under manifests/discovery/",
+    "unenumerated-scope manifests so every institution scope leaves a record",
+    "institution denominator loading from data/registry CSVs with ADR-0018 scope mapping: 53 insurers + public-epost in scope (54), coop/seed/ksure/historical excluded with reasons and provenance",
+    "institution progress table: one row per in-scope institution; per-doc-role (약관·특약·별표·사업방법서·상품요약서·가격) counters where acquired requires raw_stored + segment_extracted + accepted realizes (09 P02)",
+    "AdapterManifest (Masterplan §24.1 shape) and DiscoveryAdapter trait; AssociationAdapter for KLIA/KNIA built only on survey-observed entrypoints with declared known_limitations; InsurerAdapter per denominator entry gated on registry-verified disclosure_url"
   ],
   "execution": {
     "repeat_all_checks": "python3 services/collect/tests/verify.py",
     "test_logs": "verification-*.log",
     "test_manifest": "verification.json"
   },
-  "usage": {
-    "observe": "cargo run -p onjeon-collect -- observe file:///absolute/archive metadata.json response-file application/pdf",
-    "metadata_fields": [
-      "source_id",
-      "url",
-      "observed_at",
-      "doc_role",
-      "format",
-      "extra"
-    ],
-    "listing": "cargo run -p onjeon-collect -- listing file:///absolute/archive",
-    "copy": "cargo run -p onjeon-collect -- copy file:///absolute/source file:///absolute/destination",
-    "verify_copy": "cargo run -p onjeon-collect -- verify-copy listing.json file:///absolute/destination",
-    "local_s3": "Library S3Store::new with loopback HTTP endpoint and caller-supplied credentials. Never print credentials."
-  },
   "limits": [
-    "R2/AWS network access is unsupported and fail-closed. Session has no public constructor; the Rust client does not pretend a job path alone proves a ledger reservation. Existing Python budgeted tool remains the remote execution path.",
-    "S3 wire test uses an actual loopback TCP fixture, not a live Compose/SeaweedFS deployment. No Compose live test or actual R2 run was performed.",
-    "Format checks are non-empty, signature/declared HTML mismatch and JSON parse checks; not full PDF page parsing, extraction, semantic labeling, or login detection within an expected HTML page.",
-    "Store roots and their parent directories must be private/trusted; static symlink traversal is rejected, but hostile concurrent directory substitution is outside this local filesystem implementation's guarantee.",
-    "Observation format and extra keys must follow the canonical Rust order for byte-identical reruns with Python. Python extra insertion order can otherwise yield a deliberate record conflict.",
-    "Observation files are preservation records, not data.raw.archived domain events. Queue publication and source namespace mapping are not supplied by this client.",
-    "No UI routes or consumer API routes were added. Skeleton static scan does not claim runtime UI route coverage.",
-    "Synthetic fixture tests do not close P02/P03 release evidence, acquired document coverage, accepted edition linkage, or consumer UI end-to-end requirements."
+    "No live enumeration was performed: the crate ships no network Fetch implementation (https is not built; D-04/O17 gates real collection). All adapter tests use synthetic fixture transports.",
+    "Association adapter plans cover only entrypoints observed in the registry survey and 2026-10-10 source survey; product-level comparison-disclosure enumeration keys are declared unstable (H1 counterexample) and left unexplored rather than invented.",
+    "InsurerAdapter emits a plan only when the registry recorded disclosure_status=archived and disclosure_access=reachable (8 of 53 insurers); other institutions carry their registry-recorded gap reasons into the progress table.",
+    "The generic insurer plan is an entry-page link probe, not a per-site product parser; per-site parsers follow site verification.",
+    "Progress counting models the P02 three-part rule as flags (raw_stored, segment_extracted, edition_link_accepted); actual DocumentSegment/realizes production belongs to T-DT-02/03 and the ontology layer.",
+    "Robots deferral is per UTC day as in the Python crawler; there is no cross-run persistence of the deferral state.",
+    "data/registry/*.csv are read-only inputs; the README addition is documentation of loader behavior.",
+    "Synthetic fixture verification does not close P01/P02 real-data release evidence, /coverage rendering, or mass collection (O17)."
   ],
   "path_audit": {
     "changed_scope": [
-      "services/collect/**",
-      "Cargo.toml workspace member only",
-      "Cargo.lock cargo-generated only"
+      "services/collect/src/adapters/**",
+      "services/collect/src/lib.rs",
+      "services/collect/tests/adapters.rs",
+      "services/collect/tests/verify.py",
+      "services/collect/evidence/**",
+      "data/registry/README.md"
     ],
     "forbidden_paths_modified": false,
     "new_root_configuration_or_docs": false
   },
   "supervisor_actions": [
-    "Confirm services/collect/** against the task runner's allowed_paths; no explicit allowed_paths array was supplied in the request.",
+    "Confirm changed files against the task's allowed_paths (services/collect/**, data/registry/README.md).",
     "Create target commit SHA and attach it to PR metadata.",
     "Obtain independent different-family review pinned to that SHA.",
     "Treat STATUS READY as implementation handoff, not product release approval."
-  ],
-  "fix_rounds": [
-    {
-      "round": 1,
-      "finding": "CI FAIL:no-ci-runs",
-      "cause": "PR unmergeable (Cargo.toml members conflict vs main: twin-runtime vs collect); no merge ref -> pull_request workflows never ran",
-      "action": "merged origin/main into worktree; members now list both crates; Cargo.lock regenerated by cargo; full gate and verify.py re-run on merged tree",
-      "evidence": "verification-fix1-merge.log"
-    }
   ]
 }

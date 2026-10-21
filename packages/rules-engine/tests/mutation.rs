@@ -244,6 +244,17 @@ mod generic {
                             out.push((format!("comparator {op} -> {t}"), wrap(t, args.clone())));
                         }
                     }
+                    "rate" => {
+                        let s = args.as_str().unwrap();
+                        for d in [-1, 1] {
+                            if let Some(r) = bump_rate(s, d) {
+                                out.push((
+                                    format!("rate literal {s} -> {r}"),
+                                    wrap("rate", json!(r)),
+                                ));
+                            }
+                        }
+                    }
                     "krw" => {
                         let k = args.as_i64().unwrap();
                         if k > 0 {
@@ -368,6 +379,98 @@ fn all_rules_with_cases() -> Vec<RuleCases> {
 /// behaviour. Keyed by `(rule_id, description)`; each needs a reason. A stale entry (the mutant
 /// no longer exists or is now killed) fails `allowlist_has_no_stale_entries`.
 const EQUIVALENT: &[(&str, &str, &str)] = &[];
+
+#[test]
+fn generic_rate_literals_mutate_in_both_representations() {
+    for (rate, bumped) in [
+        ("0.5", vec!["0.4", "0.6"]),
+        ("0.33", vec!["0.32", "0.34"]),
+        ("1", vec!["0", "2"]),
+        ("0", vec!["1"]),
+    ] {
+        for wrapped in [false, true] {
+            let literal = |s: &str| {
+                if wrapped {
+                    json!({"rate": s})
+                } else {
+                    json!(s)
+                }
+            };
+            let mut rule = rule_json();
+            rule["eligibility"] = json!(true);
+            rule["amount"] = json!({
+                "multiply_rate": [{"krw": 100}, literal(rate), {"rounding": "floor", "unit": 1}]
+            });
+            if wrapped {
+                // Explicit rate literals remain literals even when an input has the same name.
+                rule["inputs"][rate] = json!("bool");
+                rule["eligibility"] = json!(rate);
+            }
+            Rule::from_json(&rule).unwrap();
+            let mutants: Vec<_> = generic::mutants_of(&rule)
+                .into_iter()
+                .filter(|m| m.desc.contains(": rate literal "))
+                .collect();
+            assert_eq!(mutants.len(), bumped.len(), "{rate}, wrapped={wrapped}");
+            for (mutant, expected_rate) in mutants.iter().zip(bumped.iter()) {
+                let mut expected = rule.clone();
+                expected["amount"]["multiply_rate"][1] = literal(expected_rate);
+                assert_eq!(
+                    mutant.desc,
+                    format!("amount.multiply_rate[1]: rate literal {rate} -> {expected_rate}")
+                );
+                assert_eq!(mutant.rule, expected, "only the rate literal should change");
+                Rule::from_json(&mutant.rule).unwrap();
+            }
+        }
+    }
+}
+
+#[test]
+fn wrapped_real_rule_rates_preserve_mutation_coverage() {
+    let (_, rule, cases) = all_rules_with_cases()
+        .into_iter()
+        .find(|(id, ..)| id == "kb-driver-lawyer-fee")
+        .unwrap();
+    let original_mutants = generic::mutants_of(&rule);
+    let mut wrapped = rule.clone();
+    for level in wrapped["amount"]["add"].as_array_mut().unwrap() {
+        let rate = &mut level["then"]["min"][0]["multiply_rate"][1];
+        *rate = json!({"rate": rate.take()});
+    }
+    let baseline = Rule::from_json(&wrapped).unwrap();
+    for (case, inputs) in &cases {
+        assert_eq!(observe(&baseline, inputs), case["expect"]);
+    }
+    let wrapped_mutants = generic::mutants_of(&wrapped);
+    let rate_descriptions = |mutants: &[generic::Mutant]| -> Vec<String> {
+        mutants
+            .iter()
+            .filter(|m| m.desc.contains(": rate literal "))
+            .map(|m| m.desc.clone())
+            .collect()
+    };
+    let original_rates = rate_descriptions(&original_mutants);
+    assert_eq!(
+        original_rates.len(),
+        6,
+        "three sites need two rate mutants each"
+    );
+    assert_eq!(rate_descriptions(&wrapped_mutants), original_rates);
+    assert_eq!(wrapped_mutants.len(), original_mutants.len());
+    for mutant in &wrapped_mutants {
+        Rule::from_json(&mutant.rule).unwrap_or_else(|e| panic!("{}: {e}", mutant.desc));
+        assert!(
+            generic::killed_by(&mutant.rule, &cases).is_some(),
+            "wrapped rule mutant survived: {}",
+            mutant.desc
+        );
+    }
+    eprintln!(
+        "lawyer-fee rule: {} mutants in each representation, including 6 rate mutants; all killed",
+        wrapped_mutants.len()
+    );
+}
 
 #[test]
 fn generic_mutants_are_killed_on_every_rule() {

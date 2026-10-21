@@ -20,11 +20,9 @@ WORKFLOWS = Path(__file__).resolve().parents[2] / ".github/workflows"
 USES = re.compile(r"^\s*(?:-\s+)?uses:\s*(?P<ref>[^\s#]+)")
 PINNED = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
 
-# {workflow file: {unpinned ref: occurrences}}; must shrink to {} once the workflows are pinned.
-KNOWN_UNPINNED = {
-    "ci.yml": {"actions/checkout@v4": 2},
-    "sources.yml": {"actions/checkout@v4": 2, "actions/upload-artifact@v4": 2},
-}
+# {workflow file: {unpinned ref: occurrences}}; all workflows are SHA-pinned, so this is empty
+# and any new unpinned ref fails the test below.
+KNOWN_UNPINNED = {}
 
 
 def unpinned_refs(text):

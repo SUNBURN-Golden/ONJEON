@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "release-file.schema.json",
+  "title": "ONJEON criteria release file (data/criteria/releases/<id>.json)",
+  "description": "고정된 기준 릴리스(불변). 지식 릴리스(rel:)와 별도 ID 공간(crel:). members는 고정 시점의 기준 판 목록이고 content_sha256은 구성원과 판 내용 전체의 정규 JSON SHA-256이다.",
+  "type": "object",
+  "required": ["id", "members", "content_sha256", "frozen_at"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^crel:[0-9]{8}-[0-9]+$" },
+    "members": {
+      "type": "object",
+      "required": ["criterion_versions"],
+      "additionalProperties": false,
+      "properties": {
+        "criterion_versions": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^crit:[a-z0-9_-]+@[0-9]+$" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "frozen_at": { "type": "string", "format": "date-time" }
+  }
+}

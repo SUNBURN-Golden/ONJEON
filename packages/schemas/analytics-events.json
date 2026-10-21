@@ -1,0 +1,378 @@
+{
+  "$comment": "분석 이벤트 허용 목록 (02_구현계약 §3.2, C-17). 검사: src/allowlist.rs(Rust)와 codegen/check_allowlist.py(Python, 누출 정적 검사가 가져다 쓴다). 두 검사기는 아래 examples를 똑같이 통과·거부해야 한다. 허용 목록 밖 필드는 보내지 않는다. contracts_version은 packages/schemas/Cargo.toml의 version과 같아야 한다(C-23).",
+  "contracts_version": "0.1.0",
+  "event_key": "event",
+  "allowed_fields": {
+    "screen_id": {
+      "kind": "token",
+      "max_len": 64,
+      "meaning_ko": "화면 식별자(소문자 영문·숫자·_ . -). 사용자가 입력한 글자가 아니다"
+    },
+    "state_code": {
+      "kind": "vocabulary",
+      "axes": [
+        "display_status",
+        "capability_state",
+        "freshness",
+        "policy_holdings_status"
+      ],
+      "meaning_ko": "어휘 정본의 상태 값 하나"
+    },
+    "latency_ms": {
+      "kind": "integer",
+      "minimum": 0,
+      "meaning_ko": "응답 시간(밀리초)"
+    },
+    "error_class": {
+      "kind": "vocabulary",
+      "axes": [
+        "error_class"
+      ],
+      "meaning_ko": "오류 클래스 어휘 값 하나(validation·auth·not_found·…). ErrorResponse.error_class와 같은 값이며 코드의 클래스 글자(V A …)가 아니다. 글자와의 대응은 errors.json classes"
+    },
+    "release_id": {
+      "kind": "release_id",
+      "meaning_ko": "릴리스 ID rel:<yyyymmdd>-<n>"
+    },
+    "app_version": {
+      "kind": "semver",
+      "meaning_ko": "앱 버전 x.y.z"
+    },
+    "purpose": {
+      "kind": "token",
+      "max_len": 64,
+      "only_events": [
+        "consent_changed"
+      ],
+      "meaning_ko": "동의 목적 토큰. consent_changed에서만 허용(02 §3.2 이벤트 목록의 `purpose만`)"
+    }
+  },
+  "forbidden_categories": [
+    {
+      "category_ko": "계약 금액",
+      "name_hints": [
+        "amount",
+        "premium",
+        "price",
+        "krw",
+        "won",
+        "payout",
+        "cost"
+      ]
+    },
+    {
+      "category_ko": "담보 명",
+      "name_hints": [
+        "coverage",
+        "cover",
+        "rider",
+        "benefit"
+      ]
+    },
+    {
+      "category_ko": "상품 명(개인 화면)",
+      "name_hints": [
+        "product",
+        "plan_name",
+        "insurer",
+        "company",
+        "policy"
+      ]
+    },
+    {
+      "category_ko": "건강·가족력·DNA",
+      "name_hints": [
+        "health",
+        "disease",
+        "diagnosis",
+        "family",
+        "dna",
+        "genetic",
+        "medical",
+        "condition"
+      ]
+    },
+    {
+      "category_ko": "자유 입력",
+      "name_hints": [
+        "text",
+        "comment",
+        "note",
+        "message",
+        "query",
+        "input",
+        "free",
+        "memo",
+        "feedback"
+      ]
+    },
+    {
+      "category_ko": "문서 내용",
+      "name_hints": [
+        "document",
+        "doc",
+        "file",
+        "pdf",
+        "clause",
+        "quote",
+        "excerpt",
+        "content",
+        "body"
+      ]
+    },
+    {
+      "category_ko": "사용자 식별자(세션 난수만 허용)",
+      "name_hints": [
+        "user",
+        "uid",
+        "account",
+        "person",
+        "profile",
+        "email",
+        "phone",
+        "name",
+        "device",
+        "ip",
+        "token",
+        "password",
+        "session"
+      ]
+    }
+  ],
+  "events": {
+    "screen_view": {
+      "meaning_ko": "화면을 열었다",
+      "required": [
+        "screen_id"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "state_shown": {
+      "meaning_ko": "화면이 어떤 상태로 보였다",
+      "required": [
+        "screen_id",
+        "state_code"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "evidence_opened": {
+      "meaning_ko": "근거 화면을 열었다(어떤 근거인지는 보내지 않는다)",
+      "required": [
+        "screen_id"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "scenario_requested": {
+      "meaning_ko": "시나리오 계산을 요청했다(입력은 보내지 않는다)",
+      "required": [
+        "screen_id"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "scenario_result_state": {
+      "meaning_ko": "시나리오 결과의 상태(결과 값은 보내지 않는다)",
+      "required": [
+        "screen_id",
+        "state_code"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "compare_opened": {
+      "meaning_ko": "비교 화면을 열었다",
+      "required": [
+        "screen_id"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "plan_diff_opened": {
+      "meaning_ko": "설계 차이 화면을 열었다",
+      "required": [
+        "screen_id"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "import_started": {
+      "meaning_ko": "가입내역 가져오기를 시작했다",
+      "required": [
+        "screen_id"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "import_finished": {
+      "meaning_ko": "가입내역 가져오기가 끝났다(상태만)",
+      "required": [
+        "screen_id",
+        "state_code"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "consent_changed": {
+      "meaning_ko": "동의가 바뀌었다(목적만)",
+      "required": [
+        "screen_id",
+        "purpose"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "error_shown": {
+      "meaning_ko": "오류 화면을 보였다(오류 클래스만)",
+      "required": [
+        "screen_id",
+        "error_class"
+      ],
+      "optional": [
+        "release_id",
+        "app_version"
+      ]
+    },
+    "api_latency": {
+      "meaning_ko": "API 응답 시간",
+      "required": [
+        "latency_ms"
+      ],
+      "optional": [
+        "screen_id",
+        "release_id",
+        "app_version"
+      ]
+    }
+  },
+  "examples": {
+    "valid": [
+      {
+        "event": "screen_view",
+        "screen_id": "my_design",
+        "release_id": "rel:20261017-1",
+        "app_version": "1.0.0"
+      },
+      {
+        "event": "state_shown",
+        "screen_id": "my_design",
+        "state_code": "data_missing"
+      },
+      {
+        "event": "error_shown",
+        "screen_id": "compare",
+        "error_class": "timeout"
+      },
+      {
+        "event": "api_latency",
+        "latency_ms": 412
+      },
+      {
+        "event": "consent_changed",
+        "screen_id": "settings",
+        "purpose": "health_analysis"
+      }
+    ],
+    "rejected": [
+      {
+        "example": {
+          "event": "screen_view",
+          "screen_id": "my_design",
+          "monthly_premium_krw": 53000
+        },
+        "reason_ko": "계약 금액 필드는 허용 목록 밖"
+      },
+      {
+        "example": {
+          "event": "screen_view",
+          "screen_id": "my_design",
+          "coverage_name": "암진단"
+        },
+        "reason_ko": "담보 명 필드는 허용 목록 밖"
+      },
+      {
+        "example": {
+          "event": "state_shown",
+          "screen_id": "my_design",
+          "state_code": "data_missing",
+          "user_id": "u-1"
+        },
+        "reason_ko": "사용자 식별자는 허용 목록 밖"
+      },
+      {
+        "example": {
+          "event": "state_shown",
+          "screen_id": "my_design",
+          "state_code": "암 진단 대기"
+        },
+        "reason_ko": "state_code는 어휘 값만"
+      },
+      {
+        "example": {
+          "event": "error_shown",
+          "screen_id": "compare",
+          "error_class": "T"
+        },
+        "reason_ko": "error_class는 어휘 값만(코드의 클래스 글자 T가 아니다)"
+      },
+      {
+        "example": {
+          "event": "screen_view",
+          "screen_id": "내 설계"
+        },
+        "reason_ko": "screen_id는 토큰 모양만(자유 입력 금지)"
+      },
+      {
+        "example": {
+          "event": "consent_changed",
+          "screen_id": "settings",
+          "purpose": "x",
+          "note": "y"
+        },
+        "reason_ko": "note는 허용 목록 밖"
+      },
+      {
+        "example": {
+          "event": "screen_view",
+          "screen_id": "home",
+          "purpose": "x"
+        },
+        "reason_ko": "purpose는 consent_changed에서만"
+      },
+      {
+        "example": {
+          "event": "page_hit",
+          "screen_id": "home"
+        },
+        "reason_ko": "목록에 없는 이벤트"
+      }
+    ]
+  },
+  "open_items_ko": [
+    "세션 난수는 허용 필드가 아니다. 02 §3.2는 사용자 식별자로 '세션 난수만' 허용하지만 허용 필드 목록에는 넣지 않았다. 전송 계층이 붙이는지, 필드로 넣는지는 T-CT-03·앱 과제가 정한다.",
+    "state_code 축 목록(display_status·capability_state·freshness·policy_holdings_status)은 02가 '등'이라고만 적은 범위를 이 과제가 정했다. import_* 이벤트의 상태 축도 02에 없다. 어휘 정본에 축이 생기면 갱신한다.",
+    "누출 정적 검사(T-CT-06)가 이 파일을 읽어 코드의 분석 호출을 검사한다. 이 과제는 파일과 검사 함수(src/allowlist.rs)까지다."
+  ]
+}

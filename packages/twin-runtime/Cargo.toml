@@ -1,0 +1,17 @@
+[package]
+name = "onjeon-twin-runtime"
+version = "0.1.0"
+edition = "2021"
+description = "ONJEON twin runtime: sales-configuration selection, input-stage link check and judgements, release snapshot reading, case-runner CLI"
+publish = false
+
+[dependencies]
+onjeon-contracts = { path = "../schemas" }
+onjeon-ontology = { path = "../ontology" }
+onjeon-rules-engine = { path = "../rules-engine" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bin]]
+name = "case-runner"
+path = "src/bin/case-runner.rs"

@@ -20,6 +20,7 @@ import signal
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -42,13 +43,19 @@ FAKE = {"R2_ACCESS_KEY_ID": "k" * 32, "R2_SECRET_ACCESS_KEY": "s" * 64}
 EMU = {"AWS_ACCESS_KEY_ID": "testing", "AWS_SECRET_ACCESS_KEY": "testing"}
 BODY = b"pinned original"
 KEY = sa.object_key(hashlib.sha256(BODY).hexdigest())
-MONTH = b.now_utc().strftime("%Y-%m")
+NOW = datetime(2026, 1, 9, tzinfo=timezone.utc)
+MONTH = NOW.strftime("%Y-%m")
 ADMISSION = {"put_bytes": 12288, "get_bytes": 100000, "class_a": 8, "class_b": 110, "retries": 3, "seconds": 120}
 PER_RUN = {"put_bytes": 40000, "get_bytes": 200000, "class_a": 30, "class_b": 200, "retries": 12, "seconds": 600}
 
 
 class Fixture(unittest.TestCase):
     def setUp(self):
+        # Keep expected months and ledger/session timestamps on the same clock,
+        # even if the real UTC month changes after this module was imported.
+        clock = mock.patch.object(b, "now_utc", return_value=NOW)
+        clock.start()
+        self.addCleanup(clock.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.gate_dir = self.root / "gate"
@@ -103,6 +110,22 @@ class Fixture(unittest.TestCase):
 
 
 class Reservation(Fixture):
+    def test_fixture_keeps_reservations_in_one_month_across_utc_rollover(self):
+        with mock.patch.object(b.dt, "datetime") as wall_clock:
+            wall_clock.now.side_effect = [
+                datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc),
+                datetime(2027, 1, 1, tzinfo=timezone.utc),
+            ]
+            first, _, _ = self.reserve(run_id="r1")
+            second, _, _ = self.reserve(run_id="r2")
+        self.assertEqual(b.month_of(first["at"]), MONTH)
+        self.assertEqual(b.month_of(second["at"]), MONTH)
+        policy, _ = self.load()
+        records, _ = b.Ledger(self.ledger_store, policy).read()
+        glob, job = b.Ledger.usage(records, "t", MONTH)
+        self.assertEqual(glob["class_a"], 60)
+        self.assertEqual(job["class_a"], 60)
+
     def test_reservation_is_written_before_work(self):
         rec, _, remaining = self.reserve()
         self.assertEqual((rec["seq"], rec["kind"], rec["amounts"]["class_a"]), (1, "reservation", 30))

@@ -11,8 +11,17 @@ fn main() {
     let jobs: Vec<J> = serde_json::from_str(&buf).expect("jobs json");
     let mut out = Vec::new();
     for job in jobs {
-        let path = job["rule_path"].as_str().expect("rule_path");
-        let text = std::fs::read_to_string(path).expect("rule file");
+        let Some(path) = job["rule_path"].as_str() else {
+            out.push(json!({"case_id": job["case_id"], "io_error": "rule_path missing or not a string"}));
+            continue;
+        };
+        let text = match std::fs::read_to_string(path) {
+            Ok(t) => t,
+            Err(e) => {
+                out.push(json!({"case_id": job["case_id"], "io_error": format!("{path}: {e}")}));
+                continue;
+            }
+        };
         let rule = match Rule::from_json_str(&text) {
             Ok(r) => r,
             Err(e) => {

@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import crawler  # noqa: E402
-from crawler.config import CrawlerConfig  # noqa: E402
+from crawler.config import ConfigError, CrawlerConfig, config_from_dict  # noqa: E402
 from crawler.hostlimit import HostAtCapError, HostBusyError, HostRateLimiter  # noqa: E402
 from crawler.polite import BODY_PREFIX_BYTES, Outcome, PoliteFetcher  # noqa: E402
 from crawler.robots import RobotsCache  # noqa: E402
@@ -226,6 +226,15 @@ class PoliteFetcherRetryTest(unittest.TestCase):
         # the robots.txt sub-request saw the same caller headers too (Accept stays text/plain)
         self.assertEqual(t.requests[0][1]["If-None-Match"], '"abc"')
 
+    def test_more_than_three_attempts_cannot_be_configured(self):
+        # The spec's hard cap is 3 attempts per request; config validation enforces it so
+        # no PoliteFetcher can ever be built with more.
+        for n in (4, 5, 100):
+            with self.subTest(max_attempts=n), self.assertRaises(ConfigError):
+                config_from_dict({"max_attempts": n})
+            with self.subTest(max_attempts=n), self.assertRaises(ConfigError):
+                CrawlerConfig(contact="ops@example.org", max_attempts=n)
+
 
 class PoliteFetcherStopTest(unittest.TestCase):
     def test_403_stops_immediately_no_retry(self):
@@ -354,6 +363,32 @@ class PoliteFetcherRateLimitTest(unittest.TestCase):
         second = f.fetch("https://a.example/page", "src1")
         self.assertEqual(second.kind, "rate_limited")
         self.assertEqual(second.blocked_until, (int(clock.now // 86400) + 1) * 86400)
+        self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 2)
+
+    def test_second_429_still_honours_a_retry_after_past_midnight(self):
+        # 1_800_000_000 is 08:00 UTC; the day ends at 1_800_057_600. A second 429 carrying
+        # Retry-After 60000 lands ~00:41 the next day: the day-stop must extend, not shrink.
+        clock = FakeClock(1_800_000_000.0)
+        responses = iter([
+            (429, {"Retry-After": "0"}, b""),
+            (429, {"Retry-After": "60000"}, b""),
+        ])
+        f, t, _, _ = make_fetcher({
+            ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+            "https://a.example/page": lambda url: next(responses),
+        }, clock=clock)
+        f.fetch("https://a.example/page", "src1")
+        clock.advance(60)
+        second = f.fetch("https://a.example/page", "src1")
+        expected = clock.now + 60000
+        day_end = (int(clock.now // 86400) + 1) * 86400
+        self.assertGreater(expected, day_end)
+        self.assertEqual(second.blocked_until, expected)
+        self.assertEqual(second.retry_after, expected)
+        clock.now = day_end + 1  # past midnight, still inside the Retry-After window
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "rate_limited")
+        self.assertEqual(out.blocked_until, expected)
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 2)
 
 
@@ -488,7 +523,7 @@ class PoliteFetcherCapTest(unittest.TestCase):
         self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")
         out = f.fetch("https://a.example/page", "src1")
         self.assertEqual(out.kind, "deferred_cap")
-        self.assertEqual(out.reason, "deferred_cap")
+        self.assertEqual(out.reason, "rate_limited")
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 2)
 
     def test_daily_cap_resets_next_day(self):

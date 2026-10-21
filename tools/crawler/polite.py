@@ -5,7 +5,8 @@ Rules:
   jitter for transient failures: timeouts, connection resets and 5xx (except 503 carrying
   Retry-After, which is handled like 429);
 - 429 and 503-with-Retry-After honour Retry-After (delta seconds or HTTP-date): no request to
-  that host is made before then; a second 429 the same UTC day stops the host for the day;
+  that host is made before then; a second 429 the same UTC day stops the host for the rest of
+  the day — or longer, when the server's own Retry-After reaches past midnight;
 - 401/403, captcha/login/bot-block/geo-block markers in a bounded prefix of a textual body, an
   empty 2xx body, or any redirect (same host or another host: redirects are never followed)
   stop immediately with a typed Outcome: no retry, no header change, no alternate path;
@@ -15,14 +16,16 @@ Rules:
 - a refusal before the wire (NetworkDisabledError, RefusedRequestError, or a caller-side error
   like a disallowed header) is not a billable request and never leaks the host reservation;
 - the robots check may fetch robots.txt through the injected transport before the first attempt;
-  the limiter reservation covers the page attempts, and hosts of different sources share one
-  limiter budget;
+  the limiter reservation covers each page attempt up to response headers (concurrency-1 is at
+  request-start granularity; a still-streaming body does not hold the host), and hosts of
+  different sources share one limiter budget;
 - per-source daily request cap enforced (cap reached => Outcome kind deferred_cap);
 - headers are fixed when fetch() is called; nothing here can change them per retry.
 
 Reason strings come from the registry host_access vocabulary (reachable, origin_denied,
 rate_limited, service_outage, connection_reset, tls_error, timeout, empty_reply, geo_blocked,
-js_shell, redirect_loop, not_checked); "deferred_cap" is the cap outcome's own kind.
+js_shell, redirect_loop, not_checked); the daily-cap outcome's kind is "deferred_cap" and its
+reason is rate_limited (a self-imposed limit, not the host's).
 Body inspection works on a bounded prefix (BODY_PREFIX_BYTES) so memory stays small.
 """
 import email.utils
@@ -197,7 +200,7 @@ class PoliteFetcher:
         # Over the per-source daily cap: no request of any kind, not even robots.txt.
         until = self._cap_blocked_until(source)
         if until is not None:
-            return Outcome("deferred_cap", "deferred_cap", url, blocked_until=until)
+            return Outcome("deferred_cap", "rate_limited", url, blocked_until=until)
 
         # Host stopped by an earlier 429/Retry-After: no request before then.
         stop = self._host_stop_until.get(host)
@@ -220,7 +223,7 @@ class PoliteFetcher:
             until = self._bump_daily(source)
             if until is not None:
                 self._limiter.release(host)
-                return Outcome("deferred_cap", "deferred_cap", url, blocked_until=until)
+                return Outcome("deferred_cap", "rate_limited", url, blocked_until=until)
 
             response = None
             try:
@@ -335,8 +338,11 @@ class PoliteFetcher:
             count = 0
         retry_after = _parse_retry_after(response.headers.get("retry-after"), now)
         if count >= 1:
-            # A second 429 the same UTC day: stop the host for the rest of the day.
+            # A second 429 the same UTC day: stop the host for the rest of the day — and never
+            # less than the Retry-After the server just sent, even when it lands past midnight.
             stop = _day_end(now)
+            if retry_after is not None and retry_after > stop:
+                stop = retry_after
         else:
             stop = retry_after if retry_after is not None else now
         self._host_429_day[host] = (count + 1, day_start)

@@ -1,13 +1,15 @@
-# Audit 1 mutation test evidence — fix round 4
+# Audit 1 mutation test evidence — fix round 5
 
-Executed locally on 2026-10-21, starting from `8e186be` with the round 4
-changes to `tests/mutation.rs`. Toolchain: rustc/cargo 1.98.1, Python 3.13.5,
+Executed locally on 2026-10-21, starting from `126cfbd` (fix round 4).
+This round re-runs the existing checks for the reported `CI FAIL:no-ci-runs`;
+no rule, mutator, test, or workflow behaviour was changed.
+Toolchain: rustc/cargo 1.98.1, Python 3.13.5,
 boto3 1.43.100 (the version pinned by CI).
 
 The generic mutators already cover the synthetic fixture and every rule loaded
-from `packages/fixtures/rules/real`. This round adds a failure when any rule
-generates zero mutants and prints the per-rule counts so coverage is visible in
-test output. The mutators include comparator flips, literal ±1 changes,
+from `packages/fixtures/rules/real`. The harness fails when any rule generates
+zero mutants and prints the per-rule counts so coverage is visible in test
+output. The mutators include comparator flips, literal ±1 changes,
 rounding replacements, and removal of each `all` child, alongside the additional
 mutators described in the engine README.
 
@@ -46,8 +48,8 @@ rate literal representation checks, and the wrapped real-rule rate regression
 | `python3 tools/validation_check.py` | Pass: extracts and metadata internally consistent; originals not re-verified |
 | `python3 tools/validation_check.py --selftest` | Pass: all 38 tampering cases caught |
 | `python3 -m unittest discover -s tools/tests -v` | 197 tests: 188 passed, 6 skipped, 3 setup errors (sandbox limitation below) |
-| `cargo build --locked --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir /tmp/audit1-mutation-onto` | Pass |
-| `python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py /tmp/audit1-mutation-onto/debug/ontology-case-runner` | Pass |
+| `cargo build --locked --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir /tmp/audit1-round5-onto` | Pass |
+| `python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py /tmp/audit1-round5-onto/debug/ontology-case-runner` | Pass |
 | `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | Pass: 44/44 machine checks, 72/72 existence checks |
 
 The three Python setup errors are all in `test_r2_budget.EndToEnd`:
@@ -69,3 +71,8 @@ The reported `CI FAIL:no-ci-runs` is still an external verification gap. This
 task explicitly prohibits GitHub access, commits, and pushes, so no hosted run
 was triggered or inspected. The supervisor must publish the changes and obtain
 a hosted CI result. The local results above do not claim that hosted CI passed.
+The existing `.github/workflows/ci.yml` already runs `cargo test --all` (including
+the mutation integration test) on pull requests and on pushes to `main` or
+`claude/**`. No workflow change is needed to include these tests. Resolving
+`no-ci-runs` requires the supervisor to obtain a run for the submitted revision;
+changing the local test implementation cannot create that hosted run.

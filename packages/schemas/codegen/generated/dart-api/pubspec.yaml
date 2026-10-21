@@ -1,0 +1,9 @@
+name: onjeon_api
+description: Generated ONJEON API types (default surface; skeleton.dart is opt-in; do not edit)
+version: 1.0.0-draft.1
+publish_to: none
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  onjeon_contracts:
+    path: ../dart

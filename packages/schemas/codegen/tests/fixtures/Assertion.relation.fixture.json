@@ -1,0 +1,33 @@
+{
+  "id": "a:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+  "subject": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+  "predicate": "has_condition",
+  "object": "cond:01H8XGJWBWBAQ4Z4RN3XPQ3BDY",
+  "scope": {
+    "sales_config": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
+    "contract_kind": [
+      "main"
+    ]
+  },
+  "time": {
+    "effective_from": "2026-01-01",
+    "recorded_at": "2026-10-01T09:00:00Z",
+    "observed_at": "2026-10-01T09:00:00Z"
+  },
+  "evidence": [
+    {
+      "ref": "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0",
+      "role": "basis"
+    }
+  ],
+  "criticality": "c0",
+  "value_state": "observed",
+  "review_status": "pending",
+  "extractor": {
+    "tool": "docproc-text",
+    "version": "1.0"
+  },
+  "origin": "fixture",
+  "onto_version": "onto-0.2",
+  "created_by_run": "run-fixture-1"
+}

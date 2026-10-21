@@ -179,7 +179,7 @@ impl std::error::Error for RuleError {}
 /// and load it again, which re-validates and re-hashes.
 ///
 /// Reading works through accessors (this example compiles and runs; the two
-/// below differ only in the assignment, which proves they fail on privacy):
+/// below require E0616, proving they fail on private field access):
 ///
 /// ```
 /// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
@@ -194,7 +194,7 @@ impl std::error::Error for RuleError {}
 /// # let _ = rule;
 /// ```
 ///
-/// ```compile_fail
+/// ```compile_fail,E0616
 /// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
 /// #   "eligibility":true,"amount":{"krw":1},
 /// #   "unknown_policy":"use_three_valued_logic_never_default_to_zero",
@@ -203,7 +203,7 @@ impl std::error::Error for RuleError {}
 /// rule.content_hash = String::new(); // private: does not compile
 /// ```
 ///
-/// ```compile_fail
+/// ```compile_fail,E0616
 /// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
 /// #   "eligibility":true,"amount":{"krw":1},
 /// #   "unknown_policy":"use_three_valued_logic_never_default_to_zero",

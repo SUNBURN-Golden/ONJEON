@@ -1,73 +1,17 @@
-"""Scenarios M26, M28-M30, M33-M44 of T-OP-00 (M31 and M32 are not implemented). Each scenario builds a fresh bench, drives the shared core through
-the events of the scenario and compares expected values (written here as literals) with what the journal
-and the stores show afterwards."""
+"""Scenarios M26, M28-M30, M33-M44 of T-OP-00 (the lease, envelope, restart and handoff core). M1-M25, M27, M31 and
+M32 are in scenarios_flow.py. Each scenario builds a fresh bench, drives the shared core through the events of the
+scenario and compares expected values (written here as literals) with what the journal and the stores show
+afterwards."""
 import copy
+import re
 import threading
 
 from . import static_checks
-from .core.ports import (CommitFailed, DiskFullError, IndexLockError, PreconditionFailed, PushFailed, SimulatedCrash)
+from .bench import (ALWAYS_REVOKE, BASIC, FAIL, GAP, HANDOFF, OTHER, PASS, TTL, Report, crash_after_issue, failed_guard_ids,  # noqa: F401
+                    fake_secret, first_seq, handoff_bench, jr, mark, noops, rets, se, sent_ids, switch, tr)
+from .core.ports import (CommitFailed, DiskFullError, IndexLockError, PreconditionFailed, PushFailed, SimulatedCrash)  # noqa: F401
 from .mock_env import MockEnv
-
-PASS, FAIL, GAP = "PASS", "FAIL", "GAP"
-BASIC, HANDOFF, OTHER = "T-MOCK-BASIC", "T-MOCK-HANDOFF", "T-MOCK-OTHER"
-TTL = 3600
-ALWAYS_REVOKE = ["builder_write_credential", "builder_token", "preserve_credential"]
-
-
-class Report:
-    def __init__(self):
-        self.checks = []
-
-    def eq(self, name, expected, actual):
-        ok = expected == actual
-        self.checks.append({"name": name, "expected": expected, "actual": actual, "status": PASS if ok else FAIL})
-
-    def gap(self, name, note, expected=None, actual=None):
-        self.checks.append({"name": name, "expected": expected, "actual": actual, "status": GAP, "note": note})
-
-
-# ---- journal views
-def jr(env, mark=0):
-    return env.journal()[mark:]
-
-
-def mark(env):
-    return len(env.journal())
-
-
-def tr(js):
-    return [(r["from"], r["to"], r["event"]) for r in js if r["kind"] == "transition_record"]
-
-
-def se(js, *ids):
-    return [r["id"] for r in js if r["kind"] == "side_effect_record" and (not ids or r["id"] in ids)]
-
-
-def noops(js):
-    return [(r["noop_event"], r["return_code"]) for r in js if r["kind"] == "noop_record"]
-
-
-def rets(js):
-    return [r["return_code"] for r in js if r["kind"] == "return_record"]
-
-
-def first_seq(js, kind, **match):
-    for r in js:
-        if r["kind"] == kind and all(r.get(k) == v or r.get("args", {}).get(k) == v for k, v in match.items()):
-            return r["seq"]
-    return None
-
-
-def sent_ids(env):
-    return [s["envelope_id"] for s in env.ports.sender.sent]
-
-
-def crash_after_issue(env, t):
-    """The daemon dies right after issue_lease committed and before the instruction is sent."""
-    env.ports.faults.arm("issue_lease:committed")
-    return env.crash(lambda: env.grant(t))
-
-
+from .scenarios_flow import FLOW_SCENARIOS
 
 # =============================================================== M41
 def m41(rep, R, T):
@@ -114,8 +58,12 @@ def m41(rep, R, T):
     env.restart()
     rep.eq("하트비트 없는 leased: 599초에는 정상(재발송)", ([], 1), (tr(jr(env, m)), len(sent_ids(env))))
     env.clock.advance(1)
+    env.store.tamper(lambda d: d.update(secret_hits=[{"task_id": BASIC, "match_count": 1}]))
     env.core.tick()
     rep.eq("600초(heartbeat_s*2)에 만료 전이", [("leased", "queued", "lease_expired")], tr(jr(env, m)))
+    rep.eq("정상 만료로 끝난 tick도 대기 중인 비밀값 검출을 처리한다(남기지 않음)",
+           (False, ["secret_redacted_outside_scan_states"]),
+           ("secret_hits" in env.snap(), [r["what"] for r in jr(env, m) if r["kind"] == "diagnostic_record" and r["what"].startswith("secret_")]))
 
 
 # =============================================================== M42
@@ -136,9 +84,8 @@ def m42(rep, R, T):
     rep.eq("A 재시작: void 하나, issue_lease 없음", ["void_outbox"], se(js))
     rep.eq("A void(revoked_or_cancelled → reason revoked)", ("void", "revoked"), (t["outbox"][0]["status"], t["outbox"][0]["void_reason"]))
     rep.eq("A 재발송 0건, 상태·세대 불변", ([], "cancelled", 1), (sent_ids(env), t["task_state"]["state"], t["lease_generation"]))
-    rep.gap("void_reason=cancelled를 만드는 규칙",
-            "store.outbox.void_reason에 cancelled가 있으나 resend_outbox.on_fail.revoked_or_cancelled는 항상 reason=revoked다. 취소와 폐기를 구분해 기록하는 규칙이 없어 revoked로 기록됨",
-            expected="cancelled 또는 revoked(명세 미정)", actual="revoked")
+    rep.eq("취소도 revoked로 기록하고 void_reason 열거에 cancelled가 없다(G41)", ("revoked", False),
+           (t["outbox"][0]["void_reason"], "cancelled" in env.rules.get("core_contract.store.enums.outbox_void_reason")))
 
     # B: a re-lease (building -> building) is committed, the daemon dies, then the current lease is revoked
     env = MockEnv(R, T)
@@ -248,6 +195,11 @@ def m44(rep, R, T):
                ["end_lease", "terminate_process", "record_handoff", "revoke_token", "revoke_write_credential",
                 "revoke_preserve_credential"] + pending_void + ["record_r_code"], se(js))
         rep.eq(f"[{variant}] 반송 코드 R-08", ["R-08"], rets(js))
+        rep.eq(f"[{variant}] 효과 id가 회수하는 자격(credential_of_effect)",
+               [("revoke_token", "builder_token"), ("revoke_write_credential", "builder_write_credential"),
+                ("revoke_preserve_credential", "preserve_credential")],
+               [(r["id"], r["args"]["credential"]) for r in js if r["kind"] == "side_effect_record"
+                and r["id"] in ("revoke_token", "revoke_write_credential", "revoke_preserve_credential")])
         if pending_void:
             rep.eq(f"[{variant}] pending void(corrupt)", ("void", "corrupt"), (t["outbox"][0]["status"], t["outbox"][0]["void_reason"]))
         rep.eq(f"[{variant}] 임대 revoked, 세대 불변, 발송 0, issue_lease 0", ("revoked", 1, [], 0),
@@ -458,12 +410,17 @@ def m34(rep, R, T):
     js = jr(env, m)
     snap2 = env.task(BASIC)
     rep.eq("처음 처리: building→pr_open", [("building", "pr_open", "result_pr_opened")], tr(js))
-    rep.eq("결과 봉투 재전달: 거부되어 처리 결과·상태 불변(noop 하나)", (False, 1, snap1["task_state"], snap1["inbox_seen"]),
+    rep.eq("결과 봉투 재전달: 처리 결과·상태 불변(noop 하나)", (False, 1, snap1["task_state"], snap1["inbox_seen"]),
            (o2["accepted"], len(noops(js)), snap2["task_state"], snap2["inbox_seen"]))
     rep.eq("처음 처리의 수락 결과는 그대로", True, o1["accepted"])
-    rep.gap("임대를 끝낸 결과 봉투의 중복 전달 분류",
-            "accept_envelope.checks_in_order에서 lease_active_unexpired(fail_key expired)가 not_seen(duplicate)보다 앞이다. result_pr_opened가 end_lease(completed)로 임대를 끝내므로 같은 결과 봉투의 재전달은 envelope_duplicate_delivery가 아니라 late_envelope_rejected(R-11)가 된다. 05 §5 M34는 envelope_duplicate_delivery를 기대한다",
-            expected="envelope_duplicate_delivery(noop)", actual=f"{o2['noop']}({o2['return_code']})")
+    rep.eq("임대를 끝낸 결과 봉투의 재전달은 envelope_duplicate_delivery(noop)이고 late가 아니다(G40: not_seen이 lease_active_unexpired 앞)",
+           ("envelope_duplicate_delivery", None), (o2["noop"], o2["return_code"]))
+    rep.eq("끝난 임대의 사용량 기록은 처음 수락한 한 번뿐(중복 전달은 기록하지 않음, G46)", 1,
+           len([r for r in js if r["kind"] == "side_effect_record" and r["id"] == "record_usage" and r["args"].get("phase") == "after_result"]))
+    fresh = b.result_envelope(env.instr(BASIC), "failed_tests")
+    o3 = env.submit(BASIC, "result", fresh)
+    rep.eq("처음 보는 봉투가 끝난 임대로 오면 late_envelope_rejected(R-11)", ("late_envelope_rejected", "R-11", "pr_open"),
+           (o3["noop"], o3["return_code"], env.state(BASIC)))
 
 
 # =============================================================== M35
@@ -596,23 +553,6 @@ def m28(rep, R, T):
     rep.eq("현재 임대 이름의 위반 신고는 fence_violation → returned(R-11), 임대 revoked",
            ([("building", "returned", "fence_violation")], ["R-11"], "revoked"),
            (tr(jr(env, m)), rets(jr(env, m)), env.lease(BASIC)["status"]))
-
-
-# =============================================================== handoff helpers
-def handoff_bench(R, T, task=HANDOFF, proc=None):
-    env = MockEnv(R, T)
-    if proc is not None:
-        env.builders["mock-builder-1"].proc_options[task] = proc
-    env.bring_to_building(task)
-    path = env.instr(task)["worktree"]
-    env.ports.worktree.write(path, "src/work.py", "print('work')\n")
-    env.ports.worktree.write(path, "notes.txt", "n\n")
-    return env, path
-
-
-def switch(env, task=HANDOFF):
-    b = env.builder_for(task)
-    return env.submit(task, "switch_signal", b.signal_envelope(env.instr(task)))
 
 
 # =============================================================== M33
@@ -770,8 +710,6 @@ def m36(rep, R, T):
     # the same mix through the core: confirm_quiescent OID == preservation commit tree
     env, path = handoff_bench(R, T)
     build_manifest_tree(env.ports.worktree, path)
-    fake = "api_key = '" + "x" * 20 + "'\n"  # the shape of a secret (preserve_manifest.secret_patterns), not a real value
-    env.ports.worktree.write(path, "creds_note.txt", fake)
     env.clock.advance(1)
     switch(env)
     hr = env.task(HANDOFF)["handoff_record"]
@@ -779,7 +717,7 @@ def m36(rep, R, T):
     c = git.commits[hr["wip_commit_sha"]]
     rep.eq("코어 경로: 정지 확인 OID == 보존 커밋 tree OID", hr["quiescent_tree_oid"], c["tree"])
     keep = [".gitignore", "link", "new_untracked.txt", "notes.txt", "run.sh", "src/keep.py", "src/work.py"]
-    rep.eq("보존 커밋의 경로: 삭제·제외·.gitignore·빈 디렉터리·비밀값 패턴 파일 없음", keep, c["paths"])
+    rep.eq("보존 커밋의 경로: 삭제·제외·.gitignore·빈 디렉터리 없음", keep, c["paths"])
     from .mock_adapters import MockWorktree
     clone = MockWorktree(env.clock, env.ports.credentials)
     clone.ensure("/c")
@@ -790,10 +728,25 @@ def m36(rep, R, T):
     rep.eq("OID 계산은 하나의 함수(정지 확인 2회 + 커밋 1회 + 위 재계산)", True, git.oid_calls >= 3)
     for name, bad in (("다른 해시 정의 없음, 트리 해시는 git_write_tree_oid에서만", static_checks.single_tree_identity_function()),):
         rep.eq("정적: " + name, [], bad)
-    secret_event = [r for r in jr(env) if r["kind"] == "transition_record" and r["event"] == "secret_detected"]
-    rep.gap("비밀값 패턴 검출의 사건·R 코드(secret_patterns.on_match)",
-            "preserve_manifest.secret_patterns.on_match는 event=secret_detected, return_code=R-10을 말하지만 secret_detected 전이는 building에서만 있다. 인계(handoff) 상태에서 보존 전에 검출하면 받을 전이가 없다. 코어는 패턴에 걸린 파일을 보존에서 제외(exclude_from_preserve)만 하고 사건은 내지 않았다(내면 unmapped_condition=R-03이 된다). 봉투·로그의 스캔도 하지 않았다",
-            expected="secret_detected → returned(R-10)", actual=f"제외만 함, secret_detected 전이 {len(secret_event)}건")
+
+    # G38: a file that matches a secret pattern before preservation stops the handoff: no commit, no push
+    env, path = handoff_bench(R, T)
+    env.ports.worktree.write(path, "creds_note.txt", fake_secret("api_key"))
+    env.clock.advance(1)
+    m = mark(env)
+    switch(env)
+    js = jr(env, m)
+    t = env.task(HANDOFF)
+    rep.eq("[비밀값 파일] scan[preserve_files] 검출 → handoff→returned(secret_detected), R-10",
+           ([("building", "handoff", "switch_signal"), ("handoff", "returned", "secret_detected")], ["R-10"]), (tr(js), rets(js)))
+    rep.eq("[비밀값 파일] 보존 커밋·푸시 0건, 임대 revoked, 작업 트리 읽기 전용, 자격 전부 회수",
+           (0, 0, "revoked", True, sorted(ALWAYS_REVOKE)),
+           (env.ports.git.commit_count, env.ports.git.push_count, t["lease_record"]["status"],
+            env.ports.worktree.trees[path]["readonly"], sorted(t["handoff_record"]["credentials_revoked"])))
+    rep.eq("[비밀값 파일] 기록에는 파일 이름과 개수만 있고 일치한 문자열은 없다", (["creds_note.txt"], False),
+           ([r for r in js if r["kind"] == "result_record" and r["outcome"] == "secret_detected"][0]["args"]["files"],
+            any("x" * 20 in str(r) for r in env.journal())))
+    rep.eq("[비밀값 파일] 다음 임대 없음(세대 1, issue_lease 0)", (1, 0), (t["lease_generation"], len(se(js, "issue_lease"))))
 
 
 def _recompute(git, clone):
@@ -902,9 +855,14 @@ def m37(rep, R, T):
            (env.state(HANDOFF), env.task(HANDOFF)["lease_generation"]))
     rep.eq("[복구] 복구 사건 열", [("handoff_blocked", "handoff", "recovery_decision"), ("handoff", "handoff", "preserve_commit_ok"),
                               ("handoff", "handoff", "preserve_push_ok"), ("handoff", "leased", "preserved")], tr(jr(env, m)))
-    rep.gap("recovery_decision 뒤의 phase 값",
-            "transitions[recovery_decision→handoff]의 set_handoff_field(phase)의 value가 'isolate 또는 preserve_remote(로컬 커밋 있음)'라는 문장이다. 코어는 문장 안의 단계 id 두 개를 뽑아 로컬 커밋이 있으면 뒤의 것, 없으면 앞의 것을 썼다(추정이 아니라 가장 좁은 해석이며 토큰 목록에 기록됨). 구조화된 값(phase 선택 규칙)이 필요하다",
-            expected="phase를 고르는 구조화 규칙", actual="로컬 커밋 있음 → preserve_remote, 없음 → isolate")
+    phases = [r["args"]["value"] for r in jr(env, m) if r["kind"] == "side_effect_record" and r["id"] == "set_handoff_field"
+              and r["args"]["field"] == "phase"][:1]
+    rep.eq("[복구] 로컬 커밋 없음 → recovery_decision 행(preservation_state != local_committed)이 phase=isolate (G30)", ["isolate"], phases)
+    env = envs["푸시 실패(네트워크)"]
+    first = [r for r in env.journal() if r["kind"] == "side_effect_record" and r["id"] == "set_handoff_field"
+             and r["args"]["field"] == "phase" and r["seq"] > first_seq(env.journal(), "transition_record", event="recovery_decision")][:1]
+    rep.eq("[복구] 로컬 커밋 있음 → 다른 행(preservation_state == local_committed)이 phase=preserve_remote (G30)",
+           ["preserve_remote"], [r["args"]["value"] for r in first])
 
     env = envs["디스크 부족"]
     m = mark(env)
@@ -913,9 +871,34 @@ def m37(rep, R, T):
     rep.eq("[포기] recovery_decision(action=abandon) → returned(R-14)", ([("handoff_blocked", "returned", "recovery_decision")], ["R-14"]),
            (tr(js), rets(js)))
     rep.eq("[포기] 다음 임대 없음", (0, 1), (len(se(js, "issue_lease")), env.task(HANDOFF)["lease_generation"]))
-    rep.gap("retry_detail.index_lock.owner_alive_then",
-            "retry_detail.index_lock에 owner_alive_then(isolate)가 있으나 어느 전이·효과도 이 필드를 참조하지 않는다. 코어는 쓰지 않았고 index.lock 재시도는 retry_from(preserve)만 따른다(owner_pid_alive=false로 시험)",
-            expected="owner_pid_alive=true일 때 isolate부터", actual="미사용")
+    rep.eq("[포기] 활성 임대를 끝내고 반송(G37): 임대 revoked", "revoked", env.lease(HANDOFF)["status"])
+    m = mark(env)
+    env.event("owner_resolved", HANDOFF, resolution_ref="RES-ABANDON")
+    env.grant(HANDOFF)
+    rep.eq("[포기] owner_resolved 뒤 queued→leased가 막히지 않는다(새 세대 2)",
+           ([("returned", "queued", "owner_resolved"), ("queued", "leased", "lease_granted")], 2),
+           (tr(jr(env, m)), env.task(HANDOFF)["lease_generation"]))
+
+    env = envs["커밋 실패"]
+    m = mark(env)
+    env.event("owner_cancelled", HANDOFF)
+    js = jr(env, m)
+    rep.eq("[취소] handoff_blocked→cancelled: set_cancelled, 임대 revoked(G37)",
+           ([("handoff_blocked", "cancelled", "owner_cancelled")], True, "revoked"),
+           (tr(js), env.task(HANDOFF)["task_state"]["cancelled"], env.lease(HANDOFF)["status"]))
+
+    # G39: index.lock whose owner process is alive -> retry from isolate (owner_alive_then); otherwise from preserve
+    for alive, start, isolates in ((True, "isolate", 2), (False, "preserve", 1)):
+        env, path = handoff_bench(R, T)
+        env.ports.git.inject("commit", [IndexLockError(alive)])
+        env.clock.advance(1)
+        m = mark(env)
+        switch(env)
+        js = jr(env, m)
+        resumed = [r["args"]["stage"] for r in js if r["kind"] == "side_effect_record" and r["id"] == "resume_from_phase"]
+        ran = sum(1 for r in js if r["kind"] == "intent_record" and r["action"] == "isolate")
+        rep.eq(f"[index.lock 소유 프로세스 생존={alive}] {start}부터 재시도하고 보존을 마친다",
+               ([start], isolates, "leased", 2), (resumed, ran, env.state(HANDOFF), env.task(HANDOFF)["lease_generation"]))
 
 
 # =============================================================== M38
@@ -1000,9 +983,42 @@ def m38(rep, R, T):
     js = jr(env, m)
     rep.eq("[phase 확인 불가] handoff_blocked, issue_lease 0, 세대 불변", ([("handoff", "handoff_blocked", "daemon_restart_during_handoff")], 0, 1),
            (tr(js), len(se(js, "issue_lease")), env.task(HANDOFF)["lease_generation"]))
-    rep.gap("restart_resume의 분기 문장(4단계)",
-            "handoff_failure_policy.restart_resume 7개 중 preserve, preserve_remote, revoke_token, issue_next_lease의 값은 'verify_local_commit(tree OID) → 있으면 preserve_remote, 없으면 confirm_quiescent' 같은 절차 문장이다. 코어는 단계 id만 있는 값(stop, isolate, confirm_quiescent)만 따르고, 문장인 값은 phase를 그대로 두며 각 단계 함수가 이미 있는 커밋(tree OID)·원격 ref를 확인해 이어간다. 특히 preserve에서 로컬 커밋이 없을 때 문장은 confirm_quiescent로 돌아가라고 하나 코어는 정지 확인을 다시 하지 않는다",
-            expected="문장을 구조화한 {check, then, else}", actual="phase 유지 + 단계 함수의 확인")
+
+    # G31: restart_resume.<stage> = {check, then, else}
+    cases = [
+        ("preserve, 로컬 커밋 없음", "handoff:preserve:start", "local_commit_exists", "else", "confirm_quiescent", 1),
+        ("preserve, 로컬 커밋 있음(기록 전)", "handoff:preserve:after_local_commit_unrecorded", "local_commit_exists", "then", None, 0),
+        ("preserve_remote, 원격 ref 없음", "handoff:preserve:after_local_commit_recorded", "remote_ref_equals_wip_commit", "else", "preserve_remote", 0),
+        ("preserve_remote, 원격 ref 있음(기록 전)", "handoff:preserve:after_push_unrecorded", "remote_ref_equals_wip_commit", "then", None, 0),
+    ]
+    for label, point, check, branch, stage, confirms in cases:
+        env, path = handoff_bench(R, T)
+        env.clock.advance(1)
+        env.ports.faults.arm(point)
+        env.crash(lambda: switch(env))
+        m = mark(env)
+        env.restart()
+        js = jr(env, m)
+        rr = [r["args"] for r in js if r["kind"] == "side_effect_record" and r["id"] == "resume_from_phase"][0]
+        ran = sum(1 for r in js if r["kind"] == "intent_record" and r["action"] == "confirm_quiescent")
+        rep.eq(f"[{label}] restart_resume 검사 {check} → {branch}" + (f"(단계 {stage})" if stage else "(사건으로 기존 보존 채택)"),
+               (check, branch, stage, confirms, "leased", 1),
+               (rr["check"], rr["branch"], rr["stage"], ran, env.state(HANDOFF), env.ports.git.commit_count))
+
+    env, path = handoff_bench(R, T)
+    env.clock.advance(1)
+    env.ports.faults.arm("handoff:preserve:start")
+    env.crash(lambda: switch(env))
+    from .core.ports import QueryUnavailable
+    env.ports.git.inject("find_commit", [QueryUnavailable()])
+    m = mark(env)
+    env.restart()
+    js = jr(env, m)
+    rep.eq("[preserve, 로컬 커밋 확인 불가] phase를 읽을 수 없음 → handoff_blocked, issue_lease 0, 커밋 0",
+           ([("handoff", "handoff", "daemon_restart_during_handoff"), ("handoff", "handoff_blocked", "daemon_restart_during_handoff")], 0, 0),
+           (tr(js), len(se(js, "issue_lease")), env.ports.git.commit_count))
+    rep.eq("그 재시작은 restart_count를 한 번만 올린다(되먹임 사건이 다시 세지 않음)", 1,
+           env.task(HANDOFF)["handoff_record"]["restart_count"])
 
 
 # =============================================================== M30
@@ -1065,18 +1081,6 @@ def release(env, kind, task):
         env.ports.catalog.tasks[task]["inputs"] = env._saved_inputs
     elif kind == "builder":
         env.ports.builders.unavailable.clear()
-
-
-def failed_guard_ids(js):
-    out = set()
-    for r in js:
-        if r["kind"] == "diagnostic_record":
-            if r["what"] == "guard_failed":
-                out |= set(r["failed"])
-            for c in r.get("cond") or []:
-                if c.get("field") == "lease_guards":
-                    out |= {n for n, ok in c["left"]["guards"] if not ok}
-    return sorted(out)
 
 
 def _to_pr_open(env, t):
@@ -1159,13 +1163,38 @@ def m30(rep, R, T):
                 js = jr(env, m)
                 st_ok = env.state(task) == state0
             t = env.task(task)
-            rep.eq(f"[{label} / 주입 {kind}] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)", (g0, 0, s0, True),
-                   (t["lease_generation"], issue_count(env) - i0, len(sent_ids(env)), st_ok))
+            if kind == "envelope":
+                # G48: a deterministic validation failure is envelope_invalid -> returned(R-13) on every path
+                rep.eq(f"[{label} / 주입 {kind}] envelope_invalid → returned(R-13), 임대·발송 없음",
+                       ((g0, 0, s0), [(state0, "returned", "envelope_invalid")], ["R-13"]),
+                       ((t["lease_generation"], issue_count(env) - i0, len(sent_ids(env))),
+                        [x for x in tr(js) if x[2] == "envelope_invalid"], rets(js)))
+                if state0 == "building":
+                    rep.eq(f"[{label} / 주입 {kind}] building의 지금 임대는 returned로 끝난다", "returned", t["lease_record"]["status"])
+            else:
+                rep.eq(f"[{label} / 주입 {kind}] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)", (g0, 0, s0, True),
+                       (t["lease_generation"], issue_count(env) - i0, len(sent_ids(env)), st_ok))
             rep.eq(f"[{label} / 주입 {kind}] 막은 가드는 {FAILS_WITH.get(kind, [gid])}", sorted(FAILS_WITH.get(kind, [gid])), failed_guard_ids(js))
+            rep.eq(f"[{label} / 주입 {kind}] 평가가 끝나면 이 데몬의 임대 잠금은 풀려 있다(G45)", True,
+                   (env.snap().get("lease_lock", {}).get(task) or {}).get("holder") in (None, "other-daemon"))
             release(env, kind, task)
-            retry()
+            if kind == "envelope":
+                env.event("owner_resolved", task, resolution_ref="RES-ENV")
+                env.grant(task, "from_queue")
+            else:
+                retry()
             t = env.task(task)
             rep.eq(f"[{label} / 주입 {kind}] 주입을 풀면 발급되고 토큰(세대)이 +1", (g0 + 1, i0 + 1), (t["lease_generation"], issue_count(env)))
+
+    # G29: conflict_paths overlap as patterns (a nested glob), not as equal strings
+    env = MockEnv(R, T)
+    env.bring_to_building("T-MOCK-KN")
+    env.start_task("T-MOCK-KN-REL")
+    m = mark(env)
+    env.grant("T-MOCK-KN-REL")
+    paths = (env.ports.catalog.task("T-MOCK-KN")["conflict_paths"], env.ports.catalog.task("T-MOCK-KN-REL")["conflict_paths"])
+    rep.eq("[G29] 중첩 글롭(<dir>/** ↔ <dir>/release/**)은 겹침: 임대 없음, 막은 가드 no_conflict_lease, 문자열 교집합은 비어 있다",
+           ("queued", ["no_conflict_lease"], set()), (env.state("T-MOCK-KN-REL"), failed_guard_ids(jr(env, m)), set(paths[0]) & set(paths[1])))
 
 
 # =============================================================== M26
@@ -1316,7 +1345,7 @@ def run_one(fn, R, T):
     return rep.checks
 
 
-SCENARIOS = [
+CORE_SCENARIOS = [
     ("M26", "usage-recorded-not-capped", "사용량 기록(슬롯·결과), 상한으로 멈추지 않음, 재시도 한도·응답 없음 정지는 그대로", m26),
     ("M28", "late-result-no-state-change", "이전 임대의 늦은 결과·전환 신호·푸시는 noop, 현재 상태 불변", m28),
     ("M29", "handoff-order", "인계 기록 순서와 폐기 뒤 옛 세대 거부, 새 세대는 폐기 뒤에만", m29),
@@ -1335,3 +1364,11 @@ SCENARIOS = [
     ("M44", "restart-corrupt-record-returned", "손상 기록은 returned(R-08), 자동 재발급 0", m44),
     ("STATIC", "static-checks", "정적 검사와 설명 키 무시 검증", static),
 ]
+
+
+def _order(entry):
+    m = re.fullmatch(r"M(\d+)([a-z]?)", entry[0])
+    return (0, int(m.group(1)), m.group(2)) if m else (1, 0, "")
+
+
+SCENARIOS = sorted(CORE_SCENARIOS + FLOW_SCENARIOS, key=_order)

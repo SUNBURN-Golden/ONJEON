@@ -1,0 +1,20 @@
+Fix round 1 — CI FAIL:no-ci-runs (PR #139 head 9c8c742)
+
+Cause: branch was 15 commits behind main and Cargo.toml workspace `members`
+conflicted (main added packages/twin-runtime; this task added services/collect).
+An unmergeable pull request gets no merge ref, so `pull_request` workflows never
+ran and statusCheckRollup was empty.
+
+Action: merged origin/main into this worktree (uncommitted; supervisor commits).
+Resolution keeps both members: packages/twin-runtime (upstream) and
+services/collect (this task). Cargo.lock auto-merged; verified by cargo.
+
+Re-run on merged tree:
+$ python3 services/collect/tests/verify.py
+  fmt/clippy/workspace test/build/collect py unittest/tools unittest: exit 0
+  check_leak.py(+selftest)/check_skeleton.py(+selftest): exit 0
+  check_deps.py: exit 1 — same 3 pre-existing DEP-ZONE/IMP-ZONE findings in
+  unchanged packages/ontology (git diff origin/main -- packages/ontology: clean).
+  Not repaired: path outside this task's allowed scope.
+Gate (task test_cmd): vocab_check, validation_check(+selftest), tools unittest,
+cargo fmt --check, cargo clippy -D warnings, cargo test --all, spec_check: RC=0.

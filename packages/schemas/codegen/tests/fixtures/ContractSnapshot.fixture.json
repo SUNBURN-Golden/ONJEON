@@ -1,0 +1,35 @@
+{
+  "id": "contract:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+  "person_id": "person:01BX5ZZKBKACTAV9WEVGEMMVRY",
+  "upload_id": "upload:01H8XGJWBWBAQ4Z4RN3XPQ3BDY",
+  "sales_config_ref": {
+    "release_id": "rel:20261001-1",
+    "sc_id": "sc:01ARZ3NDEKTSV4RRFFQ69G5FAV",
+    "match": "ambiguous"
+  },
+  "applied_editions": [
+    {
+      "ted_id": "ted:01BX5ZZKBKACTAV9WEVGEMMVRY",
+      "basis_evidence": "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0",
+      "from": "2024-01-01"
+    }
+  ],
+  "components": [
+    {
+      "cov_ref": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+      "insured_amount_krw": 30000000,
+      "fact_source": "user_confirmed_extract",
+      "confirm_party": "user",
+      "as_of": "2026-10-01"
+    }
+  ],
+  "special_conditions": [],
+  "usage_counters": [
+    {
+      "kind": "fixture",
+      "count": 1
+    }
+  ],
+  "sensitivity": "private_policy",
+  "user_confirmed_at": "2026-10-01T09:00:00Z"
+}

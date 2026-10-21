@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "personal.import.completed.schema.json",
+  "title": "PersonalImportCompletedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 personal.import.completed (02_구현계약 §3.1, C-21). 개인 영역 큐 전용이며 큐 밖으로 나가지 않는다. 식별자만 싣는다.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "personal.import.completed"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "upload_id": {
+          "$ref": "common.schema.json#/$defs/UploadId"
+        }
+      },
+      "required": [
+        "upload_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

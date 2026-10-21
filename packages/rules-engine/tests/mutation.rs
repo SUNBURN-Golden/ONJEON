@@ -490,7 +490,17 @@ fn generic_mutants_are_killed_on_every_rule() {
             !cases.is_empty(),
             "{id}: no golden cases, every mutant would survive"
         );
-        for m in generic::mutants_of(&rule) {
+        let mutants = generic::mutants_of(&rule);
+        assert!(
+            !mutants.is_empty(),
+            "{id}: no generated mutants; every rule must have mutation coverage"
+        );
+        eprintln!(
+            "{id}: {} golden cases, {} generated mutants",
+            cases.len(),
+            mutants.len()
+        );
+        for m in mutants {
             assert!(
                 Rule::from_json(&m.rule).is_ok(),
                 "{id}: mutant `{}` must load so the golden table, not the loader, is what catches it",
@@ -518,6 +528,11 @@ fn generic_mutants_are_killed_on_every_rule() {
         "{} of {total} mutants survive (golden cases too weak):\n{}",
         survivors.len(),
         survivors.join("\n")
+    );
+    eprintln!(
+        "generic mutation coverage: {total} mutants, {} unallowlisted survivors, {} equivalence entries",
+        survivors.len(),
+        EQUIVALENT.len()
     );
     assert!(
         total >= 300,

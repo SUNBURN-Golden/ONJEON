@@ -27,7 +27,7 @@ USES = re.compile(
     rf'''|{QUOTED}|\#.*$|(?P<flow>[{{}}\[\]])'''
 )
 BLOCK_SCALAR = re.compile(
-    r'''^\s*(?:-\s+)?(?:[\w-]+|"[^"]*"|'[^']*'):\s*'''
+    r'''^\s*(?:-\s+)?(?P<key>[\w-]+|"[^"]*"|'[^']*'):\s*'''
     r"[|>](?:[1-9][+-]?|[+-][1-9]?)?\s*(?:#.*)?$"
 )
 PINNED = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
@@ -93,8 +93,10 @@ def unpinned_refs(text):
             if not ref.startswith("./") and not PINNED.fullmatch(ref):
                 found.append((n, ref))
         # Inspect the header first so `uses: >-` cannot disappear with script bodies.
-        if BLOCK_SCALAR.search(line):
-            block_indent = indent
+        if header := BLOCK_SCALAR.search(line):
+            # A sequence dash precedes the key; sibling keys align with the key,
+            # so they end the scalar even though they are indented past the dash.
+            block_indent = header.start("key")
     return found
 
 
@@ -178,6 +180,23 @@ class UnpinnedRefsParser(unittest.TestCase):
         text = "  - uses: >-\n      actions/checkout@v4\n  - uses: actions/cache@main\n"
         self.assertEqual(unpinned_refs(text), [(1, ">-"), (3, "actions/cache@main")])
 
+    def test_multiline_step_name_does_not_hide_sibling_action(self):
+        for key in ("name", '"name"', "'name'"):
+            for indicator in ("|", "|-", "|+", "|2", "|+2", ">", ">-", ">+", ">2-", ">-2"):
+                for prefix in ("  - ", "  -   ", "    "):
+                    key_indent = " " * len(prefix)
+                    text = (
+                        f"steps:\n{prefix}{key}: {indicator} # step name\n"
+                        f"{key_indent}  uses: example/text@v1\n"
+                        f"{key_indent}uses: actions/checkout@v4\n"
+                    )
+                    with self.subTest(key=key, indicator=indicator, prefix=prefix):
+                        self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+                        for ref in ("actions/checkout@" + "a" * 40, "./local"):
+                            self.assertEqual(
+                                unpinned_refs(text.replace("actions/checkout@v4", ref)), []
+                            )
+
     def test_flow_mappings_flag_unpinned_refs(self):
         for entry in (
             "- { uses: actions/checkout@v4 }",
@@ -236,6 +255,8 @@ class WorkflowPinsDiscovery(unittest.TestCase):
                             ("- uses: a/b@" + "a" * 40 + "#mutable", "a/b@" + "a" * 40 + "#mutable"),
                             ("- uses: a/b@" + "a" * 40 + ",mutable", "a/b@" + "a" * 40 + ",mutable"),
                             ("- { uses: actions/checkout@v4 }", "actions/checkout@v4"),
+                            ("steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4", "actions/checkout@v4"),
+                            ("steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4", "actions/checkout@v4"),
                             ("- uses: >-\n    actions/checkout@v4", ">-"),
                             ("- uses: |\n    actions/checkout@v4", "'|'"),
                             ("- uses:\n    actions/checkout@v4", "<empty or multiline uses value>"),

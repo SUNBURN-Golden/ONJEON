@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "release_manifest.schema.json",
+  "title": "ReleaseManifest",
+  "type": "object",
+  "description": "릴리스 manifest. 불변이며 롤백은 manifest 교체다 (02_구현계약 §1.3)",
+  "properties": {
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/ReleaseId"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "frozen_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "members": {
+      "$ref": "#/$defs/ReleaseMembers"
+    },
+    "rule_files": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/Sha256Hex"
+      },
+      "description": "규칙 파일 경로 -> 바이트 해시"
+    },
+    "input_stage_edition": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "입력 단계 판정 규칙의 판 (소속·시간·연결 검증)"
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/Sha256Hex",
+      "description": "members가 가리키는 행 내용 + rule_files를 정규화(JSON, 키 정렬)한 SHA-256"
+    },
+    "onto_version": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "vocabulary_version": {
+      "$ref": "common.schema.json#/$defs/SemVer"
+    },
+    "label_dictionary_version": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/SemVer",
+      "description": "contracts 패키지 semver"
+    },
+    "extractor_versions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/Identifier"
+      }
+    },
+    "model_versions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ModelVersion"
+      }
+    },
+    "engine_version": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "rule_schema_versions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/Identifier"
+      }
+    },
+    "capability_table_hash": {
+      "$ref": "common.schema.json#/$defs/Sha256Hex"
+    },
+    "explain_template_hash": {
+      "$ref": "common.schema.json#/$defs/Sha256Hex"
+    },
+    "shadow_compare_report_id": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "이전 릴리스와 같은 입력 비교 결과. 첫 릴리스는 비교 대상이 없어 생략"
+    },
+    "constraint_report_id": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "K1~K16 위반 0건 보고"
+    },
+    "superseded_by": {
+      "$ref": "common.schema.json#/$defs/ReleaseId"
+    },
+    "withdrawn_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "withdrawal_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "release_id",
+    "created_at",
+    "frozen_at",
+    "members",
+    "rule_files",
+    "input_stage_edition",
+    "content_sha256",
+    "onto_version",
+    "vocabulary_version",
+    "label_dictionary_version",
+    "schema_version",
+    "extractor_versions",
+    "model_versions",
+    "engine_version",
+    "rule_schema_versions",
+    "capability_table_hash",
+    "explain_template_hash",
+    "constraint_report_id"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ReleaseMembers": {
+      "type": "object",
+      "description": "릴리스가 읽는 구성원 ID 목록(정렬). 이 목록뿐이다 (02 §1.3)",
+      "properties": {
+        "raw_assets": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "terms_editions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "terms_lineages": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "clauses": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "premium_observations": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          }
+        },
+        "criteria_release_ref": {
+          "$ref": "common.schema.json#/$defs/CriteriaReleaseId",
+          "description": "판단 기준 릴리스는 별도 ID로 고정하고 참조만 한다"
+        }
+      },
+      "required": [
+        "raw_assets",
+        "segments",
+        "terms_editions",
+        "terms_lineages",
+        "clauses",
+        "nodes",
+        "assertions",
+        "conflicts",
+        "gaps",
+        "premium_observations"
+      ],
+      "additionalProperties": false
+    },
+    "ModelVersion": {
+      "type": "object",
+      "description": "사용한 모델. 식별자 원문은 싣지 않고 해시만 싣는다",
+      "properties": {
+        "provider_family_label": {
+          "type": "string",
+          "description": "제공자 계열 라벨"
+        },
+        "model_ref_hash": {
+          "$ref": "common.schema.json#/$defs/Sha256Hex"
+        },
+        "prompt_version": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        }
+      },
+      "required": [
+        "provider_family_label",
+        "model_ref_hash",
+        "prompt_version"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

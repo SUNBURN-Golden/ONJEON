@@ -1,0 +1,35 @@
+{
+  "release_id": "rel:20261001-1",
+  "ref": "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0",
+  "chain": [
+    {
+      "level": "clause",
+      "ref": "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0",
+      "display": "fixture clause"
+    },
+    {
+      "level": "segment",
+      "ref": "seg:0123456789ab:p12-14:terms:seg-1.0",
+      "display": "fixture segment"
+    },
+    {
+      "level": "raw",
+      "ref": "raw:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "display": "fixture raw"
+    },
+    {
+      "level": "source",
+      "ref": "obs:src:org:fixture/web/1/2026-10-01T09:00:00Z/0123456789abcdef",
+      "display": "fixture source",
+      "source_url": "https://example.invalid/fixture",
+      "observed_at": "2026-10-01T09:00:00Z"
+    }
+  ],
+  "quote_shown": false,
+  "result_state": {
+    "input_freshness": "fresh",
+    "knowledge_freshness": "fresh",
+    "usage_restriction": "none",
+    "reproducible": true
+  }
+}

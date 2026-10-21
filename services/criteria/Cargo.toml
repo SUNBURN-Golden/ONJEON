@@ -1,0 +1,15 @@
+[package]
+name = "onjeon-criteria"
+version = "0.1.0"
+edition = "2021"
+description = "ONJEON judgement-criteria management (T-KN-12, zone C): criteria, versioned editions with sources and scope, immutable criteria releases, change lists"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+onjeon-contracts = { path = "../../packages/schemas" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"

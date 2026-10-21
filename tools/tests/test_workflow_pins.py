@@ -1,14 +1,12 @@
-"""Every third-party `uses:` in .github/workflows must be pinned to a full 40-hex commit SHA.
+"""Every third-party `uses:` under .github/ must be pinned to a full 40-hex commit SHA.
 
 A tag such as `actions/checkout@v4` can be moved by the action's owner, so a CI run could execute
-different code than was reviewed. The workflows are not editable from the builder worktree and the
-SHAs must be looked up from upstream, so the refs that were still tag-pinned when this check was
-added are listed in KNOWN_UNPINNED. That list is a ratchet: a new unpinned ref fails, and so does a
-listed ref that has since been pinned (delete its entry then).
+different code than was reviewed. All current refs are pinned as `uses: owner/name@<sha> # <tag>`;
+KNOWN_UNPINNED is a ratchet: a new unpinned ref fails, and so does a listed ref that has since been
+pinned (delete its entry then).
 
-The workflow edit itself is for the supervisor or a maintainer: resolve each tag with
-`gh api repos/<owner>/<name>/git/ref/tags/<tag>` (dereference annotated tags to the commit SHA),
-write `uses: owner/name@<sha> # <tag>`, and empty KNOWN_UNPINNED in the same change.
+Local `./` actions are exempt. Both `.yml` and `.yaml` are scanned, in .github/workflows/ and in
+composite actions under .github/actions/.
 Run: python3 -m unittest discover -s tools/tests
 """
 import collections
@@ -16,13 +14,21 @@ import re
 import unittest
 from pathlib import Path
 
-WORKFLOWS = Path(__file__).resolve().parents[2] / ".github/workflows"
+ROOT = Path(__file__).resolve().parents[2]
+GITHUB_DIR = ROOT / ".github"
 USES = re.compile(r"^\s*(?:-\s+)?uses:\s*(?P<ref>[^\s#]+)")
 PINNED = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
 
-# {workflow file: {unpinned ref: occurrences}}; all workflows are SHA-pinned, so this is empty
-# and any new unpinned ref fails the test below.
+# {file path relative to repo root: {unpinned ref: occurrences}}; all actions are SHA-pinned, so
+# this is empty and any new unpinned ref fails the test below.
 KNOWN_UNPINNED = {}
+
+
+def action_files():
+    """Workflow files and composite-action files, .yml and .yaml."""
+    for pat in ("*.yml", "*.yaml"):
+        yield from sorted((GITHUB_DIR / "workflows").glob(pat))
+        yield from sorted((GITHUB_DIR / "actions").glob(f"**/{pat}"))
 
 
 def unpinned_refs(text):
@@ -66,14 +72,14 @@ class UnpinnedRefsParser(unittest.TestCase):
 
 class WorkflowPins(unittest.TestCase):
     def test_workflows_exist(self):
-        self.assertTrue(sorted(WORKFLOWS.glob("*.yml")), "no workflows found; wrong path?")
+        self.assertTrue(list((GITHUB_DIR / "workflows").glob("*.y*ml")), "no workflows found; wrong path?")
 
     def test_unpinned_refs_match_known_list(self):
         actual = {}
-        for path in sorted(WORKFLOWS.glob("*.yml")):
+        for path in action_files():
             refs = unpinned_refs(path.read_text(encoding="utf-8"))
             if refs:
-                actual[path.name] = dict(collections.Counter(r for _, r in refs))
+                actual[path.relative_to(ROOT).as_posix()] = dict(collections.Counter(r for _, r in refs))
         self.assertEqual(
             actual,
             KNOWN_UNPINNED,

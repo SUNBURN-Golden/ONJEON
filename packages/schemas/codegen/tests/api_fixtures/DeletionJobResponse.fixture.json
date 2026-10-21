@@ -1,0 +1,15 @@
+{
+  "release_id": "rel:20261001-1",
+  "deletion_job_id": "deletion-fixture-1",
+  "state": "running",
+  "steps": [
+    {
+      "step": "source_files",
+      "state": "done"
+    },
+    {
+      "step": "extracted_values",
+      "state": "running"
+    }
+  ]
+}

@@ -16,7 +16,8 @@ detect     현재 출처 변경 감지 — fetch each recorded URL now and compa
 
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a
 cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: hashed and
-parsed only. TLS verification stays on; only network errors are retried.
+parsed only, and a response body over MAX_FETCH_BYTES is refused unread (`fetch_failed`, detail
+`too_large`). TLS verification stays on; only network errors are retried.
 
 Usage:
   verify_sources.py reproduce --raw file:///archive/raw [--derived file:///archive/derived] [--ocr] --report r.json
@@ -140,7 +141,10 @@ def materialize(args, sample_rows):
                 paths[r["sample_id"]] = p
     else:
         for r in sample_rows:
-            p = Path(args.cache) / r["cache_path"]
+            try:
+                p = sa.confined_path(args.cache, r["cache_path"])
+            except sa.UnsafeCachePath:
+                continue  # treated as absent: a cache_path outside the cache is never read
             if p.exists():
                 paths[r["sample_id"]] = p
     return paths
@@ -331,12 +335,35 @@ def cmd_reproduce(args):
     return report("reproduce", args, results, ok={"reproduced"} | unverified)
 
 
-def fetch(url, attempts=3):
+MAX_FETCH_BYTES = 256 * 1024 * 1024  # ~8x the largest recorded sample (32 MB); a bigger body is not a filing PDF/HTML
+
+
+class FetchTooLarge(Exception):
+    """The response body exceeds the byte cap; it is neither read to the end nor hashed."""
+
+
+def read_capped(r, max_bytes):
+    """Read at most max_bytes from a response; a larger body (declared or streamed) raises FetchTooLarge."""
+    declared = r.headers.get("Content-Length")
+    if declared and declared.isdigit() and int(declared) > max_bytes:
+        raise FetchTooLarge(f"Content-Length {declared} exceeds {max_bytes} bytes")
+    chunks, total = [], 0
+    while True:
+        chunk = r.read(min(1024 * 1024, max_bytes + 1 - total))
+        if not chunk:
+            return b"".join(chunks)
+        total += len(chunk)
+        if total > max_bytes:
+            raise FetchTooLarge(f"body exceeds {max_bytes} bytes")
+        chunks.append(chunk)
+
+
+def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (onjeon source change detection)"})
     for i in range(attempts):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
-                return r.read(), r.headers.get_content_type()
+                return read_capped(r, max_bytes), r.headers.get_content_type()
         except urllib.error.HTTPError:
             raise  # an HTTP status is an answer, not a network error
         except (urllib.error.URLError, TimeoutError, ConnectionError):
@@ -353,12 +380,21 @@ def cmd_detect(args):
         sid = r["sample_id"]
         res = {"sample_id": sid, "url": r["url"], "baseline_sha256": r["sha256"], "observed_at": now()}
         try:
+            dest = sa.confined_path(out, r["cache_path"])
+        except sa.UnsafeCachePath as e:
+            res.update(status="unsafe_cache_path", detail=str(e)[:200])  # not fetched, not written; exit 1
+            results.append(res)
+            continue
+        try:
             body, ctype = fetch(r["url"])
+        except FetchTooLarge as e:
+            res.update(status="fetch_failed", detail=f"too_large: {e}"[:200])
+            results.append(res)
+            continue
         except Exception as e:
             res.update(status="fetch_failed", detail=f"{type(e).__name__}: {e}"[:200])
             results.append(res)
             continue
-        dest = out / r["cache_path"]
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
         digest = sa.sha256_bytes(body)

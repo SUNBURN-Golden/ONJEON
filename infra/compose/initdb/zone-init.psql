@@ -1,0 +1,43 @@
+-- 영역별 DB 초기화: 앱 역할, 영역 표지, 큐 스키마. 도메인 테이블은 이 파일의 범위가 아니다.
+-- 값은 모두 환경 변수에서 읽고 format(%I, %L)로 따옴표를 붙인다.
+\getenv app_user APP_DB_USER
+\getenv app_password APP_DB_PASSWORD
+\getenv zone ONJEON_ZONE
+
+-- 앱 역할: 로그인만 가능. 슈퍼유저·DB/역할 생성·복제·RLS 우회 없음.
+SELECT format('CREATE ROLE %I LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS',
+              :'app_user', :'app_password') \gexec
+
+-- 접속한 DB가 어느 영역인지 서비스가 확인할 수 있게 한다: SELECT current_setting('onjeon.zone').
+SELECT format('ALTER DATABASE %I SET onjeon.zone = %L', current_database(), :'zone') \gexec
+
+-- 기본으로 열려 있는 접속·스키마 권한을 닫고 앱 역할에만 연다.
+SELECT format('REVOKE ALL ON DATABASE %I FROM PUBLIC', current_database()) \gexec
+SELECT format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), :'app_user') \gexec
+-- 관리용 DB(postgres, template1)에도 PUBLIC 접속이 열려 있으므로 앱 역할이 들어가지 못하게 닫는다. 관리 역할은 슈퍼유저다.
+REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
+REVOKE CONNECT ON DATABASE template1 FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+
+-- PostgreSQL 기반 작업 큐(ADR-0001, 제3부 48.2). 영역마다 따로 둔다: 개인 영역 작업은 개인 영역 큐로만 간다.
+-- 본문(payload)에는 식별자·참조만 넣고 원문·금액·건강정보를 넣지 않는다. 크기 제한은 그 습관을 강제하는 안전장치다.
+-- 꺼내기: SELECT ... WHERE state = 'ready' AND run_after <= now() ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1.
+CREATE SCHEMA queue;
+CREATE TABLE queue.jobs (
+    id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    queue_name   text        NOT NULL CHECK (queue_name ~ '^[a-z][a-z0-9_.-]{0,62}$'),
+    payload      jsonb       NOT NULL DEFAULT '{}'::jsonb CHECK (octet_length(payload::text) <= 8192),
+    state        text        NOT NULL DEFAULT 'ready' CHECK (state IN ('ready', 'running', 'done', 'failed')),
+    attempts     integer     NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+    run_after    timestamptz NOT NULL DEFAULT now(),
+    locked_by    text,
+    locked_until timestamptz,
+    last_error   text,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    updated_at   timestamptz NOT NULL DEFAULT now(),
+    CHECK ((state = 'running') = (locked_by IS NOT NULL))
+);
+CREATE INDEX jobs_ready_idx ON queue.jobs (queue_name, run_after, id) WHERE state = 'ready';
+
+SELECT format('GRANT USAGE ON SCHEMA queue TO %I', :'app_user') \gexec
+SELECT format('GRANT SELECT, INSERT, UPDATE, DELETE ON queue.jobs TO %I', :'app_user') \gexec

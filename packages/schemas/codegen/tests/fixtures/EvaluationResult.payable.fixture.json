@@ -1,0 +1,37 @@
+{
+  "rule_id": "fixture-rule-001",
+  "rule_version": "1",
+  "release_id": null,
+  "rule_content_hash": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+  "evidence_refs": [
+    "fixture"
+  ],
+  "schema_version": "rule-0.2",
+  "engine_version": "0.1.0",
+  "eligibility": "true",
+  "payout": {
+    "kind": "payable",
+    "amount": {
+      "kind": "exact",
+      "krw": 5000000
+    }
+  },
+  "contract_effect": {
+    "kind": "applies",
+    "effect": "void_refund_premium"
+  },
+  "missing_inputs": [],
+  "trace": [
+    {
+      "path": "eligibility",
+      "op": "all",
+      "result": "true"
+    },
+    {
+      "path": "amount",
+      "op": "multiply_rate",
+      "result": "5000000 KRW"
+    }
+  ],
+  "input_snapshot_hash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+}

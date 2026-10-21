@@ -12,7 +12,7 @@ import threading
 
 from .core.ports import (
     BuilderPool, Catalog, Clock, CommitFailed, Credentials, Faults, Git, GuardChecks, IdSource, Ports,
-    ProcessControl, PushFailed, Remote, Sender, SimulatedCrash, SpecGap, Store, Worktree,
+    ProcessControl, PushFailed, Remote, ReviewerPool, Sender, SimulatedCrash, SpecGap, Store, Worktree,
 )
 
 
@@ -436,6 +436,12 @@ class MockBuilderPool(BuilderPool):
             return self._after(previous) is not None
         return bool(self._avail())
 
+    def family(self, builder):
+        for b in self.builders:
+            if b["name"] == builder:
+                return b["family"]
+        return None
+
     def select(self, task_id, reason, previous):
         if reason == "handoff":
             return self._after(previous)
@@ -446,9 +452,24 @@ class MockBuilderPool(BuilderPool):
         return av[0] if av else None
 
 
+class MockReviewers(ReviewerPool):
+    """Reviewers in the order of the mock builder list; `unavailable` holds the names that cannot review now."""
+
+    def __init__(self, builders):
+        self.builders = builders
+        self.unavailable = set()
+
+    def candidates(self):
+        return [{"name": b["name"], "family": b["family"], "available": b["name"] not in self.unavailable}
+                for b in self.builders]
+
+
 class MockCatalog(Catalog):
     def __init__(self, tasks):
-        self.tasks = {t["task_id"]: t for t in tasks}
+        self.tasks = {t["task_id"]: copy.deepcopy(t) for t in tasks}
+
+    def add(self, task):
+        self.tasks[task["task_id"]] = copy.deepcopy(task)
 
     def task(self, task_id):
         return self.tasks[task_id]
@@ -465,6 +486,9 @@ class MockGuards(GuardChecks):
 
     def check(self, name, info):
         if name == "builder_available":
+            # a handoff needs the next builder in order; every other issue reason needs any runner
+            if info.get("reason") == "handoff":
+                return self.pool.available("next", info.get("previous"))
             return self.pool.available("any", None)
         raise SpecGap(f"no mock check for guard {name}")
 
@@ -486,5 +510,5 @@ def build_ports(clock, tasks, builders, excludes):
     return Ports(
         clock=clock, store=MemoryStore(), sender=MockSender(proc), process=proc, credentials=creds, worktree=wt,
         git=MockGit(wt, excludes), guards=MockGuards(pool), builders=pool,
-        catalog=catalog, ids=IdGen(), faults=MockFaults(), remote=MockRemote(),
+        catalog=catalog, ids=IdGen(), faults=MockFaults(), remote=MockRemote(), reviewers=MockReviewers(builders),
     )

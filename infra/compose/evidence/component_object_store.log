@@ -1,0 +1,36 @@
+
+For enterprise users, please visit https://seaweedfs.com for the SeaweedFS Enterprise Edition,
+which has advanced features, including data recovery, self-healing storage, customizable erasure coding, EC vacuum and repair, etc.
+weed: version 30GB 4.48 linux amd64
+identities rendered (mode 644)
+health probe (compose healthcheck command):  HTTP/1.1 403 Forbidden
+--- init-objects.sh (1st)
+s3-init: onjeon-raw-sources created
+s3-init: onjeon-derived-sources created
+s3-init: onjeon-private-contracts created
+exit 0
+--- init-objects.sh (2nd, idempotent)
+s3-init: onjeon-raw-sources exists
+s3-init: onjeon-derived-sources exists
+s3-init: onjeon-private-contracts exists
+exit 0
+--- check-objects.sh
+ok   허용: 공개 영역 신원이 onjeon-raw-sources 에 쓴다
+ok   허용: 공개 영역 신원이 onjeon-raw-sources 를 읽는다
+ok   거부: 개인 영역 신원이 onjeon-raw-sources 에 쓴다
+ok   거부: 개인 영역 신원이 onjeon-raw-sources 를 읽는다
+ok   허용: 공개 영역 신원이 onjeon-derived-sources 에 쓴다
+ok   허용: 공개 영역 신원이 onjeon-derived-sources 를 읽는다
+ok   거부: 개인 영역 신원이 onjeon-derived-sources 에 쓴다
+ok   거부: 개인 영역 신원이 onjeon-derived-sources 를 읽는다
+ok   허용: 개인 영역 신원이 onjeon-private-contracts 에 쓴다
+ok   허용: 개인 영역 신원이 onjeon-private-contracts 를 읽는다
+ok   거부: 공개 영역 신원이 onjeon-private-contracts 에 쓴다
+ok   거부: 공개 영역 신원이 onjeon-private-contracts 를 읽는다
+ok   공개 영역 신원에게는 공개 버킷만 보인다
+ok   개인 영역 신원에게는 개인 버킷만 보인다
+ok   거부: 공개 영역 신원이 버킷을 만든다
+ok   거부: 개인 영역 신원이 버킷을 만든다
+exit 0
+--- check-objects.sh against a dead endpoint (every check must FAIL, none may pass as 'denied')
+FAIL lines: 16  ok lines: 0

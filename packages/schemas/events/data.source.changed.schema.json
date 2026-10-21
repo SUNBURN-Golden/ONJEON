@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "data.source.changed.schema.json",
+  "title": "DataSourceChangedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 data.source.changed (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "data.source.changed"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "pattern": "^src:\\S+/\\S+/[0-9]+$",
+          "description": "소스 ID src:<org>/<channel>/<n> (02 §1.1)"
+        },
+        "old_raw": {
+          "$ref": "common.schema.json#/$defs/RawRef"
+        },
+        "new_raw": {
+          "$ref": "common.schema.json#/$defs/RawRef"
+        },
+        "change": {
+          "$ref": "vocabulary.schema.json#/$defs/source_change"
+        }
+      },
+      "required": [
+        "source_id",
+        "old_raw",
+        "new_raw",
+        "change"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

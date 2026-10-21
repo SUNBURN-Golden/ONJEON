@@ -1,6 +1,6 @@
 # 상태 어휘 (생성 문서)
 
-버전 1.5.0 | 2026-10-09 | 정본: `packages/schemas/vocabulary.json`
+버전 1.6.0 | 2026-10-17 | 정본: `packages/schemas/vocabulary.json`
 
 > 이 문서는 `python3 tools/vocab_check.py --write`로 생성한다. 직접 고치지 않는다.
 
@@ -49,6 +49,18 @@
 | `doc_role` | 문서 역할 | RawAsset, ExpectedDocument | L0-L2 |
 | `sale_status` | 판매 상태 | ProductVersion | L0, L5 |
 | `publication_state` | 규칙 공개 상태 | Rule | L6-L7 |
+| `evidence_role` | 근거 역할 | Assertion.evidence[] | L2 |
+| `scope_relation` | 범위 관계 | DiseaseCategory 사이의 scope_relation 주장 | L2 |
+| `correction_reason` | 정정 사유 | Assertion, CriterionVersion (supersedes가 있는 판) | L2 |
+| `assertion_origin` | 주장 출처 구분 | Assertion, CriterionVersion | L2 |
+| `fact_source` | 정보 출처 | 계약 구성 요소(components[]) 사실 | L3 |
+| `fact_kind` | 실제·가정 구분 | 계약 구성 요소(components[]) 사실 | L3 |
+| `confirm_party` | 확인 주체 | 계약 구성 요소(components[]) 사실 | L3 |
+| `error_class` | 오류 클래스 | 오류 응답 {error_class, code, message_key, retryable, trace_id} | L4 |
+| `usage_restriction` | 사용 제한 | result_state(뷰모델 공통 필드) | L4 |
+| `knowledge_freshness` | 지식 최신성 | result_state(뷰모델 공통 필드) | L4 |
+| `need_verdict` | 필요성 판단 결과 | need_result.verdict | L4 |
+| `criterion_source_kind` | 기준 출처 종류 | criterion_version.sources[].evidence_kind | L2 |
 
 ## `acquisition_status` 수집 상태
 
@@ -441,6 +453,8 @@ Kleene 3값 논리
 | `standard_terms` | 감독규정의 표준약관 | 표준약관 | - |
 | `disclosure_page` | 공시 웹페이지 | 공시 페이지 | - |
 | `notice` | 개정·판매중지 공지 | 공지 | - |
+| `disclosure_list` | 공시 목록(공시 행·회사 목록처럼 판매 구성과 판의 대응을 관측하는 문서 구획) | 공시 목록 | - |
+| `guide_page` | 상품 안내 쪽(상품안내 표 등 교차 확인에 쓰는 구획) | 안내 쪽 | - |
 
 ## `sale_status` 판매 상태
 
@@ -461,6 +475,139 @@ Kleene 3값 논리
 | `fixture_only` | 합성 규칙. 근거·릴리스 없이 허용 | (화면에 직접 표시 안 함) | - |
 | `candidate` | 후보 릴리스 | (화면에 직접 표시 안 함) | - |
 | `released` | 공개 릴리스 | (화면에 직접 표시 안 함) | published |
+
+## `evidence_role` 근거 역할
+
+주장이 이 근거에 어떻게 기대는가. basis는 약관 조항 근거로 C0 내용 주장이 accepted 되려면 필수다. 요약서·공시·안내 쪽만으로는 accepted가 될 수 없다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `basis` | 약관 구획(보통약관·특약 약관·별표)의 조항으로, 그 구획이 accepted realizes로 약관 본문 판에 이어진 것. C0 내용 주장의 필수 근거 | 약관 근거 | - |
+| `cross_check` | 상품요약서·사업방법서·공시·상품안내 표처럼 교차 확인에만 쓰는 근거. 단독으로는 accepted가 될 수 없음 | 교차 확인 | - |
+| `observation` | 공시 행·회사 목록·문서 구획(본문 지문)처럼 구조 주장(판매 구성과 판의 대응, 구획과 판의 대응)을 세우는 관측 근거 | 관측 기록 | - |
+
+## `scope_relation` 범위 관계
+
+두 질병 범주의 범위가 어떻게 겹치는가. 양쪽 코드 집합에서 계산한 값만 쓴다. 이름으로 추정하지 않는다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `same_scope` | 두 범주의 코드 집합이 같음 | 같은 범위 | - |
+| `narrower` | 관계의 주어 범주가 대상 범주보다 좁음(코드 집합이 포함됨) | 더 좁은 범위 | - |
+| `broader` | 관계의 주어 범주가 대상 범주보다 넓음(코드 집합이 포함함) | 더 넓은 범위 | - |
+| `overlaps` | 두 코드 집합이 일부만 겹침 | 일부 겹치는 범위 | - |
+| `disjoint` | 두 코드 집합이 겹치지 않음 | 겹치지 않는 범위 | - |
+| `not_comparable` | 정의나 코드 집합을 확정하지 못해 계산할 수 없음. 출처 주장은 hold이고 accepted가 될 수 없음 | 정의를 확인하지 못해 비교할 수 없어요 | - |
+
+## `correction_reason` 정정 사유
+
+이전 판을 대체하는 새 판을 만든 이유. 정정은 고치지 않고 새 판 + supersedes로 남긴다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `error_correction` | 오류 정정: 이전 판이 틀렸음 | 오류를 바로잡았어요 | - |
+| `source_changed` | 출처 변경: 근거로 삼은 출처가 바뀜 | 출처가 바뀌었어요 | - |
+| `interpretation_improved` | 해석 개선: 같은 근거를 더 정확히 해석함 | 해석을 다듬었어요 | - |
+| `rule_changed` | 규칙 변경: 적용하는 규칙이 바뀜 | 규칙이 바뀌었어요 | - |
+
+## `assertion_origin` 주장 출처 구분
+
+주장을 만든 경로. fixture는 시험 전용이며 accepted가 될 수 없고 서비스 릴리스에 들어갈 수 없다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `pipeline` | 수집·추출 파이프라인이 만든 주장 | 수집한 자료 기반 | - |
+| `fixture` | 시험 전용 자료에서 만든 주장. pending·hold·rejected만 가능 | 시험용 자료 | - |
+
+## `fact_source` 정보 출처
+
+개인 계약 정보가 어디서 왔는가. 확인 여부(policy_holdings_status)·실제/가정(fact_kind)과 섞지 않는다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `pdf_extracted` | 사용자가 올린 문서(PDF)에서 추출함 | 올리신 문서에서 읽었어요 | - |
+| `user_stated` | 사용자가 직접 입력함 | 직접 입력하셨어요 | - |
+| `user_confirmed_extract` | 문서에서 추출한 값을 사용자가 확인함 | 문서에서 읽고 직접 확인하셨어요 | - |
+| `assumed` | 사용자 가정 등 실제 확인된 값이 아님 | 가정한 값이에요 | - |
+| `release_derived` | 공개 지식 릴리스에서 가져옴 | 공개된 상품 정보에서 가져왔어요 | - |
+
+## `fact_kind` 실제·가정 구분
+
+그 값이 실제 계약의 사실인가, 가정인가
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `actual` | 실제 계약의 사실 | 실제 가입 내용 | - |
+| `hypothetical` | 가정한 값(가입 전 검토·시나리오 등) | 가정한 내용 | - |
+
+## `confirm_party` 확인 주체
+
+그 값을 누가 확인했는가
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `user` | 사용자가 확인함 | 직접 확인하셨어요 | - |
+| `insurer` | 보험사가 확인함 | 보험사가 확인했어요 | - |
+| `document` | 문서(증권·약관 등)가 근거임 | 문서로 확인했어요 | - |
+| `none` | 아직 확인한 주체가 없음 | 아직 확인되지 않았어요 | - |
+
+## `error_class` 오류 클래스
+
+오류 코드 ONJ-<구역>-<클래스 1자>-<번호>의 클래스. 미확인·보류·판단 불가는 오류가 아니라 정상 결과이며 이 축을 쓰지 않는다. 오류 코드의 클래스 문자는 각 값 정의에 적는다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `validation` | 입력 검증 실패(V). 예: 알 수 없는 enum 값 | 입력을 확인해 주세요 | - |
+| `auth` | 인증·권한 실패(A). 다른 프로필·계정의 자료는 존재 여부도 알리지 않는다(ONJ-PS-A-030) | 요청하신 내용을 열 수 없어요 | - |
+| `not_found` | 대상 없음(N). 예: release_id 없음 | 찾을 수 없어요 | - |
+| `state_conflict` | 상태 충돌(S). 예: 멱등 키 재사용, 릴리스 철회 | 지금 상태와 맞지 않아요 | - |
+| `limit` | 한도 초과(L). 예: 요청 제한, 비용 상한 | 잠시 후 다시 시도해 주세요 | - |
+| `unsupported` | 미지원(U). 예: 엔진 미지원 의미론, 범위 밖 날짜 | 아직 지원하지 않아요 | - |
+| `internal` | 내부 오류(X) | 일시적인 문제가 생겼어요 | - |
+| `timeout` | 타임아웃(T). 지급 불가로 바꾸지 않고 마지막 성공 결과와 실패 사실을 보임 | 응답이 늦어지고 있어요 | - |
+
+## `usage_restriction` 사용 제한
+
+오류에 따라 결과를 어디까지 쓸 수 있는가
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `none` | 제한 없음 | 제한 없음 | - |
+| `hold` | 보류: 기댄 릴리스·판에 사용 제한 공지가 있어 새 계산에는 쓰지 않음. 저장된 결과는 reproducible=true로 재현·표시된다 | 새 계산에는 쓰지 않아요 | - |
+| `circuit_breaker` | 회로 차단: 오류가 반복되어 해당 범위(규칙·회사·개념)의 새 계산을 자동으로 멈춤(ops.circuit_breaker.tripped/reset). 저장된 결과는 재현된다 | 일시적으로 새 계산을 멈췄어요 | - |
+
+## `knowledge_freshness` 지식 최신성
+
+결과가 기댄 지식(릴리스·주장·기준 판)이 지금도 유효한가. 입력 최신성(freshness)과 다른 축이다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `fresh` | 기댄 지식이 최신임 | 최신 정보예요 | - |
+| `stale` | 기댄 지식(릴리스·주장·기준 판)이 정정됨. 정정된 기준 판에 의존한 결과도 해당. 오래됨(기한 경과)은 입력 최신성 freshness.stale의 몫 | 기준이 된 정보가 정정됐어요 | - |
+| `withdrawn` | 기댄 지식이 철회됨 | 철회된 정보예요 | - |
+
+## `need_verdict` 필요성 판단 결과
+
+추가 가입 필요성 판단의 결과. 네 값 모두 정상 결과이며 종합 점수·순위는 만들지 않는다. 가족력만으로 review_add가 나오지 않는다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `keep` | 유지 | 유지 | - |
+| `no_add` | 추가 가입 없음 | 추가 가입 없음 | - |
+| `hold` | 보류: 결론을 바꾸는 입력이 비어 있음 | 판단 보류 | - |
+| `review_add` | 추가 검토 | 추가 검토 | - |
+
+## `criterion_source_kind` 기준 출처 종류
+
+판단 기준 판의 출처가 어떤 종류인가. 출처가 없는 판은 기준 릴리스에 들어가지 못한다
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `public_statistic` | 공공 통계 | 공공 통계 | - |
+| `statute` | 법령 | 법령 | - |
+| `regulator_notice` | 감독 고시 | 감독 고시 | - |
+| `terms_fact` | 약관 사실 | 약관 내용 | - |
+| `editorial` | 온전의 편집 판단. 참고 통계로 표시하지 않는다 | 온전의 판단 | - |
 
 ## 시각 필드
 

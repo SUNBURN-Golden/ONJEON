@@ -1,0 +1,34 @@
+{
+  "release_id": "rel:20261001-1",
+  "items": [
+    {
+      "sc_id": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
+      "label": "fixture product",
+      "org": "fixture-org",
+      "sale_status": "on_sale",
+      "capabilities": [
+        {
+          "capability": "search",
+          "state": "enabled"
+        }
+      ]
+    },
+    {
+      "sc_id": "sc:01BX5ZZKBKACTAV9WEVGEMMVRZ",
+      "label": "fixture product 2",
+      "org": "fixture-org",
+      "sale_status": "unknown",
+      "capabilities": [
+        {
+          "capability": "explain",
+          "state": "blocked"
+        }
+      ],
+      "acquisition_status": "not_found"
+    }
+  ],
+  "denominator_note": {
+    "denominator_version": "denominator-fixture-1",
+    "text": "fixture note"
+  }
+}

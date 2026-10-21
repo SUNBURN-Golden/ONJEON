@@ -1,0 +1,1281 @@
+{
+  "cases": {
+    "t01_before_start": {
+      "input_snapshot_hash": "bef3c1ec5819755d4fe7f7c77d7c2a4cafb6724b04692863b3bb36b98c265419",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "-1"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "false"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "false"
+        }
+      ]
+    },
+    "t02_day_0_reduced": {
+      "input_snapshot_hash": "138f147e79df000d3c53e4dcede7536a35a50f7f5f1550de461d02b73717aa75",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.multiply_rate[0]",
+          "result": "10000000 KRW"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.multiply_rate[1]",
+          "result": "5/10"
+        },
+        {
+          "op": "multiply_rate",
+          "path": "amount.then",
+          "result": "5000000 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "5000000 KRW"
+        }
+      ]
+    },
+    "t03_day_179_reduced": {
+      "input_snapshot_hash": "ae56ddad38a4b4ff3fdc72fb8bdd3d8b19c6dd475d8cd0ced69da9736948e66a",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "179"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "179"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.multiply_rate[0]",
+          "result": "10000000 KRW"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.multiply_rate[1]",
+          "result": "5/10"
+        },
+        {
+          "op": "multiply_rate",
+          "path": "amount.then",
+          "result": "5000000 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "5000000 KRW"
+        }
+      ]
+    },
+    "t04_day_180_full": {
+      "input_snapshot_hash": "cab282b254e9672e426f6074e9584da27b84a08793c995976675237df8436a96",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "false"
+        },
+        {
+          "op": "input",
+          "path": "amount.else",
+          "result": "10000000 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "10000000 KRW"
+        }
+      ]
+    },
+    "t05_excluded_event": {
+      "input_snapshot_hash": "b8deeba4fed95fb22487f975a9c09eeebfcbdd860b2bfe19d35dca59e1d864ba",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "false"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "false"
+        }
+      ]
+    },
+    "t06_first_payment_used": {
+      "input_snapshot_hash": "bd54afb770544d7b07df60ee6c1bbee734f47fc159eae2276748a5aa77a673ac",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "false"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "false"
+        }
+      ]
+    },
+    "t07_date_unknown": {
+      "input_snapshot_hash": "e32e96a05c45daa2061d47f2c9801938fededd9e94c568b5ca99df99fefb507a",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.multiply_rate[0]",
+          "result": "10000000 KRW"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.multiply_rate[1]",
+          "result": "5/10"
+        },
+        {
+          "op": "multiply_rate",
+          "path": "amount.then",
+          "result": "5000000 KRW"
+        },
+        {
+          "op": "input",
+          "path": "amount.else",
+          "result": "10000000 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "unknown"
+        }
+      ]
+    },
+    "t08_exclusion_unknown": {
+      "input_snapshot_hash": "7248d8f75a4474e2a0f6b06b25fd8263c10f94a364885501fd184c56152f0d9c",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "false"
+        },
+        {
+          "op": "input",
+          "path": "amount.else",
+          "result": "10000000 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "10000000 KRW"
+        }
+      ]
+    },
+    "t09_amount_unknown": {
+      "input_snapshot_hash": "6abdb9d95b3fc12e2ace95def492c0a62742075e371db1db85b3535d66645cd3",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "false"
+        },
+        {
+          "op": "input",
+          "path": "amount.else",
+          "result": "unknown"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "unknown"
+        }
+      ]
+    },
+    "t10_not_target_event": {
+      "input_snapshot_hash": "679158e1395cc84b75ece94e3521c21f5ee9dd4214440c06de1300a050da583e",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "180"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "false"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "false"
+        }
+      ]
+    },
+    "t11_event_kind_unknown": {
+      "input_snapshot_hash": "38d79ac5a3e7d7288c43393b3c8160e767b9cdc4d19628702f01ed827bf2a01e",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.multiply_rate[0]",
+          "result": "10000000 KRW"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.multiply_rate[1]",
+          "result": "5/10"
+        },
+        {
+          "op": "multiply_rate",
+          "path": "amount.then",
+          "result": "5000000 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "5000000 KRW"
+        }
+      ]
+    },
+    "t12_false_dominates_unknown": {
+      "input_snapshot_hash": "7bc1ce0138da14d7490725e698a5bb22f1fab929ae75f2599447360349118411",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "false"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "false"
+        }
+      ]
+    },
+    "t13_rounding_floor": {
+      "input_snapshot_hash": "e9683ffe06e0350184299e9b6fd2b41c350de22a3e9779ff2689c79204604e09",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.multiply_rate[0]",
+          "result": "1001 KRW"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.multiply_rate[1]",
+          "result": "5/10"
+        },
+        {
+          "op": "multiply_rate",
+          "path": "amount.then",
+          "result": "500 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "500 KRW"
+        }
+      ]
+    },
+    "t14_all_unknown": {
+      "input_snapshot_hash": "967aaf4b3a9b52adf0c8638a464416df2d677adeadb6ce8ffaf2db73ad0facc7",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "unknown"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.multiply_rate[0]",
+          "result": "unknown"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.multiply_rate[1]",
+          "result": "5/10"
+        },
+        {
+          "op": "multiply_rate",
+          "path": "amount.then",
+          "result": "unknown"
+        },
+        {
+          "op": "input",
+          "path": "amount.else",
+          "result": "unknown"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "unknown"
+        }
+      ]
+    }
+  },
+  "note": "synthetic; per-case trace and input_snapshot_hash pinned so golden tables catch trace/hash regressions. rule_content_hash is pinned in fixture-rule-001.content_hash. Regenerate only when a change is intended.",
+  "rule_id": "fixture-rule-001"
+}

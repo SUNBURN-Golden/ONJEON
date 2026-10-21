@@ -6,7 +6,8 @@ KNOWN_UNPINNED is a ratchet: a new unpinned ref fails, and so does a listed ref 
 pinned (delete its entry then).
 
 Local `./` actions are exempt. Both `.yml` and `.yaml` are scanned, in .github/workflows/ and in
-composite actions under .github/actions/.
+composite actions under .github/actions/. Action values must start on the same line as `uses:`;
+empty values and block scalars are rejected, even when their contents are pinned or local.
 Run: python3 -m unittest discover -s tools/tests
 """
 import collections
@@ -22,8 +23,8 @@ QUOTED = r'"(?:\\.|[^"\\])*"|' r"'(?:''|[^'])*'"
 # Read block and flow mapping entries. Consume other quoted scalars and comments so that
 # text such as `run: echo "{ uses: actions/checkout@v4 }"` is not an action reference.
 USES = re.compile(
-    r'''(?:^\s*(?:-\s+)?|(?<=[{,])\s*)(?:uses|"uses"|'uses')\s*:\s*'''
-    rf'''(?P<ref>{QUOTED}|[^\s#,{{}}\[\]]+)|{QUOTED}|\#.*$'''
+    r'''(?P<entry>(?:^\s*(?:-\s+)?|(?<=[{,])\s*)(?:uses|"uses"|'uses')\s*:\s*)'''
+    rf'''(?P<ref>{QUOTED}|[^\s#,{{}}\[\]]+)?|{QUOTED}|\#.*$'''
 )
 BLOCK_SCALAR = re.compile(
     r'''^\s*(?:-\s+)?(?:[\w-]+|"[^"]*"|'[^']*'):\s*'''
@@ -44,7 +45,7 @@ def action_files():
 
 
 def unpinned_refs(text):
-    """[(line number, ref)] for each non-local `uses:` that is not `<action>@<40 hex>`."""
+    """Report unpinned non-local refs and unsupported empty/multiline action values."""
     found = []
     block_indent = None
     for n, line in enumerate(text.splitlines(), 1):
@@ -53,15 +54,15 @@ def unpinned_refs(text):
             if not line.strip() or indent > block_indent:
                 continue
             block_indent = None
-        if BLOCK_SCALAR.search(line):
-            block_indent = indent
-            continue
         for m in USES.finditer(line):
-            if m.group("ref") is None:
+            if m.group("entry") is None:
                 continue
-            ref = m.group("ref").strip("\"'")
+            ref = (m.group("ref") or "<empty or multiline uses value>").strip("\"'")
             if not ref.startswith("./") and not PINNED.fullmatch(ref):
                 found.append((n, ref))
+        # Inspect the header first so `uses: >-` cannot disappear with script bodies.
+        if BLOCK_SCALAR.search(line):
+            block_indent = indent
     return found
 
 
@@ -89,6 +90,34 @@ class UnpinnedRefsParser(unittest.TestCase):
     def test_rejects_uppercase_or_non_hex_sha(self):
         self.assertEqual(len(unpinned_refs("  - uses: a/b@" + "A" * 40)), 1)
         self.assertEqual(len(unpinned_refs("  - uses: a/b@" + "g" * 40)), 1)
+
+    def test_rejects_block_scalar_action_values(self):
+        # Multiline uses values are deliberately unsupported, even for pinned/local actions.
+        for key in ("uses", '"uses"', "'uses'"):
+            for indicator in (">", ">-", ">+", ">2-", ">-2", "|", "|-", "|+", "|2", "|+2"):
+                for ref in ("actions/checkout@v4", "a/b@" + "a" * 40, "./local"):
+                    text = f"steps:\n  - {key}: {indicator} # action\n      {ref}\n"
+                    with self.subTest(key=key, indicator=indicator, ref=ref):
+                        self.assertEqual(unpinned_refs(text), [(2, indicator)])
+
+    def test_rejects_empty_or_next_line_action_values(self):
+        for key in ("uses", '"uses"', "'uses'"):
+            for suffix in ("", " # action"):
+                for value in (
+                    "", "\n      actions/checkout@v4",
+                    "\n\n      # comment\n      actions/checkout@v4",
+                ):
+                    text = f"steps:\n  - {key}:{suffix}{value}\n"
+                    with self.subTest(key=key, suffix=suffix, value=value):
+                        self.assertEqual(unpinned_refs(text), [(2, "<empty or multiline uses value>")])
+        self.assertEqual(
+            unpinned_refs("steps: [{uses:\n  actions/checkout@v4}]"),
+            [(1, "<empty or multiline uses value>")],
+        )
+
+    def test_rejected_block_scalar_does_not_hide_following_action(self):
+        text = "  - uses: >-\n      actions/checkout@v4\n  - uses: actions/cache@main\n"
+        self.assertEqual(unpinned_refs(text), [(1, ">-"), (3, "actions/cache@main")])
 
     def test_flow_mappings_flag_unpinned_refs(self):
         for entry in (
@@ -143,14 +172,19 @@ class WorkflowPinsDiscovery(unittest.TestCase):
                     for suffix in (".yml", ".yaml"):
                         path = github / folder / ("example" + suffix)
                         path.parent.mkdir(parents=True, exist_ok=True)
-                        for entry in ("- uses: actions/checkout@v4",
-                                      "- { uses: actions/checkout@v4 }"):
+                        for entry, diagnostic in (
+                            ("- uses: actions/checkout@v4", "actions/checkout@v4"),
+                            ("- { uses: actions/checkout@v4 }", "actions/checkout@v4"),
+                            ("- uses: >-\n    actions/checkout@v4", ">-"),
+                            ("- uses: |\n    actions/checkout@v4", "'|'"),
+                            ("- uses:\n    actions/checkout@v4", "<empty or multiline uses value>"),
+                        ):
                             with self.subTest(folder=folder, suffix=suffix, entry=entry):
                                 path.write_text(entry + "\n", encoding="utf-8")
                                 with self.assertRaises(AssertionError) as failure:
                                     guard.test_unpinned_refs_match_known_list()
                                 self.assertIn(path.relative_to(root).as_posix(), str(failure.exception))
-                                self.assertIn("actions/checkout@v4", str(failure.exception))
+                                self.assertIn(diagnostic, str(failure.exception))
                                 path.write_text(
                                     "- { uses: a/b@" + "a" * 40 + " }\n", encoding="utf-8"
                                 )

@@ -1,0 +1,408 @@
+test_accepts_full_sha_with_tag_comment_and_local_actions (workflow_pin_regressions.UnpinnedRefsParser.test_accepts_full_sha_with_tag_comment_and_local_actions) ... ok
+test_comments_and_flow_separators_end_scalars (workflow_pin_regressions.UnpinnedRefsParser.test_comments_and_flow_separators_end_scalars) ... ok
+test_comments_and_script_strings_are_not_actions (workflow_pin_regressions.UnpinnedRefsParser.test_comments_and_script_strings_are_not_actions) ... ok
+test_flags_tags_branches_and_short_shas (workflow_pin_regressions.UnpinnedRefsParser.test_flags_tags_branches_and_short_shas) ... ok
+test_flow_mappings_accept_full_shas_and_local_actions (workflow_pin_regressions.UnpinnedRefsParser.test_flow_mappings_accept_full_shas_and_local_actions) ... ok
+test_flow_mappings_flag_unpinned_refs (workflow_pin_regressions.UnpinnedRefsParser.test_flow_mappings_flag_unpinned_refs) ... ok
+test_rejected_block_scalar_does_not_hide_following_action (workflow_pin_regressions.UnpinnedRefsParser.test_rejected_block_scalar_does_not_hide_following_action) ... ok
+test_rejects_block_scalar_action_values (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_block_scalar_action_values) ... ok
+test_rejects_empty_or_next_line_action_values (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_empty_or_next_line_action_values) ... ok
+test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) ... 
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (flow='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (flow='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example [open') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example {open') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example ]closed') ... FAIL
+  test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example }closed') ... FAIL
+test_rejects_uppercase_or_non_hex_sha (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_uppercase_or_non_hex_sha) ... ok
+test_unpinned_refs_match_known_list (workflow_pin_regressions.WorkflowPins.test_unpinned_refs_match_known_list) ... ok
+test_workflows_exist (workflow_pin_regressions.WorkflowPins.test_workflows_exist) ... ok
+test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) ... 
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable') ... FAIL
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='uses', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(1, 'a/b@main')] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaa[29 chars]in')]
+
+First differing element 0:
+(1, 'a/b@main')
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')
+
+- [(1, 'a/b@main')]
++ [(1,
++   'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key='"uses"', value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(1, 'a/b@main')] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaa[29 chars]in')]
+
+First differing element 0:
+(1, 'a/b@main')
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')
+
+- [(1, 'a/b@main')]
++ [(1,
++   'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (key="'uses'", value='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 133, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(1, 'a/b@main')] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaa[29 chars]in')]
+
+First differing element 0:
+(1, 'a/b@main')
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')
+
+- [(1, 'a/b@main')]
++ [(1,
++   'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, uses: a/b@main')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (flow='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 136, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"- {{ uses: {value} }}"), [(1, value)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (flow='actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 136, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"- {{ uses: {value} }}"), [(1, value)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')
+
+- []
++ [(1, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example [open')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 140, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"- name: {name}\n  uses: {ref}"), [(2, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+
+- []
++ [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example {open')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 140, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"- name: {name}\n  uses: {ref}"), [(2, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+
+- []
++ [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example ]closed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 140, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"- name: {name}\n  uses: {ref}"), [(2, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+
+- []
++ [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+======================================================================
+FAIL: test_rejects_sha_prefix_with_scalar_suffix (workflow_pin_regressions.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) (name='Example }closed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 140, in test_rejects_sha_prefix_with_scalar_suffix
+    self.assertEqual(unpinned_refs(f"- name: {name}\n  uses: {ref}"), [(2, ref)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+
+- []
++ [(2, 'actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')]
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (workflow_pin_regressions.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='- uses: a/b@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mutable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 245, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.019s
+
+FAILED (failures=26)

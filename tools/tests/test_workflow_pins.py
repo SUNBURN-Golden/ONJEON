@@ -24,7 +24,7 @@ QUOTED = r'"(?:\\.|[^"\\])*"|' r"'(?:''|[^'])*'"
 # text such as `run: echo "{ uses: actions/checkout@v4 }"` is not an action reference.
 USES = re.compile(
     r'''(?P<entry>(?:^\s*(?:-\s+)?|(?<=[{,])\s*)(?:uses|"uses"|'uses')\s*:\s*)'''
-    rf'''(?P<ref>{QUOTED}|[^\s#,{{}}\[\]]+)?|{QUOTED}|\#.*$'''
+    rf'''|{QUOTED}|\#.*$|(?P<flow>[{{}}\[\]])'''
 )
 BLOCK_SCALAR = re.compile(
     r'''^\s*(?:-\s+)?(?:[\w-]+|"[^"]*"|'[^']*'):\s*'''
@@ -44,20 +44,52 @@ def action_files():
         yield from sorted((GITHUB_DIR / "actions").glob(f"**/{pat}"))
 
 
+def action_scalar(line, start, in_flow):
+    """Read the complete scalar; only flow mappings treat commas as separators."""
+    end = start
+    while end < len(line):
+        char = line[end]
+        if char == "#" and (end == start or line[end - 1].isspace()):
+            break
+        if in_flow and char in ",{}[]":
+            break
+        if char in "\"'":
+            quoted = re.match(QUOTED, line[end:])
+            if quoted:
+                end += quoted.end()
+                continue
+        end += 1
+    ref = line[start:end].strip()
+    if re.fullmatch(QUOTED, ref):
+        ref = ref[1:-1]
+    return ref or "<empty or multiline uses value>", end
+
+
 def unpinned_refs(text):
     """Report unpinned non-local refs and unsupported empty/multiline action values."""
     found = []
     block_indent = None
+    flow_depth = 0
     for n, line in enumerate(text.splitlines(), 1):
         indent = len(line) - len(line.lstrip())
         if block_indent is not None:
             if not line.strip() or indent > block_indent:
                 continue
             block_indent = None
-        for m in USES.finditer(line):
+        pos = 0
+        while m := USES.search(line, pos):
+            pos = m.end()
+            if m.group("flow"):
+                if m.group("flow") in "{[":
+                    # Brackets inside an ordinary block scalar (e.g. a step name)
+                    # do not turn subsequent action values into flow scalars.
+                    if flow_depth or re.search(r"(?:^\s*(?:-\s+)?|:\s*)$", line[:m.start()]):
+                        flow_depth += 1
+                elif flow_depth:
+                    flow_depth -= 1
             if m.group("entry") is None:
                 continue
-            ref = (m.group("ref") or "<empty or multiline uses value>").strip("\"'")
+            ref, pos = action_scalar(line, pos, flow_depth > 0)
             if not ref.startswith("./") and not PINNED.fullmatch(ref):
                 found.append((n, ref))
         # Inspect the header first so `uses: >-` cannot disappear with script bodies.
@@ -90,6 +122,33 @@ class UnpinnedRefsParser(unittest.TestCase):
     def test_rejects_uppercase_or_non_hex_sha(self):
         self.assertEqual(len(unpinned_refs("  - uses: a/b@" + "A" * 40)), 1)
         self.assertEqual(len(unpinned_refs("  - uses: a/b@" + "g" * 40)), 1)
+
+    def test_rejects_sha_prefix_with_scalar_suffix(self):
+        pinned = "actions/checkout@" + "a" * 40
+        for suffix in ("#mutable", ",mutable", " mutable", ", uses: a/b@main"):
+            ref = pinned + suffix
+            for key in ("uses", '"uses"', "'uses'"):
+                for value in (ref, f'"{ref}"', f"'{ref}'"):
+                    with self.subTest(key=key, value=value):
+                        self.assertEqual(unpinned_refs(f"  - {key}: {value}"), [(1, ref)])
+        for value in (pinned + "#mutable", pinned + " mutable"):
+            with self.subTest(flow=value):
+                self.assertEqual(unpinned_refs(f"- {{ uses: {value} }}"), [(1, value)])
+        for name in ("Example [open", "Example {open", "Example ]closed", "Example }closed"):
+            with self.subTest(name=name):
+                ref = pinned + ",mutable"
+                self.assertEqual(unpinned_refs(f"- name: {name}\n  uses: {ref}"), [(2, ref)])
+
+    def test_comments_and_flow_separators_end_scalars(self):
+        pinned = "actions/checkout@" + "a" * 40
+        for value in (pinned, f'"{pinned}"', f"'{pinned}'"):
+            for whitespace in (" ", "\t"):
+                with self.subTest(value=value, whitespace=whitespace):
+                    self.assertEqual(unpinned_refs(f"- uses: {value}{whitespace}# tag, example"), [])
+            self.assertEqual(unpinned_refs(f"- {{uses: {value}, name: Checkout}}"), [])
+            self.assertEqual(
+                unpinned_refs(f"steps: [{{\n  uses: {value}, name: Checkout\n}}]"), []
+            )
 
     def test_rejects_block_scalar_action_values(self):
         # Multiline uses values are deliberately unsupported, even for pinned/local actions.
@@ -174,6 +233,8 @@ class WorkflowPinsDiscovery(unittest.TestCase):
                         path.parent.mkdir(parents=True, exist_ok=True)
                         for entry, diagnostic in (
                             ("- uses: actions/checkout@v4", "actions/checkout@v4"),
+                            ("- uses: a/b@" + "a" * 40 + "#mutable", "a/b@" + "a" * 40 + "#mutable"),
+                            ("- uses: a/b@" + "a" * 40 + ",mutable", "a/b@" + "a" * 40 + ",mutable"),
                             ("- { uses: actions/checkout@v4 }", "actions/checkout@v4"),
                             ("- uses: >-\n    actions/checkout@v4", ">-"),
                             ("- uses: |\n    actions/checkout@v4", "'|'"),

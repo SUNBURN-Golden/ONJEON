@@ -1,0 +1,46 @@
+{
+  "criterion": {
+    "id": "crit:fx-priority",
+    "kind": "priority_rule",
+    "label": "면책·감액·제외 조건을 보장과 함께 우선 살핀다",
+    "scope": {
+      "situations": ["담보 평가", "필요성 판단"],
+      "subjects": ["모든 사용자"]
+    },
+    "recorded_at": "2026-10-20T00:00:00Z"
+  },
+  "versions": [
+    {
+      "version": 1,
+      "valid_from": "2026-10-20",
+      "sources": [
+        {
+          "ref": "clause:seg:052dd4693601:p1-3:terms:seg-0.1/art_2#p2:docproc-text@1.0",
+          "evidence_kind": "terms_fact"
+        }
+      ],
+      "rationale": "시험 전용 판(fixture) — 정정 사슬 시험의 앞 판",
+      "recorded_at": "2026-10-20T00:00:00Z",
+      "origin": "fixture"
+    },
+    {
+      "version": 2,
+      "valid_from": "2026-10-21",
+      "supersedes": "crit:fx-priority@1",
+      "correction_reason": "interpretation_improved",
+      "sources": [
+        {
+          "ref": "clause:seg:052dd4693601:p1-3:terms:seg-0.1/art_2#p2:docproc-text@1.0",
+          "evidence_kind": "terms_fact"
+        },
+        {
+          "ref": "obs:src:klia/pub/1/2026-10-09T04:22:22Z/052d0204c9bc1cd1",
+          "evidence_kind": "regulator_notice"
+        }
+      ],
+      "rationale": "시험 전용 판(fixture) — 근거를 하나 더한 정정",
+      "recorded_at": "2026-10-21T00:00:00Z",
+      "origin": "fixture"
+    }
+  ]
+}

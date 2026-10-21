@@ -1,0 +1,4 @@
+$ cargo clippy -p onjeon-collect --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+
+exit_code=0

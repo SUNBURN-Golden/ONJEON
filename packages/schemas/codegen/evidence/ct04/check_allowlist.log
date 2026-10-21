@@ -1,0 +1,6 @@
+$ python3 -I packages/schemas/codegen/check_allowlist.py
+allow list: 12 events, 7 allowed fields, 5 valid and 9 rejected examples, PASSED
+exit code: 0
+$ python3 -I packages/schemas/codegen/check_allowlist.py --selftest
+self-test ok: 8 planted defects fail for their intended reasons
+exit code: 0

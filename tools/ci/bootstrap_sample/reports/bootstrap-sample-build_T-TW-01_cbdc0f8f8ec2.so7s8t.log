@@ -1,0 +1,221 @@
+3441e1bdce69dca582b61ac4470cbebf7d3c32ef9e15565be535951f44c0bd4d  /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/run.sh
+039147b6e5109666315b982b5949ca50d000ac7c296d41f6a02533b4a1c3d56a  /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/prune.py
+095efda8544912eb7298a5c33159b58ed925dfb134194eb6b604627ea238af0c  /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/tasks.json
+rustc 1.98.1 (48a229cea 2026-09-01)
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+== bootstrap-sample-build ==
+task: T-TW-01   crate: onjeon-twin-runtime
+repo: /workspace/onjeon-run/wt/T-CT-07   ref: origin/main (cbdc0f8f8ec20f513d356d0c25193cbd38202ad5)
+keep set (self + transitive prereq_tasks):
+  T-CT-01
+  T-KN-01
+  T-TW-01
+tmp: /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN  log: /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/reports/bootstrap-sample-build_T-TW-01_cbdc0f8f8ec2.so7s8t.log
+
+== phase A: clean clone, prerequisites only ==
+  peel T-OP-04 e69093b4: 15 file(s) removed, 3 restored/reverted
+  peel T-KN-03 2621d663: 8 file(s) removed, 2 restored/reverted
+  peel T-MB-01 38217cf8: 43 file(s) removed, 0 restored/reverted
+  peel T-KN-02 9ce0bfd4: 8 file(s) removed, 0 restored/reverted
+  peel T-CT-05 464ba254: 15 file(s) removed, 0 restored/reverted
+  peel T-CT-04 750d48d1: 39 file(s) removed, 2 restored/reverted
+  peel T-CT-06 3ee000b3: 10 file(s) removed, 0 restored/reverted
+  peel T-CT-03 6855ad3d: 46 file(s) removed, 8 restored/reverted
+  peel T-CT-02 5e06eb54: 0 file(s) removed, 31 restored/reverted
+  peel T-OP-01 631331fd: 23 file(s) removed, 0 restored/reverted
+  peel T-TW-02 973aec9b: 1 file(s) removed, 5 restored/reverted
+  peel T-OP-09 8d4c9d3b: 35 file(s) removed, 0 restored/reverted
+  peel T-OP-00 a95dad0d: 0 file(s) removed, 5 restored/reverted
+  peel T-OP-00 c74a545a: 7 file(s) removed, 20 restored/reverted
+  workspace member removed: packages/api-types
+  workspace member removed: services/ai-gateway
+prune: 13 merge task(s) peeled (T-CT-02, T-CT-03, T-CT-04, T-CT-05, T-CT-06, T-KN-02, T-KN-03, T-MB-01, T-OP-00, T-OP-01, T-OP-04, T-OP-09, T-TW-02), 250 file(s) removed, 76 restored/reverted
++ cargo build -p onjeon-twin-runtime
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling generic-array v0.14.7
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/pruned/packages/schemas)
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/pruned/packages/rules-engine)
+   Compiling onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/pruned/packages/ontology)
+error[E0658]: use of unstable library feature `str_as_str`
+   --> packages/ontology/src/check.rs:538:55
+    |
+538 |         if a.origin.as_deref() == Some(ORIGIN_FIXTURE.as_str()) {
+    |                                                       ^^^^^^
+    |
+    = note: see issue #130366 <https://github.com/rust-lang/rust/issues/130366> for more information
+
+For more information about this error, try `rustc --explain E0658`.
+error: could not compile `onjeon-ontology` (lib) due to 1 previous error
+phase A: FAIL
+
+== phase B: drop one non-prerequisite output (T-KN-03), keep the rest ==
+  peel T-KN-03 2621d663: 8 file(s) removed, 2 restored/reverted
+  workspace member removed: services/ai-gateway
+prune: 1 merge task(s) peeled (T-KN-03), 8 file(s) removed, 2 restored/reverted
++ cargo build -p onjeon-twin-runtime
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling typenum v1.20.1
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling generic-array v0.14.7
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/single/packages/schemas)
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/single/packages/rules-engine)
+   Compiling onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/single/packages/ontology)
+   Compiling onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/single/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.69s
++ cargo test -p onjeon-twin-runtime
+   Compiling onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.zaSVMN/single/packages/twin-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.95s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_twin_runtime-d57f2c61b1a66eff)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/case-runner.rs (target/debug/deps/case_runner-c6dcefdc43872b58)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (target/debug/deps/cli-d0a84c56e4aa2c46)
+
+running 5 tests
+test a_job_with_an_unknown_release_fails_without_affecting_others ... ok
+test a_malformed_rule_path_fails_without_affecting_others ... ok
+test a_job_cannot_declare_or_bypass_judged_inputs ... ok
+test integrity_findings_block_the_job_before_the_engine ... ok
+test golden_jobs_through_the_cli ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/config_select.rs (target/debug/deps/config_select-b5858dc26ccb15b4)
+
+running 6 tests
+test several_applicable_configurations_block ... ok
+test one_configuration_using_several_editions_is_not_ambiguous ... ok
+test selects_the_configuration_in_force_on_the_contract_date ... ok
+test a_configuration_without_any_link_blocks ... ok
+test candidate_order_and_duplicates_change_nothing ... ok
+test no_applicable_configuration_reports_the_considered_links ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/golden_questions.rs (target/debug/deps/golden_questions-baf4b453d5b06156)
+
+running 4 tests
+test an_unconfirmed_edition_holds_before_the_engine ... ok
+test q9_and_q10_never_reach_the_engine ... ok
+test the_membership_judgement_carries_its_evidence ... ok
+test the_eleven_questions_match_the_reference ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/input_link.rs (target/debug/deps/input_link-533f6b366b074abb)
+
+running 10 tests
+test input_link_other_edition ... ok
+test input_link_competing_editions_hold ... ok
+test input_link_other_edition_applies_hold ... ok
+test input_link_multiple_candidates ... ok
+test input_link_other_company ... ok
+test input_link_order_independent ... ok
+test input_link_unknown_scope_hold ... ok
+test input_link_application_scope_unverified_hold ... ok
+test input_link_unrelated_rider_allowed ... ok
+test input_link_multi_edition_config ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/input_stage.rs (target/debug/deps/input_stage-9e3594e5806d56a6)
+
+running 15 tests
+test a_malformed_as_of_fact_is_an_error_not_a_guess ... ok
+test a_declaration_naming_no_rule_input_is_rejected ... ok
+test a_missing_as_of_fact_is_unknown_not_an_undated_answer ... ok
+test a_stale_or_unknown_key_in_the_declaration_fails_loudly ... ok
+test a_missing_code_fact_leaves_the_input_unknown_with_a_judgement ... ok
+test a_malformed_code_fact_is_an_error_not_a_guess ... ok
+test judge_time_calendar_month_and_year_clamp ... ok
+test judge_time_refuses_bad_input_and_never_guesses ... ok
+test judge_time_day_duration_anchor_counted_and_not ... ok
+test judge_time_records_the_assumed_counting_rule ... ok
+test fill_produces_inputs_and_the_membership_judgement ... ok
+test evidence_required_false_is_a_bad_declaration ... ok
+test fill_time_stage_judgement_and_its_boundary_travel ... ok
+test unsupported_judged_by_fails_explicitly ... ok
+test the_artifact_carries_the_declaration_and_the_engine_never_sees_it ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/integrity.rs (target/debug/deps/integrity-a5b7140d654b6380)
+
+running 6 tests
+test integrity_findings_stop_the_run_before_the_chain ... ok
+test a_coverage_without_a_rule_is_no_rule ... ok
+test a_swapped_rule_file_is_an_integrity_block_not_an_evaluation ... ok
+test the_request_contract_date_overrides_the_fact ... ok
+test unapproved_claims_in_scope_hold_as_link_unapproved ... ok
+test a_malformed_contract_date_is_rejected ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/regen_fixture.rs (target/debug/deps/regen_fixture-90781bdd0c70eed1)
+
+running 2 tests
+test regenerate_declared_abox_fixture ... ignored
+test declared_abox_fixture_is_current ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/static_guards.rs (target/debug/deps/static_guards-edd3894a383e4a7c)
+
+running 3 tests
+test no_database_or_network_access_before_the_engine ... ok
+test no_secrets_or_model_identifiers_in_src ... ok
+test no_skeleton_markers_or_fixture_data_in_src ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_twin_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+phase B: PASS
+
+bootstrap-sample-build: FAIL (phase A=FAIL, phase B=PASS)

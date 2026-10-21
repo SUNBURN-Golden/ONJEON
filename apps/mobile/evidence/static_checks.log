@@ -1,0 +1,8 @@
+$ python3 -I tools/ci/check_deps.py; python3 -I tools/ci/check_leak.py; python3 -I tools/ci/check_leak.py --selftest; python3 -I tools/ci/check_skeleton.py; python3 -I tools/ci/check_skeleton.py --selftest; python3 -I tools/vocab_check.py
+check_deps: no zone dependency violations
+check_leak: no leak patterns (I10, I11, 52.3)
+check_leak selftest ok: 29 violations each caught for its intended rule, 5 clean case(s) pass
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+check_skeleton selftest ok: 18 violations each caught for its intended rule, 5 clean case(s) pass
+vocabulary ok: 45 axes, 228 values
+exit code: 0

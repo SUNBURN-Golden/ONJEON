@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge.review.decided.schema.json",
+  "title": "KnowledgeReviewDecidedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 knowledge.review.decided (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "knowledge.review.decided"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "review_decision_id": {
+          "$ref": "common.schema.json#/$defs/ReviewDecisionId"
+        },
+        "outcome": {
+          "$ref": "vocabulary.schema.json#/$defs/review_status"
+        },
+        "families_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "합의에 참여한 모델 계열 수"
+        },
+        "code_checks": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Identifier"
+          },
+          "description": "실행한 코드 검사 이름"
+        },
+        "redteam_findings": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "반례 탐색에서 나온 지적 수"
+        }
+      },
+      "required": [
+        "review_decision_id",
+        "outcome",
+        "families_count",
+        "code_checks",
+        "redteam_findings"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

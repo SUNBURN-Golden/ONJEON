@@ -1,0 +1,66 @@
+{
+  "release_id": "rel:20261001-1",
+  "evaluation_id": "eval:01BX5ZZKBKACTAV9WEVGEMMVRY",
+  "results": [
+    {
+      "contract_id": "contract:01H8XGJWBWBAQ4Z4RN3XPQ3BDY",
+      "result": {
+        "release_id": "rel:20261001-1",
+        "cov_id": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+        "judgements": [],
+        "blocked_by": [
+          {
+            "reason": "edition_identity_unconfirmed",
+            "held_conclusions": [
+              "conclusion-1"
+            ]
+          }
+        ],
+        "remaining_gaps": [],
+        "display_status": "hold",
+        "result_state": {
+          "input_freshness": "fresh",
+          "knowledge_freshness": "fresh",
+          "usage_restriction": "hold",
+          "reproducible": true
+        },
+        "dependency": {
+          "dependency_state": "held",
+          "excluded_contracts": [
+            "contract:01H8XGJWBWBAQ4Z4RN3XPQ3BDY"
+          ],
+          "unknown_overlap": [
+            {
+              "ref": "ted:01BX5ZZKBKACTAV9WEVGEMMVRY",
+              "state": "ambiguous"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "unresolved": [
+    {
+      "what": "fixture unresolved",
+      "confirm_party": "user"
+    }
+  ],
+  "dependency": {
+    "dependency_state": "held",
+    "excluded_contracts": [
+      "contract:01H8XGJWBWBAQ4Z4RN3XPQ3BDY"
+    ],
+    "unknown_overlap": [
+      {
+        "ref": "ted:01BX5ZZKBKACTAV9WEVGEMMVRY",
+        "state": "ambiguous"
+      }
+    ]
+  },
+  "result_state": {
+    "input_freshness": "fresh",
+    "knowledge_freshness": "fresh",
+    "usage_restriction": "hold",
+    "reproducible": true
+  }
+}

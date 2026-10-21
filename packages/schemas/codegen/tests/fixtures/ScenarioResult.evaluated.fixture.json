@@ -1,0 +1,76 @@
+{
+  "release_id": "rel:20261001-1",
+  "cov_id": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+  "evaluation": {
+    "rule_id": "fixture-rule-001",
+    "rule_version": "1",
+    "release_id": null,
+    "rule_content_hash": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+    "evidence_refs": [
+      "fixture"
+    ],
+    "schema_version": "rule-0.1",
+    "engine_version": "0.1.0",
+    "eligibility": "true",
+    "payout": {
+      "kind": "payable",
+      "amount": {
+        "kind": "exact",
+        "krw": 5000000
+      }
+    },
+    "contract_effect": {
+      "kind": "none"
+    },
+    "missing_inputs": [],
+    "trace": [
+      {
+        "path": "eligibility",
+        "op": "all",
+        "result": "true"
+      },
+      {
+        "path": "amount",
+        "op": "multiply_rate",
+        "result": "5000000 KRW"
+      }
+    ],
+    "input_snapshot_hash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "judgements": [
+    {
+      "input_name": "target_event",
+      "value": "true",
+      "judged_by": "input_stage",
+      "evidence_assertion_ids": [
+        "a:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+      ]
+    }
+  ],
+  "blocked_by": [],
+  "remaining_gaps": [
+    "gap:01J0000000000000000000000A"
+  ],
+  "explain": {
+    "template_id": "explain-payout-1",
+    "text": "5,000,000원",
+    "amounts": [
+      {
+        "krw": 5000000,
+        "source": "scenario:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+      }
+    ]
+  },
+  "display_status": "under_review",
+  "result_state": {
+    "input_freshness": "fresh",
+    "knowledge_freshness": "fresh",
+    "usage_restriction": "none",
+    "reproducible": true
+  },
+  "dependency": {
+    "dependency_state": "kept",
+    "excluded_contracts": [],
+    "unknown_overlap": []
+  }
+}

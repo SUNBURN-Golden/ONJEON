@@ -9,6 +9,10 @@ use std::collections::BTreeMap;
 use std::fmt;
 
 pub const SCHEMA_VERSION: &str = "rule-0.1";
+/// rule-0.2 adds the operators listed in GAP_REPORT section 5; everything in 0.1 still loads.
+pub const SCHEMA_VERSION_0_2: &str = "rule-0.2";
+/// Allowed `contract_effect` values (rule-0.2).
+pub const CONTRACT_EFFECTS: [&str; 3] = ["none", "void_refund_premium", "terminated_pay_reserve"];
 pub const UNKNOWN_POLICY: &str = "use_three_valued_logic_never_default_to_zero";
 /// Allowed `publication_state` values; must match `publication_state` in vocabulary.json.
 pub const PUBLICATION_STATES: [&str; 3] = ["fixture_only", "candidate", "released"];
@@ -20,6 +24,17 @@ pub enum InputType {
     MoneyKrw,
     Date,
     Str,
+    /// rule-0.2: list of `{class, krw}` events (krw may be null = unknown).
+    ClassMoneyList,
+}
+
+/// What a rule does to the contract itself besides paying (rule-0.2, G23).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ContractEffect {
+    None,
+    VoidRefundPremium,
+    TerminatedPayReserve,
 }
 
 /// Static type of an expression, checked while the rule loads. `Money` covers both an exact
@@ -32,6 +47,7 @@ enum Ty {
     Rate,
     Date,
     Str,
+    List,
 }
 
 impl Ty {
@@ -43,6 +59,7 @@ impl Ty {
             Ty::Rate => "rate",
             Ty::Date => "date",
             Ty::Str => "string",
+            Ty::List => "class_money_list",
         }
     }
 }
@@ -55,6 +72,7 @@ impl From<InputType> for Ty {
             InputType::MoneyKrw => Ty::Money,
             InputType::Date => Ty::Date,
             InputType::Str => Ty::Str,
+            InputType::ClassMoneyList => Ty::List,
         }
     }
 }
@@ -116,6 +134,40 @@ pub(crate) enum Expr {
         value: i64,
         unit: DurUnit,
     },
+    // ---- rule-0.2
+    MultiplyCount(Box<Expr>, Box<Expr>),
+    SubtractFloor0(Box<Expr>, Box<Expr>),
+    ProRata {
+        money: Box<Expr>,
+        part: Box<Expr>,
+        whole: Box<Expr>,
+        rounding: Rounding,
+        unit: i64,
+    },
+    DivideCount {
+        money: Box<Expr>,
+        count: Box<Expr>,
+        rounding: Rounding,
+        unit: i64,
+    },
+    AnniversaryBand {
+        from: Box<Expr>,
+        at: Box<Expr>,
+        /// `(years, value)` thresholds, ascending, first is 0.
+        bands: Vec<(i64, Value)>,
+        boundary: Boundary,
+    },
+    /// Sum over classes of the largest amount in the class. Holds the list input's name.
+    MaxOver(String),
+}
+
+/// Whether a band that starts at an anniversary already applies on the anniversary day itself.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Boundary {
+    /// `lower_inclusive`: the new band applies from the anniversary day.
+    Lower,
+    /// `upper_inclusive`: the old band still applies on the anniversary day; the new one starts the day after.
+    Upper,
 }
 
 impl Expr {
@@ -142,6 +194,12 @@ impl Expr {
             Expr::ApplyCap(..) => "apply_cap",
             Expr::DaysBetween { .. } => "days_between",
             Expr::DateAdd { .. } => "date_add",
+            Expr::MultiplyCount(..) => "multiply_count",
+            Expr::SubtractFloor0(..) => "subtract_floor0",
+            Expr::ProRata { .. } => "pro_rata",
+            Expr::DivideCount { .. } => "divide_count",
+            Expr::AnniversaryBand { .. } => "anniversary_band",
+            Expr::MaxOver(_) => "max_over",
         }
     }
 }
@@ -179,7 +237,7 @@ impl std::error::Error for RuleError {}
 /// and load it again, which re-validates and re-hashes.
 ///
 /// Reading works through accessors (this example compiles and runs; the two
-/// below differ only in the assignment, which proves they fail on privacy):
+/// below require E0616, proving they fail on private field access):
 ///
 /// ```
 /// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
@@ -194,7 +252,7 @@ impl std::error::Error for RuleError {}
 /// # let _ = rule;
 /// ```
 ///
-/// ```compile_fail
+/// ```compile_fail,E0616
 /// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
 /// #   "eligibility":true,"amount":{"krw":1},
 /// #   "unknown_policy":"use_three_valued_logic_never_default_to_zero",
@@ -203,7 +261,7 @@ impl std::error::Error for RuleError {}
 /// rule.content_hash = String::new(); // private: does not compile
 /// ```
 ///
-/// ```compile_fail
+/// ```compile_fail,E0616
 /// # let json = r#"{"rule_id":"r","rule_version":"1","schema_version":"rule-0.1","inputs":{},
 /// #   "eligibility":true,"amount":{"krw":1},
 /// #   "unknown_policy":"use_three_valued_logic_never_default_to_zero",
@@ -228,11 +286,12 @@ pub struct Rule {
     pub(crate) inputs: BTreeMap<String, InputType>,
     pub(crate) eligibility: Expr,
     pub(crate) amount: Expr,
+    pub(crate) contract_effect: ContractEffect,
     /// The JSON this rule was loaded from, in canonical form.
     pub(crate) source: J,
 }
 
-const TOP_LEVEL_KEYS: [&str; 12] = [
+const TOP_LEVEL_KEYS: [&str; 13] = [
     "example_kind",
     "rule_id",
     "rule_version",
@@ -245,6 +304,7 @@ const TOP_LEVEL_KEYS: [&str; 12] = [
     "unknown_policy",
     "evidence_refs",
     "publication_state",
+    "contract_effect",
 ];
 
 impl Rule {
@@ -280,12 +340,39 @@ impl Rule {
             _ => return Err(RuleError::at("release_id", "must be a non-empty string")),
         };
         let schema_version = get_str("schema_version")?;
-        if schema_version != SCHEMA_VERSION {
+        if schema_version != SCHEMA_VERSION && schema_version != SCHEMA_VERSION_0_2 {
             return Err(RuleError::at(
                 "schema_version",
-                format!("expected {SCHEMA_VERSION}, got {schema_version}"),
+                format!("expected {SCHEMA_VERSION} or {SCHEMA_VERSION_0_2}, got {schema_version}"),
             ));
         }
+        let v02 = schema_version == SCHEMA_VERSION_0_2;
+        let contract_effect = match obj.get("contract_effect") {
+            None => ContractEffect::None,
+            Some(_) if !v02 => {
+                return Err(RuleError::at(
+                    "contract_effect",
+                    "requires schema_version rule-0.2",
+                ))
+            }
+            Some(J::String(e)) => match e.as_str() {
+                "none" => ContractEffect::None,
+                "void_refund_premium" => ContractEffect::VoidRefundPremium,
+                "terminated_pay_reserve" => ContractEffect::TerminatedPayReserve,
+                _ => {
+                    return Err(RuleError::at(
+                        "contract_effect",
+                        format!("must be one of {}", CONTRACT_EFFECTS.join("|")),
+                    ))
+                }
+            },
+            Some(_) => {
+                return Err(RuleError::at(
+                    "contract_effect",
+                    format!("must be one of {}", CONTRACT_EFFECTS.join("|")),
+                ))
+            }
+        };
         let unknown_policy = get_str("unknown_policy")?;
         if unknown_policy != UNKNOWN_POLICY {
             return Err(RuleError::at(
@@ -347,10 +434,17 @@ impl Rule {
                         Some("money_krw") => InputType::MoneyKrw,
                         Some("date") => InputType::Date,
                         Some("string") => InputType::Str,
+                        Some("class_money_list") if v02 => InputType::ClassMoneyList,
+                        Some("class_money_list") => {
+                            return Err(RuleError::at(
+                                &format!("inputs.{name}"),
+                                "`class_money_list` requires schema_version rule-0.2",
+                            ))
+                        }
                         _ => {
                             return Err(RuleError::at(
                                 &format!("inputs.{name}"),
-                                "type must be bool|int|money_krw|date|string",
+                                "type must be bool|int|money_krw|date|string (rule-0.2 also class_money_list)",
                             ))
                         }
                     };
@@ -359,17 +453,21 @@ impl Rule {
             }
             _ => return Err(RuleError::at("inputs", "must be an object of name -> type")),
         }
+        let scope = Scope {
+            inputs: &inputs,
+            v02,
+        };
         let eligibility = parse_expr(
             obj.get("eligibility")
                 .ok_or_else(|| RuleError::at("eligibility", "missing"))?,
-            &inputs,
+            &scope,
             "eligibility",
             Ty::Bool,
         )?;
         let amount = parse_expr(
             obj.get("amount")
                 .ok_or_else(|| RuleError::at("amount", "missing"))?,
-            &inputs,
+            &scope,
             "amount",
             Ty::Money,
         )?;
@@ -384,6 +482,7 @@ impl Rule {
             inputs,
             eligibility,
             amount,
+            contract_effect,
             source: v.clone(),
         })
     }
@@ -415,6 +514,11 @@ impl Rule {
 
     pub fn evidence_refs(&self) -> &[String] {
         &self.evidence_refs
+    }
+
+    /// What the rule does to the contract when it fires (rule-0.2; `None` for rule-0.1).
+    pub fn contract_effect(&self) -> ContractEffect {
+        self.contract_effect
     }
 
     pub fn input_types(&self) -> &BTreeMap<String, InputType> {
@@ -476,6 +580,46 @@ fn content_hash(v: &J) -> String {
         .collect()
 }
 
+/// Declared inputs plus the schema generation, so rule-0.2 operators can be refused in rule-0.1.
+struct Scope<'a> {
+    inputs: &'a BTreeMap<String, InputType>,
+    v02: bool,
+}
+
+impl Scope<'_> {
+    fn get(&self, name: &str) -> Option<&InputType> {
+        self.inputs.get(name)
+    }
+}
+
+/// Parses the `{rounding, unit}` parameter object shared by the rounding operators.
+fn rounding_params(params: &J, p: &str) -> Result<(Rounding, i64), RuleError> {
+    let params = params
+        .as_object()
+        .ok_or_else(|| RuleError::at(p, "last argument must be {rounding, unit}"))?;
+    let rounding = match params.get("rounding").and_then(J::as_str) {
+        Some("floor") => Rounding::Floor,
+        Some("ceil") => Rounding::Ceil,
+        Some("half_up") => Rounding::HalfUp,
+        Some("half_even") => Rounding::HalfEven,
+        Some("unspecified") => Rounding::Unspecified,
+        _ => {
+            return Err(RuleError::at(
+                p,
+                "rounding is required: floor|ceil|half_up|half_even|unspecified",
+            ))
+        }
+    };
+    let unit = match params.get("unit").and_then(J::as_i64) {
+        Some(u @ (1 | 10 | 100 | 1000)) => u,
+        _ => return Err(RuleError::at(p, "unit is required: 1|10|100|1000")),
+    };
+    if params.len() != 2 {
+        return Err(RuleError::at(p, "only rounding and unit are allowed"));
+    }
+    Ok((rounding, unit))
+}
+
 fn args<'a>(v: &'a J, min: usize, max: usize, path: &str) -> Result<&'a Vec<J>, RuleError> {
     let a = v
         .as_array()
@@ -491,12 +635,7 @@ fn args<'a>(v: &'a J, min: usize, max: usize, path: &str) -> Result<&'a Vec<J>, 
 
 /// Parses `v` and requires it to have static type `want`, so a type mismatch is a load error
 /// (invariant I5) instead of an evaluation error on whichever input happens to reach it.
-fn parse_expr(
-    v: &J,
-    inputs: &BTreeMap<String, InputType>,
-    path: &str,
-    want: Ty,
-) -> Result<Expr, RuleError> {
+fn parse_expr(v: &J, inputs: &Scope<'_>, path: &str, want: Ty) -> Result<Expr, RuleError> {
     let (e, got) = parse_typed(v, inputs, path)?;
     if got != want {
         return Err(RuleError::at(
@@ -507,11 +646,7 @@ fn parse_expr(
     Ok(e)
 }
 
-fn parse_typed(
-    v: &J,
-    inputs: &BTreeMap<String, InputType>,
-    path: &str,
-) -> Result<(Expr, Ty), RuleError> {
+fn parse_typed(v: &J, inputs: &Scope<'_>, path: &str) -> Result<(Expr, Ty), RuleError> {
     match v {
         J::Bool(b) => Ok((Expr::Lit(Value::Bool(*b)), Ty::Bool)),
         J::Number(n) => match n.as_i64() {
@@ -588,6 +723,9 @@ fn parse_typed(
                             format!("cannot compare {} with {}", lt.name(), rt.name()),
                         ));
                     }
+                    if lt == Ty::List {
+                        return Err(RuleError::at(&p, "lists cannot be compared"));
+                    }
                     if matches!(lt, Ty::Bool | Ty::Str) && !matches!(op.as_str(), "eq" | "ne") {
                         return Err(RuleError::at(
                             &p,
@@ -626,22 +764,7 @@ fn parse_typed(
                 "multiply" => return Err(RuleError::at(&p, "`multiply` is not allowed; use `multiply_rate` with explicit rounding and unit")),
                 "multiply_rate" => {
                     let items = args(a, 3, 3, &p)?;
-                    let params = items[2].as_object().ok_or_else(|| RuleError::at(&p, "third argument must be {rounding, unit}"))?;
-                    let rounding = match params.get("rounding").and_then(J::as_str) {
-                        Some("floor") => Rounding::Floor,
-                        Some("ceil") => Rounding::Ceil,
-                        Some("half_up") => Rounding::HalfUp,
-                        Some("half_even") => Rounding::HalfEven,
-                        Some("unspecified") => Rounding::Unspecified,
-                        _ => return Err(RuleError::at(&p, "rounding is required: floor|ceil|half_up|half_even|unspecified")),
-                    };
-                    let unit = match params.get("unit").and_then(J::as_i64) {
-                        Some(u @ (1 | 10 | 100 | 1000)) => u,
-                        _ => return Err(RuleError::at(&p, "unit is required: 1|10|100|1000")),
-                    };
-                    if params.len() != 2 {
-                        return Err(RuleError::at(&p, "only rounding and unit are allowed"));
-                    }
+                    let (rounding, unit) = rounding_params(&items[2], &p)?;
                     let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
                     let rate = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Rate)?);
                     (Expr::MultiplyRate { money, rate, rounding, unit }, Ty::Money)
@@ -703,6 +826,74 @@ fn parse_typed(
                     let date = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Date)?);
                     (Expr::DateAdd { date, value, unit }, Ty::Date)
                 }
+                "multiply_count" | "subtract_floor0" | "pro_rata" | "divide_count" | "anniversary_band" | "max_over" if !inputs.v02 => {
+                    return Err(RuleError::at(&p, format!("operator `{op}` requires schema_version rule-0.2")))
+                }
+                "multiply_count" => {
+                    let items = args(a, 2, 2, &p)?;
+                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
+                    let count = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Int)?);
+                    (Expr::MultiplyCount(money, count), Ty::Money)
+                }
+                "subtract_floor0" => {
+                    let (x, y) = two(a, &p, Ty::Money)?;
+                    (Expr::SubtractFloor0(x, y), Ty::Money)
+                }
+                "pro_rata" => {
+                    let items = args(a, 4, 4, &p)?;
+                    let (rounding, unit) = rounding_params(&items[3], &p)?;
+                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
+                    // part and whole are both counts (int) or both amounts (money).
+                    let (part, pt) = parse_typed(&items[1], inputs, &format!("{p}[1]"))?;
+                    let (whole, wt) = parse_typed(&items[2], inputs, &format!("{p}[2]"))?;
+                    if pt != wt || !matches!(pt, Ty::Int | Ty::Money) {
+                        return Err(RuleError::at(&p, format!("part and whole must both be int or both be money, found {} and {}", pt.name(), wt.name())));
+                    }
+                    (Expr::ProRata { money, part: Box::new(part), whole: Box::new(whole), rounding, unit }, Ty::Money)
+                }
+                "divide_count" => {
+                    let items = args(a, 3, 3, &p)?;
+                    let (rounding, unit) = rounding_params(&items[2], &p)?;
+                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
+                    let count = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Int)?);
+                    (Expr::DivideCount { money, count, rounding, unit }, Ty::Money)
+                }
+                "anniversary_band" => {
+                    let items = args(a, 4, 4, &p)?;
+                    let from = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Date)?);
+                    let at = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Date)?);
+                    let table = items[2].as_array().ok_or_else(|| RuleError::at(&format!("{p}[2]"), "must be an array of [years, rate] pairs"))?;
+                    if table.is_empty() || table.len() > 64 {
+                        return Err(RuleError::at(&format!("{p}[2]"), "needs 1..=64 bands"));
+                    }
+                    let mut bands: Vec<(i64, Value)> = Vec::new();
+                    for (i, row) in table.iter().enumerate() {
+                        let bp = format!("{p}[2][{i}]");
+                        let pair = row.as_array().filter(|r| r.len() == 2).ok_or_else(|| RuleError::at(&bp, "must be [years, rate]"))?;
+                        let years = pair[0].as_i64().filter(|y| (0..=300).contains(y)).ok_or_else(|| RuleError::at(&bp, "years must be an integer in 0..=300"))?;
+                        let rate = pair[1].as_str().and_then(parse_rate).ok_or_else(|| RuleError::at(&bp, "value must be a decimal rate string"))?;
+                        match bands.last() {
+                            None if years != 0 => return Err(RuleError::at(&bp, "the first band must start at 0 years")),
+                            Some((prev, _)) if years <= *prev => return Err(RuleError::at(&bp, "band start years must be strictly ascending")),
+                            _ => {}
+                        }
+                        bands.push((years, rate));
+                    }
+                    let bparams = items[3].as_object().ok_or_else(|| RuleError::at(&format!("{p}[3]"), "last argument must be {boundary}"))?;
+                    let boundary = match bparams.get("boundary").and_then(J::as_str) {
+                        Some("lower_inclusive") => Boundary::Lower,
+                        Some("upper_inclusive") => Boundary::Upper,
+                        _ => return Err(RuleError::at(&format!("{p}[3]"), "boundary is required: lower_inclusive|upper_inclusive")),
+                    };
+                    if bparams.len() != 1 {
+                        return Err(RuleError::at(&format!("{p}[3]"), "only boundary is allowed"));
+                    }
+                    (Expr::AnniversaryBand { from, at, bands, boundary }, Ty::Rate)
+                }
+                "max_over" => match a.as_str().and_then(|n| inputs.get(n).map(|t| (n, *t))) {
+                    Some((name, InputType::ClassMoneyList)) => (Expr::MaxOver(name.to_string()), Ty::Money),
+                    _ => return Err(RuleError::at(&p, "must name a declared class_money_list input")),
+                },
                 other => return Err(RuleError::at(path, format!("operator `{other}` is not in the allow-list"))),
             };
             Ok(typed)

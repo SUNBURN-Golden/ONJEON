@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "data.clause.extracted.schema.json",
+  "title": "DataClauseExtractedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 data.clause.extracted (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "data.clause.extracted"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "raw_id": {
+          "$ref": "common.schema.json#/$defs/RawRef"
+        },
+        "segment_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/SegmentRef"
+              },
+              "pages": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "to": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "from",
+                  "to"
+                ],
+                "additionalProperties": false
+              },
+              "doc_role": {
+                "$ref": "vocabulary.schema.json#/$defs/doc_role"
+              },
+              "fingerprint": {
+                "$ref": "common.schema.json#/$defs/Fingerprint"
+              }
+            },
+            "required": [
+              "id",
+              "pages",
+              "doc_role",
+              "fingerprint"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "clause_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "common.schema.json#/$defs/ClauseRef"
+          }
+        },
+        "extractor": {
+          "type": "object",
+          "properties": {
+            "tool": {
+              "$ref": "common.schema.json#/$defs/Identifier"
+            },
+            "version": {
+              "$ref": "common.schema.json#/$defs/Identifier"
+            }
+          },
+          "required": [
+            "tool",
+            "version"
+          ],
+          "additionalProperties": false,
+          "description": "추출기 이름과 판"
+        }
+      },
+      "required": [
+        "raw_id",
+        "segment_ids",
+        "clause_ids",
+        "extractor"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

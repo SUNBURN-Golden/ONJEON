@@ -1,0 +1,4 @@
+$ python3 -I tools/ci/check_leak.py --selftest
+check_leak selftest ok: 29 violations each caught for its intended rule, 5 clean case(s) pass
+
+exit_code=0

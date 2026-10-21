@@ -1,0 +1,15 @@
+[package]
+name = "onjeon-ontology"
+version = "0.1.0"
+edition = "2021"
+description = "ONJEON ontology (onto-0.2): T-box loader, K1~K16 checker, frozen releases, edition identity, code-set membership and scope relations"
+publish = false
+
+[dependencies]
+onjeon-contracts = { path = "../schemas" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+
+[dev-dependencies]
+onjeon-rules-engine = { path = "../rules-engine" }

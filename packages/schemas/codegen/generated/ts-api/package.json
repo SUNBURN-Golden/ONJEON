@@ -1,0 +1,7 @@
+{
+  "name": "onjeon-api",
+  "version": "1.0.0-draft.1",
+  "private": true,
+  "description": "Generated ONJEON API types (default surface; skeleton.ts is opt-in)",
+  "types": "index.ts"
+}

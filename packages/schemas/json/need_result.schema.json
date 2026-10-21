@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "need_result.schema.json",
+  "title": "NeedResult",
+  "type": "object",
+  "description": "필요성 판단 결과 (02_구현계약 §1.5). 네 결과 모두 정상 결과다",
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "need_result id. 형식이 02 §1.1에 아직 없다"
+    },
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/ReleaseId"
+    },
+    "criteria_release_id": {
+      "$ref": "common.schema.json#/$defs/CriteriaReleaseId",
+      "description": "적용 승인된 기준 릴리스가 있을 때만"
+    },
+    "input_hash": {
+      "$ref": "common.schema.json#/$defs/Sha256Hex"
+    },
+    "verdict": {
+      "$ref": "vocabulary.schema.json#/$defs/need_verdict",
+      "description": "keep, no_add, hold, review_add. 종합 점수·순위는 없다"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/NeedReason"
+      }
+    },
+    "decisive_inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DecisiveInput"
+      }
+    },
+    "deps": {
+      "$ref": "common.schema.json#/$defs/ConclusionDependency"
+    },
+    "dependency": {
+      "$ref": "common.schema.json#/$defs/DependencyInfo"
+    },
+    "result_state": {
+      "$ref": "common.schema.json#/$defs/ResultState"
+    }
+  },
+  "required": [
+    "id",
+    "release_id",
+    "input_hash",
+    "verdict",
+    "reasons",
+    "decisive_inputs",
+    "result_state"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "NeedReason": {
+      "type": "object",
+      "description": "필요성 결론의 이유 한 건. 종류에 맞는 근거가 없는 이유는 결과에 실리지 않는다 (02 §1.5)",
+      "properties": {
+        "statement_kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "statement_kind",
+          "description": "fact, criteria_eval, user_assumption, calc_result, unknown. 어휘 축 승격 대기"
+        },
+        "text_template_id": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "criterion_version_ref": {
+          "$ref": "common.schema.json#/$defs/CriterionRef",
+          "description": "criteria_eval 이유의 근거"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EvidenceRef"
+          }
+        },
+        "user_assumption_ref": {
+          "$ref": "common.schema.json#/$defs/AssumptionRef",
+          "description": "user_assumption 이유의 근거"
+        },
+        "assertion_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/AssertionId"
+          },
+          "description": "fact 이유의 근거(릴리스 안 accepted 주장)"
+        },
+        "eval_ref": {
+          "$ref": "common.schema.json#/$defs/EvaluationRef",
+          "description": "calc_result 이유의 근거"
+        },
+        "unknown_overlap": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/UnknownOverlap"
+          },
+          "description": "unknown 이유의 근거"
+        }
+      },
+      "required": [
+        "statement_kind",
+        "text_template_id",
+        "evidence",
+        "assertion_refs"
+      ],
+      "additionalProperties": false
+    },
+    "DecisiveInput": {
+      "type": "object",
+      "description": "결론을 바꾸는 입력. 판단 기능이 정한다(AI는 질문만 다듬는다)",
+      "properties": {
+        "input": {
+          "$ref": "common.schema.json#/$defs/Identifier"
+        },
+        "why_it_changes_verdict": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "input",
+        "why_it_changes_verdict"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

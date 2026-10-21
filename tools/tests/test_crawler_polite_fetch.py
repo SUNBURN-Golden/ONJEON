@@ -172,9 +172,9 @@ class PoliteFetcherSuccessTest(unittest.TestCase):
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
             "https://a.example/page": (200, {}, b"ok"),
         }, config=CrawlerConfig(contact="ops@example.org", per_host_min_interval_s=5), clock=clock, sleep=sleep)
-        f.fetch("https://a.example/page", "src1")
-        f.fetch("https://a.example/page", "src1")
-        self.assertEqual(sleep.sleeps, [5.0])
+        f.fetch("https://a.example/page", "src1").close()
+        f.fetch("https://a.example/page", "src1").close()
+        self.assertEqual(sleep.sleeps, [5.0, 5.0])
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 2)
 
     def test_empty_2xx_body_is_empty_reply(self):
@@ -199,7 +199,7 @@ class PoliteFetcherRetryTest(unittest.TestCase):
         self.assertEqual(out.reason, "service_outage")
         self.assertEqual(out.attempts, 3)
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 3)
-        self.assertEqual(sleep.sleeps, [2.0, 4.0])
+        self.assertEqual(sleep.sleeps, [1.0, 2.0, 4.0])
 
     def test_timeout_is_retried_with_jitter(self):
         rng_values = [0.5, 0.25]
@@ -211,7 +211,7 @@ class PoliteFetcherRetryTest(unittest.TestCase):
         self.assertEqual(out.kind, "timeout")
         self.assertEqual(out.reason, "timeout")
         self.assertEqual(out.attempts, 3)
-        self.assertEqual(sleep.sleeps, [2.5, 4.25])
+        self.assertEqual(sleep.sleeps, [1.0, 2.5, 4.25])
 
     def test_headers_are_identical_across_retries(self):
         headers = {"If-None-Match": '"abc"', "Accept": "text/plain"}
@@ -326,8 +326,8 @@ class PoliteFetcherRateLimitTest(unittest.TestCase):
         }, clock=clock)
         out = f.fetch("https://a.example/page", "src1")
         self.assertEqual(out.kind, "rate_limited")
-        self.assertEqual(out.retry_after, clock.now + 600)
-        self.assertEqual(out.blocked_until, clock.now + 600)
+        self.assertEqual(out.retry_after, email.utils.parsedate_to_datetime(http_date).timestamp())
+        self.assertEqual(out.blocked_until, out.retry_after)
 
     def test_no_request_to_host_before_retry_after(self):
         clock = FakeClock(1_800_000_000.0)
@@ -417,7 +417,7 @@ class PoliteFetcherBodyStreamTest(unittest.TestCase):
         self.assertEqual(out.reason, "connection_reset")
         self.assertEqual(out.attempts, 3)
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 3)
-        self.assertEqual(sleep.sleeps, [2.0, 4.0])
+        self.assertEqual(sleep.sleeps, [1.0, 2.0, 4.0])
 
     def test_mid_prefix_timeout_is_retried_then_timeout(self):
         f, t, _, sleep = make_fetcher({
@@ -429,7 +429,7 @@ class PoliteFetcherBodyStreamTest(unittest.TestCase):
         self.assertEqual(out.kind, "timeout")
         self.assertEqual(out.reason, "timeout")
         self.assertEqual(out.attempts, 2)
-        self.assertEqual(sleep.sleeps, [2.0])
+        self.assertEqual(sleep.sleeps, [1.0, 2.0])
 
     def test_mid_prefix_body_too_large_is_blocked_without_retry(self):
         f, t, _, _ = make_fetcher({
@@ -484,7 +484,7 @@ class PoliteFetcherLocalRefusalTest(unittest.TestCase):
     host reservation or spend daily budget."""
 
     def test_non_transport_error_frees_host_and_refunds_budget(self):
-        cfg = CrawlerConfig(contact="ops@example.org", daily_request_cap_default=1,
+        cfg = CrawlerConfig(contact="ops@example.org", daily_request_cap_default=2,
                             max_attempts=1, per_host_min_interval_s=1)
         f, t, _, _ = make_fetcher({
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
@@ -494,11 +494,13 @@ class PoliteFetcherLocalRefusalTest(unittest.TestCase):
             f.fetch("https://a.example/page", "src1")
         t.routes["https://a.example/page"] = (200, {}, b"ok")
         # host reservation was released and the failed call did not spend the cap
-        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "success")
+        out.close()
         self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "deferred_cap")
 
     def test_refused_request_is_a_typed_block_once_and_not_billed(self):
-        cfg = CrawlerConfig(contact="ops@example.org", daily_request_cap_default=1,
+        cfg = CrawlerConfig(contact="ops@example.org", daily_request_cap_default=2,
                             max_attempts=3, per_host_min_interval_s=1)
         f, t, _, _ = make_fetcher({
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
@@ -509,7 +511,9 @@ class PoliteFetcherLocalRefusalTest(unittest.TestCase):
         self.assertEqual(out.attempts, 1)
         self.assertEqual(len([u for u in t.urls if u == "https://a.example/page"]), 1)
         t.routes["https://a.example/page"] = (200, {}, b"ok")
-        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")  # refunded
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "success")
+        out.close()  # refunded
         self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "deferred_cap")
 
 
@@ -518,9 +522,13 @@ class PoliteFetcherCapTest(unittest.TestCase):
         f, t, _, _ = make_fetcher({
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
             "https://a.example/page": (200, {}, b"ok"),
-        }, config=CrawlerConfig(contact="ops@example.org", daily_request_cap_default=2, max_attempts=1))
-        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")
-        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")
+        }, config=CrawlerConfig(contact="ops@example.org", daily_request_cap_default=3, max_attempts=1))
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "success")
+        out.close()
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "success")
+        out.close()
         out = f.fetch("https://a.example/page", "src1")
         self.assertEqual(out.kind, "deferred_cap")
         self.assertEqual(out.reason, "rate_limited")
@@ -531,11 +539,180 @@ class PoliteFetcherCapTest(unittest.TestCase):
         f, t, _, _ = make_fetcher({
             ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
             "https://a.example/page": (200, {}, b"ok"),
-        }, config=CrawlerConfig(contact="ops@example.org", daily_request_cap_default=1, max_attempts=1), clock=clock)
-        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")
+        }, config=CrawlerConfig(contact="ops@example.org", daily_request_cap_default=2, max_attempts=1), clock=clock)
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "success")
+        out.close()
         self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "deferred_cap")
         clock.advance(86400)
-        self.assertEqual(f.fetch("https://a.example/page", "src1").kind, "success")
+        out = f.fetch("https://a.example/page", "src1")
+        self.assertEqual(out.kind, "success")
+        out.close()
+
+
+class ReviewRegressionTest(unittest.TestCase):
+    page = "https://a.example/page"
+
+    def test_robots_spends_the_only_daily_request(self):
+        f, t, _, _ = make_fetcher({ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n")},
+            config=CrawlerConfig(contact="ops@example.org", daily_request_cap_default=1))
+        self.assertEqual(f.fetch(self.page, "src").kind, "deferred_cap")
+        self.assertEqual(t.urls, [ROBOTS])
+
+    def test_robots_redirects_share_interval_and_source_cap(self):
+        clock = FakeClock()
+        times = []
+        def route(url):
+            times.append(clock())
+            return (302, {"Location": "/policy"}, b"")
+        def policy(url):
+            times.append(clock())
+            return (200, {}, b"User-agent: *\nDisallow:\nCrawl-delay: 9\n")
+        f, t, _, sleep = make_fetcher({ROBOTS: route, "https://a.example/policy": policy,
+            self.page: (200, {}, b"ok")}, clock=clock,
+            config=CrawlerConfig(contact="ops@example.org", daily_request_cap_default=3,
+                                 per_host_min_interval_s=5))
+        out = f.fetch(self.page, "src")
+        self.assertEqual(out.kind, "success")
+        out.close()
+        self.assertEqual(times[1] - times[0], 5)
+        self.assertEqual(sleep.sleeps, [5, 9])
+        self.assertEqual(f.fetch(self.page, "src").kind, "deferred_cap")
+        self.assertEqual(len(t.requests), 3)
+
+    def test_stream_holds_host_and_global_cap_until_closed_exhausted_or_failed(self):
+        for ending in ("close", "exhaust", "error"):
+            with self.subTest(ending=ending):
+                closed = []
+                def body():
+                    yield b"x" * BODY_PREFIX_BYTES
+                    if ending == "error":
+                        raise TransportError("read failed: TimeoutError")
+                    yield b"tail"
+                f, t, _, _ = make_fetcher({ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n"),
+                    self.page: lambda url: Response(200, {}, body(), lambda: closed.append(True)),
+                    "https://b.example/robots.txt": (404, {}, b""),
+                    "https://b.example/page": (200, {}, b"ok")},
+                    config=CrawlerConfig(contact="ops@example.org", max_global_hosts=1))
+                out = f.fetch(self.page, "one")
+                self.assertEqual(out.kind, "success")
+                count = len(t.requests)
+                self.assertEqual(f.fetch(self.page, "two").kind, "blocked")
+                self.assertEqual(f.fetch("https://b.example/page", "two").kind, "blocked")
+                self.assertEqual(len(t.requests), count)
+                self.assertFalse(closed)
+                if ending == "close":
+                    out.close()
+                elif ending == "error":
+                    with self.assertRaises(TransportError):
+                        list(out.body_iter)
+                else:
+                    self.assertEqual(len(b"".join(out.body_iter)), BODY_PREFIX_BYTES + 4)
+                self.assertEqual(closed, [True])
+                out.close()
+                self.assertEqual(closed, [True])
+                next_out = f.fetch("https://b.example/page", "two")
+                self.assertEqual(next_out.kind, "success")
+                next_out.close()
+
+    def test_block_markers_precede_transient_status_and_prefix_errors(self):
+        headers = {"Accept": "text/html", "If-None-Match": '"same"'}
+        for status in (200, 408, 429, 500, 503):
+            for marker, reason in ((b"captcha: access denied", "origin_denied"),
+                                   (b"login required", "origin_denied"),
+                                   (b"not available in your country", "geo_blocked")):
+                for fail in (False, True):
+                    with self.subTest(status=status, marker=marker, fail=fail):
+                        def body():
+                            yield marker
+                            if fail:
+                                raise TransportError("read failed: TimeoutError")
+                        f, t, _, _ = make_fetcher({ROBOTS: (404, {}, b""),
+                            self.page: lambda url: Response(status, {"Content-Type": "text/html",
+                                                                    "Retry-After": "120"}, body())})
+                        out = f.fetch(self.page, "src", headers=headers)
+                        self.assertEqual((out.kind, out.reason, out.attempts), ("blocked", reason, 1))
+                        self.assertEqual([h for u, h, _, _ in t.requests if u == self.page], [headers])
+
+    def test_503_does_not_count_as_429(self):
+        responses = iter([(503, {"Retry-After": "0"}, b""),
+                          (503, {"Retry-After": "0"}, b""),
+                          (429, {"Retry-After": "0"}, b""),
+                          (429, {"Retry-After": "0"}, b"")])
+        f, t, clock, _ = make_fetcher({ROBOTS: (404, {}, b""),
+                                     self.page: lambda url: next(responses)})
+        for _ in range(3):
+            out = f.fetch(self.page, "src")
+            self.assertEqual(out.blocked_until, clock())
+        out = f.fetch(self.page, "src")
+        self.assertEqual(out.blocked_until, (int(clock() // 86400) + 1) * 86400)
+        self.assertEqual(t.urls.count(self.page), 4)
+
+    def test_retry_rechecks_host_stop_installed_during_backoff(self):
+        clock = FakeClock()
+        sleep = FakeSleeper(clock)
+        other = "https://a.example/other"
+        interleaved = []
+        def pause(seconds):
+            sleep(seconds)
+            if seconds == 2 and not interleaved:
+                interleaved.append(f.fetch(other, "other"))
+        f, t, _, _ = make_fetcher({ROBOTS: (404, {}, b""),
+            self.page: (500, {}, b"oops"), other: (429, {"Retry-After": "120"}, b"")},
+            clock=clock, sleep=pause,
+            config=CrawlerConfig(contact="ops@example.org", per_host_min_interval_s=1))
+        out = f.fetch(self.page, "src")
+        self.assertEqual(out.kind, "rate_limited")
+        self.assertEqual(out.blocked_until, interleaved[0].blocked_until)
+        self.assertLess(clock(), out.blocked_until)
+        self.assertEqual(t.urls.count(self.page), 1)
+
+    def test_transport_failure_cleanup_does_not_release_interleaved_stream(self):
+        clock = FakeClock()
+        sleep = FakeSleeper(clock)
+        streams = []
+        other = "https://a.example/other"
+        def pause(seconds):
+            sleep(seconds)
+            if seconds == 2 and not streams:
+                streams.append(f.fetch(other, "other"))
+        f, t, _, _ = make_fetcher({ROBOTS: (404, {}, b""),
+            self.page: TransportError("request failed: TimeoutError"),
+            other: lambda url: Response(200, {}, iter([b"x" * BODY_PREFIX_BYTES, b"tail"]))},
+            clock=clock, sleep=pause,
+            config=CrawlerConfig(contact="ops@example.org", per_host_min_interval_s=1))
+        out = f.fetch(self.page, "src")
+        self.assertEqual(out.kind, "blocked")
+        self.assertEqual(streams[0].kind, "success")
+        self.assertEqual(t.urls.count(self.page), 1)
+        self.assertEqual(f.fetch(other, "src").kind, "blocked")
+        streams[0].close()
+        f.fetch(other, "src").close()
+        self.assertEqual(t.urls.count(other), 2)
+
+    def test_host_stop_rechecked_after_limiter_wait(self):
+        clock = FakeClock()
+        sleep = FakeSleeper(clock)
+        armed = []
+        def pause(seconds):
+            sleep(seconds)
+            if armed:
+                f._host_stop_until["a.example"] = clock() + 120
+        f, t, _, _ = make_fetcher({ROBOTS: (404, {}, b""), self.page: (200, {}, b"ok")},
+                                  clock=clock, sleep=pause)
+        f.fetch(self.page, "src").close()
+        armed.append(True)
+        out = f.fetch(self.page, "src")
+        self.assertEqual(out.kind, "rate_limited")
+        self.assertEqual(t.urls.count(self.page), 1)
+
+    def test_robots_retry_after_prevents_page_and_other_source_requests(self):
+        f, t, clock, _ = make_fetcher({ROBOTS: (503, {"Retry-After": "120"}, b"")})
+        out = f.fetch(self.page, "src")
+        self.assertEqual(out.kind, "rate_limited")
+        self.assertEqual(out.blocked_until, clock() + 120)
+        self.assertEqual(f.fetch(self.page, "other").kind, "rate_limited")
+        self.assertEqual(t.urls, [ROBOTS])
 
 
 class StaticPoliteTest(unittest.TestCase):
@@ -543,21 +720,38 @@ class StaticPoliteTest(unittest.TestCase):
         crawler_dir = Path(__file__).resolve().parent.parent / "crawler"
         files = sorted(crawler_dir.rglob("*.py"))
         self.assertTrue(files)
-        text = "\n".join(p.read_text() for p in files)
         # ProxyHandler is allowed only as the explicit empty handler in transport.py.
-        for m in re.finditer(r"ProxyHandler", text):
-            self.assertEqual(text[max(0, m.start() - 15):m.start()], "urllib.request.",
-                             f"unexpected ProxyHandler at {m.start()}")
-            self.assertEqual(text[m.end():m.end() + 4], "({})",
-                             f"unexpected ProxyHandler at {m.start()}")
-        self.assertNotIn("X-Forwarded", text)
-        self.assertNotIn("user_agents", text.lower())
-        self.assertFalse(re.search(r"random\.choice\s*\([^)]*[Uu]ser[-_]?[Aa]gent", text, re.DOTALL))
         # Mozilla only in useragent.py (the honest filter).
         for p in files:
-            if p.name == "useragent.py":
-                continue
-            self.assertNotIn("Mozilla", p.read_text(), p.name)
+            self.assertIsNone(self._violation(p.relative_to(crawler_dir).as_posix(), p.read_text()), p.name)
+
+    @staticmethod
+    def _violation(path, text):
+        allowed = {
+            "transport.py": (
+                "- environment proxies are ignored (an explicit empty proxy handler); there is no proxy support.",
+                "    opener.add_handler(urllib.request.ProxyHandler({}))",
+                '    """Minimal opener: no env proxies, no redirect handler, no error processor (3xx/4xx/5xx come back as',
+            ),
+            "useragent.py": (
+                "no list of alternatives and no function that rotates, randomises or imitates another client.",
+                '    r"mozilla|chrome|chromium|safari|firefox|gecko|webkit|msie|trident|crios|fxios|\\bopera\\b|\\bedg(e|a|ios)?\\b",',
+            ),
+        }
+        for line in allowed.get(path, ()):
+            text = text.replace(line + "\n", "", 1)
+        return re.search(r"proxy|proxies|vpn|rotat\w*|spoof\w*|x-forwarded|user_agents|mozilla|"
+                         r"random\.choice[\s\S]{0,200}(?:user.?agent|\bua\b)|"
+                         r"(?:user.?agent|\bua\b)[\s\S]{0,200}random\.choice", text, re.I)
+
+    def test_scanner_rejects_forbidden_additions_and_misplaced_exceptions(self):
+        for text in ("VPN", "rotation", "spoof_headers", "proxy_url", "X-Forwarded-For",
+                     "user_agents", "Mozilla", "ua = random.choice(values)",
+                     "urllib.request.ProxyHandler({})"):
+            with self.subTest(text=text):
+                self.assertIsNotNone(self._violation("polite.py", text))
+        self.assertIsNotNone(self._violation("nested/transport.py", "urllib.request.ProxyHandler({})"))
+        self.assertIsNotNone(self._violation("useragent.py", 'ua = "Mozilla"'))
 
 
 if __name__ == "__main__":

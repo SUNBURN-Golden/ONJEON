@@ -16,7 +16,7 @@ Outcomes per host (RFC 9309, plus the project rule "when in doubt, do not fetch"
                  day; the host is never fetched meanwhile
 A parsed robots.txt is cached for ttl_s (default 24h) by origin; deferral is per host name. Time comes from
 the injected clock (epoch seconds). The robots.txt request itself is made through the transport the caller
-supplies, once per origin per TTL (cached in between); it is not a rate-limited request itself.
+supplies, once per origin per TTL (cached in between); PoliteFetcher supplies a budgeted request callback.
 Not a limiter, not thread-safe by itself (an RLock serialises check()).
 """
 import threading
@@ -72,7 +72,7 @@ class RobotsCache:
     def from_config(cls, transport: Transport, config, clock: Callable[[], float] = time.time) -> "RobotsCache":
         return cls(transport, build_user_agent(config), ttl_s=config.robots_cache_ttl_s, clock=clock)
 
-    def check(self, url: str, headers: Optional[Mapping[str, str]] = None) -> RobotsDecision:
+    def check(self, url: str, headers: Optional[Mapping[str, str]] = None, *, request=None) -> RobotsDecision:
         """May we fetch `url`? Fetches robots.txt for its origin when not cached (or older than the TTL).
 
         `headers` are forwarded to the robots.txt request so every sub-request of one fetch carries
@@ -93,7 +93,7 @@ class RobotsCache:
                 return hit
             entry = self._entries.get(origin)
             if entry is None or now - entry.fetched_at >= self._ttl:
-                entry = self._fetch(origin, now, headers)
+                entry = self._fetch(origin, now, headers, request)
                 if entry is None:
                     return self._deferral(origin[1], now)
             if entry.parser is None:
@@ -121,7 +121,7 @@ class RobotsCache:
         for key in [k for k in self._entries if k[1] == host]:
             del self._entries[key]
 
-    def _fetch(self, origin, now: float, headers: Optional[Mapping[str, str]] = None) -> Optional[_Entry]:
+    def _fetch(self, origin, now: float, headers: Optional[Mapping[str, str]] = None, request=None) -> Optional[_Entry]:
         scheme, host, port = origin
         authority = f"[{host}]" if ":" in host else host
         default_port = 443 if scheme == "https" else 80
@@ -130,7 +130,7 @@ class RobotsCache:
         req_headers.update(ROBOTS_ACCEPT)
         try:
             for _ in range(MAX_REDIRECTS + 1):
-                with self._transport.request(url, req_headers, self._timeout, ROBOTS_MAX_BYTES) as resp:
+                with (request or self._transport.request)(url, req_headers, self._timeout, ROBOTS_MAX_BYTES) as resp:
                     status = resp.status
                     if 300 <= status < 400:
                         target = urljoin(url, resp.headers.get("location", ""))

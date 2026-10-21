@@ -15,10 +15,9 @@ Rules:
   reaches the body consumer, so a truncated body is never reported as a successful fetch;
 - a refusal before the wire (NetworkDisabledError, RefusedRequestError, or a caller-side error
   like a disallowed header) is not a billable request and never leaks the host reservation;
-- the robots check may fetch robots.txt through the injected transport before the first attempt;
-  the limiter reservation covers each page attempt up to response headers (concurrency-1 is at
-  request-start granularity; a still-streaming body does not hold the host), and hosts of
-  different sources share one limiter budget;
+- robots wire requests share the page limiter and source budget through an injected request
+  callback; reservations cover the full response lifetime, including unread streaming bodies;
+  hosts of different sources share one limiter budget;
 - per-source daily request cap enforced (cap reached => Outcome kind deferred_cap);
 - headers are fixed when fetch() is called; nothing here can change them per retry.
 
@@ -210,28 +209,32 @@ class PoliteFetcher:
         # One header set for the whole fetch: the robots check and every attempt see the same
         # headers, so a block can never be worked around by varying them between sub-requests.
         request_headers = dict(headers) if headers else {}
-        robots = self._robots.check(url, request_headers)
+        try:
+            robots = self._robots.check(
+                url, request_headers,
+                request=lambda *args: self._robots_request(source, *args),
+            )
+        except _Deferred as exc:
+            exc.outcome.url = url
+            return exc.outcome
         if not robots.allowed:
             return self._robots_outcome(url, robots)
 
         for attempt in range(1, self._config.max_attempts + 1):
             try:
-                self._limiter.acquire(host, robots.crawl_delay)
-            except (HostAtCapError, HostBusyError):
-                return Outcome("blocked", "rate_limited", url)
-
-            until = self._bump_daily(source)
-            if until is not None:
-                self._limiter.release(host)
-                return Outcome("deferred_cap", "rate_limited", url, blocked_until=until)
+                self._reserve(url, source, robots.crawl_delay)
+            except _Deferred as exc:
+                return exc.outcome
 
             response = None
+            released = False
             try:
                 response = self._transport.request(url, request_headers, timeout, max_bytes)
             except TransportError as exc:
                 # Free the host at failure time so the backoff below counts toward the
                 # minimum interval; the repeat release in the finally is a no-op.
                 self._limiter.release(host)
+                released = True
                 if isinstance(exc, (NetworkDisabledError, RefusedRequestError)):
                     self._unbump_daily(source)  # refused before the wire: not a billable request
                 if isinstance(exc, NetworkDisabledError):
@@ -248,7 +251,7 @@ class PoliteFetcher:
                 self._unbump_daily(source)
                 raise
             finally:
-                if response is None:
+                if response is None and not released:
                     self._limiter.release(host)
 
             outcome = None
@@ -256,8 +259,10 @@ class PoliteFetcher:
                 outcome = self._handle_response(url, host, response, attempt)
             finally:
                 if outcome is None or outcome.kind != "success":
-                    response.close()
-                self._limiter.release(host)
+                    try:
+                        response.close()
+                    finally:
+                        self._limiter.release(host)
 
             if outcome.kind == "retry":
                 if attempt == self._config.max_attempts:
@@ -283,6 +288,16 @@ class PoliteFetcher:
             reason = _block_reason(prefix, self._geo_markers)
             return Outcome("blocked", reason, url, status=status, attempts=attempt)
 
+        head, body_error = b"", None
+        if 200 <= status < 300 or _is_textual(response.headers.get("content-type")):
+            head, body_error = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
+            if _is_textual(response.headers.get("content-type")):
+                text = head[:BODY_PREFIX_BYTES].decode("utf-8", errors="ignore").lower()
+                if _has_marker(text, self._geo_markers):
+                    return Outcome("blocked", "geo_blocked", url, status=status, attempts=attempt)
+                if _has_marker(text, self._block_markers):
+                    return Outcome("blocked", "origin_denied", url, status=status, attempts=attempt)
+
         if status == 429 or (status == 503 and "retry-after" in response.headers):
             return self._rate_limit_outcome(url, host, response, attempt)
 
@@ -296,7 +311,6 @@ class PoliteFetcher:
             return Outcome("blocked", "origin_denied", url, status=status, attempts=attempt)
 
         if 200 <= status < 300:
-            head, body_error = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
             if body_error is not None:
                 # A stream that dies inside the prefix window is the same class of failure
                 # request() would have raised: classify it (and retry if transient) the same
@@ -309,15 +323,11 @@ class PoliteFetcher:
                 return Outcome("blocked", "empty_reply", url, status=status, attempts=attempt)
             if _is_textual(response.headers.get("content-type")):
                 text = head[:BODY_PREFIX_BYTES].decode("utf-8", errors="ignore").lower()
-                if _has_marker(text, self._geo_markers):
-                    return Outcome("blocked", "geo_blocked", url, status=status, attempts=attempt)
-                if _has_marker(text, self._block_markers):
-                    return Outcome("blocked", "origin_denied", url, status=status, attempts=attempt)
                 if _has_marker(text, self._service_markers):
                     return Outcome("blocked", "service_outage", url, status=status, attempts=attempt)
                 if _has_marker(text, self._js_markers):
                     return Outcome("blocked", "js_shell", url, status=status, attempts=attempt)
-            wrapped = _BodyChain(head, response.body_iter, response.close)
+            wrapped = _BodyChain(head, response.body_iter, lambda: self._close_response(host, response))
             return Outcome(
                 "success",
                 "reachable",
@@ -337,7 +347,7 @@ class PoliteFetcher:
         if last_day != day_start:
             count = 0
         retry_after = _parse_retry_after(response.headers.get("retry-after"), now)
-        if count >= 1:
+        if response.status == 429 and count >= 1:
             # A second 429 the same UTC day: stop the host for the rest of the day — and never
             # less than the Retry-After the server just sent, even when it lands past midnight.
             stop = _day_end(now)
@@ -345,8 +355,11 @@ class PoliteFetcher:
                 stop = retry_after
         else:
             stop = retry_after if retry_after is not None else now
-        self._host_429_day[host] = (count + 1, day_start)
-        self._host_stop_until[host] = stop
+        with self._lock:
+            if response.status == 429:
+                self._host_429_day[host] = (count + 1, day_start)
+            stop = max(stop, self._host_stop_until.get(host, 0.0))
+            self._host_stop_until[host] = stop
         return Outcome(
             "rate_limited",
             "rate_limited",
@@ -361,6 +374,47 @@ class PoliteFetcher:
         reason = _ROBOTS_REASONS.get(decision.reason, "service_outage")
         kind = "rate_limited" if reason == "rate_limited" else "blocked"
         return Outcome(kind, reason, url, blocked_until=decision.deferred_until)
+
+    def _reserve(self, url: str, source: str, crawl_delay=None) -> None:
+        host = _host(url)
+        try:
+            self._limiter.acquire(host, crawl_delay)
+        except (HostAtCapError, HostBusyError):
+            raise _Deferred(Outcome("blocked", "rate_limited", url)) from None
+        with self._lock:
+            stop = self._host_stop_until.get(host, 0.0)
+            if self._clock() < stop:
+                self._limiter.release(host)
+                raise _Deferred(Outcome("rate_limited", "rate_limited", url, blocked_until=stop))
+        until = self._bump_daily(source)
+        if until is not None:
+            self._limiter.release(host)
+            raise _Deferred(Outcome("deferred_cap", "rate_limited", url, blocked_until=until))
+
+    def _close_response(self, host: str, response: Response) -> None:
+        try:
+            response.close()
+        finally:
+            self._limiter.release(host)
+
+    def _robots_request(self, source, url, headers, timeout, max_bytes):
+        host = _host(url)
+        self._reserve(url, source)
+        try:
+            response = self._transport.request(url, headers, timeout, max_bytes)
+        except Exception as exc:
+            self._limiter.release(host)
+            if not isinstance(exc, TransportError) or isinstance(exc, (NetworkDisabledError, RefusedRequestError)):
+                self._unbump_daily(source)
+            raise
+        if response.status == 429 or (response.status == 503 and "retry-after" in response.headers):
+            try:
+                outcome = self._rate_limit_outcome(url, host, response, 1)
+            finally:
+                self._close_response(host, response)
+            raise _Deferred(outcome)
+        return Response(response.status, response.headers, response.body_iter,
+                        lambda: self._close_response(host, response))
 
     def _cap_blocked_until(self, source: str) -> Optional[float]:
         """Day-end epoch if the source is over its daily request cap, else None. Does not count."""
@@ -393,6 +447,11 @@ class PoliteFetcher:
                 self._daily[source] = (day_start, count - 1)
 
 
+class _Deferred(Exception):
+    def __init__(self, outcome: Outcome):
+        self.outcome = outcome
+
+
 class _BodyChain:
     """Yields the already-consumed head chunk(s), then the rest of the stream, then closes."""
 
@@ -415,7 +474,7 @@ class _BodyChain:
             return chunk
         try:
             return next(self._rest)
-        except StopIteration:
+        except BaseException:
             self.close()
             raise
 

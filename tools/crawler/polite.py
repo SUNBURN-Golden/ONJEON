@@ -16,7 +16,8 @@ Rules:
 - a refusal before the wire (NetworkDisabledError, RefusedRequestError, or a caller-side error
   like a disallowed header) is not a billable request and never leaks the host reservation;
 - robots wire requests share the page limiter and source budget through an injected request
-  callback; reservations cover the full response lifetime, including unread streaming bodies;
+  callback and use the same bounded block-marker inspection; reservations cover the full
+  response lifetime, including unread streaming bodies;
   hosts of different sources share one limiter budget;
 - per-source daily request cap enforced (cap reached => Outcome kind deferred_cap);
 - headers are fixed when fetch() is called; nothing here can change them per retry.
@@ -288,18 +289,21 @@ class PoliteFetcher:
             reason = _block_reason(prefix, self._geo_markers)
             return Outcome("blocked", reason, url, status=status, attempts=attempt)
 
+        # Record host-wide restrictions even when a body marker wins classification below.
+        rate_limit = None
+        if status == 429 or (status == 503 and "retry-after" in response.headers):
+            rate_limit = self._rate_limit_outcome(url, host, response, attempt)
+
         head, body_error = b"", None
         if 200 <= status < 300 or _is_textual(response.headers.get("content-type")):
             head, body_error = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
             if _is_textual(response.headers.get("content-type")):
-                text = head[:BODY_PREFIX_BYTES].decode("utf-8", errors="ignore").lower()
-                if _has_marker(text, self._geo_markers):
-                    return Outcome("blocked", "geo_blocked", url, status=status, attempts=attempt)
-                if _has_marker(text, self._block_markers):
-                    return Outcome("blocked", "origin_denied", url, status=status, attempts=attempt)
+                blocked = self._marker_block(url, response, head, attempt, rate_limit)
+                if blocked is not None:
+                    return blocked
 
-        if status == 429 or (status == 503 and "retry-after" in response.headers):
-            return self._rate_limit_outcome(url, host, response, attempt)
+        if rate_limit is not None:
+            return rate_limit
 
         if status in RETRYABLE_STATUS:
             return Outcome("retry", "timeout", url, status=status, attempts=attempt)
@@ -339,6 +343,19 @@ class PoliteFetcher:
             )
 
         return Outcome("blocked", "empty_reply", url, status=status, attempts=attempt)
+
+    def _marker_block(self, url: str, response: Response, prefix: bytes, attempt: int,
+                      rate_limit: Optional[Outcome] = None) -> Optional[Outcome]:
+        text = prefix[:BODY_PREFIX_BYTES].decode("utf-8", errors="ignore").lower()
+        if _has_marker(text, self._geo_markers):
+            reason = "geo_blocked"
+        elif _has_marker(text, self._block_markers):
+            reason = "origin_denied"
+        else:
+            return None
+        return Outcome("blocked", reason, url, status=response.status, attempts=attempt,
+                       blocked_until=rate_limit.blocked_until if rate_limit is not None else None,
+                       retry_after=rate_limit.retry_after if rate_limit is not None else None)
 
     def _rate_limit_outcome(self, url: str, host: str, response: Response, attempt: int) -> Outcome:
         now = self._clock()
@@ -407,13 +424,31 @@ class PoliteFetcher:
             if not isinstance(exc, TransportError) or isinstance(exc, (NetworkDisabledError, RefusedRequestError)):
                 self._unbump_daily(source)
             raise
-        if response.status == 429 or (response.status == 503 and "retry-after" in response.headers):
-            try:
-                outcome = self._rate_limit_outcome(url, host, response, 1)
-            finally:
-                self._close_response(host, response)
-            raise _Deferred(outcome)
-        return Response(response.status, response.headers, response.body_iter,
+        head, body_error = b"", None
+        try:
+            rate_limit = None
+            if response.status == 429 or (response.status == 503 and "retry-after" in response.headers):
+                rate_limit = self._rate_limit_outcome(url, host, response, 1)
+            if _is_textual(response.headers.get("content-type")):
+                head, body_error = _read_prefix(response.body_iter, BODY_PREFIX_BYTES)
+                blocked = self._marker_block(url, response, head, 1, rate_limit)
+                if blocked is not None:
+                    raise _Deferred(blocked)
+            if rate_limit is not None:
+                raise _Deferred(rate_limit)
+        except BaseException:
+            self._close_response(host, response)
+            raise
+
+        def body():
+            # RobotsCache must see the complete stream, including any prefix read failure.
+            if head:
+                yield head
+            if body_error is not None:
+                raise body_error
+            yield from response.body_iter
+
+        return Response(response.status, response.headers, body(),
                         lambda: self._close_response(host, response))
 
     def _cap_blocked_until(self, source: str) -> Optional[float]:

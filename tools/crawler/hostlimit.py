@@ -8,6 +8,7 @@ Enforces:
 
 Time and sleep are injected so tests are deterministic and instant.
 Hosts of different sources share the same limiter budget.
+The last explicit Crawl-delay is retained per host, including for robots refresh requests.
 """
 import threading
 import time
@@ -48,14 +49,17 @@ class HostRateLimiter:
         self._lock = threading.Lock()
         self._active: set[str] = set()
         self._last: dict[str, float] = {}
+        self._robots_delays: dict[str, float] = {}
 
     def acquire(self, host: str, robots_delay: Optional[float] = None) -> None:
         host = host.lower().strip()
         if not host:
             raise HostRateLimiterError("empty host")
-        interval = max(self._min_interval, float(robots_delay) if robots_delay is not None else 0.0)
         while True:
             with self._lock:
+                if robots_delay is not None:
+                    self._robots_delays[host] = float(robots_delay)
+                interval = max(self._min_interval, self._robots_delays.get(host, 0.0))
                 now = self._clock()
                 if host in self._active:
                     raise HostBusyError(host)

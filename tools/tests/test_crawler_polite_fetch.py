@@ -72,14 +72,15 @@ class FakeTransport(Transport):
         return [r[0] for r in self.requests]
 
 
-def make_fetcher(routes, config=None, clock=None, sleep=None, rng=lambda: 0.0):
+def make_fetcher(routes, config=None, clock=None, sleep=None, rng=lambda: 0.0, **fetcher_options):
     cfg = config or CrawlerConfig(contact="ops@example.org")
     clock = clock or FakeClock()
     sleep = sleep or FakeSleeper(clock)
     transport = FakeTransport(routes)
-    robots = RobotsCache(transport, UA, clock=clock, timeout_s=20.0)
+    robots = RobotsCache(transport, UA, ttl_s=cfg.robots_cache_ttl_s, clock=clock, timeout_s=20.0)
     limiter = HostRateLimiter(cfg, clock=clock, sleep=sleep)
-    fetcher = PoliteFetcher(transport, robots, limiter, cfg, clock=clock, sleep=sleep, rng=rng)
+    fetcher = PoliteFetcher(transport, robots, limiter, cfg, clock=clock, sleep=sleep, rng=rng,
+                           **fetcher_options)
     return fetcher, transport, clock, sleep
 
 
@@ -113,6 +114,17 @@ class HostRateLimiterTest(unittest.TestCase):
         lim.release("a.example")
         lim.acquire("a.example", robots_delay=2.0)
         self.assertEqual(sleep.sleeps, [5.0])
+
+    def test_known_robots_delay_applies_when_next_caller_omits_it(self):
+        clock = FakeClock(1000.0)
+        sleep = FakeSleeper(clock)
+        lim = HostRateLimiter(CrawlerConfig(contact="ops@example.org"), clock=clock, sleep=sleep)
+        lim.acquire("a.example", robots_delay=9)
+        lim.release("a.example")
+        lim.acquire("A.EXAMPLE")
+        lim.release("a.example")
+        lim.acquire("b.example")
+        self.assertEqual(sleep.sleeps, [9])
 
     def test_concurrency_one_per_host(self):
         cfg = CrawlerConfig(contact="ops@example.org")
@@ -553,6 +565,120 @@ class PoliteFetcherCapTest(unittest.TestCase):
 class ReviewRegressionTest(unittest.TestCase):
     page = "https://a.example/page"
 
+    def test_marker_blocks_preserve_host_cooldown_and_second_429_day_stop(self):
+        for status in (429, 503):
+            for date_header in (False, True):
+                for content_type in ({}, {"Content-Type": "text/html"}):
+                    with self.subTest(status=status, date_header=date_header, content_type=content_type):
+                        clock = FakeClock()
+                        def route(url):
+                            retry_after = (email.utils.formatdate(clock() + 120, usegmt=True)
+                                           if date_header else "120")
+                            return (status, dict(content_type, **{"Retry-After": retry_after}),
+                                    b"<html>Too many requests: captcha</html>")
+                        f, t, _, _ = make_fetcher({ROBOTS: (404, {}, b""), self.page: route}, clock=clock)
+                        first = f.fetch(self.page, "src")
+                        self.assertEqual((first.kind, first.reason, first.attempts),
+                                         ("blocked", "origin_denied", 1))
+                        self.assertEqual(first.blocked_until, clock() + 120)
+                        self.assertEqual(first.retry_after, first.blocked_until)
+                        clock.advance(119)
+                        deferred = f.fetch(self.page, "other")
+                        self.assertEqual(deferred.kind, "rate_limited")
+                        self.assertEqual(deferred.blocked_until, first.blocked_until)
+                        self.assertEqual(t.urls, [ROBOTS, self.page])
+                        clock.advance(1)
+                        second = f.fetch(self.page, "other")
+                        expected = ((int(clock() // 86400) + 1) * 86400
+                                    if status == 429 else clock() + 120)
+                        self.assertEqual(second.blocked_until, expected)
+                        clock.advance(121)
+                        if status == 429:
+                            self.assertEqual(f.fetch(self.page, "third").blocked_until, expected)
+                            self.assertEqual(t.urls, [ROBOTS, self.page, self.page])
+                        else:
+                            self.assertEqual(f.fetch(self.page, "third").kind, "blocked")
+                            self.assertEqual(t.urls, [ROBOTS, self.page, self.page, self.page])
+
+    def test_robots_block_markers_stop_before_page_and_release_reservation(self):
+        headers = {"Accept": "text/plain", "If-None-Match": '"same"'}
+        for status in (200, 404):
+            for marker, reason in ((b"captcha: login required", "origin_denied"),
+                                   (b"bot detected", "origin_denied"),
+                                   (b"not available in your country", "geo_blocked"),
+                                   (b"custom denial", "origin_denied")):
+                with self.subTest(status=status, marker=marker):
+                    closed = []
+                    f, t, _, _ = make_fetcher({
+                        ROBOTS: lambda url: Response(status, {"Content-Type": "text/html"},
+                            iter([b"<html>" + marker + b"</html>"]), lambda: closed.append(True)),
+                        "https://b.example/robots.txt": (404, {}, b""),
+                        "https://b.example/page": (200, {}, b"ok"),
+                    }, config=CrawlerConfig(contact="ops@example.org", max_global_hosts=1),
+                        block_markers=("captcha", "bot detected", "custom denial"))
+                    out = f.fetch(self.page, "src", headers=headers)
+                    self.assertEqual((out.kind, out.reason, out.attempts, out.status, out.url),
+                                     ("blocked", reason, 1, status, self.page))
+                    self.assertEqual(t.urls, [ROBOTS])
+                    self.assertEqual(t.requests[0][1], headers)
+                    self.assertEqual(closed, [True])
+                    next_out = f.fetch("https://b.example/page", "other")
+                    self.assertEqual(next_out.kind, "success")
+                    next_out.close()
+
+    def test_robots_markers_preserve_rate_limit_state_across_sources(self):
+        for status in (429, 503):
+            with self.subTest(status=status):
+                f, t, clock, _ = make_fetcher({
+                    ROBOTS: (status, {"Retry-After": "120"}, b"<html>Too many requests</html>"),
+                })
+                first = f.fetch(self.page, "src")
+                self.assertEqual((first.kind, first.reason), ("blocked", "origin_denied"))
+                self.assertEqual(first.blocked_until, clock() + 120)
+                self.assertEqual(f.fetch(self.page, "other").kind, "rate_limited")
+                self.assertEqual(t.urls, [ROBOTS])
+                clock.advance(120)
+                second = f.fetch(self.page, "other")
+                expected = ((int(clock() // 86400) + 1) * 86400
+                            if status == 429 else clock() + 120)
+                self.assertEqual(second.blocked_until, expected)
+                self.assertEqual(t.urls, [ROBOTS, ROBOTS])
+
+    def test_robots_inspection_replays_body_and_preserves_stream_errors(self):
+        prefix = b"#" + b"x" * (BODY_PREFIX_BYTES - 2) + b"\n"
+        for fail in (False, True):
+            with self.subTest(fail=fail):
+                def body():
+                    yield prefix[:100] if fail else prefix
+                    if fail:
+                        raise TransportError("read failed: TimeoutError")
+                    yield b"# captcha beyond inspection prefix\nUser-agent: *\nDisallow: /page\n"
+                f, t, _, _ = make_fetcher({ROBOTS: lambda url: Response(200, {}, body())})
+                out = f.fetch(self.page, "src")
+                self.assertEqual(out.kind, "blocked")
+                self.assertEqual(out.reason, "connection_reset" if fail else "origin_denied")
+                self.assertEqual(t.urls, [ROBOTS])
+
+    def test_robots_refresh_keeps_known_delay_after_page_near_expiry(self):
+        clock = FakeClock()
+        start = clock()
+        times = []
+        def route(url):
+            times.append((url, clock()))
+            return ((200, {}, b"User-agent: *\nDisallow:\nCrawl-delay: 9\n")
+                    if url == ROBOTS else (200, {}, b"ok"))
+        f, _, _, _ = make_fetcher({ROBOTS: route, self.page: route}, clock=clock,
+            config=CrawlerConfig(contact="ops@example.org", robots_cache_ttl_s=60,
+                                 per_host_min_interval_s=5))
+        f.fetch(self.page, "src").close()
+        clock.now = start + 59
+        f.fetch(self.page, "other").close()
+        clock.advance(1)
+        f.fetch(self.page, "third").close()
+        self.assertEqual(times, [(ROBOTS, start), (self.page, start + 9),
+                                 (self.page, start + 59), (ROBOTS, start + 68),
+                                 (self.page, start + 77)])
+
     def test_robots_spends_the_only_daily_request(self):
         f, t, _, _ = make_fetcher({ROBOTS: (200, {}, b"User-agent: *\nDisallow:\n")},
             config=CrawlerConfig(contact="ops@example.org", daily_request_cap_default=1))
@@ -627,12 +753,17 @@ class ReviewRegressionTest(unittest.TestCase):
                             yield marker
                             if fail:
                                 raise TransportError("read failed: TimeoutError")
-                        f, t, _, _ = make_fetcher({ROBOTS: (404, {}, b""),
+                        f, t, clock, _ = make_fetcher({ROBOTS: (404, {}, b""),
                             self.page: lambda url: Response(status, {"Content-Type": "text/html",
                                                                     "Retry-After": "120"}, body())})
                         out = f.fetch(self.page, "src", headers=headers)
                         self.assertEqual((out.kind, out.reason, out.attempts), ("blocked", reason, 1))
                         self.assertEqual([h for u, h, _, _ in t.requests if u == self.page], [headers])
+                        if status in (429, 503):
+                            self.assertEqual(out.blocked_until, clock() + 120)
+                            clock.advance(119)
+                            self.assertEqual(f.fetch(self.page, "other").kind, "rate_limited")
+                            self.assertEqual(t.urls, [ROBOTS, self.page])
 
     def test_503_does_not_count_as_429(self):
         responses = iter([(503, {"Retry-After": "0"}, b""),

@@ -1,0 +1,2217 @@
+{
+  "acquisition_tasks": [
+    {
+      "id": "task:L1_collect",
+      "kind": "공개 수집",
+      "next": "다른 시점에 robots 재확인",
+      "reason": "robots.txt 확인 불가(HTTP 시간 초과 2회, HTTPS 연결 재설정 2회)",
+      "state": "보류",
+      "target": "롯데손보 상품공시실"
+    },
+    {
+      "id": "task:L1_inquiry",
+      "kind": "문의",
+      "next": "D-14 결정 후",
+      "state": "초안 작성, 미발송",
+      "target": "롯데손보 상품공시 담당(창구 미확인)"
+    },
+    {
+      "id": "task:G5_inquiry",
+      "kind": "문의",
+      "next": "공개 원문 대조(세 판 약관) 먼저",
+      "state": "초안 작성, 미발송",
+      "target": "하나손보 상품공시 담당(창구 미확인)"
+    },
+    {
+      "id": "task:H_old_collect",
+      "kind": "공개 수집",
+      "next": "기존 조사 범위에서 수집 가능",
+      "state": "미착수",
+      "target": "하나손보 /download/45c3fe396a"
+    }
+  ],
+  "assertions": [
+    {
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "criticality": "C0",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      },
+      "evidence": [
+        {
+          "ref": "seg:hana_r2_1",
+          "role": "observation"
+        }
+      ],
+      "id": "a:realizes_hana_r2_1",
+      "object": "ted:hana_r2_1@2607",
+      "origin": "fixture",
+      "predicate": "realizes",
+      "review_status": "accepted",
+      "subject": "seg:hana_r2_1",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "criticality": "C0",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      },
+      "evidence": [
+        {
+          "ref": "seg:hana_annex1",
+          "role": "observation"
+        }
+      ],
+      "id": "a:realizes_hana_annex1",
+      "object": "ted:hana_r2_1@2607",
+      "origin": "fixture",
+      "predicate": "realizes",
+      "review_status": "accepted",
+      "subject": "seg:hana_annex1",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "criticality": "C0",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      },
+      "evidence": [
+        {
+          "ref": "seg:hana_annex12",
+          "role": "observation"
+        }
+      ],
+      "id": "a:realizes_hana_annex12",
+      "object": "ted:hana_r2_1@2607",
+      "origin": "fixture",
+      "predicate": "realizes",
+      "review_status": "accepted",
+      "subject": "seg:hana_annex12",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "criticality": "C0",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      },
+      "evidence": [
+        {
+          "ref": "seg:hi_r2_5",
+          "role": "observation"
+        }
+      ],
+      "id": "a:realizes_hi_r2_5",
+      "object": "ted:hi_r2_5@2608",
+      "origin": "fixture",
+      "predicate": "realizes",
+      "review_status": "accepted",
+      "subject": "seg:hi_r2_5",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "criticality": "C0",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      },
+      "evidence": [
+        {
+          "ref": "seg:hi_annex2",
+          "role": "observation"
+        }
+      ],
+      "id": "a:realizes_hi_annex2",
+      "object": "ted:hi_r2_5@2608",
+      "origin": "fixture",
+      "predicate": "realizes",
+      "review_status": "accepted",
+      "subject": "seg:hi_annex2",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(origin=fixture). 구획 경계와 판 동일성을 검수하지 않았다. 서비스 데이터가 아니다",
+      "criticality": "C0",
+      "decision": {
+        "by": "fixture_assumption",
+        "note": "지문은 근거일 뿐 승인 기준이 아니다. 서비스에서는 ReviewDecision만 승인할 수 있다"
+      },
+      "evidence": [
+        {
+          "ref": "seg:hi_annex11_12",
+          "role": "observation"
+        }
+      ],
+      "id": "a:realizes_hi_annex11_12",
+      "object": "ted:hi_r2_5@2608",
+      "origin": "fixture",
+      "predicate": "realizes",
+      "review_status": "accepted",
+      "subject": "seg:hi_annex11_12",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(실제 AI 검수 아님)",
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_listing#2601_3d_v20260701",
+          "role": "observation"
+        }
+      ],
+      "id": "a:hana_doc_link",
+      "note": "회사 목록의 파일 ID와 받은 파일의 대응. AI 검수 전(D-02)",
+      "object": "ted:hana_r2_1@2607",
+      "origin": "fixture",
+      "predicate": "uses_edition",
+      "review_status": "accepted",
+      "subject": "sc:hana_2601_3d_v20260701",
+      "time": {
+        "observed_at": "2026-10-10T03:03:35Z",
+        "recorded_at": "2026-10-12",
+        "valid_from": "2026-07-01",
+        "valid_to": null
+      },
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_listing#2601_3d_v20260101",
+          "role": "observation"
+        }
+      ],
+      "hold_reason": "reference_unresolved",
+      "id": "a:hana_old_doc_link",
+      "note": "약관 파일 45c3fe396a 미수집",
+      "object": null,
+      "predicate": "uses_edition",
+      "review_status": "hold",
+      "subject": "sc:hana_2601_3d_v20260101",
+      "time": {
+        "recorded_at": "2026-10-12",
+        "valid_from": "2026-01-01",
+        "valid_to": "2026-03-31"
+      },
+      "value_state": "not_found"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(실제 AI 검수 아님)",
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_1",
+          "role": "basis"
+        },
+        {
+          "ref": "hana_2601_3d#c_2_1_art4_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cov_def",
+      "object": "cat:hana_cancer_x_breast_genital",
+      "origin": "fixture",
+      "predicate": "uses_definition",
+      "review_status": "accepted",
+      "scope": {
+        "document": "doc:hana_2601_3d_terms_v20260701"
+      },
+      "subject": "cov:hana_2_1",
+      "time": {
+        "recorded_at": "2026-10-12",
+        "valid_from": "2026-07-01",
+        "valid_to": null
+      },
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art4_1",
+          "role": "basis"
+        },
+        {
+          "ref": "hana_2601_3d#annex1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cat_inc",
+      "object": "codes:kcd9_malignant_21",
+      "predicate": "includes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hana_cancer_x_breast_genital",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art4_2",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cat_exc_c44",
+      "object": "codes:c44",
+      "predicate": "excludes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hana_cancer_x_breast_genital",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art4_3",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cat_exc_c73",
+      "object": "codes:c73",
+      "predicate": "excludes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hana_cancer_x_breast_genital",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art4_4",
+          "role": "basis"
+        },
+        {
+          "ref": "hana_2601_3d#annex12",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cat_exc_bg",
+      "object": "codes:hana_annex12",
+      "predicate": "excludes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hana_cancer_x_breast_genital",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art4_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cat_exc_premalignant",
+      "note": "코드로 표현되지 않음. 입력 단계가 판정",
+      "object": "전암 상태",
+      "predicate": "excludes_state",
+      "review_status": "accepted",
+      "subject": "cat:hana_cancer_x_breast_genital",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_2",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cond_waiting",
+      "object": "cond:hana_waiting",
+      "predicate": "has_condition",
+      "review_status": "accepted",
+      "subject": "cov:hana_2_1",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cond_reduction",
+      "object": "cond:hana_reduction",
+      "predicate": "has_condition",
+      "review_status": "accepted",
+      "subject": "cov:hana_2_1",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cond_count",
+      "object": "cond:hana_count",
+      "predicate": "has_condition",
+      "review_status": "accepted",
+      "subject": "cov:hana_2_1",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_rule",
+      "object": "rule:hana-2601-3d-cancer-dx",
+      "predicate": "implemented_by",
+      "review_status": "accepted",
+      "rule_path": "규칙/hana-2601-3d-cancer-dx.json",
+      "subject": "cov:hana_2_1",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C1",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_concept",
+      "object": "concept:cancer_dx_lump_sum",
+      "predicate": "maps_to_concept",
+      "review_status": "accepted",
+      "subject": "cov:hana_2_1",
+      "value_state": "observed"
+    },
+    {
+      "_review_note": "사례 검증용 가정 승인(실제 AI 검수 아님)",
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi_listing#hi2607_20260801",
+          "role": "observation"
+        }
+      ],
+      "id": "a:hi_doc_link",
+      "note": "같은 이름·개시일 두 행 중 나중 행의 약관만 받음. 앞 행이 같은 파일인지 미확인",
+      "object": "ted:hi_r2_5@2608",
+      "origin": "fixture",
+      "predicate": "uses_edition",
+      "review_status": "accepted",
+      "subject": "sc:hi2607_general",
+      "time": {
+        "observed_at": "2026-10-10",
+        "recorded_at": "2026-10-12",
+        "valid_from": "2026-08-01",
+        "valid_to": null
+      },
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art1",
+          "role": "basis"
+        },
+        {
+          "ref": "hi2607#c_2_5_art2_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_cov_def",
+      "object": "cat:hi_cancer_x_similar",
+      "predicate": "uses_definition",
+      "review_status": "accepted",
+      "subject": "cov:hi_2_5",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art2_1",
+          "role": "basis"
+        },
+        {
+          "ref": "hi2607#annex2",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_cat_inc",
+      "object": "codes:kcd9_malignant_21",
+      "predicate": "includes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hi_cancer_x_similar",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art2_2",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_cat_exc_similar",
+      "object": "cat:hi_similar",
+      "predicate": "excludes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hi_cancer_x_similar",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art2_2",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_sim_c44",
+      "object": "codes:c44",
+      "predicate": "includes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hi_similar",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art2_2",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_sim_c73",
+      "object": "codes:c73",
+      "predicate": "includes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hi_similar",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art2_2",
+          "role": "basis"
+        },
+        {
+          "ref": "hi2607#annex11",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_sim_insitu",
+      "object": "codes:hi_annex11",
+      "predicate": "includes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hi_similar",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art2_2",
+          "role": "basis"
+        },
+        {
+          "ref": "hi2607#annex12",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_sim_border",
+      "object": "codes:hi_annex12",
+      "predicate": "includes_codes",
+      "review_status": "accepted",
+      "subject": "cat:hi_similar",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art2_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_cat_exc_premalignant",
+      "object": "전암 상태",
+      "predicate": "excludes_state",
+      "review_status": "accepted",
+      "subject": "cat:hi_cancer_x_similar",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art3_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_cond_waiting",
+      "object": "cond:hi_waiting",
+      "predicate": "has_condition",
+      "review_status": "accepted",
+      "subject": "cov:hi_2_5",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art1",
+          "role": "basis"
+        },
+        {
+          "ref": "hi2607#summary_table_p117",
+          "role": "cross_check"
+        }
+      ],
+      "id": "a:hi_cond_no_reduction",
+      "note": "특약 본문 지급금액에 감액 문구 없음(basis). 지급제한표 '-'는 교차 확인",
+      "object": "cond:hi_no_reduction",
+      "predicate": "has_condition",
+      "review_status": "accepted",
+      "subject": "cov:hi_2_5",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_cond_count",
+      "object": "cond:hi_count",
+      "predicate": "has_condition",
+      "review_status": "accepted",
+      "subject": "cov:hi_2_5",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_rule",
+      "object": "rule:hi2607-2-5-cancer-dx",
+      "predicate": "implemented_by",
+      "review_status": "accepted",
+      "rule_path": "규칙/hi2607-2-5-cancer-dx.json",
+      "subject": "cov:hi_2_5",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C1",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_concept",
+      "object": "concept:cancer_dx_lump_sum",
+      "predicate": "maps_to_concept",
+      "review_status": "accepted",
+      "subject": "cov:hi_2_5",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "lotte_2604_smry#benefit_table",
+          "role": "cross_check"
+        }
+      ],
+      "hold_reason": "reference_unresolved",
+      "id": "a:lotte_doc_link",
+      "note": "약관 판 미수집(회사 사이트 robots 확인 불가로 수집 보류). 요약서만 있음",
+      "object": null,
+      "predicate": "uses_edition",
+      "review_status": "hold",
+      "subject": "sc:lotte_2604_type1",
+      "time": {
+        "recorded_at": "2026-10-12",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "value_state": "not_found"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "lotte_2604_smry#benefit_table",
+          "role": "cross_check"
+        }
+      ],
+      "hold_reason": "reference_unresolved",
+      "id": "a:lotte_cov_def",
+      "note": "약관 미수집. 요약서만 있음",
+      "object": "cat:lotte_general_cancer",
+      "predicate": "uses_definition",
+      "review_status": "hold",
+      "subject": "cov:lotte_general_dx",
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "lotte_2604_smry#term_general_cancer",
+          "role": "cross_check"
+        }
+      ],
+      "hold_reason": "reference_unresolved",
+      "id": "a:lotte_cat_def",
+      "note": "요약서는 '갑상선암, 기타피부암을 제외한 암'이라 요약하고 약관 별표를 따르라고 함. 별표 미수집",
+      "object": null,
+      "predicate": "includes_codes",
+      "review_status": "hold",
+      "subject": "cat:lotte_general_cancer",
+      "value_state": "not_found"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "lotte_2604_smry#benefit_table",
+          "role": "cross_check"
+        }
+      ],
+      "id": "a:lotte_cond_waiting_v1",
+      "note": "24차 시안이 '확인된 조건'으로 표시한 판(ADR-0014 위반)",
+      "object": "cond:lotte_waiting",
+      "predicate": "has_condition",
+      "review_status": "accepted",
+      "subject": "cov:lotte_general_dx",
+      "time": {
+        "recorded_at": "2026-10-12T03:30Z"
+      },
+      "value_state": "observed"
+    },
+    {
+      "correction_reason": "오류 정정: C0 근거는 약관(ADR-0014). 요약서 기재, 약관 대조 전",
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "lotte_2604_smry#benefit_table",
+          "role": "cross_check"
+        }
+      ],
+      "hold_reason": "reference_unresolved",
+      "id": "a:lotte_cond_waiting_v2",
+      "object": "cond:lotte_waiting",
+      "predicate": "has_condition",
+      "review_status": "hold",
+      "subject": "cov:lotte_general_dx",
+      "supersedes": "a:lotte_cond_waiting_v1",
+      "time": {
+        "recorded_at": "2026-10-12T03:50Z"
+      },
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hana_2601_3d#c_2_1_art1_1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hana_cov_in_edition",
+      "note": "담보가 정의된 약관 본문 판. 입력 단계가 판매 구성 → 판 → 담보 연결을 확인하는 데 쓴다(재검토 R02)",
+      "object": "ted:hana_r2_1@2607",
+      "predicate": "in_edition",
+      "review_status": "accepted",
+      "subject": "cov:hana_2_1",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    },
+    {
+      "criticality": "C0",
+      "evidence": [
+        {
+          "ref": "hi2607#c_2_5_art1",
+          "role": "basis"
+        }
+      ],
+      "id": "a:hi_cov_in_edition",
+      "note": "담보가 정의된 약관 본문 판. 입력 단계가 판매 구성 → 판 → 담보 연결을 확인하는 데 쓴다(재검토 R02)",
+      "object": "ted:hi_r2_5@2608",
+      "predicate": "in_edition",
+      "review_status": "accepted",
+      "subject": "cov:hi_2_5",
+      "time": {
+        "recorded_at": "2026-10-12"
+      },
+      "value_state": "observed"
+    }
+  ],
+  "clauses": [
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#c_2_1_art1_1",
+      "note": "보장개시일 이후 암(유방암및생식기암제외) 진단확정 시 최초 1회. 최초계약: 보험계약일부터 1년 미만 50%, 1년 이상 100%. 갱신계약 100%",
+      "path": "2-1 제1조①",
+      "pdf_page": 52,
+      "printed_page": "23~24",
+      "segment": "seg:hana_r2_1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#c_2_1_art1_2",
+      "note": "보장개시일 = 보험계약일부터 그 날을 포함해 90일이 지난날의 다음날. 자동갱신이면 갱신일",
+      "path": "2-1 제1조②",
+      "pdf_page": 52,
+      "printed_page": "24",
+      "segment": "seg:hana_r2_1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#c_2_1_art4_1",
+      "note": "별표1 악성신생물 중 기타피부암·갑상선암·유방암 및 생식기암 제외, 전암 상태 제외",
+      "path": "2-1 제4조①",
+      "pdf_page": 53,
+      "printed_page": "24~25",
+      "segment": "seg:hana_r2_1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#c_2_1_art4_2",
+      "note": "기타피부암 = C44",
+      "path": "2-1 제4조②",
+      "pdf_page": 53,
+      "printed_page": "25",
+      "segment": "seg:hana_r2_1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#c_2_1_art4_3",
+      "note": "갑상선암 = C73",
+      "path": "2-1 제4조③",
+      "pdf_page": 53,
+      "printed_page": "25",
+      "segment": "seg:hana_r2_1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#c_2_1_art4_4",
+      "note": "유방암 및 생식기암 = 별표12",
+      "path": "2-1 제4조④",
+      "pdf_page": 53,
+      "printed_page": "25",
+      "segment": "seg:hana_r2_1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#c_2_1_art5",
+      "note": "보장개시일 전일 이전 진단확정 시 보장 무효, 납입 보험료 반환(계약 효과)",
+      "path": "2-1 제5조",
+      "pdf_page": 53,
+      "printed_page": "25",
+      "segment": "seg:hana_r2_1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#annex1",
+      "note": "KCD 9차(통계청 고시 제2025-299호, 2026.1.1 시행) 악성신생물 21항목. 진단 당시 KCD로 판단",
+      "path": "별표1",
+      "pdf_page": 174,
+      "printed_page": "146",
+      "segment": "seg:hana_annex1"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_2601_3d#annex12",
+      "note": "유방암 및 생식기암: C50, C51~C58, C60~C63",
+      "path": "별표12",
+      "pdf_page": 185,
+      "printed_page": "157",
+      "segment": "seg:hana_annex12"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#c_2_5_art1",
+      "note": "보장개시일 이후 암(유사암 제외) 진단확정 시 최초 1회 특약 보험가입금액",
+      "path": "2-5 제1조",
+      "pdf_page": 305,
+      "printed_page": "305",
+      "segment": "seg:hi_r2_5"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#c_2_5_art2_1",
+      "note": "암 = 별표2 악성신생물 분류표, 전암 상태 제외",
+      "path": "2-5 제2조①",
+      "pdf_page": 305,
+      "printed_page": "305",
+      "segment": "seg:hi_r2_5"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#c_2_5_art2_2",
+      "note": "유사암 = 기타피부암(C44)·갑상선암(C73)·제자리암(별표11)·경계성종양(별표12)",
+      "path": "2-5 제2조②~⑥",
+      "pdf_page": 305,
+      "printed_page": "305",
+      "segment": "seg:hi_r2_5"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#c_2_5_art3_1",
+      "note": "암 보장개시일 = 계약일부터 그 날을 포함해 90일이 지난 날의 다음날",
+      "path": "2-5 제3조①",
+      "pdf_page": 305,
+      "printed_page": "305",
+      "segment": "seg:hi_r2_5"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#annex2",
+      "note": "KCD 9차 악성신생물 21항목(하나 별표1과 같은 목록)",
+      "path": "별표2",
+      "pdf_page": 1223,
+      "printed_page": "1223",
+      "segment": "seg:hi_annex2"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#annex11",
+      "note": "제자리신생물: D00~D07, D09",
+      "path": "별표11",
+      "pdf_page": 1236,
+      "printed_page": "1236",
+      "segment": "seg:hi_annex11_12"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#annex12",
+      "note": "경계성종양: D37~D44, D47.0, D47.2, D47.7, D47.9, D48",
+      "path": "별표12",
+      "pdf_page": 1237,
+      "printed_page": "1237",
+      "segment": "seg:hi_annex11_12"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi2607#summary_table_p117",
+      "note": "암진단Ⅱ(유사암제외): 90일면책, 1년미만 감액여부 '-'",
+      "path": "상품안내 지급제한표",
+      "pdf_page": 117,
+      "printed_page": "117",
+      "segment": "seg:hi_p117"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "lotte_2604_smry#term_general_cancer",
+      "note": "일반암: 갑상선암, 기타피부암을 제외한 암. 약관 별표 분류번호에 해당하는 질병만 지급(요약)",
+      "path": "주요 용어 해설",
+      "pdf_page": null,
+      "printed_page": "121",
+      "segment": "seg:lotte_smry"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "lotte_2604_smry#benefit_table",
+      "note": "일반암진단비(간편맞춤형Ⅱ)(갱신형): 1회한, 1년 미만 50%, 갱신후계약 감액 미적용, 보장은 계약일 포함 90일 지난 다음날",
+      "path": "보험금 지급사유 표(보통약관)",
+      "pdf_page": null,
+      "printed_page": "121",
+      "segment": "seg:lotte_smry"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_listing#2601_3d_v20260701",
+      "note": "판매 시작 2026-07-01, 종료 99999999, 약관 파일 8bff6f1fc6",
+      "path": "sPrdNm=하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형), sSaleStrDt=20260701",
+      "pdf_page": null,
+      "printed_page": null,
+      "segment": "seg:hana_listing"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hana_listing#2601_3d_v20260101",
+      "note": "약관 파일 45c3fe396a(미수집)",
+      "path": "같은 이름, sSaleStrDt=20260101, sSaleEndDt=20260331",
+      "pdf_page": null,
+      "printed_page": null,
+      "segment": "seg:hana_listing"
+    },
+    {
+      "extraction": {
+        "edition": "manual-case-0.1",
+        "method": "구현자 수작업 판독(pdftotext -layout 출력 대조)"
+      },
+      "id": "hi_listing#hi2607_20260801",
+      "note": "약관 sha256 9401e98e…(이 행 것만 받음). 같은 이름·개시일 행이 regDtm 2026-08-07로 하나 더 있음(중복·재등록 판단 불가)",
+      "path": "굿앤굿1540종합보험(Hi2607) 20260801~ 행(regDtm 2026-09-07)",
+      "pdf_page": null,
+      "printed_page": null,
+      "segment": "seg:hi_listing"
+    }
+  ],
+  "conflicts": [],
+  "gaps": [
+    {
+      "about": "cat:lotte_general_cancer",
+      "id": "gap:L1",
+      "knowledge_state": "일부 해소(요약서 기재)",
+      "needed_evidence": "약관의 일반암 정의 조항과 참조 별표",
+      "question": "롯데 2604 1종 판의 '일반암'에 위암(C16)이 드는가",
+      "tasks": [
+        "task:L1_collect",
+        "task:L1_inquiry"
+      ]
+    },
+    {
+      "about": "sc:hana_2601_3d_v20260701",
+      "id": "gap:G5",
+      "knowledge_state": "미확인(범위 좁힘)",
+      "needed_evidence": "공시행의 판매 시기 표시 또는 회사 확인",
+      "question": "협회 공시행 N17PB150844가 어느 판매본을 가리키는가",
+      "tasks": [
+        "task:G5_inquiry"
+      ]
+    },
+    {
+      "about": "sc:hana_2601_3d_v20260101",
+      "id": "gap:H_old",
+      "knowledge_state": "미확인",
+      "needed_evidence": "약관 파일 45c3fe396a",
+      "question": "2026-01-01~03-31 판매본의 약관 내용",
+      "tasks": [
+        "task:H_old_collect"
+      ]
+    },
+    {
+      "about": "sc:lotte_2604_type1",
+      "id": "gap:L0",
+      "knowledge_state": "미확인",
+      "needed_evidence": "약관 원본",
+      "question": "롯데 2604 1종 판매본이 쓰는 약관 판",
+      "tasks": [
+        "task:L1_collect"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "class": "Organization",
+      "id": "org:hana_nonlife",
+      "label": "하나손해보험"
+    },
+    {
+      "class": "Organization",
+      "id": "org:hyundai_marine",
+      "label": "현대해상화재보험"
+    },
+    {
+      "class": "Organization",
+      "id": "org:lotte_nonlife",
+      "label": "롯데손해보험"
+    },
+    {
+      "class": "SalesConfiguration",
+      "id": "sc:hana_2601_3d_v20260701",
+      "label": "하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형) 2026-07-01 판매본"
+    },
+    {
+      "class": "SalesConfiguration",
+      "id": "sc:hana_2601_3d_v20260101",
+      "label": "같은 이름 2026-01-01~03-31 판매본"
+    },
+    {
+      "class": "SalesConfiguration",
+      "id": "sc:hi2607_general",
+      "label": "굿앤굿1540종합보험(Hi2607) 일반심사 2026-08-01 개시 판매본"
+    },
+    {
+      "class": "SalesConfiguration",
+      "id": "sc:lotte_2604_type1",
+      "label": "무배당 암보험(2604) 1종"
+    },
+    {
+      "class": "CoverageOccurrence",
+      "doc": "doc:hana_2601_3d_terms_v20260701",
+      "id": "cov:hana_2_1",
+      "label": "2-1 암진단비(유방암및생식기암제외)(갱신형)"
+    },
+    {
+      "class": "CoverageOccurrence",
+      "doc": "doc:hi2607_terms",
+      "id": "cov:hi_2_5",
+      "label": "2-5 암진단Ⅱ(유사암제외)보장 특별약관"
+    },
+    {
+      "class": "CoverageOccurrence",
+      "doc": "doc:lotte_2604_summary",
+      "id": "cov:lotte_general_dx",
+      "label": "일반암진단비(간편맞춤형Ⅱ)(갱신형)"
+    },
+    {
+      "class": "DiseaseCategory",
+      "id": "cat:hana_cancer_x_breast_genital",
+      "label": "암(유방암및생식기암제외) — 하나 2601 판"
+    },
+    {
+      "class": "DiseaseCategory",
+      "id": "cat:hana_breast_genital",
+      "label": "유방암 및 생식기암 — 하나 2601 판"
+    },
+    {
+      "class": "DiseaseCategory",
+      "id": "cat:hi_cancer_x_similar",
+      "label": "암(유사암 제외) — 현대 Hi2607 판"
+    },
+    {
+      "class": "DiseaseCategory",
+      "id": "cat:hi_similar",
+      "label": "유사암 — 현대 Hi2607 판"
+    },
+    {
+      "class": "DiseaseCategory",
+      "id": "cat:lotte_general_cancer",
+      "label": "일반암 — 롯데 2604 판"
+    },
+    {
+      "class": "CodeSet",
+      "code_system": "KCD",
+      "edition": "9",
+      "effective": "2026-01-01",
+      "id": "codes:kcd9_malignant_21",
+      "judged_as_of": "diagnosis_date",
+      "label": "KCD 9차 악성신생물 21항목",
+      "notice": "통계청 고시 제2025-299호",
+      "ranges": [
+        "C00-C14",
+        "C15-C26",
+        "C30-C39",
+        "C40-C41",
+        "C43-C44",
+        "C45-C49",
+        "C50",
+        "C51-C58",
+        "C60-C63",
+        "C64-C68",
+        "C69-C72",
+        "C73-C75",
+        "C76-C80",
+        "C81-C96",
+        "C97",
+        "D45",
+        "D46",
+        "D47.1",
+        "D47.3",
+        "D47.4",
+        "D47.5"
+      ]
+    },
+    {
+      "class": "CodeSet",
+      "code_system": "KCD",
+      "edition": "9",
+      "effective": "2026-01-01",
+      "id": "codes:c44",
+      "judged_as_of": "diagnosis_date",
+      "label": "C44",
+      "ranges": [
+        "C44"
+      ]
+    },
+    {
+      "class": "CodeSet",
+      "code_system": "KCD",
+      "edition": "9",
+      "effective": "2026-01-01",
+      "id": "codes:c73",
+      "judged_as_of": "diagnosis_date",
+      "label": "C73",
+      "ranges": [
+        "C73"
+      ]
+    },
+    {
+      "class": "CodeSet",
+      "code_system": "KCD",
+      "edition": "9",
+      "effective": "2026-01-01",
+      "id": "codes:hana_annex12",
+      "judged_as_of": "diagnosis_date",
+      "label": "하나 별표12",
+      "ranges": [
+        "C50",
+        "C51-C58",
+        "C60-C63"
+      ]
+    },
+    {
+      "class": "CodeSet",
+      "code_system": "KCD",
+      "edition": "9",
+      "effective": "2026-01-01",
+      "id": "codes:hi_annex11",
+      "judged_as_of": "diagnosis_date",
+      "label": "현대 별표11 제자리신생물",
+      "ranges": [
+        "D00-D07",
+        "D09"
+      ]
+    },
+    {
+      "class": "CodeSet",
+      "code_system": "KCD",
+      "edition": "9",
+      "effective": "2026-01-01",
+      "id": "codes:hi_annex12",
+      "judged_as_of": "diagnosis_date",
+      "label": "현대 별표12 경계성종양",
+      "ranges": [
+        "D37-D44",
+        "D47.0",
+        "D47.2",
+        "D47.7",
+        "D47.9",
+        "D48"
+      ]
+    },
+    {
+      "anchor": "계약일",
+      "anchor_day_counted": true,
+      "applies_to": [
+        "최초계약"
+      ],
+      "class": "Condition",
+      "duration": {
+        "unit": "day",
+        "value": 90
+      },
+      "id": "cond:hana_waiting",
+      "kind": "보장개시",
+      "renewal_anchor": "갱신일",
+      "starts": "다음날"
+    },
+    {
+      "anchor": "계약일",
+      "applies_to": [
+        "최초계약"
+      ],
+      "class": "Condition",
+      "duration": {
+        "unit": "calendar_year",
+        "value": 1
+      },
+      "id": "cond:hana_reduction",
+      "kind": "감액",
+      "not_applies_to": [
+        "갱신계약"
+      ],
+      "rate": "0.5"
+    },
+    {
+      "class": "Condition",
+      "id": "cond:hana_count",
+      "kind": "횟수",
+      "value": "최초 1회"
+    },
+    {
+      "anchor": "계약일",
+      "anchor_day_counted": true,
+      "applies_to": [
+        "최초계약"
+      ],
+      "class": "Condition",
+      "duration": {
+        "unit": "day",
+        "value": 90
+      },
+      "id": "cond:hi_waiting",
+      "kind": "보장개시",
+      "starts": "다음날"
+    },
+    {
+      "applies_to": [
+        "최초계약"
+      ],
+      "class": "Condition",
+      "id": "cond:hi_no_reduction",
+      "kind": "감액",
+      "value": "없음"
+    },
+    {
+      "class": "Condition",
+      "id": "cond:hi_count",
+      "kind": "횟수",
+      "value": "최초 1회"
+    },
+    {
+      "anchor": "계약일",
+      "anchor_day_counted": true,
+      "applies_to": [
+        "최초계약"
+      ],
+      "class": "Condition",
+      "duration": {
+        "unit": "day",
+        "value": 90
+      },
+      "id": "cond:lotte_waiting",
+      "kind": "보장개시",
+      "starts": "다음날"
+    },
+    {
+      "class": "CoverageConcept",
+      "id": "concept:cancer_dx_lump_sum",
+      "label": "암 진단 정액(비교 축)"
+    }
+  ],
+  "premium_observations": [],
+  "raw_assets": [
+    {
+      "class": "RawAsset",
+      "id": "raw:hana_fd9c0133",
+      "observed_at": "2026-10-12T03:20:00Z",
+      "observed_label": "약관",
+      "org": "org:hana_nonlife",
+      "sha256": "fd9c0133d852e42d49e4c13919b557431bb2d525221d293c1efc1b0075866374",
+      "source": "하나손보 상품공시 다운로드 파일 8bff6f1fc6"
+    },
+    {
+      "class": "RawAsset",
+      "id": "raw:hi_9401e98e",
+      "observed_at": "2026-10-11",
+      "observed_label": "약관",
+      "org": "org:hyundai_marine",
+      "sha256": "9401e98e8894883cf1e3bb86d8cffd39c765418e13089477ae50d8949874c8cc",
+      "source": "현대해상 상품공시(굿앤굿1540 Hi2607 약관)"
+    },
+    {
+      "class": "RawAsset",
+      "id": "raw:lotte_6c481f0a",
+      "observed_at": "2026-10-12T03:25:24Z",
+      "observed_label": "상품요약서",
+      "org": "org:lotte_nonlife",
+      "sha256": "6c481f0acfc62db7a29e0c1658bd3bf3dee0def1b9523d64923ddb92645aefac",
+      "source": "손해보험협회 비교공시 요약서 SEQ 91797"
+    },
+    {
+      "class": "RawAsset",
+      "id": "raw:hana_listing_2ede1718",
+      "observed_at": "2026-10-10T03:03:35Z",
+      "observed_label": "회사 상품 목록(JSON)",
+      "org": "org:hana_nonlife",
+      "sha256": "2ede17188f7abd5e2ef9c350b68ba7d10b5d86885d9fd25645b7befd10360611",
+      "source": "하나손보 searchProduct.json"
+    },
+    {
+      "class": "RawAsset",
+      "id": "raw:hi_listing_20261010",
+      "note": "목록 응답 원본을 이 사례에서 보존하지 않았다(조사 D·H 기록). 해시 없음",
+      "observed_at": "2026-10-10",
+      "observed_label": "회사 상품 목록(공시 행)",
+      "org": "org:hyundai_marine",
+      "sha256": null,
+      "source": "현대해상 상품공시 목록(조사 D·H 기록)"
+    }
+  ],
+  "release_notices": [],
+  "releases": [
+    {
+      "content_sha256": "ae244c964f0aa8fc8562ab4fdce1534fc8b8664036045500674376367b1bcb98",
+      "frozen_at": "2026-10-12",
+      "id": "rel:case-r24",
+      "input_stage_edition": "case-0.1(판매 구성 선택 후 담보를 요청값으로 받음)",
+      "members": {
+        "assertions": [
+          "a:hana_cat_exc_bg",
+          "a:hana_cat_exc_c44",
+          "a:hana_cat_exc_c73",
+          "a:hana_cat_exc_premalignant",
+          "a:hana_cat_inc",
+          "a:hana_concept",
+          "a:hana_cond_count",
+          "a:hana_cond_reduction",
+          "a:hana_cond_waiting",
+          "a:hana_cov_def",
+          "a:hana_doc_link",
+          "a:hana_old_doc_link",
+          "a:hana_rule",
+          "a:hi_cat_exc_premalignant",
+          "a:hi_cat_exc_similar",
+          "a:hi_cat_inc",
+          "a:hi_concept",
+          "a:hi_cond_count",
+          "a:hi_cond_no_reduction",
+          "a:hi_cond_waiting",
+          "a:hi_cov_def",
+          "a:hi_doc_link",
+          "a:hi_rule",
+          "a:hi_sim_border",
+          "a:hi_sim_c44",
+          "a:hi_sim_c73",
+          "a:hi_sim_insitu",
+          "a:lotte_cat_def",
+          "a:lotte_cond_waiting_v1",
+          "a:lotte_cov_def",
+          "a:lotte_doc_link",
+          "a:realizes_hana_annex1",
+          "a:realizes_hana_annex12",
+          "a:realizes_hana_r2_1",
+          "a:realizes_hi_annex11_12",
+          "a:realizes_hi_annex2",
+          "a:realizes_hi_r2_5"
+        ],
+        "clauses": [
+          "hana_2601_3d#annex1",
+          "hana_2601_3d#annex12",
+          "hana_2601_3d#c_2_1_art1_1",
+          "hana_2601_3d#c_2_1_art1_2",
+          "hana_2601_3d#c_2_1_art4_1",
+          "hana_2601_3d#c_2_1_art4_2",
+          "hana_2601_3d#c_2_1_art4_3",
+          "hana_2601_3d#c_2_1_art4_4",
+          "hana_2601_3d#c_2_1_art5",
+          "hana_listing#2601_3d_v20260101",
+          "hana_listing#2601_3d_v20260701",
+          "hi2607#annex11",
+          "hi2607#annex12",
+          "hi2607#annex2",
+          "hi2607#c_2_5_art1",
+          "hi2607#c_2_5_art2_1",
+          "hi2607#c_2_5_art2_2",
+          "hi2607#c_2_5_art3_1",
+          "hi2607#summary_table_p117",
+          "hi_listing#hi2607_20260801",
+          "lotte_2604_smry#benefit_table",
+          "lotte_2604_smry#term_general_cancer"
+        ],
+        "conflicts": [],
+        "gaps": [
+          "gap:G5",
+          "gap:H_old",
+          "gap:L0",
+          "gap:L1"
+        ],
+        "nodes": [
+          "cat:hana_breast_genital",
+          "cat:hana_cancer_x_breast_genital",
+          "cat:hi_cancer_x_similar",
+          "cat:hi_similar",
+          "cat:lotte_general_cancer",
+          "codes:c44",
+          "codes:c73",
+          "codes:hana_annex12",
+          "codes:hi_annex11",
+          "codes:hi_annex12",
+          "codes:kcd9_malignant_21",
+          "concept:cancer_dx_lump_sum",
+          "cond:hana_count",
+          "cond:hana_reduction",
+          "cond:hana_waiting",
+          "cond:hi_count",
+          "cond:hi_no_reduction",
+          "cond:hi_waiting",
+          "cond:lotte_waiting",
+          "cov:hana_2_1",
+          "cov:hi_2_5",
+          "cov:lotte_general_dx",
+          "org:hana_nonlife",
+          "org:hyundai_marine",
+          "org:lotte_nonlife",
+          "sc:hana_2601_3d_v20260101",
+          "sc:hana_2601_3d_v20260701",
+          "sc:hi2607_general",
+          "sc:lotte_2604_type1"
+        ],
+        "premium_observations": [],
+        "raw_assets": [
+          "raw:hana_fd9c0133",
+          "raw:hana_listing_2ede1718",
+          "raw:hi_9401e98e",
+          "raw:hi_listing_20261010",
+          "raw:lotte_6c481f0a"
+        ],
+        "segments": [
+          "seg:hana_annex1",
+          "seg:hana_annex12",
+          "seg:hana_listing",
+          "seg:hana_r2_1",
+          "seg:hi_annex11_12",
+          "seg:hi_annex2",
+          "seg:hi_listing",
+          "seg:hi_p117",
+          "seg:hi_r2_5",
+          "seg:lotte_smry"
+        ],
+        "terms_editions": [
+          "ted:hana_r2_1@2607",
+          "ted:hi_r2_5@2608"
+        ],
+        "terms_lineages": [
+          "tl:hana_3d_cancer_dx_rider",
+          "tl:hi_cancer_dx_2_5"
+        ]
+      },
+      "note": "24차 시안 시점(정정 전). onto-0.2(원본·구획·본문 판 분리, 판의 구성, 승인 결정)로 2026-10-12 다시 고정. onto-0.1은 제외 목록 방식이라 나중 주장이 섞였다",
+      "rule_files": {
+        "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
+        "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
+      }
+    },
+    {
+      "content_sha256": "012295575244f8979b60585bb5a93b6ded9860803cf52f0fbd3752fd0aeade20",
+      "frozen_at": "2026-10-12",
+      "id": "rel:case-r25",
+      "input_stage_edition": "case-0.1(판매 구성 선택 후 담보를 요청값으로 받음)",
+      "members": {
+        "assertions": [
+          "a:hana_cat_exc_bg",
+          "a:hana_cat_exc_c44",
+          "a:hana_cat_exc_c73",
+          "a:hana_cat_exc_premalignant",
+          "a:hana_cat_inc",
+          "a:hana_concept",
+          "a:hana_cond_count",
+          "a:hana_cond_reduction",
+          "a:hana_cond_waiting",
+          "a:hana_cov_def",
+          "a:hana_doc_link",
+          "a:hana_old_doc_link",
+          "a:hana_rule",
+          "a:hi_cat_exc_premalignant",
+          "a:hi_cat_exc_similar",
+          "a:hi_cat_inc",
+          "a:hi_concept",
+          "a:hi_cond_count",
+          "a:hi_cond_no_reduction",
+          "a:hi_cond_waiting",
+          "a:hi_cov_def",
+          "a:hi_doc_link",
+          "a:hi_rule",
+          "a:hi_sim_border",
+          "a:hi_sim_c44",
+          "a:hi_sim_c73",
+          "a:hi_sim_insitu",
+          "a:lotte_cat_def",
+          "a:lotte_cond_waiting_v2",
+          "a:lotte_cov_def",
+          "a:lotte_doc_link",
+          "a:realizes_hana_annex1",
+          "a:realizes_hana_annex12",
+          "a:realizes_hana_r2_1",
+          "a:realizes_hi_annex11_12",
+          "a:realizes_hi_annex2",
+          "a:realizes_hi_r2_5"
+        ],
+        "clauses": [
+          "hana_2601_3d#annex1",
+          "hana_2601_3d#annex12",
+          "hana_2601_3d#c_2_1_art1_1",
+          "hana_2601_3d#c_2_1_art1_2",
+          "hana_2601_3d#c_2_1_art4_1",
+          "hana_2601_3d#c_2_1_art4_2",
+          "hana_2601_3d#c_2_1_art4_3",
+          "hana_2601_3d#c_2_1_art4_4",
+          "hana_2601_3d#c_2_1_art5",
+          "hana_listing#2601_3d_v20260101",
+          "hana_listing#2601_3d_v20260701",
+          "hi2607#annex11",
+          "hi2607#annex12",
+          "hi2607#annex2",
+          "hi2607#c_2_5_art1",
+          "hi2607#c_2_5_art2_1",
+          "hi2607#c_2_5_art2_2",
+          "hi2607#c_2_5_art3_1",
+          "hi2607#summary_table_p117",
+          "hi_listing#hi2607_20260801",
+          "lotte_2604_smry#benefit_table",
+          "lotte_2604_smry#term_general_cancer"
+        ],
+        "conflicts": [],
+        "gaps": [
+          "gap:G5",
+          "gap:H_old",
+          "gap:L0",
+          "gap:L1"
+        ],
+        "nodes": [
+          "cat:hana_breast_genital",
+          "cat:hana_cancer_x_breast_genital",
+          "cat:hi_cancer_x_similar",
+          "cat:hi_similar",
+          "cat:lotte_general_cancer",
+          "codes:c44",
+          "codes:c73",
+          "codes:hana_annex12",
+          "codes:hi_annex11",
+          "codes:hi_annex12",
+          "codes:kcd9_malignant_21",
+          "concept:cancer_dx_lump_sum",
+          "cond:hana_count",
+          "cond:hana_reduction",
+          "cond:hana_waiting",
+          "cond:hi_count",
+          "cond:hi_no_reduction",
+          "cond:hi_waiting",
+          "cond:lotte_waiting",
+          "cov:hana_2_1",
+          "cov:hi_2_5",
+          "cov:lotte_general_dx",
+          "org:hana_nonlife",
+          "org:hyundai_marine",
+          "org:lotte_nonlife",
+          "sc:hana_2601_3d_v20260101",
+          "sc:hana_2601_3d_v20260701",
+          "sc:hi2607_general",
+          "sc:lotte_2604_type1"
+        ],
+        "premium_observations": [],
+        "raw_assets": [
+          "raw:hana_fd9c0133",
+          "raw:hana_listing_2ede1718",
+          "raw:hi_9401e98e",
+          "raw:hi_listing_20261010",
+          "raw:lotte_6c481f0a"
+        ],
+        "segments": [
+          "seg:hana_annex1",
+          "seg:hana_annex12",
+          "seg:hana_listing",
+          "seg:hana_r2_1",
+          "seg:hi_annex11_12",
+          "seg:hi_annex2",
+          "seg:hi_listing",
+          "seg:hi_p117",
+          "seg:hi_r2_5",
+          "seg:lotte_smry"
+        ],
+        "terms_editions": [
+          "ted:hana_r2_1@2607",
+          "ted:hi_r2_5@2608"
+        ],
+        "terms_lineages": [
+          "tl:hana_3d_cancer_dx_rider",
+          "tl:hi_cancer_dx_2_5"
+        ]
+      },
+      "note": "25차 정정 후. onto-0.2(원본·구획·본문 판 분리, 판의 구성, 승인 결정)로 2026-10-12 다시 고정. onto-0.1은 제외 목록 방식이라 나중 주장이 섞였다",
+      "rule_files": {
+        "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
+        "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
+      }
+    },
+    {
+      "content_sha256": "40e27601f23aa19e698e117459c2da6229f92d36a7156a27f0e355823872f8f5",
+      "frozen_at": "2026-10-12",
+      "id": "rel:case-r26",
+      "input_stage_edition": "case-0.2(판매 구성 → 판 → 담보 연결 검증)",
+      "members": {
+        "assertions": [
+          "a:hana_cat_exc_bg",
+          "a:hana_cat_exc_c44",
+          "a:hana_cat_exc_c73",
+          "a:hana_cat_exc_premalignant",
+          "a:hana_cat_inc",
+          "a:hana_concept",
+          "a:hana_cond_count",
+          "a:hana_cond_reduction",
+          "a:hana_cond_waiting",
+          "a:hana_cov_def",
+          "a:hana_cov_in_edition",
+          "a:hana_doc_link",
+          "a:hana_old_doc_link",
+          "a:hana_rule",
+          "a:hi_cat_exc_premalignant",
+          "a:hi_cat_exc_similar",
+          "a:hi_cat_inc",
+          "a:hi_concept",
+          "a:hi_cond_count",
+          "a:hi_cond_no_reduction",
+          "a:hi_cond_waiting",
+          "a:hi_cov_def",
+          "a:hi_cov_in_edition",
+          "a:hi_doc_link",
+          "a:hi_rule",
+          "a:hi_sim_border",
+          "a:hi_sim_c44",
+          "a:hi_sim_c73",
+          "a:hi_sim_insitu",
+          "a:lotte_cat_def",
+          "a:lotte_cond_waiting_v2",
+          "a:lotte_cov_def",
+          "a:lotte_doc_link",
+          "a:realizes_hana_annex1",
+          "a:realizes_hana_annex12",
+          "a:realizes_hana_r2_1",
+          "a:realizes_hi_annex11_12",
+          "a:realizes_hi_annex2",
+          "a:realizes_hi_r2_5"
+        ],
+        "clauses": [
+          "hana_2601_3d#annex1",
+          "hana_2601_3d#annex12",
+          "hana_2601_3d#c_2_1_art1_1",
+          "hana_2601_3d#c_2_1_art1_2",
+          "hana_2601_3d#c_2_1_art4_1",
+          "hana_2601_3d#c_2_1_art4_2",
+          "hana_2601_3d#c_2_1_art4_3",
+          "hana_2601_3d#c_2_1_art4_4",
+          "hana_2601_3d#c_2_1_art5",
+          "hana_listing#2601_3d_v20260101",
+          "hana_listing#2601_3d_v20260701",
+          "hi2607#annex11",
+          "hi2607#annex12",
+          "hi2607#annex2",
+          "hi2607#c_2_5_art1",
+          "hi2607#c_2_5_art2_1",
+          "hi2607#c_2_5_art2_2",
+          "hi2607#c_2_5_art3_1",
+          "hi2607#summary_table_p117",
+          "hi_listing#hi2607_20260801",
+          "lotte_2604_smry#benefit_table",
+          "lotte_2604_smry#term_general_cancer"
+        ],
+        "conflicts": [],
+        "gaps": [
+          "gap:G5",
+          "gap:H_old",
+          "gap:L0",
+          "gap:L1"
+        ],
+        "nodes": [
+          "cat:hana_breast_genital",
+          "cat:hana_cancer_x_breast_genital",
+          "cat:hi_cancer_x_similar",
+          "cat:hi_similar",
+          "cat:lotte_general_cancer",
+          "codes:c44",
+          "codes:c73",
+          "codes:hana_annex12",
+          "codes:hi_annex11",
+          "codes:hi_annex12",
+          "codes:kcd9_malignant_21",
+          "concept:cancer_dx_lump_sum",
+          "cond:hana_count",
+          "cond:hana_reduction",
+          "cond:hana_waiting",
+          "cond:hi_count",
+          "cond:hi_no_reduction",
+          "cond:hi_waiting",
+          "cond:lotte_waiting",
+          "cov:hana_2_1",
+          "cov:hi_2_5",
+          "cov:lotte_general_dx",
+          "org:hana_nonlife",
+          "org:hyundai_marine",
+          "org:lotte_nonlife",
+          "sc:hana_2601_3d_v20260101",
+          "sc:hana_2601_3d_v20260701",
+          "sc:hi2607_general",
+          "sc:lotte_2604_type1"
+        ],
+        "premium_observations": [],
+        "raw_assets": [
+          "raw:hana_fd9c0133",
+          "raw:hana_listing_2ede1718",
+          "raw:hi_9401e98e",
+          "raw:hi_listing_20261010",
+          "raw:lotte_6c481f0a"
+        ],
+        "segments": [
+          "seg:hana_annex1",
+          "seg:hana_annex12",
+          "seg:hana_listing",
+          "seg:hana_r2_1",
+          "seg:hi_annex11_12",
+          "seg:hi_annex2",
+          "seg:hi_listing",
+          "seg:hi_p117",
+          "seg:hi_r2_5",
+          "seg:lotte_smry"
+        ],
+        "terms_editions": [
+          "ted:hana_r2_1@2607",
+          "ted:hi_r2_5@2608"
+        ],
+        "terms_lineages": [
+          "tl:hana_3d_cancer_dx_rider",
+          "tl:hi_cancer_dx_2_5"
+        ]
+      },
+      "note": "재검토(9554c96) 대응: 담보-판 연결(in_edition) 주장 추가. 판의 구성은 근거 묶음으로 판정(K16 개정). r24·r25는 고정값 그대로",
+      "rule_files": {
+        "규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
+        "규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
+      }
+    },
+    {
+      "content_sha256": "e663c4f5c1bc445ca0abb6fe02ed399530f635628ed1c2eabdc911013ca690da",
+      "frozen_at": "2026-10-12",
+      "id": "rel:declared-r26",
+      "input_stage_edition": "case-0.2(판매 구성 → 판 → 담보 연결 검증)",
+      "members": {
+        "assertions": [
+          "a:hana_cat_exc_bg",
+          "a:hana_cat_exc_c44",
+          "a:hana_cat_exc_c73",
+          "a:hana_cat_exc_premalignant",
+          "a:hana_cat_inc",
+          "a:hana_concept",
+          "a:hana_cond_count",
+          "a:hana_cond_reduction",
+          "a:hana_cond_waiting",
+          "a:hana_cov_def",
+          "a:hana_cov_in_edition",
+          "a:hana_doc_link",
+          "a:hana_old_doc_link",
+          "a:hana_rule",
+          "a:hi_cat_exc_premalignant",
+          "a:hi_cat_exc_similar",
+          "a:hi_cat_inc",
+          "a:hi_concept",
+          "a:hi_cond_count",
+          "a:hi_cond_no_reduction",
+          "a:hi_cond_waiting",
+          "a:hi_cov_def",
+          "a:hi_cov_in_edition",
+          "a:hi_doc_link",
+          "a:hi_rule",
+          "a:hi_sim_border",
+          "a:hi_sim_c44",
+          "a:hi_sim_c73",
+          "a:hi_sim_insitu",
+          "a:lotte_cat_def",
+          "a:lotte_cond_waiting_v2",
+          "a:lotte_cov_def",
+          "a:lotte_doc_link",
+          "a:realizes_hana_annex1",
+          "a:realizes_hana_annex12",
+          "a:realizes_hana_r2_1",
+          "a:realizes_hi_annex11_12",
+          "a:realizes_hi_annex2",
+          "a:realizes_hi_r2_5"
+        ],
+        "clauses": [
+          "hana_2601_3d#annex1",
+          "hana_2601_3d#annex12",
+          "hana_2601_3d#c_2_1_art1_1",
+          "hana_2601_3d#c_2_1_art1_2",
+          "hana_2601_3d#c_2_1_art4_1",
+          "hana_2601_3d#c_2_1_art4_2",
+          "hana_2601_3d#c_2_1_art4_3",
+          "hana_2601_3d#c_2_1_art4_4",
+          "hana_2601_3d#c_2_1_art5",
+          "hana_listing#2601_3d_v20260101",
+          "hana_listing#2601_3d_v20260701",
+          "hi2607#annex11",
+          "hi2607#annex12",
+          "hi2607#annex2",
+          "hi2607#c_2_5_art1",
+          "hi2607#c_2_5_art2_1",
+          "hi2607#c_2_5_art2_2",
+          "hi2607#c_2_5_art3_1",
+          "hi2607#summary_table_p117",
+          "hi_listing#hi2607_20260801",
+          "lotte_2604_smry#benefit_table",
+          "lotte_2604_smry#term_general_cancer"
+        ],
+        "conflicts": [],
+        "gaps": [
+          "gap:G5",
+          "gap:H_old",
+          "gap:L0",
+          "gap:L1"
+        ],
+        "nodes": [
+          "cat:hana_breast_genital",
+          "cat:hana_cancer_x_breast_genital",
+          "cat:hi_cancer_x_similar",
+          "cat:hi_similar",
+          "cat:lotte_general_cancer",
+          "codes:c44",
+          "codes:c73",
+          "codes:hana_annex12",
+          "codes:hi_annex11",
+          "codes:hi_annex12",
+          "codes:kcd9_malignant_21",
+          "concept:cancer_dx_lump_sum",
+          "cond:hana_count",
+          "cond:hana_reduction",
+          "cond:hana_waiting",
+          "cond:hi_count",
+          "cond:hi_no_reduction",
+          "cond:hi_waiting",
+          "cond:lotte_waiting",
+          "cov:hana_2_1",
+          "cov:hi_2_5",
+          "cov:lotte_general_dx",
+          "org:hana_nonlife",
+          "org:hyundai_marine",
+          "org:lotte_nonlife",
+          "sc:hana_2601_3d_v20260101",
+          "sc:hana_2601_3d_v20260701",
+          "sc:hi2607_general",
+          "sc:lotte_2604_type1"
+        ],
+        "premium_observations": [],
+        "raw_assets": [
+          "raw:hana_fd9c0133",
+          "raw:hana_listing_2ede1718",
+          "raw:hi_9401e98e",
+          "raw:hi_listing_20261010",
+          "raw:lotte_6c481f0a"
+        ],
+        "segments": [
+          "seg:hana_annex1",
+          "seg:hana_annex12",
+          "seg:hana_listing",
+          "seg:hana_r2_1",
+          "seg:hi_annex11_12",
+          "seg:hi_annex2",
+          "seg:hi_listing",
+          "seg:hi_p117",
+          "seg:hi_r2_5",
+          "seg:lotte_smry"
+        ],
+        "terms_editions": [
+          "ted:hana_r2_1@2607",
+          "ted:hi_r2_5@2608"
+        ],
+        "terms_lineages": [
+          "tl:hana_3d_cancer_dx_rider",
+          "tl:hi_cancer_dx_2_5"
+        ]
+      },
+      "note": "시험용: rel:case-r26 구성원 그대로, 규칙 파일에 inputs_from_outside_dsl(C-08)을 넣고 다시 고정",
+      "rule_files": {
+        "규칙/hana-2601-3d-cancer-dx.json": "c70eb16b24e263c6f2a6e01067bad77831d58bc1acc9eb2cd7862be5ec89343a",
+        "규칙/hi2607-2-5-cancer-dx.json": "be5a47782866d3fe4b37525c4497a422555993e61e33bb4473b18ea42bfde5b5"
+      }
+    }
+  ],
+  "segments": [
+    {
+      "boundary": "확인한 쪽만. 구획 경계(이 특약·별표가 시작·끝나는 쪽)는 확정하지 않음",
+      "class": "DocumentSegment",
+      "doc_role": "특약 약관",
+      "fingerprint": {
+        "rule": "fp-0.1",
+        "sha256": "f28e5b5de3e7364a8b431de912d816d0877e1ec91ead7ebb68eb00b971db7896"
+      },
+      "id": "seg:hana_r2_1",
+      "pages": [
+        52,
+        53
+      ],
+      "raw_asset": "raw:hana_fd9c0133"
+    },
+    {
+      "boundary": "확인한 쪽만. 구획 경계(이 특약·별표가 시작·끝나는 쪽)는 확정하지 않음",
+      "class": "DocumentSegment",
+      "doc_role": "별표",
+      "fingerprint": {
+        "rule": "fp-0.1",
+        "sha256": "f3e220bec9409b30d76f1ba29733a51a1112dc14bb2895775e38c978f69c71c4"
+      },
+      "id": "seg:hana_annex1",
+      "pages": [
+        174,
+        174
+      ],
+      "raw_asset": "raw:hana_fd9c0133"
+    },
+    {
+      "boundary": "확인한 쪽만. 구획 경계(이 특약·별표가 시작·끝나는 쪽)는 확정하지 않음",
+      "class": "DocumentSegment",
+      "doc_role": "별표",
+      "fingerprint": {
+        "rule": "fp-0.1",
+        "sha256": "4bc4c3ae24bbf593dc31a02884c7b21b69a97fa75aef8fe9625817877c91f6a2"
+      },
+      "id": "seg:hana_annex12",
+      "pages": [
+        185,
+        185
+      ],
+      "raw_asset": "raw:hana_fd9c0133"
+    },
+    {
+      "boundary": "확인한 쪽만. 구획 경계(이 특약·별표가 시작·끝나는 쪽)는 확정하지 않음",
+      "class": "DocumentSegment",
+      "doc_role": "특약 약관",
+      "fingerprint": {
+        "rule": "fp-0.1",
+        "sha256": "087355a33987f64c4c248d55b5718c06db1be0063c1921a6a7016ec094eef8d9"
+      },
+      "id": "seg:hi_r2_5",
+      "note": "지문은 세션에 남은 pdftotext 출력(layout.txt)에서 계산. 원본 PDF 사본은 이 세션에 없음",
+      "pages": [
+        305,
+        305
+      ],
+      "raw_asset": "raw:hi_9401e98e"
+    },
+    {
+      "boundary": "확인한 쪽만. 구획 경계(이 특약·별표가 시작·끝나는 쪽)는 확정하지 않음",
+      "class": "DocumentSegment",
+      "doc_role": "별표",
+      "fingerprint": {
+        "rule": "fp-0.1",
+        "sha256": "1b84a3a5ea36370a3c365f9267a42776c6ae08ce3d9a1d302544f00d51198bfa"
+      },
+      "id": "seg:hi_annex2",
+      "note": "지문은 세션에 남은 pdftotext 출력(layout.txt)에서 계산. 원본 PDF 사본은 이 세션에 없음",
+      "pages": [
+        1223,
+        1223
+      ],
+      "raw_asset": "raw:hi_9401e98e"
+    },
+    {
+      "boundary": "확인한 쪽만. 구획 경계(이 특약·별표가 시작·끝나는 쪽)는 확정하지 않음",
+      "class": "DocumentSegment",
+      "doc_role": "별표",
+      "fingerprint": {
+        "rule": "fp-0.1",
+        "sha256": "119c3687b643a53825390aedd9f137b94c470bc37e2af4ebfdf8161b9d4bc7eb"
+      },
+      "id": "seg:hi_annex11_12",
+      "note": "지문은 세션에 남은 pdftotext 출력(layout.txt)에서 계산. 원본 PDF 사본은 이 세션에 없음",
+      "pages": [
+        1236,
+        1237
+      ],
+      "raw_asset": "raw:hi_9401e98e"
+    },
+    {
+      "boundary": "확인한 쪽만. 구획 경계(이 특약·별표가 시작·끝나는 쪽)는 확정하지 않음",
+      "class": "DocumentSegment",
+      "doc_role": "약관 책자 안내 쪽",
+      "fingerprint": {
+        "rule": "fp-0.1",
+        "sha256": "135c05d7edd4301e9be033068e66ab0fb57b1d47539894eeabe059f917f51439"
+      },
+      "id": "seg:hi_p117",
+      "note": "지문은 세션에 남은 pdftotext 출력(layout.txt)에서 계산. 원본 PDF 사본은 이 세션에 없음. 안내 쪽은 약관 본문이 아니다(교차 확인용)",
+      "pages": [
+        117,
+        117
+      ],
+      "raw_asset": "raw:hi_9401e98e"
+    },
+    {
+      "boundary": "원본 전체",
+      "class": "DocumentSegment",
+      "doc_role": "상품요약서",
+      "fingerprint": null,
+      "id": "seg:lotte_smry",
+      "pages": null,
+      "raw_asset": "raw:lotte_6c481f0a"
+    },
+    {
+      "boundary": "원본 전체",
+      "class": "DocumentSegment",
+      "doc_role": "공시 목록",
+      "fingerprint": null,
+      "id": "seg:hana_listing",
+      "pages": null,
+      "raw_asset": "raw:hana_listing_2ede1718"
+    },
+    {
+      "boundary": "원본 전체",
+      "class": "DocumentSegment",
+      "doc_role": "공시 목록",
+      "fingerprint": null,
+      "id": "seg:hi_listing",
+      "pages": null,
+      "raw_asset": "raw:hi_listing_20261010"
+    }
+  ],
+  "terms_editions": [
+    {
+      "class": "TermsEdition",
+      "id": "ted:hana_r2_1@2607",
+      "label": "하나 2-1 3대질병형 암진단비(유방암및생식기암제외) 특약 · 2026-07-01 판매 시작 판매본의 약관 파일에서 확인한 판",
+      "lineage": "tl:hana_3d_cancer_dx_rider",
+      "note": "개정 표기·시행일을 약관 본문에서 따로 확인하지 않았다. 판의 동일성은 구획 지문으로만 판단한다",
+      "parts": [
+        {
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "f28e5b5de3e7364a8b431de912d816d0877e1ec91ead7ebb68eb00b971db7896"
+          },
+          "label": "특약 약관 52~53쪽",
+          "role": "본문"
+        },
+        {
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "f3e220bec9409b30d76f1ba29733a51a1112dc14bb2895775e38c978f69c71c4"
+          },
+          "label": "별표 174~174쪽",
+          "role": "참조 별표"
+        },
+        {
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "4bc4c3ae24bbf593dc31a02884c7b21b69a97fa75aef8fe9625817877c91f6a2"
+          },
+          "label": "별표 185~185쪽",
+          "role": "참조 별표"
+        }
+      ],
+      "parts_note": "판의 구성(본문 + 참조 별표). 보통약관의 정의 조항 구획은 이 사례에서 수집하지 않아 구성에 없다(미검증)",
+      "revision_mark": null
+    },
+    {
+      "class": "TermsEdition",
+      "id": "ted:hi_r2_5@2608",
+      "label": "현대 굿앤굿1540(Hi2607) 2-5 암진단비 특약 · 2026-08-01 판매 시작 행의 약관 파일에서 확인한 판",
+      "lineage": "tl:hi_cancer_dx_2_5",
+      "note": "같은 판이 다른 원본(통합약관·개별 특약 파일·재압축본)에 들어 있어도 이 판 하나에 realizes로 잇는다",
+      "parts": [
+        {
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "087355a33987f64c4c248d55b5718c06db1be0063c1921a6a7016ec094eef8d9"
+          },
+          "label": "특약 약관 305~305쪽",
+          "role": "본문"
+        },
+        {
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "1b84a3a5ea36370a3c365f9267a42776c6ae08ce3d9a1d302544f00d51198bfa"
+          },
+          "label": "별표 1223~1223쪽",
+          "role": "참조 별표"
+        },
+        {
+          "fingerprint": {
+            "rule": "fp-0.1",
+            "sha256": "119c3687b643a53825390aedd9f137b94c470bc37e2af4ebfdf8161b9d4bc7eb"
+          },
+          "label": "별표 1236~1237쪽",
+          "role": "참조 별표"
+        }
+      ],
+      "parts_note": "판의 구성(본문 + 참조 별표). 보통약관의 정의 조항 구획은 이 사례에서 수집하지 않아 구성에 없다(미검증)",
+      "revision_mark": null
+    }
+  ],
+  "terms_lineages": [
+    {
+      "class": "TermsLineage",
+      "id": "tl:hana_3d_cancer_dx_rider",
+      "label": "하나 3대질병형 암진단비 특약 계열",
+      "org": "org:hana_nonlife"
+    },
+    {
+      "class": "TermsLineage",
+      "id": "tl:hi_cancer_dx_2_5",
+      "label": "현대 굿앤굿 2-5 암진단비 특약 계열",
+      "org": "org:hyundai_marine"
+    }
+  ]
+}

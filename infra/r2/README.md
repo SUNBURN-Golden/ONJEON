@@ -62,6 +62,8 @@ R2 S3 호환 API 문서(developers.cloudflare.com/r2/api/s3/api/, tokens, bucket
 
 승인되면 결정 원장 O14를 닫고 ADR로 남긴 뒤 적용한다.
 
+규칙안(접두어 6개, 기간 미정, 무기한 금지를 검사하는 `r2_budget.py lock-rules`)은 [checkpoint/LOCK_RULES.md](checkpoint/LOCK_RULES.md), [checkpoint/lock_rules.json](checkpoint/lock_rules.json). 적용하지 않았다.
+
 ## 5. 실행 (지정 실행 환경에서 수동으로, 한 번에 하나)
 
 ```bash

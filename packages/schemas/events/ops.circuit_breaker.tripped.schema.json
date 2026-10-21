@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ops.circuit_breaker.tripped.schema.json",
+  "title": "OpsCircuitBreakerTrippedEvent",
+  "type": "object",
+  "description": "도메인 이벤트 ops.circuit_breaker.tripped (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "ops.circuit_breaker.tripped"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "rule_id",
+                "org",
+                "concept"
+              ]
+            },
+            "value": {
+              "$ref": "common.schema.json#/$defs/Identifier"
+            }
+          },
+          "required": [
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false,
+          "description": "서킷 브레이커 범위: rule_id | org | concept (02 §3.1)"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "scope",
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

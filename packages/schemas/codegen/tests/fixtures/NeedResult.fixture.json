@@ -1,0 +1,59 @@
+{
+  "id": "need-fixture-1",
+  "release_id": "rel:20261001-1",
+  "input_hash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "verdict": "hold",
+  "reasons": [
+    {
+      "statement_kind": "fact",
+      "text_template_id": "need-fact-1",
+      "evidence": [
+        "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0"
+      ],
+      "assertion_refs": [
+        "a:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+      ]
+    },
+    {
+      "statement_kind": "unknown",
+      "text_template_id": "need-unknown-1",
+      "evidence": [],
+      "assertion_refs": [],
+      "unknown_overlap": [
+        {
+          "ref": "gap:01J0000000000000000000000A",
+          "state": "input_missing"
+        }
+      ]
+    }
+  ],
+  "decisive_inputs": [
+    {
+      "input": "holdings_status",
+      "why_it_changes_verdict": "fixture reason"
+    }
+  ],
+  "deps": {
+    "conclusion_id": "conclusion-1",
+    "deps": {
+      "assertions": [
+        "a:01ARZ3NDEKTSV4RRFFQ69G5FAV"
+      ],
+      "facts": [
+        "fact:user-stated-1"
+      ],
+      "rules": [
+        "rule:fixture-rule-001@1#fedcba987654"
+      ],
+      "criteria": []
+    },
+    "unknown_overlap": [],
+    "produced_by": "need_assessment"
+  },
+  "result_state": {
+    "input_freshness": "fresh",
+    "knowledge_freshness": "fresh",
+    "usage_restriction": "none",
+    "reproducible": true
+  }
+}

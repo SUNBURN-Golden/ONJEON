@@ -1,0 +1,26 @@
+$ python3 -I -m unittest discover -s tools/tests -p test_decisions_o01.py -v
+test_applied_copy_changes_only_the_o01_row (test_decisions_o01.LedgerCopyAfterPatch.test_applied_copy_changes_only_the_o01_row) ... ok
+test_applied_copy_is_closed (test_decisions_o01.LedgerCopyAfterPatch.test_applied_copy_is_closed) ... ok
+test_duplicate_o01_row_is_rejected (test_decisions_o01.LedgerCopyAfterPatch.test_duplicate_o01_row_is_rejected) ... ok
+test_reworded_row_is_rejected_in_both_states (test_decisions_o01.LedgerCopyAfterPatch.test_reworded_row_is_rejected_in_both_states)
+질문만 바꿔 쓴 제3의 문구는 패치 유무와 무관하게 실패한다. ... ok
+test_stale_row_is_rejected_once_the_patch_is_gone (test_decisions_o01.LedgerCopyAfterPatch.test_stale_row_is_rejected_once_the_patch_is_gone)
+닫는 라운드가 패치를 지운 뒤에는 원래 열린 질문으로 되돌리는 회귀가 실패한다. ... ok
+test_closed_ledger_does_not_keep_the_stale_wording (test_decisions_o01.O01Row.test_closed_ledger_does_not_keep_the_stale_wording)
+원장이 닫혔으면 오래된 시점·임시 규칙은 사라졌어야 한다. 미수정이면 패치의 + 행에서 같은 것을 확인한다. ... ok
+test_ledger_keeps_five_columns (test_decisions_o01.O01Row.test_ledger_keeps_five_columns) ... ok
+test_ledger_row_is_stale_or_closed (test_decisions_o01.O01Row.test_ledger_row_is_stale_or_closed) ... ok
+test_patch_removes_the_audited_wording (test_decisions_o01.PatchFile.test_patch_removes_the_audited_wording) ... ok
+test_patch_replaces_exactly_the_o01_row (test_decisions_o01.PatchFile.test_patch_replaces_exactly_the_o01_row) ... ok
+test_patch_row_is_the_decided_scope (test_decisions_o01.PatchFile.test_patch_row_is_the_decided_scope) ... ok
+test_stale_row_fails_the_closed_checks (test_decisions_o01.PatchFile.test_stale_row_fails_the_closed_checks) ... ok
+test_adr_0018_closes_the_open_question (test_decisions_o01.Premise.test_adr_0018_closes_the_open_question) ... ok
+test_adr_0018_section_4_decides_both_institution_types (test_decisions_o01.Premise.test_adr_0018_section_4_decides_both_institution_types) ... ok
+test_d19_records_the_decided_scope (test_decisions_o01.Premise.test_d19_records_the_decided_scope) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.002s
+
+OK
+EXIT_CODE=0
+

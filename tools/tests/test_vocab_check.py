@@ -90,21 +90,57 @@ class Lint(unittest.TestCase):
                       "전체 31개 축 VOCABULARY.md <!-- vocab:allow -->\n전체 축은 VOCABULARY.md에 있다.\n")
         self.assertEqual(vc.lint(self.vocab), [])
 
-    def test_frozen_document_waives_only_its_listed_stale_count_and_flags_a_dead_entry(self):
-        waiver = mock.patch.object(vc, "FROZEN_STALE_AXIS_COUNTS", {"contracts/a.md": {31}})
-        waiver.start()
-        self.addCleanup(waiver.stop)
+    def test_stale_axis_count_in_a_protected_document_is_a_notice_not_a_failure(self):
+        patcher = mock.patch.object(vc, "PROTECTED_DOCS", ("contracts/a.md",))
+        patcher.start()
+        self.addCleanup(patcher.stop)
         self.document("전체 31개 축은 VOCABULARY.md에 있다.\n")
         self.assertEqual(vc.lint(self.vocab), [])
-        self.document("전체 31개 축은 VOCABULARY.md에 있다.\n전체 40개 축은 VOCABULARY.md에 있다.\n")
-        self.assertEqual(vc.lint(self.vocab), [
-            "contracts/a.md:2: says 40 axes, vocabulary.json has 2; drop the number (a count in prose goes stale)"])
-        self.document("전체 축은 VOCABULARY.md에 있다.\n")
-        self.assertEqual(vc.lint(self.vocab), [
-            "contracts/a.md: no longer says 31 axes; delete it from FROZEN_STALE_AXIS_COUNTS"])
+        self.assertEqual(vc.stale_axis_count_notices(self.vocab), [
+            "contracts/a.md:1: says 31 axes, vocabulary.json has 2; "
+            "protected document, the owner drops the number"])
+        # the notice is recomputed each run: a matching count clears it by itself
+        self.document("전체 2개 축은 VOCABULARY.md에 있다.\n")
+        self.assertEqual(vc.stale_axis_count_notices(self.vocab), [])
+        # and it respects the per-line opt-out marker like the lint does
+        self.document("전체 31개 축은 VOCABULARY.md에 있다. <!-- vocab:allow -->\n")
+        self.assertEqual(vc.stale_axis_count_notices(self.vocab), [])
 
     def test_no_matching_contracts_is_clean(self):
         self.assertEqual(vc.lint(self.vocab), [])
+
+
+class GeneratedDoc(unittest.TestCase):
+    """render() states the live axis count; the committed file may lag by exactly that line."""
+
+    def vocab(self, n):
+        return dict(version="1.0.0", updated="2026-01-01", rules=[], timestamps=[],
+                    axes=[dict(id=f"axis_{i}", name_ko="이름", applies_to="대상", layer="L0",
+                               concept_ko="개념",
+                               values=[dict(code="on", concept_ko="개념", screen_ko=None,
+                                            deprecated_aliases=[])])
+                          for i in range(n)])
+
+    def test_render_states_the_live_count_on_its_own_line(self):
+        self.assertIn("\n전체 3개 축.\n", vc.render(self.vocab(3)))
+
+    def test_a_file_predating_the_count_line_is_still_fresh(self):
+        v = self.vocab(3)
+        older = vc.render(v).replace("\n전체 3개 축.\n", "")
+        self.assertEqual(vc.generated_doc_problems(older, vc.render(v), 3), [])
+
+    def test_a_stale_or_doubled_count_line_is_drift(self):
+        v = self.vocab(3)
+        rendered = vc.render(v)
+        stale = rendered.replace("전체 3개 축.", "전체 2개 축.")
+        doubled = rendered + "전체 3개 축.\n"
+        self.assertTrue(vc.generated_doc_problems(stale, rendered, 3))
+        self.assertTrue(vc.generated_doc_problems(doubled, rendered, 3))
+
+    def test_any_other_difference_is_out_of_date(self):
+        v = self.vocab(3)
+        drifted = vc.render(v).replace("## 축 목록", "## axes")
+        self.assertTrue(vc.generated_doc_problems(drifted, vc.render(v), 3))
 
 
 if __name__ == "__main__":

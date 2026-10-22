@@ -11,6 +11,8 @@ python3 -I tools/ci/check_leak.py --selftest   # one planted violation per rule,
 python3 -I tools/ci/check_skeleton.py          # flags off, no exposure in app code or config (static)
 python3 -I tools/ci/check_skeleton.py --base-url http://HOST:PORT   # also probe inactive routes on a running server
 python3 -I tools/ci/check_bootstrap.py         # bootstrap-clean-main (tasks.json only; builds nothing)
+python3 -I tools/ci/check_product_purpose.py   # 09 P01..P19 task links and nine product-purpose test IDs
+python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v
 python3 -I tools/ci/check_<name>.py --selftest # every checker has one
 python3 -I -m unittest discover -s tools/ci/tests
 ```
@@ -25,6 +27,7 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 | `check_leak` | Textual hits: ad/commission fields in sort/rank/recommend context; sensitivity labels in public serializers, analytics/crash code, agent modules, the AI gateway; log/print calls naming a label or private field; analytics event calls with literal fields outside the allowed list | Data flow. camelCase and PascalCase identifiers are matched through a snake_case form, but other renamings (aliases, abbreviations) are not. A sensitive value passed through an untyped variable is invisible. Multi-line log calls are matched on the first line only. The runtime leak tests of T-PS-04 are the other half |
 | `check_skeleton` | Every skeleton flag defaults to false and names a gate; no config switches one on; app code does not reference a skeleton flag or route; with `--base-url`, inactive routes answer 404/501 | Without `--base-url` it says nothing about any server. No server or screen exists yet, so today this guards the file and the tree only |
 | `check_bootstrap` | The task graph is self-consistent (spec_check G1, G2, G31): tests and criteria name only crates, task IDs and paths that the repo or a prerequisite provides | That anything builds. The real sample build is T-CT-07. Test-command paths outside a task's allowed_paths (7 today in tasks.json: T-OP-00, T-CT-05, T-AP-03, T-AP-05, T-OP-05) are printed as advisory; `--strict-paths` fails on them |
+| `check_product_purpose` | All nine product-purpose test IDs from 09 §6 are in `required_test_ids`; every P01..P19 implementation task exists in tasks.json. Missing, duplicate or malformed rows fail closed | That registered tests execute or any product-purpose row has completion evidence |
 
 ## Rule file notes
 
@@ -41,4 +44,8 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 
 ## CI wiring
 
-Not done here. `.github/workflows/**` is the implementer's; add the commands above (plus the unit tests) to `ci.yml`. Until then none of these run in CI.
+The product-purpose guard runs through `tools/tests/test_product_purpose.py`, discovered by the existing `python3 -m unittest discover -s tools/tests -v` CI step. It checks the live bundle and exercises missing IDs and dangling row tasks using temporary inputs. The protected `spec_check.py` G12 list remains unchanged; this companion supplies the omitted checks without editing `docs/blueprint/proposals/**` or workflows.
+
+Local verification and environment limits: [Audit 1 product-purpose evidence](evidence/audit1-product-purpose.md).
+
+The other checker commands and `tools/ci/tests` are not wired here. `.github/workflows/**` is the implementer's; add those commands to `ci.yml`.

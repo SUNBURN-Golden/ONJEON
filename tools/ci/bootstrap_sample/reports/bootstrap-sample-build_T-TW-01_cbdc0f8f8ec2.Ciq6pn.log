@@ -1,0 +1,27 @@
+3441e1bdce69dca582b61ac4470cbebf7d3c32ef9e15565be535951f44c0bd4d  /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/run.sh
+b50bc8bf6e959613f214ddd51b5bdf252b429f47ad7fa4008bdea605597525af  /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/prune.py
+095efda8544912eb7298a5c33159b58ed925dfb134194eb6b604627ea238af0c  /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.U3LQrX/tasks.json
+rustc 1.98.1 (48a229cea 2026-09-01)
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+== bootstrap-sample-build ==
+task: T-TW-01   crate: onjeon-twin-runtime
+repo: /workspace/onjeon-run/wt/T-CT-07   ref: origin/main (cbdc0f8f8ec20f513d356d0c25193cbd38202ad5)
+keep set (self + transitive prereq_tasks):
+  T-CT-01
+  T-KN-01
+  T-TW-01
+tmp: /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/.run.U3LQrX  log: /workspace/onjeon-run/wt/T-CT-07/tools/ci/bootstrap_sample/reports/bootstrap-sample-build_T-TW-01_cbdc0f8f8ec2.Ciq6pn.log
+
+== phase A: clean clone, prerequisites only ==
+prune: residual non-prerequisite output:
+    WARN Cargo.toml: edited by 2621d663 but later work conflicts; non-prerequisite lines may remain
+    WARN Cargo.toml: edited by 6855ad3d but later work conflicts; non-prerequisite lines may remain
+    WARN tools/tests/test_daemon_dry_run.py: edited by c74a545a but later work conflicts; non-prerequisite lines may remain
+phase A: FAIL
+
+== phase B: drop one non-prerequisite output (T-KN-03), keep the rest ==
+prune: residual non-prerequisite output:
+    WARN Cargo.toml: edited by 2621d663 but later work conflicts; non-prerequisite lines may remain
+phase B: FAIL
+
+bootstrap-sample-build: FAIL (phase A=FAIL, phase B=FAIL)

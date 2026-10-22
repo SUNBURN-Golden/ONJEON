@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "coverage_detail.schema.json",
+  "title": "CoverageDetail",
+  "type": "object",
+  "description": "담보 상세 뷰모델 (02_구현계약 §2.4, 화면 설계서 §11)",
+  "properties": {
+    "release_id": {
+      "$ref": "common.schema.json#/$defs/ReleaseId"
+    },
+    "cov_id": {
+      "$ref": "common.schema.json#/$defs/CoverageId"
+    },
+    "title": {
+      "type": "string"
+    },
+    "data_as_of": {
+      "$ref": "common.schema.json#/$defs/IsoDate"
+    },
+    "display_status": {
+      "$ref": "vocabulary.schema.json#/$defs/display_status"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CapabilityStatus"
+      },
+      "description": "필드별이 아니라 담보별 기능 자격. 필드별 상태는 ViewLine.display_status"
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DetailLayer"
+      },
+      "description": "무엇을 보장 / 언제 못 받나 / 한도·갱신 / 가격 / 만약에 줄 / 차이 / 원문"
+    },
+    "result_state": {
+      "$ref": "common.schema.json#/$defs/ResultState"
+    }
+  },
+  "required": [
+    "release_id",
+    "cov_id",
+    "title",
+    "display_status",
+    "capabilities",
+    "layers",
+    "result_state"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "CapabilityStatus": {
+      "type": "object",
+      "description": "담보의 기능 자격 하나",
+      "properties": {
+        "capability": {
+          "$ref": "vocabulary.schema.json#/$defs/capability"
+        },
+        "state": {
+          "$ref": "vocabulary.schema.json#/$defs/capability_state"
+        }
+      },
+      "required": [
+        "capability",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "DetailLayer": {
+      "type": "object",
+      "description": "담보 상세의 한 층",
+      "properties": {
+        "layer": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "x-onjeon-pending-axis": "detail_layer",
+          "description": "what_is_covered, when_not_paid, limits_renewal, price, scenario, differences, source (02 §2.4). 결과를 뒤집는 제외는 layers[1]에 고정(R07). 어휘 축 승격 대기"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ViewLine"
+          }
+        }
+      },
+      "required": [
+        "layer",
+        "lines"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

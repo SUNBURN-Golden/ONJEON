@@ -1,0 +1,7 @@
+$ cargo clippy --all-targets -- -D warnings
+    Checking onjeon-contracts v0.1.0 (<repo>/packages/schemas)
+    Checking onjeon-api-types v0.1.0 (<repo>/packages/api-types)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.72s
+exit code: 0
+$ cargo fmt --all -- --check
+exit code: 0

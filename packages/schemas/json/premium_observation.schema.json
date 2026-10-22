@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "premium_observation.schema.json",
+  "title": "PremiumObservation",
+  "type": "object",
+  "description": "가격 관측치. 원시 관측은 공백이 있어도 보존하고 비교 자격은 따로 둔다 (02_구현계약 §1.2, PREMIUM_DATA_CONTRACT)",
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/PremiumId"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/EvidenceLink"
+      },
+      "minItems": 1,
+      "description": "근거 1개 이상"
+    },
+    "raw_amount": {
+      "$ref": "common.schema.json#/$defs/Krw",
+      "description": "원문 금액(정수 원). 공백이 있어도 보존한다"
+    },
+    "price_basis": {
+      "$ref": "vocabulary.schema.json#/$defs/price_basis"
+    },
+    "observed_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "source_published_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "source_as_of": {
+      "$ref": "common.schema.json#/$defs/IsoDate",
+      "description": "소스가 밝힌 기준일"
+    },
+    "payment_cycle": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "x-onjeon-pending-axis": "payment_cycle",
+      "description": "월납·연납 등. 연납÷12를 월납으로 쓰지 않는다. 어휘 축 승격 대기"
+    },
+    "conditions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "가격 조건(차원 -> 값). 조건 차원은 라벨 사전이 정의하는 열린 집합"
+    },
+    "condition_sources": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/Identifier"
+      },
+      "description": "조건마다 어디서 왔는지(차원 -> 출처)"
+    },
+    "package_binding": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "x-onjeon-pending-axis": "package_binding",
+      "description": "none, requires_main, source_bundle, requires_base_contract (PREMIUM_DATA_CONTRACT). 어휘 축 승격 대기"
+    },
+    "missing_dimensions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "원문에 없는 조건 차원"
+    },
+    "comparison_basis_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "comparison_eligible": {
+      "type": "boolean",
+      "description": "조건·구성·기준일이 모두 있고 accepted일 때만 true (K13)"
+    },
+    "value_state": {
+      "$ref": "vocabulary.schema.json#/$defs/value_state"
+    },
+    "review_status": {
+      "$ref": "vocabulary.schema.json#/$defs/review_status"
+    },
+    "review_decision_id": {
+      "$ref": "common.schema.json#/$defs/ReviewDecisionId"
+    },
+    "origin": {
+      "$ref": "vocabulary.schema.json#/$defs/assertion_origin",
+      "description": "pipeline, fixture"
+    }
+  },
+  "required": [
+    "id",
+    "evidence",
+    "raw_amount",
+    "price_basis",
+    "observed_at",
+    "missing_dimensions",
+    "comparison_eligible",
+    "value_state",
+    "review_status",
+    "origin"
+  ],
+  "additionalProperties": false,
+  "x-onjeon-invariants": [
+    "comparison_eligible=true => conditions, package_binding, source_as_of 있음, missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
+    "review_status=accepted => review_decision_id 있음",
+    "origin=fixture => review_status<>accepted"
+  ]
+}

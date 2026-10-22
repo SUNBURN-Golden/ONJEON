@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contract_snapshot.schema.json",
+  "title": "ContractSnapshot",
+  "type": "object",
+  "description": "개인 계약 스냅샷. 개인 DB와 개인 API에만 있다(K8). 이름·주민번호 없음 (02_구현계약 §1.4)",
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/ContractId"
+    },
+    "person_id": {
+      "$ref": "common.schema.json#/$defs/PersonId"
+    },
+    "upload_id": {
+      "$ref": "common.schema.json#/$defs/UploadId"
+    },
+    "sales_config_ref": {
+      "$ref": "#/$defs/SalesConfigRef"
+    },
+    "applied_editions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AppliedEdition"
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SnapshotComponent"
+      }
+    },
+    "special_conditions": {
+      "type": "array",
+      "items": {},
+      "description": "특약 조건. 항목 형식은 02 §1.4에 아직 없다(개인 영역 과제가 확정)"
+    },
+    "usage_counters": {
+      "type": "array",
+      "items": {},
+      "description": "사용 횟수. 항목 형식은 02 §1.4에 아직 없다(개인 영역 과제가 확정)"
+    },
+    "sensitivity": {
+      "$ref": "vocabulary.schema.json#/$defs/sensitivity"
+    },
+    "user_confirmed_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    }
+  },
+  "required": [
+    "id",
+    "person_id",
+    "sales_config_ref",
+    "applied_editions",
+    "components",
+    "special_conditions",
+    "usage_counters",
+    "sensitivity"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "SalesConfigRef": {
+      "type": "object",
+      "description": "판매 구성 연결과 버전 일치 상태",
+      "properties": {
+        "release_id": {
+          "$ref": "common.schema.json#/$defs/ReleaseId"
+        },
+        "sc_id": {
+          "$ref": "common.schema.json#/$defs/SalesConfigId"
+        },
+        "match": {
+          "$ref": "vocabulary.schema.json#/$defs/contract_version_match"
+        }
+      },
+      "required": [
+        "release_id",
+        "sc_id",
+        "match"
+      ],
+      "additionalProperties": false
+    },
+    "AppliedEdition": {
+      "type": "object",
+      "description": "근거로 확인한 약관 본문 판 이력. 최신 판 자동 적용 금지",
+      "properties": {
+        "ted_id": {
+          "$ref": "common.schema.json#/$defs/TermsEditionId"
+        },
+        "basis_evidence": {
+          "$ref": "common.schema.json#/$defs/EvidenceRef"
+        },
+        "from": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        },
+        "to": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        }
+      },
+      "required": [
+        "ted_id",
+        "basis_evidence",
+        "from"
+      ],
+      "additionalProperties": false
+    },
+    "SnapshotComponent": {
+      "type": "object",
+      "description": "계약의 담보 구성 한 건",
+      "properties": {
+        "cov_ref": {
+          "$ref": "common.schema.json#/$defs/CoverageId"
+        },
+        "insured_amount_krw": {
+          "$ref": "common.schema.json#/$defs/Krw"
+        },
+        "fact_source": {
+          "$ref": "vocabulary.schema.json#/$defs/fact_source",
+          "description": "pdf_extracted, user_stated, user_confirmed_extract, assumed, release_derived (02 §1.4)"
+        },
+        "confirm_party": {
+          "$ref": "vocabulary.schema.json#/$defs/confirm_party",
+          "description": "user, insurer, document, none (02 §1.4)"
+        },
+        "as_of": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        }
+      },
+      "required": [
+        "cov_ref",
+        "insured_amount_krw",
+        "fact_source",
+        "confirm_party",
+        "as_of"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

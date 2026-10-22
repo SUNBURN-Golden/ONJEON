@@ -1,0 +1,33 @@
+$ python3 -I -m unittest discover -s tools/tests
+.........................................................................................................................................................................................................................................................................ss...................sss.............................ss<repo>/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpfg199l1l/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...<repo>/tools/source_archive.py:406: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmphyw89duy/samples.csv' mode='r' encoding='utf-8'>
+  dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................ss...sssssssss........sss.<repo>/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='<repo>/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..<repo>/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='<repo>/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..<repo>/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='<repo>/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.................
+----------------------------------------------------------------------
+Ran 388 tests in 66.006s
+
+OK (skipped=21)
+exit code: 0
+$ python3 -I -m unittest discover -s tools/ci/tests
+....................
+----------------------------------------------------------------------
+Ran 20 tests in 3.691s
+
+OK
+check_deps selftest ok: 19 violations each caught for its intended rule, 7 clean case(s) pass
+check_leak selftest ok: 29 violations each caught for its intended rule, 5 clean case(s) pass
+check_skeleton selftest ok: 18 violations each caught for its intended rule, 5 clean case(s) pass
+check_bootstrap selftest ok: 9 violations each caught for its intended rule, 3 clean case(s) pass
+exit code: 0

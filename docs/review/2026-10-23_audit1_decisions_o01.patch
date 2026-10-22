@@ -5,41 +5,7 @@
  | ID | 질문·산출물 | 책임 역할 | 결정 시점 | 그 전 허용 / 차단 |
  |---|---|---|---|---|
 -| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |
-+| O01 | ~~공제·우체국보험의 포함 여부~~ → D19·ADR-0018 §4로 결정. 우체국보험 포함(기관 유형 구분), 공제 제외(확보율 분모에서도 제외). 전체 기관·소스 목록 작성 자체는 구현 작업(D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |
++| O01 | ~~공제·우체국보험의 포함 여부~~ → D19·ADR-0018 §4로 결정. 우체국보험 포함(기관 유형 구분), 공제 제외(확보율 분모에서도 제외). 전체 기관·소스 목록 작성 자체는 구현 작업(D11) | 제품 책임자 | ADR-0018로 확정 | 우체국보험 포함(기관 유형 구분) / 공제·확보율 분모 제외 |
  | O02 | 소스별 수집·재사용 조건, 공개 조회 한도 | 데이터 운영 책임 | 어댑터 가동 전 | 조사 허용 / 제한 우회·미확인 대량 조회 금지 |
  | O03 | 질병·담보 라벨 사전 v1, 코드 개정판 매핑 | 데이터 정책 책임 | M1 완료 전 | 후보 추출 / 정의 불명확 정규 라벨 승격 금지 |
  | O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |
---- /dev/null
-+++ b/tools/tests/test_decisions_o01.py
-@@ -0,0 +1,31 @@
-+"""O01 closure must retain the scope already approved by ADR-0018."""
-+import unittest
-+from pathlib import Path
-+
-+ROOT = Path(__file__).resolve().parents[2]
-+
-+
-+class O01DecisionTests(unittest.TestCase):
-+    def setUp(self):
-+        text = (ROOT / "docs/blueprint/DECISIONS.md").read_text(encoding="utf-8")
-+        self.rows = text.splitlines()
-+        matches = [line for line in self.rows if line.startswith("| O01 |")]
-+        self.assertEqual(1, len(matches))
-+        self.row = matches[0]
-+
-+    def test_o01_is_closed_with_existing_decision_references(self):
-+        self.assertIn("~~공제·우체국보험의 포함 여부~~", self.row)
-+        self.assertIn("D19", self.row)
-+        self.assertIn("ADR-0018 §4", self.row)
-+        self.assertIn("전체 기관·소스 목록 작성 자체는 구현 작업(D11)", self.row)
-+
-+    def test_o01_preserves_approved_scope(self):
-+        self.assertIn("우체국보험 포함(기관 유형 구분)", self.row)
-+        self.assertIn("공제 제외(확보율 분모에서도 제외)", self.row)
-+        d19 = next(line for line in self.rows if line.startswith("| D19 |"))
-+        self.assertIn("우체국보험(기관 유형 구분)", d19)
-+        self.assertIn("공제(분모에서도 제외)", d19)
-+
-+
-+if __name__ == "__main__":
-+    unittest.main()

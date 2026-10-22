@@ -78,6 +78,31 @@ class Lint(unittest.TestCase):
         self.document("banned_state")
         self.assertEqual(vc.lint(self.vocab), ["contracts/a.md:1: `banned_state` -> use forbidden in state"])
 
+    def test_stale_axis_count_next_to_a_vocabulary_pointer_is_reported(self):
+        self.document("ok\n전체 31개 축과 화면 문구는 VOCABULARY.md에 있다.\n상태 어휘 정본(5개의 축)\n")
+        self.assertEqual(vc.lint(self.vocab), [
+            "contracts/a.md:2: says 31 axes, vocabulary.json has 2; drop the number (a count in prose goes stale)",
+            "contracts/a.md:3: says 5 axes, vocabulary.json has 2; drop the number (a count in prose goes stale)",
+        ])
+
+    def test_axis_count_matching_vocabulary_or_unrelated_or_opted_out_is_allowed(self):
+        self.document("전체 2개 축은 VOCABULARY.md에 있다.\n화면은 3개 축으로 나눈다.\n"
+                      "전체 31개 축 VOCABULARY.md <!-- vocab:allow -->\n전체 축은 VOCABULARY.md에 있다.\n")
+        self.assertEqual(vc.lint(self.vocab), [])
+
+    def test_frozen_document_waives_only_its_listed_stale_count_and_flags_a_dead_entry(self):
+        waiver = mock.patch.object(vc, "FROZEN_STALE_AXIS_COUNTS", {"contracts/a.md": {31}})
+        waiver.start()
+        self.addCleanup(waiver.stop)
+        self.document("전체 31개 축은 VOCABULARY.md에 있다.\n")
+        self.assertEqual(vc.lint(self.vocab), [])
+        self.document("전체 31개 축은 VOCABULARY.md에 있다.\n전체 40개 축은 VOCABULARY.md에 있다.\n")
+        self.assertEqual(vc.lint(self.vocab), [
+            "contracts/a.md:2: says 40 axes, vocabulary.json has 2; drop the number (a count in prose goes stale)"])
+        self.document("전체 축은 VOCABULARY.md에 있다.\n")
+        self.assertEqual(vc.lint(self.vocab), [
+            "contracts/a.md: no longer says 31 axes; delete it from FROZEN_STALE_AXIS_COUNTS"])
+
     def test_no_matching_contracts_is_clean(self):
         self.assertEqual(vc.lint(self.vocab), [])
 

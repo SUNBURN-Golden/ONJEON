@@ -4,6 +4,7 @@
 - validates packages/schemas/vocabulary.json
 - generates docs/blueprint/VOCABULARY.md (--write) or checks it is up to date
 - lints contract documents for deprecated or forbidden status names in backticks
+  and for hand-written axis counts ("전체 31개 축") that no longer match vocabulary.json
 
 Usage:
   python3 tools/vocab_check.py          # check (CI)
@@ -38,6 +39,20 @@ CONTRACT_DOCS = [
     "docs/masterplan/가격_수집_명세.md",
     "data/registry/README.md",
 ]
+
+
+# "N개 축" / "N개의 축" on a line that points at the vocabulary: a hand-typed count that goes stale
+# whenever an axis is added. Prose should drop the number (the generated VOCABULARY.md lists the axes).
+AXIS_COUNT_RE = re.compile(r"(\d+)\s*개의?\s*축")
+VOCAB_POINTER_RE = re.compile(r"vocabulary|어휘", re.IGNORECASE)
+# Stale counts tolerated in documents that are frozen for editing (audit1 finding
+# `blueprint-axis-count`): docs/BLUEPRINT.md:174 says "전체 31개 축" while vocabulary.json
+# has grown past 31. The lint still reports any other number in the file, and reports the
+# entry itself once the file stops saying it, so the waiver cannot outlive the fix:
+# when the phrase is edited to drop the number, delete the entry. The same stale "31개 축"
+# sits in docs/blueprint/proposals/인계_설계책임/README.md:53; that file is also frozen and
+# is not scanned (proposals are drafts) -- drop the number there by hand as well.
+FROZEN_STALE_AXIS_COUNTS = {"docs/BLUEPRINT.md": {31}}
 
 
 def load():
@@ -205,15 +220,25 @@ def lint(v):
         for al in t["deprecated_aliases"]:
             deprecated.setdefault(al, f"timestamp {t['field']}")
     problems = []
+    waived = set()
     files = []
     for pattern in CONTRACT_DOCS:
         files += sorted(ROOT.glob(pattern))
     for f in files:
         if f == DOC:
             continue
+        rel = f.relative_to(ROOT).as_posix()
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
             if "vocab:allow" in line:
                 continue
+            if VOCAB_POINTER_RE.search(line):
+                for m in AXIS_COUNT_RE.finditer(line):
+                    n = int(m.group(1))
+                    if n in FROZEN_STALE_AXIS_COUNTS.get(rel, ()):
+                        waived.add((rel, n))
+                    elif n != len(v["axes"]):
+                        problems.append(f"{f.relative_to(ROOT)}:{i}: says {m.group(1)} axes, vocabulary.json has "
+                                        f"{len(v['axes'])}; drop the number (a count in prose goes stale)")
             seen = set()
             # backticked names, any case
             for m in re.finditer(r"`([A-Za-z][A-Za-z0-9_]*)`", line):
@@ -224,6 +249,11 @@ def lint(v):
             for tok in sorted(seen):
                 if tok in deprecated:
                     problems.append(f"{f.relative_to(ROOT)}:{i}: `{tok}` -> use {deprecated[tok]}")
+    scanned = {f.relative_to(ROOT).as_posix() for f in files}
+    for rel, counts in sorted(FROZEN_STALE_AXIS_COUNTS.items()):
+        for n in sorted(counts):
+            if rel in scanned and (rel, n) not in waived:
+                problems.append(f"{rel}: no longer says {n} axes; delete it from FROZEN_STALE_AXIS_COUNTS")
     return problems
 
 

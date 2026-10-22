@@ -1,4 +1,4 @@
-"""Regression tests for the reproduce decision in tools/verify_sources.py.
+"""Regression tests for source verification and CLI dependencies in tools/verify_sources.py.
 
 839ecdb review: a differing derived output was recorded but the sample stayed `reproduced` (exit 0).
 Follow-up review: outputs were enumerated from the store, so a file listed in the manifest but
@@ -10,6 +10,7 @@ The unit tests need no originals or extractors. The archive tests run only when
 ONJEON_ARCHIVE_RAW and ONJEON_ARCHIVE_DERIVED point at local stores (the originals are not in
 the public repository) and pdftotext is installed.
 """
+import io
 import json
 import os
 import shutil
@@ -18,6 +19,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 TOOLS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(TOOLS))
@@ -188,6 +190,63 @@ class ArchiveReproduce(unittest.TestCase):
     def test_untampered_sample_is_reproduced(self):
         code, res = self.run_reproduce(os.environ["ONJEON_ARCHIVE_DERIVED"])
         self.assertEqual(res[self.SAMPLE]["status"], "reproduced")
+
+
+class CliDependencies(unittest.TestCase):
+    """Audit 1: detect must run without pdfplumber; reproduce still requires it."""
+
+    def run_main(self, argv, pdfplumber=None):
+        with mock.patch.object(sys, "argv", ["verify_sources.py", *argv]), \
+                mock.patch.dict(sys.modules, {"pdfplumber": pdfplumber}), \
+                mock.patch.object(vs.shutil, "which", return_value="/usr/bin/pdftotext"), \
+                mock.patch.object(vs, "tool_version", return_value=None), \
+                mock.patch("sys.stdout", new_callable=io.StringIO) as stdout:
+            code = vs.main()
+        return code, stdout.getvalue()
+
+    def test_detect_without_pdfplumber_writes_report_and_preserves_exit_status(self):
+        body = b"%PDF-1.4 sample bytes"
+        row = {"sample_id": "s1", "url": "https://example.org/source.pdf", "format": "pdf",
+               "cache_path": "s1/source.pdf", "sha256": sa.sha256_bytes(body)}
+        cases = [(body, "unchanged_bytes", 0), (b"new PDF bytes", "changed", 0),
+                 (OSError("offline"), "fetch_failed", 1)]
+        for response, status, expected_code in cases:
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as d:
+                out = Path(d) / "downloads"
+                report = Path(d) / "report.json"
+                fetch = mock.Mock(side_effect=response) if isinstance(response, Exception) else \
+                    mock.Mock(return_value=(response, "application/pdf"))
+                with mock.patch.object(vs, "rows", return_value=[row]), \
+                        mock.patch.object(vs, "fetch", fetch):
+                    code, _ = self.run_main(["detect", "--out", str(out), "--report", str(report)])
+                self.assertEqual(code, expected_code)
+                fetch.assert_called_once_with(row["url"])
+                doc = json.loads(report.read_text())
+                self.assertEqual(doc["check"], "detect")
+                self.assertEqual(doc["summary"], {status: 1})
+                self.assertIsNone(doc["tools"]["pdfplumber"])
+                downloaded = out / row["cache_path"]
+                if status == "fetch_failed":
+                    self.assertFalse(downloaded.exists())
+                else:
+                    self.assertEqual(downloaded.read_bytes(), response)
+                    self.assertEqual(doc["results"][0]["sha256_now"], sa.sha256_bytes(response))
+
+    def test_reproduce_without_pdfplumber_stops_before_processing(self):
+        with mock.patch.object(vs, "cmd_reproduce") as reproduce, \
+                mock.patch.object(sa, "with_budget") as budget:
+            code, output = self.run_main(["reproduce", "--cache", "unused"])
+        self.assertEqual(code, 2)
+        self.assertIn("pdfplumber is required (pip install pdfplumber==0.11.10)", output)
+        reproduce.assert_not_called()
+        budget.assert_not_called()
+
+    def test_reproduce_with_pdfplumber_dispatches(self):
+        with mock.patch.object(vs, "cmd_reproduce", return_value=0) as reproduce:
+            code, _ = self.run_main(["reproduce", "--cache", "unused"], pdfplumber=mock.Mock())
+        self.assertEqual(code, 0)
+        reproduce.assert_called_once()
+        self.assertEqual(reproduce.call_args.args[0].cache, "unused")
 
 
 class DetectExit(unittest.TestCase):

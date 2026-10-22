@@ -31,3 +31,5 @@
 최신: [소비자 화면 설계](docs/design/CONSUMER_FLOW_SPEC.md) · [가격 데이터 수집 명세](docs/data/PREMIUM_DATA_CONTRACT.md) · ADR-0010. 공개 가격 수집·표시·예산 비교는 첫 출시 범위이며 개인 실견적 연계와 구분한다.
 
 세부 구현 계약: [시스템·데이터·수락 계약](docs/blueprint/SYSTEM_CONTRACT.md) · [요구사항 26개와 수락 사례](docs/blueprint/REQUIREMENTS.md) · [결정 원장](docs/blueprint/DECISIONS.md). 단일 진입점은 계속 `docs/BLUEPRINT.md`다(ADR-0012).
+
+감리 후속: [O13·§12의 DEC-D-04 정정안과 검증](docs/review/2026-10-23_audit1_o13_d04_ruling.md). 준태님의 2026-10-13 토큰 미폐기 결정을 인용한 정본 반영안이며, 보호된 정본 네 곳은 아직 미반영이다. 이 정정안은 R2 접근 관문을 해제하지 않는다.

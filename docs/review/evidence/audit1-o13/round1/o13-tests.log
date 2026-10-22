@@ -1,0 +1,17 @@
+{"command": ["python3", "-I", "-m", "unittest", "discover", "-s", "tools/tests", "-p", "test_o13_ruling.py", "-v"], "started_at": "2026-10-22T23:09:46.912441+00:00"}
+test_independent_lock_and_bulk_collection_gates_remain (test_o13_ruling.RulingAccessGates.test_independent_lock_and_bulk_collection_gates_remain) ... ok
+test_local_paths_queue_but_r2_access_stays_disabled (test_o13_ruling.RulingAccessGates.test_local_paths_queue_but_r2_access_stays_disabled) ... ok
+test_op02_requires_both_registered_decisions (test_o13_ruling.RulingAccessGates.test_op02_requires_both_registered_decisions) ... ok
+test_record_file_alone_does_not_release_op04_start (test_o13_ruling.RulingAccessGates.test_record_file_alone_does_not_release_op04_start) ... ok
+test_live_rows_are_exact_pending_or_corrected (test_o13_ruling.RulingDocumentation.test_live_rows_are_exact_pending_or_corrected) ... ok
+test_other_wording_duplicates_and_ruling_drift_fail (test_o13_ruling.RulingDocumentation.test_other_wording_duplicates_and_ruling_drift_fail) ... ok
+test_patch_applies_to_copies_and_corrected_live_checks_pass (test_o13_ruling.RulingDocumentation.test_patch_applies_to_copies_and_corrected_live_checks_pass) ... ok
+test_proposal_rows_match_patch_and_link_actual_owner_record (test_o13_ruling.RulingDocumentation.test_proposal_rows_match_patch_and_link_actual_owner_record) ... ok
+test_readme_links_evidence_without_requiring_pending_status (test_o13_ruling.RulingDocumentation.test_readme_links_evidence_without_requiring_pending_status) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.034s
+
+OK
+
+exit_code: 0

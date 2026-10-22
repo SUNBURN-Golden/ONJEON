@@ -1,0 +1,3 @@
+{"command": ["git", "apply", "--check", "docs/review/2026-10-23_audit1_o13_d04_ruling.patch"], "started_at": "2026-10-22T23:09:48.570830+00:00"}
+
+exit_code: 0

@@ -1,0 +1,4 @@
+{"command": ["cargo", "clippy", "--offline", "--all-targets", "--", "-D", "warnings"], "started_at": "2026-10-22T23:09:47.238337+00:00"}
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+
+exit_code: 0

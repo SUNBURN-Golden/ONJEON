@@ -1,0 +1,21 @@
+T-KN-04 fix round 4 -- independent review BLOCK findings addressed, 2026-10-23
+Target: uncommitted worktree on head d011da6144f895b2f536aeddd7e02be474375be5 (base main bbcdb0bf07410a9212aeb3dc95dfbb469960cee1); file hashes in review_target_round_4.json
+Finding P1 K7: ontology boundary now maps public.node `kind` column to `class` and flattens `attrs` with attrs winning for non-column keys; regression tests in repository.rs (k7_reads_reductions_in_the_persisted_node_shape, ontology_shaped_nodes_keep_their_class) and postgres.rs (DB round trip)
+Finding P2 scope_relation: closed reversible mapping (DUAL_REFERENCE_PREDICATES); object to typed column, literal only in knowledge.record_extension, restored by snapshot; tests scope_relations_keep_object_and_value_for_k4_and_k12 and the DB round trip (object column, NULL value column, payload value, K4 after reconnect)
+Finding P2 raw assets: insert_record("raw_assets") rejects unlisted hashes and ids not derived from the hash; check_service_candidate flags every raw asset outside the allowlist as B4; tests raw_assets_are_allowlisted_at_load_and_at_candidate_check and the DB case (direct insert past the service, B4, promotion refused, knowledge.candidate 0 rows)
+Finding P2 PR evidence: PR_BODY.md rewritten with the template's A/Q/L/I/M, Q, R, ADR lines, task id, author roles and families per round, target SHA and independent-review status; paths are services/knowledge/** only; supervisor must copy it to the PR description
+bash services/knowledge/test.sh: PASS, 25 passed / 0 failed / 0 ignored (unit 1, repository 21, r26 1, postgres 1, doc 1); PostgreSQL 17.11 disposable cluster
+cargo test --locked --workspace: PASS, 412 passed / 0 failed / 2 ignored
+Ignored: knowledge DB test executed separately by test.sh; twin-runtime fixture regeneration is a write utility, freshness check passed
+cargo clippy --locked --workspace --all-targets -- -D warnings: PASS
+cargo fmt --all -- --check: PASS (rustfmt applied to the new test code first)
+bash infra/db/public/test.sh: PASS, 166 passed / 0 failed
+python3 -I tools/ci/check_leak.py: PASS
+python3 -I tools/ci/check_skeleton.py: PASS
+python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime: PASS, 2 tests
+profile-historical-vs-service: PASS, historical violations=0, questions=11/11, B1/B2/B3 rejected
+price-raw-kept-comparison-gated: PASS
+Path policy: PASS, every modified or new file is under services/knowledge/**; Cargo.toml and Cargo.lock unchanged this round
+git diff --check HEAD: PASS (exit 0); untracked files: no trailing whitespace, newline at EOF
+Migration 001_repository.sql unchanged; no vocabulary, schema or protected document changes
+Independent review and remote CI: pending the supervisor's committed SHA and a reviewer family different from both author families; no commit/push/GitHub invocation

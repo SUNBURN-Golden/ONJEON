@@ -1,0 +1,4 @@
+T-KN-04 fix round 4 -- cargo clippy --locked --workspace --all-targets -- -D warnings (2026-10-23T14:32:06Z)
+    Checking onjeon-knowledge v0.1.0 (<worktree>/services/knowledge)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.99s
+EXIT_CODE: 0

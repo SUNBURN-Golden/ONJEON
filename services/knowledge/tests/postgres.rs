@@ -307,5 +307,103 @@ fn persistence_restart_db_constraints_and_candidate_integration() {
         .unwrap()
         .get(0);
     assert_eq!(count, 0);
-    println!("PostgreSQL restart persistence; B2/B3/price DB rechecks; c0; append_only; deferred K10; external-row candidate rejection: PASS");
+
+    // Dual-reference relation: the target goes to the typed column, the literal only to
+    // the extension, and the reconnect restores both so K4 sees the cycle.
+    let allow = ObservationAllowlist::new(["b".repeat(64)]);
+    let mut relation = assertion(9, &raw);
+    relation["subject"] = json!("cat:fixture_a");
+    relation["predicate"] = json!("scope_relation");
+    relation["object"] = json!("cat:fixture_b");
+    relation["value"] = json!("narrower");
+    let mut reverse = relation.clone();
+    reverse["id"] = json!(id("a", 10));
+    reverse["subject"] = json!("cat:fixture_b");
+    reverse["object"] = json!("cat:fixture_a");
+    for a in [relation, reverse] {
+        repo.ingest_assertion(Path::new("incoming/scope.json"), a, &allow)
+            .unwrap();
+    }
+    let row = admin
+        .query_one(
+            "SELECT object, value, (SELECT payload->>'value' FROM knowledge.record_extension \
+             WHERE section='assertions' AND id=$1) FROM public.assertion WHERE id=$1",
+            &[&id("a", 9)],
+        )
+        .unwrap();
+    assert_eq!(
+        row.get::<_, Option<String>>(0).as_deref(),
+        Some("cat:fixture_b")
+    );
+    assert!(row.get::<_, Option<Value>>(1).is_none());
+    assert_eq!(row.get::<_, Option<String>>(2).as_deref(), Some("narrower"));
+    drop(repo);
+    let mut repo = KnowledgeRepository::connect(&config, allow.clone()).unwrap();
+    let stored = repo.get("assertions", &id("a", 9)).unwrap();
+    assert_eq!(stored["object"], "cat:fixture_b");
+    assert_eq!(stored["value"], "narrower");
+    assert!(repo
+        .check_candidate(None)
+        .unwrap()
+        .iter()
+        .any(|v| v.code == "K4"));
+
+    // K7 reads the persisted node shape: class in `kind`, 감액 and its target in `attrs`.
+    repo.insert_record(
+        "nodes",
+        json!({"id":"cond:fixture_reduction","kind":"Condition","label":"fixture_only",
+        "attrs":{"kind":"감액","anchor":"계약일"},"origin":"pipeline","onto_version":"onto-0.2"}),
+    )
+    .unwrap();
+    let mut reduction = assertion(11, &raw);
+    reduction["predicate"] = json!("has_condition");
+    reduction["object"] = json!("cond:fixture_reduction");
+    reduction.as_object_mut().unwrap().remove("value");
+    repo.ingest_assertion(Path::new("incoming/reduction.json"), reduction, &allow)
+        .unwrap();
+    drop(repo);
+    let mut repo = KnowledgeRepository::connect(&config, allow).unwrap();
+    assert_eq!(
+        repo.get("nodes", "cond:fixture_reduction").unwrap()["kind"],
+        "Condition"
+    );
+    assert!(repo
+        .check_candidate(None)
+        .unwrap()
+        .iter()
+        .any(|v| v.code == "K7"));
+
+    // A raw asset outside the R2 listing: refused by the loader, and a row written past the
+    // service is a B4 member that blocks promotion even with no assertion referencing it.
+    let unlisted = json!({"id":format!("raw:sha256:{}","f".repeat(64)),"sha256":"f".repeat(64),
+        "byte_length":1,"media_type":"application/pdf","storage_key":"fixture_only"});
+    assert!(matches!(
+        repo.insert_record("raw_assets", unlisted.clone()),
+        Err(KnowledgeError::HashNotObserved(_))
+    ));
+    let columns = unlisted
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(|s| format!("\"{s}\""))
+        .collect::<Vec<_>>()
+        .join(",");
+    admin.execute(&format!("INSERT INTO public.raw_asset({columns}) SELECT {columns} FROM jsonb_populate_record(NULL::public.raw_asset,$1)"),&[&unlisted]).unwrap();
+    assert!(repo
+        .check_candidate(None)
+        .unwrap()
+        .iter()
+        .any(|v| v.code == "B4" && v.message.contains(&"f".repeat(64))));
+    assert!(repo
+        .promote_candidate("candidate:unlisted-raw", None)
+        .is_err());
+    let count: i64 = admin
+        .query_one(
+            "SELECT count(*) FROM knowledge.candidate WHERE id='candidate:unlisted-raw'",
+            &[],
+        )
+        .unwrap()
+        .get(0);
+    assert_eq!(count, 0);
+    println!("PostgreSQL restart persistence; B2/B3/price DB rechecks; c0; append_only; deferred K10; external-row candidate rejection; scope_relation round trip; K7 node shape; unlisted raw asset: PASS");
 }

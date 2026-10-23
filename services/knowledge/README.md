@@ -15,9 +15,9 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction -f services/knowledge/migrations
 - `ingest_assertion`은 추가만 한다. 수정 메서드는 없다. 정정은 새 ID와 `supersedes`·`correction_reason`이다. 둘 이상의 정정과 충돌은 `ingest_corrections`로 한 트랜잭션에 저장한다. DB 지연 제약 실패 시 모두 롤백된다.
 - 구획·조항·본문 판·계열 등은 `insert_record`, 충돌은 `insert_conflict`, 공백과 작업은 각각 `insert_gap`·`insert_task`로 저장한다. 작업 상태 변경은 공백 상태를 바꾸지 않는다. 충돌 구성원은 `assertions`가 정식 필드이며 이전 `assertion_ids` 입력도 같은 형식으로 변환한다.
 - 영속 입력은 T-CT-05의 열 이름과 필수 열을 사용한다. 예: 구획의 `raw_asset_id`, 조항의 `segment_id`, 주장의 소문자 `criticality`와 객체 `value{raw, normalized, ...}`, 가격의 `source_as_of`. DB가 필수 열·어휘·FK·accepted·불변성 제약을 다시 검사한다. 필수 값을 자동으로 채우지 않는다.
-- 온톨로지 전용 속성(`decision.covers`, 규칙 연결 등)은 본 행과 같은 트랜잭션에서 `knowledge.record_extension`에 보존한다. 조회 시 DB 열이 우선한다. `get`·`list`·`task`는 마지막 적재/`refresh()` 시점의 캐시를 읽는다. `check_candidate`는 매번 새 DB 스냅샷을 검사한다. 승격은 검사한 스냅샷의 구성원을 저장한다.
-- 검사 경계에서만 `c0` → `C0`, 영문 문서 역할 → 온톨로지 역할, `source_as_of` → `as_of` 등을 변환한다. 저장된 원본 필드는 바꾸지 않는다. K1~K16 검사 뒤 가격을 포함한 accepted 검수 관문과 R2 근거 관문도 재검사한다. 위반 집합은 승격되지 않는다.
-- R2 allowlist는 Git 고정 관측 목록을 호출자가 읽어 제공한다. 두 기존 원시 목록 형식을 지원하며 다운로드 검증 결과의 불일치·실패 항목은 제외한다. `raw`·`seg`·`clause`·`obs`·`premium` 근거를 RawAsset까지 해소한다. 미존재·순환 참조·목록 밖 해시는 거부한다. `set_allowlist` 이후 후보 검사에도 새 목록이 적용된다.
+- 온톨로지 전용 속성(`decision.covers`, 규칙 연결 등)은 본 행과 같은 트랜잭션에서 `knowledge.record_extension`에 보존한다. 조회 시 DB 열이 우선한다. 닫힌 역변환이 하나 있다. `scope_relation`처럼 대상(`object`)과 값(`value`)을 함께 쓰는 주장은 `chk_assertion_object_xor_value` 때문에 대상만 열에 넣고 값은 확장 행에만 둔다. 재접속 시 NULL인 값 열을 확장 행의 값으로 되돌리므로 K4·K12가 같은 관계를 읽는다. 그 밖의 술어는 DB의 XOR 제약이 그대로 적용된다. `get`·`list`·`task`는 마지막 적재/`refresh()` 시점의 캐시를 읽는다. `check_candidate`는 매번 새 DB 스냅샷을 검사한다. 승격은 검사한 스냅샷의 구성원을 저장한다.
+- 검사 경계에서만 `c0` → `C0`, 영문 문서 역할 → 온톨로지 역할, `source_as_of` → `as_of` 등을 변환한다. 노드는 `public.node`의 `kind` 열을 `class`로 읽고 `attrs`를 펼친다. `attrs`의 `kind`(예: 감액)·`applies_to`·`value`가 K7이 읽는 값이며, 열(`id`·`label`·`origin`·`onto_version`·`recorded_at`)은 `attrs`가 덮어쓰지 못한다. 이미 `class`가 있는 온톨로지 형식 노드는 `kind`를 속성으로 유지한다. 저장된 원본 필드는 바꾸지 않는다. K1~K16 검사 뒤 가격을 포함한 accepted 검수 관문과 R2 근거 관문도 재검사한다. 위반 집합은 승격되지 않는다.
+- R2 allowlist는 Git 고정 관측 목록을 호출자가 읽어 제공한다. 두 기존 원시 목록 형식을 지원하며 다운로드 검증 결과의 불일치·실패 항목은 제외한다. `raw`·`seg`·`clause`·`obs`·`premium` 근거를 RawAsset까지 해소한다. 미존재·순환 참조·목록 밖 해시는 거부한다. `insert_record("raw_assets", …)` 자체도 목록 검사다. 해시가 목록 밖이거나 `id`가 `raw:sha256:<해시>`가 아니면 거부한다. 후보 검사는 참조 여부와 무관하게 모든 원본 행을 다시 목록과 대조하며(B4), 서비스를 거치지 않고 들어온 행도 승격을 막는다. `set_allowlist` 이후 후보 검사에도 새 목록이 적용된다.
 - B1은 `packages/fixtures/**`와 `docs/blueprint/**`를 상대·절대 경로, 부모 경로 이동, 기존 심볼릭 링크까지 확인하여 거부한다. B2/B3은 주장과 가격에 모두 적용한다.
 
 ## 가격 원시 보존과 비교 자격
@@ -43,10 +43,8 @@ python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime
 
 `test.sh`는 로컬 PostgreSQL 도구로 Unix 소켓 전용 임시 DB를 만들고 종료 시 제거한다. PostgreSQL이 없으면 실패하며, 외부 DB를 받아 사용하지 않는다. 일반 cargo 시험에서는 이 DB 시험 하나가 명시적으로 ignored다. `test.sh`는 `--include-ignored`로 실제 실행한다. r26 시험은 같은 T-KN-02 A-box에서 이력 제약 0건·질문 11/11과 서비스 거부를 함께 확인한다. 질문 계산은 기존 시험 CLI를 별도 target 디렉터리에 `--locked`로 빌드해서 호출한다.
 
-최신 로그는 `evidence/fix_round_3_*.log`다. round 3에서는 main 병합의 Cargo 충돌을 해결했다. twin-runtime·collect·criteria와 knowledge를 모두 유지하고, 잠금 파일은 Cargo로 재생성하되 기존 의존성 버전을 유지했다. 서비스 구현과 시험 동작은 바꾸지 않았다.
+최신 로그는 `evidence/fix_round_4_*.log`다. round 4는 독립 리뷰의 차단 지적 셋을 고쳤다. (1) K7이 `public.node` 형식(`kind` 열 + `attrs.kind=감액`)의 감액 조건을 읽지 못하던 문제, (2) `scope_relation`의 값이 DB 왕복에서 사라지던 문제, (3) 참조되지 않은 원본 행이 목록 검사 없이 후보에 들어가던 문제다. 각각 메모리 시험과 DB 왕복 시험을 추가했다. 마이그레이션은 바꾸지 않았다.
 
-전체 워크스페이스 시험은 408개 통과, 2개 ignored다. knowledge DB 시험은 `test.sh`에서 별도로 실행해 서비스 시험 21개가 모두 통과했다. 나머지 ignored는 twin-runtime의 픽스처 재생성 도구이며, 같은 파일의 최신성 검증 시험은 통과했다. DB 제약 시험 166개, clippy·fmt, 누출·스켈레톤 정적 검사와 비노출 시험 2개도 통과했다.
+전체 워크스페이스 시험은 412개 통과, 2개 ignored다. knowledge DB 시험은 `test.sh`에서 별도로 실행해 서비스 시험 25개(단위 1, 저장소 21, r26 1, DB 1, 문서 1)가 모두 통과했다. 나머지 ignored는 twin-runtime의 픽스처 재생성 도구이며, 같은 파일의 최신성 검증 시험은 통과했다. DB 제약 시험 166개, clippy·fmt, 누출·스켈레톤 정적 검사와 비노출 시험 2개도 통과했다.
 
-허용 경로의 공백 검사는 통과했다. 전체 staged diff에는 main에서 들어온 허용 경로 밖 네 파일의 기존 공백 경고가 남아 있다. 해당 파일들이 `MERGE_HEAD`와 바이트 단위로 같은지 확인했으며 수정하지 않았다(`fix_round_3_merge.log`).
-
-round 2의 CI 검사기 전체 자기 시험은 기존 온톨로지 의존성 위반 3건으로 20개 중 2개 실패했다. `fix_round_2_baseline.log`는 당시 HEAD의 읽기 전용 사본과 작업 트리에서 해당 위반이 같음을 확인한다. round 3에서 이 전체 자기 시험을 다시 실행한 것으로 표시하지 않는다. 원격 CI 실행·커밋 SHA에 고정된 독립 리뷰는 이 로컬 실행의 결과로 주장하지 않는다.
+round 2의 CI 검사기 전체 자기 시험은 기존 온톨로지 의존성 위반 3건으로 20개 중 2개 실패했다. `fix_round_2_baseline.log`는 당시 HEAD의 읽기 전용 사본과 작업 트리에서 해당 위반이 같음을 확인한다. round 3·4에서 이 전체 자기 시험을 다시 실행한 것으로 표시하지 않는다. 원격 CI 실행·커밋 SHA에 고정된 독립 리뷰는 이 로컬 실행의 결과로 주장하지 않는다.

@@ -2,6 +2,7 @@ use onjeon_knowledge::{
     AcquisitionTask, KnowledgeError, KnowledgeRepository, ObservationAllowlist, ReviewDecision,
 };
 use serde_json::{json, Value};
+use std::collections::BTreeSet;
 use std::path::Path;
 
 fn pending(id: &str) -> Value {
@@ -231,12 +232,14 @@ fn allowlist_extracts_sha256_from_archive_listing() {
 fn r2_allowlist_applies_to_raw_evidence() {
     let hash = "b".repeat(64);
     let mut repository = KnowledgeRepository::new();
-    repository
-        .insert_record(
-            "raw_assets",
-            json!({"id": format!("raw:sha256:{hash}"), "sha256": hash}),
-        )
-        .unwrap();
+    let raw_asset = json!({"id": format!("raw:sha256:{hash}"), "sha256": hash});
+    // The loader itself is allowlist-gated: an unlisted hash never becomes a raw asset.
+    assert!(matches!(
+        repository.insert_record("raw_assets", raw_asset.clone()),
+        Err(KnowledgeError::HashNotObserved(_))
+    ));
+    repository.set_allowlist(ObservationAllowlist::new([hash.clone()]));
+    repository.insert_record("raw_assets", raw_asset).unwrap();
     let mut assertion = pending("a:01ARZ3NDEKTSV4RRFFQ69G5FAV");
     assertion["evidence"] = json!([{"ref": format!("raw:sha256:{hash}"), "role": "observation"}]);
     assert!(matches!(
@@ -259,13 +262,13 @@ fn r2_allowlist_applies_to_raw_evidence() {
 #[test]
 fn price_raw_kept_comparison_gated() {
     let mut repository = KnowledgeRepository::new();
+    repository.set_allowlist(ObservationAllowlist::new(["b".repeat(64)]));
     repository
         .insert_record(
             "raw_assets",
             json!({"id": format!("raw:sha256:{}", "b".repeat(64)), "sha256":"b".repeat(64)}),
         )
         .unwrap();
-    repository.set_allowlist(ObservationAllowlist::new(["b".repeat(64)]));
     let raw = json!({
         "id": "premium:01ARZ3NDEKTSV4RRFFQ69G5FAV",
         "evidence": [{"ref": "raw:sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "role": "observation"}],
@@ -356,6 +359,7 @@ fn source(repo: &mut KnowledgeRepository) -> (String, String, String) {
     let raw = format!("raw:sha256:{}", "b".repeat(64));
     let segment = "seg:bbbbbbbbbbbb:p1-3:terms:v1".to_owned();
     let clause = format!("clause:{segment}/art1#p1:text@1.0");
+    repo.set_allowlist(ObservationAllowlist::new(["b".repeat(64)]));
     repo.insert_record("raw_assets", json!({"id":raw,"sha256":"b".repeat(64)}))
         .unwrap();
     repo.insert_record(
@@ -552,6 +556,7 @@ fn b1_normalizes_parent_paths_and_forbids_blueprint_and_symlinks() {
 fn edition_conflict_uses_actual_segments_editions_and_clauses() {
     let mut repo = KnowledgeRepository::new();
     let allow = ObservationAllowlist::new(["a".repeat(64), "b".repeat(64)]);
+    repo.set_allowlist(allow.clone());
     let fingerprint = json!({"rule":"fp-1","sha256":"c".repeat(64)});
     let segments = ["seg:combined", "seg:individual"];
     let clauses = ["clause:combined", "clause:individual"];
@@ -621,4 +626,155 @@ fn edition_conflict_uses_actual_segments_editions_and_clauses() {
         .unwrap();
     assert!(repo.check_candidate(None).unwrap().is_empty());
     assert_eq!(repo.conflicts_for("a:edition-first").len(), 1);
+}
+
+/// `public.node` shape: the class is the `kind` column and ontology attributes are `attrs`.
+fn sql_node(id: &str, attrs: Value) -> Value {
+    json!({"id": id, "kind": "Condition", "label": "fixture_only", "attrs": attrs,
+        "origin": "pipeline", "onto_version": "onto-0.2"})
+}
+
+fn has_condition(id: &str, node: &str) -> Value {
+    let mut a = pending(id);
+    a["predicate"] = json!("has_condition");
+    a["object"] = json!(node);
+    a.as_object_mut().unwrap().remove("value");
+    a
+}
+
+#[test]
+fn k7_reads_reductions_in_the_persisted_node_shape() {
+    let cases = [
+        (json!({"kind": "감액", "anchor": "계약일"}), true),
+        (
+            json!({"kind": "감액", "anchor": "계약일", "applies_to": ["최초계약"]}),
+            false,
+        ),
+        (json!({"kind": "감액", "value": "없음"}), false),
+        (json!({"kind": "보장개시", "anchor": "계약일"}), false),
+    ];
+    for (attrs, violates) in cases {
+        let mut repo = KnowledgeRepository::new();
+        repo.insert_record("nodes", sql_node("cond:reduction", attrs.clone()))
+            .unwrap();
+        repo.ingest_assertion(
+            Path::new("incoming/a.json"),
+            has_condition("a:reduction", "cond:reduction"),
+            &ObservationAllowlist::default(),
+        )
+        .unwrap();
+        let violations = repo.check_candidate(None).unwrap();
+        assert_eq!(
+            violations.iter().any(|v| v.code == "K7"),
+            violates,
+            "{attrs}: {violations:?}"
+        );
+        assert_eq!(
+            repo.promote_candidate("candidate:reduction", None).is_ok(),
+            !violates,
+            "{attrs}"
+        );
+        assert_eq!(repo.is_promoted("candidate:reduction"), !violates);
+    }
+}
+
+#[test]
+fn ontology_shaped_nodes_keep_their_class() {
+    // Here `kind` is the 감액 attribute, not the class; K5 only fires for class Condition.
+    let mut repo = KnowledgeRepository::new();
+    repo.insert_record(
+        "nodes",
+        json!({"id":"cond:reduction","class":"Condition","kind":"감액",
+            "anchor":"fixture_only_unknown_anchor","origin":"pipeline"}),
+    )
+    .unwrap();
+    repo.ingest_assertion(
+        Path::new("incoming/a.json"),
+        has_condition("a:reduction", "cond:reduction"),
+        &ObservationAllowlist::default(),
+    )
+    .unwrap();
+    let codes: BTreeSet<String> = repo
+        .check_candidate(None)
+        .unwrap()
+        .into_iter()
+        .map(|v| v.code)
+        .collect();
+    assert!(codes.contains("K7") && codes.contains("K5"), "{codes:?}");
+}
+
+fn scope_relation(id: &str, subject: &str, object: &str, relation: &str) -> Value {
+    let mut a = pending(id);
+    a["subject"] = json!(subject);
+    a["predicate"] = json!("scope_relation");
+    a["object"] = json!(object);
+    a["value"] = json!(relation);
+    a
+}
+
+#[test]
+fn scope_relations_keep_object_and_value_for_k4_and_k12() {
+    let allow = ObservationAllowlist::default();
+    let mut repo = KnowledgeRepository::new();
+    for a in [
+        scope_relation("a:ab", "cat:a", "cat:b", "narrower"),
+        scope_relation("a:ba", "cat:b", "cat:a", "narrower"),
+    ] {
+        repo.ingest_assertion(Path::new("incoming/scope.json"), a, &allow)
+            .unwrap();
+    }
+    let violations = repo.check_candidate(None).unwrap();
+    assert!(violations.iter().any(|v| v.code == "K4"), "{violations:?}");
+    assert!(matches!(
+        repo.promote_candidate("candidate:cycle", None),
+        Err(KnowledgeError::ConstraintViolation(_))
+    ));
+    // An accepted relation without a code universe cannot be computed: K12.
+    let mut repo = KnowledgeRepository::new();
+    let d = valid_decision();
+    repo.insert_review_decision(d.clone()).unwrap();
+    let mut a = scope_relation("a:accepted", "cat:a", "cat:b", "narrower");
+    a["review_status"] = json!("accepted");
+    a["review_decision_id"] = json!(d.id);
+    repo.ingest_assertion(Path::new("incoming/accepted.json"), a, &allow)
+        .unwrap();
+    let violations = repo.check_candidate(None).unwrap();
+    assert!(violations.iter().any(|v| v.code == "K12"), "{violations:?}");
+}
+
+#[test]
+fn raw_assets_are_allowlisted_at_load_and_at_candidate_check() {
+    let hash = "b".repeat(64);
+    let mut repo = KnowledgeRepository::new();
+    repo.set_allowlist(ObservationAllowlist::new([hash.clone()]));
+    assert!(matches!(
+        repo.insert_record(
+            "raw_assets",
+            json!({"id": format!("raw:sha256:{}", "c".repeat(64)), "sha256": "c".repeat(64)})
+        ),
+        Err(KnowledgeError::HashNotObserved(_))
+    ));
+    assert!(matches!(
+        repo.insert_record(
+            "raw_assets",
+            json!({"id": "raw:sha256:mismatch", "sha256": hash})
+        ),
+        Err(KnowledgeError::InvalidShape(_))
+    ));
+    repo.insert_record(
+        "raw_assets",
+        json!({"id": format!("raw:sha256:{hash}"), "sha256": hash}),
+    )
+    .unwrap();
+    assert!(repo.check_candidate(None).unwrap().is_empty());
+    repo.promote_candidate("candidate:listed", None).unwrap();
+    // The listing is re-read at candidate time even when no assertion references the asset.
+    repo.set_allowlist(ObservationAllowlist::default());
+    let violations = repo.check_candidate(None).unwrap();
+    assert!(violations.iter().any(|v| v.code == "B4"), "{violations:?}");
+    assert!(matches!(
+        repo.promote_candidate("candidate:unlisted", None),
+        Err(KnowledgeError::ConstraintViolation(_))
+    ));
+    assert!(!repo.is_promoted("candidate:unlisted"));
 }

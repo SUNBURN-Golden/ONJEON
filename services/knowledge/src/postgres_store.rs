@@ -32,6 +32,31 @@ pub(crate) fn db_error(error: postgres::Error) -> KnowledgeError {
     }
 }
 
+/// Predicates the ontology shapes with both a target and a literal (`object` + `value`).
+/// `chk_assertion_object_xor_value` stores exactly one of them: the target goes to the
+/// typed column and the literal lives only in `knowledge.record_extension`, written in the
+/// same transaction. `snapshot` restores it, so the mapping is reversible and K4/K12 still
+/// read the relation after a reconnect.
+const DUAL_REFERENCE_PREDICATES: &[&str] = &["scope_relation"];
+
+fn dual_reference(value: &Value) -> bool {
+    value
+        .get("predicate")
+        .and_then(Value::as_str)
+        .is_some_and(|p| DUAL_REFERENCE_PREDICATES.contains(&p))
+        && value.get("object").and_then(Value::as_str).is_some()
+        && value.get("value").is_some_and(|v| !v.is_null())
+}
+
+/// The row shape sent to the public table. Only the closed mapping above changes anything.
+fn sql_shape(section: &str, value: &Value) -> Value {
+    let mut sql = value.clone();
+    if section == "assertions" && dual_reference(value) {
+        sql.as_object_mut().unwrap().remove("value");
+    }
+    sql
+}
+
 const TABLES: &[(&str, &str)] = &[
     ("raw_assets", "public.raw_asset"),
     ("observations", "public.observation"),
@@ -92,6 +117,14 @@ impl PostgresStore {
                         .as_object_mut()
                         .unwrap()
                         .extend(value.as_object().unwrap().clone());
+                    // Reverse of `sql_shape`: the literal of a dual-reference assertion was
+                    // never sent to the NULL `value` column, so the payload holds it.
+                    if section == "assertions"
+                        && dual_reference(extra)
+                        && merged.get("value").is_none_or(Value::is_null)
+                    {
+                        merged["value"] = extra["value"].clone();
+                    }
                     value = merged;
                 }
                 abox.section_mut(section).push(value);
@@ -234,7 +267,7 @@ fn insert_record(
             .map(|(_, t)| *t)
             .ok_or_else(|| KnowledgeError::InvalidShape(section.into()))?,
     };
-    insert_columns(client, table, value)?;
+    insert_columns(client, table, &sql_shape(section, value))?;
     if !matches!(section, "review_decisions" | "acquisition_tasks") {
         client
             .execute(

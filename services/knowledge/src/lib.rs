@@ -233,6 +233,8 @@ impl KnowledgeRepository {
         }
         Ok(())
     }
+    /// Source, structure and node rows. A raw asset is the allowlist boundary itself: its
+    /// hash must be in the R2 observation list and its id must be derived from that hash.
     pub fn insert_record(&mut self, section: &str, record: Value) -> Result<(), KnowledgeError> {
         if matches!(
             section,
@@ -241,6 +243,9 @@ impl KnowledgeRepository {
             return Err(KnowledgeError::InvalidShape(format!(
                 "use the validated {section} API"
             )));
+        }
+        if section == "raw_assets" {
+            validate_raw_asset(&record, &self.allowlist)?;
         }
         self.insert_section(section, record)
     }
@@ -530,16 +535,31 @@ fn resolve_raw(
         .find(section, id)
         .ok_or_else(|| KnowledgeError::MissingTarget(id.into()))?;
     if section == "raw_assets" {
-        let hash = field_ref(row, "sha256", "sha256")?;
-        if !is_sha256(hash) || !allowlist.contains(hash) {
-            return Err(KnowledgeError::HashNotObserved(hash.into()));
-        }
+        validate_raw_asset(row, allowlist)?;
     } else if section == "premium_observations" {
         check_evidence(abox, row, allowlist, visiting)?;
     } else {
         resolve_raw(abox, field_ref(row, canonical, alias)?, allowlist, visiting)?;
     }
     visiting.remove(id);
+    Ok(())
+}
+/// Raw assets are candidate members in their own right, so the allowlist applies to the
+/// row itself and not only to the evidence chains that reach it.
+fn validate_raw_asset(
+    record: &Value,
+    allowlist: &ObservationAllowlist,
+) -> Result<(), KnowledgeError> {
+    let id = record_id(record)?;
+    let hash = field_ref(record, "sha256", "sha256")?;
+    if !is_sha256(hash) || !allowlist.contains(hash) {
+        return Err(KnowledgeError::HashNotObserved(hash.into()));
+    }
+    if id != format!("raw:sha256:{hash}") {
+        return Err(KnowledgeError::InvalidShape(
+            "raw asset id must be raw:sha256:<sha256>".into(),
+        ));
+    }
     Ok(())
 }
 fn check_evidence(
@@ -682,7 +702,6 @@ fn ontology_abox(abox: &Abox) -> Abox {
         ("segments", vec![("raw_asset_id", "raw_asset")]),
         ("clauses", vec![("segment_id", "segment")]),
         ("terms_editions", vec![("lineage_id", "lineage")]),
-        ("nodes", vec![("kind", "class")]),
         ("premium_observations", vec![("source_as_of", "as_of")]),
     ] {
         for row in normalized.section_mut(section) {
@@ -702,13 +721,6 @@ fn ontology_abox(abox: &Abox) -> Abox {
                     row["doc_role"] = json!(mapped);
                 }
             }
-            if section == "nodes" {
-                if let Some(attrs) = row.get("attrs").and_then(Value::as_object).cloned() {
-                    for (k, v) in attrs {
-                        row.as_object_mut().unwrap().entry(k).or_insert(v);
-                    }
-                }
-            }
             if section == "segments"
                 && row.get("fingerprint").is_none()
                 && row.get("fingerprint_sha256").is_some_and(|v| !v.is_null())
@@ -718,8 +730,38 @@ fn ontology_abox(abox: &Abox) -> Abox {
             }
         }
     }
+    for row in normalized.section_mut("nodes") {
+        // T-CT-05 shape: the `kind` column is the class and ontology attributes live in
+        // `attrs`. The ontology shape already carries `class`, and there `kind` is an
+        // attribute such as 감액 that must never replace the class.
+        if row.get("class").is_none() {
+            if let Some(kind) = row.get("kind").cloned() {
+                row["class"] = kind;
+            }
+        }
+        if let Some(attrs) = row.get("attrs").and_then(Value::as_object).cloned() {
+            let object = row.as_object_mut().unwrap();
+            for (k, v) in attrs {
+                // Constrained columns stay authoritative. Every other attribute, including
+                // the `kind` attribute K7 reads, is the ontology's value.
+                if !NODE_COLUMNS.contains(&k.as_str()) {
+                    object.insert(k, v);
+                }
+            }
+        }
+    }
     normalized
 }
+/// `public.node` columns an `attrs` entry may not override at the ontology boundary.
+const NODE_COLUMNS: &[&str] = &[
+    "id",
+    "class",
+    "label",
+    "attrs",
+    "origin",
+    "onto_version",
+    "recorded_at",
+];
 fn check_service_candidate(
     abox: &Abox,
     decisions: &BTreeMap<String, ReviewDecision>,
@@ -730,6 +772,12 @@ fn check_service_candidate(
     let view = candidate_view(&normalized)
         .map_err(|_| KnowledgeError::InvalidShape("candidate view".into()))?;
     let mut violations = check_constraints(&view, &CheckProfile::service_conformance(universe));
+    // Raw assets become candidate members even when no assertion references them yet.
+    for row in abox.section("raw_assets") {
+        if let Err(e) = validate_raw_asset(row, allowlist) {
+            violations.push(Violation::new("B4", record_id(row)?, e.to_string()));
+        }
+    }
     for section in ["assertions", "premium_observations"] {
         for row in abox.section(section) {
             let id = record_id(row)?;

@@ -10,6 +10,7 @@ use crate::error::CriteriaError;
 use crate::model::CriterionSource;
 use onjeon_contracts::{AssertionOrigin, CriterionSourceKind};
 use serde_json::json;
+use sha2::{Digest, Sha256};
 
 /// A grammar-valid `raw:sha256:` ref for fixture data (test-only value).
 const RAW: &str = "raw:sha256:abababababababababababababababababababababababababababababababab";
@@ -293,6 +294,26 @@ fn user_assumption_is_never_overwritten() {
 
 // ---------------------------------------------------------------- shipped data
 
+/// A syntactically valid hash is insufficient: the exact archived response must
+/// be present. This helper also rejects empty responses (e.g. failed downloads).
+fn verify_raw_bytes(raw_ref: &str, bytes: &[u8]) -> bool {
+    !bytes.is_empty() && raw_ref == format!("raw:sha256:{:x}", Sha256::digest(bytes))
+}
+
+#[test]
+fn archived_raw_hash_rejects_changed_empty_and_invented_bytes() {
+    // fixture_only: these bytes are deliberately not a public statistic.
+    let bytes = b"fixture_only: archived response";
+    let reference = format!("raw:sha256:{:x}", Sha256::digest(bytes));
+    assert!(verify_raw_bytes(&reference, bytes));
+    assert!(!verify_raw_bytes(
+        &reference,
+        b"fixture_only: altered response"
+    ));
+    assert!(!verify_raw_bytes(&reference, b""));
+    assert!(!verify_raw_bytes(RAW, bytes));
+}
+
 #[test]
 fn shipped_defaults_dir_loads_clean() {
     // data/criteria/defaults/candidates/의 서비스 후보는 전부 적재·검증을 통과해야
@@ -315,6 +336,15 @@ fn shipped_defaults_dir_loads_clean() {
         s.versions().count() > 0,
         "BLOCK F2: a sourced public-statistic edition must actually be delivered"
     );
+    // No web-rendered text, locally reconstructed table, or hash-shaped string
+    // substitutes for a directly received and preserved RawAsset response.
+    let archive = root.join("data/criteria/defaults/raw-assets");
+    let manifest: serde_json::Value = serde_json::from_slice(
+        &std::fs::read(archive.join("manifest.json"))
+            .expect("BLOCK F2: RawAsset acquisition manifest must be delivered"),
+    )
+    .unwrap();
+    let assets = manifest["assets"].as_array().expect("assets array");
     for v in s.versions() {
         assert!(!v.sources.is_empty(), "출처 없는 기본값이 없다");
         for src in &v.sources {
@@ -326,6 +356,36 @@ fn shipped_defaults_dir_loads_clean() {
             assert!(
                 src.ref_.starts_with("raw:sha256:"),
                 "후보 출처는 RawAsset 해시 참조다"
+            );
+            let matches: Vec<_> = assets.iter().filter(|a| a["ref"] == src.ref_).collect();
+            assert_eq!(
+                matches.len(),
+                1,
+                "each source needs exactly one acquisition record"
+            );
+            let asset = matches[0];
+            assert_eq!(asset["origin"], "pipeline");
+            assert_eq!(asset["http_status"], 200);
+            for field in ["url", "agency", "statistic_table", "content_type"] {
+                assert!(
+                    asset[field].as_str().is_some_and(|s| !s.trim().is_empty()),
+                    "missing {field}"
+                );
+            }
+            assert!(asset["url"].as_str().unwrap().starts_with("https://"));
+            assert!(onjeon_contracts::evidence_ref::is_rfc3339(
+                asset["retrieved_at"].as_str().expect("retrieved_at")
+            ));
+            assert!(asset["reference_year"]
+                .as_u64()
+                .is_some_and(|year| (1900..=9999).contains(&year)));
+            let hash = src.ref_.strip_prefix("raw:sha256:").unwrap();
+            let bytes = std::fs::read(archive.join(format!("{hash}.raw")))
+                .expect("BLOCK F2: complete original response bytes must be preserved");
+            assert_eq!(asset["byte_length"].as_u64(), Some(bytes.len() as u64));
+            assert!(
+                verify_raw_bytes(&src.ref_, &bytes),
+                "BLOCK F2: archived RawAsset hash mismatch"
             );
         }
         assert_eq!(

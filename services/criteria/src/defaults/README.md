@@ -17,6 +17,10 @@
 - `services/criteria/tests/conformance.rs`: `data/criteria/defaults`가 없어야
   한다는 기존 단정을 실제 후보 적재·출처·비노출 검증으로 변경.
 
+fix round 2에서도 두 파일의 허용 경로 추가를 요청했다. 응답 전에는 수정하지
+않는다. 검토 가능한 변경안은 `evidence/product-integration.patch`다. 이 패치는
+아직 적용되지 않았고 제품 연결이 완료되었다는 증거가 아니다.
+
 검증 진입점 `verification/Cargo.toml`은 시험 전용(`fixture_only`) 별도
 워크스페이스다. `onjeon-criteria`의 공용 타입·검증기를 사용하고 `../mod.rs`로
 **현재 원본 소스**를 컴파일한다. 임시 배선이나 제품 파일 수정은 하지 않는다.
@@ -27,11 +31,13 @@ cargo test --manifest-path services/criteria/src/defaults/verification/Cargo.tom
 cargo test --manifest-path services/criteria/src/defaults/verification/Cargo.toml --locked --offline --test product_api
 ```
 
-실행 결과: 모듈 시험 17개 중 16개 통과·후보 납품 시험 1개 실패(F2).
+실행 결과: 모듈 시험 18개 중 17개 통과·후보 납품 시험 1개 실패(F2).
 별도 제품 API 시험은 `onjeon_criteria::defaults`를 가져오는 컴파일 단계에서
 실패한다(F1/F3). 소스 문구 검색 대신 실제 공개 API 연결을 검사한다. 후보 납품 시험은 저장소
 실제 경로를 찾고 디렉터리와 판이 존재하는지 먼저 검사한다. 미존재 경로가
 빈 저장소로 처리되어 통과하는 기존 검증 공백을 없앴다.
+제품 API 시험은 실제 납품 판을 제품 API로 적재한 뒤 비노출·참고 통계
+라벨·사용자 가정 우선도 검사한다. 모듈 연결 전에는 컴파일 실패한다.
 최종 작업 파일의 입력 해시와 명령 출력은 `evidence/`에 기록한다.
 
 ## 후보 파일 계약
@@ -68,3 +74,14 @@ cargo test --manifest-path services/criteria/src/defaults/verification/Cargo.tom
 후보 납품에는 보존 원본·실제 SHA-256, 기관·통계표·기준연도, 적용 대상,
 갱신 주기, 해시를 참조하는 `origin=pipeline` 판이 필요하다.
 개인 필요액으로 환산하거나 적용을 활성화하는 결정은 하지 않았다.
+
+fix round 2 직접 수신도 TLS 오류로 실패했다(`evidence/source_acquisition.log`).
+웹 도구로 읽은 통계표를 재구성해서 RawAsset으로 등록하지 않았다.
+
+납품 시험은 출처마다 `data/criteria/defaults/raw-assets/manifest.json`의
+`assets` 배열에서 정확히 하나의 수신 기록을 요구한다. 필드는 `ref`,
+`origin=pipeline`, `url`(HTTPS), `retrieved_at`(RFC3339), `http_status=200`,
+`content_type`, `byte_length`, `agency`, `statistic_table`, `reference_year`다.
+`raw-assets/<SHA-256>.raw`의 보존된 전체 응답 바이트가 비어 있지 않고 크기·해시가
+일치해야 한다. 변조·빈 응답·허구 해시를 거부하는 시험을 실행했다. 이 검사는
+저장된 바이트의 일치 검증이며 기관의 수치를 자동으로 승인하는 절차는 아니다.

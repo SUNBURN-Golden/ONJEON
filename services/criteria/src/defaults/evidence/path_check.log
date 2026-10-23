@@ -1,19 +1,28 @@
-Base SHA: f972e5853081034732a14e4e5988828813815b4d
-Changed files: 13
+Base SHA: 38291e75914302affd962a41be744f0bfba28d15
+Changed files: 12
 Outside allowed_paths: 0
-git diff --check: rc=0
-sha256sum -c test_inputs.sha256: rc=0
+$ git diff --check
+EXIT_CODE=0
+$ git apply --check services/criteria/src/defaults/evidence/product-integration.patch
+EXIT_CODE=0
+$ rustfmt --check --edition 2021 services/criteria/src/defaults/tests.rs services/criteria/src/defaults/verification/product_api.rs
+EXIT_CODE=0
+$ sha256sum -c services/criteria/src/defaults/evidence/test_inputs.sha256
+EXIT_CODE=0
+Verified input hashes: 118
+
+The product integration patch is review-only and has not been applied.
+DECISION_REQUIRED.md not created: no irreversible/money/legal/secrets/production decision.
 
 services/criteria/src/defaults/README.md
 services/criteria/src/defaults/evidence/PR_본문.md
 services/criteria/src/defaults/evidence/cargo_test_defaults.log
 services/criteria/src/defaults/evidence/cargo_test_workspace.log
 services/criteria/src/defaults/evidence/path_check.log
+services/criteria/src/defaults/evidence/product-integration.patch
+services/criteria/src/defaults/evidence/source_acquisition.log
 services/criteria/src/defaults/evidence/test_inputs.sha256
-services/criteria/src/defaults/load.rs
-services/criteria/src/defaults/mod.rs
 services/criteria/src/defaults/tests.rs
 services/criteria/src/defaults/verification/Cargo.lock
 services/criteria/src/defaults/verification/Cargo.toml
-services/criteria/src/defaults/verification/lib.rs
 services/criteria/src/defaults/verification/product_api.rs

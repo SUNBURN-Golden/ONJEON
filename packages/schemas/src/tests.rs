@@ -171,18 +171,9 @@ fn python_codegen_suite_passes() {
 /// A deleted field must fail the compatibility check (structural diff and compile probe).
 #[test]
 fn compat_check_selftest_detects_a_deleted_field() {
-    // Give this self-test its own target directory so it does not race with
-    // `python_codegen_suite_passes` (which also invokes cargo inside the compat probe).
-    let probe_target = schemas_dir()
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .join("target/compat-probe-selftest");
     let status = std::process::Command::new("bash")
         .arg(schemas_dir().join("codegen/check_compat.sh"))
         .arg("--selftest")
-        .env("CARGO_TARGET_DIR", probe_target)
         .status()
         .expect("bash is required to run the compat self-test");
     assert!(status.success(), "check_compat.sh --selftest failed");

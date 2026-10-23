@@ -1,0 +1,12 @@
+T-KN-13 fix round 2: direct official-source acquisition
+TLS validation enabled; no bypass; no response body reconstructed from web text.
+
+2026-10-23T22:12:26.217735+00:00
+URL: https://www.index.go.kr/unity/potal/eNara/sub/showStblGams3.do?freq=Y&idx_cd=2763&period=N&stts_cd=276302
+Acquisition failed: URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1029)>
+RawAsset: absent; SHA-256: absent; edition: not created.
+
+2026-10-23T22:12:26.218262+00:00
+URL: https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=2763
+Acquisition failed: URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1029)>
+RawAsset: absent; SHA-256: absent; edition: not created.

@@ -1,75 +1,72 @@
-Task: T-DT-02
-Execution: worktree /workspace/onjeon-run/wt/T-DT-02; terminal CLI; single implementation agent (author + self-check roles). No independent reviewer participated. No model identifier literals recorded.
-Base/target checkout SHA: c9157294e068f779fc82a0666ffcb0f2f162de23
-Changes are uncommitted by instruction. This base SHA is NOT a review approval of the changed tree. Supervisor must commit/freeze a new target SHA and obtain a different-family independent review. No commit, push or GitHub call performed.
+Task: T-DT-02, fix round 3
+Executed UTC: 2026-10-23T10:20:23.246005+00:00
+Target checkout SHA: 4a355d813afb606cf2185dcbb0b908010c31c532
+Tested target: this SHA plus the uncommitted source files fixed by source-sha256.txt.
+source-sha256.txt SHA-256: 756ca095a3f8549d0a6a3f864d138dba1fc68183c2f75e398968a38924378190
+The checkout SHA does not contain the uncommitted fix. No commit/push/GitHub call performed.
+Execution: /workspace/onjeon-run/wt/T-DT-02; terminal CLI; one author agent implementing and self-checking.
+No model identifier literals, credentials, or original document excerpts recorded.
+PR mapping: A1/A2; Q1/Q2/Q7; L2; I6/I13; M2; R04/R05/R08 (partial implementation scope in PR_본문.md).
+Independent review: supervisor must freeze the fixed commit and obtain a different-family independent review at that final SHA. Self-checks and the worktree manifest are not independent final-SHA approval.
 
-PR purpose mapping: A1, A2; Q1, Q2, Q7; L2; I6, I13; M2.
-Requirements: R04 (raw hash binding), R05 (uncertain structure never promoted), R08 (quote/coordinate mismatch rejected).
-Existing design implementation, not a scope/privacy/recommendation policy change.
-Consumer benefit: trace extracted candidates to source page/coordinates; no unsupported benefit/amount claims.
-Contracts used: DATA_PIPELINE_CONTRACT section 3; implementation contract 1.1; ontology _fingerprint_rule fp-0.1; verify_sources.py page-specific reextraction.
+Failure addressed:
+The failing plain command depended on a prior manually started daemon and exported temporary DOCKER_HOST. That daemon was gone and /var/run/docker.sock did not exist. The harness now owns a temporary daemon lifecycle when the default system socket is absent. It uses installed dockerd and root/noninteractive sudo, a private socket/data-root/exec-root inside ignored services/docproc/.d-*/, vfs storage and private legacy firewall shims when available. No installation, global daemon configuration edit, default socket, or firewall alternatives change is performed. No default bridge is created. Registry/package access uses host networking during image build steps only. Production Compose runtime retains network_mode:none.
+Caller-selected or existing unavailable endpoints fail; an already working daemon is reused. Daemon selection, missing prerequisites, failed startup, cleanup after success/failure and data bind-mount unmounting have eight fixture_only regression tests. The test-stage filesystem contains this harness; the final production image contains only extraction code and its runtime libraries.
 
-Executed 2026-10-20:
+Reproducibility evidence:
+- sandbox.log is the exact failing command rerun with no DOCKER_HOST export: starts its own daemon, passes the complete suite, stops its daemon, unmounts/removes its state, exits 0.
+- runtime-recheck.log records a second owned daemon lifecycle and two child commands using that working daemon: the required-live shell command and direct Python harness both exit 0, then the owning context stops/removes the daemon. Child logs are sandbox-required.log and container-direct.log. This verifies both bootstrap and working-daemon reuse paths.
+- All three live runs use actual Poppler 24.02.0, unittest 29 tests OK and pytest 29 passed, without extraction skips. They exercise the production CLI extraction and independent quote/coordinate verification.
+- I13 checks controlled IPv4/IPv6 endpoints reachable before and after isolation, rejects enabled networking (mutation exit 1), and requires ENETUNREACH (errno 101) in production network_mode:none for both families. Refusal/timeouts remain failures. Runtime probes contact no public endpoint.
+- Acceptance alias clause-id-reextract-new = test_clause_id_reextract_new; executed in every native suite.
+- Host Poppler 25.03 is unsupported by fp-0.1: host pytest has 16 passed/13 explicit skips and host unittest runs 16 tests with the extraction class explicitly skipped. Host skips are not pinned extraction evidence.
+- Synthetic PDFs are generated in temporary directories with origin=fixture. No originals or source excerpts are stored. Synthetic success does not establish real insurance-document accuracy or release approval.
+
+Commands and actual exits:
+
+$ bash services/docproc/test_sandbox.sh
+EXIT: 0; full log: sandbox.log
+
+$ DOCPROC_SANDBOX_REQUIRE_LIVE=1 bash services/docproc/test_sandbox.sh
+EXIT: 0; full log: sandbox-required.log
+
+$ cd services/docproc && python3 -m pytest -q
+EXIT: 0; full log: pytest-host.log
+
 $ python3 -B -m unittest discover -s services/docproc/tests -v
- test_clause_id_reextract_new ... ok
- test_cli_rejects_without_leaking_content ... ok
- test_container_configuration ... ok
- test_exact_quote_coordinates_and_tamper ... ok
- test_fail_closed_on_wrong_poppler_and_invalid_pdf ... ok
- test_fingerprint_nfc_whitespace_preserves_semantics ... ok
- test_invalid_segments ... ok
- test_multiple_segments_and_determinism ... ok
- test_segment_and_uncertainty ... ok
- test_source_change_rejected ... ok
- test_textless_page_needs_ocr ... ok
- Ran 11 tests in 0.662s
- OK
-Exit 0. Acceptance alias clause-id-reextract-new = test_clause_id_reextract_new.
-Synthetic PDFs generated in TemporaryDirectory; origin=fixture. No original document excerpts or binary fixtures stored. Actual local Poppler is 25.03.0; tests patch only the version gate. This is not pinned-tool fingerprint reproduction evidence.
-
-$ python3 -I tools/ci/check_leak.py
-check_leak: no leak patterns (I10, I11, 52.3)
-Exit 0.
-$ python3 -I tools/ci/check_skeleton.py
-check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
-Exit 0. No server/routes introduced in this task.
-$ python3 -I tools/ci/check_deps.py
-check_deps: 3 finding(s)
- [DEP-ZONE] packages/ontology/Cargo.toml:15: knowledge may not depend on onjeon-rules-engine (twin)
- [IMP-ZONE] packages/ontology/tests/common/mod.rs:350: knowledge may not import onjeon_rules_engine
- [IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: knowledge may not import onjeon_rules_engine
-Exit 1. These files are unchanged and outside allowed_paths. No security/dependency policy bypass.
-
-$ python3 -I -m unittest discover -s tools/ci/tests
-Ran 20 tests in 4.019s
-FAILED (failures=2)
-Failing: RepoIsClean.test_cli_exit_codes_under_isolated_mode (check_deps.py), RepoIsClean.test_real_repo_passes_every_checker.
-Both caused by the same 3 existing ontology dependency findings above.
-Selftests reported: deps 19 violations/7 clean; leak 29/5; skeleton 18/5; bootstrap 9/3, all caught for intended IDs.
+EXIT: 0; full log: unittest-host.log
 
 $ python3 -B services/docproc/tests/container_network.py
-I13 NOT VERIFIED: Docker unavailable or execution timed out
-Exit 1. docker --version also returned command not found. Compose static settings passed, but do not prove runtime isolation. Supervisor must execute this command on a Docker host and the extraction suite with Poppler 24.02. No claim of I13 passage or container build success.
+EXIT: 0; full log: container-direct.log
+
+$ python3 -I tools/ci/check_leak.py
+EXIT: 0; full log: leak.log
+
+$ python3 -I tools/ci/check_skeleton.py
+EXIT: 0; full log: skeleton.log
+
+$ python3 -I tools/ci/check_leak.py --selftest
+EXIT: 0; full log: leak-selftest.log
+
+$ python3 -I tools/ci/check_skeleton.py --selftest
+EXIT: 0; full log: skeleton-selftest.log
 
 $ cargo test --workspace
-Finished test profile in 10.06s; all executed workspace unit/integration/doc tests passed; fixture regeneration test ignored by repository convention.
-Exit 0. This does not establish real product accuracy or release approval.
+EXIT: 0; full log: cargo.log
 
-$ git status --short
-?? services/docproc/
+$ python3 -I tools/ci/check_deps.py
+EXIT: 1; full log: deps.log
+
+$ python3 -I -m unittest discover -s tools/ci/tests
+EXIT: 1; full log: ci-tests.log
+
+$ sha256sum -c services/docproc/evidence/source-sha256.txt
+EXIT: 0; full log: manifest-check.log
+
 $ git diff --check
-Exit 0 (tracked diff; new files checked separately by tests/self-review).
+EXIT: 0; full log: diff-check.log
 
-Frozen implementation file SHA-256 (not an independent review):
-4648f27fb8ad1bbf452801949efb72f6a647adb8ebd22e3fefc3c30c281681da docproc.py
-f2646c015f364892e6ea253711777831fe3debf3959d4c38fee580fb08affe94 Dockerfile
-e054d8cfa8ae102d1c8f02cb3be6353a111993ff6d11e3964596303a73b97691 compose.yaml
-34c65e2034a67574363016befb365acce57a39ca68aee8c34afd7a4a0b14b055 tests/test_docproc.py
-0385407a81e3bb4681cedb0a377cecc00c0260723a7af54c5cfbaed81b562203 tests/container_network.py
+Existing unrelated failures (not waived or repaired):
+check_deps.py reports DEP-ZONE in packages/ontology/Cargo.toml:15 and IMP-ZONE in packages/ontology/tests/common/mod.rs:350 and packages/ontology/tests/fixture_origin/main.rs:126. tools/ci/tests has two related failures (test_cli_exit_codes_under_isolated_mode, test_real_repo_passes_every_checker). baseline-deps.log proves these three files and infra/ci/deps.json exactly match the target checkout. They are outside allowed_paths; no policy bypass or out-of-scope edit was made.
 
-Limitations / not accepted yet:
-- Runtime I13, actual container build, pinned 24.02 end-to-end extraction remain unverified here.
-- Independent different-family review pinned to final changed SHA is supervisor-owned and outstanding; self-check is not independent review.
-- Table/merged-cell/footnote/definition/hierarchy recovery and OCR are not implemented by this text-line v1. Missing structures remain unclassified; every candidate is hold/extraction_uncertain. No automatic meaning mapping or accepted values.
-- No real-document/product/user validation or end-to-end release claim.
-- Only services/docproc/** added. Forbidden paths untouched. No irreversible/money/legal/secret/production decision needed.
+All manifest source files remained unchanged across the final validation runs. All modified/untracked repository files are under services/docproc/. No irreversible/money/legal/secrets/production decision was needed. Final changed commit SHA and different-family independent review remain supervisor-owned after commit/freeze.

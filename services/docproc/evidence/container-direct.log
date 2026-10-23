@@ -1,0 +1,135 @@
+RUNTIME: using caller's working Docker daemon
+CONFIG: scoped services.docproc settings passed
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 691B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 91B done
+#3 DONE 0.0s
+
+#4 [base 1/5] FROM docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 32B done
+#5 DONE 0.0s
+
+#6 [base 2/5] RUN apt-get update && apt-get install -y --no-install-recommends python3 poppler-utils && rm -rf /var/lib/apt/lists/*
+#6 CACHED
+
+#7 [base 3/5] WORKDIR /app
+#7 CACHED
+
+#8 [base 4/5] COPY docproc.py /app/docproc.py
+#8 CACHED
+
+#9 [base 5/5] RUN python3 -c 'import docproc; assert docproc.tool_version().startswith("24.02.")'
+#9 CACHED
+
+#10 exporting to image
+#10 exporting layers done
+#10 writing image sha256:c0fac96421160c7f5fa9376b917490bc586070687262593dc56ee38ef3c19213 done
+#10 naming to docker.io/library/docproc-fixture-6c641782aa17-docproc done
+#10 DONE 0.0s
+PRODUCTION IMAGE: sha256:c0fac96421160c7f5fa9376b917490bc586070687262593dc56ee38ef3c19213
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 691B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 91B done
+#3 DONE 0.0s
+
+#4 [base 1/5] FROM docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 105.43kB done
+#5 DONE 0.0s
+
+#6 [test 2/3] COPY tests /app/tests
+#6 CACHED
+
+#7 [base 3/5] WORKDIR /app
+#7 CACHED
+
+#8 [base 4/5] COPY docproc.py /app/docproc.py
+#8 CACHED
+
+#9 [base 2/5] RUN apt-get update && apt-get install -y --no-install-recommends python3 poppler-utils && rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [base 5/5] RUN python3 -c 'import docproc; assert docproc.tool_version().startswith("24.02.")'
+#10 CACHED
+
+#11 [test 1/3] RUN apt-get update && apt-get install -y --no-install-recommends python3-pytest && rm -rf /var/lib/apt/lists/*
+#11 CACHED
+
+#12 [test 3/3] COPY test_sandbox.sh /app/test_sandbox.sh
+#12 CACHED
+
+#13 exporting to image
+#13 exporting layers done
+#13 writing image sha256:ba1be76baf23a8fc646210cc687cb0fb48055b749b19a353128d3f9086bd48ae done
+#13 naming to docker.io/library/docproc-fixture-6c641782aa17-tests done
+#13 DONE 0.0s
+NATIVE POPPLER: 24.02.0
+test_bootstrap_never_replaces_selected_daemon (test_docker_runtime.DockerRuntimeTests.test_bootstrap_never_replaces_selected_daemon) ... ok
+test_failed_daemon_start_cannot_pass_acceptance (test_docker_runtime.DockerRuntimeTests.test_failed_daemon_start_cannot_pass_acceptance) ... ok
+test_missing_daemon_or_privileges_fails (test_docker_runtime.DockerRuntimeTests.test_missing_daemon_or_privileges_fails) ... ok
+test_owned_daemon_is_cleaned_when_acceptance_fails (test_docker_runtime.DockerRuntimeTests.test_owned_daemon_is_cleaned_when_acceptance_fails) ... ok
+test_owned_daemon_is_stopped_and_state_removed (test_docker_runtime.DockerRuntimeTests.test_owned_daemon_is_stopped_and_state_removed) ... ok
+test_owned_data_bind_mount_is_unmounted_before_removal (test_docker_runtime.DockerRuntimeTests.test_owned_data_bind_mount_is_unmounted_before_removal) ... ok
+test_unavailable_explicit_daemon_fails_without_bootstrap (test_docker_runtime.DockerRuntimeTests.test_unavailable_explicit_daemon_fails_without_bootstrap) ... ok
+test_working_daemon_is_reused_without_privileged_process (test_docker_runtime.DockerRuntimeTests.test_working_daemon_is_reused_without_privileged_process) ... ok
+test_clause_id_reextract_new (test_docproc.DocprocTests.test_clause_id_reextract_new) ... ok
+test_cli_rejects_without_leaking_content (test_docproc.DocprocTests.test_cli_rejects_without_leaking_content) ... ok
+test_exact_quote_coordinates_and_tamper (test_docproc.DocprocTests.test_exact_quote_coordinates_and_tamper) ... ok
+test_fail_closed_on_wrong_poppler_and_invalid_pdf (test_docproc.DocprocTests.test_fail_closed_on_wrong_poppler_and_invalid_pdf) ... ok
+test_fingerprint_from_native_layout (test_docproc.DocprocTests.test_fingerprint_from_native_layout) ... ok
+test_invalid_segments (test_docproc.DocprocTests.test_invalid_segments) ... ok
+test_multiple_segments_and_determinism (test_docproc.DocprocTests.test_multiple_segments_and_determinism) ... ok
+test_native_poppler_identity (test_docproc.DocprocTests.test_native_poppler_identity) ... ok
+test_quote_preserves_region_spacing_and_rejects_systematic_error (test_docproc.DocprocTests.test_quote_preserves_region_spacing_and_rejects_systematic_error) ... ok
+test_segment_and_uncertainty (test_docproc.DocprocTests.test_segment_and_uncertainty) ... ok
+test_source_change_rejected (test_docproc.DocprocTests.test_source_change_rejected) ... ok
+test_textless_page_needs_ocr (test_docproc.DocprocTests.test_textless_page_needs_ocr) ... ok
+test_wrong_word_reconstruction_rejected_by_crop (test_docproc.DocprocTests.test_wrong_word_reconstruction_rejected_by_crop) ... ok
+test_fingerprint_nfc_whitespace_preserves_semantics (test_docproc.PureTests.test_fingerprint_nfc_whitespace_preserves_semantics) ... ok
+test_printed_heading_shape_and_inserted_articles (test_docproc.PureTests.test_printed_heading_shape_and_inserted_articles) ... ok
+test_container_configuration_is_scoped_to_docproc (test_sandbox.SandboxTests.test_container_configuration_is_scoped_to_docproc) ... ok
+test_docker_absence_fails_by_default_and_when_required (test_sandbox.SandboxTests.test_docker_absence_fails_by_default_and_when_required) ... ok
+test_live_controlled_endpoint_detects_enabled_network (test_sandbox.SandboxTests.test_live_controlled_endpoint_detects_enabled_network) ... ok
+test_only_unreachable_is_accepted_and_both_families_checked (test_sandbox.SandboxTests.test_only_unreachable_is_accepted_and_both_families_checked) ... ok
+test_refusal_timeout_and_unexpected_errors_are_not_isolation (test_sandbox.SandboxTests.test_refusal_timeout_and_unexpected_errors_are_not_isolation) ... ok
+test_wrong_endpoint_response_fails_positive_control (test_sandbox.SandboxTests.test_wrong_endpoint_response_fails_positive_control) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 1.206s
+
+OK
+.............................                                            [100%]
+29 passed in 1.27s
+PINNED EXTRACTION: PASSED (native version, no identity mock)
+PRODUCTION CLI: PASSED (fixture extraction and quote/coordinate verification)
+ipv4: controlled endpoint reachable
+ipv6: controlled endpoint reachable
+POSITIVE CONTROL: IPv4 and IPv6 reachable
+ipv4: isolation failed, endpoint reachable
+MUTATION: enabled networking rejected by isolation probe (exit 1)
+ipv4: blocked by network reachability errno=101
+ipv6: blocked by network reachability errno=101
+ipv4: controlled endpoint reachable
+ipv6: controlled endpoint reachable
+I13: PASSED (controlled IPv4/IPv6 endpoints, before/after positive controls)

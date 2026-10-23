@@ -1,0 +1,14 @@
+services/docproc/.dockerignore: OK
+services/docproc/.gitignore: OK
+services/docproc/AGENTS.md: OK
+services/docproc/Dockerfile: OK
+services/docproc/PR_본문.md: OK
+services/docproc/compose.yaml: OK
+services/docproc/docproc.py: OK
+services/docproc/test_sandbox.sh: OK
+services/docproc/tests/container_network.py: OK
+services/docproc/tests/docker_runtime.py: OK
+services/docproc/tests/network_probe.py: OK
+services/docproc/tests/test_docker_runtime.py: OK
+services/docproc/tests/test_docproc.py: OK
+services/docproc/tests/test_sandbox.py: OK

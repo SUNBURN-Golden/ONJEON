@@ -634,6 +634,94 @@ fn sql_node(id: &str, attrs: Value) -> Value {
         "origin": "pipeline", "onto_version": "onto-0.2"})
 }
 
+#[test]
+fn canonical_fingerprint_columns_gate_edition_confirmation() {
+    let alias = json!({"rule":"fp-1","sha256":"d".repeat(64)});
+    for (rule, hash, expected_code) in [
+        (json!("fp-1"), json!("c".repeat(64)), Some("K16")),
+        (json!("fp-2"), json!("d".repeat(64)), Some("K16")),
+        (Value::Null, Value::Null, Some("K14")),
+        (json!("fp-1"), Value::Null, Some("K14")),
+        (Value::Null, json!("d".repeat(64)), Some("K14")),
+        (json!("fp-1"), json!("d".repeat(64)), None),
+    ] {
+        let mut repo = KnowledgeRepository::new();
+        let extension = if expected_code.is_none() {
+            json!({"rule":"fp-2","sha256":"c".repeat(64)})
+        } else {
+            alias.clone()
+        };
+        let allow = ObservationAllowlist::new(["b".repeat(64)]);
+        repo.set_allowlist(allow.clone());
+        let raw = format!("raw:sha256:{}", "b".repeat(64));
+        repo.insert_record("raw_assets", json!({"id":raw,"sha256":"b".repeat(64)}))
+            .unwrap();
+        repo.insert_record(
+            "segments",
+            json!({"id":"seg:fixture_only","raw_asset_id":raw,
+            "doc_role":"terms","fingerprint_rule":rule,"fingerprint_sha256":hash,
+            "fingerprint":extension}),
+        )
+        .unwrap();
+        repo.insert_record(
+            "terms_editions",
+            json!({"id":"ted:fixture_only",
+            "parts":[{"role":"body","fingerprint":alias}]}),
+        )
+        .unwrap();
+        let d = valid_decision();
+        repo.insert_review_decision(d.clone()).unwrap();
+        let mut realizes = accepted("a:fixture_only", "pipeline", Some(&d.id));
+        realizes["subject"] = json!("seg:fixture_only");
+        realizes["predicate"] = json!("realizes");
+        realizes["object"] = json!("ted:fixture_only");
+        realizes.as_object_mut().unwrap().remove("value");
+        realizes["evidence"] = json!([{"ref":"seg:fixture_only","role":"observation"}]);
+        repo.ingest_assertion(Path::new("incoming/fixture_only.json"), realizes, &allow)
+            .unwrap();
+        let violations = repo.check_candidate(None).unwrap();
+        if let Some(code) = expected_code {
+            assert!(
+                violations.iter().any(|v| v.code == code),
+                "{rule}/{hash}: {violations:?}"
+            );
+            assert!(matches!(
+                repo.promote_candidate("candidate:fixture_only", None),
+                Err(KnowledgeError::ConstraintViolation(_))
+            ));
+            assert!(!repo.is_promoted("candidate:fixture_only"));
+        } else {
+            assert!(violations.is_empty(), "{violations:?}");
+            repo.promote_candidate("candidate:fixture_only", None)
+                .unwrap();
+        }
+    }
+}
+
+#[test]
+fn canonical_node_kind_overrides_conflicting_classes() {
+    for attrs in [json!({}), json!({"class":"Organization"})] {
+        let mut repo = KnowledgeRepository::new();
+        repo.insert_record(
+            "nodes",
+            json!({"id":"codes:fixture_only","kind":"CodeSet",
+            "class":"Organization","attrs":attrs,"origin":"pipeline"}),
+        )
+        .unwrap();
+        let violations = repo.check_candidate(None).unwrap();
+        assert_eq!(
+            violations.iter().filter(|v| v.code == "K3").count(),
+            4,
+            "{violations:?}"
+        );
+        assert!(matches!(
+            repo.promote_candidate("candidate:fixture_only", None),
+            Err(KnowledgeError::ConstraintViolation(_))
+        ));
+        assert!(!repo.is_promoted("candidate:fixture_only"));
+    }
+}
+
 fn has_condition(id: &str, node: &str) -> Value {
     let mut a = pending(id);
     a["predicate"] = json!("has_condition");

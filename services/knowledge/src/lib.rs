@@ -722,19 +722,25 @@ fn ontology_abox(abox: &Abox) -> Abox {
                 }
             }
             if section == "segments"
-                && row.get("fingerprint").is_none()
-                && row.get("fingerprint_sha256").is_some_and(|v| !v.is_null())
+                && (row.get("fingerprint_rule").is_some()
+                    || row.get("fingerprint_sha256").is_some())
             {
-                row["fingerprint"] =
-                    json!({"rule":row["fingerprint_rule"],"sha256":row["fingerprint_sha256"]});
+                // SQL columns, including NULLs, are authoritative over extension aliases.
+                row["fingerprint"] = if row.get("fingerprint_rule").is_some_and(Value::is_string)
+                    && row.get("fingerprint_sha256").is_some_and(Value::is_string)
+                {
+                    json!({"rule":row["fingerprint_rule"],"sha256":row["fingerprint_sha256"]})
+                } else {
+                    Value::Null
+                };
             }
         }
     }
     for row in normalized.section_mut("nodes") {
-        // T-CT-05 shape: the `kind` column is the class and ontology attributes live in
-        // `attrs`. The ontology shape already carries `class`, and there `kind` is an
-        // attribute such as 감액 that must never replace the class.
-        if row.get("class").is_none() {
+        // T-CT-05 rows always have `attrs` (default {}). Their `kind` column is the
+        // class, even when an extension supplies a conflicting `class`. Only offline
+        // ontology rows without `attrs` use `class` + an attribute such as kind=감액.
+        if row.get("attrs").is_some() || row.get("class").is_none() {
             if let Some(kind) = row.get("kind").cloned() {
                 row["class"] = kind;
             }

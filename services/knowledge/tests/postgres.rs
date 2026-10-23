@@ -50,11 +50,168 @@ fn constraint(e: postgres::Error, name: &str) {
     assert_eq!(e.as_db_error().and_then(|e| e.constraint()), Some(name));
 }
 
+// Clone the empty, migrated database, so independent regressions cannot mask one
+// another's promotion failures. test.sh removes the whole disposable cluster.
+fn isolated_database(name: &str) -> String {
+    assert!(name.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
+    let base = std::env::var("ONJEON_KNOWLEDGE_TEST_DB")
+        .expect("test.sh must provide a disposable database");
+    let mut config: postgres::Config = base.parse().unwrap();
+    config.dbname("postgres");
+    config
+        .connect(NoTls)
+        .unwrap()
+        .execute(
+            &format!("CREATE DATABASE {name} TEMPLATE knowledge_fixture_only"),
+            &[],
+        )
+        .unwrap();
+    format!("{base} dbname={name}")
+}
+
+#[test]
+#[ignore = "requires disposable PostgreSQL; run bash services/knowledge/test.sh"]
+fn canonical_segment_fingerprint_blocks_extension_bypass_after_reconnect() {
+    for (name, canonical_rule, canonical_hash, violates) in [
+        ("fixture_only_hash", "fp-1", "c".repeat(64), true),
+        ("fixture_only_rule", "fp-2", "d".repeat(64), true),
+        ("fixture_only_matching", "fp-1", "c".repeat(64), false),
+    ] {
+        let config = isolated_database(name);
+        let mut admin = Client::connect(&config, NoTls).unwrap();
+        let allow = ObservationAllowlist::new(["b".repeat(64)]);
+        let raw = format!("raw:sha256:{}", "b".repeat(64));
+        let segment = "seg:bbbbbbbbbbbb:p1-3:terms:v1";
+        let alias = json!({"rule":"fp-1","sha256":"d".repeat(64)});
+        let edition_fingerprint = if violates {
+            alias.clone()
+        } else {
+            json!({"rule":canonical_rule,"sha256":canonical_hash})
+        };
+        let mut repo = KnowledgeRepository::connect(
+            &format!("{config} options='-c role=data_writer'"),
+            allow.clone(),
+        )
+        .unwrap();
+        repo.insert_record(
+            "raw_assets",
+            json!({"id":raw,"sha256":"b".repeat(64),
+            "byte_length":1,"media_type":"application/pdf","storage_key":"fixture_only"}),
+        )
+        .unwrap();
+        repo.insert_record(
+            "segments",
+            json!({"id":segment,"raw_asset_id":raw,
+            "page_from":1,"page_to":3,"doc_role":"terms","seg_rule_ver":"v1",
+            "fingerprint_rule":canonical_rule,"fingerprint_sha256":canonical_hash,
+            "fingerprint":alias}),
+        )
+        .unwrap();
+        drop(repo);
+        let writer = format!("{config} options='-c role=knowledge_writer'");
+        let mut repo = KnowledgeRepository::connect(&writer, allow.clone()).unwrap();
+        repo.insert_review_decision(decision()).unwrap();
+        repo.insert_record(
+            "terms_editions",
+            json!({"id":id("ted",1),"label":"fixture_only",
+            "parts":[{"role":"body","fingerprint":edition_fingerprint}]}),
+        )
+        .unwrap();
+        let mut realizes = assertion(1, &raw);
+        realizes["subject"] = json!(segment);
+        realizes["predicate"] = json!("realizes");
+        realizes.as_object_mut().unwrap().remove("value");
+        realizes["object"] = json!(id("ted", 1));
+        realizes["criticality"] = json!("c0");
+        realizes["review_status"] = json!("accepted");
+        realizes["review_decision_id"] = json!(id("rd", 1));
+        realizes["evidence"] = json!([{"ref":segment,"role":"observation"}]);
+        repo.ingest_assertion(Path::new("incoming/fixture_only.json"), realizes, &allow)
+            .unwrap();
+        drop(repo);
+        let mut repo = KnowledgeRepository::connect(&writer, allow).unwrap();
+        // Both representations really survive in PostgreSQL; the checker must use SQL.
+        let stored = admin
+            .query_one(
+                "SELECT fingerprint_rule, fingerprint_sha256, \
+            (SELECT payload->'fingerprint' FROM knowledge.record_extension \
+             WHERE section='segments' AND id=$1) FROM public.document_segment WHERE id=$1",
+                &[&segment],
+            )
+            .unwrap();
+        assert_eq!(stored.get::<_, String>(0), canonical_rule);
+        assert_eq!(stored.get::<_, String>(1), canonical_hash);
+        assert_eq!(stored.get::<_, Value>(2), alias);
+        let violations = repo.check_candidate(None).unwrap();
+        if violates {
+            assert!(violations.iter().any(|v| v.code == "K16"), "{violations:?}");
+            assert!(matches!(
+                repo.promote_candidate("candidate:fixture_only", None),
+                Err(KnowledgeError::ConstraintViolation(_))
+            ));
+            assert!(!repo.is_promoted("candidate:fixture_only"));
+            assert_eq!(
+                admin
+                    .query_one("SELECT count(*) FROM knowledge.candidate", &[])
+                    .unwrap()
+                    .get::<_, i64>(0),
+                0
+            );
+        } else {
+            assert!(violations.is_empty(), "{violations:?}");
+            repo.promote_candidate("candidate:fixture_only", None)
+                .unwrap();
+        }
+    }
+    println!("fixture_only: canonical fingerprint hash/rule override extension; K16 rejection after reconnect; canonical match promotion: PASS");
+}
+
+#[test]
+#[ignore = "requires disposable PostgreSQL; run bash services/knowledge/test.sh"]
+fn canonical_node_class_blocks_extension_bypass_after_reconnect() {
+    let config = isolated_database("fixture_only_class");
+    let mut admin = Client::connect(&config, NoTls).unwrap();
+    let writer = format!("{config} options='-c role=knowledge_writer'");
+    let mut repo = KnowledgeRepository::connect(&writer, ObservationAllowlist::default()).unwrap();
+    // Omit attrs deliberately: the canonical DB default still distinguishes SQL shape.
+    repo.insert_record(
+        "nodes",
+        json!({"id":"codes:fixture_only","kind":"CodeSet",
+        "class":"Organization","label":"fixture_only","origin":"pipeline",
+        "onto_version":"onto-0.2"}),
+    )
+    .unwrap();
+    drop(repo);
+    let mut repo = KnowledgeRepository::connect(&writer, ObservationAllowlist::default()).unwrap();
+    let stored = repo.get("nodes", "codes:fixture_only").unwrap();
+    assert_eq!(stored["kind"], "CodeSet");
+    assert_eq!(stored["class"], "Organization");
+    assert_eq!(stored["attrs"], json!({}));
+    let violations = repo.check_candidate(None).unwrap();
+    assert_eq!(
+        violations.iter().filter(|v| v.code == "K3").count(),
+        4,
+        "{violations:?}"
+    );
+    assert!(matches!(
+        repo.promote_candidate("candidate:fixture_only", None),
+        Err(KnowledgeError::ConstraintViolation(_))
+    ));
+    assert!(!repo.is_promoted("candidate:fixture_only"));
+    assert_eq!(
+        admin
+            .query_one("SELECT count(*) FROM knowledge.candidate", &[])
+            .unwrap()
+            .get::<_, i64>(0),
+        0
+    );
+    println!("fixture_only: persisted kind overrides extension class after reconnect; K3 and promotion rejection: PASS");
+}
+
 #[test]
 #[ignore = "requires disposable PostgreSQL; run bash services/knowledge/test.sh"]
 fn persistence_restart_db_constraints_and_candidate_integration() {
-    let config = std::env::var("ONJEON_KNOWLEDGE_TEST_DB")
-        .expect("test.sh must provide a disposable database");
+    let config = isolated_database("fixture_only_restart");
     let allow = ObservationAllowlist::new(["b".repeat(64)]);
     let raw = format!("raw:sha256:{}", "b".repeat(64));
     let mut admin = Client::connect(&config, NoTls).unwrap();

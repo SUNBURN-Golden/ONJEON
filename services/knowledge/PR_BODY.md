@@ -1,58 +1,57 @@
 ## 목적과 설계 연결
 
-- 정보 비대칭(A), 소비자 질문(Q), 계층(L), 불변식(I), 마일스톤(M): A1·A2(보장·제한 주장의 근거와 판을 추가 전용으로 저장), A4(가격을 조건·구성·기준일·근거와 함께 보존); Q1·Q2·Q4·Q7(주장·가격의 근거 사슬 저장·조회); L3(필드·가격 후보 저장), L4(ReviewDecision 연결, 불완전 결정 거부), L5(구획·조항·본문 판·계열·노드의 정규 저장), L7(불변 후보 검사와 승격 기록); I7(조건·구성·기준일·근거 없는 가격은 비교 자격을 얻지 못함, 원시 관측은 분리 보존), I12(공개 DB의 `data_writer`·`knowledge_writer` 경계 준수), I14(불일치·불완전 검수 결정으로는 accepted 불가), I16(승격은 검사한 스냅샷의 추가 전용 기록); M1(데이터 척추 위의 지식 저장소), M2(뼈대 관통의 저장 계층)
-- 해결하는 소비자 질문: 보장·제한·가격의 근거와 판은 무엇이며, 무엇이 미확보(gap)·미검수(pending/hold)인가. 화면 변화는 없다
-- 요구 ID (`docs/blueprint/REQUIREMENTS.md`): R03·R04(본문 판·계열과 원본 해시 참조 저장), R06(라벨 주장의 근거·검수 연결), R08(accepted⇒ReviewDecision, B2·B3 거부), R10·R11·R12(가격 원시 보존과 비교 자격 판정의 분리), R21·R22(supersedes·correction_reason·conflict로만 바뀌는 추가 전용 정정). 이 변경은 저장·검증 기반이며 해당 요구 전체의 UI·출시 수락을 뜻하지 않는다
-- 관련 결정 ID / ADR: ADR-0001(기술 스택), ADR-0002(합성 픽스처 우선: 시험은 `fixture_only`), ADR-0006(이종 계열 검수: ReviewDecision 관문), ADR-0011·ADR-0012(설계도 위계와 구현 추적), ADR-0016(원본 보관소 R2: allowlist의 출처), ADR-0018(지식 기반의 정체성과 범위). 결정 ID 없음
-- 설계 변경인가, 기존 설계 구현인가: 기존 설계(02_구현계약 §1.1·§1.2·§8.2·C-18) 구현. 제품 범위·추천 기준·어휘·정본 문서 변경 없음
+- 정보 비대칭(A), 소비자 질문(Q), 계층(L), 불변식(I), 마일스톤(M): A1·A2(보장·제한 주장의 근거와 판 보존), A4(가격과 조건 보존); Q1·Q2·Q4·Q7(보장·제한·가격과 근거 조회); L3(후보 저장), L4(검수 결정 연결), L5(구획·본문 판·계열·노드), L7(후보 검사·승격 기록); I7(가격 비교 자격의 조건·구성·기준일·근거), I12(공개 DB 역할 경계), I14(불완전 검수 거부), I16(추가 전용 후보 기록); M1(데이터 척추), M2(뼈대 관통의 저장 계층).
+- 해결하는 소비자 질문: 보장·제한·가격의 근거와 판은 무엇이며, 무엇이 미확보·미검수인가. 제품 화면 변경 없음.
+- 요구 ID (`docs/blueprint/REQUIREMENTS.md`): R03·R04(본문 판·계열과 원본 해시), R06(라벨 주장 근거·검수), R08(accepted⇒ReviewDecision, B2·B3 거부), R10·R11·R12(원시 가격 보존과 비교 자격 분리), R21·R22(supersedes·correction_reason·conflict). 저장·검증 기반의 구현이며 각 요구의 UI·출시 수락 전체를 뜻하지 않는다.
+- 관련 결정 ID / ADR: ADR-0001·0002·0006·0011·0012·0016·0018. 새 결정 없음.
+- 설계 변경인가, 기존 설계 구현인가: 02_구현계약 §1.1·§1.2·§8.2·C-18의 기존 설계 구현. 제품 범위·추천 기준·어휘·정본 문서 변경 없음.
 
 ## 과제와 작성 정보
 
-- 과제 ID: **T-KN-04** (zone knowledge, stage S1, 선행 T-CT-05·T-KN-02 병합됨), 수정 라운드 4
-- 작성에 참여한 모델 역할·실행 경로: 빌더 역할 둘. 크레이트 작성과 수정 라운드 2~3은 OpenAI 계열 빌더가 API 실행 경로에서, 수정 라운드 4는 Anthropic 계열 빌더가 감독 프로세스가 연 코딩 에이전트 CLI 세션에서 맡았다. 둘 다 작업 트리 `wt/T-KN-04` 안에서만 작업했고, 임시 PostgreSQL 클러스터는 `/tmp`에 두고 끝나고 지웠다. 라운드 1 기록(`evidence/fix_round_1.log`)은 계열 없이 "coding agent; local worktree command line"으로만 남아 있다. 모델 식별자 원문은 적지 않는다. 하위 에이전트 위임·외부 모델 호출 없음
-- 대상 SHA: 이 PR의 head 커밋이 대상이다. 라운드 4 독립 리뷰(BLOCK)의 대상은 head `d011da6144f895b2f536aeddd7e02be474375be5`였고, 이번 수정은 그 위의 미커밋 작업 트리 변경이다. 검증한 파일 내용은 `services/knowledge/evidence/review_target_round_4.json`의 SHA-256 목록으로 고정한다. 커밋·푸시는 감독 프로세스가 하므로 새 head SHA는 커밋 직후 PR 본문에 기입하고 독립 리뷰를 그 SHA에 고정한다
-- 독립 리뷰 상태: 라운드 4 리뷰어는 OpenAI 계열이라 라운드 2~3 작성 계열과 같았다(리뷰어 자신의 지적). 독립 리뷰는 두 작성 계열(OpenAI·Anthropic) 모두와 다른 계열이 새 head SHA에 고정해 수행해야 한다. GitHub에는 아직 리뷰·코멘트가 없다. 감독 프로세스는 PR #173의 설명을 이 파일 내용으로 바꿔야 한다. 현재 설명은 이전 본문이며 `packages/knowledge` 경로를 참조한다. 이 과제의 코드는 `services/knowledge/**`에만 있다
+- 과제 ID: **T-KN-04**, zone knowledge, stage S1, 수정 라운드 5.
+- 작성 역할·계열·실행 경로: 기존 기록상 크레이트 작성과 라운드 2~3은 OpenAI 계열 빌더의 API 실행 경로, 라운드 4는 Anthropic 계열 빌더의 감독 프로세스가 연 코딩 에이전트 CLI 세션이다. 라운드 5는 OpenAI 계열 빌더의 API 코딩 에이전트 세션과 로컬 명령 도구로 수행했다. 라운드 1은 계열이 기록되지 않았다. 작업 트리는 `wt/T-KN-04`이며 하위 에이전트 위임·외부 모델 호출 없음. 모델 식별자 원문 없음.
+- 검증 기준 SHA: **06feb70ba3d22c277c1743893d76652f1aa4cad1** 위의 미커밋 라운드 5 변경. 파일 해시는 `services/knowledge/evidence/review_target_round_5.json`에 기록한다. 이 SHA는 수정 후 리뷰 대상 SHA가 아니다. **감독 프로세스가 커밋·푸시한 후 실제 새 head SHA를 이 PR 설명의 리뷰 대상 SHA에 기입해야 한다.** 이번 세션은 커밋·푸시·GitHub 호출 금지다.
+- PR 게시 상태: 이 파일은 감독 프로세스가 PR #173 설명으로 게시할 초안이다. 리뷰어 보고상 라이브 설명의 A/Q/L/I/M·R 매핑과 작성·대상 SHA 정보는 미반영이었다. 이번 세션에서는 원격 상태를 조회하거나 수정하지 않았다. 파일 저장만으로 PR 템플릿 수락 조건을 충족하지 않는다.
+- 독립 리뷰 상태: **미충족**. 기존 OpenAI 계열 리뷰는 작성 계열과 같아 적격 독립 리뷰가 아니다. 새 head SHA에 고정된, 알려진 작성 계열(OpenAI·Anthropic) 모두와 다른 계열의 리뷰와 실제 리뷰 제출이 필요하다. 로컬 파일 해시는 독립 리뷰 증거가 아니다.
 
 ## 변경 내용
 
-- 데이터·스키마·라벨·규칙·API 영향: `services/knowledge` 크레이트(`src/lib.rs`, `src/postgres_store.rs`)와 보조 마이그레이션 `migrations/001_repository.sql`(이번 라운드 변경 없음). 공용 파일은 `Cargo.toml`의 workspace members 한 줄과 Cargo가 재생성한 `Cargo.lock`뿐이다. 기존 infra 스키마·어휘·정본 문서는 수정하지 않았다
-  - 주장은 `ingest_assertion`·`ingest_corrections`로 추가만 하고 수정 API가 없다(`compile_fail` 문서 시험). 정정은 새 ID와 `supersedes`·`correction_reason`, 분기는 `conflict`로 묶는다
-  - B1(`packages/fixtures/**`·`docs/blueprint/**` 경로, 상대·절대·부모 이동·심볼릭 링크)·B2(origin=fixture accepted)·B3(origin만 pipeline으로 고친 사본)을 주장과 가격 모두에서 거부하고, DB 제약이 같은 입력을 다시 거부함을 확인한다
-  - 라운드 4 수정 1: K7 누락. 온톨로지 경계가 `public.node` 형식(`kind` 열 = 클래스, `attrs` = 온톨로지 속성)을 펼칠 때 열의 `kind`를 유지해 `attrs.kind=감액`을 읽지 못했다. 이제 `kind` 열을 `class`로 옮기고 `attrs`를 펼치되 제약 열(`id`·`label`·`origin`·`onto_version`·`recorded_at`)은 `attrs`가 덮어쓰지 못한다. 이미 `class`가 있는 온톨로지 형식 노드는 `kind`를 속성으로 유지한다. 적용 대상 없는 observed 감액은 K7 위반이며 승격되지 않는다
-  - 라운드 4 수정 2: `scope_relation` 영속. 온톨로지는 대상(`object`)과 값(`value`)을 함께 쓰지만 `chk_assertion_object_xor_value`는 하나만 허용한다. 닫힌 역변환 하나를 추가했다. 대상만 열에 넣고 값은 같은 트랜잭션의 `knowledge.record_extension`에만 둔 뒤, 스냅샷이 NULL인 값 열을 확장 행에서 되돌린다. 다른 술어는 DB의 XOR 제약이 그대로 적용된다
-  - 라운드 4 수정 3: 원본 행의 목록 검사. `insert_record("raw_assets", …)`가 R2 관측 목록 밖 해시와 `raw:sha256:<해시>`가 아닌 `id`를 거부한다. 후보 검사는 참조되지 않은 원본 행을 포함해 모든 원본 행을 목록과 다시 대조하며(B4), 서비스를 거치지 않고 들어온 행도 승격을 막는다
-  - R2 allowlist는 두 기존 목록 형식(해시 58개)을 읽고 다운로드 검증 실패·불일치 항목을 제외한다. `raw`·`seg`·`clause`·`obs`·`premium` 근거를 원본까지 해소한다
-  - 공백(`gaps`)과 확보 작업(`acquisition_tasks`) 상태는 독립 필드다. 문의 초안 생성은 없다
-  - 가격: `source_as_of` 하나가 기준일이고 `missing_dimensions`는 실제 공백과 일치해야 한다. 조건 없는 원시 관측은 `knowledge.raw_premium_observation`에 비교 불가로 보존한다
-- 화면에서 보장·제외·가격·미확인을 표시하는 변화: 없음
-- 기존 결과·버전·캐시·개인정보 영향: 없음. 제품 화면·캐시·개인 DB 변경 없음. 공개 DB의 K8 개인 식별자 거부와 역할 경계를 그대로 따른다
+- 데이터·스키마·라벨·규칙·API 영향: `services/knowledge/**`의 추가 전용 PostgreSQL 저장소와 검사 경계. 이번 라운드에서 공용 Cargo 파일·infra 스키마·보조 마이그레이션은 변경하지 않았다.
+  - `ingest_assertion`·`ingest_corrections`는 새 ID만 추가한다. 수정 API가 없으며 정정은 `supersedes`·`correction_reason`, 분기는 `conflict`로 연결한다.
+  - 구획·조항·본문 판·계열·노드·검수 결정을 저장·조회한다. `scope_relation`의 대상은 정규 열, 값은 같은 트랜잭션의 확장 행에 두고 재접속 시 복원한다.
+  - 검사 지문은 정규 `fingerprint_rule`·`fingerprint_sha256`에서 만들며 NULL도 우선한다. 확장 `fingerprint`가 판 구성과 같아도 정규 지문이 다르면 K16으로 승격을 거부한다. 정규 지문이 판과 맞으면 확장 지문 충돌이 승격을 막지 않는다.
+  - DB 노드는 기본값을 포함해 항상 `attrs`를 갖는다. 이 형식의 검사 클래스는 정규 `kind`가 결정하며 확장 `class`·`attrs.class`는 가리지 못한다. 메타데이터 없는 CodeSet은 K3으로 승격을 거부한다. 오프라인 온톨로지 형식과 기존 K7 감액 속성 해석을 유지한다.
+  - B1은 픽스처·설계 문서 입력 경로를 상대·절대·부모 이동·심볼릭 링크까지 거부한다. B2는 fixture accepted, B3는 결정 없는 accepted를 주장·가격 모두에서 거부한다. PostgreSQL 제약도 재확인한다.
+  - R2 관측 목록의 검증된 해시만 허용한다. 모든 원본 행과 간접 근거 사슬을 후보 검사에서 다시 확인한다. K1~K16 위반 후보는 승격되지 않는다.
+  - 공백과 확보 작업의 상태는 독립 필드다. 문의 초안 생성 없음. 가격 원시 관측은 조건 공백을 기록하고 비교 불가로 보존하며 비교 자격은 별도로 검증한다.
+- 화면에서 보장·제외·가격·미확인을 표시하는 변화: 없음.
+- 기존 결과·버전·캐시·개인정보 영향: 공개 후보 검사 강화. 공개 API·개인 DB·제품 화면·캐시 변경 없음. 공개 DB의 K8과 역할 경계를 유지한다.
 
 ## 검증과 한계
 
 - 수락 사례와 기대 결과:
-  - 수정 API 없음·supersedes만: `compile_fail` 문서 시험, `assertion_is_append_only_and_changes_by_supersedes`, DB `append_only` 트리거 거부
-  - B1~B3: `fixture_rejection`, `b1_normalizes_parent_paths_and_forbids_blueprint_and_symlinks`, r26 A-box의 accepted 주장 전부에 대한 B1/B2/B3 거부, DB `chk_fixture_never_accepted`·`chk_accepted_needs_decision` 재확인
-  - 제약 위반 집합의 승격 거부: `violating_candidate_is_not_promoted`, `canonical_c0_is_checked_and_cannot_be_promoted`, `k7_reads_reductions_in_the_persisted_node_shape`(적용 대상 없음 → K7·승격 거부, `applies_to`·`value=없음`·비감액 → 통과), `ontology_shaped_nodes_keep_their_class`, `scope_relations_keep_object_and_value_for_k4_and_k12`(순환 → K4, universe 없는 accepted → K12), `raw_assets_are_allowlisted_at_load_and_at_candidate_check`
-  - 공백·작업 상태 독립: `gap_and_acquisition_task_states_are_independent`
-  - `price-raw-kept-comparison-gated`: 원시 가격 보존, 실제 공백 목록, 비교 자격의 조건·검수 관문
-  - `profile-historical-vs-service`: 같은 T-KN-02 r26 A-box에서 이력 제약 0건·질문 11/11, 서비스 적재 B1~B3 거부
-  - DB 왕복: 재접속 복원, 지연 K10 롤백·충돌, 외부 적재 행 재검사, `scope_relation`의 `object` 열·NULL `value` 열·확장 행 값 → 재접속 후 `value="narrower"`·K4, `public.node` 형식 감액 노드 → 재접속 후 K7, 목록 밖 원본 행(서비스 거부 + 직접 삽입 뒤 B4·승격 거부·`knowledge.candidate` 0행)
-- 실제 수행한 검증 및 결과(`services/knowledge/evidence/fix_round_4_*.log`, 작업 트리 경로는 `<worktree>`로 치환):
-  - `bash services/knowledge/test.sh`: **25/25 통과**(단위 1, 저장소 21, r26 1, DB 1, 문서 1), PostgreSQL 17.11 임시 클러스터, 실제 `data_writer`·`knowledge_writer` 권한(`fix_round_4_db.log`)
-  - `cargo test --locked --workspace`: **412 통과, 0 실패, 2 ignored**(knowledge DB 시험은 `test.sh`에서 실행, twin-runtime 픽스처 재생성 도구는 최신성 검증 시험 통과)(`fix_round_4_workspace.log`)
-  - `cargo clippy --locked --workspace --all-targets -- -D warnings`, `cargo fmt --all -- --check`: 통과(`fix_round_4_lint.log`, `fix_round_4_format.log`)
-  - `bash infra/db/public/test.sh`: **166/166 통과**(`fix_round_4_schema.log`)
-  - `python3 -I tools/ci/check_leak.py`, `python3 -I tools/ci/check_skeleton.py`: 통과. `SkeletonRuntime` **2/2 통과**(`fix_round_4_static.log`)
-  - 허용 경로 검사: 변경 파일은 `services/knowledge/**`뿐이다. `git diff --check` 통과(`fix_round_4_summary.log`)
-- 합성 검증 / 실제 원문 검증 / 사용자 검증 중 해당 범위: 합성·픽스처·로컬 PostgreSQL 검증. 실제 상품 정확도, 실제 원문 검수, 사용자 검증, 출시 승인이 아니다
-- 미정 또는 지원하지 않는 동작: 대상·값 동시 저장의 역변환은 `scope_relation`에만 적용한다. 다른 술어가 둘을 함께 보내면 DB가 거부한다. K12의 실제 계산에는 코드 체계 universe가 필요하며 이 크레이트는 universe를 호출자에게 받는다. 후보 저장은 내부 제약 검사 결과이며 공개 ReleaseManifest 발행이 아니다. production 릴리스의 B5/B10·그림자 비교·공개 API·비교·정렬·예산 API는 T-KN-07 등 후속 과제다. round 2의 CI 검사기 전체 자기 시험은 기존 `packages/ontology` 구역 의존성 위반 3건으로 18/20이었고(`fix_round_2_baseline.log`), 해당 파일과 CI 정책은 허용 경로 밖이라 라운드 3·4에서 재실행한 것으로 표시하지 않는다
-- 스켈레톤 비노출·누출 정적 검사: 위 정적 검사와 런타임 비노출 시험 2개 통과. 시험 전용 행은 `fixture_only`·`origin=fixture`이고 제품 코드에 시안 숫자·임시 데이터·미연결 경로가 없다. 비밀값·모델 식별자 원문·원문 발췌 없음
+  - `canonical_fingerprint_columns_gate_edition_confirmation`: 규칙·해시 충돌은 K16, NULL·불완전 쌍은 K14, 정규 지문 일치는 통과.
+  - `canonical_node_kind_overrides_conflicting_classes`: 최상위·attrs 클래스 충돌에도 메타데이터 없는 CodeSet은 K3 4건과 승격 거부.
+  - DB 회귀 `canonical_segment_fingerprint_blocks_extension_bypass_after_reconnect`·`canonical_node_class_blocks_extension_bypass_after_reconnect`: 실제 충돌 값 보존 확인, 재접속 후 K16·K3, 승격 거부와 후보 0행, 정규 지문 일치 시 승격 성공. 비어 있는 마이그레이션 완료 DB를 시험마다 복제하여 다른 위반의 간섭을 막는다.
+  - 추가 전용 API·DB, B1~B3, 정정·충돌, K7·K4·K12, R2 원본 재검사, 공백·작업 독립 상태에 대한 기존 시험도 통과.
+  - 필수 `profile-historical-vs-service`: 동일 r26 A-box의 이력 위반 0건·질문 11/11, 서비스 B1~B3 거부. 필수 `price-raw-kept-comparison-gated`: 원시 보존과 비교 자격 관문 통과.
+- 실제 수행한 검증 및 결과 (`services/knowledge/evidence/fix_round_5_*.log`, 경로는 `<worktree>`로 치환):
+  - `bash services/knowledge/test.sh`: **29 통과, 0 실패, 0 ignored** (단위 1·저장소 23·r26 1·PostgreSQL 3·문서 1). PostgreSQL 17.11, 실제 data_writer·knowledge_writer 권한. 로그 `fix_round_5_db.log`.
+  - `cargo test --locked --workspace`: **414 통과, 0 실패, 4 ignored**. knowledge DB 3개는 위 명령에서 실행했다. 나머지는 twin-runtime 픽스처 재생성 도구이며 최신성 검증은 통과했다. 로그 `fix_round_5_workspace.log`.
+  - `cargo clippy --locked --workspace --all-targets -- -D warnings`·`cargo fmt --all -- --check`: 통과. 로그 `fix_round_5_lint.log`·`fix_round_5_format.log`.
+  - `bash infra/db/public/test.sh`: **166 통과, 0 실패**. 로그 `fix_round_5_schema.log`.
+  - `python3 -I tools/ci/check_leak.py`·`python3 -I tools/ci/check_skeleton.py`·`python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime`: 통과, 런타임 비노출 **2/2**. 로그 `fix_round_5_static.log`.
+  - `git diff --check`·허용 경로 검사: 통과. 로그 `fix_round_5_summary.log`.
+- 합성 검증 / 실제 원문 검증 / 사용자 검증 중 해당 범위: fixture_only 합성 시험과 로컬 PostgreSQL. 실제 상품 정확도·원문 검수·사용자 검증·출시 승인을 뜻하지 않는다.
+- 미정 또는 지원하지 않는 동작: 후보 저장은 내부 검사 기록이며 production ReleaseManifest가 아니다. B5/B10·그림자 비교·공개 API는 후속 과제다. 문의 초안·가격 비교·정렬·예산 API 없음. `scope_relation`만 대상·값 동시 저장을 역변환하며 K12 계산의 실제 universe는 호출자가 제공한다. CI 검사기 전체 자기 시험은 이번 라운드에 실행하지 않았다. 과거 기존 의존성 위반은 round 2 기록에 남아 있다.
+- 미완료 수락 조건: 감독 프로세스의 새 head SHA 확정, 이 설명의 실제 PR 게시, 그 SHA에 고정된 작성 계열 외 독립 리뷰 제출 및 원격 CI 확인. 이 로컬 수정으로 해당 항목을 완료 처리하지 않는다.
 
 ## 확인
 
 - [x] `docs/BLUEPRINT.md` 및 `docs/PRINCIPLES.md` 체크리스트를 확인했다.
 - [x] 범위·개인정보·추천 기준 변경을 단순 구현 변경으로 숨기지 않았다.
-- [x] 규칙/가격/라벨 변경의 근거·버전·영향 사례를 연결했다. 해당 없음: 규칙·라벨 변경 없음, 가격은 저장·자격 판정 검증만.
+- [x] 규칙/가격/라벨 변경의 근거·버전·영향 사례를 연결했다. 규칙·라벨 변경 없음, 가격은 저장·자격 판정 검증이다.
 - [x] CI 성공을 실제 상품 정확도나 출시 승인으로 표현하지 않았다.
-- [ ] 설계와 구현의 상태를 요구사항 추적표에 반영했다 — `docs/blueprint/**`는 금지 경로라 반영하지 않았다. 병합 후 별도 갱신 필요.
-- [ ] 새 head SHA에 고정된, 두 작성 계열과 다른 계열의 독립 리뷰 및 원격 CI 성공 기록 — 감독 프로세스의 커밋 뒤 필요.
+- [ ] 설계와 구현의 상태를 요구사항 추적표에 반영했다. 금지 경로이므로 감독 프로세스의 별도 갱신 필요.
+- [ ] 실제 PR 설명에 A/Q/L/I/M·R·작성 정보·새 대상 SHA를 게시했다. 감독 프로세스 작업.
+- [ ] 새 head SHA에 고정된 작성 계열 외 독립 리뷰와 원격 CI가 있다. 감독 프로세스 작업.

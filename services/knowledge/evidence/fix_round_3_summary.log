@@ -1,0 +1,19 @@
+T-KN-04 fix round 3 -- local merge validation, 2026-10-23
+bash services/knowledge/test.sh: PASS, 21 passed / 0 failed / 0 ignored
+cargo test --locked --workspace: PASS, 408 passed / 0 failed / 2 ignored
+Ignored: knowledge DB test executed separately by test.sh; twin-runtime fixture regeneration is a write utility, freshness check passed
+cargo clippy --locked --workspace --all-targets -- -D warnings: PASS
+cargo fmt --all -- --check: PASS
+bash infra/db/public/test.sh: PASS, 166 passed / 0 failed
+python3 -I tools/ci/check_leak.py: PASS
+python3 -I tools/ci/check_skeleton.py: PASS
+python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime: PASS, 2 tests
+profile-historical-vs-service: PASS, historical violations=0, questions=11/11, B1/B2/B3 rejected
+price-raw-kept-comparison-gated: PASS
+Workspace union and original lock dependency preservation: PASS
+Unresolved merge index entries: 0
+Path policy: PASS, tracked differences from MERGE_HEAD and untracked files only in allowed paths
+Allowed-path staged whitespace check: PASS
+Full staged whitespace check: FAIL, four pre-existing main files outside allowed paths; blobs verified equal to MERGE_HEAD (merge.log)
+No new product behavior introduced; existing behavioral tests rerun
+Independent review and remote CI: pending supervisor's committed SHA; no commit/push/GitHub invocation

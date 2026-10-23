@@ -1,0 +1,18 @@
+T-KN-04 fix round 3 merge verification
+HEAD: 64a366e184c06e55d247a2410d6d8547256f6617
+MERGE_HEAD: bbcdb0bf07410a9212aeb3dc95dfbb469960cee1
+PASS: Cargo.toml equals main plus knowledge workspace registration only
+PASS: every main workspace crate and onjeon-knowledge retained
+PASS: every pre-merge HEAD lockfile package, version and dependency retained
+Cargo.lock regeneration: cargo generate-lockfile --offline; cargo update --offline --precise for the three pre-existing pins (serde_json, syn, unicode-ident)
+PASS: git ls-files -u is empty; all conflicts staged as resolved
+PASS: git diff --check; staged diff --check for allowed paths
+PASS: all tracked differences from MERGE_HEAD and untracked files lie within allowed paths
+Full staged diff --check exit: 2
+Pre-existing main whitespace warnings; each flagged index blob equals MERGE_HEAD and is outside allowed paths:
+services/criteria/TEST_LOG.txt:71: new blank line at EOF.
+services/criteria/evidence/cargo_test.log:71: new blank line at EOF.
+tools/ci/bootstrap_sample/reports/verification.log:82: trailing whitespace.
++test_cli_exit_codes_under_isolated_mode (test_ci_checkers.RepoIsClean.test_cli_exit_codes_under_isolated_mode) ...
+tools/crawler/tables/extractor.py:99: new blank line at EOF.
+No commit, push, GitHub call, external database or independent review performed

@@ -476,12 +476,13 @@ def main():
     if not shutil.which("pdftotext"):
         print("pdftotext (poppler-utils) is required")
         return 2
-    try:
-        import pdfplumber  # noqa: F401
-    except ImportError:
-        # a missing extractor must stop the run, not turn into a false quote_mismatch
-        print("pdfplumber is required (pip install pdfplumber==0.11.10)")
-        return 2
+    if args.cmd == "reproduce":
+        try:
+            import pdfplumber  # noqa: F401
+        except ImportError:
+            # a missing extractor must stop reproduction, not turn into a false quote_mismatch
+            print("pdfplumber is required (pip install pdfplumber==0.11.10)")
+            return 2
     args.endpoint_url = getattr(args, "endpoint_url", None)
     return sa.with_budget(args.job, args.endpoint_url,
                           lambda: cmd_reproduce(args) if args.cmd == "reproduce" else cmd_detect(args))

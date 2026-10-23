@@ -5,11 +5,17 @@ on:
     branches: [main, "claude/**"]
   pull_request:
 
+# PR-head code runs here, so the token is read-only and is not left in .git/config.
+permissions:
+  contents: read
+
 jobs:
   rules-engine:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Vocabulary (canonical states, generated doc, deprecated names)
         run: python3 tools/vocab_check.py
       - name: Validation set internal consistency (extracts and metadata; originals are checked by the manual `sources` workflow)
@@ -34,6 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Ontology case runner (rules engine only; computes nothing itself)
         run: cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
       - name: Ontology check (constraints, frozen releases, document model, question flow, self-tests)

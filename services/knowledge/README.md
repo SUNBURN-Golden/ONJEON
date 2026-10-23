@@ -43,4 +43,10 @@ python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime
 
 `test.sh`는 로컬 PostgreSQL 도구로 Unix 소켓 전용 임시 DB를 만들고 종료 시 제거한다. PostgreSQL이 없으면 실패하며, 외부 DB를 받아 사용하지 않는다. 일반 cargo 시험에서는 이 DB 시험 하나가 명시적으로 ignored다. `test.sh`는 `--include-ignored`로 실제 실행한다. r26 시험은 같은 T-KN-02 A-box에서 이력 제약 0건·질문 11/11과 서비스 거부를 함께 확인한다. 질문 계산은 기존 시험 CLI를 별도 target 디렉터리에 `--locked`로 빌드해서 호출한다.
 
-로그는 `evidence/fix_round_2_*.log`다. CI 검사기 전체 자기 시험은 기존 온톨로지 의존성 위반 3건으로 20개 중 2개 실패했다. `fix_round_2_baseline.log`는 HEAD의 읽기 전용 사본과 현재 트리에서 해당 위반이 같고 신규 위반이 없음을 확인한다. 원격 CI 실행·커밋 SHA에 고정된 독립 리뷰는 이 로컬 실행의 결과로 주장하지 않는다.
+최신 로그는 `evidence/fix_round_3_*.log`다. round 3에서는 main 병합의 Cargo 충돌을 해결했다. twin-runtime·collect·criteria와 knowledge를 모두 유지하고, 잠금 파일은 Cargo로 재생성하되 기존 의존성 버전을 유지했다. 서비스 구현과 시험 동작은 바꾸지 않았다.
+
+전체 워크스페이스 시험은 408개 통과, 2개 ignored다. knowledge DB 시험은 `test.sh`에서 별도로 실행해 서비스 시험 21개가 모두 통과했다. 나머지 ignored는 twin-runtime의 픽스처 재생성 도구이며, 같은 파일의 최신성 검증 시험은 통과했다. DB 제약 시험 166개, clippy·fmt, 누출·스켈레톤 정적 검사와 비노출 시험 2개도 통과했다.
+
+허용 경로의 공백 검사는 통과했다. 전체 staged diff에는 main에서 들어온 허용 경로 밖 네 파일의 기존 공백 경고가 남아 있다. 해당 파일들이 `MERGE_HEAD`와 바이트 단위로 같은지 확인했으며 수정하지 않았다(`fix_round_3_merge.log`).
+
+round 2의 CI 검사기 전체 자기 시험은 기존 온톨로지 의존성 위반 3건으로 20개 중 2개 실패했다. `fix_round_2_baseline.log`는 당시 HEAD의 읽기 전용 사본과 작업 트리에서 해당 위반이 같음을 확인한다. round 3에서 이 전체 자기 시험을 다시 실행한 것으로 표시하지 않는다. 원격 CI 실행·커밋 SHA에 고정된 독립 리뷰는 이 로컬 실행의 결과로 주장하지 않는다.

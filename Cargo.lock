@@ -363,12 +363,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "onjeon-collect"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "onjeon-contracts",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+]
+
+[[package]]
 name = "onjeon-contracts"
 version = "0.1.0"
 dependencies = [
  "onjeon-rules-engine",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "onjeon-criteria"
+version = "0.1.0"
+dependencies = [
+ "onjeon-contracts",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -399,6 +420,17 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.10.9",
+]
+
+[[package]]
+name = "onjeon-twin-runtime"
+version = "0.1.0"
+dependencies = [
+ "onjeon-contracts",
+ "onjeon-ontology",
+ "onjeon-rules-engine",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

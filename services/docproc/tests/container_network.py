@@ -2,6 +2,7 @@
 import json
 import importlib.util
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import time
@@ -10,6 +11,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from docker_runtime import docker_environment
+from shared_contract import SCHEMA_FILES, check_output, load_schema, schema_dir
 
 ROOT = Path(__file__).resolve().parents[1]
 PROBE = (ROOT / "tests/network_probe.py").read_text()
@@ -46,6 +48,13 @@ def live(env):
     network, server, test_image = name + "-net", name + "-server", name + "-tests"
     with tempfile.TemporaryDirectory() as input_dir:
         env = {**env, "DOCPROC_INPUT_DIR": input_dir}
+        # Shared contract shapes (packages/schemas) judge ids on the host and, mounted read-only, inside the suite.
+        schema = load_schema()
+        shared = Path(input_dir) / "schemas"
+        shared.mkdir(mode=0o755)
+        for schema_file in SCHEMA_FILES:
+            shutil.copy(schema_dir() / schema_file, shared / schema_file)
+            (shared / schema_file).chmod(0o644)
         compose = ["docker", "compose", "-p", name, "-f", str(ROOT / "compose.yaml")]
 
         def call(args, **kwargs):
@@ -62,6 +71,7 @@ def live(env):
             call(["docker", "build", "--network", "host", "--target", "test", "-t", test_image, str(ROOT)])
             test_command = ["docker", "run", "--rm", "--network", "none", "--read-only", "--cap-drop", "ALL",
                             "--security-opt", "no-new-privileges:true", "--tmpfs", "/tmp:size=64m,noexec,nosuid",
+                            "-v", f"{shared}:/schemas:ro", "-e", "DOCPROC_SCHEMA_DIR=/schemas",
                             "-e", "DOCPROC_REQUIRE_PINNED=1", "--entrypoint", "python3", test_image, "-B"]
             call([*test_command, "-c", "import docproc; print('NATIVE POPPLER:', docproc.tool_version(), flush=True)"])
             call([*test_command, "-m", "unittest", "discover", "-s", "/app/tests", "-v"])
@@ -74,12 +84,15 @@ def live(env):
             input_path.chmod(0o755)
             fixture.synthetic_pdf(input_path / "fixture_only.pdf")
             (input_path / "segments.fixture_only.json").write_text(json.dumps([
-                {"page_from": 1, "page_to": 2, "doc_role": "보통약관", "seg_rule_ver": "explicit-0.1"}]))
+                {"page_from": 1, "page_to": 2, "doc_role": "terms", "seg_rule_ver": "explicit-0.1"}]))
             cli = [*compose, "run", "--rm", "--no-deps", "docproc", "/input/fixture_only.pdf"]
             result = call([*cli, "--segments", "/input/segments.fixture_only.json", "--origin", "fixture"], capture_output=True, text=True)
             output = json.loads(result.stdout)
             if not output["segments"] or not output["clauses"] or not all(c["extractor"]["version"].startswith("24.02.") for c in output["clauses"]):
                 raise RuntimeError("Production CLI extraction failed")
+            segments, clauses = check_output(output, schema)
+            print(f"SHARED CONTRACT: PASSED ({segments} segment id(s), {clauses} clause id(s) and doc_role codes "
+                  "accepted by packages/schemas SegmentRef/ClauseRef/doc_role)", flush=True)
             (input_path / "output.fixture_only.json").write_text(result.stdout)
             call([*cli, "--verify", "/input/output.fixture_only.json"])
             print("PRODUCTION CLI: PASSED (fixture extraction and quote/coordinate verification)", flush=True)

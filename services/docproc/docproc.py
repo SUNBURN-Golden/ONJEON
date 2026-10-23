@@ -9,8 +9,44 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 EDITION = "docproc-text@1.1"
-ROLES = {"보통약관", "특약 약관", "별표", "요약서", "공시 목록", "안내 쪽"}
+# DocumentSegment roles of 02_구현계약 §1.1 (보통약관·특약 약관·별표·요약서·공시 목록·안내 쪽) as the codes of the
+# vocabulary axis doc_role. The evidence_ref grammar (packages/schemas) accepts only these codes in ids;
+# screen labels and deprecated aliases are rejected, never mapped.
+ROLES = ("terms", "rider_terms", "annex", "summary", "disclosure_list", "guide_page")
 NS = {"h": "http://www.w3.org/1999/xhtml"}
+
+
+def validate_specs(specs):
+    if not isinstance(specs, list) or not specs:
+        raise ValueError("Explicit segment specifications required")
+    covered, normalized = set(), []
+    for spec in specs:
+        if not isinstance(spec, dict):
+            raise ValueError("Invalid segment specification")
+        start, end = spec["page_from"], spec["page_to"]
+        role, rule = spec["doc_role"], spec["seg_rule_ver"]
+        boundary = spec.get("boundary", "unconfirmed")
+        if (type(start) is not int or type(end) is not int or start < 1 or end < start or end > 10000
+                or not isinstance(role, str) or role not in ROLES
+                or boundary not in ("confirmed", "unconfirmed")
+                or not isinstance(rule, str) or not re.fullmatch(r"[a-z][a-z0-9.-]*", rule)):
+            raise ValueError("Invalid segment specification")
+        if covered.intersection(range(start, end + 1)):
+            raise ValueError("Overlapping segment specifications")
+        covered.update(range(start, end + 1))
+        normalized.append({"page_from": start, "page_to": end, "doc_role": role,
+                           "seg_rule_ver": rule, "boundary": boundary})
+    return normalized
+
+
+def segment_id(digest, start, end, role, rule):
+    # segment_ref := seg:<raw_sha12>:p<from>-<to>:<doc_role>:<seg_rule_ver> (02 §6.1)
+    return f"seg:{digest[:12]}:p{start}-{end}:{role}:{rule}"
+
+
+def clause_id(sid, slug, page, edition):
+    # clause_ref := clause:<segment_ref>/<path_slug>#p<page>:<extractor>@<ver>; coordinates stay attributes
+    return f"clause:{sid}/{slug}#p{page}:{edition}"
 
 
 def run(args):
@@ -91,26 +127,16 @@ def extract(pdf, specs, edition=EDITION, origin="pipeline"):
         raise ValueError("Invalid PDF input")
     if origin not in {"pipeline", "fixture"} or not re.fullmatch(r"docproc-text@[0-9]+\.[0-9]+", edition):
         raise ValueError("Invalid extraction metadata")
+    specs = validate_specs(specs)
     version = tool_version()
     if not version.startswith("24.02."):
         raise ValueError("fp-0.1 requires Poppler 24.02")
     digest = hashlib.sha256(pdf_bytes).hexdigest()
     del pdf_bytes
-    segments, clauses, covered = [], [], set()
-    if not isinstance(specs, list) or not specs:
-        raise ValueError("Explicit segment specifications required")
+    segments, clauses = [], []
     for spec in specs:
-        start, end = spec["page_from"], spec["page_to"]
-        role, rule = spec["doc_role"], spec["seg_rule_ver"]
-        boundary = spec.get("boundary", "unconfirmed")
-        if (type(start) is not int or type(end) is not int or start < 1 or end < start
-                or end > 10000 or role not in ROLES or boundary not in {"confirmed", "unconfirmed"}
-                or not re.fullmatch(r"[a-z][a-z0-9.-]*", rule)):
-            raise ValueError("Invalid segment specification")
-        if covered.intersection(range(start, end + 1)):
-            raise ValueError("Overlapping segment specifications")
-        covered.update(range(start, end + 1))
-        sid = f"seg:{digest[:12]}:p{start}-{end}:{role}:{rule}"
+        start, end, role, rule, boundary = (spec[k] for k in ("page_from", "page_to", "doc_role", "seg_rule_ver", "boundary"))
+        sid = segment_id(digest, start, end, role, rule)
         texts = []
         for page in range(start, end + 1):
             lines = page_lines(pdf, page)
@@ -120,7 +146,7 @@ def extract(pdf, specs, edition=EDITION, origin="pipeline"):
             for index, line in enumerate(lines, 1):
                 heading = printed_path(line["quote"])
                 slug = f"{heading[1]}-line-{index}" if heading else f"line-{index}"
-                clauses.append({"id": f"clause:{sid}/{slug}#p{page}:{edition}",
+                clauses.append({"id": clause_id(sid, slug, page, edition),
                                 "segment_id": sid, "raw_asset_id": f"raw:sha256:{digest}",
                                 "clause_path": heading[0] if heading else slug,
                                 "clause_path_basis": "printed" if heading else "inferred",

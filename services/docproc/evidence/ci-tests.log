@@ -28,7 +28,7 @@ Finding(rule='DEP-ZONE', path='packages/ontology/Cargo.toml', line=15, message="
 Diff is 694 characters long. Set self.maxDiff to None to see it.
 
 ----------------------------------------------------------------------
-Ran 20 tests in 4.142s
+Ran 20 tests in 4.040s
 
 FAILED (failures=2)
 check_deps selftest ok: 19 violations each caught for its intended rule, 7 clean case(s) pass

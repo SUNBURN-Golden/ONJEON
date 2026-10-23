@@ -9,6 +9,11 @@ test_working_daemon_is_reused_without_privileged_process (test_docker_runtime.Do
 setUpClass (test_docproc.DocprocTests) ... skipped 'Extraction suite requires native Poppler 24.02; run test_sandbox.sh'
 test_fingerprint_nfc_whitespace_preserves_semantics (test_docproc.PureTests.test_fingerprint_nfc_whitespace_preserves_semantics) ... ok
 test_printed_heading_shape_and_inserted_articles (test_docproc.PureTests.test_printed_heading_shape_and_inserted_articles) ... ok
+test_rust_parser_accepts_every_role_id_and_rejects_legacy_labels (test_docproc.RustParserTests.test_rust_parser_accepts_every_role_id_and_rejects_legacy_labels) ... ok
+test_check_output_rejects_ids_that_do_not_restate_fields (test_docproc.SharedContractTests.test_check_output_rejects_ids_that_do_not_restate_fields) ... ok
+test_every_role_id_matches_shared_grammar (test_docproc.SharedContractTests.test_every_role_id_matches_shared_grammar) ... ok
+test_roles_are_vocabulary_doc_role_codes (test_docproc.SharedContractTests.test_roles_are_vocabulary_doc_role_codes) ... ok
+test_specs_accept_codes_and_reject_labels_and_aliases (test_docproc.SharedContractTests.test_specs_accept_codes_and_reject_labels_and_aliases) ... ok
 test_container_configuration_is_scoped_to_docproc (test_sandbox.SandboxTests.test_container_configuration_is_scoped_to_docproc) ... ok
 test_docker_absence_fails_by_default_and_when_required (test_sandbox.SandboxTests.test_docker_absence_fails_by_default_and_when_required) ... ok
 test_live_controlled_endpoint_detects_enabled_network (test_sandbox.SandboxTests.test_live_controlled_endpoint_detects_enabled_network) ... ok
@@ -17,6 +22,6 @@ test_refusal_timeout_and_unexpected_errors_are_not_isolation (test_sandbox.Sandb
 test_wrong_endpoint_response_fails_positive_control (test_sandbox.SandboxTests.test_wrong_endpoint_response_fails_positive_control) ... ok
 
 ----------------------------------------------------------------------
-Ran 16 tests in 0.053s
+Ran 21 tests in 6.735s
 
 OK (skipped=1)

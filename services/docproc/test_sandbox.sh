@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # 시험: bash services/docproc/test_sandbox.sh
 #  1) 정적 시험(docker 불필요): 추출기 단위 시험(합성 PDF, 인용-좌표 대조, 지문 fp-0.1,
-#     ClauseOccurrence ID 형식·재추출 신규 ID, 격리 구성 단언)을 실행한다.
+#     ClauseOccurrence ID 형식·재추출 신규 ID, 격리 구성 단언)과 공용 계약 대조
+#     (packages/schemas SegmentRef·ClauseRef 정규식·doc_role 어휘, Rust 파서 evidence_ref::validate)를 실행한다.
+#     Rust 파서 대조는 cargo가 필요하며 기본으로 필수다(DOCPROC_REQUIRE_RUST_PARSER=1). 건너뜀은 수락 증거가 아니다.
 #  2) 실제 시험: 이미지 빌드, native Poppler 24.02 추출 시험, 제어 가능한 IPv4·IPv6
 #     서버 양성 대조, 네트워크 활성 변이 실패, network_mode:none 격리를 확인한다(I13).
 # 기본은 Docker가 없으면 실패한다. 정적 시험만 필요하면 명시적으로
@@ -14,7 +16,7 @@ ROOT="$(cd "$HERE/../.." && pwd)"
 cd "$ROOT"
 
 echo "== 1) 정적 시험 =="
-python3 -B -m unittest discover -s services/docproc/tests -v
+DOCPROC_REQUIRE_RUST_PARSER="${DOCPROC_REQUIRE_RUST_PARSER:-1}" python3 -B -m unittest discover -s services/docproc/tests -v
 
 echo "== 2) 실제 격리 시험 =="
 if [ "${DOCPROC_SANDBOX_STATIC_ONLY:-0}" = 1 ]; then

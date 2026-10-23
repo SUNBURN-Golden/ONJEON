@@ -9,6 +9,7 @@ services/docproc/test_sandbox.sh: OK
 services/docproc/tests/container_network.py: OK
 services/docproc/tests/docker_runtime.py: OK
 services/docproc/tests/network_probe.py: OK
+services/docproc/tests/shared_contract.py: OK
 services/docproc/tests/test_docker_runtime.py: OK
 services/docproc/tests/test_docproc.py: OK
 services/docproc/tests/test_sandbox.py: OK

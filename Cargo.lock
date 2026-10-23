@@ -114,6 +114,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "onjeon-criteria"
+version = "0.1.0"
+dependencies = [
+ "onjeon-contracts",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "onjeon-ontology"
 version = "0.1.0"
 dependencies = [

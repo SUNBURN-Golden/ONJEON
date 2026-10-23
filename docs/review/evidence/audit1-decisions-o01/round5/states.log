@@ -1,0 +1,91 @@
+$ bash <tmp>/states.sh
+== 1 open: ledger untouched, patch present (must pass)
+52:| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |
++ python3 -I -m unittest discover -s <tmp>/open/tools/tests -p test_decisions_o01.py
+...............
+Ran 15 tests in 0.002s
+OK
+rc=0 (expected 0)
+== 2 closed: patch applied with git apply, patch file kept (must pass)
++ git apply docs/review/2026-10-23_audit1_decisions_o01.patch
+rc=0
+52:| O01 | ~~공제·우체국보험의 포함 여부~~ → D19·ADR-0018 §4로 결정. 우체국보험 포함(기관 유형 구분), 공제 제외(확보율 분모에서도 제외). 전체 기관·소스 목록 작성 자체는 구현 작업(D11) | 제품 책임자 | ADR-0018로 확정 | 우체국보험 포함(기관 유형 구분) / 공제·확보율 분모 제외 |
++ python3 -I -m unittest discover -s <tmp>/closed/tools/tests -p test_decisions_o01.py
+...............
+Ran 15 tests in 0.002s
+OK
+rc=0 (expected 0)
+== 3 closed, patch file deleted (closing round done; must pass)
+52:| O01 | ~~공제·우체국보험의 포함 여부~~ → D19·ADR-0018 §4로 결정. 우체국보험 포함(기관 유형 구분), 공제 제외(확보율 분모에서도 제외). 전체 기관·소스 목록 작성 자체는 구현 작업(D11) | 제품 책임자 | ADR-0018로 확정 | 우체국보험 포함(기관 유형 구분) / 공제·확보율 분모 제외 |
++ python3 -I -m unittest discover -s <tmp>/closed-nopatch/tools/tests -p test_decisions_o01.py
+...............
+Ran 15 tests in 0.002s
+OK
+rc=0 (expected 0)
+== 4 regression: stale row restored after the patch was deleted (must fail)
+52:| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |
++ python3 -I -m unittest discover -s <tmp>/reopened/tools/tests -p test_decisions_o01.py
+FFFFFF.FFFFF...
+FAIL: test_applied_copy_changes_only_the_o01_row (test_decisions_o01.LedgerCopyAfterPatch.test_applied_copy_changes_only_the_o01_row)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_applied_copy_is_closed (test_decisions_o01.LedgerCopyAfterPatch.test_applied_copy_is_closed)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_duplicate_o01_row_is_rejected (test_decisions_o01.LedgerCopyAfterPatch.test_duplicate_o01_row_is_rejected)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_reworded_row_is_rejected_in_both_states (test_decisions_o01.LedgerCopyAfterPatch.test_reworded_row_is_rejected_in_both_states)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_stale_row_is_rejected_once_the_patch_is_gone (test_decisions_o01.LedgerCopyAfterPatch.test_stale_row_is_rejected_once_the_patch_is_gone)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_closed_ledger_does_not_keep_the_stale_wording (test_decisions_o01.O01Row.test_closed_ledger_does_not_keep_the_stale_wording)
+AssertionError: 'M3 확장 전' unexpectedly found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+FAIL: test_ledger_row_is_stale_or_closed (test_decisions_o01.O01Row.test_ledger_row_is_stale_or_closed)
+AssertionError: False is not true : 원장 O01 행: 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_patch_removes_the_audited_wording (test_decisions_o01.PatchFile.test_patch_removes_the_audited_wording)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_patch_replaces_exactly_the_o01_row (test_decisions_o01.PatchFile.test_patch_replaces_exactly_the_o01_row)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_patch_row_is_the_decided_scope (test_decisions_o01.PatchFile.test_patch_row_is_the_decided_scope)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_stale_row_fails_the_closed_checks (test_decisions_o01.PatchFile.test_stale_row_fails_the_closed_checks)
+AssertionError: False is not true : 원장 O01 행(패치 없음): 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+Ran 15 tests in 0.007s
+FAILED (failures=11)
+rc=1 (expected 1)
+== 5 tampered: O01 reworded without the decision references, patch present (must fail)
+52:| O01 | 공제·우체국보험 포함 여부 재검토(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |
++ python3 -I -m unittest discover -s <tmp>/tampered/tools/tests -p test_decisions_o01.py
+.FFFFF.F.......
+FAIL: test_applied_copy_is_closed (test_decisions_o01.LedgerCopyAfterPatch.test_applied_copy_is_closed)
+AssertionError: False is not true : 원장 O01 행: 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+FAIL: test_duplicate_o01_row_is_rejected (test_decisions_o01.LedgerCopyAfterPatch.test_duplicate_o01_row_is_rejected)
+AssertionError: False is not true : 패치 적용 사본에 닫힌 O01 행이 있어야 한다
+FAIL: test_reworded_row_is_rejected_in_both_states (test_decisions_o01.LedgerCopyAfterPatch.test_reworded_row_is_rejected_in_both_states)
+AssertionError: False is not true : 패치 적용 사본에 닫힌 O01 행이 있어야 한다
+FAIL: test_stale_row_is_rejected_once_the_patch_is_gone (test_decisions_o01.LedgerCopyAfterPatch.test_stale_row_is_rejected_once_the_patch_is_gone)
+AssertionError: False is not true : 패치 적용 사본에 닫힌 O01 행이 있어야 한다
+FAIL: test_closed_ledger_does_not_keep_the_stale_wording (test_decisions_o01.O01Row.test_closed_ledger_does_not_keep_the_stale_wording)
+AssertionError: 'M3 확장 전' unexpectedly found in '| O01 | 공제·우체국보험 포함 여부 재검토(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+FAIL: test_ledger_row_is_stale_or_closed (test_decisions_o01.O01Row.test_ledger_row_is_stale_or_closed)
+AssertionError: False is not true : 원장 O01 행: 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+Ran 15 tests in 0.004s
+FAILED (failures=6)
+rc=1 (expected 1)
+== 6 duplicated: closed row present twice (must fail)
+52:| O01 | ~~공제·우체국보험의 포함 여부~~ → D19·ADR-0018 §4로 결정. 우체국보험 포함(기관 유형 구분), 공제 제외(확보율 분모에서도 제외). 전체 기관·소스 목록 작성 자체는 구현 작업(D11) | 제품 책임자 | ADR-0018로 확정 | 우체국보험 포함(기관 유형 구분) / 공제·확보율 분모 제외 |
+53:| O01 | ~~공제·우체국보험의 포함 여부~~ → D19·ADR-0018 §4로 결정. 우체국보험 포함(기관 유형 구분), 공제 제외(확보율 분모에서도 제외). 전체 기관·소스 목록 작성 자체는 구현 작업(D11) | 제품 책임자 | ADR-0018로 확정 | 우체국보험 포함(기관 유형 구분) / 공제·확보율 분모 제외 |
++ python3 -I -m unittest discover -s <tmp>/dup/tools/tests -p test_decisions_o01.py
+.F...FFF.......
+FAIL: test_applied_copy_is_closed (test_decisions_o01.LedgerCopyAfterPatch.test_applied_copy_is_closed)
+AssertionError: 원장에 O01 행이 정확히 하나 있어야 한다 (지금 2개)
+FAIL: test_closed_ledger_does_not_keep_the_stale_wording (test_decisions_o01.O01Row.test_closed_ledger_does_not_keep_the_stale_wording)
+AssertionError: 원장에 O01 행이 정확히 하나 있어야 한다 (지금 2개)
+FAIL: test_ledger_keeps_five_columns (test_decisions_o01.O01Row.test_ledger_keeps_five_columns)
+AssertionError: 원장에 O01 행이 정확히 하나 있어야 한다 (지금 2개)
+FAIL: test_ledger_row_is_stale_or_closed (test_decisions_o01.O01Row.test_ledger_row_is_stale_or_closed)
+AssertionError: 원장에 O01 행이 정확히 하나 있어야 한다 (지금 2개)
+Ran 15 tests in 0.003s
+FAILED (failures=4)
+rc=1 (expected 1)
+unexpected results: 0
+EXIT_CODE=0
+

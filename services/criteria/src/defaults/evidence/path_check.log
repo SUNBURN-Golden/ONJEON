@@ -1,0 +1,19 @@
+Base SHA: f972e5853081034732a14e4e5988828813815b4d
+Changed files: 13
+Outside allowed_paths: 0
+git diff --check: rc=0
+sha256sum -c test_inputs.sha256: rc=0
+
+services/criteria/src/defaults/README.md
+services/criteria/src/defaults/evidence/PR_본문.md
+services/criteria/src/defaults/evidence/cargo_test_defaults.log
+services/criteria/src/defaults/evidence/cargo_test_workspace.log
+services/criteria/src/defaults/evidence/path_check.log
+services/criteria/src/defaults/evidence/test_inputs.sha256
+services/criteria/src/defaults/load.rs
+services/criteria/src/defaults/mod.rs
+services/criteria/src/defaults/tests.rs
+services/criteria/src/defaults/verification/Cargo.lock
+services/criteria/src/defaults/verification/Cargo.toml
+services/criteria/src/defaults/verification/lib.rs
+services/criteria/src/defaults/verification/product_api.rs

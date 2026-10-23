@@ -1,6 +1,6 @@
 //! File loader for `data/criteria/defaults/candidates/` (this task's produced path).
 //!
-//! Layout (see `data/criteria/defaults/README.md` and `default-file.schema.json`):
+//! Layout (see this module's `README.md` and `default-file.schema.json`):
 //! one file per candidate, `{ "candidate": {...}, "versions": [...] }`. Before serde
 //! sees the bytes the loader runs the same K8 private-identifier scan as the
 //! criterion loader; the criteria loader's `default*`-key refusal does not apply

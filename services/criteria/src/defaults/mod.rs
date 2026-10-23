@@ -2,10 +2,10 @@
 //!
 //! 경로 정책 상태: 이 과제의 허용 경로는 `data/criteria/defaults/**`와
 //! `services/criteria/src/defaults/**`뿐이라 이 모듈을 켜는 `pub mod defaults;`
-//! 한 줄(`src/lib.rs`)은 허용 밖이다. 모듈은 배선되기 전까지 컴파일되지 않으며,
+//! 한 줄(`src/lib.rs`)은 허용 밖이다. 제품 크레이트에서는 아직 컴파일되지 않는다.
+//! `verification/Cargo.toml`은 원본 소스를 컴파일하는 시험 전용 진입점이다.
 //! 배선과 `data/criteria/defaults/` 생성(conformance의 비존재 단정 갱신 포함)은
-//! 경로 정책이 허용하는 후속 라운드·과제의 몫이다. 자세한 것은 이 디렉터리의
-//! `README.md` "경로 상태" 절.
+//! 여전히 미완료다. 자세한 것은 이 디렉터리의 `README.md` "현재 상태" 절.
 //!
 //! 이 모듈은 기본값 **후보**만 적재한다. 판 하나는 출처가 확정된 공공 통계에만 근거한다:
 //! `sources`는 1개 이상이고 각 `ref`는 `raw:sha256:<64>` RawAsset 해시이며

@@ -296,10 +296,25 @@ fn user_assumption_is_never_overwritten() {
 #[test]
 fn shipped_defaults_dir_loads_clean() {
     // data/criteria/defaults/candidates/의 서비스 후보는 전부 적재·검증을 통과해야
-    // 한다. 후보가 0건인 것도 정상 상태다(확정된 공공 통계 원본이 아직 없다).
-    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../data/criteria/defaults/candidates");
+    // 한다. 이 과제의 산출물 검증에서는 빈/미존재 경로로 통과할 수 없다.
+    // 원래 크레이트와 별도 verification 진입점 모두 같은 실제 경로를 검사한다.
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .find(|root| {
+            root.join("data/criteria/criterion-file.schema.json")
+                .is_file()
+        })
+        .expect("repository data contract must exist");
+    let dir = root.join("data/criteria/defaults/candidates");
+    assert!(
+        dir.is_dir(),
+        "BLOCK F2: shipped candidate directory is missing"
+    );
     let s = load_dir(&dir).unwrap();
+    assert!(
+        s.versions().count() > 0,
+        "BLOCK F2: a sourced public-statistic edition must actually be delivered"
+    );
     for v in s.versions() {
         assert!(!v.sources.is_empty(), "출처 없는 기본값이 없다");
         for src in &v.sources {

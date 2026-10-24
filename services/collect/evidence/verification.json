@@ -1,18 +1,21 @@
 {
   "task_id": "T-DT-04",
-  "base_sha": "60e969add987a31442cc5cf98d43ec3bf581411b",
+  "base_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
+  "target_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
+  "target_sha_scope": "Input review commit. Tests cover this commit plus uncommitted files pinned below; supervisor must re-pin the final commit and obtain independent review.",
   "files_sha256": {
-    "Cargo.toml": "ad44abe732edafa7fee0a49ef73d040764283308749d7b32eb8df0b57a851925",
-    "Cargo.lock": "6c4f6e6b3ea235c5eb3c857e4e02f039e769bf65a900fa65bf0b911313c0bffa",
+    "Cargo.toml": "42700de608b885155b383297e9699f8e6a96c2c60a79f383356f0000385027b3",
+    "Cargo.lock": "6428c439df9587782a71bcac0a169e77ec7d3d905dc93aef8fce2ff43cff2681",
     "services/collect/src/adapters/enumerate.rs": "ff0fd864632c3c2d07be09644213e41989407cb76ea65890bb1f33dec48e2936",
     "services/collect/src/adapters/fetch.rs": "520630640513752123cbf023cf7cf9f4ead02404f4d8532ebcbeafc3d60762e4",
-    "services/collect/src/adapters/institution.rs": "e7a91f92b5d7fe3295e9f0d1e62d6749ffbac785ecffe33358779ba2be7bf5c6",
-    "services/collect/src/adapters/listpage.rs": "47a8ed1efc61079539e4be43e171ba5d4bf3c79e46948f2735d8ca83cdcb7ad2",
+    "services/collect/src/adapters/institution.rs": "630a5905cd6fcdb6d8af9c764b575156c3b617f1d02669b2b3039e0a6f8d69a1",
+    "services/collect/src/adapters/listpage.rs": "3d1b7580e341eb7e9943351ec8f0e6f7138dc02e57a964b1371a60b46cfb8d54",
     "services/collect/src/adapters/manifest.rs": "1765f8edc5286b313a1c79e358ab86998475d0aeb67d7ffd201106b7ec371791",
-    "services/collect/src/adapters/mod.rs": "09862315f3c15d54eae56c8db132b62f561663f6a2ed1b6d3c4becc8431e1c0f",
-    "services/collect/src/adapters/progress.rs": "67aa486344bd23bf468dde3e1f95e6efd6090f77a9457d816f7fe28d671d712c",
+    "services/collect/src/adapters/mod.rs": "797a78baf9f38fc105938a4012107892929f79035353990663b165c89666ac98",
+    "services/collect/src/adapters/progress.rs": "3c837afb9079780da3e9ec3f657a42552fdf3c10bdf9e589ca4c1d7bcae80fd5",
     "services/collect/src/adapters/registry.rs": "2e1a3e3eff46e946588fd90fab0024eab6aa3236e51c0de61b3810c506da4eed",
-    "services/collect/src/adapters/robots.rs": "af9666f5b0932d197754494e254a4712911fcea40740ae7d2bca6c3263b4b894",
+    "services/collect/src/adapters/regression.rs": "fb71f8833c4a6bf9c21b276f51967bb6da62f0f139bc2b594013f4a0dabfe278",
+    "services/collect/src/adapters/robots.rs": "d3c7f9ce99a4583fa29846d5862e8431b9f0112cc0e76caac3a959cfc2e3f61d",
     "services/collect/src/archive.rs": "5fdcf711635e957dac4e2fed083fc2330a9edcf61b1a4b7b4392ca335a207053",
     "services/collect/src/budget.rs": "8932a59aae185b0477a371699a998494e8223df9d19f476a8c2f186a3dc6d5d1",
     "services/collect/src/digest.rs": "5154677d62d441328528e6594fa23ac30546c27e887937cb277f0dff9a8e7d4c",
@@ -31,9 +34,10 @@
     "services/collect/tests/http_conformance.rs": "dcdf1317513da1f5a1737eb7626083ec507d869c060737e6f34bd13f0fd72519",
     "services/collect/tests/s3_conformance.rs": "8966dc5d6e06935e8c71d6caba17c9188832c421007040a5a8552810a6efd8b5",
     "services/collect/tests/test_python_conformance.py": "ee21d093f7719048e91821dc35bd64be94b79efa048d7033b0bd42fe4382ae2b",
-    "services/collect/tests/verify.py": "e9050c288801fd343c05e146e7c5d932d3672e997e633dd32c8638d98bad79c2",
+    "services/collect/tests/verify.py": "40b3d2c2aebd5ec625d68611eb797e6fef761bc640b7a01cd26b1dc4a1f1e52b",
     "services/collect/Cargo.toml": "0b5e33362c7f5dbe783857bf35a7de0c9b52caf2c226f8d40baedcaef2981fa7"
   },
+  "all_checks_green": false,
   "results": [
     {
       "command": [
@@ -70,7 +74,8 @@
         "adapters"
       ],
       "exit_code": 0,
-      "log": "verification-02.log"
+      "log": "verification-02.log",
+      "passed_tests": 51
     },
     {
       "command": [

@@ -13,13 +13,14 @@
 - 열거: 주입형 Fetch(리다이렉트 추종 없음·본문 상한) + robots 게이트(확인 불가 호스트는 UTC 일 끝까지 보류, 401/403 차단, RFC 9309 최장 매칭) + 페이지 기록(종료 증거: 공시 건수 도달·빈 페이지·다음 포인터 없음). 같은 마지막 페이지 반복·정지·상한 도달은 미탐색으로 기록하고 성공으로 세지 않는다. 성공한 빈 목록과 오류는 구분된다.
 - 로그인 HTML 200은 차단(login_page)이지 성공이 아니다(§8).
 - 진행표: 기관마다 행이 있고 문서 종류(약관·특약·별표·사업방법서·상품요약서·가격)별 확보·미확보(사유)를 따로 센다. 확보는 원본 보존+구획 추출+판 연결 모두 있을 때만(09 P02).
+- 수정 회차 1: 부분 열거(PageRepeat·Stall·MaxPagesReached)는 완료 증거가 아니다. 미확인 분모를 축·판매상태·채널·기간·문서 종류별로 보존하여 다른 축이나 범위의 성공이 지우지 못하게 했다. 같은 범위·역할을 재탐색해 완료한 경우에만 해당 표시를 해제한다.
 - 화면·가격·규칙·공유 스키마 변경 없음.
 
 ## 실제 검증과 한계
 
-- 재실행: `python3 services/collect/tests/verify.py`. 전체 명령·종료 코드·파일별 SHA-256: `verification.json`.
-- `cargo test -p onjeon-collect adapters` 41개 통과(필수 시험 `acquisition_reason_not_counted` 포함). 전체 workspace 통과. fmt·clippy·누출·스켈레톤 정적 검사 통과.
-- 의존 경계 검사는 실패: 수정하지 않은 packages/ontology의 knowledge→twin 위반 3개(T-DT-01과 동일, `verification-07.log`). 허용 경로 밖이라 수정하지 않았다.
+- 재실행: `python3 services/collect/tests/verify.py`. 전체 명령·종료 코드·파일별 SHA-256: `verification.json`. 이번 회차 경로·메타데이터·해시 대조 결과: `verification-fix-round-1.json`.
+- `cargo test -p onjeon-collect adapters` 총 51개 통과(통합 44개 + 라이브러리 회귀 7개; 필수 시험 `acquisition_reason_not_counted` 포함, `verification-02.log`). 전체 workspace 통과. fmt·clippy·누출·스켈레톤 정적 검사 통과.
+- 의존 경계 검사는 **실패(exit 1), 병합 차단 유지**: packages/ontology의 knowledge→twin 위반 3개(`verification-07.log`). 해당 파일·검사기·규칙은 아래 입력 대상 SHA와 바이트가 동일하다(`dependency-boundary.json`). 허용 경로 밖이므로 감독자가 담당 과제로 배정해 수정하고 전체 검사를 통과시켜야 한다. 검사 우회·예외 추가는 없다.
 - 실제 열거는 없었다: 네트워크 Fetch 구현을 넣지 않았고(HTTPS 미구축, 실제 수집은 D-04·O17 관문), 모든 어댑터 시험은 합성 fixture transport로 했다.
 - 협회 어댑터의 진입점은 레지스트리·2026-10-10 조사에서 실제 관측한 URL만 쓴다. 비교공시 판매본 키는 H1 반례로 불안정해 known_limitations로 선언하고 지어내지 않았다. KNIA `/popup/disclosureList.do`는 POST+JS 객체 리터럴로만 관측돼 GET·HTML 계획으로 재현할 수 없으므로 documents 축은 계획 없이 미탐색으로 남겼다(관측된 robots.txt 403도 한계로 선언).
 - 빈 페이지는 끝점의 공시 건수·다음 포인터와 대사한 뒤에만 종료 증거다: 첫 페이지가 빈 목록(건수 공시 없음·다음 없음)일 때만 '성공한 빈 목록'이고, 공시 건수 미달의 빈 페이지는 미탐색 정지, 끝점이 다음을 주면 계속 걷는다.
@@ -29,9 +30,9 @@
 ## 작성·리뷰·대상 고정
 
 - 작성 역할: 구현 및 자체 검증. 실행 경로: CLI → 이 worktree → cargo / Python unittest. 모델 식별자 원문은 기록하지 않았다.
-- 기준 SHA: `ea23bb57307a5a9669c6252418a3caf13a56fff5`.
-- 대상 commit SHA: 감독자 커밋 후 기입 필요. 이 세션은 커밋·푸시·GitHub 호출을 하지 않았다. 현재 코드 바이트는 `verification.json`의 파일별 SHA-256으로 고정했다.
-- 독립 리뷰: 미실시. 작성 계열과 다른 리뷰어가 감독자 생성 대상 SHA에 고정해 리뷰해야 한다.
+- 리뷰 입력 대상 SHA: `5ae5171f201f2e448624cafb1c5ef00bd8e08e45` (`handoff.json`, `verification.json`의 `target_sha`).
+- 실제 검증 대상은 위 입력 SHA에 이 회차의 미커밋 수정을 적용한 코드다. 수정 바이트는 `verification.json`의 파일별 SHA-256으로 고정했다. 입력 SHA를 수정 완료 커밋으로 주장하지 않는다. 감독자는 최종 커밋 생성 후 실제 수정 커밋 SHA로 다시 고정해야 한다. 이 세션은 커밋·푸시·GitHub 호출을 하지 않았다.
+- 독립 리뷰: 제공된 st_build_review 판정은 BLOCK이며 수정본 독립 리뷰는 아직 없다. 작성 계열과 다른 리뷰어가 감독자 생성 최종 SHA에 고정해 다시 리뷰해야 한다. 자체 시험으로 독립 리뷰 완료를 주장하지 않는다.
 - 변경 범위: services/collect/**, data/registry/README.md. CSV·금지 문서는 수정하지 않았다.
 - 감독자는 allowed_paths 대비 최종 범위를 확인해야 한다.
 
@@ -40,6 +41,8 @@
 - [x] BLUEPRINT·PRINCIPLES 및 계약을 확인했다.
 - [x] 비밀값·실제 개인 자료·원문 발췌를 증거에 넣지 않았다. 합성 입력은 fixture transport(fixture_only)로만 썼다.
 - [x] 예산·보안 정책을 완화하지 않았고, 실제 원격 호출·삭제를 하지 않았다. robots·차단을 우회하지 않는다.
-- [ ] 의존 경계의 기존 위반은 담당 과제에서 해결 필요.
-- [ ] 대상 commit SHA와 독립·타 계열 리뷰는 감독자 후속 관문.
+- [ ] 의존 경계 위반 3건을 허용된 담당 과제에서 해결하고 전체 검사 통과(병합 차단).
+- [x] 입력 대상 SHA와 수정 파일 해시를 기록했다.
+- [ ] 최종 수정 commit SHA 재고정과 독립·타 계열 리뷰는 감독자 후속 관문.
+- `STATUS: READY`는 허용 범위 수정의 인계를 뜻하며 위 미완료 관문의 통과를 뜻하지 않는다.
 - [ ] 실제 데이터와 화면을 포함한 P01·P02 제품 완료 증거는 후속 관문.

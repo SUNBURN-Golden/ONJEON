@@ -67,6 +67,53 @@ pub struct InstitutionProgress {
     pub exploration: BTreeMap<String, ExplorationState>,
     pub items: Vec<DenominatorItem>,
     pub unknown_denominators: BTreeMap<DocRole, ExplorationState>,
+    // Keep each scope's unknowns independently. A completed product list cannot
+    // resolve a document gap, nor can one channel resolve another channel's gap.
+    denominator_unknowns: BTreeMap<DenominatorScope, BTreeMap<DocRole, ExplorationState>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct DenominatorScope {
+    axis: String,
+    sale_status: Option<String>,
+    channel: Option<String>,
+    period_from: Option<String>,
+    period_to: Option<String>,
+}
+
+impl InstitutionProgress {
+    fn update_denominator_state(
+        &mut self,
+        scope: &super::manifest::ScopeDesc,
+        state: &ExplorationState,
+    ) {
+        let key = DenominatorScope {
+            axis: scope.axis.clone(),
+            sale_status: scope.sale_status.clone(),
+            channel: scope.channel.clone(),
+            period_from: scope.period_from.clone(),
+            period_to: scope.period_to.clone(),
+        };
+        let unknowns = self.denominator_unknowns.entry(key).or_default();
+        for role in DENOMINATOR_DOC_ROLES {
+            if scope.axis == "documents" && !scope.doc_roles.iter().any(|r| r == role.as_str()) {
+                continue;
+            }
+            if state.reached_evidence() {
+                unknowns.remove(&role);
+            } else {
+                unknowns.insert(role, state.clone());
+            }
+        }
+        self.denominator_unknowns
+            .retain(|_, roles| !roles.is_empty());
+        // Public per-role view: retain a marker while ANY scope is unresolved.
+        self.unknown_denominators = self
+            .denominator_unknowns
+            .values()
+            .flat_map(|roles| roles.iter().map(|(role, state)| (*role, state.clone())))
+            .collect();
+    }
 }
 
 /// Where a scope axis of an institution stands after enumeration.
@@ -91,13 +138,10 @@ pub enum ExplorationState {
 }
 
 impl ExplorationState {
-    /// `true` when the axis reached termination evidence (`Enumerated`,
-    /// `EnumeratedEmpty`, `PartiallyEnumerated`).
+    /// `true` only when the axis was fully enumerated. A partial walk leaves an
+    /// unknown denominator even though it records why enumeration stopped.
     pub fn reached_evidence(&self) -> bool {
-        matches!(
-            self,
-            Self::Enumerated | Self::EnumeratedEmpty | Self::PartiallyEnumerated { .. }
-        )
+        matches!(self, Self::Enumerated | Self::EnumeratedEmpty)
     }
 }
 
@@ -154,6 +198,7 @@ impl ProgressTable {
                 exploration,
                 items: Vec::new(),
                 unknown_denominators: BTreeMap::new(),
+                denominator_unknowns: BTreeMap::new(),
             });
         }
         rows.sort_by(|a, b| a.institution_id.cmp(&b.institution_id));
@@ -181,6 +226,9 @@ impl ProgressTable {
         let state = super::enumerate::exploration_state_of(&manifest.termination);
         row.exploration
             .insert(manifest.scope.axis.clone(), state.clone());
+        if matches!(manifest.scope.axis.as_str(), "documents" | "product_list") {
+            row.update_denominator_state(&manifest.scope, &state);
+        }
         if manifest.scope.axis == "documents" {
             let reason = manifest
                 .gaps
@@ -202,11 +250,6 @@ impl ProgressTable {
                 if !manifest.scope.doc_roles.iter().any(|r| r == role.as_str()) {
                     continue;
                 }
-                if state.reached_evidence() {
-                    row.unknown_denominators.remove(&role);
-                } else {
-                    row.unknown_denominators.insert(role, state.clone());
-                }
                 for item in row
                     .items
                     .iter_mut()
@@ -219,16 +262,6 @@ impl ProgressTable {
         }
         if manifest.scope.axis != "product_list" {
             return Ok(());
-        }
-        if matches!(
-            state,
-            ExplorationState::Enumerated | ExplorationState::EnumeratedEmpty
-        ) {
-            row.unknown_denominators.clear();
-        } else {
-            for role in DENOMINATOR_DOC_ROLES {
-                row.unknown_denominators.insert(role, state.clone());
-            }
         }
         for id in &manifest.discovered_ids {
             for role in DENOMINATOR_DOC_ROLES {

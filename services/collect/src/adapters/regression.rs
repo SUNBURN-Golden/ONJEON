@@ -230,3 +230,162 @@ fn adapters_registry_progress_applies_gaps_and_discoveries_without_acquisition()
     manifest.scope.institution_id = "fixture_only_outside_denominator".into();
     assert!(table.apply_discovery(&manifest).is_err());
 }
+
+fn fixture_only_manifest(id: &str, axis: &str, termination: Termination) -> DiscoveryManifest {
+    let mut manifest = unenumerated_manifest(
+        ScopeDesc {
+            axis: axis.into(),
+            institution_id: id.into(),
+            sale_status: None,
+            channel: None,
+            period_from: None,
+            period_to: None,
+            doc_roles: vec!["terms".into()],
+        },
+        "fixture_only",
+        "",
+        &RunMeta {
+            survey_round: "fixture_only".into(),
+            source_id: "fixture_only".into(),
+            adapter_version: "fixture_only".into(),
+        },
+        "fixture_only",
+        "1970-01-01T00:00:01Z",
+    );
+    manifest.termination = termination;
+    manifest.gaps.clear();
+    manifest.discovered_ids = vec!["fixture_only_product".into()];
+    manifest
+}
+
+fn fixture_only_complete() -> Termination {
+    Termination::NextPointerAbsent {
+        at_cursor: "fixture_only_last".into(),
+    }
+}
+
+#[test]
+fn adapters_partial_documents_never_resolve_denominator_in_either_manifest_order() {
+    use onjeon_contracts::DocRole;
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    let products = fixture_only_manifest(id, "product_list", fixture_only_complete());
+    for termination in [
+        Termination::PageRepeat {
+            at_cursor: "fixture_only_repeat".into(),
+        },
+        Termination::Stall {
+            at_cursor: "fixture_only_stall".into(),
+            unique_items: 1,
+            advertised_total: 2,
+        },
+        Termination::MaxPagesReached {
+            at_cursor: "fixture_only_cap".into(),
+        },
+    ] {
+        let documents = fixture_only_manifest(id, "documents", termination);
+        assert!(!exploration_state_of(&documents.termination).reached_evidence());
+        for manifests in [
+            [products.clone(), documents.clone()],
+            [documents.clone(), products.clone()],
+        ] {
+            let table = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+            for coverage in [table.coverage_of(id), table.coverage_all()] {
+                let terms = &coverage[&DocRole::Terms];
+                assert_eq!(terms.expected, 1);
+                assert_eq!(terms.acquired, 0);
+                assert_eq!(terms.unknown_scopes, 1);
+                assert_eq!(terms.rate(), None);
+                assert_eq!(coverage[&DocRole::RiderTerms].rate(), Some(0.0));
+            }
+        }
+    }
+}
+
+#[test]
+fn adapters_complete_documents_do_not_clear_partial_product_denominator() {
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    let products = fixture_only_manifest(
+        id,
+        "product_list",
+        Termination::MaxPagesReached {
+            at_cursor: "fixture_only_cap".into(),
+        },
+    );
+    let documents = fixture_only_manifest(id, "documents", fixture_only_complete());
+    for manifests in [
+        [products.clone(), documents.clone()],
+        [documents.clone(), products.clone()],
+    ] {
+        let mut table = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+        assert!(table
+            .coverage_of(id)
+            .values()
+            .all(|role| role.rate().is_none() && role.unknown_scopes == 1));
+        let mut completed = products.clone();
+        completed.termination = fixture_only_complete();
+        table.apply_discovery(&completed).unwrap();
+        assert!(table
+            .coverage_of(id)
+            .values()
+            .all(|role| role.rate() == Some(0.0) && role.unknown_scopes == 0));
+    }
+}
+
+#[test]
+fn adapters_only_matching_document_scope_and_roles_can_resolve_unknowns() {
+    use onjeon_contracts::DocRole;
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    let products = fixture_only_manifest(id, "product_list", fixture_only_complete());
+    let mut partial = fixture_only_manifest(
+        id,
+        "documents",
+        Termination::PageRepeat {
+            at_cursor: "fixture_only_repeat".into(),
+        },
+    );
+    partial.scope.doc_roles.push("rider_terms".into());
+    let mut table = ProgressTable::from_discoveries(&denom, &[products, partial.clone()]).unwrap();
+    for scope in [
+        ScopeDesc {
+            channel: Some("fixture_only_channel".into()),
+            ..partial.scope.clone()
+        },
+        ScopeDesc {
+            sale_status: Some("fixture_only_sale_status".into()),
+            ..partial.scope.clone()
+        },
+        ScopeDesc {
+            period_from: Some("2000-01-01".into()),
+            ..partial.scope.clone()
+        },
+        ScopeDesc {
+            period_to: Some("2001-01-01".into()),
+            ..partial.scope.clone()
+        },
+    ] {
+        let mut other = partial.clone();
+        other.scope = scope;
+        other.termination = fixture_only_complete();
+        table.apply_discovery(&other).unwrap();
+        assert_eq!(table.coverage_of(id)[&DocRole::Terms].rate(), None);
+    }
+    let mut complete = partial.clone();
+    complete.termination = fixture_only_complete();
+    complete.scope.doc_roles = vec!["terms".into()];
+    table.apply_discovery(&complete).unwrap();
+    assert_eq!(table.coverage_of(id)[&DocRole::Terms].rate(), Some(0.0));
+    assert_eq!(table.coverage_of(id)[&DocRole::RiderTerms].rate(), None);
+    // A verified empty rerun also resolves only the matching role and scope.
+    complete.scope.doc_roles = vec!["rider_terms".into()];
+    complete.termination = Termination::EmptyPage {
+        at_cursor: "fixture_only_empty".into(),
+    };
+    table.apply_discovery(&complete).unwrap();
+    assert!(table
+        .coverage_all()
+        .values()
+        .all(|role| role.rate() == Some(0.0)));
+}

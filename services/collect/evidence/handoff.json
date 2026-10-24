@@ -37,13 +37,13 @@
     ]
   },
   "verification_summary": {
-    "adapters_rust_tests": "41 passed (cargo test -p onjeon-collect adapters)",
+    "adapters_rust_tests": "51 passed: 7 library regression tests + 44 adapter integration tests (cargo test -p onjeon-collect adapters; verification-02.log)",
     "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
     "workspace_rust": "passed",
     "python_tools": "passed",
     "format_and_clippy": "passed",
     "leak_and_skeleton_static_and_selftests": "passed",
-    "dependency_boundary": "failed: 3 unchanged packages/ontology knowledge-to-twin dependencies/imports; identical to the T-DT-01 finding, see verification-07.log. Nothing under packages/ontology was modified (forbidden/out of allowed paths).",
+    "dependency_boundary": "FAIL (exit 1): 3 packages/ontology knowledge-to-twin dependencies/imports. Finding files, checker, and rules are byte-identical to target_sha; see dependency-boundary.json and verification-07.log. Merge remains blocked; requires a task authorized to edit packages/ontology. No checker bypass or policy exception was added.",
     "all_checks_green": false
   },
   "change_kind": "existing_design_implementation",
@@ -60,13 +60,12 @@
     "model_identity": "intentionally_not_recorded",
     "independent_reviewer": false
   },
-  "base_sha": "ea23bb57307a5a9669c6252418a3caf13a56fff5",
-  "target_sha": null,
-  "target_sha_reason": "Supervisor creates the commit; this session is forbidden to commit. verification.json pins source bytes by SHA-256, not a nonexistent commit.",
+  "base_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
+  "target_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
   "review": {
-    "status": "pending_supervisor",
+    "status": "blocked_pending_final_commit_and_independent_review",
     "required": "Independent reviewer from a different author family must review the supervisor-created target SHA. Self-tests are not an independent review.",
-    "note": "New merge commit changes target SHA; independent review must re-pin to the supervisor-created SHA."
+    "note": "The supplied st_build_review verdict is BLOCK. This fix has only author self-verification; it does not establish independent review of the changed bytes."
   },
   "implemented": [
     "injected Fetch transport (GET only, no redirect following, bounded body; no network impl shipped)",
@@ -108,9 +107,17 @@
     "new_root_configuration_or_docs": false
   },
   "supervisor_actions": [
-    "Confirm changed files against the task's allowed_paths (services/collect/**, data/registry/README.md).",
-    "Create target commit SHA and attach it to PR metadata.",
-    "Obtain independent different-family review pinned to that SHA.",
-    "Treat STATUS READY as implementation handoff, not product release approval."
-  ]
+    "Route the 3 dependency findings in packages/ontology to an authorized task and require the unchanged full check_deps.py command to pass before merge.",
+    "Confirm changed files against allowed_paths (services/collect/**, data/registry/README.md).",
+    "Create the final commit, replace the input target SHA in PR metadata with the actual fix commit SHA, and rerun verification against it.",
+    "Obtain independent different-family review pinned to that final SHA; the previous BLOCK verdict is not cleared by self-tests.",
+    "STATUS READY means the allowed-path fix is handed off; it is not a green merge or product release gate."
+  ],
+  "target_sha_scope": "Input review commit, not a commit containing this fix. Verified result is this SHA plus uncommitted source bytes pinned in verification.json. Supervisor must commit the fix and re-pin the final SHA before independent review.",
+  "fix_round_1": {
+    "reviewer": "st_build_review",
+    "finding_1": "Fixed: partial walks never reach completion evidence. Denominator unknowns are retained per axis, sale status, channel, period, and document role; successful enumeration clears only the matching scope/roles. Three new regression tests cover page repeat/stall/max pages, both manifest orders, cross-axis preservation, and matching-scope recovery.",
+    "finding_2": "Fixed: current counts are 44 adapter integration + 7 library regression = 51; verification.json derives the total directly from test output. Historical verification-fix*.log/json remain historical records.",
+    "finding_3": "Partially addressed: input target SHA recorded with explicit worktree-byte pins. Final committed fix SHA, independent review, and full dependency check remain supervisor gates. The dependency violation cannot be repaired within this node allowed_paths."
+  }
 }

@@ -1,0 +1,10 @@
+$ gh.perm
+{"admin":true,"maintain":true,"pull":true,"push":true,"triage":true}
+
+$ gh.merge
+{"allow_auto_merge":false,"allow_merge_commit":true,"allow_squash_merge":true}
+
+$ gh.prot
+{"message":"Branch not protected","documentation_url":"https://docs.github.com/rest/branches/branch-protection#get-branch-protection","status":"404"}gh: Branch not protected (HTTP 404)
+
+[마스킹: 계정·토큰은 ***로 치환]

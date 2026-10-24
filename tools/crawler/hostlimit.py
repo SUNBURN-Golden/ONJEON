@@ -78,3 +78,21 @@ class HostRateLimiter:
             if host in self._active:
                 self._active.discard(host)
                 self._last[host] = self._clock()
+
+    def snapshot(self, now: float) -> dict:
+        """Pure-data availability for planning; no acquire, sleep or clock read.
+
+        A snapshot is advisory: the runner must still acquire immediately before
+        fetching. Unknown hosts use default_available_at (matching acquire).
+        """
+        with self._lock:
+            return {
+                "max_global_hosts": self._max_hosts,
+                "active_hosts": sorted(self._active),
+                "default_available_at": self._min_interval,
+                "next_available": {
+                    host: max(now, self._last.get(host, 0.0) + max(
+                        self._min_interval, self._robots_delays.get(host, 0.0)))
+                    for host in self._last.keys() | self._robots_delays.keys()
+                },
+            }

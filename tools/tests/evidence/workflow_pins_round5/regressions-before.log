@@ -1,0 +1,1120 @@
+test_accepts_full_sha_with_tag_comment_and_local_actions (test_workflow_pins.UnpinnedRefsParser.test_accepts_full_sha_with_tag_comment_and_local_actions) ... ok
+test_comments_and_flow_separators_end_scalars (test_workflow_pins.UnpinnedRefsParser.test_comments_and_flow_separators_end_scalars) ... ok
+test_comments_and_script_strings_are_not_actions (test_workflow_pins.UnpinnedRefsParser.test_comments_and_script_strings_are_not_actions) ... ok
+test_flags_tags_branches_and_short_shas (test_workflow_pins.UnpinnedRefsParser.test_flags_tags_branches_and_short_shas) ... ok
+test_flow_mappings_accept_full_shas_and_local_actions (test_workflow_pins.UnpinnedRefsParser.test_flow_mappings_accept_full_shas_and_local_actions) ... ok
+test_flow_mappings_flag_unpinned_refs (test_workflow_pins.UnpinnedRefsParser.test_flow_mappings_flag_unpinned_refs) ... ok
+test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) ... 
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>+', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>+', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>2-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>2-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>+', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>+', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>2-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>2-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+2', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>+', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>+', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>2-', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>2-', prefix='  -   ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-2', prefix='  - ') ... FAIL
+  test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-2', prefix='  -   ') ... FAIL
+test_rejected_block_scalar_does_not_hide_following_action (test_workflow_pins.UnpinnedRefsParser.test_rejected_block_scalar_does_not_hide_following_action) ... ok
+test_rejects_block_scalar_action_values (test_workflow_pins.UnpinnedRefsParser.test_rejects_block_scalar_action_values) ... ok
+test_rejects_empty_or_next_line_action_values (test_workflow_pins.UnpinnedRefsParser.test_rejects_empty_or_next_line_action_values) ... ok
+test_rejects_sha_prefix_with_scalar_suffix (test_workflow_pins.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) ... ok
+test_rejects_uppercase_or_non_hex_sha (test_workflow_pins.UnpinnedRefsParser.test_rejects_uppercase_or_non_hex_sha) ... ok
+test_unpinned_refs_match_known_list (test_workflow_pins.WorkflowPins.test_unpinned_refs_match_known_list) ... ok
+test_workflows_exist (test_workflow_pins.WorkflowPins.test_workflows_exist) ... ok
+test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) ... 
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+  test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4') ... FAIL
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='|+2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>+', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>+', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>2-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>2-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='name', indicator='>-2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='|+2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>+', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>+', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>2-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>2-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key='"name"', indicator='>-2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='|+2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>+', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>+', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>2-', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>2-', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-2', prefix='  - ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) (key="'name'", indicator='>-2', prefix='  -   ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 192, in test_multiline_step_name_does_not_hide_sibling_action
+    self.assertEqual(unpinned_refs(text), [(4, "actions/checkout@v4")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [(4, 'actions/checkout@v4')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+(4, 'actions/checkout@v4')
+
+- []
++ [(4, 'actions/checkout@v4')]
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='workflows', suffix='.yaml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='steps:\n  - name: |\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) (folder='actions/composite', suffix='.yaml', entry='steps:\n  - name: >-\n      Checkout\n    uses: actions/checkout@v4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-workflows-pin-actions-by-sha/tools/tests/test_workflow_pins.py", line 264, in test_guard_rejects_unpinned_actions_in_both_yaml_extensions
+    with self.assertRaises(AssertionError) as failure:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.053s
+
+FAILED (failures=68)

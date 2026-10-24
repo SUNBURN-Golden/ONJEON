@@ -32,7 +32,7 @@ jobs:
   detect:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       # python3 -I ignores user site-packages, so dependencies go into a venv (its own site-packages
       # stay visible under -I). The first run on main failed here: pdfplumber installed with --user.
       - name: Extractors
@@ -61,7 +61,7 @@ jobs:
           for r in d["results"]:
               print(f"| {r['sample_id']} | {r['status']} | {r.get('detail', '')} |")
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with: { name: detect-report, path: "${{ runner.temp }}/detect.json" }
 
@@ -78,7 +78,7 @@ jobs:
       R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
       JOB: infra/r2/jobs/initial-119.json
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Extractors
         run: |
           sudo apt-get update -q
@@ -99,6 +99,6 @@ jobs:
           python3 -I tools/verify_sources.py --job "$JOB" reproduce --raw "s3://${{ vars.ONJEON_RAW_BUCKET }}" \
             --derived "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" ${{ inputs.ocr && '--ocr' || '--allow-unverified' }} \
             --report "$RUNNER_TEMP/reproduce.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with: { name: reproduce-report, path: "${{ runner.temp }}/*.json" }

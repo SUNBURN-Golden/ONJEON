@@ -9,7 +9,7 @@ UrllibTransport (stdlib) rules:
   If-None-Match / If-Modified-Since; anything else a caller passes is an error, never silently sent.
 - redirects are NOT followed: a 3xx is returned and the caller validates the target (same host).
   Non-2xx statuses are returned as responses, not raised.
-- environment proxies are ignored (ProxyHandler({})); there is no proxy support.
+- environment proxies are ignored (an explicit empty proxy handler); there is no proxy support.
 - the body is streamed in bounded chunks and never exceeds max_bytes (BodyTooLargeError).
 """
 import abc
@@ -37,6 +37,10 @@ class TransportError(Exception):
 
 class NetworkDisabledError(TransportError):
     """A non-loopback request was refused before any socket was opened."""
+
+
+class RefusedRequestError(TransportError):
+    """The request itself is refused before any socket opens (bad URL, credentials, scheme)."""
 
 
 class BodyTooLargeError(TransportError):
@@ -88,11 +92,11 @@ def _split(url: str):
         parts = urlsplit(url)
         host, _ = parts.hostname, parts.port
     except ValueError:
-        raise TransportError("malformed URL") from None
+        raise RefusedRequestError("malformed URL") from None
     if parts.scheme not in ("http", "https") or not host:
-        raise TransportError("only absolute http(s) URLs are supported")
+        raise RefusedRequestError("only absolute http(s) URLs are supported")
     if parts.username is not None or parts.password is not None:
-        raise TransportError("URLs with credentials are refused")
+        raise RefusedRequestError("URLs with credentials are refused")
     return parts, host
 
 
@@ -145,7 +149,11 @@ class UrllibTransport(Transport):
         try:
             resp = self._opener.open(req, timeout=timeout)
         except (OSError, http.client.HTTPException) as e:  # URLError, timeouts, TLS failures
-            raise TransportError(f"request failed: {type(e).__name__}") from None
+            detail = type(e).__name__
+            inner = getattr(e, "reason", None)  # URLError wraps the real OSError
+            if isinstance(inner, OSError):
+                detail = f"{detail}({type(inner).__name__})"
+            raise TransportError(f"request failed: {detail}") from None
         hdrs = {}
         for k, v in resp.headers.items():
             k = k.lower()

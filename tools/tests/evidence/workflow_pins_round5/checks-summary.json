@@ -1,0 +1,45 @@
+{
+  "python-ci": {
+    "command": [
+      "python3",
+      "-I",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/ci/tests",
+      "-v"
+    ],
+    "exit": 1
+  },
+  "vocabulary": {
+    "command": [
+      "python3",
+      "tools/vocab_check.py"
+    ],
+    "exit": 0
+  },
+  "validation": {
+    "command": [
+      "python3",
+      "tools/validation_check.py"
+    ],
+    "exit": 0
+  },
+  "validation-selftest": {
+    "command": [
+      "python3",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  "design-specs": {
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "exit": 0
+  }
+}

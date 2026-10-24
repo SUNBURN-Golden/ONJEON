@@ -1,142 +1,263 @@
 {
-  "task_id": "T-DT-01",
+  "task_id": "T-DT-04",
+  "fix_round": 2,
   "purpose": {
     "A": [
       "A1",
       "A2",
-      "A4"
+      "A3"
     ],
     "Q": [
-      "Q1",
       "Q2",
       "Q4",
       "Q7"
     ],
     "L": [
+      "L0",
       "L1"
     ],
     "I": [
       "I6",
       "I11",
-      "I12"
+      "I17"
     ],
     "M": [
-      "M2"
+      "M3"
     ],
     "requirements": [
-      "R04"
+      "R02",
+      "R03",
+      "R26"
     ],
     "supporting_requirements": [
-      "R02",
-      "R10",
-      "R21",
-      "R22"
-    ],
-    "product_purpose_rows": [
-      "P02",
-      "P03"
+      "R04",
+      "R10"
     ]
   },
-  "verification_summary": {
-    "collect_rust_tests": "18 passed",
-    "cross_language_python_tests": "2 passed",
-    "workspace_rust": "passed",
-    "python_tools": "388 run, 6 skipped, no failures",
-    "format_and_clippy": "passed",
-    "leak_and_skeleton_static_and_selftests": "passed",
-    "dependency_boundary": "failed: 3 unchanged packages/ontology knowledge-to-twin dependencies/imports; see verification-06.log. git diff --quiet -- packages/ontology exited 0. Not repaired outside allowed scope.",
-    "all_checks_green": false,
-    "fix_round_1": "merged origin/main; all checks identical to round 1 (ontology boundary findings unchanged, still out of scope)"
-  },
-  "change_kind": "existing_design_implementation",
-  "references": [
-    "DATA_PIPELINE_CONTRACT 3.1",
-    "ADR-0015",
-    "ADR-0016",
-    "ADR-0017"
-  ],
+  "base_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha_scope": "Input review commit plus uncommitted source bytes pinned by verification.json. Supervisor must create the final commit and re-pin verification and independent review.",
   "author": {
     "role": "implementation_and_self_verification",
-    "execution_path": "interactive CLI / local worktree / Rust cargo and Python unittest",
-    "model_identity": "intentionally_not_recorded",
-    "independent_reviewer": false
+    "execution_path": "CLI / current task worktree / Rust cargo and Python unittest",
+    "independent_reviewer": false,
+    "model_identity": "intentionally_not_recorded"
   },
-  "base_sha": "2621d66367637c649e7761c0ed70708d1636a6d2",
-  "target_sha": null,
-  "target_sha_reason": "Supervisor creates the commit; this session is forbidden to commit. verification.json pins source bytes by SHA-256, not a nonexistent commit.",
   "review": {
-    "status": "pending_supervisor",
-    "required": "Independent reviewer from a different author family must review the supervisor-created target SHA. Self-tests are not an independent review.",
-    "note": "New merge commit changes target SHA; independent review must re-pin to the supervisor-created SHA."
+    "input_reviewer_role": "st_re_review",
+    "input_verdict": "BLOCK",
+    "input_target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+    "fix_review_status": "pending_supervisor_final_sha_and_different_author_family_reviewer"
   },
-  "implemented": [
-    "SHA-256 raw object layout",
-    "atomic create-if-absent local writes",
-    "same bytes verified without rewriting",
-    "different bytes conflict without replacing old bytes",
-    "new bytes at the same URL retain both originals and observations",
-    "document role, source URL and observation time",
-    "invalid responses quarantined outside objects and observations",
-    "reasoned unacquired records outside observations",
-    "sorted key-hash listing and full download verification",
-    "copy aborts on conflict",
-    "local loopback S3 conditional writes, checksum, signing and readback",
-    "cloud construction refused before transport without job and ledger",
-    "CLI has no deletion command",
-    "Python/Rust byte-compatible local observations and listing"
+  "findings": [
+    {
+      "id": 1,
+      "status": "addressed",
+      "change": "Require positive list or verified empty evidence with or without a total marker; shipped associations tested against maintenance pages, navigation and JS shells."
+    },
+    {
+      "id": 2,
+      "status": "addressed",
+      "change": "Seed required whole-institution product and per-role document unknowns; unqueried institutions suppress aggregate rates; scoped success cannot erase the global gap."
+    },
+    {
+      "id": 3,
+      "status": "addressed",
+      "change": "Use actual discovered document identities and explicit roles; independent product set; preserve per-document evidence/reasons and deduplicate repeated/shared references."
+    },
+    {
+      "id": 4,
+      "status": "addressed_with_declared_support_limits",
+      "change": "Replace nonfunctional EntryProbe with concrete Lifeplanet embedded-inventory product/document parsers and 8 survey-backed plans; successful adapter-to-manifest-to-progress regression. Other unsupported institutions remain unexplored."
+    },
+    {
+      "id": 5,
+      "status": "blocked_outside_allowed_paths",
+      "change": "Reran unchanged full dependency gate; 3 ontology findings remain. Supervisor must route repair to an authorized task before merge. See dependency-boundary.json."
+    }
   ],
-  "execution": {
-    "repeat_all_checks": "python3 services/collect/tests/verify.py",
-    "test_logs": "verification-*.log",
-    "test_manifest": "verification.json"
-  },
-  "usage": {
-    "observe": "cargo run -p onjeon-collect -- observe file:///absolute/archive metadata.json response-file application/pdf",
-    "metadata_fields": [
-      "source_id",
-      "url",
-      "observed_at",
-      "doc_role",
-      "format",
-      "extra"
+  "verification": {
+    "command": "python3 -B services/collect/tests/verify.py",
+    "results": [
+      {
+        "command": [
+          "cargo",
+          "fmt",
+          "-p",
+          "onjeon-collect",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "log": "verification-00.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "clippy",
+          "-p",
+          "onjeon-collect",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "log": "verification-01.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "onjeon-collect",
+          "adapters"
+        ],
+        "exit_code": 0,
+        "log": "verification-02.log",
+        "passed_tests": 56
+      },
+      {
+        "command": [
+          "cargo",
+          "test",
+          "--workspace"
+        ],
+        "exit_code": 0,
+        "log": "verification-03.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "build",
+          "-p",
+          "onjeon-collect"
+        ],
+        "exit_code": 0,
+        "log": "verification-04.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "services/collect/tests",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit_code": 0,
+        "log": "verification-05.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/tests",
+          "-v"
+        ],
+        "exit_code": 0,
+        "log": "verification-06.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_deps.py"
+        ],
+        "exit_code": 1,
+        "log": "verification-07.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_leak.py"
+        ],
+        "exit_code": 0,
+        "log": "verification-08.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_leak.py",
+          "--selftest"
+        ],
+        "exit_code": 0,
+        "log": "verification-09.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_skeleton.py"
+        ],
+        "exit_code": 0,
+        "log": "verification-10.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_skeleton.py",
+          "--selftest"
+        ],
+        "exit_code": 0,
+        "log": "verification-11.log"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "log": "verification-12.log"
+      }
     ],
-    "listing": "cargo run -p onjeon-collect -- listing file:///absolute/archive",
-    "copy": "cargo run -p onjeon-collect -- copy file:///absolute/source file:///absolute/destination",
-    "verify_copy": "cargo run -p onjeon-collect -- verify-copy listing.json file:///absolute/destination",
-    "local_s3": "Library S3Store::new with loopback HTTP endpoint and caller-supplied credentials. Never print credentials."
+    "logs": "verification-00.log through verification-12.log",
+    "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
+    "persistence_test": "adapters::manifest_is_stored_write_once",
+    "adapter_tests": 56,
+    "all_checks_green": false,
+    "dependency_merge_gate": "blocked_until_full_dependency_check_passes",
+    "source_hash_matches": 32
   },
   "limits": [
-    "R2/AWS network access is unsupported and fail-closed. Session has no public constructor; the Rust client does not pretend a job path alone proves a ledger reservation. Existing Python budgeted tool remains the remote execution path.",
-    "S3 wire test uses an actual loopback TCP fixture, not a live Compose/SeaweedFS deployment. No Compose live test or actual R2 run was performed.",
-    "Format checks are non-empty, signature/declared HTML mismatch and JSON parse checks; not full PDF page parsing, extraction, semantic labeling, or login detection within an expected HTML page.",
-    "Store roots and their parent directories must be private/trusted; static symlink traversal is rejected, but hostile concurrent directory substitution is outside this local filesystem implementation's guarantee.",
-    "Observation format and extra keys must follow the canonical Rust order for byte-identical reruns with Python. Python extra insertion order can otherwise yield a deliberate record conflict.",
-    "Observation files are preservation records, not data.raw.archived domain events. Queue publication and source namespace mapping are not supplied by this client.",
-    "No UI routes or consumer API routes were added. Skeleton static scan does not claim runtime UI route coverage.",
-    "Synthetic fixture tests do not close P02/P03 release evidence, acquired document coverage, accepted edition linkage, or consumer UI end-to-end requirements."
+    "No live network requests or real acquisition claims; all test response payloads are synthetic fixture_only data.",
+    "Lifeplanet selling/stopped inventories support products, terms, summaries and business methods based on C_life survey; current live responses were not reverified.",
+    "Other insurer parsers and rider/annex/price enumeration remain unsupported/unexplored; institution progress rows and unknown denominators remain visible.",
+    "Scoped inventory completion does not establish whole-institution completeness; no numeric acquisition rate while required enumeration remains unknown.",
+    "Actual acquisition needs archived raw assets, extracted segments and accepted edition links; flags in progress are not production evidence.",
+    "Skeleton verification is static and checker selftest; no running HTTP service routes probed.",
+    "Final committed SHA and independent different-family review remain supervisor gates."
   ],
   "path_audit": {
-    "changed_scope": [
+    "allowed_paths": [
       "services/collect/**",
-      "Cargo.toml workspace member only",
-      "Cargo.lock cargo-generated only"
+      "data/registry/README.md"
     ],
-    "forbidden_paths_modified": false,
-    "new_root_configuration_or_docs": false
+    "changed_scope": [
+      "services/collect/**"
+    ],
+    "forbidden_paths_modified": false
   },
   "supervisor_actions": [
-    "Confirm services/collect/** against the task runner's allowed_paths; no explicit allowed_paths array was supplied in the request.",
-    "Create target commit SHA and attach it to PR metadata.",
-    "Obtain independent different-family review pinned to that SHA.",
-    "Treat STATUS READY as implementation handoff, not product release approval."
-  ],
-  "fix_rounds": [
-    {
-      "round": 1,
-      "finding": "CI FAIL:no-ci-runs",
-      "cause": "PR unmergeable (Cargo.toml members conflict vs main: twin-runtime vs collect); no merge ref -> pull_request workflows never ran",
-      "action": "merged origin/main into worktree; members now list both crates; Cargo.lock regenerated by cargo; full gate and verify.py re-run on merged tree",
-      "evidence": "verification-fix1-merge.log"
-    }
+    "Repair ontology dependencies/imports through a task authorized for packages/ontology; rerun the unchanged complete dependency checker.",
+    "Create final commit, pin verification and review to that SHA, obtain independent reviewer from another author family.",
+    "Confirm final path scope. STATUS READY is a handoff, not a merge or release approval."
   ]
 }

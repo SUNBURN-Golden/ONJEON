@@ -1,0 +1,609 @@
+//! All payloads and transports in this module are synthetic `fixture_only` inputs.
+use super::*;
+use onjeon_contracts::{AcquisitionStatus, DocRole};
+use std::cell::RefCell;
+use std::path::Path;
+
+struct FixtureOnly {
+    robots: &'static str,
+    content_type: &'static str,
+    page: &'static str,
+    requests: RefCell<Vec<String>>,
+}
+
+impl Fetch for FixtureOnly {
+    fn fetch(&self, url: &str, _: usize) -> Result<FetchResponse, FetchError> {
+        self.requests.borrow_mut().push(url.into());
+        let robots = url.ends_with("/robots.txt");
+        Ok(FetchResponse {
+            status: 200,
+            headers: vec![(
+                "content-type".into(),
+                if robots {
+                    self.content_type
+                } else {
+                    "text/html"
+                }
+                .into(),
+            )],
+            body: if robots { self.robots } else { self.page }
+                .as_bytes()
+                .to_vec(),
+            truncated: false,
+        })
+    }
+}
+
+fn fixture_only(page: &'static str) -> FixtureOnly {
+    FixtureOnly {
+        robots: "User-agent: *\nAllow: /\n",
+        content_type: "text/plain",
+        page,
+        requests: RefCell::default(),
+    }
+}
+
+fn registry() -> Denominator {
+    load_denominator(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/registry")).unwrap()
+}
+
+fn run(plan: &ListPlan, fixture: &FixtureOnly) -> DiscoveryManifest {
+    Enumerator {
+        fetch: fixture,
+        gate: &mut RobotsGate::new(3600),
+        clock: &|| 1,
+        page_cap_bytes: LIST_PAGE_MAX_BYTES,
+        rate_policy: "fixture_only".into(),
+    }
+    .run(
+        plan,
+        &RunMeta {
+            survey_round: "fixture_only".into(),
+            source_id: "fixture_only".into(),
+            adapter_version: "fixture_only".into(),
+        },
+    )
+}
+
+fn lifeplanet_entry() -> DenomEntry {
+    registry()
+        .in_scope
+        .into_iter()
+        .find(|e| e.row.insurer_id == "life-kyobo-lifeplanet")
+        .unwrap()
+}
+
+fn complete() -> Termination {
+    Termination::NextPointerAbsent {
+        at_cursor: "fixture_only_last".into(),
+    }
+}
+
+fn fixture_only_manifest(
+    id: &str,
+    axis: &str,
+    roles: &[DocRole],
+    ids: &[&str],
+) -> DiscoveryManifest {
+    let mut manifest = unenumerated_manifest(
+        ScopeDesc {
+            axis: axis.into(),
+            institution_id: id.into(),
+            sale_status: None,
+            channel: None,
+            period_from: None,
+            period_to: None,
+            doc_roles: roles.iter().map(|r| r.as_str().into()).collect(),
+        },
+        "fixture_only",
+        "",
+        &RunMeta {
+            survey_round: "fixture_only".into(),
+            source_id: "fixture_only".into(),
+            adapter_version: "fixture_only".into(),
+        },
+        "fixture_only",
+        "1970-01-01T00:00:01Z",
+    );
+    manifest.termination = complete();
+    manifest.gaps.clear();
+    manifest.discovered_ids = ids.iter().map(|s| (*s).into()).collect();
+    manifest
+}
+
+fn complete_inventory(id: &str) -> Vec<DiscoveryManifest> {
+    let mut manifests = vec![fixture_only_manifest(
+        id,
+        "product_list",
+        &[],
+        &["fixture_only_product"],
+    )];
+    for role in DENOMINATOR_DOC_ROLES {
+        manifests.push(fixture_only_manifest(
+            id,
+            "documents",
+            &[role],
+            &["fixture_only_document"],
+        ));
+    }
+    manifests
+}
+
+#[test]
+fn adapters_navigation_maintenance_and_js_shell_never_complete_any_html_plan() {
+    let entry = lifeplanet_entry();
+    let mut plans = klia().plans(&entry);
+    plans.extend(knia().plans(&entry));
+    plans.extend(InsurerAdapter::for_entry(&entry).plans(&entry));
+    for plan in plans {
+        for page in [
+            "<a href='/home'>Home</a><a href='/privacy'>Privacy</a>",
+            "<html>Service temporarily unavailable</html>",
+            "<html><div id='app'></div><script src='app.js'></script></html>",
+        ] {
+            let result = run(&plan, &fixture_only(page));
+            assert!(matches!(
+                result.termination,
+                Termination::ParseFailed { .. }
+            ));
+            assert!(!exploration_state_of(&result.termination).reached_evidence());
+            assert!(result.discovered_ids.is_empty());
+            assert!(!result.result.empty_success);
+            assert!(!result.gaps.is_empty());
+        }
+    }
+}
+
+#[test]
+fn adapters_invalid_robots_holds_without_list_request() {
+    let entry = lifeplanet_entry();
+    let plan = InsurerAdapter::for_entry(&entry).plans(&entry).remove(0);
+    for (robots, content_type) in [
+        ("<html><input type='password'></html>", "text/html"),
+        ("<html>WAF challenge</html>", "text/plain"),
+        ("Service temporarily unavailable", "text/plain"),
+        ("", "text/html"),
+    ] {
+        let mut fixture = fixture_only("<html></html>");
+        fixture.robots = robots;
+        fixture.content_type = content_type;
+        let result = run(&plan, &fixture);
+        assert!(matches!(
+            exploration_state_of(&result.termination),
+            ExplorationState::Hold { .. }
+        ));
+        assert_eq!(fixture.requests.borrow().len(), 1);
+        assert!(fixture.requests.borrow()[0].ends_with("/robots.txt"));
+    }
+}
+
+#[test]
+fn adapters_html_requires_positive_list_or_empty_evidence_with_or_without_total() {
+    for total_marker in [None, Some("total=".into())] {
+        let parser = ListParser::HtmlLinks {
+            link_substring: "product".into(),
+            id_query_key: "id".into(),
+            total_marker,
+            empty_marker: None,
+        };
+        for body in [
+            "<html>Service temporarily unavailable</html>",
+            "<html><div id='app'></div></html>",
+            "<a href='/home'>Home</a>",
+        ] {
+            assert!(parse_page(&parser, body.as_bytes()).is_err());
+        }
+        assert_eq!(
+            parse_page(&parser, b"<a href='/product?id=one'>One</a>")
+                .unwrap()
+                .item_ids,
+            ["one"]
+        );
+    }
+    let parser = ListParser::HtmlLinks {
+        link_substring: "product".into(),
+        id_query_key: "id".into(),
+        total_marker: Some("total=".into()),
+        empty_marker: None,
+    };
+    assert!(parse_page(&parser, b"<html>total=0</html>")
+        .unwrap()
+        .item_ids
+        .is_empty());
+    assert!(parse_page(&parser, b"<html>total=unknown; status=0</html>").is_err());
+}
+
+#[test]
+fn adapters_unqueried_institutions_remain_unknown_in_aggregate() {
+    let denom = registry();
+    let mut table = ProgressTable::for_denominator(denom.in_scope.iter());
+    assert_eq!(table.rows.len(), denom.in_scope.len());
+    assert!(table.rows.iter().all(
+        |r| r.unknown_denominators.len() == DENOMINATOR_DOC_ROLES.len()
+            && r.exploration
+                .values()
+                .all(|s| *s == ExplorationState::Unqueried)
+    ));
+    assert!(table
+        .coverage_all()
+        .values()
+        .all(|c| c.unknown_scopes == denom.in_scope.len() && c.rate().is_none()));
+    let id = &denom.in_scope[0].row.insurer_id;
+    for m in complete_inventory(id) {
+        table.apply_discovery(&m).unwrap();
+    }
+    assert!(table
+        .coverage_of(id)
+        .values()
+        .all(|c| c.expected == 1 && c.acquired == 0 && c.rate() == Some(0.0)));
+    assert!(table.coverage_all().values().all(|c| c.expected == 1
+        && c.unknown_scopes == denom.in_scope.len() - 1
+        && c.rate().is_none()));
+    // Only completion of every institution's required axes permits numeric rates.
+    for entry in &denom.in_scope[1..] {
+        for m in complete_inventory(&entry.row.insurer_id) {
+            table.apply_discovery(&m).unwrap();
+        }
+    }
+    assert!(table
+        .coverage_all()
+        .values()
+        .all(|c| c.unknown_scopes == 0 && c.rate() == Some(0.0)));
+}
+
+#[test]
+fn adapters_scoped_success_does_not_clear_unqueried_whole_inventory() {
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    let mut table = ProgressTable::for_denominator(denom.in_scope.iter());
+    for mut m in complete_inventory(id) {
+        m.scope.sale_status = Some("fixture_only_selling".into());
+        m.scope.channel = Some("fixture_only_online".into());
+        table.apply_discovery(&m).unwrap();
+    }
+    assert!(table
+        .coverage_of(id)
+        .values()
+        .all(|c| c.unknown_scopes == 1 && c.rate().is_none()));
+}
+
+#[test]
+fn adapters_multiple_document_identities_and_reasons_survive_either_discovery_order() {
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    let products = fixture_only_manifest(id, "product_list", &[], &["fixture_only_product"]);
+    let documents = fixture_only_manifest(
+        id,
+        "documents",
+        &[DocRole::RiderTerms],
+        &[
+            "fixture_only_rider_a",
+            "fixture_only_rider_b",
+            "fixture_only_rider_a",
+        ],
+    );
+    for manifests in [
+        [products.clone(), documents.clone()],
+        [documents.clone(), products.clone()],
+    ] {
+        let mut table = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+        let row = table.row_mut(id).unwrap();
+        assert_eq!(row.discovered_products.len(), 1);
+        assert_eq!(row.items.len(), 2);
+        assert!(row
+            .items
+            .iter()
+            .all(|i| i.doc_role == DocRole::RiderTerms && !i.is_acquired()));
+        row.items[0].unacquired = Some((
+            AcquisitionStatus::Blocked,
+            "fixture_only_download_denied".into(),
+        ));
+        row.items[1].evidence = AcquisitionEvidence {
+            raw_stored: true,
+            segment_extracted: true,
+            edition_link_accepted: true,
+        };
+        table.apply_discovery(&documents).unwrap();
+        let row = table.row_mut(id).unwrap();
+        assert_eq!(row.items.len(), 2);
+        assert_eq!(
+            row.items[0].unacquired.as_ref().unwrap().1,
+            "fixture_only_download_denied"
+        );
+        let cov = &table.coverage_of(id)[&DocRole::RiderTerms];
+        assert_eq!((cov.expected, cov.acquired), (2, 1));
+        assert_eq!(cov.unacquired.get("blocked"), Some(&1));
+        assert_eq!(cov.rate(), Some(0.5));
+        // Scope failure must not overwrite acquisition reasons for prior documents.
+        let mut other = documents.clone();
+        other.scope.channel = Some("fixture_only_other".into());
+        other.discovered_ids.clear();
+        other.termination = Termination::RobotsBlocked {
+            reason: "fixture_only_robots".into(),
+        };
+        table.apply_discovery(&other).unwrap();
+        let row = table.row_mut(id).unwrap();
+        assert_eq!(
+            row.items[0].unacquired.as_ref().unwrap().1,
+            "fixture_only_download_denied"
+        );
+        assert!(row.items[1].is_acquired());
+        assert_eq!(table.coverage_of(id)[&DocRole::RiderTerms].rate(), None);
+    }
+}
+
+#[test]
+fn adapters_document_ids_require_one_known_role_before_mutation() {
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    let mut table = ProgressTable::for_denominator(denom.in_scope.iter());
+    for roles in [
+        vec![],
+        vec![DocRole::Terms, DocRole::RiderTerms],
+        vec![DocRole::DisclosureList],
+    ] {
+        let m = fixture_only_manifest(id, "documents", &roles, &["fixture_only_document"]);
+        assert!(table.apply_discovery(&m).is_err());
+        assert!(table.row_mut(id).unwrap().items.is_empty());
+        assert!(table
+            .row_mut(id)
+            .unwrap()
+            .exploration
+            .values()
+            .all(|s| *s == ExplorationState::Unqueried));
+    }
+}
+
+#[test]
+fn adapters_document_discovery_retains_actual_ids_without_products_or_acquisition() {
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    for (termination, status, reason) in [
+        (
+            Termination::RobotsBlocked {
+                reason: "fixture_only_blocked".into(),
+            },
+            "blocked",
+            "fixture_only_blocked",
+        ),
+        (
+            Termination::ParseFailed {
+                at_cursor: "fixture_only".into(),
+                detail: "fixture_only_parse".into(),
+            },
+            "failed",
+            "fixture_only_parse",
+        ),
+    ] {
+        let mut m = fixture_only_manifest(
+            id,
+            "documents",
+            &[DocRole::Terms],
+            &["fixture_only_document"],
+        );
+        m.termination = termination;
+        m.gaps = vec![GapRecord {
+            kind: status.into(),
+            range: "fixture_only_tail".into(),
+            reason: reason.into(),
+        }];
+        let mut table = ProgressTable::from_discoveries(&denom, &[m]).unwrap();
+        let row = table.row_mut(id).unwrap();
+        assert!(row.discovered_products.is_empty());
+        assert_eq!(row.items.len(), 1);
+        assert_eq!(row.items[0].item_id, "fixture_only_document");
+        assert_eq!(row.items[0].unacquired.as_ref().unwrap().1, reason);
+        let cov = &table.coverage_of(id)[&DocRole::Terms];
+        assert_eq!((cov.expected, cov.acquired), (1, 0));
+        assert_eq!(cov.unacquired.get(status), Some(&1));
+        assert!(cov.rate().is_none());
+    }
+}
+
+#[test]
+fn adapters_partial_walks_preserve_unknown_axis_scope_and_roles() {
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    for axis in ["product_list", "documents"] {
+        for termination in [
+            Termination::PageRepeat {
+                at_cursor: "fixture_only_repeat".into(),
+            },
+            Termination::Stall {
+                at_cursor: "fixture_only_stall".into(),
+                unique_items: 1,
+                advertised_total: 2,
+            },
+            Termination::MaxPagesReached {
+                at_cursor: "fixture_only_cap".into(),
+            },
+        ] {
+            let roles = if axis == "documents" {
+                vec![DocRole::Terms, DocRole::RiderTerms]
+            } else {
+                vec![]
+            };
+            let mut partial = fixture_only_manifest(id, axis, &roles, &[]);
+            partial.termination = termination;
+            for partial_first in [true, false] {
+                let mut manifests = complete_inventory(id);
+                if partial_first {
+                    manifests.insert(0, partial.clone());
+                } else {
+                    manifests.push(partial.clone());
+                }
+                // Use a separate channel so an unscoped success cannot erase its gap.
+                let at = if partial_first {
+                    0
+                } else {
+                    manifests.len() - 1
+                };
+                manifests[at].scope.channel = Some("fixture_only_channel".into());
+                let partial = manifests[at].clone();
+                let mut table = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+                assert!(table.coverage_of(id)[&DocRole::Terms].rate().is_none());
+                for scope in [
+                    ScopeDesc {
+                        channel: Some("fixture_only_other".into()),
+                        ..partial.scope.clone()
+                    },
+                    ScopeDesc {
+                        sale_status: Some("fixture_only_sale".into()),
+                        ..partial.scope.clone()
+                    },
+                    ScopeDesc {
+                        period_from: Some("2000-01-01".into()),
+                        ..partial.scope.clone()
+                    },
+                    ScopeDesc {
+                        period_to: Some("2001-01-01".into()),
+                        ..partial.scope.clone()
+                    },
+                    ScopeDesc {
+                        axis: if axis == "documents" {
+                            "product_list"
+                        } else {
+                            "documents"
+                        }
+                        .into(),
+                        ..partial.scope.clone()
+                    },
+                ] {
+                    let mut other = partial.clone();
+                    other.scope = scope;
+                    other.termination = complete();
+                    table.apply_discovery(&other).unwrap();
+                    assert!(table.coverage_of(id)[&DocRole::Terms].rate().is_none());
+                }
+                let mut completed = partial.clone();
+                completed.termination = complete();
+                if axis == "documents" {
+                    completed.scope.doc_roles = vec!["terms".into()];
+                    table.apply_discovery(&completed).unwrap();
+                    assert_eq!(table.coverage_of(id)[&DocRole::Terms].rate(), Some(0.0));
+                    assert!(table.coverage_of(id)[&DocRole::RiderTerms].rate().is_none());
+                    completed.scope.doc_roles = vec!["rider_terms".into()];
+                    completed.termination = Termination::EmptyPage {
+                        at_cursor: "fixture_only_empty".into(),
+                    };
+                }
+                table.apply_discovery(&completed).unwrap();
+                assert!(table
+                    .coverage_of(id)
+                    .values()
+                    .all(|r| r.rate() == Some(0.0)));
+                assert!(table.coverage_all().values().all(|r| r.rate().is_none()));
+            }
+        }
+    }
+}
+
+const FIXTURE_ONLY_INVENTORY: &str = r#"<html><script>var result = {"outData":{"prdList":[
+    {"prdCd":"fixture_only_A","saleStYmd":"20000101","saleEdYmd":"20010101","insTxtPat":"fixture_only_terms_a.pdf","prdSryPat":"fixture_only_summary.pdf","prdMdPat":"fixture_only_business.pdf"},
+    {"prdCd":"fixture_only_A","saleStYmd":"20010101","saleEdYmd":"99991231","insTxtPat":"fixture_only_terms_b.pdf","prdSryPat":"fixture_only_summary.pdf","prdMdPat":"fixture_only_business.pdf"}
+]}}; </script></html>"#;
+
+#[test]
+fn adapters_shipped_insurer_enumerates_products_and_documents_into_progress() {
+    let denom = registry();
+    let entry = lifeplanet_entry();
+    let adapter = InsurerAdapter::for_entry(&entry);
+    let plans = adapter.plans(&entry);
+    assert_eq!(plans.len(), 8);
+    assert_eq!(adapter.manifest().inventory_entrypoints.len(), 2);
+    let fixture = fixture_only(FIXTURE_ONLY_INVENTORY);
+    let mut table = ProgressTable::for_denominator(denom.in_scope.iter());
+    let mut manifests = Vec::new();
+    // Documents first exercises the previously discarded discovery path.
+    for plan in plans.iter().rev() {
+        assert!(adapter
+            .manifest()
+            .inventory_entrypoints
+            .contains(&plan.entrypoint));
+        assert!(adapter
+            .manifest()
+            .allowed_hosts
+            .contains(&split_url(&plan.entrypoint).unwrap().1.to_string()));
+        let manifest = run(plan, &fixture);
+        assert!(exploration_state_of(&manifest.termination).reached_evidence());
+        assert!(!manifest.result.empty_success);
+        assert!(manifest.gaps.is_empty());
+        assert!(!manifest.discovered_ids.is_empty());
+        table.apply_discovery(&manifest).unwrap();
+        manifests.push(manifest);
+    }
+    let row = table.row_mut(&entry.row.insurer_id).unwrap();
+    assert_eq!(row.discovered_products.len(), 2);
+    assert_eq!(row.items.len(), 4); // 2 terms + shared summary + shared business reference
+    assert_eq!(
+        row.items
+            .iter()
+            .filter(|i| i.doc_role == DocRole::Terms)
+            .count(),
+        2
+    );
+    assert!(row.items.iter().all(|i| !i.is_acquired()));
+    assert_eq!(
+        table.coverage_of(&entry.row.insurer_id)[&DocRole::Terms].expected,
+        2
+    );
+    assert!(table.coverage_all().values().all(|r| r.rate().is_none()));
+    let reconstructed = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+    assert_eq!(
+        reconstructed.coverage_of(&entry.row.insurer_id),
+        table.coverage_of(&entry.row.insurer_id)
+    );
+}
+
+#[test]
+fn adapters_insurer_parser_verifies_empty_inventory_and_rejects_missing_fields() {
+    let entry = lifeplanet_entry();
+    for plan in InsurerAdapter::for_entry(&entry).plans(&entry) {
+        let manifest = run(
+            &plan,
+            &fixture_only("<script>var result = {\"outData\":{\"prdList\":[]}};</script>"),
+        );
+        assert!(manifest.result.empty_success);
+        assert!(matches!(
+            manifest.termination,
+            Termination::EmptyPage { .. }
+        ));
+        for page in [
+            "<script>var result = {\"outData\":{}};</script>",
+            "<script>var result = {\"outData\":{\"prdList\":[{}]}};</script>",
+            "<script>var result = {\"outData\":{\"prdList\":[</script>",
+            "<form><input type='password'></form>",
+        ] {
+            let failed = run(&plan, &fixture_only(page));
+            assert!(!exploration_state_of(&failed.termination).reached_evidence());
+            assert!(!failed.result.empty_success);
+        }
+        if plan.scope.axis == "documents" {
+            let missing = run(&plan, &fixture_only("<script>var result = {\"outData\":{\"prdList\":[{\"prdCd\":\"fixture_only\",\"saleStYmd\":\"20000101\",\"saleEdYmd\":\"99991231\"}]}};</script>"));
+            assert!(matches!(
+                missing.termination,
+                Termination::ParseFailed { .. }
+            ));
+        }
+    }
+}
+
+#[test]
+fn adapters_unsupported_insurers_have_no_fake_entry_enumeration() {
+    let denom = registry();
+    for entry in &denom.in_scope {
+        let adapter = InsurerAdapter::for_entry(entry);
+        if entry.row.insurer_id != "life-kyobo-lifeplanet" {
+            assert!(adapter.plans(entry).is_empty());
+            assert!(!adapter.manifest().known_limitations.is_empty());
+        }
+    }
+    let mut entry = lifeplanet_entry();
+    for access in [
+        onjeon_contracts::HostAccess::JsShell,
+        onjeon_contracts::HostAccess::NotChecked,
+    ] {
+        entry.row.disclosure_access = access;
+        assert!(InsurerAdapter::for_entry(&entry).plans(&entry).is_empty());
+    }
+}

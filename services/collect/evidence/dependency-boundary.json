@@ -1,0 +1,46 @@
+{
+  "task_id": "T-DT-04",
+  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "command": "python3 -B -I tools/ci/check_deps.py",
+  "result": "FAIL, exit 1: one DEP-ZONE and two IMP-ZONE findings; verification-07.log. No waiver or suppression.",
+  "finding_count": 3,
+  "finding_paths": [
+    "packages/ontology/Cargo.toml",
+    "packages/ontology/tests/common/mod.rs",
+    "packages/ontology/tests/fixture_origin/main.rs"
+  ],
+  "files": [
+    {
+      "path": "packages/ontology/Cargo.toml",
+      "unchanged_from_target_sha": true,
+      "sha256": "ab2293b01369bc97f82cef4709eb3120ec3e8b9b073e7898e3bbda878b4f814f"
+    },
+    {
+      "path": "packages/ontology/tests/common/mod.rs",
+      "unchanged_from_target_sha": true,
+      "sha256": "685bc96a4b496e39bc892f584fa288a640dd5bca545a98d42a120117ada86fcf"
+    },
+    {
+      "path": "packages/ontology/tests/fixture_origin/main.rs",
+      "unchanged_from_target_sha": true,
+      "sha256": "bee7071d425e0d8f7b5eafba78fe6acc7e647ceb1188d07113781aec692c02fb"
+    },
+    {
+      "path": "infra/ci/deps.json",
+      "unchanged_from_target_sha": true,
+      "sha256": "044f9cfa54772b9c973f42d0c5cd21072a30d8a9033962861cce518c9cb7074c"
+    },
+    {
+      "path": "tools/ci/check_deps.py",
+      "unchanged_from_target_sha": true,
+      "sha256": "23dad2f432f41fcd512bfc086ea7b50bd50a96be41acfdce3945c8d6c3e7bbf4"
+    },
+    {
+      "path": "tools/ci/ci_common.py",
+      "unchanged_from_target_sha": true,
+      "sha256": "82ebd26e1583ec0a0f04318bdb813f8993915cd43175fe7b738f89764e308523"
+    }
+  ],
+  "resolution": "Supervisor must route the ontology test dependencies/imports to an authorized task, then rerun the unchanged repository checker. packages/ontology and infra/ci are outside this node allowed_paths.",
+  "merge_gate": "blocked_until_full_dependency_check_passes"
+}

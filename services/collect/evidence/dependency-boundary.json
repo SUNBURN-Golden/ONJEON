@@ -1,6 +1,6 @@
 {
   "task_id": "T-DT-04",
-  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha": "0422e539e49265d1815bbe7dca02d6e24b35c3c2",
   "command": "python3 -B -I tools/ci/check_deps.py",
   "result": "FAIL, exit 1: one DEP-ZONE and two IMP-ZONE findings; verification-07.log. No waiver or suppression.",
   "finding_count": 3,

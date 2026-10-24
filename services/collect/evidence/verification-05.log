@@ -3,7 +3,7 @@ test_cli_does_not_offer_delete_or_echo_input (test_python_conformance.PythonConf
 test_python_and_rust_observations_are_byte_identical_and_rerunnable (test_python_conformance.PythonConformance.test_python_and_rust_observations_are_byte_identical_and_rerunnable) ... ok
 
 ----------------------------------------------------------------------
-Ran 2 tests in 0.012s
+Ran 2 tests in 0.021s
 
 OK
 

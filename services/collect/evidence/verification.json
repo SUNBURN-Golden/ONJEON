@@ -1,20 +1,20 @@
 {
   "task_id": "T-DT-04",
-  "base_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
-  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "base_sha": "0422e539e49265d1815bbe7dca02d6e24b35c3c2",
+  "target_sha": "0422e539e49265d1815bbe7dca02d6e24b35c3c2",
   "target_sha_scope": "Input review commit. Tests cover this commit plus uncommitted files pinned below; supervisor must re-pin the final commit and obtain independent review.",
   "files_sha256": {
     "Cargo.toml": "42700de608b885155b383297e9699f8e6a96c2c60a79f383356f0000385027b3",
     "Cargo.lock": "6428c439df9587782a71bcac0a169e77ec7d3d905dc93aef8fce2ff43cff2681",
-    "services/collect/src/adapters/enumerate.rs": "ff0fd864632c3c2d07be09644213e41989407cb76ea65890bb1f33dec48e2936",
+    "services/collect/src/adapters/enumerate.rs": "299d14956009900fc6219b81617cf71dd48039e2ebd19cac01ab7aec0f61dbf7",
     "services/collect/src/adapters/fetch.rs": "520630640513752123cbf023cf7cf9f4ead02404f4d8532ebcbeafc3d60762e4",
-    "services/collect/src/adapters/institution.rs": "3ee8dccf0e97d69952b7092186d318357539f40e154b8e2340ee67f50a66ae79",
-    "services/collect/src/adapters/listpage.rs": "002e3575a2d1c600b58ba9f57a94fa21d7ec45818d530c86302c4b6356850251",
-    "services/collect/src/adapters/manifest.rs": "1765f8edc5286b313a1c79e358ab86998475d0aeb67d7ffd201106b7ec371791",
-    "services/collect/src/adapters/mod.rs": "797a78baf9f38fc105938a4012107892929f79035353990663b165c89666ac98",
-    "services/collect/src/adapters/progress.rs": "53e04e870548d23a31af4f6030dba1efc51fd1773c2f5aa264c21db8c864fa46",
+    "services/collect/src/adapters/institution.rs": "31d11f2e91f8211764126c0fab64309f7caf22efe668870862f1db776a768259",
+    "services/collect/src/adapters/listpage.rs": "a8ed32423787f598a1b2e20a36c4941abb3842454dab31e88da84b4dd4cedace",
+    "services/collect/src/adapters/manifest.rs": "ce279e1d5c43b76ae992b6090139a08159604023b380cb4b750c556bbbada5d7",
+    "services/collect/src/adapters/mod.rs": "2e4444dd4ba47c7fd4770ae8fcf62f8952b496f902d9c7661799037466a27e31",
+    "services/collect/src/adapters/progress.rs": "9e1c5f6fb2bef5134cd6c2616bb4a62a1abe0e3eb6d276bef6d588c76913b2af",
     "services/collect/src/adapters/registry.rs": "2e1a3e3eff46e946588fd90fab0024eab6aa3236e51c0de61b3810c506da4eed",
-    "services/collect/src/adapters/regression.rs": "d3e03fc0857d6f7c632e986844c95d8a06d60f1936ee35f3869b4420f6d76429",
+    "services/collect/src/adapters/regression.rs": "b3387841b1062e8efc77033dd0be066b2e22d431efb2948dabe95f9cd719b510",
     "services/collect/src/adapters/robots.rs": "d3c7f9ce99a4583fa29846d5862e8431b9f0112cc0e76caac3a959cfc2e3f61d",
     "services/collect/src/archive.rs": "5fdcf711635e957dac4e2fed083fc2330a9edcf61b1a4b7b4392ca335a207053",
     "services/collect/src/budget.rs": "8932a59aae185b0477a371699a998494e8223df9d19f476a8c2f186a3dc6d5d1",
@@ -75,7 +75,7 @@
       ],
       "exit_code": 0,
       "log": "verification-02.log",
-      "passed_tests": 56
+      "passed_tests": 61
     },
     {
       "command": [

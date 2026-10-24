@@ -122,6 +122,29 @@ pub struct GapRecord {
     pub reason: String,
 }
 
+/// An observed inventory row, not an accepted product edition. Retain the source
+/// metadata and its document edges so historical rows and shared files can be
+/// reconstructed without reversing a hash or inferring dates from file names.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ProductCandidate {
+    pub candidate_id: String,
+    pub product_code: String,
+    /// Source date tokens, including the source's open-ended sentinel; not inferred dates.
+    pub sale_from: String,
+    pub sale_to: String,
+    pub source_metadata: serde_json::Value,
+    /// Response evidence: resolves to a PageRecord in this manifest.
+    pub source_page_hash: String,
+    pub documents: Vec<CandidateDocument>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct CandidateDocument {
+    pub doc_role: DocRole,
+    /// Observed reference, unresolved until the acquisition step verifies its URL.
+    pub reference: String,
+}
+
 /// The whole enumeration record.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct DiscoveryManifest {
@@ -139,6 +162,9 @@ pub struct DiscoveryManifest {
     pub termination: Termination,
     /// Unique item ids discovered across all pages.
     pub discovered_ids: Vec<String>,
+    /// Candidate metadata and product-to-document relationships, including on document
+    /// plans. Shared documents retain a separate edge from every observed product row.
+    pub product_candidates: Vec<ProductCandidate>,
     pub result: ManifestResult,
     /// Ranges that stayed unexplored, on hold, or blocked — with reasons. These records
     /// are the "미탐색·차단 구간" of contract §1; they never count as enumerated.

@@ -7,7 +7,7 @@ use std::path::Path;
 struct FixtureOnly {
     robots: &'static str,
     content_type: &'static str,
-    page: &'static str,
+    page: String,
     requests: RefCell<Vec<String>>,
 }
 
@@ -26,19 +26,23 @@ impl Fetch for FixtureOnly {
                 }
                 .into(),
             )],
-            body: if robots { self.robots } else { self.page }
-                .as_bytes()
-                .to_vec(),
+            body: if robots {
+                self.robots
+            } else {
+                self.page.as_str()
+            }
+            .as_bytes()
+            .to_vec(),
             truncated: false,
         })
     }
 }
 
-fn fixture_only(page: &'static str) -> FixtureOnly {
+fn fixture_only(page: &str) -> FixtureOnly {
     FixtureOnly {
         robots: "User-agent: *\nAllow: /\n",
         content_type: "text/plain",
-        page,
+        page: page.into(),
         requests: RefCell::default(),
     }
 }
@@ -352,6 +356,21 @@ fn adapters_document_ids_require_one_known_role_before_mutation() {
             .values()
             .all(|s| *s == ExplorationState::Unqueried));
     }
+    // Even an empty failure must not silently discard its scope because its role
+    // is unknown. Reject it before changing the progress table.
+    for roles in [vec![], vec![DocRole::DisclosureList]] {
+        let mut m = fixture_only_manifest(id, "documents", &roles, &[]);
+        m.termination = Termination::RobotsHold {
+            reason: "fixture_only_role_unknown".into(),
+        };
+        assert!(table.apply_discovery(&m).is_err());
+        assert!(table
+            .row_mut(id)
+            .unwrap()
+            .exploration
+            .values()
+            .all(|s| *s == ExplorationState::Unqueried));
+    }
 }
 
 #[test]
@@ -466,6 +485,11 @@ fn adapters_partial_walks_preserve_unknown_axis_scope_and_roles() {
                             "documents"
                         }
                         .into(),
+                        doc_roles: if axis == "product_list" {
+                            vec!["terms".into(), "rider_terms".into()]
+                        } else {
+                            partial.scope.doc_roles.clone()
+                        },
                         ..partial.scope.clone()
                     },
                 ] {
@@ -499,8 +523,8 @@ fn adapters_partial_walks_preserve_unknown_axis_scope_and_roles() {
 }
 
 const FIXTURE_ONLY_INVENTORY: &str = r#"<html><script>var result = {"outData":{"prdList":[
-    {"prdCd":"fixture_only_A","saleStYmd":"20000101","saleEdYmd":"20010101","insTxtPat":"fixture_only_terms_a.pdf","prdSryPat":"fixture_only_summary.pdf","prdMdPat":"fixture_only_business.pdf"},
-    {"prdCd":"fixture_only_A","saleStYmd":"20010101","saleEdYmd":"99991231","insTxtPat":"fixture_only_terms_b.pdf","prdSryPat":"fixture_only_summary.pdf","prdMdPat":"fixture_only_business.pdf"}
+    {"prdCd":"fixture_only_A","prdNm":"fixture_only_old_name","rrsnPrdCd":"fixture_only_group","saleStYmd":"20000101","saleEdYmd":"20010101","insTxtPat":"fixture_only_terms_a.pdf","prdSryPat":"fixture_only_summary.pdf","prdMdPat":"fixture_only_business.pdf"},
+    {"prdCd":"fixture_only_A","prdNm":"fixture_only_new_name","rrsnPrdCd":"fixture_only_group","saleStYmd":"20010101","saleEdYmd":"99991231","insTxtPat":"fixture_only_terms_b.pdf","prdSryPat":"fixture_only_summary.pdf","prdMdPat":"fixture_only_business.pdf"}
 ]}}; </script></html>"#;
 
 #[test]
@@ -605,5 +629,269 @@ fn adapters_unsupported_insurers_have_no_fake_entry_enumeration() {
     ] {
         entry.row.disclosure_access = access;
         assert!(InsurerAdapter::for_entry(&entry).plans(&entry).is_empty());
+    }
+}
+
+#[test]
+fn adapters_html_context_rejects_template_links_instead_of_completing_single_page() {
+    let entry = lifeplanet_entry();
+    for plan in klia().plans(&entry).into_iter().chain(knia().plans(&entry)) {
+        let (link_substring, id_query_key) = match &plan.parser {
+            ListParser::HtmlLinks {
+                link_substring,
+                id_query_key,
+                ..
+            } => (link_substring, id_query_key),
+            _ => unreachable!(),
+        };
+        let link = format!("<a href='/{link_substring}?{id_query_key}=fixture_only_fake'>x</a>");
+        for page in [
+            format!("<script>const template=\"{link}\";</script>"),
+            format!("<!-- {link} -->"),
+            format!("<style>/* {link} */</style>"),
+            format!("<textarea>{link}</textarea>"),
+            format!("<title>{link}</title>"),
+            format!("<template><template>{link}</template>{link}</template>"),
+            format!("<div data-template=\"{link}\"></div>"),
+            format!("<svg>{link}</svg>"),
+            format!("<select><option>{link}</option></select>"),
+            format!("<script>const template=\"{link}\";"),
+            format!("<!-- {link}"),
+            format!("<template>{link}"),
+        ] {
+            let manifest = run(&plan, &fixture_only(&page));
+            assert!(
+                matches!(manifest.termination, Termination::ParseFailed { .. }),
+                "{page}"
+            );
+            assert!(manifest.discovered_ids.is_empty());
+            assert!(!manifest.result.empty_success);
+            assert_eq!(manifest.gaps[0].kind, "failed");
+        }
+        // A real link after the inert content still works, and preserves identifier case.
+        let body = format!("<!-- {link} --><script>const t=\"{link}\";</script><A title='x > y' HREF=/{link_substring}?x=1&amp;{id_query_key}=fixture_only_Ab12>real</A>");
+        let manifest = run(&plan, &fixture_only(&body));
+        assert_eq!(manifest.discovered_ids, ["fixture_only_Ab12"]);
+        assert!(exploration_state_of(&manifest.termination).reached_evidence());
+    }
+}
+
+#[test]
+fn adapters_html_attributes_and_script_boundaries_cannot_invent_items() {
+    let parser = ListParser::HtmlLinks {
+        link_substring: "fixture_only_list".into(),
+        id_query_key: "id".into(),
+        total_marker: None,
+        empty_marker: None,
+    };
+    let link = "<a href='/fixture_only_list?id=fixture_only_fake'>fake</a>";
+    for body in [
+        format!("<a title=\"{link}\">title</a>"),
+        format!("<!DOCTYPE html PUBLIC \"fixture_only > {link}\">"),
+        "<div href='/fixture_only_list?id=fixture_only_fake'></div>".to_string(),
+        "<a:fixture_only href='/fixture_only_list?id=fixture_only_fake'>x</a:fixture_only>"
+            .to_string(),
+        format!("<script><!--<script></script>{link}--></script>"),
+        format!("<script>const s='</scriptExtra>{link}';</script>"),
+        format!("<script/>const s=\"{link}\";</script>"),
+        "<a href='/home' href='/fixture_only_list?id=fixture_only_fake'>duplicate attribute</a>"
+            .to_string(),
+        "<a href='/fixture_only_list?id=fixture_only_real' title='unterminated".to_string(),
+    ] {
+        assert!(parse_page(&parser, body.as_bytes()).is_err(), "{body}");
+    }
+    let body = format!("<script>const s=\"{link}\";</SCRIPT ><a title=\"{link}\" href='/fixture_only_list?id=fixture_only_real'>real</a>");
+    assert_eq!(
+        parse_page(&parser, body.as_bytes()).unwrap().item_ids,
+        ["fixture_only_real"]
+    );
+}
+
+#[test]
+fn adapters_inert_html_cannot_supply_empty_or_total_evidence() {
+    let parser = ListParser::HtmlLinks {
+        link_substring: "fixture_only_list".into(),
+        id_query_key: "id".into(),
+        total_marker: Some("fixture_only_total=".into()),
+        empty_marker: Some("<div class='fixture_only_empty'>No results</div>".into()),
+    };
+    let evidence = "fixture_only_total=0 <div class='fixture_only_empty'>No results</div>";
+    for body in [
+        format!("<!-- {evidence} -->"),
+        format!("<script>const t=\"{evidence}\";</script>"),
+        format!("<template>{evidence}</template>"),
+        format!("<textarea>{evidence}</textarea>"),
+        format!("<style>{evidence}</style>"),
+        format!("<div data-template=\"{evidence}\"></div>"),
+    ] {
+        assert!(parse_page(&parser, body.as_bytes()).is_err(), "{body}");
+    }
+    assert!(parse_page(&parser, evidence.as_bytes())
+        .unwrap()
+        .item_ids
+        .is_empty());
+}
+
+#[test]
+fn adapters_stored_candidate_metadata_reconstructs_historical_product_document_edges() {
+    use crate::store::Store;
+    let entry = lifeplanet_entry();
+    let plans = InsurerAdapter::for_entry(&entry).plans(&entry);
+    let fixture = fixture_only(FIXTURE_ONLY_INVENTORY);
+    let mut manifests = Vec::new();
+    let dir = std::env::temp_dir().join(format!(
+        "fixture_only_candidate_edges_{}",
+        std::process::id()
+    ));
+    let store = crate::store::LocalStore::new(&dir);
+    for plan in plans.iter().rev() {
+        let manifest = run(plan, &fixture);
+        let (key, _) = record_manifest(&store, &manifest).unwrap();
+        let saved: serde_json::Value = serde_json::from_slice(&store.get(&key).unwrap()).unwrap();
+        let candidates = saved["product_candidates"].as_array().unwrap();
+        assert_eq!(candidates.len(), 2);
+        assert_ne!(candidates[0]["candidate_id"], candidates[1]["candidate_id"]);
+        for (candidate, (from, to, name, terms)) in candidates.iter().zip([
+            (
+                "20000101",
+                "20010101",
+                "fixture_only_old_name",
+                "fixture_only_terms_a.pdf",
+            ),
+            (
+                "20010101",
+                "99991231",
+                "fixture_only_new_name",
+                "fixture_only_terms_b.pdf",
+            ),
+        ]) {
+            assert_eq!(candidate["product_code"], "fixture_only_A");
+            assert_eq!(candidate["sale_from"], from);
+            assert_eq!(candidate["sale_to"], to);
+            assert_eq!(candidate["source_metadata"]["prdNm"], name);
+            assert_eq!(
+                candidate["source_metadata"]["rrsnPrdCd"],
+                "fixture_only_group"
+            );
+            assert_eq!(
+                candidate["source_page_hash"],
+                saved["pages"][0]["page_hash"]
+            );
+            let documents = candidate["documents"].as_array().unwrap();
+            assert_eq!(documents.len(), 3);
+            for (role, reference) in [
+                ("terms", terms),
+                ("summary", "fixture_only_summary.pdf"),
+                ("business_method", "fixture_only_business.pdf"),
+            ] {
+                assert!(documents
+                    .iter()
+                    .any(|doc| doc["doc_role"] == role && doc["reference"] == reference));
+            }
+        }
+        manifests.push(manifest);
+    }
+    let denom = registry();
+    let mut table = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+    let row = table.row_mut(&entry.row.insurer_id).unwrap();
+    assert_eq!(row.product_candidates.len(), 2);
+    assert_eq!(row.items.len(), 4);
+    assert!(row.items.iter().all(|i| !i.is_acquired()));
+    for candidate in row.product_candidates.values() {
+        for document in &candidate.documents {
+            assert!(row
+                .items
+                .iter()
+                .any(|i| i.doc_role == document.doc_role && i.item_id == document.reference));
+        }
+    }
+    // A document-only reconstruction retains both product edges to the shared file.
+    manifests.retain(|m| m.scope.axis == "documents");
+    let mut table = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+    assert_eq!(
+        table
+            .row_mut(&entry.row.insurer_id)
+            .unwrap()
+            .product_candidates
+            .len(),
+        2
+    );
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn adapters_scope_role_progress_preserves_every_hold_block_and_reason_in_either_order() {
+    let denom = registry();
+    let id = &denom.in_scope[0].row.insurer_id;
+    let mut hold = fixture_only_manifest(id, "documents", &[DocRole::Terms], &[]);
+    hold.termination = Termination::RobotsHold {
+        reason: "fixture_only_robots_unavailable".into(),
+    };
+    hold.gaps = vec![GapRecord {
+        kind: "hold".into(),
+        range: "whole_scope".into(),
+        reason: "fixture_only_robots_unavailable".into(),
+    }];
+    let mut block = hold.clone();
+    block.scope.channel = Some("fixture_only_other_channel".into());
+    block.scope.sale_status = Some("fixture_only_stopped".into());
+    block.scope.period_from = Some("2000-01-01".into());
+    block.scope.period_to = Some("2001-01-01".into());
+    block.termination = Termination::RobotsBlocked {
+        reason: "fixture_only_robots_denied".into(),
+    };
+    block.gaps = vec![GapRecord {
+        kind: "blocked".into(),
+        range: "whole_scope".into(),
+        reason: "fixture_only_robots_denied".into(),
+    }];
+    let summary = fixture_only_manifest(id, "documents", &[DocRole::Summary], &[]);
+    for manifests in [
+        vec![hold.clone(), block.clone(), summary.clone()],
+        vec![summary.clone(), block.clone(), hold.clone()],
+    ] {
+        let mut table = ProgressTable::from_discoveries(&denom, &manifests).unwrap();
+        let row = table.row_mut(id).unwrap();
+        assert!(!row.exploration["documents"].reached_evidence());
+        let scopes = &row.scope_progress;
+        assert!(scopes
+            .iter()
+            .any(|(key, progress)| key.doc_role == Some(DocRole::Summary)
+                && progress.state.reached_evidence()));
+        let issues = &row.unknown_denominators[&DocRole::Terms];
+        for expected in [&hold, &block] {
+            let issue = issues
+                .iter()
+                .find(|issue| {
+                    issue.scope.axis == "documents"
+                        && issue.scope.channel == expected.scope.channel
+                        && issue.scope.sale_status == expected.scope.sale_status
+                        && issue.scope.period_from == expected.scope.period_from
+                        && issue.scope.period_to == expected.scope.period_to
+                })
+                .unwrap();
+            assert_eq!(issue.scope.doc_role, Some(DocRole::Terms));
+            assert_eq!(
+                issue.progress.state,
+                exploration_state_of(&expected.termination)
+            );
+            assert_eq!(issue.progress.gaps, expected.gaps);
+        }
+        assert!(!row.unknown_denominators[&DocRole::Summary]
+            .iter()
+            .any(|i| i.scope.axis == "documents" && i.scope.channel.is_none()));
+        // A retry resolves only the exact scope/role; the other channel stays blocked.
+        let mut resolved = hold.clone();
+        resolved.termination = complete();
+        resolved.gaps.clear();
+        table.apply_discovery(&resolved).unwrap();
+        let row = table.row_mut(id).unwrap();
+        assert!(!row.exploration["documents"].reached_evidence());
+        let issues = &row.unknown_denominators[&DocRole::Terms];
+        assert!(!issues
+            .iter()
+            .any(|i| i.scope.axis == "documents" && i.scope.channel.is_none()));
+        assert!(issues.iter().any(|i| i.progress.gaps == block.gaps));
+        assert!(table.coverage_of(id)[&DocRole::Terms].rate().is_none());
     }
 }

@@ -8,7 +8,9 @@
 //! Item extraction is declarative ([`ListParser`]) so each institution adapter configures
 //! the shape its site actually publishes instead of sharing one guessed selector.
 
-use serde::Serialize;
+use onjeon_contracts::DocRole;
+
+use super::manifest::{CandidateDocument, ProductCandidate};
 
 /// How a fetched list response should be treated.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -122,7 +124,7 @@ pub fn looks_like_login(body: &[u8]) -> bool {
 }
 
 /// A discovered item in a list page.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct ListItem {
     /// Stable id the adapter derived for the row (link key or JSON field value).
     pub id: String,
@@ -132,6 +134,7 @@ pub struct ListItem {
 #[derive(Debug, Clone, Default)]
 pub struct ParsedPage {
     pub item_ids: Vec<String>,
+    pub product_candidates: Vec<ProductCandidate>,
     /// The total the page advertises, when it advertises one.
     pub advertised_total: Option<u64>,
     /// The next cursor the page itself yields, when the endpoint reports one.
@@ -226,16 +229,17 @@ pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'stat
             total_marker,
             empty_marker,
         } => {
-            let html = String::from_utf8_lossy(body);
+            let html = std::str::from_utf8(body).map_err(|_| "HTML is not UTF-8")?;
+            let context = parse_html_context(html)?;
             let mut out = ParsedPage::default();
-            for href in href_values(&html) {
+            for href in &context.hrefs {
                 if !link_substring.is_empty() && !href.contains(link_substring.as_str()) {
                     continue;
                 }
                 let id = if id_query_key.is_empty() {
                     Some(href.clone())
                 } else {
-                    query_value(&href, id_query_key)
+                    query_value(href, id_query_key)
                 };
                 if let Some(id) = id {
                     if !out.item_ids.contains(&id) {
@@ -244,7 +248,7 @@ pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'stat
                 }
             }
             if let Some(marker) = total_marker {
-                out.advertised_total = total_after_marker(&html, marker);
+                out.advertised_total = context.tail_after_marker(marker).and_then(total_from_tail);
             }
             if id_query_key.is_empty() {
                 return Err("HTML list requires a site-specific item selector and key");
@@ -254,7 +258,7 @@ pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'stat
             let verified_empty = out.advertised_total == Some(0)
                 || empty_marker
                     .as_ref()
-                    .is_some_and(|m| !m.is_empty() && html.contains(m));
+                    .is_some_and(|m| context.tail_after_marker(m).is_some());
             if out.item_ids.is_empty() && !verified_empty {
                 return Err("HTML list structure or verified empty-state evidence absent");
             }
@@ -287,6 +291,7 @@ fn parse_lifeplanet(body: &[u8], document_field: Option<&str>) -> Result<ParsedP
         .and_then(|v| v.as_array())
         .ok_or("inventory rows absent")?;
     let mut out = ParsedPage::default();
+    let source_page_hash = crate::digest::sha256_hex(body);
     for row in rows {
         // A code is not an edition identity (H1/H5). Pin the complete observed
         // metadata row as a discovery candidate, without inventing a sale-version key.
@@ -299,6 +304,37 @@ fn parse_lifeplanet(body: &[u8], document_field: Option<&str>) -> Result<ParsedP
                 return Err("inventory row identity absent");
             }
         }
+        let candidate_id = format!(
+            "lifeplanet-row:{}",
+            crate::digest::sha256_hex(
+                &serde_json::to_vec(row).map_err(|_| "inventory row malformed")?
+            )
+        );
+        let documents = [
+            ("insTxtPat", DocRole::Terms),
+            ("prdSryPat", DocRole::Summary),
+            ("prdMdPat", DocRole::BusinessMethod),
+        ]
+        .into_iter()
+        .filter_map(|(field, doc_role)| {
+            row.get(field)
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.trim().is_empty())
+                .map(|reference| CandidateDocument {
+                    doc_role,
+                    reference: reference.into(),
+                })
+        })
+        .collect();
+        let candidate = ProductCandidate {
+            candidate_id: candidate_id.clone(),
+            product_code: row["prdCd"].as_str().unwrap().into(),
+            sale_from: row["saleStYmd"].as_str().unwrap().into(),
+            sale_to: row["saleEdYmd"].as_str().unwrap().into(),
+            source_metadata: row.clone(),
+            source_page_hash: source_page_hash.clone(),
+            documents,
+        };
         let id = if let Some(field) = document_field {
             // Missing references are not proof that the expected document is absent.
             let path = row
@@ -308,13 +344,11 @@ fn parse_lifeplanet(body: &[u8], document_field: Option<&str>) -> Result<ParsedP
                 .ok_or("document reference missing")?;
             path.to_string()
         } else {
-            format!(
-                "lifeplanet-row:{}",
-                crate::digest::sha256_hex(
-                    &serde_json::to_vec(row).map_err(|_| "inventory row malformed")?
-                )
-            )
+            candidate_id
         };
+        if !out.product_candidates.contains(&candidate) {
+            out.product_candidates.push(candidate);
+        }
         if !out.item_ids.contains(&id) {
             out.item_ids.push(id);
         }
@@ -337,50 +371,276 @@ fn json_path<'a>(v: &'a serde_json::Value, path: &str) -> Option<&'a serde_json:
     Some(cur)
 }
 
-/// All `href="…"`/`href='…'` attribute values in order, entity-decoded the way a real
-/// HTML parser hands them back (`&amp;` is a literal `&`).
-///
-/// Attribute *names* are matched on a lowercased copy (`HREF` matches), but values are
-/// sliced from the original document: an id like `tptyCode=PB15` is case-significant —
-/// lowercasing it would mangle the id and merge case-distinct items into one. `href`
-/// must start an attribute word: `data-href`, `xhref` and similar names do not count,
-/// and neither does `location.href='…'` inside script text — an attribute name is
-/// preceded by whitespace (or `/` in a tolerated self-close).
-fn href_values(html: &str) -> Vec<String> {
-    let low = html.to_ascii_lowercase();
-    let bytes = low.as_bytes();
-    let mut out = Vec::new();
-    let mut rest = 0usize;
-    while let Some(i) = low[rest..].find("href") {
-        let at = rest + i;
-        if at == 0 || !(bytes[at - 1].is_ascii_whitespace() || bytes[at - 1] == b'/') {
-            rest = at + 4;
+/// A conservative HTML tokenizer for the supported static list plans. Only actual
+/// anchor/area start-tag attributes yield links. Comments, raw/RCDATA elements,
+/// templates and foreign content cannot supply items or empty-list evidence.
+/// Malformed or unterminated markup fails closed instead of guessing DOM recovery.
+#[derive(Default)]
+struct HtmlContext {
+    hrefs: Vec<String>,
+    evidence: String,
+    marker_starts: Vec<std::ops::Range<usize>>,
+}
+
+impl HtmlContext {
+    fn tail_after_marker(&self, marker: &str) -> Option<&str> {
+        if marker.is_empty() {
+            return None;
+        }
+        self.evidence.match_indices(marker).find_map(|(at, _)| {
+            self.marker_starts
+                .iter()
+                .any(|r| r.contains(&at))
+                .then(|| &self.evidence[at + marker.len()..])
+        })
+    }
+}
+
+struct HtmlTag<'a> {
+    name: String,
+    closing: bool,
+    attrs: Vec<(String, &'a str)>,
+    end: usize,
+}
+
+fn html_tag(html: &str, start: usize) -> Result<HtmlTag<'_>, &'static str> {
+    let bytes = html.as_bytes();
+    let mut at = start + 1;
+    let closing = bytes.get(at) == Some(&b'/');
+    at += usize::from(closing);
+    let name_start = at;
+    while bytes
+        .get(at)
+        .is_some_and(|b| !b.is_ascii_whitespace() && !b"/>".contains(b))
+    {
+        if b"=\"'<".contains(&bytes[at]) {
+            return Err("malformed HTML tag name");
+        }
+        at += 1;
+    }
+    if at == name_start {
+        return Err("HTML tag name absent");
+    }
+    let name = html[name_start..at].to_ascii_lowercase();
+    let mut attrs = Vec::new();
+    loop {
+        while bytes.get(at).is_some_and(u8::is_ascii_whitespace) {
+            at += 1;
+        }
+        if bytes.get(at) == Some(&b'/') && bytes.get(at + 1) == Some(&b'>') {
+            at += 1;
+        }
+        if bytes.get(at) == Some(&b'>') {
+            return Ok(HtmlTag {
+                name,
+                closing,
+                attrs,
+                end: at + 1,
+            });
+        }
+        if closing {
+            return Err("malformed HTML closing tag");
+        }
+        let attr_start = at;
+        while bytes
+            .get(at)
+            .is_some_and(|b| !b.is_ascii_whitespace() && !b"=/>\"'<".contains(b))
+        {
+            at += 1;
+        }
+        if at == attr_start {
+            return Err("malformed or unterminated HTML tag");
+        }
+        let attr = html[attr_start..at].to_ascii_lowercase();
+        while bytes.get(at).is_some_and(u8::is_ascii_whitespace) {
+            at += 1;
+        }
+        let mut value = "";
+        if bytes.get(at) == Some(&b'=') {
+            at += 1;
+            while bytes.get(at).is_some_and(u8::is_ascii_whitespace) {
+                at += 1;
+            }
+            let quote = bytes
+                .get(at)
+                .copied()
+                .ok_or("HTML attribute value absent")?;
+            if quote == b'\"' || quote == b'\'' {
+                at += 1;
+                let value_start = at;
+                while bytes.get(at).is_some_and(|b| *b != quote) {
+                    at += 1;
+                }
+                value = html.get(value_start..at).ok_or("invalid HTML attribute")?;
+                if bytes.get(at).is_none() {
+                    return Err("unterminated HTML attribute");
+                }
+                at += 1;
+            } else {
+                let value_start = at;
+                while bytes
+                    .get(at)
+                    .is_some_and(|b| !b.is_ascii_whitespace() && *b != b'>')
+                {
+                    if b"\"'<`".contains(&bytes[at]) {
+                        return Err("malformed unquoted HTML attribute");
+                    }
+                    at += 1;
+                }
+                value = &html[value_start..at];
+                if value.is_empty() {
+                    return Err("HTML attribute value absent");
+                }
+            }
+        }
+        // HTML keeps the first of duplicate attributes.
+        if !attrs.iter().any(|(key, _)| *key == attr) {
+            attrs.push((attr, value));
+        }
+    }
+}
+
+fn parse_html_context(html: &str) -> Result<HtmlContext, &'static str> {
+    let lower = html.to_ascii_lowercase();
+    let bytes = html.as_bytes();
+    let mut out = HtmlContext::default();
+    let mut inert = Vec::new();
+    let mut at = 0;
+    while at < html.len() {
+        if bytes[at] != b'<' {
+            let end = html[at..].find('<').map_or(html.len(), |n| at + n);
+            if inert.is_empty() {
+                out.marker_starts
+                    .push(out.evidence.len()..out.evidence.len() + end - at);
+                out.evidence.push_str(&html[at..end]);
+            }
+            at = end;
             continue;
         }
-        let tail = &low[at..];
-        let val = tail
-            .strip_prefix("href")
-            .and_then(|t| t.trim_start().strip_prefix('='))
-            .map(|t| t.trim_start())
-            .and_then(|t| {
-                // (offset, len) of the value inside `tail`, so the slice can come from
-                // the original document, not the lowercased copy.
-                let start = tail.len() - t.len();
-                if let Some(q) = t.strip_prefix('"') {
-                    q.find('"').map(|e| (start + 1, e))
-                } else if let Some(q) = t.strip_prefix('\'') {
-                    q.find('\'').map(|e| (start + 1, e))
-                } else {
-                    t.find(|c: char| c.is_whitespace() || c == '>')
-                        .map(|e| (start, e))
-                }
-            });
-        if let Some((s, len)) = val {
-            out.push(unescape_entities(&html[at + s..at + s + len]));
+        if html[at..].starts_with("<!--") {
+            at += html[at + 4..]
+                .find("-->")
+                .ok_or("unterminated HTML comment")?
+                + 7;
+            out.evidence.push(' ');
+            continue;
         }
-        rest = at + 4;
+        if matches!(bytes.get(at + 1), Some(b'!' | b'?')) {
+            // Declarations/bogus comments are never tags. Reject ambiguous '<' in
+            // them rather than accidentally interpreting embedded markup.
+            let mut end = at + 2;
+            let mut quote = None;
+            while let Some(&b) = bytes.get(end) {
+                if quote == Some(b) {
+                    quote = None;
+                } else if quote.is_none() {
+                    if b == b'>' {
+                        break;
+                    }
+                    if matches!(b, b'\'' | b'"') {
+                        quote = Some(b);
+                    }
+                }
+                end += 1;
+            }
+            if bytes.get(end).is_none() {
+                return Err("unterminated HTML declaration");
+            }
+            if html[at + 1..end].contains('<') {
+                return Err("ambiguous HTML declaration");
+            }
+            at = end + 1;
+            out.evidence.push(' ');
+            continue;
+        }
+        let name_at = at + 1 + usize::from(bytes.get(at + 1) == Some(&b'/'));
+        if !bytes.get(name_at).is_some_and(u8::is_ascii_alphabetic) {
+            if inert.is_empty() {
+                out.marker_starts
+                    .push(out.evidence.len()..out.evidence.len() + 1);
+                out.evidence.push('<');
+            }
+            at += 1;
+            continue;
+        }
+        let tag = html_tag(html, at)?;
+        if !tag.closing && tag.name == "plaintext" {
+            break;
+        }
+        if !tag.closing
+            && matches!(
+                tag.name.as_str(),
+                "script"
+                    | "style"
+                    | "textarea"
+                    | "title"
+                    | "xmp"
+                    | "iframe"
+                    | "noembed"
+                    | "noframes"
+                    | "noscript"
+            )
+        {
+            let closing = format!("</{}", tag.name);
+            let mut search = tag.end;
+            loop {
+                let close_at = lower[search..]
+                    .find(&closing)
+                    .map(|n| search + n)
+                    .ok_or("unterminated HTML text element")?;
+                let boundary = close_at + closing.len();
+                if bytes
+                    .get(boundary)
+                    .is_some_and(|b| b.is_ascii_whitespace() || b"/>".contains(b))
+                {
+                    // Legacy script double-escape states need a full HTML5 tree
+                    // builder. Reject that unsupported form rather than treating an
+                    // inner closing token as the end of executable text.
+                    if tag.name == "script" && html[tag.end..close_at].contains("<!--") {
+                        return Err("unsupported escaped HTML script context");
+                    }
+                    at = html_tag(html, close_at)?.end;
+                    break;
+                }
+                search = boundary;
+            }
+            out.evidence.push(' ');
+            continue;
+        }
+        if matches!(tag.name.as_str(), "template" | "svg" | "math" | "select") {
+            if tag.closing {
+                if inert.last() != Some(&tag.name) {
+                    return Err("unbalanced inert HTML element");
+                }
+                inert.pop();
+            } else {
+                inert.push(tag.name.clone());
+            }
+            at = tag.end;
+            out.evidence.push(' ');
+            continue;
+        }
+        if inert.is_empty() {
+            if !tag.closing && matches!(tag.name.as_str(), "a" | "area") {
+                if let Some((_, value)) = tag.attrs.iter().find(|(name, _)| name == "href") {
+                    out.hrefs.push(unescape_entities(value));
+                }
+            }
+            // Preserve static marker spelling while keeping quoted markup from
+            // impersonating tags in an empty-state marker.
+            out.marker_starts
+                .push(out.evidence.len()..out.evidence.len() + 1);
+            out.evidence.push('<');
+            out.evidence
+                .push_str(&html[at + 1..tag.end - 1].replace('<', "&lt;"));
+            out.evidence.push('>');
+        }
+        at = tag.end;
     }
-    out
+    if !inert.is_empty() {
+        return Err("unterminated inert HTML element");
+    }
+    Ok(out)
 }
 
 /// Entity-decode an attribute value (`html.unescape` subset). A page that writes its
@@ -461,9 +721,9 @@ fn query_value(href: &str, key: &str) -> Option<String> {
     None
 }
 
-/// First run of digits after `marker` (the "총 128건" shape), with separators stripped.
-fn total_after_marker(html: &str, marker: &str) -> Option<u64> {
-    let tail = html[html.find(marker)? + marker.len()..].trim_start();
+/// First run of digits after a verified marker, with separators stripped.
+fn total_from_tail(tail: &str) -> Option<u64> {
+    let tail = tail.trim_start();
     let digits: String = tail
         .chars()
         .take_while(|c| c.is_ascii_digit() || *c == ',')

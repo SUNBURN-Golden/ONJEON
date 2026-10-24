@@ -144,7 +144,7 @@ pub fn klia() -> AssociationAdapter {
     AssociationAdapter::new(
         AdapterManifest {
             source_id: "klia_pub".into(),
-            adapter_version: "0.2.0".into(),
+            adapter_version: "0.3.0".into(),
             allowed_hosts: vec!["pub.insure.or.kr".into()],
             inventory_entrypoints: vec!["https://pub.insure.or.kr/mngtDis/mngtDis/list.do".into()],
             query_matrix_version: "qm-klia-0.1".into(),
@@ -187,7 +187,7 @@ pub fn knia() -> AssociationAdapter {
     AssociationAdapter::new(
         AdapterManifest {
             source_id: "knia_pub".into(),
-            adapter_version: "0.2.0".into(),
+            adapter_version: "0.3.0".into(),
             allowed_hosts: vec!["kpub.knia.or.kr".into()],
             inventory_entrypoints: vec![
                 "https://kpub.knia.or.kr/managementDisc/regularly/regularlyDisclosure.do".into(),
@@ -247,7 +247,7 @@ impl<'a> InsurerAdapter<'a> {
             entry,
             manifest: AdapterManifest {
                 source_id: format!("insurer:{}", entry.row.insurer_id),
-                adapter_version: "0.2.0".into(),
+                adapter_version: "0.3.0".into(),
                 allowed_hosts: if host.is_empty() {
                     Vec::new()
                 } else {

@@ -44,12 +44,12 @@ pub use institution::{
 };
 pub use listpage::{classify, looks_like_login, parse_page, ListParser, PageClass, ParsedPage};
 pub use manifest::{
-    manifest_key, record_manifest, DiscoveryManifest, GapRecord, ManifestResult, PageRecord,
-    RequestConditions, ScopeDesc, Termination, DENOMINATOR_DOC_ROLES,
+    manifest_key, record_manifest, CandidateDocument, DiscoveryManifest, GapRecord, ManifestResult,
+    PageRecord, ProductCandidate, RequestConditions, ScopeDesc, Termination, DENOMINATOR_DOC_ROLES,
 };
 pub use progress::{
     coverage, AcquisitionEvidence, DenominatorItem, ExplorationState, InstitutionProgress,
-    ProgressTable, RoleCoverage,
+    ProgressScope, ProgressTable, RoleCoverage, ScopeIssue, ScopeProgress,
 };
 pub use registry::{
     denominator_from_rows, load_denominator, parse_csv, read_csv, DenomEntry, Denominator,

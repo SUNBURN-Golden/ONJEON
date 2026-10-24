@@ -1,6 +1,6 @@
 {
   "task_id": "T-DT-04",
-  "fix_round": 2,
+  "fix_round": 3,
   "purpose": {
     "A": [
       "A1",
@@ -34,8 +34,8 @@
       "R10"
     ]
   },
-  "base_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
-  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "base_sha": "0422e539e49265d1815bbe7dca02d6e24b35c3c2",
+  "target_sha": "0422e539e49265d1815bbe7dca02d6e24b35c3c2",
   "target_sha_scope": "Input review commit plus uncommitted source bytes pinned by verification.json. Supervisor must create the final commit and re-pin verification and independent review.",
   "author": {
     "role": "implementation_and_self_verification",
@@ -46,34 +46,33 @@
   "review": {
     "input_reviewer_role": "st_re_review",
     "input_verdict": "BLOCK",
-    "input_target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+    "input_target_sha": "0422e539e49265d1815bbe7dca02d6e24b35c3c2",
     "fix_review_status": "pending_supervisor_final_sha_and_different_author_family_reviewer"
   },
   "findings": [
     {
       "id": 1,
+      "priority": "P1",
       "status": "addressed",
-      "change": "Require positive list or verified empty evidence with or without a total marker; shipped associations tested against maintenance pages, navigation and JS shells."
+      "change": "Context-aware conservative HTML tokenization: only real anchor/area href attributes; exclude comments, raw/RCDATA/script strings, inert templates, foreign content and quoted markup. Static total/empty evidence cannot originate in these contexts. Actual KLIA/KNIA plans and valid entity/case/unquoted links covered."
     },
     {
       "id": 2,
+      "priority": "P1",
       "status": "addressed",
-      "change": "Seed required whole-institution product and per-role document unknowns; unqueried institutions suppress aggregate rates; scoped success cannot erase the global gap."
+      "change": "Persist ProductCandidate metadata, source product codes, observed sale-period tokens, source page hashes and role-specific document references in every Lifeplanet plan manifest. Store/read regression retains historical rows, renamed products and shared-document edges; progress reconstruction retains them even with documents first."
     },
     {
       "id": 3,
+      "priority": "P2",
       "status": "addressed",
-      "change": "Use actual discovered document identities and explicit roles; independent product set; preserve per-document evidence/reasons and deduplicate repeated/shared references."
+      "change": "Public scope_progress retains axis/sale/channel/period/role states and complete gap reasons. Per-role unknown_denominators contains every unresolved scope. Axis summary considers all scopes. Exact-scope retry resolves only that role and scope. Unknown document roles rejected before mutation."
     },
     {
       "id": 4,
-      "status": "addressed_with_declared_support_limits",
-      "change": "Replace nonfunctional EntryProbe with concrete Lifeplanet embedded-inventory product/document parsers and 8 survey-backed plans; successful adapter-to-manifest-to-progress regression. Other unsupported institutions remain unexplored."
-    },
-    {
-      "id": 5,
+      "priority": "P1",
       "status": "blocked_outside_allowed_paths",
-      "change": "Reran unchanged full dependency gate; 3 ontology findings remain. Supervisor must route repair to an authorized task before merge. See dependency-boundary.json."
+      "change": "Unchanged full dependency gate still exits 1 with the same three ontology DEP-ZONE/IMP-ZONE findings. packages/ontology is outside this node allowed paths. Authorized supervisor task must fix them and pass the full checker before merge. No suppression or waiver."
     }
   ],
   "verification": {
@@ -115,7 +114,7 @@
         ],
         "exit_code": 0,
         "log": "verification-02.log",
-        "passed_tests": 56
+        "passed_tests": 61
       },
       {
         "command": [
@@ -231,10 +230,17 @@
     "logs": "verification-00.log through verification-12.log",
     "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
     "persistence_test": "adapters::manifest_is_stored_write_once",
-    "adapter_tests": 56,
+    "adapter_tests": 61,
     "all_checks_green": false,
     "dependency_merge_gate": "blocked_until_full_dependency_check_passes",
-    "source_hash_matches": 32
+    "source_hash_matches": 32,
+    "new_regression_tests": [
+      "adapters_html_context_rejects_template_links_instead_of_completing_single_page",
+      "adapters_html_attributes_and_script_boundaries_cannot_invent_items",
+      "adapters_inert_html_cannot_supply_empty_or_total_evidence",
+      "adapters_stored_candidate_metadata_reconstructs_historical_product_document_edges",
+      "adapters_scope_role_progress_preserves_every_hold_block_and_reason_in_either_order"
+    ]
   },
   "limits": [
     "No live network requests or real acquisition claims; all test response payloads are synthetic fixture_only data.",
@@ -243,7 +249,8 @@
     "Scoped inventory completion does not establish whole-institution completeness; no numeric acquisition rate while required enumeration remains unknown.",
     "Actual acquisition needs archived raw assets, extracted segments and accepted edition links; flags in progress are not production evidence.",
     "Skeleton verification is static and checker selftest; no running HTTP service routes probed.",
-    "Final committed SHA and independent different-family review remain supervisor gates."
+    "Final committed SHA and independent different-family review remain supervisor gates.",
+    "Static HTML tokenizer fails closed on malformed markup and unsupported escaped-script contexts; it is not a full HTML5 DOM recovery implementation."
   ],
   "path_audit": {
     "allowed_paths": [
@@ -259,5 +266,7 @@
     "Repair ontology dependencies/imports through a task authorized for packages/ontology; rerun the unchanged complete dependency checker.",
     "Create final commit, pin verification and review to that SHA, obtain independent reviewer from another author family.",
     "Confirm final path scope. STATUS READY is a handoff, not a merge or release approval."
-  ]
+  ],
+  "merge_ready": false,
+  "status": "ready_for_supervisor_handoff_with_dependency_and_independent_review_gates_open"
 }

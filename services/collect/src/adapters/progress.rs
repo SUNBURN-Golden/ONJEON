@@ -15,7 +15,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use onjeon_contracts::{AcquisitionStatus, DocRole};
 
-use super::manifest::DENOMINATOR_DOC_ROLES;
+use super::manifest::{GapRecord, ProductCandidate, ScopeDesc, DENOMINATOR_DOC_ROLES};
 use super::registry::{DenomEntry, InstitutionKind};
 
 /// The three pieces of evidence an acquired document needs (09 P02).
@@ -64,58 +64,116 @@ impl DenominatorItem {
 pub struct InstitutionProgress {
     pub institution_id: String,
     pub kind: InstitutionKind,
-    /// Scope axis -> state, e.g. `product_list` -> `unexplored(<reason>)`.
+    /// Conservative axis summary, derived from every scope below. A success on one
+    /// role/channel/period cannot replace another scope's hold or blocked state.
     pub exploration: BTreeMap<String, ExplorationState>,
+    /// Authoritative latest state and gap reasons for each precise scope and role.
+    pub scope_progress: BTreeMap<ProgressScope, ScopeProgress>,
     /// Candidate product identities, kept separate from document counts.
     pub discovered_products: BTreeSet<String>,
+    /// Structured metadata and document edges, also populated by document-first runs.
+    pub product_candidates: BTreeMap<String, ProductCandidate>,
     pub items: Vec<DenominatorItem>,
-    pub unknown_denominators: BTreeMap<DocRole, ExplorationState>,
-    // Keep each scope's unknowns independently. A completed product list cannot
-    // resolve a document gap, nor can one channel resolve another channel's gap.
-    denominator_unknowns: BTreeMap<DenominatorScope, BTreeMap<DocRole, ExplorationState>>,
+    /// All unresolved scopes for each role; no scope's reason replaces another's.
+    pub unknown_denominators: BTreeMap<DocRole, Vec<ScopeIssue>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-struct DenominatorScope {
-    axis: String,
-    sale_status: Option<String>,
-    channel: Option<String>,
-    period_from: Option<String>,
-    period_to: Option<String>,
+pub struct ProgressScope {
+    pub axis: String,
+    pub sale_status: Option<String>,
+    pub channel: Option<String>,
+    pub period_from: Option<String>,
+    pub period_to: Option<String>,
+    pub doc_role: Option<DocRole>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScopeProgress {
+    pub state: ExplorationState,
+    pub gaps: Vec<GapRecord>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScopeIssue {
+    pub scope: ProgressScope,
+    pub progress: ScopeProgress,
 }
 
 impl InstitutionProgress {
-    fn update_denominator_state(
+    fn update_scope_state(
         &mut self,
-        scope: &super::manifest::ScopeDesc,
+        scope: &ScopeDesc,
         state: &ExplorationState,
+        gaps: &[GapRecord],
     ) {
-        let key = DenominatorScope {
-            axis: scope.axis.clone(),
-            sale_status: scope.sale_status.clone(),
-            channel: scope.channel.clone(),
-            period_from: scope.period_from.clone(),
-            period_to: scope.period_to.clone(),
+        let roles = if scope.axis == "documents" {
+            DENOMINATOR_DOC_ROLES
+                .iter()
+                .filter(|r| scope.doc_roles.iter().any(|s| s == r.as_str()))
+                .map(|r| Some(*r))
+                .collect::<Vec<_>>()
+        } else {
+            vec![None]
         };
-        let unknowns = self.denominator_unknowns.entry(key).or_default();
-        for role in DENOMINATOR_DOC_ROLES {
-            if scope.axis == "documents" && !scope.doc_roles.iter().any(|r| r == role.as_str()) {
+        for doc_role in roles {
+            self.scope_progress.insert(
+                ProgressScope {
+                    axis: scope.axis.clone(),
+                    sale_status: scope.sale_status.clone(),
+                    channel: scope.channel.clone(),
+                    period_from: scope.period_from.clone(),
+                    period_to: scope.period_to.clone(),
+                    doc_role,
+                },
+                ScopeProgress {
+                    state: state.clone(),
+                    gaps: gaps.to_vec(),
+                },
+            );
+        }
+        let states: Vec<_> = self
+            .scope_progress
+            .iter()
+            .filter(|(key, _)| key.axis == scope.axis)
+            .collect();
+        if let Some((_, first)) = states.first() {
+            let summary = if states.iter().all(|(_, p)| p.state == first.state) {
+                first.state.clone()
+            } else if states.iter().all(|(_, p)| p.state.reached_evidence()) {
+                ExplorationState::Enumerated
+            } else {
+                ExplorationState::PartiallyEnumerated {
+                    unexplored: states
+                        .iter()
+                        .filter(|(_, p)| !p.state.reached_evidence())
+                        .map(|(key, p)| format!("{key:?}: {:?}", p.state))
+                        .collect::<Vec<_>>()
+                        .join("; "),
+                }
+            };
+            self.exploration.insert(scope.axis.clone(), summary);
+        }
+        self.unknown_denominators.clear();
+        for (key, progress) in &self.scope_progress {
+            if progress.state.reached_evidence()
+                || !matches!(key.axis.as_str(), "documents" | "product_list")
+            {
                 continue;
             }
-            if state.reached_evidence() {
-                unknowns.remove(&role);
-            } else {
-                unknowns.insert(role, state.clone());
+            for role in DENOMINATOR_DOC_ROLES {
+                if key.axis == "documents" && key.doc_role != Some(role) {
+                    continue;
+                }
+                self.unknown_denominators
+                    .entry(role)
+                    .or_default()
+                    .push(ScopeIssue {
+                        scope: key.clone(),
+                        progress: progress.clone(),
+                    });
             }
         }
-        self.denominator_unknowns
-            .retain(|_, roles| !roles.is_empty());
-        // Public per-role view: retain a marker while ANY scope is unresolved.
-        self.unknown_denominators = self
-            .denominator_unknowns
-            .values()
-            .flat_map(|roles| roles.iter().map(|(role, state)| (*role, state.clone())))
-            .collect();
     }
 }
 
@@ -153,6 +211,8 @@ impl ExplorationState {
 pub struct RoleCoverage {
     /// Denominator size for this role.
     pub expected: usize,
+    /// Number of institutions with at least one unresolved scope for this role.
+    /// The full scope counts and reasons are retained in `unknown_denominators`.
     pub unknown_scopes: usize,
     /// Items with all three evidence parts — the numerator of the acquisition rate.
     pub acquired: usize,
@@ -199,13 +259,14 @@ impl ProgressTable {
                 institution_id: e.row.insurer_id.clone(),
                 kind: e.kind,
                 exploration,
+                scope_progress: BTreeMap::new(),
                 discovered_products: BTreeSet::new(),
+                product_candidates: BTreeMap::new(),
                 items: Vec::new(),
                 unknown_denominators: BTreeMap::new(),
-                denominator_unknowns: BTreeMap::new(),
             };
-            for axis in ["product_list", "documents"] {
-                progress.update_denominator_state(
+            for axis in ["disclosure_entry", "product_list", "documents", "notices"] {
+                progress.update_scope_state(
                     &super::manifest::ScopeDesc {
                         axis: axis.into(),
                         institution_id: e.row.insurer_id.clone(),
@@ -219,6 +280,7 @@ impl ProgressTable {
                             .collect(),
                     },
                     &ExplorationState::Unqueried,
+                    &[],
                 );
             }
             rows.push(progress);
@@ -242,6 +304,16 @@ impl ProgressTable {
         &mut self,
         manifest: &super::manifest::DiscoveryManifest,
     ) -> Result<(), &'static str> {
+        if manifest.scope.axis == "documents"
+            && (manifest.scope.doc_roles.is_empty()
+                || manifest
+                    .scope
+                    .doc_roles
+                    .iter()
+                    .any(|role| !DENOMINATOR_DOC_ROLES.iter().any(|r| r.as_str() == role)))
+        {
+            return Err("document scope requires known denominator roles");
+        }
         // discovered_ids has no per-item role annotation. Require one explicit role
         // for document identities; multiplying every id across roles fabricates items.
         let document_role =
@@ -262,10 +334,10 @@ impl ProgressTable {
             .row_mut(&manifest.scope.institution_id)
             .ok_or("institution outside denominator")?;
         let state = super::enumerate::exploration_state_of(&manifest.termination);
-        row.exploration
-            .insert(manifest.scope.axis.clone(), state.clone());
-        if matches!(manifest.scope.axis.as_str(), "documents" | "product_list") {
-            row.update_denominator_state(&manifest.scope, &state);
+        row.update_scope_state(&manifest.scope, &state, &manifest.gaps);
+        for candidate in &manifest.product_candidates {
+            row.product_candidates
+                .insert(candidate.candidate_id.clone(), candidate.clone());
         }
         if manifest.scope.axis == "documents" {
             let reason = manifest

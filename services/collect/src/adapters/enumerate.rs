@@ -77,6 +77,7 @@ impl<'a> Enumerator<'a> {
     pub fn run(&mut self, plan: &ListPlan, meta: &RunMeta) -> DiscoveryManifest {
         let mut pages = Vec::new();
         let mut seen: BTreeSet<String> = BTreeSet::new();
+        let mut product_candidates = Vec::new();
         let mut advertised_total = None;
         let mut termination = None;
         let mut gaps = Vec::new();
@@ -237,6 +238,11 @@ impl<'a> Enumerator<'a> {
             for id in &parsed.item_ids {
                 seen.insert(id.clone());
             }
+            for candidate in &parsed.product_candidates {
+                if !product_candidates.contains(candidate) {
+                    product_candidates.push(candidate.clone());
+                }
+            }
             // A page repeating byte-for-byte on a fresh cursor is not progress and never a
             // successful end (H8 counterexample; Masterplan §23.2).
             let repeated = prev_hash.as_deref() == Some(page_hash.as_str());
@@ -389,6 +395,7 @@ impl<'a> Enumerator<'a> {
             pages,
             termination,
             discovered_ids: seen.into_iter().collect(),
+            product_candidates,
             gaps,
             recorded_at: rfc3339((self.clock)()),
         }
@@ -485,6 +492,7 @@ pub fn unenumerated_manifest(
             detail: reason.into(),
         },
         discovered_ids: Vec::new(),
+        product_candidates: Vec::new(),
         result: ManifestResult {
             item_count: 0,
             unique_item_count: 0,

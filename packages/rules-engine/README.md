@@ -49,8 +49,9 @@
 
 | 테스트 | 내용 |
 |---|---|
-| `golden` | §34.1 경계표 확장 14건(`packages/fixtures/rules/*.cases.json`), 재현성, trace. 케이스별 `trace`·`input_snapshot_hash`는 `fixture-rule-001.golden.json`, `rule_content_hash`는 `fixture-rule-001.content_hash`와 `real.content_hashes.json`(실규칙 전체)에 고정되어 회귀를 잡는다. 의도한 변경일 때만 갱신 |
-| `mutation` | 규칙을 의도적으로 망가뜨린 11개 변이가 골든 표에 모두 잡히는지 |
+| `golden` | §34.1 경계표 확장 15건(공유 `packages/fixtures/rules/*.cases.json` + 엔진 `tests/fixtures/cases/*.cases.json`), 재현성, trace. 케이스별 `trace`·`input_snapshot_hash`는 `fixture-rule-001.golden.json`과 추가 반올림 케이스의 `tests/fixtures/fixture-rule-001.rounding.golden.json`, `rule_content_hash`는 `fixture-rule-001.content_hash`와 `real.content_hashes.json`(실규칙 전체)에 고정되어 회귀를 잡는다. 의도한 변경일 때만 갱신 |
+| `mutation` | 합성 규칙을 손으로 망가뜨린 11개 변이 + 모든 규칙(합성 1개, `fixtures/rules/real`의 실제 규칙 7개)에서 기계적으로 만든 변이 336개가 골든 표에 모두 잡히는지. 변이기: 비교 연산자 뒤집기(`eq↔ne`, `lt↔lte`, `gt↔gte`, `lt↔gt`, `lte↔gte`), 정수·`krw`·`date_add` 값·요율 소수 끝자리 ±1, 불리언 리터럴 반전, `multiply_rate` 반올림 방식을 다른 4가지로 교체, `all`/`any` 자식 하나 제거, `all↔any`, `if`의 then/else 교체. 변이가 로드되지 않거나, 원본이 자기 케이스를 통과하지 못하거나, 케이스가 없으면 실패한다. 살아남은 변이는 `EQUIVALENT` 허용 목록(규칙·변이·사유, 현재 비어 있음)에 없으면 실패하며, 목록에 낡은 항목이 있어도 실패한다. 변이기가 항상 "죽었다"고 답하지 않는지(무변이 규칙·근거만 바뀐 규칙은 살아남음)도 음성 대조로 본다 |
+| `fixture_supplements` | 공유 사례를 그대로 보존하면서 엔진 소유 경계 사례 59개를 추가하는지, 공유 기본 입력·규칙 ID와 사례별 덮어쓰기를 유지하는지, 공유/추가 사례의 ID 충돌을 거부하는지 |
 | `soundness` | 입력을 숨겨도 확정 결과가 다른 확정 결과로 뒤집히지 않는지(I1). 합성 fixture와 `fixtures/rules/real/*.cases.json`의 실제 규칙 7개 전부에 적용하며, 모든 실제 규칙이 확정 케이스를 하나 이상 갖는지 확인한다. 모름을 `false`/`0`으로 바꾸는 평가기를 같은 검사기가 잡아내는지(음성 대조)도 본다 |
 | `rule_02` | rule-0.2 연산 7종: 연산별 골든·경계(0, `i64::MAX`, 기념일 당일, 윤일)·변이(연산·반올림·구간표·경계 규칙을 바꾼 규칙이 골든 표에 잡힘)·건전성(입력을 하나씩 숨겨도 확정값이 뒤집히거나 0이 되지 않음), `whole=0` 모름, 0.1 문서에서의 거부, `contract_effect` 3상태 |
 | `static_types` | 로드 단계 타입 검사: 감사 예시 두 건, 연산자별 거부와 오류 경로, 올바른 타입은 그대로 로드·평가 |
@@ -60,6 +61,12 @@
 | `review_fixes` | 결과의 규칙 버전·릴리스·내용 해시·근거, 재로드 시 동일성, 범위의 연속 계산, 날짜 범위·오버플로(`i64::MIN`·`i64::MAX` 포함) |
 | 문서 테스트·`immutable_rule_doctests` | 로드된 규칙의 필드 수정이 비공개 필드 접근 오류로 컴파일되지 않음(`compile_fail,E0616`)과 같은 준비 코드의 정상 동작. stable rustdoc는 오류 코드 표기를 강제하지 않으므로 통합 테스트가 두 예제의 실제 진단 코드가 모두 `E0616`인지 검사 |
 | 단위 | 진리표(§49.3), 날짜 변환, 요율 파싱 |
+
+요율 리터럴은 `"0.5"`와 `{"rate":"0.5"}` 두 표현 모두 끝자리 ±1 변이를 만든다. 생성기 회귀 테스트는 소수·정수·0의 정확한 변이와 명시적 요율의 입력 이름 충돌을 확인한다. 실제 변호사선임비용 규칙의 요율 3개를 명시적 표현으로 바꿔도 변이 79개(요율 변이 6개 포함)가 유지되고 골든 표에 모두 잡히는지 검증한다.
+
+추가한 경계 사례 59개는 허용 경로인 `packages/rules-engine/tests/fixtures/cases/`에 둔다. 공유 `packages/fixtures/rules/` 파일은 수정하지 않는다. 공통 로더는 같은 상대 경로의 추가 사례를 읽고 공유 기본 입력·규칙 ID를 재사용하며, 골든·변이·건전성·실제 조항 시험이 같은 확장 사례를 쓴다. Kyobo 소액암 규칙의 공유 사례 6개로는 살아남는 변이 16개가 로컬 사례 11개를 더하면 모두 잡히는지도 음성 대조로 확인한다.
+
+`cargo test --test mutation -- --nocapture`로 규칙별 골든 케이스·변이 수와 전체 생존 변이 수를 볼 수 있다. 규칙 하나라도 생성된 변이가 없으면 실패한다. 로컬 재실행 결과와 CI 실행 제약은 [변이 테스트 실행 증거](MUTATION_TEST_EVIDENCE.md)에 기록했다.
 
 ## 아직 없는 것
 

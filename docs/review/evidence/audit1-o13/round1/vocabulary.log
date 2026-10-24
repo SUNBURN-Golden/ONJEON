@@ -1,0 +1,4 @@
+{"command": ["python3", "tools/vocab_check.py"], "started_at": "2026-10-22T23:09:46.909211+00:00"}
+vocabulary ok: 45 axes, 228 values
+
+exit_code: 0

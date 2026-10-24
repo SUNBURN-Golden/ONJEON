@@ -1,0 +1,3 @@
+Command: ['git', 'diff', '--exit-code', 'HEAD', '--', 'packages/ontology/Cargo.toml', 'packages/ontology/tests/common/mod.rs', 'packages/ontology/tests/fixture_origin/main.rs', 'infra/ci/deps.json']
+
+exit_code: 0

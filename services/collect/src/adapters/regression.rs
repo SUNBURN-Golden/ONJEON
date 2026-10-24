@@ -685,6 +685,117 @@ fn adapters_lifeplanet_inventory_requires_executable_script_context() {
     }
 }
 
+/// 렉서가 분류하지 못하는 스크립트 문맥은 파싱 실패다(빈 목록 성공이 아니다): 정규식
+/// 리터럴 안의 `var result`, `}`·`++` 뒤의 `/`, 끝나지 않은 문자열·주석·정규식, 템플릿
+/// 치환, 함수 본문 안의 선언, Annex B `-->` 줄 주석, JSON 뒤에 이어지는 식(두 번째 선언자·
+/// 멤버 접근·호출·`in`). 나눗셈·정규식·ASI가 있는 정상 스크립트의 실행문은 그대로 읽는다.
+#[test]
+fn adapters_lifeplanet_inventory_rejects_unclassifiable_script_contexts() {
+    let entry = lifeplanet_entry();
+    let empty_json = r#"{"outData":{"prdList":[]}}"#;
+    let empty = format!("var result = {empty_json};");
+    let one_row_json = r#"{"outData":{"prdList":[{"prdCd":"fixture_only_decoy","saleStYmd":"20000101","saleEdYmd":"99991231","insTxtPat":"fixture_only_decoy_terms.pdf","prdSryPat":"fixture_only_decoy_summary.pdf","prdMdPat":"fixture_only_decoy_business.pdf"}]}}"#;
+    let one_row = format!("var result = {one_row_json};");
+    for plan in InsurerAdapter::for_entry(&entry).plans(&entry) {
+        for page in [
+            // The reviewer's case: a regex literal whose body is the statement.
+            format!("<script>const decoy = /;{empty}/;</script>"),
+            format!("<script>f(/;{empty}/);</script>"),
+            format!("<script>function f() {{ return /;{empty}/; }}</script>"),
+            format!("<script>if (x) /;{empty}/.test(y);</script>"),
+            format!("<script>var r = /[/];{empty}/;</script>"),
+            format!("<script>var r = x / 2 / /;{empty}/;</script>"),
+            // Both readings of `/` are possible: rejected, not guessed.
+            format!("<script>function f() {{}} /;{empty}/;</script>"),
+            format!("<script>i++ /;{empty}/;</script>"),
+            format!("<script>var result = {empty_json} / x / 1;</script>"),
+            // A browser would not run these at all.
+            format!("<script>var x = \"unterminated\n{empty}</script>"),
+            format!("<script>var x = 'unterminated\n{empty}</script>"),
+            format!("<script>/* {empty}</script>"),
+            format!("<script>var r = /unterminated\n{empty}</script>"),
+            format!("<script>var r = `${{'`'}}'; {empty} `;</script>"),
+            format!("<script>f(({empty}</script>"),
+            format!("<script>{empty} }}</script>"),
+            // Not the page-level inventory.
+            format!("<script>(function () {{ {empty} }})();</script>"),
+            format!("<script>if (x) {{ {empty} }}</script>"),
+            format!("<script>\n--> {empty}\n</script>"),
+            format!("<script>/*\n*/ --> {empty}\n</script>"),
+            format!("<script>--> {empty}\n</script>"),
+            // The JSON is not where the statement ends.
+            format!("<script>var result = {empty_json}, result = {one_row_json};</script>"),
+            format!("<script>var result = {one_row_json}.outData.prdList.slice(0, 0);</script>"),
+            format!("<script>var result = {empty_json}\n.outData;</script>"),
+            format!("<script>var result = {empty_json}\n(x);</script>"),
+            format!("<script>var result = {empty_json}\nin window;</script>"),
+            format!("<script>var result = {empty_json} // note\n.outData;</script>"),
+            format!("<script>var result = {empty_json} x = 1;</script>"),
+        ] {
+            let manifest = run(&plan, &fixture_only(&page));
+            assert!(
+                matches!(manifest.termination, Termination::ParseFailed { .. }),
+                "{page}: {:?}",
+                manifest.termination
+            );
+            assert!(!manifest.result.empty_success, "{page}");
+            assert!(
+                !exploration_state_of(&manifest.termination).reached_evidence(),
+                "{page}"
+            );
+            assert!(manifest.discovered_ids.is_empty(), "{page}");
+            assert!(manifest.product_candidates.is_empty(), "{page}");
+            assert_eq!(manifest.gaps[0].kind, "failed", "{page}");
+        }
+        // Ordinary script text around the one executable statement still yields it:
+        // divisions, regex literals (with flags and classes), `if` heads, comments, `-->`
+        // comments and ASI line breaks are classified, not guessed.
+        for page in [
+            format!("<script>var half = total / 2; {empty}</script>"),
+            format!("<script>var avg = (a + b) / 2; var q = arr[0] / 2; {empty}</script>"),
+            format!("<script>var re = /\\/;var result = /gi; {empty}</script>"),
+            format!("<script>var re = /[/;]var result = 1/; {empty}</script>"),
+            format!("<script>if (x) /;var result = 1/.test(y); {empty}</script>"),
+            format!("<script>function f() {{ return /;var result = 1/; }} {empty}</script>"),
+            format!("<script>var n = /a/g.test(x) ? 1 : 2 / 1; {empty}</script>"),
+            format!("<script>var s = 'a/b'; var t = \"c/d\"; var u = `e/f`; {empty}</script>"),
+            format!("<script>/*\n*/ --> var result = 1;\n{empty}</script>"),
+            format!(
+                "<script>{}\nvar x = 1;</script>",
+                empty.trim_end_matches(';')
+            ),
+            format!(
+                "<script>{}\n// note\nfunction f() {{}}</script>",
+                empty.trim_end_matches(';')
+            ),
+            format!("<script>{} /* c */ ;</script>", empty.trim_end_matches(';')),
+            format!("<script>{}</script>", empty.trim_end_matches(';')),
+        ] {
+            let manifest = run(&plan, &fixture_only(&page));
+            assert!(
+                matches!(manifest.termination, Termination::EmptyPage { .. }),
+                "{page}: {:?}",
+                manifest.termination
+            );
+            assert!(manifest.result.empty_success, "{page}");
+            assert!(manifest.product_candidates.is_empty(), "{page}");
+        }
+        let manifest = run(
+            &plan,
+            &fixture_only(&format!(
+                "<script>var ratio = (a + b) / 2; var re = /;var result = 1/; {one_row}</script>"
+            )),
+        );
+        assert!(exploration_state_of(&manifest.termination).reached_evidence());
+        assert!(!manifest.result.empty_success);
+        assert_eq!(manifest.product_candidates.len(), 1);
+        assert_eq!(
+            manifest.product_candidates[0].product_code,
+            "fixture_only_decoy"
+        );
+    }
+}
+
 #[test]
 fn adapters_unsupported_insurers_have_no_fake_entry_enumeration() {
     let denom = registry();

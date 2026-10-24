@@ -1323,12 +1323,51 @@ mod adapters {
         assert_eq!(m.gaps[0].reason, "not_list_content");
     }
 
-    /// 목록 URL의 401/403은 접근 거부다 — gap 종류는 failed가 아니라 blocked.
+    /// 목록 URL의 401/403은 접근 거부다 — gap 종류·종료 기록·탐색 상태가 모두 blocked이고
+    /// (failed가 아니다), 진행표와 문서 상태에도 blocked로 남는다. 다른 HTTP 오류는 failed다.
     #[test]
-    fn http_403_list_page_records_blocked_gap() {
+    fn http_401_403_list_page_is_blocked_throughout() {
+        for status in [401u16, 403] {
+            let mut ff = FixtureFetch::new();
+            allow_all_robots(&mut ff, "h.fixture");
+            ff.add("https://h.fixture/list?page=1", status, "denied");
+            let mut gate = RobotsGate::new(86_400);
+            let mut en = Enumerator {
+                fetch: &ff,
+                gate: &mut gate,
+                clock: &clock,
+                page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+                rate_policy: "default".into(),
+            };
+            let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
+            assert_eq!(
+                m.termination,
+                Termination::AccessDenied {
+                    at_cursor: "1".into(),
+                    http_status: status,
+                }
+            );
+            assert_eq!(m.gaps.len(), 1);
+            assert_eq!(m.gaps[0].kind, "blocked");
+            assert_eq!(m.gaps[0].reason, "access_denied");
+            assert_eq!(m.pages[0].page_kind, "error");
+            assert_eq!(m.result.unique_item_count, 0);
+            assert!(!m.result.empty_success);
+            assert_eq!(
+                exploration_state_of(&m.termination),
+                ExplorationState::Blocked {
+                    reason: "access_denied".into()
+                }
+            );
+            let json = serde_json::to_value(&m).unwrap();
+            assert_eq!(json["termination"]["kind"], "access_denied");
+            assert_eq!(json["termination"]["http_status"], status);
+        }
+
+        // A 500 is a failed fetch, not an access denial.
         let mut ff = FixtureFetch::new();
         allow_all_robots(&mut ff, "h.fixture");
-        ff.add("https://h.fixture/list?page=1", 403, "forbidden");
+        ff.add("https://h.fixture/list?page=1", 500, "error");
         let mut gate = RobotsGate::new(86_400);
         let mut en = Enumerator {
             fetch: &ff,
@@ -1339,8 +1378,91 @@ mod adapters {
         };
         let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
         assert!(matches!(m.termination, Termination::FetchFailed { .. }));
+        assert_eq!(m.gaps[0].kind, "failed");
+        assert!(matches!(
+            exploration_state_of(&m.termination),
+            ExplorationState::Failed { .. }
+        ));
+
+        // Mid-walk denial on a documents plan: the items already found stay in the
+        // denominator under `blocked`, the scope and the institution axis are Blocked,
+        // and no rate is reported.
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add(
+            "https://h.fixture/terms?page=1",
+            200,
+            "<html><a href='item.do?id=t1'>a</a><a href='item.do?id=t2'>b</a></html>",
+        );
+        ff.add("https://h.fixture/terms?page=2", 403, "denied");
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/terms?page={cursor}");
+        p.scope.axis = "documents".into();
+        p.scope.doc_roles = vec!["terms".into()];
+        let m = en.run(&p, &meta());
+        assert_eq!(
+            m.termination,
+            Termination::AccessDenied {
+                at_cursor: "2".into(),
+                http_status: 403,
+            }
+        );
+        assert_eq!(m.result.unique_item_count, 2);
+        assert_eq!(m.gaps.len(), 1);
         assert_eq!(m.gaps[0].kind, "blocked");
-        assert_eq!(m.gaps[0].reason, "access_denied");
+        assert_eq!(m.gaps[0].range, "page_2");
+        let denom =
+            adapters::denominator_from_rows(vec![fixture_row("fixture_co")], vec![], vec![])
+                .unwrap();
+        let table = ProgressTable::from_discoveries(&denom, &[m]).unwrap();
+        let row = &table.rows[0];
+        // The axis summary stays conservative (other roles are still unqueried) and
+        // carries the denial, never `failed`.
+        assert!(!row.exploration["documents"].reached_evidence());
+        assert!(matches!(
+            &row.exploration["documents"],
+            ExplorationState::PartiallyEnumerated { unexplored }
+                if unexplored.contains("Blocked { reason: \"access_denied\" }")
+                    && !unexplored.contains("Failed")
+        ));
+        let scope = row
+            .scope_progress
+            .iter()
+            .find(|(key, _)| key.axis == "documents" && key.doc_role == Some(DocRole::Terms))
+            .map(|(_, progress)| progress)
+            .unwrap();
+        assert_eq!(
+            scope.state,
+            ExplorationState::Blocked {
+                reason: "access_denied".into()
+            }
+        );
+        assert_eq!(scope.gaps[0].reason, "access_denied");
+        assert_eq!(row.items.len(), 2);
+        for item in &row.items {
+            assert_eq!(item.doc_role, DocRole::Terms);
+            assert!(!item.is_acquired());
+            assert_eq!(
+                item.unacquired,
+                Some((AcquisitionStatus::Blocked, "access_denied".to_string()))
+            );
+        }
+        let terms = &table.coverage_of("fixture_co")[&DocRole::Terms];
+        assert_eq!(terms.expected, 2);
+        assert_eq!(terms.acquired, 0);
+        assert_eq!(terms.unacquired.get("blocked"), Some(&2));
+        assert_eq!(terms.unacquired.get("failed"), None);
+        assert_eq!(terms.rate(), None);
+        assert!(row.unknown_denominators[&DocRole::Terms]
+            .iter()
+            .any(|issue| issue.progress.gaps[0].reason == "access_denied"));
     }
 
     /// href 값은 원문 대소문자를 보존한다: 설정 문자열은 페이지의 실제 대소문자와
@@ -1511,7 +1633,13 @@ mod adapters {
     fn login_detection_decodes_credential_attributes() {
         for body in [
             "<form action='/list'><input type=\"pass&#119;ord\"></form>",
+            "<form action='/list'><input type=\"pass&#119ord\"></form>",
+            "<form><input type='&#112assword'></form>",
+            "<form><input type='pass&#x77ord'></form>",
             "<form><input type='PASS&#x57;ORD'></form>",
+            "<form><input type='PASS&#X57ORD'></form>",
+            "<form><input name='p&#119d'></form>",
+            "<form action='/lo&#103in'></form>",
             "<form><input type=' password '></form>",
             "<form><input name='user&#95;pw'></form>",
             "<form><input id='Login_PW'></form>",
@@ -1527,9 +1655,75 @@ mod adapters {
             "<html><a href='item.do?id=1'>list</a><p>password 안내</p></html>",
             "<form action='/search'><input type='text' name='q'></form>",
             "<form action='/list'><input type='pass'></form>",
+            // `&#x70a` is one hex reference (browsers read it the same way): not `password`.
+            "<form><input type='&#x70assword'></form>",
+            "<form><input type='pass&#119;ord2'></form>",
         ] {
             assert!(!adapters::looks_like_login(body.as_bytes()), "{}", body);
         }
+    }
+
+    /// 세미콜론 없는 숫자 참조(`type="pass&#119ord"`)도 브라우저는 `password`로 읽는다.
+    /// 전체 분류 경로: `action="/list"`와 일치하는 목록 링크가 있어도 200 응답은 로그인
+    /// 페이지로 분류되고, 매니페스트·진행표 어디에도 항목이나 완료 근거가 남지 않는다.
+    #[test]
+    fn unterminated_entity_password_field_is_blocked_not_enumerated() {
+        for body in [
+            "<html><form action=\"/list\"><input name='id'><input type=\"pass&#119ord\"></form>\
+             <a href='item.do?id=1'>list</a><a href='item.do?id=2'>list</a></html>",
+            "<html><form action=\"/list\"><input type='pass&#x77ord'></form>\
+             <a href='item.do?id=1'>list</a></html>",
+            "<html><form action=\"/list\"><input name=\"user&#95pw\"></form>\
+             <a href='item.do?id=1'>list</a></html>",
+        ] {
+            let mut ff = FixtureFetch::new();
+            allow_all_robots(&mut ff, "h.fixture");
+            ff.add("https://h.fixture/list?page=1", 200, body);
+            let mut gate = RobotsGate::new(86_400);
+            let mut en = Enumerator {
+                fetch: &ff,
+                gate: &mut gate,
+                clock: &clock,
+                page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+                rate_policy: "default".into(),
+            };
+            let m = en.run(&plan("https://h.fixture/list?page={cursor}"), &meta());
+            assert_eq!(
+                m.termination,
+                Termination::LoginPage {
+                    at_cursor: "1".into()
+                },
+                "{body}"
+            );
+            assert_eq!(m.pages.len(), 1, "{body}");
+            assert_eq!(m.pages[0].page_kind, "login_page", "{body}");
+            assert_eq!(m.pages[0].item_count, 0, "{body}");
+            assert_eq!(m.result.item_count, 0, "{body}");
+            assert_eq!(m.result.unique_item_count, 0, "{body}");
+            assert!(m.discovered_ids.is_empty(), "{body}");
+            assert!(!m.result.empty_success, "{body}");
+            assert_eq!(m.gaps.len(), 1, "{body}");
+            assert_eq!(m.gaps[0].kind, "blocked", "{body}");
+            assert_eq!(m.gaps[0].reason, "login_page", "{body}");
+            let denom =
+                adapters::denominator_from_rows(vec![fixture_row("fixture_co")], vec![], vec![])
+                    .unwrap();
+            let table = ProgressTable::from_discoveries(&denom, &[m]).unwrap();
+            let row = &table.rows[0];
+            assert_eq!(
+                row.exploration["product_list"],
+                ExplorationState::Blocked {
+                    reason: "login_page".into()
+                },
+                "{body}"
+            );
+            assert!(row.discovered_products.is_empty(), "{body}");
+            assert!(!row.unknown_denominators.is_empty(), "{body}");
+        }
+        // The same page without the credential field is a list.
+        assert!(!adapters::looks_like_login(
+            b"<html><form action=\"/list\"><input name='id'></form><a href='item.do?id=1'>list</a></html>"
+        ));
     }
 
     /// 공시 건수 0과 첫 페이지 0건은 검증된 빈 목록이다 — '총건수 도달'이 아니라

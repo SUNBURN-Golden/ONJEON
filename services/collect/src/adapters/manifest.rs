@@ -88,11 +88,15 @@ pub enum Termination {
     NextPointerAbsent { at_cursor: String },
     /// The host could not be checked under robots rules — the whole scope is on hold.
     RobotsHold { reason: String },
-    /// robots rules or a 401/403 forbid the path (`robots_disallow` | `robots_forbidden`).
+    /// robots rules forbid the path, or robots.txt itself answered 401/403
+    /// (`robots_disallow` | `robots_forbidden`).
     RobotsBlocked { reason: String },
     /// A 200 login page — the scope is blocked behind authentication, not enumerated.
     LoginPage { at_cursor: String },
-    /// The fetch failed (network/HTTP error page).
+    /// The list URL answered 401/403 — access denial. The scope is `blocked`, never
+    /// `failed` and never enumerated; the progress table keeps it `Blocked` throughout.
+    AccessDenied { at_cursor: String, http_status: u16 },
+    /// The fetch failed (network error, or an HTTP error page other than 401/403).
     FetchFailed { at_cursor: String, detail: String },
     /// A new cursor returned an identical page hash — the walk stalls here; the tail is
     /// unexplored, not done (Masterplan §23.2: a repeated last page is not a success).

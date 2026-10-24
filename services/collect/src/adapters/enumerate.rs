@@ -18,7 +18,9 @@
 //!   tail is unexplored. A repeated last page is never a successful end.
 //! - `stall`: no next pointer but the advertised total was not reached — unexplored tail.
 //! - `max_pages_reached` / `fetch_failed` / `parse_failed` — unexplored or failed ranges.
-//! - `robots_hold` / `robots_blocked` / `login_page` — never enumerated, never counted.
+//! - `robots_hold` / `robots_blocked` / `login_page` / `access_denied` — never
+//!   enumerated, never counted; a 401/403 from the list URL stays `blocked` all the way
+//!   into the institution progress table, it is not a `failed` fetch.
 
 use std::collections::BTreeSet;
 
@@ -182,19 +184,17 @@ impl<'a> Enumerator<'a> {
                             at_cursor: cursor.clone(),
                         }
                     }
+                    // 401/403 is access denial — `blocked`, not `failed`, in the gap
+                    // record, the termination and the exploration state alike.
+                    PageClass::ErrorPage if resp.status == 401 || resp.status == 403 => {
+                        gaps.push(gap("blocked", &format!("page_{cursor}"), "access_denied"));
+                        Termination::AccessDenied {
+                            at_cursor: cursor.clone(),
+                            http_status: resp.status,
+                        }
+                    }
                     PageClass::ErrorPage => {
-                        // 401/403 is access denial — `blocked`, not `failed` (the
-                        // GapRecord kinds count access denial under `blocked`).
-                        let denied = resp.status == 401 || resp.status == 403;
-                        gaps.push(gap(
-                            if denied { "blocked" } else { "failed" },
-                            &format!("page_{cursor}"),
-                            if denied {
-                                "access_denied"
-                            } else {
-                                "http_error"
-                            },
-                        ));
+                        gaps.push(gap("failed", &format!("page_{cursor}"), "http_error"));
                         Termination::FetchFailed {
                             at_cursor: cursor.clone(),
                             detail: format!("http_status_{}", resp.status),
@@ -535,6 +535,9 @@ pub fn exploration_state_of(t: &Termination) -> super::progress::ExplorationStat
         },
         Termination::LoginPage { .. } => S::Blocked {
             reason: "login_page".into(),
+        },
+        Termination::AccessDenied { .. } => S::Blocked {
+            reason: "access_denied".into(),
         },
         Termination::FetchFailed { detail, .. } => S::Failed {
             reason: detail.clone(),

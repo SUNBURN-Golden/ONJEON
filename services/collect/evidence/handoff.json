@@ -1,6 +1,6 @@
 {
   "task_id": "T-DT-04",
-  "fix_round": 4,
+  "fix_round": 5,
   "purpose": {
     "A": [
       "A1",
@@ -34,8 +34,8 @@
       "R10"
     ]
   },
-  "base_sha": "7292cf3e0c340f280acbf375bfaf9f3cbc697412",
-  "target_sha": "7292cf3e0c340f280acbf375bfaf9f3cbc697412",
+  "base_sha": "c659ce8fedd22adde4e1796fa1e93456f6752f32",
+  "target_sha": "c659ce8fedd22adde4e1796fa1e93456f6752f32",
   "target_sha_scope": "Input review commit plus uncommitted source bytes pinned by verification.json files_sha256. The supervisor creates the final commit and must re-pin verification and the independent review to that SHA.",
   "author": {
     "role": "implementation_and_self_verification",
@@ -46,69 +46,94 @@
   "review": {
     "input_reviewer_role": "st_re_review",
     "input_verdict": "BLOCK",
-    "input_target_sha": "7292cf3e0c340f280acbf375bfaf9f3cbc697412",
+    "input_target_sha": "c659ce8fedd22adde4e1796fa1e93456f6752f32",
+    "input_target_matches_pr_head": "PR #144 head per the review",
     "fix_review_status": "pending_supervisor_final_sha_and_different_author_family_reviewer"
   },
   "findings": [
     {
       "id": 1,
       "priority": "P1",
-      "title": "Commented inventory can become a successful empty list",
+      "title": "Regex literals can fabricate verified empty inventories",
       "status": "addressed",
-      "change": "parse_lifeplanet reads `var result = …` only from the executable text of real, non-inert JavaScript script elements collected by the HTML tokenizer; a minimal JS lexer skips comments and string/template literals and requires a statement-boundary `var`. HTML comments, templates, data-typed scripts, JS comments, string literals and text nodes are ParseFailed (never empty_success); two executable statements are ambiguous.",
+      "change": "js_var_assignment_tails is a lexically sound mini lexer returning Result: regex literals are tokenized by previous-token context (regex after start/operator/( , [ { ; :/expression keyword/if-while-for-with head; division after identifier/number/literal/)/]); `/` after `}` or after ++/--, template substitutions `${`, unterminated strings/comments/regexes and unbalanced brackets are rejected as unsupported lexical contexts (ParseFailed, never EmptyPage); `var result` counts only at brace depth 0; Annex B `-->` line comments are comments; js_statement_ends requires the statement to end where the JSON ends (`;`, end, or a line break followed by a non-continuing word). The reviewer's `/;var result = {…}/` decoy yields `inventory variable absent`.",
       "tests": [
-        "adapters::regression::adapters_lifeplanet_inventory_requires_executable_script_context"
+        "adapters::regression::adapters_lifeplanet_inventory_rejects_unclassifiable_script_contexts"
       ]
     },
     {
       "id": 2,
       "priority": "P1",
-      "title": "Valid login HTML can be counted as successful enumeration",
+      "title": "Encoded password fields without a semicolon bypass login detection",
       "status": "addressed",
-      "change": "looks_like_login first runs the HTML tokenizer and compares entity-decoded, trimmed, case-folded attribute values of real tags (input type/name/id/autocomplete, form action/onsubmit; inert contexts included; `auth` added to action markers). The legacy raw-text scan is kept as a second, conservative pass.",
+      "change": "decode_entity decodes numeric character references with or without the trailing `;` (maximal digit run, 0/surrogates/out-of-range → U+FFFD), and legacy named references amp/lt/gt/quot without `;` unless `=` or an alphanumeric follows (HTML attribute-value rule). `pass&#119ord` is a password input on the tokenizer path; the full classification path (classify → Enumerator → ProgressTable) records login_page/blocked/Blocked with zero items even when action=\"/list\" and matching list links are present. `&#x70assword` is `&#x70a`+`ssword` for browsers and for this decoder — not a marker.",
       "tests": [
-        "adapters::entity_encoded_login_form_is_blocked_not_enumerated",
-        "adapters::login_detection_decodes_credential_attributes"
+        "adapters::unterminated_entity_password_field_is_blocked_not_enumerated",
+        "adapters::login_detection_decodes_credential_attributes (7 positive + 2 negative cases added)"
       ]
     },
     {
       "id": 3,
       "priority": "P1",
-      "title": "The documented merge gate still fails (check_deps)",
-      "status": "pre_existing_outside_allowed_paths",
-      "change": "Unchanged. dependency-boundary.json now records that the same three ontology findings reproduce on a clean export of origin/main, that this branch introduces zero findings and none inside allowed paths, and that the checker is in neither .github/workflows nor the supervisor test command. No waiver or suppression. The PR body no longer labels it as this PR's merge blocker but as a repository open item needing an authorized task on packages/ontology or infra/ci/deps.json.",
-      "tests": []
+      "title": "Published PR metadata fails acceptance",
+      "status": "compliant_body_prepared_pinned_to_input_head_supervisor_must_publish",
+      "change": "services/collect/evidence/PR_본문.md is rewritten for fix round 5 and pinned to input head c659ce8fedd22adde4e1796fa1e93456f6752f32 (the PR #144 head the review confirmed), with A/Q/L/I/M, R IDs, task ID, author role, execution path and no model identifier. This node cannot call GitHub; the supervisor's open_pr() writes the PR body once at first build and never rewrites it. Supervisor action after committing: `gh pr edit 144 --body-file services/collect/evidence/PR_본문.md`, fill in the final commit SHA, and omit the auto-generated `Builder:` line."
     },
     {
       "id": 4,
       "priority": "P2",
-      "title": "Advertised zero bypasses empty-list reconciliation",
+      "title": "HTTP access denial becomes failed in institution progress",
       "status": "addressed",
-      "change": "AdvertisedTotalReached now requires total > 0, unique >= total and no endpoint-reported next cursor (Cursor pagination). Zero items with total zero goes through the empty-page reconciliation: first page without next → EmptyPage/empty_success/EnumeratedEmpty; with next cursor → keep walking. Items under an advertised zero or a cursor past the total are contradictions the walk follows to the list's own end.",
+      "change": "New Termination::AccessDenied { at_cursor, http_status } (serde kind `access_denied`) for 401/403 from the list URL; exploration_state_of maps it to ExplorationState::Blocked { reason: \"access_denied\" }, so scope_progress, the axis summary, DenominatorItem.unacquired (AcquisitionStatus::Blocked) and RoleCoverage.unacquired[\"blocked\"] all stay blocked. Other HTTP errors remain FetchFailed → Failed.",
       "tests": [
-        "adapters::advertised_zero_with_empty_first_page_is_a_verified_empty_list",
-        "adapters::advertised_zero_with_next_cursor_keeps_walking",
-        "adapters::advertised_total_with_endpoint_next_cursor_is_not_termination"
+        "adapters::http_401_403_list_page_is_blocked_throughout"
       ]
     },
     {
       "id": 5,
-      "priority": "P2",
-      "title": "Published PR metadata fails acceptance",
-      "status": "compliant_body_prepared_supervisor_must_publish",
-      "change": "services/collect/evidence/PR_본문.md follows the PR template labels verbatim with A/Q/L/I/M, R IDs, task ID, author role and execution path, input target SHA and no model identifier. The live PR #144 body was generated once by the supervisor at first build and is not editable from this node (no GitHub calls). Supervisor action: `gh pr edit 144 --body-file services/collect/evidence/PR_본문.md`, fill in the final commit SHA, and do not include the auto-generated `Builder:` line that carries a model identifier."
+      "priority": "cleanup",
+      "title": "Historical JSON records inside src/adapters",
+      "status": "moved",
+      "change": "services/collect/src/adapters/verification-fix4.json and verification-fix5.json (both historical_only, superseded) moved to services/collect/evidence/historical/ via git mv so no temporary data remains in the product source tree."
     }
   ],
   "mutation_check": {
-    "method": "git checkout HEAD -- services/collect/src/adapters/{listpage,enumerate}.rs; cargo test -p onjeon-collect adapters --no-fail-fast; restore fixed files",
-    "new_tests_failing_on_input_sha": 6,
-    "new_tests_passing_after_fix": 6
+    "method": "copy fixed files to /tmp; apply one mutant; cargo test -p onjeon-collect adapters --no-fail-fast; restore; cmp",
+    "mutants": [
+      {
+        "mutant": "listpage.rs reverted to input SHA c659ce8 (enumerate.rs/manifest.rs fixed)",
+        "failing_tests": [
+          "adapters_lifeplanet_inventory_rejects_unclassifiable_script_contexts",
+          "login_detection_decodes_credential_attributes",
+          "unterminated_entity_password_field_is_blocked_not_enumerated"
+        ],
+        "other_tests": "all pass"
+      },
+      {
+        "mutant": "enumerate.rs: 401/403 guard disabled (`if false`), so denial emits FetchFailed as at the input SHA",
+        "failing_tests": [
+          "http_401_403_list_page_is_blocked_throughout"
+        ],
+        "other_tests": "all pass"
+      },
+      {
+        "mutant": "enumerate.rs: AccessDenied mapped to ExplorationState::Failed",
+        "failing_tests": [
+          "http_401_403_list_page_is_blocked_throughout"
+        ],
+        "other_tests": "all pass"
+      }
+    ],
+    "note": "A full revert of enumerate.rs/manifest.rs to the input SHA does not compile because the new test names Termination::AccessDenied; the two targeted mutants above exercise the behaviour change at runtime instead.",
+    "fixed_source_result": "19 library + 50 integration adapter tests pass"
   },
   "verification": {
     "command": "python3 -B services/collect/tests/verify.py",
     "canonical_results": "services/collect/evidence/verification.json",
-    "adapter_tests_passed": 67,
-    "adapter_tests_breakdown": "18 library regression + 49 integration",
+    "adapter_tests_passed": 69,
+    "adapter_tests_breakdown": "19 library regression + 50 integration",
+    "new_tests_this_round": 3,
+    "extended_tests_this_round": 1,
     "required_test_id": {
       "acquisition-reason-not-counted": "adapters::acquisition_reason_not_counted (verification-02.log)"
     },
@@ -122,7 +147,7 @@
     "services/collect/src/adapters/manifest.rs",
     "services/collect/src/adapters/regression.rs",
     "services/collect/tests/adapters.rs",
-    "services/collect/evidence/*"
+    "services/collect/evidence/* (incl. historical/ moved from src/adapters/)"
   ],
   "network_enumeration_performed": false,
   "origin_main_sha_compared": "b0b6942512996990ee2e408c809a8153f3fa3dd7",

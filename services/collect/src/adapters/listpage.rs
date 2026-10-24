@@ -8,9 +8,11 @@
 //! Item extraction is declarative ([`ListParser`]) so each institution adapter configures
 //! the shape its site actually publishes instead of sharing one guessed selector. Both
 //! classification and extraction read markup through the same context-aware tokenizer:
-//! credential markers are compared entity-decoded on real tags, and an embedded
-//! inventory counts only from executable script text — never from a comment, a
-//! template, a data block, a JS comment or a string literal.
+//! credential markers are compared entity-decoded on real tags (numeric references with
+//! or without the `;`, as browsers read them), and an embedded inventory counts only
+//! from a top-level statement in executable script text — never from a comment, a
+//! template, a data block, a JS comment, a string, a template literal or a regular
+//! expression literal. Script text the lexer cannot classify fails closed.
 
 use onjeon_contracts::DocRole;
 
@@ -82,7 +84,8 @@ fn body_is_markup(body: &[u8]) -> bool {
 ///
 /// 1. The HTML tokenizer ([`parse_html_context`]) reads every real tag and compares the
 ///    *entity-decoded*, trimmed, case-folded attribute values — `type="pass&#119;ord"`
-///    is a password input, `action="/auth"` a credential form. Tags in inert contexts
+///    and `type="pass&#119ord"` (no `;`, still decoded by browsers) are password inputs,
+///    `action="/auth"` a credential form. Tags in inert contexts
 ///    (`template`, `svg`, …) still count: a login modal kept in a template is still a
 ///    login page, not a list.
 /// 2. The legacy raw-text scan over the whole body, kept so markers inside script
@@ -355,24 +358,33 @@ fn parse_lifeplanet(body: &[u8], document_field: Option<&str>) -> Result<ParsedP
     }
     let html = std::str::from_utf8(body).map_err(|_| "inventory is not UTF-8")?;
     // The inventory is the `var result = {…}` statement the page's own script executes
-    // (C_life §2). Only executable script text can supply it: an HTML comment, a
-    // template, a data-typed script, a JS comment or a string literal that merely
-    // *contains* the statement is not an inventory — and a page carrying two such
-    // statements is ambiguous, not a list.
+    // (C_life §2). Only a top-level statement in executable script text can supply it:
+    // an HTML comment, a template, a data-typed script, a JS comment, a string, a
+    // template literal, a regular-expression literal or a function body that merely
+    // *contains* the statement is not an inventory — a page carrying two such
+    // statements is ambiguous, not a list — and script text the lexer cannot classify
+    // (see [`js_var_assignment_tails`]) is a parse failure, never an empty list.
     let context = parse_html_context(html)?;
-    let mut tails = context
-        .scripts
-        .iter()
-        .flat_map(|script| js_var_assignment_tails(script, "result"));
-    let tail = tails.next().ok_or("inventory variable absent")?;
-    if tails.next().is_some() {
-        return Err("inventory variable ambiguous");
+    let mut tails = Vec::new();
+    for script in &context.scripts {
+        tails.extend(js_var_assignment_tails(script, "result")?);
     }
-    let data = serde_json::Deserializer::from_str(tail)
-        .into_iter::<serde_json::Value>()
+    let tail = match tails.as_slice() {
+        [] => return Err("inventory variable absent"),
+        [tail] => *tail,
+        _ => return Err("inventory variable ambiguous"),
+    };
+    let mut stream = serde_json::Deserializer::from_str(tail).into_iter::<serde_json::Value>();
+    let data = stream
         .next()
         .ok_or("inventory data absent")?
         .map_err(|_| "inventory JSON malformed")?;
+    // The statement must end where the JSON ends: `var result = {…}, result = {…}`,
+    // `{…}.outData.prdList.slice(0, 0)` or `{…}\n(x)` each leave the page's `result`
+    // something other than the object parsed here.
+    if !js_statement_ends(&tail[stream.byte_offset()..]) {
+        return Err("inventory statement not terminated");
+    }
     let rows = json_path(&data, "outData.prdList")
         .and_then(|v| v.as_array())
         .ok_or("inventory rows absent")?;
@@ -787,39 +799,61 @@ fn unescape_entities(s: &str) -> String {
     out
 }
 
-/// `name;` at the head of `tail` → (decoded char, bytes consumed including the `;`).
-/// The named set is the HTML-required five plus `&apos;`; numeric decimal/hex
-/// references are decoded by code point.
+/// A character reference at the head of `tail` → (decoded char, bytes consumed), the way
+/// a browser reads one inside an attribute value:
+///
+/// - Numeric references (`&#119;`, `&#x77;`) decode with **or without** the `;` — the
+///   semicolon is optional in HTML, so `pass&#119ord` is `password`. Zero, surrogates
+///   and out-of-range values become U+FFFD; the C1 range is left as code points (the
+///   Windows-1252 remap cannot produce an ASCII marker, so it cannot change a match).
+/// - Named references are the HTML-required five plus `&apos;`. Without the `;`, only
+///   the legacy `amp`/`lt`/`gt`/`quot` decode, and not when `=` or an alphanumeric
+///   follows (the attribute-value rule that keeps `?a=1&ampid=2` literal).
+///
+/// Anything else stays literal.
 fn decode_entity(tail: &str) -> Option<(char, usize)> {
-    let end = tail.find(';')?;
-    let name = &tail[..end];
-    if name.is_empty() || name.len() > 10 {
+    let bytes = tail.as_bytes();
+    if bytes.first() == Some(&b'#') {
+        let (digits_start, radix) = match bytes.get(1) {
+            Some(b'x' | b'X') => (2, 16),
+            _ => (1, 10),
+        };
+        let digits_end = digits_start
+            + bytes[digits_start..]
+                .iter()
+                .take_while(|b| (**b as char).is_digit(radix))
+                .count();
+        if digits_end == digits_start {
+            return None;
+        }
+        let c = match u32::from_str_radix(&tail[digits_start..digits_end], radix) {
+            Ok(0) | Ok(0xD800..=0xDFFF) | Err(_) => '\u{FFFD}',
+            Ok(v) => char::from_u32(v).unwrap_or('\u{FFFD}'),
+        };
+        let consumed = digits_end + usize::from(bytes.get(digits_end) == Some(&b';'));
+        return Some((c, consumed));
+    }
+    let name_end = bytes
+        .iter()
+        .take_while(|b| b.is_ascii_alphanumeric())
+        .count();
+    let terminated = bytes.get(name_end) == Some(&b';');
+    let c = match (&tail[..name_end], terminated) {
+        ("amp" | "AMP", _) => '&',
+        ("lt" | "LT", _) => '<',
+        ("gt" | "GT", _) => '>',
+        ("quot" | "QUOT", _) => '"',
+        ("apos", true) => '\'',
+        _ => return None,
+    };
+    if !terminated
+        && bytes
+            .get(name_end)
+            .is_some_and(|b| *b == b'=' || b.is_ascii_alphanumeric())
+    {
         return None;
     }
-    let c = match name {
-        "amp" => '&',
-        "lt" => '<',
-        "gt" => '>',
-        "quot" => '"',
-        "apos" => '\'',
-        _ => {
-            let digits = name.strip_prefix('#')?;
-            let v = match digits
-                .strip_prefix('x')
-                .or_else(|| digits.strip_prefix('X'))
-            {
-                Some(h) if !h.is_empty() && h.bytes().all(|b| b.is_ascii_hexdigit()) => {
-                    u32::from_str_radix(h, 16).ok()?
-                }
-                _ if !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()) => {
-                    digits.parse::<u32>().ok()?
-                }
-                _ => return None,
-            };
-            char::from_u32(v)?
-        }
-    };
-    Some((c, end + 1))
+    Some((c, name_end + usize::from(terminated)))
 }
 
 fn query_value(href: &str, key: &str) -> Option<String> {
@@ -836,74 +870,304 @@ fn query_value(href: &str, key: &str) -> Option<String> {
     None
 }
 
-/// The text after `=` of every `var <name> = …` statement in executable script text.
+/// Keywords after which a `/` begins a regular-expression literal, never a division.
+const REGEX_AFTER_KEYWORDS: [&str; 15] = [
+    "return",
+    "typeof",
+    "instanceof",
+    "in",
+    "of",
+    "new",
+    "delete",
+    "void",
+    "throw",
+    "case",
+    "do",
+    "else",
+    "yield",
+    "await",
+    "extends",
+];
+
+/// Keywords whose parenthesised head is followed by a statement — `if (x) /re/.test(y)`.
+const PAREN_HEAD_KEYWORDS: [&str; 4] = ["if", "while", "for", "with"];
+
+/// The previous significant token of the script lexer — what decides whether a `/` is a
+/// division or the start of a regular-expression literal.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum JsToken<'a> {
+    Start,
+    /// An identifier, keyword or number (one maximal run of identifier bytes).
+    Word(&'a str),
+    /// The end of a string, template or regular-expression literal.
+    Literal,
+    Punct(u8),
+    /// `)` — `head` when the matching `(` followed `if`/`while`/`for`/`with`.
+    CloseParen {
+        head: bool,
+    },
+    CloseBracket,
+    CloseBrace,
+}
+
+/// The text after `=` of every top-level `var <name> = …` statement in executable script
+/// text, or an error when the script uses a lexical context this scanner does not
+/// classify.
 ///
-/// A minimal JavaScript lexer, not an evaluator: line/block comments and string or
-/// template literals are skipped, and `var` must start a statement (the previous
-/// significant byte is not an identifier byte — `foo.var result` and `myvar result`
-/// are not declarations). `var result == x` is a comparison, not an assignment. Regex
-/// literals are not tokenized; a quote inside one can only hide a later statement,
-/// which fails the parse — never fabricates an inventory.
-fn js_var_assignment_tails<'a>(script: &'a str, name: &str) -> Vec<&'a str> {
+/// A minimal JavaScript lexer, not an evaluator or a parser. It tokenizes line and block
+/// comments (including Annex B `-->` line comments at a line start), string literals,
+/// template literals without substitutions, regular-expression literals and
+/// punctuators, and keeps the identifier/number word stream so that `var` must be a
+/// whole word (`foo.var result` and `myvar result` are not declarations) and
+/// `var result == x` is a comparison, not an assignment. Only a statement at brace depth
+/// zero counts: a `var result` inside a function body is not the page's inventory.
+///
+/// Soundness over coverage: whatever the lexer skips can only *hide* a statement, which
+/// fails the parse; whatever it cannot classify is an error, never a guess. A `/` is a
+/// regex start after the script start, an operator, `(`/`,`/`[`/`{`/`;`/`:`, an
+/// expression keyword or an `if`/`while`/`for`/`with` head, and a division after an
+/// identifier, number, literal, `)` or `]`. After `}` or after `++`/`--` both readings
+/// are possible, so the script is rejected. Template substitutions (`${`), unterminated
+/// strings, comments or regexes and unbalanced brackets are rejected the same way — a
+/// browser would not run such a script, so nothing in it can define `result`.
+fn js_var_assignment_tails<'a>(script: &'a str, name: &str) -> Result<Vec<&'a str>, &'static str> {
     fn is_ident(b: u8) -> bool {
-        b.is_ascii_alphanumeric() || b == b'_' || b == b'$' || b == b'.'
+        b.is_ascii_alphanumeric() || b"_$.\\".contains(&b) || b >= 0x80
     }
     let bytes = script.as_bytes();
     let mut tails = Vec::new();
     let mut at = 0;
-    let mut prev: Option<u8> = None;
+    let mut prev = JsToken::Start;
+    let mut prev2 = JsToken::Start;
+    let mut parens: Vec<bool> = Vec::new();
+    let mut braces = 0usize;
+    let mut line_start = true;
     while at < bytes.len() {
         let b = bytes[at];
-        if b == b'/' && bytes.get(at + 1) == Some(&b'/') {
-            at = bytes[at..]
-                .iter()
-                .position(|c| *c == b'\n')
-                .map_or(bytes.len(), |n| at + n + 1);
-            continue;
-        }
-        if b == b'/' && bytes.get(at + 1) == Some(&b'*') {
-            at = bytes[at + 2..]
-                .windows(2)
-                .position(|w| w == b"*/")
-                .map_or(bytes.len(), |n| at + 2 + n + 2);
-            continue;
-        }
-        if matches!(b, b'\'' | b'"' | b'`') {
+        if b == b'\n' || b == b'\r' {
+            line_start = true;
             at += 1;
-            while at < bytes.len() {
-                match bytes[at] {
-                    b'\\' => at += 2,
-                    c if c == b => break,
-                    b'\n' if b != b'`' => break,
-                    _ => at += 1,
-                }
-            }
-            at += 1;
-            prev = Some(b);
             continue;
         }
         if b.is_ascii_whitespace() {
             at += 1;
             continue;
         }
-        if bytes[at..].starts_with(b"var")
-            && bytes.get(at + 3).is_some_and(u8::is_ascii_whitespace)
-            && !prev.is_some_and(is_ident)
-        {
-            let rest = script.get(at + 3..).unwrap_or("").trim_start();
-            if let Some(after_name) = rest.strip_prefix(name) {
-                if !after_name.bytes().next().is_some_and(is_ident) {
-                    let after_name = after_name.trim_start();
-                    if after_name.starts_with('=') && !after_name.starts_with("==") {
-                        tails.push(after_name[1..].trim_start());
-                    }
+        if b == b'/' && bytes.get(at + 1) == Some(&b'/') {
+            at = js_line_end(bytes, at);
+            continue;
+        }
+        if b == b'/' && bytes.get(at + 1) == Some(&b'*') {
+            let end = bytes[at + 2..]
+                .windows(2)
+                .position(|w| w == b"*/")
+                .map(|n| at + 2 + n)
+                .ok_or("unsupported script lexical context: unterminated block comment")?;
+            if bytes[at..end].iter().any(|c| matches!(c, b'\n' | b'\r')) {
+                line_start = true;
+            }
+            at = end + 2;
+            continue;
+        }
+        if line_start && bytes[at..].starts_with(b"-->") {
+            at = js_line_end(bytes, at);
+            continue;
+        }
+        line_start = false;
+        let token = match b {
+            b'\'' | b'"' | b'`' => {
+                at = js_string_end(bytes, at)?;
+                JsToken::Literal
+            }
+            b'/' => {
+                if js_slash_starts_regex(prev, prev2)? {
+                    at = js_regex_end(bytes, at)?;
+                    JsToken::Literal
+                } else {
+                    at += 1;
+                    JsToken::Punct(b'/')
                 }
             }
-        }
-        prev = Some(b);
-        at += 1;
+            b'(' => {
+                parens.push(matches!(prev, JsToken::Word(w) if PAREN_HEAD_KEYWORDS.contains(&w)));
+                at += 1;
+                JsToken::Punct(b'(')
+            }
+            b')' => {
+                let head = parens
+                    .pop()
+                    .ok_or("unsupported script lexical context: unbalanced parenthesis")?;
+                at += 1;
+                JsToken::CloseParen { head }
+            }
+            b']' => {
+                at += 1;
+                JsToken::CloseBracket
+            }
+            b'{' => {
+                braces += 1;
+                at += 1;
+                JsToken::Punct(b'{')
+            }
+            b'}' => {
+                braces = braces
+                    .checked_sub(1)
+                    .ok_or("unsupported script lexical context: unbalanced brace")?;
+                at += 1;
+                JsToken::CloseBrace
+            }
+            _ if is_ident(b) => {
+                let end = at + bytes[at..].iter().take_while(|c| is_ident(**c)).count();
+                let word = &script[at..end];
+                if word == "var" && braces == 0 {
+                    let rest = script[end..].trim_start();
+                    if let Some(after_name) = rest.strip_prefix(name) {
+                        if !after_name.bytes().next().is_some_and(is_ident) {
+                            let after_name = after_name.trim_start();
+                            if after_name.starts_with('=') && !after_name.starts_with("==") {
+                                tails.push(after_name[1..].trim_start());
+                            }
+                        }
+                    }
+                }
+                at = end;
+                JsToken::Word(word)
+            }
+            _ => {
+                at += 1;
+                JsToken::Punct(b)
+            }
+        };
+        prev2 = prev;
+        prev = token;
     }
-    tails
+    if !parens.is_empty() || braces != 0 {
+        return Err("unsupported script lexical context: unbalanced brackets");
+    }
+    Ok(tails)
+}
+
+/// Division or regular-expression literal? See [`js_var_assignment_tails`].
+fn js_slash_starts_regex(prev: JsToken<'_>, prev2: JsToken<'_>) -> Result<bool, &'static str> {
+    Ok(match prev {
+        JsToken::Start => true,
+        JsToken::Word(word) => REGEX_AFTER_KEYWORDS.contains(&word),
+        JsToken::Literal | JsToken::CloseBracket | JsToken::CloseParen { head: false } => false,
+        JsToken::CloseParen { head: true } => true,
+        JsToken::CloseBrace => {
+            return Err("unsupported script lexical context: slash after brace");
+        }
+        JsToken::Punct(sign @ (b'+' | b'-')) if prev2 == JsToken::Punct(sign) => {
+            return Err("unsupported script lexical context: slash after ++ or --");
+        }
+        JsToken::Punct(_) => true,
+    })
+}
+
+/// Index just past the line terminator that ends the line starting at `at` (or the end).
+fn js_line_end(bytes: &[u8], at: usize) -> usize {
+    bytes[at..]
+        .iter()
+        .position(|c| matches!(c, b'\n' | b'\r'))
+        .map_or(bytes.len(), |n| at + n + 1)
+}
+
+/// Index just past the string or template literal opening at `at`.
+fn js_string_end(bytes: &[u8], at: usize) -> Result<usize, &'static str> {
+    let quote = bytes[at];
+    let mut at = at + 1;
+    while let Some(&c) = bytes.get(at) {
+        match c {
+            b'\\' => at += 2,
+            _ if c == quote => return Ok(at + 1),
+            b'\n' | b'\r' if quote != b'`' => {
+                return Err("unsupported script lexical context: unterminated string");
+            }
+            b'$' if quote == b'`' && bytes.get(at + 1) == Some(&b'{') => {
+                return Err("unsupported script lexical context: template substitution");
+            }
+            _ => at += 1,
+        }
+    }
+    Err("unsupported script lexical context: unterminated string")
+}
+
+/// Index just past the regular-expression literal (and its flags) opening at `at`.
+fn js_regex_end(bytes: &[u8], at: usize) -> Result<usize, &'static str> {
+    let mut at = at + 1;
+    let mut in_class = false;
+    while let Some(&c) = bytes.get(at) {
+        match c {
+            b'\\' => at += 2,
+            b'\n' | b'\r' => {
+                return Err("unsupported script lexical context: unterminated regex");
+            }
+            b'[' => {
+                in_class = true;
+                at += 1;
+            }
+            b']' => {
+                in_class = false;
+                at += 1;
+            }
+            b'/' if !in_class => {
+                at += 1;
+                while bytes
+                    .get(at)
+                    .is_some_and(|f| f.is_ascii_alphanumeric() || *f == b'_' || *f == b'$')
+                {
+                    at += 1;
+                }
+                return Ok(at);
+            }
+            _ => at += 1,
+        }
+    }
+    Err("unsupported script lexical context: unterminated regex")
+}
+
+/// Does the script text after a parsed `var <name> = <value>` end that statement? Empty
+/// text or a `;` does (comments skipped); so does a line break followed by a word that
+/// cannot continue the expression (`var`, `function`, an identifier). Anything that
+/// could extend the value — `,` (a second declarator), `.`/`(`/`[` (member or call), an
+/// operator, or `in`/`instanceof` across the line break — does not.
+fn js_statement_ends(rest: &str) -> bool {
+    let bytes = rest.as_bytes();
+    let mut at = 0;
+    let mut crossed_line = false;
+    loop {
+        match bytes.get(at) {
+            None => return true,
+            Some(b';') => return true,
+            Some(b'\n' | b'\r') => {
+                crossed_line = true;
+                at += 1;
+            }
+            Some(c) if c.is_ascii_whitespace() => at += 1,
+            Some(b'/') if bytes.get(at + 1) == Some(&b'/') => {
+                crossed_line = true;
+                at = js_line_end(bytes, at);
+            }
+            Some(b'/') if bytes.get(at + 1) == Some(&b'*') => {
+                let Some(n) = bytes[at + 2..].windows(2).position(|w| w == b"*/") else {
+                    return false;
+                };
+                crossed_line |= bytes[at..at + 2 + n]
+                    .iter()
+                    .any(|c| matches!(c, b'\n' | b'\r'));
+                at += 2 + n + 2;
+            }
+            Some(_) => break,
+        }
+    }
+    if !crossed_line {
+        return false;
+    }
+    let word_len = bytes[at..]
+        .iter()
+        .take_while(|c| c.is_ascii_alphanumeric() || **c == b'_' || **c == b'$')
+        .count();
+    word_len > 0 && !["in", "instanceof"].contains(&&rest[at..at + word_len])
 }
 
 /// First run of digits after a verified marker, with separators stripped.

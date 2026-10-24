@@ -73,14 +73,16 @@ pub struct PageRecord {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Termination {
-    /// The unique item count reached the advertised total.
+    /// The unique item count reached the advertised (non-zero) total and the endpoint
+    /// reported no further cursor. A zero total is reconciled through `EmptyPage`.
     AdvertisedTotalReached {
         unique_items: u64,
         advertised_total: u64,
     },
     /// The first fetched page came back with zero items while the endpoint advertised
-    /// no total and offered no next pointer — a verified empty list. An empty page that
-    /// contradicts the endpoint never reaches this variant (see `Stall`).
+    /// no total (or advertised zero) and offered no next pointer — a verified empty
+    /// list. An empty page that contradicts the endpoint never reaches this variant
+    /// (see `Stall`; a reported next cursor keeps the walk going).
     EmptyPage { at_cursor: String },
     /// The last page declared no next pointer (no advertised total existed or it matched).
     NextPointerAbsent { at_cursor: String },

@@ -6,7 +6,11 @@
 //! `LoginPage` records a `blocked` range, never an item count.
 //!
 //! Item extraction is declarative ([`ListParser`]) so each institution adapter configures
-//! the shape its site actually publishes instead of sharing one guessed selector.
+//! the shape its site actually publishes instead of sharing one guessed selector. Both
+//! classification and extraction read markup through the same context-aware tokenizer:
+//! credential markers are compared entity-decoded on real tags, and an embedded
+//! inventory counts only from executable script text — never from a comment, a
+//! template, a data block, a JS comment or a string literal.
 
 use onjeon_contracts::DocRole;
 
@@ -74,8 +78,83 @@ fn body_is_markup(body: &[u8]) -> bool {
 /// list. Conservative on purpose: a password input or a login-named form action is enough;
 /// plain marketing text saying "로그인" without a form does not classify.
 ///
-/// Case-insensitive ASCII scan over tags and attributes.
+/// Two scans, either of which classifies (the safe direction is `blocked`, never a count):
+///
+/// 1. The HTML tokenizer ([`parse_html_context`]) reads every real tag and compares the
+///    *entity-decoded*, trimmed, case-folded attribute values — `type="pass&#119;ord"`
+///    is a password input, `action="/auth"` a credential form. Tags in inert contexts
+///    (`template`, `svg`, …) still count: a login modal kept in a template is still a
+///    login page, not a list.
+/// 2. The legacy raw-text scan over the whole body, kept so markers inside script
+///    templates or malformed markup the tokenizer refuses keep classifying as before.
 pub fn looks_like_login(body: &[u8]) -> bool {
+    if std::str::from_utf8(body)
+        .ok()
+        .and_then(|html| parse_html_context(html).ok())
+        .is_some_and(|context| context.credential_form)
+    {
+        return true;
+    }
+    login_markers_in_raw_text(body)
+}
+
+/// Input names/ids sites give credential fields (compared entity-decoded, case-folded).
+const CREDENTIAL_FIELD_NAMES: [&str; 10] = [
+    "pwd",
+    "passwd",
+    "password",
+    "userpw",
+    "loginpw",
+    "mb_password",
+    "user_pw",
+    "login_pw",
+    "userpwd",
+    "loginpwd",
+];
+
+/// Substrings of a form `action` that post to a credential endpoint.
+const CREDENTIAL_ACTION_MARKERS: [&str; 7] = [
+    "login", "logon", "signin", "sign-in", "sign_in", "member", "auth",
+];
+
+/// Entity-decoded, trimmed, ASCII-case-folded attribute value — how a browser compares
+/// enumerated attributes such as `type`.
+fn decoded_attr(tag: &HtmlTag<'_>, name: &str) -> Option<String> {
+    tag.attrs
+        .iter()
+        .find(|(key, _)| key == name)
+        .map(|(_, value)| unescape_entities(value).trim().to_ascii_lowercase())
+}
+
+/// Does one real start tag mark a credential form?
+fn credential_tag(tag: &HtmlTag<'_>) -> bool {
+    if tag.closing {
+        return false;
+    }
+    match tag.name.as_str() {
+        "input" => {
+            decoded_attr(tag, "type").as_deref() == Some("password")
+                || ["name", "id"].iter().any(|attr| {
+                    decoded_attr(tag, attr)
+                        .is_some_and(|v| CREDENTIAL_FIELD_NAMES.contains(&v.as_str()))
+                })
+                || decoded_attr(tag, "autocomplete")
+                    .is_some_and(|v| v == "current-password" || v == "new-password")
+        }
+        "form" => {
+            decoded_attr(tag, "action").is_some_and(|action| {
+                CREDENTIAL_ACTION_MARKERS
+                    .iter()
+                    .any(|marker| action.contains(marker))
+            }) || decoded_attr(tag, "onsubmit").is_some_and(|handler| handler.contains("login"))
+        }
+        _ => false,
+    }
+}
+
+/// Raw-text login markers (case-insensitive ASCII scan over the whole body, attribute
+/// spacing squashed). Kept alongside the tokenizer scan — see [`looks_like_login`].
+fn login_markers_in_raw_text(body: &[u8]) -> bool {
     let html = String::from_utf8_lossy(body).to_ascii_lowercase();
     // `type = "password"` — whitespace around `=` inside a tag is legal HTML, so the
     // attribute markers are checked on a whitespace-free copy as well.
@@ -275,14 +354,21 @@ fn parse_lifeplanet(body: &[u8], document_field: Option<&str>) -> Result<ParsedP
         return Err("unverified document field");
     }
     let html = std::str::from_utf8(body).map_err(|_| "inventory is not UTF-8")?;
-    let (_, tail) = html
-        .split_once("var result")
-        .ok_or("inventory variable absent")?;
-    let tail = tail
-        .trim_start()
-        .strip_prefix('=')
-        .ok_or("inventory assignment absent")?;
-    let data = serde_json::Deserializer::from_str(tail.trim_start())
+    // The inventory is the `var result = {…}` statement the page's own script executes
+    // (C_life §2). Only executable script text can supply it: an HTML comment, a
+    // template, a data-typed script, a JS comment or a string literal that merely
+    // *contains* the statement is not an inventory — and a page carrying two such
+    // statements is ambiguous, not a list.
+    let context = parse_html_context(html)?;
+    let mut tails = context
+        .scripts
+        .iter()
+        .flat_map(|script| js_var_assignment_tails(script, "result"));
+    let tail = tails.next().ok_or("inventory variable absent")?;
+    if tails.next().is_some() {
+        return Err("inventory variable ambiguous");
+    }
+    let data = serde_json::Deserializer::from_str(tail)
         .into_iter::<serde_json::Value>()
         .next()
         .ok_or("inventory data absent")?
@@ -380,6 +466,29 @@ struct HtmlContext {
     hrefs: Vec<String>,
     evidence: String,
     marker_starts: Vec<std::ops::Range<usize>>,
+    /// Executable text of each real, non-inert JavaScript `script` element, in document
+    /// order — the only place an embedded inventory (`var result = …`) may come from.
+    scripts: Vec<String>,
+    /// Some real tag (inert contexts included) is a credential input or a login form.
+    credential_form: bool,
+}
+
+/// Is this `script` start tag one the browser would execute as JavaScript? A missing or
+/// empty `type` is classic/JS; data blocks (`text/template`, `application/json`, …) are
+/// inert text, not executed code.
+fn is_javascript_script(tag: &HtmlTag<'_>) -> bool {
+    match decoded_attr(tag, "type") {
+        None => true,
+        Some(t) => matches!(
+            t.as_str(),
+            "" | "text/javascript"
+                | "application/javascript"
+                | "application/x-javascript"
+                | "application/ecmascript"
+                | "text/ecmascript"
+                | "module"
+        ),
+    }
 }
 
 impl HtmlContext {
@@ -564,6 +673,9 @@ fn parse_html_context(html: &str) -> Result<HtmlContext, &'static str> {
             continue;
         }
         let tag = html_tag(html, at)?;
+        if credential_tag(&tag) {
+            out.credential_form = true;
+        }
         if !tag.closing && tag.name == "plaintext" {
             break;
         }
@@ -598,6 +710,9 @@ fn parse_html_context(html: &str) -> Result<HtmlContext, &'static str> {
                     // inner closing token as the end of executable text.
                     if tag.name == "script" && html[tag.end..close_at].contains("<!--") {
                         return Err("unsupported escaped HTML script context");
+                    }
+                    if tag.name == "script" && inert.is_empty() && is_javascript_script(&tag) {
+                        out.scripts.push(html[tag.end..close_at].to_string());
                     }
                     at = html_tag(html, close_at)?.end;
                     break;
@@ -719,6 +834,76 @@ fn query_value(href: &str, key: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// The text after `=` of every `var <name> = …` statement in executable script text.
+///
+/// A minimal JavaScript lexer, not an evaluator: line/block comments and string or
+/// template literals are skipped, and `var` must start a statement (the previous
+/// significant byte is not an identifier byte — `foo.var result` and `myvar result`
+/// are not declarations). `var result == x` is a comparison, not an assignment. Regex
+/// literals are not tokenized; a quote inside one can only hide a later statement,
+/// which fails the parse — never fabricates an inventory.
+fn js_var_assignment_tails<'a>(script: &'a str, name: &str) -> Vec<&'a str> {
+    fn is_ident(b: u8) -> bool {
+        b.is_ascii_alphanumeric() || b == b'_' || b == b'$' || b == b'.'
+    }
+    let bytes = script.as_bytes();
+    let mut tails = Vec::new();
+    let mut at = 0;
+    let mut prev: Option<u8> = None;
+    while at < bytes.len() {
+        let b = bytes[at];
+        if b == b'/' && bytes.get(at + 1) == Some(&b'/') {
+            at = bytes[at..]
+                .iter()
+                .position(|c| *c == b'\n')
+                .map_or(bytes.len(), |n| at + n + 1);
+            continue;
+        }
+        if b == b'/' && bytes.get(at + 1) == Some(&b'*') {
+            at = bytes[at + 2..]
+                .windows(2)
+                .position(|w| w == b"*/")
+                .map_or(bytes.len(), |n| at + 2 + n + 2);
+            continue;
+        }
+        if matches!(b, b'\'' | b'"' | b'`') {
+            at += 1;
+            while at < bytes.len() {
+                match bytes[at] {
+                    b'\\' => at += 2,
+                    c if c == b => break,
+                    b'\n' if b != b'`' => break,
+                    _ => at += 1,
+                }
+            }
+            at += 1;
+            prev = Some(b);
+            continue;
+        }
+        if b.is_ascii_whitespace() {
+            at += 1;
+            continue;
+        }
+        if bytes[at..].starts_with(b"var")
+            && bytes.get(at + 3).is_some_and(u8::is_ascii_whitespace)
+            && !prev.is_some_and(is_ident)
+        {
+            let rest = script.get(at + 3..).unwrap_or("").trim_start();
+            if let Some(after_name) = rest.strip_prefix(name) {
+                if !after_name.bytes().next().is_some_and(is_ident) {
+                    let after_name = after_name.trim_start();
+                    if after_name.starts_with('=') && !after_name.starts_with("==") {
+                        tails.push(after_name[1..].trim_start());
+                    }
+                }
+            }
+        }
+        prev = Some(b);
+        at += 1;
+    }
+    tails
 }
 
 /// First run of digits after a verified marker, with separators stripped.

@@ -1,28 +1,29 @@
 $ cargo test -p onjeon-collect adapters
    Compiling onjeon-collect v0.1.0 (<worktree>/services/collect)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.93s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.44s
      Running unittests src/lib.rs (target/debug/deps/onjeon_collect-12e9f749582ab16b)
 
-running 17 tests
-test adapters::regression::adapters_inert_html_cannot_supply_empty_or_total_evidence ... ok
+running 18 tests
 test adapters::regression::adapters_html_attributes_and_script_boundaries_cannot_invent_items ... ok
 test adapters::regression::adapters_html_requires_positive_list_or_empty_evidence_with_or_without_total ... ok
-test adapters::regression::adapters_invalid_robots_holds_without_list_request ... ok
-test adapters::regression::adapters_navigation_maintenance_and_js_shell_never_complete_any_html_plan ... ok
-test adapters::regression::adapters_insurer_parser_verifies_empty_inventory_and_rejects_missing_fields ... ok
-test adapters::regression::adapters_multiple_document_identities_and_reasons_survive_either_discovery_order ... ok
-test adapters::regression::adapters_document_discovery_retains_actual_ids_without_products_or_acquisition ... ok
+test adapters::regression::adapters_inert_html_cannot_supply_empty_or_total_evidence ... ok
 test adapters::regression::adapters_html_context_rejects_template_links_instead_of_completing_single_page ... ok
 test adapters::regression::adapters_document_ids_require_one_known_role_before_mutation ... ok
+test adapters::regression::adapters_insurer_parser_verifies_empty_inventory_and_rejects_missing_fields ... ok
+test adapters::regression::adapters_invalid_robots_holds_without_list_request ... ok
+test adapters::regression::adapters_navigation_maintenance_and_js_shell_never_complete_any_html_plan ... ok
+test adapters::regression::adapters_document_discovery_retains_actual_ids_without_products_or_acquisition ... ok
+test adapters::regression::adapters_multiple_document_identities_and_reasons_survive_either_discovery_order ... ok
+test adapters::regression::adapters_lifeplanet_inventory_requires_executable_script_context ... ok
 test adapters::regression::adapters_scope_role_progress_preserves_every_hold_block_and_reason_in_either_order ... ok
 test adapters::regression::adapters_scoped_success_does_not_clear_unqueried_whole_inventory ... ok
 test adapters::regression::adapters_unsupported_insurers_have_no_fake_entry_enumeration ... ok
-test adapters::regression::adapters_unqueried_institutions_remain_unknown_in_aggregate ... ok
 test adapters::regression::adapters_shipped_insurer_enumerates_products_and_documents_into_progress ... ok
+test adapters::regression::adapters_unqueried_institutions_remain_unknown_in_aggregate ... ok
 test adapters::regression::adapters_partial_walks_preserve_unknown_axis_scope_and_roles ... ok
 test adapters::regression::adapters_stored_candidate_metadata_reconstructs_historical_product_document_edges ... ok
 
-test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.11s
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.03s
 
      Running unittests src/main.rs (target/debug/deps/onjeon_collect-0d938c33ba987883)
 
@@ -32,53 +33,58 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
      Running tests/adapters.rs (target/debug/deps/adapters-458b3584b816d350)
 
-running 44 tests
-test adapters::association_adapter_manifest_is_honest_config ... ok
-test adapters::association_adapter_records_robots_block ... ok
+running 49 tests
 test adapters::acquisition_reason_not_counted ... ok
+test adapters::advertised_total_with_endpoint_next_cursor_is_not_termination ... ok
+test adapters::advertised_zero_with_empty_first_page_is_a_verified_empty_list ... ok
+test adapters::advertised_zero_with_next_cursor_keeps_walking ... ok
+test adapters::association_adapter_manifest_is_honest_config ... ok
 test adapters::csv_parser_handles_quotes_commas_newlines ... ok
-test adapters::denominator_seed_rows_are_excluded ... ok
 test adapters::denominator_rejects_unknown_vocabulary ... ok
-test adapters::empty_string_next_cursor_is_absent ... ok
+test adapters::denominator_seed_rows_are_excluded ... ok
+test adapters::association_adapter_records_robots_block ... ok
 test adapters::empty_first_page_is_a_successful_empty_list ... ok
-test adapters::enumeration_terminates_on_empty_page ... ok
-test adapters::enumeration_terminates_on_advertised_total ... ok
 test adapters::empty_first_page_with_advertised_total_is_unexplored ... ok
+test adapters::entity_encoded_login_form_is_blocked_not_enumerated ... ok
+test adapters::empty_string_next_cursor_is_absent ... ok
 test adapters::empty_page_with_next_cursor_keeps_walking ... ok
-test adapters::entity_encoded_query_separators_do_not_drop_items ... ok
 test adapters::excluded_rows_reject_unknown_legacy_status ... ok
+test adapters::entity_encoded_query_separators_do_not_drop_items ... ok
 test adapters::href_extraction_ignores_non_href_attribute_names ... ok
+test adapters::fully_entity_encoded_list_page_is_not_a_fabricated_empty ... ok
 test adapters::href_extraction_preserves_value_case ... ok
 test adapters::href_in_script_text_is_not_counted ... ok
-test adapters::fully_entity_encoded_list_page_is_not_a_fabricated_empty ... ok
-test adapters::knia_documents_axis_is_unexplored_not_planned ... ok
-test adapters::login_detection_tolerates_attribute_spacing ... ok
-test adapters::login_detection_markers ... ok
+test adapters::enumeration_terminates_on_advertised_total ... ok
 test adapters::http_403_list_page_records_blocked_gap ... ok
 test adapters::insurer_adapter_only_plans_verified_entrypoints ... ok
-test adapters::login_html_200_is_blocked_not_enumerated ... ok
 test adapters::insurer_adapter_plan_is_bound_to_its_entry ... ok
+test adapters::denominator_loads_registry_with_adr0018_scope ... ok
+test adapters::knia_documents_axis_is_unexplored_not_planned ... ok
+test adapters::enumeration_terminates_on_empty_page ... ok
+test adapters::login_detection_markers ... ok
+test adapters::login_detection_decodes_credential_attributes ... ok
+test adapters::login_html_200_is_blocked_not_enumerated ... ok
+test adapters::mid_walk_empty_page_before_total_is_unexplored ... ok
 test adapters::max_pages_records_unexplored_tail ... ok
-test adapters::mid_walk_robots_forbidden_records_remaining_pages ... ok
+test adapters::login_detection_tolerates_attribute_spacing ... ok
 test adapters::mid_walk_robots_hold_records_remaining_pages ... ok
 test adapters::missing_content_type_binary_body_is_not_a_list ... ok
-test adapters::mid_walk_empty_page_before_total_is_unexplored ... ok
-test adapters::robots_404_means_no_rules ... ok
-test adapters::robots_forbidden_blocks_host ... ok
 test adapters::repeated_last_page_is_not_a_success ... ok
+test adapters::mid_walk_robots_forbidden_records_remaining_pages ... ok
 test adapters::robots_disallow_blocks_without_fetching ... ok
+test adapters::robots_forbidden_blocks_host ... ok
 test adapters::robots_longest_match_and_wildcards ... ok
-test adapters::robots_unverifiable_holds_host_and_never_fetches ... ok
 test adapters::robots_url_brackets_ipv6_host_before_port ... ok
+test adapters::robots_unverifiable_holds_host_and_never_fetches ... ok
 test adapters::robots_star_entry_is_default_consulted_after_specific_entries ... ok
 test adapters::robots_utf8_bom_does_not_disarm_disallow ... ok
+test adapters::stall_before_advertised_total_is_unexplored ... ok
+test adapters::robots_404_means_no_rules ... ok
 test adapters::transport_refused_is_recorded_not_blamed_on_remote ... ok
 test adapters::truncated_robots_ignores_partial_last_line ... ok
-test adapters::denominator_loads_registry_with_adr0018_scope ... ok
-test adapters::stall_before_advertised_total_is_unexplored ... ok
 test adapters::manifest_is_stored_write_once ... ok
 
-test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 49 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
      Running tests/conformance.rs (target/debug/deps/conformance-9976efb6de68b741)
 

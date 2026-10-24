@@ -1,46 +1,65 @@
 {
   "task_id": "T-DT-04",
-  "target_sha": "0422e539e49265d1815bbe7dca02d6e24b35c3c2",
-  "command": "python3 -B -I tools/ci/check_deps.py",
-  "result": "FAIL, exit 1: one DEP-ZONE and two IMP-ZONE findings; verification-07.log. No waiver or suppression.",
-  "finding_count": 3,
-  "finding_paths": [
-    "packages/ontology/Cargo.toml",
-    "packages/ontology/tests/common/mod.rs",
-    "packages/ontology/tests/fixture_origin/main.rs"
+  "fix_round": 4,
+  "input_review_sha": "7292cf3e0c340f280acbf375bfaf9f3cbc697412",
+  "origin_main_sha": "b0b6942512996990ee2e408c809a8153f3fa3dd7",
+  "command_worktree": "python3 -B -I tools/ci/check_deps.py",
+  "command_origin_main": "git archive origin/main | tar -x -C <empty dir> && python3 -B -I tools/ci/check_deps.py --root <that dir>",
+  "exit_code_worktree": 1,
+  "exit_code_origin_main": 1,
+  "findings_worktree": [
+    "[DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']",
+    "[IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')",
+    "[IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')"
   ],
+  "findings_origin_main": [
+    "[DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']",
+    "[IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')",
+    "[IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')"
+  ],
+  "findings_identical_to_origin_main": true,
+  "findings_introduced_by_this_branch": [],
+  "finding_paths_inside_allowed_paths": [],
+  "checker_in_github_workflows": [],
+  "checker_in_supervisor_test_cmd": false,
   "files": [
     {
       "path": "packages/ontology/Cargo.toml",
-      "unchanged_from_target_sha": true,
-      "sha256": "ab2293b01369bc97f82cef4709eb3120ec3e8b9b073e7898e3bbda878b4f814f"
+      "sha256": "ab2293b01369bc97f82cef4709eb3120ec3e8b9b073e7898e3bbda878b4f814f",
+      "unchanged_from_input_review_sha": true,
+      "unchanged_from_origin_main": true
     },
     {
       "path": "packages/ontology/tests/common/mod.rs",
-      "unchanged_from_target_sha": true,
-      "sha256": "685bc96a4b496e39bc892f584fa288a640dd5bca545a98d42a120117ada86fcf"
+      "sha256": "685bc96a4b496e39bc892f584fa288a640dd5bca545a98d42a120117ada86fcf",
+      "unchanged_from_input_review_sha": true,
+      "unchanged_from_origin_main": true
     },
     {
       "path": "packages/ontology/tests/fixture_origin/main.rs",
-      "unchanged_from_target_sha": true,
-      "sha256": "bee7071d425e0d8f7b5eafba78fe6acc7e647ceb1188d07113781aec692c02fb"
+      "sha256": "bee7071d425e0d8f7b5eafba78fe6acc7e647ceb1188d07113781aec692c02fb",
+      "unchanged_from_input_review_sha": true,
+      "unchanged_from_origin_main": true
     },
     {
       "path": "infra/ci/deps.json",
-      "unchanged_from_target_sha": true,
-      "sha256": "044f9cfa54772b9c973f42d0c5cd21072a30d8a9033962861cce518c9cb7074c"
+      "sha256": "044f9cfa54772b9c973f42d0c5cd21072a30d8a9033962861cce518c9cb7074c",
+      "unchanged_from_input_review_sha": true,
+      "unchanged_from_origin_main": true
     },
     {
       "path": "tools/ci/check_deps.py",
-      "unchanged_from_target_sha": true,
-      "sha256": "23dad2f432f41fcd512bfc086ea7b50bd50a96be41acfdce3945c8d6c3e7bbf4"
+      "sha256": "23dad2f432f41fcd512bfc086ea7b50bd50a96be41acfdce3945c8d6c3e7bbf4",
+      "unchanged_from_input_review_sha": true,
+      "unchanged_from_origin_main": true
     },
     {
       "path": "tools/ci/ci_common.py",
-      "unchanged_from_target_sha": true,
-      "sha256": "82ebd26e1583ec0a0f04318bdb813f8993915cd43175fe7b738f89764e308523"
+      "sha256": "82ebd26e1583ec0a0f04318bdb813f8993915cd43175fe7b738f89764e308523",
+      "unchanged_from_input_review_sha": true,
+      "unchanged_from_origin_main": true
     }
   ],
-  "resolution": "Supervisor must route the ontology test dependencies/imports to an authorized task, then rerun the unchanged repository checker. packages/ontology and infra/ci are outside this node allowed_paths.",
-  "merge_gate": "blocked_until_full_dependency_check_passes"
+  "status": "pre-existing on origin/main; not introduced and not fixable by this node (packages/ontology and infra/ci are outside allowed_paths services/collect/** and data/registry/README.md). No waiver, suppression or scope reduction applied; the full checker still exits 1 on both trees.",
+  "resolution": "An authorized task on packages/ontology (drop the onjeon-rules-engine dev-dependency and the two test imports) or on infra/ci/deps.json (a dependency_exceptions entry for the knowledge->twin dev edge, decided by the owners of that rule) must clear the three findings and rerun the unchanged checker."
 }

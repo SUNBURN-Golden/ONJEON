@@ -2,13 +2,16 @@
 //! the termination evidence — or the unexplored/hold/blocked range — honestly.
 //!
 //! Termination is evidence, not a guess (Masterplan §23.2):
-//! - `advertised_total_reached`: unique items reach the total the list advertises.
+//! - `advertised_total_reached`: unique items reach the (non-zero) total the list
+//!   advertises and the endpoint reports no further cursor. A reported cursor past the
+//!   total is a contradiction the walk follows instead of accepting; an advertised zero
+//!   is reconciled by the empty-page rule, never counted as "reached".
 //! - `empty_page`: the *first* fetched page returns zero items while the endpoint
-//!   advertises no total and offers no next pointer — a successful empty list
-//!   (`empty_success`), never an error. An empty page that contradicts the endpoint is
-//!   not termination evidence: while the endpoint still offers a next pointer the walk
-//!   continues, and an empty page fetched before the advertised total was reached is a
-//!   `stall` with an unexplored tail.
+//!   advertises no total (or advertises zero) and offers no next pointer — a successful
+//!   empty list (`empty_success`), never an error. An empty page that contradicts the
+//!   endpoint is not termination evidence: while the endpoint still offers a next
+//!   pointer the walk continues, and an empty page fetched before the advertised total
+//!   was reached is a `stall` with an unexplored tail.
 //! - `next_pointer_absent`: the list itself says there is no next page (a mid-walk empty
 //!   page with no shortfall ends here too — it is `Enumerated`, never `EnumeratedEmpty`).
 //! - `page_repeat`: a new cursor returned an identical page hash — the walk stalls; the
@@ -278,8 +281,20 @@ impl<'a> Enumerator<'a> {
             }
             prev_hash = Some(page_hash);
             let unique = seen.len() as u64;
+            // A cursor the endpoint itself reports is its own signal that the list goes
+            // on (a page-number successor is synthesized here, not reported). Reaching
+            // the advertised total while such a cursor is offered is a contradiction,
+            // not termination evidence — keep walking; the end is then the absent next
+            // pointer, bounded by page_repeat/max_pages.
+            let endpoint_next =
+                matches!(plan.pagination, Pagination::Cursor { .. }) && next_pointer.is_some();
             if let Some(total) = advertised_total {
-                if unique >= total {
+                // An advertised zero is never "reached": zero items with total zero is
+                // the empty-list question and goes through the empty-page reconciliation
+                // below (first page → EmptyPage/empty_success; next cursor → walk on),
+                // and items under an advertised zero contradict the total — the walk
+                // ends on the list's own next pointer instead.
+                if total > 0 && unique >= total && !endpoint_next {
                     termination = Some(Termination::AdvertisedTotalReached {
                         unique_items: unique,
                         advertised_total: total,

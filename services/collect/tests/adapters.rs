@@ -1468,6 +1468,207 @@ mod adapters {
         ));
     }
 
+    /// 엔티티로 숨긴 자격 증명 속성도 디코딩 뒤 비교한다 — `type="pass&#119;ord"`와
+    /// `action="/auth"`는 로그인 표지이고, 같은 페이지의 목록 링크는 완료 근거가 못 된다.
+    #[test]
+    fn entity_encoded_login_form_is_blocked_not_enumerated() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add(
+            "https://h.fixture/list",
+            200,
+            "<html><form action='/auth'><input name='id'><input type=\"pass&#119;ord\"></form>\
+             <a href='item.do?id=1'>list</a></html>",
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/list");
+        p.pagination = Pagination::SinglePage;
+        let m = en.run(&p, &meta());
+        assert!(matches!(m.termination, Termination::LoginPage { .. }));
+        assert_eq!(m.result.unique_item_count, 0);
+        assert!(m.discovered_ids.is_empty());
+        assert!(!m.result.empty_success);
+        assert_eq!(m.pages[0].page_kind, "login_page");
+        assert_eq!(m.gaps[0].kind, "blocked");
+        assert_eq!(
+            exploration_state_of(&m.termination),
+            ExplorationState::Blocked {
+                reason: "login_page".into()
+            }
+        );
+    }
+
+    /// 자격 증명 표지는 실제 태그의 엔티티 디코딩·공백 제거·대소문자 무시 값으로 비교한다.
+    /// 템플릿 안의 로그인 폼도 로그인 페이지다. 본문 텍스트의 'password'나 검색 폼은 아니다.
+    #[test]
+    fn login_detection_decodes_credential_attributes() {
+        for body in [
+            "<form action='/list'><input type=\"pass&#119;ord\"></form>",
+            "<form><input type='PASS&#x57;ORD'></form>",
+            "<form><input type=' password '></form>",
+            "<form><input name='user&#95;pw'></form>",
+            "<form><input id='Login_PW'></form>",
+            "<form><input autocomplete='current-password'></form>",
+            "<form action='/AUTH/login.do'></form>",
+            "<form action='&#47;auth'></form>",
+            "<template><form><input type='password'></form></template>",
+            "<form onsubmit='return doLogin()'></form>",
+        ] {
+            assert!(adapters::looks_like_login(body.as_bytes()), "{}", body);
+        }
+        for body in [
+            "<html><a href='item.do?id=1'>list</a><p>password 안내</p></html>",
+            "<form action='/search'><input type='text' name='q'></form>",
+            "<form action='/list'><input type='pass'></form>",
+        ] {
+            assert!(!adapters::looks_like_login(body.as_bytes()), "{}", body);
+        }
+    }
+
+    /// 공시 건수 0과 첫 페이지 0건은 검증된 빈 목록이다 — '총건수 도달'이 아니라
+    /// EmptyPage·empty_success로 끝나고 EnumeratedEmpty가 된다.
+    #[test]
+    fn advertised_zero_with_empty_first_page_is_a_verified_empty_list() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_json(
+            "https://h.fixture/api?p=1",
+            200,
+            r#"{"items":[],"total":0}"#,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/api?p={cursor}");
+        p.parser = ListParser::Json {
+            items_path: "items".into(),
+            id_field: "id".into(),
+            total_field: Some("total".into()),
+            next_field: None,
+        };
+        let m = en.run(&p, &meta());
+        assert!(matches!(m.termination, Termination::EmptyPage { .. }));
+        assert!(m.result.empty_success);
+        assert_eq!(m.result.advertised_total, Some(0));
+        assert_eq!(m.pages.len(), 1);
+        assert_eq!(m.pages[0].advertised_total, Some(0));
+        assert!(m.gaps.is_empty());
+        assert_eq!(
+            exploration_state_of(&m.termination),
+            ExplorationState::EnumeratedEmpty
+        );
+    }
+
+    /// 공시 건수 0이어도 끝점이 다음 커서를 주면 빈 페이지는 종료 증거가 아니다 —
+    /// 걸음을 계속하고, 0건 총건수는 실제 항목으로 반박된다(빈 목록 성공이 아니다).
+    #[test]
+    fn advertised_zero_with_next_cursor_keeps_walking() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_json(
+            "https://h.fixture/api?c=c1",
+            200,
+            r#"{"items":[],"total":0,"next":"c2"}"#,
+        );
+        ff.add_json(
+            "https://h.fixture/api?c=c2",
+            200,
+            r#"{"items":[{"id":"a"}],"total":0,"next":null}"#,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/api?c={cursor}");
+        p.pagination = Pagination::Cursor {
+            first_cursor: "c1".into(),
+        };
+        p.parser = ListParser::Json {
+            items_path: "items".into(),
+            id_field: "id".into(),
+            total_field: Some("total".into()),
+            next_field: Some("next".into()),
+        };
+        let m = en.run(&p, &meta());
+        assert_eq!(m.pages.len(), 2);
+        assert!(ff
+            .requested()
+            .contains(&"https://h.fixture/api?c=c2".to_string()));
+        assert!(matches!(
+            m.termination,
+            Termination::NextPointerAbsent { .. }
+        ));
+        assert!(!m.result.empty_success);
+        assert_eq!(m.result.unique_item_count, 1);
+        assert_eq!(
+            exploration_state_of(&m.termination),
+            ExplorationState::Enumerated
+        );
+    }
+
+    /// 총건수에 도달했어도 끝점이 다음 커서를 주면 모순이다 — 커서를 따라가고 목록
+    /// 자신의 '다음 없음'에서 끝난다. 두 번째 페이지의 항목이 빠지지 않는다.
+    #[test]
+    fn advertised_total_with_endpoint_next_cursor_is_not_termination() {
+        let mut ff = FixtureFetch::new();
+        allow_all_robots(&mut ff, "h.fixture");
+        ff.add_json(
+            "https://h.fixture/api?c=c1",
+            200,
+            r#"{"items":[{"id":"a"}],"total":1,"next":"c2"}"#,
+        );
+        ff.add_json(
+            "https://h.fixture/api?c=c2",
+            200,
+            r#"{"items":[{"id":"b"}],"total":1,"next":null}"#,
+        );
+        let mut gate = RobotsGate::new(86_400);
+        let mut en = Enumerator {
+            fetch: &ff,
+            gate: &mut gate,
+            clock: &clock,
+            page_cap_bytes: adapters::LIST_PAGE_MAX_BYTES,
+            rate_policy: "default".into(),
+        };
+        let mut p = plan("https://h.fixture/api?c={cursor}");
+        p.pagination = Pagination::Cursor {
+            first_cursor: "c1".into(),
+        };
+        p.parser = ListParser::Json {
+            items_path: "items".into(),
+            id_field: "id".into(),
+            total_field: Some("total".into()),
+            next_field: Some("next".into()),
+        };
+        let m = en.run(&p, &meta());
+        assert_eq!(m.pages.len(), 2);
+        assert_eq!(m.result.unique_item_count, 2);
+        assert!(matches!(
+            m.termination,
+            Termination::AdvertisedTotalReached {
+                unique_items: 2,
+                advertised_total: 1
+            }
+        ));
+        assert_eq!(m.discovered_ids, vec!["a".to_string(), "b".to_string()]);
+    }
+
     /// robots.txt가 잘려도 마지막 불완전 줄은 규칙으로 파싱하지 않는다
     /// (tools/crawler/robots.py `_read_capped` 이식) — 잘린 Allow: 줄이 허용 범위를
     /// 키우는 방향은 안전하지 않다.

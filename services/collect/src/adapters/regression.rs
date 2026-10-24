@@ -612,6 +612,79 @@ fn adapters_insurer_parser_verifies_empty_inventory_and_rejects_missing_fields()
     }
 }
 
+/// 인벤토리 변수는 실제로 실행되는 script 본문에서만 온다. HTML 주석·템플릿·데이터
+/// 블록·JS 주석·문자열 안의 `var result`는 목록이 아니라 파싱 실패이며(빈 목록 성공이
+/// 아니다), 실행문이 두 번 나오면 모호하다. 실행문 하나를 둘러싼 미끼는 결과를 바꾸지 않는다.
+#[test]
+fn adapters_lifeplanet_inventory_requires_executable_script_context() {
+    let entry = lifeplanet_entry();
+    let empty = r#"var result = {"outData":{"prdList":[]}};"#;
+    let one_row = r#"var result = {"outData":{"prdList":[{"prdCd":"fixture_only_decoy","saleStYmd":"20000101","saleEdYmd":"99991231","insTxtPat":"fixture_only_decoy_terms.pdf","prdSryPat":"fixture_only_decoy_summary.pdf","prdMdPat":"fixture_only_decoy_business.pdf"}]}};"#;
+    for plan in InsurerAdapter::for_entry(&entry).plans(&entry) {
+        for page in [
+            format!("<!-- {empty} -->"),
+            format!("<html><!-- {one_row} --></html>"),
+            format!("<template><script>{empty}</script></template>"),
+            format!("<script type=\"text/template\">{empty}</script>"),
+            format!("<script type='application/json'>{empty}</script>"),
+            format!("<script>// {empty}</script>"),
+            format!("<script>/* {empty} */</script>"),
+            format!(
+                "<script>const t = \"{}\";</script>",
+                empty.replace('"', "\\\"")
+            ),
+            format!("<script>const t = `{empty}`;</script>"),
+            format!("<script>window.var result = 1; obj.var result = 2; my{empty}</script>"),
+            "<script>var result == {};</script>".to_string(),
+            format!("<div>{empty}</div>"),
+            format!("<textarea>{empty}</textarea>"),
+            format!("<script>{empty} {empty}</script>"),
+            format!("<script>{empty}</script><script>{one_row}</script>"),
+        ] {
+            let manifest = run(&plan, &fixture_only(&page));
+            assert!(
+                matches!(manifest.termination, Termination::ParseFailed { .. }),
+                "{page}"
+            );
+            assert!(!manifest.result.empty_success, "{page}");
+            assert!(
+                !exploration_state_of(&manifest.termination).reached_evidence(),
+                "{page}"
+            );
+            assert!(manifest.discovered_ids.is_empty(), "{page}");
+            assert!(manifest.product_candidates.is_empty(), "{page}");
+            assert_eq!(manifest.gaps[0].kind, "failed", "{page}");
+        }
+        // Decoys around the one executable statement neither hide it nor leak into it:
+        // a decoy row cannot become a candidate, and a decoy empty list cannot erase one.
+        let decoyed_empty = format!(
+            "<html><!-- {one_row} --><script type='text/template'>{one_row}</script>\
+             <script type=\"text/javascript\">/* {one_row} */ var note = 'var result = 1';\n{empty} // {one_row}\n</script></html>"
+        );
+        let manifest = run(&plan, &fixture_only(&decoyed_empty));
+        assert!(matches!(
+            manifest.termination,
+            Termination::EmptyPage { .. }
+        ));
+        assert!(manifest.result.empty_success);
+        assert!(manifest.discovered_ids.is_empty());
+        assert!(manifest.product_candidates.is_empty());
+        let decoyed_row = format!(
+            "<html><!-- {empty} --><script type='application/json'>{empty}</script>\
+             <script>// {empty}\n{one_row}\n/* {empty} */</script></html>"
+        );
+        let manifest = run(&plan, &fixture_only(&decoyed_row));
+        assert!(exploration_state_of(&manifest.termination).reached_evidence());
+        assert!(!manifest.result.empty_success);
+        assert_eq!(manifest.discovered_ids.len(), 1);
+        assert_eq!(manifest.product_candidates.len(), 1);
+        assert_eq!(
+            manifest.product_candidates[0].product_code,
+            "fixture_only_decoy"
+        );
+    }
+}
+
 #[test]
 fn adapters_unsupported_insurers_have_no_fake_entry_enumeration() {
     let denom = registry();

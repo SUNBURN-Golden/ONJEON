@@ -1,0 +1,124 @@
+$ git archive 839ecdb | tar -x   # source of 839ecdb, 2026-10-22
+$ cargo --version && rustc --version
+cargo 1.99.1 (5f94df478 2026-08-27)
+rustc 1.99.1 (58cf8f9c3 2026-10-13)
+$ cargo test --workspace
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling cpufeatures v0.2.17
+   Compiling generic-array v0.14.7
+   Compiling cfg-if v1.0.5
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (<src-839ecdb>/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.00s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_rules_engine-58e120651535cc33)
+
+running 5 tests
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test date::tests::month_end_clamps ... ok
+test date::tests::roundtrip_and_known_dates ... ok
+test tri::tests::truth_table_matches_spec_49_3 ... ok
+test value::tests::rate_parsing ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/golden.rs (target/debug/deps/golden-b0856c39b87afeed)
+
+running 3 tests
+test trace_records_every_evaluated_node_and_hash_changes_with_input ... ok
+test golden_table_matches_expert_expectations ... ok
+test same_input_gives_byte_identical_output ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-126db0f70eeaf03e)
+
+running 8 tests
+test loader_enforces_rule_level_invariants ... ok
+test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
+test date_add_never_assumes_365_days_per_year ... ok
+test cap_min_max_add_with_ranges ... ok
+test loader_rejects_everything_outside_the_allow_list ... ok
+test rounding_to_unit ... ok
+test days_between_inclusivity_is_explicit ... ok
+test rounding_modes_are_explicit_and_exact ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mutation.rs (target/debug/deps/mutation-654e0f6148f63a08)
+
+running 1 test
+test every_mutant_is_killed_by_the_golden_table ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/real_clauses.rs (target/debug/deps/real_clauses-caf48e25d2fba198)
+
+running 6 tests
+test waiting_period_units_are_not_interchangeable ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test every_real_clause_case_matches ... ok
+test screen_check_catches_tampered_numbers ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/review_fixes.rs (target/debug/deps/review_fixes-71af4a70abf704a4)
+
+running 10 tests
+test content_hash_changes_with_content_even_if_version_is_not_bumped ... ok
+test content_hash_is_independent_of_key_order_in_the_file ... ok
+test input_dates_outside_supported_range_are_rejected ... ok
+test content_hash_ignores_formatting_and_release_but_not_evidence ... ok
+test reloading_the_source_json_reproduces_the_same_rule_identity ... ok
+test date_arithmetic_beyond_supported_range_is_an_error_not_a_panic ... ok
+test version_and_release_are_enforced_at_load_time ... ok
+test result_identifies_rule_version_release_content_and_evidence ... ok
+test loader_rejects_huge_date_offsets ... ok
+test unspecified_rounding_range_flows_through_a_second_multiplication ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/soundness.rs (target/debug/deps/soundness-1d7f42010296b597)
+
+running 2 tests
+test unknown_is_never_reported_as_zero_or_not_payable ... ok
+test hiding_an_input_never_changes_a_definite_answer ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/vocabulary.rs (target/debug/deps/vocabulary-32187e40b08fb7e4)
+
+running 4 tests
+test payout_names_are_canonical ... ok
+test tri_names_are_canonical ... ok
+test publication_states_are_canonical ... ok
+test amount_kind_names_are_canonical ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_rules_engine
+
+running 3 tests
+test packages/rules-engine/src/rule.rs - rule::Rule (line 160) - compile fail ... ok
+test packages/rules-engine/src/rule.rs - rule::Rule (line 169) - compile fail ... ok
+test packages/rules-engine/src/rule.rs - rule::Rule (line 147) ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+exit code: 0

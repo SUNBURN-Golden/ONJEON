@@ -44,6 +44,8 @@ python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --
 
 문서 불일치(후속 작업): 보호 문서라 이 변경에서 고치지 않은 `docs/data/DATA_PIPELINE_CONTRACT.md` 40·55행은 현재 규칙을 `html-visible-text-v1`로 적고 있어 v2로 갱신해야 한다. `docs/decisions/ADR-0015-원본-보관소-S3.md` 26행은 채택 당시 규칙을 적은 기록이므로 고치지 않고 v2로의 이행은 이 문서와 `tools/html_content_hash.py`의 History에 있다.
 
+문서 불일치(후속 작업): `docs/BLUEPRINT.md` §11 "코드" 행(318행)의 "Rust 테스트 42개"는 2026-10-09 기준 단위·통합 테스트 39개 + 문서 시험(doctest) 3개를 합친 값이다(`REVERIFY_87a19c5.md` §2 "일반 CI" 행). 보호 문서라 고치지 않았다. 교체 문구는 [docs/review/2026-10-22_audit1_blueprint_test_count.md](../../review/2026-10-22_audit1_blueprint_test_count.md)에, 두 커밋(87a19c5·839ecdb)의 `cargo test --workspace` 재실행 로그는 `docs/review/evidence/audit1_blueprint_test_count/`에 있다. `tools/tests/test_validation_test_counts.py`가 로그·REVERIFY·기록·설계도의 숫자를 서로 대조한다.
+
 검사 기록 `source_checks/` (2026-10-09):
 
 | 파일 | 검사 | 결과 |

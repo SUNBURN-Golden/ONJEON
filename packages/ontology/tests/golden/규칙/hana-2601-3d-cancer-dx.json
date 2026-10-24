@@ -1,0 +1,46 @@
+{
+  "example_kind": "ontology_case_validation",
+  "rule_id": "hana-2601-3d-cancer-dx",
+  "rule_version": "v1-ontology-case",
+  "schema_version": "rule-0.1",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "contract_date": "date",
+    "is_initial_contract": "bool",
+    "renewal_date": "date",
+    "diagnosis_date": "date",
+    "policy_end_date": "date",
+    "dx_in_category": "bool",
+    "already_paid": "bool",
+    "insured_amount_krw": "money_krw"
+  },
+  "eligibility": {
+    "all": [
+      { "gte": ["diagnosis_date", {
+        "if": "is_initial_contract",
+        "then": { "date_add": ["contract_date", { "value": 90, "unit": "day" }] },
+        "else": "renewal_date"
+      }] },
+      { "lte": ["diagnosis_date", "policy_end_date"] },
+      { "eq": ["dx_in_category", true] },
+      { "eq": ["already_paid", false] }
+    ]
+  },
+  "amount": {
+    "if": { "all": [
+      { "eq": ["is_initial_contract", true] },
+      { "lt": ["diagnosis_date", { "date_add": ["contract_date", { "value": 1, "unit": "calendar_year", "month_end": "clamp" }] }] }
+    ] },
+    "then": { "multiply_rate": ["insured_amount_krw", "0.5", { "rounding": "unspecified", "unit": 1 }] },
+    "else": "insured_amount_krw"
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "hana_2601_3d#c_2_1_art1_1",
+    "hana_2601_3d#c_2_1_art1_2",
+    "hana_2601_3d#c_2_1_art4_1",
+    "hana_2601_3d#annex1",
+    "hana_2601_3d#annex12"
+  ],
+  "publication_state": "fixture_only"
+}

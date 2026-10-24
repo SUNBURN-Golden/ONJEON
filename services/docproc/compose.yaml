@@ -1,0 +1,15 @@
+services:
+  docproc:
+    build: .
+    network_mode: none
+    read_only: true
+    user: "65532:65532"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 32
+    mem_limit: 512m
+    cpus: 1
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    volumes:
+      - ${DOCPROC_INPUT_DIR:?set an input directory}:/input:ro

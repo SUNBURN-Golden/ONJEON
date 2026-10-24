@@ -1,0 +1,43 @@
+# command: python3 -m unittest discover -s tools/tests -v   (CI의 같은 단계)
+# parent commit: 2f2d7a790747caf11ce5e3848789028624593d11 + this fix round's working tree
+test_evidence_logs_name_the_parent_commit_and_source_hash (test_daemon_dry_run.Cli.test_evidence_logs_name_the_parent_commit_and_source_hash)
+test_pass_rows_print_the_full_transition_columns (test_daemon_dry_run.Cli.test_pass_rows_print_the_full_transition_columns)
+test_every_prose_test_line_has_a_passing_scenario (test_daemon_dry_run.Coverage.test_every_prose_test_line_has_a_passing_scenario)
+test_g29_to_g50_are_read_by_the_core (test_daemon_dry_run.Coverage.test_g29_to_g50_are_read_by_the_core)
+test_self_review_of_an_assigned_author_family_is_rejected_end_to_end (test_daemon_dry_run.ReviewerFamilyIsRegistered.test_self_review_of_an_assigned_author_family_is_rejected_end_to_end)
+test_kb_original_price_change_is_detected (test_html_content_hash.ArchivedOriginals.test_kb_original_price_change_is_detected) ... skipped 'ONJEON_ARCHIVE_RAW not set'
+test_kb_refetch_differs_in_bytes_but_not_in_content (test_html_content_hash.ArchivedOriginals.test_kb_refetch_differs_in_bytes_but_not_in_content) ... skipped 'ONJEON_ARCHIVE_RAW not set'
+test_repeated_refused_runs_are_recorded_then_closed (test_r2_budget.EndToEnd.test_repeated_refused_runs_are_recorded_then_closed)
+test_settlement_retry_is_counted_in_the_settlement (test_r2_budget.EndToEnd.test_settlement_retry_is_counted_in_the_settlement)
+test_initialised_ledger_refuses_init_without_any_request (test_r2_budget.FailClosed.test_initialised_ledger_refuses_init_without_any_request)
+test_streamed_body_is_counted_from_content_length (test_r2_budget.MeterChecks.test_streamed_body_is_counted_from_content_length)
+test_lost_race_relists_admissions (test_r2_budget.Reservation.test_lost_race_relists_admissions)
+test_archive_samples_does_not_upload_files_outside_cache (test_source_archive.ConfinedPath.test_archive_samples_does_not_upload_files_outside_cache) ... /workspace/onjeon-run/wt/T-OP-09/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpsqsungrn/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_fetch_refuses_traversal_before_writing (test_source_archive.ConfinedPath.test_fetch_refuses_traversal_before_writing) ... /workspace/onjeon-run/wt/T-OP-09/tools/source_archive.py:406: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpahvgp_dg/samples.csv' mode='r' encoding='utf-8'>
+  dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_store_refuses_to_write_without_conditional_put (test_store_provider.OldBotocore.test_store_refuses_to_write_without_conditional_put) ... skipped 'installed botocore supports If-None-Match'
+test_deleted_listed_output_fails_with_exit_1 (test_verify_sources.ArchiveReproduce.test_deleted_listed_output_fails_with_exit_1) ... skipped 'local archive and pdftotext required'
+test_tampered_stored_output_fails_with_exit_1 (test_verify_sources.ArchiveReproduce.test_tampered_stored_output_fails_with_exit_1) ... skipped 'local archive and pdftotext required'
+test_untampered_sample_is_reproduced (test_verify_sources.ArchiveReproduce.test_untampered_sample_is_reproduced) ... skipped 'local archive and pdftotext required'
+test_any_fetch_failure_fails_the_run (test_verify_sources.DetectExit.test_any_fetch_failure_fails_the_run) ... /workspace/onjeon-run/wt/T-OP-09/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/T-OP-09/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_changed_sources_are_a_successful_observation (test_verify_sources.DetectExit.test_changed_sources_are_a_successful_observation) ... /workspace/onjeon-run/wt/T-OP-09/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/T-OP-09/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_oversized_body_is_fetch_failed_too_large (test_verify_sources.DetectExit.test_oversized_body_is_fetch_failed_too_large) ... /workspace/onjeon-run/wt/T-OP-09/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/T-OP-09/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+----------------------------------------------------------------------
+Ran 305 tests in 72.701s
+
+OK (skipped=6)

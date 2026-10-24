@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge.assertion.superseded.schema.json",
+  "title": "KnowledgeAssertionSupersededEvent",
+  "type": "object",
+  "description": "도메인 이벤트 knowledge.assertion.superseded (02_구현계약 §3.1, C-21). 내부 큐. 개인정보 없음.",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "knowledge.assertion.superseded"
+      ]
+    },
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/Identifier"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "old_id": {
+          "$ref": "common.schema.json#/$defs/AssertionId"
+        },
+        "new_id": {
+          "$ref": "common.schema.json#/$defs/AssertionId"
+        },
+        "correction_reason": {
+          "$ref": "vocabulary.schema.json#/$defs/correction_reason"
+        }
+      },
+      "required": [
+        "old_id",
+        "new_id",
+        "correction_reason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "event",
+    "event_id",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

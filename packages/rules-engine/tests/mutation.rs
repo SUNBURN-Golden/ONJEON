@@ -381,6 +381,39 @@ fn all_rules_with_cases() -> Vec<RuleCases> {
 const EQUIVALENT: &[(&str, &str, &str)] = &[];
 
 #[test]
+fn skin_rule_boundary_supplement_kills_mutants_the_shared_table_misses() {
+    let file = load_json(&real_dir().join("kyobo-small-cancer-skin.cases.json"));
+    let shared: Vec<_> = file["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|case| (case.clone(), merged(&file["base"], case.get("set"))))
+        .collect();
+    let (_, rule, extended) = all_rules_with_cases()
+        .into_iter()
+        .find(|(id, ..)| id == "kyobo-small-cancer-skin")
+        .unwrap();
+    assert_eq!(shared.len(), 6);
+    assert_eq!(extended.len(), 17);
+    let mut rescued = 0;
+    for mutant in generic::mutants_of(&rule) {
+        if generic::killed_by(&mutant.rule, &shared).is_none() {
+            rescued += 1;
+            assert!(
+                generic::killed_by(&mutant.rule, &extended).is_some(),
+                "supplement must kill {}",
+                mutant.desc
+            );
+        }
+    }
+    assert!(
+        rescued > 0,
+        "negative control must expose weak shared cases"
+    );
+    eprintln!("skin rule supplement kills {rescued} mutants missed by shared cases");
+}
+
+#[test]
 fn generic_rate_literals_mutate_in_both_representations() {
     for (rate, bumped) in [
         ("0.5", vec!["0.4", "0.6"]),

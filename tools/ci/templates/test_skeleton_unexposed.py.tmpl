@@ -1,0 +1,50 @@
+"""Skeleton non-exposure test template (Part 3 section 58.1). Copy into the task that registers routes
+or screens (api, web, mobile) and drop the .tmpl suffix.
+
+Two things must hold while every skeleton flag is off:
+  1. each inactive skeleton route answers one of inactive_response.statuses (not 2xx, not a login
+     redirect, not 401: a route that exists behind auth is still exposed)
+  2. no screen, navigation entry or web page route exposes a skeleton path
+
+Fill in two inputs, no other edits needed:
+  ONJ_SKELETON_BASE_URL   base URL of the server under test (start it in your own test harness)
+  ONJ_UI_ROUTES_JSON      path of a JSON list of the routes your app or web build registers
+                          (router table, sitemap, navigation config), produced by your build step
+
+A missing input FAILS the test. It does not skip: a skipped exposure test proves nothing.
+"""
+import json
+import os
+import sys
+import unittest
+
+CI = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "ci")  # adjust to this file's depth
+sys.path.insert(0, CI)
+import check_skeleton as S  # noqa: E402
+import ci_common as C  # noqa: E402
+
+
+class SkeletonUnexposed(unittest.TestCase):
+    def setUp(self):
+        self.flags = C.load_json(C.FLAGS_PATH)
+
+    def test_flags_are_off_and_gated(self):
+        rules = C.load_rules()
+        self.assertEqual([], S.check_flags(self.flags, rules["skeleton"]["required_flags"]))
+
+    def test_inactive_routes_answer_inactive(self):
+        base = os.environ.get("ONJ_SKELETON_BASE_URL")
+        self.assertTrue(base, "set ONJ_SKELETON_BASE_URL to the server under test")
+        findings = S.probe_routes(base, self.flags)
+        self.assertEqual([], [f.render() for f in findings])
+
+    def test_ui_does_not_expose_skeleton_routes(self):
+        path = os.environ.get("ONJ_UI_ROUTES_JSON")
+        self.assertTrue(path and os.path.exists(path), "set ONJ_UI_ROUTES_JSON to the registered UI routes")
+        with open(path, encoding="utf-8") as f:
+            routes = json.load(f)
+        self.assertEqual([], [x.render() for x in S.probe_ui_routes(routes, self.flags)])
+
+
+if __name__ == "__main__":
+    unittest.main()

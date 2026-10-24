@@ -1,0 +1,28 @@
+{
+  "generated_at_utc": "2026-10-21T09:53:35.024605+00:00",
+  "parent_head": "c4470a6aac886daf2011d65409c74f5aa3c82b61",
+  "source_sha256": {
+    "tools/tests/test_workflow_pins.py": "376469a335c3379509741fc4549cb45ebbfe600e5502d2f140249c61712b79c3",
+    ".github/workflows/ci.yml": "6a870074bb48e52fcbada060a46c4f5c6961d3e46e62b23e4afd306e32c71e8f",
+    ".github/workflows/sources.yml": "75b4e15ef994bcbb4265fb4d50a7614ab8c6e032d0a5c503a4101d84d011993c"
+  },
+  "log_sha256": {
+    "baseline-verification.log": "85eedbf9b6e2a318615b4cedddf88d77d0584fe9487367a06377b61a3e361ea2",
+    "design-specs.log": "e00e99039e0e93165226ef86534826bacfda210af2a4fba40b20fa7e4f881e89",
+    "guard-examples.log": "3286f867b6fec7097669ab6f85920c9d8f187435350bd4b6b038050b5297ff7c",
+    "ontology.log": "cd8098ef7c07d64c184d9cf34fac901babe71f06f5c218f2e2f7ab0d174b0eb2",
+    "python-ci.log": "634360f5fbe12b4e3ee18236ba183122b4da377c064e2decb9eb2bf36cf0f40e",
+    "python-tools.log": "caf9d0c5575fdc525a47c54ab3f73db1027852f069cdb77c6f3e136eabf94716",
+    "regressions-before.log": "07e208acbd87bc01e540f85f923216f81cc25c03a97363b65a95823f46de59e3",
+    "rust-clippy.log": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc",
+    "rust-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rust-tests.log": "84243577c4712b5c0ca3f8cebea2c81e00fe9d2748cfa02593c1e03405988200",
+    "validation-selftest.log": "cdf90521efd8c2adef517bbf4733995ca291cf818621088e0b4d98901f887754",
+    "validation.log": "d23d31090208e9a49ce95c1d69f612662cf78493f3ed4b5a9fa43298b84bfb08",
+    "vocabulary.log": "6da76fa875841f461da23271de7daa2ea5ec311abddf39a74c8247ad998744b3",
+    "workflow-focused.log": "5b737569c149f0e2452fccc01e038db8db9667aa40825135dc1b54d28416d09e"
+  },
+  "report_sha256": {
+    "RESULTS.md": "cbd2a381e42f5acbaf2b4a4851d9a330943728a36d9e6abf40f974538621dcb0"
+  }
+}

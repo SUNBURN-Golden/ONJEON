@@ -1,0 +1,14 @@
+# static and log checks of runner_verify
+[PASS] 병합 API·호스팅 서비스 호출 없음
+[PASS] 제품 저장소 경로(ROOT)는 거부·읽기에만 쓴다
+[PASS] git push 대상이 리터럴 주소·제품 원격이 아니다
+[PASS] 비밀값 패턴 없음(소스·fixture)
+[PASS] 모델 식별자 모양 없음(소스·fixture)
+[PASS] fixture는 origin=fixture, fixture_only=true
+[PASS] 트리 해시(write-tree)는 Git 어댑터 한 곳
+[PASS] 산출물에 원문·세션 ID·사용자 경로 누출 없음
+[PASS] 산출물에 모델 식별자 모양·비밀값 없음
+[PASS] runner_profile에는 확인된 종료 코드만
+[PASS] 제품 저장소의 ref·HEAD·원격이 실행 전후 같다
+[PASS] 시험 원격에 적용된 ref는 task/T-MOCK-* 브랜치뿐
+[PASS] 병합 호출 0건

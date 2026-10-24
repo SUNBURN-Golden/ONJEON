@@ -1,0 +1,10 @@
+{
+  "thresholds": [
+    {
+      "name": "fixture_threshold",
+      "value": 3
+    }
+  ],
+  "circuit_breaker_open": false,
+  "reason": "fixture reason"
+}

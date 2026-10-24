@@ -13,20 +13,6 @@
     { "id": "f04_other_contracts_need_prorata", "note": "다른 계약이 있으면 개인 가입내역 없이는 금액 판단 불가", "set": {"has_other_contracts": true},
       "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "unknown"}}, "missing_inputs": ["pro_rata_amount_krw"]} },
     { "id": "f05_fine_not_final_yet", "note": "확정판결 전에는 벌금액 미확정", "set": {"fine_final_krw": null},
-      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "unknown"}}, "missing_inputs": ["fine_final_krw"]} },
-    { "id": "f06_no_accident_in_period", "set": {"accident_in_period": false},
-      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
-    { "id": "f07_not_a_driving_bodily_injury_accident", "set": {"driving_accident_bodily_injury": false},
-      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
-    { "id": "f08_hit_and_run_excluded", "set": {"hit_and_run": true},
-      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
-    { "id": "f09_racing_or_test_use_excluded", "set": {"racing_or_test_use": true},
-      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
-    { "id": "f10_intentional_insured_excluded", "set": {"intentional_insured_free_will": true},
-      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
-    { "id": "f11_intentional_contractor_excluded", "set": {"intentional_contractor": true},
-      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} },
-    { "id": "f12_intentional_beneficiary_excluded", "set": {"intentional_beneficiary_sole": true},
-      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []} }
+      "expect": {"eligibility": "true", "payout": {"kind": "payable", "amount": {"kind": "unknown"}}, "missing_inputs": ["fine_final_krw"]} }
   ]
 }

@@ -1,0 +1,62 @@
+{
+ "origin": "fixture",
+ "fixture_only": true,
+ "description": "T-OP-09 §1b 확인표의 행. 05 §1b의 실행 경로 이름과 같다. command는 PATH에서 찾는 실행 파일 이름이고, 모델 식별자는 어디에도 두지 않는다. proxy는 그 CLI의 기본 주소 설정으로 시험 프록시를 가리킬 수 있는지(문서·재현으로 확인된 방법)이다. 확인되지 않은 방법은 적지 않는다.",
+ "targets": [
+  {
+   "id": "cli-claude",
+   "label": "claude CLI",
+   "command": "claude",
+   "version_args": ["--version"],
+   "proxy": {
+    "base_url_env": "ANTHROPIC_BASE_URL",
+    "dummy_key_env": "ANTHROPIC_API_KEY",
+    "isolate_env": ["HOME", "CLAUDE_CONFIG_DIR"],
+    "retry_env": "CLAUDE_CODE_MAX_RETRIES",
+    "extra_env": {"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1", "DISABLE_AUTOUPDATER": "1"},
+    "args": ["-p", "{prompt}", "--output-format", "stream-json", "--verbose", "--max-turns", "1"],
+    "status_channel": "stream-json: system/api_retry.error_status, result.api_error_status"
+   }
+  },
+  {
+   "id": "cli-cursor",
+   "label": "Cursor CLI",
+   "command": "cursor-agent",
+   "version_args": ["--version"],
+   "proxy": null,
+   "unconfirmed_reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다"
+  },
+  {
+   "id": "cli-grokbuild",
+   "label": "grokbuild CLI",
+   "command": "grokbuild",
+   "version_args": ["--version"],
+   "proxy": null,
+   "unconfirmed_reason": "설치되어 있지 않다"
+  },
+  {
+   "id": "cli-devin",
+   "label": "Devin CLI",
+   "command": "devin",
+   "version_args": ["--version"],
+   "proxy": null,
+   "unconfirmed_reason": "기본 주소를 시험 프록시로 돌리는 문서화된 설정을 확인하지 못했고, 호출에는 이 호스트에 없는 로그인이 필요하다"
+  },
+  {
+   "id": "cli-claude-glm",
+   "label": "Claude Code(GLM 프로필)",
+   "command": null,
+   "version_args": [],
+   "proxy": null,
+   "unconfirmed_reason": "GLM 호환 주소와 별도 프로필이 이 호스트에 없다. 같은 CLI의 Anthropic 주소 프로필 결과를 대신 쓰지 않는다"
+  },
+  {
+   "id": "cli-gpt-route",
+   "label": "대체 모델 경로(GPT 계열, 경로 미정)",
+   "command": null,
+   "version_args": [],
+   "proxy": null,
+   "unconfirmed_reason": "사용할 CLI·API 경로가 정해지지 않았다(05 §1a)"
+  }
+ ]
+}

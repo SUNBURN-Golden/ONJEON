@@ -19,7 +19,10 @@
 | `docs/design/화면_조작_설계서.md` | 내 설계 탭 화면·조작 상세 부록(시안 실측 치수·색, 조작, 보장·불이익 비교 모델). 상위: CONSUMER_FLOW_SPEC |
 | `docs/masterplan/가격_수집_명세.md` | 가격 수집 상세 부록(조건·특약 라인·가격 분모·검증·지표). 상위: PREMIUM_DATA_CONTRACT |
 | `docs/data/DATA_PIPELINE_CONTRACT.md` | 수집·분모·라벨·변경 전파·검증·릴리스 실행 계약 |
-| `docs/decisions/` | ADR 0001 스택, 0002 픽스처 우선, 0003 엔진 단일 구현, 0004 대상 범위, 0005 PDF 가져오기, 0006 AI 검수, 0007 단일 완성 출시, 0008 첫 출시 범위, 0009 원구상 복원과 화면·데이터 계약, 0010 선택 화면과 공개 가격, 0011 설계도 채택 |
+| `docs/decisions/` | ADR 0001 스택, 0002 픽스처 우선, 0003 엔진 단일 구현, 0004 대상 범위, 0005 PDF 가져오기, 0006 AI 검수, 0007 단일 완성 출시, 0008 첫 출시 범위, 0009 원구상 복원과 화면·데이터 계약, 0010 선택 화면과 공개 가격, 0011 설계도 채택, 0012 설계도 실행계약과 구현 추적, 0013 전체 대상 목록 우선, 0014 V1 검증 결과의 설계 반영, 0015 원본 보관소 S3, 0016 원본 보관소 R2, 0017 R2 비용 제한, 0018 보험 데이터·지식 기반의 정체성과 범위. 결정 기록 `DEC-*.md`(결정 게이트 D-xx·O-xx와 `DEC-CANON-*`)도 같은 디렉터리에 있다. 이 목록은 시험(`tools/tests/test_readme_index.py`)이 디렉터리와 대조한다 |
+| `docs/blueprint/VOCABULARY.md` | 상태 어휘 생성 문서(정본 `packages/schemas/vocabulary.json`, `tools/vocab_check.py --write`로 생성, 직접 수정 금지) |
+| `docs/blueprint/validation/` | V1 설계 검증 자료: 표본 목록·수집 기록·발췌·인코딩·GAP 보고·화면 연결·검사 실행 기록. 서비스 데이터가 아니다. 안내: `docs/blueprint/validation/README.md` |
+| `docs/blueprint/proposals/설계검토_결과/` | 설계 검토 결과 01 코드설계 · 02 구현계약 · 03 작업명세 · 04 자동개발명세 · 05 VM 실행 준비 · 06 검토사항 점검 · 07 수정 대응표 · 08 요구 추적표 · 09 제품 목적 대응표. 자동 개발 입력 `tasks.json`·`daemon_rules.json`, 재검토 요청과 검증 기록도 같은 디렉터리에 있다(안내: 디렉터리의 `README.md`) |
 
 우선순위는 불변 원칙 → 제2부 → 제3부 → 제1부 순이다. 제3부 §56의 사용자 결정은 이 순서보다 우선한다.
 

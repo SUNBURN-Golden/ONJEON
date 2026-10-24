@@ -24,10 +24,39 @@ pub fn rule_json() -> J {
 }
 
 pub fn cases() -> Vec<J> {
-    let s = std::fs::read_to_string(fixtures_dir().join("fixture-rule-001.cases.json"))
-        .expect("cases fixture");
-    let v: J = serde_json::from_str(&s).expect("valid json");
+    let v = case_file(std::path::Path::new("fixture-rule-001.cases.json"));
     v["cases"].as_array().expect("cases array").clone()
+}
+
+/// Extend a shared case table with engine-owned boundary cases. Supplements inherit the
+/// shared file's base inputs and rule ID; their expectations remain hand-authored.
+pub fn case_file(relative: &std::path::Path) -> J {
+    let mut file = load_json(&fixtures_dir().join(relative));
+    let supplement = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/cases")
+        .join(relative);
+    if supplement.exists() {
+        let extra = load_json(&supplement);
+        extend_case_file(&mut file, &extra, relative);
+    }
+    file
+}
+
+pub fn extend_case_file(file: &mut J, extra: &J, relative: &std::path::Path) {
+    let cases = file["cases"].as_array_mut().expect("cases array");
+    let mut ids: std::collections::BTreeSet<String> = cases
+        .iter()
+        .map(|c| c["id"].as_str().expect("case ID").to_string())
+        .collect();
+    for case in extra["cases"].as_array().expect("supplement cases array") {
+        let id = case["id"].as_str().expect("supplement case ID");
+        assert!(
+            ids.insert(id.to_string()),
+            "{}: duplicate case ID {id}",
+            relative.display()
+        );
+        cases.push(case.clone());
+    }
 }
 
 /// Observed result in the same shape as the `expect` block of a case.
@@ -40,6 +69,19 @@ pub fn observe(rule: &Rule, inputs: &J) -> J {
         "payout": serde_json::to_value(&r.payout).unwrap(),
         "missing_inputs": r.missing_inputs,
     })
+}
+
+/// `observe` plus the audit fields a regression could silently change: the evaluation
+/// `trace`, `rule_content_hash` and `input_snapshot_hash`.
+pub fn observe_full(rule: &Rule, inputs: &J) -> J {
+    let r = rule
+        .evaluate(inputs)
+        .expect("evaluation must not error on fixture inputs");
+    let mut out = observe(rule, inputs);
+    out["trace"] = serde_json::to_value(&r.trace).unwrap();
+    out["rule_content_hash"] = json!(r.rule_content_hash);
+    out["input_snapshot_hash"] = json!(r.input_snapshot_hash);
+    out
 }
 
 pub fn case_passes(rule: &Rule, case: &J) -> bool {
@@ -89,7 +131,7 @@ pub fn real_cases() -> Vec<(J, String, J)> {
     paths.sort();
     let mut out = Vec::new();
     for p in paths {
-        let file = load_json(&p);
+        let file = case_file(p.strip_prefix(fixtures_dir()).unwrap());
         for case in file["cases"].as_array().unwrap() {
             let rule_id = case["rule"]
                 .as_str()

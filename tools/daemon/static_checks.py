@@ -16,9 +16,13 @@ _MODEL_WORDS = ["son" + "net", "op" + "us", "hai" + "ku", "fa" + "ble", "gr" + "
                 "dev" + "in", "swe" + "2", "cur" + "sor", "cla" + "ude", "anth" + "ropic", "mist" + "ral", "gem" + "ini"]
 
 
+RUNNER_VERIFY = HERE / "runner_verify"   # T-OP-09: the real-runner verification tool; it must launch processes, so it has its own checks
+
+
 def _py_files(root, include_self=False):
-    """The checker itself is left out: it has to name the patterns it looks for."""
-    return sorted(p for p in root.rglob("*.py") if include_self or p.name != "static_checks.py")
+    """The checker itself is left out: it has to name the patterns it looks for. So is runner_verify/ (T-OP-09):
+    it needs subprocess, time and signal by design, and the mock-daemon rules here do not apply to it."""
+    return sorted(p for p in root.rglob("*.py") if (include_self or p.name != "static_checks.py") and RUNNER_VERIFY not in p.parents)
 
 
 def _parse(path):
@@ -42,6 +46,19 @@ def no_natural_language_reads():
         text = rules_src.splitlines()[line - 1]
         if "is_banned_key" not in text and "key in" not in text:
             bad.append(f"rules.py:{line}: {text.strip()}")
+    return bad
+
+
+def outside_reads_only_in_observation():
+    """Values outside core_contract.reads are reached only through Rules.outside() and only by the observation
+    layer; no core module reads the raw file."""
+    bad = []
+    for p in _py_files(CORE):
+        src = p.read_text(encoding="utf-8")
+        if p.name not in ("observation.py", "rules.py") and ".outside(" in src:
+            bad.append(f"{p.name}: Rules.outside() outside the observation layer")
+        if p.name != "rules.py" and re.search(r"\.raw\b", src):
+            bad.append(f"{p.name}: reads the raw rules file")
     return bad
 
 
@@ -242,7 +259,7 @@ def single_tree_identity_function():
 
 def no_model_identifiers(extra_files=()):
     bad = []
-    files = [p for p in HERE.rglob("*") if p.is_file() and p.suffix in (".py", ".json")] + [Path(x) for x in extra_files]
+    files = [p for p in HERE.rglob("*") if p.is_file() and p.suffix in (".py", ".json") and RUNNER_VERIFY not in p.parents] + [Path(x) for x in extra_files]
     for p in files:
         text = p.read_text(encoding="utf-8").lower()
         for w in _MODEL_WORDS:
@@ -256,6 +273,7 @@ def all_static(rules_path, tasks_path=None):
     tasks_path = tasks_path or HERE / "mock_tasks.json"
     return [
         ("코어가 when·note·_ 키를 읽지 않음", no_natural_language_reads()),
+        ("읽기 목록 밖 값은 관측 계층의 Rules.outside()로만", outside_reads_only_in_observation()),
         ("코어에 dry_run·mock 분기 문자열 없음", no_dry_run_branch_in_core()),
         ("병합 API·자동 병합 호출 함수 없음", no_merge_api()),
         ("네트워크·실제 CLI·프로세스 실행·동적 코드 실행(eval·exec·compile·__import__·importlib) 없음", no_network_or_cli()),

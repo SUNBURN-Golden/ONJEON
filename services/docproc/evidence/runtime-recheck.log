@@ -1,0 +1,6 @@
+RUNTIME: starting owned temporary Docker daemon (no default bridge)
+$ DOCPROC_SANDBOX_REQUIRE_LIVE=1 bash services/docproc/test_sandbox.sh
+EXIT: 0; log=sandbox-required.log
+$ python3 -B services/docproc/tests/container_network.py
+EXIT: 0; log=container-direct.log
+RUNTIME: owned temporary daemon stopped and state removed

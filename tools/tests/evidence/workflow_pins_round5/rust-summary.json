@@ -1,0 +1,36 @@
+{
+  "rust-tests": {
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--all",
+      "--no-fail-fast"
+    ],
+    "exit": 101
+  },
+  "rust-format": {
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0
+  },
+  "rust-clippy": {
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0
+  }
+}

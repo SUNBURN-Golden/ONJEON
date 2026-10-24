@@ -1,0 +1,7 @@
+{
+  "error_class": "validation",
+  "code": "ONJ-AP-V-001",
+  "message_key": "error.unknown_enum",
+  "retryable": false,
+  "trace_id": "trace-fixture-1"
+}

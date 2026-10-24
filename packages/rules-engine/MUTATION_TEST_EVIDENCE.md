@@ -1,4 +1,110 @@
-# Audit 1 mutation test evidence — fix round 5
+# Audit 1 mutation test evidence
+
+## Fix round 2 — fixture path scope (2026-10-25)
+
+The reported out-of-scope edit to
+`packages/fixtures/rules/real/kyobo-small-cancer-skin.cases.json` is removed.
+All seven shared case files changed by this node now match merge parent
+`8d6db8673bb44423cfc38b63b795404dfa2e0d6d` byte-for-byte. The complete
+`packages/fixtures/rules` directory has zero diff against that parent.
+The 59 added boundary cases moved into the allowed
+`packages/rules-engine/tests/fixtures/cases/` directory; combining each shared
+file and its supplement reproduces the pre-relocation case table exactly.
+See [fixture scope and preservation checks](evidence/scope-round2-fixtures.log).
+
+The common test loader appends supplemental cases while preserving the shared
+base inputs and rule metadata, and rejects duplicate IDs against the shared
+cases or within a supplement. Golden, mutation, soundness, and real-clause tests
+all use the extended tables. Four regression tests cover preservation of the
+shared tables, base-input inheritance and per-case overrides, and both duplicate
+ID failures. A mutation negative control confirms that the six shared Kyobo skin
+cases miss 16 mutants that its eleven local boundary cases kill.
+
+Mutation coverage is unchanged: 120 cases across eight rules kill all 336
+loadable generated mutants; zero survivors and zero equivalence exceptions.
+The eleven hand-written mutants also remain killed. The per-rule counts in the
+historical table below still apply.
+
+| Command | Result |
+|---|---|
+| `cargo test -p onjeon-rules-engine --test fixture_supplements --test mutation --test golden --test real_clauses --test soundness -- --nocapture` | Pass: 29 tests, including 7 mutation tests and 4 supplement tests |
+| `cargo test --all` | Pass: 398 Rust tests including 3 doc tests; 1 existing ignored fixture-regeneration test; embedded Python suites also pass |
+| `cargo fmt --all -- --check` | Pass |
+| `cargo clippy --all-targets -- -D warnings` | Pass |
+| `python3 -m unittest discover -s tools/tests -v` | Pass: 568 tests, 562 passed and 6 existing skips |
+| `python3 tools/vocab_check.py` | Pass: 45 axes, 228 values |
+| `python3 tools/validation_check.py` | Pass: 14 samples internally consistent; originals not re-verified |
+| `python3 tools/validation_check.py --selftest` | Pass: 38 tampering cases caught |
+| Ontology runner build (`--locked`) and `ontology_check.py` | Pass: 11/11 questions, 15/15 constraint self-tests, 25/25 release/document-model tests |
+| `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | Pass: 44/44 machine checks, 72/72 existence checks |
+
+Logs: [focused tests and mutation counts](evidence/scope-round2-focused.log),
+[workspace tests](evidence/scope-round2-workspace.log),
+[Python tools tests](evidence/scope-round2-python.log),
+[Clippy](evidence/scope-round2-clippy.log),
+[ontology](evidence/scope-round2-ontology.log).
+Toolchain: rustc/cargo 1.98.1, Python 3.13.5.
+No commits, pushes, or GitHub calls were made.
+
+---
+
+## Historical verification — merge with main
+
+Executed locally on 2026-10-25 while resolving the merge of
+`8d6db8673bb44423cfc38b63b795404dfa2e0d6d` into branch HEAD
+`0b0326d518fcc8f814edc98584cef147c15f3d3e`.
+Toolchain: rustc/cargo 1.98.1, Python 3.13.5, boto3 1.43.100.
+
+The README conflict now retains the generic mutation coverage and main's pinned
+trace/hash coverage, rule-0.2 tests, overflow tests, and immutable-rule checks.
+The first `cargo test --all` exposed two integration failures: main pinned 14
+synthetic cases while this branch has 15, so the rounding case had no trace or
+input hash pin. The shared fixture paths are outside this node's allowed edits.
+A supplemental pin in
+`tests/fixtures/fixture-rule-001.rounding.golden.json` now covers
+`t15_rounding_floor_vs_half_even`; the golden tests combine both pin files,
+reject duplicate IDs, and require exactly the set of cases being exercised.
+The existing shared pins and real-rule content hash checks are retained.
+
+For the added case, 1003 × 0.5 floors to 501 KRW, whereas half-even produces
+502 KRW. Its trace was derived from the existing 1001 KRW rounding case with
+the changed input/result, and its snapshot hash was calculated independently
+with Python SHA-256 over the engine's sorted `name=value\n` format.
+Changing either the supplemental trace result to 502 KRW or its snapshot hash
+to zeros makes `golden_table_pins_trace_and_hashes` fail specifically for this
+case; restoring the pin returns all seven golden tests to passing.
+See [pin negative controls](evidence/merge-main/pin-controls.log).
+
+## Current verification
+
+| Command | Result |
+|---|---|
+| `cargo test -p onjeon-rules-engine --test mutation -- --nocapture` | Pass: 6 tests; 336 generated mutants over 8 rules, zero survivors, zero equivalence entries; 11 hand-written mutants also killed |
+| `cargo test --all` | Pass: 393 Rust tests including 3 doc tests; 1 existing ignored fixture-regeneration test; embedded Python codegen/API suites also pass |
+| `cargo fmt --all -- --check` | Pass |
+| `cargo clippy --all-targets -- -D warnings` | Pass |
+| `python3 tools/vocab_check.py` | Pass: 45 axes, 228 values |
+| `python3 tools/validation_check.py` | Pass: 14 samples internally consistent; originals not re-verified |
+| `python3 tools/validation_check.py --selftest` | Pass: 38 tampering cases caught |
+| `python3 -m unittest discover -s tools/tests -v` | Pass: 568 tests, 562 passed, 6 existing skips; no errors (including the three formerly socket-blocked R2 tests) |
+| `cargo build --locked --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir target/merge-main-onto` | Pass |
+| `python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py target/merge-main-onto/debug/ontology-case-runner` | Pass: 11/11 questions, 15/15 constraint self-tests, 25/25 release/document-model tests |
+| `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | Pass: 44/44 machine checks, 72/72 existence checks |
+
+Logs: [workspace tests](evidence/merge-main/cargo-test.log),
+[mutation counts](evidence/merge-main/mutation.log),
+[Python tools tests](evidence/merge-main/python-tests.log),
+[Clippy](evidence/merge-main/clippy.log),
+[ontology build](evidence/merge-main/ontology-build.log),
+[ontology checks](evidence/merge-main/ontology.log).
+
+No unmerged index entries remain. The merge is left uncommitted for the
+supervisor. Hosted CI was not triggered or inspected; this task prohibits
+GitHub access, commits, and pushes.
+
+---
+
+## Historical verification — fix round 5
 
 Executed locally on 2026-10-21, starting from `126cfbd` (fix round 4).
 This round re-runs the existing checks for the reported `CI FAIL:no-ci-runs`;

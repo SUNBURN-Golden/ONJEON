@@ -1,0 +1,27 @@
+{
+  "criterion": {
+    "id": "crit:fx-question",
+    "kind": "question_rule",
+    "label": "결론을 바꿀 수 있는 입력만 추가로 묻는다",
+    "scope": {
+      "situations": ["필요성 판단"],
+      "subjects": ["모든 사용자"]
+    },
+    "recorded_at": "2026-10-20T00:00:00Z"
+  },
+  "versions": [
+    {
+      "version": 1,
+      "valid_from": "2026-10-20",
+      "sources": [
+        {
+          "ref": "raw:sha256:052dd4693601b0f5d4bf9ffb5b1f3bc47b39be0c9ad6706b36eaeb6929be4032",
+          "evidence_kind": "editorial"
+        }
+      ],
+      "rationale": "시험 전용 판(fixture). 온전의 판단 기준 작성 절차를 거친 서비스 기준이 아니다",
+      "recorded_at": "2026-10-20T00:00:00Z",
+      "origin": "fixture"
+    }
+  ]
+}

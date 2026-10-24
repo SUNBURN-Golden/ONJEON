@@ -1,0 +1,636 @@
+== 1) 정적 시험 ==
+test_bootstrap_never_replaces_selected_daemon (test_docker_runtime.DockerRuntimeTests.test_bootstrap_never_replaces_selected_daemon) ... ok
+test_failed_daemon_start_cannot_pass_acceptance (test_docker_runtime.DockerRuntimeTests.test_failed_daemon_start_cannot_pass_acceptance) ... ok
+test_missing_daemon_or_privileges_fails (test_docker_runtime.DockerRuntimeTests.test_missing_daemon_or_privileges_fails) ... ok
+test_owned_daemon_is_cleaned_when_acceptance_fails (test_docker_runtime.DockerRuntimeTests.test_owned_daemon_is_cleaned_when_acceptance_fails) ... ok
+test_owned_daemon_is_stopped_and_state_removed (test_docker_runtime.DockerRuntimeTests.test_owned_daemon_is_stopped_and_state_removed) ... ok
+test_owned_data_bind_mount_is_unmounted_before_removal (test_docker_runtime.DockerRuntimeTests.test_owned_data_bind_mount_is_unmounted_before_removal) ... ok
+test_unavailable_explicit_daemon_fails_without_bootstrap (test_docker_runtime.DockerRuntimeTests.test_unavailable_explicit_daemon_fails_without_bootstrap) ... ok
+test_working_daemon_is_reused_without_privileged_process (test_docker_runtime.DockerRuntimeTests.test_working_daemon_is_reused_without_privileged_process) ... ok
+setUpClass (test_docproc.DocprocTests) ... skipped 'Extraction suite requires native Poppler 24.02; run test_sandbox.sh'
+test_fingerprint_nfc_whitespace_preserves_semantics (test_docproc.PureTests.test_fingerprint_nfc_whitespace_preserves_semantics) ... ok
+test_printed_heading_shape_and_inserted_articles (test_docproc.PureTests.test_printed_heading_shape_and_inserted_articles) ... ok
+test_rust_parser_accepts_every_role_id_and_rejects_legacy_labels (test_docproc.RustParserTests.test_rust_parser_accepts_every_role_id_and_rejects_legacy_labels) ... ok
+test_check_output_rejects_ids_that_do_not_restate_fields (test_docproc.SharedContractTests.test_check_output_rejects_ids_that_do_not_restate_fields) ... ok
+test_every_role_id_matches_shared_grammar (test_docproc.SharedContractTests.test_every_role_id_matches_shared_grammar) ... ok
+test_roles_are_vocabulary_doc_role_codes (test_docproc.SharedContractTests.test_roles_are_vocabulary_doc_role_codes) ... ok
+test_specs_accept_codes_and_reject_labels_and_aliases (test_docproc.SharedContractTests.test_specs_accept_codes_and_reject_labels_and_aliases) ... ok
+test_container_configuration_is_scoped_to_docproc (test_sandbox.SandboxTests.test_container_configuration_is_scoped_to_docproc) ... ok
+test_docker_absence_fails_by_default_and_when_required (test_sandbox.SandboxTests.test_docker_absence_fails_by_default_and_when_required) ... ok
+test_live_controlled_endpoint_detects_enabled_network (test_sandbox.SandboxTests.test_live_controlled_endpoint_detects_enabled_network) ... ok
+test_only_unreachable_is_accepted_and_both_families_checked (test_sandbox.SandboxTests.test_only_unreachable_is_accepted_and_both_families_checked) ... ok
+test_refusal_timeout_and_unexpected_errors_are_not_isolation (test_sandbox.SandboxTests.test_refusal_timeout_and_unexpected_errors_are_not_isolation) ... ok
+test_wrong_endpoint_response_fails_positive_control (test_sandbox.SandboxTests.test_wrong_endpoint_response_fails_positive_control) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 6.152s
+
+OK (skipped=1)
+== 2) 실제 격리 시험 ==
+RUNTIME: using caller's working Docker daemon
+CONFIG: scoped services.docproc settings passed
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 691B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#2 DONE 0.3s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 91B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 9.35kB done
+#4 DONE 0.0s
+
+#5 [base 1/5] FROM docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#5 resolve docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac done
+#5 sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac 6.69kB / 6.69kB done
+#5 sha256:a2d43bffc46670d7108bb3c0468c67c5557c4c92e83e1e34cbff1322ad1b94dc 424B / 424B done
+#5 sha256:6277ab668b2ad3c3ab851d370faa1690d324b30db29d342527f61fed28f20f36 2.05kB / 2.05kB done
+#5 sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 7.34MB / 29.77MB 0.1s
+#5 sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 16.78MB / 29.77MB 0.2s
+#5 sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 27.26MB / 29.77MB 0.3s
+#5 extracting sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b
+#5 sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 29.77MB / 29.77MB 0.3s done
+#5 extracting sha256:f2b4ef06ff01a67d4bed7657a4ae379a7d07934b7c3e743454a22a0d5275fb2b 0.9s done
+#5 DONE 1.3s
+
+#6 [base 2/5] RUN apt-get update && apt-get install -y --no-install-recommends python3 poppler-utils && rm -rf /var/lib/apt/lists/*
+#6 0.249 Get:1 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+#6 0.464 Get:2 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+#6 0.465 Get:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+#6 0.900 Get:4 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+#6 0.955 Get:5 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1549 kB]
+#6 1.397 Get:6 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+#6 1.840 Get:7 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1411 kB]
+#6 1.914 Get:8 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]
+#6 2.185 Get:9 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+#6 2.645 Get:10 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+#6 2.826 Get:11 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [55.6 kB]
+#6 3.059 Get:12 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2122 kB]
+#6 4.009 Get:13 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1733 kB]
+#6 4.715 Get:14 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2231 kB]
+#6 4.914 Get:15 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2171 kB]
+#6 5.046 Get:16 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [61.7 kB]
+#6 5.269 Get:17 http://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [669 B]
+#6 5.419 Get:18 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
+#6 5.751 Get:19 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [36.0 kB]
+#6 5.880 Fetched 33.6 MB in 6s (5937 kB/s)
+#6 5.880 Reading package lists...
+#6 6.557 Reading package lists...
+#6 7.259 Building dependency tree...
+#6 7.376 Reading state information...
+#6 7.563 The following additional packages will be installed:
+#6 7.563   fontconfig-config fonts-dejavu-core fonts-dejavu-mono libbrotli1 libbsd0
+#6 7.563   libcairo2 libcurl3t64-gnutls libdeflate0 libexpat1 libfontconfig1
+#6 7.563   libfreetype6 libgssapi-krb5-2 libjbig0 libjpeg-turbo8 libjpeg8 libk5crypto3
+#6 7.563   libkeyutils1 libkrb5-3 libkrb5support0 liblcms2-2 libldap2 liblerc4
+#6 7.563   libnghttp2-14 libnspr4 libnss3 libopenjp2-7 libpixman-1-0 libpng16-16t64
+#6 7.563   libpoppler134 libpsl5t64 libpython3-stdlib libpython3.12-minimal
+#6 7.563   libpython3.12-stdlib libreadline8t64 librtmp1 libsasl2-2 libsasl2-modules-db
+#6 7.563   libsharpyuv0 libsqlite3-0 libssh-4 libtiff6 libwebp7 libx11-6 libx11-data
+#6 7.563   libxau6 libxcb-render0 libxcb-shm0 libxcb1 libxdmcp6 libxext6 libxrender1
+#6 7.563   media-types netbase python3-minimal python3.12 python3.12-minimal
+#6 7.563   readline-common tzdata
+#6 7.564 Suggested packages:
+#6 7.564   krb5-doc krb5-user liblcms2-utils python3-doc python3-tk python3-venv
+#6 7.564   python3.12-venv python3.12-doc binutils binfmt-support readline-doc
+#6 7.564 Recommended packages:
+#6 7.564   ca-certificates krb5-locales libldap-common poppler-data publicsuffix
+#6 7.564   libsasl2-modules
+#6 7.631 The following NEW packages will be installed:
+#6 7.631   fontconfig-config fonts-dejavu-core fonts-dejavu-mono libbrotli1 libbsd0
+#6 7.631   libcairo2 libcurl3t64-gnutls libdeflate0 libexpat1 libfontconfig1
+#6 7.631   libfreetype6 libgssapi-krb5-2 libjbig0 libjpeg-turbo8 libjpeg8 libk5crypto3
+#6 7.631   libkeyutils1 libkrb5-3 libkrb5support0 liblcms2-2 libldap2 liblerc4
+#6 7.631   libnghttp2-14 libnspr4 libnss3 libopenjp2-7 libpixman-1-0 libpng16-16t64
+#6 7.631   libpoppler134 libpsl5t64 libpython3-stdlib libpython3.12-minimal
+#6 7.632   libpython3.12-stdlib libreadline8t64 librtmp1 libsasl2-2 libsasl2-modules-db
+#6 7.632   libsharpyuv0 libsqlite3-0 libssh-4 libtiff6 libwebp7 libx11-6 libx11-data
+#6 7.632   libxau6 libxcb-render0 libxcb-shm0 libxcb1 libxdmcp6 libxext6 libxrender1
+#6 7.632   media-types netbase poppler-utils python3 python3-minimal python3.12
+#6 7.632   python3.12-minimal readline-common tzdata
+#6 7.735 0 upgraded, 60 newly installed, 0 to remove and 4 not upgraded.
+#6 7.735 Need to get 17.2 MB of archives.
+#6 7.735 After this operation, 56.7 MB of additional disk space will be used.
+#6 7.735 Get:1 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpython3.12-minimal amd64 3.12.3-1ubuntu0.17 [839 kB]
+#6 8.241 Get:2 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libexpat1 amd64 2.6.1-2ubuntu0.6 [98.9 kB]
+#6 8.278 Get:3 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 python3.12-minimal amd64 3.12.3-1ubuntu0.17 [2335 kB]
+#6 8.425 Get:4 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 python3-minimal amd64 3.12.3-0ubuntu2.1 [27.4 kB]
+#6 8.614 Get:5 http://archive.ubuntu.com/ubuntu noble/main amd64 media-types all 10.1.0 [27.5 kB]
+#6 8.885 Get:6 http://archive.ubuntu.com/ubuntu noble/main amd64 netbase all 6.4 [13.1 kB]
+#6 8.975 Get:7 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 tzdata all 2026e-0ubuntu0.24.04.1 [282 kB]
+#6 9.355 Get:8 http://archive.ubuntu.com/ubuntu noble/main amd64 readline-common all 8.2-4build1 [56.5 kB]
+#6 9.374 Get:9 http://archive.ubuntu.com/ubuntu noble/main amd64 libreadline8t64 amd64 8.2-4build1 [153 kB]
+#6 9.570 Get:10 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsqlite3-0 amd64 3.45.1-1ubuntu2.8 [702 kB]
+#6 10.14 Get:11 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpython3.12-stdlib amd64 3.12.3-1ubuntu0.17 [2071 kB]
+#6 10.45 Get:12 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 python3.12 amd64 3.12.3-1ubuntu0.17 [651 kB]
+#6 10.96 Get:13 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpython3-stdlib amd64 3.12.3-0ubuntu2.1 [10.1 kB]
+#6 11.14 Get:14 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 python3 amd64 3.12.3-0ubuntu2.1 [23.0 kB]
+#6 11.36 Get:15 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libbsd0 amd64 0.12.1-1build1.1 [41.2 kB]
+#6 11.61 Get:16 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libkrb5support0 amd64 1.20.1-6ubuntu2.10 [34.9 kB]
+#6 11.79 Get:17 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libk5crypto3 amd64 1.20.1-6ubuntu2.10 [81.9 kB]
+#6 12.05 Get:18 http://archive.ubuntu.com/ubuntu noble/main amd64 libkeyutils1 amd64 1.6.3-3build1 [9490 B]
+#6 12.13 Get:19 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libkrb5-3 amd64 1.20.1-6ubuntu2.10 [348 kB]
+#6 12.27 Get:20 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgssapi-krb5-2 amd64 1.20.1-6ubuntu2.10 [143 kB]
+#6 12.60 Get:21 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libnghttp2-14 amd64 1.59.0-1ubuntu0.4 [74.6 kB]
+#6 12.69 Get:22 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpng16-16t64 amd64 1.6.43-5ubuntu0.7 [189 kB]
+#6 12.71 Get:23 http://archive.ubuntu.com/ubuntu noble/main amd64 libpsl5t64 amd64 0.21.2-1.1build1 [57.1 kB]
+#6 12.87 Get:24 http://archive.ubuntu.com/ubuntu noble/main amd64 libxau6 amd64 1:1.0.9-1build6 [7160 B]
+#6 13.14 Get:25 http://archive.ubuntu.com/ubuntu noble/main amd64 libxdmcp6 amd64 1:1.1.3-0ubuntu6 [10.3 kB]
+#6 13.23 Get:26 http://archive.ubuntu.com/ubuntu noble/main amd64 libxcb1 amd64 1.15-1ubuntu2 [47.7 kB]
+#6 13.32 Get:27 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libx11-data all 2:1.8.7-1ubuntu0.1 [116 kB]
+#6 13.68 Get:28 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libx11-6 amd64 2:1.8.7-1ubuntu0.1 [653 kB]
+#6 14.38 Get:29 http://archive.ubuntu.com/ubuntu noble/main amd64 libxext6 amd64 2:1.3.4-1build2 [30.4 kB]
+#6 14.65 Get:30 http://archive.ubuntu.com/ubuntu noble/main amd64 fonts-dejavu-mono all 2.37-8 [502 kB]
+#6 15.26 Get:31 http://archive.ubuntu.com/ubuntu noble/main amd64 fonts-dejavu-core all 2.37-8 [835 kB]
+#6 15.45 Get:32 http://archive.ubuntu.com/ubuntu noble/main amd64 fontconfig-config amd64 2.15.0-1.1ubuntu2 [37.3 kB]
+#6 15.64 Get:33 http://archive.ubuntu.com/ubuntu noble/main amd64 libbrotli1 amd64 1.1.0-2build2 [331 kB]
+#6 16.22 Get:34 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libfreetype6 amd64 2.13.2+dfsg-1ubuntu0.2 [403 kB]
+#6 16.31 Get:35 http://archive.ubuntu.com/ubuntu noble/main amd64 libfontconfig1 amd64 2.15.0-1.1ubuntu2 [139 kB]
+#6 16.51 Get:36 http://archive.ubuntu.com/ubuntu noble/main amd64 libpixman-1-0 amd64 0.42.2-1build1 [279 kB]
+#6 17.02 Get:37 http://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-render0 amd64 1.15-1ubuntu2 [16.2 kB]
+#6 17.11 Get:38 http://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-shm0 amd64 1.15-1ubuntu2 [5756 B]
+#6 17.15 Get:39 http://archive.ubuntu.com/ubuntu noble/main amd64 libxrender1 amd64 1:0.9.10-1.1build1 [19.0 kB]
+#6 17.32 Get:40 http://archive.ubuntu.com/ubuntu noble/main amd64 libcairo2 amd64 1.18.0-3build1 [566 kB]
+#6 18.02 Get:41 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg1-5ubuntu3.1 [20.4 kB]
+#6 18.21 Get:42 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsasl2-2 amd64 2.1.28+dfsg1-5ubuntu3.1 [53.2 kB]
+#6 18.31 Get:43 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libldap2 amd64 2.6.10+dfsg-0ubuntu0.24.04.1 [198 kB]
+#6 18.40 Get:44 http://archive.ubuntu.com/ubuntu noble/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-2build7 [56.3 kB]
+#6 18.60 Get:45 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libssh-4 amd64 0.10.6-2ubuntu0.5 [191 kB]
+#6 18.97 Get:46 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl3t64-gnutls amd64 8.5.0-2ubuntu10.16 [337 kB]
+#6 19.05 Get:47 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdeflate0 amd64 1.19-1build1.1 [43.9 kB]
+#6 19.26 Get:48 http://archive.ubuntu.com/ubuntu noble/main amd64 libjpeg-turbo8 amd64 2.1.5-2ubuntu2 [150 kB]
+#6 19.72 Get:49 http://archive.ubuntu.com/ubuntu noble/main amd64 libjpeg8 amd64 8c-2ubuntu11 [2148 B]
+#6 19.74 Get:50 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 liblcms2-2 amd64 2.14-2ubuntu0.1 [161 kB]
+#6 19.86 Get:51 http://archive.ubuntu.com/ubuntu noble/main amd64 liblerc4 amd64 4.0.0+ds-4ubuntu2 [179 kB]
+#6 19.97 Get:52 http://archive.ubuntu.com/ubuntu noble/main amd64 libnspr4 amd64 2:4.35-1.1build1 [117 kB]
+#6 20.17 Get:53 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libnss3 amd64 2:3.98-1ubuntu0.3 [1445 kB]
+#6 20.67 Get:54 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libopenjp2-7 amd64 2.5.0-2ubuntu0.5 [174 kB]
+#6 21.08 Get:55 http://archive.ubuntu.com/ubuntu noble/main amd64 libjbig0 amd64 2.1-6.1ubuntu2 [29.7 kB]
+#6 21.17 Get:56 http://archive.ubuntu.com/ubuntu noble/main amd64 libsharpyuv0 amd64 1.3.2-0.4build3 [15.8 kB]
+#6 21.20 Get:57 http://archive.ubuntu.com/ubuntu noble/main amd64 libwebp7 amd64 1.3.2-0.4build3 [230 kB]
+#6 21.44 Get:58 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libtiff6 amd64 4.5.1+git230720-4ubuntu2.5 [200 kB]
+#6 21.88 Get:59 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpoppler134 amd64 24.02.0-1ubuntu9.11 [1118 kB]
+#6 21.91 Get:60 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 poppler-utils amd64 24.02.0-1ubuntu9.11 [212 kB]
+#6 22.02 debconf: delaying package configuration, since apt-utils is not installed
+#6 22.04 Fetched 17.2 MB in 14s (1204 kB/s)
+#6 22.05 Selecting previously unselected package libpython3.12-minimal:amd64.
+#6 22.05 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 4381 files and directories currently installed.)
+#6 22.05 Preparing to unpack .../libpython3.12-minimal_3.12.3-1ubuntu0.17_amd64.deb ...
+#6 22.05 Unpacking libpython3.12-minimal:amd64 (3.12.3-1ubuntu0.17) ...
+#6 22.09 Selecting previously unselected package libexpat1:amd64.
+#6 22.09 Preparing to unpack .../libexpat1_2.6.1-2ubuntu0.6_amd64.deb ...
+#6 22.09 Unpacking libexpat1:amd64 (2.6.1-2ubuntu0.6) ...
+#6 22.10 Selecting previously unselected package python3.12-minimal.
+#6 22.10 Preparing to unpack .../python3.12-minimal_3.12.3-1ubuntu0.17_amd64.deb ...
+#6 22.11 Unpacking python3.12-minimal (3.12.3-1ubuntu0.17) ...
+#6 22.27 Setting up libpython3.12-minimal:amd64 (3.12.3-1ubuntu0.17) ...
+#6 22.27 Setting up libexpat1:amd64 (2.6.1-2ubuntu0.6) ...
+#6 22.27 Setting up python3.12-minimal (3.12.3-1ubuntu0.17) ...
+#6 22.86 Selecting previously unselected package python3-minimal.
+#6 22.86 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 4700 files and directories currently installed.)
+#6 22.86 Preparing to unpack .../0-python3-minimal_3.12.3-0ubuntu2.1_amd64.deb ...
+#6 22.86 Unpacking python3-minimal (3.12.3-0ubuntu2.1) ...
+#6 22.88 Selecting previously unselected package media-types.
+#6 22.88 Preparing to unpack .../1-media-types_10.1.0_all.deb ...
+#6 22.88 Unpacking media-types (10.1.0) ...
+#6 22.89 Selecting previously unselected package netbase.
+#6 22.89 Preparing to unpack .../2-netbase_6.4_all.deb ...
+#6 22.89 Unpacking netbase (6.4) ...
+#6 22.90 Selecting previously unselected package tzdata.
+#6 22.90 Preparing to unpack .../3-tzdata_2026e-0ubuntu0.24.04.1_all.deb ...
+#6 22.90 Unpacking tzdata (2026e-0ubuntu0.24.04.1) ...
+#6 22.95 Selecting previously unselected package readline-common.
+#6 22.95 Preparing to unpack .../4-readline-common_8.2-4build1_all.deb ...
+#6 22.95 Unpacking readline-common (8.2-4build1) ...
+#6 22.96 Selecting previously unselected package libreadline8t64:amd64.
+#6 22.96 Preparing to unpack .../5-libreadline8t64_8.2-4build1_amd64.deb ...
+#6 22.96 Adding 'diversion of /lib/x86_64-linux-gnu/libhistory.so.8 to /lib/x86_64-linux-gnu/libhistory.so.8.usr-is-merged by libreadline8t64'
+#6 22.96 Adding 'diversion of /lib/x86_64-linux-gnu/libhistory.so.8.2 to /lib/x86_64-linux-gnu/libhistory.so.8.2.usr-is-merged by libreadline8t64'
+#6 22.97 Adding 'diversion of /lib/x86_64-linux-gnu/libreadline.so.8 to /lib/x86_64-linux-gnu/libreadline.so.8.usr-is-merged by libreadline8t64'
+#6 22.97 Adding 'diversion of /lib/x86_64-linux-gnu/libreadline.so.8.2 to /lib/x86_64-linux-gnu/libreadline.so.8.2.usr-is-merged by libreadline8t64'
+#6 22.97 Unpacking libreadline8t64:amd64 (8.2-4build1) ...
+#6 22.99 Selecting previously unselected package libsqlite3-0:amd64.
+#6 22.99 Preparing to unpack .../6-libsqlite3-0_3.45.1-1ubuntu2.8_amd64.deb ...
+#6 22.99 Unpacking libsqlite3-0:amd64 (3.45.1-1ubuntu2.8) ...
+#6 23.00 Selecting previously unselected package libpython3.12-stdlib:amd64.
+#6 23.00 Preparing to unpack .../7-libpython3.12-stdlib_3.12.3-1ubuntu0.17_amd64.deb ...
+#6 23.00 Unpacking libpython3.12-stdlib:amd64 (3.12.3-1ubuntu0.17) ...
+#6 23.06 Selecting previously unselected package python3.12.
+#6 23.06 Preparing to unpack .../8-python3.12_3.12.3-1ubuntu0.17_amd64.deb ...
+#6 23.06 Unpacking python3.12 (3.12.3-1ubuntu0.17) ...
+#6 23.08 Selecting previously unselected package libpython3-stdlib:amd64.
+#6 23.08 Preparing to unpack .../9-libpython3-stdlib_3.12.3-0ubuntu2.1_amd64.deb ...
+#6 23.08 Unpacking libpython3-stdlib:amd64 (3.12.3-0ubuntu2.1) ...
+#6 23.09 Setting up python3-minimal (3.12.3-0ubuntu2.1) ...
+#6 23.20 Selecting previously unselected package python3.
+#6 23.20 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5706 files and directories currently installed.)
+#6 23.20 Preparing to unpack .../00-python3_3.12.3-0ubuntu2.1_amd64.deb ...
+#6 23.20 Unpacking python3 (3.12.3-0ubuntu2.1) ...
+#6 23.21 Selecting previously unselected package libbsd0:amd64.
+#6 23.21 Preparing to unpack .../01-libbsd0_0.12.1-1build1.1_amd64.deb ...
+#6 23.21 Unpacking libbsd0:amd64 (0.12.1-1build1.1) ...
+#6 23.22 Selecting previously unselected package libkrb5support0:amd64.
+#6 23.22 Preparing to unpack .../02-libkrb5support0_1.20.1-6ubuntu2.10_amd64.deb ...
+#6 23.22 Unpacking libkrb5support0:amd64 (1.20.1-6ubuntu2.10) ...
+#6 23.24 Selecting previously unselected package libk5crypto3:amd64.
+#6 23.24 Preparing to unpack .../03-libk5crypto3_1.20.1-6ubuntu2.10_amd64.deb ...
+#6 23.24 Unpacking libk5crypto3:amd64 (1.20.1-6ubuntu2.10) ...
+#6 23.26 Selecting previously unselected package libkeyutils1:amd64.
+#6 23.26 Preparing to unpack .../04-libkeyutils1_1.6.3-3build1_amd64.deb ...
+#6 23.26 Unpacking libkeyutils1:amd64 (1.6.3-3build1) ...
+#6 23.28 Selecting previously unselected package libkrb5-3:amd64.
+#6 23.28 Preparing to unpack .../05-libkrb5-3_1.20.1-6ubuntu2.10_amd64.deb ...
+#6 23.28 Unpacking libkrb5-3:amd64 (1.20.1-6ubuntu2.10) ...
+#6 23.30 Selecting previously unselected package libgssapi-krb5-2:amd64.
+#6 23.30 Preparing to unpack .../06-libgssapi-krb5-2_1.20.1-6ubuntu2.10_amd64.deb ...
+#6 23.30 Unpacking libgssapi-krb5-2:amd64 (1.20.1-6ubuntu2.10) ...
+#6 23.31 Selecting previously unselected package libnghttp2-14:amd64.
+#6 23.31 Preparing to unpack .../07-libnghttp2-14_1.59.0-1ubuntu0.4_amd64.deb ...
+#6 23.31 Unpacking libnghttp2-14:amd64 (1.59.0-1ubuntu0.4) ...
+#6 23.32 Selecting previously unselected package libpng16-16t64:amd64.
+#6 23.32 Preparing to unpack .../08-libpng16-16t64_1.6.43-5ubuntu0.7_amd64.deb ...
+#6 23.32 Unpacking libpng16-16t64:amd64 (1.6.43-5ubuntu0.7) ...
+#6 23.33 Selecting previously unselected package libpsl5t64:amd64.
+#6 23.33 Preparing to unpack .../09-libpsl5t64_0.21.2-1.1build1_amd64.deb ...
+#6 23.33 Unpacking libpsl5t64:amd64 (0.21.2-1.1build1) ...
+#6 23.34 Selecting previously unselected package libxau6:amd64.
+#6 23.34 Preparing to unpack .../10-libxau6_1%3a1.0.9-1build6_amd64.deb ...
+#6 23.34 Unpacking libxau6:amd64 (1:1.0.9-1build6) ...
+#6 23.35 Selecting previously unselected package libxdmcp6:amd64.
+#6 23.35 Preparing to unpack .../11-libxdmcp6_1%3a1.1.3-0ubuntu6_amd64.deb ...
+#6 23.35 Unpacking libxdmcp6:amd64 (1:1.1.3-0ubuntu6) ...
+#6 23.36 Selecting previously unselected package libxcb1:amd64.
+#6 23.36 Preparing to unpack .../12-libxcb1_1.15-1ubuntu2_amd64.deb ...
+#6 23.36 Unpacking libxcb1:amd64 (1.15-1ubuntu2) ...
+#6 23.37 Selecting previously unselected package libx11-data.
+#6 23.37 Preparing to unpack .../13-libx11-data_2%3a1.8.7-1ubuntu0.1_all.deb ...
+#6 23.37 Unpacking libx11-data (2:1.8.7-1ubuntu0.1) ...
+#6 23.40 Selecting previously unselected package libx11-6:amd64.
+#6 23.40 Preparing to unpack .../14-libx11-6_2%3a1.8.7-1ubuntu0.1_amd64.deb ...
+#6 23.40 Unpacking libx11-6:amd64 (2:1.8.7-1ubuntu0.1) ...
+#6 23.41 Selecting previously unselected package libxext6:amd64.
+#6 23.41 Preparing to unpack .../15-libxext6_2%3a1.3.4-1build2_amd64.deb ...
+#6 23.41 Unpacking libxext6:amd64 (2:1.3.4-1build2) ...
+#6 23.42 Selecting previously unselected package fonts-dejavu-mono.
+#6 23.42 Preparing to unpack .../16-fonts-dejavu-mono_2.37-8_all.deb ...
+#6 23.42 Unpacking fonts-dejavu-mono (2.37-8) ...
+#6 23.44 Selecting previously unselected package fonts-dejavu-core.
+#6 23.45 Preparing to unpack .../17-fonts-dejavu-core_2.37-8_all.deb ...
+#6 23.46 Unpacking fonts-dejavu-core (2.37-8) ...
+#6 23.48 Selecting previously unselected package fontconfig-config.
+#6 23.48 Preparing to unpack .../18-fontconfig-config_2.15.0-1.1ubuntu2_amd64.deb ...
+#6 23.60 Unpacking fontconfig-config (2.15.0-1.1ubuntu2) ...
+#6 23.61 Selecting previously unselected package libbrotli1:amd64.
+#6 23.61 Preparing to unpack .../19-libbrotli1_1.1.0-2build2_amd64.deb ...
+#6 23.61 Unpacking libbrotli1:amd64 (1.1.0-2build2) ...
+#6 23.62 Selecting previously unselected package libfreetype6:amd64.
+#6 23.63 Preparing to unpack .../20-libfreetype6_2.13.2+dfsg-1ubuntu0.2_amd64.deb ...
+#6 23.63 Unpacking libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) ...
+#6 23.64 Selecting previously unselected package libfontconfig1:amd64.
+#6 23.64 Preparing to unpack .../21-libfontconfig1_2.15.0-1.1ubuntu2_amd64.deb ...
+#6 23.64 Unpacking libfontconfig1:amd64 (2.15.0-1.1ubuntu2) ...
+#6 23.65 Selecting previously unselected package libpixman-1-0:amd64.
+#6 23.65 Preparing to unpack .../22-libpixman-1-0_0.42.2-1build1_amd64.deb ...
+#6 23.65 Unpacking libpixman-1-0:amd64 (0.42.2-1build1) ...
+#6 23.67 Selecting previously unselected package libxcb-render0:amd64.
+#6 23.67 Preparing to unpack .../23-libxcb-render0_1.15-1ubuntu2_amd64.deb ...
+#6 23.67 Unpacking libxcb-render0:amd64 (1.15-1ubuntu2) ...
+#6 23.68 Selecting previously unselected package libxcb-shm0:amd64.
+#6 23.68 Preparing to unpack .../24-libxcb-shm0_1.15-1ubuntu2_amd64.deb ...
+#6 23.68 Unpacking libxcb-shm0:amd64 (1.15-1ubuntu2) ...
+#6 23.69 Selecting previously unselected package libxrender1:amd64.
+#6 23.69 Preparing to unpack .../25-libxrender1_1%3a0.9.10-1.1build1_amd64.deb ...
+#6 23.70 Unpacking libxrender1:amd64 (1:0.9.10-1.1build1) ...
+#6 23.71 Selecting previously unselected package libcairo2:amd64.
+#6 23.71 Preparing to unpack .../26-libcairo2_1.18.0-3build1_amd64.deb ...
+#6 23.71 Unpacking libcairo2:amd64 (1.18.0-3build1) ...
+#6 23.72 Selecting previously unselected package libsasl2-modules-db:amd64.
+#6 23.72 Preparing to unpack .../27-libsasl2-modules-db_2.1.28+dfsg1-5ubuntu3.1_amd64.deb ...
+#6 23.73 Unpacking libsasl2-modules-db:amd64 (2.1.28+dfsg1-5ubuntu3.1) ...
+#6 23.74 Selecting previously unselected package libsasl2-2:amd64.
+#6 23.74 Preparing to unpack .../28-libsasl2-2_2.1.28+dfsg1-5ubuntu3.1_amd64.deb ...
+#6 23.74 Unpacking libsasl2-2:amd64 (2.1.28+dfsg1-5ubuntu3.1) ...
+#6 23.75 Selecting previously unselected package libldap2:amd64.
+#6 23.75 Preparing to unpack .../29-libldap2_2.6.10+dfsg-0ubuntu0.24.04.1_amd64.deb ...
+#6 23.75 Unpacking libldap2:amd64 (2.6.10+dfsg-0ubuntu0.24.04.1) ...
+#6 23.76 Selecting previously unselected package librtmp1:amd64.
+#6 23.76 Preparing to unpack .../30-librtmp1_2.4+20151223.gitfa8646d.1-2build7_amd64.deb ...
+#6 23.76 Unpacking librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2build7) ...
+#6 23.77 Selecting previously unselected package libssh-4:amd64.
+#6 23.77 Preparing to unpack .../31-libssh-4_0.10.6-2ubuntu0.5_amd64.deb ...
+#6 23.78 Unpacking libssh-4:amd64 (0.10.6-2ubuntu0.5) ...
+#6 23.80 Selecting previously unselected package libcurl3t64-gnutls:amd64.
+#6 23.80 Preparing to unpack .../32-libcurl3t64-gnutls_8.5.0-2ubuntu10.16_amd64.deb ...
+#6 23.80 Unpacking libcurl3t64-gnutls:amd64 (8.5.0-2ubuntu10.16) ...
+#6 23.81 Selecting previously unselected package libdeflate0:amd64.
+#6 23.81 Preparing to unpack .../33-libdeflate0_1.19-1build1.1_amd64.deb ...
+#6 23.81 Unpacking libdeflate0:amd64 (1.19-1build1.1) ...
+#6 23.82 Selecting previously unselected package libjpeg-turbo8:amd64.
+#6 23.82 Preparing to unpack .../34-libjpeg-turbo8_2.1.5-2ubuntu2_amd64.deb ...
+#6 23.82 Unpacking libjpeg-turbo8:amd64 (2.1.5-2ubuntu2) ...
+#6 23.83 Selecting previously unselected package libjpeg8:amd64.
+#6 23.83 Preparing to unpack .../35-libjpeg8_8c-2ubuntu11_amd64.deb ...
+#6 23.83 Unpacking libjpeg8:amd64 (8c-2ubuntu11) ...
+#6 23.84 Selecting previously unselected package liblcms2-2:amd64.
+#6 23.84 Preparing to unpack .../36-liblcms2-2_2.14-2ubuntu0.1_amd64.deb ...
+#6 23.84 Unpacking liblcms2-2:amd64 (2.14-2ubuntu0.1) ...
+#6 23.85 Selecting previously unselected package liblerc4:amd64.
+#6 23.85 Preparing to unpack .../37-liblerc4_4.0.0+ds-4ubuntu2_amd64.deb ...
+#6 23.85 Unpacking liblerc4:amd64 (4.0.0+ds-4ubuntu2) ...
+#6 23.86 Selecting previously unselected package libnspr4:amd64.
+#6 23.86 Preparing to unpack .../38-libnspr4_2%3a4.35-1.1build1_amd64.deb ...
+#6 23.86 Unpacking libnspr4:amd64 (2:4.35-1.1build1) ...
+#6 23.88 Selecting previously unselected package libnss3:amd64.
+#6 23.88 Preparing to unpack .../39-libnss3_2%3a3.98-1ubuntu0.3_amd64.deb ...
+#6 23.88 Unpacking libnss3:amd64 (2:3.98-1ubuntu0.3) ...
+#6 23.91 Selecting previously unselected package libopenjp2-7:amd64.
+#6 23.91 Preparing to unpack .../40-libopenjp2-7_2.5.0-2ubuntu0.5_amd64.deb ...
+#6 23.91 Unpacking libopenjp2-7:amd64 (2.5.0-2ubuntu0.5) ...
+#6 23.92 Selecting previously unselected package libjbig0:amd64.
+#6 23.92 Preparing to unpack .../41-libjbig0_2.1-6.1ubuntu2_amd64.deb ...
+#6 23.92 Unpacking libjbig0:amd64 (2.1-6.1ubuntu2) ...
+#6 23.93 Selecting previously unselected package libsharpyuv0:amd64.
+#6 23.93 Preparing to unpack .../42-libsharpyuv0_1.3.2-0.4build3_amd64.deb ...
+#6 23.94 Unpacking libsharpyuv0:amd64 (1.3.2-0.4build3) ...
+#6 23.95 Selecting previously unselected package libwebp7:amd64.
+#6 23.95 Preparing to unpack .../43-libwebp7_1.3.2-0.4build3_amd64.deb ...
+#6 23.95 Unpacking libwebp7:amd64 (1.3.2-0.4build3) ...
+#6 23.96 Selecting previously unselected package libtiff6:amd64.
+#6 23.96 Preparing to unpack .../44-libtiff6_4.5.1+git230720-4ubuntu2.5_amd64.deb ...
+#6 23.96 Unpacking libtiff6:amd64 (4.5.1+git230720-4ubuntu2.5) ...
+#6 23.97 Selecting previously unselected package libpoppler134:amd64.
+#6 23.97 Preparing to unpack .../45-libpoppler134_24.02.0-1ubuntu9.11_amd64.deb ...
+#6 23.97 Unpacking libpoppler134:amd64 (24.02.0-1ubuntu9.11) ...
+#6 24.00 Selecting previously unselected package poppler-utils.
+#6 24.00 Preparing to unpack .../46-poppler-utils_24.02.0-1ubuntu9.11_amd64.deb ...
+#6 24.00 Unpacking poppler-utils (24.02.0-1ubuntu9.11) ...
+#6 24.03 Setting up media-types (10.1.0) ...
+#6 24.03 Setting up liblcms2-2:amd64 (2.14-2ubuntu0.1) ...
+#6 24.03 Setting up libpixman-1-0:amd64 (0.42.2-1build1) ...
+#6 24.04 Setting up libsharpyuv0:amd64 (1.3.2-0.4build3) ...
+#6 24.04 Setting up libxau6:amd64 (1:1.0.9-1build6) ...
+#6 24.04 Setting up libkeyutils1:amd64 (1.6.3-3build1) ...
+#6 24.04 Setting up liblerc4:amd64 (4.0.0+ds-4ubuntu2) ...
+#6 24.04 Setting up libbrotli1:amd64 (1.1.0-2build2) ...
+#6 24.04 Setting up libsqlite3-0:amd64 (3.45.1-1ubuntu2.8) ...
+#6 24.04 Setting up libpsl5t64:amd64 (0.21.2-1.1build1) ...
+#6 24.04 Setting up libnghttp2-14:amd64 (1.59.0-1ubuntu0.4) ...
+#6 24.04 Setting up libdeflate0:amd64 (1.19-1build1.1) ...
+#6 24.05 Setting up libjbig0:amd64 (2.1-6.1ubuntu2) ...
+#6 24.05 Setting up libkrb5support0:amd64 (1.20.1-6ubuntu2.10) ...
+#6 24.05 Setting up libsasl2-modules-db:amd64 (2.1.28+dfsg1-5ubuntu3.1) ...
+#6 24.05 Setting up tzdata (2026e-0ubuntu0.24.04.1) ...
+#6 24.09 debconf: unable to initialize frontend: Dialog
+#6 24.09 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#6 24.09 debconf: falling back to frontend: Readline
+#6 24.09 debconf: unable to initialize frontend: Readline
+#6 24.09 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.38.2 /usr/local/share/perl/5.38.2 /usr/lib/x86_64-linux-gnu/perl5/5.38 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.38 /usr/share/perl/5.38 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8.)
+#6 24.09 debconf: falling back to frontend: Teletype
+#6 24.11 Configuring tzdata
+#6 24.11 ------------------
+#6 24.11
+#6 24.11 Please select the geographic area in which you live. Subsequent configuration
+#6 24.11 questions will narrow this down by presenting a list of cities, representing
+#6 24.11 the time zones in which they are located.
+#6 24.11
+#6 24.11   1. Africa      4. Arctic    7. Australia  10. Pacific
+#6 24.11   2. America     5. Asia      8. Europe     11. Etc
+#6 24.11   3. Antarctica  6. Atlantic  9. Indian     12. Legacy
+#6 24.11 Geographic area:
+#6 24.11 Use of uninitialized value $_[1] in join or string at /usr/share/perl5/Debconf/DbDriver/Stack.pm line 112.
+#6 24.12
+#6 24.12 Current default time zone: '/UTC'
+#6 24.12 Local time is now:      Fri Oct 23 10:59:00 UTC 2026.
+#6 24.12 Universal Time is now:  Fri Oct 23 10:59:00 UTC 2026.
+#6 24.12 Run 'dpkg-reconfigure tzdata' if you wish to change it.
+#6 24.12
+#6 24.12 Use of uninitialized value $val in substitution (s///) at /usr/share/perl5/Debconf/Format/822.pm line 84, <GEN6> line 4.
+#6 24.12 Use of uninitialized value $val in concatenation (.) or string at /usr/share/perl5/Debconf/Format/822.pm line 85, <GEN6> line 4.
+#6 24.13 Setting up libx11-data (2:1.8.7-1ubuntu0.1) ...
+#6 24.13 Setting up libnspr4:amd64 (2:4.35-1.1build1) ...
+#6 24.13 Setting up librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2build7) ...
+#6 24.13 Setting up fonts-dejavu-mono (2.37-8) ...
+#6 24.14 Setting up libpng16-16t64:amd64 (1.6.43-5ubuntu0.7) ...
+#6 24.14 Setting up fonts-dejavu-core (2.37-8) ...
+#6 24.15 Setting up libk5crypto3:amd64 (1.20.1-6ubuntu2.10) ...
+#6 24.16 Setting up libjpeg-turbo8:amd64 (2.1.5-2ubuntu2) ...
+#6 24.16 Setting up libsasl2-2:amd64 (2.1.28+dfsg1-5ubuntu3.1) ...
+#6 24.16 Setting up libwebp7:amd64 (1.3.2-0.4build3) ...
+#6 24.16 Setting up libopenjp2-7:amd64 (2.5.0-2ubuntu0.5) ...
+#6 24.16 Setting up netbase (6.4) ...
+#6 24.16 Setting up libkrb5-3:amd64 (1.20.1-6ubuntu2.10) ...
+#6 24.17 Setting up libbsd0:amd64 (0.12.1-1build1.1) ...
+#6 24.17 Setting up readline-common (8.2-4build1) ...
+#6 24.17 Setting up libldap2:amd64 (2.6.10+dfsg-0ubuntu0.24.04.1) ...
+#6 24.17 Setting up libjpeg8:amd64 (8c-2ubuntu11) ...
+#6 24.17 Setting up libxdmcp6:amd64 (1:1.1.3-0ubuntu6) ...
+#6 24.18 Setting up libxcb1:amd64 (1.15-1ubuntu2) ...
+#6 24.18 Setting up libxcb-render0:amd64 (1.15-1ubuntu2) ...
+#6 24.18 Setting up fontconfig-config (2.15.0-1.1ubuntu2) ...
+#6 24.29 Setting up libnss3:amd64 (2:3.98-1ubuntu0.3) ...
+#6 24.30 Setting up libxcb-shm0:amd64 (1.15-1ubuntu2) ...
+#6 24.30 Setting up libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) ...
+#6 24.30 Setting up libgssapi-krb5-2:amd64 (1.20.1-6ubuntu2.10) ...
+#6 24.30 Setting up libssh-4:amd64 (0.10.6-2ubuntu0.5) ...
+#6 24.30 Setting up libreadline8t64:amd64 (8.2-4build1) ...
+#6 24.30 Setting up libtiff6:amd64 (4.5.1+git230720-4ubuntu2.5) ...
+#6 24.30 Setting up libx11-6:amd64 (2:1.8.7-1ubuntu0.1) ...
+#6 24.30 Setting up libfontconfig1:amd64 (2.15.0-1.1ubuntu2) ...
+#6 24.30 Setting up libpython3.12-stdlib:amd64 (3.12.3-1ubuntu0.17) ...
+#6 24.31 Setting up libxrender1:amd64 (1:0.9.10-1.1build1) ...
+#6 24.31 Setting up python3.12 (3.12.3-1ubuntu0.17) ...
+#6 25.04 Setting up libcurl3t64-gnutls:amd64 (8.5.0-2ubuntu10.16) ...
+#6 25.04 Setting up libxext6:amd64 (2:1.3.4-1build2) ...
+#6 25.04 Setting up libcairo2:amd64 (1.18.0-3build1) ...
+#6 25.04 Setting up libpython3-stdlib:amd64 (3.12.3-0ubuntu2.1) ...
+#6 25.04 Setting up libpoppler134:amd64 (24.02.0-1ubuntu9.11) ...
+#6 25.05 Setting up python3 (3.12.3-0ubuntu2.1) ...
+#6 25.05 running python rtupdate hooks for python3.12...
+#6 25.05 running python post-rtupdate hooks for python3.12...
+#6 25.11 Setting up poppler-utils (24.02.0-1ubuntu9.11) ...
+#6 25.12 Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+#6 DONE 25.2s
+
+#7 [base 3/5] WORKDIR /app
+#7 DONE 0.3s
+
+#8 [base 4/5] COPY docproc.py /app/docproc.py
+#8 DONE 0.3s
+
+#9 [base 5/5] RUN python3 -c 'import docproc; assert docproc.tool_version().startswith("24.02.")'
+#9 DONE 0.5s
+
+#10 exporting to image
+#10 exporting layers
+#10 exporting layers 0.9s done
+#10 writing image sha256:263033049394d0c0be912e7cde1eb81fb65bc9b140a2b687668a2d774b7218b7
+#10 writing image sha256:263033049394d0c0be912e7cde1eb81fb65bc9b140a2b687668a2d774b7218b7 done
+#10 naming to docker.io/library/docproc-fixture-b3beb5d3a76b-docproc done
+#10 DONE 0.9s
+PRODUCTION IMAGE: sha256:263033049394d0c0be912e7cde1eb81fb65bc9b140a2b687668a2d774b7218b7
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 691B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 91B done
+#3 DONE 0.0s
+
+#4 [base 1/5] FROM docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 140.82kB done
+#5 DONE 0.0s
+
+#6 [base 2/5] RUN apt-get update && apt-get install -y --no-install-recommends python3 poppler-utils && rm -rf /var/lib/apt/lists/*
+#6 CACHED
+
+#7 [base 4/5] COPY docproc.py /app/docproc.py
+#7 CACHED
+
+#8 [base 3/5] WORKDIR /app
+#8 CACHED
+
+#9 [base 5/5] RUN python3 -c 'import docproc; assert docproc.tool_version().startswith("24.02.")'
+#9 CACHED
+
+#10 [test 1/3] RUN apt-get update && apt-get install -y --no-install-recommends python3-pytest && rm -rf /var/lib/apt/lists/*
+#10 0.623 Get:1 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+#10 0.636 Get:2 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+#10 1.019 Get:3 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [55.6 kB]
+#10 1.172 Get:4 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+#10 1.211 Get:5 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1411 kB]
+#10 1.491 Get:6 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+#10 1.702 Get:7 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]
+#10 1.959 Get:8 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2122 kB]
+#10 2.651 Get:9 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+#10 2.872 Get:10 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1549 kB]
+#10 4.329 Get:11 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+#10 4.732 Get:12 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+#10 5.187 Get:13 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1733 kB]
+#10 5.420 Get:14 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2231 kB]
+#10 5.700 Get:15 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2171 kB]
+#10 5.967 Get:16 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [61.7 kB]
+#10 6.337 Get:17 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
+#10 6.596 Get:18 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [36.0 kB]
+#10 6.645 Get:19 http://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [669 B]
+#10 6.659 Fetched 33.6 MB in 6s (5416 kB/s)
+#10 6.659 Reading package lists...
+#10 7.472 Reading package lists...
+#10 8.170 Building dependency tree...
+#10 8.283 Reading state information...
+#10 8.432 The following additional packages will be installed:
+#10 8.432   python3-iniconfig python3-packaging python3-pluggy
+#10 8.432 Recommended packages:
+#10 8.432   python3-pygments
+#10 8.472 The following NEW packages will be installed:
+#10 8.473   python3-iniconfig python3-packaging python3-pluggy python3-pytest
+#10 8.653 0 upgraded, 4 newly installed, 0 to remove and 4 not upgraded.
+#10 8.653 Need to get 373 kB of archives.
+#10 8.653 After this operation, 1525 kB of additional disk space will be used.
+#10 8.653 Get:1 http://archive.ubuntu.com/ubuntu noble/universe amd64 python3-iniconfig all 1.1.1-2 [6024 B]
+#10 8.867 Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 python3-packaging all 24.0-1 [41.1 kB]
+#10 9.064 Get:3 http://archive.ubuntu.com/ubuntu noble/universe amd64 python3-pluggy all 1.4.0-1 [20.4 kB]
+#10 9.187 Get:4 http://archive.ubuntu.com/ubuntu noble/universe amd64 python3-pytest all 7.4.4-1 [305 kB]
+#10 9.672 debconf: delaying package configuration, since apt-utils is not installed
+#10 9.697 Fetched 373 kB in 1s (342 kB/s)
+#10 9.709 Selecting previously unselected package python3-iniconfig.
+#10 9.709 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 6410 files and directories currently installed.)
+#10 9.713 Preparing to unpack .../python3-iniconfig_1.1.1-2_all.deb ...
+#10 9.716 Unpacking python3-iniconfig (1.1.1-2) ...
+#10 9.726 Selecting previously unselected package python3-packaging.
+#10 9.727 Preparing to unpack .../python3-packaging_24.0-1_all.deb ...
+#10 9.728 Unpacking python3-packaging (24.0-1) ...
+#10 9.740 Selecting previously unselected package python3-pluggy.
+#10 9.741 Preparing to unpack .../python3-pluggy_1.4.0-1_all.deb ...
+#10 9.741 Unpacking python3-pluggy (1.4.0-1) ...
+#10 9.754 Selecting previously unselected package python3-pytest.
+#10 9.755 Preparing to unpack .../python3-pytest_7.4.4-1_all.deb ...
+#10 9.755 Unpacking python3-pytest (7.4.4-1) ...
+#10 9.775 Setting up python3-iniconfig (1.1.1-2) ...
+#10 9.846 Setting up python3-packaging (24.0-1) ...
+#10 9.949 Setting up python3-pluggy (1.4.0-1) ...
+#10 10.03 Setting up python3-pytest (7.4.4-1) ...
+#10 DONE 10.3s
+
+#11 [test 2/3] COPY tests /app/tests
+#11 DONE 0.4s
+
+#12 [test 3/3] COPY test_sandbox.sh /app/test_sandbox.sh
+#12 DONE 0.4s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 0.7s done
+#13 writing image sha256:5f5ec98fc5683322c4d7b810c0bfef5f42daf143e4d23e478c70f9445cd9cde2 done
+#13 naming to docker.io/library/docproc-fixture-b3beb5d3a76b-tests done
+#13 DONE 0.7s
+NATIVE POPPLER: 24.02.0
+test_bootstrap_never_replaces_selected_daemon (test_docker_runtime.DockerRuntimeTests.test_bootstrap_never_replaces_selected_daemon) ... ok
+test_failed_daemon_start_cannot_pass_acceptance (test_docker_runtime.DockerRuntimeTests.test_failed_daemon_start_cannot_pass_acceptance) ... ok
+test_missing_daemon_or_privileges_fails (test_docker_runtime.DockerRuntimeTests.test_missing_daemon_or_privileges_fails) ... ok
+test_owned_daemon_is_cleaned_when_acceptance_fails (test_docker_runtime.DockerRuntimeTests.test_owned_daemon_is_cleaned_when_acceptance_fails) ... ok
+test_owned_daemon_is_stopped_and_state_removed (test_docker_runtime.DockerRuntimeTests.test_owned_daemon_is_stopped_and_state_removed) ... ok
+test_owned_data_bind_mount_is_unmounted_before_removal (test_docker_runtime.DockerRuntimeTests.test_owned_data_bind_mount_is_unmounted_before_removal) ... ok
+test_unavailable_explicit_daemon_fails_without_bootstrap (test_docker_runtime.DockerRuntimeTests.test_unavailable_explicit_daemon_fails_without_bootstrap) ... ok
+test_working_daemon_is_reused_without_privileged_process (test_docker_runtime.DockerRuntimeTests.test_working_daemon_is_reused_without_privileged_process) ... ok
+test_clause_id_reextract_new (test_docproc.DocprocTests.test_clause_id_reextract_new) ... ok
+test_cli_rejects_without_leaking_content (test_docproc.DocprocTests.test_cli_rejects_without_leaking_content) ... ok
+test_exact_quote_coordinates_and_tamper (test_docproc.DocprocTests.test_exact_quote_coordinates_and_tamper) ... ok
+test_extracted_ids_and_roles_pass_shared_contract (test_docproc.DocprocTests.test_extracted_ids_and_roles_pass_shared_contract) ... ok
+test_fail_closed_on_wrong_poppler_and_invalid_pdf (test_docproc.DocprocTests.test_fail_closed_on_wrong_poppler_and_invalid_pdf) ... ok
+test_fingerprint_from_native_layout (test_docproc.DocprocTests.test_fingerprint_from_native_layout) ... ok
+test_invalid_segments (test_docproc.DocprocTests.test_invalid_segments) ... ok
+test_multiple_segments_and_determinism (test_docproc.DocprocTests.test_multiple_segments_and_determinism) ... ok
+test_native_poppler_identity (test_docproc.DocprocTests.test_native_poppler_identity) ... ok
+test_quote_preserves_region_spacing_and_rejects_systematic_error (test_docproc.DocprocTests.test_quote_preserves_region_spacing_and_rejects_systematic_error) ... ok
+test_segment_and_uncertainty (test_docproc.DocprocTests.test_segment_and_uncertainty) ... ok
+test_source_change_rejected (test_docproc.DocprocTests.test_source_change_rejected) ... ok
+test_textless_page_needs_ocr (test_docproc.DocprocTests.test_textless_page_needs_ocr) ... ok
+test_wrong_word_reconstruction_rejected_by_crop (test_docproc.DocprocTests.test_wrong_word_reconstruction_rejected_by_crop) ... ok
+test_fingerprint_nfc_whitespace_preserves_semantics (test_docproc.PureTests.test_fingerprint_nfc_whitespace_preserves_semantics) ... ok
+test_printed_heading_shape_and_inserted_articles (test_docproc.PureTests.test_printed_heading_shape_and_inserted_articles) ... ok
+test_rust_parser_accepts_every_role_id_and_rejects_legacy_labels (test_docproc.RustParserTests.test_rust_parser_accepts_every_role_id_and_rejects_legacy_labels) ... skipped 'cargo unavailable; shared Rust parser conformance runs on the host'
+test_check_output_rejects_ids_that_do_not_restate_fields (test_docproc.SharedContractTests.test_check_output_rejects_ids_that_do_not_restate_fields) ... ok
+test_every_role_id_matches_shared_grammar (test_docproc.SharedContractTests.test_every_role_id_matches_shared_grammar) ... ok
+test_roles_are_vocabulary_doc_role_codes (test_docproc.SharedContractTests.test_roles_are_vocabulary_doc_role_codes) ... ok
+test_specs_accept_codes_and_reject_labels_and_aliases (test_docproc.SharedContractTests.test_specs_accept_codes_and_reject_labels_and_aliases) ... ok
+test_container_configuration_is_scoped_to_docproc (test_sandbox.SandboxTests.test_container_configuration_is_scoped_to_docproc) ... ok
+test_docker_absence_fails_by_default_and_when_required (test_sandbox.SandboxTests.test_docker_absence_fails_by_default_and_when_required) ... ok
+test_live_controlled_endpoint_detects_enabled_network (test_sandbox.SandboxTests.test_live_controlled_endpoint_detects_enabled_network) ... ok
+test_only_unreachable_is_accepted_and_both_families_checked (test_sandbox.SandboxTests.test_only_unreachable_is_accepted_and_both_families_checked) ... ok
+test_refusal_timeout_and_unexpected_errors_are_not_isolation (test_sandbox.SandboxTests.test_refusal_timeout_and_unexpected_errors_are_not_isolation) ... ok
+test_wrong_endpoint_response_fails_positive_control (test_sandbox.SandboxTests.test_wrong_endpoint_response_fails_positive_control) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 1.221s
+
+OK (skipped=1)
+............................s......                                      [100%]
+34 passed, 1 skipped in 1.38s
+PINNED EXTRACTION: PASSED (native version, no identity mock)
+SHARED CONTRACT: PASSED (1 segment id(s), 4 clause id(s) and doc_role codes accepted by packages/schemas SegmentRef/ClauseRef/doc_role)
+PRODUCTION CLI: PASSED (fixture extraction and quote/coordinate verification)
+ipv4: controlled endpoint reachable
+ipv6: controlled endpoint reachable
+POSITIVE CONTROL: IPv4 and IPv6 reachable
+ipv4: isolation failed, endpoint reachable
+MUTATION: enabled networking rejected by isolation probe (exit 1)
+ipv4: blocked by network reachability errno=101
+ipv6: blocked by network reachability errno=101
+ipv4: controlled endpoint reachable
+ipv6: controlled endpoint reachable
+I13: PASSED (controlled IPv4/IPv6 endpoints, before/after positive controls)
+LIVE: PASSED

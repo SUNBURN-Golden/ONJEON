@@ -1,0 +1,5 @@
+# origin=fixture — synthetic rows only; not a real disclosure document
+# format: coverage|conditions|amount|period|page
+암진단비|최초 1회 한정|5,000만원|보험기간 중|3
+수술비|수술 1회당|200만원|보험기간 중|4
+입원일당|1일당|5만원|120일 한도|5

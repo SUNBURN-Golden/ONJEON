@@ -39,7 +39,7 @@ class CrawlerConfig:
         _num(self, "per_host_min_interval_s", lo=1, hi=86400)
         _int(self, "per_host_concurrency", lo=1, hi=4)
         _int(self, "max_global_hosts", lo=1, hi=16)
-        _int(self, "max_attempts", lo=1, hi=5)
+        _int(self, "max_attempts", lo=1, hi=3)  # spec hard cap: at most 3 attempts per request
         _int(self, "daily_request_cap_default", lo=1, hi=100_000)
         _num(self, "robots_cache_ttl_s", lo=60, hi=7 * 86400)
         _str(self, "spool_dir", max_len=1024)

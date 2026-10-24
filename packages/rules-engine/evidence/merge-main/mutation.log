@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/mutation.rs (target/debug/deps/mutation-30bcc153d15232c8)
+
+running 6 tests
+test harness_reports_a_surviving_mutant ... ok
+test allowlist_has_no_stale_entries ... ok
+test generic_rate_literals_mutate_in_both_representations ... ok
+test every_mutant_is_killed_by_the_golden_table ... ok
+fixture-rule-001: 15 golden cases, 26 generated mutants
+kb-driver-fine: 12 golden cases, 28 generated mutants
+kb-driver-lawyer-fee: 20 golden cases, 79 generated mutants
+kyobo-1995-cancer-waiting: 5 golden cases, 9 generated mutants
+lawyer-fee rule: 79 mutants in each representation, including 6 rate mutants; all killed
+test wrapped_real_rule_rates_preserve_mutation_coverage ... ok
+kyobo-cancer-main-dx: 18 golden cases, 40 generated mutants
+kyobo-small-cancer-skin: 17 golden cases, 41 generated mutants
+kyobo-wholelife-accident-death: 10 golden cases, 27 generated mutants
+kyobo-wholelife-disease-death: 23 golden cases, 86 generated mutants
+generic mutation coverage: 336 mutants, 0 unallowlisted survivors, 0 equivalence entries
+test generic_mutants_are_killed_on_every_rule ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+

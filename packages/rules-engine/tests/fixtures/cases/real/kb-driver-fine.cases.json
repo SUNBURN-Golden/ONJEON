@@ -1,0 +1,95 @@
+{
+  "cases": [
+    {
+      "id": "f06_no_accident_in_period",
+      "set": {
+        "accident_in_period": false
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "f07_not_a_driving_bodily_injury_accident",
+      "set": {
+        "driving_accident_bodily_injury": false
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "f08_hit_and_run_excluded",
+      "set": {
+        "hit_and_run": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "f09_racing_or_test_use_excluded",
+      "set": {
+        "racing_or_test_use": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "f10_intentional_insured_excluded",
+      "set": {
+        "intentional_insured_free_will": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "f11_intentional_contractor_excluded",
+      "set": {
+        "intentional_contractor": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "f12_intentional_beneficiary_excluded",
+      "set": {
+        "intentional_beneficiary_sole": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    }
+  ]
+}

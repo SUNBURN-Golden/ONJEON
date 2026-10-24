@@ -838,7 +838,8 @@ class StaticTest(unittest.TestCase):
     def test_no_retry_with_changed_headers(self):
         # robots/transport never loop over header variants: the only loop in robots is the bounded redirect loop
         src = (CRAWLER / "robots.py").read_text()
-        self.assertEqual(src.count(".request("), 1)
+        self.assertEqual(src.count("(request or self._transport.request)("), 1)
+        self.assertEqual(src.count(".request("), 0)
         tsrc = (CRAWLER / "transport.py").read_text()
         self.assertEqual(tsrc.count("self._opener.open("), 1)
 

@@ -1,6 +1,7 @@
 //! V1-b: rules transcribed from real policy clauses (design validation, AI interpretation,
 //! not reviewed, never service data). Each `*.cases.json` in `fixtures/rules/real` names its
-//! rule(s), a `base` input set and per-case overrides (`set`).
+//! rule(s), a `base` input set and per-case overrides (`set`). Engine-owned supplements in
+//! `tests/fixtures/cases/real` add boundary cases without editing the shared fixtures.
 mod common;
 use common::*;
 use onjeon_rules_engine::Rule;
@@ -32,7 +33,8 @@ fn case_files() -> Vec<(String, J)> {
         let p = e.unwrap().path();
         let name = p.file_name().unwrap().to_string_lossy().to_string();
         if name.ends_with(".cases.json") {
-            out.push((name, load_json(&p)));
+            let file = case_file(p.strip_prefix(fixtures_dir()).unwrap());
+            out.push((name, file));
         }
     }
     out.sort_by(|a, b| a.0.cmp(&b.0));

@@ -30,7 +30,13 @@
 //! [`budget::Session`] (job file + ledger) is passed, and they additionally need an HTTPS
 //! transport this crate does not build yet (D-04 pending); the gate is checked before any
 //! transport selection so nothing is ever sent to them without a job and a ledger.
+//!
+//! [`adapters`] (T-DT-04, DATA_PIPELINE_CONTRACT §1·§2, ADR-0018) adds the denominator
+//! layer on top of the archive: institution loading from `data/registry`, per-institution
+//! discovery adapters, `DiscoveryManifest` records, and the institution progress table
+//! whose acquired counts never include reason-only items.
 
+pub mod adapters;
 pub mod archive;
 pub mod budget;
 pub mod digest;

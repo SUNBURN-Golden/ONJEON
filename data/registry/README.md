@@ -123,6 +123,17 @@
 
 원문 HTML은 저장소 밖(scratchpad의 `registry_raw/`)에만 있다. 같은 URL을 다시 받으면 페이지 변경 때문에 해시가 달라질 수 있다. 출처 판정은 `sources.csv`의 `retrieved_at` 기준이다.
 
+## 소비: 기관 분모 적재 (T-DT-04)
+
+`services/collect/src/adapters/registry.rs`가 이 디렉터리의 CSV를 읽어 기관 분모를 만든다(파일은 읽기 전용 입력이며 이 과제는 어떤 CSV도 수정하지 않는다). 범위 매핑:
+
+- `insurers.csv` 53행 → 분모 기관(보험사). `public-epost`(우체국보험) → 분모 기관(공공기관으로 유형 구분).
+- `coop-*`·`seed-coop-nh`(공제)·`public-ksure`(한국무역보험공사) → 분모에서 제외, 사유(`cooperative_out_of_scope`·`non_personal_lines`)와 출처(`data/registry/<파일>#<id>`)를 기록(ADR-0018 §4).
+- `entity_evidence=seed` 행 → `seed_not_listed`로 제외(위 "seed는 분모에 넣지 않는다").
+- `excluded_or_historical.csv` → 분모가 아니며 `historical_or_non_insurer` 제외 기록으로만 남는다.
+
+알 수 없는 어휘값은 기본값으로 처리하지 않고 적재를 실패시킨다(vocabulary 규칙 4). 적재된 분모는 `ProgressTable`의 기관 진행표로 만들어지고, 문서 종류별 확보·미확보(사유)는 `progress.rs`가 따로 센다.
+
 ## 전체 대상 추적 열 (정규화 후 추가)
 
 | 열 | 축 | 뜻 |

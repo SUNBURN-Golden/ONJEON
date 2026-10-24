@@ -1,0 +1,67 @@
+Fix round 2 — independent review findings on T-DT-04 (BLOCK verdict)
+
+Blocking findings addressed:
+
+1. Enumerator::run accepted Termination::EmptyPage before reconciling the advertised
+   total or a still-offered next pointer (enumerate.rs). A first page
+   {"items":[],"total":5}, a mid-walk empty page short of the advertised total, or an
+   empty cursor page with a non-null next were recorded as Enumerated/EnumeratedEmpty
+   with no gap — a partial/contradicted walk marked clean (§23.2). Fixed: the
+   advertised-total check runs first; an empty page terminates only when the endpoint
+   agrees (no unreached total, no next pointer). Empty-before-total is a Stall with an
+   unexplored gap (PartiallyEnumerated); empty-with-next keeps walking; a mid-walk clean
+   empty ends NextPointerAbsent -> Enumerated, never EnumeratedEmpty. empty_success /
+   EnumeratedEmpty is reachable only on the first page.
+   Regression tests: empty_first_page_with_advertised_total_is_unexplored,
+   mid_walk_empty_page_before_total_is_unexplored,
+   empty_page_with_next_cursor_keeps_walking, enumeration_terminates_on_empty_page
+   (updated).
+
+2. listpage::href_values extracted hrefs from a lowercased copy of the page
+   (listpage.rs). Case-sensitive plan config (KLIA mngtDis/coId, KNIA
+   disclosurePopup.do/tptyCode) could never match lowercase-normalized text, and ids
+   lost their case (tptyCode=PB15 -> pb15; case-distinct ids merged). Fixed: positions
+   are found on the lowercased copy but values are sliced from the original. `href`
+   must also start an attribute word — data-href/xhref no longer count.
+   Tests: href_extraction_preserves_value_case,
+   href_extraction_ignores_non_href_attribute_names.
+
+3. classify treated a 200 with empty Content-Type and a non-markup body as List ->
+   0 items -> empty_success. Fixed: a body must look like markup (or be declared HTML);
+   otherwise NotListContent -> ParseFailed, never an empty list.
+   Test: missing_content_type_binary_body_is_not_a_list.
+
+4. KNIA documents axis plan encoded a request shape the survey never observed:
+   /popup/disclosureList.do was seen only as POST returning a JS object literal
+   (B_knia §2, requests/B_knia.tsv) — the GET/HTML plan could not reproduce it and
+   could have recorded a false empty-success. The plan is removed; the axis stays
+   unexplored and the limitation (plus the observed robots.txt 403/WAF) is declared in
+   known_limitations. Test: knia_documents_axis_is_unexplored_not_planned.
+
+Non-blocking findings also fixed:
+
+- 401/403 on a list page now records gap kind `blocked` (access_denied), matching
+  GapRecord's kinds (was `failed`). Test: http_403_list_page_records_blocked_gap.
+- Truncated robots.txt is cut at the last full line before parsing, as _read_capped
+  does — a partial Allow: line could over-allow.
+  Test: truncated_robots_ignores_partial_last_line.
+- InsurerAdapter::plans is bound to the entry given at construction (for_entry), so a
+  plan can never describe an institution outside the manifest's allowed_hosts.
+  Test: insurer_adapter_plan_is_bound_to_its_entry.
+- excluded_or_historical legacy `status` values now fail on unknown non-empty labels
+  (vocabulary rule 4; empty keeps the legacy default).
+  Test: excluded_rows_reject_unknown_legacy_status.
+- looks_like_login tolerates legal attribute spacing (type = "password").
+  Test: login_detection_tolerates_attribute_spacing.
+- First-page robots Disallow records range `whole_scope` (not `remaining_pages`);
+  assertion added to robots_disallow_blocks_without_fetching.
+- JSON `next:""` is treated as absent (test: empty_string_next_cursor_is_absent).
+- RobotsVerdict::Unverifiable docstring now lists the `bad_url` reason.
+
+Re-run: python3 services/collect/tests/verify.py
+  fmt/clippy/adapters(35 tests)/workspace test/build/collect py unittest/tools
+  unittest/leak(+selftest)/skeleton(+selftest): exit 0.
+  check_deps.py: exit 1 — same 3 pre-existing DEP-ZONE/IMP-ZONE findings in
+  unchanged packages/ontology (verification-07.log). Out of allowed paths; not
+  repaired, as before.
+verification.json regenerated: file SHA-256 pins updated to the fixed bytes.

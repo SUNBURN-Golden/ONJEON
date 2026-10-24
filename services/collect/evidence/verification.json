@@ -1,29 +1,43 @@
 {
-  "task_id": "T-DT-01",
-  "base_sha": "9c8c742b1870d163361d5f962e17a03e7b66552c",
+  "task_id": "T-DT-04",
+  "base_sha": "c659ce8fedd22adde4e1796fa1e93456f6752f32",
+  "target_sha": "c659ce8fedd22adde4e1796fa1e93456f6752f32",
+  "target_sha_scope": "Input review commit. Tests cover this commit plus uncommitted files pinned below; supervisor must re-pin the final commit and obtain independent review.",
   "files_sha256": {
-    "Cargo.toml": "ad44abe732edafa7fee0a49ef73d040764283308749d7b32eb8df0b57a851925",
-    "Cargo.lock": "6c4f6e6b3ea235c5eb3c857e4e02f039e769bf65a900fa65bf0b911313c0bffa",
+    "Cargo.toml": "42700de608b885155b383297e9699f8e6a96c2c60a79f383356f0000385027b3",
+    "Cargo.lock": "6428c439df9587782a71bcac0a169e77ec7d3d905dc93aef8fce2ff43cff2681",
+    "services/collect/src/adapters/enumerate.rs": "a6b72a612dab4be968ca9f90618bdf498c43eae25c408e7d41263aa28ae464d1",
+    "services/collect/src/adapters/fetch.rs": "520630640513752123cbf023cf7cf9f4ead02404f4d8532ebcbeafc3d60762e4",
+    "services/collect/src/adapters/institution.rs": "31d11f2e91f8211764126c0fab64309f7caf22efe668870862f1db776a768259",
+    "services/collect/src/adapters/listpage.rs": "c696c786a8a5d4483e08e5c2e2430749663e27f1867623e978b0e64ca5d563fb",
+    "services/collect/src/adapters/manifest.rs": "028e350a32d907995c918eb556e240e6b06341e8fae20a821c7b2bb406dc8ff3",
+    "services/collect/src/adapters/mod.rs": "2e4444dd4ba47c7fd4770ae8fcf62f8952b496f902d9c7661799037466a27e31",
+    "services/collect/src/adapters/progress.rs": "9e1c5f6fb2bef5134cd6c2616bb4a62a1abe0e3eb6d276bef6d588c76913b2af",
+    "services/collect/src/adapters/registry.rs": "2e1a3e3eff46e946588fd90fab0024eab6aa3236e51c0de61b3810c506da4eed",
+    "services/collect/src/adapters/regression.rs": "6612af2a564ddc4f956e3ae1c0bd7a43419d5049af8f91b2109fe4f6b7882fc1",
+    "services/collect/src/adapters/robots.rs": "d3c7f9ce99a4583fa29846d5862e8431b9f0112cc0e76caac3a959cfc2e3f61d",
     "services/collect/src/archive.rs": "5fdcf711635e957dac4e2fed083fc2330a9edcf61b1a4b7b4392ca335a207053",
     "services/collect/src/budget.rs": "8932a59aae185b0477a371699a998494e8223df9d19f476a8c2f186a3dc6d5d1",
     "services/collect/src/digest.rs": "5154677d62d441328528e6594fa23ac30546c27e887937cb277f0dff9a8e7d4c",
     "services/collect/src/format.rs": "9475ccc8ae5765a3c9f207f6d2c0c174afc946ae6c6dcd42f256bf8778f1640c",
     "services/collect/src/http.rs": "01c861db3b0a64c1d088b4a08c0e913cc229343921ac15bf254a6f028341468f",
     "services/collect/src/keys.rs": "b0ee9cdf8b0f45b8309fbeee029a499edc5822ee36a0dbfae334fb8076407314",
-    "services/collect/src/lib.rs": "c7666d454b38c87b3cd5d0e6c037ac5bace37f306a05e24e91d9ac870ae08e87",
+    "services/collect/src/lib.rs": "82b8aeab1268a0d56d7435e57297d50c426213a5f9242f66e547ebb4ae79f08e",
     "services/collect/src/main.rs": "9f088255668a4db5f353c8b82725402c6db58b674a0b6ae3bd1b748f684f1e73",
     "services/collect/src/s3.rs": "6204c0878679ece3428ef8cd877f09a63f367a78c903c9f5c611931bbf5d1485",
     "services/collect/src/s3xml.rs": "ab5ec2150b04db63b1019a239b4937ea679e2e3a1add93697a9f0c5a1e899272",
     "services/collect/src/sigv4.rs": "c08251d77dd99dcefa60af1d2475d1c61b9718afe880cb7accc7d945be81bfc3",
     "services/collect/src/store.rs": "de8aa5a0346eefd84389d2194e7f17c3d299a5c2078ad33d48c04d8444c484c4",
     "services/collect/src/time.rs": "48e1ee0cee740e7e513058a4dd48e44cffaa96fb15de00188ef7db49e9da86d7",
+    "services/collect/tests/adapters.rs": "81a0b2fb1d0efa9a89a7a41341cb1e2c01608af4188ed00ba54cbe4655e297e8",
     "services/collect/tests/conformance.rs": "c6a0b7737a68ddae1eed209506d7a39712377bfc178778c0677002c7e73d0452",
     "services/collect/tests/http_conformance.rs": "dcdf1317513da1f5a1737eb7626083ec507d869c060737e6f34bd13f0fd72519",
     "services/collect/tests/s3_conformance.rs": "8966dc5d6e06935e8c71d6caba17c9188832c421007040a5a8552810a6efd8b5",
     "services/collect/tests/test_python_conformance.py": "ee21d093f7719048e91821dc35bd64be94b79efa048d7033b0bd42fe4382ae2b",
-    "services/collect/tests/verify.py": "4baa7a0d929e454a5f1600c025565a2b2b9d5179191868362c71bf54e6fc6e23",
+    "services/collect/tests/verify.py": "677168c053a220dca789ebf2d8ddd5a6494e635b9d9d0da52e26d4cc3ba17595",
     "services/collect/Cargo.toml": "0b5e33362c7f5dbe783857bf35a7de0c9b52caf2c226f8d40baedcaef2981fa7"
   },
+  "all_checks_green": false,
   "results": [
     {
       "command": [
@@ -55,10 +69,22 @@
       "command": [
         "cargo",
         "test",
+        "-p",
+        "onjeon-collect",
+        "adapters"
+      ],
+      "exit_code": 0,
+      "log": "verification-02.log",
+      "passed_tests": 69
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
         "--workspace"
       ],
       "exit_code": 0,
-      "log": "verification-02.log"
+      "log": "verification-03.log"
     },
     {
       "command": [
@@ -68,11 +94,12 @@
         "onjeon-collect"
       ],
       "exit_code": 0,
-      "log": "verification-03.log"
+      "log": "verification-04.log"
     },
     {
       "command": [
         "python3",
+        "-B",
         "-m",
         "unittest",
         "discover",
@@ -83,11 +110,12 @@
         "-v"
       ],
       "exit_code": 0,
-      "log": "verification-04.log"
+      "log": "verification-05.log"
     },
     {
       "command": [
         "python3",
+        "-B",
         "-m",
         "unittest",
         "discover",
@@ -96,32 +124,24 @@
         "-v"
       ],
       "exit_code": 0,
-      "log": "verification-05.log"
-    },
-    {
-      "command": [
-        "python3",
-        "-I",
-        "tools/ci/check_deps.py"
-      ],
-      "exit_code": 1,
       "log": "verification-06.log"
     },
     {
       "command": [
         "python3",
+        "-B",
         "-I",
-        "tools/ci/check_leak.py"
+        "tools/ci/check_deps.py"
       ],
-      "exit_code": 0,
+      "exit_code": 1,
       "log": "verification-07.log"
     },
     {
       "command": [
         "python3",
+        "-B",
         "-I",
-        "tools/ci/check_leak.py",
-        "--selftest"
+        "tools/ci/check_leak.py"
       ],
       "exit_code": 0,
       "log": "verification-08.log"
@@ -129,8 +149,10 @@
     {
       "command": [
         "python3",
+        "-B",
         "-I",
-        "tools/ci/check_skeleton.py"
+        "tools/ci/check_leak.py",
+        "--selftest"
       ],
       "exit_code": 0,
       "log": "verification-09.log"
@@ -138,12 +160,32 @@
     {
       "command": [
         "python3",
+        "-B",
+        "-I",
+        "tools/ci/check_skeleton.py"
+      ],
+      "exit_code": 0,
+      "log": "verification-10.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
         "-I",
         "tools/ci/check_skeleton.py",
         "--selftest"
       ],
       "exit_code": 0,
-      "log": "verification-10.log"
+      "log": "verification-11.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "verification-12.log"
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "task_id": "T-DT-04",
-  "target_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
-  "command": "python3 -I tools/ci/check_deps.py",
-  "result": "FAIL; see verification-07.log. This audit does not waive or suppress the failure.",
+  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "command": "python3 -B -I tools/ci/check_deps.py",
+  "result": "FAIL, exit 1: one DEP-ZONE and two IMP-ZONE findings; verification-07.log. No waiver or suppression.",
   "finding_count": 3,
   "finding_paths": [
     "packages/ontology/Cargo.toml",

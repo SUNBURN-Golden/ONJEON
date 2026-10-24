@@ -1,4 +1,6 @@
 {
+  "historical_only": true,
+  "superseded_by": "services/collect/evidence/verification-fix-round-2.json",
   "task_id": "T-DT-04",
   "round": 4,
   "base_sha": "a8f6791d22a1ad0c1aa37c2c5529be7e47b8e85a",

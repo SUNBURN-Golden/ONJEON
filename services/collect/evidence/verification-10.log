@@ -1,4 +1,4 @@
-$ python3 -I tools/ci/check_skeleton.py
+$ python3 -B -I tools/ci/check_skeleton.py
 check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
 
 exit_code=0

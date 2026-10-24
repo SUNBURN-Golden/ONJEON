@@ -144,7 +144,7 @@ pub fn klia() -> AssociationAdapter {
     AssociationAdapter::new(
         AdapterManifest {
             source_id: "klia_pub".into(),
-            adapter_version: "0.1.0".into(),
+            adapter_version: "0.2.0".into(),
             allowed_hosts: vec!["pub.insure.or.kr".into()],
             inventory_entrypoints: vec!["https://pub.insure.or.kr/mngtDis/mngtDis/list.do".into()],
             query_matrix_version: "qm-klia-0.1".into(),
@@ -168,6 +168,7 @@ pub fn klia() -> AssociationAdapter {
                 link_substring: "mngtDis".into(),
                 id_query_key: "coId".into(),
                 total_marker: None,
+                empty_marker: None,
             },
             doc_roles: vec!["disclosure_list".into()],
             max_pages: 1,
@@ -186,7 +187,7 @@ pub fn knia() -> AssociationAdapter {
     AssociationAdapter::new(
         AdapterManifest {
             source_id: "knia_pub".into(),
-            adapter_version: "0.1.0".into(),
+            adapter_version: "0.2.0".into(),
             allowed_hosts: vec!["kpub.knia.or.kr".into()],
             inventory_entrypoints: vec![
                 "https://kpub.knia.or.kr/managementDisc/regularly/regularlyDisclosure.do".into(),
@@ -215,6 +216,7 @@ pub fn knia() -> AssociationAdapter {
                 link_substring: "disclosurePopup.do".into(),
                 id_query_key: "tptyCode".into(),
                 total_marker: None,
+                empty_marker: None,
             },
             doc_roles: vec!["disclosure_list".into()],
             max_pages: 1,
@@ -224,18 +226,20 @@ pub fn knia() -> AssociationAdapter {
 
 /// A per-insurer adapter built from one denominator entry (`DenomEntry`).
 ///
-/// The adapter's only verified entrypoint is the registry's `disclosure_url`. When it is
-/// empty or the registry already records the entry as not secured, the adapter emits no
-/// plan — `preflight_states` exposes the registry-recorded status so the caller can
+/// The adapter combines registry identity/access with survey-backed list endpoints.
+/// When no concrete request/parser pair is verified, the adapter emits no plan.
+/// `preflight_states` exposes the registry-recorded status so the caller can
 /// record the same state through a manifest instead of a fresh attempt (기록된 미확보
 /// 사유를 다시 시도로 위장하지 않는다).
 pub struct InsurerAdapter<'a> {
     entry: &'a DenomEntry,
     manifest: AdapterManifest,
+    plans: Vec<ListPlan>,
 }
 
 impl<'a> InsurerAdapter<'a> {
     pub fn for_entry(entry: &'a DenomEntry) -> Self {
+        let plans = lifeplanet_plans(entry);
         let host = super::fetch::split_url(&entry.row.disclosure_url)
             .map(|(_, h, _, _)| h.to_string())
             .unwrap_or_default();
@@ -243,37 +247,48 @@ impl<'a> InsurerAdapter<'a> {
             entry,
             manifest: AdapterManifest {
                 source_id: format!("insurer:{}", entry.row.insurer_id),
-                adapter_version: "0.1.0".into(),
+                adapter_version: "0.2.0".into(),
                 allowed_hosts: if host.is_empty() {
                     Vec::new()
                 } else {
                     vec![host]
                 },
-                inventory_entrypoints: if entry.row.disclosure_url.is_empty() {
-                    Vec::new()
-                } else {
-                    vec![entry.row.disclosure_url.clone()]
-                },
-                query_matrix_version: "qm-insurer-0.1".into(),
+                inventory_entrypoints: plans
+                    .iter()
+                    .map(|p| p.entrypoint.clone())
+                    .collect::<std::collections::BTreeSet<_>>()
+                    .into_iter()
+                    .collect(),
+                query_matrix_version: "qm-insurer-0.2".into(),
                 acquisition_method: "static_html".into(),
                 rate_policy: "default".into(),
-                access_review_ref: format!(
-                    "data/registry/{}.csv#{}",
-                    entry.row.registry_file, entry.row.insurer_id
-                ),
-                supported_document_roles: vec![
-                    "terms", "rider_terms", "annex", "business_method", "summary",
-                    "price_table", "disclosure_list", "notice",
-                ]
-                .into_iter()
-                .map(String::from)
-                .collect(),
-                pagination_termination_rule: "advertised_total_or_empty_page".into(),
-                known_limitations: vec![
-                    "회사 공시실의 상품 목록 구조는 기관별 상이 — 페이지 파서는 확인된 진입점에만 적용".into(),
-                ],
+                access_review_ref: if plans.is_empty() {
+                    format!(
+                        "data/registry/{}.csv#{}",
+                        entry.row.registry_file, entry.row.insurer_id
+                    )
+                } else {
+                    "docs/research/2026-10-10_source_survey/C_life.md#35-교보라이프플래닛".into()
+                },
+                supported_document_roles: plans
+                    .iter()
+                    .flat_map(|p| p.scope.doc_roles.clone())
+                    .collect::<std::collections::BTreeSet<_>>()
+                    .into_iter()
+                    .collect(),
+                pagination_termination_rule: "verified_complete_embedded_inventory".into(),
+                known_limitations: if plans.is_empty() {
+                    vec!["공시실 진입점만으로 목록 구조를 증명할 수 없음 — 검증된 기관별 파서가 없어 전 범위 미탐색".into()]
+                } else {
+                    vec![
+                        "C_life §2·§3.5의 라이프플래닛 전량 내장 목록만 지원; 실제 응답 재검증은 수행하지 않음".into(),
+                        "발견 행은 관측 메타데이터 해시로 식별; 판매본 확정이나 약관 판 연결을 주장하지 않음(H1·H14)".into(),
+                        "특약·별표·가격 및 누락된 문서 참조는 별도 열거 증거가 없어 미확인 유지".into(),
+                    ]
+                },
                 owner: "collect".into(),
             },
+            plans,
         }
     }
 
@@ -325,42 +340,54 @@ impl<'a> DiscoveryAdapter for InsurerAdapter<'a> {
         &self.manifest
     }
 
-    /// One product-list plan per verified disclosure entrypoint. The plan is bound to
-    /// the entry the adapter was built for (`for_entry`) — the trait parameter is
-    /// ignored so a plan can never describe an institution outside this manifest's
-    /// `allowed_hosts`/`inventory_entrypoints`. It is only emitted when the registry
-    /// recorded the entrypoint as reachable (`disclosure_access` = `reachable`) and
-    /// secured (`disclosure_status` = `archived`); a `js_shell` home page or a missing
-    /// URL yields nothing — the scope stays unexplored with the recorded reason.
+    /// Only survey-backed request/parser pairs can enumerate a denominator. A
+    /// reachable landing page alone supplies no list or termination evidence.
     fn plans(&self, _entry: &DenomEntry) -> Vec<ListPlan> {
-        let row = &self.entry.row;
-        let verified = row.disclosure_status == Some(AcquisitionStatus::Archived)
-            && row.disclosure_access == HostAccess::Reachable
-            && !row.disclosure_url.is_empty();
-        if !verified {
-            return Vec::new();
-        }
-        vec![ListPlan {
-            scope: ScopeDesc {
-                axis: "disclosure_entry".into(),
-                institution_id: row.insurer_id.clone(),
-                sale_status: None,
-                channel: None,
-                period_from: None,
-                period_to: None,
-                doc_roles: vec!["disclosure_list".into()],
-            },
-            query_signature: "scope=company_disclosure_entry_probe".into(),
-            entrypoint: row.disclosure_url.clone(),
-            // 회사 공시실 목록은 보통 단일 화면+탭이다. 페이지 매개변수는 기관 검증 전까지
-            // 만들지 않는다 — 첫 화면이 전부인지는 종료 증거로만 판단한다.
-            pagination: Pagination::SinglePage,
-            // 프로브: 진입 페이지의 모든 링크를 관측 항목으로 기록한다(빈 id_query_key는
-            // href 전체를 id로 쓴다). 기관별 판매본 파서는 사이트 검증 뒤에 온다.
-            parser: ListParser::EntryProbe,
-            max_pages: 1,
-        }]
+        self.plans.clone()
     }
+}
+
+/// C_life §2 observes GET and a complete outData.prdList on both endpoints.
+/// Other insurers require verified request/parser pairs; no generic probe pretends
+/// to implement enumeration for them. Their progress rows remain unknown.
+fn lifeplanet_plans(entry: &DenomEntry) -> Vec<ListPlan> {
+    let row = &entry.row;
+    if row.insurer_id != "life-kyobo-lifeplanet"
+        || row.disclosure_status != Some(AcquisitionStatus::Archived)
+        || row.disclosure_access != HostAccess::Reachable
+        || row.disclosure_url != "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev"
+    {
+        return Vec::new();
+    }
+    let mut plans = Vec::new();
+    for (sale_status, page) in [("selling", "HPDA11S0.dev"), ("stopped", "HPDA21S0.dev")] {
+        for (axis, role, field) in [
+            ("product_list", "disclosure_list", None),
+            ("documents", "terms", Some("insTxtPat")),
+            ("documents", "summary", Some("prdSryPat")),
+            ("documents", "business_method", Some("prdMdPat")),
+        ] {
+            plans.push(ListPlan {
+                scope: ScopeDesc {
+                    axis: axis.into(),
+                    institution_id: row.insurer_id.clone(),
+                    sale_status: Some(sale_status.into()),
+                    channel: Some("online".into()),
+                    period_from: None,
+                    period_to: None,
+                    doc_roles: vec![role.into()],
+                },
+                query_signature: format!("scope={axis};sale={sale_status};role={role}"),
+                entrypoint: format!("https://www.lifeplanet.co.kr/disclosure/good/{page}"),
+                pagination: Pagination::SinglePage,
+                parser: ListParser::Lifeplanet {
+                    document_field: field.map(String::from),
+                },
+                max_pages: 1,
+            });
+        }
+    }
+    plans
 }
 
 /// The document roles a company disclosure room is expected to publish (09 P02 axes):

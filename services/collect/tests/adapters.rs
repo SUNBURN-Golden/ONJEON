@@ -189,6 +189,7 @@ mod adapters {
                 link_substring: "item.do?id=".into(),
                 id_query_key: "id".into(),
                 total_marker: None,
+                empty_marker: Some("<div class='fixture_only_empty'>No results</div>".into()),
             },
             max_pages: 10,
         }
@@ -216,7 +217,11 @@ mod adapters {
         let terms = &cov[&DocRole::Terms];
         assert_eq!(terms.expected, 10);
         assert_eq!(terms.acquired, 0);
-        assert_eq!(terms.rate(), Some(0.0));
+        assert_eq!(terms.rate(), None); // institution inventories have not been enumerated
+        assert_eq!(
+            adapters::coverage(&table.rows[0].items)[&DocRole::Terms].rate(),
+            Some(0.0)
+        );
         assert_eq!(terms.unacquired.get("blocked"), Some(&10));
 
         // Partial evidence is still unacquired: raw + segment without accepted realizes.
@@ -791,7 +796,11 @@ mod adapters {
             200,
             "<a href='item.do?id=3'>c</a>",
         );
-        ff.add("https://h.fixture/list?page=3", 200, "<div>nothing</div>");
+        ff.add(
+            "https://h.fixture/list?page=3",
+            200,
+            "<div class='fixture_only_empty'>No results</div>",
+        );
         let mut gate = RobotsGate::new(86_400);
         let mut en = Enumerator {
             fetch: &ff,
@@ -926,7 +935,7 @@ mod adapters {
         ff.add(
             "https://h.fixture/list?page=1",
             200,
-            "<div>등록된 상품이 없습니다</div>",
+            "<div class='fixture_only_empty'>No results</div>",
         );
         let mut gate = RobotsGate::new(86_400);
         let mut en = Enumerator {
@@ -1059,7 +1068,7 @@ mod adapters {
         row.insert("disclosure_status".into(), "archived".into());
         let denom = adapters::denominator_from_rows(vec![row], vec![], vec![]).unwrap();
         let adapter = InsurerAdapter::for_entry(&denom.in_scope[0]);
-        assert_eq!(adapter.plans(&denom.in_scope[0]).len(), 1);
+        assert!(adapter.plans(&denom.in_scope[0]).is_empty()); // landing URL alone is not a verified list parser
 
         let mut row = fixture_row("ins-b");
         row.insert("disclosure_access".into(), "js_shell".into());
@@ -1101,6 +1110,7 @@ mod adapters {
                 link_substring: String::new(),
                 id_query_key: String::new(),
                 total_marker: None,
+                empty_marker: None,
             },
             doc_roles: vec![],
             max_pages: 1,
@@ -1343,6 +1353,7 @@ mod adapters {
                 link_substring: "mngtDis".into(),
                 id_query_key: "coId".into(),
                 total_marker: None,
+                empty_marker: None,
             },
             b"<a href=\"/mngtDis/list.do?coId=Ab12\">x</a><a HREF=\"/mngtDis/list.do?coId=ab12\">y</a>",
         )
@@ -1361,6 +1372,7 @@ mod adapters {
                 link_substring: String::new(),
                 id_query_key: "id".into(),
                 total_marker: None,
+                empty_marker: None,
             },
             b"<div data-href=\"item.do?id=9\" xhref='item.do?id=8'></div><a href='item.do?id=1'>a</a>",
         )
@@ -1377,6 +1389,7 @@ mod adapters {
                 link_substring: String::new(),
                 id_query_key: "id".into(),
                 total_marker: None,
+                empty_marker: None,
             },
             b"<script>location.href='item.do?id=9';window.href='item.do?id=8';</script><a href='item.do?id=1'>a</a>",
         )
@@ -1394,6 +1407,7 @@ mod adapters {
                 link_substring: "disclosurePopup.do".into(),
                 id_query_key: "tptyCode".into(),
                 total_marker: None,
+                empty_marker: None,
             },
             b"<a href=\"disclosurePopup.do?tabType=1&amp;tptyCode=PB15\">a</a>\
               <a href='disclosurePopup.do?tabType=2&#38;tptyCode=PB16'>b</a>\
@@ -1432,6 +1446,7 @@ mod adapters {
             link_substring: "item.do".into(),
             id_query_key: "id".into(),
             total_marker: None,
+            empty_marker: None,
         };
         let m = en.run(&p, &meta());
         assert_eq!(m.result.unique_item_count, 2);
@@ -1515,8 +1530,11 @@ mod adapters {
     /// 바깥의 진입점(manifest의 allowed_hosts 밖)을 가리키지 않는다.
     #[test]
     fn insurer_adapter_plan_is_bound_to_its_entry() {
-        let mut row_a = fixture_row("ins-a");
-        row_a.insert("disclosure_url".into(), "https://a.fixture/disc".into());
+        let mut row_a = fixture_row("life-kyobo-lifeplanet");
+        row_a.insert(
+            "disclosure_url".into(),
+            "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev".into(),
+        );
         row_a.insert("disclosure_access".into(), "reachable".into());
         row_a.insert("disclosure_status".into(), "archived".into());
         let mut row_b = fixture_row("ins-b");
@@ -1524,11 +1542,22 @@ mod adapters {
         row_b.insert("disclosure_access".into(), "reachable".into());
         row_b.insert("disclosure_status".into(), "archived".into());
         let denom = adapters::denominator_from_rows(vec![row_a, row_b], vec![], vec![]).unwrap();
-        let adapter = InsurerAdapter::for_entry(&denom.in_scope[0]); // ins-a
-                                                                     // ins-b를 넘겨도 계획은 ins-a의 진입점·범위다.
-        let plans = adapter.plans(&denom.in_scope[1]);
-        assert_eq!(plans.len(), 1);
-        assert_eq!(plans[0].scope.institution_id, "ins-a");
-        assert_eq!(plans[0].entrypoint, "https://a.fixture/disc");
+        let entry = denom
+            .in_scope
+            .iter()
+            .find(|e| e.row.insurer_id == "life-kyobo-lifeplanet")
+            .unwrap();
+        let other = denom
+            .in_scope
+            .iter()
+            .find(|e| e.row.insurer_id == "ins-b")
+            .unwrap();
+        let adapter = InsurerAdapter::for_entry(entry);
+        let plans = adapter.plans(other);
+        assert_eq!(plans.len(), 8);
+        assert!(plans
+            .iter()
+            .all(|p| p.scope.institution_id == "life-kyobo-lifeplanet"
+                && p.entrypoint.starts_with("https://www.lifeplanet.co.kr/")));
     }
 }

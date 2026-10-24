@@ -11,7 +11,7 @@
 //!
 //! Ten items that carry nothing but an unacquired reason do not move the rate.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use onjeon_contracts::{AcquisitionStatus, DocRole};
 
@@ -39,7 +39,8 @@ impl AcquisitionEvidence {
 /// acquired — the recorded reason.
 #[derive(Debug, Clone)]
 pub struct DenominatorItem {
-    /// Stable id inside the institution's denominator (e.g. `prod:<판매본>:<doc_role>`).
+    /// Actual discovered document reference, unique together with `doc_role` inside
+    /// the institution. Never a fabricated product/role slot.
     pub item_id: String,
     pub doc_role: DocRole,
     pub evidence: AcquisitionEvidence,
@@ -65,6 +66,8 @@ pub struct InstitutionProgress {
     pub kind: InstitutionKind,
     /// Scope axis -> state, e.g. `product_list` -> `unexplored(<reason>)`.
     pub exploration: BTreeMap<String, ExplorationState>,
+    /// Candidate product identities, kept separate from document counts.
+    pub discovered_products: BTreeSet<String>,
     pub items: Vec<DenominatorItem>,
     pub unknown_denominators: BTreeMap<DocRole, ExplorationState>,
     // Keep each scope's unknowns independently. A completed product list cannot
@@ -159,8 +162,8 @@ pub struct RoleCoverage {
 }
 
 impl RoleCoverage {
-    /// The acquisition rate, or `None` when the role has no denominator items. Never a
-    /// NaN, never above 1.
+    /// The acquisition rate only when the denominator is known and nonempty.
+    /// Unqueried institutions and incomplete enumeration suppress numeric rates.
     pub fn rate(&self) -> Option<f64> {
         if self.expected == 0 || self.unknown_scopes > 0 {
             return None;
@@ -179,11 +182,11 @@ pub struct ProgressTable {
 impl ProgressTable {
     /// Build one row per in-scope institution; every scope axis starts `Unqueried`.
     ///
-    /// The table records what *this* enumeration round has attempted — registry-carried
-    /// statuses (`preflight_states`) are not pre-seeded here; they reach the table the
-    /// same way runtime results do, through `apply_discovery`. Likewise
-    /// `unknown_denominators` starts empty: it marks a role whose denominator a manifest
-    /// showed unverifiable, not a role that was simply never queried.
+    /// Both product and document inventories are required for a known denominator.
+    /// Seed their whole-institution unknowns before any requests: unqueried rows must
+    /// continue to suppress aggregate rates after another institution succeeds.
+    /// A narrower sale/channel/period success cannot prove the whole inventory.
+    /// Registry-carried statuses still arrive through manifests, never as successes.
     pub fn for_denominator<'a>(entries: impl Iterator<Item = &'a DenomEntry>) -> Self {
         let mut rows = Vec::new();
         for e in entries {
@@ -192,14 +195,33 @@ impl ProgressTable {
             exploration.insert("product_list".into(), ExplorationState::Unqueried);
             exploration.insert("documents".into(), ExplorationState::Unqueried);
             exploration.insert("notices".into(), ExplorationState::Unqueried);
-            rows.push(InstitutionProgress {
+            let mut progress = InstitutionProgress {
                 institution_id: e.row.insurer_id.clone(),
                 kind: e.kind,
                 exploration,
+                discovered_products: BTreeSet::new(),
                 items: Vec::new(),
                 unknown_denominators: BTreeMap::new(),
                 denominator_unknowns: BTreeMap::new(),
-            });
+            };
+            for axis in ["product_list", "documents"] {
+                progress.update_denominator_state(
+                    &super::manifest::ScopeDesc {
+                        axis: axis.into(),
+                        institution_id: e.row.insurer_id.clone(),
+                        sale_status: None,
+                        channel: None,
+                        period_from: None,
+                        period_to: None,
+                        doc_roles: DENOMINATOR_DOC_ROLES
+                            .iter()
+                            .map(|r| r.as_str().into())
+                            .collect(),
+                    },
+                    &ExplorationState::Unqueried,
+                );
+            }
+            rows.push(progress);
         }
         rows.sort_by(|a, b| a.institution_id.cmp(&b.institution_id));
         Self { rows }
@@ -220,6 +242,22 @@ impl ProgressTable {
         &mut self,
         manifest: &super::manifest::DiscoveryManifest,
     ) -> Result<(), &'static str> {
+        // discovered_ids has no per-item role annotation. Require one explicit role
+        // for document identities; multiplying every id across roles fabricates items.
+        let document_role =
+            if manifest.scope.axis == "documents" && !manifest.discovered_ids.is_empty() {
+                if manifest.scope.doc_roles.len() != 1 {
+                    return Err("document discoveries require one explicit document role");
+                }
+                Some(
+                    *DENOMINATOR_DOC_ROLES
+                        .iter()
+                        .find(|r| r.as_str() == manifest.scope.doc_roles[0])
+                        .ok_or("document role outside denominator")?,
+                )
+            } else {
+                None
+            };
         let row = self
             .row_mut(&manifest.scope.institution_id)
             .ok_or("institution outside denominator")?;
@@ -246,38 +284,30 @@ impl ProgressTable {
                 ExplorationState::Failed { .. } => AcquisitionStatus::Failed,
                 _ => AcquisitionStatus::Unqueried,
             };
-            for role in DENOMINATOR_DOC_ROLES {
-                if !manifest.scope.doc_roles.iter().any(|r| r == role.as_str()) {
-                    continue;
-                }
-                for item in row
-                    .items
-                    .iter_mut()
-                    .filter(|i| i.doc_role == role && !i.is_acquired())
-                {
-                    item.unacquired = Some((status, reason.clone()));
+            if let Some(role) = document_role {
+                for id in &manifest.discovered_ids {
+                    if !row
+                        .items
+                        .iter()
+                        .any(|item| item.doc_role == role && item.item_id == *id)
+                    {
+                        row.items.push(DenominatorItem {
+                            item_id: id.clone(),
+                            doc_role: role,
+                            evidence: AcquisitionEvidence::default(),
+                            unacquired: Some((status, reason.clone())),
+                        });
+                    }
+                    // Re-enumeration preserves per-document acquisition evidence and
+                    // reasons. A scope failure is not a download failure for every
+                    // document previously found in another channel or period.
                 }
             }
             return Ok(());
         }
-        if manifest.scope.axis != "product_list" {
-            return Ok(());
-        }
-        for id in &manifest.discovered_ids {
-            for role in DENOMINATOR_DOC_ROLES {
-                let item_id = format!("{id}:{}", role.as_str());
-                if !row.items.iter().any(|item| item.item_id == item_id) {
-                    row.items.push(DenominatorItem {
-                        item_id,
-                        doc_role: role,
-                        evidence: AcquisitionEvidence::default(),
-                        unacquired: Some((
-                            AcquisitionStatus::Unqueried,
-                            "document not acquired; product discovered".into(),
-                        )),
-                    });
-                }
-            }
+        if manifest.scope.axis == "product_list" {
+            row.discovered_products
+                .extend(manifest.discovered_ids.iter().cloned());
         }
         Ok(())
     }

@@ -12,13 +12,14 @@ COMMANDS = [
     ["cargo", "test", "-p", "onjeon-collect", "adapters"],
     ["cargo", "test", "--workspace"],
     ["cargo", "build", "-p", "onjeon-collect"],
-    ["python3", "-m", "unittest", "discover", "-s", "services/collect/tests", "-p", "test_*.py", "-v"],
-    ["python3", "-m", "unittest", "discover", "-s", "tools/tests", "-v"],
-    ["python3", "-I", "tools/ci/check_deps.py"],
-    ["python3", "-I", "tools/ci/check_leak.py"],
-    ["python3", "-I", "tools/ci/check_leak.py", "--selftest"],
-    ["python3", "-I", "tools/ci/check_skeleton.py"],
-    ["python3", "-I", "tools/ci/check_skeleton.py", "--selftest"],
+    ["python3", "-B", "-m", "unittest", "discover", "-s", "services/collect/tests", "-p", "test_*.py", "-v"],
+    ["python3", "-B", "-m", "unittest", "discover", "-s", "tools/tests", "-v"],
+    ["python3", "-B", "-I", "tools/ci/check_deps.py"],
+    ["python3", "-B", "-I", "tools/ci/check_leak.py"],
+    ["python3", "-B", "-I", "tools/ci/check_leak.py", "--selftest"],
+    ["python3", "-B", "-I", "tools/ci/check_skeleton.py"],
+    ["python3", "-B", "-I", "tools/ci/check_skeleton.py", "--selftest"],
+    ["git", "diff", "--check"],
 ]
 
 

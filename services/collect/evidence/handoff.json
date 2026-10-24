@@ -1,5 +1,6 @@
 {
   "task_id": "T-DT-04",
+  "fix_round": 2,
   "purpose": {
     "A": [
       "A1",
@@ -12,6 +13,7 @@
       "Q7"
     ],
     "L": [
+      "L0",
       "L1"
     ],
     "I": [
@@ -30,94 +32,232 @@
     "supporting_requirements": [
       "R04",
       "R10"
-    ],
-    "product_purpose_rows": [
-      "P01",
-      "P02"
     ]
   },
-  "verification_summary": {
-    "adapters_rust_tests": "51 passed: 7 library regression tests + 44 adapter integration tests (cargo test -p onjeon-collect adapters; verification-02.log)",
-    "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
-    "workspace_rust": "passed",
-    "python_tools": "passed",
-    "format_and_clippy": "passed",
-    "leak_and_skeleton_static_and_selftests": "passed",
-    "dependency_boundary": "FAIL (exit 1): 3 packages/ontology knowledge-to-twin dependencies/imports. Finding files, checker, and rules are byte-identical to target_sha; see dependency-boundary.json and verification-07.log. Merge remains blocked; requires a task authorized to edit packages/ontology. No checker bypass or policy exception was added.",
-    "all_checks_green": false
-  },
-  "change_kind": "existing_design_implementation",
-  "references": [
-    "DATA_PIPELINE_CONTRACT §1·§2·§8",
-    "ADR-0018 §3·§4",
-    "조사 H1~H14",
-    "Masterplan §23·§24",
-    "09_제품목적_대응표 P01·P02"
-  ],
+  "base_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha_scope": "Input review commit plus uncommitted source bytes pinned by verification.json. Supervisor must create the final commit and re-pin verification and independent review.",
   "author": {
     "role": "implementation_and_self_verification",
-    "execution_path": "interactive CLI / local worktree / Rust cargo and Python unittest",
-    "model_identity": "intentionally_not_recorded",
-    "independent_reviewer": false
+    "execution_path": "CLI / current task worktree / Rust cargo and Python unittest",
+    "independent_reviewer": false,
+    "model_identity": "intentionally_not_recorded"
   },
-  "base_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
-  "target_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
   "review": {
-    "status": "blocked_pending_final_commit_and_independent_review",
-    "required": "Independent reviewer from a different author family must review the supervisor-created target SHA. Self-tests are not an independent review.",
-    "note": "The supplied st_build_review verdict is BLOCK. This fix has only author self-verification; it does not establish independent review of the changed bytes."
+    "input_reviewer_role": "st_re_review",
+    "input_verdict": "BLOCK",
+    "input_target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+    "fix_review_status": "pending_supervisor_final_sha_and_different_author_family_reviewer"
   },
-  "implemented": [
-    "injected Fetch transport (GET only, no redirect following, bounded body; no network impl shipped)",
-    "robots gate port of tools/crawler/robots.py: unverifiable robots defers the host to end of UTC day (hold), 401/403 blocked, 4xx no-rules, RFC 9309 longest-match with */$ for the ONJEON-SourceArchiver token",
-    "list page classification: a 200 login HTML records a blocked login_page range and never an item count",
-    "declarative ListParser (JSON items path / HTML link extraction) configured per institution",
-    "pagination driver with termination evidence: advertised_total_reached, empty_page (a first-page verified empty list only — an empty page contradicting the advertised total or a still-offered next pointer is a stall/continued walk, never a success), next_pointer_absent; page_repeat/stall/max_pages recorded as unexplored — a repeated last page is never a success",
-    "DiscoveryManifest records (scope 회사×판매상태×채널×기간×문서종류, page records, discovered ids, hold/blocked/unexplored/failed ranges) persisted write-once under manifests/discovery/",
-    "unenumerated-scope manifests so every institution scope leaves a record",
-    "institution denominator loading from data/registry CSVs with ADR-0018 scope mapping: 53 insurers + public-epost in scope (54), coop/seed/ksure/historical excluded with reasons and provenance",
-    "institution progress table: one row per in-scope institution; per-doc-role (약관·특약·별표·사업방법서·상품요약서·가격) counters where acquired requires raw_stored + segment_extracted + accepted realizes (09 P02)",
-    "AdapterManifest (Masterplan §24.1 shape) and DiscoveryAdapter trait; AssociationAdapter for KLIA/KNIA built only on survey-observed entrypoints with declared known_limitations; InsurerAdapter per denominator entry gated on registry-verified disclosure_url"
+  "findings": [
+    {
+      "id": 1,
+      "status": "addressed",
+      "change": "Require positive list or verified empty evidence with or without a total marker; shipped associations tested against maintenance pages, navigation and JS shells."
+    },
+    {
+      "id": 2,
+      "status": "addressed",
+      "change": "Seed required whole-institution product and per-role document unknowns; unqueried institutions suppress aggregate rates; scoped success cannot erase the global gap."
+    },
+    {
+      "id": 3,
+      "status": "addressed",
+      "change": "Use actual discovered document identities and explicit roles; independent product set; preserve per-document evidence/reasons and deduplicate repeated/shared references."
+    },
+    {
+      "id": 4,
+      "status": "addressed_with_declared_support_limits",
+      "change": "Replace nonfunctional EntryProbe with concrete Lifeplanet embedded-inventory product/document parsers and 8 survey-backed plans; successful adapter-to-manifest-to-progress regression. Other unsupported institutions remain unexplored."
+    },
+    {
+      "id": 5,
+      "status": "blocked_outside_allowed_paths",
+      "change": "Reran unchanged full dependency gate; 3 ontology findings remain. Supervisor must route repair to an authorized task before merge. See dependency-boundary.json."
+    }
   ],
-  "execution": {
-    "repeat_all_checks": "python3 services/collect/tests/verify.py",
-    "test_logs": "verification-*.log",
-    "test_manifest": "verification.json"
+  "verification": {
+    "command": "python3 -B services/collect/tests/verify.py",
+    "results": [
+      {
+        "command": [
+          "cargo",
+          "fmt",
+          "-p",
+          "onjeon-collect",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "log": "verification-00.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "clippy",
+          "-p",
+          "onjeon-collect",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "log": "verification-01.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "onjeon-collect",
+          "adapters"
+        ],
+        "exit_code": 0,
+        "log": "verification-02.log",
+        "passed_tests": 56
+      },
+      {
+        "command": [
+          "cargo",
+          "test",
+          "--workspace"
+        ],
+        "exit_code": 0,
+        "log": "verification-03.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "build",
+          "-p",
+          "onjeon-collect"
+        ],
+        "exit_code": 0,
+        "log": "verification-04.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "services/collect/tests",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit_code": 0,
+        "log": "verification-05.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/tests",
+          "-v"
+        ],
+        "exit_code": 0,
+        "log": "verification-06.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_deps.py"
+        ],
+        "exit_code": 1,
+        "log": "verification-07.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_leak.py"
+        ],
+        "exit_code": 0,
+        "log": "verification-08.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_leak.py",
+          "--selftest"
+        ],
+        "exit_code": 0,
+        "log": "verification-09.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_skeleton.py"
+        ],
+        "exit_code": 0,
+        "log": "verification-10.log"
+      },
+      {
+        "command": [
+          "python3",
+          "-B",
+          "-I",
+          "tools/ci/check_skeleton.py",
+          "--selftest"
+        ],
+        "exit_code": 0,
+        "log": "verification-11.log"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "log": "verification-12.log"
+      }
+    ],
+    "logs": "verification-00.log through verification-12.log",
+    "required_test_id": "acquisition-reason-not-counted => adapters::acquisition_reason_not_counted",
+    "persistence_test": "adapters::manifest_is_stored_write_once",
+    "adapter_tests": 56,
+    "all_checks_green": false,
+    "dependency_merge_gate": "blocked_until_full_dependency_check_passes",
+    "source_hash_matches": 32
   },
   "limits": [
-    "No live enumeration was performed: the crate ships no network Fetch implementation (https is not built; D-04/O17 gates real collection). All adapter tests use synthetic fixture transports.",
-    "Association adapter plans cover only entrypoints observed in the registry survey and 2026-10-10 source survey; product-level comparison-disclosure enumeration keys are declared unstable (H1 counterexample) and left unexplored rather than invented. KNIA /popup/disclosureList.do was observed only as POST returning a JS object literal, which the GET/HTML plan shape cannot reproduce — the documents axis carries no plan and stays unexplored (declared in known_limitations, along with the observed robots.txt 403/WAF).",
-    "InsurerAdapter emits a plan only when the registry recorded disclosure_status=archived and disclosure_access=reachable (8 of 53 insurers); other institutions carry their registry-recorded gap reasons into the progress table.",
-    "The generic insurer plan is an entry-page link probe, not a per-site product parser; per-site parsers follow site verification.",
-    "Progress counting models the P02 three-part rule as flags (raw_stored, segment_extracted, edition_link_accepted); actual DocumentSegment/realizes production belongs to T-DT-02/03 and the ontology layer.",
-    "Robots deferral is per UTC day as in the Python crawler; there is no cross-run persistence of the deferral state.",
-    "data/registry/*.csv are read-only inputs; the README addition is documentation of loader behavior.",
-    "Synthetic fixture verification does not close P01/P02 real-data release evidence, /coverage rendering, or mass collection (O17)."
+    "No live network requests or real acquisition claims; all test response payloads are synthetic fixture_only data.",
+    "Lifeplanet selling/stopped inventories support products, terms, summaries and business methods based on C_life survey; current live responses were not reverified.",
+    "Other insurer parsers and rider/annex/price enumeration remain unsupported/unexplored; institution progress rows and unknown denominators remain visible.",
+    "Scoped inventory completion does not establish whole-institution completeness; no numeric acquisition rate while required enumeration remains unknown.",
+    "Actual acquisition needs archived raw assets, extracted segments and accepted edition links; flags in progress are not production evidence.",
+    "Skeleton verification is static and checker selftest; no running HTTP service routes probed.",
+    "Final committed SHA and independent different-family review remain supervisor gates."
   ],
   "path_audit": {
-    "changed_scope": [
-      "services/collect/src/adapters/**",
-      "services/collect/src/lib.rs",
-      "services/collect/tests/adapters.rs",
-      "services/collect/tests/verify.py",
-      "services/collect/evidence/**",
+    "allowed_paths": [
+      "services/collect/**",
       "data/registry/README.md"
     ],
-    "forbidden_paths_modified": false,
-    "new_root_configuration_or_docs": false
+    "changed_scope": [
+      "services/collect/**"
+    ],
+    "forbidden_paths_modified": false
   },
   "supervisor_actions": [
-    "Route the 3 dependency findings in packages/ontology to an authorized task and require the unchanged full check_deps.py command to pass before merge.",
-    "Confirm changed files against allowed_paths (services/collect/**, data/registry/README.md).",
-    "Create the final commit, replace the input target SHA in PR metadata with the actual fix commit SHA, and rerun verification against it.",
-    "Obtain independent different-family review pinned to that final SHA; the previous BLOCK verdict is not cleared by self-tests.",
-    "STATUS READY means the allowed-path fix is handed off; it is not a green merge or product release gate."
-  ],
-  "target_sha_scope": "Input review commit, not a commit containing this fix. Verified result is this SHA plus uncommitted source bytes pinned in verification.json. Supervisor must commit the fix and re-pin the final SHA before independent review.",
-  "fix_round_1": {
-    "reviewer": "st_build_review",
-    "finding_1": "Fixed: partial walks never reach completion evidence. Denominator unknowns are retained per axis, sale status, channel, period, and document role; successful enumeration clears only the matching scope/roles. Three new regression tests cover page repeat/stall/max pages, both manifest orders, cross-axis preservation, and matching-scope recovery.",
-    "finding_2": "Fixed: current counts are 44 adapter integration + 7 library regression = 51; verification.json derives the total directly from test output. Historical verification-fix*.log/json remain historical records.",
-    "finding_3": "Partially addressed: input target SHA recorded with explicit worktree-byte pins. Final committed fix SHA, independent review, and full dependency check remain supervisor gates. The dependency violation cannot be repaired within this node allowed_paths."
-  }
+    "Repair ontology dependencies/imports through a task authorized for packages/ontology; rerun the unchanged complete dependency checker.",
+    "Create final commit, pin verification and review to that SHA, obtain independent reviewer from another author family.",
+    "Confirm final path scope. STATUS READY is a handoff, not a merge or release approval."
+  ]
 }

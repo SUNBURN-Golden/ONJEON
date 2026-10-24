@@ -141,7 +141,10 @@ pub struct ParsedPage {
 /// Declarative extraction, configured per institution adapter.
 #[derive(Debug, Clone)]
 pub enum ListParser {
-    EntryProbe,
+    /// Survey C_life §2/§3.5: complete JSON inventory embedded in `var result`.
+    /// `document_field=None` yields candidate product rows; a field selects actual
+    /// document references without assuming one document per product or edition.
+    Lifeplanet { document_field: Option<String> },
     /// The body is JSON: `items_path` is a `.`-separated path to the item array and
     /// `id_field` the field inside each item object. `total_field` is a `.`-separated path
     /// to the advertised total, if the endpoint reports one.
@@ -153,13 +156,16 @@ pub enum ListParser {
     },
     /// The body is HTML: collect ids from `href` attributes that contain
     /// `link_substring` (an empty substring matches every link). The id is the
-    /// `id_query_key=` query value — or the whole `href` when `id_query_key` is empty
-    /// (entry-page link probe). `total_marker` is an optional literal preceding a
+    /// `id_query_key=` query value; an empty query key is rejected.
+    /// `total_marker` is an optional literal preceding a
     /// decimal total (e.g. `총 <b>`).
     HtmlLinks {
         link_substring: String,
         id_query_key: String,
         total_marker: Option<String>,
+        /// Site-specific positive empty-state evidence. Without either this marker
+        /// or an advertised zero, no matching links means a parse failure.
+        empty_marker: Option<String>,
     },
 }
 
@@ -173,8 +179,8 @@ impl ListParser {
 /// page is not an empty list.
 pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'static str> {
     match parser {
-        ListParser::EntryProbe => {
-            Err("entry probe has no verified list parser or termination mechanism")
+        ListParser::Lifeplanet { document_field } => {
+            parse_lifeplanet(body, document_field.as_deref())
         }
         ListParser::Json {
             items_path,
@@ -218,6 +224,7 @@ pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'stat
             link_substring,
             id_query_key,
             total_marker,
+            empty_marker,
         } => {
             let html = String::from_utf8_lossy(body);
             let mut out = ParsedPage::default();
@@ -242,20 +249,77 @@ pub fn parse_page(parser: &ListParser, body: &[u8]) -> Result<ParsedPage, &'stat
             if id_query_key.is_empty() {
                 return Err("HTML list requires a site-specific item selector and key");
             }
-            // A plan that declares a `total_marker` expects the page to prove it is the
-            // configured list shape: `total=0` is verified-empty evidence, while a
-            // missing or non-zero total on a zero-item page means the selector saw
-            // nothing it could vouch for — never a fabricated empty list. A plan with
-            // no declared marker carries no count signal, so a zero-item page is an
-            // honest empty page the enumerator reconciles against the endpoint's own
-            // next pointers and termination rules (§23.2).
-            if out.item_ids.is_empty() && total_marker.is_some() && out.advertised_total != Some(0)
-            {
+            // HTTP 200 and absence of links cannot prove an empty list. Maintenance
+            // pages and unrendered JS shells must fail even without a total marker.
+            let verified_empty = out.advertised_total == Some(0)
+                || empty_marker
+                    .as_ref()
+                    .is_some_and(|m| !m.is_empty() && html.contains(m));
+            if out.item_ids.is_empty() && !verified_empty {
                 return Err("HTML list structure or verified empty-state evidence absent");
             }
             Ok(out)
         }
     }
+}
+
+/// Parse JSON as data; never evaluate site JavaScript. The survey observed all rows
+/// in outData.prdList, including hidden sale periods, on each of the two list pages.
+fn parse_lifeplanet(body: &[u8], document_field: Option<&str>) -> Result<ParsedPage, &'static str> {
+    if document_field.is_some_and(|field| !["insTxtPat", "prdSryPat", "prdMdPat"].contains(&field))
+    {
+        return Err("unverified document field");
+    }
+    let html = std::str::from_utf8(body).map_err(|_| "inventory is not UTF-8")?;
+    let (_, tail) = html
+        .split_once("var result")
+        .ok_or("inventory variable absent")?;
+    let tail = tail
+        .trim_start()
+        .strip_prefix('=')
+        .ok_or("inventory assignment absent")?;
+    let data = serde_json::Deserializer::from_str(tail.trim_start())
+        .into_iter::<serde_json::Value>()
+        .next()
+        .ok_or("inventory data absent")?
+        .map_err(|_| "inventory JSON malformed")?;
+    let rows = json_path(&data, "outData.prdList")
+        .and_then(|v| v.as_array())
+        .ok_or("inventory rows absent")?;
+    let mut out = ParsedPage::default();
+    for row in rows {
+        // A code is not an edition identity (H1/H5). Pin the complete observed
+        // metadata row as a discovery candidate, without inventing a sale-version key.
+        for field in ["prdCd", "saleStYmd", "saleEdYmd"] {
+            if row
+                .get(field)
+                .and_then(|v| v.as_str())
+                .is_none_or(str::is_empty)
+            {
+                return Err("inventory row identity absent");
+            }
+        }
+        let id = if let Some(field) = document_field {
+            // Missing references are not proof that the expected document is absent.
+            let path = row
+                .get(field)
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.trim().is_empty())
+                .ok_or("document reference missing")?;
+            path.to_string()
+        } else {
+            format!(
+                "lifeplanet-row:{}",
+                crate::digest::sha256_hex(
+                    &serde_json::to_vec(row).map_err(|_| "inventory row malformed")?
+                )
+            )
+        };
+        if !out.item_ids.contains(&id) {
+            out.item_ids.push(id);
+        }
+    }
+    Ok(out)
 }
 
 fn json_path<'a>(v: &'a serde_json::Value, path: &str) -> Option<&'a serde_json::Value> {
@@ -399,10 +463,9 @@ fn query_value(href: &str, key: &str) -> Option<String> {
 
 /// First run of digits after `marker` (the "총 128건" shape), with separators stripped.
 fn total_after_marker(html: &str, marker: &str) -> Option<u64> {
-    let tail = &html[html.find(marker)?..];
+    let tail = html[html.find(marker)? + marker.len()..].trim_start();
     let digits: String = tail
         .chars()
-        .skip_while(|c| !c.is_ascii_digit())
         .take_while(|c| c.is_ascii_digit() || *c == ',')
         .collect();
     let digits: String = digits.chars().filter(|c| c.is_ascii_digit()).collect();

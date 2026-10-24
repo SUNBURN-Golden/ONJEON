@@ -1,20 +1,20 @@
 {
   "task_id": "T-DT-04",
-  "base_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
-  "target_sha": "5ae5171f201f2e448624cafb1c5ef00bd8e08e45",
+  "base_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
   "target_sha_scope": "Input review commit. Tests cover this commit plus uncommitted files pinned below; supervisor must re-pin the final commit and obtain independent review.",
   "files_sha256": {
     "Cargo.toml": "42700de608b885155b383297e9699f8e6a96c2c60a79f383356f0000385027b3",
     "Cargo.lock": "6428c439df9587782a71bcac0a169e77ec7d3d905dc93aef8fce2ff43cff2681",
     "services/collect/src/adapters/enumerate.rs": "ff0fd864632c3c2d07be09644213e41989407cb76ea65890bb1f33dec48e2936",
     "services/collect/src/adapters/fetch.rs": "520630640513752123cbf023cf7cf9f4ead02404f4d8532ebcbeafc3d60762e4",
-    "services/collect/src/adapters/institution.rs": "630a5905cd6fcdb6d8af9c764b575156c3b617f1d02669b2b3039e0a6f8d69a1",
-    "services/collect/src/adapters/listpage.rs": "3d1b7580e341eb7e9943351ec8f0e6f7138dc02e57a964b1371a60b46cfb8d54",
+    "services/collect/src/adapters/institution.rs": "3ee8dccf0e97d69952b7092186d318357539f40e154b8e2340ee67f50a66ae79",
+    "services/collect/src/adapters/listpage.rs": "002e3575a2d1c600b58ba9f57a94fa21d7ec45818d530c86302c4b6356850251",
     "services/collect/src/adapters/manifest.rs": "1765f8edc5286b313a1c79e358ab86998475d0aeb67d7ffd201106b7ec371791",
     "services/collect/src/adapters/mod.rs": "797a78baf9f38fc105938a4012107892929f79035353990663b165c89666ac98",
-    "services/collect/src/adapters/progress.rs": "3c837afb9079780da3e9ec3f657a42552fdf3c10bdf9e589ca4c1d7bcae80fd5",
+    "services/collect/src/adapters/progress.rs": "53e04e870548d23a31af4f6030dba1efc51fd1773c2f5aa264c21db8c864fa46",
     "services/collect/src/adapters/registry.rs": "2e1a3e3eff46e946588fd90fab0024eab6aa3236e51c0de61b3810c506da4eed",
-    "services/collect/src/adapters/regression.rs": "fb71f8833c4a6bf9c21b276f51967bb6da62f0f139bc2b594013f4a0dabfe278",
+    "services/collect/src/adapters/regression.rs": "d3e03fc0857d6f7c632e986844c95d8a06d60f1936ee35f3869b4420f6d76429",
     "services/collect/src/adapters/robots.rs": "d3c7f9ce99a4583fa29846d5862e8431b9f0112cc0e76caac3a959cfc2e3f61d",
     "services/collect/src/archive.rs": "5fdcf711635e957dac4e2fed083fc2330a9edcf61b1a4b7b4392ca335a207053",
     "services/collect/src/budget.rs": "8932a59aae185b0477a371699a998494e8223df9d19f476a8c2f186a3dc6d5d1",
@@ -29,12 +29,12 @@
     "services/collect/src/sigv4.rs": "c08251d77dd99dcefa60af1d2475d1c61b9718afe880cb7accc7d945be81bfc3",
     "services/collect/src/store.rs": "de8aa5a0346eefd84389d2194e7f17c3d299a5c2078ad33d48c04d8444c484c4",
     "services/collect/src/time.rs": "48e1ee0cee740e7e513058a4dd48e44cffaa96fb15de00188ef7db49e9da86d7",
-    "services/collect/tests/adapters.rs": "678c3129e158f5b61d6a56d219f8f60c3347e07d0011b59c4143d5ba6e6c8da0",
+    "services/collect/tests/adapters.rs": "52809667b73d9b5a7d4a45e718f2947f9f3032edb8d33abfeaba1fba4a7d6a68",
     "services/collect/tests/conformance.rs": "c6a0b7737a68ddae1eed209506d7a39712377bfc178778c0677002c7e73d0452",
     "services/collect/tests/http_conformance.rs": "dcdf1317513da1f5a1737eb7626083ec507d869c060737e6f34bd13f0fd72519",
     "services/collect/tests/s3_conformance.rs": "8966dc5d6e06935e8c71d6caba17c9188832c421007040a5a8552810a6efd8b5",
     "services/collect/tests/test_python_conformance.py": "ee21d093f7719048e91821dc35bd64be94b79efa048d7033b0bd42fe4382ae2b",
-    "services/collect/tests/verify.py": "40b3d2c2aebd5ec625d68611eb797e6fef761bc640b7a01cd26b1dc4a1f1e52b",
+    "services/collect/tests/verify.py": "677168c053a220dca789ebf2d8ddd5a6494e635b9d9d0da52e26d4cc3ba17595",
     "services/collect/Cargo.toml": "0b5e33362c7f5dbe783857bf35a7de0c9b52caf2c226f8d40baedcaef2981fa7"
   },
   "all_checks_green": false,
@@ -75,7 +75,7 @@
       ],
       "exit_code": 0,
       "log": "verification-02.log",
-      "passed_tests": 51
+      "passed_tests": 56
     },
     {
       "command": [
@@ -99,6 +99,7 @@
     {
       "command": [
         "python3",
+        "-B",
         "-m",
         "unittest",
         "discover",
@@ -114,6 +115,7 @@
     {
       "command": [
         "python3",
+        "-B",
         "-m",
         "unittest",
         "discover",
@@ -127,6 +129,7 @@
     {
       "command": [
         "python3",
+        "-B",
         "-I",
         "tools/ci/check_deps.py"
       ],
@@ -136,6 +139,7 @@
     {
       "command": [
         "python3",
+        "-B",
         "-I",
         "tools/ci/check_leak.py"
       ],
@@ -145,6 +149,7 @@
     {
       "command": [
         "python3",
+        "-B",
         "-I",
         "tools/ci/check_leak.py",
         "--selftest"
@@ -155,6 +160,7 @@
     {
       "command": [
         "python3",
+        "-B",
         "-I",
         "tools/ci/check_skeleton.py"
       ],
@@ -164,12 +170,22 @@
     {
       "command": [
         "python3",
+        "-B",
         "-I",
         "tools/ci/check_skeleton.py",
         "--selftest"
       ],
       "exit_code": 0,
       "log": "verification-11.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "verification-12.log"
     }
   ]
 }

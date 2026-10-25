@@ -1,0 +1,86 @@
+$ python3 -m unittest discover -s tools/tests
+..............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................ss............................................................................................................................../workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:104: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpux_2n8pv/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:104: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp566m5wr5/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmprpyznqzc/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp96a6gw1t/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpq7eu6833/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:104: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp5qwft0qf/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpo7q2a4oc/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpl4qt5scn/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./tmp/tmpuf1gl3ky/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpuf1gl3ky/data/registry/insurers.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/tmpuf1gl3ky/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpuf1gl3ky/data/registry/cooperatives_and_others.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/tmpuf1gl3ky/tools/registry_normalize.py:104: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpuf1gl3ky/data/registry/access_log.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/registry_normalize.py:70: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppo7wne30/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........................./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmptwcjsww0/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:406: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmptvsriszx/samples.csv' mode='r' encoding='utf-8'>
+  dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......................./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpofx46gpl/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdz51o63h/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpuwva447q/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpx5nlnrsh/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpo4pn2fqt/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:408: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpsmpnpejz/samples.csv' mode='r' encoding='utf-8'>
+  body = raw.get(object_key(r["sha256"]))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:405: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwt7dz7ij/samples.csv' mode='r' encoding='utf-8'>
+  for r in csv.DictReader(SAMPLES.open(encoding="utf-8")):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpqqd05zza/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/source_archive.py:319: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwforkrnh/samples.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...........s...................................sss..../workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/tools/verify_sources.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit1-blueprint-register-dec-records/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............................................................
+----------------------------------------------------------------------
+Ran 811 tests in 84.523s
+
+OK (skipped=6)
+
+exit code: 0

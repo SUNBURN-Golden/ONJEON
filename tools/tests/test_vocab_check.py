@@ -1,4 +1,6 @@
 """Vocabulary lint fixtures are temporary documents, never canonical contracts."""
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
@@ -90,28 +92,37 @@ class Lint(unittest.TestCase):
                       "전체 31개 축 VOCABULARY.md <!-- vocab:allow -->\n전체 축은 VOCABULARY.md에 있다.\n")
         self.assertEqual(vc.lint(self.vocab), [])
 
-    def test_stale_axis_count_in_a_protected_document_is_a_notice_not_a_failure(self):
-        patcher = mock.patch.object(vc, "PROTECTED_DOCS", ("contracts/a.md",))
-        patcher.start()
-        self.addCleanup(patcher.stop)
-        self.document("전체 31개 축은 VOCABULARY.md에 있다.\n")
+    def test_stale_blueprint_or_proposal_count_fails_the_cli(self):
+        for name in ("docs/BLUEPRINT.md", "docs/blueprint/proposals/인계_설계책임/README.md"):
+            with self.subTest(name=name):
+                self.document("전체 31개 축은 VOCABULARY.md에 있다.\n", name)
+                rendered = "전체 2개 축.\n"
+                self.document(rendered, "contracts/generated.md")
+                output = io.StringIO()
+                with mock.patch.object(vc, "CONTRACT_DOCS", ["docs/BLUEPRINT.md"]), \
+                     mock.patch.object(vc, "load", return_value=self.vocab), \
+                     mock.patch.object(vc, "validate", return_value=[]), \
+                     mock.patch.object(vc, "render", return_value=rendered), \
+                     mock.patch.object(sys, "argv", ["vocab_check.py"]), \
+                     contextlib.redirect_stdout(output):
+                    self.assertEqual(vc.main(), 1)
+                self.assertIn(f"{name}:1: says 31 axes, vocabulary.json has 2", output.getvalue())
+                (self.root / name).unlink()
+
+    def test_proposal_count_scan_is_separate_from_deprecated_status_lint(self):
+        name = "docs/blueprint/proposals/example/README.md"
+        self.document("old_state\n상태 어휘 정본(31개 축)\n", name)
+        self.assertEqual(vc.lint(self.vocab), [
+            f"{name}:2: says 31 axes, vocabulary.json has 2; drop the number (a count in prose goes stale)"])
+        self.document("old_state\n상태 어휘 정본(31개 축) <!-- vocab:allow -->\n", name)
         self.assertEqual(vc.lint(self.vocab), [])
-        self.assertEqual(vc.stale_axis_count_notices(self.vocab), [
-            "contracts/a.md:1: says 31 axes, vocabulary.json has 2; "
-            "protected document, the owner drops the number"])
-        # the notice is recomputed each run: a matching count clears it by itself
-        self.document("전체 2개 축은 VOCABULARY.md에 있다.\n")
-        self.assertEqual(vc.stale_axis_count_notices(self.vocab), [])
-        # and it respects the per-line opt-out marker like the lint does
-        self.document("전체 31개 축은 VOCABULARY.md에 있다. <!-- vocab:allow -->\n")
-        self.assertEqual(vc.stale_axis_count_notices(self.vocab), [])
 
     def test_no_matching_contracts_is_clean(self):
         self.assertEqual(vc.lint(self.vocab), [])
 
 
 class GeneratedDoc(unittest.TestCase):
-    """render() states the live axis count; the committed file may lag by exactly that line."""
+    """The generated document must exactly match render(), including the live axis count."""
 
     def vocab(self, n):
         return dict(version="1.0.0", updated="2026-01-01", rules=[], timestamps=[],
@@ -124,10 +135,17 @@ class GeneratedDoc(unittest.TestCase):
     def test_render_states_the_live_count_on_its_own_line(self):
         self.assertIn("\n전체 3개 축.\n", vc.render(self.vocab(3)))
 
-    def test_a_file_predating_the_count_line_is_still_fresh(self):
+    def test_a_missing_count_line_is_drift(self):
         v = self.vocab(3)
         older = vc.render(v).replace("\n전체 3개 축.\n", "")
-        self.assertEqual(vc.generated_doc_problems(older, vc.render(v), 3), [])
+        self.assertTrue(vc.generated_doc_problems(older, vc.render(v), 3))
+
+    def test_adding_an_axis_requires_regeneration_and_updates_the_count(self):
+        old = vc.render(self.vocab(3))
+        new = vc.render(self.vocab(4))
+        self.assertTrue(vc.generated_doc_problems(old, new, 4))
+        self.assertIn("\n전체 4개 축.\n", new)
+        self.assertEqual(vc.generated_doc_problems(new, new, 4), [])
 
     def test_a_stale_or_doubled_count_line_is_drift(self):
         v = self.vocab(3)

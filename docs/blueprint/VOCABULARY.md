@@ -14,6 +14,8 @@
 
 ## 축 목록
 
+전체 45개 축.
+
 | 축 | 이름 | 적용 대상 | 계층 |
 |---|---|---|---|
 | `acquisition_status` | 수집 상태 | ExpectedDocument, ExpectedPrice, DiscoveryManifest 항목 | L0-L1 |

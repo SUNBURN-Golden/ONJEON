@@ -1,0 +1,8 @@
+source_id,url,terms_status,tier,min_interval_s,adapter,daily_cap,notes
+daily,https://a.example/disclosures,allowed,A,5,listing,2,origin=fixture
+weekly,https://b.example/disclosures,allowed,B,,,1,origin=fixture
+monthly,https://c.example/disclosures,allowed,C,,,,origin=fixture
+backfill,https://d.example/archive,allowed,D,,,,origin=fixture
+unchecked,https://e.example/disclosures,unknown,A,,,,origin=fixture
+restricted,https://f.example/disclosures,restricted,A,,,,origin=fixture
+missing,https://g.example/disclosures,,A,,,,origin=fixture

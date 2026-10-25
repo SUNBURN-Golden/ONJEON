@@ -1,0 +1,12 @@
+PASS: git diff --check
+PASS: all changed/untracked paths allowed; no protected path changed
+docs/BLUEPRINT.md
+docs/blueprint/DECISIONS.md
+docs/blueprint/validation/REVERIFY_AUDIT1_DEC_RECORDS.md
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/round1/decision-records.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/round1/docs-checks.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/round1/python-checks.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/round1/regression.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/round1/rust-checks.log
+tools/tests/test_decision_records.py
+exit_code=0

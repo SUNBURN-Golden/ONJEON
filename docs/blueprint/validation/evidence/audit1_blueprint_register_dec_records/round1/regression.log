@@ -1,0 +1,4 @@
+New partial-index test against each original HEAD document, retaining the other fixed document:
+PASS: restoring original docs/BLUEPRINT.md is rejected: Regex didn't match: '§3\\.1.*일부 기록.*색인' not found in '`docs/decisions/DEC-*.md`는 실데이터 사용·정본 변경 등의 결정·위임 범위·조건·상태를 남기는 **결정 게이트 기록**으로 [결정 원장 §3](blueprint/DECISIONS.md#3-구현-전-미정-사항과-차단-범위)에 등록하며, 설계도를 변경하는 ADR을 대신하지 않는다.'
+PASS: restoring original docs/blueprint/DECISIONS.md is rejected: '일부' not found in '결정 게이트 기록 (DEC-*)\n\nBLUEPRINT §0.1에 따른 결정 기록이다. 상태는 연결된 기록의 결정 범위와 조건을 요약한다. 이 표의 등록은 문서 색인이며, 데몬의 `decisions_recorded` 등록·실데이터 접근 허용·정본 변경 적용·병합 또는 관문 통과의 증거가 아니다. 기록의 조건과 별도 승인·검증 절차는 계속 적용한다.\n\n'
+exit_code=0

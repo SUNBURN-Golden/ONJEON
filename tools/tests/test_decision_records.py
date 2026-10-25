@@ -42,6 +42,15 @@ class DecisionRecords(unittest.TestCase):
                 self.assertTrue(cells[2], "decision scope is required")
                 self.assertTrue(cells[3], "remaining gate conditions are required")
 
+    def test_hierarchy_and_ledger_explicitly_describe_a_partial_index(self):
+        dec_paragraph = next(paragraph for paragraph in self.hierarchy.split("\n\n")
+                             if "DEC-*.md" in paragraph)
+        self.assertRegex(dec_paragraph, r"§3\.1.*일부 기록.*색인")
+        index_intro = self.section.split("### 3.1 ", 1)[1].split("| 기록 |", 1)[0]
+        self.assertIn("일부", index_intro)
+        self.assertIn("전체 DEC 기록 목록은 아니다", index_intro)
+        self.assertIn("docs/decisions/DEC-*.md", index_intro)
+
     def test_index_registration_does_not_open_operational_gates(self):
         self.assertIn("이 표의 등록은 문서 색인", self.section)
         self.assertIn("`decisions_recorded` 등록", self.section)

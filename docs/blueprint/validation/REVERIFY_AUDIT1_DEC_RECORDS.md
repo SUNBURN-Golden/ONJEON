@@ -24,7 +24,7 @@
 
 문서 수정 전에 6개 시험을 실행해 정의·세 기록 누락으로 실패하는 것을 확인했다(실패 8건: 세 기록 대조의 subTest 실패 포함). 문서 수정 후 6개 모두 통과했다. 결과 로그에는 실행 명령과 종료 코드를 남겼다.
 
-## 프로젝트 검사
+## 최초 수정의 프로젝트 검사
 
 실행 결과는 [evidence/audit1_blueprint_register_dec_records/](evidence/audit1_blueprint_register_dec_records/)에 기록한다.
 
@@ -44,3 +44,20 @@
 | README 색인 시험·`git diff --check`·금지 경로 diff·변경/미추적 파일 경로 검사·문서 링크 대상 검사 | 색인 5개 통과, 모든 변경이 허용 범위이며 금지 경로 변경 없음, 링크 대상 존재 | [final-checks.log](evidence/audit1_blueprint_register_dec_records/final-checks.log) |
 
 Python 건너뜀은 비공개 원본 보관본이 필요한 시험 5개와 설치된 botocore가 조건부 쓰기를 지원해 해당하지 않는 구버전 거부 시험 1개다. 기존 CSV 읽기 코드의 `ResourceWarning`이 출력됐으며 실패는 없었다. Rust의 무시 1개는 기존 ABox 픽스처 재생성 시험(`regenerate_declared_abox_fixture`)이다. 이 노드의 회귀 시험에는 건너뜀이 없다.
+
+## Fix round 1: 부분 색인의 범위 명시
+
+리뷰의 차단 지적은 §0.1이 모든 `DEC-*.md`의 원장 등록을 선언하지만 §3.1에는 세 기록만 있다는 점이다. 모든 기록의 상태를 새로 요약하는 대신, §0.1에서 §3.1은 일부 기록을 색인한다고 범위를 좁혔다. §3.1에도 전체 목록이 아님을 명시하고 전체 기록의 위치인 `docs/decisions/DEC-*.md`를 안내했다. 세 기록의 상태·조건과 ADR 변경 경로는 그대로다.
+
+`test_hierarchy_and_ledger_explicitly_describe_a_partial_index`가 두 문서의 부분 색인 명시와 전체 기록 위치 안내를 검사한다. 수정 전 HEAD의 BLUEPRINT와 DECISIONS 본문을 각각 시험 입력으로 복원하고 다른 문서는 수정 상태로 두었을 때, 새 시험은 두 경우 모두 실패했다. 실제 문서를 되돌리지 않고 메모리의 시험 입력만 바꿨다. 수정 후 결정 기록 시험 7개는 모두 통과했다.
+
+재실행 증거는 [round1/](evidence/audit1_blueprint_register_dec_records/round1/)에 별도로 보존한다. 위 최초 수정의 로그와 구분한다.
+
+| 명령·검사 | 결과 | 로그 |
+|---|---|---|
+| `python3 -m unittest tools.tests.test_decision_records -v` | 7개 통과 | [decision-records.log](evidence/audit1_blueprint_register_dec_records/round1/decision-records.log) |
+| `python3 -m unittest discover -s tools/tests -v` | 812개 실행, 실패·오류 0, 건너뜀 6 | [python-checks.log](evidence/audit1_blueprint_register_dec_records/round1/python-checks.log) |
+| 새 부분 색인 시험에 수정 전 HEAD 문서를 각각 대입 | BLUEPRINT·DECISIONS의 이전 문구를 각각 검출 | [regression.log](evidence/audit1_blueprint_register_dec_records/round1/regression.log) |
+| `cargo fmt --all -- --check` → `cargo clippy --all-targets -- -D warnings` → `cargo test --all` | 모두 통과. Rust 문서 시험 포함 402개 통과, 실패 0, 무시 1 | [rust-checks.log](evidence/audit1_blueprint_register_dec_records/round1/rust-checks.log) |
+| `python3 tools/vocab_check.py` → `python3 tools/validation_check.py` → `python3 tools/validation_check.py --selftest` → `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 모두 통과. 어휘 49축·269값, 변조 38종 검출, 명세 기계 검사 44/44·존재 검사 72/72 | [docs-checks.log](evidence/audit1_blueprint_register_dec_records/round1/docs-checks.log) |
+| `git diff --check`·변경/미추적 파일 경로 검사 | 통과, 허용 범위 안의 변경이며 금지 경로 변경 없음 | [final-checks.log](evidence/audit1_blueprint_register_dec_records/round1/final-checks.log) |

@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /** Version of packages/schemas/vocabulary.json these unions were generated from. */
-export const VOCABULARY_VERSION = "1.6.0";
+export const VOCABULARY_VERSION = "1.7.0";
 
 /**
  * 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
@@ -677,4 +677,64 @@ export function parseCriterionSourceKind(value: unknown): CriterionSourceKind {
     return value as CriterionSourceKind;
   }
   throw new Error(`unknown criterion_source_kind: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 규칙 입력 타입: 규칙 DSL 입력 선언의 타입. rule-0.1은 앞의 다섯 타입, rule-0.2는 class_money_list도 허용한다. 알 수 없는 타입은 로드에서 거부한다
+ *
+ * Axis `input_type`.
+ */
+export const InputType = ["bool", "int", "money_krw", "date", "string", "class_money_list"] as const;
+export type InputType = (typeof InputType)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseInputType(value: unknown): InputType {
+  if (typeof value === "string" && (InputType as readonly string[]).includes(value)) {
+    return value as InputType;
+  }
+  throw new Error(`unknown input_type: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 규칙 금액 반올림: multiply_rate·pro_rata·divide_count의 명시적 반올림 방식. 양의 정수 원 단위 unit과 함께 필수다. rule-0.1과 rule-0.2에서 같은 값을 쓴다
+ *
+ * Axis `rounding`.
+ */
+export const Rounding = ["floor", "ceil", "half_up", "half_even", "unspecified"] as const;
+export type Rounding = (typeof Rounding)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseRounding(value: unknown): Rounding {
+  if (typeof value === "string" && (Rounding as readonly string[]).includes(value)) {
+    return value as Rounding;
+  }
+  throw new Error(`unknown rounding: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 규칙 날짜 기간 단위: date_add의 달력 기간 단위. rule-0.1과 rule-0.2에서 같은 값을 쓴다. calendar_month·calendar_year는 month_end=clamp가 필수이고 day에는 month_end를 허용하지 않는다
+ *
+ * Axis `duration_unit`.
+ */
+export const DurationUnit = ["day", "calendar_month", "calendar_year"] as const;
+export type DurationUnit = (typeof DurationUnit)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseDurationUnit(value: unknown): DurationUnit {
+  if (typeof value === "string" && (DurationUnit as readonly string[]).includes(value)) {
+    return value as DurationUnit;
+  }
+  throw new Error(`unknown duration_unit: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 규칙 DSL 연산자: 규칙 로더가 허용하는 식 객체의 키. 리터럴 생성자·input·세 키 if 형식도 포함하며 then·else는 if의 구조 키다. rule-0.2 전용 여섯 연산은 각 정의에 표시한다. multiply 등 목록 밖 키는 로드에서 거부한다
+ *
+ * Axis `rule_operator`.
+ */
+export const RuleOperator = ["all", "any", "not", "eq", "ne", "lt", "lte", "gt", "gte", "if", "input", "rate", "krw", "date", "multiply_rate", "add", "min", "max", "apply_cap", "days_between", "date_add", "multiply_count", "subtract_floor0", "pro_rata", "divide_count", "anniversary_band", "max_over"] as const;
+export type RuleOperator = (typeof RuleOperator)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseRuleOperator(value: unknown): RuleOperator {
+  if (typeof value === "string" && (RuleOperator as readonly string[]).includes(value)) {
+    return value as RuleOperator;
+  }
+  throw new Error(`unknown rule_operator: ${JSON.stringify(value)}`);
 }

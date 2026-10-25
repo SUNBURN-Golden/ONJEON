@@ -12,6 +12,7 @@
 | `screen/*.json`, `SCREEN_BINDING.md` | 같은 자료를 내 설계 탭과 담보 상세 시트에 연결한 결과(V1-c) |
 | `source_checks/*.json` | 보관본 재현 검사·현재 출처 변경 감지·다운로드 해시 대조 실행 기록 |
 | `REVERIFY_87a19c5.md`, `REVERIFY_839ecdb.md` | 검사 보강의 재검증 결과와 그때 찾은 결함·수정·회귀 시험 |
+| `REVERIFY_AUDIT1_STORAGE_DOCS.md` | BLUEPRINT의 R2 보존 완료·남은 조건·코드 목록 수정과 회귀 시험, 기존 R2 기록 대조 |
 
 실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
 

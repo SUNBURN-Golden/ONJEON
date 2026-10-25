@@ -171,7 +171,7 @@ flowchart TD
 | `policy_holdings_status` / `contract_version_match` | 내 가입내역을 얼마나 아나 / 어느 버전인가 | confirmed, pending_confirmation, none_declared, unknown, skipped / matched, ambiguous, unmatched |
 | `clause_path_basis` / `relation_type` / `amount_form` | 조항 번호를 읽었나 추정했나 / 간선의 종류 / 원문이 금액을 적은 형식 | printed, inferred / attached_to, routes_to, parameter_from … / example_amount, per_unit_krw … |
 
-전체 31개 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
+전체 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
 
 ## 7. 현행 결정 요약
 

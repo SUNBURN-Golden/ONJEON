@@ -50,7 +50,7 @@
 |---|---|---|---|
 | `packages/rules-engine/` | 규칙 DSL rule-0.1 평가기(Rust 약 1,600줄): 3값 논리, 정수 원, 명시 반올림, 날짜, 허용 연산, 규칙 불변·내용 해시, trace | I1~I5·I18 구현 | `cargo test --all`: golden, mutation, soundness, loader_and_arith, review_fixes, real_clauses(실제 조항 8건 + 화면 금액 대조), vocabulary |
 | `packages/fixtures/rules/` | 합성 규칙 1건, `real/` 실제 조항 규칙 8건(fixture_only, AI 1차 해석, 미검수) | 서비스 사용 금지 | 위와 같음 |
-| `packages/schemas/vocabulary.json` | 상태 어휘 정본(31개 축) | 구현 | `python3 tools/vocab_check.py` |
+| `packages/schemas/vocabulary.json` | 상태 어휘 정본 | 구현 | `python3 tools/vocab_check.py` |
 | `data/registry/` | 기관 분모 V0: 보험사 53, 공제 등 16, 제외·과거 49, 근거 66, 접근 기록 | 상품·특약 열거 0 | `tools/registry_normalize.py` |
 | `docs/blueprint/validation/` | V1 표본 14개 파일 인코딩(`encoded/`), 발췌(`extracts/`), 화면 데이터(`screen/`), 부족분 G01~G26, 원본 대조 기록(`source_checks/`) | 설계 검증 자료(서비스 데이터 아님) | `python3 tools/validation_check.py`, `--selftest` |
 | `tools/source_archive.py` | 원본 보관: archive-samples, add-observation, fetch, copy, verify, listing, verify-copy. 조건부 쓰기, 덮어쓰기 금지 | 구현 | `python3 -m unittest discover -s tools/tests -v` |

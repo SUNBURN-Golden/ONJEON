@@ -11,6 +11,7 @@ class DecisionRecords(unittest.TestCase):
     def setUp(self):
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
         self.hierarchy = blueprint.split("### 0.1 ", 1)[1].split("### 0.2 ", 1)[0]
+        self.open_decisions = blueprint.split("## 12. ", 1)[1].split("## 13. ", 1)[0]
         ledger = (ROOT / "docs/blueprint/DECISIONS.md").read_text(encoding="utf-8")
         self.section = ledger.split("## 3. ", 1)[1].split("## 4. ", 1)[0]
 
@@ -62,6 +63,21 @@ class DecisionRecords(unittest.TestCase):
         self.assertIn("사용자 확정 아님", cells[1])
         for phrase in ("접근 확인", "등록", "별도 게이트", "T-OP-03"):
             self.assertIn(phrase, cells[3])
+
+    def test_blueprint_d02_rows_state_delegation_pending_user_confirmation(self):
+        for decision, note in (
+            ("AI 제공자 구성(서로 다른 모델 계열 2개 이상)", "ADR-0006 이행 조건"),
+            ("정책 소유자 지정(AI 승인 임계값·사고 시 중단)", "사람의 유일한 역할"),
+        ):
+            with self.subTest(decision=decision):
+                rows = [line for line in self.open_decisions.splitlines()
+                        if line.startswith(f"| {decision} |")]
+                self.assertEqual(len(rows), 1)
+                cells = [cell.strip() for cell in rows[0].strip("|").split("|")]
+                self.assertEqual(len(cells), 3)
+                self.assertEqual(cells[1], "M2")
+                self.assertIn(note, cells[2])
+                self.assertIn("위임 결정 DEC-D-02, 사용자 확정 대기", cells[2])
 
     def test_d04_records_owner_ruling_without_reuse_approval(self):
         cells = self.row("DEC-D-04")

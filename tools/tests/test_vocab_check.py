@@ -1,6 +1,7 @@
 """Vocabulary lint fixtures are temporary documents, never canonical contracts."""
 import contextlib
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -146,6 +147,36 @@ class GeneratedDoc(unittest.TestCase):
         self.assertTrue(vc.generated_doc_problems(old, new, 4))
         self.assertIn("\n전체 4개 축.\n", new)
         self.assertEqual(vc.generated_doc_problems(new, new, 4), [])
+
+    def test_cli_repairs_count_left_stale_by_target_branch_merge(self):
+        # A clean text merge can add all four new axes while retaining the old count.
+        v = self.vocab(49)
+        rendered = vc.render(v)
+        merged = rendered.replace("전체 49개 축.", "전체 45개 축.")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            doc = root / "docs/blueprint/VOCABULARY.md"
+            source = root / "packages/schemas/vocabulary.json"
+            doc.parent.mkdir(parents=True)
+            source.parent.mkdir(parents=True)
+            doc.write_text(merged, encoding="utf-8")
+            source.write_text(json.dumps(v, ensure_ascii=False), encoding="utf-8")
+            source_before = source.read_bytes()
+            with mock.patch.object(vc, "ROOT", root), \
+                 mock.patch.object(vc, "DOC", doc), \
+                 mock.patch.object(vc, "VOCAB", source):
+                output = io.StringIO()
+                with mock.patch.object(sys, "argv", ["vocab_check.py"]), \
+                     contextlib.redirect_stdout(output):
+                    self.assertEqual(vc.main(), 1)
+                self.assertIn("axis count [45], vocabulary.json has 49", output.getvalue())
+                self.assertEqual(doc.read_text(encoding="utf-8"), merged)
+                for args in (["--write"], [], ["--write"]):
+                    with mock.patch.object(sys, "argv", ["vocab_check.py", *args]), \
+                         contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(vc.main(), 0)
+                    self.assertEqual(doc.read_text(encoding="utf-8"), rendered)
+                    self.assertEqual(source.read_bytes(), source_before)
 
     def test_a_stale_or_doubled_count_line_is_drift(self):
         v = self.vocab(3)

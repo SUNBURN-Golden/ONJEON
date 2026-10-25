@@ -1,0 +1,6 @@
+HEAD: 66764b64f81bd2f04a3f28987474bf5528b60245
+Prerequisite merge b7e20f9 is an ancestor of HEAD.
+.github/workflows/ci.yml: 2 exact supplied pins, unchanged from HEAD, sha256=6a870074bb48e52fcbada060a46c4f5c6961d3e46e62b23e4afd306e32c71e8f
+.github/workflows/sources.yml: 4 exact supplied pins, unchanged from HEAD, sha256=75b4e15ef994bcbb4265fb4d50a7614ab8c6e032d0a5c503a4101d84d011993c
+ci.yml hardening guard: PASS (contents: read; persist-credentials: false on both checkouts).
+No workflow files edited; no remote calls made.

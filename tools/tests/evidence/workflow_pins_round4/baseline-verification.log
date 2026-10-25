@@ -1,0 +1,10 @@
+HEAD: c4470a6aac886daf2011d65409c74f5aa3c82b61
+.github/workflows/ci.yml byte-identical to HEAD 6a870074bb48e52fcbada060a46c4f5c6961d3e46e62b23e4afd306e32c71e8f
+.github/workflows/sources.yml byte-identical to HEAD 75b4e15ef994bcbb4265fb4d50a7614ab8c6e032d0a5c503a4101d84d011993c
+All six action refs exactly match the supplied SHAs and comments: {'actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0': 4, 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2': 2}
+packages/ontology/Cargo.toml byte-identical to HEAD
+packages/ontology/tests/common/mod.rs byte-identical to HEAD
+packages/ontology/tests/fixture_origin/main.rs byte-identical to HEAD
+tools/ci/check_deps.py byte-identical to HEAD
+tools/ci/tests/test_ci_checkers.py byte-identical to HEAD
+infra/ci/deps.json byte-identical to HEAD

@@ -1,0 +1,9 @@
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit1-blueprint-axis-count/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.09s

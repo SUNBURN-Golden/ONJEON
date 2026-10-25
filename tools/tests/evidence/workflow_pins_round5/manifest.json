@@ -1,0 +1,35 @@
+{
+  "generated_at_utc": "2026-10-21T10:15:40.638354+00:00",
+  "parent_head": "c79db05ec853c74afaadb562c5b3599276a68368",
+  "source_sha256": {
+    "tools/tests/test_workflow_pins.py": "282ac5f1762cc09c8d86e899a2251444e12d57e882e11b4818ac3458c6cb8b81",
+    ".github/workflows/ci.yml": "6a870074bb48e52fcbada060a46c4f5c6961d3e46e62b23e4afd306e32c71e8f",
+    ".github/workflows/sources.yml": "75b4e15ef994bcbb4265fb4d50a7614ab8c6e032d0a5c503a4101d84d011993c"
+  },
+  "log_sha256": {
+    "baseline-verification.log": "e7ccdffef3f85a691cde288e8cba49793a98d3ebff3b5c7120ceecfafe227e33",
+    "design-specs.log": "e00e99039e0e93165226ef86534826bacfda210af2a4fba40b20fa7e4f881e89",
+    "guard-examples.log": "dbe90c2bec0b4a80092b766dede2b26edbce6c72b916ac7e4ab4cc7ba7897009",
+    "ontology-build.log": "532e3d38b51ad6081941b1d3bbaeb5e4500f7736d7c622f833e45ae0ee53a3e9",
+    "ontology.log": "cd8098ef7c07d64c184d9cf34fac901babe71f06f5c218f2e2f7ab0d174b0eb2",
+    "python-ci.log": "5b693422de85539ae346fc6778b522b080885f162d7e36d4bc3d600e338cd28b",
+    "python-tools.log": "6b5e6736b099c6210024e0e266f5c43755bc57d0f541e0046f9378b1fa458a55",
+    "regressions-before.log": "23c8faaf3c5419a5168498d200a0ddf7218121f4ce6458230ddbd800002671b9",
+    "rust-clippy.log": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc",
+    "rust-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rust-tests.log": "dd36c6092a4aae4090114fae6033cd1a5681589eb9a67219a98c55072f95e8a7",
+    "validation-selftest.log": "cdf90521efd8c2adef517bbf4733995ca291cf818621088e0b4d98901f887754",
+    "validation.log": "d23d31090208e9a49ce95c1d69f612662cf78493f3ed4b5a9fa43298b84bfb08",
+    "vocabulary.log": "6da76fa875841f461da23271de7daa2ea5ec311abddf39a74c8247ad998744b3",
+    "workflow-focused.log": "a724ece758fd554531e9ed04fedb287d75a3ab923cc189a1020a9172ebf1c347"
+  },
+  "summary_sha256": {
+    "checks-summary.json": "4169fb0ef7f0f33d3381504a9ad9a4ffa255741c9e9caf9590275cac12e01f91",
+    "ontology-summary.json": "3d2978377cc8b7c30984d8b01191b45851245d73063cccd27e15b6602f3d859c",
+    "python-tools-summary.json": "42fa4001c0132cf2705f644933461a12a4a7951448b7aaec314a67f5e636fe51",
+    "rust-summary.json": "7c97d33bad8dfaa441e8db85dcdf6fca42f4aea3ed4474604523635af007561f"
+  },
+  "report_sha256": {
+    "RESULTS.md": "77de77b70b3310fa5e93d25cb587dc7838af490add7c93f027c37834589a3bb1"
+  }
+}

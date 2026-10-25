@@ -1,0 +1,30 @@
+test_blueprint_drops_the_count (tools.tests.test_blueprint_axis_count.DocumentReferences.test_blueprint_drops_the_count) ... ok
+test_no_document_reports_a_stale_count (tools.tests.test_blueprint_axis_count.DocumentReferences.test_no_document_reports_a_stale_count) ... ok
+test_proposal_readme_drops_the_count (tools.tests.test_blueprint_axis_count.DocumentReferences.test_proposal_readme_drops_the_count) ... ok
+test_committed_doc_is_fresh_for_the_check (tools.tests.test_blueprint_axis_count.GeneratedDoc.test_committed_doc_is_fresh_for_the_check) ... ok
+test_committed_doc_states_the_live_axis_count_once (tools.tests.test_blueprint_axis_count.GeneratedDoc.test_committed_doc_states_the_live_axis_count_once) ... ok
+test_states_no_wrong_axis_count (tools.tests.test_blueprint_axis_count.GeneratedDoc.test_states_no_wrong_axis_count) ... ok
+test_a_missing_count_line_is_drift (tools.tests.test_vocab_check.GeneratedDoc.test_a_missing_count_line_is_drift) ... ok
+test_a_stale_or_doubled_count_line_is_drift (tools.tests.test_vocab_check.GeneratedDoc.test_a_stale_or_doubled_count_line_is_drift) ... ok
+test_adding_an_axis_requires_regeneration_and_updates_the_count (tools.tests.test_vocab_check.GeneratedDoc.test_adding_an_axis_requires_regeneration_and_updates_the_count) ... ok
+test_any_other_difference_is_out_of_date (tools.tests.test_vocab_check.GeneratedDoc.test_any_other_difference_is_out_of_date) ... ok
+test_cli_repairs_count_left_stale_by_target_branch_merge (tools.tests.test_vocab_check.GeneratedDoc.test_cli_repairs_count_left_stale_by_target_branch_merge) ... ok
+test_render_states_the_live_count_on_its_own_line (tools.tests.test_vocab_check.GeneratedDoc.test_render_states_the_live_count_on_its_own_line) ... ok
+test_axis_count_matching_vocabulary_or_unrelated_or_opted_out_is_allowed (tools.tests.test_vocab_check.Lint.test_axis_count_matching_vocabulary_or_unrelated_or_opted_out_is_allowed) ... ok
+test_backticks_match_uppercase_and_short_aliases (tools.tests.test_vocab_check.Lint.test_backticks_match_uppercase_and_short_aliases) ... ok
+test_explicit_allow_marker_skips_only_its_own_line (tools.tests.test_vocab_check.Lint.test_explicit_allow_marker_skips_only_its_own_line) ... ok
+test_forbidden_reason_takes_precedence_over_alias_reason (tools.tests.test_vocab_check.Lint.test_forbidden_reason_takes_precedence_over_alias_reason) ... ok
+test_generated_doc_and_files_outside_contract_globs_are_excluded (tools.tests.test_vocab_check.Lint.test_generated_doc_and_files_outside_contract_globs_are_excluded) ... ok
+test_live_alias_in_another_axis_is_allowed (tools.tests.test_vocab_check.Lint.test_live_alias_in_another_axis_is_allowed) ... ok
+test_no_matching_contracts_is_clean (tools.tests.test_vocab_check.Lint.test_no_matching_contracts_is_clean) ... ok
+test_proposal_count_scan_is_separate_from_deprecated_status_lint (tools.tests.test_vocab_check.Lint.test_proposal_count_scan_is_separate_from_deprecated_status_lint) ... ok
+test_reports_aliases_forbidden_codes_fields_and_timestamps_with_line_numbers (tools.tests.test_vocab_check.Lint.test_reports_aliases_forbidden_codes_fields_and_timestamps_with_line_numbers) ... ok
+test_stale_axis_count_next_to_a_vocabulary_pointer_is_reported (tools.tests.test_vocab_check.Lint.test_stale_axis_count_next_to_a_vocabulary_pointer_is_reported) ... ok
+test_stale_blueprint_or_proposal_count_fails_the_cli (tools.tests.test_vocab_check.Lint.test_stale_blueprint_or_proposal_count_fails_the_cli) ... ok
+test_tokens_are_deduplicated_per_line_and_sorted_per_file (tools.tests.test_vocab_check.Lint.test_tokens_are_deduplicated_per_line_and_sorted_per_file) ... ok
+test_word_boundaries_do_not_match_paths_or_longer_identifiers (tools.tests.test_vocab_check.Lint.test_word_boundaries_do_not_match_paths_or_longer_identifiers) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.044s
+
+OK

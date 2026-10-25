@@ -1,0 +1,17 @@
+{
+  "cases": [
+    {
+      "id": "y05_not_a_listed_cancer",
+      "set": {
+        "dx_in_cancer_annex": false
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    }
+  ]
+}

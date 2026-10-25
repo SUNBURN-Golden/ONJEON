@@ -1,0 +1,5 @@
+*
+!docproc.py
+!test_sandbox.sh
+!tests/
+!tests/*.py

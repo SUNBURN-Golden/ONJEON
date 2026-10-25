@@ -1,0 +1,111 @@
+{
+  "rule_id": "fixture-rule-001",
+  "note": "Synthetic rounding supplement: 1003 * 0.5 floors to 501 KRW; half_even gives 502. Shared golden pins remain unchanged. Regenerate only for an intended change.",
+  "cases": {
+    "t15_rounding_floor_vs_half_even": {
+      "input_snapshot_hash": "187198a31bd735f66af9f495715c7941a18f6bfa8fdeefc267eae6b7a31adb12",
+      "trace": [
+        {
+          "op": "input",
+          "path": "eligibility.all[0].gte[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[0].gte[1]",
+          "result": "0"
+        },
+        {
+          "op": "gte",
+          "path": "eligibility.all[0]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[1].eq[0]",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[1].eq[1]",
+          "result": "true"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[1]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[2].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[2].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[2]",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "eligibility.all[3].eq[0]",
+          "result": "false"
+        },
+        {
+          "op": "lit",
+          "path": "eligibility.all[3].eq[1]",
+          "result": "false"
+        },
+        {
+          "op": "eq",
+          "path": "eligibility.all[3]",
+          "result": "true"
+        },
+        {
+          "op": "all",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if.lt[0]",
+          "result": "0"
+        },
+        {
+          "op": "lit",
+          "path": "amount.if.lt[1]",
+          "result": "180"
+        },
+        {
+          "op": "lt",
+          "path": "amount.if",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.multiply_rate[0]",
+          "result": "1003 KRW"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.multiply_rate[1]",
+          "result": "5/10"
+        },
+        {
+          "op": "multiply_rate",
+          "path": "amount.then",
+          "result": "501 KRW"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "501 KRW"
+        }
+      ]
+    }
+  }
+}

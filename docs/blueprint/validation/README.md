@@ -12,6 +12,7 @@
 | `screen/*.json`, `SCREEN_BINDING.md` | 같은 자료를 내 설계 탭과 담보 상세 시트에 연결한 결과(V1-c) |
 | `source_checks/*.json` | 보관본 재현 검사·현재 출처 변경 감지·다운로드 해시 대조 실행 기록 |
 | `REVERIFY_87a19c5.md`, `REVERIFY_839ecdb.md` | 검사 보강의 재검증 결과와 그때 찾은 결함·수정·회귀 시험 |
+| `REVERIFY_AUDIT1_STORAGE_DOCS.md` | BLUEPRINT의 R2 보존 완료·남은 조건·코드 목록 수정과 회귀 시험, 기존 R2 기록 대조 |
 
 실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
 
@@ -43,6 +44,8 @@ python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --
 알려진 열화(후속 작업): `samples.csv` 12~14행(HTML 3건)의 `content_hash_rule`은 아직 `html-visible-text-v1`이다. 규칙 이름이 다르면 `detect`는 본문 해시를 비교하지 않고 `changed`로 보고하므로, 기준선을 갱신하기 전까지 이 3건(특히 KB `CG802130001.ec`는 이전에 `bytes_changed_content_same`)은 변경 감지가 거칠어진다. 해시 재계산에는 비공개 R2 원본이 필요해 이 저장소에서는 하지 않았다. 기준선 갱신은 원본 접근 권한이 있는 담당자의 후속 작업이다. 같은 이유로 `source_checks/2026-10-09_detect_current_sources.json`(당시 기록)은 v1 결과 그대로 둔다.
 
 문서 불일치(후속 작업): 보호 문서라 이 변경에서 고치지 않은 `docs/data/DATA_PIPELINE_CONTRACT.md` 40·55행은 현재 규칙을 `html-visible-text-v1`로 적고 있어 v2로 갱신해야 한다. `docs/decisions/ADR-0015-원본-보관소-S3.md` 26행은 채택 당시 규칙을 적은 기록이므로 고치지 않고 v2로의 이행은 이 문서와 `tools/html_content_hash.py`의 History에 있다.
+
+문서 불일치 수정(Audit 1): `docs/BLUEPRINT.md` §11 "코드" 행(318행)을 2026-10-09 기준 단위·통합 테스트 39개 + 문서 시험(doctest) 3개로 나눠 적고, 재실행 근거인 `REVERIFY_87a19c5.md` §2에 연결했다. 두 커밋(87a19c5·839ecdb)의 `cargo test --workspace` 재실행 로그는 `docs/blueprint/validation/evidence/audit1_blueprint_test_count/`에 있다. `tools/tests/test_validation_test_counts.py`는 이제 합산값만 적은 행을 거부하며, 로그·REVERIFY·설계도의 39 + 3을 대조한다. [수정·검증 결과](REVERIFY_AUDIT1_BLUEPRINT_TEST_COUNT.md)에 회귀 시험과 재실행 결과를 적었다.
 
 검사 기록 `source_checks/` (2026-10-09):
 

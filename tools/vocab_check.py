@@ -2,8 +2,9 @@
 """Single source of truth for ONJEON state vocabulary.
 
 - validates packages/schemas/vocabulary.json
-- generates docs/blueprint/VOCABULARY.md (--write) or checks it is up to date
+- generates docs/blueprint/VOCABULARY.md (--write; states the live axis count) or checks it is up to date
 - lints contract documents for deprecated or forbidden status names in backticks
+  and for hand-written axis counts ("전체 31개 축") that no longer match vocabulary.json
 
 Usage:
   python3 tools/vocab_check.py          # check (CI)
@@ -38,6 +39,24 @@ CONTRACT_DOCS = [
     "docs/masterplan/가격_수집_명세.md",
     "data/registry/README.md",
 ]
+
+
+# "N개 축" / "N개의 축" on a line that points at the vocabulary: a hand-typed count that goes
+# stale whenever an axis is added. Prose should drop the number; the generated VOCABULARY.md
+# states it and `vocab_check.py --write` keeps it right.
+AXIS_COUNT_RE = re.compile(r"(\d+)\s*개의?\s*축")
+VOCAB_POINTER_RE = re.compile(r"vocabulary|어휘", re.IGNORECASE)
+# Proposals also refer to the vocabulary, but are outside the deprecated-status contract lint.
+AXIS_COUNT_EXTRA_DOCS = ["docs/blueprint/proposals/**/*.md"]
+
+
+def _stale_axis_counts(v, f):
+    for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+        if "vocab:allow" in line or not VOCAB_POINTER_RE.search(line):
+            continue
+        for m in AXIS_COUNT_RE.finditer(line):
+            if int(m.group(1)) != len(v["axes"]):
+                yield i, m.group(1)
 
 
 def load():
@@ -157,7 +176,7 @@ def render(v):
         "",
     ]
     out += [f"- {r}" for r in v["rules"]]
-    out += ["", "## 축 목록", "", "| 축 | 이름 | 적용 대상 | 계층 |", "|---|---|---|---|"]
+    out += ["", "## 축 목록", "", f"전체 {len(v['axes'])}개 축.", "", "| 축 | 이름 | 적용 대상 | 계층 |", "|---|---|---|---|"]
     for a in v["axes"]:
         out.append(f"| `{a['id']}` | {a['name_ko']} | {a['applies_to']} | {a['layer']} |")
     for a in v["axes"]:
@@ -186,6 +205,26 @@ def render(v):
     return "\n".join(out) + "\n"
 
 
+# The count line is required, just like every other part of the generated document.
+COUNT_LINE_RE = re.compile(r"^전체 (\d+)개 축\.$")
+
+
+def _count_lines(text):
+    return [int(m.group(1)) for m in map(COUNT_LINE_RE.match, text.splitlines()) if m]
+
+
+def generated_doc_problems(text, rendered, n_axes):
+    """Why `text` fails as docs/blueprint/VOCABULARY.md against the generator output."""
+    problems = []
+    if text != rendered:
+        problems.append("docs/blueprint/VOCABULARY.md is out of date: run python3 tools/vocab_check.py --write")
+    counts = _count_lines(text)
+    if counts != [n_axes]:
+        problems.append(f"docs/blueprint/VOCABULARY.md states the axis count {counts}, vocabulary.json has "
+                        f"{n_axes}: run python3 tools/vocab_check.py --write")
+    return problems
+
+
 def lint(v):
     live = set()
     deprecated = {}
@@ -208,6 +247,16 @@ def lint(v):
     files = []
     for pattern in CONTRACT_DOCS:
         files += sorted(ROOT.glob(pattern))
+    count_files = list(files)
+    for pattern in AXIS_COUNT_EXTRA_DOCS:
+        count_files += sorted(ROOT.glob(pattern))
+    for f in dict.fromkeys(count_files):
+        if f == DOC:
+            continue
+        rel = f.relative_to(ROOT).as_posix()
+        for i, n in _stale_axis_counts(v, f):
+            problems.append(f"{rel}:{i}: says {n} axes, vocabulary.json has "
+                            f"{len(v['axes'])}; drop the number (a count in prose goes stale)")
     for f in files:
         if f == DOC:
             continue
@@ -247,12 +296,18 @@ def main():
     if "--write" in sys.argv:
         DOC.write_text(rendered, encoding="utf-8")
         print(f"wrote {DOC.relative_to(ROOT)}")
-    elif not DOC.exists() or DOC.read_text(encoding="utf-8") != rendered:
-        print("docs/blueprint/VOCABULARY.md is out of date: run python3 tools/vocab_check.py --write")
+    elif not DOC.exists():
+        print("docs/blueprint/VOCABULARY.md is missing: run python3 tools/vocab_check.py --write")
         return 1
+    else:
+        doc_text = DOC.read_text(encoding="utf-8")
+        doc_problems = generated_doc_problems(doc_text, rendered, len(v["axes"]))
+        if doc_problems:
+            print("\n  ".join(doc_problems))
+            return 1
     problems = lint(v)
     if problems:
-        print("deprecated status names in contract documents:\n  " + "\n  ".join(problems))
+        print("vocabulary references in documents:\n  " + "\n  ".join(problems))
         return 1
     n = sum(len(a["values"]) for a in v["axes"])
     print(f"vocabulary ok: {len(v['axes'])} axes, {n} values")

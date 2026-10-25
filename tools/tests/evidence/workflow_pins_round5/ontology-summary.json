@@ -1,0 +1,24 @@
+{
+  "ontology-build": {
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+      "--target-dir",
+      "target/round5-ontology"
+    ],
+    "exit": 0
+  },
+  "ontology": {
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+      "target/round5-ontology/debug/ontology-case-runner"
+    ],
+    "exit": 0
+  }
+}

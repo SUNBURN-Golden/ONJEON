@@ -1,0 +1,177 @@
+{
+  "cases": [
+    {
+      "id": "s07_diagnosis_on_first_coverage_start",
+      "set": {
+        "first_coverage_start_date": "2026-06-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 1000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s08_diagnosis_before_first_coverage_start",
+      "set": {
+        "first_coverage_start_date": "2026-06-02"
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s09_diagnosis_on_period_start",
+      "set": {
+        "period_start_date": "2026-06-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 1000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s10_diagnosis_before_period_start",
+      "set": {
+        "period_start_date": "2026-06-02"
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s11_diagnosis_on_period_end",
+      "set": {
+        "period_end_date": "2026-06-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 1000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s12_diagnosis_after_period_end",
+      "set": {
+        "period_end_date": "2026-05-31"
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s13_not_other_skin_cancer",
+      "set": {
+        "dx_other_skin_cancer": false
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s14_already_paid",
+      "set": {
+        "already_paid": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s15_same_disease_flag_is_only_for_renewals",
+      "set": {
+        "is_renewal": false,
+        "same_disease_paid_before_renewal": true
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 1000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s16_odd_amount_year1_is_a_range",
+      "note": "반올림 규칙 미기재: 10,000,001 × 0.1 = 1,000,000.1",
+      "set": {
+        "rider_amount_krw": 10000001
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "range",
+            "min_krw": 1000000,
+            "max_krw": 1000001
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "s17_odd_amount_after_year1_is_a_range",
+      "note": "10,000,001 × 0.2 = 2,000,000.2",
+      "set": {
+        "rider_amount_krw": 10000001,
+        "diagnosis_date": "2027-01-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "range",
+            "min_krw": 2000000,
+            "max_krw": 2000001
+          }
+        },
+        "missing_inputs": []
+      }
+    }
+  ]
+}

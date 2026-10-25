@@ -1,0 +1,5 @@
+'- uses: >-\n    actions/checkout@v4\n' -> [(1, '>-')]
+'- uses:\n    actions/checkout@v4\n' -> [(1, '<empty or multiline uses value>')]
+'- uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa # version\n' -> []
+'- uses: ./local\n' -> []
+'- run: >-\n    uses: actions/checkout@v4\n' -> []

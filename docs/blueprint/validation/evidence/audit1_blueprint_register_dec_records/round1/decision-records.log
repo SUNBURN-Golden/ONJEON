@@ -1,0 +1,15 @@
+$ python3 -m unittest tools.tests.test_decision_records -v
+test_canon_record_preserves_conditional_scope_and_merge_gate (tools.tests.test_decision_records.DecisionRecords.test_canon_record_preserves_conditional_scope_and_merge_gate) ... ok
+test_d02_keeps_delegation_and_access_conditions (tools.tests.test_decision_records.DecisionRecords.test_d02_keeps_delegation_and_access_conditions) ... ok
+test_d04_records_owner_ruling_without_reuse_approval (tools.tests.test_decision_records.DecisionRecords.test_d04_records_owner_ruling_without_reuse_approval) ... ok
+test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) ... ok
+test_hierarchy_and_ledger_explicitly_describe_a_partial_index (tools.tests.test_decision_records.DecisionRecords.test_hierarchy_and_ledger_explicitly_describe_a_partial_index) ... ok
+test_hierarchy_defines_dec_records_and_preserves_adr_change_path (tools.tests.test_decision_records.DecisionRecords.test_hierarchy_defines_dec_records_and_preserves_adr_change_path) ... ok
+test_index_registration_does_not_open_operational_gates (tools.tests.test_decision_records.DecisionRecords.test_index_registration_does_not_open_operational_gates) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.002s
+
+OK
+
+exit_code=0

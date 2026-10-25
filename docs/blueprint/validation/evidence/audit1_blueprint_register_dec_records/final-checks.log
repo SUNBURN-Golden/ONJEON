@@ -1,0 +1,38 @@
+$ python3 -m unittest discover -s tools/tests -p test_readme_index.py -v
+test_dec_records_exist_and_are_pointed_to (test_readme_index.DecisionsRow.test_dec_records_exist_and_are_pointed_to) ... ok
+test_every_adr_number_is_listed (test_readme_index.DecisionsRow.test_every_adr_number_is_listed) ... ok
+test_every_path_in_the_docs_table_exists (test_readme_index.IndexedPaths.test_every_path_in_the_docs_table_exists) ... ok
+test_required_rows_present (test_readme_index.IndexedPaths.test_required_rows_present) ... ok
+test_review_results_row_names_every_file (test_readme_index.IndexedPaths.test_review_results_row_names_every_file) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK
+
+exit code: 0
+$ git diff --check
+
+exit code: 0
+$ git diff --exit-code -- docs/PRINCIPLES.md docs/data/ docs/design/CONSUMER_FLOW_SPEC.md DECISION_REQUIRED.md
+
+exit code: 0
+Changed/untracked path check: PASS
+docs/BLUEPRINT.md
+docs/blueprint/DECISIONS.md
+docs/blueprint/validation/README.md
+docs/blueprint/validation/REVERIFY_AUDIT1_DEC_RECORDS.md
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/decision-records.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/design-specs.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/final-checks.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/ontology-build.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/ontology-check.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/python-tests.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/rust-clippy.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/rust-format.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/rust-tests.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/validation-selftest.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/validation.log
+docs/blueprint/validation/evidence/audit1_blueprint_register_dec_records/vocabulary.log
+tools/tests/test_decision_records.py
+Local Markdown link target check: PASS

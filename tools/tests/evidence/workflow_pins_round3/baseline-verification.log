@@ -1,0 +1,10 @@
+Parent HEAD: 46428c6dc551fdcfd92801a12f66dc7764ff66ff
+.github/workflows/ci.yml: byte-identical to HEAD; 2 exact operator-supplied pins; SHA256 6a870074bb48e52fcbada060a46c4f5c6961d3e46e62b23e4afd306e32c71e8f
+.github/workflows/sources.yml: byte-identical to HEAD; 4 exact operator-supplied pins; SHA256 75b4e15ef994bcbb4265fb4d50a7614ab8c6e032d0a5c503a4101d84d011993c
+packages/ontology/Cargo.toml: byte-identical to HEAD (existing dependency-zone failures)
+packages/ontology/tests/common/mod.rs: byte-identical to HEAD (existing dependency-zone failures)
+packages/ontology/tests/fixture_origin/main.rs: byte-identical to HEAD (existing dependency-zone failures)
+tools/ci/check_deps.py: byte-identical to HEAD (existing dependency-zone failures)
+tools/ci/tests/test_ci_checkers.py: byte-identical to HEAD (existing dependency-zone failures)
+infra/ci/deps.json: byte-identical to HEAD (existing dependency-zone failures)
+No workflow edits; all six existing pins verified without network or GitHub calls.

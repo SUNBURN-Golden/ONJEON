@@ -1,6 +1,8 @@
 """A minimal in-memory S3 endpoint for tests (path-style, no auth): PutObject with If-None-Match,
 GetObject, HeadObject, ListObjectsV2. Every HTTP request is logged, and faults can be queued, so a
-test can compare what the server actually received with what the budget ledger recorded."""
+test can compare what the server actually received with what the budget ledger recorded.
+Listings default to 1,000 keys per page and resume after an encoded key token."""
+import base64
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlparse
@@ -71,7 +73,19 @@ class S3Stub:
                     else:  # ListObjectsV2
                         prefix = q.get("prefix", [""])[0]
                         keys = sorted(k for (b, k) in stub.objects if b == bucket and k.startswith(prefix))
-                        result = (200, keys)
+                        try:
+                            max_keys = min(int(q.get("max-keys", ["1000"])[0]), 1000)
+                            if max_keys < 0:
+                                raise ValueError("negative max-keys")
+                            token = q.get("continuation-token", [None])[0]
+                            if token:
+                                last_key = base64.b64decode(token, validate=True).decode("utf-8")
+                                keys = [k for k in keys if k > last_key]
+                            page = keys[:max_keys]
+                            truncated = bool(page) and len(keys) > len(page)
+                            result = (200, (page, max_keys, truncated))
+                        except ValueError:
+                            result = (400, None)
                     stub.log.append((kind, bucket, logged, result[0], len(body)))
                 code, payload = result
                 if self.command == "PUT":
@@ -80,10 +94,18 @@ class S3Stub:
                     if code == 404:
                         return self._error(404, "NoSuchKey") if self.command == "GET" else self._send(404)
                     return self._send(200, payload, {"ETag": '"x"', "Content-Type": "application/octet-stream"})
-                items = "".join(f"<Contents><Key>{escape(k)}</Key><Size>1</Size></Contents>" for k in payload)
+                if code == 400:
+                    return self._error(400, "InvalidArgument")
+                page, max_keys, truncated = payload
+                continuation = (f"<ContinuationToken>{escape(token)}</ContinuationToken>" if token else "")
+                if truncated:
+                    next_token = base64.b64encode(page[-1].encode("utf-8")).decode("ascii")
+                    continuation += f"<NextContinuationToken>{next_token}</NextContinuationToken>"
+                items = "".join(f"<Contents><Key>{escape(k)}</Key><Size>1</Size></Contents>" for k in page)
                 xml = (f'<?xml version="1.0" encoding="UTF-8"?><ListBucketResult><Name>{bucket}</Name>'
-                       f"<Prefix>{escape(q.get('prefix', [''])[0])}</Prefix><KeyCount>{len(payload)}</KeyCount>"
-                       f"<MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated>{items}</ListBucketResult>")
+                       f"<Prefix>{escape(q.get('prefix', [''])[0])}</Prefix><KeyCount>{len(page)}</KeyCount>"
+                       f"<MaxKeys>{max_keys}</MaxKeys><IsTruncated>{str(truncated).lower()}</IsTruncated>"
+                       f"{continuation}{items}</ListBucketResult>")
                 return self._send(200, xml.encode(), {"Content-Type": "application/xml"})
 
             do_PUT = do_GET = do_HEAD = _handle

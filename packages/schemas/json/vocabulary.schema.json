@@ -3,7 +3,7 @@
   "$id": "vocabulary.schema.json",
   "title": "Vocabulary",
   "description": "GENERATED from packages/schemas/vocabulary.json by codegen/gen.py. Do not edit.",
-  "x-onjeon-vocabulary-version": "1.6.0",
+  "x-onjeon-vocabulary-version": "1.7.0",
   "$defs": {
     "acquisition_status": {
       "type": "string",
@@ -501,6 +501,71 @@
         "regulator_notice",
         "terms_fact",
         "editorial"
+      ]
+    },
+    "input_type": {
+      "type": "string",
+      "description": "규칙 입력 타입: 규칙 DSL 입력 선언의 타입. rule-0.1은 앞의 다섯 타입, rule-0.2는 class_money_list도 허용한다. 알 수 없는 타입은 로드에서 거부한다",
+      "enum": [
+        "bool",
+        "int",
+        "money_krw",
+        "date",
+        "string",
+        "class_money_list"
+      ]
+    },
+    "rounding": {
+      "type": "string",
+      "description": "규칙 금액 반올림: multiply_rate·pro_rata·divide_count의 명시적 반올림 방식. 양의 정수 원 단위 unit과 함께 필수다. rule-0.1과 rule-0.2에서 같은 값을 쓴다",
+      "enum": [
+        "floor",
+        "ceil",
+        "half_up",
+        "half_even",
+        "unspecified"
+      ]
+    },
+    "duration_unit": {
+      "type": "string",
+      "description": "규칙 날짜 기간 단위: date_add의 달력 기간 단위. rule-0.1과 rule-0.2에서 같은 값을 쓴다. calendar_month·calendar_year는 month_end=clamp가 필수이고 day에는 month_end를 허용하지 않는다",
+      "enum": [
+        "day",
+        "calendar_month",
+        "calendar_year"
+      ]
+    },
+    "rule_operator": {
+      "type": "string",
+      "description": "규칙 DSL 연산자: 규칙 로더가 허용하는 식 객체의 키. 리터럴 생성자·input·세 키 if 형식도 포함하며 then·else는 if의 구조 키다. rule-0.2 전용 여섯 연산은 각 정의에 표시한다. multiply 등 목록 밖 키는 로드에서 거부한다",
+      "enum": [
+        "all",
+        "any",
+        "not",
+        "eq",
+        "ne",
+        "lt",
+        "lte",
+        "gt",
+        "gte",
+        "if",
+        "input",
+        "rate",
+        "krw",
+        "date",
+        "multiply_rate",
+        "add",
+        "min",
+        "max",
+        "apply_cap",
+        "days_between",
+        "date_add",
+        "multiply_count",
+        "subtract_floor0",
+        "pro_rata",
+        "divide_count",
+        "anniversary_band",
+        "max_over"
       ]
     }
   }

@@ -1,4 +1,0 @@
-{"command": ["python3", "-I", "tools/ci/check_product_purpose.py"], "started_at": "2026-10-22T23:09:47.620503+00:00"}
-product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
-
-exit_code: 0

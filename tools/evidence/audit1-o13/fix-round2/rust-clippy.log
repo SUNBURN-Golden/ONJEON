@@ -1,0 +1,8 @@
+$ cargo clippy --offline --all-targets -- -D warnings
+STARTED_AT=2026-10-25T22:12:09.757439+00:00
+CARGO_NET_OFFLINE=true
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+
+EXIT_CODE=0
+ELAPSED_SECONDS=0.1

@@ -1,0 +1,62 @@
+BASE_COMMIT=bbcdb0bf07410a9212aeb3dc95dfbb469960cee1
+HEAD_COMMIT=3f044f0891c3007d5532511323ab34d722fedc69
+Compared git diff --name-only BASE plus git ls-files --others --exclude-standard against explicit node allowed paths.
+Outside allowed paths: 0
+Reported round1/rust-format.log: absent
+Protected/source-of-ruling files unchanged from task base: 7
+Allowed changes:
+README.md
+docs/BLUEPRINT.md
+docs/blueprint/DECISIONS.md
+docs/blueprint/proposals/설계검토_결과/03_작업명세.md
+docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md
+docs/blueprint/proposals/설계검토_결과/README.md
+docs/blueprint/proposals/설계검토_결과/tasks.json
+tools/tests/test_o13_ruling.py
+docs/blueprint/audits/2026-10-26_o13_d04_ruling.md
+tools/evidence/audit1-o13/fix-round1/baseline-comparison.log
+tools/evidence/audit1-o13/fix-round1/before-o13-tests.log
+tools/evidence/audit1-o13/fix-round1/ci-tests.log
+tools/evidence/audit1-o13/fix-round1/dependencies.log
+tools/evidence/audit1-o13/fix-round1/head-ci-tests.log
+tools/evidence/audit1-o13/fix-round1/head-dependencies.log
+tools/evidence/audit1-o13/fix-round1/initial.json
+tools/evidence/audit1-o13/fix-round1/leak.log
+tools/evidence/audit1-o13/fix-round1/o13-tests.log
+tools/evidence/audit1-o13/fix-round1/ontology-build.log
+tools/evidence/audit1-o13/fix-round1/ontology-check.log
+tools/evidence/audit1-o13/fix-round1/product-purpose.log
+tools/evidence/audit1-o13/fix-round1/python-tests.log
+tools/evidence/audit1-o13/fix-round1/rust-clippy.log
+tools/evidence/audit1-o13/fix-round1/rust-format.log
+tools/evidence/audit1-o13/fix-round1/rust-tests.log
+tools/evidence/audit1-o13/fix-round1/skeleton.log
+tools/evidence/audit1-o13/fix-round1/snapshot.json
+tools/evidence/audit1-o13/fix-round1/spec.log
+tools/evidence/audit1-o13/fix-round1/validation-selftest.log
+tools/evidence/audit1-o13/fix-round1/validation.log
+tools/evidence/audit1-o13/fix-round1/vocabulary.log
+tools/evidence/audit1-o13/fix-round2/baseline-comparison.log
+tools/evidence/audit1-o13/fix-round2/ci-tests.log
+tools/evidence/audit1-o13/fix-round2/dependencies.log
+tools/evidence/audit1-o13/fix-round2/diff-check.log
+tools/evidence/audit1-o13/fix-round2/head-ci-tests.log
+tools/evidence/audit1-o13/fix-round2/head-dependencies.log
+tools/evidence/audit1-o13/fix-round2/leak.log
+tools/evidence/audit1-o13/fix-round2/o13-tests.log
+tools/evidence/audit1-o13/fix-round2/ontology-build.log
+tools/evidence/audit1-o13/fix-round2/ontology-check.log
+tools/evidence/audit1-o13/fix-round2/product-purpose.log
+tools/evidence/audit1-o13/fix-round2/python-tests-before-evidence.log
+tools/evidence/audit1-o13/fix-round2/python-tests.log
+tools/evidence/audit1-o13/fix-round2/rust-clippy.log
+tools/evidence/audit1-o13/fix-round2/rust-format.log
+tools/evidence/audit1-o13/fix-round2/rust-tests.log
+tools/evidence/audit1-o13/fix-round2/scope-check.log
+tools/evidence/audit1-o13/fix-round2/skeleton.log
+tools/evidence/audit1-o13/fix-round2/snapshot.json
+tools/evidence/audit1-o13/fix-round2/spec.log
+tools/evidence/audit1-o13/fix-round2/validation-selftest.log
+tools/evidence/audit1-o13/fix-round2/validation.log
+tools/evidence/audit1-o13/fix-round2/vocabulary.log
+EXIT_CODE=0

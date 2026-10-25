@@ -1,0 +1,8 @@
+$ python3 tools/validation_check.py
+STARTED_AT=2026-10-25T22:12:09.514025+00:00
+CARGO_NET_OFFLINE=true
+
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+
+EXIT_CODE=0
+ELAPSED_SECONDS=0.04

@@ -1,0 +1,5 @@
+$ cargo fmt --all -- --check
+CARGO_NET_OFFLINE=true
+
+EXIT_CODE=0
+ELAPSED_SECONDS=0.62

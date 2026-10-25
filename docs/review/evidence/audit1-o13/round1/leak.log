@@ -1,4 +1,0 @@
-{"command": ["python3", "-I", "tools/ci/check_leak.py"], "started_at": "2026-10-22T23:09:47.665354+00:00"}
-check_leak: no leak patterns (I10, I11, 52.3)
-
-exit_code: 0

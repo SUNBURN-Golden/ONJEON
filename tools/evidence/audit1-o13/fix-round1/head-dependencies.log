@@ -1,0 +1,9 @@
+HEAD=3f044f0891c3007d5532511323ab34d722fedc69
+SOURCE=git archive HEAD extracted inside worktree target/o13-head-baseline
+$ python3 -I tools/ci/check_deps.py
+check_deps: 3 finding(s)
+  [DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+  [IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+  [IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+
+EXIT_CODE=1

@@ -1,0 +1,3 @@
+$ git diff --check
+$ git diff --check bbcdb0bf07410a9212aeb3dc95dfbb469960cee1
+EXIT_CODE=0

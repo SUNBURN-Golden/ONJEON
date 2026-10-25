@@ -1,0 +1,11 @@
+{
+  "head": "3f044f0891c3007d5532511323ab34d722fedc69",
+  "status": " M README.md\n M docs/review/2026-10-23_audit1_o13_d04_ruling.md\n M tools/tests/test_o13_ruling.py\n?? docs/review/evidence/audit1-o13/round2/\n?? docs/review/evidence/audit1-o13/round3/\n?? docs/review/evidence/audit1-o13/round4/\n?? docs/review/evidence/audit1-o13/round5/\n",
+  "protected_sha256": {
+    "docs/PRINCIPLES.md": "f4e5feb77847ca0d3e7d2d3404566ecb459d5ade14a53b98a9c642bff37e60f5",
+    "docs/design/CONSUMER_FLOW_SPEC.md": "807d3f0193bc74e0e387615ab20f5c19af1e9a9e0032d62e457546b97a76dac1",
+    "DECISION_REQUIRED.md": null,
+    "docs/data/DATA_PIPELINE_CONTRACT.md": "ee5e45f3da29f22fc837ca079799df7b635611dfeb43f6d278484be1f349c653",
+    "docs/data/PREMIUM_DATA_CONTRACT.md": "a794030b0c2bfd183a10fca25d4a57136a2396909aabf9a94aa646951ea5a3f0"
+  }
+}

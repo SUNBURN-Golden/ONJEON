@@ -1,0 +1,6 @@
+$ python3 tools/vocab_check.py
+CARGO_NET_OFFLINE=true
+vocabulary ok: 45 axes, 228 values
+
+EXIT_CODE=0
+ELAPSED_SECONDS=0.05

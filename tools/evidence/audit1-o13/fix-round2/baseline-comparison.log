@@ -1,0 +1,9 @@
+Actual execution on archived HEAD vs current worktree
+Dependency findings identical: PASS
+[DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+[IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+[IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+CI checker failure identities identical: PASS
+FAIL: test_cli_exit_codes_under_isolated_mode (test_ci_checkers.RepoIsClean.test_cli_exit_codes_under_isolated_mode) [check_deps.py]
+FAIL: test_real_repo_passes_every_checker (test_ci_checkers.RepoIsClean.test_real_repo_passes_every_checker)
+EXIT_CODE=0

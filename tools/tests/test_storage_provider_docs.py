@@ -1,5 +1,5 @@
 """Docs must state the storage provider decided in ADR-0016 (R2), not the superseded S3 one (ADR-0015)."""
-import re
+import json
 import unittest
 from pathlib import Path
 
@@ -45,23 +45,81 @@ class GapReport(unittest.TestCase):
 
 
 class Blueprint(unittest.TestCase):
-    """docs/BLUEPRINT.md is protected: the supervisor round that found this could not edit it.
+    """The V1 gate and implementation inventory must agree with the R2 evidence."""
 
-    expectedFailure turns into an "unexpected success" (a failing run) as soon as the V1 row of §9.2
-    and the §11 code row are corrected, which is the cue to delete the decorator. The replacement
-    wording is in docs/review/2026-10-22_audit1_blueprint_s3_stale.md.
-    """
+    def setUp(self):
+        self.text = read(BLUEPRINT)
+        self.v1 = next(line for line in self.text.splitlines() if line.startswith("| V1 |"))
 
-    @unittest.expectedFailure
     def test_no_pre_r2_storage_claims(self):
-        text = read(BLUEPRINT)
-        found = [p for p in STALE if p in text]
+        found = [p for p in STALE if p in self.text]
         self.assertEqual(found, [])
 
+    def test_v1_names_r2_and_completed_preservation(self):
+        self.assertIn("Cloudflare R2", self.v1)
+        self.assertIn("ADR-0016", self.v1)
+        self.assertIn("R2에 보존하고 다시 받아 전부 바이트 일치", self.v1)
+
+    def test_v1_remaining_conditions_keep_unverified_work(self):
+        remaining = self.v1.split("남은 조건:", 1)[1]
+        for phrase in ("파생 6건", "재생성 도구", "재현 검증", "다른 계열 AI 검수", "S1·S6"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, remaining)
+        for phrase in ("S3", "자격 증명", "실제 보존", "다운로드 대조"):
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, remaining)
+        self.assertIn("관문 미통과", self.v1)
+
+    def test_code_inventory_names_current_and_alternative_storage(self):
+        line = next(line for line in self.text.splitlines() if line.startswith("| 코드 |"))
+        for phrase in ("R2 보존·대조 도구", "비용 한도", "infra/r2/", "대안", "infra/s3/"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, line)
+
+    def test_v1_counts_match_r2_records_and_gap_report(self):
+        checks = VALIDATION / "source_checks"
+        gap = next(line for line in read(VALIDATION / "GAP_REPORT.md").splitlines() if "원본 보관소" in line)
+        for name, count, label in (("raw", 58, "원본"), ("derived_v2", 61, "파생 v2")):
+            with self.subTest(record=name):
+                record = json.loads(read(checks / f"2026-10-09_r2_listing_{name}.json"))
+                self.assertTrue(record["destination"].startswith("r2:"))
+                self.assertEqual(record["summary"], {"byte_identical": count})
+                self.assertEqual(len(record["results"]), count)
+                self.assertEqual(record["extra_in_destination"], [])
+                for result in record["results"]:
+                    self.assertEqual(result["status"], "byte_identical")
+                    self.assertEqual(result["sha256_source"], result["sha256_downloaded"])
+                for line in (self.v1, gap):
+                    self.assertIn(f"{label} {count}키", line)
+
+        samples = json.loads(read(checks / "2026-10-09_r2_verify_samples.json"))
+        self.assertTrue(samples["store"].startswith("r2:"))
+        self.assertEqual(samples["summary"], {"byte_identical": 14})
+        self.assertEqual(len(samples["results"]), 14)
+        for result in samples["results"]:
+            self.assertEqual(result["status"], "byte_identical")
+            self.assertEqual(result["sha256_recorded"], result["sha256_downloaded"])
+
+        reproduction = json.loads(read(checks / "2026-10-09_r2_reproduce_ocr.json"))
+        self.assertTrue(reproduction["source"].startswith("r2:"))
+        self.assertEqual(reproduction["summary"], {"reproduced": 8, "derived_unverified": 6})
+        results = reproduction["results"]
+        self.assertEqual(len(results), 14)
+        self.assertEqual(sum(r["status"] == "reproduced" for r in results), 8)
+        self.assertEqual(sum(r["status"] == "derived_unverified" for r in results), 6)
+        for result in results:
+            self.assertEqual(result["sha256_recorded"], result["sha256_archived_bytes"])
+            self.assertEqual(result["not_found"], 0)
+        self.assertIn("원본 해시·인용 14/14", self.v1)
+        self.assertIn("완전 재현 8/14", self.v1)
+        self.assertIn("나머지 6건은 재생성 도구 없음으로 미검증", self.v1)
+
     def test_section_11_already_reports_r2(self):
-        text = read(BLUEPRINT)
-        self.assertRegex(text, r"R2에 보존하고 다시 받아 전부 바이트 일치")
-        self.assertIsNotNone(re.search(r"ADR-0016|ADR-0017", text))
+        section = self.text.split("## 11.", 1)[1].split("## 12.", 1)[0]
+        lines = [l for l in section.splitlines() if "R2에 보존하고 다시 받아 전부 바이트 일치" in l]
+        self.assertTrue(lines)
+        # The same line must say it is the R2 round trip, not just contain the byte-match phrase.
+        self.assertTrue(all("원본 R2" in l or "R2에 보존" in l for l in lines))
 
 
 if __name__ == "__main__":

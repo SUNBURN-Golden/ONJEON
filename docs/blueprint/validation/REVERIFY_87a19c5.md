@@ -16,7 +16,7 @@
 
 | 검사 | 87a19c5에서 | 근거 |
 |---|---|---|
-| 일반 CI | 실행됨: 어휘 검사, 내부 일관성 검사, 자체 시험(당시 14종, "아무 오류" 방식), fmt, clippy, `cargo test --workspace`(단위·통합 테스트 39개 + 문서 시험(doctest) 3개 = 42건) | 2026-10-09 기록: GitHub Actions 작업 로그(PR 병합 커밋 429c1a5 = 87a19c5 + main). 그 로그와 실행 ID는 이 저장소에 없고 429c1a5는 저장소가 가져온 참조에서 도달할 수 없어 지금은 확인할 수 없다. 39 + 3 구성은 재실행 값이다: 2026-10-22에 87a19c5와 839ecdb 소스를 각각 `cargo test --workspace`로 돌린 로그가 `docs/review/evidence/audit1_blueprint_test_count/`에 있다(둘 다 테스트 39, 문서 시험 3, 실패 0). 정리는 `docs/review/2026-10-22_audit1_blueprint_test_count.md` |
+| 일반 CI | 실행됨: 어휘 검사, 내부 일관성 검사, 자체 시험(당시 14종, "아무 오류" 방식), fmt, clippy, `cargo test --workspace`(단위·통합 테스트 39개 + 문서 시험(doctest) 3개 = 42건) | 2026-10-09 기록: GitHub Actions 작업 로그(PR 병합 커밋 429c1a5 = 87a19c5 + main). 그 로그와 실행 ID는 이 저장소에 없고 429c1a5는 저장소가 가져온 참조에서 도달할 수 없어 지금은 확인할 수 없다. 39 + 3 구성은 재실행 값이다: 2026-10-22에 87a19c5와 839ecdb 소스를 각각 `cargo test --workspace`로 돌린 로그가 `docs/blueprint/validation/evidence/audit1_blueprint_test_count/`에 있다(둘 다 테스트 39, 문서 시험 3, 실패 0). 정리는 [Audit 1 수정 검증 기록](REVERIFY_AUDIT1_BLUEPRINT_TEST_COUNT.md) |
 | 원본 재검증 | CI에서 실행된 적 없음. 수동 실행 2회(세션 임시 보관본, 원 URL 재다운로드) | `sources` 워크플로는 기본 브랜치에 없어 GitHub가 실행할 수 없다(API 404) |
 | OCR 재검증 | CI에서 실행된 적 없음. 수동 1회(세션 보관본, 인용 4쪽) | 같은 날 이번 재현 검사에서 다시 1회, OCR 결과가 보존본과 바이트 일치 |
 

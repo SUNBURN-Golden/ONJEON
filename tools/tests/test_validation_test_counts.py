@@ -2,9 +2,9 @@
 
 `cargo test`는 두 종류를 따로 센다. 합친 숫자만 적으면 한쪽만 세는 사람과 어긋난다
 (Audit 1: `docs/BLUEPRINT.md` §11 "Rust 테스트 42개" = 테스트 39 + 문서 시험 3).
-1차 근거는 docs/review/evidence/audit1_blueprint_test_count/ 의 `cargo test --workspace` 재실행 로그.
-그 요약 행은 docs/blueprint/validation/REVERIFY_87a19c5.md, 교체안은
-docs/review/2026-10-22_audit1_blueprint_test_count.md.
+1차 근거는 docs/blueprint/validation/evidence/audit1_blueprint_test_count/ 의 `cargo test --workspace` 재실행 로그.
+그 요약 행은 docs/blueprint/validation/REVERIFY_87a19c5.md, 수정 검증 기록은
+docs/blueprint/validation/REVERIFY_AUDIT1_BLUEPRINT_TEST_COUNT.md.
 """
 import re
 import unittest
@@ -13,8 +13,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 REVERIFY = ROOT / "docs/blueprint/validation/REVERIFY_87a19c5.md"
 VALIDATION_README = ROOT / "docs/blueprint/validation/README.md"
-REVIEW_NOTE = ROOT / "docs/review/2026-10-22_audit1_blueprint_test_count.md"
-EVIDENCE = ROOT / "docs/review/evidence/audit1_blueprint_test_count"
+VERIFICATION_RECORD = ROOT / "docs/blueprint/validation/REVERIFY_AUDIT1_BLUEPRINT_TEST_COUNT.md"
+EVIDENCE = ROOT / "docs/blueprint/validation/evidence/audit1_blueprint_test_count"
 BLUEPRINT = ROOT / "docs/BLUEPRINT.md"
 
 # The two 2026-10-09 commits the §11 number comes from: 87a19c5 (REVERIFY subject), 839ecdb (wrote §11).
@@ -126,16 +126,16 @@ class ReverifyRecord(unittest.TestCase):
         self.assertIn(EVIDENCE.name + "/", row)
 
 
-class ReviewNote(unittest.TestCase):
+class VerificationRecord(unittest.TestCase):
     def setUp(self):
-        self.text = read(REVIEW_NOTE)
+        self.text = read(VERIFICATION_RECORD)
 
-    def test_replacement_wording_matches_reverify(self):
+    def test_corrected_wording_matches_reverify(self):
         tests, docs, _ = reverify_split()
         quoted = " ".join(l for l in self.text.splitlines() if l.startswith("> "))
-        self.assertTrue(quoted, "review note must quote the replacement wording")
+        self.assertTrue(quoted, "verification record must quote the corrected wording")
         m = SPLIT.search(quoted)
-        self.assertIsNotNone(m, "replacement wording must split tests from doctests")
+        self.assertIsNotNone(m, "corrected wording must split tests from doctests")
         self.assertEqual(tuple(map(int, m.groups())), (tests, docs))
         self.assertNotRegex(quoted, BARE)
 
@@ -155,18 +155,12 @@ class ReviewNote(unittest.TestCase):
 
 
 class ValidationReadme(unittest.TestCase):
-    def test_follow_up_points_at_review_note(self):
-        self.assertIn(REVIEW_NOTE.name, read(VALIDATION_README))
+    def test_points_at_verification_record(self):
+        self.assertIn(VERIFICATION_RECORD.name, read(VALIDATION_README))
 
 
 class Blueprint(unittest.TestCase):
-    """docs/BLUEPRINT.md is protected: the rounds that found this could not edit it.
-
-    This passes in both states so nobody has to touch the test when the row is fixed:
-    - still the bare "Rust 테스트 N개": N must equal tests + doctests in REVERIFY;
-    - corrected: the row must split tests from doctests and agree with REVERIFY.
-    The replacement wording is in docs/review/2026-10-22_audit1_blueprint_test_count.md.
-    """
+    """The §11 row must split tests from doctests and agree with the re-run evidence."""
 
     def setUp(self):
         rows = [l for l in section(read(BLUEPRINT), 11).splitlines() if l.startswith("| 코드 |")]
@@ -174,14 +168,16 @@ class Blueprint(unittest.TestCase):
         self.code_row = rows[0]
 
     def test_count_agrees_with_split_evidence(self):
-        tests, docs, total = reverify_split()
-        bare = BARE.search(self.code_row)
-        if bare:
-            self.assertEqual(int(bare.group(1)), total, "bare count must equal tests + doctests in REVERIFY")
-        else:
-            m = SPLIT.search(self.code_row)
-            self.assertIsNotNone(m, "corrected row must state tests + doctests")
-            self.assertEqual(tuple(map(int, m.groups())), (tests, docs))
+        tests, docs, _ = reverify_split()
+        self.assertNotRegex(self.code_row, BARE, "combined count hides the doctest split")
+        m = SPLIT.search(self.code_row)
+        self.assertIsNotNone(m, "§11 code row must state tests + doctests")
+        self.assertEqual(tuple(map(int, m.groups())), (tests, docs))
+
+    def test_count_has_a_historical_date_and_evidence(self):
+        self.assertIn("2026-10-09 기준", self.code_row)
+        self.assertIn("재실행 근거", self.code_row)
+        self.assertIn("blueprint/validation/REVERIFY_87a19c5.md", self.code_row)
 
     def test_states_the_count_once(self):
         self.assertEqual(len(BARE.findall(self.code_row)) + len(SPLIT.findall(self.code_row)), 1)

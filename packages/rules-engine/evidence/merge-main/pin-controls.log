@@ -1,0 +1,3 @@
+trace corruption: caught by golden_table_pins_trace_and_hashes (exit 101)
+input_snapshot_hash corruption: caught by golden_table_pins_trace_and_hashes (exit 101)
+Restored pins: all 7 golden tests pass

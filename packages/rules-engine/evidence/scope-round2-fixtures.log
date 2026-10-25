@@ -1,0 +1,16 @@
+packages/fixtures/rules/fixture-rule-001.cases.json: matches main byte-for-byte; sha256=d1a1bd4f3d7984672719465a33efae8d0094d1fcfcbb08f8b44f0a8cd2ad0552
+  supplement: 1 cases; combined table equals pre-relocation HEAD
+packages/fixtures/rules/real/kb-driver-fine.cases.json: matches main byte-for-byte; sha256=a5bebec2b4674ee3badfe1da26efaa9d1079b7f6f20c042663df759d23fe476f
+  supplement: 7 cases; combined table equals pre-relocation HEAD
+packages/fixtures/rules/real/kb-driver-lawyer-fee.cases.json: matches main byte-for-byte; sha256=676eaf8fbd6df89ba285b585f356b5940bcdb86ed65e596220a2955a83d7e170
+  supplement: 15 cases; combined table equals pre-relocation HEAD
+packages/fixtures/rules/real/kyobo-1995-cancer-waiting.cases.json: matches main byte-for-byte; sha256=2ac8c6eb447a321b91ec2255c760526c49f371a69e4f80aa9ba7946166373862
+  supplement: 1 cases; combined table equals pre-relocation HEAD
+packages/fixtures/rules/real/kyobo-cancer-main-dx.cases.json: matches main byte-for-byte; sha256=aa4bb3425ffdf14d14a94877123c7002a3c36eec83eccfc531f1b05b6ef7c3da
+  supplement: 3 cases; combined table equals pre-relocation HEAD
+packages/fixtures/rules/real/kyobo-small-cancer-skin.cases.json: matches main byte-for-byte; sha256=9b467ad436b2a570a7631c00feb704c7e685fac1579a08697d3faf210a66beac
+  supplement: 11 cases; combined table equals pre-relocation HEAD
+packages/fixtures/rules/real/kyobo-wholelife-death.cases.json: matches main byte-for-byte; sha256=0f871590cf689f4b59f69f8b4ac9f26cfc371c829a0bcc387dfeb4dfb8e4cd69
+  supplement: 21 cases; combined table equals pre-relocation HEAD
+PASS: all 7 shared case files match main; all 59 relocated cases preserved exactly.
+PASS: zero diff against main across packages/fixtures/rules.

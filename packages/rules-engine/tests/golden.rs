@@ -67,20 +67,42 @@ fn pinned_hash(file: &str) -> String {
         .to_string()
 }
 
+fn pinned_cases() -> serde_json::Map<String, J> {
+    let golden = load_json(&fixtures_dir().join("fixture-rule-001.golden.json"));
+    let mut pinned = golden["cases"]
+        .as_object()
+        .expect("golden cases object")
+        .clone();
+    // Keep the shared pins intact and extend them for the mutation suite's rounding case.
+    let rounding: J = serde_json::from_str(include_str!(
+        "fixtures/fixture-rule-001.rounding.golden.json"
+    ))
+    .expect("rounding golden fixture");
+    for (id, value) in rounding["cases"]
+        .as_object()
+        .expect("rounding cases object")
+    {
+        assert!(
+            pinned.insert(id.clone(), value.clone()).is_none(),
+            "{id}: duplicate golden pin"
+        );
+    }
+    pinned
+}
+
 /// The golden table also pins the audit fields: per-case `trace` and `input_snapshot_hash`
-/// (in `fixture-rule-001.golden.json`) and the rule's `rule_content_hash`
+/// (in the shared golden fixture and the local rounding supplement) and `rule_content_hash`
 /// (in `fixture-rule-001.content_hash`). `expect` stays outcome-only.
 #[test]
 fn golden_table_pins_trace_and_hashes() {
     let rule = Rule::from_json(&rule_json()).unwrap();
-    let golden = load_json(&fixtures_dir().join("fixture-rule-001.golden.json"));
-    let pinned = golden["cases"].as_object().expect("golden cases object");
+    let pinned = pinned_cases();
     let rule_hash = pinned_hash("fixture-rule-001.content_hash");
     let all = cases();
     assert_eq!(
         pinned.len(),
         all.len(),
-        "golden.json must pin exactly the cases in cases.json"
+        "golden fixtures must pin exactly the cases in cases.json"
     );
     let mut failures = Vec::new();
     for case in &all {
@@ -107,11 +129,11 @@ fn golden_table_pins_trace_and_hashes() {
 
 #[test]
 fn pinned_input_snapshot_hashes_are_distinct_per_distinct_input() {
-    let golden = load_json(&fixtures_dir().join("fixture-rule-001.golden.json"));
+    let pinned = pinned_cases();
     let mut by_hash: std::collections::BTreeMap<String, String> = Default::default();
     for case in cases() {
         let id = case["id"].as_str().unwrap().to_string();
-        let h = golden["cases"][&id]["input_snapshot_hash"]
+        let h = pinned[&id]["input_snapshot_hash"]
             .as_str()
             .unwrap_or_else(|| panic!("{id}: missing pinned input_snapshot_hash"))
             .to_string();

@@ -1,0 +1,30 @@
+test_count_agrees_with_split_evidence (tools.tests.test_validation_test_counts.Blueprint.test_count_agrees_with_split_evidence) ... ok
+test_count_has_a_historical_date_and_evidence (tools.tests.test_validation_test_counts.Blueprint.test_count_has_a_historical_date_and_evidence) ... ok
+test_states_the_count_once (tools.tests.test_validation_test_counts.Blueprint.test_states_the_count_once) ... ok
+test_both_commits_agree_per_binary (tools.tests.test_validation_test_counts.EvidenceLogs.test_both_commits_agree_per_binary) ... ok
+test_every_section_passed (tools.tests.test_validation_test_counts.EvidenceLogs.test_every_section_passed) ... ok
+test_logs_carry_no_machine_paths (tools.tests.test_validation_test_counts.EvidenceLogs.test_logs_carry_no_machine_paths) ... ok
+test_logs_record_the_command_and_a_clean_exit (tools.tests.test_validation_test_counts.EvidenceLogs.test_logs_record_the_command_and_a_clean_exit) ... ok
+test_split_matches_reverify_row (tools.tests.test_validation_test_counts.EvidenceLogs.test_split_matches_reverify_row) ... ok
+test_breakdown_adds_up (tools.tests.test_validation_test_counts.ReverifyRecord.test_breakdown_adds_up) ... ok
+test_no_bare_combined_count (tools.tests.test_validation_test_counts.ReverifyRecord.test_no_bare_combined_count) ... ok
+test_rerun_is_not_passed_off_as_ci_log (tools.tests.test_validation_test_counts.ReverifyRecord.test_rerun_is_not_passed_off_as_ci_log) ... ok
+test_points_at_verification_record (tools.tests.test_validation_test_counts.ValidationReadme.test_points_at_verification_record) ... ok
+test_corrected_wording_matches_reverify (tools.tests.test_validation_test_counts.VerificationRecord.test_corrected_wording_matches_reverify) ... ok
+test_per_binary_table_matches_logs (tools.tests.test_validation_test_counts.VerificationRecord.test_per_binary_table_matches_logs) ... ok
+test_points_at_sources (tools.tests.test_validation_test_counts.VerificationRecord.test_points_at_sources) ... ok
+test_code_inventory_names_current_and_alternative_storage (tools.tests.test_storage_provider_docs.Blueprint.test_code_inventory_names_current_and_alternative_storage) ... ok
+test_no_pre_r2_storage_claims (tools.tests.test_storage_provider_docs.Blueprint.test_no_pre_r2_storage_claims) ... ok
+test_section_11_already_reports_r2 (tools.tests.test_storage_provider_docs.Blueprint.test_section_11_already_reports_r2) ... ok
+test_v1_counts_match_r2_records_and_gap_report (tools.tests.test_storage_provider_docs.Blueprint.test_v1_counts_match_r2_records_and_gap_report) ... ok
+test_v1_names_r2_and_completed_preservation (tools.tests.test_storage_provider_docs.Blueprint.test_v1_names_r2_and_completed_preservation) ... ok
+test_v1_remaining_conditions_keep_unverified_work (tools.tests.test_storage_provider_docs.Blueprint.test_v1_remaining_conditions_keep_unverified_work) ... ok
+test_cited_r2_evidence_exists (tools.tests.test_storage_provider_docs.GapReport.test_cited_r2_evidence_exists) ... ok
+test_full_reproduction_count_matches_check_record (tools.tests.test_storage_provider_docs.GapReport.test_full_reproduction_count_matches_check_record) ... ok
+test_names_r2_decision (tools.tests.test_storage_provider_docs.GapReport.test_names_r2_decision) ... ok
+test_no_pre_r2_storage_claims (tools.tests.test_storage_provider_docs.GapReport.test_no_pre_r2_storage_claims) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.006s
+
+OK

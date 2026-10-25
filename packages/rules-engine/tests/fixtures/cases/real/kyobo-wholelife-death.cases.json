@@ -1,0 +1,380 @@
+{
+  "cases": [
+    {
+      "id": "w13_accident_last_day_of_first_period",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {
+        "cause_in_accident_table": true,
+        "death_date": "2030-12-31"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 100000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w14_accident_first_period_ended",
+      "rule": "kyobo-wholelife-accident-death",
+      "note": "5년 경과 계약해당일(2031-01-01) 당일부터는 제2보험기간",
+      "set": {
+        "cause_in_accident_table": true,
+        "death_date": "2031-01-01"
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w15_accident_harmed_by_beneficiary",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {
+        "cause_in_accident_table": true,
+        "harmed_by_beneficiary_or_contractor": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w16_accident_self_harm_with_free_will",
+      "rule": "kyobo-wholelife-accident-death",
+      "note": "재해 분류여도 자유로운 의사의 자해는 재해사망이 아니다",
+      "set": {
+        "cause_in_accident_table": true,
+        "self_harm": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w17_incapacity_flag_without_self_harm",
+      "rule": "kyobo-wholelife-accident-death",
+      "note": "자해가 아니면 심신상실 플래그만으로 재해사망이 되지 않는다",
+      "set": {
+        "self_harm_without_free_will": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w18_disease_last_day_of_first_period",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2030-12-31"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 90000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w19_disease_first_period_ended_exactly",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2031-01-01"
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w20_disease_harmed_by_beneficiary",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "harmed_by_beneficiary_or_contractor": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w21_accident_cause_not_paid_as_disease",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "재해 분류 사망은 질병사망 규칙에서 제외",
+      "set": {
+        "cause_in_accident_table": true,
+        "death_date": "2028-06-01"
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w22_self_harm_with_incapacity_not_disease",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "심신상실 자해는 재해사망으로 가므로 질병사망 아님(2년 후여도)",
+      "set": {
+        "self_harm": true,
+        "self_harm_without_free_will": true,
+        "death_date": "2028-06-01"
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w23_revival_two_years_end_exactly",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "부활청약일 + 2년(2030-01-01) 당일부터 자살도 질병사망 지급. 계약 4주년 이후라 질병 가산 40%",
+      "set": {
+        "self_harm": true,
+        "is_revived": true,
+        "revival_application_date": "2028-01-01",
+        "death_date": "2030-01-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 90000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w24_tier1_last_day",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2026-12-31"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 50000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w25_tier2_first_day",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2027-01-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 60000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w26_tier2_last_day",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2027-12-31"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 60000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w27_tier4_last_day",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2029-12-31"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 80000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w28_tier5_first_day",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2030-01-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 90000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w29_odd_basic_amount_is_a_range",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "첫해 50%: 100,000,001 × 0.5 = 50,000,000.5",
+      "set": {
+        "basic_amount_krw": 100000001
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "range",
+            "min_krw": 50000000,
+            "max_krw": 50000001
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w30_odd_insured_tier2_is_a_range",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "100,000,001 × 0.1 = 10,000,000.1",
+      "set": {
+        "insured_amount_krw": 100000001,
+        "death_date": "2027-06-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "range",
+            "min_krw": 60000000,
+            "max_krw": 60000001
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w31_odd_insured_tier3_is_a_range",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "× 0.2 = 20,000,000.2",
+      "set": {
+        "insured_amount_krw": 100000001,
+        "death_date": "2028-06-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "range",
+            "min_krw": 70000000,
+            "max_krw": 70000001
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w32_odd_insured_tier4_is_a_range",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "× 0.3 = 30,000,000.3",
+      "set": {
+        "insured_amount_krw": 100000001,
+        "death_date": "2029-06-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "range",
+            "min_krw": 80000000,
+            "max_krw": 80000001
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w33_odd_insured_tier5_is_a_range",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "× 0.4 = 40,000,000.4",
+      "set": {
+        "insured_amount_krw": 100000001,
+        "death_date": "2030-06-01"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "range",
+            "min_krw": 90000000,
+            "max_krw": 90000001
+          }
+        },
+        "missing_inputs": []
+      }
+    }
+  ]
+}

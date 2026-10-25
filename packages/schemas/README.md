@@ -1,12 +1,12 @@
 # packages/schemas: 계약 패키지 (`onjeon-contracts`)
 
-앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02. 근거: 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전), 화면 설계서 §11. 이 패키지는 계약의 **모양**이다. 의미 검사(릴리스 빌더, DB 제약, evidence_ref 파서)는 후속 과제(T-CT-03~05, T-KN-*)의 몫이다.
+앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록이다. 근거: 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전), 화면 설계서 §11. 이 패키지는 계약의 **모양**이다. 의미 검사(릴리스 빌더, DB 제약, evidence_ref 파서)는 후속 과제(T-CT-03~05, T-KN-*)의 몫이다.
 
 ## 구성
 
 | 경로 | 내용 |
 |---|---|
-| `vocabulary.json` | 상태 어휘 정본(1.6.0). 이 패키지는 읽기만 한다. 변경은 정본 변경 과제(T-CT-02처럼 `canon_change_approval`이 있는 과제)만 한다 |
+| `vocabulary.json` | 상태 어휘 정본(1.7.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록 등)만 한다 |
 | `json/*.schema.json` | 손으로 쓴 JSON Schema(2020-12 부분집합). `common`(ID·근거 참조·금액·결과 상태), `assertion`, `release_manifest`, `evaluation_result`, `scenario_result`, `coverage_detail`, `compare_view`, `plan_view`, `evidence_view`, `need_result`, `premium_observation`, `contract_snapshot`, `error_response` |
 | `json/vocabulary.schema.json` | **생성물.** 어휘의 모든 축이 `enum`으로 들어 있는 유일한 스키마 |
 | `src/generated/` | 생성된 Rust(serde). `src/checks.rs`는 손으로 쓴 교차 필드 검사 |

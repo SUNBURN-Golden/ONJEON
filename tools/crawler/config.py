@@ -12,6 +12,7 @@ from typing import Any, Mapping
 
 HARD_OBJECT_CAP_BYTES = 64 * 1024 * 1024  # no object ever held in memory above this (300 MB cgroup)
 MAX_CONFIG_FILE_BYTES = 1024 * 1024
+DEFAULT_VERIFY_EVERY_S = 30 * 86400
 
 
 class ConfigError(ValueError):
@@ -32,6 +33,7 @@ class CrawlerConfig:
     spool_cap_bytes: int = 1_500_000_000
     object_cap_bytes: int = HARD_OBJECT_CAP_BYTES
     state_db: str = "var/crawler/state.sqlite3"
+    verify_every_s: float = DEFAULT_VERIFY_EVERY_S
 
     def __post_init__(self):
         _str(self, "contact", max_len=200, allow_empty=True)
@@ -39,13 +41,14 @@ class CrawlerConfig:
         _num(self, "per_host_min_interval_s", lo=1, hi=86400)
         _int(self, "per_host_concurrency", lo=1, hi=4)
         _int(self, "max_global_hosts", lo=1, hi=16)
-        _int(self, "max_attempts", lo=1, hi=5)
+        _int(self, "max_attempts", lo=1, hi=3)  # spec hard cap: at most 3 attempts per request
         _int(self, "daily_request_cap_default", lo=1, hi=100_000)
         _num(self, "robots_cache_ttl_s", lo=60, hi=7 * 86400)
         _str(self, "spool_dir", max_len=1024)
         _int(self, "spool_cap_bytes", lo=1, hi=1 << 40)
         _int(self, "object_cap_bytes", lo=1, hi=HARD_OBJECT_CAP_BYTES)
         _str(self, "state_db", max_len=1024)
+        _num(self, "verify_every_s", lo=0, hi=1 << 40)
         if self.object_cap_bytes > self.spool_cap_bytes:
             raise ConfigError("object_cap_bytes must not exceed spool_cap_bytes")
 

@@ -1,0 +1,16 @@
+Parent HEAD: c79db05ec853c74afaadb562c5b3599276a68368
+Byte-identical to HEAD: .github/workflows/ci.yml
+Byte-identical to HEAD: .github/workflows/sources.yml
+Byte-identical to HEAD: packages/ontology/Cargo.toml
+Byte-identical to HEAD: packages/ontology/tests/common/mod.rs
+Byte-identical to HEAD: packages/ontology/tests/fixture_origin/main.rs
+Byte-identical to HEAD: tools/ci/check_deps.py
+Byte-identical to HEAD: tools/ci/tests/test_ci_checkers.py
+Byte-identical to HEAD: infra/ci/deps.json
+.github/workflows/ci.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+.github/workflows/ci.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+.github/workflows/sources.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+.github/workflows/sources.yml: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+.github/workflows/sources.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+.github/workflows/sources.yml: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+All six operator-supplied pins and comments match.

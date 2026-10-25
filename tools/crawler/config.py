@@ -12,6 +12,7 @@ from typing import Any, Mapping
 
 HARD_OBJECT_CAP_BYTES = 64 * 1024 * 1024  # no object ever held in memory above this (300 MB cgroup)
 MAX_CONFIG_FILE_BYTES = 1024 * 1024
+DEFAULT_VERIFY_EVERY_S = 30 * 86400
 
 
 class ConfigError(ValueError):
@@ -32,6 +33,7 @@ class CrawlerConfig:
     spool_cap_bytes: int = 1_500_000_000
     object_cap_bytes: int = HARD_OBJECT_CAP_BYTES
     state_db: str = "var/crawler/state.sqlite3"
+    verify_every_s: float = DEFAULT_VERIFY_EVERY_S
 
     def __post_init__(self):
         _str(self, "contact", max_len=200, allow_empty=True)
@@ -46,6 +48,7 @@ class CrawlerConfig:
         _int(self, "spool_cap_bytes", lo=1, hi=1 << 40)
         _int(self, "object_cap_bytes", lo=1, hi=HARD_OBJECT_CAP_BYTES)
         _str(self, "state_db", max_len=1024)
+        _num(self, "verify_every_s", lo=0, hi=1 << 40)
         if self.object_cap_bytes > self.spool_cap_bytes:
             raise ConfigError("object_cap_bytes must not exceed spool_cap_bytes")
 

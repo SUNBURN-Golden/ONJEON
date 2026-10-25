@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 use serde::{Deserialize, Serialize};
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-pub const VOCABULARY_VERSION: &str = "1.6.0";
+pub const VOCABULARY_VERSION: &str = "1.7.0";
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
 /// Axis `acquisition_status`. Unknown values fail to deserialize (never a default).
@@ -1953,6 +1953,283 @@ impl CriterionSourceKind {
     }
 }
 
+/// 규칙 입력 타입: 규칙 DSL 입력 선언의 타입. rule-0.1은 앞의 다섯 타입, rule-0.2는 class_money_list도 허용한다. 알 수 없는 타입은 로드에서 거부한다
+///
+/// Axis `input_type`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum InputType {
+    /// 참·거짓 입력
+    #[serde(rename = "bool")]
+    Bool,
+    /// 정수 입력
+    #[serde(rename = "int")]
+    Int,
+    /// 정수 원 금액 입력
+    #[serde(rename = "money_krw")]
+    MoneyKrw,
+    /// 달력 날짜 입력
+    #[serde(rename = "date")]
+    Date,
+    /// 문자열 입력
+    #[serde(rename = "string")]
+    String,
+    /// rule-0.2: class별 금액 사건 목록. krw가 null이면 그 항목의 금액은 모름
+    #[serde(rename = "class_money_list")]
+    ClassMoneyList,
+}
+
+impl InputType {
+    pub const AXIS: &'static str = "input_type";
+    pub const ALL: &'static [InputType] = &[
+        InputType::Bool,
+        InputType::Int,
+        InputType::MoneyKrw,
+        InputType::Date,
+        InputType::String,
+        InputType::ClassMoneyList,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            InputType::Bool => "bool",
+            InputType::Int => "int",
+            InputType::MoneyKrw => "money_krw",
+            InputType::Date => "date",
+            InputType::String => "string",
+            InputType::ClassMoneyList => "class_money_list",
+        }
+    }
+}
+
+/// 규칙 금액 반올림: multiply_rate·pro_rata·divide_count의 명시적 반올림 방식. 양의 정수 원 단위 unit과 함께 필수다. rule-0.1과 rule-0.2에서 같은 값을 쓴다
+///
+/// Axis `rounding`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Rounding {
+    /// 지정 단위로 내림
+    #[serde(rename = "floor")]
+    Floor,
+    /// 지정 단위로 올림
+    #[serde(rename = "ceil")]
+    Ceil,
+    /// 가장 가까운 지정 단위로 반올림하며 정확한 절반은 올림
+    #[serde(rename = "half_up")]
+    HalfUp,
+    /// 가장 가까운 지정 단위로 반올림하며 정확한 절반은 짝수 배수로 반올림
+    #[serde(rename = "half_even")]
+    HalfEven,
+    /// 원문에 반올림 방식이 없음. 내림~올림 범위를 보존하며 두 값이 같으면 정확한 금액으로 축약
+    #[serde(rename = "unspecified")]
+    Unspecified,
+}
+
+impl Rounding {
+    pub const AXIS: &'static str = "rounding";
+    pub const ALL: &'static [Rounding] = &[
+        Rounding::Floor,
+        Rounding::Ceil,
+        Rounding::HalfUp,
+        Rounding::HalfEven,
+        Rounding::Unspecified,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Rounding::Floor => "floor",
+            Rounding::Ceil => "ceil",
+            Rounding::HalfUp => "half_up",
+            Rounding::HalfEven => "half_even",
+            Rounding::Unspecified => "unspecified",
+        }
+    }
+}
+
+/// 규칙 날짜 기간 단위: date_add의 달력 기간 단위. rule-0.1과 rule-0.2에서 같은 값을 쓴다. calendar_month·calendar_year는 month_end=clamp가 필수이고 day에는 month_end를 허용하지 않는다
+///
+/// Axis `duration_unit`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum DurationUnit {
+    /// 일 단위 날짜 이동
+    #[serde(rename = "day")]
+    Day,
+    /// 달력 월 단위 날짜 이동. 대상 월에 같은 일이 없으면 말일로 맞춤
+    #[serde(rename = "calendar_month")]
+    CalendarMonth,
+    /// 달력 년 단위 날짜 이동. 대상 년에 같은 월일이 없으면 해당 월 말일로 맞춤
+    #[serde(rename = "calendar_year")]
+    CalendarYear,
+}
+
+impl DurationUnit {
+    pub const AXIS: &'static str = "duration_unit";
+    pub const ALL: &'static [DurationUnit] = &[
+        DurationUnit::Day,
+        DurationUnit::CalendarMonth,
+        DurationUnit::CalendarYear,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            DurationUnit::Day => "day",
+            DurationUnit::CalendarMonth => "calendar_month",
+            DurationUnit::CalendarYear => "calendar_year",
+        }
+    }
+}
+
+/// 규칙 DSL 연산자: 규칙 로더가 허용하는 식 객체의 키. 리터럴 생성자·input·세 키 if 형식도 포함하며 then·else는 if의 구조 키다. rule-0.2 전용 여섯 연산은 각 정의에 표시한다. multiply 등 목록 밖 키는 로드에서 거부한다
+///
+/// Axis `rule_operator`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum RuleOperator {
+    /// 불리언 식 목록의 3값 논리 AND
+    #[serde(rename = "all")]
+    All,
+    /// 불리언 식 목록의 3값 논리 OR
+    #[serde(rename = "any")]
+    Any,
+    /// 불리언 식의 3값 논리 부정
+    #[serde(rename = "not")]
+    Not,
+    /// 같은 타입인 두 값의 같음 비교
+    #[serde(rename = "eq")]
+    Eq,
+    /// 같은 타입인 두 값의 다름 비교
+    #[serde(rename = "ne")]
+    Ne,
+    /// 같은 타입인 두 값의 미만 비교
+    #[serde(rename = "lt")]
+    Lt,
+    /// 같은 타입인 두 값의 이하 비교
+    #[serde(rename = "lte")]
+    Lte,
+    /// 같은 타입인 두 값의 초과 비교
+    #[serde(rename = "gt")]
+    Gt,
+    /// 같은 타입인 두 값의 이상 비교
+    #[serde(rename = "gte")]
+    Gte,
+    /// if·then·else 세 키 객체의 조건 분기. 두 가지의 타입이 같아야 한다
+    #[serde(rename = "if")]
+    If,
+    /// 선언된 입력 이름 참조
+    #[serde(rename = "input")]
+    Input,
+    /// 음이 아닌 십진 문자열 요율 리터럴
+    #[serde(rename = "rate")]
+    Rate,
+    /// 음이 아닌 정수 원 금액 리터럴
+    #[serde(rename = "krw")]
+    Krw,
+    /// 지원 범위 내 YYYY-MM-DD 날짜 리터럴
+    #[serde(rename = "date")]
+    Date,
+    /// 금액에 요율을 곱함. 반올림·원 단위를 명시
+    #[serde(rename = "multiply_rate")]
+    MultiplyRate,
+    /// 금액 목록의 합
+    #[serde(rename = "add")]
+    Add,
+    /// 금액 목록의 최솟값
+    #[serde(rename = "min")]
+    Min,
+    /// 금액 목록의 최댓값
+    #[serde(rename = "max")]
+    Max,
+    /// 금액에 상한 적용
+    #[serde(rename = "apply_cap")]
+    ApplyCap,
+    /// 두 날짜 사이 일수. 시작일·종료일 포함 여부를 명시
+    #[serde(rename = "days_between")]
+    DaysBetween,
+    /// 날짜에 명시된 단위의 기간을 더함
+    #[serde(rename = "date_add")]
+    DateAdd,
+    /// rule-0.2: 금액에 음이 아닌 정수 횟수를 곱함
+    #[serde(rename = "multiply_count")]
+    MultiplyCount,
+    /// rule-0.2: 두 금액의 차를 0 이상으로 제한
+    #[serde(rename = "subtract_floor0")]
+    SubtractFloor0,
+    /// rule-0.2: 금액을 부분/전체 비율로 배분. 반올림·원 단위를 명시
+    #[serde(rename = "pro_rata")]
+    ProRata,
+    /// rule-0.2: 금액을 정수 횟수로 균등 배분. 반올림·원 단위를 명시
+    #[serde(rename = "divide_count")]
+    DivideCount,
+    /// rule-0.2: 두 날짜의 경과 만 연수와 명시적 경계 규칙으로 구간 요율 선택
+    #[serde(rename = "anniversary_band")]
+    AnniversaryBand,
+    /// rule-0.2: class_money_list에서 같은 class의 최고 금액을 고른 뒤 class 간 합산
+    #[serde(rename = "max_over")]
+    MaxOver,
+}
+
+impl RuleOperator {
+    pub const AXIS: &'static str = "rule_operator";
+    pub const ALL: &'static [RuleOperator] = &[
+        RuleOperator::All,
+        RuleOperator::Any,
+        RuleOperator::Not,
+        RuleOperator::Eq,
+        RuleOperator::Ne,
+        RuleOperator::Lt,
+        RuleOperator::Lte,
+        RuleOperator::Gt,
+        RuleOperator::Gte,
+        RuleOperator::If,
+        RuleOperator::Input,
+        RuleOperator::Rate,
+        RuleOperator::Krw,
+        RuleOperator::Date,
+        RuleOperator::MultiplyRate,
+        RuleOperator::Add,
+        RuleOperator::Min,
+        RuleOperator::Max,
+        RuleOperator::ApplyCap,
+        RuleOperator::DaysBetween,
+        RuleOperator::DateAdd,
+        RuleOperator::MultiplyCount,
+        RuleOperator::SubtractFloor0,
+        RuleOperator::ProRata,
+        RuleOperator::DivideCount,
+        RuleOperator::AnniversaryBand,
+        RuleOperator::MaxOver,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            RuleOperator::All => "all",
+            RuleOperator::Any => "any",
+            RuleOperator::Not => "not",
+            RuleOperator::Eq => "eq",
+            RuleOperator::Ne => "ne",
+            RuleOperator::Lt => "lt",
+            RuleOperator::Lte => "lte",
+            RuleOperator::Gt => "gt",
+            RuleOperator::Gte => "gte",
+            RuleOperator::If => "if",
+            RuleOperator::Input => "input",
+            RuleOperator::Rate => "rate",
+            RuleOperator::Krw => "krw",
+            RuleOperator::Date => "date",
+            RuleOperator::MultiplyRate => "multiply_rate",
+            RuleOperator::Add => "add",
+            RuleOperator::Min => "min",
+            RuleOperator::Max => "max",
+            RuleOperator::ApplyCap => "apply_cap",
+            RuleOperator::DaysBetween => "days_between",
+            RuleOperator::DateAdd => "date_add",
+            RuleOperator::MultiplyCount => "multiply_count",
+            RuleOperator::SubtractFloor0 => "subtract_floor0",
+            RuleOperator::ProRata => "pro_rata",
+            RuleOperator::DivideCount => "divide_count",
+            RuleOperator::AnniversaryBand => "anniversary_band",
+            RuleOperator::MaxOver => "max_over",
+        }
+    }
+}
+
 /// Every axis with its codes, in vocabulary order. Used by tests to compare with vocabulary.json.
 pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {
     vec![
@@ -2001,5 +2278,9 @@ pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {
         (KnowledgeFreshness::AXIS, KnowledgeFreshness::ALL.iter().map(|v| v.as_str()).collect()),
         (NeedVerdict::AXIS, NeedVerdict::ALL.iter().map(|v| v.as_str()).collect()),
         (CriterionSourceKind::AXIS, CriterionSourceKind::ALL.iter().map(|v| v.as_str()).collect()),
+        (InputType::AXIS, InputType::ALL.iter().map(|v| v.as_str()).collect()),
+        (Rounding::AXIS, Rounding::ALL.iter().map(|v| v.as_str()).collect()),
+        (DurationUnit::AXIS, DurationUnit::ALL.iter().map(|v| v.as_str()).collect()),
+        (RuleOperator::AXIS, RuleOperator::ALL.iter().map(|v| v.as_str()).collect()),
     ]
 }

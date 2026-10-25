@@ -1,0 +1,30 @@
+test_independent_lock_and_bulk_collection_gates_remain (test_o13_ruling.RulingAccessGates.test_independent_lock_and_bulk_collection_gates_remain) ... ok
+test_local_paths_queue_but_r2_access_stays_disabled (test_o13_ruling.RulingAccessGates.test_local_paths_queue_but_r2_access_stays_disabled) ... ok
+test_op02_requires_both_registered_decisions (test_o13_ruling.RulingAccessGates.test_op02_requires_both_registered_decisions) ... ok
+test_record_file_alone_does_not_release_op04_start (test_o13_ruling.RulingAccessGates.test_record_file_alone_does_not_release_op04_start) ... ok
+test_bundle_table_and_notes_stay_in_sync (test_o13_ruling.RulingDocumentation.test_bundle_table_and_notes_stay_in_sync) ... ok
+test_correction_report_links_resolve_with_evidence_in_allowed_paths (test_o13_ruling.RulingDocumentation.test_correction_report_links_resolve_with_evidence_in_allowed_paths) ... ok
+test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) ... ok
+test_missing_ruling_metadata_duplicates_and_reuse_permission_fail (test_o13_ruling.RulingDocumentation.test_missing_ruling_metadata_duplicates_and_reuse_permission_fail) ... ok
+test_operational_checklist_rejects_legacy_item_and_missing_safeguards (test_o13_ruling.RulingDocumentation.test_operational_checklist_rejects_legacy_item_and_missing_safeguards) ... ok
+test_operational_checklist_requires_access_followup_preserving_gates (test_o13_ruling.RulingDocumentation.test_operational_checklist_requires_access_followup_preserving_gates) ... FAIL
+test_original_rows_are_rejected_in_live_documents (test_o13_ruling.RulingDocumentation.test_original_rows_are_rejected_in_live_documents) ... ok
+test_readme_links_current_correction_evidence (test_o13_ruling.RulingDocumentation.test_readme_links_current_correction_evidence) ... ok
+test_task_descriptions_reference_ruling_without_revocation_prerequisite (test_o13_ruling.RulingDocumentation.test_task_descriptions_reference_ruling_without_revocation_prerequisite) ... ok
+
+======================================================================
+FAIL: test_operational_checklist_requires_access_followup_preserving_gates (test_o13_ruling.RulingDocumentation.test_operational_checklist_requires_access_followup_preserving_gates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 150, in test_operational_checklist_requires_access_followup_preserving_gates
+    self.assert_operational_checklist_corrected(text)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 144, in assert_operational_checklist_corrected
+    self.assertIn(required, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '[DEC-D-04](../../../decisions/DEC-D-04.md)' not found in '- [ ] R2 관련 과제(T-OP-04, T-DT-01·T-DT-04의 real_data 단계)에만: 대화에 노출된 토큰 폐기 확인(사용자). 그 밖의 과제·로컬 작업·모의 검증의 가동 조건이 아니다'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.044s
+
+FAILED (failures=1)

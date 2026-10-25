@@ -126,6 +126,52 @@ class RulingDocumentation(unittest.TestCase):
         for text in (spec, readme):
             self.assertNotIn("D-04 대화 노출 R2 토큰 폐기·범위 제한 토큰 재발급", text)
 
+    def assert_operational_checklist_corrected(self, text):
+        checklist = text.split("## 7. 가동 전 점검표", 1)[1].split("## 8.", 1)[0]
+        rows = [line for line in checklist.splitlines()
+                if line.startswith("- [ ] R2 관련 과제(")]
+        self.assertEqual(1, len(rows), "one pending R2 access-qualification item")
+        row = rows[0]
+        for required in (
+            "[DEC-D-04](../../../decisions/DEC-D-04.md)",
+            "R2 접근 자격 후속 확인", self.owner, self.decided_at, "다음 R2 작업 전",
+            "T-OP-04 시작", "T-DT-01·T-DT-04·T-OP-02의 real_data 단계",
+            "R2 토큰은 폐기하지 않는다", "재사용·출력 금지",
+            "D-04 관문은 해제되지 않으며 실제 R2 접근 차단 유지",
+            "§4의 별도 `cfut_` 폐기 규칙", "O14·O17 별도 관문 유지",
+            "그 밖의 과제·로컬 작업·모의 검증의 가동 조건이 아니다",
+        ):
+            self.assertIn(required, row)
+        self.assertNotIn("대화에 노출된 토큰 폐기 확인", checklist)
+        self.assertNotIn("R2 토큰 폐기 확인", checklist)
+
+    def test_operational_checklist_requires_access_followup_preserving_gates(self):
+        text = (BUNDLE / "05_VM실행준비.md").read_text(encoding="utf-8")
+        self.assert_operational_checklist_corrected(text)
+
+    def test_operational_checklist_rejects_legacy_item_and_missing_safeguards(self):
+        text = (BUNDLE / "05_VM실행준비.md").read_text(encoding="utf-8")
+        row = next(line for line in text.splitlines()
+                   if line.startswith("- [ ] R2 관련 과제("))
+        legacy = (
+            "- [ ] R2 관련 과제(T-OP-04, T-DT-01·T-DT-04의 real_data 단계)에만: "
+            "대화에 노출된 토큰 폐기 확인(사용자). "
+            "그 밖의 과제·로컬 작업·모의 검증의 가동 조건이 아니다"
+        )
+        mutations = [text.replace(row, legacy), text.replace(row, ""),
+                     text.replace(row, row + "\n" + row),
+                     text.replace(row, row + "\n" + legacy)]
+        for required in ("[DEC-D-04]", "R2 접근 자격 후속 확인", self.owner,
+                         self.decided_at, "다음 R2 작업 전", "T-OP-02",
+                         "폐기하지 않는다", "재사용·출력 금지",
+                         "D-04 관문은 해제되지 않으며 실제 R2 접근 차단 유지",
+                         "§4의 별도 `cfut_` 폐기 규칙", "O14·O17 별도 관문 유지",
+                         "그 밖의 과제·로컬 작업·모의 검증의 가동 조건이 아니다"):
+            mutations.append(text.replace(row, row.replace(required, "누락")))
+        for n, mutation in enumerate(mutations):
+            with self.subTest(mutation=n), self.assertRaises(AssertionError):
+                self.assert_operational_checklist_corrected(mutation)
+
     def test_task_descriptions_reference_ruling_without_revocation_prerequisite(self):
         tasks = json.loads((BUNDLE / "tasks.json").read_text(encoding="utf-8"))["tasks"]
         for task in tasks:

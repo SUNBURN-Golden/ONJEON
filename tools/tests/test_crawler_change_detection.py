@@ -334,7 +334,7 @@ class StateTest(OfflineTest):
         first = self.initial(db)
         for history in ([observation(1, status=304)],
                         [observation(), observation(etag='"conflicting"')],
-                        [observation(1), observation(2, sha256="bad")]):
+                        [observation(1), dict(observation(2), sha256="bad")]):
             with self.subTest(history=history), self.assertRaises(ValueError):
                 db.rebuild_from_observations(iter(history))
             self.assertEqual(list(db.rows()), [first])

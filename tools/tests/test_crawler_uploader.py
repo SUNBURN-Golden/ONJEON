@@ -72,9 +72,10 @@ class UploaderTest(unittest.TestCase):
     def expected(self, entry, target):
         rec = entry.observation
         digest, _ = archive.put_raw(target, BODY, rec["content_type"])
+        extra = {key: value for key, value in META.items() if key != "content_type"}
         return archive.put_observation(target, rec["source_id"], rec["url"],
                                        rec["observed_at"], digest, len(BODY),
-                                       rec["content_type"], META)[0]
+                                       rec["content_type"], extra)[0]
 
     def test_default_cli_and_api_write_nothing_and_report_new_key_estimate(self):
         self.write()

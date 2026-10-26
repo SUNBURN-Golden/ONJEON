@@ -18,6 +18,8 @@ Rules enforced here (on AWS also by the bucket policy in infra/s3/; R2 has no bu
   local: refuse). Re-archiving identical bytes is a no-op that is verified, not a rewrite.
 - a changed document at the same URL is a new object plus a new observation; the old object and
   its observations stay.
+- observation extras must be a JSON object and cannot replace source_id, url, observed_at,
+  sha256, bytes, content_type or object_key, even with the same value.
 - there is no delete command.
 - personal policy, health, family history or DNA data never enter these stores
   (only rows from docs/blueprint/validation/samples.csv or explicit public-source arguments).
@@ -56,6 +58,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))  # r2_budget; -I leaves the script directory off sys.path
 SAMPLES = ROOT / "docs/blueprint/validation/samples.csv"
 SAFE_ID = re.compile(r"^[a-z0-9_]+$")
+OBSERVATION_FIELDS = frozenset({"source_id", "url", "observed_at", "sha256", "bytes", "content_type", "object_key"})
 
 
 def sha256_bytes(b):
@@ -297,14 +300,28 @@ def put_raw(raw, body, content_type):
     return digest, put_once(raw, object_key(digest), body, content_type)
 
 
+class InvalidObservationExtra(ValueError):
+    """Additional metadata is not an object or attempts to replace observation provenance."""
+
+
+def validate_observation_extra(extra):
+    if not isinstance(extra, dict):
+        raise InvalidObservationExtra("observation extra must be a JSON object")
+    reserved = OBSERVATION_FIELDS.intersection(extra)
+    if reserved:
+        raise InvalidObservationExtra("observation extra contains reserved keys: " + ", ".join(sorted(reserved)))
+    return extra
+
+
 def put_observation(raw, source_id, url, observed_at, digest, size, content_type, extra=None):
+    extra = validate_observation_extra({} if extra is None else extra)
     if not SAFE_ID.match(source_id):
         raise SystemExit(f"source_id must be lower snake_case: {source_id}")
     stamp = re.sub(r"[^0-9TZ]", "", observed_at)
     key = f"observations/{source_id}/{stamp}_{digest[:16]}.json"
     rec = {"source_id": source_id, "url": url, "observed_at": observed_at, "sha256": digest,
            "bytes": size, "content_type": content_type, "object_key": object_key(digest)}
-    rec.update(extra or {})
+    rec.update(extra)
     body = (json.dumps(rec, ensure_ascii=False, indent=2) + "\n").encode()
     return key, put_once(raw, key, body, "application/json")
 
@@ -391,11 +408,11 @@ def put_derived_for(derived, src_dir, digest, row):
 
 
 def cmd_add_observation(a):
+    extra = validate_observation_extra(json.loads(a.extra) if a.extra else {})
     raw = store(a.raw, a.endpoint_url)
     body = Path(a.file).read_bytes()
     ctype = a.content_type or content_type_of(Path(a.file), "html" if a.file.endswith(".html") else "")
     digest, state = put_raw(raw, body, ctype)
-    extra = json.loads(a.extra) if a.extra else {}
     okey, ostate = put_observation(raw, a.source_id, a.url, a.observed_at, digest, len(body), ctype, extra)
     print(json.dumps({"sha256": digest, "object": state, "observation": okey, "observation_state": ostate}, indent=2))
     return 0
@@ -520,7 +537,7 @@ def main():
     for k in ("--file", "--source-id", "--url", "--observed-at", "--raw"):
         s.add_argument(k, required=True)
     s.add_argument("--content-type")
-    s.add_argument("--extra")
+    s.add_argument("--extra", help="JSON object of additional metadata; observation fields are reserved")
     s = sub.add_parser("fetch")
     s.add_argument("--raw", required=True)
     s.add_argument("--out", required=True)
@@ -571,6 +588,10 @@ def with_budget(job, endpoint_url, fn):
     except UnsafeCachePath as e:
         print(f"unsafe cache_path: {e}", file=sys.stderr)
         outcome, code = "unsafe_cache_path", 1
+        return 1
+    except InvalidObservationExtra as e:
+        print(f"invalid observation extra: {e}", file=sys.stderr)
+        outcome, code = "invalid_observation_extra", 1
         return 1
     except r2_budget.BudgetError as e:
         print(str(e), file=sys.stderr)

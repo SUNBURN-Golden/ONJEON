@@ -94,8 +94,9 @@ class SpoolTest(unittest.TestCase):
         self.assertEqual(entry.object_path.read_bytes(), BODY)
         self.assertEqual(renames, [entry.object_path, entry.observation_path])
         store = MemoryArchive()
+        extra = {key: value for key, value in META.items() if key != "content_type"}
         key, _ = archive.put_observation(store, "fixture_source", URL, STAMP,
-                                        sha, len(BODY), "application/pdf", META)
+                                        sha, len(BODY), "application/pdf", extra)
         reference = json.loads(store.data[key])
         actual = json.loads(entry.observation_path.read_bytes())
         self.assertEqual(set(actual), set(reference))

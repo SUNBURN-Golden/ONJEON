@@ -1,0 +1,33 @@
+{
+  "check": "detect",
+  "ran_at": "2026-10-26T09:48:10Z",
+  "source": "network",
+  "ocr_rerun": false,
+  "tools": {
+    "pdftotext": "25.03.0",
+    "tesseract": null,
+    "pdfplumber": null
+  },
+  "summary": {
+    "fetch_failed": 2
+  },
+  "results": [
+    {
+      "sample_id": "klia_pub_cancer_compare",
+      "url": "https://pub.insure.or.kr/compareDis/prodCompare/assurance/listNew.do?search_prodGroup=024400010004",
+      "baseline_sha256": "2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5",
+      "observed_at": "2026-10-26T09:48:10Z",
+      "status": "fetch_failed",
+      "detail": "robots_disallow: pub.insure.or.kr: User-agent: *; Disallow: /; docs/research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패"
+    },
+    {
+      "sample_id": "klia_pub_cancer_criteria",
+      "url": "https://pub.insure.or.kr/compareDis/prodCompare/assurance/informationPopup.do?search_prodGroup=024400010004",
+      "baseline_sha256": "200da98f6bde03bc5ee5c4f38b0ff192ab4653fb037e26ac47d13593e9798b35",
+      "observed_at": "2026-10-26T09:48:10Z",
+      "status": "fetch_failed",
+      "detail": "robots_disallow: pub.insure.or.kr: User-agent: *; Disallow: /; docs/research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패"
+    }
+  ],
+  "meaning": "change detection only: a changed source is a new version candidate; the recorded originals and past reproductions are untouched"
+}

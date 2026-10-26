@@ -40,6 +40,8 @@ python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --
 
 `pdfplumber`는 PDF 인용을 재추출하는 `reproduce`에만 필수다. `detect`는 PDF 바이트를 해시로 비교하므로 `pdfplumber` 없이 실행할 수 있으며 보고서의 해당 도구 버전은 `null`로 기록된다. 회귀 시험은 `tools/tests/test_verify_sources.py`의 `CliDependencies`에 있다. 공통 진입점의 `pdftotext` 필수 검사는 유지한다. [Audit 1 수정 검증 기록](REVERIFY_AUDIT1_DETECT_DEPENDENCY.md)에 실행 결과와 환경 제약을 적었다.
 
+`detect`는 [2026-10-10 조사](../../research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패)에 `User-agent: *; Disallow: /`로 기록된 `pub.insure.or.kr`을 요청하지 않는다. 해당 호스트의 표본 2건은 분모·기준 해시를 유지하며 `fetch_failed`, `detail: robots_disallow: …`와 조사 근거를 기록하고 종료 코드 1을 낸다. 다운로드·새 원본 보존·성공 관측을 만들지 않으며, 다른 출처에서 이 호스트로 리다이렉트되어도 차단한다. 이는 조사에 근거한 보수적 보류이며 실시간 robots 검사나 전체 호스트 정책 검사를 뜻하지 않는다. 정책 해제는 근거 재검토가 필요하고 실행 옵션으로 우회할 수 없다. `reproduce`의 보관본 재현 범위와 과거 관측 기록은 그대로다. [Audit 2 수정·검증 근거](../audits/2026-10-26_detect_robots_disallowed.md).
+
 동적 HTML은 받을 때마다 세션 ID 등으로 바이트가 달라진다. 받은 바이트는 매번 새 원본으로 보존한다. `content_sha256`은 변경 감지의 보조 지표이고, 같아도 결과는 `bytes_changed_content_same`이지 바이트 일치가 아니다. 현재 규칙은 `html-visible-text-v2`다(`tools/html_content_hash.py`). 링크의 `sid`·`_t`·`_`·`ts`·`timestamp`는 사이트에 따라 문서 식별자일 수 있어 호스트별 목록(`HOST_VOLATILE_PARAMS`, 현재 KB손해보험의 `_t`)에서만 제거하고, `jsessionid`·`sessionid`·`phpsessid`는 모든 호스트에서 제거한다. KB의 목록이 실제 페이지의 변동 파라미터를 모두 덮는지는 비공개 원본으로 아직 확인하지 않았다.
 
 알려진 열화(후속 작업): `samples.csv` 12~14행(HTML 3건)의 `content_hash_rule`은 아직 `html-visible-text-v1`이다. 규칙 이름이 다르면 `detect`는 본문 해시를 비교하지 않고 `changed`로 보고하므로, 기준선을 갱신하기 전까지 이 3건(특히 KB `CG802130001.ec`는 이전에 `bytes_changed_content_same`)은 변경 감지가 거칠어진다. 해시 재계산에는 비공개 R2 원본이 필요해 이 저장소에서는 하지 않았다. 기준선 갱신은 원본 접근 권한이 있는 담당자의 후속 작업이다. 같은 이유로 `source_checks/2026-10-09_detect_current_sources.json`(당시 기록)은 v1 결과 그대로 둔다.

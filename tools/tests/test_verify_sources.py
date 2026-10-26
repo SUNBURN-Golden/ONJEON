@@ -241,6 +241,19 @@ class CliDependencies(unittest.TestCase):
         reproduce.assert_not_called()
         budget.assert_not_called()
 
+    def test_detect_with_only_robots_disallowed_samples_fails_without_requests(self):
+        blocked = [r for r in vs.rows() if vs.urllib.parse.urlsplit(r["url"]).hostname == "pub.insure.or.kr"]
+        self.assertEqual(len(blocked), 2)
+        with tempfile.TemporaryDirectory() as d:
+            out, report = Path(d) / "out", Path(d) / "report.json"
+            with mock.patch.object(vs, "rows", return_value=blocked), mock.patch.object(vs, "fetch") as fetch:
+                code, output = self.run_main(["detect", "--out", str(out), "--report", str(report)])
+            self.assertEqual(code, 1)
+            self.assertIn("fetch_failed 2 (of 2)", output)
+            self.assertEqual(json.loads(report.read_text())["summary"], {"fetch_failed": 2})
+            fetch.assert_not_called()
+            self.assertFalse(out.exists())
+
     def test_reproduce_with_pdfplumber_dispatches(self):
         with mock.patch.object(vs, "cmd_reproduce", return_value=0) as reproduce:
             code, _ = self.run_main(["reproduce", "--cache", "unused"], pdfplumber=mock.Mock())
@@ -264,7 +277,7 @@ class DetectExit(unittest.TestCase):
             return code, json.loads(Path(args.report).read_text())["summary"]
 
     def test_any_fetch_failure_fails_the_run(self):
-        rows = list(vs.rows())
+        rows = [self.html_row("unused", b"x")]
         calls = {"n": 0}
 
         def fetch(url):
@@ -272,13 +285,15 @@ class DetectExit(unittest.TestCase):
             if calls["n"] == 1:
                 raise OSError("blocked")
             return b"other bytes", "application/pdf"
-        code, summary = self.run_detect(fetch)
+        with mock.patch.object(vs, "rows", return_value=rows):
+            code, summary = self.run_detect(fetch)
         self.assertEqual(code, 1)
         self.assertEqual(summary.get("fetch_failed"), 1)
         self.assertEqual(sum(summary.values()), len(rows))
 
     def test_changed_sources_are_a_successful_observation(self):
-        code, summary = self.run_detect(lambda url: (b"other bytes", "application/pdf"))
+        with mock.patch.object(vs, "rows", return_value=[self.html_row("unused", b"x")]):
+            code, summary = self.run_detect(lambda url: (b"other bytes", "application/pdf"))
         self.assertEqual(code, 0)
         self.assertNotIn("fetch_failed", summary)
 
@@ -318,6 +333,7 @@ class DetectExit(unittest.TestCase):
             args = argparse.Namespace(raw=None, out=d, archive_new=False, report=str(Path(d) / "r.json"),
                                       endpoint_url=None, cache=None, derived=None, ocr=False)
             with mock.patch.object(vs, "fetch", side_effect=vs.FetchTooLarge("body exceeds 5 bytes")), \
+                    mock.patch.object(vs, "rows", return_value=[self.html_row("unused", b"x")]), \
                     mock.patch("sys.stdout", new_callable=__import__("io").StringIO):
                 code = vs.cmd_detect(args)
             doc = json.loads(Path(args.report).read_text())
@@ -357,6 +373,96 @@ class DetectExit(unittest.TestCase):
         self.assertEqual(self.detect_html("html-visible-text-v1", a, b), {"changed": 1})
 
 
+class RecordedRobotsPolicy(unittest.TestCase):
+    def test_real_samples_are_reported_without_fetching_writing_or_archiving(self):
+        # Exercise the real denominator, including both KLIA pages, with no network or archive.
+        import argparse
+        rows = vs.rows()
+        blocked = [r for r in rows if vs.urllib.parse.urlsplit(r["url"]).hostname == "pub.insure.or.kr"]
+        self.assertEqual({r["sample_id"] for r in blocked},
+                         {"klia_pub_cancer_compare", "klia_pub_cancer_criteria"})
+        with tempfile.TemporaryDirectory() as d:
+            args = argparse.Namespace(raw="file:///unused", out=str(Path(d) / "out"),
+                                      archive_new=True, report=str(Path(d) / "report.json"),
+                                      endpoint_url=None)
+            store = mock.Mock()
+            with mock.patch.object(vs.sa, "store", return_value=store), \
+                    mock.patch.object(vs, "fetch", return_value=(b"changed", "text/html")) as fetch, \
+                    mock.patch.object(vs.sa, "put_raw", return_value=("key", "new")) as put_raw, \
+                    mock.patch.object(vs.sa, "put_observation", return_value=("obs", "new")) as put_obs, \
+                    mock.patch("sys.stdout", new_callable=io.StringIO):
+                code = vs.cmd_detect(args)
+            doc = json.loads(Path(args.report).read_text())
+            self.assertEqual(code, 1)
+            self.assertEqual(doc["summary"], {"changed": len(rows) - 2, "fetch_failed": 2})
+            self.assertEqual(len(doc["results"]), len(rows))
+            self.assertEqual([c.args[0] for c in fetch.call_args_list],
+                             [r["url"] for r in rows if r not in blocked])
+            self.assertEqual(put_raw.call_count, len(rows) - 2)
+            self.assertEqual(put_obs.call_count, len(rows) - 2)
+            for r in blocked:
+                res = next(x for x in doc["results"] if x["sample_id"] == r["sample_id"])
+                self.assertEqual(res["status"], "fetch_failed")
+                self.assertTrue(res["detail"].startswith("robots_disallow:"))
+                self.assertIn(vs.ROBOTS_POLICY_SOURCE, res["detail"])
+                self.assertEqual(res["baseline_sha256"], r["sha256"])
+                for key in ("sha256_now", "archived_object", "observation"):
+                    self.assertNotIn(key, res)
+                self.assertFalse((Path(args.out) / r["cache_path"]).exists())
+
+    def test_policy_applies_to_host_regardless_of_path_case_port_or_scheme(self):
+        for url in ("https://pub.insure.or.kr/", "http://PUB.INSURE.OR.KR:80/new/path?x=1",
+                    "https://pub.insure.or.kr./download.pdf"):
+            with self.subTest(url=url), mock.patch.object(vs.urllib.request, "build_opener") as opener:
+                with self.assertRaises(vs.RobotsDisallowed):
+                    vs.fetch(url)
+                opener.assert_not_called()
+
+    def test_policy_matches_hostname_not_url_substrings(self):
+        for url in ("https://pub.insure.or.kr.example.org/", "https://example.org/pub.insure.or.kr",
+                    "https://example.org/?url=https://pub.insure.or.kr/", "https://www.klia.or.kr/"):
+            with self.subTest(url=url):
+                vs.check_recorded_robots_policy(url)
+
+    def test_redirect_to_recorded_disallow_is_refused_before_request(self):
+        handler = vs.PolicyRedirectHandler()
+        req = vs.urllib.request.Request("https://example.org/source")
+        for code in (301, 302, 303, 307, 308):
+            with self.subTest(code=code), mock.patch.object(
+                    vs.urllib.request.HTTPRedirectHandler, "redirect_request") as redirect:
+                with self.assertRaises(vs.RobotsDisallowed):
+                    handler.redirect_request(req, None, code, "redirect", {}, "https://pub.insure.or.kr/p")
+                redirect.assert_not_called()
+
+    def test_permitted_redirect_uses_standard_handler(self):
+        req = vs.urllib.request.Request("https://example.org/source")
+        redirected = vs.PolicyRedirectHandler().redirect_request(
+            req, None, 302, "redirect", {}, "https://example.org/new")
+        self.assertEqual(redirected.full_url, "https://example.org/new")
+
+    def test_blocked_redirect_is_reported_and_not_retried(self):
+        import argparse
+        row = {"sample_id": "redirect", "url": "https://example.org/source", "sha256": "0" * 64,
+               "format": "html", "cache_path": "redirect/page.html"}
+        opener = mock.Mock()
+        opener.open.side_effect = vs.RobotsDisallowed("robots_disallow: redirected target")
+        with tempfile.TemporaryDirectory() as d:
+            args = argparse.Namespace(raw=None, out=str(Path(d) / "out"), archive_new=False,
+                                      report=str(Path(d) / "r.json"))
+            with mock.patch.object(vs, "rows", return_value=[row]), \
+                    mock.patch.object(vs.urllib.request, "build_opener", return_value=opener) as build, \
+                    mock.patch.object(vs.time, "sleep") as sleep, \
+                    mock.patch("sys.stdout", new_callable=io.StringIO):
+                self.assertEqual(vs.cmd_detect(args), 1)
+            self.assertIsInstance(build.call_args.args[0], vs.PolicyRedirectHandler)
+            opener.open.assert_called_once()
+            sleep.assert_not_called()
+            doc = json.loads(Path(args.report).read_text())
+            self.assertEqual(doc["summary"], {"fetch_failed": 1})
+            self.assertEqual(doc["results"][0]["detail"], "robots_disallow: redirected target")
+            self.assertFalse(Path(args.out).exists())
+
+
 class FetchSizeCap(unittest.TestCase):
     """fetch() must stop reading at the cap instead of buffering an unbounded body (audit 1)."""
 
@@ -379,7 +485,9 @@ class FetchSizeCap(unittest.TestCase):
     def fetch_with(self, resp, max_bytes):
         from unittest import mock
         resp.headers.get_content_type = lambda: "application/pdf"
-        with mock.patch.object(vs.urllib.request, "urlopen", return_value=resp):
+        opener = mock.Mock()
+        opener.open.return_value = resp
+        with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener):
             return vs.fetch("https://example.org/x", max_bytes=max_bytes)
 
     def test_body_at_the_cap_is_returned(self):

@@ -7,12 +7,14 @@ reproduce  보관본 재현 검사 — with the originals preserved at the time:
            with --ocr, and archived extraction outputs regenerated with the same tool version.
            Status codes: vocabulary axis `archive_reproduction`.
 
-detect     현재 출처 변경 감지 — fetch each recorded URL now and compare with the last observation:
+detect     현재 출처 변경 감지 — fetch permitted recorded URLs and compare with the last observation:
            a different document is a new version candidate to archive and review. It never
            replaces the past original and never turns a past reproduction into a failure.
            Status codes: vocabulary axis `source_change`. For HTML the content hash
            (tools/html_content_hash.py, rule html-visible-text-v2) is an auxiliary signal; equal
            content with different bytes is `bytes_changed_content_same`, never byte identity.
+           Survey-recorded robots disallows are held without a request, reported as
+           `fetch_failed` with detail `robots_disallow`, and keep the run nonzero.
 
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a
 cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: hashed and
@@ -38,6 +40,7 @@ import sys
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -336,6 +339,26 @@ def cmd_reproduce(args):
 
 
 MAX_FETCH_BYTES = 256 * 1024 * 1024  # ~8x the largest recorded sample (32 MB); a bigger body is not a filing PDF/HTML
+# Conservative hold from the 2026-10-10 survey, not a live robots.txt observation.
+# Removing a hold requires reviewing the recorded policy; detect never overrides it.
+ROBOTS_DISALLOWED_HOSTS = frozenset({"pub.insure.or.kr"})
+ROBOTS_POLICY_SOURCE = "docs/research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패"
+
+
+class RobotsDisallowed(Exception):
+    """A source is held by a survey-recorded robots.txt disallow; no request is sent."""
+
+
+def check_recorded_robots_policy(url):
+    host = (urllib.parse.urlsplit(url).hostname or "").lower().rstrip(".")
+    if host in ROBOTS_DISALLOWED_HOSTS:
+        raise RobotsDisallowed(f"robots_disallow: {host}: User-agent: *; Disallow: /; {ROBOTS_POLICY_SOURCE}")
+
+
+class PolicyRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        check_recorded_robots_policy(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 class FetchTooLarge(Exception):
@@ -359,10 +382,12 @@ def read_capped(r, max_bytes):
 
 
 def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES):
+    check_recorded_robots_policy(url)
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (onjeon source change detection)"})
+    opener = urllib.request.build_opener(PolicyRedirectHandler())
     for i in range(attempts):
         try:
-            with urllib.request.urlopen(req, timeout=120) as r:
+            with opener.open(req, timeout=120) as r:
                 return read_capped(r, max_bytes), r.headers.get_content_type()
         except urllib.error.HTTPError:
             raise  # an HTTP status is an answer, not a network error
@@ -380,6 +405,12 @@ def cmd_detect(args):
         sid = r["sample_id"]
         res = {"sample_id": sid, "url": r["url"], "baseline_sha256": r["sha256"], "observed_at": now()}
         try:
+            check_recorded_robots_policy(r["url"])
+        except RobotsDisallowed as e:
+            res.update(status="fetch_failed", detail=str(e))
+            results.append(res)
+            continue
+        try:
             dest = sa.confined_path(out, r["cache_path"])
         except sa.UnsafeCachePath as e:
             res.update(status="unsafe_cache_path", detail=str(e)[:200])  # not fetched, not written; exit 1
@@ -387,6 +418,10 @@ def cmd_detect(args):
             continue
         try:
             body, ctype = fetch(r["url"])
+        except RobotsDisallowed as e:
+            res.update(status="fetch_failed", detail=str(e))
+            results.append(res)
+            continue
         except FetchTooLarge as e:
             res.update(status="fetch_failed", detail=f"too_large: {e}"[:200])
             results.append(res)

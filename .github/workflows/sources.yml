@@ -71,11 +71,6 @@ jobs:
     concurrency: { group: r2-budget, cancel-in-progress: false }
     timeout-minutes: 120
     env:
-      ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}
-      R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}
-      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}
-      R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}
-      R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
       JOB: infra/r2/jobs/initial-119.json
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -86,7 +81,14 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/venv"
           "$RUNNER_TEMP/venv/bin/pip" install --quiet pdfplumber==0.11.10 boto3==1.43.100
           echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      # Only archive consumers receive R2 secrets. Installers and actions do not.
       - name: Every archived key matches the pinned listing
+        env:
+          ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}
+          R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}
+          R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
         run: |
           L=docs/blueprint/validation/source_checks
           python3 -I tools/source_archive.py --job "$JOB" verify-copy --expected $L/archive_listing_raw.json \
@@ -95,6 +97,12 @@ jobs:
             --dst "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" --report "$RUNNER_TEMP/listing_derived.json"
       - name: Reproduce from the archive
         if: always()
+        env:
+          ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}
+          R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}
+          R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
         run: |
           python3 -I tools/verify_sources.py --job "$JOB" reproduce --raw "s3://${{ vars.ONJEON_RAW_BUCKET }}" \
             --derived "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" ${{ inputs.ocr && '--ocr' || '--allow-unverified' }} \

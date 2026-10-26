@@ -1,0 +1,12 @@
+Parent HEAD: 5e77d80961c591f9dd7801fa7d0ebd6ccce80edd
+.github/workflows/ci.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/ci.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/sources.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/sources.yml: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+.github/workflows/sources.yml: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/sources.yml: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+ci.yml: read-only permissions and checkout credential policy pass; unchanged from HEAD
+sources.yml: scripts, action refs, gates, OCR, conditions, concurrency and report paths unchanged
+git diff --check: pass
+Protected originals: no changes
+Audit and CI README local links: pass

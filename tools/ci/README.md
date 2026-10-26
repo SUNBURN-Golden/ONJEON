@@ -45,6 +45,15 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 
 ## CI wiring
 
+R2 workflow credential scope is guarded by `tools/tests/test_workflow_secret_scope.py`,
+discovered by the existing Python unit-test step. The endpoint, verifier credentials
+and ledger credentials must appear only in the step-level `env` of the two archive
+consumers in `sources.yml`. Mutations cover workflow/job scope, installer/action/other-job
+exposure and missing, duplicate or incorrect bindings. This stdlib contract test expects
+the current block-style step/env layout; it is not a general YAML parser. Existing
+`test_workflow_pins.py` and `test_workflow_check.py` guard full action SHAs and `ci.yml`'s
+read-only token permissions. [Audit 2 evidence](../../docs/blueprint/audits/2026-10-26_ci_secrets_step_scope.md).
+
 The §11 decision-index guard runs through `tools/tests/test_blueprint_status.py`
 in the existing Python unit-test CI step. On every ADR/DEC addition, edit,
 removal or rename, review the affected §11 status/gate rows, then run

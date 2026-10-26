@@ -1,0 +1,18 @@
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.28s
+     Running tests/real_clauses.rs (target/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 11 tests
+test screen_check_catches_tampered_numbers ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test waiting_period_units_are_not_interchangeable ... ok
+test every_real_clause_case_matches ... ok
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... ok
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+test exact_case_count_check_catches_an_unexpected_extra_case - should panic ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test exact_case_count_check_catches_each_missing_file ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s

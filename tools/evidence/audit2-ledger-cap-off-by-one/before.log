@@ -1,0 +1,74 @@
+Regression tests against HEAD implementation loaded in memory; no worktree files changed.
+test_100_records_refuse_reservation_before_record_get_or_put (test_r2_budget.LedgerRecordCap.test_100_records_refuse_reservation_before_record_get_or_put) ... FAIL
+test_99_records_allow_read_and_the_100th_write (test_r2_budget.LedgerRecordCap.test_99_records_allow_read_and_the_100th_write) ... ok
+test_append_refuses_records_101_and_102_before_put (test_r2_budget.LedgerRecordCap.test_append_refuses_records_101_and_102_before_put) ... 
+  test_append_refuses_records_101_and_102_before_put (test_r2_budget.LedgerRecordCap.test_append_refuses_records_101_and_102_before_put) (next_seq=101) ... FAIL
+  test_append_refuses_records_101_and_102_before_put (test_r2_budget.LedgerRecordCap.test_append_refuses_records_101_and_102_before_put) (next_seq=102) ... FAIL
+test_append_refuses_records_101_and_102_before_put (test_r2_budget.LedgerRecordCap.test_append_refuses_records_101_and_102_before_put) ... FAIL
+test_race_for_last_slot_rechecks_cap_before_retrying (test_r2_budget.LedgerRecordCap.test_race_for_last_slot_rechecks_cap_before_retrying) ... FAIL
+test_session_at_98_records_reserves_and_settles_to_100 (test_r2_budget.LedgerRecordCap.test_session_at_98_records_reserves_and_settles_to_100) ... ok
+test_session_at_99_records_keeps_reservation_in_full_when_settlement_hits_cap (test_r2_budget.LedgerRecordCap.test_session_at_99_records_keeps_reservation_in_full_when_settlement_hits_cap) ... FAIL
+
+======================================================================
+FAIL: test_100_records_refuse_reservation_before_record_get_or_put (test_r2_budget.LedgerRecordCap.test_100_records_refuse_reservation_before_record_get_or_put)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/tools/tests/test_r2_budget.py", line 276, in test_100_records_refuse_reservation_before_record_get_or_put
+    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_append_refuses_records_101_and_102_before_put (test_r2_budget.LedgerRecordCap.test_append_refuses_records_101_and_102_before_put) (next_seq=101)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/tools/tests/test_r2_budget.py", line 287, in test_append_refuses_records_101_and_102_before_put
+    with self.assertRaisesRegex(b.BudgetError, "checkpoint before writing"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_append_refuses_records_101_and_102_before_put (test_r2_budget.LedgerRecordCap.test_append_refuses_records_101_and_102_before_put) (next_seq=102)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/tools/tests/test_r2_budget.py", line 287, in test_append_refuses_records_101_and_102_before_put
+    with self.assertRaisesRegex(b.BudgetError, "checkpoint before writing"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_append_refuses_records_101_and_102_before_put (test_r2_budget.LedgerRecordCap.test_append_refuses_records_101_and_102_before_put)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/tools/tests/test_r2_budget.py", line 289, in test_append_refuses_records_101_and_102_before_put
+    put.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'put_new' to not have been called. Called 2 times.
+Calls: [call('ledger/v1/0000000101.json', b'{\n "kind": "settlement",\n "policy_sha256": "84be6e8e9ff5fbf676d502d7257a50f136af05b244b728c7a0fc5eb22e8c6b1c",\n "prev_sha256": "7f4b80f24aa93cb25039477fc60ea28c32adb9bb7b04f68c72e73eea927e9de3",\n "seq": 101\n}\n', 'application/json'),
+ call('ledger/v1/0000000102.json', b'{\n "kind": "settlement",\n "policy_sha256": "84be6e8e9ff5fbf676d502d7257a50f136af05b244b728c7a0fc5eb22e8c6b1c",\n "prev_sha256": "7f4b80f24aa93cb25039477fc60ea28c32adb9bb7b04f68c72e73eea927e9de3",\n "seq": 102\n}\n', 'application/json')].
+
+======================================================================
+FAIL: test_race_for_last_slot_rechecks_cap_before_retrying (test_r2_budget.LedgerRecordCap.test_race_for_last_slot_rechecks_cap_before_retrying)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/tools/tests/test_r2_budget.py", line 337, in test_race_for_last_slot_rechecks_cap_before_retrying
+    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_session_at_99_records_keeps_reservation_in_full_when_settlement_hits_cap (test_r2_budget.LedgerRecordCap.test_session_at_99_records_keeps_reservation_in_full_when_settlement_hits_cap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/tools/tests/test_r2_budget.py", line 313, in test_session_at_99_records_keeps_reservation_in_full_when_settlement_hits_cap
+    self.assertEqual(settled, {"settlement_failed": "BudgetError"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'format': 'onjeon-budget-ledger-v1', 'kind[553 chars]b1c'} != {'settlement_failed': 'BudgetError'}
+Diff is 941 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.086s
+
+FAILED (failures=6)

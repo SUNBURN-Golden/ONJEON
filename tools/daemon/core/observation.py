@@ -346,7 +346,10 @@ def settle(core, d, task_id):
 
 # ---------------------------------------------------------------- prerequisites and start gates
 def _prereqs(core, d, task_id):
-    """blocked -> queued: every prerequisite task in post_merge_states and decision_gates.start recorded (04 §2.2)."""
+    """blocked -> queued: every prerequisite task in post_merge_states and decision_gates.start recorded (04 §2.2).
+    The prerequisites are checked here; the start gate is the row's cond (task.decision_gates.start subset_of
+    task_state.decisions_recorded), so an unrecorded or missing start list keeps the task blocked and leaves a
+    cond_not_met diagnostic that names the gate (audit1-start-gates-enforcement)."""
     _sync_decisions(d)
     if _state(d, task_id) != "blocked":
         return None
@@ -355,9 +358,6 @@ def _prereqs(core, d, task_id):
     for pre in task.get("prereq_tasks") or []:
         if pre not in d["tasks"] or _state(d, pre) not in post:
             return None
-    start = (task.get("decision_gates") or {}).get("start") or []
-    if not set(start) <= set(d["tasks"][task_id]["task_state"]["decisions_recorded"]):
-        return None
     return _apply(core, d, task_id, "prereqs_satisfied", {})
 
 

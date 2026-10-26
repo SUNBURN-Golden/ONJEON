@@ -338,7 +338,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-10-26 | SHA-256(파일명·내용): `19ebd591a4b680bc08f430130d2366804ae87c967a841cbf005de40634f6324a`
+결정 기록 대조일: 2026-10-26 | SHA-256(파일명·내용): `0284e046042828357b6db67c45c68504453f1050f17ccd675cd2e38ec617a46f`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|

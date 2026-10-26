@@ -44,11 +44,24 @@ class Provider(unittest.TestCase):
         self.assertEqual(sa.provider_of("http://127.0.0.1:5000"), "emulator")
 
     def test_r2_requires_https(self):
-        with self.assertRaises(SystemExit):
-            sa.provider_of(R2.replace("https", "http"))
+        for endpoint in (R2, R2 + ".", R2.upper() + ".:443/"):
+            with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "must be https"):
+                sa.provider_of(endpoint.lower().replace("https", "http", 1))
+
+    def test_r2_hostname_normalization(self):
+        for endpoint in (R2 + ".", R2.upper() + ".", R2 + ".:443/",
+                         R2 + ".:443/path?query=value", R2.replace(".r2.", ".eu.r2.") + "."):
+            with self.subTest(endpoint=endpoint):
+                self.assertEqual(sa.provider_of(endpoint), "r2")
 
     def test_lookalike_host_is_not_r2(self):
-        self.assertEqual(sa.provider_of("https://x.r2.cloudflarestorage.com.evil.example"), "emulator")
+        for endpoint in ("https://x.r2.cloudflarestorage.com.evil.example",
+                         "https://x.r2.cloudflarestorage.com.evil.example.",
+                         "https://x.notr2.cloudflarestorage.com.",
+                         "https://example.invalid/x.r2.cloudflarestorage.com.",
+                         "https://example.invalid/?endpoint=" + R2 + "."):
+            with self.subTest(endpoint=endpoint):
+                self.assertEqual(sa.provider_of(endpoint), "emulator")
 
 
 @unittest.skipUnless(HAVE_BOTO, "boto3 not installed")
@@ -82,22 +95,31 @@ class R2Store(unittest.TestCase):
 
     def test_no_budget_session_sends_nothing(self):
         r2_budget.ACTIVE = None
-        with mock.patch.dict(os.environ, FAKE, clear=False):
-            with self.assertRaises(SystemExit) as cm:
-                sa.S3Store("s3://onjeon-raw-sources", R2)
-        self.assertIn("budget job", str(cm.exception))
+        for endpoint in (R2, R2 + ".", R2.upper() + ".:443/"):
+            for from_env in (False, True):
+                with self.subTest(endpoint=endpoint, from_env=from_env), \
+                        mock.patch.dict(os.environ, {**FAKE, "ONJEON_S3_ENDPOINT": endpoint}), \
+                        mock.patch.object(boto3, "client") as client:
+                    with self.assertRaisesRegex(SystemExit, "r2 access needs a budget job"):
+                        sa.S3Store("s3://onjeon-raw-sources", None if from_env else endpoint)
+                    client.assert_not_called()
 
     def test_missing_r2_credentials_never_fall_back_to_aws_chain(self):
         env = {k: "" for k in FAKE}
-        with mock.patch.dict(os.environ, env, clear=False):
-            with self.assertRaises(SystemExit):
-                sa.S3Store("s3://onjeon-raw-sources", R2)
+        for endpoint in (R2, R2 + "."):
+            with self.subTest(endpoint=endpoint), mock.patch.dict(os.environ, env, clear=False), \
+                    mock.patch.object(boto3, "client") as client:
+                with self.assertRaisesRegex(SystemExit, "R2 endpoint selected but"):
+                    sa.S3Store("s3://onjeon-raw-sources", endpoint)
+                client.assert_not_called()
 
     def test_endpoint_from_environment(self):
-        with mock.patch.dict(os.environ, {**FAKE, "ONJEON_S3_ENDPOINT": R2}, clear=False):
-            st = sa.S3Store("s3://onjeon-raw-sources")
-        self.assertEqual(st.provider, "r2")
-        self.assertEqual(st.s3.meta.region_name, "auto")
+        for endpoint in (R2, R2.upper() + ".:443/"):
+            with self.subTest(endpoint=endpoint), \
+                    mock.patch.dict(os.environ, {**FAKE, "ONJEON_S3_ENDPOINT": endpoint}, clear=False):
+                st = sa.S3Store("s3://onjeon-raw-sources")
+                self.assertEqual(st.provider, "r2")
+                self.assertEqual(st.s3.meta.region_name, "auto")
 
     def expected_put(self, body, sse):
         p = {"Bucket": "onjeon-raw-sources", "Key": "k", "Body": body, "ContentType": "text/plain",
@@ -107,11 +129,13 @@ class R2Store(unittest.TestCase):
         return p
 
     def test_r2_put_is_conditional_and_has_no_sse_header(self):
-        st = self.store()
-        with Stubber(st.s3) as stub:
-            stub.add_response("put_object", {}, self.expected_put(b"x", sse=False))
-            st.put_new("k", b"x", "text/plain")
-            stub.assert_no_pending_responses()
+        for endpoint in (R2, R2 + "."):
+            with self.subTest(endpoint=endpoint):
+                st = self.store(endpoint)
+                with Stubber(st.s3) as stub:
+                    stub.add_response("put_object", {}, self.expected_put(b"x", sse=False))
+                    st.put_new("k", b"x", "text/plain")
+                    stub.assert_no_pending_responses()
 
     def test_aws_put_keeps_sse(self):
         with mock.patch.dict(os.environ, {"AWS_ACCESS_KEY_ID": "a", "AWS_SECRET_ACCESS_KEY": "b"}, clear=False):

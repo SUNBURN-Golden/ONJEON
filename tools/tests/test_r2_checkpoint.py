@@ -77,6 +77,7 @@ class LedgerFixture(base.Fixture):
     def runs(self, n, ledger=None, settle=True, first=0, at=None, job_id="t", month=MONTH):
         """n runs appended directly (reserve, then settle). Returns the run ids."""
         ledger = ledger or self.ledger
+        ledger.load_base()
         count, prev = ledger.tail() if self.ledger_store.list(b.LEDGER_PREFIX) else (0, None)
         ids = []
         for i in range(first, first + n):
@@ -197,7 +198,7 @@ class Reads(LedgerFixture):
         self.runs(3)
         records, _ = self.fresh().read()
         self.assertEqual(len(records), 6)
-        self.runs(48, first=3)
+        self.runs(47, first=3)                           # exactly 100 records
         with self.assertRaises(b.BudgetError) as cm:
             self.fresh().read()
         self.assertIn("checkpoint before running", str(cm.exception))
@@ -244,10 +245,34 @@ class Reads(LedgerFixture):
     def test_record_limit_applies_after_the_checkpoint(self):
         self.runs(49)
         self.checkpoint()
-        self.runs(51, first=49)                          # 102 more records
+        self.runs(50, first=49)                          # exactly 100 more records
         with self.assertRaises(b.BudgetError) as cm:
             self.fresh().read()
         self.assertIn("after the last checkpoint", str(cm.exception))
+
+    def test_append_limit_uses_checkpoint_offset_and_audit_can_read_full_history(self):
+        self.runs(49)
+        self.checkpoint()                              # checkpoint covers records 1..98
+        self.runs(49, first=49)                         # 98 more records
+        led = self.fresh()
+        records, prev = led.read()
+        self.assertEqual((led.base_seq, len(records)), (98, 98))
+        rec, _, _ = b.reserve(led, self.policy, self.job, "last", MONTH, [])
+        self.assertEqual(rec["seq"], 197)                # 99 after checkpoint
+        count, prev = led.tail()
+        last, prev = led.append({"kind": "settlement", "job_id": "t", "run_id": "last",
+                                 "reservation_seq": rec["seq"], "at": b.stamp(),
+                                 "amounts": amounts(class_a=1)}, count, prev)
+        self.assertEqual(last["seq"], 198)               # 100 after checkpoint
+        with mock.patch.object(self.ledger_store, "put_new") as put:
+            with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+                led.append({"kind": "reservation"}, 198, prev)
+        put.assert_not_called()
+        with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+            self.fresh().read()
+        full, _ = self.fresh().read(full=True)
+        self.assertEqual(len(full), 198)
+        self.assertEqual(b.audit_checkpoints(self.fresh())["records"], 198)
 
     def test_listing_follows_full_blocks(self):
         def fake(keys):
@@ -268,6 +293,22 @@ class Reads(LedgerFixture):
         led2.base, led2.base_seq = {"tail_sha256": "x"}, 10
         self.assertEqual(len(led2._segment_keys()), 4)
         self.assertEqual(led2.st.lists, [f"{b.LEDGER_PREFIX}0000000"])
+
+    def test_audit_preserves_session_checkpoint_offset_for_settlement(self):
+        self.runs(49)
+        self.checkpoint()                              # checkpoint at 98
+        self.runs(30, first=49)                         # tail at 158, 60 after checkpoint
+        session = b.Session(self.job_path, ledger_store=self.ledger_store,
+                            policy_path=self.policy_path, gate_dir=self.gate_dir)
+        session.open()
+        try:
+            result = b.audit_checkpoints(session.ledger)
+            self.assertEqual(result["records"], 159)
+            self.assertEqual(session.ledger.base_seq, 98)
+        finally:
+            settled = session.settle("ok")
+        self.assertEqual(settled["seq"], 160)
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 160)
 
     def test_listing_stops_when_the_tail_ends_at_a_block_boundary(self):
         # "Full" is judged from the block just listed, not from the accumulated keys: a tail ending at

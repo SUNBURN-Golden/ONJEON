@@ -1,0 +1,15 @@
+PASS: all changed/new paths are within docs/blueprint/ or packages/rules-engine/.
+PASS: protected paths unchanged against HEAD.
+PASS: git diff --check.
+PASS: local Markdown link targets in the audit note and engine README exist.
+docs/blueprint/audits/2026-10-26_engine_all_any_lazy_error.md
+packages/rules-engine/README.md
+packages/rules-engine/evidence/audit2-all-any-errors/before.log
+packages/rules-engine/evidence/audit2-all-any-errors/clippy.log
+packages/rules-engine/evidence/audit2-all-any-errors/fmt.log
+packages/rules-engine/evidence/audit2-all-any-errors/focused.log
+packages/rules-engine/evidence/audit2-all-any-errors/soundness-before.log
+packages/rules-engine/evidence/audit2-all-any-errors/workspace.log
+packages/rules-engine/src/eval.rs
+packages/rules-engine/tests/all_any_errors.rs
+packages/rules-engine/tests/soundness.rs

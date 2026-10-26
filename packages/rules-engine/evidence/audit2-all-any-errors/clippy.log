@@ -1,0 +1,24 @@
+    Checking serde_core v1.0.229
+    Checking typenum v1.20.1
+    Checking memchr v2.8.3
+    Checking zmij v1.0.23
+    Checking itoa v1.0.18
+    Checking cpufeatures v0.2.17
+    Checking cfg-if v1.0.5
+    Checking libc v0.2.190
+    Checking generic-array v0.14.7
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+    Checking serde v1.0.229
+    Checking serde_json v1.0.151
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.96s

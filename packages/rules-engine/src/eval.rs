@@ -315,10 +315,10 @@ fn eval(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalError> {
     Ok(out)
 }
 
-/// Evaluates a branch whose selection is still undecided. A failure is returned instead of
-/// aborting the rule, and its partial trace is replaced by one `error:` entry so the trace
-/// shows why the branch contributed nothing.
-fn eval_untaken(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalError> {
+/// Evaluates a child whose relevance is still undecided. The caller combines results before
+/// deciding whether a failure aborts the rule. A failed child's partial trace is replaced by
+/// one `error:` entry so an absorbed error remains visible.
+fn eval_deferred(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalError> {
     let mark = ctx.trace.len();
     let out = eval(expr, path, ctx);
     if let Err(err) = &out {
@@ -346,13 +346,29 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
         Expr::All(children) | Expr::Any(children) => {
             let is_all = matches!(expr, Expr::All(_));
             let mut evs = Vec::with_capacity(children.len());
-            for (i, c) in children.iter().enumerate() {
-                evs.push(eval(c, &format!("{path}.{}[{i}]", expr.op_name()), ctx)?);
-            }
             let mut acc = if is_all { Tri::True } else { Tri::False };
-            for (i, e) in evs.iter().enumerate() {
-                let t = to_tri(e, &format!("{path}[{i}]"))?;
-                acc = if is_all { acc.and(t) } else { acc.or(t) };
+            let decisive = if is_all { Tri::False } else { Tri::True };
+            let mut first_error = None;
+            for (i, c) in children.iter().enumerate() {
+                let out = eval_deferred(c, &format!("{path}.{}[{i}]", expr.op_name()), ctx)
+                    .and_then(|e| Ok((to_tri(&e, &format!("{path}[{i}]"))?, e)));
+                match out {
+                    Ok((t, e)) => {
+                        acc = if is_all { acc.and(t) } else { acc.or(t) };
+                        evs.push(e);
+                    }
+                    Err(err) => {
+                        first_error.get_or_insert(err);
+                    }
+                }
+            }
+            // false AND anything / true OR anything is decided, even if another child
+            // failed. Defer errors until all successes are combined so order cannot
+            // hide a decisive child. Otherwise the first error still matters.
+            if acc != decisive {
+                if let Some(err) = first_error {
+                    return Err(err);
+                }
             }
             Ok(from_tri(acc, union_unknown(&evs)))
         }
@@ -399,8 +415,8 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
                 Tri::Unknown => {
                     let then_path = format!("{path}.then");
                     let else_path = format!("{path}.else");
-                    let a = eval_untaken(t, &then_path, ctx);
-                    let b = eval_untaken(e, &else_path, ctx);
+                    let a = eval_deferred(t, &then_path, ctx);
+                    let b = eval_deferred(e, &else_path, ctx);
                     // An error in a branch only matters if that branch is taken, and the
                     // condition is undecided. If both branches fail the rule fails either
                     // way, so that error is real; otherwise the failed branch is unknown.

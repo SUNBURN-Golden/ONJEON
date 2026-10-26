@@ -1,0 +1,51 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-all-any-lazy-error/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.00s
+     Running tests/all_any_errors.rs (target/debug/deps/all_any_errors-13afaee0138aa697)
+
+running 4 tests
+test absorbed_errors_have_deterministic_trace_entries_without_partial_children ... FAILED
+test unknown_children_keep_their_blockers_without_defaulting_to_a_decision ... ok
+test decisive_result_wins_over_errors_and_unknowns_in_every_child_order ... FAILED
+test errors_are_preserved_without_a_decisive_child ... ok
+
+failures:
+
+---- absorbed_errors_have_deterministic_trace_entries_without_partial_children stdout ----
+
+thread 'absorbed_errors_have_deterministic_trace_entries_without_partial_children' (124960) panicked at packages/rules-engine/tests/all_any_errors.rs:102:41:
+called `Result::unwrap()` on an `Err` value: DateOutOfRange { path: "eligibility.all[0].eq[0]" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- decisive_result_wins_over_errors_and_unknowns_in_every_child_order stdout ----
+
+thread 'decisive_result_wins_over_errors_and_unknowns_in_every_child_order' (124961) panicked at packages/rules-engine/tests/all_any_errors.rs:48:49:
+called `Result::unwrap()` on an `Err` value: DateOutOfRange { path: "eligibility.all[1].eq[0]" }
+
+
+failures:
+    absorbed_errors_have_deterministic_trace_entries_without_partial_children
+    decisive_result_wins_over_errors_and_unknowns_in_every_child_order
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test all_any_errors`

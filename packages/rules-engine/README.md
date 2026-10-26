@@ -17,7 +17,7 @@
 - 자격(`eligibility`)이 모름일 때 금액 계산이 실패하면 `undetermined{conditional_amount: unknown}`과 자격의 누락 입력을 반환하고 오류를 trace에 기록한다. 계산에 성공한 조건부 금액과 금액의 누락 입력은 유지하며, 자격이 참이면 금액 오류를 그대로 반환하고 거짓이면 금액을 평가하지 않는다. [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-26_engine_unknown_elig_amount_error.md).
 - `all`/`any`는 자식의 성공 결과를 결합한 뒤 오류를 전파할지 정한다. `all`에 거짓 또는 `any`에 참이 하나라도 있으면 자식 순서와 관계없이 그 값으로 확정되고, 다른 자식의 오류·모름은 결론을 막지 않는다(blocker 없음). 확정하는 자식이 없으면 첫 오류를 그대로 반환한다(모름인 자식이 있어도 동일). 모든 자식을 평가해 기존 trace를 유지하며, 흡수한 오류는 해당 자식의 부분 trace 대신 `error: ...` 항목으로 남는다.
 - 반올림 미지정으로 생긴 금액 범위는 이후 `multiply_rate`, `add`, `min`, `max`, `apply_cap`에서 하한·상한을 각각 계산해 이어진다.
-- 날짜는 1900-01-01~2199-12-31만 지원한다. `date_add` 기간은 로드 단계에서 제한(일 110,000, 월 3,600, 년 300)되고, 계산 결과가 범위를 벗어나면 오버플로 대신 `DateOutOfRange` 오류를 낸다.
+- 날짜는 ASCII 숫자로 된 `YYYY-MM-DD` 형식의 1900-01-01~2199-12-31만 지원한다. 규칙 리터럴과 평가 입력 모두 `2024-+2-+9` 같은 부호 포함 날짜를 거부한다. `date_add` 기간은 로드 단계에서 제한(일 110,000, 월 3,600, 년 300)되고, 계산 결과가 범위를 벗어나면 오버플로 대신 `DateOutOfRange` 오류를 낸다.
 
 ## rule-0.2 (T-TW-02)
 
@@ -59,6 +59,7 @@
 | `static_types` | 로드 단계 타입 검사: 감사 예시 두 건, 연산자별 거부와 오류 경로, 올바른 타입은 그대로 로드·평가 |
 | `range_comparisons` | Audit 2의 `p=201` 사례, 두 DSL 버전·비교 6종·양쪽 피연산자의 범위 거부, 모든 금액 연산과 `if`의 범위 전파, 정확한 금액 비교·범위 출력·모름 보존, `pro_rata` 비율 인자의 정확한 금액 제약. [검증 증거](../../docs/blueprint/audits/2026-10-26_engine_range_compare_static.md) |
 | `loader_and_arith` | 반올림 모드, 상한, `days_between` 포함 여부·역순 날짜 거부, 달력 연산, 로더 거부 규칙. 두 DSL 버전·날짜 단위 전체에서 `date_add` 미지원 키·필수 키 대체·미선택 가지의 잘못된 파라미터 거부와 정상 달력 계산을 검증([Audit 2 증거](../../docs/blueprint/audits/2026-10-26_engine_date_add_unknown_keys.md)) |
+| `date_format`·날짜 단위 시험 | 두 DSL 버전의 날짜 리터럴·평가 입력에서 선행 `+` 거부, 숫자 위치별 비숫자 거부, 정상 형식·윤일·지원 경계 보존. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_parse_date_plus_sign.md) |
 | `identity_evidence` | 두 DSL 버전·모든 공개 상태·두 로드 진입점에서 빈/공백 ID·근거와 인접/비인접 중복 근거 거부, 오류 경로, 픽스처만 빈 근거 목록 허용, 정상 ID·근거 순서·해시·결과 보존. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_empty_ids_evidence.md) |
 | `unknown_branch_errors` | 조건이 모름일 때 가지의 오류가 모름+blocker가 되는지, 선택된 가지·양쪽 가지의 오류는 유지되는지, trace 기록 |
 | `all_any_errors` | 날짜 범위·오버플로·타입 오류와 모름을 포함한 자식 순서 6종에서 확정 결과 유지, 확정 자식이 없을 때 오류 전파, 모름의 blocker, 흡수 오류 trace·직렬화 재현성. `soundness`에도 오류를 내는 입력을 숨겨도 독립적인 확정 결과가 유지되는 회귀 시험 추가. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_all_any_lazy_error.md) |

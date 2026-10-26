@@ -1,0 +1,55 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-parse-date-plus-sign/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
+
+running 9 tests
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test date::tests::parse_date_preserves_canonical_dates_and_calendar_validation ... ok
+test date::tests::month_end_clamps ... ok
+test date::tests::roundtrip_and_known_dates ... ok
+test date::tests::parse_date_rejects_non_digits_in_every_component ... ok
+test tri::tests::truth_table_matches_spec_49_3 ... ok
+test value::tests::rate_parsing ... ok
+test rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text ... ok
+test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/date_format.rs (target/debug/deps/date_format-c73c2d489faeeeca)
+
+running 3 tests
+test signed_date_literals_are_rejected_at_load ... ok
+test signed_date_inputs_are_rejected_at_evaluation ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/identity_evidence.rs (target/debug/deps/identity_evidence-61b825b05ec1fee8)
+
+running 5 tests
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test blank_rule_ids_are_rejected ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-581a38e2763dfe88)
+
+running 13 tests
+test date_add_never_assumes_365_days_per_year ... ok
+test cap_min_max_add_with_ranges ... ok
+test date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches ... ok
+test date_add_params_are_a_closed_key_set ... ok
+test date_add_exact_key_sets_preserve_calendar_results ... ok
+test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
+test date_add_required_keys_cannot_be_replaced_by_unknown_keys ... ok
+test loader_enforces_rule_level_invariants ... ok
+test days_between_inclusivity_is_explicit ... ok
+test loader_rejects_everything_outside_the_allow_list ... ok
+test days_between_rejects_reversed_dates_for_every_inclusivity ... ok
+test rounding_to_unit ... ok
+test rounding_modes_are_explicit_and_exact ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

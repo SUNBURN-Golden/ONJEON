@@ -215,12 +215,12 @@ class CliDependencies(unittest.TestCase):
                 out = Path(d) / "downloads"
                 report = Path(d) / "report.json"
                 fetch = mock.Mock(side_effect=response) if isinstance(response, Exception) else \
-                    mock.Mock(return_value=(response, "application/pdf"))
+                    mock.Mock(return_value=(response, "application/pdf", row["url"]))
                 with mock.patch.object(vs, "rows", return_value=[row]), \
                         mock.patch.object(vs, "fetch", fetch):
                     code, _ = self.run_main(["detect", "--out", str(out), "--report", str(report)])
                 self.assertEqual(code, expected_code)
-                fetch.assert_called_once_with(row["url"])
+                fetch.assert_called_once_with(row["url"], expected_format=row["format"])
                 doc = json.loads(report.read_text())
                 self.assertEqual(doc["check"], "detect")
                 self.assertEqual(doc["summary"], {status: 1})
@@ -280,11 +280,11 @@ class DetectExit(unittest.TestCase):
         rows = [self.html_row("unused", b"x")]
         calls = {"n": 0}
 
-        def fetch(url):
+        def fetch(url, **kwargs):
             calls["n"] += 1
             if calls["n"] == 1:
                 raise OSError("blocked")
-            return b"other bytes", "application/pdf"
+            return b"other bytes", "application/pdf", url
         with mock.patch.object(vs, "rows", return_value=rows):
             code, summary = self.run_detect(fetch)
         self.assertEqual(code, 1)
@@ -293,7 +293,7 @@ class DetectExit(unittest.TestCase):
 
     def test_changed_sources_are_a_successful_observation(self):
         with mock.patch.object(vs, "rows", return_value=[self.html_row("unused", b"x")]):
-            code, summary = self.run_detect(lambda url: (b"other bytes", "application/pdf"))
+            code, summary = self.run_detect(lambda url, **kw: (b"other bytes", "text/html", url))
         self.assertEqual(code, 0)
         self.assertNotIn("fetch_failed", summary)
 
@@ -353,7 +353,7 @@ class DetectExit(unittest.TestCase):
         from unittest import mock
         row = self.html_row(rule, before)
         with mock.patch.object(vs, "rows", return_value=[row]):
-            return self.run_detect(lambda url: (after, "text/html"))[1]
+            return self.run_detect(lambda url, **kw: (after, "text/html", url))[1]
 
     def test_current_rule_hash_reports_bytes_changed_content_same(self):
         import html_content_hash as hch
@@ -387,7 +387,7 @@ class RecordedRobotsPolicy(unittest.TestCase):
                                       endpoint_url=None)
             store = mock.Mock()
             with mock.patch.object(vs.sa, "store", return_value=store), \
-                    mock.patch.object(vs, "fetch", return_value=(b"changed", "text/html")) as fetch, \
+                    mock.patch.object(vs, "fetch", side_effect=lambda url, **kw: (b"changed", "text/html", url)) as fetch, \
                     mock.patch.object(vs.sa, "put_raw", return_value=("key", "new")) as put_raw, \
                     mock.patch.object(vs.sa, "put_observation", return_value=("obs", "new")) as put_obs, \
                     mock.patch("sys.stdout", new_callable=io.StringIO):
@@ -471,6 +471,11 @@ class FetchSizeCap(unittest.TestCase):
             import io
             self.buf, self.reads = io.BytesIO(data), 0
             self.headers = mock_headers(length)
+            self.headers["Content-Type"] = "application/pdf"
+            self.status = 200
+
+        def geturl(self):
+            return "https://example.org/x"
 
         def read(self, n=-1):
             self.reads += 1
@@ -491,8 +496,8 @@ class FetchSizeCap(unittest.TestCase):
             return vs.fetch("https://example.org/x", max_bytes=max_bytes)
 
     def test_body_at_the_cap_is_returned(self):
-        body, ctype = self.fetch_with(self.Resp(b"x" * 10), 10)
-        self.assertEqual((body, ctype), (b"x" * 10, "application/pdf"))
+        body, ctype, final_url = self.fetch_with(self.Resp(b"%PDF-12345"), 10)
+        self.assertEqual((body, ctype, final_url), (b"%PDF-12345", "application/pdf", "https://example.org/x"))
 
     def test_streamed_body_over_the_cap_is_refused(self):
         resp = self.Resp(b"x" * 100)

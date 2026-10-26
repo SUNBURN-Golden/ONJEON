@@ -4849,7 +4849,10 @@
       "hard_stop.{grace_s,trigger}",
       "preserve_manifest.{function,excludes,secret_patterns}",
       "envelopes.*.required",
-      "state_integrity",
+      "state_integrity.normal_expiry.detect",
+      "state_integrity.normal_expiry.events_by_state",
+      "state_integrity.normal_expiry.events",
+      "state_integrity.corruption",
       "usage_recording",
       "return_codes[].code"
     ],

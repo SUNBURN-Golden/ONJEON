@@ -3,9 +3,9 @@ from . import lease as lease_mod, transition_engine
 
 
 def _expiry_rows(core, state):
-    """state_integrity.normal_expiry.events_by_state (G43): the expiry event of a state, if it has a row."""
+    """G43: select the state's mapped event from the structured expiry list and transition rows."""
     ev = core.rules.get("state_integrity.normal_expiry.events_by_state").get(state)
-    if ev is None:
+    if ev is None or ev not in core.rules.get("state_integrity.normal_expiry.events"):
         return []
     return [tr["event"] for tr in core.rules.transitions if tr["event"] == ev and tr["from"] == state][:1]
 

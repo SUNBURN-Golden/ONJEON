@@ -266,6 +266,74 @@ def _transition(raw, frm, event, to=None):
     return [t for t in raw["transitions"] if t["from"] == frm and t["event"] == event and (to is None or t["to"] == to)][0]
 
 
+class StructuredExpiryEvents(unittest.TestCase):
+    def expired_env(self, raw, state):
+        env = MockEnv(raw, str(TASKS))
+        if state == "building":
+            env.bring_to_building(sc.BASIC)
+        else:
+            env.start_task(sc.BASIC)
+            self.assertEqual(sc.crash_after_issue(env, sc.BASIC), "issue_lease:committed")
+        env.clock.advance(raw["concurrency"]["lease"]["heartbeat_s"] * 2)
+        return env
+
+    def test_read_list_exposes_structured_expiry_fields_without_prose(self):
+        raw = raw_rules()
+        self.assertIn("state_integrity.normal_expiry.events", raw["core_contract"]["reads"])
+        view = Rules(raw).get("state_integrity.normal_expiry")
+        self.assertEqual(set(view), {"detect", "events_by_state", "events"})
+        self.assertEqual(view["events"], raw["state_integrity"]["normal_expiry"]["events"])
+
+    def test_restart_uses_structured_events_when_path_is_changed_or_missing(self):
+        for mode in ("garble", "drop"):
+            for state, target, event in (("leased", "queued", "lease_expired"),
+                                         ("building", "returned", "heartbeat_missed_twice")):
+                with self.subTest(mode=mode, state=state):
+                    raw = raw_rules()
+                    expiry = raw["state_integrity"]["normal_expiry"]
+                    if mode == "drop":
+                        del expiry["path"]
+                    else:
+                        expiry["path"] = "unrelated prose (state_corrupted) (owner_stop)"
+                    expiry["events"].reverse()
+                    env = self.expired_env(raw, state)
+                    before = len(env.journal())
+                    sent = sc.sent_ids(env)
+                    env.restart()
+                    self.assertEqual(sc.tr(env.journal()[before:]), [(state, target, event)])
+                    self.assertEqual(env.lease(sc.BASIC)["status"], "expired")
+                    self.assertEqual(env.task(sc.BASIC)["lease_generation"], 1)
+                    self.assertEqual(sc.sent_ids(env), sent)
+                    if state == "leased":
+                        pending = env.task(sc.BASIC)["outbox"][0]
+                        self.assertEqual((pending["status"], pending["void_reason"]), ("void", "expired"))
+                    before = len(env.journal())
+                    env.restart()
+                    self.assertEqual(sc.tr(env.journal()[before:]), [])
+                    self.assertEqual(sc.sent_ids(env), sent)
+
+    def test_removing_an_event_disables_its_expiry_classification_only(self):
+        from daemon.core import recovery
+        for removed, other in (("lease_expired", "heartbeat_missed_twice"),
+                               ("heartbeat_missed_twice", "lease_expired")):
+            raw = raw_rules()
+            expiry = raw["state_integrity"]["normal_expiry"]
+            expiry["events"].remove(removed)
+            for state, event in expiry["events_by_state"].items():
+                with self.subTest(removed=removed, state=state):
+                    env = self.expired_env(raw, state)
+                    self.assertEqual(recovery.normal_expiry_due(env.core, env.snap(), sc.BASIC), event == other)
+
+    def test_missing_events_is_a_contract_error_without_prose_fallback(self):
+        from daemon.core import recovery
+        from daemon.core.ports import SpecGap
+        raw = raw_rules()
+        del raw["state_integrity"]["normal_expiry"]["events"]
+        with self.assertRaisesRegex(SpecGap, "state_integrity.normal_expiry.events"):
+            env = self.expired_env(raw, "leased")
+            recovery.normal_expiry_due(env.core, env.snap(), sc.BASIC)
+
+
 class BehaviorComesFromData(unittest.TestCase):
     """Changing one structured field must make the scenario that depends on it fail; separate hard-coded logic
     would not notice."""

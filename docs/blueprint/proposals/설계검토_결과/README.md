@@ -53,7 +53,7 @@
 |---|---|
 | [01_코드설계.md](01_코드설계.md) | 구역 책임(영역 C 판단 기준 관리 추가)·허용 의존, 기능 모듈 배정, 질문→조회→입력 단계→엔진→설명→의존 기록→필요성 판단 흐름, 재사용 범위표, 트윈 모듈, §7a 수정판 흐름 규칙 |
 | [02_구현계약.md](02_구현계약.md) | 데이터(원본·구획·본문 판·계열, 주장 통합, 릴리스 고정·사용 제한 공지, 개인 객체, **§1.5 판단 기준·적용 승인 관문, §1.6 결론별 의존·부분 보류**), API, 이벤트, 오류, 버전, 근거 문법·사슬, 개인정보 경계, 시험 전용 유지·승격 경로, C-01~C-28, **§10 구현됨/설계 구분** |
-| [03_작업명세.md](03_작업명세.md) + [tasks.json](tasks.json) | 과제 63개(T-CT-07 신설)(schema 0.3: produces/consumes, decision_gates 네 키, path_policy, final_gate, feature_registry 64(증거·수락 시험), test_profiles, required_test_ids, verification_kind) |
+| [03_작업명세.md](03_작업명세.md) + [tasks.json](tasks.json) | 과제 64개(T-CT-07 신설, audit1-ux-layer-zero-code가 T-CT-08 추가)(schema 0.3: produces/consumes, decision_gates 네 키, path_policy, final_gate, feature_registry 64(증거·수락 시험), test_profiles, required_test_ids, verification_kind) |
 | [04_자동개발명세.md](04_자동개발명세.md) + [daemon_rules.json](daemon_rules.json) | 상태 기계·사건, 결정 관문, 병합 뒤 상태, 출처 제한 전환 신호, 펜싱 토큰·격리·자격 회수(**명세됨/모의 검증 대상/실제 실행기 검증 필요** 표기), safety_verification_status |
 | [05_VM실행준비.md](05_VM실행준비.md) | CLI 확인 절차, §1b 종료 코드 확인표(전부 미확인), "확인됨" 기준, 한도, 비밀값, 모의 검증 M1~M44(T-OP-00)와 §5a 모의 코어 인터페이스, 실제 실행기 검증 R1~R22(T-OP-09) |
 | [06_검토사항_점검.md](06_검토사항_점검.md) | 검토 요청 1~8 판정, 선택안(D-05·D-09(onto-0.2 반영)·D-10·D-15·D-02 일부), 온톨로지 보강, 정본 충돌 점검 |

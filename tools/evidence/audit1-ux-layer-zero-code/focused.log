@@ -1,0 +1,18 @@
+$ python3 -I -m unittest discover -s tools/tests -p test_ux_layer_zero_code.py -v
+test_helper_rejects_against_a_completed_contract (test_ux_layer_zero_code.AmountContractState.test_helper_rejects_against_a_completed_contract) ... ok
+test_state_matches_record (test_ux_layer_zero_code.AmountContractState.test_state_matches_record) ... ok
+test_d16_is_recorded (test_ux_layer_zero_code.DecisionMatchesRepo.test_d16_is_recorded) ... ok
+test_record_does_not_call_the_contract_settled (test_ux_layer_zero_code.DecisionMatchesRepo.test_record_does_not_call_the_contract_settled) ... ok
+test_scaffold_claim_matches_apps_mobile (test_ux_layer_zero_code.DecisionMatchesRepo.test_scaffold_claim_matches_apps_mobile) ... ok
+test_canon_change_needs_approval_like_t_ct_02 (test_ux_layer_zero_code.FollowUpTask.test_canon_change_needs_approval_like_t_ct_02) ... ok
+test_feature_registry_lists_t_ct_08 (test_ux_layer_zero_code.FollowUpTask.test_feature_registry_lists_t_ct_08) ... ok
+test_owns_vocabulary_and_schema_paths (test_ux_layer_zero_code.FollowUpTask.test_owns_vocabulary_and_schema_paths) ... ok
+test_prereqs_are_the_contract_baseline (test_ux_layer_zero_code.FollowUpTask.test_prereqs_are_the_contract_baseline) ... ok
+test_requires_fields_and_rejection_test (test_ux_layer_zero_code.FollowUpTask.test_requires_fields_and_rejection_test) ... ok
+test_t_ap_02_waits_for_t_ct_08_and_cannot_do_it_itself (test_ux_layer_zero_code.FollowUpTask.test_t_ap_02_waits_for_t_ct_08_and_cannot_do_it_itself) ... ok
+test_work_spec_tables_match_tasks_json (test_ux_layer_zero_code.FollowUpTask.test_work_spec_tables_match_tasks_json) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.015s
+
+OK

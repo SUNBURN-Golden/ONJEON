@@ -6,9 +6,10 @@
 emit a per-case `io_error` object and keep evaluating the remaining jobs, exiting
 0 so `subprocess.run(..., check=True)` in `ontology_check.run_engine` still works.
 
-Set ONJEON_ONTOLOGY_RUNNER to use an already-built runner (the design-specs CI
-job does this). Otherwise build with `cargo build --offline`; a failed build
-fails the tests. Only a missing cargo without a prebuilt runner skips them.
+Set ONJEON_ONTOLOGY_RUNNER to use an already-built runner (both rules-engine and
+design-specs CI jobs build it before discovery). Otherwise build with
+`cargo build --offline`; a failed build fails the tests. Only a missing cargo
+without a prebuilt runner skips them.
 """
 import json
 import os
@@ -18,6 +19,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO = Path(__file__).resolve().parents[2]
 RUNNER_DIR = REPO / "docs/blueprint/proposals/온톨로지/검증/runner"
@@ -198,6 +200,23 @@ class RunnerIoError(unittest.TestCase):
 
     def test_empty_batch_is_valid(self):
         self.assertEqual(self.run_jobs([]), [])
+
+
+class RunnerSetup(unittest.TestCase):
+    def test_prebuilt_runner_does_not_require_cargo_or_cached_dependencies(self):
+        with mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": "/prebuilt/runner"}), \
+                mock.patch.object(RunnerIoError, "runner", create=True), \
+                mock.patch.object(subprocess, "run", side_effect=FileNotFoundError("cargo unavailable")) as build:
+            RunnerIoError.setUpClass()
+            self.assertEqual(RunnerIoError.runner, "/prebuilt/runner")
+            build.assert_not_called()
+
+    def test_failed_fallback_build_is_not_silently_skipped(self):
+        with mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": ""}), \
+                mock.patch.object(RunnerIoError, "runner", create=True), \
+                mock.patch.object(subprocess, "run", side_effect=subprocess.CalledProcessError(101, ["cargo", "build"])):
+            with self.assertRaises(subprocess.CalledProcessError):
+                RunnerIoError.setUpClass()
 
 
 if __name__ == "__main__":

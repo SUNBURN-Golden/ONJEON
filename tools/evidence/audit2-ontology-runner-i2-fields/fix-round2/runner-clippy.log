@@ -1,0 +1,19 @@
+$ cargo clippy --manifest-path 'docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml' --target-dir /workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/target/audit2-round2/onto --all-targets -- -D warnings
+    Checking typenum v1.20.1
+    Checking cpufeatures v0.2.17
+    Checking serde_core v1.0.229
+    Checking zmij v1.0.23
+    Checking itoa v1.0.18
+    Checking cfg-if v1.0.5
+    Checking memchr v2.8.3
+    Checking generic-array v0.14.7
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+    Checking serde_json v1.0.154
+    Checking serde v1.0.229
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/packages/rules-engine)
+    Checking ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/docs/blueprint/proposals/온톨로지/검증/runner)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.25s
+Exit code: 0

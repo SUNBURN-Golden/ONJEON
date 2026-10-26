@@ -24,7 +24,12 @@ jobs:
         run: python3 tools/validation_check.py --selftest
       - name: Python test dependency (S3-compatible store tests need conditional put, boto3 >= 1.35)
         run: python3 -m pip install --quiet --user --break-system-packages boto3==1.43.100
+      # Python discovery needs a runner even when the Cargo cache is empty.
+      - name: Ontology case runner for Python regressions
+        run: cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
       - name: Python unit tests (content hash, archive writes, reproduction, store providers; archived originals are not in CI)
+        env:
+          ONJEON_ONTOLOGY_RUNNER: ${{ runner.temp }}/onto/debug/ontology-case-runner
         run: python3 -m unittest discover -s tools/tests -v
       - name: Toolchain
         run: rustup component add rustfmt clippy

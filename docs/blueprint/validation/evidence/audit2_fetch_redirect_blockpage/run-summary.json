@@ -1,0 +1,59 @@
+{
+  "recorded_at": "2026-10-26T10:12:24.332494+00:00",
+  "python": "3.13.5",
+  "base_commit": "807b06e998a42d66172be8646c1ab27a6500a1ef",
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/tests -p 'test_verify_sources*.py' -v",
+      "exit_code": 0,
+      "total": 53,
+      "passed": 50,
+      "skipped": 3,
+      "log": "focused-tests.log"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "exit_code": 0,
+      "total": 948,
+      "passed": 942,
+      "skipped": 6,
+      "log": "python-tools.log"
+    },
+    {
+      "command": "cargo test --offline --locked --all --no-fail-fast",
+      "exit_code": 0,
+      "passed": 447,
+      "ignored": 1,
+      "embedded_python_passed": [
+        39,
+        129
+      ],
+      "log": "rust-tests.log"
+    },
+    {
+      "command": "python3 -I -m unittest discover -s tools/ci/tests -v",
+      "exit_code": 1,
+      "total": 20,
+      "passed": 18,
+      "failed": 2,
+      "baseline_reproduced": true,
+      "log": "python-ci.log"
+    },
+    {
+      "command": "python3 -I <exported-HEAD>/tools/ci/check_deps.py",
+      "exit_code": 1,
+      "findings": 3,
+      "log": "baseline-deps.log"
+    }
+  ],
+  "static_checks": {
+    "exit_code": 0,
+    "log": "static-checks.log"
+  },
+  "source_sha256": {
+    "tools/verify_sources.py": "70dc34258c704ef24f5bbd69154af4d93efdf2936efa9fffbee8d7a8925cc0d7",
+    "tools/tests/test_verify_sources.py": "b2fed1087590a8dc38a9e4c72a2cbda0441ec9f7d6ff55beafdae5b6dbfd9ca6",
+    "tools/tests/test_verify_sources_fetch.py": "197fa9de62309a46eaa341526b77972a3615ea2a0faaa964b7a48b2532ce7a38"
+  },
+  "scope": "Local mocks, loopback HTTP and temporary local archives. No insurer, regulator or R2 requests; not product release evidence."
+}

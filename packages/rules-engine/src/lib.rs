@@ -7,6 +7,8 @@
 //! - Every result carries a trace, the missing inputs that blocked it, and
 //!   an input snapshot hash so it can be reproduced.
 
+mod canonical;
+
 pub mod date;
 pub mod eval;
 pub mod rule;
@@ -17,5 +19,5 @@ pub use eval::{AmountOut, ContractEffectOut, EvalError, EvaluationResult, Payout
 pub use rule::{ContractEffect, Rule, RuleError};
 pub use tri::Tri;
 
-/// Engine version recorded in every result.
-pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");
+/// Engine version recorded in every result. The suffix identifies the snapshot encoding change.
+pub const ENGINE_VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "+snapshot-json-1");

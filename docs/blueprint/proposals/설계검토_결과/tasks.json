@@ -1,5 +1,7 @@
 {
   "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, ffbcaf6 사용자 검토와 9554c96 독립 재검토 R01~R06 반영). 채택된 정본이 아니다. 데몬이 읽는 작업 명세 초안(실행하지 않음)",
+  "_common_done_criteria_status": "non_binding_until_adopted",
+  "_common_done_criteria_note": "common_done_criteria는 채택 전 모든 PR에 구속력을 갖지 않는다. 현행 PR 기준은 docs/BLUEPRINT.md와 .github/pull_request_template.md다. 채택 시 과제 ID, 작성 모델 역할·실행 경로, 대상 SHA, 테스트 로그 필드를 PR 템플릿에 반영하고 이 적용 상태와 README §0.1·03 §2를 함께 갱신한다. 사용자 지시·개별 과제의 시험 의무와 09_제품목적_대응표의 완료 증거 기준은 유지한다.",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",
   "_target_sha": "ffbcaf6(사용자 검토 대상) → 2cdd663 → 9554c96(독립 재검토 대상) → 이 판(R01~R06 대조)",
   "schema": "onjeon-tasks-0.3",

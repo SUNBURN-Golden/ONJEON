@@ -1,0 +1,3 @@
+PASS: tasks.json matches HEAD after removing the two new PR-policy metadata fields.
+PASS: git diff --check.
+PASS: all changed paths are under allowed docs/blueprint/ or tools/; no forbidden paths changed.

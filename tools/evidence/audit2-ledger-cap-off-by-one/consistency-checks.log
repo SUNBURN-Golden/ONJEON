@@ -1,0 +1,538 @@
+$ python3 tools/vocab_check.py
+vocabulary ok: 49 axes, 269 values
+exit: 0
+$ python3 tools/validation_check.py
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+exit: 0
+$ python3 tools/validation_check.py --selftest
+  caught: scenario line 1,500만원 → 9,999만원 -> screen/coverage_detail.cancer.json: $.scenarios[sc2].display shows amounts [99990000] but declares [
+  caught: detail price 51,290 → 1 -> screen/coverage_detail.cancer.json: $.sections.why_this_price.price_line price 1 does not equal its 
+  caught: list price 51,290 → 1 -> screen/my_design.real_sample.json: $.groups[diagnosis].price_line price 1 does not equal its one pri
+  caught: list display 월 5.1만 → 월 0.1만 -> screen/my_design.real_sample.json: $.groups[diagnosis].price_line man_display '월 0.1만' != '월 5.1만'
+  caught: when_not_paid 1,500만원 → 1,600만원 -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[1] shows amounts [16000000] but declare
+  caught: amount source points at another price -> screen/coverage_detail.cancer.json: $.sections.why_this_price.breakdown[0] shows 50790 but premium:k
+  caught: candidate amount changed -> screen/coverage_detail.cancer.json: $.sections.why_this_price.conditions[1] shows 30000000 but candi
+  caught: price chip says 여 for a male price -> screen/coverage_detail.cancer.json: $.sections.why_this_price.price_line chip '공시 예시 · 40세 여 · 기준일 0
+  caught: money written with ₩ -> screen/coverage_detail.cancer.json: $.sections.why_this_price.breakdown[0].line uses currency sign f
+  caught: money written with 억 -> screen/coverage_detail.cancer.json: $.sections.what_is_covered[0].line uses 억/천 unit for money: '암 진
+  caught: money in Korean numerals -> screen/coverage_detail.cancer.json: $.sections.what_is_covered[0].line uses Korean numerals for mone
+  caught: money hidden in a note -> screen/coverage_detail.cancer.json: $.sections.what_is_covered[2] shows amounts [99990000] but decla
+  caught: money hidden in a capability reason -> screen/coverage_detail.cancer.json: $.capabilities[0] shows amounts [99990000] but declares []
+  caught: percent changed in a line -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[1] shows numbers ['1년', '30%'] but decl
+  caught: waiting days 90일 → 30일 -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows numbers ['30일'] but declares [
+  caught: list subtitle 90일 → 60일 -> screen/my_design.real_sample.json: $.groups[diagnosis] shows numbers ['1년', '50%', '60일'] but declar
+  caught: waiting days 90일 → 0일 (substring of 90일) -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows numbers ['0일'] but declares ['
+  caught: diff 50% → 0% (substring of 50%) -> screen/coverage_detail.cancer.json: $.diff.items[3] shows numbers ['0%', '1년'] but declares ['1년', '
+  caught: list subtitle 90일 → 0일 -> screen/my_design.real_sample.json: $.groups[diagnosis] shows numbers ['0일', '1년', '50%'] but declare
+  caught: line and declared value both 0일 -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows `0일` but field:kyobo_cancer#f_
+  caught: field changed under an unchanged line -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows `90일` but field:kyobo_cancer#f
+  caught: field unit changed (day → calendar_month) -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] `90일` unit 일 but kyobo_cancer#f_main
+  caught: value source points at another field -> screen/coverage_detail.cancer.json: $.sections.limits_and_renewal[1] shows `20년` but field:kyobo_can
+  caught: price condition changed under a line -> screen/coverage_detail.cancer.json: $.sections.why_this_price.conditions[0] shows `20년` but premium:
+  caught: clause value 87.7% → 7.7% (substring) -> screen/coverage_detail.cancer.json: $.sections.why_this_price.tradeoffs[1] `7.7%` is not a whole tok
+  caught: scenario question days ≠ inputs -> screen/coverage_detail.cancer.json: $.scenarios[sc2] question says 300일 but inputs differ by 200 day
+  caught: cancer event evidence → sex criteria clause -> encoded/kyobo_cancer.json: f_main_event raw_value is not inside the quoted passage of any cited clau
+  caught: waiting raw_value from the reduction clause -> encoded/kyobo_cancer.json: f_main_waiting raw_value is not inside the quoted passage of any cited cl
+  caught: art.7 clause page 47 → 48 -> encoded/kyobo_cancer.json: c_main_art7 anchor is not on d_terms page 48 (found on page [47]): 다만, 최초
+  caught: clause moved to another document -> encoded/kyobo_cancer.json: c_main_art7 anchor is not on d_sum page 47: 다만, 최초 1회의 진단확정에 한하며, 보험계약일부터
+  caught: price observation 50,790 → 1 -> encoded/kyobo_cancer.json: p_sum_m_main amount 1 is not inside the quoted passage of any cited claus
+  caught: price evidence → unrelated clause -> encoded/kyobo_cancer.json: p_sum_f_main amount 33,240 is not inside the quoted passage of any cited 
+  caught: derived manifest pin removed -> samples.csv: kyobo_cancer_summary needs a pinned derived_manifest_sha256 (reproduction verifies agai
+  caught: field promoted to accepted without review -> encoded/kyobo_cancer.json: $.fields[7] is review_status=accepted, but no cross-family review record 
+  caught: condition match drops not_in_source -> screen/coverage_detail.cancer.json: $.sections.why_this_price must list not_in_source conditions ['a
+  caught: condition match claims pay_term -> screen/coverage_detail.cancer.json: $.sections.why_this_price claims `pay_term` matches but profile=
+  caught: profile sex differs but still matched -> screen/coverage_detail.cancer.json: $.sections.why_this_price claims `sex` matches but profile='fema
+  caught: condition line hides 미확인 -> screen/coverage_detail.cancer.json: $.sections.why_this_price line must say the remaining conditions
+selftest ok: 38 mutations, each caught for its intended reason
+exit: 0
+$ python3 -I tools/ci/check_product_purpose.py
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+exit: 0
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+PASS [— 그래프 기본] (기계) G1 선행 과제 존재·순환 없음
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (기계) G2 시험이 선행 과제의 산출물만 쓴다
+PASS [F05 허용·금지 경로 충돌과 공용 파일 잠금] (기계) G3 같은 과제의 허용·금지 경로가 겹치지 않음
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4a 최종 관문 과제가 하나로 지정됨(final_gate)
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4b 최종 관문이 다른 모든 과제를 선행으로 가짐
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4c 통합안 §2 기능 행이 전부 feature_registry에 매핑됨
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4d 각 기능의 과제가 최종 관문의 선행에 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G5a 과제가 시작 차단과 병합 차단을 따로 적음(decision_gates)
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G5b 시작 전이는 decision_gates.start만 본다
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G5c 병합 대기 전이가 decision_gates.merge를 본다
+PASS [F07 데몬 대기·병합 후 재개 경로(병합 뒤 상태)] (기계) G6a post_merge_states가 merged에서 닿는 상태를 전부 포함
+PASS [F07 데몬 대기·병합 후 재개 경로(병합 뒤 상태)] (기계) G6b 선행 충족을 '==merged'가 아니라 post_merge_states로 판정
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G7a 대기·복구 전이(event 필드 기준)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G7b 종료가 아닌 상태마다 반송 외의 나가는 전이가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G8 임대 펜싱 토큰·격리·만료 시 프로세스 종료와 쓰기 권한 회수
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (기계) G9 전환 신호가 모델 제공자 응답·실행기 종료 코드로만 판정
+PASS [본문 검증 수준 정정(검토서 본문, 번호 없음)] (기계) G10 CI가 spec_check.py와 ontology_check.py를 실행
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G11a 02가 약관 판을 '원본 해시 + 문서 역할'로 정의하지 않음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G11b 02가 원본·구획·본문 판·계열을 나눔
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G11c 02가 릴리스를 구성원 목록+내용 해시로 고정
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-criteria-versioned'를 가진 과제가 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-result-reasons'를 가진 과제가 있음
+PASS [F03 영향받는 결론만 보류] (존재 검사) G12 필수 시험 ID 'uncertainty-partial-hold'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-frozen-members'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'decision-gate-merge-only'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'stale-approval-invalidated'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'late-write-fenced'를 가진 과제가 있음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (존재 검사) G12 필수 시험 ID 'provider-scoped-switch'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로(병합 뒤 상태)] (존재 검사) G12 필수 시험 ID 'post-merge-prereq'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-referenced-nodes-frozen'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-usage-restriction-separate'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-not-auto-by-fingerprint'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-composition-annex'를 가진 과제가 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-criteria-service-gate'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-future-supersedes-frozen'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-integrated-vs-separate-file'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-repack-same'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-one-rider-revised-in-integrated'를 가진 과제가 있음
+PASS [F03 영향받는 결론만 보류] (존재 검사) G12 필수 시험 ID 'partial-hold-independent-contract-kept'를 가진 과제가 있음
+PASS [F03 영향받는 결론만 보류] (존재 검사) G12 필수 시험 ID 'no-completeness-from-equal-candidates'를 가진 과제가 있음
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (존재 검사) G12 필수 시험 ID 'bootstrap-clean-main'를 가진 과제가 있음
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (존재 검사) G12 필수 시험 ID 'release-readiness-rejects-incomplete'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'event-duplicate-noop'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'event-out-of-order'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'docs-pr-complete'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'eleventh-pr-audit'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'mis-merge-not-done'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'usage-recorded-not-capped'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'hard-stop-heartbeating-job'를 가진 과제가 있음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (존재 검사) G12 필수 시험 ID 'switch-negative-test-output'를 가진 과제가 있음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (존재 검사) G12 필수 시험 ID 'switch-negative-third-party-http'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'd02-mock-start-allowed'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'r2-local-work-allowed'를 가진 과제가 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-flow-keep-addnone-hold-unknown'를 가진 과제가 있음
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G12 필수 시험 ID 'profile-historical-vs-service'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-bundle-split-files'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-annex-missing-unconfirmed'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-ocr-normalization'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-annex-content-changed'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-other-company'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-other-edition'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-multiple-candidates'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-order-independent'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'late-result-no-state-change'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'lease-guards-all-paths'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'envelope-permission-rejects-missing'를 가진 과제가 있음
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G12 필수 시험 ID 'price-raw-kept-comparison-gated'를 가진 과제가 있음
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G12 필수 시험 ID 'reason-evidence-by-kind'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'handoff-quiescent-before-preserve'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'retry-new-idempotency-key'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'duplicate-delivery-noop'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-multi-edition-config'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-unknown-scope-hold'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-unrelated-rider-allowed'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-competing-editions-hold'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'preserve-manifest-same-function'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'preserve-failure-recoverable-stop'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'daemon-restart-during-handoff'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'envelope-id-distinct-events'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'lease-issue-atomic-single-owner'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G14 실제 실행기 검증 과제(verification_kind=real_executor)가 dry-run 과제와 분리되고 중단·재개·늦은 결과·중복 실행 시험을 가짐
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G15 daemon_rules.safety_verification_status가 있고 어느 장치도 '검증됨'이 아님
+PASS [본문 검증 수준 정정(검토서 본문, 번호 없음)] (존재 검사) G16 07_수정대응표.md가 지적마다 변경 위치·시험 종류·증명 범위·미검증 칸을 가짐
+PASS [F05 허용·금지 경로 충돌과 공용 파일 잠금] (기계) G17 공용 manifest·lockfile을 고치는 과제가 그 파일을 잠근다
+PASS [F05 허용·금지 경로 충돌과 공용 파일 잠금] (기계) G18 각 과제의 산출물 경로가 그 과제의 허용 경로 안
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (기계) G19 도구에 기대는 공통 완료 기준이 그 도구를 만드는 과제 이후에만 적용됨(applies_after)
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (존재 검사) G20 feature_registry 항목마다 필수 과제·실제 데이터 증거·수락 시험(제외는 범위 결정 근거)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G21 명시적 no-op 사건 목록(중복·대기 알림)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G22 문서 PR의 병합 뒤 완료 전이
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G23 유효한 승인 없이 병합된 사실은 기록하되 done으로 가지 않음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (기계) G24 전환 신호가 source·attempt·call_id를 검증
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G25 decision_gates가 start·real_data·merge·release를 따로 가짐
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G26 제약 범위 표기가 T-box(K1~K16)와 같음
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G27 시험 프로필이 역사적 사례(historical_fixture)와 서비스 적합성(service_conformance)으로 나뉨
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G28 02가 주장 종류별 근거 정책과 가격 관측의 보존·비교 자격 분리를 둠
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G46 [U-05] 비용 상한·예산 소진 정지가 규칙에 없고 사용량 기록(usage_recording)은 있음
+PASS [본문 요구사항→계약→작업→시험→출시 증거 대응표(검토서 다음 작업 3)] (존재 검사) G47 09_제품목적_대응표: 칸 7개, 과제 ID가 실재하고 최종 관문 선행 안, 원칙(미확보 사유≠확보, 종합점수 없음, 결과를 바꾸는 조건 공개)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G30 dry-run과 실제 실행기가 같은 전이·검증 코어를 쓴다(execution_core.shared_by)
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (기계) G31 [R03] done_criteria·tests가 자신과 선행 과제의 산출물만 요구
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G32 [R04①] head_sha_changed의 목적지가 하나이고 stale-approval 시험의 기대 상태와 같음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G33 [R04②] 이전 임대의 늦은 결과는 상태를 바꾸지 않음(전이는 현재 임대 조건, 이전 임대 사건은 no-op)
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G34 [R04③·S02] handoff_sequence가 stop → isolate → confirm_quiescent → preserve → revoke_token → issue_next_lease 순서
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G35 [R04④] 임대 발급 전이 전부가 lease_guards(충돌 검사·잠금·예산 예약)를 거침
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G36 [R04⑤] merged_sha == approved_sha 비교 없음, 승인 head·base·병합 커밋·통합 검증 구분
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G42 [S03·T04] 키에 lease_generation, 중복 전달·재시도 분리, 임대 발급은 issue_lease 한 곳(전이·인계 단계에서 따로 증가 안 함)
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G45 [T04] 봉투 식별 방식(envelope_id 또는 세대당 종류별 하나), 세대·임대 기록·outbox 원자 저장, 재시작 복구 규칙
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G43 [T02] preserve_manifest(function·삭제·미추적·권한·심볼릭 링크·제외 경로)를 정지 확인과 보존 확인이 같이 씀
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G44 [T03] 인계 실패 사건마다 전이(임대 발급 아님), 다음 임대는 보존 성공 또는 복구 결정 뒤, 재시도 한도, 보존 자격 항상 회수
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G37 [R05] 지시 봉투 필수 필드에 real_data_allowed·canon_change_approval
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G38 [R05] 정본 변경 금지 문구가 승인 예외(canon_change_approval)와 일치
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G39 [R06①] 02가 PremiumObservation을 조건 부족으로 저장 거부하지 않음(원시 보존·비교 자격 분리)
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G40 [R06②] 02의 ClauseOccurrence ID 형식이 하나이고 추출 판을 포함
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G41 [R06③] T-AP-09가 이유 종류별 근거(사실→주장, 가정→사용자 가정, 기준 평가→기준 판)를 검사
+PASS [본문 요구사항→계약→작업→시험→출시 증거 대응표(검토서 다음 작업 3)] (존재 검사) G29 08_요구추적표.md(요구→계약→작업→실제 데이터/화면 시험→출시 증거)
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G13 기능 '판단 기준 관리(기준·기준의 판·출처)'이 feature_registry에 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G13 기능 '유지·추가 없음·보류 결과와 이유'이 feature_registry에 있음
+
+요약: 기계 검사 44/44 · 존재 검사 72/72 · 전체 통과
+주의: '기계' 검사는 JSON 구조·그래프를 계산해서 판정하지만, 명세의 정합성만 본다. 실제 데몬·서비스의 동작 검증이 아니다.
+      '존재 검사'는 필드·문구가 있는지만 본다. 판단 기준 관리·부분 보류 등 제품 의미의 적절성은 사람 검토 대상이다.
+exit: 0
+$ cargo fmt --all -- --check
+exit: 0
+$ cargo clippy --all-targets --locked -- -D warnings
+    Checking typenum v1.20.1
+    Checking serde_core v1.0.229
+    Checking zmij v1.0.23
+    Checking memchr v2.8.3
+    Checking itoa v1.0.18
+    Checking cfg-if v1.0.5
+    Checking cpufeatures v0.2.17
+    Checking libc v0.2.190
+    Checking generic-array v0.14.7
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+    Checking serde_json v1.0.151
+    Checking serde v1.0.229
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.20s
+exit: 0
+$ git diff --check
+exit: 0
+$ cargo build --locked --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir docs/blueprint/proposals/온톨로지/검증/runner/target
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.154
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.8
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/packages/rules-engine)
+   Compiling ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit2-ledger-cap-off-by-one/docs/blueprint/proposals/온톨로지/검증/runner)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.23s
+exit: 0
+$ python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner
+# 온톨로지 사례 검증 결과
+
+## 릴리스 고정
+- rel:case-r24: 내용 해시 ae244c964f0aa8fc · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
+- rel:case-r25: 내용 해시 012295575244f897 · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 37 · gaps 4
+- rel:case-r26: 내용 해시 40e27601f23aa19e · 무결성 일치 · raw_assets 5 · segments 10 · terms_editions 2 · terms_lineages 2 · clauses 22 · nodes 29 · assertions 39 · gaps 4
+
+## 일관성 제약 · rel:case-r24: 위반 1건
+- K1 a:lotte_cond_waiting_v1: C0 accepted인데 약관 본문 판에 이어진 basis 근거가 없음
+
+## 일관성 제약 · rel:case-r25: 위반 0건
+
+## 일관성 제약 · rel:case-r26: 위반 0건
+
+## 범위 관계(코드 집합에서 계산): 하나 2-1 범주 대 현대 2-5 범주 = narrower
+
+## 질문 → 지식 조회 → 규칙 실행 → 설명·근거 (rel:case-r26)
+
+### Q1 PASS · 가입 2026-08-20, 2027-04-20 위암(C16) 진단, 처음 받는 진단금. 하나 2-1은?
+기대 {'kind': 'payable', 'krw': 5000000} · 실제 {'kind': 'payable', 'krw': 5000000}
+- 판매본: 하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형) 2026-07-01 판매본
+-   적용 약관 판: ted:hana_r2_1@2607 ← a:hana_doc_link(observed/accepted)
+-   담보 연결: cov:hana_2_1 ∈ ted:hana_r2_1@2607
+- 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
+- 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
+-   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
+- 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2027-04-20", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 5,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
+    규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 b6754c7d980d
+    입력 단계 판정(dx_in_category)의 근거:
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+    실행 규칙의 근거:
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_cov_in_edition,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+
+### Q2 PASS · 같은 계약, 2028-08-20(가입 후 2년) 진단
+기대 {'kind': 'payable', 'krw': 10000000} · 실제 {'kind': 'payable', 'krw': 10000000}
+- 판매본: 하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형) 2026-07-01 판매본
+-   적용 약관 판: ted:hana_r2_1@2607 ← a:hana_doc_link(observed/accepted)
+-   담보 연결: cov:hana_2_1 ∈ ted:hana_r2_1@2607
+- 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
+- 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
+-   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
+- 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2028-08-20", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 10,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
+    규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 a389edf914ca
+    입력 단계 판정(dx_in_category)의 근거:
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+    실행 규칙의 근거:
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_cov_in_edition,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+
+### Q3 PASS · 같은 계약, 2026-11-17 진단(계약일 포함 90일째, 보장개시 전날)
+기대 {'kind': 'not_payable'} · 실제 {'kind': 'not_payable'}
+- 판매본: 하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형) 2026-07-01 판매본
+-   적용 약관 판: ted:hana_r2_1@2607 ← a:hana_doc_link(observed/accepted)
+-   담보 연결: cov:hana_2_1 ∈ ted:hana_r2_1@2607
+- 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
+- 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
+-   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
+- 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2026-11-17", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 이 담보에서는 지급 대상이 아님
+    규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 df0a93cffe62
+    입력 단계 판정(dx_in_category)의 근거:
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+    실행 규칙의 근거:
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_cov_in_edition,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+    남은 공백: 제5조: 보장개시 전 진단이면 보장 무효·보험료 반환(계약 효과). rule-0.1은 계약 효과를 표현하지 못한다(G23)
+
+### Q3b PASS · 같은 계약, 2026-11-18 진단(보장개시일 당일)
+기대 {'kind': 'payable', 'krw': 5000000} · 실제 {'kind': 'payable', 'krw': 5000000}
+- 판매본: 하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형) 2026-07-01 판매본
+-   적용 약관 판: ted:hana_r2_1@2607 ← a:hana_doc_link(observed/accepted)
+-   담보 연결: cov:hana_2_1 ∈ ted:hana_r2_1@2607
+- 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
+- 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C16 → True
+-   C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_bg
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c44
+-   C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← a:hana_cat_exc_c73
+- 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2026-11-18", "policy_end_date": "2046-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 5,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
+    규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 61f69b8164e8
+    입력 단계 판정(dx_in_category)의 근거:
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c44 → 2-1 제4조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C16는 암(유방암및생식기암제외) — 하나 2601 판의 제외 대상 아님 ← 주장 a:hana_cat_exc_c73 → 2-1 제4조③ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+    실행 규칙의 근거:
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_cov_in_edition,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+
+### Q4 PASS · 같은 계약, 2027-04-20 유방암(C50) 진단
+기대 {'kind': 'not_payable'} · 실제 {'kind': 'not_payable'}
+- 판매본: 하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형) 2026-07-01 판매본
+-   적용 약관 판: ted:hana_r2_1@2607 ← a:hana_doc_link(observed/accepted)
+-   담보 연결: cov:hana_2_1 ∈ ted:hana_r2_1@2607
+- 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
+- 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 C50 → False
+-   C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← a:hana_cat_inc
+-   C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← a:hana_cat_exc_bg
+- 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2027-04-20", "policy_end_date": "2046-08-20", "dx_in_category": false, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 이 담보에서는 지급 대상이 아님
+    규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 767941484996
+    입력 단계 판정(dx_in_category)의 근거:
+      C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C50 ∈ 암(유방암및생식기암제외) — 하나 2601 판의 포함 범위 ← 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← 주장 a:hana_cat_exc_bg → 2-1 제4조④ · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      C50는 암(유방암및생식기암제외) — 하나 2601 판에서 제외 ← 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+    실행 규칙의 근거:
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_cov_in_edition,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+
+### Q5 PASS · 같은 계약, 2027-04-20 위 쪽 암이라고 들었지만 코드 모름
+기대 {'kind': 'undetermined', 'krw': 5000000} · 실제 {'kind': 'undetermined', 'krw': 5000000}
+- 판매본: 하나더퍼스트 3.0.5 간편 건강보험(일반심사형)(2601)(3대질병형) 2026-07-01 판매본
+-   적용 약관 판: ted:hana_r2_1@2607 ← a:hana_doc_link(observed/accepted)
+-   담보 연결: cov:hana_2_1 ∈ ted:hana_r2_1@2607
+- 담보: 2-1 암진단비(유방암및생식기암제외)(갱신형) · simulate enabled
+- 질병 범주: 암(유방암및생식기암제외) — 하나 2601 판 · 코드 None → None
+- 엔진 입력: {"contract_date": "2026-08-20", "is_initial_contract": true, "renewal_date": null, "diagnosis_date": "2027-04-20", "policy_end_date": "2046-08-20", "dx_in_category": null, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 판단 불가 · 대상이라면 5,000,000원 · 빠진 입력 ['dx_in_category']
+    규칙 hana-2601-3d-cancer-dx v1-ontology-case 해시 9bab7e0187f7 (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 264c803871e2
+    실행 규칙의 근거:
+      근거 hana_2601_3d#c_2_1_art1_1 → 주장 a:hana_concept,a:hana_cond_count,a:hana_cond_reduction,a:hana_cov_def,a:hana_cov_in_edition,a:hana_rule → 2-1 제1조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art1_2 → 주장 a:hana_cond_waiting → 2-1 제1조② · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 52쪽
+      근거 hana_2601_3d#c_2_1_art4_1 → 주장 a:hana_cat_exc_premalignant,a:hana_cat_inc,a:hana_cov_def → 2-1 제4조① · 판 ted:hana_r2_1@2607 · 구획 seg:hana_r2_1(특약 약관) 지문 f28e5b5de3e7 · 원본 sha256 fd9c0133d852 PDF 53쪽
+      근거 hana_2601_3d#annex1 → 주장 a:hana_cat_inc → 별표1 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex1(별표) 지문 f3e220bec940 · 원본 sha256 fd9c0133d852 PDF 174쪽
+      근거 hana_2601_3d#annex12 → 주장 a:hana_cat_exc_bg → 별표12 · 판 ted:hana_r2_1@2607 · 구획 seg:hana_annex12(별표) 지문 4bc4c3ae24bb · 원본 sha256 fd9c0133d852 PDF 185쪽
+
+### Q6 PASS · 가입 2026-08-20, 2027-04-20 위암(C16). 현대 2-5는?
+기대 {'kind': 'payable', 'krw': 10000000} · 실제 {'kind': 'payable', 'krw': 10000000}
+- 판매본: 굿앤굿1540종합보험(Hi2607) 일반심사 2026-08-01 개시 판매본
+-   적용 약관 판: ted:hi_r2_5@2608 ← a:hi_doc_link(observed/accepted)
+-   담보 연결: cov:hi_2_5 ∈ ted:hi_r2_5@2608
+- 담보: 2-5 암진단Ⅱ(유사암제외)보장 특별약관 · simulate enabled
+- 질병 범주: 암(유사암 제외) — 현대 Hi2607 판 · 코드 C16 → True
+-   C16 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← a:hi_cat_inc
+-   C16는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← a:hi_cat_exc_similar
+- 엔진 입력: {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "policy_end_date": "2126-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 10,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
+    규칙 hi2607-2-5-cancer-dx v1-ontology-case 해시 f07b679e1b4b (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 30dbcb8d819a
+    입력 단계 판정(dx_in_category)의 근거:
+      C16 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      C16 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
+      C16는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+    실행 규칙의 근거:
+      근거 hi2607#c_2_5_art1 → 주장 a:hi_concept,a:hi_cond_count,a:hi_cond_no_reduction,a:hi_cov_def,a:hi_cov_in_edition,a:hi_rule → 2-5 제1조 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cat_exc_premalignant,a:hi_cat_inc,a:hi_cov_def → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
+
+### Q7 PASS · 현대 2-5, 위 제자리암(D00.2)
+기대 {'kind': 'not_payable'} · 실제 {'kind': 'not_payable'}
+- 판매본: 굿앤굿1540종합보험(Hi2607) 일반심사 2026-08-01 개시 판매본
+-   적용 약관 판: ted:hi_r2_5@2608 ← a:hi_doc_link(observed/accepted)
+-   담보 연결: cov:hi_2_5 ∈ ted:hi_r2_5@2608
+- 담보: 2-5 암진단Ⅱ(유사암제외)보장 특별약관 · simulate enabled
+- 질병 범주: 암(유사암 제외) — 현대 Hi2607 판 · 코드 D00.2 → False
+-   D00.2 ∈ 유사암 — 현대 Hi2607 판의 포함 범위 ← a:hi_sim_insitu
+-   D00.2는 암(유사암 제외) — 현대 Hi2607 판에서 제외 ← a:hi_cat_exc_similar
+- 엔진 입력: {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "policy_end_date": "2126-08-20", "dx_in_category": false, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 이 담보에서는 지급 대상이 아님
+    규칙 hi2607-2-5-cancer-dx v1-ontology-case 해시 f07b679e1b4b (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 2326e6dde56b
+    입력 단계 판정(dx_in_category)의 근거:
+      D00.2 ∈ 유사암 — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_sim_insitu → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      D00.2 ∈ 유사암 — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_sim_insitu → 별표11 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex11_12(별표) 지문 119c3687b643 · 원본 sha256 9401e98e8894 PDF 1236쪽
+      D00.2는 암(유사암 제외) — 현대 Hi2607 판에서 제외 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+    실행 규칙의 근거:
+      근거 hi2607#c_2_5_art1 → 주장 a:hi_concept,a:hi_cond_count,a:hi_cond_no_reduction,a:hi_cov_def,a:hi_cov_in_edition,a:hi_rule → 2-5 제1조 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cat_exc_premalignant,a:hi_cat_inc,a:hi_cov_def → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
+
+### Q8 PASS · 현대 2-5, 유방암(C50)
+기대 {'kind': 'payable', 'krw': 10000000} · 실제 {'kind': 'payable', 'krw': 10000000}
+- 판매본: 굿앤굿1540종합보험(Hi2607) 일반심사 2026-08-01 개시 판매본
+-   적용 약관 판: ted:hi_r2_5@2608 ← a:hi_doc_link(observed/accepted)
+-   담보 연결: cov:hi_2_5 ∈ ted:hi_r2_5@2608
+- 담보: 2-5 암진단Ⅱ(유사암제외)보장 특별약관 · simulate enabled
+- 질병 범주: 암(유사암 제외) — 현대 Hi2607 판 · 코드 C50 → True
+-   C50 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← a:hi_cat_inc
+-   C50는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← a:hi_cat_exc_similar
+- 엔진 입력: {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "policy_end_date": "2126-08-20", "dx_in_category": true, "already_paid": false, "insured_amount_krw": 10000000}
+- 결과: 10,000,000원 (약관 기준 계산, 가정: policy_end_date, already_paid, insured_amount_krw)
+    규칙 hi2607-2-5-cancer-dx v1-ontology-case 해시 f07b679e1b4b (fixture_only) · 엔진 0.1.0+snapshot-json-1 · 입력 해시 30dbcb8d819a
+    입력 단계 판정(dx_in_category)의 근거:
+      C50 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      C50 ∈ 암(유사암 제외) — 현대 Hi2607 판의 포함 범위 ← 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
+      C50는 암(유사암 제외) — 현대 Hi2607 판의 제외 대상 아님 ← 주장 a:hi_cat_exc_similar → 2-5 제2조②~⑥ · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+    실행 규칙의 근거:
+      근거 hi2607#c_2_5_art1 → 주장 a:hi_concept,a:hi_cond_count,a:hi_cond_no_reduction,a:hi_cov_def,a:hi_cov_in_edition,a:hi_rule → 2-5 제1조 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art2_1 → 주장 a:hi_cat_exc_premalignant,a:hi_cat_inc,a:hi_cov_def → 2-5 제2조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#c_2_5_art3_1 → 주장 a:hi_cond_waiting → 2-5 제3조① · 판 ted:hi_r2_5@2608 · 구획 seg:hi_r2_5(특약 약관) 지문 087355a33987 · 원본 sha256 9401e98e8894 PDF 305쪽
+      근거 hi2607#annex2 → 주장 a:hi_cat_inc → 별표2 · 판 ted:hi_r2_5@2608 · 구획 seg:hi_annex2(별표) 지문 1b84a3a5ea36 · 원본 sha256 9401e98e8894 PDF 1223쪽
+
+### Q9 PASS · 롯데 2604 1종 일반암진단비, 위암(C16)
+기대 {'kind': 'blocked'} · 실제 {'kind': 'blocked'}
+- 판매본: 무배당 암보험(2604) 1종
+-   이 판매본에 어느 판인지 모르는 연결이 있음(a:lotte_doc_link) → 요청 담보와 무관하다는 근거가 없어 계산하지 않음
+- 결과: 이 상황의 지급액 확인 필요(계산하지 않음)
+    막은 것: a:lotte_doc_link:scope_unknown
+    공백 gap:L0: 롯데 2604 1종 판매본이 쓰는 약관 판 · 지식 상태 미확인 · 필요한 근거: 약관 원본
+      확보 작업 task:L1_collect: 공개 수집 · 보류
+    공백 gap:L1: 롯데 2604 1종 판의 '일반암'에 위암(C16)이 드는가 · 지식 상태 일부 해소(요약서 기재) · 필요한 근거: 약관의 일반암 정의 조항과 참조 별표
+      확보 작업 task:L1_collect: 공개 수집 · 보류
+      확보 작업 task:L1_inquiry: 문의 · 초안 작성, 미발송
+
+### Q10 PASS · 하나 같은 이름 상품, 가입 2026-03-15(이전 판매본), 위암(C16)
+기대 {'kind': 'blocked'} · 실제 {'kind': 'blocked'}
+- 판매본: 같은 이름 2026-01-01~03-31 판매본
+-   이 판매본에 어느 판인지 모르는 연결이 있음(a:hana_old_doc_link) → 요청 담보와 무관하다는 근거가 없어 계산하지 않음
+- 결과: 이 상황의 지급액 확인 필요(계산하지 않음)
+    막은 것: a:hana_old_doc_link:scope_unknown
+    공백 gap:H_old: 2026-01-01~03-31 판매본의 약관 내용 · 지식 상태 미확인 · 필요한 근거: 약관 파일 45c3fe396a
+      확보 작업 task:H_old_collect: 공개 수집 · 미착수
+
+## 정정 이력 재현
+- rel:case-r24: 롯데 보장개시 조건 주장 a:lotte_cond_waiting_v1 review_status=accepted
+- rel:case-r25: 롯데 보장개시 조건 주장 a:lotte_cond_waiting_v2 review_status=hold · 대체 사유: 오류 정정: C0 근거는 약관(ADR-0014). 요약서 기재, 약관 대조 전
+- rel:case-r26: 롯데 보장개시 조건 주장 a:lotte_cond_waiting_v2 review_status=hold · 대체 사유: 오류 정정: C0 근거는 약관(ADR-0014). 요약서 기재, 약관 대조 전
+
+## 자체 시험 1: 제약마다 일부러 깨뜨린 저장소(릴리스 후보로 검사)
+- K1: 잡음 · C0 accepted인데 약관 본문 판에 이어진 basis 근거가 없음
+- K2: 잡음 · same_benefit_as에 양쪽 약관 대조 근거가 없음
+- K3: 잡음 · 코드 집합에 edition 없음
+- K4: 잡음 · narrower 순환
+- K5: 잡음 · valid_from > valid_to
+- K6: 잡음 · 단위가 다른 기간을 같다고 주장
+- K7: 잡음 · 감액 적용 대상 없음
+- K8: 잡음 · 공개 영역에 개인 영역 식별자
+- K9: 잡음 · 규칙 근거가 담보의 C0 basis 밖: hana_2601_3d#c_2_1_art5
+- K10: 잡음 · 같은 주장을 둘이 대체하는데 충돌 기록 없음
+- K11: 잡음 · hold·충돌이 있는데 simulate enabled
+- K12: 잡음 · 주장 same_scope ≠ 계산 narrower
+- K13: 잡음 · 비교 자격이 있는 가격 관측에 conditions 없음
+- K14: 잡음 · 승인 결정이 검수 결정이 아님(fingerprint_match)
+- K16: 잡음 · 같은 정규화 규칙에서 지문이 다름(내용 차이 후보): 검수 결정 없이 같은 판으로 승인할 수 없음
+
+## 자체 시험 2: 릴리스 고정과 문서 모델
+- I1 새 주장 추가 후 r26(결과·설명 11개 비교) [동작 검증]: 통과 · r26 주장 39개(고정 39) · 결과·설명 동일 True · 후보 Q1 {'kind': 'blocked'}
+- I2 주장 제자리 수정 [동작 검증]: 통과 · 구성원 내용이 제자리에서 바뀜(내용 해시 불일치)
+- I3 구성원 삭제 [동작 검증]: 통과 · rel:case-r26 구성원이 저장소에 없음; 구성원 내용이 제자리에서 바뀜(내용 해시 불일치)
+- I4 규칙 파일 교체 [동작 검증]: 통과 · 규칙 파일 해시가 고정값과 다름
+- I5 코드 집합·조건 노드·적용 관계를 새 판으로 교체 [동작 검증]: 통과 · r26 결과·설명 동일 True · 후보에서 달라진 질문 ['Q1', 'Q2', 'Q3', 'Q3b', 'Q6', 'Q7', 'Q8']
+- I6 참조 노드(코드 집합) 제자리 수정 [동작 검증]: 통과 · 구성원 내용이 제자리에서 바뀜(내용 해시 불일치)
+- I7 사용 제한 공지: 재현은 유지, 영향 담보만 서비스 차단 [동작 검증]: 통과 · 재현 결과 동일 True · Q1 서비스 ['notice:t1: 자체 시험: r26의 하나 2-1 해석 오류 확인'] · Q6 서비스 허용
+- D1 다른 원본이 판의 구성 전부를 같은 지문으로 담음 [동작 검증]: 통과 · 판을 담은 원본 2개 · 위반 0 · Q1 {'kind': 'payable', 'krw': 5000000}
+- D2 원본 해시만으로 판 확정 [동작 검증]: 통과 · 구획 관측 근거 없이 본문 판을 확정
+- D3 지문 일치를 자동 승인으로 씀 [동작 검증]: 통과 · 승인 결정이 검수 결정이 아님(fingerprint_match)
+- D4 참조 별표 내용 변경(같은 규칙·다른 지문) [동작 검증]: 통과 · 같은 정규화 규칙에서 지문이 다름(내용 차이 후보): 검수 결정 없이 같은 판으로 승인할 수 없음
+- D5 본문·별표가 다른 원본에 나뉨(재검토 R01 재현) [동작 검증]: 통과 · 위반 0 · Q1 {'kind': 'payable', 'krw': 5000000}
+- D8 참조 별표 미확보 → 동일성 미확인(다른 판으로 확정하지 않음) [동작 검증]: 통과 · accepted 유지 시 ['근거 묶음이 판의 구성 1개를 덮지 못함(동일성 미확인, hold여야 함)'] · hold 시 Q1 ['ted:hana_r2_1@2607:identity_unconfirmed'] · 엔진 호출 0
+- D9 정규화 규칙이 다른 지문(OCR) [동작 검증]: 통과 · 검수 없음 → ['정규화 규칙이 달라 지문 비교 불가(fp-ocr-0.1): 검수 결정 없이 같은 판으로 승인할 수 없음'] · 검수 결정 → 위반 0
+- E1 하나 판매 구성에 현대 담보(재검토 R02 재현) [동작 검증]: 통과 · blocked ["cov:hi_2_5∉['ted:hana_r2_1@2607']"] · 엔진 호출 0
+- E2 같은 판매 구성에 다른 판의 담보 [동작 검증]: 통과 · blocked ["cov:synthetic_other_edition∉['ted:hana_r2_1@2607']"] · 엔진 호출 0
+- E3 가입일에 적용 후보가 여럿 [동작 검증]: 통과 · blocked ['판매본 후보 복수: sc:hana_2601_3d_v20260701,sc:synthetic_overlap'] · 엔진 호출 0
+- E4 후보 목록 순서 변경 [동작 검증]: 통과 · 뒤집은 순서 Q1 ran · Q10 blocked (원래 Q1 payable, Q10 blocked)
+- S01 한 판매 구성의 여러 약관 판·같은 연결의 근거 추가(재검토 e02755a 재현) [동작 검증]: 통과 · 근거 주장 추가 → Q1 {'kind': 'payable', 'krw': 5000000} · 보통약관 판 + 미확인 다른 특약 판 함께 연결 → Q1 {'kind': 'payable', 'krw': 5000000}(요청 담보와 무관한 판의 미확인은 막지 않음)
+- S01b 요청 담보의 판 연결에 미승인 주장이 섞임 [동작 검증]: 통과 · blocked ['a:hana_doc_link_dup_hold:hold'] · 엔진 호출 0
+- T01 범위 미확인 연결 보류·무관한 특약 허용·경쟁 판 보류·순서 독립(재검토 10f470c 재현) [동작 검증]: 통과 · 범위 미확인 → ['a:unknown_scope_link:scope_unknown'] · 무관함 확인된 특약(hold) → Q1 {'kind': 'payable', 'krw': 5000000} · 경쟁 판 → ["cov:hana_2_1: 판 후보 복수 ['ted:hana_r2_1@2607', 'ted:synthetic_compete@2607']"] · 순서 뒤집기 → 같음 True
+- U01 정의 위치와 적용 관계 구분(재검토 12c1726 재현) [동작 검증]: 통과 · 적용 관계 확인 + 무관 → Q1 {'kind': 'payable', 'krw': 5000000} · 확인 근거 없음(판 ID만 다름) → ['sc:hana_2601_3d_v20260701:application_scope_unverified'] · 확인 주장 hold → ['sc:hana_2601_3d_v20260701:application_scope_unverified'] · 다른 판이 조건 적용 → ['ted:synthetic_main@2607:applies_from_other_edition_unmodeled'] · 적용 관계 미승인 → ['a:synthetic_main_applies:applies_unconfirmed']
+- P1 원시 가격 관측 보존과 비교 자격 분리 [동작 검증]: 통과 · 보존 → 위반 0 · 비교 자격 → ['K13']
+- D6 통합약관 구획과 개별 특약 파일이 같은 판 [동작 검증]: 통과 · 판을 담은 원본 3개(원래·개별·통합) · 위반 0
+- D7 통합 파일 안 특약 하나 개정 → 새 판(같은 계열) [동작 검증]: 통과 · 기존 판에 잇기 → ['K16'] · 새 판에 잇기 → 위반 0 · 같은 계열 · r26 결과 불변
+
+## 요약: r24 K1 위반 재현 True · r25·r26 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 25/25 · 전체 통과
+exit: 0

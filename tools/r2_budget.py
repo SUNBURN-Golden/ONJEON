@@ -443,8 +443,8 @@ class Ledger:
             self.load_base()
         limit = self.policy["per_request"]["max_ledger_records"]
         keys = self._segment_keys(None if full else limit)
-        if not full and len(keys) > limit:
-            raise BudgetError(f"ledger has {len(keys)} records after the last checkpoint > {limit}; "
+        if not full and len(keys) >= limit:
+            raise BudgetError(f"ledger has {len(keys)} records after the last checkpoint >= {limit}; "
                               "checkpoint before running")
         first = self.base_seq + 1
         for i, key in enumerate(keys, start=first):
@@ -582,6 +582,10 @@ class Ledger:
     def append(self, record_body, count, prev):
         """Write record count+1; Exists -> another run won the race."""
         import source_archive as sa
+        limit = self.policy["per_request"]["max_ledger_records"]
+        if count - self.base_seq >= limit:
+            raise BudgetError(f"ledger has {count - self.base_seq} records after the last checkpoint >= {limit}; "
+                              "checkpoint before writing")
         seq = count + 1
         rec = dict(record_body, seq=seq, prev_sha256=prev, policy_sha256=self.policy["_sha256"])
         body = json.dumps(rec, ensure_ascii=False, sort_keys=True, indent=1).encode() + b"\n"
@@ -747,7 +751,9 @@ def audit_checkpoints(ledger):
     this tool, so a checkpoint that understates the ledger (or any replaced record) shows here."""
     import source_archive as sa
     keys = ledger.checkpoints()
-    records, _ = ledger.read(full=True)
+    # A full read resets its reader's checkpoint offset. Keep the session's offset for settlement.
+    reader = Ledger(ledger.st, ledger.policy)
+    records, _ = reader.read(full=True)
     admissions = ledger.admissions()
     base, prev_raw_sha = None, None
     for key in keys:
@@ -757,9 +763,9 @@ def audit_checkpoints(ledger):
         lo = base["seq"] if base else 0
         if cp["seq"] > len(records):
             raise BudgetError(f"{key}: covers records the ledger does not have")
-        if ledger.hashes[cp["seq"]] != cp["tail_sha256"]:
+        if reader.hashes[cp["seq"]] != cp["tail_sha256"]:
             raise BudgetError(f"{key}: tail hash differs from ledger record {cp['seq']}")
-        if cp["genesis_sha256"] != ledger.hashes[1]:
+        if cp["genesis_sha256"] != reader.hashes[1]:
             raise BudgetError(f"{key}: genesis hash differs from ledger record 1")
         want_prev = {"seq": lo, "sha256": prev_raw_sha} if base else None
         if cp["prev_checkpoint"] != want_prev:

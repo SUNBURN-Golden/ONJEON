@@ -245,6 +245,102 @@ class Reservation(Fixture):
         self.assertEqual(self.ledger_store.get("ledger/v1/x"), b"a")
 
 
+class LedgerRecordCap(Fixture):
+    def setUp(self):
+        super().setUp()
+        self.write_policy(per_month_global=100, class_a=10**7)
+        self.write_job(admissions_per_month=100, class_a=10**7)
+        self.policy, self.job = self.load()
+        self.ledger = b.Ledger(self.ledger_store, self.policy)
+
+    def seed(self, count):
+        prev = None
+        for i in range(count):
+            _, prev = self.ledger.append(
+                {"kind": "pre_ledger_usage", "job_id": "t", "at": b.stamp(),
+                 "amounts": {d: 0 for d in b.DIMENSIONS}}, i, prev)
+        return prev
+
+    def test_99_records_allow_read_and_the_100th_write(self):
+        self.seed(99)
+        records, _ = self.ledger.read()
+        self.assertEqual(len(records), 99)
+        rec, _, _ = b.reserve(self.ledger, self.policy, self.job, "last", MONTH, [])
+        self.assertEqual(rec["seq"], 100)
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
+
+    def test_100_records_refuse_reservation_before_record_get_or_put(self):
+        self.seed(100)
+        with mock.patch.object(self.ledger_store, "get", wraps=self.ledger_store.get) as get, \
+                mock.patch.object(self.ledger_store, "put_new") as put:
+            with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+                b.reserve(self.ledger, self.policy, self.job, "overflow", MONTH, [])
+        get.assert_not_called()
+        put.assert_not_called()
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
+
+    def test_append_refuses_records_101_and_102_before_put(self):
+        prev = self.seed(100)
+        with mock.patch.object(self.ledger_store, "put_new") as put:
+            for count in (100, 101):
+                with self.subTest(next_seq=count + 1):
+                    with self.assertRaisesRegex(b.BudgetError, "checkpoint before writing"):
+                        self.ledger.append({"kind": "settlement"}, count, prev)
+        put.assert_not_called()
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
+
+    def test_session_at_98_records_reserves_and_settles_to_100(self):
+        self.seed(98)
+        session = b.Session(self.job_path, ledger_store=self.ledger_store,
+                            policy_path=self.policy_path, gate_dir=self.gate_dir)
+        session.open()
+        try:
+            self.assertEqual(session.reservation["seq"], 99)
+        finally:
+            settled = session.settle("ok")
+        self.assertEqual(settled["seq"], 100)
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
+
+    def test_session_at_99_records_keeps_reservation_in_full_when_settlement_hits_cap(self):
+        self.seed(99)
+        session = b.Session(self.job_path, ledger_store=self.ledger_store,
+                            policy_path=self.policy_path, gate_dir=self.gate_dir)
+        session.open()
+        try:
+            self.assertEqual(session.reservation["seq"], 100)
+        finally:
+            settled = session.settle("ok")
+        self.assertEqual(settled, {"settlement_failed": "BudgetError"})
+        records, _ = self.ledger.read(full=True)
+        self.assertEqual(len(records), 100)
+        _, used = b.Ledger.usage(records, "t", MONTH)
+        self.assertEqual(used, self.job["per_run"])
+        # A failed settlement must still release the local run lock.
+        gate = b.LocalGate(self.policy, "t", self.gate_dir)
+        gate.enter()
+        gate.leave()
+
+    def test_race_for_last_slot_rechecks_cap_before_retrying(self):
+        self.seed(99)
+        put = self.ledger_store.put_new
+        won = False
+
+        def race(key, body, ctype):
+            nonlocal won
+            if not won:
+                won = True
+                b.reserve(b.Ledger(self.ledger_store, self.policy), self.policy,
+                          self.job, "winner", MONTH, [])
+            return put(key, body, ctype)
+
+        with mock.patch.object(self.ledger_store, "put_new", side_effect=race):
+            with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+                b.reserve(self.ledger, self.policy, self.job, "loser", MONTH, [])
+        records, _ = self.ledger.read(full=True)
+        self.assertEqual(len(records), 100)
+        self.assertEqual(records[-1]["run_id"], "winner")
+
+
 class FailClosed(Fixture):
     def test_list_failure_stops(self):
         class Broken:

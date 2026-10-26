@@ -128,6 +128,7 @@
         "2.1 담보 상세"
       ],
       "tasks": [
+        "T-CT-08",
         "T-AP-02",
         "T-MB-02"
       ],
@@ -219,6 +220,7 @@
         "2.1 증거 보기"
       ],
       "tasks": [
+        "T-CT-08",
         "T-AP-02",
         "T-MB-02"
       ],
@@ -2248,6 +2250,127 @@
       "notes": "R03 대응: 검사 도구(T-CT-06)와 후속 구현을 대상으로 한 통합 시험을 분리했다"
     },
     {
+      "id": "T-CT-08",
+      "name": "금액 근거 축 승격과 필수화: Amount·CompareCell의 evidence_kind·applicability를 어휘 축으로 올리고 Amount에서 필수로(I6 계약 완성, audit1-ux-layer-zero-code 후속)",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "final_gate": false,
+      "verification_kind": null,
+      "replaces_wp": [],
+      "inputs": [
+        "02_구현계약 §2.4(금액 출처·근거 종류·적용 여부)",
+        "화면 설계서 §11 뷰모델",
+        "packages/schemas/README.md '어휘 승격 대기 축' 표",
+        "docs/decisions/audit1-ux-layer-zero-code.md"
+      ],
+      "prereq_tasks": [
+        "T-CT-01",
+        "T-CT-02",
+        "T-CT-03"
+      ],
+      "decision_gates": {
+        "start": [],
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
+        "exceptions": [
+          {
+            "path": "Cargo.lock",
+            "only": "cargo가 재생성한 결과만. 손으로 고치지 않음"
+          }
+        ]
+      },
+      "canon_change": {
+        "required": true,
+        "what": "어휘 정본(vocabulary.json)에 evidence_kind(terms, summary, disclosure, user_input)·applicability(applies, not_applies, unverified) 두 축 추가와 생성 문서 VOCABULARY.md",
+        "procedure": "BLUEPRINT §10.2: 새 값은 정본에 먼저 추가하는 단독 PR, 즉시 감리. 사용자 지시 뒤 병합",
+        "approval": {
+          "envelope_field": "canon_change_approval{decision_ref, scope_paths}",
+          "scope_paths": [
+            "packages/schemas/vocabulary.json",
+            "docs/blueprint/VOCABULARY.md"
+          ],
+          "decision_ref": "사용자 지시의 decision_record ID(기록 전에는 봉투 미발송, R-13)"
+        },
+        "note": "경로 권한과 별개의 조건이다. 허용 경로에 두 정본 파일이 있다는 사실은 승인이 아니다(T-CT-02와 같은 규칙)"
+      },
+      "allowed_paths": [
+        "packages/schemas/vocabulary.json",
+        "docs/blueprint/VOCABULARY.md",
+        "tools/vocab_check.py",
+        "packages/schemas/json/**",
+        "packages/schemas/codegen/**",
+        "packages/schemas/src/**",
+        "packages/schemas/Cargo.toml",
+        "packages/schemas/README.md",
+        "Cargo.lock"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv"
+      ],
+      "produces": [
+        "schema:Amount.evidence_kind",
+        "schema:Amount.applicability"
+      ],
+      "consumes": [
+        "path:packages/schemas/vocabulary.json",
+        "path:packages/schemas/json/**"
+      ],
+      "test_outputs_within_allowed": true,
+      "outputs": [
+        "어휘 축 evidence_kind·applicability(값마다 정의·screen_ko), VOCABULARY.md 재생성(--write)",
+        "common.schema.json Amount.evidence_kind·applicability를 vocabulary.schema.json $ref로 바꾸고 required에 추가, CompareCell도 $ref로(x-onjeon-pending-axis 제거)",
+        "Rust·Dart·TS 생성물 재생성, 계약 판 상향(필수 필드 추가는 깨지는 변경, 02 §5), README 대기 축 표 갱신",
+        "거부 시험: 두 필드가 빠진 Amount와 어휘에 없는 값(예: invented)을 넣은 Amount가 각각 거부된다"
+      ],
+      "tests": [
+        "python3 tools/vocab_check.py",
+        "python3 -I packages/schemas/codegen/gen.py --check",
+        "python3 -I -m unittest discover -s packages/schemas/codegen/tests",
+        "cargo test -p onjeon-contracts",
+        "시험 amount-evidence-axes-required: Amount에서 evidence_kind 또는 applicability가 빠진 문서와, 둘 중 하나에 어휘 밖 값을 넣은 문서가 각각 역직렬화·스키마 검증에서 실패한다. x-onjeon-pending-axis가 두 축에 남아 있거나 required에 없으면 시험이 실패한다"
+      ],
+      "done_criteria": [
+        "Amount.evidence_kind·Amount.applicability가 어휘 $ref이고 required에 있다",
+        "누락·어휘 밖 값을 넣은 Amount가 거부되는 시험이 있고 통과한다(거부 시험 로그가 증거)",
+        "기존 어휘 값은 삭제·개명하지 않았다. 새 값마다 정의·화면 문구가 있다",
+        "계약 판을 올렸고 호환 검사가 필수 필드 추가를 깨지는 변경으로 선언한다",
+        "이 과제의 지시 봉투는 canon_change_approval{decision_ref, scope_paths=[packages/schemas/vocabulary.json, docs/blueprint/VOCABULARY.md]}를 가진다. 승인 참조가 없으면 봉투가 나가지 않는다(R-13)"
+      ],
+      "required_test_ids": [],
+      "features": [
+        "coverage-detail",
+        "evidence-view"
+      ],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "packages/schemas/**",
+        "docs/blueprint/VOCABULARY.md",
+        "Cargo.lock"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "정본 절차 안의 변경(canon_change 참조). 임대 발급은 canon_change_approval 검증을 통과해야 한다",
+      "notes": "audit1-ux-layer-zero-code 결정의 후속. T-AP-02 완료 기준(amounts[].source·evidence_kind·applicability)이 계약에서 강제되도록 T-AP-02의 선행에 넣었다. T-AP-02는 스키마·어휘를 고칠 수 없다"
+    },
+    {
       "id": "T-OP-01",
       "name": "로컬 Compose(Postgres, S3 호환 객체 저장소, 큐)",
       "zone": "infra·ops",
@@ -3664,7 +3787,8 @@
         "화면 설계서 §4.5"
       ],
       "prereq_tasks": [
-        "T-AP-01"
+        "T-AP-01",
+        "T-CT-08"
       ],
       "decision_gates": {
         "start": [],
@@ -3992,16 +4116,19 @@
       ],
       "tests": [
         "cd apps/mobile && flutter test && flutter test integration_test",
-        "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다"
+        "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다",
+        "시험 condition-labels-factual(09 P18): 담보 상세 '확인할 조건'과 증거 보기에 나오는 불리한 조건이 사실 라벨(조건 이름·값·출처 조항)로만 보이고 평가어('불리'·'나쁜'·'위험'·'추천'·'좋은' 등)가 없는지 위젯 시험과 캡처로 대조한다. 평가어를 넣은 변이 화면을 넣으면 시험이 실패한다"
       ],
       "done_criteria": [
         "화면의 모든 숫자가 응답 amounts[]에서 온다",
         "증거 보기까지 두 탭 이내",
         "S1 관문 시험이지 기능 완성이 아니다",
-        "담보 상세의 면책·제외·확인할 조건이 접히거나 생략되지 않는다(09 P16)"
+        "담보 상세의 면책·제외·확인할 조건이 접히거나 생략되지 않는다(09 P16)",
+        "확인할 조건이 평가어 없이 사실 라벨로 보이는 캡처가 있다(09 P18)"
       ],
       "required_test_ids": [
-        "decisive-conditions-not-hidden"
+        "decisive-conditions-not-hidden",
+        "condition-labels-factual"
       ],
       "features": [
         "coverage-detail",
@@ -7068,7 +7195,8 @@
       "inputs": [
         "CONSUMER_FLOW_SPEC §7",
         "화면 설계서 §12-6",
-        "통합안 D-16 권고"
+        "통합안 D-16 권고",
+        "docs/decisions/DEC-D-16.md(U1~U7·표본·수락 수치)"
       ],
       "prereq_tasks": [
         "T-MB-03"
@@ -7124,7 +7252,8 @@
       "done_criteria": [
         "수락 수치가 시험 전에 고정되어 있다",
         "실패 원인이 기록된다",
-        "구현자 읽기 점검을 사용자 검증으로 쓰지 않는다"
+        "구현자 읽기 점검을 사용자 검증으로 쓰지 않는다",
+        "사전 고정 과제에 DEC-D-16 U7 '설명과 원문 대조'(09 P18)가 있고, 확인 회차의 U7 결과가 DEC-D-16 수락 수치로 판정된다"
       ],
       "required_test_ids": [],
       "features": [],

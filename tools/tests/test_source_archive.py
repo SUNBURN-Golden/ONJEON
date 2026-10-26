@@ -76,6 +76,38 @@ class Observations(Base):
             sa.put_observation(self.raw, *self.args, {"note": "different"})
         self.assertEqual(self.raw.get(k), before)
 
+    def test_extra_cannot_override_any_observation_field_even_with_same_value(self):
+        fields = dict(zip(("source_id", "url", "observed_at", "sha256", "bytes", "content_type"), self.args))
+        fields["object_key"] = sa.object_key(self.args[3])
+        for field, value in fields.items():
+            for override in (value, "forged"):
+                with self.subTest(field=field, override=override):
+                    with self.assertRaisesRegex(ValueError, "reserved.*" + field):
+                        sa.put_observation(self.raw, *self.args, {field: override, "note": "public"})
+                    self.assertEqual(self.raw.list(""), [])
+
+    def test_extra_must_be_an_object(self):
+        for extra in ([], [["sha256", "forged"]], "", "text", 0, False):
+            with self.subTest(extra=extra), self.assertRaisesRegex(ValueError, "JSON object"):
+                sa.put_observation(self.raw, *self.args, extra)
+        self.assertEqual(self.raw.list(""), [])
+
+    def test_additional_metadata_preserves_provenance_and_input(self):
+        extra = {"doc_role": "약관", "audit": {"sha256": "metadata only"}}
+        key, state = sa.put_observation(self.raw, *self.args, extra)
+        self.assertEqual(state, "stored")
+        self.assertEqual(json.loads(self.raw.get(key)), {
+            "source_id": self.args[0], "url": self.args[1], "observed_at": self.args[2],
+            "sha256": self.args[3], "bytes": self.args[4], "content_type": self.args[5],
+            "object_key": sa.object_key(self.args[3]), **extra,
+        })
+        self.assertEqual(extra, {"doc_role": "약관", "audit": {"sha256": "metadata only"}})
+
+    def test_absent_or_empty_extra_is_allowed(self):
+        key, _ = sa.put_observation(self.raw, *self.args)
+        self.assertEqual(sa.put_observation(self.raw, *self.args, {})[1], "already_present")
+        self.assertEqual(len(json.loads(self.raw.get(key))), 7)
+
 
 class Derived(Base):
     def write_src(self, text):

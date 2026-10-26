@@ -1,0 +1,41 @@
+$ git rev-parse HEAD
+2ec6b7087be37ac808cb83906524d0778a3d545e
+
+
+$ rustc --version
+rustc 1.98.1 (48a229cea 2026-09-01)
+
+
+$ cargo --version
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+
+
+$ git diff --check
+(no diagnostics)
+
+
+PASS: rule.rs matches HEAD byte for byte after the temporary negative control.
+SHA-256: 417848b1b8c78aedf729cb416dcaa48dc7cf4ca4892ec69b9a21b6af14ad2896
+
+PASS: all changed/new paths are allowed; protected paths untouched.
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/tests/loader_and_arith.rs
+docs/blueprint/audits/2026-10-26_engine_date_add_unknown_keys.md
+packages/rules-engine/evidence/audit2-date-add-unknown-keys/check-removed.log
+packages/rules-engine/evidence/audit2-date-add-unknown-keys/clippy.log
+packages/rules-engine/evidence/audit2-date-add-unknown-keys/fmt.log
+packages/rules-engine/evidence/audit2-date-add-unknown-keys/focused.log
+packages/rules-engine/evidence/audit2-date-add-unknown-keys/product-purpose.log
+packages/rules-engine/evidence/audit2-date-add-unknown-keys/spec-check.log
+packages/rules-engine/evidence/audit2-date-add-unknown-keys/workspace.log
+
+PASS: local Markdown links resolve: docs/blueprint/audits/2026-10-26_engine_date_add_unknown_keys.md
+
+PASS: local Markdown links resolve: packages/rules-engine/README.md
+
+PASS: local Markdown links resolve: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+
+Final recheck after evidence documentation: git diff --check, audit links, rule.rs unchanged: PASS.
+Recorded command exits: focused=0, temporary-check-removed=101 (expected), workspace=0, fmt=0, clippy=0, spec-check=0, product-purpose=0.
+Rust workspace totals: 422 passed, 0 failed, 1 ignored. Embedded Python suites: 39 and 129 passed.

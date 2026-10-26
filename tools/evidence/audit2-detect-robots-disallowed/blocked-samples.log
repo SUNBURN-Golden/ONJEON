@@ -1,0 +1,5 @@
+Offline CLI evidence: actual samples.csv rows selected; fetch is mocked and must not be called.
+  fetch_failed                klia_pub_cancer_compare
+  fetch_failed                klia_pub_cancer_criteria
+detect: fetch_failed 2 (of 2)
+Expected detect exit: 1; sample fetch calls: 0; output directory created: False

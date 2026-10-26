@@ -1,5 +1,9 @@
 """audit1-ux-layer-zero-code: the decision record must match the repo and the task graph.
 
+Checks that each P15-P19 paragraph follows the 09 product-purpose row of the same
+number (evidence test IDs, implementation tasks), that P18's evidence has
+owners (DEC-D-16 U7, T-MB-02 condition-labels-factual), and that no view-model
+schema carries a score or rank property.
 Checks the scaffold claim against apps/mobile, that T-CT-08 owns the Amount
 evidence_kind/applicability contract work (with its rejection test) and gates
 T-AP-02, and that the record's "optional, not yet enforced" claim about Amount
@@ -17,6 +21,9 @@ COMMON = ROOT / "packages/schemas/json/common.schema.json"
 VOCAB = ROOT / "packages/schemas/vocabulary.json"
 AXES = ("evidence_kind", "applicability")
 PENDING = "x-onjeon-pending-axis"
+PURPOSE = BUNDLE / "09_제품목적_대응표.md"
+SCHEMA_DIR = ROOT / "packages/schemas/json"
+TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
 
 
 def load_tasks():
@@ -91,6 +98,108 @@ class DecisionMatchesRepo(unittest.TestCase):
         self.assertNotIn("already fixed ahead of screen work", self.text)
         self.assertIn("not complete", self.text)
         self.assertIn("T-CT-08", self.text)
+
+
+def purpose_rows():
+    """09 §4 rows P15-P19 as {row: (purpose, tasks, bold test IDs, evidence text)}."""
+    rows = {}
+    for line in PURPOSE.read_text(encoding="utf-8").splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells[0] in {f"P{i}" for i in range(15, 20)}:
+            rows[cells[0]] = (cells[1], TASK_ID.findall(cells[6]),
+                              re.findall(r"\*\*`([a-z0-9-]+)`\*\*", cells[7]), cells[7])
+    return rows
+
+
+def decision_paragraph(text, row):
+    found = [l for l in text.splitlines() if re.match(rf"\(\d\) \*\*{row} ", l)]
+    return found[0] if len(found) == 1 else None
+
+
+def schema_property_names():
+    names = set()
+
+    def walk(node):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "properties" and isinstance(value, dict):
+                    names.update(value)
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+
+    for path in SCHEMA_DIR.glob("*.json"):
+        walk(json.loads(path.read_text(encoding="utf-8")))
+    return names
+
+
+class PurposeRowsFollow09(unittest.TestCase):
+    """Each P15-P19 paragraph must be the 09 row of that number, not the finding title's labels."""
+
+    def setUp(self):
+        self.text = DECISION.read_text(encoding="utf-8")
+        self.rows = purpose_rows()
+        self.data, self.tasks = load_tasks()
+
+    def test_all_five_rows_parsed(self):
+        self.assertEqual({f"P{i}" for i in range(15, 20)}, set(self.rows))
+        self.assertEqual(["decisive-conditions-not-hidden"], self.rows["P16"][2])
+        self.assertEqual(["no-composite-score"], self.rows["P17"][2])
+        self.assertIn("설명과 원문 대조", self.rows["P18"][3])
+
+    def test_each_paragraph_names_its_rows_evidence_and_tasks(self):
+        for row, (_purpose, tasks, test_ids, _evidence) in self.rows.items():
+            para = decision_paragraph(self.text, row)
+            self.assertIsNotNone(para, f"{row} needs exactly one numbered paragraph")
+            self.assertIn(f"Tasks: {', '.join(tasks)}.", para, row)
+            self.assertIn("Outstanding:", para, row)
+            for test_id in test_ids:
+                self.assertIn(f"**`{test_id}`**", para, row)
+                owners = [t for t in tasks if test_id in self.tasks[t].get("required_test_ids", [])]
+                self.assertTrue(owners, f"{row}: {test_id} is not registered in any of {tasks}")
+
+    def test_title_labels_are_not_used_as_rows(self):
+        for wrong in ("**P16 web", "**P17 state catalog", "**P19 user comprehension"):
+            self.assertNotIn(wrong, self.text)
+        self.assertIn("Web is not one of the five rows", self.text)
+
+    def test_p18_explanation_versus_source_is_owned_by_d16_and_t_ux_01(self):
+        dec = (ROOT / "docs/decisions/DEC-D-16.md").read_text(encoding="utf-8")
+        self.assertIn("1) Seven tasks.", dec)
+        self.assertIn("The seventh is U7, check a planner's explanation against the source", dec)
+        self.assertIn("U4, U6 and U7 need 90% or more", dec)
+        ux = self.tasks["T-UX-01"]
+        self.assertTrue(any("U7" in c and "09 P18" in c for c in ux["done_criteria"]))
+        # T-UX-01 cannot add the task itself, which is why this node had to
+        self.assertIn("docs/decisions/**", ux["forbidden_paths"])
+        self.assertIn("U7", decision_paragraph(self.text, "P18"))
+
+    def test_p18_factual_label_capture_is_owned_by_t_mb_02(self):
+        self.assertIn("평가어 없이 사실 라벨", self.rows["P18"][3])
+        mb = self.tasks["T-MB-02"]
+        self.assertIn("condition-labels-factual", mb["required_test_ids"])
+        self.assertTrue(any(t.startswith("시험 condition-labels-factual(09 P18)") for t in mb["tests"]))
+        self.assertTrue(any("사실 라벨" in c and "09 P18" in c for c in mb["done_criteria"]))
+        row = table_row((BUNDLE / "03_작업명세.md").read_text(encoding="utf-8"), "T-MB-02")
+        self.assertIsNotNone(row)
+        spec = (BUNDLE / "03_작업명세.md").read_text(encoding="utf-8")
+        self.assertIn("| decisive-conditions-not-hidden, condition-labels-factual |", spec)
+        self.assertIn("**`condition-labels-factual`**", decision_paragraph(self.text, "P18"))
+
+    def test_no_row_claims_evidence_that_does_not_exist(self):
+        # "None of the five rows has its completion evidence yet": no feature screens, no study
+        self.assertIn("None of the five rows has its completion evidence yet", self.text)
+        self.assertFalse((ROOT / "apps/mobile/lib/features").exists())
+        self.assertFalse((ROOT / "docs/ux-tests").exists())
+
+    def test_no_composite_score_field_in_view_model_schemas(self):
+        names = schema_property_names()
+        self.assertGreater(len(names), 50, "schema walk found too few properties")
+        bad = sorted(n for n in names if re.search(r"score|rank", n, re.I))
+        self.assertEqual([], bad)
+        self.assertIn("no schema under `packages/schemas/json/` defines a score or rank property",
+                      decision_paragraph(self.text, "P17"))
 
 
 class FollowUpTask(unittest.TestCase):

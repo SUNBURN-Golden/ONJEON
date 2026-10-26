@@ -11,8 +11,15 @@ test_prereqs_are_the_contract_baseline (test_ux_layer_zero_code.FollowUpTask.tes
 test_requires_fields_and_rejection_test (test_ux_layer_zero_code.FollowUpTask.test_requires_fields_and_rejection_test) ... ok
 test_t_ap_02_waits_for_t_ct_08_and_cannot_do_it_itself (test_ux_layer_zero_code.FollowUpTask.test_t_ap_02_waits_for_t_ct_08_and_cannot_do_it_itself) ... ok
 test_work_spec_tables_match_tasks_json (test_ux_layer_zero_code.FollowUpTask.test_work_spec_tables_match_tasks_json) ... ok
+test_all_five_rows_parsed (test_ux_layer_zero_code.PurposeRowsFollow09.test_all_five_rows_parsed) ... ok
+test_each_paragraph_names_its_rows_evidence_and_tasks (test_ux_layer_zero_code.PurposeRowsFollow09.test_each_paragraph_names_its_rows_evidence_and_tasks) ... ok
+test_no_composite_score_field_in_view_model_schemas (test_ux_layer_zero_code.PurposeRowsFollow09.test_no_composite_score_field_in_view_model_schemas) ... ok
+test_no_row_claims_evidence_that_does_not_exist (test_ux_layer_zero_code.PurposeRowsFollow09.test_no_row_claims_evidence_that_does_not_exist) ... ok
+test_p18_explanation_versus_source_is_owned_by_d16_and_t_ux_01 (test_ux_layer_zero_code.PurposeRowsFollow09.test_p18_explanation_versus_source_is_owned_by_d16_and_t_ux_01) ... ok
+test_p18_factual_label_capture_is_owned_by_t_mb_02 (test_ux_layer_zero_code.PurposeRowsFollow09.test_p18_factual_label_capture_is_owned_by_t_mb_02) ... ok
+test_title_labels_are_not_used_as_rows (test_ux_layer_zero_code.PurposeRowsFollow09.test_title_labels_are_not_used_as_rows) ... ok
 
 ----------------------------------------------------------------------
-Ran 12 tests in 0.015s
+Ran 19 tests in 0.030s
 
 OK

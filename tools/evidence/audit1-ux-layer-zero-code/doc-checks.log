@@ -5,9 +5,6 @@ $ python3 tools/validation_check.py
 internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
 exit=0
 $ python3 tools/validation_check.py --selftest
-  caught: condition match claims pay_term -> screen/coverage_detail.cancer.json: $.sections.why_this_price claims `pay_term` matches but profile=
-  caught: profile sex differs but still matched -> screen/coverage_detail.cancer.json: $.sections.why_this_price claims `sex` matches but profile='fema
-  caught: condition line hides 미확인 -> screen/coverage_detail.cancer.json: $.sections.why_this_price line must say the remaining conditions
 selftest ok: 38 mutations, each caught for its intended reason
 exit=0
 $ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py

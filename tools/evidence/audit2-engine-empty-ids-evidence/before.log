@@ -1,0 +1,52 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling cpufeatures v0.2.17
+   Compiling generic-array v0.14.7
+   Compiling memchr v2.8.3
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.18
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-empty-ids-evidence/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.79s
+     Running tests/identity_evidence.rs (target/debug/deps/identity_evidence-61b825b05ec1fee8)
+
+running 5 tests
+test blank_rule_ids_are_rejected ... FAILED
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... FAILED
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+
+failures:
+
+---- blank_rule_ids_are_rejected stdout ----
+
+thread 'blank_rule_ids_are_rejected' (687701) panicked at packages/rules-engine/tests/identity_evidence.rs:35:34:
+blank rule ID must fail at load: Rule { rule_id: "", rule_version: "1", release_id: Some("rel-1"), content_hash: "137c705ba763bee7a46d7276bc2506a61fdf6a3f3eee87ce68b0a3c02a05bd5f", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["clause-2", "clause-1"], inputs: {}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "eligibility": Bool(true), "evidence_refs": Array [String("clause-2"), String("clause-1")], "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("rel-1"), "rule_id": String(""), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- duplicate_evidence_refs_are_rejected_at_the_repeated_index stdout ----
+
+thread 'duplicate_evidence_refs_are_rejected_at_the_repeated_index' (687702) panicked at packages/rules-engine/tests/identity_evidence.rs:71:34:
+duplicate evidence must fail at load: Rule { rule_id: "identity-evidence", rule_version: "1", release_id: Some("rel-1"), content_hash: "4dd18ea1c6e422b5a31cb4d4a12f14099aee1de4f6ec047ff4d521ddef7f9b4b", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["clause-1", "clause-1"], inputs: {}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "eligibility": Bool(true), "evidence_refs": Array [String("clause-1"), String("clause-1")], "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("rel-1"), "rule_id": String("identity-evidence"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+
+failures:
+    blank_rule_ids_are_rejected
+    duplicate_evidence_refs_are_rejected_at_the_repeated_index
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test identity_evidence`

@@ -54,3 +54,27 @@ BLUEPRINT A2·A5, Q2·Q5, L6, I5, M0 엔진 유지보수 및
 P08(면책·감액 경계일 시나리오)의 계산 기반에 연결된다.
 시험 규칙은 `fixture_only` 합성 규칙이다. 실제 상품 데이터·화면·출시 검증을 대신하지 않으며
 P08 또는 첫 출시 완료로 판정하지 않는다.
+
+## Fix round 1: main 병합 충돌 해결
+
+`packages/rules-engine/README.md`의 시험 표와 `09_제품목적_대응표.md`의 근거 목록에서
+충돌을 해결했다. 이 노드의 `date_add` 키 집합 검증·달력 회귀 설명을 보존하고,
+main의 빈 규칙 ID·빈/중복 근거 검증 설명과 `identity_evidence` 시험 항목을 함께 유지했다.
+`rule.rs`에는 두 검증이 모두 남아 있다. 병합 커밋은 감독자가 수행하도록 남겼다.
+
+병합 결과에서 직접 재실행한 결과(로그: [round1](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/)):
+
+| 명령 | 결과 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --test loader_and_arith --test identity_evidence --offline` | 18개 통과: [focused.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/focused.log) |
+| `cargo test --all --offline` | Rust 단위·통합·문서 시험 427개 통과·실패 0·기존 ignored 1. 내부 Python 시험 39개·129개 통과: [workspace.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/workspace.log) |
+| `cargo fmt --all -- --check` | 통과: [fmt.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/fmt.log) |
+| `cargo clippy --all-targets --offline -- -D warnings` | 통과: [clippy.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/clippy.log) |
+| `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 통과: [spec-check.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/spec-check.log) |
+| `python3 -I tools/ci/check_product_purpose.py` | 통과: [product-purpose.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/product-purpose.log) |
+| `python3 -m unittest discover -s tools/tests -v` | 915개 실행·실패 0·skip 6: [python-tests.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/python-tests.log) |
+
+미해결 충돌 없음·양쪽 문서 의도 보존·허용 경로·보호 파일 보존·diff 공백 검사는
+[final-checks.log](../../../packages/rules-engine/evidence/audit2-date-add-unknown-keys/round1/final-checks.log)에 기록했다.
+
+main에서 들어온 `tools/evidence/audit2-engine-empty-ids-evidence/{focused,workspace}.log`의 끝 빈 줄도 제거해 staged diff 공백 검사를 통과시켰다. 실행 결과 내용은 보존했다.

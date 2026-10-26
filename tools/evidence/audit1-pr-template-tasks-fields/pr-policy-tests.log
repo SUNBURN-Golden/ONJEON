@@ -1,0 +1,9 @@
+test_adoption_instructions_cover_each_missing_field (test_pr_policy.PrPolicy.test_adoption_instructions_cover_each_missing_field) ... ok
+test_documented_current_policy_links_resolve_to_real_policy_files (test_pr_policy.PrPolicy.test_documented_current_policy_links_resolve_to_real_policy_files) ... ok
+test_json_and_both_documents_explicitly_defer_common_pr_criteria (test_pr_policy.PrPolicy.test_json_and_both_documents_explicitly_defer_common_pr_criteria) ... ok
+test_proposed_traceability_and_test_evidence_requirements_are_retained (test_pr_policy.PrPolicy.test_proposed_traceability_and_test_evidence_requirements_are_retained) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.007s
+
+OK

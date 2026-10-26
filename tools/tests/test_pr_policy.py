@@ -109,5 +109,74 @@ class BundleStatus(unittest.TestCase):
                 self.assertNotIn("초안", text)
 
 
+class SerialDaemonPrerequisite(unittest.TestCase):
+    """audit1-serial-daemon-prerequisite: 남은 데몬 후속 과제가 제품 과제의 선행·관문이 되지 않는다."""
+
+    DAEMON = {"T-OP-00", "T-OP-09"}
+    S0 = ("T-CT-01", "T-OP-01", "T-TW-02")
+    FINAL_AUDIT = "T-OP-08"
+    RECORD = ROOT / "docs/decisions/audit1-serial-daemon-prerequisite.md"
+
+    def setUp(self):
+        tasks = json.loads((BUNDLE / "tasks.json").read_text(encoding="utf-8"))["tasks"]
+        self.tasks = {task["id"]: task for task in tasks}
+        self.handoff_dir = BUNDLE / "그록봇_인계"
+        readme = (self.handoff_dir / "README.md").read_text(encoding="utf-8")
+        self.stages = readme.split("## 3. ", 1)[1].split("## 4. ", 1)[0]
+        self.note = self.stages.split("[상태 기록 2026-10-26]", 1)[1]
+        self.first_tasks = readme.split("## 4. ", 1)[1].split("## 5. ", 1)[0]
+
+    def test_s0_tasks_have_no_prerequisites_and_empty_start_gates(self):
+        for task_id in self.S0:
+            with self.subTest(task=task_id):
+                task = self.tasks[task_id]
+                self.assertEqual([], task["prereq_tasks"])
+                self.assertEqual([], task["decision_gates"]["start"])
+
+    def test_only_the_final_audit_depends_on_daemon_tasks(self):
+        dependants = {task_id for task_id, task in self.tasks.items()
+                      if task_id not in self.DAEMON and self.DAEMON & set(task["prereq_tasks"])}
+        self.assertEqual({self.FINAL_AUDIT}, dependants)
+
+    def test_final_audit_dependency_is_release_reporting_only(self):
+        audit = self.tasks[self.FINAL_AUDIT]
+        self.assertIs(True, audit["final_gate"])
+        self.assertTrue(any("자동 개발 운영 기록" in item and "축 5" in item
+                            for item in audit["done_criteria"]))
+        self.assertFalse([task_id for task_id, task in self.tasks.items()
+                          if self.FINAL_AUDIT in task["prereq_tasks"]])
+
+    def test_handover_note_supersedes_the_serial_restriction(self):
+        self.assertIn("제품 과제(T-CT-01 등)는 임대하지 않는다", self.stages)
+        for phrase in ("직렬 제한 해제", "그 제한을 대체한다", "제품 과제를 막지 않는다",
+                       "병행한다", "T-OP-08", "SerialDaemonPrerequisite"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.note)
+        self.assertIn("[상태 기록 2026-10-26]", self.first_tasks)
+        self.assertIn("남은 데몬 후속 과제는 이 표의 과제를 막지 않는다", self.first_tasks)
+
+    def test_handover_note_records_as_run_order_and_open_daemon_evidence(self):
+        order = [self.note.index(pr) for pr in ("#21", "#98", "#105", "#101", "#102")]
+        self.assertEqual(sorted(order), order)
+        for phrase in ("PASS 17", "PARTIAL 5", "FAIL 0", "R6", "R7", "R9", "R11", "R21",
+                       "G51~G57", "G47", "남은 데몬 후속 과제", "05 §7", "미확인"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.note)
+        results = (ROOT / "docs/vm_check/2026-10-16/RESULTS.md").read_text(encoding="utf-8")
+        self.assertIn("PASS 17, FAIL 0, PARTIAL 5", results)
+        for scenario in ("R6", "R7", "R9", "R11", "R21"):
+            with self.subTest(scenario=scenario):
+                self.assertRegex(results, rf"\| {scenario} \|[^\n]*\*\*PARTIAL\*\*")
+
+    def test_note_links_resolve_to_the_decision_and_results(self):
+        targets = {(self.handoff_dir / path).resolve()
+                   for path in re.findall(r"\]\(([^)]+)\)", self.note)}
+        self.assertIn(self.RECORD, targets)
+        self.assertIn(ROOT / "docs/vm_check/2026-10-16/RESULTS.md", targets)
+        record = self.RECORD.read_text(encoding="utf-8")
+        self.assertIn("except the final pre-release audit T-OP-08", record)
+        self.assertIn("other than T-OP-08", record)
+
+
 if __name__ == "__main__":
     unittest.main()

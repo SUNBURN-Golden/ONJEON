@@ -150,7 +150,7 @@ SPEC_GAPS = [
      "core_reads": "yes", "core_change": "문장에서 사건 이름·키 필드를 뽑는 코드(expiry_events, then_events, key_fields) 삭제",
      "field": "state_integrity.normal_expiry.path, resend_outbox.on_fail.<key>.then", "where": D,
      "need": "만료 사건 이름(lease_expired, heartbeat_missed_twice)과 후속 사건(state_corrupted)이 문장 안에만 있다. 구조화 목록이 필요하다",
-     "core_took": "normal_expiry.events_by_state, resend_outbox.on_fail.<key>.then_events, accept_envelope.idempotency_key_fields를 읽는다. 문장 토큰 추출 0종"},
+     "core_took": "normal_expiry.events_by_state로 고른 사건이 normal_expiry.events에도 등록되어 있는지 확인한다. resend_outbox.on_fail.<key>.then_events, accept_envelope.idempotency_key_fields를 읽는다. 문장 토큰 추출 0종"},
     {"id": "G44", "status": RESOLVED, "resolved_by": "core_contract.operations.accept_envelope.view_bindings, core_contract.operations.accept_envelope.field_value_sets, core_contract.operations.accept_envelope.field_value_checks, envelopes.fence_violation_report.required",
      "core_reads": "yes", "core_change": "검사 뷰가 violation_kind를 노출하고 값 집합을 검사한다(지금 코어는 kind를 덮어쓴다)",
      "field": "accept_envelope.checks_in_order[current_lease_rules].pred(envelope.kind) ↔ fence_violation_report.kind", "where": D,

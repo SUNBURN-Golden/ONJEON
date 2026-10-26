@@ -1,7 +1,5 @@
-# command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all
-# generated from parent commit 04334a70e07d98abecc255d0a66630778a459e43 + tree hash of tools/daemon sources sha256:efe9cef74450cc0e09cf43ac9d9066dee4c8e3f8fc1d912af4057582b5692bbe (tools/daemon without reports/ and __pycache__, plus tools/tests/test_daemon_dry_run.py; recompute with the command in tools/daemon/README.md; the PR head is this parent plus exactly one commit)
-# virtual clock and generated ids are deterministic: a re-run gives the same output
-# every check prints its expected and actual columns in full (no row is shortened)
+# command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all
+# generated from parent commit 17e172b7845b79da7a4c9bf11aae128111aea63e + tree hash of tools/daemon sources sha256:8d953e86d190636782ad210b2d9a9b19c4d4c18bee2e13ca764fc6b041b86707
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
   [PASS] 정상 흐름 전이 열: queued→…→merge_wait
       기대: [["blocked", "queued", "prereqs_satisfied"], ["queued", "leased", "lease_granted"], ["leased", "building", "first_heartbeat"], ["building", "pr_open", "result_pr_opened"], ["pr_open", "review_pending", "ci_passed"], ["review_pending", "review_in_progress", "reviewer_assigned"], ["review_in_progress", "review_approved", "review_approved"], ["review_approved", "merge_wait", "audit_not_required"]]

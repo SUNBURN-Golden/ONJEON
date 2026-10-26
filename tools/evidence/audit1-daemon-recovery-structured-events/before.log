@@ -1,0 +1,47 @@
+test_missing_events_is_a_contract_error_without_prose_fallback (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_missing_events_is_a_contract_error_without_prose_fallback) ... FAIL
+test_read_list_exposes_structured_expiry_fields_without_prose (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_read_list_exposes_structured_expiry_fields_without_prose) ... FAIL
+test_removing_an_event_disables_its_expiry_classification_only (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_removing_an_event_disables_its_expiry_classification_only) ... 
+  test_removing_an_event_disables_its_expiry_classification_only (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_removing_an_event_disables_its_expiry_classification_only) (removed='lease_expired', state='leased') ... FAIL
+  test_removing_an_event_disables_its_expiry_classification_only (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_removing_an_event_disables_its_expiry_classification_only) (removed='heartbeat_missed_twice', state='building') ... FAIL
+test_restart_uses_structured_events_when_path_is_changed_or_missing (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_restart_uses_structured_events_when_path_is_changed_or_missing) ... ok
+
+======================================================================
+FAIL: test_missing_events_is_a_contract_error_without_prose_fallback (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_missing_events_is_a_contract_error_without_prose_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-daemon-recovery-structured-events/tools/tests/test_daemon_dry_run.py", line 333, in test_missing_events_is_a_contract_error_without_prose_fallback
+    with self.assertRaisesRegex(SpecGap, "state_integrity.normal_expiry.events"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_read_list_exposes_structured_expiry_fields_without_prose (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_read_list_exposes_structured_expiry_fields_without_prose)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-daemon-recovery-structured-events/tools/tests/test_daemon_dry_run.py", line 282, in test_read_list_exposes_structured_expiry_fields_without_prose
+    self.assertIn("state_integrity.normal_expiry.events", raw["core_contract"]["reads"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'state_integrity.normal_expiry.events' not found in ['core_contract.*', 'transitions[].{from,to,event,guard,cond,side_effects,return_code,on_cond_fail}', 'lease_guards[]', 'noop_events', 'noop_rules', 'events', 'event_catalog', 'handoff_sequence', 'handoff_failure_policy.{max_attempts,attempt_counting,retry_detail,restart_resume,always_revoke}', 'retry_limits', 'concurrency.{lease,fencing.on_lease_end,lease_end,lease_issue,quiescence,idempotency_key,max_parallel_leases,branch_naming}', 'switch_policy.allowed_sources', 'hard_stop.{grace_s,trigger}', 'preserve_manifest.{function,excludes,secret_patterns}', 'envelopes.*.required', 'state_integrity', 'usage_recording', 'return_codes[].code']
+
+======================================================================
+FAIL: test_removing_an_event_disables_its_expiry_classification_only (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_removing_an_event_disables_its_expiry_classification_only) (removed='lease_expired', state='leased')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-daemon-recovery-structured-events/tools/tests/test_daemon_dry_run.py", line 325, in test_removing_an_event_disables_its_expiry_classification_only
+    self.assertEqual(recovery.normal_expiry_due(env.core, env.snap(), sc.BASIC), event == other)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True != False
+
+======================================================================
+FAIL: test_removing_an_event_disables_its_expiry_classification_only (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_removing_an_event_disables_its_expiry_classification_only) (removed='heartbeat_missed_twice', state='building')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-daemon-recovery-structured-events/tools/tests/test_daemon_dry_run.py", line 325, in test_removing_an_event_disables_its_expiry_classification_only
+    self.assertEqual(recovery.normal_expiry_due(env.core, env.snap(), sc.BASIC), event == other)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True != False
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.067s
+
+FAILED (failures=4)

@@ -1,0 +1,24 @@
+{
+  "base_commit": "17e172b7845b79da7a4c9bf11aae128111aea63e",
+  "changed_paths": [
+    "docs/blueprint/audits/2026-10-26_daemon_recovery_structured_events.md",
+    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json",
+    "tools/daemon/README.md",
+    "tools/daemon/core/recovery.py",
+    "tools/daemon/reports/dry_run.log",
+    "tools/daemon/reports/unittest.log",
+    "tools/daemon/spec_gaps.py",
+    "tools/evidence/audit1-daemon-recovery-structured-events/before.log",
+    "tools/evidence/audit1-daemon-recovery-structured-events/doc-checks.log",
+    "tools/evidence/audit1-daemon-recovery-structured-events/focused.log",
+    "tools/evidence/audit1-daemon-recovery-structured-events/python-tests.log",
+    "tools/evidence/audit1-daemon-recovery-structured-events/rust-tests.log",
+    "tools/evidence/audit1-daemon-recovery-structured-events/scope-check.json",
+    "tools/tests/test_daemon_dry_run.py"
+  ],
+  "all_changed_paths_allowed": true,
+  "protected_paths_unchanged": true,
+  "git_diff_check_exit_code": 0,
+  "rule_sha256": "99274c4acb7ea019e7672f1a3c81c25ccd1fa013020a3dd6b0b97517649a9b34",
+  "source_sha256": "8d953e86d190636782ad210b2d9a9b19c4d4c18bee2e13ca764fc6b041b86707"
+}

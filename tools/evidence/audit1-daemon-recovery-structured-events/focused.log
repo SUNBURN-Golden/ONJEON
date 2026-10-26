@@ -1,0 +1,9 @@
+test_missing_events_is_a_contract_error_without_prose_fallback (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_missing_events_is_a_contract_error_without_prose_fallback) ... ok
+test_read_list_exposes_structured_expiry_fields_without_prose (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_read_list_exposes_structured_expiry_fields_without_prose) ... ok
+test_removing_an_event_disables_its_expiry_classification_only (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_removing_an_event_disables_its_expiry_classification_only) ... ok
+test_restart_uses_structured_events_when_path_is_changed_or_missing (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_restart_uses_structured_events_when_path_is_changed_or_missing) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.062s
+
+OK

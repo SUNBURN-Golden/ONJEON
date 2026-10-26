@@ -29,6 +29,8 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 | `static_checks.py` | 병합 API·네트워크·CLI·벽시계·스케줄러·두 번째 해시·모델 식별자·비용 상한이 없음, 세대 대입은 `issue_lease` 안에서만 |
 | `spec_gaps.py` | 명세 공백 목록과 코어가 택한 해석 |
 
+정상 만료는 `state_integrity.normal_expiry.events_by_state`의 상태별 사건이 구조화된 `events` 목록과 현재 상태의 전이 행에 모두 있을 때 선택한다. `core_contract.reads`는 정상 만료의 `detect`·`events_by_state`·`events`를 명시하며 설명 문장(`path`·`outbox`·`next_lease`)은 코어 뷰에 넣지 않는다. [Audit 1 수정·검증 증거](../../docs/blueprint/audits/2026-10-26_daemon_recovery_structured_events.md).
+
 ## 관측 계층(명세 공백 G51~G55)
 
 `blocked→queued`와 PR 이후 전이(전이표 0, 43~85행)에는 `cond`가 없다. 어떤 사건을 낼지 정하는 규칙은 `when` 문장, `audit_triggers.immediate_rules[].rule`, `record_separation.merge_observation_fields._rule` 같은 문장이거나 읽기 목록 밖에 있다. 코어가 문장을 읽지 않으므로 `core/observation.py`가 04 §2.2·§4·§5의 규칙을 코드로 적용한다. 행이 하는 일은 여전히 전이표가 정한다. 이 해석은 모두 `spec_gaps.py`의 G51~G55에 적었고, 설계 담당이 구조화 필드로 옮기면 이 모듈을 그 필드를 읽도록 바꾼다.

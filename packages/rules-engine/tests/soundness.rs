@@ -2,8 +2,8 @@
 //! defined, but must never flip it to a different definite answer.
 mod common;
 use common::*;
-use onjeon_rules_engine::Rule;
-use serde_json::Value as J;
+use onjeon_rules_engine::{AmountOut, EvalError, Payout, Rule, Tri};
+use serde_json::{json, Value as J};
 
 fn is_definite(observed: &J) -> bool {
     match observed["payout"]["kind"].as_str().unwrap() {
@@ -130,6 +130,160 @@ fn unknown_is_never_reported_as_zero_or_not_payable() {
     let r = rule.evaluate(&serde_json::json!({})).unwrap();
     assert_ne!(format!("{:?}", r.payout), "NotPayable");
     assert!(!r.missing_inputs.is_empty());
+}
+
+fn conditional_amount_rule(amount: J) -> Rule {
+    let mut source = rule_json();
+    source["inputs"] = json!({"flag": "bool", "amt": "money_krw", "date": "date"});
+    source["eligibility"] = json!("flag");
+    source["amount"] = amount;
+    Rule::from_json(&source).unwrap()
+}
+
+#[test]
+fn hiding_eligibility_keeps_an_overflowing_amount_undetermined() {
+    let rule = conditional_amount_rule(json!({"add": ["amt", {"krw": 1}]}));
+    let full = json!({"flag": false, "amt": i64::MAX});
+    assert_eq!(rule.evaluate(&full).unwrap().payout, Payout::NotPayable);
+    let (checked, flips) = hide_each_input(&|i| observe(&rule, i), "amount-overflow", &full);
+    assert_eq!(checked, 2);
+    assert!(flips.is_empty(), "{flips:?}");
+
+    for hidden in [
+        json!({"amt": i64::MAX}),
+        json!({"flag": null, "amt": i64::MAX}),
+    ] {
+        let result = rule.evaluate(&hidden).unwrap();
+        assert_eq!(result.eligibility, Tri::Unknown);
+        assert_eq!(
+            result.payout,
+            Payout::Undetermined {
+                conditional_amount: AmountOut::Unknown
+            }
+        );
+        assert_eq!(result.missing_inputs, vec!["flag"]);
+        let error = result
+            .trace
+            .iter()
+            .find(|entry| entry.path == "amount")
+            .unwrap();
+        assert_eq!(error.op, "add");
+        assert_eq!(error.result, "error: arithmetic overflow at amount");
+        assert!(!result
+            .trace
+            .iter()
+            .any(|entry| entry.path.starts_with("amount.")));
+        assert_eq!(result, rule.evaluate(&hidden).unwrap());
+    }
+
+    assert!(matches!(
+        rule.evaluate(&json!({"flag": true, "amt": i64::MAX})),
+        Err(EvalError::Overflow { path }) if path == "amount"
+    ));
+}
+
+#[test]
+fn unknown_eligibility_preserves_successful_conditional_amounts_and_blockers() {
+    let rule = conditional_amount_rule(json!({"add": ["amt", {"krw": 1}]}));
+    for (inputs, conditional_amount, missing) in [
+        (
+            json!({"amt": 10}),
+            AmountOut::Exact { krw: 11 },
+            vec!["flag"],
+        ),
+        (json!({}), AmountOut::Unknown, vec!["amt", "flag"]),
+    ] {
+        let result = rule.evaluate(&inputs).unwrap();
+        assert_eq!(result.eligibility, Tri::Unknown);
+        assert_eq!(result.payout, Payout::Undetermined { conditional_amount });
+        assert_eq!(result.missing_inputs, missing);
+        assert!(!result
+            .trace
+            .iter()
+            .any(|entry| entry.result.starts_with("error:")));
+    }
+}
+
+#[test]
+fn unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors() {
+    // Range comparisons are rejected at load. A reversed date interval remains
+    // loadable and exercises runtime Type errors under unknown eligibility.
+    let reversed_days = json!({"days_between": ["date", {"date": "2199-12-30"},
+        {"inclusive_start": true, "inclusive_end": true}]});
+    for (condition, expected_error) in [
+        (
+            json!({"eq": [{"date_add": ["date", {"value": 1, "unit": "day"}]}, "date"]}),
+            EvalError::DateOutOfRange {
+                path: "amount.if.eq[0]".into(),
+            },
+        ),
+        (
+            json!({"lt": [reversed_days, 1]}),
+            EvalError::Type {
+                path: "amount.if.lt[0]".into(),
+                message: "days_between needs the first date on or before the second, \
+                          found the second 1 day(s) earlier; compare the dates with \
+                          lt/gt instead"
+                    .into(),
+            },
+        ),
+    ] {
+        let rule = conditional_amount_rule(
+            json!({"if": condition, "then": {"krw": 1}, "else": {"krw": 2}}),
+        );
+        let mut inputs = json!({"amt": 5, "date": "2199-12-31"});
+        let result = rule.evaluate(&inputs).unwrap();
+        assert_eq!(result.eligibility, Tri::Unknown);
+        assert_eq!(
+            result.payout,
+            Payout::Undetermined {
+                conditional_amount: AmountOut::Unknown
+            }
+        );
+        assert_eq!(result.missing_inputs, vec!["flag"]);
+        assert!(result
+            .trace
+            .iter()
+            .any(|entry| entry.path == "amount"
+                && entry.result == format!("error: {expected_error}")));
+        inputs["flag"] = json!(true);
+        assert_eq!(rule.evaluate(&inputs).unwrap_err(), expected_error);
+        inputs["flag"] = json!(false);
+        assert_eq!(rule.evaluate(&inputs).unwrap().payout, Payout::NotPayable);
+    }
+}
+
+#[test]
+fn unknown_eligibility_handles_all_any_errors_inside_conditional_amount() {
+    for (op, decisive) in [("all", false), ("any", true)] {
+        for gate in [decisive, !decisive] {
+            for error_first in [false, true] {
+                let bad = json!({"eq": [{"add": ["amt", {"krw": 1}]}, {"krw": 1}]});
+                let mut children = vec![json!(gate), bad];
+                if error_first {
+                    children.reverse();
+                }
+                let rule = conditional_amount_rule(json!({
+                    "if": {op: children}, "then": {"krw": 10}, "else": {"krw": 20}
+                }));
+                let result = rule.evaluate(&json!({"amt": i64::MAX})).unwrap();
+                let conditional_amount = if gate == decisive {
+                    AmountOut::Exact {
+                        krw: if decisive { 10 } else { 20 },
+                    }
+                } else {
+                    AmountOut::Unknown
+                };
+                assert_eq!(result.eligibility, Tri::Unknown);
+                assert_eq!(result.payout, Payout::Undetermined { conditional_amount });
+                assert_eq!(result.missing_inputs, vec!["flag"]);
+                assert!(result
+                    .trace
+                    .iter()
+                    .any(|entry| entry.result.starts_with("error: arithmetic overflow")));
+            }
+        }
+    }
 }
 
 #[test]

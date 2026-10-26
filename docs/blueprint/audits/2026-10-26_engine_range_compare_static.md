@@ -20,12 +20,13 @@
 - `pro_rata`의 `part`·`whole`은 기존 실행 계약대로 둘 다 int 또는 둘 다 정확한 money여야 한다. 세분화한 타입으로 범위 인자를 로드에서 거부한다. 첫 번째 금액 인자는 범위를 계속 허용한다.
 
 정확한 금액 비교와 범위 금액 계산·출력, 모름 처리는 유지한다.
-외부 DSL 키·입력 타입·출력 형식·내용 해시와 평가기는 변경하지 않았다.
+외부 DSL 키·입력 타입·출력 형식·내용 해시는 변경하지 않았다.
+범위 타입 검사는 로더에서 수행한다. 아래 Fix round 1의 평가기 변경은 동반 적격 처리 수정이다.
 범위 비교를 모름으로 계산할지 등 비교 의미의 확장은 BLUEPRINT §12의 W3 열린 결정으로 남는다.
 
 ## 검증
 
-모두 이 worktree에서 로컬 실행했다. rustc/cargo 1.98.1, `--offline`을 사용했으며
+첫 수정 검증은 이 worktree에서 로컬 실행했다. rustc/cargo 1.98.1, Cargo 검사에 `--offline`을 사용했으며
 원격 CI 실행을 주장하지 않는다. [로그 디렉터리](../../../packages/rules-engine/evidence/audit2-range-compare/).
 
 | 명령 | 결과·증거 |
@@ -51,6 +52,49 @@
 변경 경로·보호 파일·로컬 문서 링크와 `git diff --check`도
 [최종 검사](../../../packages/rules-engine/evidence/audit2-range-compare/final-checks.log)에서 확인했다.
 commit·push·GitHub 호출은 수행하지 않았다.
+
+## Fix round 1: CI 실패 재현과 통합 fixture 수정
+
+제공된 CI 실행 `40266306859`의 실패는 Python 검사나 lint가 아니라
+`soundness::unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors`의
+로드 실패였다. 이 시험은 범위 비교를 런타임 `Type` 오류 예제로 사용했기 때문에
+새 로더가 `amount.if.lt: money_range operands cannot be compared`로 거부했다.
+
+이 worktree의 시작 커밋 `3a8cede`에는 해당 시험과 모름 적격의 금액 오류 흡수 수정이
+없었다. 로컬 Git 객체 `a38b836`(동반 `audit2-engine-unknown-elig-amount-error` 수정)의
+`src/eval.rs`와 `tests/soundness.rs`만 가져와 CI의 9개 건전성 시험을 재현했다.
+브랜치 merge나 commit은 하지 않았다. 이 상태에서 8개 통과·해당 1개 실패와
+CI와 동일한 오류 경로·메시지를 확인했다
+([soundness-before.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/soundness-before.log)).
+
+범위 비교 fixture를 역순 `days_between`의 런타임 `Type` 오류로 교체했다.
+정적 범위 비교 거부는 유지하며, 두 오류 종류(날짜 범위·런타임 타입) 모두
+적격 모름에서는 조건부 금액 모름·`flag` blocker·흡수 오류 trace,
+적격 참에서는 정확한 오류 경로·메시지 전파, 적격 거짓에서는 `not_payable`을 검증한다.
+동반 수정의 오버플로·성공 금액·`all`/`any` 통합 시험도 함께 보존했다.
+README의 범위 비교 한계 문구도 로드 단계 거부로 명확히 했다.
+
+아래 재검증은 로컬 실행이며 원격 CI 재실행 결과가 아니다.
+Rust 1.98.1과 CI가 지정한 boto3 1.43.100을 사용했다.
+`rules-engine` job의 모든 검사 명령을 저장소 루트에서 실행했고,
+전체 workspace clippy와 전체 Rust 시험은 CI와 같은 명령(`--offline` 없음)을 사용했다.
+증거는 [round1 로그 디렉터리](../../../packages/rules-engine/evidence/audit2-range-compare/round1/)에 둔다.
+
+| 명령 | 결과·증거 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --test soundness --test range_comparisons --test all_any_errors --test unknown_branch_errors --offline` | 29개 통과, 건전성 9개·범위 비교 8개 포함([focused.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/focused.log)) |
+| `python3 tools/vocab_check.py` | 49개 축·269개 값 통과([vocab.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/vocab.log)) |
+| `python3 tools/validation_check.py` | 내부 일관성 통과, 원본 재검증 아님([validation.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/validation.log)) |
+| `python3 tools/validation_check.py --selftest` | 변조 38종 모두 의도한 이유로 거부([validation-selftest.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/validation-selftest.log)) |
+| `python3 -m unittest discover -s tools/tests -v` | 915개 실행, 실패 0, 환경 조건에 따른 skip 6(원본 아카이브·pdftotext 관련 5개, 구형 botocore 전용 1개). boto3 1.43.100([python-tests.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/python-tests.log)) |
+| `cargo fmt --all -- --check` | 통과([fmt.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/fmt.log)) |
+| `cargo clippy --all-targets -- -D warnings` | 저장소 루트의 전체 workspace 통과([workspace-clippy.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/workspace-clippy.log)) |
+| `cargo test --all` | Rust 단위·통합·문서 시험 419개 통과, 실패 0, 기존 ignored 1([workspace-tests.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/workspace-tests.log)) |
+| `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 기계 검사 44/44·존재 검사 72/72 통과([spec-check.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/spec-check.log)) |
+
+변경 경로·보호 파일·문서 링크·`git diff --check`와 실행 환경·소스 해시는
+[final-checks.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/final-checks.log)에 기록했다.
+이번 수정에서도 commit·push·GitHub 호출은 수행하지 않았다.
 
 ## 제품 목적과 증명 범위
 

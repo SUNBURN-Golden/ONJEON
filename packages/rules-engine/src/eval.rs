@@ -868,14 +868,13 @@ fn convert_inputs(rule: &Rule, inputs: &J) -> Result<BTreeMap<String, Value>, Ev
 }
 
 fn snapshot_hash(inputs: &BTreeMap<String, Value>) -> String {
-    let mut h = Sha256::new();
-    for (k, v) in inputs {
-        h.update(k.as_bytes());
-        h.update(b"=");
-        h.update(v.to_string().as_bytes());
-        h.update(b"\n");
-    }
-    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+    // Hash typed, converted inputs rather than display strings. Missing and null inputs
+    // are both Unknown; list order and every input name/string are preserved.
+    let json = serde_json::to_value(inputs).expect("runtime input values always serialize");
+    Sha256::digest(crate::canonical::canonical_bytes(&json))
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
 }
 
 impl Rule {

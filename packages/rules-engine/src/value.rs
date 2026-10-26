@@ -1,15 +1,17 @@
 use crate::date::format_date;
+use serde::Serialize;
 use std::fmt;
 
 /// One event of a `class_money_list` input: an equivalence class and an amount that may be unknown.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct ListItem {
     pub class: String,
     pub krw: Option<i64>,
 }
 
 /// Runtime values. `Unknown` is a value of any type and is never coerced to zero.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
+#[serde(tag = "type", content = "value", rename_all = "snake_case")]
 pub enum Value {
     Bool(bool),
     Int(i64),
@@ -27,8 +29,10 @@ pub enum Value {
     },
     /// Days since 1970-01-01.
     Date(i64),
+    #[serde(rename = "string")]
     Str(String),
     /// Events of one moment, each with an equivalence class (rule-0.2).
+    #[serde(rename = "class_money_list")]
     List(Vec<ListItem>),
     Unknown,
 }

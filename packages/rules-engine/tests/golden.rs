@@ -73,7 +73,7 @@ fn pinned_cases() -> serde_json::Map<String, J> {
         .as_object()
         .expect("golden cases object")
         .clone();
-    // Keep the shared pins intact and extend them for the mutation suite's rounding case.
+    // Keep the shared traces intact and extend them for the mutation suite's rounding case.
     let rounding: J = serde_json::from_str(include_str!(
         "fixtures/fixture-rule-001.rounding.golden.json"
     ))
@@ -87,11 +87,26 @@ fn pinned_cases() -> serde_json::Map<String, J> {
             "{id}: duplicate golden pin"
         );
     }
+    // The shared fixture records the legacy display-based hash. This engine-owned
+    // pin set replaces only hashes for the intentional snapshot-json-1 migration.
+    let current: J = serde_json::from_str(include_str!(
+        "fixtures/fixture-rule-001.snapshot-json-1.hashes.json"
+    ))
+    .expect("canonical snapshot hash pins");
+    let hashes = current["hashes"].as_object().expect("hashes object");
+    assert_eq!(
+        pinned.keys().collect::<std::collections::BTreeSet<_>>(),
+        hashes.keys().collect::<std::collections::BTreeSet<_>>()
+    );
+    for (id, value) in &mut pinned {
+        value["input_snapshot_hash"] = hashes[id].clone();
+    }
     pinned
 }
 
 /// The golden table also pins the audit fields: per-case `trace` and `input_snapshot_hash`
-/// (in the shared golden fixture and the local rounding supplement) and `rule_content_hash`
+/// (traces in the shared/local golden fixtures, hashes in the snapshot-json-1 pin set)
+/// and `rule_content_hash`
 /// (in `fixture-rule-001.content_hash`). `expect` stays outcome-only.
 #[test]
 fn golden_table_pins_trace_and_hashes() {

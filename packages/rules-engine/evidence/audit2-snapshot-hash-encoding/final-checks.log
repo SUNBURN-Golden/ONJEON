@@ -1,0 +1,6 @@
+PASS: all 22 changed/new files are in allowed paths; no forbidden files changed.
+PASS: protected files remain identical to HEAD; docs/data/ and DECISION_REQUIRED.md unchanged.
+PASS: added snapshot documentation/evidence links resolve.
+PASS: final snapshot_hash uses canonical JSON; legacy display-based hash is absent.
+PASS: git diff --check and whitespace checks for new files.
+No commit, push, or GitHub calls performed.

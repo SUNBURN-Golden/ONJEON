@@ -23,4 +23,3 @@ test signed_date_inputs_are_rejected_at_evaluation ... ok
 test canonical_date_literals_and_inputs_still_evaluate ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-

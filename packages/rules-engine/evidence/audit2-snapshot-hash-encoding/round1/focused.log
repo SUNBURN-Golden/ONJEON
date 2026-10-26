@@ -1,0 +1,35 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-snapshot-hash-encoding/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.72s
+     Running tests/date_format.rs (target/debug/deps/date_format-c73c2d489faeeeca)
+
+running 3 tests
+test signed_date_literals_are_rejected_at_load ... ok
+test signed_date_inputs_are_rejected_at_evaluation ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/golden.rs (target/debug/deps/golden-b070bb5f85ed9bcc)
+
+running 7 tests
+test golden_table_matches_expert_expectations ... ok
+test synthetic_fixture_rule_is_fixture_only ... ok
+test same_input_gives_byte_identical_output ... ok
+test trace_records_every_evaluated_node_and_hash_changes_with_input ... ok
+test golden_table_pins_trace_and_hashes ... ok
+test pinned_input_snapshot_hashes_are_distinct_per_distinct_input ... ok
+test real_rule_content_hashes_are_pinned ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/snapshot_hash.rs (target/debug/deps/snapshot_hash-8f3c0914b196cffd)
+
+running 6 tests
+test delimiter_injection_no_longer_collides ... ok
+test every_input_name_is_hashed_including_release_id_and_json_metacharacters ... ok
+test list_member_order_amount_and_class_are_preserved_but_object_order_is_not ... ok
+test hash_matches_independent_canonical_json_with_all_input_types ... ok
+test object_order_and_null_vs_missing_do_not_change_the_snapshot ... ok
+test runtime_types_and_string_bytes_remain_distinct ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

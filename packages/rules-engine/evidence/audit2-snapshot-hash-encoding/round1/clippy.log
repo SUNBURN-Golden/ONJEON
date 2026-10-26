@@ -1,0 +1,5 @@
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-snapshot-hash-encoding/packages/rules-engine)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-snapshot-hash-encoding/packages/twin-runtime)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-snapshot-hash-encoding/packages/ontology)
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-snapshot-hash-encoding/packages/schemas)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.04s

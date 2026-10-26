@@ -38,4 +38,3 @@ test date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches ... 
 test date_add_exact_key_sets_preserve_calendar_results ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-

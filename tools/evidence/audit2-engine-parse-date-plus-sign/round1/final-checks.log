@@ -1,0 +1,8 @@
+PASS: no unmerged index entries; merge remains in progress for supervisor commit
+PASS: all merge changes are within allowed paths; protected files unchanged
+PASS: both documentation intents and both date regression suites preserved
+PASS: no conflict markers in changed Markdown or Rust files
+PASS: resolved README and updated audit record local links exist
+PASS: working tree and staged diff whitespace checks
+HEAD: 60129eceaf59d4579f3e57fedf53ca9591447c08
+MERGE_HEAD: 99a5a5e957b4f3c3c9486ca382bc4f4c18445c18

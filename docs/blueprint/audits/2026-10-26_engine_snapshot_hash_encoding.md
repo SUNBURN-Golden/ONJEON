@@ -60,6 +60,32 @@ Rust 1.98.1에서 실행했다([toolchain.log](../../../packages/rules-engine/ev
 허용 경로·보호 파일 보존·추가 문서 링크·diff 공백 검사는
 [final-checks.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/final-checks.log)에 기록한다.
 
+## Fix round 1: main 병합 충돌 해결
+
+`09_제품목적_대응표.md`의 같은 위치에 추가된 입력 스냅샷 해시 검증(P08·P14)과
+숫자 전용 날짜 파싱 검증(P08)을 모두 보존했다. 정규 JSON 해시 구현·골든과
+main의 날짜 파싱 수정·회귀 시험을 함께 유지했다. 커밋·푸시 없이 충돌만 해결했으며
+병합 커밋은 감독자가 수행한다.
+
+병합된 작업 트리에서 Rust 1.98.1로 다시 실행한 로컬 증거는
+[`round1/`](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/)에 둔다.
+
+| 명령·대조 | 결과·증거 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --test snapshot_hash --test golden --test date_format --offline` | 해시 6개·골든 7개·날짜 3개 통과 ([focused.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/focused.log)) |
+| `cargo test --all --offline` | Rust 시험 439개 통과·실패 0·기존 ignored 1, 내부 Python 시험 39개·129개 통과 ([workspace.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/workspace.log)) |
+| `cargo fmt --all -- --check` | 통과 ([fmt.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/fmt.log)) |
+| `cargo clippy --all-targets --offline -- -D warnings` | 통과 ([clippy.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/clippy.log)) |
+| `python3 -m unittest discover -s tools/tests -v` | 915개 실행·실패 0·기존 skip 6 ([python-tests.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/python-tests.log)) |
+| `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 기계 44/44·존재 72/72 통과 ([spec-check.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/spec-check.log)) |
+| `python3 -I tools/ci/check_product_purpose.py` | 통과 ([product-purpose.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/product-purpose.log)) |
+| `python3 tools/vocab_check.py` | 49축·269값 통과 ([vocabulary.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/vocabulary.log)) |
+| `python3 tools/validation_check.py` / `--selftest` | 내부 정합성·변조 38개 검출 통과 ([validation.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/validation.log), [validation-selftest.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/validation-selftest.log)) |
+
+충돌 인덱스 해소·두 감사 링크 보존·허용 경로·보호 파일·문서 링크·diff 공백 검사는
+[final-checks.log](../../../packages/rules-engine/evidence/audit2-snapshot-hash-encoding/round1/final-checks.log)에 기록한다.
+main에서 가져온 날짜 파싱 증거 로그 두 개의 끝 빈 줄만 제거해 공백 검사도 통과시켰다.
+
 ## 제품 목적과 완료 범위
 
 BLUEPRINT A5, Q5·Q7, L6, I18, M0 엔진 유지보수와 연결된다.

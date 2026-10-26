@@ -7,7 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -109,15 +109,30 @@ class ArchiveCommands(unittest.TestCase):
         self.assertEqual((code, result), (1, [dict(sample_id="sample", status="missing_in_cache")]))
         self.assertEqual(self.raw.list(""), [])
 
-    def test_hash_mismatch_preserves_actual_bytes_but_creates_no_observation(self):
+    def test_hash_mismatch_writes_no_raw_observation_or_derived_objects(self):
         p = self.cache_original()
         p.write_bytes(b"changed original")
+        src = self.root / "extracted" / "nested"
+        src.mkdir(parents=True)
+        (src / "page.tables.txt").write_bytes(b"table cells")
+        self.args.derived = self.derived.root.as_uri()
+        self.args.derived_src = str(src.parent)
         code, result = self.archive()
         digest = sa.sha256_bytes(b"changed original")
         self.assertEqual((code, result), (1, [dict(sample_id="sample",
                          status="hash_differs_from_samples_csv", sha256=digest)]))
-        self.assertEqual(self.raw.list(""), [sa.object_key(digest)])
-        self.assertEqual(self.raw.get(sa.object_key(digest)), b"changed original")
+        self.assertEqual(self.raw.list(""), [])
+        self.assertEqual(self.derived.list(""), [])
+
+    def test_hash_mismatch_preserves_existing_archive_without_calling_put_raw(self):
+        p = self.cache_original()
+        self.assertEqual(self.archive()[0], 0)
+        before = {key: self.raw.get(key) for key in self.raw.list("")}
+        p.write_bytes(b"changed original")
+        with mock.patch.object(sa, "put_raw", wraps=sa.put_raw) as put:
+            self.assertEqual(self.archive()[0], 1)
+        put.assert_not_called()
+        self.assertEqual({key: self.raw.get(key) for key in self.raw.list("")}, before)
 
     def test_archive_conflicting_stored_object_aborts_without_observation(self):
         self.cache_original()
@@ -131,12 +146,14 @@ class ArchiveCommands(unittest.TestCase):
     def test_archive_reports_bad_rows_and_continues_with_valid_rows(self):
         self.cache_original()
         self.write_samples(dict(self.row, sample_id="unsafe", cache_path="../outside"),
-                           dict(self.row, sample_id="missing", cache_path="missing.pdf"), self.row)
+                           dict(self.row, sample_id="missing", cache_path="missing.pdf"),
+                           dict(self.row, sample_id="mismatch", sha256="0" * 64), self.row)
         code, result = self.archive()
         self.assertEqual(code, 1)
         self.assertEqual([r.get("status", r.get("object")) for r in result],
-                         ["unsafe_cache_path", "missing_in_cache", "stored"])
+                         ["unsafe_cache_path", "missing_in_cache", "hash_differs_from_samples_csv", "stored"])
         self.assertEqual(len(self.raw.list("observations/")), 1)
+        self.assertEqual(self.raw.list("objects/"), [sa.object_key(self.row["sha256"])])
 
     def test_fetch_restores_multiple_nested_originals_by_hash(self):
         digest, _ = sa.put_raw(self.raw, self.body, "text/html")
@@ -153,6 +170,37 @@ class ArchiveCommands(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             sa.cmd_fetch(self.args)
         self.assertFalse((Path(self.args.out) / self.row["cache_path"]).exists())
+
+    def test_fetch_hash_mismatch_fails_before_creating_or_overwriting_destination(self):
+        self.raw.put_new(sa.object_key(self.row["sha256"]), b"corrupted stored bytes", "text/html")
+        dest = Path(self.args.out) / self.row["cache_path"]
+        for existing in (False, True):
+            with self.subTest(existing=existing):
+                if existing:
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    dest.write_bytes(self.body)
+                out, err = io.StringIO(), io.StringIO()
+                argv = ["source_archive.py", "fetch", "--raw", self.args.raw, "--out", self.args.out]
+                with mock.patch.object(sys, "argv", argv), redirect_stdout(out), redirect_stderr(err):
+                    self.assertEqual(sa.main(), 1)
+                self.assertIn("sample: hash_mismatch", err.getvalue())
+                self.assertIn(self.row["sha256"], err.getvalue())
+                self.assertIn(sa.sha256_bytes(b"corrupted stored bytes"), err.getvalue())
+                self.assertNotIn("Traceback", err.getvalue())
+                self.assertEqual(out.getvalue(), "")
+                if existing:
+                    self.assertEqual(dest.read_bytes(), self.body)
+                else:
+                    self.assertFalse(Path(self.args.out).exists())
+
+    def test_fetch_stops_on_hash_mismatch_before_later_rows(self):
+        self.raw.put_new(sa.object_key(self.row["sha256"]), b"corrupt", "text/html")
+        later, _ = sa.put_raw(self.raw, b"later document", "application/pdf")
+        self.write_samples(self.row, dict(self.row, sample_id="later", sha256=later,
+                                         cache_path="later.pdf"))
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            self.assertEqual(sa.cmd_fetch(self.args), 1)
+        self.assertFalse(Path(self.args.out).exists())
 
     def observation_args(self, **overrides):
         args = dict(raw=self.args.raw, endpoint_url=None, file=str(self.cache_original()),

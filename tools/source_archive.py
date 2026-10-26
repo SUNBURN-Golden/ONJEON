@@ -20,6 +20,7 @@ Rules enforced here (on AWS also by the bucket policy in infra/s3/; R2 has no bu
   its observations stay.
 - observation extras must be a JSON object and cannot replace source_id, url, observed_at,
   sha256, bytes, content_type or object_key, even with the same value.
+- sample bytes must match samples.csv before any archive write or restored-file write.
 - there is no delete command.
 - personal policy, health, family history or DNA data never enter these stores
   (only rows from docs/blueprint/validation/samples.csv or explicit public-source arguments).
@@ -335,7 +336,8 @@ def content_type_of(path, fmt):
 def cmd_archive_samples(a):
     raw = store(a.raw, a.endpoint_url)
     derived = store(a.derived, a.endpoint_url) if a.derived else None
-    rows = list(csv.DictReader(SAMPLES.open(encoding="utf-8")))
+    with SAMPLES.open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
     results = []
     for r in rows:
         try:
@@ -347,11 +349,12 @@ def cmd_archive_samples(a):
             results.append({"sample_id": r["sample_id"], "status": "missing_in_cache"})
             continue
         body = p.read_bytes()
-        ctype = content_type_of(p, r["format"])
-        digest, state = put_raw(raw, body, ctype)
+        digest = sha256_bytes(body)
         if digest != r["sha256"]:
             results.append({"sample_id": r["sample_id"], "status": "hash_differs_from_samples_csv", "sha256": digest})
             continue
+        ctype = content_type_of(p, r["format"])
+        digest, state = put_raw(raw, body, ctype)
         extra = {"sample_id": r["sample_id"], "doc_role": r["doc_role"], "format": r["format"]}
         okey, ostate = put_observation(raw, r["sample_id"], r["url"], r["retrieved_at"], digest, len(body), ctype, extra)
         results.append({"sample_id": r["sample_id"], "sha256": digest, "object": state, "observation": ostate})
@@ -421,10 +424,16 @@ def cmd_add_observation(a):
 def cmd_fetch(a):
     raw = store(a.raw, a.endpoint_url)
     out = Path(a.out)
-    for r in csv.DictReader(SAMPLES.open(encoding="utf-8")):
+    with SAMPLES.open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    for r in rows:
         dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
-        dest.parent.mkdir(parents=True, exist_ok=True)
         body = raw.get(object_key(r["sha256"]))
+        digest = sha256_bytes(body)
+        if digest != r["sha256"]:
+            print(f"{r['sample_id']}: hash_mismatch: expected {r['sha256']}, downloaded {digest}", file=sys.stderr)
+            return 1
+        dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
     print(f"restored originals into {out}")
     return 0

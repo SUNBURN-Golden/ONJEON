@@ -1,0 +1,28 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-real-clauses-count-assert/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.68s
+     Running tests/days_between.rs (target/debug/deps/days_between-470e13cb4e0feaea)
+
+running 4 tests
+test missing_dates_stay_unknown_and_report_only_missing_endpoints ... ok
+test reversed_literal_and_computed_dates_are_also_rejected ... ok
+test forward_and_same_day_intervals_preserve_all_inclusive_boundaries ... ok
+test reversed_dates_cannot_satisfy_comparison_thresholds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/real_clauses.rs (target/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 11 tests
+test screen_check_catches_tampered_numbers ... ok
+test every_real_clause_case_matches ... ok
+test exact_case_count_check_catches_an_unexpected_extra_case - should panic ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test waiting_period_units_are_not_interchangeable ... ok
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... ok
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test exact_case_count_check_catches_each_missing_file ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s

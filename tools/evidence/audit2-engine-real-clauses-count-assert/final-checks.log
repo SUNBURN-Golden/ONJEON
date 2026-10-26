@@ -1,0 +1,4 @@
+PASS: all changed/new files are within the node allowed paths; protected files unchanged.
+PASS: git diff --check.
+PASS: evidence log whitespace checks (only trailing blank lines normalized).
+PASS: every audit evidence/source/document link resolves locally.

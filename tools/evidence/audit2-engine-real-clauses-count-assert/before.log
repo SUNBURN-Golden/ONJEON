@@ -1,0 +1,61 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling generic-array v0.14.7
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.18
+   Compiling cpufeatures v0.2.17
+   Compiling memchr v2.8.3
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling syn v3.0.6
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-real-clauses-count-assert/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.35s
+     Running tests/real_clauses.rs (target/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 10 tests
+test screen_check_catches_tampered_numbers ... ok
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+test exact_case_count_check_catches_each_missing_file ... FAILED
+test waiting_period_units_are_not_interchangeable ... ok
+test every_real_clause_case_matches ... ok
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... FAILED
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+
+failures:
+
+---- exact_case_count_check_catches_each_missing_file stdout ----
+
+thread 'exact_case_count_check_catches_each_missing_file' (1092291) panicked at packages/rules-engine/tests/real_clauses.rs:102:5:
+assertion `left == right` failed: rules without any case: ["kb-driver-fine"]
+  left: {"kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death"}
+ right: {"kb-driver-fine", "kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death"}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'exact_case_count_check_catches_each_missing_file' (1092291) panicked at packages/rules-engine/tests/real_clauses.rs:134:9:
+kb-driver-fine.cases.json: expected a count failure, got assertion `left == right` failed: rules without any case: ["kb-driver-fine"]
+  left: {"kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death"}
+ right: {"kb-driver-fine", "kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death"}
+
+---- exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered stdout ----
+note: test did not panic as expected at packages/rules-engine/tests/real_clauses.rs:143:4
+
+failures:
+    exact_case_count_check_catches_each_missing_file
+    exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered
+
+test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test real_clauses`

@@ -6,6 +6,8 @@
 - adds `disclosure_status` (acquisition_status) and `disclosure_gap_reason`
 - adds `product_list_status` / `product_list_reason` so the lower denominator
   (products and riders per insurer) is tracked even before it is enumerated
+- adds `product_list_reason_codes` (`;`-separated, see PRODUCT_LIST_REASON_CODES)
+  while `product_list_status = unqueried`
 
 Idempotent: running it twice gives the same files.
 """
@@ -66,6 +68,26 @@ def disclosure(row):
     return maps_to, f"홈페이지 접근 결과: {home}"
 
 
+PRODUCT_LIST_REASON_CODES = {
+    "awaiting_T-DT-04": "상품·특약 목록 열거는 T-DT-04 몫이고 아직 실행 전",
+    "awaiting_domestic_env": "실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전",
+    "disclosure_entry_missing": "공시 진입점을 확보하지 못함(disclosure_status가 archived 아님)",
+    "foreign_sandbox_geo_blocked": "해외 IP 샌드박스에서 홈페이지·공시실이 해외 IP 차단됨",
+}
+
+
+def product_list_codes(row):
+    """Reason codes for a product list that has not been enumerated yet ('' once it has a status)."""
+    if row.get("product_list_status") != "unqueried":
+        return row.get("product_list_reason_codes", "")
+    codes = ["awaiting_T-DT-04", "awaiting_domestic_env"]
+    if row["disclosure_status"] != "archived":
+        codes.append("disclosure_entry_missing")
+    if "geo_blocked" in (row.get("home_access"), row.get("disclosure_access")):
+        codes.append("foreign_sandbox_geo_blocked")
+    return ";".join(codes)
+
+
 def normalize(path, has_disclosure=True):
     rows = list(csv.DictReader(path.open(encoding="utf-8")))
     if not rows:
@@ -91,6 +113,7 @@ def normalize(path, has_disclosure=True):
             r["disclosure_gap_reason"] = why
             r.setdefault("product_list_status", "unqueried")
             r.setdefault("product_list_reason", "상품·특약 목록 열거 전(M3 어댑터 단계). 표본 검증과 무관하게 전 대상을 추적")
+            r["product_list_reason_codes"] = product_list_codes(r)
         out.append(r)
     order = list(out[0].keys())
     with path.open("w", encoding="utf-8", newline="") as f:

@@ -96,6 +96,7 @@ class RegistryCsv(unittest.TestCase):
         self.assertEqual(row["disclosure_gap_reason"], "")
         self.assertEqual(row["product_list_status"], "unqueried")
         self.assertIn("상품·특약", row["product_list_reason"])
+        self.assertEqual(row["product_list_reason_codes"], "awaiting_T-DT-04;awaiting_domestic_env")
         first = self.path.read_bytes()
         self.assertEqual(rn.normalize(self.path), 1)
         self.assertEqual(self.path.read_bytes(), first)

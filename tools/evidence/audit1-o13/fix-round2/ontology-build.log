@@ -1,0 +1,8 @@
+$ cargo build --offline --manifest-path 'docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml' --target-dir target/o13-ontology
+STARTED_AT=2026-10-25T22:12:35.799767+00:00
+CARGO_NET_OFFLINE=true
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+
+EXIT_CODE=0
+ELAPSED_SECONDS=0.09

@@ -1,0 +1,6 @@
+$ python3 -I tools/ci/check_skeleton.py
+CARGO_NET_OFFLINE=true
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+
+EXIT_CODE=0
+ELAPSED_SECONDS=0.24

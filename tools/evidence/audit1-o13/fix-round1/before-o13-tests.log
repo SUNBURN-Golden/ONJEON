@@ -1,0 +1,70 @@
+$ python3 -I -m unittest discover -s tools/tests -p test_o13_ruling.py -v
+test_independent_lock_and_bulk_collection_gates_remain (test_o13_ruling.RulingAccessGates.test_independent_lock_and_bulk_collection_gates_remain) ... ok
+test_local_paths_queue_but_r2_access_stays_disabled (test_o13_ruling.RulingAccessGates.test_local_paths_queue_but_r2_access_stays_disabled) ... ok
+test_op02_requires_both_registered_decisions (test_o13_ruling.RulingAccessGates.test_op02_requires_both_registered_decisions) ... ok
+test_record_file_alone_does_not_release_op04_start (test_o13_ruling.RulingAccessGates.test_record_file_alone_does_not_release_op04_start) ... ok
+test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) ... 
+  test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/blueprint/DECISIONS.md') ... FAIL
+  test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/BLUEPRINT.md') ... FAIL
+  test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md') ... FAIL
+  test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/blueprint/proposals/설계검토_결과/03_작업명세.md') ... FAIL
+test_original_rows_are_rejected_by_acceptance (test_o13_ruling.RulingPatch.test_original_rows_are_rejected_by_acceptance) ... ok
+test_other_wording_duplicates_and_ruling_drift_fail (test_o13_ruling.RulingPatch.test_other_wording_duplicates_and_ruling_drift_fail) ... ok
+test_patch_applies_to_copies_and_corrected_live_checks_pass (test_o13_ruling.RulingPatch.test_patch_applies_to_copies_and_corrected_live_checks_pass) ... ok
+test_proposal_rows_match_patch_and_link_actual_owner_record (test_o13_ruling.RulingPatch.test_proposal_rows_match_patch_and_link_actual_owner_record) ... ok
+test_readme_links_ruling_and_explicit_unresolved_status (test_o13_ruling.RulingPatch.test_readme_links_ruling_and_explicit_unresolved_status) ... ok
+
+======================================================================
+FAIL: test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/blueprint/DECISIONS.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 114, in test_live_rows_record_ruling_owner_date_and_preserve_gates
+    self.assert_corrected((ROOT / path).read_text(encoding="utf-8"), path)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 83, in assert_corrected
+    self.assertIn(required, row, path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[DEC-D-04](../decisions/DEC-D-04.md)' not found in '| O13 | ~~수집 원본의 불변 보관소~~ → D14·D16으로 결정. 2026-10-09 R2에 원본 58키·파생 v2 61키 보존, 다시 받아 전부 바이트 일치(`source_checks/2026-10-09_r2_*`). 공개 주소는 세 버킷 모두 꺼짐(검토자 API 확인). 남은 일: 대화로 받은 토큰 폐기와 범위 제한 토큰 재발급, 버킷 잠금(O14) | 데이터 운영 책임 | V1 관문 판정 전 | 보존·대조 기록 있음 / 토큰 폐기 전 추가 수집 금지 |' : docs/blueprint/DECISIONS.md
+
+======================================================================
+FAIL: test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/BLUEPRINT.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 114, in test_live_rows_record_ruling_owner_date_and_preserve_gates
+    self.assert_corrected((ROOT / path).read_text(encoding="utf-8"), path)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 83, in assert_corrected
+    self.assertIn(required, row, path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[DEC-D-04](decisions/DEC-D-04.md)' not found in '| 대화로 받은 R2 토큰 폐기와 범위 제한 토큰 재발급 | 다음 R2 작업 | 토큰 폐기 전 추가 수집 금지 |' : docs/BLUEPRINT.md
+
+======================================================================
+FAIL: test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 114, in test_live_rows_record_ruling_owner_date_and_preserve_gates
+    self.assert_corrected((ROOT / path).read_text(encoding="utf-8"), path)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 83, in assert_corrected
+    self.assertIn(required, row, path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[DEC-D-04](../../../decisions/DEC-D-04.md)' not found in '| 대화에 노출된 R2·`cfut_` 토큰 | 사용자가 폐기. 재사용·출력 금지. 폐기 전까지 T-OP-04는 시작 불가(start 관문 D-04) |' : docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md
+
+======================================================================
+FAIL: test_live_rows_record_ruling_owner_date_and_preserve_gates (test_o13_ruling.RulingDocumentation.test_live_rows_record_ruling_owner_date_and_preserve_gates) (path='docs/blueprint/proposals/설계검토_결과/03_작업명세.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 114, in test_live_rows_record_ruling_owner_date_and_preserve_gates
+    self.assert_corrected((ROOT / path).read_text(encoding="utf-8"), path)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit1-o13-record-d04-ruling/tools/tests/test_o13_ruling.py", line 83, in assert_corrected
+    self.assertIn(required, row, path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[DEC-D-04](../../../decisions/DEC-D-04.md)' not found in '| D-04 대화 노출 R2 토큰 폐기·범위 제한 토큰 재발급 | T-OP-04 | T-DT-01, T-OP-02, T-DT-04 | — | — | 로컬 객체 저장소 경로(T-DT-01), 모든 설계·시험·코드 작성 |' : docs/blueprint/proposals/설계검토_결과/03_작업명세.md
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.038s
+
+FAILED (failures=4)
+
+EXIT_CODE=1

@@ -1,0 +1,47 @@
+{
+  "recorded_date": "2026-10-26",
+  "head": "3f044f0891c3007d5532511323ab34d722fedc69",
+  "versions": {
+    "python3": "Python 3.13.5",
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "git": "git version 2.47.3"
+  },
+  "source_sha256": {
+    "README.md": "bcc8f9f9022327c01ad23f5c87d272c5642b942faaf89682a7af38211302ae26",
+    "docs/BLUEPRINT.md": "56f3f67a3f2196a6f591a78c16c1a444754bcec8d80b448ec8fd83eae893908a",
+    "docs/blueprint/DECISIONS.md": "c064bcc7904c4b30dec25af5cfebd85d3f9ac533ef65b7a682c36396c91575dd",
+    "tools/tests/test_o13_ruling.py": "420c11c9c7f4949a603ad2cf32cf1e08e0b042a1ea017ba4ce31c6eb47ef464b",
+    "docs/blueprint/audits/2026-10-26_o13_d04_ruling.md": "3e3f55ca08c67a3ba18db87667eb2e6b26e904034a80a360101fdfb30891db95",
+    "docs/blueprint/proposals/설계검토_결과/tasks.json": "1345aeb2668bc4475f5f16073115b7d45267a83e5f278827982a45241603192d",
+    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "1b3acc6018363192acba4a795db8353d64a85442d1e9255ad8e03e1582d136fa",
+    "docs/blueprint/proposals/설계검토_결과/03_작업명세.md": "198ebb32142b3a6873d3385953be3e5cc50119b0e11a70d32302359bc0b54a0e",
+    "docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md": "c98d6068553126bc3f0051c23aad9479ccf5af7efaf76c734ce3406f3d9a9c97",
+    "docs/blueprint/proposals/설계검토_결과/README.md": "d129e1a35d17e05dae098be8ebfaf6e67fcc1ddd2e38d69883460e1b7680d0b7"
+  },
+  "protected_paths_match_initial": true,
+  "tasks_equal_head_except_two_blocked_by_strings": true,
+  "daemon_rules_equal_head": true,
+  "log_sha256": {
+    "baseline-comparison.log": "0012bda68ad5933f182c73c62594f39759ad256fb95985149d57ca154b594d0a",
+    "before-o13-tests.log": "e7aa7fc2ff372d9764c705644536563d60d9b016d4b9ff6ffd22094919daeca7",
+    "ci-tests.log": "d05b27090a68e642791614a458392958bfe46a47737a1b8981c6056ad15d5749",
+    "dependencies.log": "57dee8cacede176718b93af8a5c8778f26a17dbfcba4ea42fd8e412c2559e8b3",
+    "head-ci-tests.log": "d4cdeca82964bbd51143bc34e659b36f43bb290cfceca9927cc0b021b9d6dbbc",
+    "head-dependencies.log": "bb93b50f562a4d388b1487182eea848123db237fc7edbdb798b643830349fdd6",
+    "leak.log": "55a9ba930b04f2f670d8c2199c639f9a682ca94391e758c016ceed88ae3bc56f",
+    "o13-tests.log": "6875496229aedebd41805d4d5a7e8d77ca3c083b59fa1410b8ecdc1d6f6d0c0f",
+    "ontology-build.log": "40ddda45ea61f61be7d02d92a8ef394edaed1f5e1fdc66329558f7a92e49b3d7",
+    "ontology-check.log": "3e201df834b207db1432dff06ecf08042090473adebaf59f6cbafc28c8498d38",
+    "product-purpose.log": "e1a6504bec51add1239ea9bfea60fe0ecf93e9fd506951a099aa10b06b9f22f0",
+    "python-tests.log": "a98404e1c58d8e754601a62818af0b2301cb75b81be0c5cdb8e825a5dc1625f3",
+    "rust-clippy.log": "b2f5e19ede0a01aa628da1d28448998a45c1301975c1808a85e648fd314dcac6",
+    "rust-format.log": "0956126acd4dc18b229a85ee3071e4a15c1fcc2ec9820bee0cba48185225473f",
+    "rust-tests.log": "907100d4155a249fa2aec9cbf1685b23ce91b2b8f21108756c8a0e523ed19e28",
+    "skeleton.log": "5cb675a9e7a233c6a0c9982eb7795316310e620174f36ee4934bed0f14abefe4",
+    "spec.log": "d662e4cd042c1c6bbf313a10227704af42f954a9db2443c6d78598ec82a6aebf",
+    "validation-selftest.log": "33f20ee3aff91d6b9bf38dc9cea20ecc8bcb2bd6c5ccc2f455c3ad27897be9e2",
+    "validation.log": "e6f2d6a60aa67b258a09f58a5f9b911bc04495a9ed1d6229c8abce663ad8e84d",
+    "vocabulary.log": "86453dfef29e8276eadcc892eb6cfd2f4c194bd81c9b7eec30d286ae44bc1607"
+  }
+}

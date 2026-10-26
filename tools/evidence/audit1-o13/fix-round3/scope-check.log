@@ -1,0 +1,28 @@
+BASE HEAD: bd8c4c8aaf529f5202e5ccbb8eb9cc356dfa5e9c
+ALLOWED: docs/blueprint/audits/2026-10-26_o13_d04_ruling.md
+ALLOWED: docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md
+ALLOWED: tools/evidence/audit1-o13/fix-round3/before-checklist-tests.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/checks.json
+ALLOWED: tools/evidence/audit1-o13/fix-round3/o13-tests.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/python-tests.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/rust-clippy.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/rust-format.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/rust-tests.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/scope-check.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/spec.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/validation-selftest.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/validation.log
+ALLOWED: tools/evidence/audit1-o13/fix-round3/vocabulary.log
+ALLOWED: tools/tests/test_o13_ruling.py
+UNCHANGED: docs/PRINCIPLES.md
+UNCHANGED: docs/data
+UNCHANGED: docs/design/CONSUMER_FLOW_SPEC.md
+UNCHANGED: DECISION_REQUIRED.md
+UNCHANGED: docs/decisions/DEC-D-04.md
+UNCHANGED: docs/blueprint/proposals/설계검토_결과/tasks.json
+UNCHANGED: docs/blueprint/proposals/설계검토_결과/daemon_rules.json
+git diff --check: PASS
+SHA256 aed09a74f0a493568131a323f65aa0290f38e1961f443370c490cfaf6e334c3d docs/blueprint/audits/2026-10-26_o13_d04_ruling.md
+SHA256 9bc86259cd1df16f5cf99a39c373a9b2c38a3a8418e32bc89be5ab5c4592eb27 docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md
+SHA256 9c90dfab5f3a6cafd8d4f65ecb4feb28509b9709eadd1a3fa4ecfe1d421d9d95 tools/tests/test_o13_ruling.py
+PASS: all changes allowed; protected files, owner ruling and gate definitions unchanged

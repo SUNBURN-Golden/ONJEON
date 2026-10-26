@@ -1,0 +1,8 @@
+$ python3 -I tools/ci/check_leak.py
+STARTED_AT=2026-10-25T22:12:10.237121+00:00
+CARGO_NET_OFFLINE=true
+
+check_leak: no leak patterns (I10, I11, 52.3)
+
+EXIT_CODE=0
+ELAPSED_SECONDS=0.7

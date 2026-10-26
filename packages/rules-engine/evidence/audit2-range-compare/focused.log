@@ -1,0 +1,120 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-range-compare-static/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
+     Running tests/all_any_errors.rs (target/debug/deps/all_any_errors-13afaee0138aa697)
+
+running 4 tests
+test decisive_result_wins_over_errors_and_unknowns_in_every_child_order ... ok
+test absorbed_errors_have_deterministic_trace_entries_without_partial_children ... ok
+test unknown_children_keep_their_blockers_without_defaulting_to_a_decision ... ok
+test errors_are_preserved_without_a_decisive_child ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/range_comparisons.rs (target/debug/deps/range_comparisons-52c9a26577a11945)
+
+running 8 tests
+test mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns ... ok
+test audit_p201_is_rejected_before_input_dependent_failure ... ok
+test pro_rata_ratio_operands_still_require_exact_money ... ok
+test v02_rounding_operators_introduce_ranges ... ok
+test static_range_checks_do_not_depend_on_constant_values_or_reachable_branches ... ok
+test v02_money_operators_preserve_input_ranges_even_with_explicit_rounding ... ok
+test ranges_propagate_through_every_v01_money_operator_and_if_branch ... ok
+test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/review_fixes.rs (target/debug/deps/review_fixes-89e86f8d87d7639f)
+
+running 11 tests
+test loader_rejects_huge_date_offsets ... ok
+test content_hash_ignores_formatting_and_release_but_not_evidence ... ok
+test result_identifies_rule_version_release_content_and_evidence ... ok
+test content_hash_is_independent_of_key_order_in_the_file ... ok
+test version_and_release_are_enforced_at_load_time ... ok
+test date_arithmetic_beyond_supported_range_is_an_error_not_a_panic ... ok
+test fixture_rule_content_hash_is_pinned ... ok
+test input_dates_outside_supported_range_are_rejected ... ok
+test content_hash_changes_with_content_even_if_version_is_not_bumped ... ok
+test reloading_the_source_json_reproduces_the_same_rule_identity ... ok
+test unspecified_rounding_range_flows_through_a_second_multiplication ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rule_02.rs (target/debug/deps/rule_02-c69f0843eb660f70)
+
+running 41 tests
+test contract_effect_follows_eligibility ... ok
+test anniversary_band_leap_day_anniversary_is_the_last_day_of_february ... ok
+test anniversary_band_lower_inclusive_boundaries ... ok
+test anniversary_band_rejects_reversed_dates_and_propagates_unknown ... ok
+test anniversary_band_table_is_validated_at_load ... ok
+test contract_effect_is_part_of_the_content_hash ... ok
+test divide_count_golden_and_boundaries ... ok
+test divide_count_rounds_the_bounds_of_a_range ... ok
+test divide_count_unknown_inputs_block ... ok
+test divide_count_zero_count_is_unknown ... ok
+test list_input_changes_the_snapshot_hash ... ok
+test list_inputs_are_validated ... ok
+test max_over_and_lists_are_typed_at_load ... ok
+test max_over_takes_the_highest_per_class_and_sums_classes ... ok
+test max_over_unknown_list_or_amount_is_unknown_not_zero ... ok
+test multiply_count_golden_and_boundaries ... ok
+test multiply_count_keeps_ranges ... ok
+test multiply_count_type_checks_at_load ... ok
+test multiply_count_unknown_is_never_zero ... ok
+test contract_effect_defaults_to_none_and_is_validated ... ok
+test max_over_overflow_is_an_error ... ok
+test pro_rata_accepts_int_parts_and_rejects_mixed_types ... ok
+test composes_with_rule_01_operators ... ok
+test anniversary_band_upper_inclusive_boundaries ... ok
+test pro_rata_applies_to_ranges ... ok
+test pro_rata_boundaries ... ok
+test pro_rata_unknown_inputs_block ... ok
+test pro_rata_whole_zero_is_unknown_not_error_not_zero ... ok
+test rule_01_documents_cannot_use_rule_02_features ... ok
+test rule_02_results_are_reproducible_and_identify_the_schema ... ok
+test subtract_floor0_golden_and_boundaries ... ok
+test subtract_floor0_range_bounds_are_conservative ... ok
+test subtract_floor0_unknown_is_not_floored_to_zero ... ok
+test undetermined_eligibility_never_reports_no_effect ... ok
+test unknown_eligibility_with_rule_02_amount_stays_undetermined ... ok
+test zero_operands_that_are_known_differ_from_unknown_ones ... ok
+test rule_02_operators_are_sound_under_hidden_inputs ... ok
+test mutated_rule_02_operators_are_caught ... ok
+test pro_rata_requires_explicit_rounding ... ok
+test rule_01_results_report_no_contract_effect ... ok
+test pro_rata_golden_and_rounding ... ok
+
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/static_types.rs (target/debug/deps/static_types-e121bb97a3bf2b90)
+
+running 10 tests
+test audit_examples_are_rejected_at_load ... ok
+test money_operators_need_money_arguments ... ok
+test comparisons_need_matching_operand_types ... ok
+test if_needs_boolean_condition_and_same_typed_branches ... ok
+test logic_operators_need_boolean_arguments ... ok
+test ordering_on_bool_or_string_is_rejected_at_load ... ok
+test date_operators_need_date_arguments ... ok
+test top_level_expressions_must_be_bool_and_money ... ok
+test well_typed_rules_still_evaluate_as_before ... ok
+test literal_forms_carry_their_types ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/unknown_branch_errors.rs (target/debug/deps/unknown_branch_errors-042ef5e7e77aab11)
+
+running 8 tests
+test a_selected_failing_branch_is_still_an_error ... ok
+test type_errors_in_a_branch_are_absorbed_too ... ok
+test trace_records_the_absorbed_error_and_is_deterministic ... ok
+test failing_branch_under_unknown_condition_is_unknown_with_blockers ... ok
+test blockers_include_the_other_unknown_branch ... ok
+test a_failing_branch_never_makes_the_other_branch_the_answer ... ok
+test both_branches_failing_is_still_an_error ... ok
+test eligibility_branch_errors_leave_eligibility_unknown ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

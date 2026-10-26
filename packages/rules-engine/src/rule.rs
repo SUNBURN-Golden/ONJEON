@@ -37,13 +37,14 @@ pub enum ContractEffect {
     TerminatedPayReserve,
 }
 
-/// Static type of an expression, checked while the rule loads. `Money` covers both an exact
-/// amount and a range from unspecified rounding; the range is a runtime value, not a type.
+/// Static type of an expression, checked while the rule loads. `MoneyRange` means the
+/// expression may produce a range, even if some inputs happen to yield an exact amount.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Ty {
     Bool,
     Int,
     Money,
+    MoneyRange,
     Rate,
     Date,
     Str,
@@ -56,11 +57,31 @@ impl Ty {
             Ty::Bool => "bool",
             Ty::Int => "int",
             Ty::Money => "money",
+            Ty::MoneyRange => "money_range",
             Ty::Rate => "rate",
             Ty::Date => "date",
             Ty::Str => "string",
             Ty::List => "class_money_list",
         }
+    }
+
+    /// Money arithmetic and the top-level amount accept exact amounts and ranges.
+    fn accepts(self, got: Ty) -> bool {
+        self == got || (self == Ty::Money && got == Ty::MoneyRange)
+    }
+
+    /// Once any operand can be a range, the result can be a range as well. Explicit
+    /// rounding does not necessarily collapse distinct input bounds to one amount.
+    fn with_range(self, range: bool) -> Ty {
+        if range && self == Ty::Money {
+            Ty::MoneyRange
+        } else {
+            self
+        }
+    }
+
+    fn rounded(self, rounding: Rounding) -> Ty {
+        self.with_range(rounding == Rounding::Unspecified)
     }
 }
 
@@ -633,17 +654,27 @@ fn args<'a>(v: &'a J, min: usize, max: usize, path: &str) -> Result<&'a Vec<J>, 
     Ok(a)
 }
 
-/// Parses `v` and requires it to have static type `want`, so a type mismatch is a load error
+/// Parses `v` and requires a static type accepted by `want`, so a mismatch is a load error
 /// (invariant I5) instead of an evaluation error on whichever input happens to reach it.
 fn parse_expr(v: &J, inputs: &Scope<'_>, path: &str, want: Ty) -> Result<Expr, RuleError> {
+    parse_expected(v, inputs, path, want).map(|(e, _)| e)
+}
+
+/// Like `parse_expr`, retaining the inferred type for operators that propagate ranges.
+fn parse_expected(
+    v: &J,
+    inputs: &Scope<'_>,
+    path: &str,
+    want: Ty,
+) -> Result<(Expr, Ty), RuleError> {
     let (e, got) = parse_typed(v, inputs, path)?;
-    if got != want {
+    if !want.accepts(got) {
         return Err(RuleError::at(
             path,
             format!("expected {}, found {}", want.name(), got.name()),
         ));
     }
-    Ok(e)
+    Ok((e, got))
 }
 
 fn parse_typed(v: &J, inputs: &Scope<'_>, path: &str) -> Result<(Expr, Ty), RuleError> {
@@ -682,7 +713,12 @@ fn parse_typed(v: &J, inputs: &Scope<'_>, path: &str) -> Result<(Expr, Ty), Rule
                 }
                 let cond = parse_expr(&map["if"], inputs, &format!("{path}.if"), Ty::Bool)?;
                 let (then, ty) = parse_typed(&map["then"], inputs, &format!("{path}.then"))?;
-                let els = parse_expr(&map["else"], inputs, &format!("{path}.else"), ty)?;
+                // Exact and range money branches are compatible; the joined type must
+                // remember either branch's range, regardless of branch order or condition.
+                let want = if ty == Ty::MoneyRange { Ty::Money } else { ty };
+                let (els, et) =
+                    parse_expected(&map["else"], inputs, &format!("{path}.else"), want)?;
+                let ty = ty.with_range(et == Ty::MoneyRange);
                 return Ok((Expr::If(Box::new(cond), Box::new(then), Box::new(els)), ty));
             }
             if map.len() != 1 {
@@ -693,30 +729,43 @@ fn parse_typed(v: &J, inputs: &Scope<'_>, path: &str) -> Result<(Expr, Ty), Rule
             }
             let (op, a) = map.iter().next().expect("len checked");
             let p = format!("{path}.{op}");
-            // Every argument of an n-ary operator must have type `want`.
-            let list = |a: &J, min: usize, p: &str, want: Ty| -> Result<Vec<Expr>, RuleError> {
-                let items = args(a, min, 64, p)?;
-                items
-                    .iter()
-                    .enumerate()
-                    .map(|(i, x)| parse_expr(x, inputs, &format!("{p}[{i}]"), want))
-                    .collect()
-            };
-            let two = |a: &J, p: &str, want: Ty| -> Result<(Box<Expr>, Box<Expr>), RuleError> {
+            // Every argument must be accepted by `want`; propagate any money range.
+            let list =
+                |a: &J, min: usize, p: &str, want: Ty| -> Result<(Vec<Expr>, Ty), RuleError> {
+                    let items = args(a, min, 64, p)?;
+                    let mut exprs = Vec::with_capacity(items.len());
+                    let mut ty = want;
+                    for (i, x) in items.iter().enumerate() {
+                        let (expr, got) = parse_expected(x, inputs, &format!("{p}[{i}]"), want)?;
+                        ty = ty.with_range(got == Ty::MoneyRange);
+                        exprs.push(expr);
+                    }
+                    Ok((exprs, ty))
+                };
+            let two = |a: &J, p: &str, want: Ty| -> Result<(Box<Expr>, Box<Expr>, Ty), RuleError> {
                 let items = args(a, 2, 2, p)?;
+                let (l, lt) = parse_expected(&items[0], inputs, &format!("{p}[0]"), want)?;
+                let (r, rt) = parse_expected(&items[1], inputs, &format!("{p}[1]"), want)?;
                 Ok((
-                    Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), want)?),
-                    Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), want)?),
+                    Box::new(l),
+                    Box::new(r),
+                    want.with_range(lt == Ty::MoneyRange || rt == Ty::MoneyRange),
                 ))
             };
             let typed = match op.as_str() {
-                "all" => (Expr::All(list(a, 1, &p, Ty::Bool)?), Ty::Bool),
-                "any" => (Expr::Any(list(a, 1, &p, Ty::Bool)?), Ty::Bool),
+                "all" => (Expr::All(list(a, 1, &p, Ty::Bool)?.0), Ty::Bool),
+                "any" => (Expr::Any(list(a, 1, &p, Ty::Bool)?.0), Ty::Bool),
                 "not" => (Expr::Not(Box::new(parse_expr(a, inputs, &p, Ty::Bool)?)), Ty::Bool),
                 "eq" | "ne" | "lt" | "lte" | "gt" | "gte" => {
                     let items = args(a, 2, 2, &p)?;
                     let (l, lt) = parse_typed(&items[0], inputs, &format!("{p}[0]"))?;
                     let (r, rt) = parse_typed(&items[1], inputs, &format!("{p}[1]"))?;
+                    if lt == Ty::MoneyRange || rt == Ty::MoneyRange {
+                        return Err(RuleError::at(
+                            &p,
+                            "money_range operands cannot be compared; exact amounts are required",
+                        ));
+                    }
                     if lt != rt {
                         return Err(RuleError::at(
                             &p,
@@ -765,16 +814,23 @@ fn parse_typed(v: &J, inputs: &Scope<'_>, path: &str) -> Result<(Expr, Ty), Rule
                 "multiply_rate" => {
                     let items = args(a, 3, 3, &p)?;
                     let (rounding, unit) = rounding_params(&items[2], &p)?;
-                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
+                    let (money, mt) = parse_expected(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?;
+                    let money = Box::new(money);
                     let rate = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Rate)?);
-                    (Expr::MultiplyRate { money, rate, rounding, unit }, Ty::Money)
+                    (Expr::MultiplyRate { money, rate, rounding, unit }, mt.rounded(rounding))
                 }
-                "add" => (Expr::Add(list(a, 2, &p, Ty::Money)?), Ty::Money),
-                "min" => (Expr::Min(list(a, 2, &p, Ty::Money)?), Ty::Money),
-                "max" => (Expr::Max(list(a, 2, &p, Ty::Money)?), Ty::Money),
+                "add" | "min" | "max" => {
+                    let (items, ty) = list(a, 2, &p, Ty::Money)?;
+                    let expr = match op.as_str() {
+                        "add" => Expr::Add(items),
+                        "min" => Expr::Min(items),
+                        _ => Expr::Max(items),
+                    };
+                    (expr, ty)
+                }
                 "apply_cap" => {
-                    let (m, c) = two(a, &p, Ty::Money)?;
-                    (Expr::ApplyCap(m, c), Ty::Money)
+                    let (m, c, ty) = two(a, &p, Ty::Money)?;
+                    (Expr::ApplyCap(m, c), ty)
                 }
                 "days_between" => {
                     let items = args(a, 3, 3, &p)?;
@@ -831,32 +887,35 @@ fn parse_typed(v: &J, inputs: &Scope<'_>, path: &str) -> Result<(Expr, Ty), Rule
                 }
                 "multiply_count" => {
                     let items = args(a, 2, 2, &p)?;
-                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
+                    let (money, mt) = parse_expected(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?;
+                    let money = Box::new(money);
                     let count = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Int)?);
-                    (Expr::MultiplyCount(money, count), Ty::Money)
+                    (Expr::MultiplyCount(money, count), mt)
                 }
                 "subtract_floor0" => {
-                    let (x, y) = two(a, &p, Ty::Money)?;
-                    (Expr::SubtractFloor0(x, y), Ty::Money)
+                    let (x, y, ty) = two(a, &p, Ty::Money)?;
+                    (Expr::SubtractFloor0(x, y), ty)
                 }
                 "pro_rata" => {
                     let items = args(a, 4, 4, &p)?;
                     let (rounding, unit) = rounding_params(&items[3], &p)?;
-                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
-                    // part and whole are both counts (int) or both amounts (money).
+                    let (money, mt) = parse_expected(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?;
+                    let money = Box::new(money);
+                    // part and whole are both counts (int) or both exact amounts (money).
                     let (part, pt) = parse_typed(&items[1], inputs, &format!("{p}[1]"))?;
                     let (whole, wt) = parse_typed(&items[2], inputs, &format!("{p}[2]"))?;
                     if pt != wt || !matches!(pt, Ty::Int | Ty::Money) {
                         return Err(RuleError::at(&p, format!("part and whole must both be int or both be money, found {} and {}", pt.name(), wt.name())));
                     }
-                    (Expr::ProRata { money, part: Box::new(part), whole: Box::new(whole), rounding, unit }, Ty::Money)
+                    (Expr::ProRata { money, part: Box::new(part), whole: Box::new(whole), rounding, unit }, mt.rounded(rounding))
                 }
                 "divide_count" => {
                     let items = args(a, 3, 3, &p)?;
                     let (rounding, unit) = rounding_params(&items[2], &p)?;
-                    let money = Box::new(parse_expr(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?);
+                    let (money, mt) = parse_expected(&items[0], inputs, &format!("{p}[0]"), Ty::Money)?;
+                    let money = Box::new(money);
                     let count = Box::new(parse_expr(&items[1], inputs, &format!("{p}[1]"), Ty::Int)?);
-                    (Expr::DivideCount { money, count, rounding, unit }, Ty::Money)
+                    (Expr::DivideCount { money, count, rounding, unit }, mt.rounded(rounding))
                 }
                 "anniversary_band" => {
                     let items = args(a, 4, 4, &p)?;

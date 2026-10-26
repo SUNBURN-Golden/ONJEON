@@ -7,7 +7,7 @@
 - 3값 논리(참·거짓·모름). 모르는 입력은 0이나 거짓으로 바뀌지 않는다.
 - 금액은 정수 원. 부동소수점이 없다. 반올림 규칙과 단위는 규칙에 명시해야 한다(`unspecified`는 하한~상한 범위를 돌려준다).
 - 허용 목록 연산자만 로드된다. 모르는 연산자, 부동소수점 리터럴, 반올림 누락, `month_end` 누락, `date_add`·`multiply_rate`·`days_between` 파라미터의 알 수 없는 키(`day` 단위의 `month_end` 포함), 알 수 없는 최상위 키는 로드 단계에서 거부된다.
-- 로드 단계에서 모든 식의 타입을 검사한다(bool·int·money·rate·date·string). `{"eq":["target_event",1]}`처럼 타입이 다른 값의 비교, bool·string의 순서 비교, `all`/`any`/`not`/`if` 조건에 쓴 비불리언, 금액 연산자에 쓴 비금액, 가지 타입이 다른 `if`, 불리언이 아닌 `eligibility`, 금액이 아닌 `amount`(`"amount": true`)는 오류 위치(경로)와 함께 로드에서 거부된다. 금액 `money`는 정확한 값과 범위를 구분하지 않으므로 범위를 비교하는 오류는 아직 평가 단계에서만 잡힌다(아래 "아직 없는 것").
+- 로드 단계에서 모든 식의 타입을 검사한다(bool·int·money·money_range·rate·date·string). `{"eq":["target_event",1]}`처럼 타입이 다른 값의 비교, bool·string의 순서 비교, `all`/`any`/`not`/`if` 조건에 쓴 비불리언, 금액 연산자에 쓴 비금액, 가지 타입이 호환되지 않는 `if`, 불리언이 아닌 `eligibility`, 금액이 아닌 `amount`(`"amount": true`)는 오류 위치(경로)와 함께 로드에서 거부된다. 범위가 될 수 있는 금액(`money_range`)은 `eq`·`ne`·`lt`·`lte`·`gt`·`gte`의 어느 쪽 피연산자에도 쓸 수 없으며 로드에서 거부된다. `unspecified` 반올림과 금액 연산·`if`의 범위 가능성을 전파한다. 정확한 금액과 범위 금액을 섞은 `if` 및 금액 계산·출력은 허용한다.
 - 같은 입력·규칙·엔진 버전이면 바이트 단위로 같은 결과를 낸다. 결과에는 평가 trace, 결과를 막은 누락 입력, 입력 스냅샷 해시가 들어 있다.
 - 공개 가능한 규칙은 근거 참조가 하나 이상 있어야 하고 소속 릴리스(`release_id`)를 밝혀야 한다(불변 원칙 5). 합성 규칙은 `fixture_only`다.
 - 결과마다 `rule_version`, `release_id`, `rule_content_hash`, `evidence_refs`가 붙는다. `rule_content_hash`는 규칙 JSON을 정규화(모든 객체 키를 `BTreeMap`으로 명시 정렬한 compact JSON)한 SHA-256이며 최상위 `release_id`는 제외한다. `serde_json`의 `preserve_order` 기능 여부와 무관하며, fixture 규칙의 해시는 `packages/fixtures/rules/fixture-rule-001.content_hash`에 고정되어 테스트로 검증된다. 버전을 올리지 않고 내용을 바꿔도 해시가 달라지므로 과거 계산이 어떤 규칙 내용을 썼는지 결과만으로 식별된다.
@@ -26,7 +26,7 @@
 |---|---|---|
 | `multiply_count` | `[money, int]` → money | 횟수는 0 이상(음수는 평가 오류), 오버플로는 오류. 금액 범위는 양 끝을 곱한다 |
 | `subtract_floor0` | `[money, money]` → money | 음수면 0. 한쪽이라도 모름이면 모름(0 하한이 모름을 0으로 만들지 않는다). 범위는 `[a.min-b.max, a.max-b.min]`을 각각 0으로 올린다 |
-| `pro_rata` | `[money, part, whole, {rounding, unit}]` → money | `part`·`whole`은 둘 다 int 또는 둘 다 정확한 money. `whole=0`은 오류가 아니라 **모름**(blocker 없음), `part>whole`은 오류. 반올림·단위 필수 |
+| `pro_rata` | `[money, part, whole, {rounding, unit}]` → money | `part`·`whole`은 둘 다 int 또는 둘 다 정확한 money(범위 가능 식은 로드에서 거부). `whole=0`은 오류가 아니라 **모름**(blocker 없음), `part>whole`은 오류. 반올림·단위 필수 |
 | `divide_count` | `[money, int, {rounding, unit}]` → money | 균등 배분·1일 평균. 횟수 0은 모름. 반올림·단위 필수 |
 | `anniversary_band` | `[date_from, date_at, [[years, "rate"]...], {boundary}]` → rate | 경과 만 연수 구간표. 첫 구간은 0년, 시작 연수는 엄격 증가, 값은 요율 문자열(금액에는 `multiply_rate`로 곱한다). `boundary`는 필수: `lower_inclusive`(기념일 당일부터 새 구간) / `upper_inclusive`(기념일 당일까지 이전 구간, 다음 날부터 새 구간; 첫 구간은 항상 적용). 2월 29일 기산의 평년 기념일은 2월 말일(엔진 가정, 원문 관례는 G13). `date_at < date_from`은 오류 |
 | 목록 입력 `class_money_list` + `max_over` | 입력 `[{class, krw}]`, `{"max_over": "<입력 이름>"}` → money | 같은 `class`에서는 최고 금액 하나만, 다른 `class`는 각각 더한다(G04). 빈 목록은 0(사건 없음이 확정), 목록이 없거나 항목의 `krw`가 `null`이면 모름(모르는 항목이 최고일 수 있다). 목록은 비교할 수 없고 `max_over` 인자는 선언된 목록 입력의 이름이어야 한다 |
@@ -56,6 +56,7 @@
 | `soundness` | 입력을 숨겨도 확정 결과가 다른 확정 결과로 뒤집히지 않는지(I1). 합성 fixture와 `fixtures/rules/real/*.cases.json`의 실제 규칙 7개 전부에 적용하며, 모든 실제 규칙이 확정 케이스를 하나 이상 갖는지 확인한다. 모름을 `false`/`0`으로 바꾸는 평가기를 같은 검사기가 잡아내는지(음성 대조)도 본다 |
 | `rule_02` | rule-0.2 연산 7종: 연산별 골든·경계(0, `i64::MAX`, 기념일 당일, 윤일)·변이(연산·반올림·구간표·경계 규칙을 바꾼 규칙이 골든 표에 잡힘)·건전성(입력을 하나씩 숨겨도 확정값이 뒤집히거나 0이 되지 않음), `whole=0` 모름, 0.1 문서에서의 거부, `contract_effect` 3상태 |
 | `static_types` | 로드 단계 타입 검사: 감사 예시 두 건, 연산자별 거부와 오류 경로, 올바른 타입은 그대로 로드·평가 |
+| `range_comparisons` | Audit 2의 `p=201` 사례, 두 DSL 버전·비교 6종·양쪽 피연산자의 범위 거부, 모든 금액 연산과 `if`의 범위 전파, 정확한 금액 비교·범위 출력·모름 보존, `pro_rata` 비율 인자의 정확한 금액 제약. [검증 증거](../../docs/blueprint/audits/2026-10-26_engine_range_compare_static.md) |
 | `loader_and_arith` | 반올림 모드, 상한, `days_between` 포함 여부·역순 날짜 거부, 달력 연산, 로더 거부 규칙 |
 | `unknown_branch_errors` | 조건이 모름일 때 가지의 오류가 모름+blocker가 되는지, 선택된 가지·양쪽 가지의 오류는 유지되는지, trace 기록 |
 | `all_any_errors` | 날짜 범위·오버플로·타입 오류와 모름을 포함한 자식 순서 6종에서 확정 결과 유지, 확정 자식이 없을 때 오류 전파, 모름의 blocker, 흡수 오류 trace·직렬화 재현성. `soundness`에도 오류를 내는 입력을 숨겨도 독립적인 확정 결과가 유지되는 회귀 시험 추가. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_all_any_lazy_error.md) |
@@ -75,4 +76,4 @@ Audit 1에서 빠진 DSL 축은 어휘 1.7.0의 `input_type`·`rounding`·`durat
 
 ## 아직 없는 것
 
-금액 범위와의 비교(`lt` 등)는 아직 평가 단계의 명시적 타입 오류로 거부한다(범위인지 여부는 값에 달려 있어 로드 때 알 수 없다). 범위가 기준값을 걸치는 경우를 모름으로 처리할지는 W3 설계에서 정한다. 그 밖에 `first_match`, `in_set`, 상환형 연산(`subtract_deductible`, `coinsurance`, `cumulative_cap`; `pro_rata`는 rule-0.2에 있음), 청구 이력 상태, 코드 체계(KCD) 참조형, 규칙 스키마(JSON Schema) 파일. 제3부 §49.2, §54.4 W3에서 필요하다.
+금액 범위와의 비교 의미는 아직 지원하지 않는다. 범위 가능 식은 로드에서 보수적으로 거부하며, 상수·입력에 따라 정확한 값이 되거나 상한·0배·확정 `if` 조건으로 범위가 사라질 수 있어도 예외를 추론하지 않는다. 범위가 기준값을 걸치는 경우를 모름으로 처리할지는 W3 설계에서 정한다. 그 밖에 `first_match`, `in_set`, 상환형 연산(`subtract_deductible`, `coinsurance`, `cumulative_cap`; `pro_rata`는 rule-0.2에 있음), 청구 이력 상태, 코드 체계(KCD) 참조형, 규칙 스키마(JSON Schema) 파일. 제3부 §49.2, §54.4 W3에서 필요하다.

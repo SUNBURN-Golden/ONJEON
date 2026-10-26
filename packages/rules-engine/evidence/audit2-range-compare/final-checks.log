@@ -1,0 +1,5 @@
+PASS: all changed and untracked files are in allowed paths.
+PASS: protected files and docs/data are unchanged from HEAD.
+PASS: git diff --check.
+PASS: 16 local Markdown link targets exist.
+PASS: final workspace Rust test totals: 415 passed, 0 failed, 1 ignored.

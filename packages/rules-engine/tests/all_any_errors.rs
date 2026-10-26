@@ -18,9 +18,10 @@ fn failing_children() -> Vec<J> {
     vec![
         json!({"eq": [{"date_add": ["d", {"value": 1, "unit": "day"}]}, "d"]}),
         json!({"eq": [{"add": ["amt", {"krw": 1}]}, {"krw": 1}]}),
-        // Money ranges are statically money, but cannot be compared at runtime.
-        json!({"lt": [{"multiply_rate": [{"krw": 5}, "0.5",
-            {"rounding": "unspecified", "unit": 1}]}, {"krw": 3}]}),
+        // Reversed dates remain a runtime Type error. Range comparisons are now
+        // rejected at load (covered by range_comparisons), so cannot be used here.
+        json!({"lt": [{"days_between": ["d", {"date": "1900-01-01"},
+            {"inclusive_start": true, "inclusive_end": true}]}, 3]}),
     ]
 }
 

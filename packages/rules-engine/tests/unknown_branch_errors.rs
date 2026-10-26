@@ -57,14 +57,19 @@ fn blockers_include_the_other_unknown_branch() {
 
 #[test]
 fn type_errors_in_a_branch_are_absorbed_too() {
-    // Comparing an unspecified-rounding range is the one type error left for evaluation: whether
-    // a money expression holds a range is a runtime fact, so the static pass cannot reject it.
-    let range = json!({"multiply_rate": ["amt", "0.5", {"rounding": "unspecified", "unit": 10}]});
-    let bad = json!({"if": {"lt": [range, {"krw": 1}]}, "then": {"krw": 1}, "else": {"krw": 2}});
+    // Range comparisons now fail at load. Reversed days_between inputs still
+    // produce a runtime Type error and exercise the same branch-error handling.
+    let days = json!({"days_between": ["d1", {"date": "1900-01-01"},
+        {"inclusive_start": true, "inclusive_end": true}]});
+    let bad = json!({"if": {"lt": [days, 1]}, "then": {"krw": 1}, "else": {"krw": 2}});
     let r = rule(json!(true), if_flag(json!({"krw": 7}), bad));
-    let (amt, missing) = payable_amount(&r, json!({"amt": 5}));
+    let (amt, missing) = payable_amount(&r, json!({"d1": "2024-01-01"}));
     assert_eq!(amt, AmountOut::Unknown);
     assert_eq!(missing, vec!["flag"]);
+    let err = r
+        .evaluate(&json!({"d1": "2024-01-01", "flag": false}))
+        .unwrap_err();
+    assert!(matches!(err, EvalError::Type { .. }), "{err:?}");
 }
 
 #[test]

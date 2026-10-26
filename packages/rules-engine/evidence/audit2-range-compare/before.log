@@ -1,0 +1,59 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-range-compare-static/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+     Running tests/range_comparisons.rs (target/debug/deps/range_comparisons-52c9a26577a11945)
+
+running 8 tests
+test pro_rata_ratio_operands_still_require_exact_money ... FAILED
+test v02_rounding_operators_introduce_ranges ... FAILED
+test ranges_propagate_through_every_v01_money_operator_and_if_branch ... FAILED
+test audit_p201_is_rejected_before_input_dependent_failure ... FAILED
+test static_range_checks_do_not_depend_on_constant_values_or_reachable_branches ... FAILED
+test v02_money_operators_preserve_input_ranges_even_with_explicit_rounding ... FAILED
+test mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns ... ok
+test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
+
+failures:
+
+---- pro_rata_ratio_operands_still_require_exact_money stdout ----
+
+thread 'pro_rata_ratio_operands_still_require_exact_money' (296863) panicked at packages/rules-engine/tests/range_comparisons.rs:196:44:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "range-comparison", rule_version: "1", release_id: None, content_hash: "f428791b01fef10bffb2be5f79f17ec8c49972d3b1ccb7e89449e09fcfb6edef", schema_version: "rule-0.2", publication_state: "fixture_only", evidence_refs: [], inputs: {"flag": Bool, "p": MoneyKrw}, eligibility: Lit(Bool(true)), amount: ProRata { money: Input("p"), part: MultiplyRate { money: Input("p"), rate: Lit(Rate { num: 5, den: 10 }), rounding: Unspecified, unit: 1 }, whole: Lit(Money(500)), rounding: Floor, unit: 1 }, contract_effect: None, source: Object {"amount": Object {"pro_rata": Array [String("p"), Object {"multiply_rate": Array [String("p"), String("0.5"), Object {"rounding": String("unspecified"), "unit": Number(1)}]}, Object {"krw": Number(500)}, Object {"rounding": String("floor"), "unit": Number(1)}]}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [], "inputs": Object {"flag": String("bool"), "p": String("money_krw")}, "publication_state": String("fixture_only"), "rule_id": String("range-comparison"), "rule_version": String("1"), "schema_version": String("rule-0.2"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- v02_rounding_operators_introduce_ranges stdout ----
+
+thread 'v02_rounding_operators_introduce_ranges' (296867) panicked at packages/rules-engine/tests/range_comparisons.rs:33:48:
+range comparison must fail at load: Rule { rule_id: "range-comparison", rule_version: "1", release_id: None, content_hash: "01e6125ded033ff099f4605298fed03f65f6ee6c313a9a16673bcce3227e5364", schema_version: "rule-0.2", publication_state: "fixture_only", evidence_refs: [], inputs: {"flag": Bool, "p": MoneyKrw}, eligibility: Cmp(Eq, DivideCount { money: Input("p"), count: Lit(Int(2)), rounding: Unspecified, unit: 1 }, Lit(Money(100))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [Object {"divide_count": Array [String("p"), Number(2), Object {"rounding": String("unspecified"), "unit": Number(1)}]}, Object {"krw": Number(100)}]}, "evidence_refs": Array [], "inputs": Object {"flag": String("bool"), "p": String("money_krw")}, "publication_state": String("fixture_only"), "rule_id": String("range-comparison"), "rule_version": String("1"), "schema_version": String("rule-0.2"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- ranges_propagate_through_every_v01_money_operator_and_if_branch stdout ----
+
+thread 'ranges_propagate_through_every_v01_money_operator_and_if_branch' (296864) panicked at packages/rules-engine/tests/range_comparisons.rs:33:48:
+range comparison must fail at load: Rule { rule_id: "range-comparison", rule_version: "1", release_id: None, content_hash: "2a7ce02b9534fd9608da05997814f9bdb773f139eaa8cc3a624fa9c2e2a0a7ba", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"flag": Bool, "p": MoneyKrw}, eligibility: Cmp(Eq, MultiplyRate { money: MultiplyRate { money: Input("p"), rate: Lit(Rate { num: 5, den: 10 }), rounding: Unspecified, unit: 1 }, rate: Lit(Rate { num: 5, den: 10 }), rounding: Floor, unit: 1 }, Lit(Money(100))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [Object {"multiply_rate": Array [Object {"multiply_rate": Array [String("p"), String("0.5"), Object {"rounding": String("unspecified"), "unit": Number(1)}]}, String("0.5"), Object {"rounding": String("floor"), "unit": Number(1)}]}, Object {"krw": Number(100)}]}, "evidence_refs": Array [], "inputs": Object {"flag": String("bool"), "p": String("money_krw")}, "publication_state": String("fixture_only"), "rule_id": String("range-comparison"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- audit_p201_is_rejected_before_input_dependent_failure stdout ----
+
+thread 'audit_p201_is_rejected_before_input_dependent_failure' (296860) panicked at packages/rules-engine/tests/range_comparisons.rs:33:48:
+range comparison must fail at load: Rule { rule_id: "range-comparison", rule_version: "1", release_id: None, content_hash: "585b48e6ed2c621ff58ed96878adad67d35ba662426e50f34047a76da300d842", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"flag": Bool, "p": MoneyKrw}, eligibility: Cmp(Eq, MultiplyRate { money: Input("p"), rate: Lit(Rate { num: 5, den: 10 }), rounding: Unspecified, unit: 1 }, Lit(Money(100))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [Object {"multiply_rate": Array [String("p"), String("0.5"), Object {"rounding": String("unspecified"), "unit": Number(1)}]}, Object {"krw": Number(100)}]}, "evidence_refs": Array [], "inputs": Object {"flag": String("bool"), "p": String("money_krw")}, "publication_state": String("fixture_only"), "rule_id": String("range-comparison"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- static_range_checks_do_not_depend_on_constant_values_or_reachable_branches stdout ----
+
+thread 'static_range_checks_do_not_depend_on_constant_values_or_reachable_branches' (296865) panicked at packages/rules-engine/tests/range_comparisons.rs:33:48:
+range comparison must fail at load: Rule { rule_id: "range-comparison", rule_version: "1", release_id: None, content_hash: "a2c205dfa5d9b6865a004cf9420b1d5571cc55b1d0f98d6926f76134ba62a8d6", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"flag": Bool, "p": MoneyKrw}, eligibility: Cmp(Eq, MultiplyRate { money: Lit(Money(200)), rate: Lit(Rate { num: 5, den: 10 }), rounding: Unspecified, unit: 1 }, Lit(Money(100))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [Object {"multiply_rate": Array [Object {"krw": Number(200)}, String("0.5"), Object {"rounding": String("unspecified"), "unit": Number(1)}]}, Object {"krw": Number(100)}]}, "evidence_refs": Array [], "inputs": Object {"flag": String("bool"), "p": String("money_krw")}, "publication_state": String("fixture_only"), "rule_id": String("range-comparison"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- v02_money_operators_preserve_input_ranges_even_with_explicit_rounding stdout ----
+
+thread 'v02_money_operators_preserve_input_ranges_even_with_explicit_rounding' (296866) panicked at packages/rules-engine/tests/range_comparisons.rs:33:48:
+range comparison must fail at load: Rule { rule_id: "range-comparison", rule_version: "1", release_id: None, content_hash: "d0033b188526d8caac9386aa39133a80a008d6b83a5fa238bb17ab11c9266312", schema_version: "rule-0.2", publication_state: "fixture_only", evidence_refs: [], inputs: {"flag": Bool, "p": MoneyKrw}, eligibility: Cmp(Eq, MultiplyCount(MultiplyRate { money: Input("p"), rate: Lit(Rate { num: 5, den: 10 }), rounding: Unspecified, unit: 1 }, Lit(Int(2))), Lit(Money(100))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [Object {"multiply_count": Array [Object {"multiply_rate": Array [String("p"), String("0.5"), Object {"rounding": String("unspecified"), "unit": Number(1)}]}, Number(2)]}, Object {"krw": Number(100)}]}, "evidence_refs": Array [], "inputs": Object {"flag": String("bool"), "p": String("money_krw")}, "publication_state": String("fixture_only"), "rule_id": String("range-comparison"), "rule_version": String("1"), "schema_version": String("rule-0.2"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+
+failures:
+    audit_p201_is_rejected_before_input_dependent_failure
+    pro_rata_ratio_operands_still_require_exact_money
+    ranges_propagate_through_every_v01_money_operator_and_if_branch
+    static_range_checks_do_not_depend_on_constant_values_or_reachable_branches
+    v02_money_operators_preserve_input_ranges_even_with_explicit_rounding
+    v02_rounding_operators_introduce_ranges
+
+test result: FAILED. 2 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test range_comparisons`

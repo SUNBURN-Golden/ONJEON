@@ -1,0 +1,7 @@
+$ cargo clippy --all-targets -- -D warnings
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-range-compare-static/packages/rules-engine)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-range-compare-static/packages/twin-runtime)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-range-compare-static/packages/ontology)
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-range-compare-static/packages/schemas)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.52s
+EXIT CODE: 0

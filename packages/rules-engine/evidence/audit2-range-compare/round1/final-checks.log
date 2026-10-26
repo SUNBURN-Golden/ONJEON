@@ -1,0 +1,32 @@
+Local verification; no remote CI status asserted.
+cwd: /workspace/onjeon-run/wt/audit2-engine-range-compare-static
+starting HEAD: 3a8cedef74254ba064cce2f123359e94ad9190f0
+companion source: a38b836c82ccdf46bf08da80bc2c00b692def775
+Python: 3.13.5
+rustc 1.98.1 (48a229cea 2026-09-01)
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+git diff --check: PASS
+allowed path and protected-file checks: PASS
+audit relative links: PASS (24)
+eval.rs equals companion source a38b836: PASS
+Changed paths:
+docs/blueprint/audits/2026-10-26_engine_range_compare_static.md
+packages/rules-engine/README.md
+packages/rules-engine/evidence/audit2-range-compare/round1/final-checks.log
+packages/rules-engine/evidence/audit2-range-compare/round1/fmt.log
+packages/rules-engine/evidence/audit2-range-compare/round1/focused.log
+packages/rules-engine/evidence/audit2-range-compare/round1/python-tests.log
+packages/rules-engine/evidence/audit2-range-compare/round1/soundness-before.log
+packages/rules-engine/evidence/audit2-range-compare/round1/spec-check.log
+packages/rules-engine/evidence/audit2-range-compare/round1/validation-selftest.log
+packages/rules-engine/evidence/audit2-range-compare/round1/validation.log
+packages/rules-engine/evidence/audit2-range-compare/round1/vocab.log
+packages/rules-engine/evidence/audit2-range-compare/round1/workspace-clippy.log
+packages/rules-engine/evidence/audit2-range-compare/round1/workspace-tests.log
+packages/rules-engine/src/eval.rs
+packages/rules-engine/tests/soundness.rs
+Source SHA-256:
+417848b1b8c78aedf729cb416dcaa48dc7cf4ca4892ec69b9a21b6af14ad2896 packages/rules-engine/src/rule.rs
+5d8c066914cf637605ad1c22d0262199b56251f1d00914274c9b1ffa2641ea11 packages/rules-engine/src/eval.rs
+b0db4c71795e747990edd6f1c0b609c1cba5c73d84620d1b19b070541fc8a2ce packages/rules-engine/tests/soundness.rs
+6daf5746a96dfc9515bb0d078cfe528702fdfdccdc36ae2da319f674592444c3 packages/rules-engine/tests/range_comparisons.rs

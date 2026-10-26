@@ -12,4 +12,3 @@ test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
 test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
 
 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
-

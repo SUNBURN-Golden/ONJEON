@@ -206,7 +206,10 @@ fn unknown_eligibility_preserves_successful_conditional_amounts_and_blockers() {
 
 #[test]
 fn unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors() {
-    let range = json!({"multiply_rate": ["amt", "0.5", {"rounding": "unspecified", "unit": 10}]});
+    // Range comparisons are rejected at load. A reversed date interval remains
+    // loadable and exercises runtime Type errors under unknown eligibility.
+    let reversed_days = json!({"days_between": ["date", {"date": "2199-12-30"},
+        {"inclusive_start": true, "inclusive_end": true}]});
     for (condition, expected_error) in [
         (
             json!({"eq": [{"date_add": ["date", {"value": 1, "unit": "day"}]}, "date"]}),
@@ -215,10 +218,13 @@ fn unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors() {
             },
         ),
         (
-            json!({"lt": [range, {"krw": 1}]}),
+            json!({"lt": [reversed_days, 1]}),
             EvalError::Type {
-                path: "amount.if".into(),
-                message: "cannot compare money_range with money".into(),
+                path: "amount.if.lt[0]".into(),
+                message: "days_between needs the first date on or before the second, \
+                          found the second 1 day(s) earlier; compare the dates with \
+                          lt/gt instead"
+                    .into(),
             },
         ),
     ] {
@@ -227,6 +233,7 @@ fn unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors() {
         );
         let mut inputs = json!({"amt": 5, "date": "2199-12-31"});
         let result = rule.evaluate(&inputs).unwrap();
+        assert_eq!(result.eligibility, Tri::Unknown);
         assert_eq!(
             result.payout,
             Payout::Undetermined {
@@ -234,8 +241,15 @@ fn unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors() {
             }
         );
         assert_eq!(result.missing_inputs, vec!["flag"]);
+        assert!(result
+            .trace
+            .iter()
+            .any(|entry| entry.path == "amount"
+                && entry.result == format!("error: {expected_error}")));
         inputs["flag"] = json!(true);
         assert_eq!(rule.evaluate(&inputs).unwrap_err(), expected_error);
+        inputs["flag"] = json!(false);
+        assert_eq!(rule.evaluate(&inputs).unwrap().payout, Payout::NotPayable);
     }
 }
 

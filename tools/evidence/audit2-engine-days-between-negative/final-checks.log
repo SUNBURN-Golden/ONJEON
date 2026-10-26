@@ -1,0 +1,18 @@
+PASS: only allowed paths changed; protected paths unchanged.
+PASS: no unresolved merge conflicts.
+PASS: git diff --check and all untracked-file whitespace checks.
+PASS: local links in audit, engine README, and product purpose table resolve.
+Changed paths before final-checks.log:
+docs/blueprint/audits/2026-10-26_engine_days_between_negative.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/src/eval.rs
+packages/rules-engine/tests/days_between.rs
+tools/evidence/audit2-engine-days-between-negative/clippy.log
+tools/evidence/audit2-engine-days-between-negative/fmt.log
+tools/evidence/audit2-engine-days-between-negative/focused.log
+tools/evidence/audit2-engine-days-between-negative/mutation.log
+tools/evidence/audit2-engine-days-between-negative/product-purpose.log
+tools/evidence/audit2-engine-days-between-negative/python-tests.log
+tools/evidence/audit2-engine-days-between-negative/spec-check.log
+tools/evidence/audit2-engine-days-between-negative/workspace.log

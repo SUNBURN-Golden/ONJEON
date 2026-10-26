@@ -1,0 +1,6 @@
+PASS: no unmerged index entries
+PASS: merge remains pending for supervisor; no merge commit created
+PASS: both intents retained in both conflict files; no conflict markers
+PASS: protected paths unchanged
+PASS: all changed and untracked files are in allowed paths
+PASS: staged and unstaged diff whitespace checks (incoming evidence trailing blank lines removed)

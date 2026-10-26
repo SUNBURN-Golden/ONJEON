@@ -263,39 +263,126 @@ fn evaluation_rejects_undeclared_or_mistyped_inputs() {
 
 #[test]
 fn date_add_params_are_a_closed_key_set() {
-    let err = |params: J| {
-        Rule::from_json(&base(
-            json!({"eq": [{"date_add": ["d1", params]}, "d2"]}),
-            json!({"krw": 1}),
-        ))
-        .unwrap_err()
-        .to_string()
-    };
-    // unknown key, on every unit
-    for unit in ["day", "calendar_month", "calendar_year"] {
-        let mut p = json!({"value": 1, "unit": unit, "extra": true});
-        if unit != "day" {
-            p["month_end"] = json!("clamp");
+    for version in ["rule-0.1", "rule-0.2"] {
+        for unit in ["day", "calendar_month", "calendar_year"] {
+            let allowed = if unit == "day" {
+                "only value and unit"
+            } else {
+                "only value, unit and month_end"
+            };
+            // Include the exact audit example and non-scalar values: unknown keys
+            // must be rejected regardless of the value they contain.
+            for (key, value) in [
+                ("x", json!(1)),
+                ("extra", json!(true)),
+                ("typo", J::Null),
+                ("options", json!({})),
+            ] {
+                let mut params = json!({"value": 1, "unit": unit});
+                if unit != "day" {
+                    params["month_end"] = json!("clamp");
+                }
+                params[key] = value;
+                let mut doc = base(
+                    json!({"eq": [{"date_add": ["d1", params]}, "d2"]}),
+                    json!({"krw": 1}),
+                );
+                doc["schema_version"] = json!(version);
+                let err = Rule::from_json(&doc).unwrap_err();
+                assert_eq!(err.path, "eligibility.eq[0].date_add");
+                assert!(
+                    err.message.contains(allowed),
+                    "{version}/{unit}/{key}: {err}"
+                );
+            }
         }
-        let e = err(p);
-        assert!(e.contains("only value"), "{unit}: {e}");
     }
-    // month_end is meaningless for day arithmetic
-    let e = err(json!({"value": 90, "unit": "day", "month_end": "clamp"}));
-    assert!(
-        e.contains("month_end") && e.contains("only value and unit"),
-        "{e}"
-    );
-    // exact sets still load
-    for p in [
-        json!({"value": 90, "unit": "day"}),
-        json!({"value": 3, "unit": "calendar_month", "month_end": "clamp"}),
-        json!({"value": 1, "unit": "calendar_year", "month_end": "clamp"}),
-    ] {
-        Rule::from_json(&base(
-            json!({"eq": [{"date_add": ["d1", p]}, "d2"]}),
-            json!({"krw": 1}),
-        ))
-        .unwrap();
+}
+
+#[test]
+fn date_add_required_keys_cannot_be_replaced_by_unknown_keys() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for unit in ["day", "calendar_month", "calendar_year"] {
+            let mut params = json!({"value": 1, "unit": unit});
+            if unit != "day" {
+                params["month_end"] = json!("clamp");
+            }
+            // Keep the expected key count while replacing a mandatory key.
+            for key in params.as_object().unwrap().keys() {
+                let mut replaced = params.clone();
+                let value = replaced.as_object_mut().unwrap().remove(key).unwrap();
+                replaced["x"] = value;
+                let mut doc = base(
+                    json!({"eq": [{"date_add": ["d1", replaced]}, "d2"]}),
+                    json!({"krw": 1}),
+                );
+                doc["schema_version"] = json!(version);
+                let err = Rule::from_json(&doc).unwrap_err();
+                assert_eq!(err.path, "eligibility.eq[0].date_add");
+                assert!(err.message.contains(key), "{version}/{unit}/{key}: {err}");
+            }
+        }
+    }
+}
+
+#[test]
+fn date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for (key, value, message) in [
+            ("x", json!(1), "only value and unit"),
+            ("month_end", json!("clamp"), "month_end"),
+            ("month_end", J::Null, "month_end"),
+        ] {
+            let mut params = json!({"value": 1, "unit": "day"});
+            params[key] = value;
+            let mut doc = base(
+                json!(true),
+                json!({"if": false,
+                    "then": {"if": {"eq": [{"date_add": ["d1", params]}, "d2"]},
+                        "then": {"krw": 1}, "else": {"krw": 0}},
+                    "else": {"krw": 0}}),
+            );
+            doc["schema_version"] = json!(version);
+            let err = Rule::from_json(&doc).unwrap_err();
+            assert_eq!(err.path, "amount.then.if.eq[0].date_add");
+            assert!(err.message.contains(message), "{version}/{key}: {err}");
+        }
+    }
+}
+
+#[test]
+fn date_add_exact_key_sets_preserve_calendar_results() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for (params, start, end) in [
+            (
+                json!({"value": 1, "unit": "day"}),
+                "2024-02-28",
+                "2024-02-29",
+            ),
+            (
+                json!({"value": 1, "unit": "calendar_month", "month_end": "clamp"}),
+                "2024-01-31",
+                "2024-02-29",
+            ),
+            (
+                json!({"value": 1, "unit": "calendar_year", "month_end": "clamp"}),
+                "2024-02-29",
+                "2025-02-28",
+            ),
+        ] {
+            let mut doc = base(
+                json!({"eq": [{"date_add": ["d1", params]}, "d2"]}),
+                json!({"krw": 1}),
+            );
+            doc["schema_version"] = json!(version);
+            let rule = Rule::from_json(&doc).unwrap();
+            let result = rule.evaluate(&json!({"d1": start, "d2": end})).unwrap();
+            assert_eq!(
+                result.payout,
+                Payout::Payable {
+                    amount: AmountOut::Exact { krw: 1 }
+                }
+            );
+        }
     }
 }

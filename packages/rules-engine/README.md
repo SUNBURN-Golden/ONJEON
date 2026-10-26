@@ -58,7 +58,7 @@
 | `rule_02` | rule-0.2 연산 7종: 연산별 골든·경계(0, `i64::MAX`, 기념일 당일, 윤일)·변이(연산·반올림·구간표·경계 규칙을 바꾼 규칙이 골든 표에 잡힘)·건전성(입력을 하나씩 숨겨도 확정값이 뒤집히거나 0이 되지 않음), `whole=0` 모름, 0.1 문서에서의 거부, `contract_effect` 3상태 |
 | `static_types` | 로드 단계 타입 검사: 감사 예시 두 건, 연산자별 거부와 오류 경로, 올바른 타입은 그대로 로드·평가 |
 | `range_comparisons` | Audit 2의 `p=201` 사례, 두 DSL 버전·비교 6종·양쪽 피연산자의 범위 거부, 모든 금액 연산과 `if`의 범위 전파, 정확한 금액 비교·범위 출력·모름 보존, `pro_rata` 비율 인자의 정확한 금액 제약. [검증 증거](../../docs/blueprint/audits/2026-10-26_engine_range_compare_static.md) |
-| `loader_and_arith` | 반올림 모드, 상한, `days_between` 포함 여부·역순 날짜 거부, 달력 연산, 로더 거부 규칙 |
+| `loader_and_arith` | 반올림 모드, 상한, `days_between` 포함 여부·역순 날짜 거부, 달력 연산, 로더 거부 규칙. 두 DSL 버전·날짜 단위 전체에서 `date_add` 미지원 키·필수 키 대체·미선택 가지의 잘못된 파라미터 거부와 정상 달력 계산을 검증([Audit 2 증거](../../docs/blueprint/audits/2026-10-26_engine_date_add_unknown_keys.md)) |
 | `date_format`·날짜 단위 시험 | 두 DSL 버전의 날짜 리터럴·평가 입력에서 선행 `+` 거부, 숫자 위치별 비숫자 거부, 정상 형식·윤일·지원 경계 보존. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_parse_date_plus_sign.md) |
 | `identity_evidence` | 두 DSL 버전·모든 공개 상태·두 로드 진입점에서 빈/공백 ID·근거와 인접/비인접 중복 근거 거부, 오류 경로, 픽스처만 빈 근거 목록 허용, 정상 ID·근거 순서·해시·결과 보존. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_empty_ids_evidence.md) |
 | `unknown_branch_errors` | 조건이 모름일 때 가지의 오류가 모름+blocker가 되는지, 선택된 가지·양쪽 가지의 오류는 유지되는지, trace 기록 |

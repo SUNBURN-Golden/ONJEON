@@ -1,0 +1,35 @@
+Negative control: temporarily remove only the date_add exact-key-set check.
+Command: cargo test -p onjeon-rules-engine --test loader_and_arith date_add_ --offline
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-date-add-unknown-keys/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.65s
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-581a38e2763dfe88)
+
+running 5 tests
+test date_add_never_assumes_365_days_per_year ... ok
+test date_add_required_keys_cannot_be_replaced_by_unknown_keys ... ok
+test date_add_exact_key_sets_preserve_calendar_results ... ok
+test date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches ... FAILED
+test date_add_params_are_a_closed_key_set ... FAILED
+
+failures:
+
+---- date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches stdout ----
+
+thread 'date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches' (698651) panicked at packages/rules-engine/tests/loader_and_arith.rs:346:45:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "t", rule_version: "1", release_id: None, content_hash: "f11ac10e992572e2eeb1517cd422b81568e192f4562e3407f04c53caeb4fd337", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["x"], inputs: {"amt": MoneyKrw, "d1": Date, "d2": Date, "flag": Bool, "n": Int}, eligibility: Lit(Bool(true)), amount: If(Lit(Bool(false)), If(Cmp(Eq, DateAdd { date: Input("d1"), value: 1, unit: Day }, Input("d2")), Lit(Money(1)), Lit(Money(0))), Lit(Money(0))), contract_effect: None, source: Object {"amount": Object {"else": Object {"krw": Number(0)}, "if": Bool(false), "then": Object {"else": Object {"krw": Number(0)}, "if": Object {"eq": Array [Object {"date_add": Array [String("d1"), Object {"unit": String("day"), "value": Number(1), "x": Number(1)}]}, String("d2")]}, "then": Object {"krw": Number(1)}}}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("x")], "inputs": Object {"amt": String("money_krw"), "d1": String("date"), "d2": String("date"), "flag": String("bool"), "n": String("int")}, "publication_state": String("fixture_only"), "rule_id": String("t"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- date_add_params_are_a_closed_key_set stdout ----
+
+thread 'date_add_params_are_a_closed_key_set' (698650) panicked at packages/rules-engine/tests/loader_and_arith.rs:291:49:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "t", rule_version: "1", release_id: None, content_hash: "44a73c6bdda2f5bfc07c36729f5dfa71fd7ee23d85035897d594901b3372ceca", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["x"], inputs: {"amt": MoneyKrw, "d1": Date, "d2": Date, "flag": Bool, "n": Int}, eligibility: Cmp(Eq, DateAdd { date: Input("d1"), value: 1, unit: Day }, Input("d2")), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [Object {"date_add": Array [String("d1"), Object {"unit": String("day"), "value": Number(1), "x": Number(1)}]}, String("d2")]}, "evidence_refs": Array [String("x")], "inputs": Object {"amt": String("money_krw"), "d1": String("date"), "d2": String("date"), "flag": String("bool"), "n": String("int")}, "publication_state": String("fixture_only"), "rule_id": String("t"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    date_add_params_are_a_closed_key_set
+    date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test loader_and_arith`
+Exit code: 101

@@ -9,6 +9,10 @@ use serde_json::{json, Value as J};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
+// 47 shared design-validation cases + 58 engine-owned boundary cases.
+// Update deliberately when adding or removing cases; never derive this from discovered files.
+const EXPECTED_REAL_CLAUSE_CASES: usize = 47 + 58;
+
 fn rules() -> BTreeMap<String, Rule> {
     let rules = real_rules();
     for (id, rule) in &rules {
@@ -93,19 +97,90 @@ fn unexercised(exercised: &BTreeSet<String>, rules: &BTreeMap<String, Rule>) -> 
         .collect()
 }
 
+fn assert_case_coverage(exercised: &BTreeSet<String>, n: usize, rules: &BTreeMap<String, Rule>) {
+    assert_eq!(
+        n, EXPECTED_REAL_CLAUSE_CASES,
+        "expected the full real-clause case set, ran {n}"
+    );
+    assert_eq!(
+        exercised,
+        &rules.keys().cloned().collect::<BTreeSet<_>>(),
+        "rules without any case: {:?}",
+        unexercised(exercised, rules)
+    );
+}
+
 #[test]
 fn every_real_clause_case_matches() {
     let rules = rules();
     let (exercised, n, problems) = run_cases(&case_files(), &rules);
-    assert!(n >= 40, "expected the full real-clause case set, ran {n}");
     assert!(problems.is_empty(), "{}", problems.join("\n"));
-    // Each loaded rule is exercised, and each case's `rule` resolved to a loaded file (above).
-    assert_eq!(
-        exercised,
-        rules.keys().cloned().collect::<BTreeSet<_>>(),
-        "rules without any case: {:?}",
-        unexercised(&exercised, &rules)
+    assert_case_coverage(&exercised, n, &rules);
+}
+
+#[test]
+fn exact_case_count_check_catches_each_missing_file() {
+    let rules = rules();
+    let files = case_files();
+    for (missing, _) in &files {
+        let without: Vec<_> = files
+            .iter()
+            .filter(|(name, _)| name != missing)
+            .cloned()
+            .collect();
+        let (exercised, n, problems) = run_cases(&without, &rules);
+        assert!(problems.is_empty(), "{problems:?}");
+        assert!(n < EXPECTED_REAL_CLAUSE_CASES);
+        let failure = std::panic::catch_unwind(|| assert_case_coverage(&exercised, n, &rules))
+            .expect_err("a missing cases file must fail the coverage check");
+        let message = failure.downcast_ref::<String>().unwrap();
+        assert!(
+            message.contains("expected the full real-clause case set"),
+            "{missing}: expected a count failure, got {message}"
+        );
+    }
+}
+
+#[test]
+#[should_panic(expected = "expected the full real-clause case set")]
+fn exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered() {
+    let rules = rules();
+    let mut files = case_files();
+    files[0].1["cases"].as_array_mut().unwrap().pop().unwrap();
+    let (exercised, n, problems) = run_cases(&files, &rules);
+    assert!(problems.is_empty(), "{problems:?}");
+    assert_eq!(n, EXPECTED_REAL_CLAUSE_CASES - 1);
+    assert!(unexercised(&exercised, &rules).is_empty());
+    assert_case_coverage(&exercised, n, &rules);
+}
+
+#[test]
+#[should_panic(expected = "expected the full real-clause case set")]
+fn exact_case_count_check_catches_an_unexpected_extra_case() {
+    let rules = rules();
+    let mut files = case_files();
+    let cases = files[0].1["cases"].as_array_mut().unwrap();
+    cases.push(cases[0].clone());
+    let (exercised, n, problems) = run_cases(&files, &rules);
+    assert!(problems.is_empty(), "{problems:?}");
+    assert_eq!(n, EXPECTED_REAL_CLAUSE_CASES + 1);
+    assert_case_coverage(&exercised, n, &rules);
+}
+
+#[test]
+#[should_panic(expected = "rules without any case: [\"rule-without-cases\"]")]
+fn rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count() {
+    let mut rules = rules();
+    let mut orphan = rules.values().next().unwrap().source_json().clone();
+    orphan["rule_id"] = json!("rule-without-cases");
+    rules.insert(
+        "rule-without-cases".into(),
+        Rule::from_json(&orphan).unwrap(),
     );
+    let (exercised, n, problems) = run_cases(&case_files(), &rules);
+    assert!(problems.is_empty(), "{problems:?}");
+    assert_eq!(n, EXPECTED_REAL_CLAUSE_CASES);
+    assert_case_coverage(&exercised, n, &rules);
 }
 
 #[test]

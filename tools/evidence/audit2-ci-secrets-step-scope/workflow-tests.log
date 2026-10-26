@@ -1,0 +1,37 @@
+test_checkout_persist_true (test_workflow_check.WorkflowCheckTest.test_checkout_persist_true) ... ok
+test_checkout_without_with (test_workflow_check.WorkflowCheckTest.test_checkout_without_with) ... ok
+test_hardened_passes (test_workflow_check.WorkflowCheckTest.test_hardened_passes) ... ok
+test_job_level_permissions_do_not_count (test_workflow_check.WorkflowCheckTest.test_job_level_permissions_do_not_count) ... ok
+test_missing_permissions (test_workflow_check.WorkflowCheckTest.test_missing_permissions) ... ok
+test_no_checkout_is_an_error (test_workflow_check.WorkflowCheckTest.test_no_checkout_is_an_error) ... ok
+test_persist_false_of_a_later_step_does_not_count (test_workflow_check.WorkflowCheckTest.test_persist_false_of_a_later_step_does_not_count) ... ok
+test_repo_ci_yml_is_hardened (test_workflow_check.WorkflowCheckTest.test_repo_ci_yml_is_hardened) ... ok
+test_too_broad_permissions (test_workflow_check.WorkflowCheckTest.test_too_broad_permissions) ... ok
+test_accepts_full_sha_with_tag_comment_and_local_actions (test_workflow_pins.UnpinnedRefsParser.test_accepts_full_sha_with_tag_comment_and_local_actions) ... ok
+test_comments_and_flow_separators_end_scalars (test_workflow_pins.UnpinnedRefsParser.test_comments_and_flow_separators_end_scalars) ... ok
+test_comments_and_script_strings_are_not_actions (test_workflow_pins.UnpinnedRefsParser.test_comments_and_script_strings_are_not_actions) ... ok
+test_flags_tags_branches_and_short_shas (test_workflow_pins.UnpinnedRefsParser.test_flags_tags_branches_and_short_shas) ... ok
+test_flow_mappings_accept_full_shas_and_local_actions (test_workflow_pins.UnpinnedRefsParser.test_flow_mappings_accept_full_shas_and_local_actions) ... ok
+test_flow_mappings_flag_unpinned_refs (test_workflow_pins.UnpinnedRefsParser.test_flow_mappings_flag_unpinned_refs) ... ok
+test_multiline_step_name_does_not_hide_sibling_action (test_workflow_pins.UnpinnedRefsParser.test_multiline_step_name_does_not_hide_sibling_action) ... ok
+test_rejected_block_scalar_does_not_hide_following_action (test_workflow_pins.UnpinnedRefsParser.test_rejected_block_scalar_does_not_hide_following_action) ... ok
+test_rejects_block_scalar_action_values (test_workflow_pins.UnpinnedRefsParser.test_rejects_block_scalar_action_values) ... ok
+test_rejects_empty_or_next_line_action_values (test_workflow_pins.UnpinnedRefsParser.test_rejects_empty_or_next_line_action_values) ... ok
+test_rejects_sha_prefix_with_scalar_suffix (test_workflow_pins.UnpinnedRefsParser.test_rejects_sha_prefix_with_scalar_suffix) ... ok
+test_rejects_uppercase_or_non_hex_sha (test_workflow_pins.UnpinnedRefsParser.test_rejects_uppercase_or_non_hex_sha) ... ok
+test_unpinned_refs_match_known_list (test_workflow_pins.WorkflowPins.test_unpinned_refs_match_known_list) ... ok
+test_workflows_exist (test_workflow_pins.WorkflowPins.test_workflows_exist) ... ok
+test_guard_rejects_unpinned_actions_in_both_yaml_extensions (test_workflow_pins.WorkflowPinsDiscovery.test_guard_rejects_unpinned_actions_in_both_yaml_extensions) ... ok
+test_consumers_receive_all_bindings (test_workflow_secret_scope.WorkflowSecretScope.test_consumers_receive_all_bindings) ... ok
+test_install_or_action_in_consumer_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_install_or_action_in_consumer_is_rejected) ... ok
+test_live_sources_secrets_are_step_scoped (test_workflow_secret_scope.WorkflowSecretScope.test_live_sources_secrets_are_step_scoped) ... ok
+test_missing_duplicate_or_wrong_binding_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_missing_duplicate_or_wrong_binding_is_rejected) ... ok
+test_missing_or_duplicate_consumer_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_missing_or_duplicate_consumer_is_rejected) ... ok
+test_other_steps_and_jobs_cannot_receive_secrets (test_workflow_secret_scope.WorkflowSecretScope.test_other_steps_and_jobs_cannot_receive_secrets) ... ok
+test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_secret_in_action_input_or_script_is_rejected) ... ok
+test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.040s
+
+OK

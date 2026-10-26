@@ -1,0 +1,5 @@
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-real-clauses-count-assert/packages/rules-engine)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-real-clauses-count-assert/packages/twin-runtime)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-real-clauses-count-assert/packages/ontology)
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-real-clauses-count-assert/packages/schemas)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.51s

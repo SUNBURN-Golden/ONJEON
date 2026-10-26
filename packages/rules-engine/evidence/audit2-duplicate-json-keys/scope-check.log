@@ -1,0 +1,6 @@
+BLUEPRINT-S11: current decision index (36 ADR/DEC files)
+PASS: all 11 changed/untracked files are within allowed paths; protected paths unchanged
+PASS: git diff --check
+PASS: BLUEPRINT decision index
+PASS: 66 local Markdown link targets exist in changed docs
+No commit, push, or GitHub calls performed.

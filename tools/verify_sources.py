@@ -17,9 +17,10 @@ detect     현재 출처 변경 감지 — fetch permitted recorded URLs and com
            `fetch_failed` with detail `robots_disallow`, and keep the run nonzero.
 
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a
-cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: hashed and
-parsed only, and a response body over MAX_FETCH_BYTES is refused unread (`fetch_failed`, detail
-`too_large`). TLS verification stays on; only network errors are retried.
+cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: same-origin
+redirects only, final URL recorded, MIME/signature and known HTML block-page checks before any
+write. Bodies over MAX_FETCH_BYTES are refused (streaming stops at cap + 1 byte). TLS verification
+stays on; only network errors are retried. Rejections are `fetch_failed`, never new originals.
 
 Usage:
   verify_sources.py reproduce --raw file:///archive/raw [--derived file:///archive/derived] [--ocr] --report r.json
@@ -355,9 +356,40 @@ def check_recorded_robots_policy(url):
         raise RobotsDisallowed(f"robots_disallow: {host}: User-agent: *; Disallow: /; {ROBOTS_POLICY_SOURCE}")
 
 
+class FetchRejected(Exception):
+    """A response is not an admissible source document. No retry or archive write."""
+
+    final_url = None
+
+
+def source_origin(url):
+    """Only HTTP(S) URLs without credentials; default ports compare equally."""
+    try:
+        p = urllib.parse.urlsplit(url)
+        if p.scheme not in {"http", "https"} or not p.hostname or p.username is not None or p.password is not None:
+            raise ValueError("not an HTTP(S) source URL without credentials")
+        port = p.port if p.port is not None else (443 if p.scheme == "https" else 80)
+        if port == 0:
+            raise ValueError("invalid port")
+        return p.scheme, p.hostname.lower(), port
+    except ValueError as e:
+        raise FetchRejected("url_disallowed: invalid source URL") from e
+
+
+def check_redirect(source, target):
+    check_recorded_robots_policy(target)
+    if source_origin(source) != source_origin(target):
+        raise FetchRejected("redirect_disallowed: scheme, host or port changed")
+
+
 class PolicyRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        check_recorded_robots_policy(newurl)
+        try:
+            check_redirect(req.full_url, newurl)
+        except (FetchRejected, RobotsDisallowed):
+            if fp is not None:
+                fp.close()
+            raise
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -374,6 +406,8 @@ def read_capped(r, max_bytes):
     while True:
         chunk = r.read(min(1024 * 1024, max_bytes + 1 - total))
         if not chunk:
+            if declared and declared.isdigit() and total != int(declared):
+                raise FetchRejected("length_mismatch: incomplete response body")
             return b"".join(chunks)
         total += len(chunk)
         if total > max_bytes:
@@ -381,15 +415,76 @@ def read_capped(r, max_bytes):
         chunks.append(chunk)
 
 
-def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES):
+SOURCE_MIMES = {
+    "pdf": {"application/pdf", "application/octet-stream", "binary/octet-stream"},
+    "html": {"text/html", "application/xhtml+xml"},
+}
+# Specific denial/challenge phrases, not bare "login" links in ordinary site navigation.
+BLOCK_PAGE_MARKERS = (
+    "access denied", "request rejected", "verify you are human", "unusual traffic",
+    "you have been blocked", "your ip has been blocked", "captcha", "bot detected",
+    "automated requests", "the requested url was rejected", "enable javascript and cookies to continue",
+    "login required", "please log in", "sign in to continue",
+    "로그인이 필요", "접근이 차단", "접근 차단", "비정상적인 접근", "자동화된 접근",
+    "서비스 점검", "service unavailable", "internal server error",
+)
+
+
+def check_source_body(body, kind):
+    if not body:
+        raise FetchRejected("empty_body: source returned no document")
+    if kind == "pdf":
+        if not body.startswith(b"%PDF-"):
+            raise FetchRejected("wrong_signature: expected PDF")
+        return
+    if not body.lstrip().startswith(b"<"):
+        raise FetchRejected("wrong_signature: expected HTML markup")
+    text, _ = hch.decode(body[:64 * 1024])
+    text = text.lower()
+    # Check challenge markup before removing scripts; visible text catches split tags/entities.
+    challenge = any(marker in text for marker in (
+        "cf-chl-", "/cdn-cgi/challenge-platform/", "g-recaptcha", "hcaptcha", "_incapsula_resource",
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+    password = re.search(r"<input\b[^>]*\btype\s*=\s*['\"]?password\b", text)
+    text = re.sub(r"<!--.*?-->|<script\b.*?</script\s*>|<style\b.*?</style\s*>", " ", text, flags=re.S)
+    text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", text)))
+    if challenge or password or any(marker in text for marker in BLOCK_PAGE_MARKERS):
+        raise FetchRejected("block_page: challenge, login or denial HTML")
+
+
+def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
+    """Return (admitted bytes, MIME, final URL); rejection never returns a body."""
+    if type(max_bytes) is not int or not 1 <= max_bytes <= MAX_FETCH_BYTES:
+        raise ValueError("max_bytes must be between 1 and MAX_FETCH_BYTES")
+    if type(attempts) is not int or attempts < 1:
+        raise ValueError("attempts must be positive")
     check_recorded_robots_policy(url)
+    source_origin(url)
+    kind = "pdf" if expected_format in {"pdf", "text_pdf", "scanned_pdf"} else expected_format
+    if kind not in SOURCE_MIMES:
+        raise FetchRejected("unsupported_format: expected PDF or HTML")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (onjeon source change detection)"})
     opener = urllib.request.build_opener(PolicyRedirectHandler())
     for i in range(attempts):
         try:
             with opener.open(req, timeout=120) as r:
-                return read_capped(r, max_bytes), r.headers.get_content_type()
-        except urllib.error.HTTPError:
+                final_url = r.geturl()
+                try:
+                    check_redirect(url, final_url)
+                    if r.status != 200:
+                        raise FetchRejected(f"unexpected_status: {r.status}")
+                    # Do not use get_content_type(): it silently defaults a missing header to HTML.
+                    ctype = (r.headers.get("Content-Type") or "").split(";", 1)[0].strip().lower()
+                    if ctype not in SOURCE_MIMES[kind]:
+                        raise FetchRejected(f"content_type_mismatch: expected {kind}, received {ctype or 'missing'}")
+                    body = read_capped(r, max_bytes)
+                    check_source_body(body, kind)
+                except (FetchRejected, FetchTooLarge) as e:
+                    e.final_url = final_url
+                    raise
+                return body, ctype, final_url
+        except urllib.error.HTTPError as e:
+            e.close()
             raise  # an HTTP status is an answer, not a network error
         except (urllib.error.URLError, TimeoutError, ConnectionError):
             if i == attempts - 1:
@@ -403,7 +498,8 @@ def cmd_detect(args):
     results = []
     for r in rows():
         sid = r["sample_id"]
-        res = {"sample_id": sid, "url": r["url"], "baseline_sha256": r["sha256"], "observed_at": now()}
+        res = {"sample_id": sid, "url": r["url"], "requested_url": r["url"],
+               "baseline_sha256": r["sha256"], "observed_at": now()}
         try:
             check_recorded_robots_policy(r["url"])
         except RobotsDisallowed as e:
@@ -417,19 +513,28 @@ def cmd_detect(args):
             results.append(res)
             continue
         try:
-            body, ctype = fetch(r["url"])
+            body, ctype, final_url = fetch(r["url"], expected_format=r["format"])
         except RobotsDisallowed as e:
             res.update(status="fetch_failed", detail=str(e))
             results.append(res)
             continue
-        except FetchTooLarge as e:
-            res.update(status="fetch_failed", detail=f"too_large: {e}"[:200])
+        except (FetchRejected, FetchTooLarge) as e:
+            detail = f"too_large: {e}" if isinstance(e, FetchTooLarge) else str(e)
+            res.update(status="fetch_failed", detail=detail[:200])
+            if getattr(e, "final_url", None):
+                res.update(url=e.final_url, final_url=e.final_url)
+            results.append(res)
+            continue
+        except urllib.error.HTTPError as e:
+            res.update(status="fetch_failed", detail=f"HTTPError: {e}"[:200],
+                       url=e.geturl(), final_url=e.geturl())
             results.append(res)
             continue
         except Exception as e:
             res.update(status="fetch_failed", detail=f"{type(e).__name__}: {e}"[:200])
             results.append(res)
             continue
+        res.update(url=final_url, final_url=final_url, content_type=ctype)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
         digest = sa.sha256_bytes(body)
@@ -437,7 +542,7 @@ def cmd_detect(args):
         if digest == r["sha256"]:
             res["status"] = "unchanged_bytes"
         elif r["format"] == "html" and r.get("content_sha256") and r.get("content_hash_rule") == hch.RULE:
-            host = re.sub(r"^https?://([^/]+).*$", r"\1", r["url"])
+            host = urllib.parse.urlsplit(final_url).hostname
             now_content = hch.content_sha256(body, host)
             res["content_hash_rule"] = hch.RULE
             res["status"] = "bytes_changed_content_same" if now_content == r["content_sha256"] else "changed"
@@ -445,8 +550,9 @@ def cmd_detect(args):
             res["status"] = "changed"
         if raw is not None and args.archive_new:
             _, state = sa.put_raw(raw, body, ctype or "application/octet-stream")
-            okey, _ = sa.put_observation(raw, sid, r["url"], res["observed_at"], digest, len(body), ctype or "",
-                                         {"detect_status": res["status"]})
+            okey, _ = sa.put_observation(raw, sid, final_url, res["observed_at"], digest, len(body), ctype,
+                                         {"detect_status": res["status"], "requested_url": r["url"],
+                                          "final_url": final_url})
             res.update(archived_object=state, observation=okey)
         results.append(res)
     # a source that could not be fetched is a failed collection, not a green run (exit 1); a changed

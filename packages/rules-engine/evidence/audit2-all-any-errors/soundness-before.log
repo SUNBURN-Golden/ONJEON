@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running tests/soundness.rs (target/debug/deps/soundness-7683122ddc54e9c2)
+
+running 1 test
+test hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer ... FAILED
+
+failures:
+
+---- hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer stdout ----
+
+thread 'hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer' (125007) panicked at packages/rules-engine/tests/common/mod.rs:66:10:
+evaluation must not error on fixture inputs: DateOutOfRange { path: "eligibility.all[1].eq[0]" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test soundness`

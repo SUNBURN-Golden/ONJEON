@@ -131,3 +131,48 @@ fn unknown_is_never_reported_as_zero_or_not_payable() {
     assert_ne!(format!("{:?}", r.payout), "NotPayable");
     assert!(!r.missing_inputs.is_empty());
 }
+
+#[test]
+fn hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer() {
+    // Audit 2: even a valid input can fail inside a child expression. Replacing that
+    // input with unknown must preserve the independent decisive child's answer.
+    for (op, decisive) in [("all", false), ("any", true)] {
+        for error_first in [false, true] {
+            let bad = serde_json::json!({"eq": [
+                {"date_add": ["d", {"value": 1, "unit": "day"}]}, "d"
+            ]});
+            let mut children = vec![serde_json::json!("gate"), bad];
+            if error_first {
+                children.reverse();
+            }
+            let rule = Rule::from_json(&serde_json::json!({
+                "rule_id": "soundness-all-any-errors", "rule_version": "1",
+                "schema_version": "rule-0.1", "calendar": "Asia/Seoul",
+                "publication_state": "fixture_only", "evidence_refs": [],
+                "inputs": {"gate": "bool", "d": "date"},
+                "eligibility": {op: children}, "amount": {"krw": 100},
+                "unknown_policy": "use_three_valued_logic_never_default_to_zero"
+            }))
+            .unwrap();
+            let full = observe(
+                &rule,
+                &serde_json::json!({"gate": decisive, "d": "2199-12-31"}),
+            );
+            assert!(is_definite(&full));
+            for hidden in [
+                serde_json::json!({"gate": decisive}),
+                serde_json::json!({"gate": decisive, "d": null}),
+            ] {
+                assert_eq!(observe(&rule, &hidden), full);
+            }
+            // Hiding the deciding input too must lose the decision, never invent one.
+            let both_hidden = observe(&rule, &serde_json::json!({}));
+            assert!(!is_definite(&both_hidden));
+            assert_eq!(both_hidden["eligibility"], "unknown");
+            assert_eq!(
+                both_hidden["missing_inputs"],
+                serde_json::json!(["d", "gate"])
+            );
+        }
+    }
+}

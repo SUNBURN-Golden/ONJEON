@@ -96,6 +96,13 @@
 
 이 세션의 설계 담당(Fable), 빌더(Sonnet), 구현자는 모두 claude 계열이다. 그래서 지금까지는 작성 계열 밖의 리뷰가 없었다. VM에서 Grok 4.7(Cursor CLI·grokbuild)이나 SWE2가 "확인됨"이 되면 claude 계열이 작성한 PR을 그 계열이 리뷰할 수 있다. 이것이 처음으로 생기는 독립 리뷰 경로다. 단계 0에서 이 경로를 먼저 확인한다.
 
+**[상태 기록 2026-10-26] 첫 독립 리뷰 경로 운영 확인** ([audit1-independent-review-path](../../../../decisions/audit1-independent-review-path.md), 되돌릴 수 있음). 위 문단은 2026-10-13 시점의 상태다. 이 기록이 "지금까지는 작성 계열 밖의 리뷰가 없었다"를 대체한다.
+- 운영 중인 경로: 감독기가 OpenAI Codex CLI(provider openai, gpt-6-astra, 읽기 전용)를 리뷰어로 붙인다. claude 계열(claude-opus-5-5)이 작성한 #208은 head `cab3d19`에서, #210은 head `cfa8699`에서 이 리뷰어의 PASS를 받았다. 두 head는 병합 커밋 3c76cc1·52acae6의 두 번째 부모와 같다. 앞선 head(`92a339e`, `970331a`)는 같은 리뷰어가 BLOCK했다.
+- Grok 4.7(Cursor CLI)은 DEC-D-02 리뷰(2026-10-23)에서 한 번 실행됐다. 상시 배정 경로로는 적지 않는다.
+- 다른 계열로 쓰지 않는 것: 이름만 devin·glm인 T-OP-01 리뷰 기록은 실제 실행 모델이 claude-sonnet-5-5다. Claude Code로 glm-5.3을 부른 T-CT-05·T-KN-04 리뷰는 `unrecognized_model`로 실패했다. 둘 다 작성 계열 밖 리뷰가 아니다.
+- 근거: 실행 기록 발췌와 sha256은 `tools/tests/evidence/audit1_independent_review_path/review_records.log`에 있다. `tools/tests/test_pr_policy.py`의 `IndependentReviewPath`가 이 기록, 결정 기록, 이 문단이 같은 내용인지 검사한다.
+- 아직 확인되지 않은 것: 05 §2의 형식 "확인됨"(05 §1b 종료 코드 표, T-OP-09 R6·R7 PARTIAL "claude 외 CLI 미확인")은 남은 데몬 후속 과제다. 해소된 것으로 적지 않는다.
+
 ## 7. 멈추는 조건 (그록봇이 판단하지 않고 멈추는 경우)
 
 - 규칙에 없는 조건이 생기면 → 반송(return_codes).

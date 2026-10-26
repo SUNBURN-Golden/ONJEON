@@ -180,3 +180,80 @@ class SerialDaemonPrerequisite(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class IndependentReviewPath(unittest.TestCase):
+    """audit1-independent-review-path: 독립 리뷰 경로 근거가 실행 기록·결정 기록·인계 §6에서 같다."""
+
+    EVIDENCE = ROOT / "tools/tests/evidence/audit1_independent_review_path/review_records.log"
+    RECORD = ROOT / "docs/decisions/audit1-independent-review-path.md"
+    # PR → (BLOCK한 head, PASS한 head, 병합 커밋). PASS head는 병합 커밋의 두 번째 부모다
+    REVIEWED = {"208": ("92a339ec194d00f8b3101dab9593a81d80ad77b0",
+                        "cab3d1977859509c70d84ebeafb1a84dcc6f0203", "3c76cc1"),
+                "210": ("970331ac7fb36eee44cef412ee6f88890301f1ff",
+                        "cfa8699d3dae894e1c46a331feda86d5f0081034", "52acae6")}
+    NOT_OUT_OF_FAMILY = ("T-OP-01_review_r0_devin_devin_opus1", "T-OP-01_review_r0_glm_glm_glm_opus")
+
+    def setUp(self):
+        self.evidence = self.EVIDENCE.read_text(encoding="utf-8")
+        self.record = self.RECORD.read_text(encoding="utf-8")
+        readme = (BUNDLE / "그록봇_인계/README.md").read_text(encoding="utf-8")
+        self.section = readme.split("## 6. ", 1)[1].split("## 7. ", 1)[0]
+        self.assertIn("[상태 기록 2026-10-26]", self.section)
+        self.note = self.section.split("[상태 기록 2026-10-26]", 1)[1]
+
+    def reviews(self):
+        """(pr, head, verdict) of every OpenAI-family review block in the evidence."""
+        out = []
+        for block in self.evidence.split("\n### ")[1:]:
+            if "provider: openai" in block:
+                self.assertIn("OpenAI Codex", block)
+                self.assertIn("sandbox: read-only", block)
+                m = re.search(r"pr=#(\d+) head=([0-9a-f]{40}) verdict=(PASS|BLOCK)", block)
+                self.assertIsNotNone(m, block[:120])
+                out.append(m.groups())
+        return out
+
+    def test_evidence_has_out_of_family_reviews_pinned_to_merged_heads(self):
+        reviews = self.reviews()
+        for pr, (blocked, passed, merge) in self.REVIEWED.items():
+            with self.subTest(pr=pr):
+                self.assertIn((pr, blocked, "BLOCK"), reviews)
+                self.assertIn((pr, passed, "PASS"), reviews)
+                merge_line = next(l for l in self.evidence.splitlines()
+                                  if l.startswith(merge) and f"Merge pull request #{pr} " in l)
+                self.assertEqual(passed, merge_line.split()[2], "PASS head must be the merged PR head")
+
+    def test_authors_are_outside_the_reviewer_family(self):
+        authors = self.evidence.split("## 5. ", 1)[1]
+        self.assertTrue(authors.strip())
+        for line in authors.strip().splitlines()[1:]:
+            with self.subTest(run=line):
+                self.assertIn("claude", line)
+                self.assertNotIn("codex", line)
+
+    def test_claude_runs_under_other_names_are_not_cited_as_independent(self):
+        rejected = self.evidence.split("## 3. ", 1)[1].split("## 4. ", 1)[0]
+        for name in self.NOT_OUT_OF_FAMILY:
+            with self.subTest(run=name):
+                block = rejected.split(name, 1)[1].split("###", 1)[0]
+                self.assertIn("claude-sonnet-5-5", block)
+                self.assertIn("claude-sonnet-5-5", self.record)
+                self.assertNotIn(name, self.record.split("This corrects", 1)[0])
+        self.assertIn("unrecognized_model", rejected)
+
+    def test_record_and_handover_agree(self):
+        for pr, (blocked, passed, merge) in self.REVIEWED.items():
+            with self.subTest(pr=pr):
+                for sha in (blocked, passed, merge):
+                    self.assertIn(sha, self.record)
+                    self.assertIn(sha[:7], self.note)
+                self.assertIn(f"#{pr}", self.note)
+        for phrase in ("첫 독립 리뷰 경로 운영 확인", "OpenAI Codex", "gpt-6-astra", "대체한다",
+                       "IndependentReviewPath", "R6·R7", "해소된 것으로 적지 않는다"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.note)
+        self.assertIn("지금까지는 작성 계열 밖의 리뷰가 없었다", self.section)  # 원문은 고치지 않는다
+        self.assertIn("첫 독립 리뷰 경로 운영 확인", self.record)
+        self.assertIn(str(self.EVIDENCE.relative_to(ROOT)), self.record)
+        self.assertIn(str(self.EVIDENCE.relative_to(ROOT)), self.note)

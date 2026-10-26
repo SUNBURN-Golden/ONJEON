@@ -1,0 +1,25 @@
+Repeat isolated duplicate-upload memory regression 100 times; original 3 MiB cap.
+....................................................................................................
+----------------------------------------------------------------------
+Ran 100 tests in 14.431s
+
+OK
+
+Negative control: hold a second full object while checking the archive.
+_check_duplicate_local_upload_memory (test_crawler_uploader.UploaderTest._check_duplicate_local_upload_memory) ... FAIL
+
+======================================================================
+FAIL: _check_duplicate_local_upload_memory (test_crawler_uploader.UploaderTest._check_duplicate_local_upload_memory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/tools/tests/test_crawler_uploader.py", line 377, in _check_duplicate_local_upload_memory
+    self.assertLess(peak, size + 1024 * 1024)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 4349422 not less than 3145728
+
+----------------------------------------------------------------------
+Ran 1 test in 0.036s
+
+FAILED (failures=1)
+
+PASS: 100 isolated runs passed; injected second-buffer regression was rejected.

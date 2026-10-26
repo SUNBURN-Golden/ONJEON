@@ -44,6 +44,10 @@ jobs:
           persist-credentials: false
       - name: Ontology case runner (rules engine only; computes nothing itself)
         run: cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
+      - name: Ontology runner I/O unit tests
+        run: cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
+      - name: Ontology runner fields and per-job error regressions
+        run: ONJEON_ONTOLOGY_RUNNER="$RUNNER_TEMP/onto/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -p test_ontology_runner_io_error.py -v
       - name: Ontology check (constraints, frozen releases, document model, question flow, self-tests)
         run: python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py "$RUNNER_TEMP/onto/debug/ontology-case-runner"
       - name: Design bundle semantic check (task graph, path permissions, final gate, daemon transitions, switch signals)

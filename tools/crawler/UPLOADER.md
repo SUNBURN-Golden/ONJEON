@@ -84,7 +84,10 @@ python3 -m unittest discover -s tools/tests -p 'test_crawler_uploader.py'
 python3 -m unittest discover -s tools/tests
 ```
 
-새 시험은 실제 소켓·S3 클라이언트·프로세스 실행·대기를 차단한다.
+업로드 시험은 실제 소켓·S3 클라이언트·프로세스 실행·대기를 차단한다.
+메모리 시험은 새 Python 프로세스에서 같은 차단을 적용한 뒤 측정한다.
+Python 3.13 `pathlib`의 전역 문자열 intern 테이블 확장이 앞선 시험 수에 따라
+측정 피크에 포함되지 않도록 격리하며, 본문 하나 + 1 MiB 미만 상한은 유지한다.
 R2 성공 경로는 실행하지 않으며, 15가지 누락 게이트 조합과 클라이언트 생성
 이전의 예산 중단을 확인한다. fixture만으로 무쓰기, 기존 함수와의 바이트 일치,
 중복, 충돌, 검증 실패, 정리 범위, gap/status, 상한과 경고 플래그를 확인한다.

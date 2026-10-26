@@ -1,0 +1,27 @@
+$ cargo clippy --all-targets --offline -- -D warnings
+    Checking typenum v1.20.1
+    Checking serde_core v1.0.229
+    Checking zmij v1.0.23
+    Checking itoa v1.0.18
+    Checking memchr v2.8.3
+    Checking cpufeatures v0.2.17
+    Checking cfg-if v1.0.5
+    Checking libc v0.2.190
+    Checking generic-array v0.14.7
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+    Checking serde v1.0.229
+    Checking serde_json v1.0.151
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/packages/rules-engine)
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/packages/schemas)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.74s
+
+Exit code: 0

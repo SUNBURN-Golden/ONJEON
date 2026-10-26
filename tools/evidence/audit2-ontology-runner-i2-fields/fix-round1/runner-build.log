@@ -1,0 +1,7 @@
+$ cargo build --offline --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+
+Exit code: 0

@@ -8,6 +8,7 @@ import hashlib
 import io
 import itertools
 import json
+import subprocess
 import sys
 import tempfile
 import tracemalloc
@@ -361,7 +362,7 @@ class UploaderTest(unittest.TestCase):
                         archive.put_raw(store, BODY, "application/pdf")
             self.assertEqual(path.read_bytes(), winner)
 
-    def test_duplicate_local_upload_memory_is_one_object_plus_bounded_metadata(self):
+    def _check_duplicate_local_upload_memory(self):
         size = 2 * 1024 * 1024
         body = BODY + b"x" * (size - len(BODY))
         self.write(body)
@@ -457,5 +458,22 @@ class UploaderTest(unittest.TestCase):
                     self.assertEqual(ast.literal_eval(node.args[0]), "source_archive")
 
 
+class UploaderMemoryTest(unittest.TestCase):
+    def test_duplicate_local_upload_memory_is_one_object_plus_bounded_metadata(self):
+        # Python 3.13 pathlib interns path components. In a shared test process,
+        # resizing the global intern table can add megabytes to tracemalloc's
+        # peak, depending on earlier tests. Measure in a fresh interpreter;
+        # the probe still uses UploaderTest's offline guards and original cap.
+        probe = subprocess.run(
+            [sys.executable, "-I", str(Path(__file__).resolve()), "--memory-probe"],
+            capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(probe.returncode, 0, probe.stdout + probe.stderr)
+
+
 if __name__ == "__main__":
+    if sys.argv[1:] == ["--memory-probe"]:
+        suite = unittest.TestSuite([UploaderTest("_check_duplicate_local_upload_memory")])
+        result = unittest.TextTestRunner(verbosity=2).run(suite)
+        sys.exit(not result.wasSuccessful())
     unittest.main()

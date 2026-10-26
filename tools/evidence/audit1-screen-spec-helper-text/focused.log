@@ -1,0 +1,9 @@
+test_blueprint_adopts_exact_upstream_copy_and_supersedes_both_appendix_items (test_screen_spec_helper_text.ScreenSpecHelperTextTests.test_blueprint_adopts_exact_upstream_copy_and_supersedes_both_appendix_items) ... ok
+test_conflict_register_closes_helper_only (test_screen_spec_helper_text.ScreenSpecHelperTextTests.test_conflict_register_closes_helper_only) ... ok
+test_helper_is_no_longer_an_open_decision_and_other_design_items_remain (test_screen_spec_helper_text.ScreenSpecHelperTextTests.test_helper_is_no_longer_an_open_decision_and_other_design_items_remain) ... ok
+test_screen_binding_shows_canonical_helper_under_title (test_screen_spec_helper_text.ScreenSpecHelperTextTests.test_screen_binding_shows_canonical_helper_under_title) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

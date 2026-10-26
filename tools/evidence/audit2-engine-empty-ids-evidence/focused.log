@@ -10,4 +10,3 @@ test empty_evidence_list_is_allowed_only_for_fixtures ... ok
 test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-

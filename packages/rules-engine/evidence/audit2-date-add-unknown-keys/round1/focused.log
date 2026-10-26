@@ -1,0 +1,35 @@
+$ cargo test -p onjeon-rules-engine --test loader_and_arith --test identity_evidence --offline
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-date-add-unknown-keys/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.21s
+     Running tests/identity_evidence.rs (target/debug/deps/identity_evidence-61b825b05ec1fee8)
+
+running 5 tests
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test blank_rule_ids_are_rejected ... ok
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-581a38e2763dfe88)
+
+running 13 tests
+test cap_min_max_add_with_ranges ... ok
+test date_add_never_assumes_365_days_per_year ... ok
+test date_add_params_are_a_closed_key_set ... ok
+test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
+test date_add_exact_key_sets_preserve_calendar_results ... ok
+test days_between_inclusivity_is_explicit ... ok
+test date_add_required_keys_cannot_be_replaced_by_unknown_keys ... ok
+test loader_enforces_rule_level_invariants ... ok
+test date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches ... ok
+test days_between_rejects_reversed_dates_for_every_inclusivity ... ok
+test loader_rejects_everything_outside_the_allow_list ... ok
+test rounding_to_unit ... ok
+test rounding_modes_are_explicit_and_exact ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+Exit code: 0

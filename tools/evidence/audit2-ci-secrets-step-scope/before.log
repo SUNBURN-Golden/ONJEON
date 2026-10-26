@@ -1,0 +1,25 @@
+test_consumers_receive_all_bindings (test_workflow_secret_scope.WorkflowSecretScope.test_consumers_receive_all_bindings) ... ok
+test_install_or_action_in_consumer_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_install_or_action_in_consumer_is_rejected) ... ok
+test_live_sources_secrets_are_step_scoped (test_workflow_secret_scope.WorkflowSecretScope.test_live_sources_secrets_are_step_scoped) ... FAIL
+test_missing_duplicate_or_wrong_binding_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_missing_duplicate_or_wrong_binding_is_rejected) ... ok
+test_missing_or_duplicate_consumer_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_missing_or_duplicate_consumer_is_rejected) ... ok
+test_other_steps_and_jobs_cannot_receive_secrets (test_workflow_secret_scope.WorkflowSecretScope.test_other_steps_and_jobs_cannot_receive_secrets) ... ok
+test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_secret_in_action_input_or_script_is_rejected) ... ok
+test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
+
+======================================================================
+FAIL: test_live_sources_secrets_are_step_scoped (test_workflow_secret_scope.WorkflowSecretScope.test_live_sources_secrets_are_step_scoped)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ci-secrets-step-scope/tools/tests/test_workflow_secret_scope.py", line 72, in test_live_sources_secrets_are_step_scoped
+    self.assert_scoped(SOURCE.read_text(encoding="utf-8"))
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit2-ci-secrets-step-scope/tools/tests/test_workflow_secret_scope.py", line 66, in assert_scoped
+    self.assertNotRegex(chunk, r"\bsecrets\s*[.\[]", "secret outside consumer step env")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex matched: 'secrets.' matches '\\bsecrets\\s*[.\\[]' in 'uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2\n        if: always()\n        with: { name: detect-report, path: "${{ runner.temp }}/detect.json" }\n\n  reproduce:\n    if: ${{ vars.ONJEON_RAW_BUCKET != \'\' && vars.ONJEON_DERIVED_BUCKET != \'\' }}\n    runs-on: ubuntu-latest\n    concurrency: { group: r2-budget, cancel-in-progress: false }\n    timeout-minutes: 120\n    env:\n      ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}\n      R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}\n      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}\n      R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}\n      R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}\n      JOB: infra/r2/jobs/initial-119.json\n    steps:\n' : secret outside consumer step env
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.005s
+
+FAILED (failures=1)

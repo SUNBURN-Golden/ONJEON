@@ -1,0 +1,49 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-snapshot-hash-encoding/packages/rules-engine)
+warning: function `canonical_bytes` is never used
+  --> packages/rules-engine/src/canonical.rs:35:15
+   |
+35 | pub(crate) fn canonical_bytes(v: &J) -> Vec<u8> {
+   |               ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `onjeon-rules-engine` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.53s
+     Running tests/snapshot_hash.rs (target/debug/deps/snapshot_hash-8f3c0914b196cffd)
+
+running 6 tests
+test delimiter_injection_no_longer_collides ... FAILED
+test every_input_name_is_hashed_including_release_id_and_json_metacharacters ... ok
+test hash_matches_independent_canonical_json_with_all_input_types ... FAILED
+test list_member_order_amount_and_class_are_preserved_but_object_order_is_not ... ok
+test runtime_types_and_string_bytes_remain_distinct ... ok
+test object_order_and_null_vs_missing_do_not_change_the_snapshot ... ok
+
+failures:
+
+---- delimiter_injection_no_longer_collides stdout ----
+
+thread 'delimiter_injection_no_longer_collides' (943157) panicked at packages/rules-engine/tests/snapshot_hash.rs:64:9:
+assertion `left != right` failed
+  left: "c05ffd0de6145d703e766d10597dd57c890f5336f6e60d4c80100719b759955e"
+ right: "c05ffd0de6145d703e766d10597dd57c890f5336f6e60d4c80100719b759955e"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- hash_matches_independent_canonical_json_with_all_input_types stdout ----
+
+thread 'hash_matches_independent_canonical_json_with_all_input_types' (943159) panicked at packages/rules-engine/tests/snapshot_hash.rs:47:5:
+assertion `left == right` failed
+  left: "12b7bce1990608ce7c0b529e73850928dabd26d9f2386c06834649c6fb01ba17"
+ right: "e2b8c0f742e472a3b6b6b5d4e36d7840aa94a2e2861e45a00bd3a780bf616478"
+
+
+failures:
+    delimiter_injection_no_longer_collides
+    hash_matches_independent_canonical_json_with_all_input_types
+
+test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test snapshot_hash`
+
+Exit code: 101 (expected failure)
+Canonical implementation restored byte-for-byte after the negative control.

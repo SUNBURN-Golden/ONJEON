@@ -2,6 +2,7 @@
 //! Anything outside the allow-list (unknown operators, floats, bare arrays,
 //! missing rounding, unknown top-level keys) is rejected at load time.
 
+use crate::canonical::{canonicalize, Canon};
 use crate::value::{parse_rate, Value};
 use serde_json::Value as J;
 use sha2::{Digest, Sha256};
@@ -562,36 +563,6 @@ impl Rule {
     /// this value and pass it to [`Rule::from_json`], which validates and re-hashes.
     pub fn source_json(&self) -> &J {
         &self.source
-    }
-}
-
-/// Canonical JSON tree for hashing. Objects are `BTreeMap`s, so keys are emitted in
-/// byte-wise order no matter how `serde_json::Map` is configured (its `preserve_order`
-/// feature, enabled by any crate in the build graph, would otherwise make the hash
-/// depend on key order in the file).
-#[derive(serde::Serialize)]
-#[serde(untagged)]
-enum Canon {
-    Null,
-    Bool(bool),
-    Number(serde_json::Number),
-    String(String),
-    Array(Vec<Canon>),
-    Object(BTreeMap<String, Canon>),
-}
-
-fn canonicalize(v: &J) -> Canon {
-    match v {
-        J::Null => Canon::Null,
-        J::Bool(b) => Canon::Bool(*b),
-        J::Number(n) => Canon::Number(n.clone()),
-        J::String(s) => Canon::String(s.clone()),
-        J::Array(a) => Canon::Array(a.iter().map(canonicalize).collect()),
-        J::Object(o) => Canon::Object(
-            o.iter()
-                .map(|(k, x)| (k.clone(), canonicalize(x)))
-                .collect(),
-        ),
     }
 }
 

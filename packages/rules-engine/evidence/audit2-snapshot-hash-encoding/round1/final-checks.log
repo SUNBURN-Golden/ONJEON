@@ -1,0 +1,16 @@
+HEAD: c9a38a587d470e4cddad65372a18a194332ed2cb
+MERGE_HEAD: 9b419124873025841e71c9c5353e3515d50ea1e2
+PASS: no unmerged index entries; merge left in progress for supervisor commit
+PASS: all changes inside allowlist; protected paths unchanged from HEAD
+PASS: both branch audit links retained once; resolved document has no conflict markers
+PASS: local links in resolved product-purpose and updated hash audit documents exist
+SHA-256 packages/rules-engine/src/canonical.rs: 7e2f8dcbd186a6c34f8fb3b00f3c645b842f24010c9aac5a03c85220edc9d963
+SHA-256 packages/rules-engine/src/eval.rs: 407e0ac5470dad2c0e44e39260c55a86ef247731a5bc94461571e7235708b9b5
+SHA-256 packages/rules-engine/src/value.rs: 50e1c8dd733a2776d46301c9afa7126130502f0e49eb03a6faaa8cdff1fa3b31
+SHA-256 packages/rules-engine/tests/snapshot_hash.rs: 6f54c27c02821c8b64edf6895d82f164b0d7fd8565388b03997a8630f6b7730c
+SHA-256 packages/rules-engine/src/date.rs: b968748ba6da3e16c01130ff0451f5e0513df87a55f44c25695f3ac2f515e853
+SHA-256 packages/rules-engine/tests/date_format.rs: 27173ab9d6e597015b75449afe855060e56b34e7a32b7f7f35bf6843f1d4e788
+PASS: branch canonical hash implementation/tests and incoming main date implementation/tests preserved byte-for-byte
+PASS: staged and unstaged diff whitespace checks
+PASS: focused 16/16; workspace Rust 439 passed, 0 failed, 1 ignored; embedded Python 39 + 129 passed
+PASS: Python discovery 915 run, 0 failures, 6 skipped; fmt, clippy, spec, purpose, vocabulary, validation, validation selftest

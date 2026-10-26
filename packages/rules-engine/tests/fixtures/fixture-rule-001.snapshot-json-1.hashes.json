@@ -1,0 +1,20 @@
+{
+  "note": "SHA-256 of compact UTF-8 JSON of converted, type-tagged inputs, recursively sorted keys; independently generated with Python json/hashlib. Trace pins remain in the shared golden fixture and local rounding supplement; their legacy snapshot hashes are superseded by these pins.",
+  "hashes": {
+    "t01_before_start": "0b06f2950f4f8c6eda4a0237799208c795c70161d6566a3fdc957dab41e241ff",
+    "t02_day_0_reduced": "caff765a0b61d09889b171e022953fdaefb3c8bffebfe653d739b5ea408778a8",
+    "t03_day_179_reduced": "b4d0b4d3dc64175f422c092a2d3055e40781690755bc3c6cfa1fca3636413686",
+    "t04_day_180_full": "88fdb7b8728805ac0e671377c37ff7da8158619cde501d9a9affdcde1d3bdc1e",
+    "t05_excluded_event": "e1ef5f56259c0d844e726bbfa2dcc720b7addb04d9996ac39ee8ae99b34acabd",
+    "t06_first_payment_used": "d2d73cb42553452955d39ba1814b44dbf7eb17ca294c27d26002b3a55e419f6c",
+    "t07_date_unknown": "2172497c30c000956c515912189c297bc023fa7c5d90e173c008acbc8601c722",
+    "t08_exclusion_unknown": "cf5e22e250493bb928fd849477df9232fe6596f32c7969c3d0e747d1df2124c6",
+    "t09_amount_unknown": "3100d0f8460b5e1c8508674715feb2295dbab66ec05cd121ac1735267c6a94e9",
+    "t10_not_target_event": "473e07609512d1430378ebb60e51211f44f45ea97b78cbb2eaa104657a0d5765",
+    "t11_event_kind_unknown": "0fff772dca3f8c7faaf6250f0738ea069bb0027db328398a2c51a4ba330cce48",
+    "t12_false_dominates_unknown": "9f3bfad3c43e21fb3f954321be752df5e9fa63de0ff78c76994a11909b2303db",
+    "t13_rounding_floor": "127e259145da3d42928032012a2a822e18deda0f66b4fd8c35e6649fb1138efc",
+    "t14_all_unknown": "3a6d4c223612a5dcf8f9639a98f028351c5346375f4e45ff042763e53b06e9c4",
+    "t15_rounding_floor_vs_half_even": "5772896ae16a8516cfc0da3259264f626db8758028954ef726e98856f20f0fcd"
+  }
+}

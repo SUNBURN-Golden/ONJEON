@@ -1,8 +1,10 @@
 //! Rule loading: JSON rule files are parsed into an allow-listed expression tree.
 //! Anything outside the allow-list (unknown operators, floats, bare arrays,
-//! missing rounding, unknown top-level keys) is rejected at load time.
+//! missing rounding, unknown top-level keys) is rejected at load time. Raw JSON must
+//! pass through `parse_rule_json` or `Rule::from_json_str` to reject duplicate keys.
 
 use crate::value::{parse_rate, Value};
+use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
 use serde_json::Value as J;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -307,13 +309,97 @@ const TOP_LEVEL_KEYS: [&str; 13] = [
     "contract_effect",
 ];
 
+/// Build JSON only after checking each object's decoded keys for duplicates.
+/// Deserializing into `serde_json::Value` first would silently keep the last value.
+struct UniqueJson(J);
+
+impl<'de> Deserialize<'de> for UniqueJson {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct JsonVisitor;
+
+        impl<'de> Visitor<'de> for JsonVisitor {
+            type Value = UniqueJson;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                formatter.write_str("JSON with unique object keys")
+            }
+
+            fn visit_bool<E: de::Error>(self, value: bool) -> Result<UniqueJson, E> {
+                Ok(UniqueJson(J::Bool(value)))
+            }
+
+            fn visit_i64<E: de::Error>(self, value: i64) -> Result<UniqueJson, E> {
+                Ok(UniqueJson(J::from(value)))
+            }
+
+            fn visit_u64<E: de::Error>(self, value: u64) -> Result<UniqueJson, E> {
+                Ok(UniqueJson(J::from(value)))
+            }
+
+            fn visit_f64<E: de::Error>(self, value: f64) -> Result<UniqueJson, E> {
+                serde_json::Number::from_f64(value)
+                    .map(|number| UniqueJson(J::Number(number)))
+                    .ok_or_else(|| E::custom("non-finite JSON number"))
+            }
+
+            fn visit_str<E: de::Error>(self, value: &str) -> Result<UniqueJson, E> {
+                Ok(UniqueJson(J::String(value.to_owned())))
+            }
+
+            fn visit_string<E: de::Error>(self, value: String) -> Result<UniqueJson, E> {
+                Ok(UniqueJson(J::String(value)))
+            }
+
+            fn visit_unit<E: de::Error>(self) -> Result<UniqueJson, E> {
+                Ok(UniqueJson(J::Null))
+            }
+
+            fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<UniqueJson, A::Error> {
+                let mut values = Vec::new();
+                while let Some(UniqueJson(value)) = seq.next_element()? {
+                    values.push(value);
+                }
+                Ok(UniqueJson(J::Array(values)))
+            }
+
+            fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<UniqueJson, A::Error> {
+                let mut values = serde_json::Map::new();
+                while let Some(key) = map.next_key::<String>()? {
+                    if values.contains_key(&key) {
+                        return Err(de::Error::custom(format!("duplicate JSON key `{key}`")));
+                    }
+                    let UniqueJson(value) = map.next_value()?;
+                    values.insert(key, value);
+                }
+                Ok(UniqueJson(J::Object(values)))
+            }
+        }
+
+        deserializer.deserialize_any(JsonVisitor)
+    }
+}
+
+/// Parse rule-artifact bytes, rejecting duplicate object keys at every depth.
+///
+/// Artifact loaders may remove metadata from the returned value before calling
+/// [`Rule::from_json`]. Parse the complete artifact here first, including metadata:
+/// converting raw bytes to `serde_json::Value` directly loses duplicate keys.
+/// This checks JSON syntax and key uniqueness; [`Rule::from_json`] validates the DSL.
+pub fn parse_rule_json(bytes: &[u8]) -> Result<J, serde_json::Error> {
+    let UniqueJson(value) = serde_json::from_slice(bytes)?;
+    Ok(value)
+}
+
 impl Rule {
+    /// Parse raw JSON, rejecting duplicate keys at every depth before validation or hashing.
     pub fn from_json_str(s: &str) -> Result<Rule, RuleError> {
-        let v: J = serde_json::from_str(s)
+        let v = parse_rule_json(s.as_bytes())
             .map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))?;
         Rule::from_json(&v)
     }
 
+    /// Validate an already constructed JSON value. Load raw text with [`Self::from_json_str`]
+    /// so duplicate keys are rejected before a JSON map can discard them.
     pub fn from_json(v: &J) -> Result<Rule, RuleError> {
         let obj = v
             .as_object()

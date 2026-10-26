@@ -1,0 +1,42 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling itoa v1.0.18
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling memchr v2.8.3
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-duplicate-json-keys/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.93s
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-581a38e2763dfe88)
+
+running 1 test
+test loader_rejects_duplicate_json_keys_at_every_depth ... FAILED
+
+failures:
+
+---- loader_rejects_duplicate_json_keys_at_every_depth stdout ----
+
+thread 'loader_rejects_duplicate_json_keys_at_every_depth' (402054) panicked at packages/rules-engine/tests/loader_and_arith.rs:253:55:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "t", rule_version: "1", release_id: None, content_hash: "dbc9e45942613435c94e3f5aa9f9b6ed9e1df4eb1c24867639f90a8e264463ff", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["x"], inputs: {"amt": MoneyKrw, "d1": Date, "d2": Date, "flag": Bool, "n": Int}, eligibility: Lit(Bool(true)), amount: Lit(Money(100000000)), contract_effect: None, source: Object {"amount": Object {"krw": Number(100000000)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("x")], "inputs": Object {"amt": String("money_krw"), "d1": String("date"), "d2": String("date"), "flag": String("bool"), "n": String("int")}, "publication_state": String("fixture_only"), "rule_id": String("t"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    loader_rejects_duplicate_json_keys_at_every_depth
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test loader_and_arith`

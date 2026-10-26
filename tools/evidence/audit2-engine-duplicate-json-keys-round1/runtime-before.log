@@ -1,0 +1,20 @@
+
+running 3 tests
+test runtime_artifact_rejects_duplicate_keys_before_loading_and_hashing ... FAILED
+test runtime_artifact_still_rejects_invalid_json_and_declarations ... ok
+test runtime_artifact_preserves_rule_hash_and_outside_declaration ... ok
+
+failures:
+
+---- runtime_artifact_rejects_duplicate_keys_before_loading_and_hashing stdout ----
+
+thread 'runtime_artifact_rejects_duplicate_keys_before_loading_and_hashing' (484990) panicked at tools/evidence/audit2-engine-duplicate-json-keys-round1/runtime_loader.rs:58:66:
+called `Result::unwrap_err()` on an `Ok` value: (Rule { rule_id: "duplicate-key-probe", rule_version: "1", release_id: None, content_hash: "520a4b527b0e78a6aae73fba6fa303dc74ec1072cafe8f496ce90dc6e4bcfdb4", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"hit": Bool}, eligibility: Lit(Bool(true)), amount: Lit(Money(100000000)), contract_effect: None, source: Object {"amount": Object {"krw": Number(100000000)}, "eligibility": Bool(true), "evidence_refs": Array [], "inputs": Object {"hit": String("bool")}, "publication_state": String("fixture_only"), "rule_id": String("duplicate-key-probe"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }, [])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    runtime_artifact_rejects_duplicate_keys_before_loading_and_hashing
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

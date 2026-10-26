@@ -1,0 +1,23 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-duplicate-json-keys/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.67s
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-581a38e2763dfe88)
+
+running 15 tests
+test date_add_params_are_a_closed_key_set ... ok
+test cap_min_max_add_with_ranges ... ok
+test days_between_inclusivity_is_explicit ... ok
+test artifact_json_rejects_duplicates_before_metadata_is_removed ... ok
+test artifact_json_rejects_invalid_bytes_syntax_and_trailing_data ... ok
+test date_add_never_assumes_365_days_per_year ... ok
+test loader_rejects_everything_outside_the_allow_list ... ok
+test loader_rejects_duplicate_json_keys_at_every_depth ... ok
+test loader_enforces_rule_level_invariants ... ok
+test days_between_rejects_reversed_dates_for_every_inclusivity ... ok
+test loader_strict_json_still_rejects_floats_malformed_and_trailing_data ... ok
+test loader_unique_json_preserves_source_hash_and_evaluation ... ok
+test rounding_to_unit ... ok
+test rounding_modes_are_explicit_and_exact ... ok
+test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

@@ -335,6 +335,8 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | 불변식 | §8의 기존 표기는 18개 중 6개 구현(엔진 범위)이다. 이번 현황 갱신으로 다른 불변식을 구현 완료로 승격하지 않는다 |
 | 마일스톤 | 기존 판정: M0·V0 완료, V1 설계 탐색·원본 R2 보존·대조 완료(완전 재현 8/14). 파생 6건 재생성 검증·교차 검수와 이후 관문 판정은 별도다. 추가 코드·시험 통과를 M1 이후 전체 완료나 P01~P19 완료로 간주하지 않는다 |
 
+L6 Audit 2: 엔진의 `Rule::from_json_str`와 공개 바이트 파서 `parse_rule_json`은 중복 JSON 키를 모든 깊이에서 거부한다. **발견 사항은 미해결**이다. 실행 경로 `twin-runtime::load_rule_artifact`는 아직 일반 `serde_json::Value` 파싱으로 중복 키의 마지막 값을 수용한다. 런타임 수정은 이 노드의 허용 경로 밖이어서 적용 대기 중이다. [수정 범위·회귀 시험 증거](blueprint/audits/2026-10-26_engine_duplicate_json_keys.md)는 P08·P14의 엔진 기반 보강이며 실제 릴리스·화면의 완료 증거를 대체하지 않는다.
+
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->

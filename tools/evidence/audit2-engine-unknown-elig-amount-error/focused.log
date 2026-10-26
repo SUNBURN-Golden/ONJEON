@@ -1,0 +1,15 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-unknown-elig-amount-error/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.56s
+     Running tests/soundness.rs (target/debug/deps/soundness-7683122ddc54e9c2)
+
+running 7 tests
+test hiding_eligibility_keeps_an_overflowing_amount_undetermined ... ok
+test unknown_eligibility_preserves_successful_conditional_amounts_and_blockers ... ok
+test unknown_is_never_reported_as_zero_or_not_payable ... ok
+test unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors ... ok
+test hiding_an_input_never_changes_a_definite_answer ... ok
+test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
+test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+

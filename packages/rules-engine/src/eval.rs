@@ -83,7 +83,8 @@ pub enum Payout {
     NotPayable,
     /// Eligibility is established. The amount may still be unknown or a range.
     Payable { amount: AmountOut },
-    /// Eligibility cannot be decided yet; `conditional_amount` is what would be paid if eligible.
+    /// Eligibility cannot be decided yet; `conditional_amount` is what would be paid if eligible,
+    /// or unknown if the amount cannot be evaluated.
     Undetermined { conditional_amount: AmountOut },
 }
 
@@ -887,7 +888,10 @@ impl Rule {
                 )
             }
             Tri::Unknown => {
-                let amt = eval(&self.amount, "amount", &mut ctx)?;
+                // Payment might not be due, so an amount error must not prevent an
+                // undetermined result. Preserve the error in the trace, as for an `if` branch.
+                let amt = eval_untaken(&self.amount, "amount", &mut ctx)
+                    .unwrap_or_else(|_| Ev::unknown(BTreeSet::new()));
                 let mut blockers = elig.blockers.clone();
                 if amt.v.is_unknown() {
                     blockers.extend(amt.blockers.iter().cloned());

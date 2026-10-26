@@ -63,10 +63,16 @@ pub fn days_in_month(y: i64, m: i64) -> i64 {
     }
 }
 
-/// Parse "YYYY-MM-DD" into days since epoch. Returns None for invalid dates.
+/// Parse ASCII "YYYY-MM-DD" into days since epoch. Returns None for invalid dates.
 pub fn parse_date(s: &str) -> Option<i64> {
     let b = s.as_bytes();
-    if b.len() != 10 || b[4] != b'-' || b[7] != b'-' {
+    if b.len() != 10
+        || b[4] != b'-'
+        || b[7] != b'-'
+        || !b[0..4].iter().all(u8::is_ascii_digit)
+        || !b[5..7].iter().all(u8::is_ascii_digit)
+        || !b[8..10].iter().all(u8::is_ascii_digit)
+    {
         return None;
     }
     let y: i64 = s[0..4].parse().ok()?;
@@ -116,6 +122,47 @@ pub fn add_days(days: i64, n: i64) -> Option<i64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parse_date_rejects_non_digits_in_every_component() {
+        for date in ["2024-+2-+9", "2024-+2-09", "2024-02-+9", "+202-02-09"] {
+            assert_eq!(parse_date(date), None, "must reject {date:?}");
+        }
+        for index in [0, 1, 2, 3, 5, 6, 8, 9] {
+            for non_digit in ['+', '-', ' ', '\t', 'x', 'é', '２'] {
+                let mut date = "2024-02-09".to_owned();
+                date.replace_range(index..index + 1, &non_digit.to_string());
+                assert_eq!(parse_date(&date), None, "must reject {date:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn parse_date_preserves_canonical_dates_and_calendar_validation() {
+        for date in [
+            "1900-01-01",
+            "1970-01-01",
+            "2024-02-09",
+            "2024-02-29",
+            "2199-12-31",
+        ] {
+            assert_eq!(format_date(parse_date(date).unwrap()), date);
+        }
+        for date in [
+            "2024-2-09",
+            "2024-02-9",
+            "2024/02/09",
+            "2024-02-09 ",
+            "",
+            "2024-00-09",
+            "2024-02-00",
+            "2024-13-09",
+            "2024-04-31",
+            "2023-02-29",
+        ] {
+            assert_eq!(parse_date(date), None, "must reject {date:?}");
+        }
+    }
 
     #[test]
     fn roundtrip_and_known_dates() {

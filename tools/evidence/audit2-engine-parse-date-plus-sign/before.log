@@ -1,0 +1,62 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
+
+running 9 tests
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test date::tests::month_end_clamps ... ok
+test date::tests::parse_date_preserves_canonical_dates_and_calendar_validation ... ok
+test date::tests::roundtrip_and_known_dates ... ok
+test date::tests::parse_date_rejects_non_digits_in_every_component ... FAILED
+test tri::tests::truth_table_matches_spec_49_3 ... ok
+test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
+test value::tests::rate_parsing ... ok
+test rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text ... ok
+
+failures:
+
+---- date::tests::parse_date_rejects_non_digits_in_every_component stdout ----
+
+thread 'date::tests::parse_date_rejects_non_digits_in_every_component' (871018) panicked at packages/rules-engine/src/date.rs:123:13:
+assertion `left == right` failed: must reject "2024-+2-+9"
+  left: Some(19762)
+ right: None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    date::tests::parse_date_rejects_non_digits_in_every_component
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --lib`
+     Running tests/date_format.rs (target/debug/deps/date_format-c73c2d489faeeeca)
+
+running 3 tests
+test signed_date_literals_are_rejected_at_load ... FAILED
+test signed_date_inputs_are_rejected_at_evaluation ... FAILED
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+
+failures:
+
+---- signed_date_literals_are_rejected_at_load stdout ----
+
+thread 'signed_date_literals_are_rejected_at_load' (871030) panicked at packages/rules-engine/tests/date_format.rs:20:63:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "date-format", rule_version: "1", release_id: None, content_hash: "00373812914e21de2c07062b2d5b9f51b5421ca46fff1d2cfe2b40e364377077", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"event_date": Date}, eligibility: Cmp(Eq, Input("event_date"), Lit(Date(19762))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [String("event_date"), Object {"date": String("2024-+2-+9")}]}, "evidence_refs": Array [], "inputs": Object {"event_date": String("date")}, "publication_state": String("fixture_only"), "rule_id": String("date-format"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- signed_date_inputs_are_rejected_at_evaluation stdout ----
+
+thread 'signed_date_inputs_are_rejected_at_evaluation' (871029) panicked at packages/rules-engine/tests/date_format.rs:32:69:
+called `Result::unwrap_err()` on an `Ok` value: EvaluationResult { rule_id: "date-format", rule_version: "1", release_id: None, rule_content_hash: "838f507b3395003d1f4cab049b79e38b0be3314fcea91c2b3b0add5e7a0cd707", evidence_refs: [], schema_version: "rule-0.1", engine_version: "0.1.0", eligibility: True, payout: Payable { amount: Exact { krw: 1 } }, contract_effect: None, missing_inputs: [], trace: [TraceEntry { path: "eligibility.eq[0]", op: "input", result: "2024-02-09" }, TraceEntry { path: "eligibility.eq[1]", op: "lit", result: "2024-02-09" }, TraceEntry { path: "eligibility", op: "eq", result: "true" }, TraceEntry { path: "amount", op: "lit", result: "1 KRW" }], input_snapshot_hash: "0ee18d15738995524da8e9255c679efc250c66cbc0e0941cdcbf82f7ba31fcac" }
+
+
+failures:
+    signed_date_inputs_are_rejected_at_evaluation
+    signed_date_literals_are_rejected_at_load
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test date_format`
+error: 2 targets failed:
+    `-p onjeon-rules-engine --lib`
+    `-p onjeon-rules-engine --test date_format`

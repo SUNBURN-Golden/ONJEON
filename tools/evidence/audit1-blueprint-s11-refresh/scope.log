@@ -1,0 +1,48 @@
+All changed/untracked files are within allowed paths.
+Protected paths: no diff from HEAD.
+git diff --check HEAD: pass.
+New/changed files: no trailing whitespace or extra final blank lines.
+Changed source hashes match source-snapshot.json.
+Local links in changed documentation: all targets exist.
+Final decision-index check: pass.
+
+Changed files:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-10-26_blueprint_s11_refresh.md
+tools/blueprint_status.py
+tools/ci/README.md
+tools/evidence/audit1-blueprint-s11-refresh/baseline-1.log
+tools/evidence/audit1-blueprint-s11-refresh/baseline-2.log
+tools/evidence/audit1-blueprint-s11-refresh/baseline-comparison.log
+tools/evidence/audit1-blueprint-s11-refresh/baseline-summary.json
+tools/evidence/audit1-blueprint-s11-refresh/before.log
+tools/evidence/audit1-blueprint-s11-refresh/ci-1.log
+tools/evidence/audit1-blueprint-s11-refresh/ci-2.log
+tools/evidence/audit1-blueprint-s11-refresh/ci-3.log
+tools/evidence/audit1-blueprint-s11-refresh/ci-4.log
+tools/evidence/audit1-blueprint-s11-refresh/ci-5.log
+tools/evidence/audit1-blueprint-s11-refresh/ci-summary.json
+tools/evidence/audit1-blueprint-s11-refresh/design-1.log
+tools/evidence/audit1-blueprint-s11-refresh/design-2.log
+tools/evidence/audit1-blueprint-s11-refresh/design-3.log
+tools/evidence/audit1-blueprint-s11-refresh/design-4.log
+tools/evidence/audit1-blueprint-s11-refresh/design-5.log
+tools/evidence/audit1-blueprint-s11-refresh/design-6.log
+tools/evidence/audit1-blueprint-s11-refresh/design-summary.json
+tools/evidence/audit1-blueprint-s11-refresh/focused-final.log
+tools/evidence/audit1-blueprint-s11-refresh/python-1.log
+tools/evidence/audit1-blueprint-s11-refresh/python-2.log
+tools/evidence/audit1-blueprint-s11-refresh/python-3.log
+tools/evidence/audit1-blueprint-s11-refresh/python-final-summary.json
+tools/evidence/audit1-blueprint-s11-refresh/python-final.log
+tools/evidence/audit1-blueprint-s11-refresh/python-summary.json
+tools/evidence/audit1-blueprint-s11-refresh/rust-1.log
+tools/evidence/audit1-blueprint-s11-refresh/rust-2.log
+tools/evidence/audit1-blueprint-s11-refresh/rust-3.log
+tools/evidence/audit1-blueprint-s11-refresh/rust-counts.json
+tools/evidence/audit1-blueprint-s11-refresh/rust-summary.json
+tools/evidence/audit1-blueprint-s11-refresh/scope.log
+tools/evidence/audit1-blueprint-s11-refresh/source-snapshot.json
+tools/evidence/audit1-blueprint-s11-refresh/status-final.log
+tools/tests/test_blueprint_status.py
+tools/tests/test_storage_provider_docs.py

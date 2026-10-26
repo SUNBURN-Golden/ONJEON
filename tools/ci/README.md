@@ -12,6 +12,7 @@ python3 -I tools/ci/check_skeleton.py          # flags off, no exposure in app c
 python3 -I tools/ci/check_skeleton.py --base-url http://HOST:PORT   # also probe inactive routes on a running server
 python3 -I tools/ci/check_bootstrap.py         # bootstrap-clean-main (tasks.json only; builds nothing)
 python3 -I tools/ci/check_product_purpose.py   # 09 P01..P19 task links and nine product-purpose test IDs
+python3 -I tools/blueprint_status.py          # §11 date/index matches every ADR/DEC path and content
 python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v
 python3 -I tools/ci/check_<name>.py --selftest # every checker has one
 python3 -I -m unittest discover -s tools/ci/tests
@@ -43,6 +44,15 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 `templates/test_skeleton_unexposed.py.tmpl` is copied into the api/web/mobile task that registers routes or screens. It fails (never skips) when the server URL or the UI route list is not supplied. It is exercised against a local stub server in `tests/test_ci_checkers.py`, green and red, but no real app route exists yet.
 
 ## CI wiring
+
+The §11 decision-index guard runs through `tools/tests/test_blueprint_status.py`
+in the existing Python unit-test CI step. On every ADR/DEC addition, edit,
+removal or rename, review the affected §11 status/gate rows, then run
+`python3 -I tools/blueprint_status.py --write`. This stamps §11 with the current
+UTC date and regenerates only its full file index and content digest. Status
+rows still need review; index freshness does not approve gates or prove a
+milestone or a product-purpose row complete. No record change means an older
+snapshot date remains valid. [Audit 1 evidence](../../docs/blueprint/audits/2026-10-26_blueprint_s11_refresh.md).
 
 The product-purpose guard runs through `tools/tests/test_product_purpose.py`, discovered by the existing `python3 -m unittest discover -s tools/tests -v` CI step. It checks the live bundle and exercises missing IDs and dangling row tasks using temporary inputs. The protected `spec_check.py` G12 list remains unchanged; this companion supplies the omitted checks without editing `docs/blueprint/proposals/**` or workflows.
 

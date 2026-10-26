@@ -1,0 +1,13 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-empty-ids-evidence/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.93s
+     Running tests/identity_evidence.rs (target/debug/deps/identity_evidence-61b825b05ec1fee8)
+
+running 5 tests
+test blank_rule_ids_are_rejected ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

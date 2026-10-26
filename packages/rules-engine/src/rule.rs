@@ -5,7 +5,7 @@
 use crate::value::{parse_rate, Value};
 use serde_json::Value as J;
 use sha2::{Digest, Sha256};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 pub const SCHEMA_VERSION: &str = "rule-0.1";
@@ -351,6 +351,9 @@ impl Rule {
                 .ok_or_else(|| RuleError::at("$", format!("`{key}` must be a string")))
         };
         let rule_id = get_str("rule_id")?;
+        if rule_id.trim().is_empty() {
+            return Err(RuleError::at("rule_id", "must not be empty"));
+        }
         let rule_version = get_str("rule_version")?;
         if rule_version.trim().is_empty() {
             return Err(RuleError::at("rule_version", "must not be empty"));
@@ -432,6 +435,15 @@ impl Rule {
                 &format!("evidence_refs[{i}]"),
                 "evidence reference must not be blank",
             ));
+        }
+        let mut seen = BTreeSet::new();
+        for (i, reference) in evidence_refs.iter().enumerate() {
+            if !seen.insert(reference) {
+                return Err(RuleError::at(
+                    &format!("evidence_refs[{i}]"),
+                    "duplicate evidence reference",
+                ));
+            }
         }
         if publication_state != "fixture_only" && evidence_refs.is_empty() {
             return Err(RuleError::at(

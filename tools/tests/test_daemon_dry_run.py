@@ -1226,6 +1226,122 @@ class FollowupRound8(unittest.TestCase):
         self.assertIn("max_wall_s", row)
 
 
+class StartGateEnforcement(unittest.TestCase):
+    """audit1-start-gates-enforcement: blocked -> queued (prereqs_satisfied) carries a structured cond
+    task.decision_gates.start subset_of task_state.decisions_recorded, and the core enforces it. The observation
+    layer checks only the prerequisite tasks; a direct prereqs_satisfied event is held to the same cond."""
+
+    def env(self, start, rules=None):
+        env = MockEnv(rules if rules is not None else str(RULES), str(TASKS))
+        gates = env.ports.catalog.tasks[fl.GATED]["decision_gates"]
+        if start is None:
+            del gates["start"]
+        else:
+            gates["start"] = start
+        return env
+
+    def record(self, env, dec):
+        env.observe(None, "decision_record", decision_id=dec, recorded_at=env.clock.now(), recorded_by="mock-owner",
+                    source_ref=f"mock://decision/{dec}")
+
+    def unmet(self, env):
+        return [r for r in env.journal() if r["kind"] == "diagnostic_record" and r["what"] == "cond_not_met"
+                and r.get("event") == "prereqs_satisfied" and r["task_id"] == fl.GATED]
+
+    def transitions(self, env):
+        return [(r["from"], r["to"], r["event"]) for r in env.journal()
+                if r["kind"] == "transition_record" and r["task_id"] == fl.GATED]
+
+    def test_row_carries_the_structured_start_cond(self):
+        row = [t for t in raw_rules()["transitions"] if (t["from"], t["to"], t["event"]) == ("blocked", "queued", "prereqs_satisfied")]
+        self.assertEqual(len(row), 1)
+        self.assertEqual(row[0]["cond"], [{"field": "task.decision_gates.start", "op": "subset_of",
+                                           "value": "task_state.decisions_recorded"}])
+        self.assertIn("task.decision_gates.start", json.dumps(Rules(raw_rules()).transitions, ensure_ascii=False))
+
+    def test_start_gate_blocks(self):
+        env = self.env(["D-X"])
+        env.start_task(fl.GATED)
+        self.assertEqual(env.state(fl.GATED), "blocked")
+        self.assertEqual(self.transitions(env), [])
+        diag = self.unmet(env)
+        self.assertEqual(len(diag), 1)
+        self.assertEqual([(c["field"], c["left"], c["result"]) for c in diag[0]["cond"]],
+                         [("task.decision_gates.start", ["D-X"], False)])
+
+    def test_start_gate_blocks_a_direct_event(self):
+        """The reviewer's reproduction: prereqs_satisfied fed straight to the core, D-X not recorded."""
+        env = self.env(["D-X"])
+        env.core.register_task(fl.GATED, "blocked")
+        out = env.event("prereqs_satisfied", fl.GATED)
+        self.assertFalse(out.get("applied"), out)
+        self.assertEqual(env.state(fl.GATED), "blocked")
+
+    def test_start_gate_opens(self):
+        env = self.env(["D-X"])
+        env.start_task(fl.GATED)
+        self.record(env, "D-X")
+        self.assertEqual(env.state(fl.GATED), "queued")
+        self.assertEqual(self.transitions(env), [("blocked", "queued", "prereqs_satisfied")])
+        rec = [r for r in env.journal() if r["kind"] == "transition_record" and r["task_id"] == fl.GATED][0]
+        self.assertEqual([(c["field"], c["result"]) for c in rec["cond_evaluated"]], [("task.decision_gates.start", True)])
+
+    def test_start_gate_partial_record_stays_blocked(self):
+        env = self.env(["D-X", "D-Y"])
+        env.start_task(fl.GATED)
+        self.record(env, "D-X")
+        self.assertEqual(env.state(fl.GATED), "blocked")
+        self.record(env, "D-Y")
+        self.assertEqual(env.state(fl.GATED), "queued")
+
+    def test_start_gate_empty(self):
+        """start=[] (59 of the 63 spec tasks, e.g. T-CT-01) is not held back."""
+        env = self.env([])
+        env.start_task(fl.GATED)
+        self.assertEqual(env.state(fl.GATED), "queued")
+        self.assertEqual(self.unmet(env), [])
+
+    def test_start_gate_null(self):
+        for start in (None, "missing"):
+            env = self.env(None) if start == "missing" else MockEnv(str(RULES), str(TASKS))
+            if start is None:
+                env.ports.catalog.tasks[fl.GATED]["decision_gates"]["start"] = None
+            env.start_task(fl.GATED)
+            self.assertEqual(env.state(fl.GATED), "blocked", start)
+            self.assertEqual([c["left"] for c in self.unmet(env)[0]["cond"]], [None], start)
+
+    def test_prereq_tasks_still_checked_first(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.start_task("T-MOCK-SUCC")
+        self.assertEqual(env.state("T-MOCK-SUCC"), "blocked")
+        self.assertEqual([r for r in env.journal() if r["kind"] == "diagnostic_record" and r["task_id"] == "T-MOCK-SUCC"], [])
+
+    def test_removing_the_cond_reopens_the_gap(self):
+        """The block comes from the rules file: without the cond the direct event moves the task (the finding)."""
+        raw = raw_rules()
+        row = [t for t in raw["transitions"] if (t["from"], t["event"]) == ("blocked", "prereqs_satisfied")][0]
+        del row["cond"]
+        env = self.env(["D-X"], rules=raw)
+        env.core.register_task(fl.GATED, "blocked")
+        env.event("prereqs_satisfied", fl.GATED)
+        self.assertEqual(env.state(fl.GATED), "queued")
+
+    def test_spec_tasks_with_a_start_gate_are_held(self):
+        """Every task of the spec catalog has a list start gate (none is unevaluable), and the gated ones
+        (T-OP-03 D-02, T-OP-04 D-04, T-OP-07 D-03, T-UX-01 D-16) would be held by the cond until their decision is recorded."""
+        tasks = json.loads(SPEC_TASKS.read_text(encoding="utf-8"))["tasks"]
+        self.assertTrue(all(isinstance(t["decision_gates"]["start"], list) for t in tasks))
+        gated = {t["id"]: t["decision_gates"]["start"] for t in tasks if t["decision_gates"]["start"]}
+        self.assertEqual(gated, {"T-OP-03": ["D-02"], "T-OP-04": ["D-04"], "T-OP-07": ["D-03"], "T-UX-01": ["D-16"]})
+        for tid, start in sorted(gated.items()):
+            env = self.env(list(start))
+            env.start_task(fl.GATED)
+            self.assertEqual(env.state(fl.GATED), "blocked", tid)
+            for dec in start:
+                self.record(env, dec)
+            self.assertEqual(env.state(fl.GATED), "queued", tid)
+
+
 class ReportValues(unittest.TestCase):
     """The report shows the values as they were compared, not as the scenario left them afterwards."""
 

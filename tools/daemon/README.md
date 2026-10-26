@@ -33,7 +33,7 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 
 ## 관측 계층(명세 공백 G51~G55)
 
-`blocked→queued`와 PR 이후 전이(전이표 0, 43~85행)에는 `cond`가 없다. 어떤 사건을 낼지 정하는 규칙은 `when` 문장, `audit_triggers.immediate_rules[].rule`, `record_separation.merge_observation_fields._rule` 같은 문장이거나 읽기 목록 밖에 있다. 코어가 문장을 읽지 않으므로 `core/observation.py`가 04 §2.2·§4·§5의 규칙을 코드로 적용한다. 행이 하는 일은 여전히 전이표가 정한다. 이 해석은 모두 `spec_gaps.py`의 G51~G55에 적었고, 설계 담당이 구조화 필드로 옮기면 이 모듈을 그 필드를 읽도록 바꾼다.
+`blocked→queued`의 선행 과제 조건과 PR 이후 전이(전이표 43~85행)에는 `cond`가 없다. `blocked→queued`(prereqs_satisfied)의 시작 관문은 `cond` `task.decision_gates.start subset_of task_state.decisions_recorded`로 코어가 평가한다: 관측 계층은 선행 과제만 보고 사건을 내며, 기록되지 않은 start 결정이 있거나 start가 목록이 아니면(null·누락) 과제는 `blocked`에 남고 `cond_not_met` 진단에 그 게이트가 남는다. 사건을 직접 넣어도 같다(`StartGateEnforcement`, [audit1-start-gates-enforcement](../../docs/decisions/audit1-start-gates-enforcement.md)). 어떤 사건을 낼지 정하는 규칙은 `when` 문장, `audit_triggers.immediate_rules[].rule`, `record_separation.merge_observation_fields._rule` 같은 문장이거나 읽기 목록 밖에 있다. 코어가 문장을 읽지 않으므로 `core/observation.py`가 04 §2.2·§4·§5의 규칙을 코드로 적용한다. 행이 하는 일은 여전히 전이표가 정한다. 이 해석은 모두 `spec_gaps.py`의 G51~G55에 적었고, 설계 담당이 구조화 필드로 옮기면 이 모듈을 그 필드를 읽도록 바꾼다.
 
 ## 현재 결과
 

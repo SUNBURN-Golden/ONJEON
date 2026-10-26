@@ -1,0 +1,86 @@
+$ python3 -m unittest tools.tests.test_daemon_dry_run.StartGateEnforcement -v   # new tests, sources of parent commit f9ee93bb5027c65e023e4a064cd01534bce79f6c
+test_prereq_tasks_still_checked_first (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_prereq_tasks_still_checked_first) ... ok
+test_removing_the_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_removing_the_cond_reopens_the_gap)
+The block comes from the rules file: without the cond the direct event moves the task (the finding). ... ERROR
+test_row_carries_the_structured_start_cond (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_row_carries_the_structured_start_cond) ... ERROR
+test_spec_tasks_with_a_start_gate_are_held (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_spec_tasks_with_a_start_gate_are_held)
+Every task of the spec catalog has a list start gate (none is unevaluable), and the gated ones ... ok
+test_start_gate_blocks (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_blocks) ... FAIL
+test_start_gate_blocks_a_direct_event (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_blocks_a_direct_event)
+The reviewer's reproduction: prereqs_satisfied fed straight to the core, D-X not recorded. ... FAIL
+test_start_gate_empty (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_empty)
+start=[] (59 of the 63 spec tasks, e.g. T-CT-01) is not held back. ... ok
+test_start_gate_null (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_null) ... FAIL
+test_start_gate_opens (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_opens) ... FAIL
+test_start_gate_partial_record_stays_blocked (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_partial_record_stays_blocked) ... ok
+
+======================================================================
+ERROR: test_removing_the_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_removing_the_cond_reopens_the_gap)
+The block comes from the rules file: without the cond the direct event moves the task (the finding).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1323, in test_removing_the_cond_reopens_the_gap
+    del row["cond"]
+        ~~~^^^^^^^^
+KeyError: 'cond'
+
+======================================================================
+ERROR: test_row_carries_the_structured_start_cond (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_row_carries_the_structured_start_cond)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1258, in test_row_carries_the_structured_start_cond
+    self.assertEqual(row[0]["cond"], [{"field": "task.decision_gates.start", "op": "subset_of",
+                     ~~~~~~^^^^^^^^
+KeyError: 'cond'
+
+======================================================================
+FAIL: test_start_gate_blocks (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1268, in test_start_gate_blocks
+    self.assertEqual(len(diag), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_start_gate_blocks_a_direct_event (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_blocks_a_direct_event)
+The reviewer's reproduction: prereqs_satisfied fed straight to the core, D-X not recorded.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1277, in test_start_gate_blocks_a_direct_event
+    self.assertFalse(out.get("applied"), out)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : {'applied': True, 'transition': ('blocked', 'queued', 'prereqs_satisfied'), 'post': [], 'rejected': None, 'emitted': []}
+
+======================================================================
+FAIL: test_start_gate_null (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_null)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1310, in test_start_gate_null
+    self.assertEqual(env.state(fl.GATED), "blocked", start)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'queued' != 'blocked'
+- queued
++ blocked
+
+
+======================================================================
+FAIL: test_start_gate_opens (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_opens)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1287, in test_start_gate_opens
+    self.assertEqual([(c["field"], c["result"]) for c in rec["cond_evaluated"]], [("task.decision_gates.start", True)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [('task.decision_gates.start', True)]
+
+Second list contains 1 additional elements.
+First extra element 0:
+('task.decision_gates.start', True)
+
+- []
++ [('task.decision_gates.start', True)]
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.049s
+
+FAILED (failures=4, errors=2)

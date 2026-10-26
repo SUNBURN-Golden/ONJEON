@@ -3,6 +3,7 @@ import argparse
 import csv
 import io
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -185,6 +186,55 @@ class ArchiveCommands(unittest.TestCase):
         observation = json.loads(self.raw.get(result["observation"]))
         self.assertEqual(observation["doc_role"], "약관")
         self.assertEqual(observation["content_type"], "application/custom")
+
+    def test_invalid_extra_is_rejected_before_opening_store_or_reading_input(self):
+        for extra in ('{"sha256":"forged"}', '{"object_key":"forged"}',
+                      '[]', '[["sha256","forged"]]', 'null', 'false', '0', '""'):
+            args = self.observation_args(extra=extra, file=str(self.cache / "missing.pdf"))
+            with self.subTest(extra=extra), mock.patch.object(sa, "store") as store:
+                with self.assertRaises(ValueError):
+                    sa.cmd_add_observation(args)
+                store.assert_not_called()
+                self.assertEqual(self.raw.list(""), [])
+
+    def observation_cli(self, extra, args=None):
+        args = args or self.observation_args(extra=extra)
+        return subprocess.run([
+            sys.executable, "-I", str(Path(sa.__file__)), "add-observation",
+            "--file", args.file, "--source-id", args.source_id, "--url", args.url,
+            "--observed-at", args.observed_at, "--raw", args.raw, "--extra", extra,
+        ], capture_output=True, text=True, check=False)
+
+    def test_cli_reserved_keys_fail_without_writing_archive(self):
+        for field in ("source_id", "url", "observed_at", "sha256", "bytes", "content_type", "object_key"):
+            with self.subTest(field=field):
+                result = self.observation_cli(json.dumps({field: "forged"}))
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertIn("reserved", result.stderr)
+                self.assertIn(field, result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+                self.assertEqual(self.raw.list(""), [])
+
+    def test_cli_non_object_extra_fails_without_writing_archive(self):
+        for extra in ('[]', '[["sha256","forged"]]', 'null', 'false', '0', '""'):
+            with self.subTest(extra=extra):
+                result = self.observation_cli(extra)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn("JSON object", result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(self.raw.list(""), [])
+
+    def test_cli_rejection_preserves_existing_archive(self):
+        args = self.observation_args(extra='{"doc_role":"약관"}')
+        self.add_observation(args)
+        before = {key: self.raw.get(key) for key in self.raw.list("")}
+        Path(args.file).write_bytes(b"different public filing")
+        result = self.observation_cli('{"sha256":"forged","object_key":"forged"}', args)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("reserved", result.stderr)
+        self.assertEqual({key: self.raw.get(key) for key in self.raw.list("")}, before)
 
     def test_add_observation_guesses_pdf_and_falls_back_for_unknown_extension(self):
         for extension, expected in (("pdf", "application/pdf"), ("unknown_extension", "application/octet-stream")):

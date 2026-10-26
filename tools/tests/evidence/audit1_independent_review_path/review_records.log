@@ -1,0 +1,79 @@
+# 감독기 실행 기록(supervisor logs/)에서 뽑은 리뷰 기록. 생성 2026-10-26. 파일 이름과 sha256은 원본 기록 파일 기준
+## 1. OpenAI 계열(Codex CLI) 리뷰 — 작성자는 claude 계열(claude-opus-5-5 decide/fix)
+
+### audit1-serial-daemon-prerequisite_review_r0_st_design_review_st_design_review_codex-gpt-6-astra-high.err  sha256=07c40d569ad2f1339b51e1af694cbd9406d18475dbc0e8ca7980efb062108c54
+  OpenAI Codex v0.163.0
+  --------
+  model: gpt-6-astra
+  provider: openai
+  approval: never
+  sandbox: read-only
+  reasoning effort: high
+  reasoning summaries: none
+  session id: 01a175e0-a68f-7c80-98e5-4ce148f4e135
+  --------
+  pr=#208 head=92a339ec194d00f8b3101dab9593a81d80ad77b0 verdict=BLOCK  (.last sha256=f129a540f25b25a69788fd20f83e115974426a55f52d3202670e46f6d48d3984)
+
+### audit1-serial-daemon-prerequisite_review_r1_st_design_review_st_design_review_codex-gpt-6-astra-high.err  sha256=7c2a4d30876ec3ae06f25704eee485d72870a25cb04a3fd060e17b769b6d5454
+  OpenAI Codex v0.163.0
+  --------
+  model: gpt-6-astra
+  provider: openai
+  approval: never
+  sandbox: read-only
+  reasoning effort: high
+  reasoning summaries: none
+  session id: 01a175ed-b59b-7e21-85c1-1fa02c471183
+  --------
+  pr=#208 head=cab3d1977859509c70d84ebeafb1a84dcc6f0203 verdict=PASS  (.last sha256=3463a958969d504e9b5048204061be92568a7768fc8122f94907a17813f7d001)
+
+### audit1-product-list-denominator-start_review_r0_st_design_review_st_design_review_codex-gpt-6-astra-high.err  sha256=33774725c2408c9dbe816208fb72cc5815f168defcc1c3b3f7424119f56ee12f
+  OpenAI Codex v0.163.0
+  --------
+  model: gpt-6-astra
+  provider: openai
+  approval: never
+  sandbox: read-only
+  reasoning effort: high
+  reasoning summaries: none
+  session id: 01a175ef-f22c-71e0-8fca-7e070e95d1eb
+  --------
+  pr=#210 head=970331ac7fb36eee44cef412ee6f88890301f1ff verdict=BLOCK  (.last sha256=7fc68b3af9974a6e2333892986934836fe1e686432726d89ba6a535924c72aac)
+
+### audit1-product-list-denominator-start_review_r1_st_design_review_st_design_review_codex-gpt-6-astra-high.err  sha256=ee652fc10f592f1188638984b8f87cebaf94f2011e2fdc0d3e90f71eb6b847b1
+  OpenAI Codex v0.163.0
+  --------
+  model: gpt-6-astra
+  provider: openai
+  approval: never
+  sandbox: read-only
+  reasoning effort: high
+  reasoning summaries: none
+  session id: 01a17608-cff3-7350-8453-f98e91fb2a71
+  --------
+  pr=#210 head=cfa8699d3dae894e1c46a331feda86d5f0081034 verdict=PASS  (.last sha256=be9c135484d13ae87631349340d9becd9b48d86aea37bb236e47ba7abb9d5f95)
+
+## 2. Grok 계열(Cursor CLI) 리뷰 — DEC-D-02, 2026-10-23
+### DEC-D-02_review_r1_cursor_cursor.jsonl  sha256=a99763c34b9a62947639cf2bb39e20f6743beb6d169a840698fc8c8be875a22e
+  models=['Grok 4.7 256K Extra High'] verdict=BLOCK
+
+## 3. 독립 리뷰로 쓰지 않는 기록 — 이름은 다른 계열이지만 실제 실행 모델은 claude 계열이거나 실행 실패
+### T-OP-01_review_r0_devin_devin_opus1.json  sha256=f8f74cc4d436fc4fc88fc64484c83bdc390bdfb56b312b4a97cb5f88a569bb91
+  modelUsage=['claude-sonnet-5-5']
+### T-OP-01_review_r0_glm_glm_glm_opus.json  sha256=5018cb1aadd4b1adee74c4aacad27d5e5ef015d6567b47d1ca179869d5850c63
+  modelUsage=['claude-sonnet-5-5']
+### T-CT-05_review_r0_glm_glm_glm.err  sha256=089dbf616da27f2f327878d5fb2ed70fd63a63b259b7c648536429d4b1c68609
+  [claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"}
+### T-KN-04_review_r5_st_re_review_st_re_review_glm.err  sha256=089dbf616da27f2f327878d5fb2ed70fd63a63b259b7c648536429d4b1c68609
+  [claude-code:unrecognized_model] {"model":"glm-5.3","query_source":"sdk"}
+
+## 4. 병합 커밋 대조 — PASS 리뷰의 head가 병합 커밋의 두 번째 부모(병합된 PR head)와 같다
+$ git log -1 --format="%H %P %s" 3c76cc1 52acae6
+3c76cc100651c32e3857e8d246c58b439813c582 ba09dd8b05b49905129789897f5df0ac6126c0e0 cab3d1977859509c70d84ebeafb1a84dcc6f0203 Merge pull request #208 from SUNBURN-Golden/grokbot/onjeon-audit1-serial-daemon-prerequisite
+52acae6e25b5c1513409e0351faf0ea1264d0c35 3c76cc100651c32e3857e8d246c58b439813c582 cfa8699d3dae894e1c46a331feda86d5f0081034 Merge pull request #210 from SUNBURN-Golden/grokbot/onjeon-audit1-product-list-denominator-start
+
+## 5. 작성 계열 — 같은 노드의 decide/fix 실행 기록 이름
+audit1-product-list-denominator-start_decide_claude-claude-opus-5-5-medium
+audit1-product-list-denominator-start_fix1_st_design_claude-claude-opus-5-5-medium
+audit1-serial-daemon-prerequisite_decide_claude-claude-opus-5-5-medium
+audit1-serial-daemon-prerequisite_fix1_st_design_claude-claude-opus-5-5-medium

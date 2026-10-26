@@ -1,0 +1,32 @@
+$ cargo test -p onjeon-rules-engine --offline --test days_between --test loader_and_arith
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-days-between-negative/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
+     Running tests/days_between.rs (target/debug/deps/days_between-470e13cb4e0feaea)
+
+running 4 tests
+test missing_dates_stay_unknown_and_report_only_missing_endpoints ... ok
+test reversed_literal_and_computed_dates_are_also_rejected ... ok
+test forward_and_same_day_intervals_preserve_all_inclusive_boundaries ... ok
+test reversed_dates_cannot_satisfy_comparison_thresholds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/loader_and_arith.rs (target/debug/deps/loader_and_arith-581a38e2763dfe88)
+
+running 13 tests
+test cap_min_max_add_with_ranges ... ok
+test date_add_never_assumes_365_days_per_year ... ok
+test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
+test date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches ... ok
+test date_add_params_are_a_closed_key_set ... ok
+test date_add_exact_key_sets_preserve_calendar_results ... ok
+test date_add_required_keys_cannot_be_replaced_by_unknown_keys ... ok
+test days_between_rejects_reversed_dates_for_every_inclusivity ... ok
+test loader_enforces_rule_level_invariants ... ok
+test days_between_inclusivity_is_explicit ... ok
+test loader_rejects_everything_outside_the_allow_list ... ok
+test rounding_to_unit ... ok
+test rounding_modes_are_explicit_and_exact ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Exit code: 0

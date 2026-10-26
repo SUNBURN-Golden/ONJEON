@@ -19,6 +19,7 @@
 - `all`/`any`는 자식의 성공 결과를 결합한 뒤 오류를 전파할지 정한다. `all`에 거짓 또는 `any`에 참이 하나라도 있으면 자식 순서와 관계없이 그 값으로 확정되고, 다른 자식의 오류·모름은 결론을 막지 않는다(blocker 없음). 확정하는 자식이 없으면 첫 오류를 그대로 반환한다(모름인 자식이 있어도 동일). 모든 자식을 평가해 기존 trace를 유지하며, 흡수한 오류는 해당 자식의 부분 trace 대신 `error: ...` 항목으로 남는다.
 - 반올림 미지정으로 생긴 금액 범위는 이후 `multiply_rate`, `add`, `min`, `max`, `apply_cap`에서 하한·상한을 각각 계산해 이어진다.
 - 날짜는 ASCII 숫자로 된 `YYYY-MM-DD` 형식의 1900-01-01~2199-12-31만 지원한다. 규칙 리터럴과 평가 입력 모두 `2024-+2-+9` 같은 부호 포함 날짜를 거부한다. `date_add` 기간은 로드 단계에서 제한(일 110,000, 월 3,600, 년 300)되고, 계산 결과가 범위를 벗어나면 오버플로 대신 `DateOutOfRange` 오류를 낸다.
+- `days_between`은 두 DSL 버전에서 시작일 ≤ 종료일인 구간의 일수다. 일수 차이를 `Δ`라 하면 `max(0, Δ - 1 + inclusive_start + inclusive_end)`로 센다(참=1, 거짓=0). 같은 날은 양 끝을 모두 포함할 때 1일, 나머지는 0일이다. 시작일이 종료일보다 늦으면 포함 플래그와 관계없이 해당 식 경로의 `EvalError::Type` 오류다. 음수·절댓값·0으로 바꾸지 않으므로 입력 역전으로 `lt` 임계값을 충족하지 않는다. 날짜 하나라도 누락·`null`이면 기존 모름과 누락 입력을 유지한다. 오류의 `all`/`any`·미확정 `if`·미확정 자격 금액에서의 흡수 규칙은 위 계약을 따른다. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_days_between_negative.md).
 
 ## rule-0.2 (T-TW-02)
 
@@ -61,6 +62,7 @@
 | `static_types` | 로드 단계 타입 검사: 감사 예시 두 건, 연산자별 거부와 오류 경로, 올바른 타입은 그대로 로드·평가 |
 | `range_comparisons` | Audit 2의 `p=201` 사례, 두 DSL 버전·비교 6종·양쪽 피연산자의 범위 거부, 모든 금액 연산과 `if`의 범위 전파, 정확한 금액 비교·범위 출력·모름 보존, `pro_rata` 비율 인자의 정확한 금액 제약. [검증 증거](../../docs/blueprint/audits/2026-10-26_engine_range_compare_static.md) |
 | `loader_and_arith` | 반올림 모드, 상한, `days_between` 포함 여부·역순 날짜 거부, 달력 연산, 로더 거부 규칙. 두 DSL 버전·날짜 단위 전체에서 `date_add` 미지원 키·필수 키 대체·미선택 가지의 잘못된 파라미터 거부와 정상 달력 계산을 검증([Audit 2 증거](../../docs/blueprint/audits/2026-10-26_engine_date_add_unknown_keys.md)) |
+| `days_between` | 두 DSL 버전·포함 플래그 4조합에서 역순 날짜의 비교 6종·임계값 0/1/90/180 거부, 리터럴·계산 날짜 오류 경로, 정상 순서·같은 날·윤일의 0일 포함 경계값·trace·재현성, 누락·null의 모름·blocker 유지 |
 | `date_format`·날짜 단위 시험 | 두 DSL 버전의 날짜 리터럴·평가 입력에서 선행 `+` 거부, 숫자 위치별 비숫자 거부, 정상 형식·윤일·지원 경계 보존. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_parse_date_plus_sign.md) |
 | `identity_evidence` | 두 DSL 버전·모든 공개 상태·두 로드 진입점에서 빈/공백 ID·근거와 인접/비인접 중복 근거 거부, 오류 경로, 픽스처만 빈 근거 목록 허용, 정상 ID·근거 순서·해시·결과 보존. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_empty_ids_evidence.md) |
 | `unknown_branch_errors` | 조건이 모름일 때 가지의 오류가 모름+blocker가 되는지, 선택된 가지·양쪽 가지의 오류는 유지되는지, trace 기록 |

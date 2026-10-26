@@ -1,0 +1,4 @@
+command: python3 -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+
+exit code: 0

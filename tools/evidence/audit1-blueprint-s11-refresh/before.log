@@ -1,0 +1,4 @@
+baseline HEAD: 9f10911daa6437819d2eb5cb11c618e875fa2322
+command: blueprint_status.check(HEAD BLUEPRINT, HEAD ADR/DEC records)
+§11 needs exactly one generated decision index
+result: rejected (expected)

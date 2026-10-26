@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/rust-1.log"
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/rust-2.log"
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--all"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/rust-3.log"
+  }
+]

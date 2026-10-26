@@ -1,0 +1,28 @@
+{
+  "baseline": "9f10911daa6437819d2eb5cb11c618e875fa2322",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/ci/tests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "log": "baseline-1.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_deps.py"
+      ],
+      "exit_code": 1,
+      "log": "baseline-2.log"
+    }
+  ]
+}

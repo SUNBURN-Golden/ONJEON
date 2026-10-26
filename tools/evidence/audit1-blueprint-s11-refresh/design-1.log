@@ -1,0 +1,4 @@
+command: python3 tools/vocab_check.py
+vocabulary ok: 49 axes, 269 values
+
+exit code: 0

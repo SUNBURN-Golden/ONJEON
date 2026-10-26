@@ -1,0 +1,37 @@
+[
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_status.py"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/status-final.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "tools.tests.test_blueprint_status",
+      "tools.tests.test_storage_provider_docs",
+      "tools.tests.test_validation_test_counts",
+      "-v"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/focused-final.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/python-final.log"
+  }
+]

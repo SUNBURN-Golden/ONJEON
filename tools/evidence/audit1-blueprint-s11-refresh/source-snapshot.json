@@ -1,0 +1,10 @@
+{
+  "baseline": "9f10911daa6437819d2eb5cb11c618e875fa2322",
+  "source_sha256": {
+    "docs/BLUEPRINT.md": "f6626981f216cfc60bdd4d78d09af66ac49f302f20e09199234cd3a5f73772ca",
+    "tools/blueprint_status.py": "68f883ce31b58ab48d19b54f91b73563328d3ca342dad871ff11d4944164d085",
+    "tools/tests/test_blueprint_status.py": "5d768baf661453074262102ec1032f88ecf5f76f0465beec89f265634466c367",
+    "tools/tests/test_storage_provider_docs.py": "117ae9ec2d91936af7b372b5d4bfb4217eb4774f13bc36c05997b09cd611725e",
+    "tools/ci/README.md": "4d963a201b614f69cb9736a00b08439275f01aa7e4a7913bbd649ac3ce6029a8"
+  }
+}

@@ -70,9 +70,12 @@ class Blueprint(unittest.TestCase):
                 self.assertNotIn(phrase, remaining)
         self.assertIn("관문 미통과", self.v1)
 
-    def test_code_inventory_names_current_and_alternative_storage(self):
-        line = next(line for line in self.text.splitlines() if line.startswith("| 코드 |"))
-        for phrase in ("R2 보존·대조 도구", "비용 한도", "infra/r2/", "대안", "infra/s3/"):
+    def test_tool_inventory_names_current_and_alternative_storage(self):
+        # §11 now separates service code from collection/validation tools.
+        section = self.text.split("## 11.", 1)[1].split("## 12.", 1)[0]
+        line = next(line for line in section.splitlines() if line.startswith("| 수집·검증 도구 |"))
+        for phrase in ("tools/source_archive.py", "tools/verify_sources.py", "tools/r2_budget.py",
+                       "실행별 제한", "infra/r2/", "대안", "infra/s3/", "미배포"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, line)
 
@@ -118,6 +121,7 @@ class Blueprint(unittest.TestCase):
         section = self.text.split("## 11.", 1)[1].split("## 12.", 1)[0]
         lines = [l for l in section.splitlines() if "R2에 보존하고 다시 받아 전부 바이트 일치" in l]
         self.assertTrue(lines)
+        self.assertTrue(all("2026-10-09 관측 기록" in line for line in lines))
         # The same line must say it is the R2 round trip, not just contain the byte-match phrase.
         self.assertTrue(all("원본 R2" in l or "R2에 보존" in l for l in lines))
 

@@ -1,0 +1,26 @@
+command: python3 -I -m unittest discover -s tools/tests -p test_blueprint_status.py -v
+test_cli_stale_check_does_not_write_and_returns_one (test_blueprint_status.Freshness.test_cli_stale_check_does_not_write_and_returns_one) ... ok
+test_cli_unreadable_input_returns_two (test_blueprint_status.Freshness.test_cli_unreadable_input_returns_two) ... ok
+test_cli_write_refuses_malformed_input (test_blueprint_status.Freshness.test_cli_write_refuses_malformed_input) ... ok
+test_cli_write_then_check_succeeds_without_other_file_changes (test_blueprint_status.Freshness.test_cli_write_then_check_succeeds_without_other_file_changes) ... ok
+test_each_record_mutation_requires_refresh_for_both_kinds (test_blueprint_status.Freshness.test_each_record_mutation_requires_refresh_for_both_kinds) ... ok
+test_empty_or_missing_record_kind_fails_closed (test_blueprint_status.Freshness.test_empty_or_missing_record_kind_fails_closed) ... ok
+test_historical_snapshot_does_not_expire_without_record_changes (test_blueprint_status.Freshness.test_historical_snapshot_does_not_expire_without_record_changes) ... ok
+test_index_cannot_be_edited_independently (test_blueprint_status.Freshness.test_index_cannot_be_edited_independently) ... ok
+test_invalid_future_or_mismatched_dates_fail (test_blueprint_status.Freshness.test_invalid_future_or_mismatched_dates_fail) ... ok
+test_missing_duplicate_reversed_or_outside_markers_fail (test_blueprint_status.Freshness.test_missing_duplicate_reversed_or_outside_markers_fail) ... ok
+test_missing_or_duplicate_heading_fails (test_blueprint_status.Freshness.test_missing_or_duplicate_heading_fails) ... ok
+test_missing_snapshot_fails (test_blueprint_status.Freshness.test_missing_snapshot_fails) ... ok
+test_refresh_checks_clean_and_stamps_both_dates (test_blueprint_status.Freshness.test_refresh_checks_clean_and_stamps_both_dates) ... ok
+test_refresh_preserves_status_rows_other_sections_and_is_idempotent (test_blueprint_status.Freshness.test_refresh_preserves_status_rows_other_sections_and_is_idempotent) ... ok
+test_same_day_edit_is_detected_and_next_day_refresh_restamps (test_blueprint_status.Freshness.test_same_day_edit_is_detected_and_next_day_refresh_restamps) ... ok
+test_unrelated_files_do_not_invalidate_snapshot (test_blueprint_status.Freshness.test_unrelated_files_do_not_invalidate_snapshot) ... ok
+test_current_status_mentions_new_tools_and_preserves_release_gate (test_blueprint_status.Repository.test_current_status_mentions_new_tools_and_preserves_release_gate) ... ok
+test_live_blueprint_matches_all_decision_records (test_blueprint_status.Repository.test_live_blueprint_matches_all_decision_records) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.043s
+
+OK
+
+exit code: 0

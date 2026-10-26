@@ -1,0 +1,52 @@
+[
+  {
+    "command": [
+      "python3",
+      "-I",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/ci/tests",
+      "-v"
+    ],
+    "exit_code": 1,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/ci-1.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/ci/check_product_purpose.py"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/ci-2.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/ci/check_deps.py"
+    ],
+    "exit_code": 1,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/ci-3.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/ci/check_leak.py"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/ci-4.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/ci/check_skeleton.py"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/ci-5.log"
+  }
+]

@@ -1,0 +1,40 @@
+[
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_status.py"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/python-1.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_blueprint_status.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/python-2.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-v"
+    ],
+    "exit_code": 1,
+    "log": "tools/evidence/audit1-blueprint-s11-refresh/python-3.log"
+  }
+]

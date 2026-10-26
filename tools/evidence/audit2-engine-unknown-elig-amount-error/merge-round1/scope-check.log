@@ -1,0 +1,7 @@
+PASS: no unresolved merge conflicts in the index
+PASS: all changed paths are allowed; no conflict markers
+PASS: protected files are unchanged from HEAD
+PASS: soundness functions from both merge sides are preserved
+PASS: local links in updated audit and README resolve
+PASS: staged and unstaged git diff --check (removed trailing blank lines from two incoming evidence logs)
+PASS: merge remains in progress; no merge commit created

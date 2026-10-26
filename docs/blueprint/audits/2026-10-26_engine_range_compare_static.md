@@ -96,6 +96,38 @@ Rust 1.98.1과 CI가 지정한 boto3 1.43.100을 사용했다.
 [final-checks.log](../../../packages/rules-engine/evidence/audit2-range-compare/round1/final-checks.log)에 기록했다.
 이번 수정에서도 commit·push·GitHub 호출은 수행하지 않았다.
 
+## Fix round 2: main 병합 충돌 해결
+
+진행 중인 main 병합의 충돌 두 곳(`packages/rules-engine/README.md`,
+`tests/soundness.rs`)을 해결했다. README는 main의 자격 미정 오류 처리 설명·증거 링크와
+이 노드의 범위 비교 로드 거부 설명을 함께 유지한다. 적격 거짓이면 금액을 평가하지 않는
+동작도 명시한다.
+
+`soundness`는 범위 비교 대신 역순 `days_between`으로 런타임 타입 오류를 만드는
+round 1 fixture와 적격 모름·참·거짓, 오류 trace 검증을 유지한다. main의
+금액 내부 `all`/`any` 오류 흡수 회귀 시험도 보존했다. 범위 비교는 로드에서 거부하므로
+런타임 오류 예제로 되돌리지 않는다. 두 의도를 합치는 데 추가 실행 코드 변경은 필요하지 않았다.
+
+이 worktree에서 병합 후 다시 실행한 결과다. 원격 CI 결과가 아니며,
+증거는 [round2 로그 디렉터리](../../../packages/rules-engine/evidence/audit2-range-compare/round2/)에 둔다.
+
+| 명령 | 결과·증거 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --test soundness --test range_comparisons --test all_any_errors --test unknown_branch_errors --offline` | 29개 통과·실패 0([focused.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/focused.log)) |
+| `cargo test --all --offline` | Rust 단위·통합·문서 시험 419개 통과·실패 0·기존 ignored 1([workspace.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/workspace.log)) |
+| `cargo fmt --all -- --check` | 통과([fmt.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/fmt.log)) |
+| `cargo clippy --all-targets --offline -- -D warnings` | 통과([clippy.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/clippy.log)) |
+| `python3 tools/vocab_check.py` | 통과([vocab.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/vocab.log)) |
+| `python3 tools/validation_check.py` 및 `--selftest` | 모두 통과([validation.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/validation.log), [validation-selftest.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/validation-selftest.log)) |
+| `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 통과([spec-check.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/spec-check.log)) |
+| `python3 -I tools/ci/check_product_purpose.py` | 통과([product-purpose.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/product-purpose.log)) |
+| `python3 -m unittest discover -s tools/tests -v` | 915개 실행·실패 0·환경에 따른 skip 6([python-tests.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/python-tests.log)) |
+
+충돌 표시·미해결 파일·보호 경로·문서 링크·`git diff --check` 검사는
+[final-checks.log](../../../packages/rules-engine/evidence/audit2-range-compare/round2/final-checks.log)에 기록한다.
+충돌 해결을 index에 반영했으며 병합 commit은 감독자가 수행하도록 남겨 둔다.
+commit·push·GitHub 호출은 수행하지 않았다.
+
 ## 제품 목적과 증명 범위
 
 BLUEPRINT A2·A5, Q2·Q5·Q7, L6, I4·I5, R16, M0 엔진 기반 유지보수에 연결된다.

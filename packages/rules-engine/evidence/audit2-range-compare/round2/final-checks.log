@@ -1,0 +1,49 @@
+PASS: no unresolved merge entries
+PASS: no conflict markers in changed files
+PASS: all changed files in allowed paths; protected files untouched
+PASS: all soundness functions preserved from HEAD
+PASS: all soundness functions preserved from MERGE_HEAD
+PASS: local link exists: ../../docs/blueprint/audits/2026-10-26_engine_unknown_elig_amount_error.md
+PASS: local link exists: ../../docs/blueprint/audits/2026-10-26_engine_range_compare_static.md
+PASS: local link exists: ../../docs/blueprint/audits/2026-10-26_engine_all_any_lazy_error.md
+PASS: local link exists: MUTATION_TEST_EVIDENCE.md
+PASS: local link exists: ../../../packages/rules-engine/src/rule.rs
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/before.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/focused.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/workspace.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/fmt.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/clippy.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/spec-check.log
+PASS: local link exists: ../../../packages/rules-engine/tests/range_comparisons.rs
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/workspace-before-fixture-update.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/final-checks.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/soundness-before.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/focused.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/vocab.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/validation.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/validation-selftest.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/python-tests.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/fmt.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/workspace-clippy.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/workspace-tests.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/spec-check.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round1/final-checks.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/focused.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/workspace.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/fmt.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/clippy.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/vocab.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/validation.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/validation-selftest.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/spec-check.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/product-purpose.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/python-tests.log
+PASS: local link exists: ../../../packages/rules-engine/evidence/audit2-range-compare/round2/final-checks.log
+PASS: local link exists: ../proposals/설계검토_결과/09_제품목적_대응표.md
+PASS: git diff --check passes:
+PASS: git diff --cached --check passes:
+PASS: merge left uncommitted for supervisor
+No commit, push, or GitHub calls performed. Log line endings and trailing whitespace normalized.

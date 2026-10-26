@@ -1,0 +1,17 @@
+HEAD: 884a9d391a7d715843f9a884dd447956982d0df4
+ALLOWED: docs/BLUEPRINT.md
+ALLOWED: docs/blueprint/DECISIONS.md
+ALLOWED: docs/blueprint/audits/2026-10-26_screen_spec_helper_text.md
+ALLOWED: docs/blueprint/validation/SCREEN_BINDING.md
+ALLOWED: tools/evidence/audit1-screen-spec-helper-text/before.log
+ALLOWED: tools/evidence/audit1-screen-spec-helper-text/doc-checks.log
+ALLOWED: tools/evidence/audit1-screen-spec-helper-text/focused.log
+ALLOWED: tools/evidence/audit1-screen-spec-helper-text/python-tests.log
+ALLOWED: tools/evidence/audit1-screen-spec-helper-text/rust-tests.log
+ALLOWED: tools/evidence/audit1-screen-spec-helper-text/scope-check.log
+ALLOWED: tools/tests/test_screen_spec_helper_text.py
+UNCHANGED: docs/PRINCIPLES.md
+UNCHANGED: docs/data
+UNCHANGED: docs/design
+UNCHANGED: DECISION_REQUIRED.md
+PASS: changed paths allowed; protected paths and design appendix unchanged; diff whitespace clean.

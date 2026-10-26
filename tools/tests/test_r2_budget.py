@@ -642,6 +642,22 @@ class StoreNeedsBudget(Fixture):
             stub.assert_no_pending_responses()
         self.assertEqual(session.meter.calls, 0)
 
+    def test_trailing_dot_store_keeps_the_budget_meter(self):
+        policy, job = self.load()
+        session = mock.Mock(policy=policy, meter=b.Meter(policy, job, job["per_run"], 60))
+        with mock.patch.object(b, "ACTIVE", session), mock.patch.dict(os.environ, FAKE):
+            st = sa.S3Store("s3://raw", R2 + ".")
+        self.assertEqual(st.provider, "r2")
+        self.assertIs(st.meter, session.meter)
+        # No responses queued: reaching botocore's request layer would fail the test.
+        with Stubber(st.s3) as stub:
+            with self.assertRaises(b.BudgetError):
+                st.s3.get_object(Bucket="raw", Key="not/pinned")
+            with self.assertRaises(b.BudgetError):
+                st.s3.delete_object(Bucket="raw", Key=KEY)
+            stub.assert_no_pending_responses()
+        self.assertEqual(session.meter.calls, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

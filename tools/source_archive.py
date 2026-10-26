@@ -159,7 +159,9 @@ def provider_of(endpoint_url):
         return "aws"
     from urllib.parse import urlparse
     u = urlparse(endpoint_url)
-    if (u.hostname or "").endswith(R2_HOST_SUFFIX):
+    # A DNS root dot denotes the same host; it must not bypass R2's budget gate.
+    host = (u.hostname or "").rstrip(".").lower()
+    if host.endswith(R2_HOST_SUFFIX):
         if u.scheme != "https":
             raise SystemExit("R2 endpoint must be https")
         return "r2"

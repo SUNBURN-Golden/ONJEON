@@ -1,0 +1,27 @@
+test_store_refuses_to_write_without_conditional_put (test_store_provider.OldBotocore.test_store_refuses_to_write_without_conditional_put) ... skipped 'installed botocore supports If-None-Match'
+test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) ... ok
+test_r2_hostname_normalization (test_store_provider.Provider.test_r2_hostname_normalization) ... ok
+test_r2_requires_https (test_store_provider.Provider.test_r2_requires_https) ... ok
+test_selection (test_store_provider.Provider.test_selection) ... ok
+test_412_is_exists_and_put_once_compares_bytes (test_store_provider.R2Store.test_412_is_exists_and_put_once_compares_bytes) ... ok
+test_aws_put_keeps_sse (test_store_provider.R2Store.test_aws_put_keeps_sse) ... ok
+test_endpoint_from_environment (test_store_provider.R2Store.test_endpoint_from_environment) ... ok
+test_existing_key_without_checksum_is_compared_by_download_not_reuploaded (test_store_provider.R2Store.test_existing_key_without_checksum_is_compared_by_download_not_reuploaded) ... ok
+test_missing_r2_credentials_never_fall_back_to_aws_chain (test_store_provider.R2Store.test_missing_r2_credentials_never_fall_back_to_aws_chain) ... ok
+test_no_budget_session_sends_nothing (test_store_provider.R2Store.test_no_budget_session_sends_nothing) ... ok
+test_other_errors_are_not_treated_as_exists (test_store_provider.R2Store.test_other_errors_are_not_treated_as_exists) ... ok
+test_r2_put_is_conditional_and_has_no_sse_header (test_store_provider.R2Store.test_r2_put_is_conditional_and_has_no_sse_header) ... ok
+test_stored_checksum_decides_without_sending_bytes (test_store_provider.R2Store.test_stored_checksum_decides_without_sending_bytes) ... ok
+test_allow_extra_does_not_mask_missing (test_store_provider.VerifyCopy.test_allow_extra_does_not_mask_missing) ... ok
+test_changed_bytes_fail (test_store_provider.VerifyCopy.test_changed_bytes_fail) ... ok
+test_cli_flag_parses (test_store_provider.VerifyCopy.test_cli_flag_parses) ... ok
+test_extra_in_destination_allowed_with_flag (test_store_provider.VerifyCopy.test_extra_in_destination_allowed_with_flag) ... ok
+test_extra_in_destination_fails (test_store_provider.VerifyCopy.test_extra_in_destination_fails) ... ok
+test_identical (test_store_provider.VerifyCopy.test_identical) ... ok
+test_missing_in_destination_fails (test_store_provider.VerifyCopy.test_missing_in_destination_fails) ... ok
+test_pinned_listing_without_source_store (test_store_provider.VerifyCopy.test_pinned_listing_without_source_store) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.101s
+
+OK (skipped=1)

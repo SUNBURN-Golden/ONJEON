@@ -532,8 +532,9 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
             match (&x.v, &y.v) {
                 (Value::Date(s), Value::Date(e)) => {
                     let diff = e - s;
-                    // Inclusivity is defined for a forward interval only; a raw negative gap
-                    // would be a different scale (and 0 would be ambiguous), so reject it.
+                    // Inclusivity is defined only when start <= end. Reject reversed dates
+                    // before counting: either a negative gap or clamping it to zero could
+                    // incorrectly satisfy an elapsed-time threshold such as `lt 90`.
                     if diff < 0 {
                         return Err(type_err(
                             path,

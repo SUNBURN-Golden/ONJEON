@@ -1,0 +1,67 @@
+Mutant: raw negative gap (audit behaviour)
+Exit code: 101
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-days-between-negative/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
+     Running tests/days_between.rs (target/debug/deps/days_between-470e13cb4e0feaea)
+
+running 4 tests
+test reversed_literal_and_computed_dates_are_also_rejected ... FAILED
+test reversed_dates_cannot_satisfy_comparison_thresholds ... FAILED
+test missing_dates_stay_unknown_and_report_only_missing_endpoints ... ok
+test forward_and_same_day_intervals_preserve_all_inclusive_boundaries ... ok
+
+failures:
+
+---- reversed_literal_and_computed_dates_are_also_rejected stdout ----
+
+thread 'reversed_literal_and_computed_dates_are_also_rejected' (1026461) panicked at packages/rules-engine/tests/days_between.rs:76:65:
+called `Result::unwrap_err()` on an `Ok` value: EvaluationResult { rule_id: "days-between-audit", rule_version: "1", release_id: None, rule_content_hash: "62056f2ddb501e4deb880db91119159e4ae2b7e3b257cdedc7bfdd14675e3237", evidence_refs: [], schema_version: "rule-0.1", engine_version: "0.1.0", eligibility: True, payout: Payable { amount: Exact { krw: 1 } }, contract_effect: None, missing_inputs: [], trace: [TraceEntry { path: "eligibility.lt[0].days_between[0]", op: "lit", result: "2026-01-02" }, TraceEntry { path: "eligibility.lt[0].days_between[1]", op: "lit", result: "2026-01-01" }, TraceEntry { path: "eligibility.lt[0]", op: "days_between", result: "-1" }, TraceEntry { path: "eligibility.lt[1]", op: "lit", result: "90" }, TraceEntry { path: "eligibility", op: "lt", result: "true" }, TraceEntry { path: "amount", op: "lit", result: "1 KRW" }], input_snapshot_hash: "4c66adb7d402b5f298e67be702267ef8f5ea0dea537407b5552fa7643f1bf1f8" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- reversed_dates_cannot_satisfy_comparison_thresholds stdout ----
+
+thread 'reversed_dates_cannot_satisfy_comparison_thresholds' (1026460) panicked at packages/rules-engine/tests/days_between.rs:53:34:
+called `Result::unwrap_err()` on an `Ok` value: EvaluationResult { rule_id: "days-between-audit", rule_version: "1", release_id: None, rule_content_hash: "f4460207c30c46756e8b9099fa1c9a8eef9c8f21bd221112e5ea657614034ce3", evidence_refs: [], schema_version: "rule-0.1", engine_version: "0.1.0", eligibility: False, payout: NotPayable, contract_effect: None, missing_inputs: [], trace: [TraceEntry { path: "eligibility.eq[0].days_between[0]", op: "input", result: "2026-01-02" }, TraceEntry { path: "eligibility.eq[0].days_between[1]", op: "input", result: "2026-01-01" }, TraceEntry { path: "eligibility.eq[0]", op: "days_between", result: "-1" }, TraceEntry { path: "eligibility.eq[1]", op: "lit", result: "0" }, TraceEntry { path: "eligibility", op: "eq", result: "false" }], input_snapshot_hash: "64a3ad37790f2d5cd42afb68aabff6823ae57eff1ba4ec30a5cbe71da80107ed" }
+
+
+failures:
+    reversed_dates_cannot_satisfy_comparison_thresholds
+    reversed_literal_and_computed_dates_are_also_rejected
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test days_between`
+
+Mutant: clamp reversed interval to zero
+Exit code: 101
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-engine-days-between-negative/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
+     Running tests/days_between.rs (target/debug/deps/days_between-470e13cb4e0feaea)
+
+running 4 tests
+test reversed_dates_cannot_satisfy_comparison_thresholds ... FAILED
+test reversed_literal_and_computed_dates_are_also_rejected ... FAILED
+test missing_dates_stay_unknown_and_report_only_missing_endpoints ... ok
+test forward_and_same_day_intervals_preserve_all_inclusive_boundaries ... ok
+
+failures:
+
+---- reversed_dates_cannot_satisfy_comparison_thresholds stdout ----
+
+thread 'reversed_dates_cannot_satisfy_comparison_thresholds' (1026703) panicked at packages/rules-engine/tests/days_between.rs:53:34:
+called `Result::unwrap_err()` on an `Ok` value: EvaluationResult { rule_id: "days-between-audit", rule_version: "1", release_id: None, rule_content_hash: "f4460207c30c46756e8b9099fa1c9a8eef9c8f21bd221112e5ea657614034ce3", evidence_refs: [], schema_version: "rule-0.1", engine_version: "0.1.0", eligibility: True, payout: Payable { amount: Exact { krw: 1 } }, contract_effect: None, missing_inputs: [], trace: [TraceEntry { path: "eligibility.eq[0].days_between[0]", op: "input", result: "2026-01-02" }, TraceEntry { path: "eligibility.eq[0].days_between[1]", op: "input", result: "2026-01-01" }, TraceEntry { path: "eligibility.eq[0]", op: "days_between", result: "0" }, TraceEntry { path: "eligibility.eq[1]", op: "lit", result: "0" }, TraceEntry { path: "eligibility", op: "eq", result: "true" }, TraceEntry { path: "amount", op: "lit", result: "1 KRW" }], input_snapshot_hash: "64a3ad37790f2d5cd42afb68aabff6823ae57eff1ba4ec30a5cbe71da80107ed" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- reversed_literal_and_computed_dates_are_also_rejected stdout ----
+
+thread 'reversed_literal_and_computed_dates_are_also_rejected' (1026704) panicked at packages/rules-engine/tests/days_between.rs:76:65:
+called `Result::unwrap_err()` on an `Ok` value: EvaluationResult { rule_id: "days-between-audit", rule_version: "1", release_id: None, rule_content_hash: "62056f2ddb501e4deb880db91119159e4ae2b7e3b257cdedc7bfdd14675e3237", evidence_refs: [], schema_version: "rule-0.1", engine_version: "0.1.0", eligibility: True, payout: Payable { amount: Exact { krw: 1 } }, contract_effect: None, missing_inputs: [], trace: [TraceEntry { path: "eligibility.lt[0].days_between[0]", op: "lit", result: "2026-01-02" }, TraceEntry { path: "eligibility.lt[0].days_between[1]", op: "lit", result: "2026-01-01" }, TraceEntry { path: "eligibility.lt[0]", op: "days_between", result: "0" }, TraceEntry { path: "eligibility.lt[1]", op: "lit", result: "90" }, TraceEntry { path: "eligibility", op: "lt", result: "true" }, TraceEntry { path: "amount", op: "lit", result: "1 KRW" }], input_snapshot_hash: "4c66adb7d402b5f298e67be702267ef8f5ea0dea537407b5552fa7643f1bf1f8" }
+
+
+failures:
+    reversed_dates_cannot_satisfy_comparison_thresholds
+    reversed_literal_and_computed_dates_are_also_rejected
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test days_between`

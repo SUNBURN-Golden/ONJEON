@@ -4962,7 +4962,8 @@
       "decision_gates": {
         "start": [],
         "real_data": [
-          "D-04"
+          "D-04",
+          "O19"
         ],
         "merge": [],
         "release": []
@@ -5030,8 +5031,8 @@
         "services/collect/src/adapters/**"
       ],
       "immediate_audit": false,
-      "blocked_by": "실제 R2 보존은 D-04. 대량 자동 수집은 O17",
-      "notes": ""
+      "blocked_by": "실제 R2 보존은 D-04. 실데이터 열거(보험사·협회 공시실의 상품·문서 분모)는 O19 국내 IP 수집 실행 환경(준비·비용은 준태님). 대량 자동 수집은 O17",
+      "notes": "audit1-product-list-denominator-start: 해외 IP 샌드박스에서 공시 진입점 53곳 중 45곳 미확보(data/registry/README.md 알려진 공백 7). O19 전에는 픽스처와 확보한 8곳으로 어댑터 코드·시험만 하고, 그 결과를 09 P01·P02 분모 증거로 주장하지 않는다. 차단·미조회는 미확보(사유)로 남긴다"
     },
     {
       "id": "T-DT-05",

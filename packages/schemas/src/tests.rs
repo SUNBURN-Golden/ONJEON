@@ -200,7 +200,7 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
         "real/kb-driver-fine",
     ] {
         let rule_src = std::fs::read_to_string(dir.join(format!("{rule_file}.json"))).unwrap();
-        let rule = Rule::from_json(&serde_json::from_str(&rule_src).unwrap()).unwrap();
+        let rule = Rule::from_json_str(&rule_src).unwrap();
         let cases: Value = serde_json::from_str(
             &std::fs::read_to_string(dir.join(format!("{rule_file}.cases.json"))).unwrap(),
         )
@@ -302,7 +302,7 @@ fn engine_payout_kinds_are_the_contract_payout_axis() {
     use onjeon_rules_engine::Rule;
     let dir = schemas_dir().join("../fixtures/rules");
     let rule_src = std::fs::read_to_string(dir.join("fixture-rule-001.json")).unwrap();
-    let rule = Rule::from_json(&serde_json::from_str(&rule_src).unwrap()).unwrap();
+    let rule = Rule::from_json_str(&rule_src).unwrap();
     let cases: Value = serde_json::from_str(
         &std::fs::read_to_string(dir.join("fixture-rule-001.cases.json")).unwrap(),
     )

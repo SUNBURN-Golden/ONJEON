@@ -1,0 +1,5 @@
+Workspace: 416 Rust tests passed, 0 failed, 1 ignored.
+All changed and untracked files are within the node allowlist.
+No protected files changed.
+Runtime patch application check: passed; patch NOT applied.
+git diff --check: passed.

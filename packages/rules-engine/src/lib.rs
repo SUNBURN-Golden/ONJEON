@@ -14,7 +14,7 @@ pub mod tri;
 pub mod value;
 
 pub use eval::{AmountOut, ContractEffectOut, EvalError, EvaluationResult, Payout, TraceEntry};
-pub use rule::{ContractEffect, Rule, RuleError};
+pub use rule::{parse_rule_json, ContractEffect, Rule, RuleError};
 pub use tri::Tri;
 
 /// Engine version recorded in every result.

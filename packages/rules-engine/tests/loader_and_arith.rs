@@ -257,6 +257,9 @@ fn loader_rejects_duplicate_json_keys_at_every_depth() {
                 "{version}: {err}"
             );
             assert!(err.message.contains("line ") && err.message.contains("column "));
+            let byte_error =
+                onjeon_rules_engine::parse_rule_json(duplicate.as_bytes()).unwrap_err();
+            assert_eq!(err.message, format!("invalid JSON: {byte_error}"));
         }
     }
 }
@@ -273,6 +276,10 @@ fn loader_unique_json_preserves_source_hash_and_evaluation() {
         value["release_id"] = J::Null;
         value["evidence_refs"] = json!(["한글 근거"]);
         let source = serde_json::to_string_pretty(&value).unwrap();
+        assert_eq!(
+            onjeon_rules_engine::parse_rule_json(source.as_bytes()).unwrap(),
+            value
+        );
         let expected = Rule::from_json(&value).unwrap();
         let loaded = Rule::from_json_str(&source).unwrap();
         assert_eq!(loaded.source_json(), &value);
@@ -307,6 +314,66 @@ fn loader_strict_json_still_rejects_floats_malformed_and_trailing_data() {
         "[1,2,3]".to_string(),
     ] {
         assert!(Rule::from_json_str(&invalid).is_err(), "{invalid}");
+    }
+}
+
+#[test]
+fn artifact_json_rejects_duplicates_before_metadata_is_removed() {
+    let source = base(json!(true), json!({"krw": 1})).to_string();
+    for (metadata, key) in [
+        (
+            r#""inputs_from_outside_dsl":[],"inputs_from_outside_dsl":[]"#,
+            "inputs_from_outside_dsl",
+        ),
+        (
+            r#""inputs_from_outside_dsl":[{"name":"a","\u006eame":"b"}]"#,
+            "name",
+        ),
+        (
+            r#""inputs_from_outside_dsl":[{"duration":{"value":1,"value":90}}]"#,
+            "value",
+        ),
+    ] {
+        let artifact = format!("{{{metadata},{}", &source[1..]);
+        let err = onjeon_rules_engine::parse_rule_json(artifact.as_bytes()).unwrap_err();
+        assert!(
+            err.to_string()
+                .contains(&format!("duplicate JSON key `{key}`")),
+            "{err}"
+        );
+        assert!(err.line() > 0 && err.column() > 0, "{err}");
+    }
+    let artifact = format!("{{\"inputs_from_outside_dsl\":[],{}", &source[1..]);
+    let mut value = onjeon_rules_engine::parse_rule_json(artifact.as_bytes()).unwrap();
+    assert_eq!(
+        value
+            .as_object_mut()
+            .unwrap()
+            .remove("inputs_from_outside_dsl"),
+        Some(json!([]))
+    );
+    let loaded = Rule::from_json(&value).unwrap();
+    let expected = Rule::from_json_str(&source).unwrap();
+    assert_eq!(loaded.source_json(), expected.source_json());
+    assert_eq!(loaded.content_hash(), expected.content_hash());
+    assert_eq!(
+        serde_json::to_value(loaded.evaluate(&json!({})).unwrap()).unwrap(),
+        serde_json::to_value(expected.evaluate(&json!({})).unwrap()).unwrap()
+    );
+}
+
+#[test]
+fn artifact_json_rejects_invalid_bytes_syntax_and_trailing_data() {
+    for bytes in [
+        &b"{\"name\":\"\xff\"}"[..],
+        &b"{\"name\":"[..],
+        &b"{} {}"[..],
+        &b"{\"name\":1,}"[..],
+    ] {
+        assert!(
+            onjeon_rules_engine::parse_rule_json(bytes).is_err(),
+            "{bytes:?}"
+        );
     }
 }
 

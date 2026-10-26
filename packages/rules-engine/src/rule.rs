@@ -1,6 +1,7 @@
 //! Rule loading: JSON rule files are parsed into an allow-listed expression tree.
 //! Anything outside the allow-list (unknown operators, floats, bare arrays,
-//! missing rounding, unknown top-level keys, duplicate JSON keys) is rejected at load time.
+//! missing rounding, unknown top-level keys) is rejected at load time. Raw JSON must
+//! pass through `parse_rule_json` or `Rule::from_json_str` to reject duplicate keys.
 
 use crate::value::{parse_rate, Value};
 use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
@@ -378,10 +379,21 @@ impl<'de> Deserialize<'de> for UniqueJson {
     }
 }
 
+/// Parse rule-artifact bytes, rejecting duplicate object keys at every depth.
+///
+/// Artifact loaders may remove metadata from the returned value before calling
+/// [`Rule::from_json`]. Parse the complete artifact here first, including metadata:
+/// converting raw bytes to `serde_json::Value` directly loses duplicate keys.
+/// This checks JSON syntax and key uniqueness; [`Rule::from_json`] validates the DSL.
+pub fn parse_rule_json(bytes: &[u8]) -> Result<J, serde_json::Error> {
+    let UniqueJson(value) = serde_json::from_slice(bytes)?;
+    Ok(value)
+}
+
 impl Rule {
     /// Parse raw JSON, rejecting duplicate keys at every depth before validation or hashing.
     pub fn from_json_str(s: &str) -> Result<Rule, RuleError> {
-        let UniqueJson(v) = serde_json::from_str(s)
+        let v = parse_rule_json(s.as_bytes())
             .map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))?;
         Rule::from_json(&v)
     }

@@ -1,0 +1,105 @@
+use onjeon_twin_runtime::load_rule_artifact;
+
+const RULE: &str = r#"{"rule_id":"duplicate-key-probe","rule_version":"1","schema_version":"rule-0.1","inputs":{"hit":"bool"},"eligibility":true,"amount":{"krw":1},"unknown_policy":"use_three_valued_logic_never_default_to_zero","evidence_refs":[],"publication_state":"fixture_only"}"#;
+
+#[test]
+fn runtime_artifact_rejects_duplicate_keys_before_loading_and_hashing() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        let source = RULE.replace("rule-0.1", version);
+        for (old, new, key) in [
+            (
+                r#""amount":{"krw":1}"#,
+                r#""amount":{"krw":1},"amount":{"krw":100000000}"#,
+                "amount",
+            ),
+            (
+                r#""amount":{"krw":1}"#,
+                r#""amount":{"krw":1},"\u0061mount":{"krw":100000000}"#,
+                "amount",
+            ),
+            (
+                r#""rule_version":"1""#,
+                r#""rule_version":"1","rule_version":"1""#,
+                "rule_version",
+            ),
+            (
+                r#""inputs":{"hit":"bool"}"#,
+                r#""inputs":{"hit":"int","hit":"bool"}"#,
+                "hit",
+            ),
+            (
+                r#""amount":{"krw":1}"#,
+                r#""amount":{"add":[{"krw":1},{"krw":1,"krw":100000000}]}"#,
+                "krw",
+            ),
+            (
+                r#""amount":{"krw":1}"#,
+                r#""amount":{"multiply_rate":[{"krw":1},"0.5",{"unit":1,"rounding":"floor","rounding":"ceil"}]}"#,
+                "rounding",
+            ),
+            (
+                r#""inputs":{"hit":"bool"}"#,
+                r#""inputs":{"hit":"bool"},"inputs_from_outside_dsl":[],"inputs_from_outside_dsl":[]"#,
+                "inputs_from_outside_dsl",
+            ),
+            (
+                r#""inputs":{"hit":"bool"}"#,
+                r#""inputs":{"hit":"bool"},"inputs_from_outside_dsl":[{"name":"hit","\u006eame":"hit","judged_by":"ontology","code_fact":"dx_code"}]"#,
+                "name",
+            ),
+            (
+                r#""inputs":{"hit":"bool"}"#,
+                r#""inputs":{"hit":"bool"},"inputs_from_outside_dsl":[{"name":"hit","judged_by":"time_stage","duration":{"value":1,"value":90,"unit":"day"}}]"#,
+                "value",
+            ),
+        ] {
+            let duplicate = source.replacen(old, new, 1);
+            assert_ne!(duplicate, source);
+            let error = load_rule_artifact(duplicate.as_bytes()).unwrap_err();
+            assert!(error.starts_with("invalid JSON:"), "{version}: {error}");
+            assert!(
+                error.contains(&format!("duplicate JSON key `{key}`")),
+                "{version}: {error}"
+            );
+            assert!(
+                error.contains("line ") && error.contains("column "),
+                "{error}"
+            );
+        }
+    }
+}
+
+#[test]
+fn runtime_artifact_preserves_rule_hash_and_outside_declaration() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        let source = RULE.replace("rule-0.1", version);
+        let (expected, outside) = load_rule_artifact(source.as_bytes()).unwrap();
+        assert!(outside.is_empty());
+        let metadata = r#""inputs_from_outside_dsl":[{"name":"hit","judged_by":"ontology","code_fact":"dx_code"}]"#;
+        let artifact = format!("{{{metadata},{}", &source[1..]);
+        let (loaded, outside) = load_rule_artifact(artifact.as_bytes()).unwrap();
+        assert_eq!(loaded.source_json(), expected.source_json());
+        assert_eq!(loaded.content_hash(), expected.content_hash());
+        assert_eq!(outside.len(), 1);
+        assert_eq!(outside[0].name, "hit");
+        assert_eq!(outside[0].code_fact.as_deref(), Some("dx_code"));
+        let null_metadata = format!("{{\"inputs_from_outside_dsl\":null,{}", &source[1..]);
+        assert!(load_rule_artifact(null_metadata.as_bytes())
+            .unwrap()
+            .1
+            .is_empty());
+    }
+}
+
+#[test]
+fn runtime_artifact_still_rejects_invalid_json_and_declarations() {
+    for bytes in [&b"{\"name\":\"\xff\"}"[..], &b"{"[..], &b"{} {}"[..]] {
+        assert!(load_rule_artifact(bytes)
+            .unwrap_err()
+            .starts_with("invalid JSON:"));
+    }
+    let artifact = format!("{{\"inputs_from_outside_dsl\":[{{\"name\":\"hit\",\"judged_by\":\"ontology\",\"unknown\":true}}],{}", &RULE[1..]);
+    assert!(load_rule_artifact(artifact.as_bytes())
+        .unwrap_err()
+        .starts_with("inputs_from_outside_dsl:"));
+}

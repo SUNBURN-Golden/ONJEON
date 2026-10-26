@@ -7,7 +7,7 @@
 - 3값 논리(참·거짓·모름). 모르는 입력은 0이나 거짓으로 바뀌지 않는다.
 - 금액은 정수 원. 부동소수점이 없다. 반올림 규칙과 단위는 규칙에 명시해야 한다(`unspecified`는 하한~상한 범위를 돌려준다).
 - 허용 목록 연산자만 로드된다. 모르는 연산자, 부동소수점 리터럴, 반올림 누락, `month_end` 누락, `date_add`·`multiply_rate`·`days_between` 파라미터의 알 수 없는 키(`day` 단위의 `month_end` 포함), 알 수 없는 최상위 키는 로드 단계에서 거부된다.
-- `Rule::from_json_str`는 최상위·중첩 객체·배열 안 객체의 중복 JSON 키를 검증·해시 전에 거부한다. 같은 값을 반복하거나 이스케이프로 같은 키를 적어도 오류다(키 이름·행·열 포함). 이미 만든 `serde_json::Value`에는 중복 정보가 없으므로 원문은 이 문자열 로더로 읽어야 한다. [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-26_engine_duplicate_json_keys.md).
+- `Rule::from_json_str`는 최상위·중첩 객체·배열 안 객체의 중복 JSON 키를 검증·해시 전에 거부한다. 같은 값을 반복하거나 이스케이프로 같은 키를 적어도 오류다(키 이름·행·열 포함). 이미 만든 `serde_json::Value`에는 중복 정보가 없으므로 원문은 이 문자열 로더로 읽어야 한다. 아티팩트의 메타데이터를 분리해야 하는 로더에는 공개 `parse_rule_json(&[u8])`를 제공한다. 전체 바이트를 이 함수로 파싱한 뒤 메타데이터를 제거하고 `Rule::from_json`으로 검증한다. 현재 `twin-runtime::load_rule_artifact`는 아직 이 API를 사용하지 않아 중복 키를 수용하며, Audit 2 발견 사항은 미해결이다. [Audit 2 수정 범위·검증 증거](../../docs/blueprint/audits/2026-10-26_engine_duplicate_json_keys.md).
 - 로드 단계에서 모든 식의 타입을 검사한다(bool·int·money·rate·date·string). `{"eq":["target_event",1]}`처럼 타입이 다른 값의 비교, bool·string의 순서 비교, `all`/`any`/`not`/`if` 조건에 쓴 비불리언, 금액 연산자에 쓴 비금액, 가지 타입이 다른 `if`, 불리언이 아닌 `eligibility`, 금액이 아닌 `amount`(`"amount": true`)는 오류 위치(경로)와 함께 로드에서 거부된다. 금액 `money`는 정확한 값과 범위를 구분하지 않으므로 범위를 비교하는 오류는 아직 평가 단계에서만 잡힌다(아래 "아직 없는 것").
 - 같은 입력·규칙·엔진 버전이면 바이트 단위로 같은 결과를 낸다. 결과에는 평가 trace, 결과를 막은 누락 입력, 입력 스냅샷 해시가 들어 있다.
 - 공개 가능한 규칙은 근거 참조가 하나 이상 있어야 하고 소속 릴리스(`release_id`)를 밝혀야 한다(불변 원칙 5). 합성 규칙은 `fixture_only`다.

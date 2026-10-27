@@ -4,7 +4,9 @@
 
 Prints expected and actual values side by side, in full, for every check (the transition columns among them). Exit code 1 if
 any check differs or a scenario raises. Checks marked GAP are specification gaps and do not change the exit code.
-Scenarios without a required test id show "-". No network, no CLI, no model, no repository: mock adapters only.
+Scenarios without a required test id show "-". With --require-all the run also fails unless the test ids run are
+exactly the required ones of T-OP-00: none missing, none outside the list, none run twice. No network, no CLI, no model,
+no repository: mock adapters only.
 """
 import argparse
 import json
@@ -54,6 +56,15 @@ def select(arg):
     return out
 
 
+def coverage(required, ran):
+    """Required test ids against the (scenario, test id) pairs run, in both directions. STATIC and "-" scenarios
+    carry no required test id and are left out."""
+    ids = [tid for mid, tid in ran if mid != "STATIC" and tid != "-"]
+    return {"not_run": [t for t in required if t not in ids],
+            "unlisted": sorted({t for t in ids if t not in required}),
+            "repeated": sorted({t for t in ids if ids.count(t) > 1} | {t for t in required if required.count(t) > 1})}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--rules", required=True)
@@ -61,7 +72,7 @@ def main(argv=None):
     ap.add_argument("--scenario", default="all", help="all, an M number (M41) or a test id")
     ap.add_argument("--report", help="also write the results as JSON to this path")
     ap.add_argument("--quiet", action="store_true", help="print only failures, gaps and the summary")
-    ap.add_argument("--require-all", action="store_true", help="exit 1 if required test ids are not run")
+    ap.add_argument("--require-all", action="store_true", help="exit 1 unless the test ids run are exactly the required ones")
     args = ap.parse_args(argv)
 
     results = [run_scenario(e, args.rules, args.tasks) for e in select(args.scenario)]
@@ -86,7 +97,8 @@ def main(argv=None):
         tasks_cfg = json.load(f)
     required = tasks_cfg["t_op_00_required_test_ids"]
     ran = {r["test_id"] for r in results}
-    not_run = [t for t in required if t not in ran]
+    cov = coverage(required, [(r["id"], r["test_id"]) for r in results])
+    not_run = cov["not_run"]
     total = sum(len(r["checks"]) for r in results)
     gaps = sum(1 for r in results for c in r["checks"] if c["status"] == sc.GAP)
     print("\n== 요약")
@@ -97,6 +109,8 @@ def main(argv=None):
     print(f"  필수 시험 ID {len(required)}개 중 이번에 실행한 것 {len(ran & set(required))}개, 실행하지 않은 것 {len(not_run)}개(이번 범위 밖)")
     if args.scenario == "all":
         print("  실행하지 않은 시험 ID: " + ", ".join(not_run))
+    print(f"  필수 목록에 없는 시험 ID {len(cov['unlisted'])}개" + "".join(f", {t}" for t in cov["unlisted"]))
+    print(f"  두 번 이상 나온 시험 ID {len(cov['repeated'])}개" + "".join(f", {t}" for t in cov["repeated"]))
     print(f"  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 {len(Rules.token_log)}종(명세 공백 후보, --report에 목록)")
     print("  읽기 목록(core_contract.reads) 밖에서 읽는 값: " + ", ".join(f"{k}({v})" for k, v in OUTSIDE_READS.items()))
     print(f"  명세 공백: 해소(필드) {len(resolved_gaps())}건, 남았거나 새로 생긴 것 {len(open_gaps())}건")
@@ -104,12 +118,13 @@ def main(argv=None):
         print(f"   - {g['id']} [{g['status']}] {g['field']} @ {g['where']}: {g['need']}")
     if args.report:
         Path(args.report).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.report).write_text(json.dumps({"results": results, "not_run": not_run, "spec_gaps": SPEC_GAPS,
+        Path(args.report).write_text(json.dumps({"results": results, "not_run": not_run,
+                                                 "unlisted": cov["unlisted"], "repeated": cov["repeated"], "spec_gaps": SPEC_GAPS,
                                                  "string_tokens": sorted(map(list, Rules.token_log)),
                                                  "outside_reads": OUTSIDE_READS},
                                                 ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     code = 1 if failed else 0
-    if args.require_all and not_run:
+    if args.require_all and any(cov.values()):
         code = 1
     return code
 

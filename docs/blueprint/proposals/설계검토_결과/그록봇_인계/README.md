@@ -156,6 +156,8 @@
 | M32 봉투 권한 누락 거부 | 구현하지 않음. 검증 규칙이 문장이고 읽기 목록 밖이다(G49) |
 | 필수 시험 ID 33개 중 나머지 17개(M1~M25 계열, M27, M31, M10a·b, M18a·b) | 구현하지 않음. §3 단계 2에서 빌더가 구현한다 |
 
+이 표는 2026-10-13 인계 당시의 결과다. 그 뒤 T-OP-00(1ee58d7)에서 M32와 나머지 17개를 구현해 필수 시험 ID 33개가 모두 실행된다. 실행한 시험 ID가 필수 목록과 정확히 같은지(빠진 것·목록 밖·중복 없음)는 `tools/tests/test_daemon_dry_run.py`의 `Coverage`·`CoverageBothWays`와 `dry_run.py --require-all`이 확인한다([audit2-daemon-coverage-reverse](../../../audits/2026-10-27_daemon_coverage_reverse.md)).
+
 **명세 공백 현황(`tools/daemon/spec_gaps.py`, 07 §1e 대비)**
 - 설계 담당의 7차 수정으로 G01~G28 중 22건이 필드로 해소됐다. 6건(G11, G12, G16, G18, G20, G21)은 일부만 해소됐다.
 - 코어를 맞추는 과정에서 새 공백 G29~G50이 기록됐다. 코어는 이를 추측으로 채우지 않았고, 좁게 해석한 내용을 `core_took`에 적었다. 주요 항목은 다음과 같다.

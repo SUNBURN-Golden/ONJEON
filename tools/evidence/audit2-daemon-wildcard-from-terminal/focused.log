@@ -1,0 +1,38 @@
+# after fix: base commit 4672d186069745880fdbdfc3da290909187f229f + this change
+# python3 -m unittest tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped -v
+test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) ... ok
+test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) ... ok
+test_non_terminal_states_are_still_returned (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_non_terminal_states_are_still_returned) ... ok
+test_removing_the_exclusion_reopens_the_finding (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_removing_the_exclusion_reopens_the_finding)
+Without the state predicate and the noop rule the redelivery sends done to returned and SUCC stays blocked. ... ok
+test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.648s
+
+OK
+# exit 0
+
+# python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario M19
+== M19 post-merge-prereq: 선행 merged→audit_queued→done 뒤 후속 queued  [PASS]
+  [PASS] 선행 과제가 시작 전이면 후속은 blocked
+      기대: "blocked"
+      실제: "blocked"
+  [PASS] 선행이 merge_wait이면 후속은 아직 blocked
+      기대: "blocked"
+      실제: "blocked"
+  [PASS] 선행 merged → audit_queued 사이에 후속 blocked→queued(post_merge_states)
+      기대: [["merge_wait", "merged", "pr_merged_observed"], ["merged", "audit_queued", "impl_counter_incremented"], ["blocked", "queued", "prereqs_satisfied"]]
+      실제: [["merge_wait", "merged", "pr_merged_observed"], ["merged", "audit_queued", "impl_counter_incremented"], ["blocked", "queued", "prereqs_satisfied"]]
+  [PASS] 선행 done 뒤에도 후속은 queued, 임대 가능
+      기대: ["done", "queued"]
+      실제: ["done", "queued"]
+  [PASS] 선행 done 뒤 다시 전달된 병합 관측은 기록만(event_after_terminal_state), 반송 없음, 후속 queued 유지
+      기대: ["done", "queued", [], [], [["event_after_terminal_state", null]]]
+      실제: ["done", "queued", [], [], [["event_after_terminal_state", null]]]
+  [PASS] 후속 임대
+      기대: "leased"
+      실제: "leased"
+
+== 요약
+# exit 0

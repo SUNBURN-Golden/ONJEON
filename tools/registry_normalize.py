@@ -97,7 +97,8 @@ def product_list_codes(row):
 
 
 def normalize(path, has_disclosure=True):
-    rows = list(csv.DictReader(path.open(encoding="utf-8")))
+    with path.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
     if not rows:
         return 0
     out = []
@@ -132,7 +133,8 @@ def normalize(path, has_disclosure=True):
 
 
 def normalize_access_log(path):
-    rows = list(csv.DictReader(path.open(encoding="utf-8")))
+    with path.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
     for r in rows:
         if "host_access" not in r:
             r["host_access"] = host_code(r.get("result", ""))
@@ -146,4 +148,6 @@ def normalize_access_log(path):
 if __name__ == "__main__":
     print("insurers", normalize(REG / "insurers.csv"))
     print("cooperatives_and_others", normalize(REG / "cooperatives_and_others.csv"))
+    # These rows document exclusions, not an active product-list denominator.
+    print("excluded_or_historical", normalize(REG / "excluded_or_historical.csv", has_disclosure=False))
     print("access_log", normalize_access_log(REG / "access_log.csv"))

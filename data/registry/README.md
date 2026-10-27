@@ -2,6 +2,8 @@
 
 > 상태값은 `packages/schemas/vocabulary.json`(축 `entity_evidence`, `host_access`, `acquisition_status`)을 따른다. 원래 조사 표기는 `tools/registry_normalize.py`로 정규화했고 원문 접근 결과는 `*_detail` 열과 `access_log.csv`의 `result` 열에 남아 있다.
 
+`python3 tools/vocab_check.py`가 CI에서 `data/registry/*.csv`의 상태 열을 각 축의 현행 코드와 대조한다. 폐기된 기관 상태 열, 필수 상태 열 누락, 다른 축의 값·빈 값·과거 별칭과 잘못된 CSV 구조는 실패한다. `result`·`*_detail`·메모 등 원문 증거는 상태 코드로 해석하지 않는다.
+
 조사 시각: 2026-10-09 04:21–04:36 UTC (이 샌드박스 환경, 해외 IP 경유)
 상태: **1차 근거 목록**. 상품·특약 단위 분모는 아직 만들지 않았다(아래 "열거하지 않은 것" 참조).
 
@@ -16,6 +18,8 @@
 | `excluded_or_historical.csv` | 가져온 페이지에는 있으나 현행 협회 목록에 없는 49행: 과거·합병 추정 보험사, DART 업종 목록의 비보험 법인, KIDI '공영보험'의 사회보험 기관. 제외 사유를 남기려고 둔 파일이며 분모가 아니다 |
 | `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 66건과 응답 본문 sha256 |
 | `access_log.csv` | 시도한 모든 요청 98건(실패 포함)과 결과 분류 |
+
+`excluded_or_historical.csv` 49행도 `entity_evidence`로 정규화했다(`two_or_more_sources` 2, `one_source` 47). 기관 ID·출처·관측 시각·제외 사유는 보존한다. 제외 기록에는 공시 보관·상품 목록 추적 열을 추가하지 않는다. 이 파일은 현행 보험사 분모가 아니며, 과거 계약 약관의 대상 여부는 아래 알려진 공백 4번대로 미확정이다. 재생성은 `python3 tools/registry_normalize.py`, 정정·회귀 증거는 [Audit 2 기록](../../docs/blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)을 따른다.
 
 `insurers.csv` 열은 과제에서 정한 11개 뒤에 3개를 덧붙였다.
 - `in_current_assoc_list`: KLIA·KNIA 현행 목록에 있으면 true(이 파일에서는 전부 true).

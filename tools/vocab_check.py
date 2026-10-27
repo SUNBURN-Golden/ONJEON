@@ -5,6 +5,8 @@
 - generates docs/blueprint/VOCABULARY.md (--write; states the live axis count) or checks it is up to date
 - lints contract documents for deprecated or forbidden status names in backticks
   and for hand-written axis counts ("전체 31개 축") that no longer match vocabulary.json
+- checks registry CSV vocabulary columns against their own canonical axes;
+  raw access results, details and notes remain historical evidence
 
 Usage:
   python3 tools/vocab_check.py          # check (CI)
@@ -19,6 +21,7 @@ linted: they are historical records. Contract documents are.
 A line may opt out with the marker  <!-- vocab:allow -->  when it quotes an
 old name on purpose (for example in a migration note).
 """
+import csv
 import json
 import re
 import sys
@@ -48,6 +51,59 @@ AXIS_COUNT_RE = re.compile(r"(\d+)\s*개의?\s*축")
 VOCAB_POINTER_RE = re.compile(r"vocabulary|어휘", re.IGNORECASE)
 # Proposals also refer to the vocabulary, but are outside the deprecated-status contract lint.
 AXIS_COUNT_EXTRA_DOCS = ["docs/blueprint/proposals/**/*.md"]
+
+# Registry column names sometimes describe a role rather than the vocabulary axis.
+# Validate cells in that axis, never against the union of all live vocabulary codes.
+REGISTRY_AXES = {
+    "entity_evidence": "entity_evidence",
+    "host_access": "host_access",
+    "home_access": "host_access",
+    "disclosure_access": "host_access",
+    "disclosure_status": "acquisition_status",
+    "product_list_status": "acquisition_status",
+}
+REGISTRY_ENTITY_COLUMNS = ("entity_evidence", "home_access", "disclosure_access")
+REGISTRY_REQUIRED = {
+    "insurers.csv": REGISTRY_ENTITY_COLUMNS + ("disclosure_status", "product_list_status"),
+    "cooperatives_and_others.csv": REGISTRY_ENTITY_COLUMNS + ("disclosure_status", "product_list_status"),
+    "excluded_or_historical.csv": REGISTRY_ENTITY_COLUMNS,
+    "access_log.csv": ("host_access",),
+}
+
+
+def lint_registry(v):
+    """Read-only, column-aware checks; prose exemptions do not apply to CSV cells."""
+    codes = {a["id"]: {x["code"] for x in a["values"]} for a in v["axes"]}
+    problems = []
+    for path in sorted(ROOT.glob("data/registry/*.csv")):
+        rel = path.relative_to(ROOT).as_posix()
+        with path.open(encoding="utf-8", newline="") as f:
+            reader = csv.reader(f, strict=True)
+            try:
+                fields = next(reader, [])
+                if not fields:
+                    problems.append(f"{rel}:1: missing CSV header")
+                    continue
+                if len(fields) != len(set(fields)):
+                    problems.append(f"{rel}:1: duplicate CSV column")
+                    continue
+                if "status" in fields:
+                    problems.append(f"{rel}:1: deprecated field `status` -> use entity_evidence")
+                for field in REGISTRY_REQUIRED.get(path.name, ()):
+                    if field not in fields:
+                        problems.append(f"{rel}:1: missing required vocabulary column `{field}`")
+                columns = [(i, field, REGISTRY_AXES[field]) for i, field in enumerate(fields)
+                           if field in REGISTRY_AXES]
+                for row in reader:
+                    if len(row) != len(fields):
+                        problems.append(f"{rel}:{reader.line_num}: expected {len(fields)} cells, got {len(row)}")
+                        continue
+                    for i, field, axis_id in columns:
+                        if row[i] not in codes[axis_id]:
+                            problems.append(f"{rel}:{reader.line_num}: {field}={row[i]!r}: expected {axis_id} code")
+            except csv.Error as exc:
+                problems.append(f"{rel}:{reader.line_num}: invalid CSV: {exc}")
+    return problems
 
 
 def _stale_axis_counts(v, f):
@@ -306,8 +362,9 @@ def main():
             print("\n  ".join(doc_problems))
             return 1
     problems = lint(v)
+    problems += lint_registry(v)
     if problems:
-        print("vocabulary references in documents:\n  " + "\n  ".join(problems))
+        print("vocabulary references in documents or registry CSVs:\n  " + "\n  ".join(problems))
         return 1
     n = sum(len(a["values"]) for a in v["axes"])
     print(f"vocabulary ok: {len(v['axes'])} axes, {n} values")

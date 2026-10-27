@@ -1544,6 +1544,148 @@ class DocsOnlyLandingCond(unittest.TestCase):
                          ("audit_queued", ("merged", "audit_queued", "impl_counter_incremented"), 1))
 
 
+def _fields(node):
+    """Every field path a cond names, on either side of a predicate."""
+    if isinstance(node, dict):
+        out = [node["field"]] if isinstance(node.get("field"), str) else []
+        if isinstance(node.get("value"), str):
+            out.append(node["value"])
+        return out + [f for v in node.values() if isinstance(v, (dict, list)) for f in _fields(v)]
+    if isinstance(node, list):
+        return [f for x in node for f in _fields(x)]
+    return []
+
+
+class HandleEventFencing(unittest.TestCase):
+    """audit2-daemon-handle-event-fencing: handle_event applied the transition table to any event name, so an
+    envelope-born event (result_pr_opened) sent without its envelope moved building -> pr_open with no lease, token
+    or duplicate check. Only core_contract.operations.handle_event.without_envelope may now arrive bare."""
+
+    ENVELOPE_ROOTS = ("envelope.", "signal.", "report.", "request.")
+    CORE_EMITTED = {"envelope_invalid", "unmapped_condition", "state_corrupted"}
+
+    def entry(self, raw=None):
+        return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+
+    def envelope_born(self, raw):
+        """The events accept_envelope produces (result_<status>, and the signal/heartbeat message types), and every
+        event whose rows compare envelope fields."""
+        out = {"result_" + s for s in raw["envelopes"]["result"]["status_values"]} | {"switch_signal", "first_heartbeat",
+                                                                                       "heartbeat", "result_out_of_scope"}
+        for row in raw["transitions"]:
+            if any(f.startswith(self.ENVELOPE_ROOTS) for f in _fields(row.get("cond"))):
+                out.add(row["event"])
+        return out
+
+    def building(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        self.assertEqual(env.state(sc.BASIC), "building")
+        return env
+
+    def assert_rejected(self, env, task_id, name, payload=None):
+        before = env.task(task_id)
+        m = sc.mark(env)
+        env.clock.advance(1)
+        out = env.core.handle_event({"event": name, "task_id": task_id, "payload": payload or {}})
+        js = env.journal()[m:]
+        self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+        self.assertEqual((out["applied"], out["noop"], out["return_code"], out["rejected"]),
+                         (False, "envelope_rejected_invalid", "R-13", ("envelope_required", name)))
+        rec, = [r for r in js if r["kind"] == "noop_record"]
+        self.assertEqual((rec["event"], rec["reason"]), (name, "envelope_required"))
+        after = env.task(task_id)
+        for key in ("task_state", "lease_record", "lease_generation", "outbox", "inbox_seen", "handoff_record"):
+            self.assertEqual(after[key], before[key], key)
+
+    def test_the_entry_is_catalog_data(self):
+        raw = raw_rules()
+        entry = self.entry(raw)
+        catalog = set(raw["events"]) | set(raw["noop_events"]) | set(raw["event_catalog"]["operation_events"])
+        self.assertEqual(entry["routes"], {"daemon_restart": "restart_recovery", "fence_violation": "accept_envelope",
+                                           "push_requested": "fenced_write", "pr_update_requested": "fenced_write"})
+        self.assertEqual(entry["on_reject"], {"noop_event": "envelope_rejected_invalid", "return_code": "R-13",
+                                              "reason": "envelope_required"})
+        bare = set(entry["without_envelope"])
+        self.assertEqual(len(bare), len(entry["without_envelope"]))
+        self.assertLessEqual(bare, set(raw["events"]))
+        self.assertLessEqual(set(entry["routes"]), catalog)
+        self.assertEqual(bare & set(entry["routes"]), set())
+
+    def test_envelope_born_and_core_emitted_events_are_not_listed(self):
+        raw = raw_rules()
+        bare = set(self.entry(raw)["without_envelope"])
+        born = self.envelope_born(raw)
+        self.assertLessEqual({"result_pr_opened", "result_failed_tests", "switch_signal", "first_heartbeat"}, born)
+        self.assertEqual(bare & born, set())
+        self.assertEqual(bare & self.CORE_EMITTED, set())
+        self.assertEqual(bare & set(raw["noop_events"]), set())
+
+    def test_the_core_s_own_bare_events_are_listed(self):
+        """handoff.py feeds its step results through handle_event; each of them must be on the list."""
+        src = (ROOT / "tools/daemon/core/handoff.py").read_text(encoding="utf-8")
+        sent = set(re.findall(r'"event": "([a-z_]+)"', src)) | set(re.findall(r'return \("([a-z_]+)", ', src))
+        sent &= set(raw_rules()["events"])
+        self.assertLessEqual({"preserve_commit_ok", "preserve_push_ok", "preserved", "no_builder"}, sent)
+        self.assertLessEqual(sent, set(self.entry()["without_envelope"]))
+
+    def test_envelope_born_events_without_an_envelope_are_rejected(self):
+        raw = raw_rules()
+        routed = {"daemon_restart", "fence_violation", "push_requested", "pr_update_requested"}  # routed, not rejected
+        names = sorted((self.envelope_born(raw) & set(raw["events"]) | self.CORE_EMITTED | {"heartbeat", "no_such_event"})
+                       - routed)
+        self.assertLessEqual({"result_pr_opened", "state_corrupted", "unmapped_condition", "heartbeat"}, set(names))
+        for name in names:
+            with self.subTest(event=name):
+                self.assert_rejected(self.building(), sc.BASIC, name)
+
+    def test_lease_fields_in_the_payload_are_not_an_envelope(self):
+        """Even with the current lease's id, generation and token, a bare event does not pass accept_envelope."""
+        env = MockEnv(str(RULES), str(TASKS))
+        env.start_task(sc.BASIC)
+        env.grant(sc.BASIC)
+        lease = env.lease(sc.BASIC)
+        fence = dict(lease_id=lease["lease_id"], lease_generation=lease["lease_generation"],
+                     fencing_token=lease["fencing_token"], envelope_id="E-BARE")
+        self.assertEqual(env.state(sc.BASIC), "leased")
+        self.assert_rejected(env, sc.BASIC, "first_heartbeat", fence)
+        env = self.building()
+        lease = env.lease(sc.BASIC)
+        fence.update(lease_id=lease["lease_id"], lease_generation=lease["lease_generation"],
+                     fencing_token=lease["fencing_token"])
+        self.assert_rejected(env, sc.BASIC, "result_pr_opened", dict(fence, status="pr_opened", pr_number=1))
+
+    def test_the_envelope_path_still_applies(self):
+        env = self.building()
+        b = env.builder_for(sc.BASIC)
+        out = env.submit(sc.BASIC, "result", b.result_envelope(env.instr(sc.BASIC), "pr_opened"))
+        self.assertEqual((out["accepted"], out["transition"]), (True, ("building", "pr_open", "result_pr_opened")))
+        env = self.building()
+        m = sc.mark(env)
+        env.event("owner_stop", sc.BASIC, stop_ref="S")  # on the list: reaches the table
+        self.assertEqual((sc.noops(env.journal()[m:]), env.task(sc.BASIC)["task_state"]["stop_requested_at"] is not None),
+                         ([], True))
+
+    def test_listing_the_event_reopens_the_finding(self):
+        """Mutation: put result_pr_opened on the list and the bare event moves building -> pr_open again."""
+        raw = _mutated(lambda r: self.entry(r)["without_envelope"].append("result_pr_opened"))
+        env = MockEnv(raw, str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        m = sc.mark(env)
+        env.event("result_pr_opened", sc.BASIC)
+        self.assertEqual(sc.tr(env.journal()[m:]), [("building", "pr_open", "result_pr_opened")])
+
+    def test_rules_that_break_the_entry_contract_are_refused(self):
+        from daemon.core.ports import SpecGap
+        breaks = {"unknown event listed": lambda e: e["without_envelope"].append("no_such_event"),
+                  "routed and listed": lambda e: e["without_envelope"].append("push_requested"),
+                  "unknown operation": lambda e: e["routes"].update(fence_violation="apply_directly")}
+        for label, fn in breaks.items():
+            with self.subTest(case=label):
+                with self.assertRaises(SpecGap):
+                    MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
+
+
 class ReportValues(unittest.TestCase):
     """The report shows the values as they were compared, not as the scenario left them afterwards."""
 

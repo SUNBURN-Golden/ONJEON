@@ -1,0 +1,19 @@
+test_current_decisions_name_r2_archive (test_storage_provider_docs.Blueprint.test_current_decisions_name_r2_archive) ... ok
+test_no_pre_r2_storage_claims (test_storage_provider_docs.Blueprint.test_no_pre_r2_storage_claims) ... ok
+test_open_decisions_exclude_resolved_archive_provider (test_storage_provider_docs.Blueprint.test_open_decisions_exclude_resolved_archive_provider) ... ok
+test_open_decisions_preserve_r2_operational_gates (test_storage_provider_docs.Blueprint.test_open_decisions_preserve_r2_operational_gates) ... ok
+test_section_11_already_reports_r2 (test_storage_provider_docs.Blueprint.test_section_11_already_reports_r2) ... ok
+test_superseded_decisions_record_provider_change_only (test_storage_provider_docs.Blueprint.test_superseded_decisions_record_provider_change_only) ... ok
+test_tool_inventory_names_current_and_alternative_storage (test_storage_provider_docs.Blueprint.test_tool_inventory_names_current_and_alternative_storage) ... ok
+test_v1_counts_match_r2_records_and_gap_report (test_storage_provider_docs.Blueprint.test_v1_counts_match_r2_records_and_gap_report) ... ok
+test_v1_names_r2_and_completed_preservation (test_storage_provider_docs.Blueprint.test_v1_names_r2_and_completed_preservation) ... ok
+test_v1_remaining_conditions_keep_unverified_work (test_storage_provider_docs.Blueprint.test_v1_remaining_conditions_keep_unverified_work) ... ok
+test_cited_r2_evidence_exists (test_storage_provider_docs.GapReport.test_cited_r2_evidence_exists) ... ok
+test_full_reproduction_count_matches_check_record (test_storage_provider_docs.GapReport.test_full_reproduction_count_matches_check_record) ... ok
+test_names_r2_decision (test_storage_provider_docs.GapReport.test_names_r2_decision) ... ok
+test_no_pre_r2_storage_claims (test_storage_provider_docs.GapReport.test_no_pre_r2_storage_claims) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.005s
+
+OK

@@ -55,6 +55,41 @@ class Blueprint(unittest.TestCase):
         found = [p for p in STALE if p in self.text]
         self.assertEqual(found, [])
 
+    def test_current_decisions_name_r2_archive(self):
+        section = self.text.split("### 7.2", 1)[1].split("### 7.3", 1)[0]
+        row = next(line for line in section.splitlines() if line.startswith("| 원본·파생 보관소 |"))
+        for phrase in ("Cloudflare R2", "비공개", "ADR-0015", "0016", "0017"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, row)
+
+    def test_superseded_decisions_record_provider_change_only(self):
+        section = self.text.split("### 7.3", 1)[1].split("## 8.", 1)[0]
+        row = next(line for line in section.splitlines() if line.startswith("- ADR-0015"))
+        for phrase in ("AWS S3", "서울 리전", "S3 고유 설정", "ADR-0016", "Cloudflare R2",
+                       "나머지 보존 규칙은 유지"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, row)
+
+    def test_open_decisions_exclude_resolved_archive_provider(self):
+        section = self.text.split("## 12.", 1)[1].split("## 13.", 1)[0]
+        self.assertNotIn("| 클라우드·저장소 |", section)
+        row = next(line for line in section.splitlines() if line.startswith("| 서비스 실행 클라우드 |"))
+        for phrase in ("M3", "Compose", "원본·파생 보관소", "Cloudflare R2", "확정", "ADR-0016"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, row)
+
+    def test_open_decisions_preserve_r2_operational_gates(self):
+        section = self.text.split("## 12.", 1)[1].split("## 13.", 1)[0]
+        for label, phrases in (
+            ("R2 접근 자격", ("D-04 관문 유지", "실제 R2 접근 차단 유지", "DEC-D-04")),
+            ("대량 자동 수집 관문", ("O17", "원장 체크포인트", "버킷 잠금")),
+            ("R2 버킷 잠금", ("O14", "승인 전 적용 금지", "무기한 잠금 금지")),
+        ):
+            row = next(line for line in section.splitlines() if line.startswith(f"| {label}"))
+            for phrase in phrases:
+                with self.subTest(label=label, phrase=phrase):
+                    self.assertIn(phrase, row)
+
     def test_v1_names_r2_and_completed_preservation(self):
         self.assertIn("Cloudflare R2", self.v1)
         self.assertIn("ADR-0016", self.v1)

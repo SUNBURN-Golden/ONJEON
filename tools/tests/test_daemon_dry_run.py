@@ -2,7 +2,7 @@
 
 What must hold:
 - every scenario M1-M44 (05 §5, with M10a·M10b·M18a·M18b) ends with expected == actual on every check, and every
-  required test id of T-OP-00 is run; checks marked GAP would be specification gaps and are listed, not hidden;
+  required test id of T-OP-00 is run and no other id is (both directions, `dry_run.coverage`); checks marked GAP would be specification gaps and are listed, not hidden;
 - the G29-G50 fields are read by the core (t_op_00_followups): the structure checks of tests_to_add hold on the file
   and the behavior checks hold on the core;
 - the core reads only the fields of core_contract.reads: its view of the file has no prose `when`, `note` or `_`
@@ -22,6 +22,7 @@ import re
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -87,10 +88,11 @@ class Coverage(unittest.TestCase):
         required = [t for t in tasks if t["id"] == "T-OP-00"][0]["required_test_ids"]
         mock = json.loads(TASKS.read_text(encoding="utf-8"))["t_op_00_required_test_ids"]
         self.assertEqual(mock, required)
-        implemented = [e[1] for e in sc.SCENARIOS if e[0] != "STATIC"]
-        self.assertEqual([t for t in implemented if t not in required and t != "-"], [])
-        self.assertEqual(set(required) - set(implemented), set(), "every required test id runs")
-        self.assertEqual(len([t for t in implemented if t != "-"]), len(set(t for t in implemented if t != "-")))
+        implemented = [(e[0], e[1]) for e in sc.SCENARIOS]
+        self.assertEqual(dry_run.coverage(required, implemented), {"not_run": [], "unlisted": [], "repeated": []})
+        # the same equality without the helper: the scenario test ids are the required list, each once
+        self.assertEqual(sorted(t for m, t in implemented if m != "STATIC" and t != "-"), sorted(required))
+        self.assertEqual(len(required), 33)
 
     def test_every_prose_test_line_has_a_passing_scenario(self):
         """Each '시험 <id>(Mxx): ...' line of tasks.json is a description, not a command: it maps to the scenario
@@ -1934,6 +1936,81 @@ class ReportValues(unittest.TestCase):
         row = [c for c in results()["M28"]["checks"] if c["name"].startswith("현재 과제 전이 0건")][0]
         self.assertEqual(row["status"], sc.PASS)
         self.assertEqual(dry_run.compact(row["actual"]), dry_run.compact(([], False, [])))
+
+
+class CoverageBothWays(unittest.TestCase):
+    """audit2-daemon-coverage-reverse: the test ids run must equal the required list. A missing, an unlisted or a
+    repeated id each fails the coverage test and `--require-all`; none of them is hidden by the other direction."""
+    REQUIRED = ["a", "b", "c"]
+
+    def test_coverage_names_each_direction(self):
+        ok = [("M1", "-"), ("M2", "a"), ("M3", "b"), ("M4", "c"), ("STATIC", "static-checks")]
+        self.assertEqual(dry_run.coverage(self.REQUIRED, ok), {"not_run": [], "unlisted": [], "repeated": []})
+        cases = {
+            "missing": (ok[:3] + ok[4:], self.REQUIRED, {"not_run": ["c"], "unlisted": [], "repeated": []}),
+            "unlisted": (ok + [("M5", "z")], self.REQUIRED, {"not_run": [], "unlisted": ["z"], "repeated": []}),
+            "run twice": (ok + [("M5", "a")], self.REQUIRED, {"not_run": [], "unlisted": [], "repeated": ["a"]}),
+            "listed twice": (ok, self.REQUIRED + ["b"], {"not_run": [], "unlisted": [], "repeated": ["b"]}),
+            "renamed to -": ([("M4", "-") if e[0] == "M4" else e for e in ok], self.REQUIRED,
+                             {"not_run": ["c"], "unlisted": [], "repeated": []}),
+        }
+        for name, (ran, required, want) in cases.items():
+            with self.subTest(name):
+                self.assertEqual(dry_run.coverage(required, ran), want)
+
+    def test_dropping_any_one_required_scenario_is_caught(self):
+        tasks = json.loads(TASKS.read_text(encoding="utf-8"))["t_op_00_required_test_ids"]
+        ran = [(e[0], e[1]) for e in sc.SCENARIOS]
+        for i, (mid, tid) in enumerate(ran):
+            if mid == "STATIC" or tid == "-":
+                continue
+            with self.subTest(mid):
+                self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+
+    def run_cli(self, scenarios, required, *extra):
+        cfg = json.loads(TASKS.read_text(encoding="utf-8"))
+        cfg["t_op_00_required_test_ids"] = required
+        buf = io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(sc, "SCENARIOS", scenarios), \
+                contextlib.redirect_stdout(buf):
+            p = Path(tmp) / "tasks.json"
+            p.write_text(json.dumps(cfg, ensure_ascii=False), encoding="utf-8")
+            code = dry_run.main(["--rules", str(RULES), "--tasks", str(p), "--scenario", "all", "--quiet", *extra])
+        return code, buf.getvalue()
+
+    def test_require_all_fails_on_each_direction(self):
+        m41, m44 = SCEN["M41"], SCEN["M44"]
+        required = [m41[1], m44[1]]
+        code, out = self.run_cli([m41, m44], required, "--require-all")
+        self.assertEqual(code, 0, out[-1500:])
+        self.assertIn("실행하지 않은 것 0개", out)
+        self.assertIn("필수 목록에 없는 시험 ID 0개", out)
+        self.assertIn("두 번 이상 나온 시험 ID 0개", out)
+        cases = {
+            "missing": ([m41], required, "실행하지 않은 시험 ID: " + m44[1]),
+            "unlisted": ([m41, m44, ("M44x", "not-in-list", m44[2], m44[3])], required,
+                         "필수 목록에 없는 시험 ID 1개, not-in-list"),
+            "run twice": ([m41, m44, ("M44x", m44[1], m44[2], m44[3])], required, f"두 번 이상 나온 시험 ID 1개, {m44[1]}"),
+            "listed twice": ([m41, m44], required + [m41[1]], f"두 번 이상 나온 시험 ID 1개, {m41[1]}"),
+        }
+        for name, (scen, req, line) in cases.items():
+            with self.subTest(name):
+                code, out = self.run_cli(scen, req, "--require-all")
+                self.assertEqual(code, 1, out[-1500:])
+                self.assertIn(line, out)
+                self.assertIn("실패 0건", out)  # the scenarios themselves pass: only coverage fails
+                code, _ = self.run_cli(scen, req)
+                self.assertEqual(code, 0, "without --require-all coverage is reported, not enforced")
+
+    def test_report_json_lists_both_directions(self):
+        m41 = SCEN["M41"]
+        with tempfile.TemporaryDirectory() as tmp:
+            rep = Path(tmp) / "r.json"
+            code, _ = self.run_cli([m41, ("M41x", "not-in-list", m41[2], m41[3])], [m41[1], "never-run"],
+                                   "--report", str(rep))
+            data = json.loads(rep.read_text(encoding="utf-8"))
+        self.assertEqual(code, 0)
+        self.assertEqual((data["not_run"], data["unlisted"], data["repeated"]), (["never-run"], ["not-in-list"], []))
 
 
 class Cli(unittest.TestCase):

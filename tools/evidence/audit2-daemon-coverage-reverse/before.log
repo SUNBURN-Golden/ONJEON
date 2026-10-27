@@ -1,0 +1,413 @@
+# before: git archive 991334c (base, unchanged tools/daemon) + the new tools/tests/test_daemon_dry_run.py only
+# $ python3 -I tools/evidence/audit2-daemon-coverage-reverse/repro_coverage_reverse.py <base tree>
+tree: base; required ids 33, scenarios 49 (with a required id 33)
+part 1, 991334c test assertions, full list: {'unlisted': [], 'missing': [], 'no_repeat': True}
+part 1, 991334c test assertions, M41 dropped: {'unlisted': [], 'missing': ['restart-ttl-expired-no-resend'], 'no_repeat': True}
+part 2, --require-all exact: exit 0
+    검사 38건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+part 2, --require-all missing: exit 1
+    검사 19건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 1개, 실행하지 않은 것 1개(이번 범위 밖)
+    실행하지 않은 시험 ID: restart-corrupt-record-returned
+part 2, --require-all unlisted: exit 0
+    검사 57건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+part 2, --require-all run twice: exit 0
+    검사 57건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+part 2, --require-all listed twice: exit 0
+    검사 38건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 3개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+# exit 0
+# $ python3 -m unittest tools.tests.test_daemon_dry_run.Coverage tools.tests.test_daemon_dry_run.CoverageBothWays -v   (in the base tree)
+test_dry_run_reports_all_required_ids_run (tools.tests.test_daemon_dry_run.Coverage.test_dry_run_reports_all_required_ids_run) ... ok
+test_every_m_number_of_05_runs (tools.tests.test_daemon_dry_run.Coverage.test_every_m_number_of_05_runs) ... ok
+test_every_prose_test_line_has_a_passing_scenario (tools.tests.test_daemon_dry_run.Coverage.test_every_prose_test_line_has_a_passing_scenario)
+Each '시험 <id>(Mxx): ...' line of tasks.json is a description, not a command: it maps to the scenario ... ok
+test_every_scenario_prints_expected_and_actual (tools.tests.test_daemon_dry_run.Coverage.test_every_scenario_prints_expected_and_actual) ... ok
+test_g29_to_g50_are_read_by_the_core (tools.tests.test_daemon_dry_run.Coverage.test_g29_to_g50_are_read_by_the_core)
+spec_gaps: G29-G50 resolved and read by the core, except G47 (its read-list entry is in daemon_rules.json, ... ok
+test_gaps_are_listed_with_field_status_and_need (tools.tests.test_daemon_dry_run.Coverage.test_gaps_are_listed_with_field_status_and_need) ... ok
+test_outside_reads_are_reported_gaps (tools.tests.test_daemon_dry_run.Coverage.test_outside_reads_are_reported_gaps) ... ok
+test_test_ids_are_the_ones_in_tasks_json (tools.tests.test_daemon_dry_run.Coverage.test_test_ids_are_the_ones_in_tasks_json) ... ERROR
+test_coverage_names_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_coverage_names_each_direction) ... ERROR
+test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) ... 
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M5] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M10] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M10a] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M10b] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M17] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M18] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M18a] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M18b] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M19] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M21] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M22] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M23] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M24] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M25] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M26] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M27] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M28] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M29] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M30] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M31] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M32] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M33] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M34] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M35] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M36] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M37] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M38] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M39] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M40] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M41] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M42] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M43] ... ERROR
+  test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M44] ... ERROR
+test_report_json_lists_both_directions (tools.tests.test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions) ... ERROR
+test_require_all_fails_on_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction) ... FAIL
+
+======================================================================
+ERROR: test_test_ids_are_the_ones_in_tasks_json (tools.tests.test_daemon_dry_run.Coverage.test_test_ids_are_the_ones_in_tasks_json)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 92, in test_test_ids_are_the_ones_in_tasks_json
+    self.assertEqual(dry_run.coverage(required, implemented), {"not_run": [], "unlisted": [], "repeated": []})
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_coverage_names_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_coverage_names_each_direction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1948, in test_coverage_names_each_direction
+    self.assertEqual(dry_run.coverage(self.REQUIRED, ok), {"not_run": [], "unlisted": [], "repeated": []})
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M5]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M10]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M10a]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M10b]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M17]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M18]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M18a]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M18b]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M19]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M21]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M22]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M23]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M24]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M25]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M26]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M27]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M28]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M29]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M30]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M31]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M32]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M33]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M34]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M35]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M36]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M37]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M38]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M39]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M40]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M41]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M42]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M43]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) [M44]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1968, in test_dropping_any_one_required_scenario_is_caught
+    self.assertEqual(dry_run.coverage(tasks, ran[:i] + ran[i + 1:])["not_run"], [tid])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'daemon.dry_run' has no attribute 'coverage'
+
+======================================================================
+ERROR: test_report_json_lists_both_directions (tools.tests.test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 2013, in test_report_json_lists_both_directions
+    self.assertEqual((data["not_run"], data["unlisted"], data["repeated"]), (["never-run"], ["not-in-list"], []))
+                                       ~~~~^^^^^^^^^^^^
+KeyError: 'unlisted'
+
+======================================================================
+FAIL: test_require_all_fails_on_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base tree>/tools/tests/test_daemon_dry_run.py", line 1987, in test_require_all_fails_on_each_direction
+    self.assertIn("필수 목록에 없는 시험 ID 0개", out)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '필수 목록에 없는 시험 ID 0개' not found in "== M41 restart-ttl-expired-no-resend: 발급 직후 중단 뒤 TTL 경과: void(expired), 재발송 0  [PASS]\n== M44 restart-corrupt-record-returned: 손상 기록은 returned(R-08), 자동 재발급 0  [PASS]\n\n== 요약\n  M41     restart-ttl-expired-no-resend            PASS      검사 19건 중 통과 19\n  M44     restart-corrupt-record-returned          PASS      검사 19건 중 통과 19\n  검사 38건, 실패 0건, 명세 공백 표시 0건\n  필수 시험 ID 2개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)\n  실행하지 않은 시험 ID: \n  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 0종(명세 공백 후보, --report에 목록)\n  읽기 목록(core_contract.reads) 밖에서 읽는 값: post_merge_states(G51), audit_triggers.periodic.every(G51), audit_triggers.immediate_audit_paths(G51), record_separation.merge_observation_fields(G51)\n  명세 공백: 해소(필드) 49건, 남았거나 새로 생긴 것 8건\n   - G47 [일부 해소] envelopes.instruction.limits.{max_wall_s,max_retries}.default @ daemon_rules.json: limits의 기본값이 reads 밖이다(reads는 envelopes.*.required만). 값을 어디서 가져오는지 정해져 있지 않다\n   - G51 [새로 생김] transitions[0](선행 과제 쪽), transitions[43~85](cond 없음), audit_triggers, record_separation, review_assignment, post_merge_states @ daemon_rules.json: blocked→queued의 선행 과제 조건(post_merge_states)과 PR 이후 전이(ci·리뷰·감리·병합 관측·카운터)는 cond가 없고(blocked→queued의 시작 관문은 cond task.decision_gates.start subset_of task_state.decisions_recorded로 들어갔고 코어가 읽는다, audit1-start-gates-enforcement), 사건을 고르는 규칙은 when·immediate_rules[].rule·merge_observation_fields._rule·exclude_rule 같은 문장이거나 core_contract.reads 밖(post_merge_states, audit_triggers.periodic.every, audit_triggers.immediate_audit_paths, record_separation.merge_observation_fields)이다. (merged→audit_queued와 merged→done이 같은 (from, event)에 cond 없이 있던 문제는 cond event.docs_only로 해소했다, audit2-daemon-docs-pr-never-done.) merge_wait.reason을 담을 필드와 정하는 규칙도 없다\n   - G52 [새로 생김] noop_events(ci_passed_duplicate 등), 04 §2.2 '보류 큐' @ daemon_rules.json: 관측 사건의 멱등 키, *_duplicate noop 이름과 사건의 대응(noop_rules 없음), 순서가 뒤바뀐 사건을 보류할 조건·해제 시점이 구조화돼 있지 않다\n   - G53 [새로 생김] transitions[head_sha_changed, merged_without_valid_approval, pr_merged_observed].side_effects @ daemon_rules.json: R-04(옛 결과 무효)·R-12(무효 병합) 기록과 record_merge_observation(side_effect_ids에 있음)을 내는 전이가 없다. return_code·record_r_code를 단 행이 없다\n   - G54 [새로 생김] 결과 봉투 → 사건(result_<status>), 04 §1 (c) touched_paths ⊄ allowed_paths @ daemon_rules.json: R-01 판정(결과 봉투의 touched_paths가 허용 경로 밖·금지 경로 안이면 result_out_of_scope)이 문장뿐이고, 경로 패턴 비교 방법과 canon_change 승인 범위의 예외가 구조화돼 있지 않다. subset_of(scope_within_allowed_paths)는 글자 그대로의 목록 비교라 allowed_paths가 글롭이면 정본 파일을 따로 적어야 한다\n   - G55 [새로 생김] core_contract.store @ daemon_rules.json: PR 기록(번호·head·base·변경 경로·리뷰/감리 결과·승인 SHA·merge_wait.reason), completion_facts, merged_impl_counter와 묶음, 보류 큐, 관측 멱등 키, 결정 기록 목록을 담을 store 항목이 없다\n   - G56 [새로 생김] envelopes.result.status_values ↔ transitions @ daemon_rules.json: status wip_preserved·completed_no_change·switch_signal·lease_invalid 결과 봉투를 받을 행이 없다. hard_stop.procedure는 grace_s 안의 wip_preserved를 '자기 보고로만 기록(전이 없음)'이라 하고 receiver_validation.on_fail은 lease_invalid를 late 또는 noop으로 기록하라 하지만, 현재 임대의 그런 봉투는 수락된 뒤 unmapped_condition(R-03)이 된다\n   - G57 [새로 생김] switch_policy.forbidden_switch_reasons, return_codes[R-03] @ daemon_rules.json: R-03은 '허용·금지 어느 목록에도 없는 전환 신호'를 반송하라 하지만 금지 목록은 reads 밖이고 신호 봉투에 사유 필드가 없어 허용 밖 신호를 금지와 미지로 가를 수 없다\n"
+
+----------------------------------------------------------------------
+Ran 12 tests in 29.897s
+
+FAILED (failures=1, errors=36)
+# exit 1

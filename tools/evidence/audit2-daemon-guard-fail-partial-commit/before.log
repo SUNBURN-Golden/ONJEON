@@ -1,0 +1,348 @@
+# before fix: base commit 3ba1d80fd9450be6235d72337ec9d81ffa5e7873 with only the new tools/tests/test_daemon_dry_run.py and tools/daemon/scenarios.py (M30 checks) copied in (core and rules unchanged)
+# python3 -m unittest tools.tests.test_daemon_dry_run.GuardWaitRollsBack -v
+test_a_failed_usage_write_is_not_queued_for_a_result_not_taken (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_failed_usage_write_is_not_queued_for_a_result_not_taken) ... FAIL
+test_a_queued_lease_request_leaves_no_slot (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_queued_lease_request_leaves_no_slot) ... ERROR
+test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) ... 
+  test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='conflict') ... FAIL
+  test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='writer') ... FAIL
+  test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='parallel') ... FAIL
+  test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='lock') ... FAIL
+  test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='slot') ... FAIL
+  test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='builder') ... FAIL
+test_an_invalid_envelope_is_a_transition_and_commits (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_an_invalid_envelope_is_a_transition_and_commits)
+instruction_envelope_valid emits envelope_invalid (G48): the result is taken and the task returns. ... ok
+test_keep_diagnostics_decides_what_stays (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_keep_diagnostics_decides_what_stays) ... ERROR
+test_on_guard_wait_is_data (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_on_guard_wait_is_data) ... ERROR
+test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) ... 
+  test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='commit') ... ERROR
+  test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='keep not a list') ... ERROR
+  test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='no diagnostic') ... ERROR
+  test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='no result') ... ERROR
+  test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='missing') ... ERROR
+test_the_same_envelope_is_taken_once_the_guard_passes (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_the_same_envelope_is_taken_once_the_guard_passes) ... FAIL
+
+======================================================================
+ERROR: test_a_queued_lease_request_leaves_no_slot (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_queued_lease_request_leaves_no_slot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1889, in test_a_queued_lease_request_leaves_no_slot
+    self.assertEqual((sc.event_writes(env.snap()), out["reason"], sc.usage_rows(env, sc.BASIC)), (before, "guard_wait", []))
+                                                   ~~~^^^^^^^^^^
+KeyError: 'reason'
+
+======================================================================
+ERROR: test_keep_diagnostics_decides_what_stays (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_keep_diagnostics_decides_what_stays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1901, in test_keep_diagnostics_decides_what_stays
+    raw = _mutated(lambda r: self.spec(r).update(keep_diagnostics=[]))
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1901, in <lambda>
+    raw = _mutated(lambda r: self.spec(r).update(keep_diagnostics=[]))
+                             ~~~~~~~~~^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1822, in spec
+    return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'on_guard_wait'
+
+======================================================================
+ERROR: test_on_guard_wait_is_data (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_on_guard_wait_is_data)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1836, in test_on_guard_wait_is_data
+    self.assertEqual({k: v for k, v in self.spec().items() if not k.startswith("_")},
+                                       ~~~~~~~~~^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1822, in spec
+    return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'on_guard_wait'
+
+======================================================================
+ERROR: test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='commit')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in test_rules_that_break_the_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+                                  ~~~~~~~~~^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1822, in spec
+    return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'on_guard_wait'
+
+======================================================================
+ERROR: test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='keep not a list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in test_rules_that_break_the_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+                                  ~~~~~~~~~^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1822, in spec
+    return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'on_guard_wait'
+
+======================================================================
+ERROR: test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='no diagnostic')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in test_rules_that_break_the_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+                                  ~~~~~~~~~^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1822, in spec
+    return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'on_guard_wait'
+
+======================================================================
+ERROR: test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='no result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in test_rules_that_break_the_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+                                  ~~~~~~~~~^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1822, in spec
+    return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'on_guard_wait'
+
+======================================================================
+ERROR: test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) (case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in test_rules_that_break_the_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1913, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+                                  ~~~~~~~~~^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1822, in spec
+    return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'on_guard_wait'
+
+======================================================================
+FAIL: test_a_failed_usage_write_is_not_queued_for_a_result_not_taken (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_failed_usage_write_is_not_queued_for_a_result_not_taken)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1880, in test_a_failed_usage_write_is_not_queued_for_a_result_not_taken
+    self.assertEqual(env.snap().get("usage_retry", []), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'task_id': 'T-MOCK-BASIC', 'lease_genera[47 chars]: 0}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'task_id': 'T-MOCK-BASIC', 'lease_generation': 1, 'calls': 3, 'wall_s': 0, 'cost_units': 0}
+
++ []
+- [{'calls': 3,
+-   'cost_units': 0,
+-   'lease_generation': 1,
+-   'task_id': 'T-MOCK-BASIC',
+-   'wall_s': 0}]
+
+======================================================================
+FAIL: test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='conflict')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1844, in test_a_waiting_guard_keeps_nothing_of_the_result
+    self.assertEqual(sc.event_writes(env.snap()), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'tas[123 chars]ts': 1, 'stop_requested_at': None, 'cancelled'[1994 chars]ne}]} != {'tas[123 chars]ts': 0, 'stop_requested_at': None, 'cancelled'[1724 chars]ne}]}
+Diff is 5865 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='writer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1844, in test_a_waiting_guard_keeps_nothing_of_the_result
+    self.assertEqual(sc.event_writes(env.snap()), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'tas[123 chars]ts': 1, 'stop_requested_at': None, 'cancelled'[1992 chars]ne}]} != {'tas[123 chars]ts': 0, 'stop_requested_at': None, 'cancelled'[1722 chars]ne}]}
+Diff is 5863 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='parallel')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1844, in test_a_waiting_guard_keeps_nothing_of_the_result
+    self.assertEqual(sc.event_writes(env.snap()), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'tas[123 chars]ts': 1, 'stop_requested_at': None, 'cancelled'[2628 chars]ne}]} != {'tas[123 chars]ts': 0, 'stop_requested_at': None, 'cancelled'[2358 chars]ne}]}
+Diff is 7494 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='lock')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1844, in test_a_waiting_guard_keeps_nothing_of_the_result
+    self.assertEqual(sc.event_writes(env.snap()), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'tas[123 chars]ts': 1, 'stop_requested_at': None, 'cancelled'[1350 chars]ne}]} != {'tas[123 chars]ts': 0, 'stop_requested_at': None, 'cancelled'[1080 chars]ne}]}
+Diff is 4180 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='slot')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1844, in test_a_waiting_guard_keeps_nothing_of_the_result
+    self.assertEqual(sc.event_writes(env.snap()), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'tas[123 chars]ts': 1, 'stop_requested_at': None, 'cancelled'[1177 chars]00}]} != {'tas[123 chars]ts': 0, 'stop_requested_at': None, 'cancelled'[1080 chars]ne}]}
+Diff is 4079 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) (kind='builder')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1844, in test_a_waiting_guard_keeps_nothing_of_the_result
+    self.assertEqual(sc.event_writes(env.snap()), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'tas[123 chars]ts': 1, 'stop_requested_at': None, 'cancelled'[1350 chars]ne}]} != {'tas[123 chars]ts': 0, 'stop_requested_at': None, 'cancelled'[1080 chars]ne}]}
+Diff is 4180 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_the_same_envelope_is_taken_once_the_guard_passes (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_the_same_envelope_is_taken_once_the_guard_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1865, in test_the_same_envelope_is_taken_once_the_guard_passes
+    self.assertEqual((out["accepted"], out["transition"]), (True, ("building", "building", "result_failed_tests")))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, None) != (True, ('building', 'building', 'result_failed_tests'))
+
+First differing element 0:
+False
+True
+
+- (False, None)
++ (True, ('building', 'building', 'result_failed_tests'))
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.106s
+
+FAILED (failures=8, errors=8)
+# exit 1
+# python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario M30 --quiet
+== M30 lease-guards-all-paths: 모든 임대 발급 경로에서 가드가 하나라도 거짓이면 임대 없음  [FAIL]
+  [FAIL] [queued→leased / 주입 conflict] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [queued→leased / 주입 writer] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [queued→leased / 주입 lock] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [queued→leased / 주입 parallel] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [queued→leased / 주입 builder] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 conflict] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 conflict] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [1, 1]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 writer] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 writer] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [1, 1]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 lock] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 lock] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [1, 1]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 parallel] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 parallel] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [1, 1]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 slot] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 slot] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [1, 1]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 builder] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [시험 실패 뒤 재임대 / 주입 builder] 주입을 풀면 발급되고 토큰(세대)이 +1
+      기대: [2, 2]
+      실제: [1, 1]
+  [FAIL] [ci_failed→building / 주입 conflict] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [ci_failed→building / 주입 writer] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [ci_failed→building / 주입 lock] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [ci_failed→building / 주입 parallel] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [ci_failed→building / 주입 builder] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [changes_requested→building / 주입 conflict] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [changes_requested→building / 주입 writer] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [changes_requested→building / 주입 lock] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [changes_requested→building / 주입 parallel] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+  [FAIL] [changes_requested→building / 주입 builder] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 저널·임대 잠금 밖 store 불변), 저널에는 진단만
+      기대: [true, ["diagnostic_record"]]
+      실제: [false, ["diagnostic_record", "side_effect_record"]]
+
+== 요약
+  M30     lease-guards-all-paths                   FAIL      검사 199건 중 통과 172
+  검사 199건, 실패 27건, 명세 공백 표시 0건
+  필수 시험 ID 33개 중 이번에 실행한 것 1개, 실행하지 않은 것 32개(이번 범위 밖)
+  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 0종(명세 공백 후보, --report에 목록)
+  읽기 목록(core_contract.reads) 밖에서 읽는 값: post_merge_states(G51), audit_triggers.periodic.every(G51), audit_triggers.immediate_audit_paths(G51), record_separation.merge_observation_fields(G51)
+  명세 공백: 해소(필드) 49건, 남았거나 새로 생긴 것 8건
+# exit 1
+# python3 -I tools/evidence/audit2-daemon-guard-fail-partial-commit/repro_guard_wait_partial_commit.py
+rejected     accepted=True  noop=None                        state=building consecutive_failed_tests=1 seen=2 generation=1 lease=active usage=[(1, '01MOCK00000000000000000003', 3), (2, None, None)]
+redelivered  accepted=False noop=envelope_duplicate_delivery state=building consecutive_failed_tests=1 seen=2 generation=1 lease=active usage=[(1, '01MOCK00000000000000000003', 3), (2, None, None)]
+# exit 0

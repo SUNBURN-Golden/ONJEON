@@ -62,6 +62,10 @@ def op_drain(layout, core, args):
                    "msg_type": msg["msg_type"], "task_id": msg["task_id"]}
         except (PreconditionFailed, SpecGap, KeyError, RuntimeError) as exc:
             res = {"name": path.name, "ok": False, "error": type(exc).__name__, "msg": str(exc)[:300]}
+        if res["ok"] and res["outcome"].get("reason") == core.guard_wait["result"]:
+            # issue_lease.on_guard_wait: the envelope was not taken (not seen); the next drain delivers it again
+            done.append(res)
+            continue
         core.ports.faults.check("drain:processed_unmoved")
         (layout.daemon_done / (path.name + ".out")).write_text(json.dumps(res, ensure_ascii=False), encoding="utf-8")
         os.replace(path, layout.daemon_done / path.name)

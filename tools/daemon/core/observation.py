@@ -362,7 +362,7 @@ def _prereqs(core, d, task_id):
 
 
 def evaluate_prereqs(core, task_id):
-    return core._txn(lambda d: _prereqs(core, d, task_id))
+    return core._txn(task_id, lambda d: _prereqs(core, d, task_id))
 
 
 # ---------------------------------------------------------------- entry point
@@ -515,4 +515,4 @@ def _landing(core, d, task_id, pr, p):
 
 
 def observe(core, task_id, kind, payload):
-    return core._txn(lambda d: _observe(core, d, task_id, kind, dict(payload)))
+    return core._txn(task_id, lambda d: _observe(core, d, task_id, kind, dict(payload)))

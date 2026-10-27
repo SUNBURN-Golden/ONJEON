@@ -235,6 +235,35 @@ class ProxyTests(unittest.TestCase):
             px.stop()
 
 
+class DrainGuardWait(unittest.TestCase):
+    """audit2-daemon-guard-fail-partial-commit: an envelope the core did not take because a lease guard waits
+    (issue_lease.on_guard_wait) stays in the daemon inbox, so the next drain delivers it again."""
+
+    def test_a_waiting_envelope_stays_in_the_inbox(self):
+        from types import SimpleNamespace
+        from daemon.runner_verify import daemon_main
+        spec = json.loads(Path(RULES).read_text(encoding="utf-8"))["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+
+        class Core:
+            guard_wait = spec
+            ports = SimpleNamespace(faults=SimpleNamespace(check=lambda point: None))
+
+            def submit_envelope(self, task_id, kind, envelope):
+                if envelope["envelope_id"] == "WAIT":
+                    return {"accepted": False, "applied": False, "transition": None, "reason": spec["result"]}
+                return {"accepted": True, "transition": ("building", "pr_open", "result_pr_opened")}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            layout = Layout(tmp).make()
+            for name, eid in (("1.json", "WAIT"), ("2.json", "TAKEN")):
+                (layout.daemon_inbox / name).write_text(json.dumps(
+                    {"msg_type": "result", "task_id": "T", "envelope": {"envelope_id": eid}}), encoding="utf-8")
+            done = daemon_main.op_drain(layout, Core(), None)
+            self.assertEqual([(r["name"], r["outcome"]["accepted"]) for r in done], [("1.json", False), ("2.json", True)])
+            self.assertEqual(sorted(p.name for p in layout.daemon_inbox.iterdir()), ["1.json"])
+            self.assertEqual(sorted(p.name for p in layout.daemon_done.iterdir()), ["2.json", "2.json.out"])
+
+
 class ReportLogic(unittest.TestCase):
     def test_scenario_status(self):
         rep = Rep()

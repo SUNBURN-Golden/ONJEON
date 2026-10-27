@@ -1,0 +1,40 @@
+# after fix: base commit 3ba1d80fd9450be6235d72337ec9d81ffa5e7873 + this change
+# python3 -m unittest tools.tests.test_daemon_dry_run.GuardWaitRollsBack -v
+test_a_failed_usage_write_is_not_queued_for_a_result_not_taken (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_failed_usage_write_is_not_queued_for_a_result_not_taken) ... ok
+test_a_queued_lease_request_leaves_no_slot (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_queued_lease_request_leaves_no_slot) ... ok
+test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) ... ok
+test_an_invalid_envelope_is_a_transition_and_commits (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_an_invalid_envelope_is_a_transition_and_commits)
+instruction_envelope_valid emits envelope_invalid (G48): the result is taken and the task returns. ... ok
+test_keep_diagnostics_decides_what_stays (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_keep_diagnostics_decides_what_stays) ... ok
+test_on_guard_wait_is_data (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_on_guard_wait_is_data) ... ok
+test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) ... ok
+test_the_same_envelope_is_taken_once_the_guard_passes (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_the_same_envelope_is_taken_once_the_guard_passes) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.136s
+
+OK
+# exit 0
+# python3 -m unittest tools.daemon.runner_verify.tests.test_runner_verify.DrainGuardWait -v
+test_a_waiting_envelope_stays_in_the_inbox (tools.daemon.runner_verify.tests.test_runner_verify.DrainGuardWait.test_a_waiting_envelope_stays_in_the_inbox) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+OK
+# exit 0
+# python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario M30 --quiet
+== M30 lease-guards-all-paths: 모든 임대 발급 경로에서 가드가 하나라도 거짓이면 임대 없음  [PASS]
+
+== 요약
+  M30     lease-guards-all-paths                   PASS      검사 199건 중 통과 199
+  검사 199건, 실패 0건, 명세 공백 표시 0건
+  필수 시험 ID 33개 중 이번에 실행한 것 1개, 실행하지 않은 것 32개(이번 범위 밖)
+  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 0종(명세 공백 후보, --report에 목록)
+  읽기 목록(core_contract.reads) 밖에서 읽는 값: post_merge_states(G51), audit_triggers.periodic.every(G51), audit_triggers.immediate_audit_paths(G51), record_separation.merge_observation_fields(G51)
+  명세 공백: 해소(필드) 49건, 남았거나 새로 생긴 것 8건
+# exit 0
+# python3 -I tools/evidence/audit2-daemon-guard-fail-partial-commit/repro_guard_wait_partial_commit.py
+rejected     accepted=False noop=None                        state=building consecutive_failed_tests=0 seen=1 generation=1 lease=active usage=[(1, '01MOCK00000000000000000003', None)]
+redelivered  accepted=True  noop=None                        state=building consecutive_failed_tests=1 seen=2 generation=2 lease=active usage=[(1, '01MOCK00000000000000000003', 3), (2, '01MOCK00000000000000000007', None)]
+# exit 0

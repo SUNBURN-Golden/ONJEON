@@ -1,0 +1,8 @@
+# base commit 3ba1d80fd9450be6235d72337ec9d81ffa5e7873 + this change
+# python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py
+...........................................................
+----------------------------------------------------------------------
+Ran 59 tests in 168.766s
+
+OK
+# exit 0

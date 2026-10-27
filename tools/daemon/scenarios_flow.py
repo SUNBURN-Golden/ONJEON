@@ -651,6 +651,14 @@ def m17(rep, R, T):
     ok = env.event("push_requested", HANDOFF, lease_id=b_instr["lease_id"], lease_generation=8, fencing_token=8,
                    envelope_id="P-B", via="daemon", branch=b_instr["branch"], sha="b" * 40)
     rep.eq("B의 쓰기만 수락(원격 쓰기는 세대 8 하나)", (True, [8]), (ok["written"], [w[2] for w in env.ports.remote.writes]))
+    # audit2-daemon-handle-event-fencing: an envelope-born event without its envelope never reaches the table
+    before = env.task(HANDOFF)
+    m = mark(env)
+    for name in ("result_pr_opened", "switch_signal"):
+        env.event(name, HANDOFF)
+    rep.eq("봉투 없이 들어온 result_pr_opened·switch_signal: envelope_rejected_invalid(R-13), 전이 0, 상태·임대 B 불변",
+           ([("envelope_rejected_invalid", "R-13")] * 2, [], before["lease_record"], before["task_state"]),
+           (noops(jr(env, m)), tr(jr(env, m)), env.lease(HANDOFF), env.task(HANDOFF)["task_state"]))
     rep.eq("교체 전후 동시 쓰기 0건: A의 격리 뒤 쓰기는 모두 거부되고 B의 작업 트리와 다르다",
            (True, True), (len(env.ports.worktree.denied_writes) > 0,
                           all(p == a_instr["worktree"] for _, p in env.ports.worktree.denied_writes)))

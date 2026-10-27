@@ -1,0 +1,26 @@
+# after fix: base commit 0b78c4d7560bb29adf7c099af57b2712be4aa4ce + this change
+# python3 -m unittest tools.tests.test_daemon_dry_run.HandleEventFencing -v
+test_envelope_born_and_core_emitted_events_are_not_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_and_core_emitted_events_are_not_listed) ... ok
+test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) ... ok
+test_lease_fields_in_the_payload_are_not_an_envelope (tools.tests.test_daemon_dry_run.HandleEventFencing.test_lease_fields_in_the_payload_are_not_an_envelope)
+Even with the current lease's id, generation and token, a bare event does not pass accept_envelope. ... ok
+test_listing_the_event_reopens_the_finding (tools.tests.test_daemon_dry_run.HandleEventFencing.test_listing_the_event_reopens_the_finding)
+Mutation: put result_pr_opened on the list and the bare event moves building -> pr_open again. ... ok
+test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) ... ok
+test_the_core_s_own_bare_events_are_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_core_s_own_bare_events_are_listed)
+handoff.py feeds its step results through handle_event; each of them must be on the list. ... ok
+test_the_entry_is_catalog_data (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_entry_is_catalog_data) ... ok
+test_the_envelope_path_still_applies (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_envelope_path_still_applies) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.139s
+
+OK
+# exit 0
+# python3 -I tools/evidence/audit2-daemon-handle-event-fencing/repro_bare_events.py
+result_pr_opened       state=building   transitions=[] noops=[('envelope_rejected_invalid', 'R-13')] lease_status=active last_heartbeat_moved=False
+result_failed_tests    state=building   transitions=[] noops=[('envelope_rejected_invalid', 'R-13')] lease_status=active last_heartbeat_moved=False
+switch_signal          state=building   transitions=[] noops=[('envelope_rejected_invalid', 'R-13')] lease_status=active last_heartbeat_moved=False
+heartbeat              state=building   transitions=[] noops=[('envelope_rejected_invalid', 'R-13')] lease_status=active last_heartbeat_moved=False
+no_such_event          state=building   transitions=[] noops=[('envelope_rejected_invalid', 'R-13')] lease_status=active last_heartbeat_moved=False
+# exit 0

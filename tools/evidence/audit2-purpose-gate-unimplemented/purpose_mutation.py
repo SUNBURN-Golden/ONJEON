@@ -40,6 +40,16 @@ def drop_gate_command(data, text):
     return text
 
 
+def edit_gate_command(old, new):
+    def mutate(data, text):
+        gate = task(data, "T-OP-08")
+        index = next(i for i, cmd in enumerate(gate["tests"]) if "--purpose" in cmd)
+        assert old in gate["tests"][index], old
+        gate["tests"][index] = gate["tests"][index].replace(old, new, 1)
+        return text
+    return mutate
+
+
 def scope(old, new):
     def mutate(data, text):
         assert text.count(old) == 1, old
@@ -55,6 +65,11 @@ MUTATIONS = [
     ("P19 scope cell cites unknown D-61", scope("| 시험 과제·표본·수락 수치는 D-16(결정 대기) |", "| 시험 과제·표본·수락 수치는 D-61(결정 대기) |")),
     ("T-OP-08 final_gate false", weaken_gate),
     ("T-OP-08 --purpose closure command removed", drop_gate_command),
+    ("closure checker renamed check.py.disabled", edit_gate_command("check.py", "check.py.disabled")),
+    ("closure --purpose file renamed .md.bak", edit_gate_command(".md ", ".md.bak ")),
+    ("closure --evidence redirected to evidence/old/", edit_gate_command("evidence/", "evidence/old/")),
+    ("closure --registry file renamed tasks.json.bak", edit_gate_command("tasks.json ", "tasks.json.bak ")),
+    ("closure command followed by || true", edit_gate_command("evidence/", "evidence/ || true")),
 ]
 
 

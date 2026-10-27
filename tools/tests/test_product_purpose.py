@@ -138,9 +138,9 @@ class ProductPurposeTests(unittest.TestCase):
             "no --purpose": lambda data: self.task("T-OP-08").update(
                 tests=["python3 -I tools/release_readiness/check.py --evidence docs/release-readiness/evidence/"]),
             "other evidence dir": lambda data: self.task("T-OP-08").update(
-                tests=[" ".join(P.GATE_COMMAND).replace("docs/release-readiness/evidence/", "/tmp/")]),
+                tests=[P.GATE_COMMAND.replace("docs/release-readiness/evidence/", "/tmp/")]),
             "other checker": lambda data: self.task("T-OP-08").update(
-                tests=[" ".join(P.GATE_COMMAND).replace("release_readiness/check.py", "noop.py")]),
+                tests=[P.GATE_COMMAND.replace("release_readiness/check.py", "noop.py")]),
         }
         for name, mutate in mutations.items():
             with self.subTest(mutation=name):
@@ -153,6 +153,74 @@ class ProductPurposeTests(unittest.TestCase):
         drop_task(self.data)
         self.assertIn("PURPOSE-GATE", {f.rule for f in self.check()})
         self.assertIn("missing", [f for f in self.check() if f.rule == "PURPOSE-GATE"][0].message)
+
+    def test_gate_command_requires_exact_tokens(self):
+        cmd = P.GATE_COMMAND
+        purpose, tasks = P.DEFAULT_PURPOSE.as_posix(), P.DEFAULT_TASKS.as_posix()
+        evidence = "docs/release-readiness/evidence/"
+        accepted = {
+            "canonical": cmd,
+            "options reordered": f"python3 -I tools/release_readiness/check.py --evidence {evidence} "
+                                 f"--registry {tasks} --purpose {purpose}",
+            "extra whitespace": cmd.replace(" --", "   --"),
+            "quoted value": cmd.replace(f"--purpose {purpose}", f"--purpose '{purpose}'"),
+        }
+        rejected = {
+            "checker disabled suffix": cmd.replace("check.py", "check.py.disabled"),
+            "checker prefix dir": cmd.replace("tools/release_readiness/check.py", "tools/release_readiness/check.py/x"),
+            "checker renamed": cmd.replace("check.py", "check_old.py"),
+            "purpose .bak": cmd.replace(".md", ".md.bak"),
+            "purpose other file": cmd.replace(purpose, purpose.replace("09_", "09x_")),
+            "evidence subdir": cmd.replace(evidence, evidence + "old/"),
+            "evidence no slash": cmd.replace(evidence, evidence.rstrip("/")),
+            "registry .bak": cmd.replace("tasks.json", "tasks.json.bak"),
+            "no --registry": cmd.replace(f" --registry {tasks}", ""),
+            "duplicate --purpose": f"{cmd} --purpose {purpose}",
+            "duplicate replaces value": cmd.replace(f"--registry {tasks}", f"--purpose {purpose}"),
+            "extra flag": f"{cmd} --dry-run",
+            "or true": f"{cmd} || true",
+            "and-chained": f"true && {cmd}",
+            "semicolon": f"{cmd}; exit 0",
+            "comment": cmd.replace(" --purpose", " # --purpose"),
+            "newline before options": cmd.replace(" --purpose", "\n--purpose"),
+            "carriage return before options": cmd.replace(" --purpose", "\r--purpose"),
+            "redirect": f"{cmd} > /dev/null",
+            "env prefix": f"SKIP=1 {cmd}",
+            "no -I": cmd.replace(" -I ", " "),
+            "python2": cmd.replace("python3", "python"),
+            "option=value form": cmd.replace("--purpose ", "--purpose="),
+            "unbalanced quote": cmd + " '",
+            "not a string": None,
+        }
+        for name, command in accepted.items():
+            with self.subTest(accepted=name):
+                self.assertTrue(P.is_gate_command(command), command)
+                self.task("T-OP-08")["tests"] = [command]
+                self.assertEqual([], self.check())
+        for name, command in rejected.items():
+            with self.subTest(rejected=name):
+                self.assertFalse(P.is_gate_command(command), command)
+                self.data = {"tasks": P.fixture_tasks()}
+                self.task("T-OP-08")["tests"] = ["시험 purpose-rows-all-closed", command]
+                found = self.check()
+                self.assertEqual(["PURPOSE-GATE"], [f.rule for f in found])
+                self.assertIn("closure command", found[0].message)
+
+    def test_real_gate_command_mutations_fail(self):
+        # Mutate the live T-OP-08 entry in memory; every broken variant must be a finding.
+        tasks = json.loads((P.C.ROOT / P.DEFAULT_TASKS).read_text(encoding="utf-8"))["tasks"]
+        gate = next(t for t in tasks if t["id"] == "T-OP-08")
+        index = next(i for i, cmd in enumerate(gate["tests"]) if "--purpose" in cmd)
+        original = gate["tests"][index]
+        self.assertTrue(P.is_gate_command(original))
+        for old, new in (("check.py", "check.py.disabled"), (".md", ".md.bak"),
+                         ("evidence/", "evidence/old/"), ("tasks.json", "tasks.json.bak"),
+                         ("--registry", "--registry-x"), ("python3 -I", "python3")):
+            with self.subTest(mutation=f"{old} -> {new}"):
+                gate["tests"][index] = original.replace(old, new, 1)
+                self.assertEqual(["PURPOSE-GATE"], [f.rule for f in P.check_gate("tasks.json", {"T-OP-08": gate})])
+        gate["tests"][index] = original + " || true"
+        self.assertEqual(["PURPOSE-GATE"], [f.rule for f in P.check_gate("tasks.json", {"T-OP-08": gate})])
 
     def test_real_gate_command_shape(self):
         tasks = json.loads((P.C.ROOT / P.DEFAULT_TASKS).read_text(encoding="utf-8"))["tasks"]

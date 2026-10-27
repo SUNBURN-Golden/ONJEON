@@ -1,4 +1,4 @@
-$ python3 -I tools/evidence/audit2-purpose-gate-unimplemented/purpose_mutation.py <HEAD copy of tools/ci (git show HEAD:tools/ci/{check_product_purpose,ci_common}.py)>
+$ python3 -I tools/evidence/audit2-purpose-gate-unimplemented/purpose_mutation.py <origin/main copy of tools/ci (git show 538a8a7:tools/ci/{check_product_purpose,ci_common}.py)>
 == mutation: none (live repo copy)
 exit=0
 product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
@@ -27,4 +27,24 @@ product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test ID
 exit=0
 product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
 
-0/7 runs exited nonzero
+== mutation: closure checker renamed check.py.disabled
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: closure --purpose file renamed .md.bak
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: closure --evidence redirected to evidence/old/
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: closure --registry file renamed tasks.json.bak
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: closure command followed by || true
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+0/12 runs exited nonzero

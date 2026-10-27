@@ -696,12 +696,14 @@ test_each_id_moved_to_non_owner_fails_for_owner (test_product_purpose.ProductPur
 test_each_of_nine_missing_ids_fails_for_g12 (test_product_purpose.ProductPurposeTests.test_each_of_nine_missing_ids_fails_for_g12) ... ok
 test_every_real_scope_cell_cites_a_basis (test_product_purpose.ProductPurposeTests.test_every_real_scope_cell_cites_a_basis) ... ok
 test_every_row_rejects_unknown_task_with_row_and_line (test_product_purpose.ProductPurposeTests.test_every_row_rejects_unknown_task_with_row_and_line) ... ok
+test_gate_command_requires_exact_tokens (test_product_purpose.ProductPurposeTests.test_gate_command_requires_exact_tokens) ... ok
 test_gate_removed_or_weakened_fails (test_product_purpose.ProductPurposeTests.test_gate_removed_or_weakened_fails) ... ok
 test_id_in_tests_or_done_criteria_is_not_registration (test_product_purpose.ProductPurposeTests.test_id_in_tests_or_done_criteria_is_not_registration) ... ok
 test_ids_split_across_owners_and_extra_non_owner_copy_pass (test_product_purpose.ProductPurposeTests.test_ids_split_across_owners_and_extra_non_owner_copy_pass) ... ok
 test_missing_duplicate_unexpected_or_unparseable_rows_fail (test_product_purpose.ProductPurposeTests.test_missing_duplicate_unexpected_or_unparseable_rows_fail) ... ok
 test_missing_scope_column_fails (test_product_purpose.ProductPurposeTests.test_missing_scope_column_fails) ... ok
 test_owner_map_matches_section_six (test_product_purpose.ProductPurposeTests.test_owner_map_matches_section_six) ... ok
+test_real_gate_command_mutations_fail (test_product_purpose.ProductPurposeTests.test_real_gate_command_mutations_fail) ... ok
 test_real_gate_command_shape (test_product_purpose.ProductPurposeTests.test_real_gate_command_shape) ... ok
 test_real_repo_product_purpose_links (test_product_purpose.ProductPurposeTests.test_real_repo_product_purpose_links) ... ok
 test_real_repo_registers_each_id_on_an_owner (test_product_purpose.ProductPurposeTests.test_real_repo_registers_each_id_on_an_owner) ... ok
@@ -1082,7 +1084,7 @@ test_points_at_sources (test_validation_test_counts.VerificationRecord.test_poin
 test_deleted_listed_output_fails_with_exit_1 (test_verify_sources.ArchiveReproduce.test_deleted_listed_output_fails_with_exit_1) ... skipped 'local archive and pdftotext required'
 test_tampered_stored_output_fails_with_exit_1 (test_verify_sources.ArchiveReproduce.test_tampered_stored_output_fails_with_exit_1) ... skipped 'local archive and pdftotext required'
 test_untampered_sample_is_reproduced (test_verify_sources.ArchiveReproduce.test_untampered_sample_is_reproduced) ... skipped 'local archive and pdftotext required'
-test_detect_with_only_robots_disallowed_samples_fails_without_requests (test_verify_sources.CliDependencies.test_detect_with_only_robots_disallowed_samples_fails_without_requests) ... <repo>/tools/verify_sources.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='<repo>/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+test_detect_with_only_robots_disallowed_samples_fails_without_requests (test_verify_sources.CliDependencies.test_detect_with_only_robots_disallowed_samples_fails_without_requests) ... /workspace/onjeon-run/wt/audit2-purpose-gate-unimplemented/tools/verify_sources.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit2-purpose-gate-unimplemented/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
   return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -1106,7 +1108,7 @@ test_blocked_redirect_is_reported_and_not_retried (test_verify_sources.RecordedR
 test_permitted_redirect_uses_standard_handler (test_verify_sources.RecordedRobotsPolicy.test_permitted_redirect_uses_standard_handler) ... ok
 test_policy_applies_to_host_regardless_of_path_case_port_or_scheme (test_verify_sources.RecordedRobotsPolicy.test_policy_applies_to_host_regardless_of_path_case_port_or_scheme) ... ok
 test_policy_matches_hostname_not_url_substrings (test_verify_sources.RecordedRobotsPolicy.test_policy_matches_hostname_not_url_substrings) ... ok
-test_real_samples_are_reported_without_fetching_writing_or_archiving (test_verify_sources.RecordedRobotsPolicy.test_real_samples_are_reported_without_fetching_writing_or_archiving) ... <repo>/tools/verify_sources.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='<repo>/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+test_real_samples_are_reported_without_fetching_writing_or_archiving (test_verify_sources.RecordedRobotsPolicy.test_real_samples_are_reported_without_fetching_writing_or_archiving) ... /workspace/onjeon-run/wt/audit2-purpose-gate-unimplemented/tools/verify_sources.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit2-purpose-gate-unimplemented/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
   return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -1200,7 +1202,8 @@ test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.Wo
 test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 1153 tests in 98.042s
+Ran 1155 tests in 595.065s
 
 OK (skipped=30)
+
 exit=0

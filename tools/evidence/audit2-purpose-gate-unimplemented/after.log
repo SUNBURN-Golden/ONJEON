@@ -32,6 +32,33 @@ product-purpose: 1 finding(s)
 == mutation: T-OP-08 --purpose closure command removed
 exit=1
 product-purpose: 1 finding(s)
-  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --evidence docs/release-readiness/evidence/
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/
 
-6/7 runs exited nonzero
+== mutation: closure checker renamed check.py.disabled
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/
+
+== mutation: closure --purpose file renamed .md.bak
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/
+
+== mutation: closure --evidence redirected to evidence/old/
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/
+
+== mutation: closure --registry file renamed tasks.json.bak
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/
+
+== mutation: closure command followed by || true
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/
+
+11/12 runs exited nonzero
+
+exit=0

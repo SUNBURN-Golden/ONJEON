@@ -8,7 +8,9 @@ Complements spec_check G12 without editing the protected design bundle:
   PURPOSE-OWNER each of those test IDs is registered on a task 09 section 6 names as its owner
   PURPOSE-SCOPE every 축소·후속 cell other than '—' cites at least one basis (ADR-nnnn, DEC-*,
                 D-nn, Onn, BLUEPRINT §n) and every basis it cites resolves in the repo under --root
-  PURPOSE-GATE  T-OP-08 stays final_gate with purpose-rows-all-closed and its --purpose/--evidence command
+  PURPOSE-GATE  T-OP-08 stays final_gate with purpose-rows-all-closed and the exact closure command
+                (python3 -I tools/release_readiness/check.py with exactly --purpose 09, --registry
+                tasks.json and --evidence docs/release-readiness/evidence/, compared token by token)
 
 Registration is not execution or product completion evidence. Row closure (post_merge state and
 evidence logs) is T-OP-08's tools/release_readiness/check.py, which this guard does not replace.
@@ -19,6 +21,7 @@ Exit: 0 clean, 1 findings, 2 usage or unreadable/invalid input.
 import argparse
 import json
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -44,8 +47,12 @@ TEST_OWNERS = {
 REQUIRED_TEST_IDS = frozenset(TEST_OWNERS)
 GATE_TASK = "T-OP-08"
 GATE_TEST = "purpose-rows-all-closed"
-GATE_COMMAND = ("python3 -I tools/release_readiness/check.py", f"--purpose {DEFAULT_PURPOSE.as_posix()}",
-                "--evidence docs/release-readiness/evidence/")
+# The closure command is compared token by token: exact program argv, each option exactly once with
+# its exact value, nothing else (no extra flags, suffixed paths, redirects or shell operators).
+GATE_PROGRAM = ("python3", "-I", "tools/release_readiness/check.py")
+GATE_OPTIONS = {"--purpose": DEFAULT_PURPOSE.as_posix(), "--registry": DEFAULT_TASKS.as_posix(),
+                "--evidence": "docs/release-readiness/evidence/"}
+GATE_COMMAND = " ".join([*GATE_PROGRAM, *(f"{k} {v}" for k, v in GATE_OPTIONS.items())])
 EXPECTED_ROWS = {f"P{i:02}" for i in range(1, 20)}
 TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
 NO_SCOPE = "—"
@@ -81,12 +88,26 @@ def check_gate(tasks_path, by_id):
         out.append(C.Finding("PURPOSE-GATE", str(tasks_path), 0,
                              f"{GATE_TASK} no longer requires {GATE_TEST}"))
     tests = task.get("tests", [])
-    if not isinstance(tests, list) or not any(
-            isinstance(cmd, str) and cmd.startswith(GATE_COMMAND[0]) and all(part in cmd for part in GATE_COMMAND[1:])
-            for cmd in tests):
+    if not isinstance(tests, list) or not any(is_gate_command(cmd) for cmd in tests):
         out.append(C.Finding("PURPOSE-GATE", str(tasks_path), 0,
-                             f"{GATE_TASK} tests lack the closure command: {' '.join(GATE_COMMAND)}"))
+                             f"{GATE_TASK} tests lack the closure command: {GATE_COMMAND}"))
     return out
+
+
+def is_gate_command(cmd):
+    """True only for GATE_PROGRAM followed by every GATE_OPTIONS pair once, in any order, and nothing else."""
+    # shlex treats newlines as whitespace, while a shell can use them to end the command.
+    if not isinstance(cmd, str) or "\n" in cmd or "\r" in cmd:
+        return False
+    try:
+        argv = shlex.split(cmd)
+    except ValueError:
+        return False
+    n = len(GATE_PROGRAM)
+    if tuple(argv[:n]) != GATE_PROGRAM or len(argv) != n + 2 * len(GATE_OPTIONS):
+        return False
+    pairs = list(zip(argv[n::2], argv[n + 1::2]))
+    return dict(pairs) == GATE_OPTIONS and len({key for key, _ in pairs}) == len(pairs)
 
 
 def check(tasks_path, purpose_path, root=C.ROOT):
@@ -173,7 +194,7 @@ def fixture_tasks():
     tasks = {}
     for test, owners in sorted(TEST_OWNERS.items()):
         tasks.setdefault(min(owners), {"id": min(owners), "required_test_ids": []})["required_test_ids"].append(test)
-    tasks[GATE_TASK].update(final_gate=True, tests=[" ".join(GATE_COMMAND)])
+    tasks[GATE_TASK].update(final_gate=True, tests=[GATE_COMMAND])
     return list(tasks.values()) + [{"id": "T-AA-01", "required_test_ids": []},
                                    {"id": "T-AA-02", "required_test_ids": []}]
 
@@ -205,6 +226,8 @@ def selftest():
         ("scope basis missing", dict(files, **{"purpose.md": purpose.replace("| — |", "| D-99 뒤 |", 1)}),
          "PURPOSE-SCOPE"),
         ("gate not final", dict(files, **{"tasks.json": json.dumps(no_gate)}), "PURPOSE-GATE"),
+        ("gate command disabled", dict(files, **{"tasks.json": tasks.replace("check.py", "check.py.disabled")}),
+         "PURPOSE-GATE"),
     ]
     return C.run_selftest("check_product_purpose", cases,
                           lambda root: check(root / "tasks.json", root / "purpose.md", root))

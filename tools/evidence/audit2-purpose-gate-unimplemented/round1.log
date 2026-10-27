@@ -1,0 +1,57 @@
+$ purpose_mutation.py against HEAD (9189600) tools/ci checker
+== mutation: none (live repo copy)
+exit=0
+product-purpose: 09 P01..P19 task links, nine section 6 test IDs on their owner tasks, 축소·후속 bases and the T-OP-08 closure gate present (static only; 0 rows proven closed)
+
+== mutation: acquisition-reason-not-counted moved T-DT-04 -> T-OP-01
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-OWNER] <tmp>/tasks.json: 'acquisition-reason-not-counted' is registered on T-OP-01, not on its 09 section 6 owner T-DT-04
+
+== mutation: purpose-rows-all-closed moved T-OP-08 -> T-OP-07
+exit=1
+product-purpose: 2 finding(s)
+  [PURPOSE-OWNER] <tmp>/tasks.json: 'purpose-rows-all-closed' is registered on T-OP-07, not on its 09 section 6 owner T-OP-08
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 no longer requires purpose-rows-all-closed
+
+== mutation: P09 scope cell loses its basis
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-SCOPE] <tmp>/09.md:35: P09: 축소·후속 cell cites no basis (ADR-nnnn, DEC-*, D-nn, Onn, BLUEPRINT §n)
+
+== mutation: P19 scope cell cites unknown D-61
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-SCOPE] <tmp>/09.md:50: P19: 축소·후속 basis not found in repo: D-61
+
+== mutation: T-OP-08 final_gate false
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 is no longer final_gate
+
+== mutation: T-OP-08 --purpose closure command removed
+exit=1
+product-purpose: 1 finding(s)
+  [PURPOSE-GATE] <tmp>/tasks.json: T-OP-08 tests lack the closure command: python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --evidence docs/release-readiness/evidence/
+
+== mutation: closure checker renamed check.py.disabled
+exit=0
+product-purpose: 09 P01..P19 task links, nine section 6 test IDs on their owner tasks, 축소·후속 bases and the T-OP-08 closure gate present (static only; 0 rows proven closed)
+
+== mutation: closure --purpose file renamed .md.bak
+exit=0
+product-purpose: 09 P01..P19 task links, nine section 6 test IDs on their owner tasks, 축소·후속 bases and the T-OP-08 closure gate present (static only; 0 rows proven closed)
+
+== mutation: closure --evidence redirected to evidence/old/
+exit=0
+product-purpose: 09 P01..P19 task links, nine section 6 test IDs on their owner tasks, 축소·후속 bases and the T-OP-08 closure gate present (static only; 0 rows proven closed)
+
+== mutation: closure --registry file renamed tasks.json.bak
+exit=0
+product-purpose: 09 P01..P19 task links, nine section 6 test IDs on their owner tasks, 축소·후속 bases and the T-OP-08 closure gate present (static only; 0 rows proven closed)
+
+== mutation: closure command followed by || true
+exit=0
+product-purpose: 09 P01..P19 task links, nine section 6 test IDs on their owner tasks, 축소·후속 bases and the T-OP-08 closure gate present (static only; 0 rows proven closed)
+
+6/12 runs exited nonzero

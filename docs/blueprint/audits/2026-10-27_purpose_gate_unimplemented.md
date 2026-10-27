@@ -13,7 +13,7 @@
 | G47이 문자열 존재만 봄 | **설계상 그렇다.** spec_check 요약이 G47을 "존재 검사"로 분류하고 보호된 설계 묶음 안에 있다 | 바꾸지 않는다(선택 C 기각). 대신 CI 정적 검사 `tools/ci/check_product_purpose.py`를 보강 |
 | 09가 기계 검사되지 않음 | **일부만 맞다.** `check_product_purpose.py`(시험 14개, CI의 `tools/tests`에서 실행)가 이미 P01~P19 행·구현 과제 실재·§6 시험 ID 9개 등록을 검사했다. 하지만 세 가지 빈틈이 있었다 | 아래 규칙 3개 추가 |
 
-보강 전 빈틈(아래 [before.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/before.log)에서 6개 변이 모두 종료 코드 0):
+보강 전 빈틈(아래 [before.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/before.log)에서 변이 11개 모두 종료 코드 0):
 
 1. 시험 ID가 **아무 과제에나** 등록돼 있으면 통과했다. `purpose-rows-all-closed`를 T-OP-07로 옮기거나 `acquisition-reason-not-counted`를 T-OP-01로 옮겨도 통과했다.
 2. 축소·후속 칸에 근거가 없거나 없는 결정을 인용해도 통과했다. 09 §6은 이 칸을 근거(결정 ID·정본)가 있을 때만 제외로 인정한다.
@@ -25,7 +25,7 @@
 |---|---|
 | PURPOSE-OWNER | §6이 정한 담당 과제 중 하나 이상이 각 시험 ID를 `required_test_ids`에 등록해야 한다. T-DT-04 `acquisition-reason-not-counted`, T-AP-04 `coverage-status-counts-acquired-only`, T-KN-08 `label-kinds-complete`, T-TW-05 `switch-diff-evidence-trace`·`multi-contract-relation-trace`, T-MB-03·T-MB-04·T-AP-07 중 하나에 `first-view-priority`·`decisive-conditions-not-hidden`·`no-composite-score`, T-OP-08 `purpose-rows-all-closed`. 담당 외 과제에 추가로 등록된 사본은 허용한다(현재 T-MB-02의 `decisive-conditions-not-hidden`) |
 | PURPOSE-SCOPE | 축소·후속 칸이 `—`가 아니면 근거(`ADR-nnnn`, `DEC-*`, `D-nn`, `Onn`, `BLUEPRINT §n`)를 하나 이상 인용해야 하고, 인용한 근거가 모두 저장소에 있어야 한다. `ADR-nnnn`·`DEC-*`·`D-nn`은 `docs/decisions/`의 파일(`D-nn`은 `DEC-D-nn.md`), `Onn`은 `docs/blueprint/DECISIONS.md`의 행, `BLUEPRINT §n`은 `docs/BLUEPRINT.md`의 제목이다. 표에 축소·후속 열이 없으면 PURPOSE-ROWS로 실패한다 |
-| PURPOSE-GATE | T-OP-08이 있고 `final_gate: true`이며 `required_test_ids`에 `purpose-rows-all-closed`가 있고, `tests`에 `python3 -I tools/release_readiness/check.py`로 시작하면서 `--purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md`와 `--evidence docs/release-readiness/evidence/`를 포함한 명령이 있어야 한다 |
+| PURPOSE-GATE | T-OP-08이 있고 `final_gate: true`이며 `required_test_ids`에 `purpose-rows-all-closed`가 있고, `tests`에 판정 명령이 정확히 있어야 한다. 명령은 `shlex.split`으로 토큰을 나눠 비교한다. 앞 세 토큰이 `python3`·`-I`·`tools/release_readiness/check.py`이고, 그 뒤에는 `--purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md`, `--registry docs/blueprint/proposals/설계검토_결과/tasks.json`, `--evidence docs/release-readiness/evidence/` 세 쌍만 각각 한 번씩 와야 한다(순서는 자유). 접두·부분 문자열 일치는 인정하지 않으므로 `check.py.disabled`, `.md.bak`, `evidence/old/`, 추가 플래그, `\|\| true`·`;`·`#`·리다이렉트, 환경 변수 접두, 짝이 맞지 않는 따옴표·줄바꿈(LF/CR)은 모두 실패한다 |
 
 §6 담당 표는 코드의 `TEST_OWNERS`에 있고 `test_owner_map_matches_section_six`가 09 §6 본문을 파싱해 일치를 확인한다. 현재 저장소의 축소·후속 칸 10개(P01·P02·P03·P06·P09·P11·P14·P17·P18·P19)는 모두 실재하는 근거를 인용한다(P18은 `BLUEPRINT §1`).
 
@@ -33,7 +33,9 @@
 
 ## 회귀 시험
 
-[`tools/tests/test_product_purpose.py`](../../../tools/tests/test_product_purpose.py): 14개에서 22개로 늘었다. 기존 `test_required_id_on_any_task_passes`는 빈틈 1을 고정하던 시험이라 담당 과제로의 분산·담당 외 사본 허용 시험으로 바꿨다. 추가한 시험은 다음과 같다. 시험 ID 9개 각각을 담당 외 과제로 옮기면 PURPOSE-OWNER, 실제 tasks.json의 담당 등록, §6↔`TEST_OWNERS` 일치, T-OP-08 관문 약화 변이 6종(최종 관문 해제·키 삭제·명령 삭제·`--purpose` 누락·다른 증거 경로·다른 판정기)과 과제 삭제, 실제 T-OP-08 명령 형태와 유일한 final_gate, 근거 형식 5종의 통과와 근거 없음·없는 근거 인용 실패(줄 번호 포함), 실제 09 축소·후속 칸 10개의 근거 보유, 축소·후속 열 삭제. `--selftest`도 규칙마다 변이 하나씩(7개)과 정상 2개로 늘렸다.
+[`tools/tests/test_product_purpose.py`](../../../tools/tests/test_product_purpose.py): 14개에서 24개로 늘었다. 기존 `test_required_id_on_any_task_passes`는 빈틈 1을 고정하던 시험이라 담당 과제로의 분산·담당 외 사본 허용 시험으로 바꿨다. 추가한 시험은 다음과 같다. 시험 ID 9개 각각을 담당 외 과제로 옮기면 PURPOSE-OWNER, 실제 tasks.json의 담당 등록, §6↔`TEST_OWNERS` 일치, T-OP-08 관문 약화 변이 6종(최종 관문 해제·키 삭제·명령 삭제·`--purpose` 누락·다른 증거 경로·다른 판정기)과 과제 삭제, 실제 T-OP-08 명령 형태와 유일한 final_gate, 근거 형식 5종의 통과와 근거 없음·없는 근거 인용 실패(줄 번호 포함), 실제 09 축소·후속 칸 10개의 근거 보유, 축소·후속 열 삭제. `--selftest`도 규칙마다 변이 하나 이상(8개, 판정기 이름 `check.py.disabled` 포함)과 정상 2개로 늘렸다.
+
+2차 수정(설계 검토 지적): 1차의 PURPOSE-GATE는 판정기 경로를 접두로, `--purpose`·`--evidence`를 부분 문자열로만 맞춰서 실제 T-OP-08 명령을 `check.py.disabled`, `09_제품목적_대응표.md.bak`, `evidence/old/`로 바꿔도 통과했다([round1.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/round1.log)에서 새 변이 5개 모두 종료 코드 0). 토큰 단위 정확 일치로 바꾸고 `--registry`도 요구한다. 추가한 시험: `test_gate_command_requires_exact_tokens`(통과 4종: 기본·옵션 순서 변경·공백·따옴표, 실패 25종: 위 세 변이와 등록부 `.bak`·`--registry` 누락·옵션 중복·추가 플래그·`|| true`·`&&`·`;`·`#`·리다이렉트·환경 변수 접두·줄바꿈(LF/CR)·`-I` 누락·`python`·`--purpose=` 형식·짝 없는 따옴표·문자열 아님, 통과·실패 모두 `check`에서도 확인하며 각 실패는 PURPOSE-GATE 하나), `test_real_gate_command_mutations_fail`(실제 tasks.json의 T-OP-08 명령을 메모리에서 7가지로 바꾸면 모두 PURPOSE-GATE).
 
 ## 직접 실행한 검증 증거
 
@@ -41,10 +43,12 @@
 |---|---|
 | 감독기 1차 실행과 같은 조건(`runner/target` 없음)에서 `test_ontology_runner_io_error.py` | 오류 18개, 모두 `runner/target/debug/ontology-case-runner` 없음. 이 VM의 `CARGO_TARGET_DIR`가 공유 디렉터리를 가리켜 새 작업 트리에 실행기가 없었다. 이번 변경과 무관: [python-tests-initial.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/python-tests-initial.log) |
 | `CARGO_TARGET_DIR=target cargo build --locked --offline` (온톨로지 실행기) | 종료 코드 0: [ontology-build.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/ontology-build.log) |
-| [purpose_mutation.py](../../../tools/evidence/audit2-purpose-gate-unimplemented/purpose_mutation.py) + HEAD의 `check_product_purpose.py` | 실제 tasks.json·09의 임시 사본에 빈틈 6개를 심어도 7회 모두 종료 코드 0: [before.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/before.log) |
-| 같은 스크립트 + 수정한 검사기 | 변이 없는 사본은 종료 코드 0, 변이 6개는 모두 종료 코드 1이고 의도한 규칙이 행·과제를 짚는다: [after.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/after.log) |
-| `python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v` | 22개 통과: [product-purpose-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/product-purpose-tests.log) |
-| `python3 -I -m unittest discover -s tools/tests -v` | 종료 코드 0, 1,153개 실행·실패 0·건너뜀 30개. 건너뜀은 모두 이 VM의 환경 제약(boto3/botocore 미설치·구버전 25개, `ONJEON_ARCHIVE_RAW`·로컬 원본 보관소·pdftotext 필요 5개)이다: [python-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/python-tests.log) |
+| [purpose_mutation.py](../../../tools/evidence/audit2-purpose-gate-unimplemented/purpose_mutation.py) + origin/main(538a8a7)의 `check_product_purpose.py` | 실제 tasks.json·09의 임시 사본에 변이 11개를 심어도 12회 모두 종료 코드 0: [before.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/before.log) |
+| 같은 스크립트 + 1차 수정(9189600)의 검사기 | 처음 변이 6개는 잡지만 판정 명령 변이 5개(`check.py.disabled`·`.md.bak`·`evidence/old/`·`tasks.json.bak`·`\|\| true`)는 종료 코드 0: [round1.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/round1.log) |
+| 같은 스크립트 + 2차 수정한 검사기 | 변이 없는 사본은 종료 코드 0, 변이 11개는 모두 종료 코드 1이고 의도한 규칙이 행·과제·명령을 짚는다: [after.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/after.log) |
+| `python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v` | 24개 통과: [product-purpose-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/product-purpose-tests.log) |
+| `python3 -I -m unittest discover -s tools/tests -v` | 종료 코드 0, 1,155개 실행·실패 0·건너뜀 30개. 건너뜀은 모두 이 VM의 환경 제약(boto3/botocore 미설치·구버전 25개, `ONJEON_ARCHIVE_RAW`·로컬 원본 보관소·pdftotext 필요 5개)이다: [python-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/python-tests.log) |
+| `cargo test --all --offline` | 종료 코드 0, Rust 결과 합계 458개 통과·실패 0개·무시 1개: [rust-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/rust-tests.log) |
 | 수치·결정 색인·어휘·검증 자료·제품 목적(본 검사·selftest)·명세 검사, `git diff --check` | `blueprint_counts.py`·`blueprint_status.py`·`vocab_check.py`·`validation_check.py`(본 검사·selftest)·`check_product_purpose.py`(본 검사·selftest)·`spec_check.py`(기계 44/44·존재 72/72)·`git diff --check` 모두 종료 코드 0: [consistency-checks.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/consistency-checks.log) |
 
 ## 제품 목적과 한계

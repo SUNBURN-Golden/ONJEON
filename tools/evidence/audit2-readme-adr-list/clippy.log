@@ -1,0 +1,11 @@
+$ cargo clippy --all-targets --offline -- -D warnings
+    Checking onjeon-contracts v0.1.0 (packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (packages/ontology)
+    Checking onjeon-collect v0.1.0 (services/collect)
+    Checking onjeon-criteria v0.1.0 (services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.00s
+exit=0

@@ -1,0 +1,38 @@
+$ # mutation: README rows `real_clauses` and `vocabulary` deleted, hash sentence restored to "정규화(" wording
+$ cargo test -p onjeon-rules-engine --offline --test readme_test_table
+
+running 4 tests
+test readme_does_not_call_the_content_hash_normalized ... FAILED
+test checker_catches_a_dropped_row_and_a_stale_row ... FAILED
+test readme_test_table_matches_integration_test_files ... FAILED
+test audited_rows_are_present ... FAILED
+
+failures:
+
+---- readme_does_not_call_the_content_hash_normalized stdout ----
+
+only key order is sorted: <README line elided>
+
+---- checker_catches_a_dropped_row_and_a_stale_row stdout ----
+
+called `Option::unwrap()` on a `None` value
+
+---- readme_test_table_matches_integration_test_files stdout ----
+
+tests/*.rs missing from README table: ["real_clauses", "vocabulary"]
+
+---- audited_rows_are_present stdout ----
+
+real_clauses row missing
+
+
+failures:
+    audited_rows_are_present
+    checker_catches_a_dropped_row_and_a_stale_row
+    readme_does_not_call_the_content_hash_normalized
+    readme_test_table_matches_integration_test_files
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test readme_test_table`
+exit=101

@@ -1,5 +1,6 @@
 """Vocabulary lint fixtures are temporary documents, never canonical contracts."""
 import contextlib
+import csv
 import io
 import json
 import sys
@@ -120,6 +121,119 @@ class Lint(unittest.TestCase):
 
     def test_no_matching_contracts_is_clean(self):
         self.assertEqual(vc.lint(self.vocab), [])
+
+
+class RegistryLint(unittest.TestCase):
+    def setUp(self):
+        self.vocab = vc.load()
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        patcher = mock.patch.object(vc, "ROOT", self.root)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def document(self, text, name="sample.csv"):
+        path = self.root / "data/registry" / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return path
+
+    def test_all_registry_state_columns_accept_only_their_own_axis(self):
+        columns = {"entity_evidence": "entity_evidence", "home_access": "host_access",
+                   "disclosure_access": "host_access", "host_access": "host_access",
+                   "disclosure_status": "acquisition_status", "product_list_status": "acquisition_status"}
+        for column, axis_id in columns.items():
+            axis = next(a for a in self.vocab["axes"] if a["id"] == axis_id)
+            for value in axis["values"]:
+                self.document(f"{column}\n{value['code']}\n")
+                self.assertEqual(vc.lint_registry(self.vocab), [], (column, value))
+            aliases = [al for value in axis["values"] for al in value["deprecated_aliases"]]
+            for value in [*aliases, "unknown_value", "", " " + axis["values"][0]["code"],
+                          "reachable" if axis_id != "host_access" else "archived"]:
+                with self.subTest(column=column, value=value):
+                    self.document(f'{column},notes\n{value},kept\n')
+                    problems = vc.lint_registry(self.vocab)
+                    self.assertEqual(len(problems), 1)
+                    self.assertIn(f"data/registry/sample.csv:2: {column}=", problems[0])
+                    self.assertIn(f"expected {axis_id} code", problems[0])
+
+    def test_old_status_header_fails_even_when_empty_or_with_canonical_values(self):
+        for body in ("", "verified_1_source\n", "one_source\n"):
+            self.document("status\n" + body)
+            self.assertEqual(vc.lint_registry(self.vocab), [
+                "data/registry/sample.csv:1: deprecated field `status` -> use entity_evidence"])
+
+    def test_required_state_columns_cannot_be_dropped_from_known_registries(self):
+        required = {
+            "insurers.csv": ["entity_evidence", "home_access", "disclosure_access",
+                             "disclosure_status", "product_list_status"],
+            "cooperatives_and_others.csv": ["entity_evidence", "home_access", "disclosure_access",
+                                           "disclosure_status", "product_list_status"],
+            "excluded_or_historical.csv": ["entity_evidence", "home_access", "disclosure_access"],
+            "access_log.csv": ["host_access"],
+        }
+        for name, columns in required.items():
+            for missing in columns:
+                with self.subTest(name=name, missing=missing):
+                    path = self.document(",".join(["notes", *(c for c in columns if c != missing)]) + "\n", name)
+                    self.assertEqual(vc.lint_registry(self.vocab), [
+                        f"data/registry/{name}:1: missing required vocabulary column `{missing}`"])
+                    path.unlink()
+
+    def test_raw_results_details_notes_and_sources_are_preserved(self):
+        self.document('host_access,result,home_access_detail,notes\n'
+                      'reachable,200,403_origin,"verified_1_source,\nvocab:allow"\n')
+        self.document('source_id,http_status,notes\nlist,200,verified_2_sources\n', "sources.csv")
+        self.assertEqual(vc.lint_registry(self.vocab), [])
+        # A prose allow marker cannot exempt a structured status value.
+        self.document('entity_evidence,notes\nverified_1_source,vocab:allow\n')
+        self.assertTrue(vc.lint_registry(self.vocab))
+
+    def test_csv_structure_errors_cannot_hide_invalid_values(self):
+        for text, expected in (
+                ("", "missing CSV header"),
+                ("entity_evidence,entity_evidence\nverified_1_source,one_source\n", "duplicate CSV column"),
+                ("entity_evidence,notes\none_source\n", "expected 2 cells, got 1"),
+                ("entity_evidence\none_source,verified_1_source\n", "expected 1 cells, got 2"),
+                ('entity_evidence,notes\none_source,"unterminated\n', "invalid CSV")):
+            with self.subTest(text=text):
+                self.document(text)
+                self.assertTrue(any(expected in p for p in vc.lint_registry(self.vocab)))
+
+    def test_diagnostic_uses_physical_line_after_a_multiline_cell(self):
+        self.document('entity_evidence,notes\none_source,"first\nsecond"\nverified_1_source,old\n')
+        problems = vc.lint_registry(self.vocab)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("data/registry/sample.csv:4: entity_evidence=", problems[0])
+
+    def test_repository_registries_are_canonical_and_excluded_rows_remain_excluded(self):
+        root = Path(__file__).resolve().parents[2]
+        with mock.patch.object(vc, "ROOT", root):
+            self.assertEqual(vc.lint_registry(self.vocab), [])
+        with (root / "data/registry/excluded_or_historical.csv").open(encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        self.assertNotIn("status", reader.fieldnames)
+        self.assertNotIn("product_list_status", reader.fieldnames)
+        self.assertEqual(len(rows), 49)
+        self.assertEqual(sum(r["entity_evidence"] == "two_or_more_sources" for r in rows), 2)
+        self.assertEqual(sum(r["entity_evidence"] == "one_source" for r in rows), 47)
+        self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in rows))
+
+    def test_cli_fails_on_registry_regression_without_changing_csv_even_with_write(self):
+        path = self.document("status\nverified_1_source\n")
+        before = path.read_bytes()
+        doc = self.root / "generated.md"
+        doc.write_text(vc.render(self.vocab), encoding="utf-8")
+        for args in ([], ["--write"]):
+            output = io.StringIO()
+            with mock.patch.object(vc, "DOC", doc), \
+                 mock.patch.object(sys, "argv", ["vocab_check.py", *args]), \
+                 contextlib.redirect_stdout(output):
+                self.assertEqual(vc.main(), 1)
+            self.assertIn("data/registry/sample.csv:1: deprecated field `status`", output.getvalue())
+            self.assertEqual(path.read_bytes(), before)
 
 
 class GeneratedDoc(unittest.TestCase):

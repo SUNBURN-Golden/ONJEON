@@ -1,0 +1,27 @@
+{
+  "rows": 49,
+  "before": {
+    "verified_2_sources": 2,
+    "verified_1_source": 47
+  },
+  "after": {
+    "two_or_more_sources": 2,
+    "one_source": 47
+  },
+  "all_non_status_fields_preserved": true,
+  "added_empty_columns": [
+    "disclosure_access_detail",
+    "home_access_detail"
+  ],
+  "current_assoc_list_false": true,
+  "no_disclosure_or_product_status_added": true,
+  "other_csvs_byte_identical_to_head": [
+    "access_log.csv",
+    "cooperatives_and_others.csv",
+    "insurers.csv",
+    "sources.csv"
+  ],
+  "second_normalization_byte_identical": true,
+  "before_sha256": "5c2b39e5f070d2279f291af2e6d7243989413c22a719a4d51c923b90628fa948",
+  "after_sha256": "d83f5b7a45434103e619a17f134cb19eff939031e2031ae070e79ba07615fc66"
+}

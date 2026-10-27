@@ -143,14 +143,14 @@ class RegistryCsv(unittest.TestCase):
     def test_existing_details_product_progress_and_unrelated_fields_survive(self):
         self.write([dict(entity_evidence="seed", home_access="reachable", home_access_detail="prior evidence",
                          disclosure_access="not_checked", disclosure_url="", product_list_status="archived",
-                         product_list_reason="already enumerated", note="keep")])
+                         product_list_reason="already enumerated", note="keep\r\nquoted, detail")])
         self.assertEqual(rn.normalize(self.path), 1)
         row = self.read()[0]
         self.assertEqual(row["home_access_detail"], "prior evidence")
         self.assertEqual(row["disclosure_access_detail"], "")
         self.assertEqual(row["product_list_status"], "archived")
         self.assertEqual(row["product_list_reason"], "already enumerated")
-        self.assertEqual(row["note"], "keep")
+        self.assertEqual(row["note"], "keep\r\nquoted, detail")
         self.assertEqual(row["disclosure_status"], "failed")
 
     def test_without_disclosure_does_not_add_disclosure_or_product_fields(self):
@@ -203,7 +203,7 @@ class RegistryCsv(unittest.TestCase):
             rn.normalize_access_log(self.path)
         self.assertEqual(self.path.read_bytes(), before)
 
-    def test_script_normalizes_all_three_registries_in_isolated_tree(self):
+    def test_script_normalizes_all_four_registries_in_isolated_tree(self):
         root = self.path.parent
         script = root / "tools/registry_normalize.py"
         script.parent.mkdir()
@@ -216,10 +216,19 @@ class RegistryCsv(unittest.TestCase):
         for name in ("insurers", "cooperatives_and_others"):
             (registry / f"{name}.csv").write_text(
                 "name,status,home_access\n가,verified_1_source,403\n나,unverified_seed,200\n", encoding="utf-8")
+        excluded = registry / "excluded_or_historical.csv"
+        excluded.write_text(
+            'insurer_id,name_ko,status,listed_in,observed_at,notes,in_current_assoc_list\n'
+            'hist-a,과거기관,verified_2_sources,kidi;dart,2026-10-09T04:24:59Z,"미확인, 제외 사유",false\n'
+            'hist-b,제외기관,verified_1_source,dart,2026-10-09T04:27:40Z,과거 기록,false\n',
+            encoding="utf-8")
+        with excluded.open(encoding="utf-8", newline="") as f:
+            original_excluded = list(csv.DictReader(f))
         (registry / "access_log.csv").write_text("url,result\nhttps://example.invalid,429\n", encoding="utf-8")
         with redirect_stdout(io.StringIO()) as out:
             runpy.run_path(str(script), run_name="__main__")
-        self.assertEqual(out.getvalue().splitlines(), ["insurers 2", "cooperatives_and_others 2", "access_log 1"])
+        self.assertEqual(out.getvalue().splitlines(), ["insurers 2", "cooperatives_and_others 2",
+                                                       "excluded_or_historical 2", "access_log 1"])
         for name in ("insurers", "cooperatives_and_others"):
             with (registry / f"{name}.csv").open(encoding="utf-8") as f:
                 rows = list(csv.DictReader(f))
@@ -227,6 +236,16 @@ class RegistryCsv(unittest.TestCase):
             self.assertEqual([r["disclosure_status"] for r in rows], ["blocked", "failed"])
         with (registry / "access_log.csv").open(encoding="utf-8") as f:
             self.assertEqual(next(csv.DictReader(f))["host_access"], "rate_limited")
+        with excluded.open(encoding="utf-8", newline="") as f:
+            excluded_rows = list(csv.DictReader(f))
+        expected = [dict((k, v) for k, v in row.items() if k != "status") for row in original_excluded]
+        for row, value in zip(expected, ("two_or_more_sources", "one_source")):
+            row["entity_evidence"] = value
+        self.assertEqual(excluded_rows, expected)
+        before = {p.name: p.read_bytes() for p in registry.glob("*.csv")}
+        with redirect_stdout(io.StringIO()):
+            runpy.run_path(str(script), run_name="__main__")
+        self.assertEqual({p.name: p.read_bytes() for p in registry.glob("*.csv")}, before)
 
 
 if __name__ == "__main__":

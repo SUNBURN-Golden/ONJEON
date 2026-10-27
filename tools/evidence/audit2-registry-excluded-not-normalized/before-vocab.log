@@ -1,0 +1,276 @@
+test_a_missing_count_line_is_drift (test_vocab_check.GeneratedDoc.test_a_missing_count_line_is_drift) ... ok
+test_a_stale_or_doubled_count_line_is_drift (test_vocab_check.GeneratedDoc.test_a_stale_or_doubled_count_line_is_drift) ... ok
+test_adding_an_axis_requires_regeneration_and_updates_the_count (test_vocab_check.GeneratedDoc.test_adding_an_axis_requires_regeneration_and_updates_the_count) ... ok
+test_any_other_difference_is_out_of_date (test_vocab_check.GeneratedDoc.test_any_other_difference_is_out_of_date) ... ok
+test_cli_repairs_count_left_stale_by_target_branch_merge (test_vocab_check.GeneratedDoc.test_cli_repairs_count_left_stale_by_target_branch_merge) ... ok
+test_render_states_the_live_count_on_its_own_line (test_vocab_check.GeneratedDoc.test_render_states_the_live_count_on_its_own_line) ... ok
+test_axis_count_matching_vocabulary_or_unrelated_or_opted_out_is_allowed (test_vocab_check.Lint.test_axis_count_matching_vocabulary_or_unrelated_or_opted_out_is_allowed) ... ok
+test_backticks_match_uppercase_and_short_aliases (test_vocab_check.Lint.test_backticks_match_uppercase_and_short_aliases) ... ok
+test_explicit_allow_marker_skips_only_its_own_line (test_vocab_check.Lint.test_explicit_allow_marker_skips_only_its_own_line) ... ok
+test_forbidden_reason_takes_precedence_over_alias_reason (test_vocab_check.Lint.test_forbidden_reason_takes_precedence_over_alias_reason) ... ok
+test_generated_doc_and_files_outside_contract_globs_are_excluded (test_vocab_check.Lint.test_generated_doc_and_files_outside_contract_globs_are_excluded) ... ok
+test_live_alias_in_another_axis_is_allowed (test_vocab_check.Lint.test_live_alias_in_another_axis_is_allowed) ... ok
+test_no_matching_contracts_is_clean (test_vocab_check.Lint.test_no_matching_contracts_is_clean) ... ok
+test_proposal_count_scan_is_separate_from_deprecated_status_lint (test_vocab_check.Lint.test_proposal_count_scan_is_separate_from_deprecated_status_lint) ... ok
+test_reports_aliases_forbidden_codes_fields_and_timestamps_with_line_numbers (test_vocab_check.Lint.test_reports_aliases_forbidden_codes_fields_and_timestamps_with_line_numbers) ... ok
+test_stale_axis_count_next_to_a_vocabulary_pointer_is_reported (test_vocab_check.Lint.test_stale_axis_count_next_to_a_vocabulary_pointer_is_reported) ... ok
+test_stale_blueprint_or_proposal_count_fails_the_cli (test_vocab_check.Lint.test_stale_blueprint_or_proposal_count_fails_the_cli) ... ok
+test_tokens_are_deduplicated_per_line_and_sorted_per_file (test_vocab_check.Lint.test_tokens_are_deduplicated_per_line_and_sorted_per_file) ... ok
+test_word_boundaries_do_not_match_paths_or_longer_identifiers (test_vocab_check.Lint.test_word_boundaries_do_not_match_paths_or_longer_identifiers) ... ok
+test_all_registry_state_columns_accept_only_their_own_axis (test_vocab_check.RegistryLint.test_all_registry_state_columns_accept_only_their_own_axis) ... ERROR
+test_cli_fails_on_registry_regression_without_changing_csv_even_with_write (test_vocab_check.RegistryLint.test_cli_fails_on_registry_regression_without_changing_csv_even_with_write) ... FAIL
+test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) ... 
+  test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='') ... ERROR
+  test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence,entity_evidence\nverified_1_source,one_source\n') ... ERROR
+  test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence,notes\none_source\n') ... ERROR
+  test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence\none_source,verified_1_source\n') ... ERROR
+  test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence,notes\none_source,"unterminated\n') ... ERROR
+test_diagnostic_uses_physical_line_after_a_multiline_cell (test_vocab_check.RegistryLint.test_diagnostic_uses_physical_line_after_a_multiline_cell) ... ERROR
+test_old_status_header_fails_even_when_empty_or_with_canonical_values (test_vocab_check.RegistryLint.test_old_status_header_fails_even_when_empty_or_with_canonical_values) ... ERROR
+test_raw_results_details_notes_and_sources_are_preserved (test_vocab_check.RegistryLint.test_raw_results_details_notes_and_sources_are_preserved) ... ERROR
+test_repository_registries_are_canonical_and_excluded_rows_remain_excluded (test_vocab_check.RegistryLint.test_repository_registries_are_canonical_and_excluded_rows_remain_excluded) ... ERROR
+test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) ... 
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='entity_evidence') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='home_access') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='disclosure_access') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='disclosure_status') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='product_list_status') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='entity_evidence') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='home_access') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='disclosure_access') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='disclosure_status') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='product_list_status') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='excluded_or_historical.csv', missing='entity_evidence') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='excluded_or_historical.csv', missing='home_access') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='excluded_or_historical.csv', missing='disclosure_access') ... ERROR
+  test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='access_log.csv', missing='host_access') ... ERROR
+
+======================================================================
+ERROR: test_all_registry_state_columns_accept_only_their_own_axis (test_vocab_check.RegistryLint.test_all_registry_state_columns_accept_only_their_own_axis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 150, in test_all_registry_state_columns_accept_only_their_own_axis
+    self.assertEqual(vc.lint_registry(self.vocab), [], (column, value))
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 202, in test_csv_structure_errors_cannot_hide_invalid_values
+    self.assertTrue(any(expected in p for p in vc.lint_registry(self.vocab)))
+                                               ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence,entity_evidence\nverified_1_source,one_source\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 202, in test_csv_structure_errors_cannot_hide_invalid_values
+    self.assertTrue(any(expected in p for p in vc.lint_registry(self.vocab)))
+                                               ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence,notes\none_source\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 202, in test_csv_structure_errors_cannot_hide_invalid_values
+    self.assertTrue(any(expected in p for p in vc.lint_registry(self.vocab)))
+                                               ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence\none_source,verified_1_source\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 202, in test_csv_structure_errors_cannot_hide_invalid_values
+    self.assertTrue(any(expected in p for p in vc.lint_registry(self.vocab)))
+                                               ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_csv_structure_errors_cannot_hide_invalid_values (test_vocab_check.RegistryLint.test_csv_structure_errors_cannot_hide_invalid_values) (text='entity_evidence,notes\none_source,"unterminated\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 202, in test_csv_structure_errors_cannot_hide_invalid_values
+    self.assertTrue(any(expected in p for p in vc.lint_registry(self.vocab)))
+                                               ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_diagnostic_uses_physical_line_after_a_multiline_cell (test_vocab_check.RegistryLint.test_diagnostic_uses_physical_line_after_a_multiline_cell)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 206, in test_diagnostic_uses_physical_line_after_a_multiline_cell
+    problems = vc.lint_registry(self.vocab)
+               ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_old_status_header_fails_even_when_empty_or_with_canonical_values (test_vocab_check.RegistryLint.test_old_status_header_fails_even_when_empty_or_with_canonical_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 164, in test_old_status_header_fails_even_when_empty_or_with_canonical_values
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_raw_results_details_notes_and_sources_are_preserved (test_vocab_check.RegistryLint.test_raw_results_details_notes_and_sources_are_preserved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 188, in test_raw_results_details_notes_and_sources_are_preserved
+    self.assertEqual(vc.lint_registry(self.vocab), [])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_repository_registries_are_canonical_and_excluded_rows_remain_excluded (test_vocab_check.RegistryLint.test_repository_registries_are_canonical_and_excluded_rows_remain_excluded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 213, in test_repository_registries_are_canonical_and_excluded_rows_remain_excluded
+    self.assertEqual(vc.lint_registry(self.vocab), [])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='entity_evidence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='home_access')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='disclosure_access')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='disclosure_status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='insurers.csv', missing='product_list_status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='entity_evidence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='home_access')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='disclosure_access')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='disclosure_status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='cooperatives_and_others.csv', missing='product_list_status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='excluded_or_historical.csv', missing='entity_evidence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='excluded_or_historical.csv', missing='home_access')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='excluded_or_historical.csv', missing='disclosure_access')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+ERROR: test_required_state_columns_cannot_be_dropped_from_known_registries (test_vocab_check.RegistryLint.test_required_state_columns_cannot_be_dropped_from_known_registries) (name='access_log.csv', missing='host_access')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 180, in test_required_state_columns_cannot_be_dropped_from_known_registries
+    self.assertEqual(vc.lint_registry(self.vocab), [
+                     ^^^^^^^^^^^^^^^^
+AttributeError: module 'vocab_check' has no attribute 'lint_registry'
+
+======================================================================
+FAIL: test_cli_fails_on_registry_regression_without_changing_csv_even_with_write (test_vocab_check.RegistryLint.test_cli_fails_on_registry_regression_without_changing_csv_even_with_write)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_vocab_check.py", line 234, in test_cli_fails_on_registry_regression_without_changing_csv_even_with_write
+    self.assertEqual(vc.main(), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.025s
+
+FAILED (failures=1, errors=24)

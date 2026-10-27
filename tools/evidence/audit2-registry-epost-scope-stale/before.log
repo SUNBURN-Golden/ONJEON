@@ -1,0 +1,235 @@
+# HEAD b29da0e, data/registry and README unchanged; only the new test file added
+$ python3 -m unittest tools/tests/test_registry_scope.py -v
+test_adr_0018_is_settled_for_these_rows (tools.tests.test_registry_scope.ScopeNotes.test_adr_0018_is_settled_for_these_rows) ... ok
+test_epost_is_included_and_not_described_as_mutual_aid (tools.tests.test_registry_scope.ScopeNotes.test_epost_is_included_and_not_described_as_mutual_aid) ... FAIL
+test_ksure_records_the_implementer_reading_as_excluded (tools.tests.test_registry_scope.ScopeNotes.test_ksure_records_the_implementer_reading_as_excluded) ... FAIL
+test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) ... 
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-suhyup') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-cu') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kfcc') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-ebus') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-truck') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-cgbest') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-ktcu') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-haewoon') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-mic') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kosic') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-efc') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kotma') ... FAIL
+  test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kodt') ... FAIL
+test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) ... 
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=2, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=3, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=4, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=5, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=6, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=7, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=8, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=9, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=10, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=11, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=12, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=13, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=14, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=15, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=16, column='notes', phrase='범위 결정 대기') ... FAIL
+  test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=16, column='notes', phrase='범위 결정 필요') ... FAIL
+test_readme_scope_table_matches_the_rows (tools.tests.test_registry_scope.ScopeNotes.test_readme_scope_table_matches_the_rows) ... FAIL
+
+======================================================================
+FAIL: test_epost_is_included_and_not_described_as_mutual_aid (tools.tests.test_registry_scope.ScopeNotes.test_epost_is_included_and_not_described_as_mutual_aid)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 범위 포함' not found in 'KIDI 분류: 공영보험 / KIDI 링크: http://www.koreapost.go.kr/ / KIDI 링크는 www.koreapost.go.kr; 별도 점검한 www.epostlife.go.kr는 connection reset / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_ksure_records_the_implementer_reading_as_excluded (tools.tests.test_registry_scope.ScopeNotes.test_ksure_records_the_implementer_reading_as_excluded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018 구현자 해석: 범위 제외' not found in 'KIDI 분류: 공영보험 / KIDI 링크: http://www.ksure.or.kr/ / 공영 정책보험(무역보험) — 보험업법상 보험회사 아님. 범위 결정 필요 / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-suhyup')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.suhyup.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-cu')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cu.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kfcc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kfcc.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-ebus')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ebus.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-truck')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.truck.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-cgbest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cgbest.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-ktcu')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ktcu.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-haewoon')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.haewoon.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-mic')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.mic.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kosic')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kosic.or.kr/ / 협동조합 자체가 KIDI 공제조합 목록에 있음 — 공제사업 범위 미확인 / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-efc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.efc.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kotma')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kotma.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_mutual_aid_rows_record_the_exclusion (tools.tests.test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) (row='coop-kodt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: 'ADR-0018: 공제는 범위·확보율 분모 제외' not found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kodt.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=2, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.suhyup.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=3, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cu.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=4, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kfcc.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=5, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ebus.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=6, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.truck.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=7, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cgbest.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=8, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ktcu.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=9, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.haewoon.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=10, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.mic.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=11, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kosic.or.kr/ / 협동조합 자체가 KIDI 공제조합 목록에 있음 — 공제사업 범위 미확인 / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=12, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.efc.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=13, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kotma.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=14, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kodt.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=15, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 공영보험 / KIDI 링크: http://www.koreapost.go.kr/ / KIDI 링크는 www.koreapost.go.kr; 별도 점검한 www.epostlife.go.kr는 connection reset / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=16, column='notes', phrase='범위 결정 대기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 대기' unexpectedly found in 'KIDI 분류: 공영보험 / KIDI 링크: http://www.ksure.or.kr/ / 공영 정책보험(무역보험) — 보험업법상 보험회사 아님. 범위 결정 필요 / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_no_registry_cell_still_waits_for_a_scope_decision (tools.tests.test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) (file='cooperatives_and_others.csv', line=16, column='notes', phrase='범위 결정 필요')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '범위 결정 필요' unexpectedly found in 'KIDI 분류: 공영보험 / KIDI 링크: http://www.ksure.or.kr/ / 공영 정책보험(무역보험) — 보험업법상 보험회사 아님. 범위 결정 필요 / 공제 상품공시 URL 미탐색(범위 결정 대기)'
+
+======================================================================
+FAIL: test_readme_scope_table_matches_the_rows (tools.tests.test_registry_scope.ScopeNotes.test_readme_scope_table_matches_the_rows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: '공제는 ADR-0018로 범위·확보율 분모에서 제외' not found in '9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제 상품공시 URL도 탐색하지 않았다.'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.028s
+
+FAILED (failures=32)
+exit=1

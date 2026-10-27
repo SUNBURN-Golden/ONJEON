@@ -1,0 +1,113 @@
+{
+ "node": "audit2-registry-epost-scope-stale",
+ "base": "b29da0e",
+ "file": "data/registry/cooperatives_and_others.csv",
+ "rows": 16,
+ "header_unchanged": true,
+ "line_endings": "CRLF",
+ "changed_rows": 15,
+ "changed_columns": [
+  "notes"
+ ],
+ "unchanged_rows": [
+  "seed-coop-nh"
+ ],
+ "other_registry_csvs_byte_identical": {
+  "insurers.csv": true,
+  "excluded_or_historical.csv": true,
+  "sources.csv": true,
+  "access_log.csv": true
+ },
+ "changes": [
+  {
+   "insurer_id": "coop-suhyup",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.suhyup.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.suhyup.co.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-cu",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cu.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cu.co.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-kfcc",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kfcc.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kfcc.co.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-ebus",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ebus.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ebus.or.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-truck",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.truck.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.truck.or.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-cgbest",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cgbest.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.cgbest.co.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-ktcu",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ktcu.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.ktcu.or.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-haewoon",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.haewoon.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.haewoon.co.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-mic",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.mic.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.mic.or.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-kosic",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kosic.or.kr/ / 협동조합 자체가 KIDI 공제조합 목록에 있음 — 공제사업 범위 미확인 / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kosic.or.kr/ / 협동조합 자체가 KIDI 공제조합 목록에 있음 — 공제사업 범위 미확인 / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-efc",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.efc.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.efc.co.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-kotma",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kotma.co.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kotma.co.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "coop-kodt",
+   "column": "notes",
+   "before": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kodt.or.kr/ / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 유사보험(공제조합) / KIDI 링크: http://www.kodt.or.kr/ / ADR-0018: 공제는 범위·확보율 분모 제외. 공제 상품공시 URL은 탐색하지 않음"
+  },
+  {
+   "insurer_id": "public-epost",
+   "column": "notes",
+   "before": "KIDI 분류: 공영보험 / KIDI 링크: http://www.koreapost.go.kr/ / KIDI 링크는 www.koreapost.go.kr; 별도 점검한 www.epostlife.go.kr는 connection reset / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 공영보험 / KIDI 링크: http://www.koreapost.go.kr/ / KIDI 링크는 www.koreapost.go.kr; 별도 점검한 www.epostlife.go.kr는 connection reset / ADR-0018: 범위 포함(기관 유형은 보험사와 구분). 상품공시 URL 미탐색"
+  },
+  {
+   "insurer_id": "public-ksure",
+   "column": "notes",
+   "before": "KIDI 분류: 공영보험 / KIDI 링크: http://www.ksure.or.kr/ / 공영 정책보험(무역보험) — 보험업법상 보험회사 아님. 범위 결정 필요 / 공제 상품공시 URL 미탐색(범위 결정 대기)",
+   "after": "KIDI 분류: 공영보험 / KIDI 링크: http://www.ksure.or.kr/ / 공영 정책보험(무역보험) — 보험업법상 보험회사 아님 / ADR-0018 구현자 해석: 범위 제외(기업 대상 정책보험이며 개인보험 상품군 아님. 사용자 확인 대상). 상품공시 URL은 탐색하지 않음"
+  }
+ ]
+}

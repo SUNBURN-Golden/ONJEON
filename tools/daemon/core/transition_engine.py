@@ -3,7 +3,9 @@
 Everything a row does comes from its own fields: cond, guard, side_effects (in order; order=before_cond
 effects run before any cond of the event is looked at, once), return_code, on_cond_fail. noop_rules decide
 which events are noops. Events that no row maps are unmapped_condition (returned, R-03). A lease guard that fails
-runs its own on_fail (lease_guards[].on_fail: wait, or emit_event, G48).
+runs its own on_fail (lease_guards[].on_fail: wait, or emit_event, G48). A failure that only waits is marked
+`guard_wait` in the outcome; the caller's transaction is then discarded (operations.issue_lease.on_guard_wait,
+engine._txn), so nothing the event wrote before the guard was looked at stays (audit2-daemon-guard-fail-partial-commit).
 
 No caller names the destination: rows that share (from, event) are told apart by their cond (merged -> audit_queued /
 done on impl_counter_incremented: event.docs_only, audit2-daemon-docs-pr-never-done).
@@ -41,7 +43,7 @@ def _noop_rule(core, d, task_id, name, payload, envelope):
     return None
 
 
-def _guard_on_fail(core, d, task_id, gr, out):
+def _guard_on_fail(core, d, task_id, gr, out, event):
     """lease_guards[].on_fail of the guards that failed. emit_event runs only in its states and only when the
     guards it depends on passed; everything else waits (no record beyond the diagnostic)."""
     state = d["tasks"][task_id]["task_state"]["state"]
@@ -57,6 +59,7 @@ def _guard_on_fail(core, d, task_id, gr, out):
             payload[k] = gr.missing_fields if v == guard["check_function"] + ".missing_fields" else v
         out["emitted"].append(apply_event(core, d, task_id, on_fail["event"], payload))
         return
+    out["guard_wait"] = {"event": event, "failed": gr.failed}  # every failed guard waits: nothing of this event may be kept
 
 
 def try_event(core, d, task_id, name, payload=None):
@@ -142,7 +145,7 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None, recount=Tru
             if not gr.all_pass:
                 core.rec.diagnostic(d, task_id, "guard_failed", event=name, guard=tr["guard"], failed=gr.failed)
                 out["rejected"] = ("guard", gr.failed)
-                _guard_on_fail(core, d, task_id, gr, out)
+                _guard_on_fail(core, d, task_id, gr, out, name)
                 return out
         if not ok:
             if first_fail is None:
@@ -154,7 +157,7 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None, recount=Tru
     core.rec.diagnostic(d, task_id, "cond_not_met", event=name, state=ts["state"], cond=recs)
     out["rejected"] = ("cond", recs)
     if guard_fail is not None:
-        _guard_on_fail(core, d, task_id, guard_fail, out)
+        _guard_on_fail(core, d, task_id, guard_fail, out, name)
         return out
     if tr is not None and tr.get("on_cond_fail"):
         emit = tr["on_cond_fail"]

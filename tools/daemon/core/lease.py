@@ -213,6 +213,18 @@ def check_mark_sent(rules):
                       "write status, on_conflict must have writes [] and a diagnostic and a result")
 
 
+def check_guard_wait(rules):
+    """At core start: issue_lease.on_guard_wait rolls the transaction back (a commit is the partial write of
+    audit2-daemon-guard-fail-partial-commit), names the diagnostics it keeps, its own diagnostic and the result."""
+    spec = rules.get("core_contract.operations.issue_lease").get("on_guard_wait") or {}
+    keep = spec.get("keep_diagnostics")
+    if (spec.get("transaction") != "rollback" or not isinstance(keep, list) or not all(isinstance(k, str) for k in keep)
+            or not spec.get("diagnostic") or not spec.get("result")):
+        raise SpecGap("operations.issue_lease.on_guard_wait: transaction must be rollback, keep_diagnostics a list of "
+                      "diagnostic names, and diagnostic and result must be named")
+    return spec
+
+
 def _mark_sent(core, d, task_id, row, spec, trigger):
     """resend_outbox.mark_sent: compare-and-set. The send ran outside any transaction, so an expiry, cancel or
     corruption (void) or another send (sent) may have changed the row since the checks passed. The check named by

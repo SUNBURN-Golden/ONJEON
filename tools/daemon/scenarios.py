@@ -1116,11 +1116,20 @@ def path_queued(env):
 
 
 def path_failed_tests(env):
+    """The retry is a redelivery of the same result envelope: a guard that waits takes nothing of it
+    (issue_lease.on_guard_wait, audit2-daemon-guard-fail-partial-commit), so it is processed as new afterwards."""
     env.bring_to_building(BASIC)
+    res = env.builder_for(BASIC).result_envelope(env.instr(BASIC), "failed_tests")
 
     def fail():
-        env.builder_for(BASIC).send_result(env.instr(BASIC), "failed_tests")
+        return env.submit(BASIC, "result", copy.deepcopy(res))
     return BASIC, "building", fail, fail
+
+
+def event_writes(snap):
+    """The store without the journal and the lease lock: the lock has its own committed writes around the
+    event's transaction (G45), the journal keeps the diagnostics of a rejection."""
+    return {k: v for k, v in snap.items() if k not in ("journal", "lease_lock")}
 
 
 def path_ci_failed(env):
@@ -1180,10 +1189,15 @@ def m30(rep, R, T):
             else:
                 inject(env, kind, task)
                 g0, i0, s0 = env.task(task)["lease_generation"], issue_count(env), len(sent_ids(env))
+                before = event_writes(env.snap())
                 m = mark(env)
                 attempt()
                 js = jr(env, m)
                 st_ok = env.state(task) == state0
+                if kind != "envelope":
+                    rep.eq(f"[{label} / 주입 {kind}] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 "
+                           "저널·임대 잠금 밖 store 불변), 저널에는 진단만", (True, ["diagnostic_record"]),
+                           (event_writes(env.snap()) == before, sorted({r["kind"] for r in js})))
             t = env.task(task)
             if kind == "envelope":
                 # G48: a deterministic validation failure is envelope_invalid -> returned(R-13) on every path
@@ -1207,6 +1221,9 @@ def m30(rep, R, T):
                 retry()
             t = env.task(task)
             rep.eq(f"[{label} / 주입 {kind}] 주입을 풀면 발급되고 토큰(세대)이 +1", (g0 + 1, i0 + 1), (t["lease_generation"], issue_count(env)))
+            if label == "시험 실패 뒤 재임대" and kind != "envelope":
+                rep.eq(f"[{label} / 주입 {kind}] 같은 봉투의 재전달로 재임대, 거절된 시도는 세지 않는다(consecutive_failed_tests 1)",
+                       1, t["task_state"]["consecutive_failed_tests"])
 
     # G29: conflict_paths overlap as patterns (a nested glob), not as equal strings
     env = MockEnv(R, T)

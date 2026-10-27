@@ -33,7 +33,8 @@ class UsageView:
 
     def slot(self, task_id, next_generation):
         """The slot of the next generation, prepared on first use. None only if the state store cannot be
-        written (a storage failure, not a cost decision)."""
+        written (a storage failure, not a cost decision). A slot prepared by a guard run whose lease guards then
+        wait goes with that transaction (issue_lease.on_guard_wait); the next guard run prepares it again."""
         row = _find(self.d, task_id, next_generation)
         if row is not None:
             return row

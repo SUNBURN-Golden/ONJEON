@@ -103,16 +103,18 @@ flowchart TD
 
 | 계층 | 책임 | 출력 계약 | 금지 | 상태 |
 |---|---|---|---|---|
-| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 설계 |
-| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 설계 |
+| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 부분 구현(V0 기관 목록·접근·공백 기록·어휘 정규화: `data/registry/`, `tools/registry_normalize.py`; 상품·특약 분모 미열거) |
+| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 부분 구현(`tools/crawler/`·`tools/source_archive.py`·`services/collect/` 수집·불변 보존 도구; V1 표본 보존 기록, 전 상품 일일 수집 미완료) |
 | L2 | 원문 구조 복원 | ClauseOccurrence(페이지·좌표·정확 인용·표 셀) | 좌표·문장 지어내기, 임의 길이 자르기 | 설계 |
 | L3 | 필드 후보 추출 | FieldAssertion, PremiumObservation 후보 | 빈칸을 상식으로 채우기, 문서 속 지시 실행 | 설계 |
 | L4 | 승인 또는 보류 | ReviewDecision(계열이 다른 에이전트, 코드 검사, 레드팀) | 다수결, 자기 확신 점수로 승인 | 설계 |
 | L5 | 상품·담보·가격의 정규 모델 | ProductVersion, CoverageOccurrence, RiderOccurrence, 관계 그래프 | 이름 유사도로 버전 병합 | 설계 |
-| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | **구현(합성 규칙 범위)** |
+| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | 부분 구현(`packages/rules-engine/` DSL 로더·평가기; 합성·실제 조항 `fixture_only` 검증, 승인 데이터→규칙→서비스 연결 미완료) |
 | L7 | 불변 공개본 | ReleaseManifest | 검증 안 된 변경 배포, 공개본 수정 | 설계 |
 | L8 | 화면이 받는 유일한 형식 | PlanView, CoverageDetail, CompareView, EvidenceView | 화면 쪽 계산 | 설계 |
 | L9 | 보여주고 조작 | Flutter 앱, 공개 웹 `/coverage`, 관제 콘솔 | 데이터 상태를 넘는 표현 | 설계 |
+
+부분 구현의 근거와 남은 관문은 §11 및 [Audit 2 계층 상태 검증](blueprint/audits/2026-10-27_blueprint_layer_status.md)을 따른다. V1 표본의 R2 보존·다운로드 대조는 2026-10-09 관측 기록이다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 완료 증거와 T-OP-08 관문으로 별도 판정한다.
 
 의존 방향은 위에서 아래뿐이다. 앱은 L8만 본다. 계산은 L6만 한다(ADR-0003). 개인 영역은 공개 데이터 영역(L0~L7)과 저장·권한·로그가 분리된다.
 

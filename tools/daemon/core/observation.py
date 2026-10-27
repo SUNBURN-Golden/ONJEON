@@ -245,6 +245,8 @@ def _on_result_applied(core, d, task_id, event, payload):
 
 # ---------------------------------------------------------------- the steps the daemon takes by itself
 def _landing_gates_recorded(core, d, task_id):
+    """Picks audit_not_required / audit_pass vs decision_pending; the rows' cond (task.decision_gates.merge subset_of /
+    not_subset_of task_state.decisions_recorded) checks the same gate again (audit2-spec-check-reads-prose-when)."""
     gates = (core.ports.catalog.task(task_id).get("decision_gates") or {}).get("merge") or []
     return set(gates) <= set(d["tasks"][task_id]["task_state"]["decisions_recorded"])
 
@@ -345,19 +347,29 @@ def settle(core, d, task_id):
 
 
 # ---------------------------------------------------------------- prerequisites and start gates
+def prereq_tasks_in(core, d, task_id, path):
+    """Every prereq_tasks entry of the task is a registered task whose state is in the rules list `path`: the
+    blocked -> queued cond prereq_tasks_in(post_merge_states) (audit2-spec-check-reads-prose-when). The list is read
+    through Rules.outside(), so only an OUTSIDE_READS path can be named."""
+    states = core.rules.outside(path)
+    for pre in core.ports.catalog.task(task_id).get("prereq_tasks") or []:
+        if pre not in d["tasks"] or _state(d, pre) not in states:
+            return False
+    return True
+
+
 def _prereqs(core, d, task_id):
     """blocked -> queued: every prerequisite task in post_merge_states and decision_gates.start recorded (04 §2.2).
-    The prerequisites are checked here; the start gate is the row's cond (task.decision_gates.start subset_of
-    task_state.decisions_recorded), so an unrecorded or missing start list keeps the task blocked and leaves a
-    cond_not_met diagnostic that names the gate (audit1-start-gates-enforcement)."""
+    Both are the row's cond: prereq_tasks_in(post_merge_states) (audit2-spec-check-reads-prose-when) and
+    task.decision_gates.start subset_of task_state.decisions_recorded, so an unrecorded or missing start list keeps
+    the task blocked and leaves a cond_not_met diagnostic that names the gate (audit1-start-gates-enforcement).
+    The event is raised only once the prerequisites hold (same function as the cond), so a task that still waits
+    for a prerequisite leaves no diagnostic."""
     _sync_decisions(d)
     if _state(d, task_id) != "blocked":
         return None
-    task = core.ports.catalog.task(task_id)
-    post = core.rules.outside("post_merge_states")
-    for pre in task.get("prereq_tasks") or []:
-        if pre not in d["tasks"] or _state(d, pre) not in post:
-            return None
+    if not prereq_tasks_in(core, d, task_id, "post_merge_states"):
+        return None
     return _apply(core, d, task_id, "prereqs_satisfied", {})
 
 

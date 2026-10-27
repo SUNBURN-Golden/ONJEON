@@ -1,0 +1,15 @@
+# parent commit 685dab50f327124e4ea7cf2f807b3efe2e4c78f9; before = spec_check.py at the parent commit (git show HEAD:… > /tmp/spec_check_old.py), after = working tree
+# python3 -I tools/evidence/audit2-spec-check-reads-prose-when/mutations.py /tmp/spec_check_old.py docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+mutation                                                       check  before  after
+bundle as is                                                   G22    PASS    PASS
+all `when` blanked                                             G22    FAIL    PASS
+merged→done cond removed (when still says docs_only)           G22    PASS    FAIL
+merged→audit_queued cond removed (cond-less sibling wins)      G22    PASS    FAIL
+blocked→queued start cond removed                              G5b    PASS    FAIL
+blocked→queued prereq cond removed                             G6b    PASS    FAIL
+audit_pending→merge_wait audit_pass cond removed               G5c    PASS    FAIL
+fence_violation lease_generation pred removed                  G33    PASS    FAIL
+changes_requested→building lease_granted without guard         G35    PASS    FAIL
+building→building result_failed_tests without guard            G35    PASS    FAIL
+ci_failed→building without issue_lease effect                  G42    PASS    FAIL
+handoff→leased preservation_state pred removed                 G44    PASS    FAIL

@@ -1,0 +1,45 @@
+test_current_decisions_name_r2_archive (test_storage_provider_docs.Blueprint.test_current_decisions_name_r2_archive) ... ERROR
+test_no_pre_r2_storage_claims (test_storage_provider_docs.Blueprint.test_no_pre_r2_storage_claims) ... ok
+test_open_decisions_exclude_resolved_archive_provider (test_storage_provider_docs.Blueprint.test_open_decisions_exclude_resolved_archive_provider) ... FAIL
+test_open_decisions_preserve_r2_operational_gates (test_storage_provider_docs.Blueprint.test_open_decisions_preserve_r2_operational_gates) ... ok
+test_section_11_already_reports_r2 (test_storage_provider_docs.Blueprint.test_section_11_already_reports_r2) ... ok
+test_superseded_decisions_record_provider_change_only (test_storage_provider_docs.Blueprint.test_superseded_decisions_record_provider_change_only) ... ERROR
+test_tool_inventory_names_current_and_alternative_storage (test_storage_provider_docs.Blueprint.test_tool_inventory_names_current_and_alternative_storage) ... ok
+test_v1_counts_match_r2_records_and_gap_report (test_storage_provider_docs.Blueprint.test_v1_counts_match_r2_records_and_gap_report) ... ok
+test_v1_names_r2_and_completed_preservation (test_storage_provider_docs.Blueprint.test_v1_names_r2_and_completed_preservation) ... ok
+test_v1_remaining_conditions_keep_unverified_work (test_storage_provider_docs.Blueprint.test_v1_remaining_conditions_keep_unverified_work) ... ok
+test_cited_r2_evidence_exists (test_storage_provider_docs.GapReport.test_cited_r2_evidence_exists) ... ok
+test_full_reproduction_count_matches_check_record (test_storage_provider_docs.GapReport.test_full_reproduction_count_matches_check_record) ... ok
+test_names_r2_decision (test_storage_provider_docs.GapReport.test_names_r2_decision) ... ok
+test_no_pre_r2_storage_claims (test_storage_provider_docs.GapReport.test_no_pre_r2_storage_claims) ... ok
+
+======================================================================
+ERROR: test_current_decisions_name_r2_archive (test_storage_provider_docs.Blueprint.test_current_decisions_name_r2_archive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-s3-r2-drift/tools/tests/test_storage_provider_docs.py", line 60, in test_current_decisions_name_r2_archive
+    row = next(line for line in section.splitlines() if line.startswith("| 원본·파생 보관소 |"))
+          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+StopIteration
+
+======================================================================
+ERROR: test_superseded_decisions_record_provider_change_only (test_storage_provider_docs.Blueprint.test_superseded_decisions_record_provider_change_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-s3-r2-drift/tools/tests/test_storage_provider_docs.py", line 67, in test_superseded_decisions_record_provider_change_only
+    row = next(line for line in section.splitlines() if line.startswith("- ADR-0015"))
+StopIteration
+
+======================================================================
+FAIL: test_open_decisions_exclude_resolved_archive_provider (test_storage_provider_docs.Blueprint.test_open_decisions_exclude_resolved_archive_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-s3-r2-drift/tools/tests/test_storage_provider_docs.py", line 75, in test_open_decisions_exclude_resolved_archive_provider
+    self.assertNotIn("| 클라우드·저장소 |", section)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '| 클라우드·저장소 |' unexpectedly found in ' 열린 결정\n\n보험사·상품·표본 선정은 열린 결정이 아니다. 전 대상이 확정 범위이고 표본은 구현자가 고른다(ADR-0013).\n\n| 결정 | 막는 마일스톤 | 비고 |\n|---|---|---|\n| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |\n| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |\n| 클라우드·저장소 | M3 | 로컬은 Compose로 시작 가능 |\n| 범위 금액과 기준값 비교의 의미 | M6 | 엔진 W3 설계 |\n| "필요한 돈" 기본값 출처 | M5 | 출처 없으면 기본값 없음 |\n| 색 토큰, 시안 추가 요소 C2~C4·C7 | M5 | 화면 설계서 §13 |\n| 공개 웹 도메인·명칭 | 출시 | 개발을 막지 않음 |\n| R2 접근 자격 후속 확인(D-04 관문 유지) | 다음 R2 작업 | [DEC-D-04](decisions/DEC-D-04.md): 준태님(소유자), 2026-10-13 17:53 KST 결정으로 대화 노출 R2 토큰은 폐기하지 않는다. 후속 확인 담당: 준태님. 정정 기록일: 2026-10-26. 노출 토큰 재사용·출력 금지, 실제 R2 접근 차단 유지. 토큰 폐기를 남은 조치로 요구하지 않는다. O14·O17은 별도 관문 |\n| 대량 자동 수집 관문(O17): 원장 체크포인트, 버킷 잠금, 실행 환경·동시성·예약 실행 통제 등 | 대량 자동 수집 | 그 전에는 지정 환경 하나·동시 1개·수동 실행, 고정 키 작업만. 원장 기록 상한 100(ADR-0017, BUDGET.md §6) |\n| 국내 IP 수집 실행 환경(O19) | T-DT-04 실데이터 열거(M3) | 준비·비용은 준태님. 그 전에는 픽스처·확보한 공시 진입점 8곳으로 어댑터 개발·시험만. 해외 샌드박스 결과로 상품·문서 분모를 주장하지 않는다 |\n| R2 버킷 잠금 대상·기간·해제 권한(O14) | 버킷 잠금 적용 | 승인 전 적용 금지, 무기한 잠금 금지 |\n| 저장소 공개 범위와 원문 발췌 재배포 조건(O16) | 다음 원문 발췌 추가 | 저장소가 public이다 |\n| 레포 분리 전 통합 계약(O15) | 레포 분리 | §9.4 |\n\n'
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.005s
+
+FAILED (failures=1, errors=2)

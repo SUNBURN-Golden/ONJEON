@@ -1,0 +1,3 @@
+vocabulary ok: 49 axes, 269 values
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 182, "tamper_tests": 38, "vocabulary_axes": 49}

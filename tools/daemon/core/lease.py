@@ -2,7 +2,7 @@
 from . import usage
 from .envelope_validator import build_instruction, validate_instruction
 from .gate_evaluator import Clockview, Ctx, GuardResult
-from .ports import PreconditionFailed
+from .ports import PreconditionFailed, SpecGap
 
 
 def branch_name(core, task_id, attempt):
@@ -200,6 +200,42 @@ def void_pending(core, d, task_id, reason, only_envelope=None):
             core.rec.side_effect(d, task_id, "void_outbox", envelope_id=row["envelope_id"], reason=reason)
 
 
+def check_mark_sent(rules):
+    """At core start: resend_outbox.mark_sent.compare_and_set names exactly one of resend_outbox.checks, `set` writes
+    the status, and on_conflict writes nothing (a conflicting row is never overwritten)."""
+    spec = rules.get("core_contract.operations.resend_outbox")
+    mark = spec.get("mark_sent") or {}
+    ids = [c["id"] for c in spec["checks"]]
+    conflict = mark.get("on_conflict") or {}
+    if (ids.count(mark.get("compare_and_set")) != 1 or "status" not in (mark.get("set") or {})
+            or conflict.get("writes") != [] or not conflict.get("diagnostic") or not conflict.get("result")):
+        raise SpecGap("operations.resend_outbox.mark_sent: compare_and_set must name one of checks[].id, set must "
+                      "write status, on_conflict must have writes [] and a diagnostic and a result")
+
+
+def _mark_sent(core, d, task_id, row, spec, trigger):
+    """resend_outbox.mark_sent: compare-and-set. The send ran outside any transaction, so an expiry, cancel or
+    corruption (void) or another send (sent) may have changed the row since the checks passed. The check named by
+    compare_and_set is evaluated again in this transaction; if it fails the row is left as it is."""
+    mark = spec["mark_sent"]
+    cas, = [c for c in spec["checks"] if c["id"] == mark["compare_and_set"]]
+    ctx = core.ctx(d, task_id, row=row)
+    ok, rec = ctx.predicate(cas["pred"])
+    env_id = row["envelope_id"]
+    if not ok:
+        conflict = mark["on_conflict"]
+        core.rec.diagnostic(d, task_id, conflict["diagnostic"], envelope_id=env_id, status=row["status"],
+                            void_reason=row["void_reason"], trigger=trigger, check=rec)
+        core.rec.result(d, task_id, "send_envelope", conflict["result"], envelope_id=env_id)
+        return False
+    for key, expr in mark["set"].items():
+        row[key] = ctx.value(expr)
+    core.rec.side_effect(d, task_id, "send_envelope", envelope_id=env_id,
+                         lease_generation=row["lease_generation"], kind="instruction", trigger=trigger)
+    core.rec.result(d, task_id, "send_envelope", row["status"], envelope_id=env_id)
+    return True
+
+
 def resend_outbox(core, task_id, trigger):
     """core_contract.operations.resend_outbox. Same envelope_id, only if every check passes."""
     from . import effects, recovery
@@ -238,11 +274,8 @@ def resend_outbox(core, task_id, trigger):
             with core.ports.store.transaction() as d:
                 t = d["tasks"][task_id]
                 row = next(r for r in t["outbox"] if r["envelope_id"] == env_id)
-                row["status"] = "sent"
-                row["sent_at"] = core.clock.now()
-                core.rec.side_effect(d, task_id, "send_envelope", envelope_id=env_id,
-                                     lease_generation=row["lease_generation"], kind="instruction", trigger=trigger)
-                core.rec.result(d, task_id, "send_envelope", "sent", envelope_id=env_id)
+                if not _mark_sent(core, d, task_id, row, spec, trigger):
+                    action = ("not_marked", None)
         elif follow:
             with core.ports.store.transaction() as d:
                 recovery.follow_up(core, d, task_id, follow, {"detect_id": recovery.detect_id(core, d, task_id)})

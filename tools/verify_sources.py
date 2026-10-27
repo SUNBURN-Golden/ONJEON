@@ -11,7 +11,7 @@ detect     현재 출처 변경 감지 — fetch permitted recorded URLs and com
            a different document is a new version candidate to archive and review. It never
            replaces the past original and never turns a past reproduction into a failure.
            Status codes: vocabulary axis `source_change`. For HTML the content hash
-           (tools/html_content_hash.py, rule html-visible-text-v2) is an auxiliary signal; equal
+           (tools/html_content_hash.py, rule html-visible-text-v3) is an auxiliary signal; equal
            content with different bytes is `bytes_changed_content_same`, never byte identity.
            Survey-recorded robots disallows are held without a request, reported as
            `fetch_failed` with detail `robots_disallow`, and keep the run nonzero.

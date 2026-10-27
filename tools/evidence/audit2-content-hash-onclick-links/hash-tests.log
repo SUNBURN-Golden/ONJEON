@@ -1,0 +1,28 @@
+test_kb_original_price_change_is_detected (test_html_content_hash.ArchivedOriginals.test_kb_original_price_change_is_detected) ... skipped 'ONJEON_ARCHIVE_RAW not set'
+test_kb_refetch_differs_in_bytes_but_not_in_content (test_html_content_hash.ArchivedOriginals.test_kb_refetch_differs_in_bytes_but_not_in_content) ... skipped 'ONJEON_ARCHIVE_RAW not set'
+test_attributes_and_text_decode_entities_once (test_html_content_hash.DownloadTargetsChangeTheHash.test_attributes_and_text_decode_entities_once) ... ok
+test_click_handlers_are_kept_conservatively_without_execution (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_are_kept_conservatively_without_execution) ... ok
+test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) ... ok
+test_comments_scripts_and_styles_do_not_supply_targets (test_html_content_hash.DownloadTargetsChangeTheHash.test_comments_scripts_and_styles_do_not_supply_targets) ... ok
+test_equivalent_quoting_and_entities_do_not_change_link_hash (test_html_content_hash.DownloadTargetsChangeTheHash.test_equivalent_quoting_and_entities_do_not_change_link_hash) ... ok
+test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) ... ok
+test_quoted_angle_brackets_do_not_truncate_attributes (test_html_content_hash.DownloadTargetsChangeTheHash.test_quoted_angle_brackets_do_not_truncate_attributes) ... ok
+test_real_attribute_names_only (test_html_content_hash.DownloadTargetsChangeTheHash.test_real_attribute_names_only) ... ok
+test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) ... ok
+test_each_meaningful_change (test_html_content_hash.MeaningfulChangesChangeTheHash.test_each_meaningful_change) ... ok
+test_host_match_is_a_domain_boundary (test_html_content_hash.SessionParamsAreScopedPerHost.test_host_match_is_a_domain_boundary) ... ok
+test_link_host_wins_over_page_host (test_html_content_hash.SessionParamsAreScopedPerHost.test_link_host_wins_over_page_host) ... ok
+test_listed_host_params_are_only_the_listed_names (test_html_content_hash.SessionParamsAreScopedPerHost.test_listed_host_params_are_only_the_listed_names) ... ok
+test_listed_host_still_ignores_its_cache_buster (test_html_content_hash.SessionParamsAreScopedPerHost.test_listed_host_still_ignores_its_cache_buster) ... ok
+test_other_parameters_are_kept_in_order (test_html_content_hash.SessionParamsAreScopedPerHost.test_other_parameters_are_kept_in_order) ... ok
+test_rule_version_was_bumped (test_html_content_hash.SessionParamsAreScopedPerHost.test_rule_version_was_bumped) ... ok
+test_sid_as_document_id_is_a_change_on_unlisted_hosts (test_html_content_hash.SessionParamsAreScopedPerHost.test_sid_as_document_id_is_a_change_on_unlisted_hosts) ... ok
+test_unambiguous_session_ids_are_ignored_on_every_host (test_html_content_hash.SessionParamsAreScopedPerHost.test_unambiguous_session_ids_are_ignored_on_every_host) ... ok
+test_each_volatile_change (test_html_content_hash.VolatileTokensDoNotChangeTheHash.test_each_volatile_change) ... ok
+test_node_marker_is_host_specific (test_html_content_hash.VolatileTokensDoNotChangeTheHash.test_node_marker_is_host_specific) ... ok
+test_title_marker_host_match_is_a_domain_boundary (test_html_content_hash.VolatileTokensDoNotChangeTheHash.test_title_marker_host_match_is_a_domain_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.009s
+
+OK (skipped=2)

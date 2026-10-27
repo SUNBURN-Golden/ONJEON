@@ -1,0 +1,47 @@
+test_deleted_listed_output_fails_with_exit_1 (test_verify_sources.ArchiveReproduce.test_deleted_listed_output_fails_with_exit_1) ... skipped 'local archive and pdftotext required'
+test_tampered_stored_output_fails_with_exit_1 (test_verify_sources.ArchiveReproduce.test_tampered_stored_output_fails_with_exit_1) ... skipped 'local archive and pdftotext required'
+test_untampered_sample_is_reproduced (test_verify_sources.ArchiveReproduce.test_untampered_sample_is_reproduced) ... skipped 'local archive and pdftotext required'
+test_detect_with_only_robots_disallowed_samples_fails_without_requests (test_verify_sources.CliDependencies.test_detect_with_only_robots_disallowed_samples_fails_without_requests) ... /workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/verify_sources.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_detect_without_pdfplumber_writes_report_and_preserves_exit_status (test_verify_sources.CliDependencies.test_detect_without_pdfplumber_writes_report_and_preserves_exit_status) ... ok
+test_reproduce_with_pdfplumber_dispatches (test_verify_sources.CliDependencies.test_reproduce_with_pdfplumber_dispatches) ... ok
+test_reproduce_without_pdfplumber_stops_before_processing (test_verify_sources.CliDependencies.test_reproduce_without_pdfplumber_stops_before_processing) ... ok
+test_matrix (test_verify_sources.Decide.test_matrix) ... ok
+test_any_fetch_failure_fails_the_run (test_verify_sources.DetectExit.test_any_fetch_failure_fails_the_run) ... ok
+test_baseline_under_an_older_rule_is_not_compared (test_verify_sources.DetectExit.test_baseline_under_an_older_rule_is_not_compared) ... ok
+test_changed_sources_are_a_successful_observation (test_verify_sources.DetectExit.test_changed_sources_are_a_successful_observation) ... ok
+test_current_rule_hash_reports_bytes_changed_content_same (test_verify_sources.DetectExit.test_current_rule_hash_reports_bytes_changed_content_same) ... ok
+test_download_target_changes_are_changed_not_content_same (test_verify_sources.DetectExit.test_download_target_changes_are_changed_not_content_same) ... ok
+test_oversized_body_is_fetch_failed_too_large (test_verify_sources.DetectExit.test_oversized_body_is_fetch_failed_too_large) ... ok
+test_reproduce_ignores_cache_path_outside_cache (test_verify_sources.DetectExit.test_reproduce_ignores_cache_path_outside_cache) ... ok
+test_sid_document_id_change_is_changed_not_same (test_verify_sources.DetectExit.test_sid_document_id_change_is_changed_not_same) ... ok
+test_traversing_cache_path_is_not_fetched_or_written (test_verify_sources.DetectExit.test_traversing_cache_path_is_not_fetched_or_written) ... ok
+test_body_at_the_cap_is_returned (test_verify_sources.FetchSizeCap.test_body_at_the_cap_is_returned) ... ok
+test_declared_content_length_over_the_cap_is_refused_unread (test_verify_sources.FetchSizeCap.test_declared_content_length_over_the_cap_is_refused_unread) ... ok
+test_streamed_body_over_the_cap_is_refused (test_verify_sources.FetchSizeCap.test_streamed_body_over_the_cap_is_refused) ... ok
+test_blocked_redirect_is_reported_and_not_retried (test_verify_sources.RecordedRobotsPolicy.test_blocked_redirect_is_reported_and_not_retried) ... ok
+test_permitted_redirect_uses_standard_handler (test_verify_sources.RecordedRobotsPolicy.test_permitted_redirect_uses_standard_handler) ... ok
+test_policy_applies_to_host_regardless_of_path_case_port_or_scheme (test_verify_sources.RecordedRobotsPolicy.test_policy_applies_to_host_regardless_of_path_case_port_or_scheme) ... ok
+test_policy_matches_hostname_not_url_substrings (test_verify_sources.RecordedRobotsPolicy.test_policy_matches_hostname_not_url_substrings) ... ok
+test_real_samples_are_reported_without_fetching_writing_or_archiving (test_verify_sources.RecordedRobotsPolicy.test_real_samples_are_reported_without_fetching_writing_or_archiving) ... /workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/verify_sources.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_redirect_to_recorded_disallow_is_refused_before_request (test_verify_sources.RecordedRobotsPolicy.test_redirect_to_recorded_disallow_is_refused_before_request) ... ok
+test_intact_record_and_identical_regeneration_is_reproduced (test_verify_sources.VerifyDerived.test_intact_record_and_identical_regeneration_is_reproduced) ... ok
+test_listed_output_bytes_changed_is_invalid (test_verify_sources.VerifyDerived.test_listed_output_bytes_changed_is_invalid) ... ok
+test_listed_output_deleted_is_invalid (test_verify_sources.VerifyDerived.test_listed_output_deleted_is_invalid) ... ok
+test_manifest_for_another_raw_is_invalid (test_verify_sources.VerifyDerived.test_manifest_for_another_raw_is_invalid) ... ok
+test_manifest_tampered_is_invalid (test_verify_sources.VerifyDerived.test_manifest_tampered_is_invalid) ... ok
+test_no_pinned_manifest_is_not_success (test_verify_sources.VerifyDerived.test_no_pinned_manifest_is_not_success) ... ok
+test_pinned_manifest_missing_is_invalid (test_verify_sources.VerifyDerived.test_pinned_manifest_missing_is_invalid) ... ok
+test_regeneration_differs_is_mismatch (test_verify_sources.VerifyDerived.test_regeneration_differs_is_mismatch) ... ok
+test_unlisted_output_in_store_is_invalid (test_verify_sources.VerifyDerived.test_unlisted_output_in_store_is_invalid) ... ok
+test_unregenerable_output_is_unverified (test_verify_sources.VerifyDerived.test_unregenerable_output_is_unverified) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.302s
+
+OK (skipped=3)

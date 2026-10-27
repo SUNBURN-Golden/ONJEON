@@ -1,0 +1,388 @@
+test_kb_original_price_change_is_detected (test_html_content_hash.ArchivedOriginals.test_kb_original_price_change_is_detected) ... skipped 'ONJEON_ARCHIVE_RAW not set'
+test_kb_refetch_differs_in_bytes_but_not_in_content (test_html_content_hash.ArchivedOriginals.test_kb_refetch_differs_in_bytes_but_not_in_content) ... skipped 'ONJEON_ARCHIVE_RAW not set'
+test_attributes_and_text_decode_entities_once (test_html_content_hash.DownloadTargetsChangeTheHash.test_attributes_and_text_decode_entities_once) ... FAIL
+test_click_handlers_are_kept_conservatively_without_execution (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_are_kept_conservatively_without_execution) ... FAIL
+test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) ... 
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="download('old.pdf')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="location.href='/old.pdf'") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="window.open('/download?id=old')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="download(prefix+'old'+suffix)") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="download('old.pdf')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="location.href='/old.pdf'") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="window.open('/download?id=old')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="download(prefix+'old'+suffix)") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="download('old.pdf')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="location.href='/old.pdf'") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="window.open('/download?id=old')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="download(prefix+'old'+suffix)") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="download('old.pdf')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="location.href='/old.pdf'") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="window.open('/download?id=old')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="download(prefix+'old'+suffix)") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="download('old.pdf')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="location.href='/old.pdf'") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="window.open('/download?id=old')") ... FAIL
+  test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="download(prefix+'old'+suffix)") ... FAIL
+test_comments_scripts_and_styles_do_not_supply_targets (test_html_content_hash.DownloadTargetsChangeTheHash.test_comments_scripts_and_styles_do_not_supply_targets) ... ok
+test_equivalent_quoting_and_entities_do_not_change_link_hash (test_html_content_hash.DownloadTargetsChangeTheHash.test_equivalent_quoting_and_entities_do_not_change_link_hash) ... FAIL
+test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) ... 
+  test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='a', quote='') ... FAIL
+  test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='iframe', quote='') ... FAIL
+  test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='embed', quote='') ... FAIL
+  test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='object', quote='') ... FAIL
+  test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='form', quote='') ... FAIL
+test_quoted_angle_brackets_do_not_truncate_attributes (test_html_content_hash.DownloadTargetsChangeTheHash.test_quoted_angle_brackets_do_not_truncate_attributes) ... 
+  test_quoted_angle_brackets_do_not_truncate_attributes (test_html_content_hash.DownloadTargetsChangeTheHash.test_quoted_angle_brackets_do_not_truncate_attributes) (target=b'other.pdf') ... FAIL
+test_real_attribute_names_only (test_html_content_hash.DownloadTargetsChangeTheHash.test_real_attribute_names_only) ... 
+  test_real_attribute_names_only (test_html_content_hash.DownloadTargetsChangeTheHash.test_real_attribute_names_only) (attr='data-href="old.pdf"') ... FAIL
+  test_real_attribute_names_only (test_html_content_hash.DownloadTargetsChangeTheHash.test_real_attribute_names_only) (attr='title="href=\'old.pdf\'"') ... FAIL
+test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) ... 
+  test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) (attr="onclick=download('old.pdf')") ... FAIL
+  test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) (attr='onclick="download(&quot;old.pdf&quot;)"') ... FAIL
+  test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) (attr='onclick=\'download("old.pdf")\'') ... FAIL
+test_each_meaningful_change (test_html_content_hash.MeaningfulChangesChangeTheHash.test_each_meaningful_change) ... ok
+test_host_match_is_a_domain_boundary (test_html_content_hash.SessionParamsAreScopedPerHost.test_host_match_is_a_domain_boundary) ... ok
+test_link_host_wins_over_page_host (test_html_content_hash.SessionParamsAreScopedPerHost.test_link_host_wins_over_page_host) ... ok
+test_listed_host_params_are_only_the_listed_names (test_html_content_hash.SessionParamsAreScopedPerHost.test_listed_host_params_are_only_the_listed_names) ... ok
+test_listed_host_still_ignores_its_cache_buster (test_html_content_hash.SessionParamsAreScopedPerHost.test_listed_host_still_ignores_its_cache_buster) ... ok
+test_other_parameters_are_kept_in_order (test_html_content_hash.SessionParamsAreScopedPerHost.test_other_parameters_are_kept_in_order) ... ok
+test_rule_version_was_bumped (test_html_content_hash.SessionParamsAreScopedPerHost.test_rule_version_was_bumped) ... FAIL
+test_sid_as_document_id_is_a_change_on_unlisted_hosts (test_html_content_hash.SessionParamsAreScopedPerHost.test_sid_as_document_id_is_a_change_on_unlisted_hosts) ... ok
+test_unambiguous_session_ids_are_ignored_on_every_host (test_html_content_hash.SessionParamsAreScopedPerHost.test_unambiguous_session_ids_are_ignored_on_every_host) ... ok
+test_each_volatile_change (test_html_content_hash.VolatileTokensDoNotChangeTheHash.test_each_volatile_change) ... ok
+test_node_marker_is_host_specific (test_html_content_hash.VolatileTokensDoNotChangeTheHash.test_node_marker_is_host_specific) ... ok
+test_title_marker_host_match_is_a_domain_boundary (test_html_content_hash.VolatileTokensDoNotChangeTheHash.test_title_marker_host_match_is_a_domain_boundary) ... ok
+
+======================================================================
+FAIL: test_attributes_and_text_decode_entities_once (test_html_content_hash.DownloadTargetsChangeTheHash.test_attributes_and_text_decode_entities_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 93, in test_attributes_and_text_decode_entities_once
+    self.assertIn("[link:/a&amp;b.pdf]", text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[link:/a&amp;b.pdf]' not found in '[link:/a&b.pdf] a&amp;b'
+
+======================================================================
+FAIL: test_click_handlers_are_kept_conservatively_without_execution (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_are_kept_conservatively_without_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 111, in test_click_handlers_are_kept_conservatively_without_execution
+    self.assertNotEqual(ch(a), ch(b))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '51d2361f4faea3bc8f9facdbc7d99abb555596a2e51f7b25fd3b41c93587e616' == '51d2361f4faea3bc8f9facdbc7d99abb555596a2e51f7b25fd3b41c93587e616'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="download('old.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e' == '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="location.href='/old.pdf'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e' == '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="window.open('/download?id=old')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e' == '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='a', handler="download(prefix+'old'+suffix)")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e' == '65e888aa469d893bb9513b74382434d65f4f6a2ee795ee83833ea82c78660d4e'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="download('old.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="location.href='/old.pdf'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="window.open('/download?id=old')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='button', handler="download(prefix+'old'+suffix)")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="download('old.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="location.href='/old.pdf'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="window.open('/download?id=old')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='input', handler="download(prefix+'old'+suffix)")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="download('old.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="location.href='/old.pdf'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="window.open('/download?id=old')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='td', handler="download(prefix+'old'+suffix)")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="download('old.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="location.href='/old.pdf'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="window.open('/download?id=old')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_click_handlers_on_links_and_other_elements (test_html_content_hash.DownloadTargetsChangeTheHash.test_click_handlers_on_links_and_other_elements) (tag='div', handler="download(prefix+'old'+suffix)")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 68, in test_click_handlers_on_links_and_other_elements
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_equivalent_quoting_and_entities_do_not_change_link_hash (test_html_content_hash.DownloadTargetsChangeTheHash.test_equivalent_quoting_and_entities_do_not_change_link_hash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 106, in test_equivalent_quoting_and_entities_do_not_change_link_hash
+    self.assertEqual(ch(a), ch(b))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '51d2361f4faea3bc8f9facdbc7d99abb555596a2e51f7b25fd3b41c93587e616' != 'f2deff55857b1fc1afca6a18feba5fd841210196a309a889bd670ad631196945'
+- 51d2361f4faea3bc8f9facdbc7d99abb555596a2e51f7b25fd3b41c93587e616
++ f2deff55857b1fc1afca6a18feba5fd841210196a309a889bd670ad631196945
+
+
+======================================================================
+FAIL: test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='a', quote='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 59, in test_link_attributes_with_each_quoting_style
+    self.assertIn("[link:/old.pdf]", h.normalized_text(raw))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[link:/old.pdf]' not found in '약관'
+
+======================================================================
+FAIL: test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='iframe', quote='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 59, in test_link_attributes_with_each_quoting_style
+    self.assertIn("[link:/old.pdf]", h.normalized_text(raw))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[link:/old.pdf]' not found in '약관'
+
+======================================================================
+FAIL: test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='embed', quote='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 59, in test_link_attributes_with_each_quoting_style
+    self.assertIn("[link:/old.pdf]", h.normalized_text(raw))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[link:/old.pdf]' not found in '약관'
+
+======================================================================
+FAIL: test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='object', quote='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 59, in test_link_attributes_with_each_quoting_style
+    self.assertIn("[link:/old.pdf]", h.normalized_text(raw))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[link:/old.pdf]' not found in '약관'
+
+======================================================================
+FAIL: test_link_attributes_with_each_quoting_style (test_html_content_hash.DownloadTargetsChangeTheHash.test_link_attributes_with_each_quoting_style) (tag='form', quote='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 59, in test_link_attributes_with_each_quoting_style
+    self.assertIn("[link:/old.pdf]", h.normalized_text(raw))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[link:/old.pdf]' not found in '약관'
+
+======================================================================
+FAIL: test_quoted_angle_brackets_do_not_truncate_attributes (test_html_content_hash.DownloadTargetsChangeTheHash.test_quoted_angle_brackets_do_not_truncate_attributes) (target=b'other.pdf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 81, in test_quoted_angle_brackets_do_not_truncate_attributes
+    self.assertNotEqual(ch(raw), ch(raw.replace(old, b"new.pdf")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '4417fa672eb38a2ccd7e3ed469bed3499ecaae3bc98e730d858498ce791965aa' == '4417fa672eb38a2ccd7e3ed469bed3499ecaae3bc98e730d858498ce791965aa'
+
+======================================================================
+FAIL: test_real_attribute_names_only (test_html_content_hash.DownloadTargetsChangeTheHash.test_real_attribute_names_only) (attr='data-href="old.pdf"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 88, in test_real_attribute_names_only
+    self.assertEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '089b24e49d8424da4b583cfc9ca7661cef4a76c99b8e6ddd11aae5788c25bb82' != '66c176078480025af8fdf029014f181d1fa647319833e16bc0941f51b7caa69a'
+- 089b24e49d8424da4b583cfc9ca7661cef4a76c99b8e6ddd11aae5788c25bb82
++ 66c176078480025af8fdf029014f181d1fa647319833e16bc0941f51b7caa69a
+
+
+======================================================================
+FAIL: test_real_attribute_names_only (test_html_content_hash.DownloadTargetsChangeTheHash.test_real_attribute_names_only) (attr='title="href=\'old.pdf\'"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 88, in test_real_attribute_names_only
+    self.assertEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '089b24e49d8424da4b583cfc9ca7661cef4a76c99b8e6ddd11aae5788c25bb82' != '66c176078480025af8fdf029014f181d1fa647319833e16bc0941f51b7caa69a'
+- 089b24e49d8424da4b583cfc9ca7661cef4a76c99b8e6ddd11aae5788c25bb82
++ 66c176078480025af8fdf029014f181d1fa647319833e16bc0941f51b7caa69a
+
+
+======================================================================
+FAIL: test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) (attr="onclick=download('old.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 75, in test_unquoted_click_handler_and_entity_encoded_quotes
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) (attr='onclick="download(&quot;old.pdf&quot;)"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 75, in test_unquoted_click_handler_and_entity_encoded_quotes
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_unquoted_click_handler_and_entity_encoded_quotes (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_click_handler_and_entity_encoded_quotes) (attr='onclick=\'download("old.pdf")\'')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 75, in test_unquoted_click_handler_and_entity_encoded_quotes
+    self.assertNotEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21' == '79928e09de12ead932f6a6f7c0c2f9493f492eb419e4c3e9d4e991a851c15d21'
+
+======================================================================
+FAIL: test_rule_version_was_bumped (test_html_content_hash.SessionParamsAreScopedPerHost.test_rule_version_was_bumped)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-content-hash-onclick-links/tools/tests/test_html_content_hash.py", line 151, in test_rule_version_was_bumped
+    self.assertEqual(h.RULE, "html-visible-text-v3")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'html-visible-text-v2' != 'html-visible-text-v3'
+- html-visible-text-v2
+?                    ^
++ html-visible-text-v3
+?                    ^
+
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.011s
+
+FAILED (failures=35, skipped=2)

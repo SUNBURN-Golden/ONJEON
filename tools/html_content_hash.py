@@ -10,34 +10,39 @@ It is an AUXILIARY signal. It never stands in for byte identity: the raw bytes a
 are always archived and reported separately, and "content hash equal" is reported as
 `bytes_changed_content_same`, never as identical or verified.
 
-Rule html-visible-text-v2 (bump the version for any change to these steps):
+Rule html-visible-text-v3 (bump the version for any change to these steps):
  1. decode: <meta charset> / http-equiv charset if declared, else utf-8, then euc-kr, then cp949
  2. drop HTML comments, <script>, <style> (session ids live in scripts)
  3. keep <title> text, minus host-specific volatile markers listed in VOLATILE_TITLE
- 4. keep link targets (href/src of a, iframe, embed, object, form action) as "[link:...]",
+ 4. parse HTML attributes (quoted or unquoted, case-insensitive names); keep a href, iframe src,
+    embed src, object data and form action targets as "[link:...]",
     minus session parameters. ";jsessionid=" path parameters and the unambiguous query names in
     SESSION_PARAMS (jsessionid, sessionid, phpsessid) are removed on every host. Query names that
     other sites use as real identifiers (sid, _t, _, ts, timestamp) are removed only on hosts
     listed in HOST_VOLATILE_PARAMS; on any other host they are kept, because a changed `sid=`
     can be a different document. The host is the link's own host, else the page host.
- 5. strip remaining tags, unescape entities, collapse every run of whitespace to one space
- 6. SHA-256 of the UTF-8 result
+ 5. keep every nonempty onclick attribute as "[onclick:...]" on any element. Preserve the whole
+    handler conservatively, including computed targets; do not execute JavaScript or guess which
+    strings are file names. Handler session tokens/code changes can therefore change the hash.
+ 6. strip remaining tags, decode HTML entities once, collapse every run of whitespace to one space
+ 7. SHA-256 of the UTF-8 result
 
 History: v1 stripped sid/_t/_/ts/timestamp from every link on every host, so a site using `sid`
-as a document id reported a changed link as unchanged. v2 scopes them per host. Hashes stored
-under v1 are not comparable with v2 (verify_sources.py only compares equal rule names, so they
-count as `changed` until re-baselined); adding a host to HOST_VOLATILE_PARAMS needs a new version.
+as a document id reported a changed link as unchanged. v2 scoped them per host but missed unquoted
+targets and onclick handlers. v3 parses attributes and preserves handlers. Hashes under older
+rules are not comparable (verify_sources.py only compares equal rule names, so they count as
+`changed` until re-baselined); adding a host to HOST_VOLATILE_PARAMS needs a new version.
 
 Meaningful changes that MUST change the hash (tools/tests/test_html_content_hash.py): title,
 product name, effective date, price, payout condition, linked document file name, table rows.
 """
 import hashlib
-import html
 import re
 import sys
+from html.parser import HTMLParser
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-RULE = "html-visible-text-v2"
+RULE = "html-visible-text-v3"
 # host suffix -> regex removed from <title> text
 VOLATILE_TITLE = {"kbinsure.co.kr": re.compile(r"\s*\[[A-Z]\]\s*$")}
 # query names that only ever carry a session id: removed on every host
@@ -45,7 +50,7 @@ SESSION_PARAMS = {"jsessionid", "sessionid", "phpsessid"}
 # host suffix -> extra query names that are volatile only on that host. KB's `_t` is the one seen in
 # the fixture; whether the live page also varies sid/_/ts per fetch is unchecked (needs the R2 originals).
 HOST_VOLATILE_PARAMS = {"kbinsure.co.kr": {"_t"}}
-LINK_RE = re.compile(r"<(?:a|iframe|embed|object|form)\b[^>]*?\b(?:href|src|data|action)\s*=\s*(['\"])(.*?)\1", re.I | re.S)
+LINK_ATTRIBUTES = {"a": "href", "iframe": "src", "embed": "src", "object": "data", "form": "action"}
 
 
 def decode(raw):
@@ -83,22 +88,67 @@ def clean_link(url, host=""):
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(q), parts.fragment))
 
 
+class _ContentParser(HTMLParser):
+    """Read attributes as HTML, without evaluating handlers or fetching their targets."""
+
+    def __init__(self, host):
+        super().__init__(convert_charrefs=True)
+        self.host = host
+        self.parts = []
+        self.hidden = None
+        self.title_parts = None
+
+    def finish_title(self):
+        if self.title_parts is None:
+            return
+        title = "".join(self.title_parts)
+        for suffix, pat in VOLATILE_TITLE.items():
+            if host_matches(self.host, suffix):
+                title = pat.sub("", title)
+        self.parts.append(f" {title} ")
+        self.title_parts = None
+
+    def handle_starttag(self, tag, attrs):
+        if self.hidden:
+            return
+        self.handle_data(" ")
+        if tag in {"script", "style"}:
+            self.hidden = tag
+            return
+        if tag == "title":
+            self.title_parts = []
+        for name, value in attrs:
+            if value is None:
+                continue
+            if name == LINK_ATTRIBUTES.get(tag):
+                self.parts.append(f" [link:{clean_link(value, self.host)}] ")
+            elif name == "onclick" and value.strip():
+                self.parts.append(f" [onclick:{value}] ")
+
+    def handle_endtag(self, tag):
+        if self.hidden:
+            if tag == self.hidden:
+                self.hidden = None
+            return
+        if tag == "title":
+            self.finish_title()
+        self.handle_data(" ")
+
+    def handle_data(self, data):
+        if not self.hidden:
+            (self.title_parts if self.title_parts is not None else self.parts).append(data)
+
+    def handle_comment(self, data):
+        self.handle_data(" ")
+
+
 def normalized_text(raw, host=""):
     text, _ = decode(raw)
-    text = re.sub(r"<!--.*?-->", " ", text, flags=re.S)
-    text = re.sub(r"<script\b.*?</script\s*>|<style\b.*?</style\s*>", " ", text, flags=re.S | re.I)
-
-    def title(m):
-        t = m.group(1)
-        for suffix, pat in VOLATILE_TITLE.items():
-            if host_matches(host, suffix):
-                t = pat.sub("", t)
-        return f" {t} "
-    text = re.sub(r"<title\b[^>]*>(.*?)</title\s*>", title, text, flags=re.S | re.I)
-    text = LINK_RE.sub(lambda m: f" [link:{clean_link(html.unescape(m.group(2)), host)}] " + m.group(0), text)
-    text = re.sub(r"<[^>]+>", " ", text)
-    text = html.unescape(text)
-    return re.sub(r"\s+", " ", text).strip()
+    parser = _ContentParser(host)
+    parser.feed(text)
+    parser.close()
+    parser.finish_title()
+    return re.sub(r"\s+", " ", "".join(parser.parts)).strip()
 
 
 def content_sha256(raw, host=""):

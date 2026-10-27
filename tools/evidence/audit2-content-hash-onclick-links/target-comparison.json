@@ -1,0 +1,73 @@
+{
+  "scope": "synthetic HTML; mocked fetch; local temporary reports; no network/archive access",
+  "cases": [
+    {
+      "case": "unquoted_href",
+      "before": "<a href=/old.pdf>terms</a>",
+      "after": "<a href=/new.pdf>terms</a>",
+      "runs": [
+        {
+          "rule": "html-visible-text-v2",
+          "status": "bytes_changed_content_same",
+          "exit_code": 0
+        },
+        {
+          "rule": "html-visible-text-v3",
+          "status": "changed",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "onclick_anchor",
+      "before": "<a href=\"#\" onclick=\"download('old.pdf')\">terms</a>",
+      "after": "<a href=\"#\" onclick=\"download('new.pdf')\">terms</a>",
+      "runs": [
+        {
+          "rule": "html-visible-text-v2",
+          "status": "bytes_changed_content_same",
+          "exit_code": 0
+        },
+        {
+          "rule": "html-visible-text-v3",
+          "status": "changed",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "onclick_button",
+      "before": "<button onclick=download('old.pdf')>terms</button>",
+      "after": "<button onclick=download('new.pdf')>terms</button>",
+      "runs": [
+        {
+          "rule": "html-visible-text-v2",
+          "status": "bytes_changed_content_same",
+          "exit_code": 0
+        },
+        {
+          "rule": "html-visible-text-v3",
+          "status": "changed",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "session_only_control",
+      "before": "<a href=\"/d?id=7&jsessionid=A\">terms</a>",
+      "after": "<a href=\"/d?id=7&jsessionid=B\">terms</a>",
+      "runs": [
+        {
+          "rule": "html-visible-text-v2",
+          "status": "bytes_changed_content_same",
+          "exit_code": 0
+        },
+        {
+          "rule": "html-visible-text-v3",
+          "status": "bytes_changed_content_same",
+          "exit_code": 0
+        }
+      ]
+    }
+  ]
+}

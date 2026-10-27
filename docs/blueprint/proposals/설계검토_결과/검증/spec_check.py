@@ -17,7 +17,10 @@
   daemon_rules.json
     post_merge_states: [...]          # 병합 뒤 상태 전부. 선행 조건 충족은 이 집합으로 판정
     events: [...]                     # 전이를 일으키는 사건 이름
-    transitions[]: from, to, event, when, by
+    transitions[]: from, to, event, when, by, cond, guard, side_effects
+      전이 검사는 코어가 읽는 cond(술어 {field, op, value})·guard·side_effects만 본다. when 문장은 설명이라 보지 않는다
+      (audit2-spec-check-reads-prose-when). 시작·병합 관문, 선행 충족, 문서 PR 완료, 현재 임대 조건, 임대 가드, 인계 뒤 임대는
+      아래 cond 술어로 판정한다(COND_* 상수).
     switch_policy.allowed_switch_signals[].detect[]: {source, match, scope}
     concurrency.fencing: {token, checked_at: [...], on_lease_end: [...]}, concurrency.isolation
     safety_verification_status: {장치: specified | dry_run_target | real_executor_required}
@@ -26,7 +29,8 @@
     preserve_manifest: {function, includes/excludes, deleted·untracked·mode·symlink 규칙, compare}; concurrency.quiescence가 같은 function 참조
     handoff_failure_policy: {max_attempts, always_revoke:[..., preserve_credential], ...}
     전이 event: quiescence_failed, index_lock, disk_full, preserve_commit_failed, preserve_push_failed, daemon_restart_during_handoff
-    handoff→leased 전이의 when: preserve_succeeded 또는 recovery_decision
+    handoff→leased 전이의 cond: handoff_record.preservation_state == remote_pushed (보존 성공. 복구 결정 뒤에도 보존이 성공해야 한다)
+    임대 발급 전이(issue_lease 부수 효과·to leased·사건 lease_granted): side_effects에 issue_lease, guard lease_guards 또는 cond lease_guards all_pass
   tasks[].verification_kind: dry_run | real_executor (해당 과제만)
   07_수정대응표.md: 지적마다 변경 위치·시험 종류·증명 범위·미검증
 """
@@ -42,11 +46,13 @@ BUNDLE = os.path.dirname(HERE)
 
 
 def load(name):
-    return json.load(open(os.path.join(BUNDLE, name), encoding="utf-8"))
+    with open(os.path.join(BUNDLE, name), encoding="utf-8") as f:
+        return json.load(f)
 
 
 def read(name):
-    return open(os.path.join(BUNDLE, name), encoding="utf-8").read()
+    with open(os.path.join(BUNDLE, name), encoding="utf-8") as f:
+        return f.read()
 
 
 RESULTS = []
@@ -135,6 +141,57 @@ def noop_events_of(D):
     return [e if isinstance(e, str) else e.get("event", "") for e in D.get("noop_events", [])]
 
 
+# ---------- 전이 행의 구조화 조건(코어가 읽는 것만) ----------
+COND_START = {"field": "task.decision_gates.start", "op": "subset_of", "value": "task_state.decisions_recorded"}
+COND_PREREQ = {"field": "prereq_tasks_in(post_merge_states)", "op": "==", "value": True}
+MERGE_FIELD, MERGE_VALUE = "task.decision_gates.merge", "task_state.decisions_recorded"
+GUARD_COND = {"field": "lease_guards", "op": "all_pass", "value": True}
+
+
+def preds(row):
+    """행의 cond 술어(any/all 묶음은 펼친다). when은 보지 않는다."""
+    out, stack = [], list(row.get("cond") or [])
+    while stack:
+        p = stack.pop(0)
+        if not isinstance(p, dict):
+            continue
+        if p.get("field") in ("any", "all") and isinstance(p.get("value"), list):
+            stack.extend(p["value"])
+        else:
+            out.append(p)
+    return out
+
+
+def top_preds(row):
+    """모두 참이어야 하는 술어(any 안의 것은 빠진다)."""
+    return [p for p in row.get("cond") or [] if isinstance(p, dict) and p.get("field") not in ("any", "all")]
+
+
+def has_pred(row, field, op, value, top=True):
+    return any(p.get("field") == field and p.get("op") == op and p.get("value") == value for p in (top_preds(row) if top else preds(row)))
+
+
+def effect_ids(row):
+    return [e.get("id") if isinstance(e, dict) else e for e in row.get("side_effects") or []]
+
+
+def issue_reason(row):
+    for e in row.get("side_effects") or []:
+        if isinstance(e, dict) and e.get("id") == "issue_lease":
+            return (e.get("args") or {}).get("reason")
+    return None
+
+
+def lease_issuing_rows(tr):
+    """임대를 발급하는 전이 전부: issue_lease 부수 효과가 있거나, leased로 가거나, 사건이 lease_granted인 행
+    (building→building 재시도·ci_failed/changes_requested→building 재임대 포함)."""
+    return [x for x in tr if "issue_lease" in effect_ids(x) or x.get("to") == "leased" or x.get("event") == "lease_granted"]
+
+
+def row_name(x):
+    return f"{x.get('from')}→{x.get('to')} ({x.get('event')})"
+
+
 def integration_rows(repo):
     """설계통합안 §2.1~§2.9 표의 기능 행 이름."""
     text = open(os.path.join(repo, "docs/blueprint/proposals/설계통합안_검토본.md"), encoding="utf-8").read()
@@ -161,9 +218,9 @@ def integration_rows(repo):
 
 
 # ---------- 검사 ----------
-def run(repo):
-    T = load("tasks.json")
-    D = load("daemon_rules.json")
+def run(repo, T=None, D=None):
+    T = load("tasks.json") if T is None else T
+    D = load("daemon_rules.json") if D is None else D
     tasks = {t["id"]: t for t in T["tasks"]}
     new_schema = all("produces" in t for t in tasks.values())
 
@@ -230,12 +287,21 @@ def run(repo):
     # G5 결정 차단: 문서(병합만)와 JSON의 일치(F10)
     tr = D.get("transitions", [])
     start_tr = [x for x in tr if x.get("from") == "blocked" and x.get("to") == "queued"]
-    uses_all = [x["when"] for x in start_tr if "prereq_decisions" in x.get("when", "")]
+    # 판정은 cond 술어로만 한다. when 문장은 코어가 읽지 않는다(audit2-spec-check-reads-prose-when).
+    uses_all = [row_name(x) for x in start_tr if any("prereq_decisions" in json.dumps(p, ensure_ascii=False) or p.get("field") == MERGE_FIELD for p in preds(x))]
     has_gates = all("decision_gates" in t for t in tasks.values())
-    merge_checks = [x for x in tr if "decision_gates.merge" in x.get("when", "")]
     check("gates", "G5a 과제가 시작 차단과 병합 차단을 따로 적음(decision_gates)", has_gates, "decision_gates 없는 과제 " + str([tid for tid, t in tasks.items() if "decision_gates" not in t][:8]))
-    check("gates", "G5b 시작 전이는 decision_gates.start만 본다", start_tr and not uses_all and all("decision_gates.start" in x.get("when", "") for x in start_tr), uses_all or [x.get("when") for x in start_tr])
-    check("gates", "G5c 병합 대기 전이가 decision_gates.merge를 본다", bool(merge_checks), f"decision_gates.merge를 보는 전이 {len(merge_checks)}개")
+    no_start = [row_name(x) for x in start_tr if not has_pred(x, **COND_START)]
+    check("gates", "G5b 시작 전이(blocked→queued)의 cond가 decision_gates.start만 본다(task.decision_gates.start subset_of task_state.decisions_recorded, 병합 관문·prereq_decisions 없음)",
+          bool(start_tr) and not uses_all and not no_start, {"시작 관문 cond 없는 전이": no_start, "다른 관문을 보는 전이": uses_all, "전이 수": len(start_tr)})
+    # 병합 관문: 승인·감리를 마치고 merge_wait로 들어가는 행과 merge_wait 사유 갱신 행. 감리·리뷰어 부재로 기다리는 행(사유가 관문이 아님)은 뺀다.
+    merge_tr = [x for x in tr if x.get("to") == "merge_wait" and (x.get("from") in ("review_approved", "audit_pending") or x.get("from") == "merge_wait")
+                and x.get("event") not in ("auditor_unavailable", "reviewer_unavailable")]
+    merge_ops = {row_name(x): sorted({p["op"] for p in top_preds(x) if p.get("field") == MERGE_FIELD and p.get("value") == MERGE_VALUE}) for x in merge_tr}
+    no_merge = [n for n, ops in merge_ops.items() if len(ops) != 1 or ops[0] not in ("subset_of", "not_subset_of")]
+    sides = {ops[0] for ops in merge_ops.values() if len(ops) == 1}
+    check("gates", "G5c 병합 대기 전이(review_approved·audit_pending→merge_wait, 사유 갱신)의 cond가 decision_gates.merge를 본다(기록됨 subset_of·미기록 not_subset_of 둘 다)",
+          bool(merge_tr) and not no_merge and {"subset_of", "not_subset_of"} <= sides, {"병합 관문 cond 없는 전이": no_merge, "전이별 op": merge_ops})
 
     # G6 병합 뒤 상태(F12)
     post = set(D.get("post_merge_states", []))
@@ -245,20 +311,20 @@ def run(repo):
         for x in tr:
             if x.get("from") == s and x.get("to") not in reach and x.get("to") not in ("returned", "cancelled"):
                 reach.add(x["to"]); frontier.append(x["to"])
-    eq_merged = [x["when"] for x in start_tr if re.search(r"==\s*merged", x.get("when", ""))]
+    eq_merged = [row_name(x) for x in start_tr if any(p.get("value") == "merged" or p.get("value") == ["merged"] for p in preds(x))]
+    no_post = [row_name(x) for x in start_tr if not has_pred(x, **COND_PREREQ)]
     check("postmerge", "G6a post_merge_states가 merged에서 닿는 상태를 전부 포함", post and reach <= post, f"닿는 상태 {sorted(reach)} · 선언 {sorted(post)}")
-    check("postmerge", "G6b 선행 충족을 '==merged'가 아니라 post_merge_states로 판정", start_tr and not eq_merged and all("post_merge_states" in x.get("when", "") for x in start_tr), eq_merged or [x.get("when") for x in start_tr])
+    check("postmerge", "G6b 선행 충족을 '==merged'가 아니라 post_merge_states로 판정(cond prereq_tasks_in(post_merge_states) == true)", bool(start_tr) and not eq_merged and not no_post,
+          {"merged와 같음을 보는 전이": eq_merged, "post_merge_states cond 없는 전이": no_post})
 
     # G7 대기·복구 경로(F06)
-    def has(frm, event=None, to=None, word=None):
+    def has(frm, event=None, to=None):
         for x in tr:
             if x.get("from") not in (frm, "*"):
                 continue
             if event and x.get("event") != event:
                 continue
             if to and x.get("to") not in to:
-                continue
-            if word and word not in x.get("when", ""):
                 continue
             return True
         return False
@@ -393,8 +459,21 @@ def run(repo):
     # F07 명시적 no-op, 문서 PR 완료, 잘못된 병합은 완료가 아님
     noop = D.get("noop_events", [])
     check("wait", "G21 명시적 no-op 사건 목록(중복·대기 알림)", bool(noop), noop or "없음")
-    docs_done = [x for x in tr if x.get("from") == "merged" and x.get("to") == "done" and "docs_only" in x.get("when", "")]
-    check("wait", "G22 문서 PR의 병합 뒤 완료 전이", bool(docs_done), [x.get("event") for x in docs_done] or "없음")
+    # 문서 PR 완료: merged→done 행이 cond event.docs_only == true를 갖고, 같은 (from, event)의 다른 행은 모두 그 반대(!= true)여야
+    # 코어가 그 행을 고를 수 있다(앞의 cond 없는 행이 언제나 먼저 이긴다). 사건 페이로드도 docs_only를 실어야 한다.
+    payloads = ((D.get("core_contract") or {}).get("events_in") or {}).get("payloads") or {}
+    docs_done, docs_bad = [], []
+    for x in tr:
+        if x.get("from") != "merged" or x.get("to") != "done" or not has_pred(x, "event.docs_only", "==", True):
+            continue
+        rivals = [y for y in tr if y is not x and y.get("event") == x.get("event") and y.get("from") in ("merged", "*")]
+        bad = [row_name(y) for y in rivals if not has_pred(y, "event.docs_only", "!=", True)]
+        if "docs_only" not in (payloads.get(x.get("event")) or []):
+            bad.append(f"events_in.payloads.{x.get('event')}에 docs_only 없음")
+        (docs_bad if bad else docs_done).append(x.get("event"))
+        docs_bad.extend(bad)
+    check("wait", "G22 문서 PR의 병합 뒤 완료 전이(cond event.docs_only == true, 같은 사건의 다른 행은 != true, 페이로드에 docs_only)", bool(docs_done) and not docs_bad,
+          {"완료 전이 사건": docs_done or "없음", "코어가 고를 수 없는 이유": docs_bad})
     bad_merge = [x for x in tr if x.get("event") == "merged_without_valid_approval"]
     check("wait", "G23 유효한 승인 없이 병합된 사실은 기록하되 done으로 가지 않음", bad_merge and all(x.get("to") != "done" for x in bad_merge), [(x.get("from"), x.get("to")) for x in bad_merge] or "없음")
     # F09 전환 신호의 출처·attempt·호출 ID 검증
@@ -405,7 +484,8 @@ def run(repo):
     bad = [tid for tid, t in tasks.items() if not keys <= set((t.get("decision_gates") or {}).keys())]
     check("gates", "G25 decision_gates가 start·real_data·merge·release를 따로 가짐", not bad, bad[:8])
     # F12 제약 목록 단일화, 시험 프로필 분리
-    tb = json.load(open(os.path.join(repo, "docs/blueprint/proposals/온톨로지/tbox.json"), encoding="utf-8"))
+    with open(os.path.join(repo, "docs/blueprint/proposals/온톨로지/tbox.json"), encoding="utf-8") as f:
+        tb = json.load(f)
     kmax = max(int(k["id"][1:]) for k in tb["constraints"])
     texts = {n: read(n) for n in ("01_코드설계.md", "02_구현계약.md", "03_작업명세.md", "06_검토사항_점검.md")}
     texts["tasks.json"] = json.dumps(T, ensure_ascii=False)
@@ -461,8 +541,13 @@ def run(repo):
     ok = len(targets) == 1 and stale_txt and next(iter(targets)) in stale_txt and not ({"pr_open", "review_pending"} - targets) & set(re.findall(r"pr_open|review_pending", stale_txt))
     check("wait", "G32 [R04①] head_sha_changed의 목적지가 하나이고 stale-approval 시험의 기대 상태와 같음", ok, {"전이 목적지": sorted(t for t in targets if t), "시험 문구의 상태": sorted(set(re.findall(r"pr_open|review_pending", stale_txt)))})
     # R04② 늦은 결과·펜스 위반은 현재 임대에만 상태 전이를 일으킨다
-    bad = [f"{x.get('from')}→{x.get('to')} ({x.get('event')})" for x in tr
-           if re.search(r"fence|late|stale_lease", x.get("event") or "") and x.get("from") != x.get("to") and "current" not in (x.get("when") or "")]
+    def current_lease(x):
+        """cond가 사건 쪽 lease_id·lease_generation을 현재 임대(lease_record)와 == 로 비교한다."""
+        ps = top_preds(x)
+        return all(any(p.get("op") == "==" and p.get("value") == f"lease_record.{k}" and str(p.get("field", "")).endswith("." + k)
+                       and str(p.get("field", "")).split(".")[0] in ("report", "envelope", "event", "request", "signal") for p in ps)
+                   for k in ("lease_id", "lease_generation"))
+    bad = [row_name(x) for x in tr if re.search(r"fence|late|stale_lease", x.get("event") or "") and x.get("from") != x.get("to") and not current_lease(x)]
     stale_noop = [e for e in noop_events_of(D) if re.search(r"late|stale", e)]
     check("latewrite", "G33 [R04②] 이전 임대의 늦은 결과는 상태를 바꾸지 않음(전이는 현재 임대 조건, 이전 임대 사건은 no-op)", not bad and bool(stale_noop), {"현재 임대 조건 없는 전이": bad, "늦은 결과 no-op": stale_noop})
     # R04③ 인계 순서: 보존 → 중단 → 토큰 폐기 → 다음 임대 발급
@@ -473,8 +558,10 @@ def run(repo):
     check("latewrite", "G34 [R04③·S02] handoff_sequence가 stop → isolate → confirm_quiescent → preserve → revoke_token → issue_next_lease 순서", -1 not in pos and pos == sorted(pos), seq or "없음")
     # R04④ 임대를 발급하는 모든 전이에 공통 가드
     guards = D.get("lease_guards", [])
-    bad = [f"{x.get('from')}→leased ({x.get('event')})" for x in tr if x.get("to") == "leased" and "lease_guards" not in (x.get("when") or "") and x.get("guard") != "lease_guards"]
-    check("latewrite", "G35 [R04④] 임대 발급 전이 전부가 lease_guards(충돌 검사·잠금·예산 예약)를 거침", bool(guards) and not bad, {"lease_guards": guards, "가드 없는 전이": bad})
+    issuing = lease_issuing_rows(tr)
+    bad = [row_name(x) for x in issuing if x.get("guard") != "lease_guards" and not has_pred(x, **GUARD_COND)]
+    check("latewrite", "G35 [R04④] 임대 발급 전이 전부(issue_lease·to leased·lease_granted)가 lease_guards(충돌 검사·잠금·예산 예약)를 거침(guard 또는 cond all_pass)",
+          bool(guards) and bool(issuing) and not bad, {"lease_guards": [g.get("id") if isinstance(g, dict) else g for g in guards], "임대 발급 전이": len(issuing), "가드 없는 전이": bad})
     # R04⑤ 승인 head와 병합 커밋을 구분
     blob = json.dumps(D, ensure_ascii=False) + read("04_자동개발명세.md")
     need = ("approved_head_sha", "base_sha", "merge_commit_sha", "integration_check")
@@ -484,10 +571,17 @@ def run(repo):
     conc = D.get("concurrency", {})
     key = json.dumps(conc.get("idempotency_key", ""), ensure_ascii=False)
     issue = conc.get("lease_issue") or {}
-    no_issue = [f"{x.get('from')}→leased ({x.get('event')})" for x in tr if x.get("to") == "leased"
-                and "issue_lease" not in (x.get("when") or "") + json.dumps(x.get("side_effects", ""), ensure_ascii=False)]
+    # 임대 발급 전이 전부(G35와 같은 집합)가 side_effects의 issue_lease로 발급하고, 사유가 lease_issue.reasons와 일대일이며
+    # (코어는 (from, reason)으로 행을 찾는다), issue_lease 밖의 부수 효과가 lease_generation을 바꾸지 않는다.
+    issuing = lease_issuing_rows(tr)
+    reasons = [issue_reason(x) for x in issuing]
+    no_issue = [row_name(x) for x in issuing if "issue_lease" not in effect_ids(x)]
+    no_issue += [f"{row_name(x)}: 사유 {issue_reason(x)}가 lease_issue.reasons 밖" for x in issuing if issue_reason(x) is not None and issue_reason(x) not in (issue.get("reasons") or [])]
+    no_issue += [f"사유 {r} 중복" for r in sorted({r for r in reasons if r is not None and reasons.count(r) > 1})]
+    no_issue += [f"발급 전이 없는 사유 {r}" for r in issue.get("reasons") or [] if r not in reasons]
     inc_pat = re.compile(r"lease_generation\s*(\+=|\+\s*1|를?\s*(올|증가))")
-    dup_inc = [f"{x.get('from')}→{x.get('to')}" for x in tr if inc_pat.search(json.dumps(x.get("side_effects", ""), ensure_ascii=False) + (x.get("when") or ""))]
+    dup_inc = [f"{row_name(x)}: {e.get('id')}" for x in tr for e in x.get("side_effects") or []
+               if isinstance(e, dict) and e.get("id") != "issue_lease" and ("lease_generation" in json.dumps(e.get("args") or {}, ensure_ascii=False) or inc_pat.search(json.dumps(e, ensure_ascii=False)))]
     dup_inc += [f"handoff_steps: {st if isinstance(st, str) else st.get('id')}" for st in D.get("switch_policy", {}).get("handoff_steps", []) + D.get("handoff_steps", [])
                 if inc_pat.search(json.dumps(st, ensure_ascii=False))]
     ok = ("lease_generation" in key and bool(conc.get("duplicate_delivery")) and bool(conc.get("retry")) and not no_issue and not dup_inc
@@ -512,11 +606,11 @@ def run(repo):
     miss = [e for e in fails if not any(x.get("event") == e for x in tr)]
     bad_to = [f"{x.get('event')}→leased" for x in tr if x.get("event") in fails and x.get("to") == "leased"]
     gate = [x for x in tr if x.get("to") == "leased" and x.get("from") == "handoff"]
-    gate_ok = bool(gate) and all(("preserve_succeeded" in (x.get("when") or "") or "recovery_decision" in (x.get("when") or "")) for x in gate)
+    gate_ok = bool(gate) and all(has_pred(x, "handoff_record.preservation_state", "==", "remote_pushed") for x in gate)
     pol = D.get("handoff_failure_policy") or {}
     ok = not miss and not bad_to and gate_ok and bool(pol.get("max_attempts")) and "preserve_credential" in json.dumps(pol.get("always_revoke", ""), ensure_ascii=False)
     check("latewrite", "G44 [T03] 인계 실패 사건마다 전이(임대 발급 아님), 다음 임대는 보존 성공 또는 복구 결정 뒤, 재시도 한도, 보존 자격 항상 회수", ok,
-          {"전이 없는 실패 사건": miss, "임대로 가는 실패": bad_to, "handoff→leased 조건": [x.get("when", "")[:60] for x in gate], "max_attempts": pol.get("max_attempts"), "always_revoke": pol.get("always_revoke")})
+          {"전이 없는 실패 사건": miss, "임대로 가는 실패": bad_to, "handoff→leased 조건(cond)": [[p.get("field") for p in top_preds(x)] for x in gate], "max_attempts": pol.get("max_attempts"), "always_revoke": pol.get("always_revoke")})
     # R05 봉투에 권한 필드, 일반 금지와 정본 변경 예외의 일치
     req_fields = set(D.get("envelopes", {}).get("instruction", {}).get("required", []))
     check("gates", "G37 [R05] 지시 봉투 필수 필드에 real_data_allowed·canon_change_approval", {"real_data_allowed", "canon_change_approval"} <= req_fields, sorted({"real_data_allowed", "canon_change_approval"} - req_fields))

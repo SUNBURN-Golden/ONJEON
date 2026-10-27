@@ -110,6 +110,7 @@ class DaemonCore:
             "lease_guards": lambda _a: lease_mod.run_guards(self, d, task_id, reason),
             "builder_available": lambda a: self.ports.builders.available(a, prev),
             "envelope_validator": lambda a: lease_mod.candidate_validation(self, d, task_id, reason)[0],
+            "prereq_tasks_in": lambda a: observation.prereq_tasks_in(self, d, task_id, a),
         }
         base.update(funcs or {})
         journal = []

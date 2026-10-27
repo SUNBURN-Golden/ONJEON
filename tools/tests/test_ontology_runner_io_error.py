@@ -8,7 +8,8 @@ emit a per-case `io_error` object and keep evaluating the remaining jobs, exitin
 
 Set ONJEON_ONTOLOGY_RUNNER to use an already-built runner (both rules-engine and
 design-specs CI jobs build it before discovery). Otherwise build with
-`cargo build --offline`; a failed build fails the tests. Only a missing cargo
+`cargo build --offline --target-dir <runner>/target` so Cargo configuration cannot
+redirect the build away from the executable used here; a failed build fails the tests. Only a missing cargo
 without a prebuilt runner skips them.
 """
 import json
@@ -56,9 +57,12 @@ def jobs():
 class RunnerIoError(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.runner = os.environ.get("ONJEON_ONTOLOGY_RUNNER", str(RUNNER_BIN))
+        cls.runner = os.environ.get("ONJEON_ONTOLOGY_RUNNER") or str(RUNNER_BIN)
         if not os.environ.get("ONJEON_ONTOLOGY_RUNNER"):
-            subprocess.run(["cargo", "build", "--offline"], cwd=RUNNER_DIR, capture_output=True, text=True, check=True)
+            subprocess.run(
+                ["cargo", "build", "--offline", "--target-dir", str(RUNNER_DIR / "target")],
+                cwd=RUNNER_DIR, capture_output=True, text=True, check=True,
+            )
 
     def run_jobs(self, batch):
         p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
@@ -203,6 +207,26 @@ class RunnerIoError(unittest.TestCase):
 
 
 class RunnerSetup(unittest.TestCase):
+    def test_fallback_build_and_launch_share_target_despite_cargo_configuration(self):
+        for override in (None, ""):
+            with self.subTest(prebuilt=override), \
+                    mock.patch.dict(os.environ, {"CARGO_TARGET_DIR": "/elsewhere/shared-target"}), \
+                    mock.patch.object(RunnerIoError, "runner", create=True), \
+                    mock.patch.object(subprocess, "run") as build:
+                if override is None:
+                    os.environ.pop("ONJEON_ONTOLOGY_RUNNER", None)
+                else:
+                    os.environ["ONJEON_ONTOLOGY_RUNNER"] = override
+                RunnerIoError.setUpClass()
+                args, kwargs = build.call_args
+                command = args[0]
+                target = Path(command[command.index("--target-dir") + 1])
+                self.assertTrue(target.is_absolute())
+                self.assertEqual(Path(RunnerIoError.runner), target / "debug/ontology-case-runner")
+                self.assertNotEqual(str(target), os.environ["CARGO_TARGET_DIR"])
+                self.assertEqual(kwargs["cwd"], RUNNER_DIR)
+                self.assertTrue(kwargs["check"])
+
     def test_prebuilt_runner_does_not_require_cargo_or_cached_dependencies(self):
         with mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": "/prebuilt/runner"}), \
                 mock.patch.object(RunnerIoError, "runner", create=True), \

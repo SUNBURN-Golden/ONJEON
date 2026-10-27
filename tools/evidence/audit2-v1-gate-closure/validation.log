@@ -1,0 +1,4 @@
+$ python3 tools/validation_check.py
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+
+exit_code=0

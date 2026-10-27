@@ -1,0 +1,9 @@
+Dependency checker, rules and flagged inputs compared with HEAD:
+23dad2f432f41fcd512bfc086ea7b50bd50a96be41acfdce3945c8d6c3e7bbf4 tools/ci/check_deps.py unchanged
+82ebd26e1583ec0a0f04318bdb813f8993915cd43175fe7b738f89764e308523 tools/ci/ci_common.py unchanged
+fe8bcedfc20ca7dde304c642bad41b82abde4a07b97bd4d1bcb2e88227d51fa6 tools/ci/tests/test_ci_checkers.py unchanged
+044f9cfa54772b9c973f42d0c5cd21072a30d8a9033962861cce518c9cb7074c infra/ci/deps.json unchanged
+ab2293b01369bc97f82cef4709eb3120ec3e8b9b073e7898e3bbda878b4f814f packages/ontology/Cargo.toml unchanged
+685bc96a4b496e39bc892f584fa288a640dd5bca545a98d42a120117ada86fcf packages/ontology/tests/common/mod.rs unchanged
+bee7071d425e0d8f7b5eafba78fe6acc7e647ceb1188d07113781aec692c02fb packages/ontology/tests/fixture_origin/main.rs unchanged
+Same three findings already recorded in tools/evidence/audit2-blueprint-open-decisions-stale/baseline-ci-tests.log

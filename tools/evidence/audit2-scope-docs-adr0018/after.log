@@ -1,0 +1,13 @@
+test_adr_0018_records_the_user_decision (tools.tests.test_scope_docs_adr0018.AdrSettled.test_adr_0018_records_the_user_decision) ... ok
+test_decision_ledger_marks_o01_resolved (tools.tests.test_scope_docs_adr0018.AdrSettled.test_decision_ledger_marks_o01_resolved) ... ok
+test_milestone_paragraph_follows_adr_0018 (tools.tests.test_scope_docs_adr0018.BlueprintScope.test_milestone_paragraph_follows_adr_0018) ... ok
+test_stale_paragraph_is_rejected (tools.tests.test_scope_docs_adr0018.BlueprintScope.test_stale_paragraph_is_rejected) ... ok
+test_report_links_resolve_and_point_at_evidence (tools.tests.test_scope_docs_adr0018.CorrectionReport.test_report_links_resolve_and_point_at_evidence) ... ok
+test_report_records_the_finding_and_limits (tools.tests.test_scope_docs_adr0018.CorrectionReport.test_report_records_the_finding_and_limits) ... ok
+test_scope_rows_follow_adr_0018 (tools.tests.test_scope_docs_adr0018.SystemContractScope.test_scope_rows_follow_adr_0018) ... ok
+test_stale_rows_are_rejected (tools.tests.test_scope_docs_adr0018.SystemContractScope.test_stale_rows_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.003s
+
+OK

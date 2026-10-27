@@ -1,0 +1,6 @@
+BEFORE: HEAD harness, sleeping checker, external deadline=1s
+External TimeoutExpired after 1.002s; progress stdout=None
+AFTER: current harness, same sleeping checker, --timeout=0.1
+== mutation: none (live repo copy)
+TIMEOUT: checker exceeded 0.1s for none (live repo copy)
+exit=2; elapsed=0.137s

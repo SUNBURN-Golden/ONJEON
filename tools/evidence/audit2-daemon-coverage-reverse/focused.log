@@ -1,0 +1,57 @@
+# after: this worktree (parent commit 991334c + this change)
+# $ python3 -I tools/evidence/audit2-daemon-coverage-reverse/repro_coverage_reverse.py .
+tree: fixed; required ids 33, scenarios 49 (with a required id 33)
+part 1, 991334c test assertions, full list: {'unlisted': [], 'missing': [], 'no_repeat': True}
+part 1, 991334c test assertions, M41 dropped: {'unlisted': [], 'missing': ['restart-ttl-expired-no-resend'], 'no_repeat': True}
+part 2, --require-all exact: exit 0
+    검사 38건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+    필수 목록에 없는 시험 ID 0개
+    두 번 이상 나온 시험 ID 0개
+part 2, --require-all missing: exit 1
+    검사 19건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 1개, 실행하지 않은 것 1개(이번 범위 밖)
+    실행하지 않은 시험 ID: restart-corrupt-record-returned
+    필수 목록에 없는 시험 ID 0개
+    두 번 이상 나온 시험 ID 0개
+part 2, --require-all unlisted: exit 1
+    검사 57건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+    필수 목록에 없는 시험 ID 1개, not-in-list
+    두 번 이상 나온 시험 ID 0개
+part 2, --require-all run twice: exit 1
+    검사 57건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 2개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+    필수 목록에 없는 시험 ID 0개
+    두 번 이상 나온 시험 ID 1개, restart-corrupt-record-returned
+part 2, --require-all listed twice: exit 1
+    검사 38건, 실패 0건, 명세 공백 표시 0건
+    필수 시험 ID 3개 중 이번에 실행한 것 2개, 실행하지 않은 것 0개(이번 범위 밖)
+    실행하지 않은 시험 ID:
+    필수 목록에 없는 시험 ID 0개
+    두 번 이상 나온 시험 ID 1개, restart-ttl-expired-no-resend
+# exit 0
+# $ python3 -m unittest tools.tests.test_daemon_dry_run.Coverage tools.tests.test_daemon_dry_run.CoverageBothWays -v
+test_dry_run_reports_all_required_ids_run (tools.tests.test_daemon_dry_run.Coverage.test_dry_run_reports_all_required_ids_run) ... ok
+test_every_m_number_of_05_runs (tools.tests.test_daemon_dry_run.Coverage.test_every_m_number_of_05_runs) ... ok
+test_every_prose_test_line_has_a_passing_scenario (tools.tests.test_daemon_dry_run.Coverage.test_every_prose_test_line_has_a_passing_scenario)
+Each '시험 <id>(Mxx): ...' line of tasks.json is a description, not a command: it maps to the scenario ... ok
+test_every_scenario_prints_expected_and_actual (tools.tests.test_daemon_dry_run.Coverage.test_every_scenario_prints_expected_and_actual) ... ok
+test_g29_to_g50_are_read_by_the_core (tools.tests.test_daemon_dry_run.Coverage.test_g29_to_g50_are_read_by_the_core)
+spec_gaps: G29-G50 resolved and read by the core, except G47 (its read-list entry is in daemon_rules.json, ... ok
+test_gaps_are_listed_with_field_status_and_need (tools.tests.test_daemon_dry_run.Coverage.test_gaps_are_listed_with_field_status_and_need) ... ok
+test_outside_reads_are_reported_gaps (tools.tests.test_daemon_dry_run.Coverage.test_outside_reads_are_reported_gaps) ... ok
+test_test_ids_are_the_ones_in_tasks_json (tools.tests.test_daemon_dry_run.Coverage.test_test_ids_are_the_ones_in_tasks_json) ... ok
+test_coverage_names_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_coverage_names_each_direction) ... ok
+test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) ... ok
+test_report_json_lists_both_directions (tools.tests.test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions) ... ok
+test_require_all_fails_on_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 30.448s
+
+OK
+# exit 0

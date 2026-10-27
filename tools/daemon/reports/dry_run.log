@@ -1,5 +1,5 @@
 # command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all
-# generated from parent commit 3ba1d80fd9450be6235d72337ec9d81ffa5e7873 + tree hash of tools/daemon sources sha256:d18186a883a89bb95586cecb0cb0ab8ef8b605dfba16eb8cc027b5f82acac67b
+# generated from parent commit 991334cd7c2c4fbd2244879a981aa60866723dd4 + tree hash of tools/daemon sources sha256:8d91e7ca8db6a5ed3e7ffc864a9eee1e0ce6dd9e23e6c8a15a3c3b466547414e
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
   [PASS] 정상 흐름 전이 열: queued→…→merge_wait
       기대: [["blocked", "queued", "prereqs_satisfied"], ["queued", "leased", "lease_granted"], ["leased", "building", "first_heartbeat"], ["building", "pr_open", "result_pr_opened"], ["pr_open", "review_pending", "ci_passed"], ["review_pending", "review_in_progress", "reviewer_assigned"], ["review_in_progress", "review_approved", "review_approved"], ["review_approved", "merge_wait", "audit_not_required"]]
@@ -2215,6 +2215,8 @@
   검사 704건, 실패 0건, 명세 공백 표시 0건
   필수 시험 ID 33개 중 이번에 실행한 것 33개, 실행하지 않은 것 0개(이번 범위 밖)
   실행하지 않은 시험 ID: 
+  필수 목록에 없는 시험 ID 0개
+  두 번 이상 나온 시험 ID 0개
   코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 0종(명세 공백 후보, --report에 목록)
   읽기 목록(core_contract.reads) 밖에서 읽는 값: post_merge_states(G51), audit_triggers.periodic.every(G51), audit_triggers.immediate_audit_paths(G51), record_separation.merge_observation_fields(G51)
   명세 공백: 해소(필드) 49건, 남았거나 새로 생긴 것 8건

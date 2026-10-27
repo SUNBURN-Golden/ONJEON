@@ -1811,6 +1811,108 @@ class SendMarkCompareAndSet(unittest.TestCase):
                     MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
 
 
+class GuardWaitRollsBack(unittest.TestCase):
+    """audit2-daemon-guard-fail-partial-commit: when a lease guard failed on the retry row (building -> building,
+    result_failed_tests), the transaction still committed the before_cond counter, the inbox_seen mark and an empty
+    usage slot of the next generation; a redelivery was a duplicate and the task sat in building until the lease timed
+    out. core_contract.operations.issue_lease.on_guard_wait now discards the whole transaction."""
+    WAITS = ("conflict", "writer", "parallel", "lock", "slot", "builder")
+
+    def spec(self, raw=None):
+        return (raw or raw_rules())["core_contract"]["operations"]["issue_lease"]["on_guard_wait"]
+
+    def rejected(self, kind, raw=None, **usage):
+        """BASIC is building; `kind` makes a guard wait; the builder reports failed_tests."""
+        env = MockEnv(raw or str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        res = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), "failed_tests", **usage)
+        sc.inject(env, kind, sc.BASIC)
+        before = sc.event_writes(env.snap())
+        m = sc.mark(env)
+        out = env.submit(sc.BASIC, "result", copy.deepcopy(res))
+        return env, res, before, out, env.journal()[m:]
+
+    def test_on_guard_wait_is_data(self):
+        self.assertEqual({k: v for k, v in self.spec().items() if not k.startswith("_")},
+                         {"transaction": "rollback", "keep_diagnostics": ["guard_failed", "cond_not_met"],
+                          "diagnostic": "guard_wait_rolled_back", "result": "guard_wait"})
+
+    def test_a_waiting_guard_keeps_nothing_of_the_result(self):
+        for kind in self.WAITS:
+            with self.subTest(kind=kind):
+                env, res, before, out, js = self.rejected(kind, calls=3, wall_s=4, cost_units=5)
+                self.assertEqual(sc.event_writes(env.snap()), before)
+                t = env.task(sc.BASIC)
+                self.assertEqual((t["task_state"]["consecutive_failed_tests"], len(t["inbox_seen"]), t["lease_generation"],
+                                  t["lease_record"]["status"], t["task_state"]["state"]), (0, 1, 1, "active", "building"))
+                self.assertEqual([(u["lease_generation"], u["calls"]) for u in sc.usage_rows(env, sc.BASIC)], [(1, None)])
+                self.assertEqual((out["accepted"], out["applied"], out["transition"], out["reason"]),
+                                 (False, False, None, "guard_wait"))
+                self.assertEqual({r["kind"] for r in js}, {"diagnostic_record"})
+                self.assertEqual([r["what"] for r in js], ["cond_not_met", "guard_wait_rolled_back"])
+                want = sorted(sc.FAILS_WITH.get(kind, [sc.GUARD_FOR[kind]]))
+                self.assertEqual(sc.failed_guard_ids(js), want)
+                last = js[-1]
+                self.assertEqual((last["event"], sorted(last["failed"]), last["envelope_id"]),
+                                 ("result_failed_tests", want, res["envelope_id"]))
+
+    def test_the_same_envelope_is_taken_once_the_guard_passes(self):
+        env, res, _, _, _ = self.rejected("conflict", calls=3, wall_s=4, cost_units=5)
+        sc.release(env, "conflict", sc.BASIC)
+        m = sc.mark(env)
+        out = env.submit(sc.BASIC, "result", copy.deepcopy(res))
+        t = env.task(sc.BASIC)
+        self.assertEqual((out["accepted"], out["transition"]), (True, ("building", "building", "result_failed_tests")))
+        self.assertEqual((t["task_state"]["consecutive_failed_tests"], t["lease_generation"], len(sc.sent_ids(env))), (1, 2, 2))
+        self.assertEqual([(u["lease_generation"], u["calls"]) for u in sc.usage_rows(env, sc.BASIC)], [(1, 3), (2, None)])
+        self.assertEqual([r["args"]["reason"] for r in env.journal()[m:] if r["kind"] == "side_effect_record" and r["id"] == "issue_lease"],
+                         ["retry_failed_tests"])
+        again = env.submit(sc.BASIC, "result", copy.deepcopy(res))  # generation 2 now: late before duplicate (G40)
+        self.assertEqual((again["noop"], again["return_code"]), ("late_envelope_rejected", "R-11"))
+
+    def test_a_failed_usage_write_is_not_queued_for_a_result_not_taken(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        res = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), "failed_tests", calls=3)
+        sc.inject(env, "conflict", sc.BASIC)
+        env.ports.faults.arm_fail("usage:record_result")
+        env.submit(sc.BASIC, "result", copy.deepcopy(res))
+        self.assertEqual(env.snap().get("usage_retry", []), [])
+        self.assertNotIn("usage_record_failed_warning", [r["what"] for r in env.journal() if r["kind"] == "diagnostic_record"])
+
+    def test_a_queued_lease_request_leaves_no_slot(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.start_task(sc.BASIC)
+        sc.inject(env, "conflict", sc.BASIC)
+        before = sc.event_writes(env.snap())
+        out = env.grant(sc.BASIC)
+        self.assertEqual((sc.event_writes(env.snap()), out["reason"], sc.usage_rows(env, sc.BASIC)), (before, "guard_wait", []))
+        self.assertIsNone(env.snap()["lease_lock"][sc.BASIC]["holder"])
+
+    def test_an_invalid_envelope_is_a_transition_and_commits(self):
+        """instruction_envelope_valid emits envelope_invalid (G48): the result is taken and the task returns."""
+        env, res, _, out, js = self.rejected("envelope")
+        t = env.task(sc.BASIC)
+        self.assertEqual((t["task_state"]["state"], t["lease_record"]["status"], out["accepted"]), ("returned", "returned", True))
+        self.assertEqual(len(t["inbox_seen"]), 2)
+        self.assertNotIn("guard_wait_rolled_back", [r.get("what") for r in js])
+
+    def test_keep_diagnostics_decides_what_stays(self):
+        raw = _mutated(lambda r: self.spec(r).update(keep_diagnostics=[]))
+        _, _, _, out, js = self.rejected("conflict", raw)
+        self.assertEqual(([r["what"] for r in js], out["reason"]), (["guard_wait_rolled_back"], "guard_wait"))
+
+    def test_rules_that_break_the_contract_are_refused(self):
+        from daemon.core.ports import SpecGap
+        breaks = {"commit": lambda s: s.update(transaction="commit"), "keep not a list": lambda s: s.update(keep_diagnostics="x"),
+                  "no diagnostic": lambda s: s.pop("diagnostic"), "no result": lambda s: s.pop("result"),
+                  "missing": lambda s: s.clear()}
+        for label, fn in breaks.items():
+            with self.subTest(case=label):
+                with self.assertRaises(SpecGap):
+                    MockEnv(_mutated(lambda r: fn(self.spec(r))), str(TASKS))
+
+
 class ReportValues(unittest.TestCase):
     """The report shows the values as they were compared, not as the scenario left them afterwards."""
 

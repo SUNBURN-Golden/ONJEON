@@ -4102,7 +4102,17 @@
         ],
         "errors": [
           "precondition_failed → 발급 없음, store 불변"
-        ]
+        ],
+        "on_guard_wait": {
+          "transaction": "rollback",
+          "keep_diagnostics": [
+            "guard_failed",
+            "cond_not_met"
+          ],
+          "diagnostic": "guard_wait_rolled_back",
+          "result": "guard_wait",
+          "_rule": "발급 행(guard lease_guards 또는 cond lease_guards all_pass)의 가드가 거짓이고 그 on_fail이 사건을 하나도 내지 않으면(전부 wait) 그 사건의 트랜잭션 전체를 버린다. before_cond 카운터(consecutive_failed_tests), inbox_seen 표시, 가드 평가가 만든 다음 세대 사용량 슬롯, 결과의 사용량 기록이 모두 남지 않는다. keep_diagnostics의 진단만 새 트랜잭션에 다시 쓰고 diagnostic 하나를 더한다. 결과는 accepted 거짓·reason result다. 봉투는 보지 않은 것으로 남으므로 같은 봉투의 재전달은 가드가 풀린 뒤 처음 받는 것처럼 처리된다(audit2-daemon-guard-fail-partial-commit). emit_event(envelope_invalid)가 난 거절은 전이이므로 커밋한다"
+        }
       },
       "resend_outbox": {
         "trigger": [

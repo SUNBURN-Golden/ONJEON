@@ -74,6 +74,9 @@ def accept(core, d, task_id, msg_type, envelope):
     out["post"] = res["post"]
     out["noop"] = res.get("noop")
     out["emitted"] = res.get("emitted", [])
+    if res.get("guard_wait"):
+        # engine._txn discards this transaction: inbox_seen, the usage writes and the counter are not kept
+        out["guard_wait"] = dict(res["guard_wait"], envelope_id=envelope.get("envelope_id"))
     return out
 
 

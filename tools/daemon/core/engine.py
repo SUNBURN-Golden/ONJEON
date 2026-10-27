@@ -18,6 +18,14 @@ def _reads_clock(cond):
     return False
 
 
+class _GuardWait(Exception):
+    """Raised inside a store transaction to discard it (operations.issue_lease.on_guard_wait)."""
+
+    def __init__(self, out, kept):
+        super().__init__("guard_wait")
+        self.out, self.kept = out, kept
+
+
 class DaemonCore:
     def __init__(self, rules, ports):
         self.rules = rules
@@ -40,6 +48,7 @@ class DaemonCore:
             raise SpecGap("operations.handle_event: routes and without_envelope must be disjoint catalog events "
                           f"and routes must name {sorted(_ROUTES)}")
         lease_mod.check_mark_sent(rules)
+        self.guard_wait = lease_mod.check_guard_wait(rules)
 
     # ---- state access
     def snapshot(self):
@@ -117,11 +126,34 @@ class DaemonCore:
                    task_of=lambda r: self.ports.catalog.task(r["task_id"]))
 
     # ---- transactions
-    def _txn(self, fn):
-        """One store transaction; journal_text secret hits become secret_detected before it commits."""
+    def _txn(self, task_id, fn):
+        """One store transaction; journal_text secret hits become secret_detected before it commits.
+
+        A lease guard that only waits (outcome `guard_wait`) discards the whole transaction
+        (operations.issue_lease.on_guard_wait): the before_cond counter, inbox_seen, the usage slot the guard prepared
+        and the result's usage are not kept, so a redelivery of the same envelope is processed as new. Only the
+        keep_diagnostics records of that transaction are written again, in a transaction of their own."""
+        spec = self.guard_wait
+        try:
+            with self.ports.store.transaction() as d:
+                start = len(d["journal"])
+                out = fn(d)
+                if out and out.get("guard_wait"):
+                    kept = [r for r in d["journal"][start:]
+                            if r["kind"] == "diagnostic_record" and r["what"] in spec["keep_diagnostics"]]
+                    raise _GuardWait(out, kept)
+                transition_engine.settle_secrets(self, d)
+            return out
+        except _GuardWait as wait:
+            out, kept = wait.out, wait.kept
         with self.ports.store.transaction() as d:
-            out = fn(d)
+            for r in kept:
+                self.rec.diagnostic(d, r["task_id"], r["what"],
+                                    **{k: v for k, v in r.items() if k not in ("seq", "kind", "task_id", "what", "at")})
+            self.rec.diagnostic(d, task_id, spec["diagnostic"], event=out["guard_wait"]["event"],
+                                failed=out["guard_wait"]["failed"], envelope_id=out["guard_wait"].get("envelope_id"))
             transition_engine.settle_secrets(self, d)
+        out = dict(out, accepted=False, applied=False, transition=None, post=[], emitted=[], reason=spec["result"])
         return out
 
     def _issues_lease(self, task_id, name):
@@ -160,14 +192,14 @@ class DaemonCore:
             return self.submit_envelope(task_id, name, payload)
         if route == "fenced_write":
             kind = "push" if name == "push_requested" else "pr_update"
-            out = self._txn(lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+            out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
             self._after_commit(out)
             return out
         if name not in self.entry["without_envelope"]:
-            return self._txn(lambda d: fencing.reject_without_envelope(self, d, task_id, name, self.entry["on_reject"]))
+            return self._txn(task_id, lambda d: fencing.reject_without_envelope(self, d, task_id, name, self.entry["on_reject"]))
 
         def run():
-            return self._txn(lambda d: transition_engine.apply_event(self, d, task_id, name, payload))
+            return self._txn(task_id, lambda d: transition_engine.apply_event(self, d, task_id, name, payload))
 
         out = self._locked(task_id, run) if self._issues_lease(task_id, name) else run()
         self._after_commit(out)
@@ -175,7 +207,7 @@ class DaemonCore:
 
     def submit_envelope(self, task_id, msg_type, envelope):
         def run():
-            return self._txn(lambda d: fencing.accept(self, d, task_id, msg_type, envelope))
+            return self._txn(task_id, lambda d: fencing.accept(self, d, task_id, msg_type, envelope))
 
         lease_event = msg_type == "result" and self._issues_lease(task_id, fencing.event_for(self, msg_type, envelope, task_id))
         out = self._locked(task_id, run) if lease_event else run()

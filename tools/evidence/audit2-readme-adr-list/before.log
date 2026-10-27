@@ -1,0 +1,48 @@
+$ cargo test -p onjeon-rules-engine --offline --test readme_test_table --test content_hash_scope  # README not yet edited
+
+running 7 tests
+test metadata_that_does_not_affect_evaluation_is_still_hashed ... ok
+test omitted_defaults_are_not_filled_in ... ok
+test top_level_release_id_is_excluded_but_a_nested_one_is_hashed ... ok
+test whitespace_key_order_and_string_escapes_do_not_change_the_hash ... ok
+test string_whitespace_and_array_order_are_not_normalized ... ok
+test unicode_forms_are_not_normalized ... ok
+test equivalent_spellings_of_the_same_logic_hash_differently ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test readme_does_not_call_the_content_hash_normalized ... FAILED
+test audited_rows_are_present ... FAILED
+test readme_test_table_matches_integration_test_files ... FAILED
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+failures:
+
+---- readme_does_not_call_the_content_hash_normalized stdout ----
+
+thread 'readme_does_not_call_the_content_hash_normalized' (3700101) panicked at packages/rules-engine/tests/readme_test_table.rs:73:5:
+only key order is sorted: - 결과마다 `rule_version`, `release_id`, `rule_content_hash`, `evidence_refs`가 붙는다. `rule_content_hash`는 규칙 JSON을 정규화(모든 객체 키를 `BTreeMap`으로 명시 정렬한 compact JSON)한 SHA-256이며 최상위 `release_id`는 제외한다. `serde_json`의 `preserve_order` 기능 여부와 무관하며, fixture 규칙의 해시는 `packages/fixtures/rules/fixture-rule-001.content_hash`에 고정되어 테스트로 검증된다. 버전을 올리지 않고 내용을 바꿔도 해시가 달라지므로 과거 계산이 어떤 규칙 내용을 썼는지 결과만으로 식별된다.
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- audited_rows_are_present stdout ----
+
+thread 'audited_rows_are_present' (3700099) panicked at packages/rules-engine/tests/readme_test_table.rs:48:9:
+content_hash_scope row missing
+
+---- readme_test_table_matches_integration_test_files stdout ----
+
+thread 'readme_test_table_matches_integration_test_files' (3700102) panicked at packages/rules-engine/tests/readme_test_table.rs:40:5:
+tests/*.rs missing from README table: ["content_hash_scope", "golden", "readme_test_table"]
+
+
+failures:
+    audited_rows_are_present
+    readme_does_not_call_the_content_hash_normalized
+    readme_test_table_matches_integration_test_files
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test readme_test_table`
+exit=101

@@ -1,0 +1,39 @@
+$ python3 -I -m unittest discover -s tools/tests -p test_readme_index.py -v  # current README
+test_dec_records_exist_and_are_pointed_to (test_readme_index.DecisionsRow.test_dec_records_exist_and_are_pointed_to) ... ok
+test_every_adr_number_is_listed (test_readme_index.DecisionsRow.test_every_adr_number_is_listed) ... ok
+test_every_path_in_the_docs_table_exists (test_readme_index.IndexedPaths.test_every_path_in_the_docs_table_exists) ... ok
+test_required_rows_present (test_readme_index.IndexedPaths.test_required_rows_present) ... ok
+test_review_results_row_names_every_file (test_readme_index.IndexedPaths.test_review_results_row_names_every_file) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK
+exit=0
+
+$ python3 -I tools/evidence/audit2-readme-adr-list/adr_mutation.py  # README:22 truncated after 0011, as audited
+test_dec_records_exist_and_are_pointed_to (test_readme_index.DecisionsRow.test_dec_records_exist_and_are_pointed_to) ... ok
+test_every_adr_number_is_listed (test_readme_index.DecisionsRow.test_every_adr_number_is_listed) ... FAIL
+
+======================================================================
+FAIL: test_every_adr_number_is_listed (test_readme_index.DecisionsRow.test_every_adr_number_is_listed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test_readme_index.py", line 27, in test_every_adr_number_is_listed
+    self.assertEqual(on_disk - listed, set(), "ADRs missing from README")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'0016'
+'0013'
+'0012'
+'0018'
+'0014'
+'0015'
+'0017' : ADRs missing from README
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=1)
+mutant_detected = True
+exit=0 (0 = mutant detected)

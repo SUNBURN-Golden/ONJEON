@@ -867,6 +867,11 @@ def m23(rep, R, T):
     rep.eq("docs/** 뿐인 PR: merged→done(docs_only), 카운터 불변",
            ([("merge_wait", "merged", "pr_merged_observed"), ("merged", "done", "impl_counter_incremented")], 0, []),
            (tr(jr(env, m)), counter(env)["merged_impl_counter"], counter(env)["batches"]))
+    # audit2-daemon-docs-pr-never-done: the row is picked by its cond on event.docs_only, not by a named destination
+    done, = [r for r in jr(env, m) if r["kind"] == "transition_record" and r["to"] == "done"]
+    rep.eq("merged→done 행은 cond event.docs_only == true로 골랐다",
+           [{"field": "event.docs_only", "op": "==", "left": True, "result": True}],
+           [{k: c[k] for k in ("field", "op", "left", "result")} for c in done["cond_evaluated"]])
 
 
 # =============================================================== M27

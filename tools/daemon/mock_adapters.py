@@ -396,6 +396,7 @@ class MockSender(Sender):
         self.stops = []
         self.hold = False
         self.in_flight = []
+        self.during_send = None  # one shot: runs after the next send, before the core marks the row sent
 
     def send(self, task_id, instruction):
         self.sent.append({"envelope_id": instruction["envelope_id"], "task_id": task_id,
@@ -404,6 +405,9 @@ class MockSender(Sender):
             self.in_flight.append(copy.deepcopy(instruction))
         else:
             self.inboxes.setdefault(instruction["runner"], []).append(copy.deepcopy(instruction))
+        hook, self.during_send = self.during_send, None
+        if hook:
+            hook(task_id)
 
     def release(self):
         for ins in self.in_flight:

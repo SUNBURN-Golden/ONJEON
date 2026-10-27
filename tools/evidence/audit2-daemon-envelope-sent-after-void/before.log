@@ -1,0 +1,199 @@
+# before fix: base commit 49aa3d7d79f2a7d78b26f949940889930012a8ed with only the new tools/tests/test_daemon_dry_run.py and the tools/daemon/mock_adapters.py send hook copied in (core unchanged)
+# python3 -m unittest tools.tests.test_daemon_dry_run.SendMarkCompareAndSet -v
+test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) ... 
+  test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) (case='expired') ... FAIL
+  test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) (case='revoked') ... FAIL
+  test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) (case='corrupt') ... FAIL
+test_a_second_send_does_not_mark_the_row_again (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_second_send_does_not_mark_the_row_again)
+sender_retry sends and marks the row first; the first send's marking then finds it sent and keeps its sent_at. ... FAIL
+test_an_undisturbed_send_is_marked (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_an_undisturbed_send_is_marked) ... ok
+test_comparing_a_check_that_still_holds_reopens_the_finding (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_comparing_a_check_that_still_holds_reopens_the_finding)
+Mutation: compare lease_match instead of pending (the lease id and generation do not change on expiry) and ... ERROR
+test_mark_sent_is_data (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_mark_sent_is_data) ... ERROR
+test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) ... 
+  test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='unknown check') ... ERROR
+  test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='no status write') ... ERROR
+  test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='conflict writes') ... ERROR
+  test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='no diagnostic') ... ERROR
+  test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='missing') ... ERROR
+test_the_envelope_that_went_out_is_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_the_envelope_that_went_out_is_refused)
+The void envelope did reach the builder; its lease is over, so nothing it reports moves the task. ... ok
+
+======================================================================
+ERROR: test_comparing_a_check_that_still_holds_reopens_the_finding (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_comparing_a_check_that_still_holds_reopens_the_finding)
+Mutation: compare lease_match instead of pending (the lease id and generation do not change on expiry) and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1796, in test_comparing_a_check_that_still_holds_reopens_the_finding
+    raw = _mutated(lambda r: self.spec(r)["mark_sent"].update(compare_and_set="lease_match"))
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1796, in <lambda>
+    raw = _mutated(lambda r: self.spec(r)["mark_sent"].update(compare_and_set="lease_match"))
+                             ~~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'mark_sent'
+
+======================================================================
+ERROR: test_mark_sent_is_data (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_mark_sent_is_data)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1734, in test_mark_sent_is_data
+    self.assertEqual(spec["mark_sent"]["compare_and_set"], "pending")
+                     ~~~~^^^^^^^^^^^^^
+KeyError: 'mark_sent'
+
+======================================================================
+ERROR: test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='unknown check')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in test_rules_that_break_the_mark_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+                                  ~~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'mark_sent'
+
+======================================================================
+ERROR: test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='no status write')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in test_rules_that_break_the_mark_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+                                  ~~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'mark_sent'
+
+======================================================================
+ERROR: test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='conflict writes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in test_rules_that_break_the_mark_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+                                  ~~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'mark_sent'
+
+======================================================================
+ERROR: test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='no diagnostic')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in test_rules_that_break_the_mark_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+                                  ~~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'mark_sent'
+
+======================================================================
+ERROR: test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) (case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in test_rules_that_break_the_mark_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1811, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+                                  ~~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'mark_sent'
+
+======================================================================
+FAIL: test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) (case='expired')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1751, in test_a_row_voided_during_the_send_stays_void
+    self.assertEqual((row["status"], row["sent_at"]), ("void", None))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('sent', 1003601) != ('void', None)
+
+First differing element 0:
+'sent'
+'void'
+
+- ('sent', 1003601)
++ ('void', None)
+
+======================================================================
+FAIL: test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) (case='revoked')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1751, in test_a_row_voided_during_the_send_stays_void
+    self.assertEqual((row["status"], row["sent_at"]), ("void", None))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('sent', 1000000) != ('void', None)
+
+First differing element 0:
+'sent'
+'void'
+
+- ('sent', 1000000)
++ ('void', None)
+
+======================================================================
+FAIL: test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) (case='corrupt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1751, in test_a_row_voided_during_the_send_stays_void
+    self.assertEqual((row["status"], row["sent_at"]), ("void", None))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('sent', 1000000) != ('void', None)
+
+First differing element 0:
+'sent'
+'void'
+
+- ('sent', 1000000)
++ ('void', None)
+
+======================================================================
+FAIL: test_a_second_send_does_not_mark_the_row_again (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_second_send_does_not_mark_the_row_again)
+sender_retry sends and marks the row first; the first send's marking then finds it sent and keeps its sent_at.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<base>/tools/tests/test_daemon_dry_run.py", line 1779, in test_a_second_send_does_not_mark_the_row_again
+    self.assertEqual((row["status"], row["sent_at"]), ("sent", marked_at[0]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('sent', 1000002) != ('sent', 1000001)
+
+First differing element 1:
+1000002
+1000001
+
+- ('sent', 1000002)
+?                ^
+
++ ('sent', 1000001)
+?                ^
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.063s
+
+FAILED (failures=4, errors=7)
+# exit 1
+# python3 -I tools/evidence/audit2-daemon-envelope-sent-after-void/repro_void_then_sent.py
+expired         state=queued    lease=expired  outbox.status=sent  void_reason=expired sent_at=start+3601 sends=1
+cancel+restart  state=cancelled lease=revoked  outbox.status=sent  void_reason=revoked sent_at=start+0 sends=1
+second send     state=leased    lease=active   outbox.status=sent  void_reason=None sent_at=start+2 sends=2
+# exit 0

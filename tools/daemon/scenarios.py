@@ -65,6 +65,28 @@ def m41(rep, R, T):
            (False, ["secret_redacted_outside_scan_states"]),
            ("secret_hits" in env.snap(), [r["what"] for r in jr(env, m) if r["kind"] == "diagnostic_record" and r["what"].startswith("secret_")]))
 
+    # the lease expires between the send and the marking transaction: mark_sent is a compare-and-set on
+    # checks[pending], so the void(expired) row is not overwritten with sent
+    env = MockEnv(R, T)
+    env.start_task(BASIC)
+
+    def expire_now(task_id):
+        env.clock.advance(TTL + 1)
+        env.core.tick()
+    env.ports.sender.during_send = expire_now
+    m = mark(env)
+    env.grant(BASIC)
+    js = jr(env, m)
+    row = env.task(BASIC)["outbox"][0]
+    rep.eq("발송과 표시 사이 만료: 행은 void(expired)로 남고 sent_at 없음, 발송 기록 0, 결과 not_marked",
+           (("void", "expired", None), [], ["not_marked"], ["outbox_not_pending_at_mark"]),
+           ((row["status"], row["void_reason"], row["sent_at"]), se(js, "send_envelope"),
+            [r["outcome"] for r in js if r["kind"] == "result_record" and r["action"] == "send_envelope"],
+            [r["what"] for r in js if r["kind"] == "diagnostic_record" and r["what"] == "outbox_not_pending_at_mark"]))
+    m = mark(env)
+    rep.eq("이미 나간 그 봉투: 빌더는 lease_invalid만, R-11 noop, 상태 queued 그대로", (["lease_invalid"], [("late_envelope_rejected", "R-11")], [], "queued"),
+           ([o[0] for o in env.run_builders()], noops(jr(env, m)), tr(jr(env, m)), env.state(BASIC)))
+
 
 # =============================================================== M42
 def m42(rep, R, T):

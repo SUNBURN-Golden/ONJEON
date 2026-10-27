@@ -4202,8 +4202,21 @@
         ],
         "on_pass": [
           "send(outbox.envelope_id 그대로)",
-          "outbox.status = sent, sent_at = now"
+          "outbox.status = sent, sent_at = now (mark_sent의 compare-and-set: 표시 트랜잭션에서 그 행이 아직 pending일 때만)"
         ],
+        "mark_sent": {
+          "compare_and_set": "pending",
+          "set": {
+            "status": "sent",
+            "sent_at": "clock.now"
+          },
+          "on_conflict": {
+            "writes": [],
+            "diagnostic": "outbox_not_pending_at_mark",
+            "result": "not_marked"
+          },
+          "_rule": "발송과 표시는 두 트랜잭션이다. 그 사이 만료·취소·손상이 행을 void로 바꾸었거나 다른 발송이 먼저 sent로 표시했으면, 표시 트랜잭션에서 checks[compare_and_set]이 거짓이 되고 행은 그대로 둔다(void를 sent로 덮지 않는다). 이미 나간 봉투의 임대는 끝났으므로 빌더의 수신 측 검증(lease_invalid)이나 accept_envelope의 검사가 그 봉투로 온 보고를 late_envelope_rejected(R-11)로 막는다"
+        },
         "on_fail": {
           "not_pending": {
             "effects": [],

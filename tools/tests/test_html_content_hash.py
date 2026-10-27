@@ -1,4 +1,4 @@
-"""Tests for tools/html_content_hash.py (rule html-visible-text-v2).
+"""Tests for tools/html_content_hash.py (rule html-visible-text-v3).
 
 The fixture is synthetic. When ONJEON_ARCHIVE_RAW points at a local raw store (file layout of
 tools/source_archive.py), the same properties are also checked on the archived KB original and its
@@ -47,6 +47,71 @@ class MeaningfulChangesChangeTheHash(unittest.TestCase):
                 self.assertNotEqual(ch(sub(old, new)), base, f"{name} change was normalized away")
 
 
+class DownloadTargetsChangeTheHash(unittest.TestCase):
+    """Audit 2: targets must survive attribute quoting and inline click handlers."""
+
+    def test_link_attributes_with_each_quoting_style(self):
+        for tag, attr in (("a", "href"), ("iframe", "src"), ("embed", "src"),
+                          ("object", "data"), ("form", "action")):
+            for quote in ('"', "'", ""):
+                with self.subTest(tag=tag, quote=quote):
+                    raw = f'<{tag.upper()} {attr.upper()} = {quote}/old.pdf{quote}>약관</{tag}>'.encode()
+                    self.assertIn("[link:/old.pdf]", h.normalized_text(raw))
+                    self.assertNotEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+
+    def test_click_handlers_on_links_and_other_elements(self):
+        for tag in ("a", "button", "input", "td", "div"):
+            for handler in ("download('old.pdf')", "location.href='/old.pdf'",
+                            "window.open('/download?id=old')", "download(prefix+'old'+suffix)"):
+                with self.subTest(tag=tag, handler=handler):
+                    raw = f'<{tag} href="#" ONCLICK="{handler}">약관</{tag}>'.encode()
+                    self.assertNotEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+
+    def test_unquoted_click_handler_and_entity_encoded_quotes(self):
+        for attr in ("onclick=download('old.pdf')", 'onclick="download(&quot;old.pdf&quot;)"',
+                     "onclick='download(\"old.pdf\")'"):
+            with self.subTest(attr=attr):
+                raw = f'<button {attr}>약관</button>'.encode()
+                self.assertNotEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+
+    def test_quoted_angle_brackets_do_not_truncate_attributes(self):
+        raw = b'''<a title="x > y" href="/old.pdf" onclick="if (x < y) download('other.pdf')">terms</a>'''
+        for old in (b"old.pdf", b"other.pdf"):
+            with self.subTest(target=old):
+                self.assertNotEqual(ch(raw), ch(raw.replace(old, b"new.pdf")))
+
+    def test_real_attribute_names_only(self):
+        for attr in ('data-href="old.pdf"', 'title="href=\'old.pdf\'"',
+                     'data-onclick="download(\'old.pdf\')"'):
+            with self.subTest(attr=attr):
+                raw = f'<a {attr}>약관</a>'.encode()
+                self.assertEqual(ch(raw), ch(raw.replace(b"old.pdf", b"new.pdf")))
+
+    def test_attributes_and_text_decode_entities_once(self):
+        raw = b'<a href="/a&amp;amp;b.pdf" onclick="download(&quot;a&amp;amp;b.pdf&quot;)">a&amp;amp;b</a>'
+        text = h.normalized_text(raw)
+        self.assertIn("[link:/a&amp;b.pdf]", text)
+        self.assertIn('[onclick:download("a&amp;b.pdf")]', text)
+        self.assertTrue(text.endswith("a&amp;b"), text)
+
+    def test_comments_scripts_and_styles_do_not_supply_targets(self):
+        for wrapper in ("<!-- {} -->", "<script>{}</script>", "<style>{}</style>"):
+            raw = wrapper.format('<a href="old.pdf" onclick="download(\'old.pdf\')">old</a>').encode()
+            with self.subTest(wrapper=wrapper):
+                self.assertEqual(ch(raw), ch(raw.replace(b"old", b"new")))
+
+    def test_equivalent_quoting_and_entities_do_not_change_link_hash(self):
+        a = b'<a href=/d?id=7&sessionid=A>terms</a>'
+        b = b'<A HREF="/d?id=7&amp;sessionid=B">terms</A>'
+        self.assertEqual(ch(a), ch(b))
+
+    def test_click_handlers_are_kept_conservatively_without_execution(self):
+        a = b'<button onclick="download(documentId)">terms</button>'
+        b = b'<button onclick="download(otherDocumentId)">terms</button>'
+        self.assertNotEqual(ch(a), ch(b))
+        self.assertIn("[onclick:download(documentId)]", h.normalized_text(a))
+
+
 class VolatileTokensDoNotChangeTheHash(unittest.TestCase):
     cases = {
         "session id in script": ("AAAAsession1111", "BBBBsession2222"),
@@ -83,7 +148,7 @@ class SessionParamsAreScopedPerHost(unittest.TestCase):
     """Audit 1: sid/_t/_/ts/timestamp were stripped on every host, hiding real link changes."""
 
     def test_rule_version_was_bumped(self):
-        self.assertEqual(h.RULE, "html-visible-text-v2")
+        self.assertEqual(h.RULE, "html-visible-text-v3")
 
     def test_sid_as_document_id_is_a_change_on_unlisted_hosts(self):
         for host in ("example.org", "pub.insure.or.kr", ""):

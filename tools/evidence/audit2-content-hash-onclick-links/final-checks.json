@@ -1,0 +1,49 @@
+{
+  "checks": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_product_purpose.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "local_doc_links_checked": 33,
+  "scope": "all changed files under allowed tools/** or docs/blueprint/**",
+  "changed_files": [
+    "docs/blueprint/audits/2026-10-27_content_hash_onclick_links.md",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md",
+    "docs/blueprint/validation/README.md",
+    "tools/evidence/audit2-content-hash-onclick-links/before.log",
+    "tools/evidence/audit2-content-hash-onclick-links/consistency-checks.log",
+    "tools/evidence/audit2-content-hash-onclick-links/detect-tests.log",
+    "tools/evidence/audit2-content-hash-onclick-links/final-checks.json",
+    "tools/evidence/audit2-content-hash-onclick-links/hash-tests.log",
+    "tools/evidence/audit2-content-hash-onclick-links/ontology-check.log",
+    "tools/evidence/audit2-content-hash-onclick-links/python-tests-initial.log",
+    "tools/evidence/audit2-content-hash-onclick-links/python-tests.log",
+    "tools/evidence/audit2-content-hash-onclick-links/rust-tests.log",
+    "tools/evidence/audit2-content-hash-onclick-links/target-comparison.json",
+    "tools/html_content_hash.py",
+    "tools/tests/test_html_content_hash.py",
+    "tools/tests/test_verify_sources.py",
+    "tools/verify_sources.py"
+  ]
+}

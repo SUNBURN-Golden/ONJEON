@@ -41,10 +41,12 @@ class AccessCodes(unittest.TestCase):
             with self.subTest(raw=raw), self.assertRaisesRegex(SystemExit, "unmapped access result"):
                 rn.host_code(raw)
 
-    def test_reachable_disclosure_url_is_required_for_archived(self):
+    def test_reachable_disclosure_is_not_archived_without_preservation_evidence(self):
         status, reason = rn.disclosure(dict(disclosure_url=" https://example.invalid/terms ",
                                             disclosure_access="reachable", home_access="origin_denied"))
-        self.assertEqual((status, reason), ("archived", ""))
+        self.assertEqual(status, "unqueried")
+        self.assertIn("공시 URL 접근 확인", reason)
+        self.assertIn("불변 보관 전", reason)
         for url, access in (("", "reachable"), ("   ", "reachable"),
                             ("https://example.invalid", "origin_denied")):
             with self.subTest(url=url, access=access):
@@ -52,6 +54,14 @@ class AccessCodes(unittest.TestCase):
                                                     home_access="reachable"))
                 self.assertEqual(status, "failed")
                 self.assertTrue(reason)
+
+    def test_access_results_alone_never_prove_archival(self):
+        for home in rn.HOST_CODES:
+            for access in rn.HOST_CODES:
+                with self.subTest(home=home, access=access):
+                    status, _ = rn.disclosure(dict(disclosure_url="https://example.invalid",
+                                                   disclosure_access=access, home_access=home))
+                    self.assertNotEqual(status, "archived")
 
     def test_home_access_mapping_keeps_unqueried_blocked_and_failed_distinct(self):
         for home, expected in (("not_checked", "unqueried"), ("reachable", "failed"),
@@ -92,13 +102,32 @@ class RegistryCsv(unittest.TestCase):
         self.assertEqual(row["home_access"], "reachable")
         self.assertEqual(row["home_access_detail"], "200")
         self.assertEqual(row["disclosure_access_detail"], "302 -> 200 (target)")
-        self.assertEqual(row["disclosure_status"], "archived")
-        self.assertEqual(row["disclosure_gap_reason"], "")
+        self.assertEqual(row["disclosure_access"], "reachable")
+        self.assertEqual(row["disclosure_status"], "unqueried")
+        self.assertIn("불변 보관 전", row["disclosure_gap_reason"])
         self.assertEqual(row["product_list_status"], "unqueried")
         self.assertIn("상품·특약", row["product_list_reason"])
         self.assertEqual(row["product_list_reason_codes"], "awaiting_T-DT-04;awaiting_domestic_env")
         first = self.path.read_bytes()
         self.assertEqual(rn.normalize(self.path), 1)
+        self.assertEqual(self.path.read_bytes(), first)
+
+    def test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved(self):
+        original = dict(entity_evidence="two_or_more_sources", home_access="reachable",
+                        disclosure_access="reachable", disclosure_access_detail="200",
+                        disclosure_url="https://example.invalid/terms", observed_at="2026-10-09T04:27:43Z",
+                        disclosure_status="archived", disclosure_gap_reason="",
+                        product_list_status="unqueried", product_list_reason="상품·특약 목록 열거 전",
+                        product_list_reason_codes="awaiting_T-DT-04;awaiting_domestic_env")
+        self.write([original])
+        rn.normalize(self.path)
+        row = self.read()[0]
+        for field in original.keys() - {"disclosure_status", "disclosure_gap_reason"}:
+            self.assertEqual(row[field], original[field], field)
+        self.assertEqual(row["disclosure_status"], "unqueried")
+        self.assertIn("불변 보관 전", row["disclosure_gap_reason"])
+        first = self.path.read_bytes()
+        rn.normalize(self.path)
         self.assertEqual(self.path.read_bytes(), first)
 
     def test_all_evidence_aliases_and_canonical_values(self):

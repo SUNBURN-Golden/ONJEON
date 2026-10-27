@@ -36,8 +36,12 @@ class RegistryCounts(unittest.TestCase):
     def test_insurer_and_disclosure_entry_counts(self):
         self.assertEqual(len(self.insurers), 53)
         status = Counter(r["disclosure_status"] for r in self.insurers)
-        self.assertEqual(status, Counter(archived=8, failed=31, blocked=3, unqueried=11))
-        self.assertEqual(sum(n for s, n in status.items() if s != "archived"), 45)
+        self.assertEqual(status, Counter(failed=31, blocked=3, unqueried=19))
+        reachable = [r for r in self.insurers if r["disclosure_url"].strip()
+                     and r["disclosure_access"] == "reachable"]
+        self.assertEqual(len(reachable), 8)
+        self.assertEqual(sum(not r["disclosure_url"].strip() for r in self.insurers), 45)
+        self.assertTrue(all(r["disclosure_status"] == "unqueried" for r in reachable))
 
     def test_no_product_list_is_enumerated_yet(self):
         self.assertEqual(Counter(r["product_list_status"] for r in self.insurers), Counter(unqueried=53))
@@ -71,7 +75,8 @@ class RegistryConsistency(unittest.TestCase):
                 got = codes(r)
                 self.assertTrue(set(got) <= set(rn.PRODUCT_LIST_REASON_CODES), got)
                 self.assertEqual(got[:2], ["awaiting_T-DT-04", "awaiting_domestic_env"])
-                self.assertEqual("disclosure_entry_missing" in got, r["disclosure_status"] != "archived")
+                reachable = bool(r["disclosure_url"].strip()) and r["disclosure_access"] == "reachable"
+                self.assertEqual("disclosure_entry_missing" in got, not reachable)
                 geo = "geo_blocked" in (r["home_access"], r["disclosure_access"])
                 self.assertEqual("foreign_sandbox_geo_blocked" in got, geo)
 
@@ -79,12 +84,11 @@ class RegistryConsistency(unittest.TestCase):
         for name, r in self.each():
             with self.subTest(table=name, row=r["name_ko"]):
                 self.assertNotEqual(r["disclosure_status"], "not_disclosed")
-                if r["disclosure_status"] == "archived":
-                    self.assertTrue(r["disclosure_url"].strip())
-                    self.assertEqual(r["disclosure_access"], "reachable")
-                    self.assertEqual(r["disclosure_gap_reason"], "")
-                else:
-                    self.assertTrue(r["disclosure_gap_reason"].strip())
+                self.assertNotEqual(r["disclosure_status"], "archived")
+                self.assertTrue(r["disclosure_gap_reason"].strip())
+                if r["disclosure_url"].strip() and r["disclosure_access"] == "reachable":
+                    self.assertEqual(r["disclosure_status"], "unqueried")
+                    self.assertIn("불변 보관 전", r["disclosure_gap_reason"])
 
     def test_committed_csvs_are_a_fixed_point_of_the_normalizer(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -100,7 +104,15 @@ class ReasonCodeRule(unittest.TestCase):
     def test_codes_follow_disclosure_and_geo_state(self):
         base = dict(product_list_status="unqueried", home_access="reachable", disclosure_access="reachable")
         cases = [
-            (dict(disclosure_status="archived"), "awaiting_T-DT-04;awaiting_domestic_env"),
+            (dict(disclosure_status="unqueried", disclosure_url="https://example.invalid"),
+             "awaiting_T-DT-04;awaiting_domestic_env"),
+            (dict(disclosure_status="archived", disclosure_url=""),
+             "awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing"),
+            (dict(disclosure_status="unqueried", disclosure_url="  "),
+             "awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing"),
+            (dict(disclosure_status="blocked", disclosure_url="https://example.invalid",
+                  disclosure_access="origin_denied"),
+             "awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing"),
             (dict(disclosure_status="failed"), "awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing"),
             (dict(disclosure_status="blocked", home_access="geo_blocked"),
              "awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing;foreign_sandbox_geo_blocked"),
@@ -166,7 +178,8 @@ class DomesticEnvironmentGate(unittest.TestCase):
 
     def test_registry_readme_states_counts_and_codes(self):
         text = (REG / "README.md").read_text(encoding="utf-8")
-        self.assertIn("`archived` 8, `failed` 31, `blocked` 3, `unqueried` 11", text)
+        self.assertIn("`archived` 0, `failed` 31, `blocked` 3, `unqueried` 19", text)
+        self.assertIn("`reachable` 8", text)
         for code in rn.PRODUCT_LIST_REASON_CODES:
             self.assertIn(f"`{code}`", text)
 

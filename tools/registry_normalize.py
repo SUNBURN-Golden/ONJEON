@@ -4,6 +4,8 @@
 - `status` -> `entity_evidence` (two_or_more_sources | one_source | seed)
 - raw access results -> `host_access` codes, raw text kept in `*_detail`
 - adds `disclosure_status` (acquisition_status) and `disclosure_gap_reason`
+  Access checks alone never prove archival; reachable URLs remain unqueried
+  for immutable preservation, with their host_access evidence retained.
 - adds `product_list_status` / `product_list_reason` so the lower denominator
   (products and riders per insurer) is tracked even before it is enumerated
 - adds `product_list_reason_codes` (`;`-separated, see PRODUCT_LIST_REASON_CODES)
@@ -56,9 +58,15 @@ def host_code(raw):
     raise SystemExit(f"unmapped access result: {raw!r} -- add it to host_access in vocabulary.json")
 
 
+def disclosure_entry_reachable(row):
+    return bool(row.get("disclosure_url", "").strip()) and row.get("disclosure_access") == "reachable"
+
+
 def disclosure(row):
-    if row.get("disclosure_url", "").strip() and row["disclosure_access"] == "reachable":
-        return "archived", ""
+    if disclosure_entry_reachable(row):
+        # The registry records access observations, not verified immutable assets.
+        # Do not infer archived from host_access.maps_to or a legacy status claim.
+        return "unqueried", "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
     home = row.get("home_access", "not_checked")
     maps_to = HOST_CODES[home]["maps_to"]
     if home in ("reachable", "js_shell"):
@@ -71,7 +79,7 @@ def disclosure(row):
 PRODUCT_LIST_REASON_CODES = {
     "awaiting_T-DT-04": "상품·특약 목록 열거는 T-DT-04 몫이고 아직 실행 전",
     "awaiting_domestic_env": "실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전",
-    "disclosure_entry_missing": "공시 진입점을 확보하지 못함(disclosure_status가 archived 아님)",
+    "disclosure_entry_missing": "공시 URL이 없거나 disclosure_access가 reachable이 아님",
     "foreign_sandbox_geo_blocked": "해외 IP 샌드박스에서 홈페이지·공시실이 해외 IP 차단됨",
 }
 
@@ -81,7 +89,7 @@ def product_list_codes(row):
     if row.get("product_list_status") != "unqueried":
         return row.get("product_list_reason_codes", "")
     codes = ["awaiting_T-DT-04", "awaiting_domestic_env"]
-    if row["disclosure_status"] != "archived":
+    if not disclosure_entry_reachable(row):
         codes.append("disclosure_entry_missing")
     if "geo_blocked" in (row.get("home_access"), row.get("disclosure_access")):
         codes.append("foreign_sandbox_geo_blocked")

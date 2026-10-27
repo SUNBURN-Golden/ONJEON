@@ -1,0 +1,35 @@
+test_a_deleted_field_fails_without_a_major_bump (test_compat.CheckCompatScript.test_a_deleted_field_fails_without_a_major_bump) ... ok
+test_a_deleted_field_with_a_major_bump_is_accepted_as_declared (test_compat.CheckCompatScript.test_a_deleted_field_with_a_major_bump_is_accepted_as_declared) ... ok
+test_a_new_enum_value_inserted_first_is_compatible_including_the_compile_probe (test_compat.CheckCompatScript.test_a_new_enum_value_inserted_first_is_compatible_including_the_compile_probe)
+Regression: the probe used to take values[0] of the NEW axis, so a value added at the front ... ok
+test_a_probe_that_cannot_be_prepared_is_a_setup_error_not_a_verdict (test_compat.CheckCompatScript.test_a_probe_that_cannot_be_prepared_is_a_setup_error_not_a_verdict) ... ok
+test_a_removed_enum_value_fails_without_a_major_bump (test_compat.CheckCompatScript.test_a_removed_enum_value_fails_without_a_major_bump) ... ok
+test_an_added_optional_field_needs_a_version_bump (test_compat.CheckCompatScript.test_an_added_optional_field_needs_a_version_bump) ... ok
+test_missing_argument_is_a_usage_error (test_compat.CheckCompatScript.test_missing_argument_is_a_usage_error) ... ok
+test_selftest_runs_without_a_repository_lockfile (test_compat.CheckCompatScript.test_selftest_runs_without_a_repository_lockfile)
+No Cargo.lock: the probe resolves serde itself. The script's empty `--lock` argument list must ... ok
+test_unchanged_schemas_pass_against_the_tag_including_the_compile_probe (test_compat.CheckCompatScript.test_unchanged_schemas_pass_against_the_tag_including_the_compile_probe) ... ok
+test_unknown_tag_is_an_error_once_a_contracts_tag_exists (test_compat.CheckCompatScript.test_unknown_tag_is_an_error_once_a_contracts_tag_exists) ... ok
+test_without_any_tag_the_check_says_so_and_runs_the_self_test (test_compat.CheckCompatScript.test_without_any_tag_the_check_says_so_and_runs_the_self_test) ... ok
+test_deleting_an_optional_field_is_breaking_too (test_compat.Diff.test_deleting_an_optional_field_is_breaking_too) ... ok
+test_enum_axis_removal_is_breaking (test_compat.Diff.test_enum_axis_removal_is_breaking) ... ok
+test_enum_value_removal_is_breaking_and_addition_is_compatible (test_compat.Diff.test_enum_value_removal_is_breaking_and_addition_is_compatible) ... ok
+test_field_deletion_is_breaking (test_compat.Diff.test_field_deletion_is_breaking) ... ok
+test_identical_schemas_have_no_changes (test_compat.Diff.test_identical_schemas_have_no_changes) ... ok
+test_making_a_field_required_or_optional_is_breaking (test_compat.Diff.test_making_a_field_required_or_optional_is_breaking) ... ok
+test_nested_definition_field_deletion_is_breaking (test_compat.Diff.test_nested_definition_field_deletion_is_breaking) ... ok
+test_optional_field_addition_is_compatible (test_compat.Diff.test_optional_field_addition_is_compatible) ... ok
+test_required_field_addition_is_breaking (test_compat.Diff.test_required_field_addition_is_breaking) ... ok
+test_type_pattern_and_nullability_changes_are_breaking (test_compat.Diff.test_type_pattern_and_nullability_changes_are_breaking) ... ok
+test_type_removal_and_addition (test_compat.Diff.test_type_removal_and_addition) ... ok
+test_each_probe_directory_gets_its_own_crate_name (test_compat.Probe.test_each_probe_directory_gets_its_own_crate_name) ... ok
+test_enum_sample_fallbacks (test_compat.Probe.test_enum_sample_fallbacks) ... ok
+test_probe_documents_use_enum_values_the_previous_client_knows (test_compat.Probe.test_probe_documents_use_enum_values_the_previous_client_knows)
+A new enum value inserted FIRST is a compatible change; the probe must not feed it to the old client. ... ok
+test_probe_fills_every_root_document_and_only_known_previous_types (test_compat.Probe.test_probe_fills_every_root_document_and_only_known_previous_types) ... ok
+test_version_rule (test_compat.Versions.test_version_rule) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 76.111s
+
+OK

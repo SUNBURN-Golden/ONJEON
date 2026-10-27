@@ -1,0 +1,34 @@
+test_completion_criterion_is_09_in_bundle_handoff_and_blueprint (test_pr_policy.BundleStatus.test_completion_criterion_is_09_in_bundle_handoff_and_blueprint) ... ok
+test_every_status_statement_carries_both_halves_and_the_record (test_pr_policy.BundleStatus.test_every_status_statement_carries_both_halves_and_the_record) ... ok
+test_markdown_links_to_the_record_resolve (test_pr_policy.BundleStatus.test_markdown_links_to_the_record_resolve) ... ok
+test_record_exists_and_states_both_halves (test_pr_policy.BundleStatus.test_record_exists_and_states_both_halves) ... ok
+test_superseded_wording_is_gone (test_pr_policy.BundleStatus.test_superseded_wording_is_gone) ... ok
+test_authors_are_outside_the_reviewer_family (test_pr_policy.IndependentReviewPath.test_authors_are_outside_the_reviewer_family) ... ok
+test_claude_runs_under_other_names_are_not_cited_as_independent (test_pr_policy.IndependentReviewPath.test_claude_runs_under_other_names_are_not_cited_as_independent) ... ok
+test_evidence_has_out_of_family_reviews_pinned_to_merged_heads (test_pr_policy.IndependentReviewPath.test_evidence_has_out_of_family_reviews_pinned_to_merged_heads) ... ok
+test_record_and_handover_agree (test_pr_policy.IndependentReviewPath.test_record_and_handover_agree) ... ok
+test_adoption_instructions_cover_each_missing_field (test_pr_policy.PrPolicy.test_adoption_instructions_cover_each_missing_field) ... ok
+test_documented_current_policy_links_resolve_to_real_policy_files (test_pr_policy.PrPolicy.test_documented_current_policy_links_resolve_to_real_policy_files) ... ok
+test_json_and_both_documents_explicitly_defer_common_pr_criteria (test_pr_policy.PrPolicy.test_json_and_both_documents_explicitly_defer_common_pr_criteria) ... ok
+test_proposed_traceability_and_test_evidence_requirements_are_retained (test_pr_policy.PrPolicy.test_proposed_traceability_and_test_evidence_requirements_are_retained) ... ok
+test_final_audit_dependency_is_release_reporting_only (test_pr_policy.SerialDaemonPrerequisite.test_final_audit_dependency_is_release_reporting_only) ... ok
+test_handover_note_records_as_run_order_and_open_daemon_evidence (test_pr_policy.SerialDaemonPrerequisite.test_handover_note_records_as_run_order_and_open_daemon_evidence) ... ok
+test_handover_note_supersedes_the_serial_restriction (test_pr_policy.SerialDaemonPrerequisite.test_handover_note_supersedes_the_serial_restriction) ... ok
+test_note_links_resolve_to_the_decision_and_results (test_pr_policy.SerialDaemonPrerequisite.test_note_links_resolve_to_the_decision_and_results) ... ok
+test_only_the_final_audit_depends_on_daemon_tasks (test_pr_policy.SerialDaemonPrerequisite.test_only_the_final_audit_depends_on_daemon_tasks) ... ok
+test_s0_tasks_have_no_prerequisites_and_empty_start_gates (test_pr_policy.SerialDaemonPrerequisite.test_s0_tasks_have_no_prerequisites_and_empty_start_gates) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.036s
+
+OK
+test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) ... ok
+test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) ... ok
+test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) ... ok
+test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) ... ok
+test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

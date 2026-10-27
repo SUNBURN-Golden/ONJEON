@@ -1,0 +1,12 @@
+    Blocking waiting for file lock on build directory
+   Compiling ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit2-daemon-vs-product-effort/docs/blueprint/proposals/온톨로지/검증/runner)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.40s
+     Running unittests src/main.rs (target/audit2-effort/debug/deps/ontology_case_runner-d395d2b5e822c1ae)
+
+running 3 tests
+test tests::invalid_utf8_stdin_reports_error_without_output ... ok
+test tests::broken_stdout_reports_error ... ok
+test tests::unreadable_stdin_reports_error_without_output ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

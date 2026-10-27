@@ -8,8 +8,11 @@ emit a per-case `io_error` object and keep evaluating the remaining jobs, exitin
 
 Set ONJEON_ONTOLOGY_RUNNER to use an already-built runner (both rules-engine and
 design-specs CI jobs build it before discovery). Otherwise build with
-`cargo build --offline`; a failed build fails the tests. Only a missing cargo
-without a prebuilt runner skips them.
+`cargo build --offline` and use its reported executable path (including target
+directory/target overrides); a failed, timed-out build or missing executable
+artifact fails the tests. Only a missing cargo without a prebuilt runner skips
+them. The fallback build is bounded so a Cargo lock cannot consume the entire
+900-second local verification budget without identifying the blocked setup.
 """
 import json
 import os
@@ -23,9 +26,9 @@ from unittest import mock
 
 REPO = Path(__file__).resolve().parents[2]
 RUNNER_DIR = REPO / "docs/blueprint/proposals/온톨로지/검증/runner"
-RUNNER_BIN = RUNNER_DIR / "target/debug/ontology-case-runner"
 RULE = REPO / "docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json"
 CHECK_DIR = REPO / "docs/blueprint/proposals/온톨로지/검증"
+BUILD_TIMEOUT_S = 120
 
 sys.path.insert(0, str(CHECK_DIR))
 import ontology_check  # noqa: E402
@@ -56,9 +59,32 @@ def jobs():
 class RunnerIoError(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.runner = os.environ.get("ONJEON_ONTOLOGY_RUNNER", str(RUNNER_BIN))
-        if not os.environ.get("ONJEON_ONTOLOGY_RUNNER"):
-            subprocess.run(["cargo", "build", "--offline"], cwd=RUNNER_DIR, capture_output=True, text=True, check=True)
+        cls.runner = os.environ.get("ONJEON_ONTOLOGY_RUNNER")
+        if cls.runner:
+            return
+        try:
+            build = subprocess.run(
+                ["cargo", "build", "--offline", "--bin", "ontology-case-runner", "--message-format=json"],
+                cwd=RUNNER_DIR, capture_output=True, text=True, check=True, timeout=BUILD_TIMEOUT_S,
+            )
+        except subprocess.TimeoutExpired as exc:
+            stderr = exc.stderr or b""
+            if isinstance(stderr, bytes):
+                stderr = stderr.decode("utf-8", errors="replace")
+            raise RuntimeError(
+                f"ontology runner cargo build exceeded {BUILD_TIMEOUT_S}s; "
+                "check for a competing Cargo build/target lock, or build the runner "
+                "first and set ONJEON_ONTOLOGY_RUNNER.\n" + stderr
+            ) from exc
+        for line in build.stdout.splitlines():
+            artifact = json.loads(line)
+            if (artifact.get("reason") == "compiler-artifact"
+                    and artifact.get("target", {}).get("name") == "ontology-case-runner"
+                    and "bin" in artifact["target"].get("kind", [])
+                    and artifact.get("executable")):
+                cls.runner = artifact["executable"]
+                return
+        raise RuntimeError("cargo build did not report an ontology-case-runner executable")
 
     def run_jobs(self, batch):
         p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
@@ -203,6 +229,43 @@ class RunnerIoError(unittest.TestCase):
 
 
 class RunnerSetup(unittest.TestCase):
+    def test_uses_cargo_executable_with_default_or_redirected_target(self):
+        for target_dir, executable in (
+            ("", str(RUNNER_DIR / "target/debug/ontology-case-runner")),
+            (str(REPO / "target/shared"), str(REPO / "target/shared/debug/ontology-case-runner")),
+            ("", str(REPO / "target/configured/x86_64-unknown-linux-gnu/debug/ontology-case-runner")),
+        ):
+            with self.subTest(executable=executable), \
+                    mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": "", "CARGO_TARGET_DIR": target_dir}), \
+                    mock.patch.object(RunnerIoError, "runner", create=True):
+                messages = [
+                    {"reason": "compiler-artifact", "target": {"name": "dependency", "kind": ["lib"]},
+                     "executable": None},
+                    {"reason": "compiler-artifact", "target": {"name": "other-bin", "kind": ["bin"]},
+                     "executable": "/wrong/binary"},
+                    {"reason": "compiler-artifact", "target": {"name": "ontology-case-runner", "kind": ["bin"]},
+                     "executable": executable, "fresh": True},
+                    {"reason": "build-finished", "success": True},
+                ]
+                with mock.patch.object(subprocess, "run", return_value=subprocess.CompletedProcess(
+                        [], 0, stdout="\n".join(map(json.dumps, messages)))) as build:
+                    RunnerIoError.setUpClass()
+                self.assertEqual(RunnerIoError.runner, executable)
+                self.assertIn("--message-format=json", build.call_args.args[0])
+                self.assertEqual(build.call_args.kwargs["cwd"], RUNNER_DIR)
+                self.assertTrue(build.call_args.kwargs["check"])
+
+    def test_successful_build_without_executable_fails_at_setup(self):
+        for messages in ([], [{"reason": "compiler-artifact", "target": {
+                "name": "ontology-case-runner", "kind": ["bin"]}, "executable": None}]):
+            with self.subTest(messages=messages), \
+                    mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": ""}), \
+                    mock.patch.object(RunnerIoError, "runner", create=True), \
+                    mock.patch.object(subprocess, "run", return_value=subprocess.CompletedProcess(
+                        [], 0, stdout="\n".join(map(json.dumps, messages)))):
+                with self.assertRaisesRegex(RuntimeError, "did not report.*executable"):
+                    RunnerIoError.setUpClass()
+
     def test_prebuilt_runner_does_not_require_cargo_or_cached_dependencies(self):
         with mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": "/prebuilt/runner"}), \
                 mock.patch.object(RunnerIoError, "runner", create=True), \
@@ -217,6 +280,41 @@ class RunnerSetup(unittest.TestCase):
                 mock.patch.object(subprocess, "run", side_effect=subprocess.CalledProcessError(101, ["cargo", "build"])):
             with self.assertRaises(subprocess.CalledProcessError):
                 RunnerIoError.setUpClass()
+
+    def test_stalled_fallback_build_fails_with_cargo_diagnostic(self):
+        for stderr in (b"Blocking waiting for file lock on build directory", "cargo stalled", None):
+            with self.subTest(stderr=stderr), \
+                    mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": ""}), \
+                    mock.patch.object(RunnerIoError, "runner", create=True), \
+                    mock.patch.object(subprocess, "run", side_effect=subprocess.TimeoutExpired(
+                        ["cargo", "build"], BUILD_TIMEOUT_S, stderr=stderr)) as build:
+                with self.assertRaisesRegex(RuntimeError, "ontology runner cargo build exceeded") as caught:
+                    RunnerIoError.setUpClass()
+                self.assertFalse(RunnerIoError.runner)
+                self.assertIsInstance(caught.exception.__cause__, subprocess.TimeoutExpired)
+                self.assertIn("ONJEON_ONTOLOGY_RUNNER", str(caught.exception))
+                if stderr:
+                    self.assertIn(stderr.decode() if isinstance(stderr, bytes) else stderr, str(caught.exception))
+                self.assertGreater(build.call_args.kwargs["timeout"], 0)
+                self.assertLess(build.call_args.kwargs["timeout"], 900)
+
+    @unittest.skipUnless(os.name == "posix" and shutil.which("cargo"), "POSIX Cargo lock test")
+    def test_real_cargo_lock_cannot_hang_setup(self):
+        import fcntl
+
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            (target / "debug").mkdir()
+            with (target / "debug/.cargo-lock").open("w") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                with mock.patch.dict(os.environ, {
+                    "ONJEON_ONTOLOGY_RUNNER": "", "CARGO_TARGET_DIR": str(target),
+                }), mock.patch.object(sys.modules[__name__], "BUILD_TIMEOUT_S", 5), \
+                        mock.patch.object(RunnerIoError, "runner", create=True):
+                    os.environ.pop("CARGO_BUILD_TARGET", None)  # lock the native debug directory
+                    with self.assertRaisesRegex(RuntimeError, "Blocking waiting for file lock"):
+                        RunnerIoError.setUpClass()
+                    self.assertFalse(RunnerIoError.runner)
 
 
 if __name__ == "__main__":

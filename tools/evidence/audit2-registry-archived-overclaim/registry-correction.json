@@ -1,0 +1,147 @@
+{
+  "source": "HEAD:data/registry/insurers.csv versus working-tree data/registry/insurers.csv",
+  "insurer_count": 53,
+  "before_disclosure_status": {
+    "failed": 31,
+    "blocked": 3,
+    "archived": 8,
+    "unqueried": 11
+  },
+  "after_disclosure_status": {
+    "failed": 31,
+    "blocked": 3,
+    "unqueried": 19
+  },
+  "after_disclosure_access": {
+    "not_checked": 45,
+    "reachable": 8
+  },
+  "after_product_list_status": {
+    "unqueried": 53
+  },
+  "after_product_list_reason_codes": {
+    "awaiting_T-DT-04": 53,
+    "awaiting_domestic_env": 53,
+    "disclosure_entry_missing": 45,
+    "foreign_sandbox_geo_blocked": 3
+  },
+  "changed_rows": [
+    {
+      "insurer_id": "life-chubb",
+      "name_ko": "처브라이프생명보험",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    },
+    {
+      "insurer_id": "life-bnpcardif",
+      "name_ko": "BNP파리바카디프생명보험",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    },
+    {
+      "insurer_id": "life-aia",
+      "name_ko": "AIA생명보험",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    },
+    {
+      "insurer_id": "life-kyobo-lifeplanet",
+      "name_ko": "교보라이프플래닛생명보험",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    },
+    {
+      "insurer_id": "nonlife-heungkuk",
+      "name_ko": "흥국화재해상보험",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    },
+    {
+      "insurer_id": "nonlife-db",
+      "name_ko": "DB손해보험",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    },
+    {
+      "insurer_id": "nonlife-ace-chubb",
+      "name_ko": "에이스아메리칸화재해상보험",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    },
+    {
+      "insurer_id": "nonlife-mitsuisumitomo-kr",
+      "name_ko": "미쓰이스미토모해상화재보험 한국지점",
+      "fields": {
+        "disclosure_status": {
+          "before": "archived",
+          "after": "unqueried"
+        },
+        "disclosure_gap_reason": {
+          "before": "",
+          "after": "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
+        }
+      }
+    }
+  ],
+  "unchanged_row_count": 45,
+  "other_fields_unchanged": true,
+  "baseline_commit": "59fb65be5dac8b51bcab28667d29248f7fc30a0d",
+  "before_csv_sha256": "067e73f8621b650e49eca0cc296ea68c8838bf1cfe4a69024c275ee71c428ed8",
+  "after_csv_sha256": "b128ed79281815129c62f989f9f7fd3fcd7b63ef083642564fd573d73b0eeb22"
+}

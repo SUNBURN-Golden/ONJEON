@@ -73,6 +73,8 @@
 
 53곳 중 **8곳**만 상품공시 URL을 찾아 200 응답을 확인했다: AIA생명, BNP파리바카디프생명, 교보라이프플래닛, 처브라이프생명, 흥국화재, DB손보, 에이스아메리칸(Chubb), 미쓰이스미토모 한국지점. 나머지 45곳은 `disclosure_url`이 비어 있고 `disclosure_access=not_checked`다. 이유는 notes에 있다.
 
+이 8곳은 `disclosure_access=reachable`일 뿐 원문 보관 완료가 아니다. `disclosure_status`는 `acquisition_status` 축을 유지하므로 `reachable`을 넣지 않고, 보관 작업 전인 `unqueried`와 `disclosure_gap_reason`에 접근 확인·무결성 검사·불변 보관 전이라는 사유를 남긴다. 전체 53곳의 공시 접근 결과는 `reachable` 8, `not_checked` 45이고, `archived`는 0이다. HTTP 200·응답 해시·과거 `archived` 표기만으로 원문 불변 보관을 증명하지 않는다. 정규화기는 보관 증거를 검증하는 도구가 아니므로 `archived`를 생성하지 않는다.
+
 ## 출처별 접근 결과 (이 환경, 2026-10-09)
 
 | 출처 | 결과 | 비고 |
@@ -107,7 +109,7 @@
 4. **판매중지 상품의 분모**(ADR-0004: 판매 중지 포함)는 과거 회사를 포함할 수 있다. MG손보와 캐롯처럼 사라졌거나 이전된 회사의 기존 계약 약관을 어느 회사 공시실에서 찾을지는 아직 정하지 않았다.
 5. **외국 재보험사와 기업보험 지점 8곳은 KNIA 한 곳에만 있다.** SCOR는 한글 정식명이 없다. 법인인지 지점인지도 대부분 추정이다. 재보험사는 개인 상품공시 대상이 아니라고 보고 공시실을 탐색하지 않았다. 이 가정도 확인이 필요하다.
 6. **영문명(`name_en`)은 대부분 비어 있다.** 출처에 영문 표기가 있는 경우(Munich Re, Hannover Re, SCOR, RGA)만 채웠다.
-7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 8, `failed` 31, `blocked` 3, `unqueried` 11). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경은 열린 관문 O19(결정 원장 §3)이고, T-DT-04의 실데이터 관문(`decision_gates.real_data`: D-04, O19)이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.
+7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 0, `failed` 31, `blocked` 3, `unqueried` 19. `unqueried`는 접근 확인 후 보관 전 8곳과 미조회 11곳). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경은 열린 관문 O19(결정 원장 §3)이고, T-DT-04의 실데이터 관문(`decision_gates.real_data`: D-04, O19)이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.
 8. **명칭 변경과 합병 이력(기관 별칭)은 확보하지 못했다.** KLIA 회원사변천과정은 JS로 렌더링되고, KNIA에는 해당 페이지를 찾지 못했다.
 9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제 상품공시 URL도 탐색하지 않았다.
 10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 감독당국 목록이 복구되면 대조해야 한다.
@@ -129,8 +131,8 @@
 |---|---|---|
 | `entity_evidence` | `entity_evidence` | 기관 존재 근거. `seed`는 분모에 넣지 않는다 |
 | `disclosure_access`, `home_access` | `host_access` | 이 환경에서의 접근 결과. 원문은 `*_detail` |
-| `disclosure_status` | `acquisition_status` | 공시 진입점 확보 여부(`archived`, `failed`, `blocked`, `unqueried`) |
-| `disclosure_gap_reason` | - | 확보하지 못한 이유 |
+| `disclosure_status` | `acquisition_status` | 공시 원문 보관 상태. 접근 확인만으로 `archived`가 되지 않으며 현재 `failed`·`blocked`·`unqueried`만 있음 |
+| `disclosure_gap_reason` | - | 보관 전 또는 접근하지 못한 이유. `unqueried`의 접근 확인 후 보관 전·미조회를 구별 |
 | `product_list_status` | `acquisition_status` | 이 회사의 상품·특약 목록 열거 여부. 현재 전부 `unqueried` |
 | `product_list_reason` | - | 열거하지 않은 이유. 설계 검증 표본과 무관하게 전 대상을 추적한다 |
 | `product_list_reason_codes` | - | `unqueried`인 동안의 사유 코드(`;` 구분, `tools/registry_normalize.py`가 계산). 아래 표 |
@@ -139,7 +141,7 @@
 |---|---|---|
 | `awaiting_T-DT-04` | `unqueried` 전부 | 상품·특약 목록 열거는 T-DT-04 몫이고 아직 실행 전 |
 | `awaiting_domestic_env` | `unqueried` 전부 | 실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전 |
-| `disclosure_entry_missing` | `disclosure_status`가 `archived`가 아닌 행 | 공시 진입점을 확보하지 못함 |
+| `disclosure_entry_missing` | `disclosure_url`이 없거나 `disclosure_access`가 `reachable`이 아닌 행 | 접근 가능한 공시 진입점을 확보하지 못함. 원문 보관 상태와 별개 |
 | `foreign_sandbox_geo_blocked` | `home_access` 또는 `disclosure_access`가 `geo_blocked`인 행 | 해외 IP 샌드박스에서 해외 IP 차단 |
 
 현재 `insurers.csv` 53행 모두 `unqueried`이고, 45행에 `disclosure_entry_missing`, 그중 3행에 `foreign_sandbox_geo_blocked`가 붙는다. 이 수치와 코드 규칙은 `tools/tests/test_registry_denominator.py`가 실제 CSV로 검사한다.

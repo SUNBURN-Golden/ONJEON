@@ -36,3 +36,7 @@ Decided by Claude Sonnet 5.5 xhigh (ONJEON autoloop, 2026-10-28 07:12 KST); reve
 | `kyobo_1995_cancer_scanned` | `tesseract@5.3.4-kor-psm3-300dpi-gray` | `ocr_all.txt` |
 
 이 수정의 로컬 시험 실패는 `CARGO_TARGET_DIR`로 빌드 위치가 바뀌는데 Python 시험은 고정 경로를 실행한 데서 발생했다. fallback 빌드의 `--target-dir`를 실행 경로와 일치시키고 빈 `ONJEON_ONTOLOGY_RUNNER`도 fallback으로 처리했다. 기존 prebuilt 경로와 빌드 실패 전파는 유지한다. [회귀 시험·프로젝트 검사 증거](../../tools/evidence/audit2-v1-gate-closure/README.md)는 실행 환경 수정의 증거다. 비공개 원본 재현이나 ReviewDecision 증거를 대신하지 않는다.
+
+## main 병합 정합성 (fix round 2, 2026-10-28)
+
+main의 동일 시험 수정과 병합하면서 고정 `--target-dir` 방식은 Cargo의 `compiler-artifact.executable`을 사용하는 방식으로 대체했다. 빌드와 실행 경로 일치라는 기존 의도를 유지하면서 target 디렉터리·target 설정도 존중한다. 미지정/빈 `ONJEON_ONTOLOGY_RUNNER`의 fallback, prebuilt 우선, 빌드 실패 전파를 유지하고 main의 120초 제한·잠금 진단·실행 파일 보고 누락 실패도 보존한다. 회귀 시험은 미지정/빈 override 각각에서 기본·변경·target별 실행 경로를 확인한다. [병합 후 시험 증거](../../tools/evidence/audit2-v1-gate-closure/fix-round2/README.md)는 이 실행 환경 정합성만 검증한다. V1의 실제 14/14 재현·이종 계열 ReviewDecision·S1/S6 관문은 여전히 미완료다.

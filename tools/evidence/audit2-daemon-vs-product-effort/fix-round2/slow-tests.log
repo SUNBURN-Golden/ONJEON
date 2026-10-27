@@ -1,0 +1,12 @@
+test_all_scenarios_exit_zero_and_print_expected_and_actual (test_daemon_dry_run.Cli.test_all_scenarios_exit_zero_and_print_expected_and_actual) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 18.814s
+
+OK
+test_replacing_or_deleting_explanation_keys_changes_nothing (test_daemon_dry_run.StructuredFieldsOnly.test_replacing_or_deleting_explanation_keys_changes_nothing) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 27.174s
+
+OK

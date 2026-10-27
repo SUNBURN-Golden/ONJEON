@@ -1,0 +1,18 @@
+CARGO_TARGET_DIR=$PWD/target/audit2-effort
+CARGO_NET_OFFLINE=true
+TMPDIR=$PWD/target/audit2-tmp
+ONJEON_ONTOLOGY_RUNNER unset
+Completed separately (shell time):
+exit=0 real=104.770s python3 -m unittest discover -s tools/tests -v
+exit=0 real=35.863s cargo test --offline --workspace
+Remaining commands:
+exit=0 elapsed=0.064s cargo test --offline --manifest-path 'docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml'
+exit=0 elapsed=0.320s python3 -I 'docs/blueprint/proposals/온톨로지/검증/ontology_check.py' target/audit2-effort/debug/ontology-case-runner
+exit=0 elapsed=0.064s python3 -I tools/validation_check.py
+exit=0 elapsed=0.465s python3 -I tools/validation_check.py --selftest
+exit=0 elapsed=0.114s python3 -I tools/vocab_check.py
+exit=0 elapsed=0.114s python3 -I packages/schemas/codegen/gen.py --check
+exit=0 elapsed=0.032s python3 -I infra/db/public/tests/test_vocab_sync.py
+exit=0 elapsed=0.067s python3 -I tools/ci/check_product_purpose.py
+exit=0 elapsed=0.116s python3 -I 'docs/blueprint/proposals/설계검토_결과/검증/spec_check.py'
+ALL PASSED summed command runtime=141.991s (separate monitored invocations)

@@ -1,5 +1,9 @@
 # Audit 2 V1 closure decision — fix round 1
 
+Historical round 1 evidence below. The [round 2 merge resolution](fix-round2/README.md)
+supersedes the fixed target-directory approach with Cargo executable discovery
+and retains coverage for both missing and empty prebuilt overrides.
+
 Local verification on 2026-10-28. This node records the concrete V1 closure
 path; V1 remains open. No private archive, provider API, secrets, GitHub,
 commit, push, or production access was used.

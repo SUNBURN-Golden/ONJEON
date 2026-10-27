@@ -1,0 +1,10 @@
+test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) ... ok
+test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) ... ok
+test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) ... ok
+test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) ... ok
+test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

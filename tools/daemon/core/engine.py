@@ -39,6 +39,7 @@ class DaemonCore:
         if (routed | bare) - self.known_events or routed & bare or set(self.entry["routes"].values()) - set(_ROUTES):
             raise SpecGap("operations.handle_event: routes and without_envelope must be disjoint catalog events "
                           f"and routes must name {sorted(_ROUTES)}")
+        lease_mod.check_mark_sent(rules)
 
     # ---- state access
     def snapshot(self):

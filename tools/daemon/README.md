@@ -18,7 +18,7 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 | `core/rules.py` | `core_contract.reads`로 만든 규칙 뷰. 설명 키(`when` 문장·`note`·`_*`)는 버린다. 읽기 목록 밖의 값은 `OUTSIDE_READS` 네 개뿐이고 모두 명세 공백 G51로 보고한다 |
 | `core/transition_engine.py` | `transitions[]`의 `cond`·`guard`·`side_effects`·`return_code`·`on_cond_fail`, `noop_rules`, 가드 `on_fail` |
 | `core/effects.py` | 부수 효과 id별 처리. 어떤 id를 어떤 순서·인자로 실행할지는 데이터다 |
-| `core/lease.py` | `issue_lease`(세대를 바꾸는 유일한 곳), 임대 잠금, `lease_guards`, outbox 발송·재발송 |
+| `core/lease.py` | `issue_lease`(세대를 바꾸는 유일한 곳), 임대 잠금, `lease_guards`, outbox 발송·재발송(sent 표시는 compare-and-set) |
 | `core/fencing.py`, `core/envelope_validator.py` | `accept_envelope`, `fenced_write`, `validate_instruction`, 지시 봉투 작성, 수신 측 검증 |
 | `core/handoff.py`, `core/recovery.py` | 인계 단계와 실패 처리, 재시작 복구, 정상 만료, 상태 손상 |
 | `core/secret_scan.py` | 비밀값 패턴의 세 검사 지점. 일치한 문자열은 기록하지 않는다 |
@@ -36,6 +36,8 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 `merged → audit_queued`와 `merged → done`(`impl_counter_incremented`)은 cond `event.docs_only != true` / `== true`로 배타다. 관측 계층은 docs-only 판정(변경 경로가 모두 `docs/**` 또는 라벨 `docs-only`)을 사건의 `docs_only`로 넘길 뿐이고 목적지는 행의 cond가 고른다. 값이 없으면 구현 PR로 세어 감리를 거친다. 호출자가 목적지를 지정하는 경로(`to`)는 없앴다(`DocsOnlyLandingCond`, M23). [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_docs_pr_never_done.md).
 
 `handle_event`(봉투 없이 들어오는 사건의 입구)는 `core_contract.operations.handle_event`를 읽는다. `routes`의 사건은 검사 연산으로 보내고(`fence_violation`→accept_envelope, `push_requested`·`pr_update_requested`→fenced_write, `daemon_restart`→재시작 복구), `without_envelope` 허용 목록의 사건만 전이표에 닿는다. 그 밖의 이름(`result_*`·`switch_signal`·`first_heartbeat`·`heartbeat`, 코어가 스스로 내는 `envelope_invalid`·`unmapped_condition`·`state_corrupted`, 모르는 이름)은 `envelope_rejected_invalid`(R-13)로 기록만 하고 상태·임대는 그대로다. 봉투 사건은 `submit_envelope`(accept_envelope의 임대·토큰·중복·만료 검사)로만 들어온다. 목록이 사건 목록 밖의 이름을 담거나 routes와 겹치면 코어가 시작하지 않는다(`HandleEventFencing`, M17). [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_handle_event_fencing.md).
+
+outbox 발송(`resend_outbox`)은 검사 트랜잭션 → 발송(트랜잭션 밖) → 표시 트랜잭션 순서다. 표시는 `core_contract.operations.resend_outbox.mark_sent`의 compare-and-set이다. 표시 트랜잭션에서 `checks[compare_and_set]`(`pending`)을 다시 평가해 참일 때만 `set`(status `sent`, sent_at `clock.now`)을 쓴다. 발송 중 만료·취소 뒤 재시작·손상으로 void된 행이나 다른 발송이 먼저 sent로 표시한 행은 그대로 두고, 진단 `outbox_not_pending_at_mark`와 결과 `not_marked`만 남긴다. 이미 나간 봉투의 임대는 끝났으므로 그 봉투로 온 보고는 R-11로 막힌다. 모의 발송기의 `during_send`(한 번만 실행되는 훅)가 발송과 표시 사이의 경쟁을 만든다. `mark_sent`가 없는 검사 id를 가리키거나, `set`에 status가 없거나, `on_conflict.writes`가 비어 있지 않으면 코어가 시작하지 않는다(`SendMarkCompareAndSet`, M41). [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_envelope_sent_after_void.md).
 
 ## 관측 계층(명세 공백 G51~G55)
 

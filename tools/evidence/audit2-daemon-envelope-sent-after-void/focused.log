@@ -1,0 +1,23 @@
+# after fix: base commit 49aa3d7d79f2a7d78b26f949940889930012a8ed + this change
+# python3 -m unittest tools.tests.test_daemon_dry_run.SendMarkCompareAndSet -v
+test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) ... ok
+test_a_second_send_does_not_mark_the_row_again (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_second_send_does_not_mark_the_row_again)
+sender_retry sends and marks the row first; the first send's marking then finds it sent and keeps its sent_at. ... ok
+test_an_undisturbed_send_is_marked (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_an_undisturbed_send_is_marked) ... ok
+test_comparing_a_check_that_still_holds_reopens_the_finding (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_comparing_a_check_that_still_holds_reopens_the_finding)
+Mutation: compare lease_match instead of pending (the lease id and generation do not change on expiry) and ... ok
+test_mark_sent_is_data (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_mark_sent_is_data) ... ok
+test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) ... ok
+test_the_envelope_that_went_out_is_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_the_envelope_that_went_out_is_refused)
+The void envelope did reach the builder; its lease is over, so nothing it reports moves the task. ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.083s
+
+OK
+# exit 0
+# python3 -I tools/evidence/audit2-daemon-envelope-sent-after-void/repro_void_then_sent.py
+expired         state=queued    lease=expired  outbox.status=void  void_reason=expired sent_at=None sends=1
+cancel+restart  state=cancelled lease=revoked  outbox.status=void  void_reason=revoked sent_at=None sends=1
+second send     state=leased    lease=active   outbox.status=sent  void_reason=None sent_at=start+1 sends=2
+# exit 0

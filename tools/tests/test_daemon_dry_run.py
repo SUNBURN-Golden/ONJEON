@@ -1686,6 +1686,131 @@ class HandleEventFencing(unittest.TestCase):
                     MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
 
 
+class SendMarkCompareAndSet(unittest.TestCase):
+    """audit2-daemon-envelope-sent-after-void: resend_outbox sends outside any transaction and then marked the row
+    sent without looking at it again, so a row an expiry, revoke or corruption had voided in between became sent
+    (with its void_reason still set). core_contract.operations.resend_outbox.mark_sent is now a compare-and-set on
+    checks[pending]."""
+
+    def spec(self, raw=None):
+        return (raw or raw_rules())["core_contract"]["operations"]["resend_outbox"]
+
+    def race(self, during, raw=None):
+        """Issue a lease for BASIC; `during(env, task_id)` runs after the send and before the marking transaction."""
+        env = MockEnv(raw or str(RULES), str(TASKS))
+        env.start_task(sc.BASIC)
+        env.ports.sender.during_send = lambda task_id: during(env, task_id)
+        m = sc.mark(env)
+        env.grant(sc.BASIC)
+        return env, env.journal()[m:]
+
+    @staticmethod
+    def marks(js):
+        return [r["outcome"] for r in js if r["kind"] == "result_record" and r["action"] == "send_envelope"]
+
+    @staticmethod
+    def conflicts(js):
+        return [(r["status"], r["void_reason"], r["trigger"]) for r in js
+                if r["kind"] == "diagnostic_record" and r["what"] == "outbox_not_pending_at_mark"]
+
+    @staticmethod
+    def expire(env, task_id):
+        env.clock.advance(sc.TTL + 1)
+        env.core.tick()
+
+    @staticmethod
+    def cancel_and_restart(env, task_id):
+        """Another daemon instance takes over while the old one is still sending."""
+        env.event("owner_cancelled", task_id)
+        env.restart()
+
+    @staticmethod
+    def corrupt_and_restart(env, task_id):
+        env.store.tamper(lambda d: d["tasks"][task_id]["outbox"][0].update(lease_generation=7))
+        env.restart()
+
+    def test_mark_sent_is_data(self):
+        spec = self.spec()
+        self.assertEqual(spec["mark_sent"]["compare_and_set"], "pending")
+        cas, = [c for c in spec["checks"] if c["id"] == "pending"]
+        self.assertEqual((cas["pred"], cas["fail_key"]), ({"field": "outbox.status", "op": "==", "value": "pending"}, "not_pending"))
+        self.assertEqual(spec["mark_sent"]["set"], {"status": "sent", "sent_at": "clock.now"})
+        self.assertEqual(spec["mark_sent"]["on_conflict"], {"writes": [], "diagnostic": "outbox_not_pending_at_mark",
+                                                            "result": "not_marked"})
+        self.assertIn("compare-and-set", spec["on_pass"][1])
+
+    def test_a_row_voided_during_the_send_stays_void(self):
+        for label, during, want in (("expired", self.expire, ("queued", "expired", "expired")),
+                                    ("revoked", self.cancel_and_restart, ("cancelled", "revoked", "revoked")),
+                                    ("corrupt", self.corrupt_and_restart, ("returned", "revoked", "corrupt"))):
+            with self.subTest(case=label):
+                env, js = self.race(during)
+                t = env.task(sc.BASIC)
+                row = t["outbox"][0]
+                self.assertEqual((t["task_state"]["state"], t["lease_record"]["status"], row["void_reason"]), want)
+                self.assertEqual((row["status"], row["sent_at"]), ("void", None))
+                self.assertEqual(len(env.ports.sender.sent), 1)
+                self.assertEqual(sc.se(js, "send_envelope"), [])
+                self.assertEqual(self.marks(js), ["not_marked"])
+                self.assertEqual(self.conflicts(js), [("void", want[2], "send")])
+
+    def test_the_envelope_that_went_out_is_refused(self):
+        """The void envelope did reach the builder; its lease is over, so nothing it reports moves the task."""
+        for label, during, state in (("expired", self.expire, "queued"), ("revoked", self.cancel_and_restart, "cancelled")):
+            with self.subTest(case=label):
+                env, _ = self.race(during)
+                m = sc.mark(env)
+                env.run_builders()
+                js = env.journal()[m:]
+                self.assertEqual((sc.tr(js), sc.noops(js), env.state(sc.BASIC)), ([], [("late_envelope_rejected", "R-11")], state))
+
+    def test_a_second_send_does_not_mark_the_row_again(self):
+        """sender_retry sends and marks the row first; the first send's marking then finds it sent and keeps its sent_at."""
+        from daemon.core import lease as lease_mod
+        marked_at = []
+
+        def retry(env, task_id):
+            env.clock.advance(1)
+            lease_mod.resend_outbox(env.core, task_id, "sender_retry")
+            marked_at.append(env.clock.now())
+            env.clock.advance(1)  # the first send's marking runs later
+        env, js = self.race(retry)
+        row = env.task(sc.BASIC)["outbox"][0]
+        self.assertEqual((row["status"], row["sent_at"]), ("sent", marked_at[0]))
+        self.assertLess(row["sent_at"], env.clock.now())
+        self.assertEqual(len(env.ports.sender.sent), 2)
+        self.assertEqual([r["args"]["trigger"] for r in js if r["kind"] == "side_effect_record" and r["id"] == "send_envelope"],
+                         ["sender_retry"])
+        self.assertEqual(self.marks(js), ["sent", "not_marked"])
+        self.assertEqual(self.conflicts(js), [("sent", None, "send")])
+
+    def test_an_undisturbed_send_is_marked(self):
+        env, js = self.race(lambda env, task_id: None)
+        row = env.task(sc.BASIC)["outbox"][0]
+        self.assertEqual((row["status"], row["sent_at"], row["void_reason"]), ("sent", env.clock.now(), None))
+        self.assertEqual((len(sc.se(js, "send_envelope")), self.marks(js), self.conflicts(js)), (1, ["sent"], []))
+
+    def test_comparing_a_check_that_still_holds_reopens_the_finding(self):
+        """Mutation: compare lease_match instead of pending (the lease id and generation do not change on expiry) and
+        the void(expired) row becomes sent again."""
+        raw = _mutated(lambda r: self.spec(r)["mark_sent"].update(compare_and_set="lease_match"))
+        env, js = self.race(self.expire, raw)
+        row = env.task(sc.BASIC)["outbox"][0]
+        self.assertEqual((row["status"], row["void_reason"], self.marks(js)), ("sent", "expired", ["sent"]))
+
+    def test_rules_that_break_the_mark_contract_are_refused(self):
+        from daemon.core.ports import SpecGap
+        breaks = {"unknown check": lambda m: m.update(compare_and_set="no_such_check"),
+                  "no status write": lambda m: m["set"].pop("status"),
+                  "conflict writes": lambda m: m["on_conflict"].update(writes=["status"]),
+                  "no diagnostic": lambda m: m["on_conflict"].pop("diagnostic"),
+                  "missing": lambda m: m.clear()}
+        for label, fn in breaks.items():
+            with self.subTest(case=label):
+                with self.assertRaises(SpecGap):
+                    MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
+
+
 class ReportValues(unittest.TestCase):
     """The report shows the values as they were compared, not as the scenario left them afterwards."""
 

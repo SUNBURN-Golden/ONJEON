@@ -1,0 +1,14 @@
+$ python3 tools/vocab_check.py
+vocabulary ok: 49 axes, 269 values
+exit code: 0
+$ python3 tools/validation_check.py
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+exit code: 0
+$ python3 tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 193, "tamper_tests": 38, "vocabulary_axes": 49}
+exit code: 0
+$ python3 tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (36 ADR/DEC files)
+exit code: 0
+$ git diff --check
+exit code: 0

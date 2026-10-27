@@ -1454,6 +1454,96 @@ class TerminalStatesIgnoreUnmapped(unittest.TestCase):
         self.assertEqual(env.state(fl.SUCC), "blocked")
 
 
+class DocsOnlyLandingCond(unittest.TestCase):
+    """audit2-daemon-docs-pr-never-done (docs-pr-complete): merged -> audit_queued and merged -> done share
+    (merged, impl_counter_incremented) and had no cond, so the first row always won and only a destination named by
+    the caller (`to`) reached done. The rows now carry cond event.docs_only and nobody names the destination."""
+
+    def merged(self, task_id, touched=None):
+        """The task in merged without the observation layer counting it (pr_merged_observed fed to the core)."""
+        env = MockEnv(str(RULES), str(TASKS))
+        fl.approve_to_wait(env, task_id, touched=touched)
+        env.event("pr_merged_observed", task_id)
+        self.assertEqual(env.state(task_id), "merged")
+        return env
+
+    def landed(self, task_id, touched=None, labels=()):
+        env = MockEnv(str(RULES), str(TASKS))
+        fl.open_pr(env, task_id, touched)
+        with env.ports.store.transaction() as d:
+            d["pr"][task_id]["labels"].extend(labels)
+        env.observe(task_id, "ci", conclusion="success", sha=fl.H1)
+        fl.review(env, task_id)
+        m = sc.mark(env)
+        fl.land(env, task_id)
+        return env, env.journal()[m:]
+
+    def test_rows_sharing_from_and_event_are_told_apart_by_cond(self):
+        raw = raw_rules()
+        groups = {}
+        for row in raw["transitions"]:
+            groups.setdefault((row["from"], row["event"]), []).append(row)
+        for key, rows in groups.items():
+            if len(rows) > 1:
+                with self.subTest(row=key):
+                    self.assertEqual([r["to"] for r in rows if not r.get("cond")], [])
+        impl = _transition(raw, "merged", "impl_counter_incremented", "audit_queued")
+        docs = _transition(raw, "merged", "impl_counter_incremented", "done")
+        self.assertEqual(docs.get("cond"), [{"field": "event.docs_only", "op": "==", "value": True}])
+        self.assertEqual(impl.get("cond"), [{"field": "event.docs_only", "op": "!=", "value": True}])
+        self.assertTrue(_exclusive(impl, docs))
+        self.assertEqual(raw["core_contract"]["events_in"]["payloads"]["impl_counter_incremented"], ["docs_only"])
+
+    def test_the_core_picks_the_row_from_the_event(self):
+        for payload, want in (({"docs_only": True}, "done"), ({"docs_only": False}, "audit_queued"), ({}, "audit_queued")):
+            with self.subTest(payload=payload):
+                env = self.merged(fl.DOCS, touched=["docs/mock/guide.md"])
+                m = sc.mark(env)
+                env.event("impl_counter_incremented", fl.DOCS, **payload)
+                self.assertEqual(sc.tr(env.journal()[m:]), [("merged", want, "impl_counter_incremented")])
+
+    def test_no_caller_names_the_destination(self):
+        import inspect
+        from daemon.core import transition_engine
+        self.assertNotIn("to", inspect.signature(transition_engine.apply_event).parameters)
+        env = self.merged(fl.BASIC)
+        m = sc.mark(env)
+        env.core.handle_event({"event": "impl_counter_incremented", "task_id": fl.BASIC, "to": "done",
+                               "payload": {"docs_only": False}})
+        self.assertEqual(sc.tr(env.journal()[m:]), [("merged", "audit_queued", "impl_counter_incremented")])
+
+    def test_docs_pr_completes_without_count(self):
+        cases = (("docs/** paths", fl.DOCS, ["docs/mock/guide.md"], ()),
+                 ("label docs-only", fl.BASIC, None, ("docs-only",)))
+        for label, task_id, touched, labels in cases:
+            with self.subTest(case=label):
+                env, js = self.landed(task_id, touched, labels)
+                self.assertEqual(sc.tr(js), [("merge_wait", "merged", "pr_merged_observed"),
+                                             ("merged", "done", "impl_counter_incremented")])
+                self.assertEqual((fl.counter(env)["merged_impl_counter"], fl.counter(env)["batches"]), (0, []))
+                self.assertEqual(sc.se(js, "increment_counter"), [])
+
+    def test_implementation_pr_is_counted(self):
+        env, js = self.landed(fl.BASIC)
+        self.assertEqual(sc.tr(js)[-1], ("merged", "audit_queued", "impl_counter_incremented"))
+        self.assertEqual(fl.counter(env)["merged_impl_counter"], 1)
+        self.assertEqual(fl.counter(env)["batches"][0]["tasks"], [fl.BASIC])
+        self.assertEqual(len(sc.se(js, "increment_counter")), 1)
+
+    def test_removing_the_cond_reopens_the_finding(self):
+        """Without the cond the first row wins: the docs-only PR goes to audit_queued and is counted."""
+        raw = raw_rules()
+        for row in _rows(raw, frm="merged", event="impl_counter_incremented"):
+            row.pop("cond", None)
+        env = MockEnv(raw, str(TASKS))
+        fl.approve_to_wait(env, fl.DOCS, touched=["docs/mock/guide.md"])
+        m = sc.mark(env)
+        fl.land(env, fl.DOCS)
+        js = env.journal()[m:]
+        self.assertEqual((env.state(fl.DOCS), sc.tr(js)[-1], fl.counter(env)["merged_impl_counter"]),
+                         ("audit_queued", ("merged", "audit_queued", "impl_counter_incremented"), 1))
+
+
 class ReportValues(unittest.TestCase):
     """The report shows the values as they were compared, not as the scenario left them afterwards."""
 

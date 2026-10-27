@@ -7,8 +7,8 @@ core_contract.reads (post_merge_states, audit_triggers, record_separation). This
 of those rules. It is shared by every executor (it is core, not adapter), reads the structured values it needs
 only through Rules.outside(), and every rule it applies in code is listed in spec gaps G51-G54.
 
-It never decides what a row does: it picks the event (and, for the two rows that share (from, event) without a
-cond, the destination), then the transition engine applies the row from the data.
+It never decides what a row does: it picks the event and the payload facts the rows' cond read (docs_only for
+merged -> audit_queued / done), then the transition engine applies the row from the data.
 """
 import json
 
@@ -178,8 +178,8 @@ def on_pr_opened(core, d, task_id, envelope):
 
 
 # ---------------------------------------------------------------- applying events
-def _apply(core, d, task_id, event, payload=None, to=None):
-    out = transition_engine.apply_event(core, d, task_id, event, payload or {}, to=to)
+def _apply(core, d, task_id, event, payload=None):
+    out = transition_engine.apply_event(core, d, task_id, event, payload or {})
     pr = _pr(d, task_id)
     if out.get("applied") and pr is not None and event in REASON_AFTER and _state(d, task_id) == "merge_wait":
         pr["merge_wait_reason"] = REASON_AFTER[event]
@@ -277,21 +277,21 @@ def _eligible_reviewer(core, d, task_id):
 
 
 def _count_landing(core, d, task_id):
-    """merged -> audit_queued (implementation PR, counter +1, periodic batch) or done (docs-only, no count)."""
-    if docs_only(d, task_id):
-        return _apply(core, d, task_id, "impl_counter_incremented", {}, to="done")
+    """merged -> audit_queued (implementation PR, counter +1, periodic batch) or done (docs-only, no count). The
+    event carries docs_only and the rows' cond on event.docs_only pick the destination; the count follows the row."""
+    out = _apply(core, d, task_id, "impl_counter_incremented", {"docs_only": docs_only(d, task_id)})
+    if out.get("transition") != ("merged", "audit_queued", "impl_counter_incremented"):
+        return out
     audit = _audit(d)
     every = core.rules.outside("audit_triggers.periodic.every")
     if not audit["batches"] or audit["batches"][-1]["closed"]:
         audit["batches"].append({"batch_id": f"B{len(audit['batches']) + 1}", "tasks": [], "closed": False})
     batch = audit["batches"][-1]
-    out = _apply(core, d, task_id, "impl_counter_incremented", {}, to="audit_queued")
-    if out.get("applied"):
-        audit["merged_impl_counter"] += 1
-        batch["tasks"].append(task_id)
-        batch["closed"] = audit["merged_impl_counter"] % every == 0
-        core.rec.side_effect(d, task_id, "increment_counter", field="merged_impl_counter",
-                             value=audit["merged_impl_counter"], batch_id=batch["batch_id"], batch_closed=batch["closed"])
+    audit["merged_impl_counter"] += 1
+    batch["tasks"].append(task_id)
+    batch["closed"] = audit["merged_impl_counter"] % every == 0
+    core.rec.side_effect(d, task_id, "increment_counter", field="merged_impl_counter",
+                         value=audit["merged_impl_counter"], batch_id=batch["batch_id"], batch_closed=batch["closed"])
     return out
 
 

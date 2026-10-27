@@ -33,6 +33,8 @@ python3 -m unittest tools/tests/test_daemon_dry_run.py
 
 `* → returned`(`unmapped_condition`) 두 행은 cond `task_state.state not_in [done, cancelled]`로 종료 상태(나가는 행이 없는 두 상태)를 뺀다. 그 상태의 표에 없는 사건(다시 전달된 `pr_merged_observed`·병합 관측 등)은 `noop_rules`가 `event_after_terminal_state`로 기록만 하므로 done 과제가 반송되어 후속 과제를 막지 않는다(`TerminalStatesIgnoreUnmapped`, M19). [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_wildcard_from_terminal.md).
 
+`merged → audit_queued`와 `merged → done`(`impl_counter_incremented`)은 cond `event.docs_only != true` / `== true`로 배타다. 관측 계층은 docs-only 판정(변경 경로가 모두 `docs/**` 또는 라벨 `docs-only`)을 사건의 `docs_only`로 넘길 뿐이고 목적지는 행의 cond가 고른다. 값이 없으면 구현 PR로 세어 감리를 거친다. 호출자가 목적지를 지정하는 경로(`to`)는 없앴다(`DocsOnlyLandingCond`, M23). [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_docs_pr_never_done.md).
+
 ## 관측 계층(명세 공백 G51~G55)
 
 `blocked→queued`의 선행 과제 조건과 PR 이후 전이(전이표 43~85행)에는 `cond`가 없다. `blocked→queued`(prereqs_satisfied)의 시작 관문은 `cond` `task.decision_gates.start subset_of task_state.decisions_recorded`로 코어가 평가한다: 관측 계층은 선행 과제만 보고 사건을 내며, 기록되지 않은 start 결정이 있거나 start가 목록이 아니면(null·누락) 과제는 `blocked`에 남고 `cond_not_met` 진단에 그 게이트가 남는다. 사건을 직접 넣어도 같다(`StartGateEnforcement`, [audit1-start-gates-enforcement](../../docs/decisions/audit1-start-gates-enforcement.md)). 어떤 사건을 낼지 정하는 규칙은 `when` 문장, `audit_triggers.immediate_rules[].rule`, `record_separation.merge_observation_fields._rule` 같은 문장이거나 읽기 목록 밖에 있다. 코어가 문장을 읽지 않으므로 `core/observation.py`가 04 §2.2·§4·§5의 규칙을 코드로 적용한다. 행이 하는 일은 여전히 전이표가 정한다. 이 해석은 모두 `spec_gaps.py`의 G51~G55에 적었고, 설계 담당이 구조화 필드로 옮기면 이 모듈을 그 필드를 읽도록 바꾼다.

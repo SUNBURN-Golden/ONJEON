@@ -153,7 +153,7 @@ class DaemonCore:
             return out
 
         def run():
-            return self._txn(lambda d: transition_engine.apply_event(self, d, task_id, name, payload, to=ev.get("to")))
+            return self._txn(lambda d: transition_engine.apply_event(self, d, task_id, name, payload))
 
         out = self._locked(task_id, run) if self._issues_lease(task_id, name) else run()
         self._after_commit(out)

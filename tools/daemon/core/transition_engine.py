@@ -5,8 +5,8 @@ effects run before any cond of the event is looked at, once), return_code, on_co
 which events are noops. Events that no row maps are unmapped_condition (returned, R-03). A lease guard that fails
 runs its own on_fail (lease_guards[].on_fail: wait, or emit_event, G48).
 
-`to` narrows the rows to one destination. It is used only for rows that share (from, event) and have no cond
-(merged -> audit_queued / done on impl_counter_incremented): the observation layer names the destination (G51).
+No caller names the destination: rows that share (from, event) are told apart by their cond (merged -> audit_queued /
+done on impl_counter_incremented: event.docs_only, audit2-daemon-docs-pr-never-done).
 """
 import json
 
@@ -89,7 +89,7 @@ def settle_secrets(core, d):
             core.rec.diagnostic(d, task_id, "secret_redacted_outside_scan_states", match_count=n)
 
 
-def apply_event(core, d, task_id, name, payload=None, envelope=None, to=None, recount=True):
+def apply_event(core, d, task_id, name, payload=None, envelope=None, recount=True):
     """recount=False: the event is fed back by an effect of the row that already counted it (before_cond
     increment_counter), so the counter is not incremented a second time."""
     rules = core.rules
@@ -111,8 +111,7 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None, to=None, re
         core.rec.noop(d, task_id, name, envelope_id=(envelope or payload).get("envelope_id"))
         out["noop"] = name
         return out
-    cands = [tr for tr in rules.transitions if tr["event"] == name and tr["from"] in (ts["state"], "*")
-             and (to is None or tr["to"] == to)]
+    cands = [tr for tr in rules.transitions if tr["event"] == name and tr["from"] in (ts["state"], "*")]
     cands.sort(key=lambda tr: tr["from"] == "*")
     if name in rules.noop_events or not cands:
         core.rec.diagnostic(d, task_id, "no_row_for_state", event=name, state=ts["state"])

@@ -1,0 +1,350 @@
+test_all_open_items_are_referenced_without_a_stale_upper_bound (test_decision_records.DecisionRecords.test_all_open_items_are_referenced_without_a_stale_upper_bound) ... FAIL
+test_blueprint_d02_rows_state_delegation_pending_user_confirmation (test_decision_records.DecisionRecords.test_blueprint_d02_rows_state_delegation_pending_user_confirmation) ... ok
+test_canon_record_preserves_conditional_scope_and_merge_gate (test_decision_records.DecisionRecords.test_canon_record_preserves_conditional_scope_and_merge_gate) ... ok
+test_d02_keeps_delegation_and_access_conditions (test_decision_records.DecisionRecords.test_d02_keeps_delegation_and_access_conditions) ... ok
+test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) ... 
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='정책 소유자=사용자 본인 1인') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='재개는 소유자만') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='O06') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='D-19') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='T-OP-03') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='정책 소유자=사용자 본인 1인') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='재개는 소유자만') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='O06') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='D-19') ... FAIL
+  test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='T-OP-03') ... FAIL
+test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) ... FAIL
+test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) ... 
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='[DEC-D-02](decisions/DEC-D-02.md)') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='작성=claude') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='승인=비-claude X') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='레드팀=별도 비-claude Y') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='degraded') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='업체·모델 ID는 미고정') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='접근 확인') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='월 한도') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='게이트 등록') ... FAIL
+  test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='모의 시험·병합은 허용') ... FAIL
+test_d04_records_owner_ruling_without_reuse_approval (test_decision_records.DecisionRecords.test_d04_records_owner_ruling_without_reuse_approval) ... ok
+test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending (test_decision_records.DecisionRecords.test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending) ... FAIL
+test_each_record_has_a_working_link_and_status_in_section_three (test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) ... 
+  test_each_record_has_a_working_link_and_status_in_section_three (test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-12') ... FAIL
+test_hierarchy_and_ledger_explicitly_describe_a_partial_index (test_decision_records.DecisionRecords.test_hierarchy_and_ledger_explicitly_describe_a_partial_index) ... ok
+test_hierarchy_defines_dec_records_and_preserves_adr_change_path (test_decision_records.DecisionRecords.test_hierarchy_defines_dec_records_and_preserves_adr_change_path) ... ok
+test_index_registration_does_not_open_operational_gates (test_decision_records.DecisionRecords.test_index_registration_does_not_open_operational_gates) ... ok
+test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) ... 
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='해결') ... FAIL
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='ADR-0018') ... FAIL
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='우체국보험 포함') ... FAIL
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='기관 유형은 구분') ... FAIL
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='공제 제외') ... FAIL
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='확보율 분모에서도 제외') ... FAIL
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='2026-10-10') ... FAIL
+  test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='목록 작성·분모 검증은 구현 작업') ... FAIL
+test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) ... FAIL
+
+======================================================================
+FAIL: test_all_open_items_are_referenced_without_a_stale_upper_bound (test_decision_records.DecisionRecords.test_all_open_items_are_referenced_without_a_stale_upper_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 141, in test_all_open_items_are_referenced_without_a_stale_upper_bound
+    self.assertNotRegex(section, r"O01\s*[~～–-]\s*O\d+")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex matched: 'O01~O12' matches 'O01\\s*[~～–-]\\s*O\\d+' in '실행 계약과 요구사항 추적 (ADR-0012)\n\n[시스템·데이터·수락 계약](blueprint/SYSTEM_CONTRACT.md)은 소스 조사·라벨링·가격·개인 적용·API·삭제·릴리스의 세부 기준이다. [요구사항 추적표](blueprint/REQUIREMENTS.md)는 소비자 요구 26개를 데이터·화면·수락 사례와 연결한다. [결정 원장](blueprint/DECISIONS.md)은 문서 충돌과 미정 항목의 책임·결정 시점·차단 범위를 관리한다. §12의 간략 목록에서 누락된 결정은 원장의 O01~O12도 적용한다.\n\nA·Q·L·I·M을 대체하지 않는다. PR에는 관련 체계와 R 요구 ID, 실제 검증 증거를 함께 적는다. 규칙 엔진 테스트 통과는 실제 약관·가격 정확도나 사용성 검증 완료가 아니다. §11의 2026-10-09 테스트 수는 역사적 보고 기준이며, 현재 재실행 결과는 §11에 연결한 갱신 검증 증거에서 확인한다.\n'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='정책 소유자=사용자 본인 1인')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '정책 소유자=사용자 본인 1인' not found in '| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='재개는 소유자만')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '재개는 소유자만' not found in '| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='O06')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'O06' not found in '| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='D-19')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'D-19' not found in '| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |', phrase='T-OP-03')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'T-OP-03' not found in '| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='정책 소유자=사용자 본인 1인')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '정책 소유자=사용자 본인 1인' not found in 'D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='재개는 소유자만')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '재개는 소유자만' not found in 'D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='O06')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'O06' not found in 'D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='D-19')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'D-19' not found in 'D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) (text='D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정', phrase='T-OP-03')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 101, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn(phrase, text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'T-OP-03' not found in 'D-02: 공개 약관·공시 지식 검수의 이종 모델 계열 구성(하한 2계열)과 정책 소유자. 개인 PDF 외부 처리는 별도 결정'
+
+======================================================================
+FAIL: test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 102, in test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned
+    self.assertIn("[DEC-D-02](decisions/DEC-D-02.md)", row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[DEC-D-02](decisions/DEC-D-02.md)' not found in '| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='[DEC-D-02](decisions/DEC-D-02.md)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '[DEC-D-02](decisions/DEC-D-02.md)' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='작성=claude')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '작성=claude' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='승인=비-claude X')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '승인=비-claude X' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='레드팀=별도 비-claude Y')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '레드팀=별도 비-claude Y' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='degraded')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 'degraded' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='업체·모델 ID는 미고정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '업체·모델 ID는 미고정' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='접근 확인')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '접근 확인' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='월 한도')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '월 한도' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='게이트 등록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '게이트 등록' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) (phrase='모의 시험·병합은 허용')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 91, in test_d02_provider_summary_records_composition_and_remaining_access
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '모의 시험·병합은 허용' not found in '| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기 |'
+
+======================================================================
+FAIL: test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending (test_decision_records.DecisionRecords.test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 122, in test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending
+    index = self.row("DEC-D-12")
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 22, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-12 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 36, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 22, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-12 exactly once
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='해결')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '해결' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='ADR-0018')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 'ADR-0018' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='우체국보험 포함')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '우체국보험 포함' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='기관 유형은 구분')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '기관 유형은 구분' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='공제 제외')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '공제 제외' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='확보율 분모에서도 제외')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '확보율 분모에서도 제외' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='2026-10-10')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '2026-10-10' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) (phrase='목록 작성·분모 검증은 구현 작업')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 114, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertIn(phrase, rows[0])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '목록 작성·분모 검증은 구현 작업' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/tools/tests/test_decision_records.py", line 115, in test_o01_is_closed_by_adr0018_without_removing_the_stable_id
+    self.assertNotIn("포함 여부", rows[0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '포함 여부' unexpectedly found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.011s
+
+FAILED (failures=33)

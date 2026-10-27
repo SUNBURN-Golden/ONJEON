@@ -1,0 +1,9 @@
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-open-decisions-stale/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.77s

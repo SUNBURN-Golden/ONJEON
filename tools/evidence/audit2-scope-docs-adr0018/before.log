@@ -1,0 +1,89 @@
+test_adr_0018_records_the_user_decision (tools.tests.test_scope_docs_adr0018.AdrSettled.test_adr_0018_records_the_user_decision) ... ok
+test_decision_ledger_marks_o01_resolved (tools.tests.test_scope_docs_adr0018.AdrSettled.test_decision_ledger_marks_o01_resolved) ... ok
+test_milestone_paragraph_follows_adr_0018 (tools.tests.test_scope_docs_adr0018.BlueprintScope.test_milestone_paragraph_follows_adr_0018) ... FAIL
+test_stale_paragraph_is_rejected (tools.tests.test_scope_docs_adr0018.BlueprintScope.test_stale_paragraph_is_rejected) ... 
+  test_stale_paragraph_is_rejected (tools.tests.test_scope_docs_adr0018.BlueprintScope.test_stale_paragraph_is_rejected) (mutation=3) ... ERROR
+test_report_links_resolve_and_point_at_evidence (tools.tests.test_scope_docs_adr0018.CorrectionReport.test_report_links_resolve_and_point_at_evidence) ... FAIL
+test_report_records_the_finding_and_limits (tools.tests.test_scope_docs_adr0018.CorrectionReport.test_report_records_the_finding_and_limits) ... ERROR
+test_scope_rows_follow_adr_0018 (tools.tests.test_scope_docs_adr0018.SystemContractScope.test_scope_rows_follow_adr_0018) ... FAIL
+test_stale_rows_are_rejected (tools.tests.test_scope_docs_adr0018.SystemContractScope.test_stale_rows_are_rejected) ... FAIL
+
+======================================================================
+ERROR: test_stale_paragraph_is_rejected (tools.tests.test_scope_docs_adr0018.BlueprintScope.test_stale_paragraph_is_rejected) (mutation=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 130, in test_stale_paragraph_is_rejected
+    assert_blueprint_aligned(self, mutation)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 63, in assert_blueprint_aligned
+    paragraph = blueprint_scope_paragraph(text)
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 43, in blueprint_scope_paragraph
+    section = text.split("### 9.1 순서를 이렇게 잡는 이유", 1)[1].split("\n### ", 1)[0]
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_report_records_the_finding_and_limits (tools.tests.test_scope_docs_adr0018.CorrectionReport.test_report_records_the_finding_and_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 151, in test_report_records_the_finding_and_limits
+    text = REPORT.read_text(encoding="utf-8")
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/docs/blueprint/audits/2026-10-27_scope_docs_adr0018.md'
+
+======================================================================
+FAIL: test_milestone_paragraph_follows_adr_0018 (tools.tests.test_scope_docs_adr0018.BlueprintScope.test_milestone_paragraph_follows_adr_0018)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 117, in test_milestone_paragraph_follows_adr_0018
+    assert_blueprint_aligned(self, BLUEPRINT.read_text(encoding="utf-8"))
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 64, in assert_blueprint_aligned
+    self.assertIn(f"대상은 {SETTLED_SCOPE}이다(확정, ADR-0004·0013·0018)", paragraph)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '대상은 보험사의 개인보험과 우체국보험의 전 상품·전 특약·과거 판매본이다(확정, ADR-0004·0013·0018)' not found in '대상은 전 보험사·전 상품·전 특약이다(확정, ADR-0004·0013). 보험사·상품 선정은 사용자 결정도 작업 시작 조건도 아니다. 전체 수집 대상 목록을 먼저 만들고, 설계 검증용 표본은 구현자가 다양한 상품 구조와 문서 형식을 다루도록 직접 고른다. 표본 검증은 서비스 범위 축소가 아니며, 전체 대상의 수집·처리 여부와 미확보 사유는 표본과 상관없이 추적한다.\n'
+
+======================================================================
+FAIL: test_report_links_resolve_and_point_at_evidence (tools.tests.test_scope_docs_adr0018.CorrectionReport.test_report_links_resolve_and_point_at_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 135, in test_report_links_resolve_and_point_at_evidence
+    self.assertTrue(REPORT.is_file())
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_scope_rows_follow_adr_0018 (tools.tests.test_scope_docs_adr0018.SystemContractScope.test_scope_rows_follow_adr_0018)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 95, in test_scope_rows_follow_adr_0018
+    assert_scope_aligned(self, CONTRACT.read_text(encoding="utf-8"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 53, in assert_scope_aligned
+    self.assertIn(required, core)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '보험사의 개인보험과 우체국보험의 전 상품·전 특약·과거 판매본' not found in '| 첫 출시 핵심 | 전 국내 보험사·전 상품·특약 및 기존 계약 식별에 필요한 판매중지 버전 조사 | 전 상품 조사와 전 담보 계산 가능 보증은 다름 |'
+
+======================================================================
+FAIL: test_stale_rows_are_rejected (tools.tests.test_scope_docs_adr0018.SystemContractScope.test_stale_rows_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 100, in test_stale_rows_are_rejected
+    excluded = contract_row(text, "| 범위 제외 |")
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit2-scope-docs-adr0018/tools/tests/test_scope_docs_adr0018.py", line 38, in contract_row
+    raise AssertionError(f"expected one row starting {prefix!r}, got {len(rows)}")
+AssertionError: expected one row starting '| 범위 제외 |', got 0
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.006s
+
+FAILED (failures=4, errors=2)

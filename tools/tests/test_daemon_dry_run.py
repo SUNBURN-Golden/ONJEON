@@ -1342,6 +1342,118 @@ class StartGateEnforcement(unittest.TestCase):
             self.assertEqual(env.state(fl.GATED), "queued", tid)
 
 
+class TerminalStatesIgnoreUnmapped(unittest.TestCase):
+    """audit2-daemon-wildcard-from-terminal: the * -> returned unmapped_condition rows applied to done and cancelled
+    too, so a re-delivered pr_merged_observed sent a done task back to returned (R-03), out of post_merge_states, and
+    the tasks that depend on it stayed blocked. In a terminal state an unmapped event is now only recorded."""
+
+    NOOP = "event_after_terminal_state"
+    TERMINAL = {"done", "cancelled"}
+
+    def done_task(self, task_id, rules=None):
+        """BASIC: the 10th implementation PR closes the batch and the batch audit passes (audit_queued -> done).
+        DOCS: a docs-only PR goes merged -> done directly."""
+        env = MockEnv(rules if rules is not None else str(RULES), str(TASKS))
+        if task_id == fl.BASIC:
+            fl._land_series(env, 9)
+            fl.approve_to_wait(env, fl.BASIC)
+            fl.land(env, fl.BASIC, merge_commit="f" * 40)
+            env.observe(None, "batch_audit_result", batch_id="B1", verdict="pass")
+        else:
+            fl.approve_to_wait(env, fl.DOCS, touched=["docs/mock/guide.md"])
+            fl.land(env, fl.DOCS)
+        self.assertEqual(env.state(task_id), "done")
+        return env
+
+    def redeliveries(self, env, t):
+        pr = fl.pr_of(env, t)
+        merged = dict(head_sha_at_merge=pr["head_sha"], base_sha_at_merge=pr["base_sha"], integration_check="mock://ci/base")
+        return [("landing observed again without a merge commit", lambda: env.observe(t, "landing", **merged)),
+                ("landing observed again with another merge commit",
+                 lambda: env.observe(t, "landing", merge_commit_sha="9" * 40, **merged)),
+                ("pr_merged_observed fed to the core", lambda: env.event("pr_merged_observed", t)),
+                ("ci failure on the merged head", lambda: env.observe(t, "ci", conclusion="failure", sha=pr["head_sha"])),
+                ("an observation kind no row maps", lambda: env.observe(t, "no_such_observation"))]
+
+    def test_wildcard_rows_exclude_the_states_without_rows_of_their_own(self):
+        raw = raw_rules()
+        terminal = {s for s in raw["states"] if not _rows(raw, frm=s)}
+        self.assertEqual(terminal, self.TERMINAL)
+        rows = _rows(raw, frm="*", event="unmapped_condition")
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            excl = [c for c in row["cond"] if c["field"] == "task_state.state"]
+            self.assertEqual([(c["op"], set(c["value"])) for c in excl], [("not_in", terminal)])
+        rule, = [r for r in raw["noop_rules"] if r["event"] == "unmapped_condition"]
+        self.assertEqual([(c["field"], c["op"], set(c["value"])) for c in rule["when"]],
+                         [("task_state.state", "in", terminal)])
+        self.assertIn(rule["noop_event"], raw["noop_events"])
+        self.assertEqual(rule["noop_event"], self.NOOP)
+        cr, = raw["concurrency"]["lease_end"]["conditional_rows"]
+        active, = [r for r in rows if "end_lease" in _effect_ids(r)]
+        other, = [r for r in rows if "end_lease" not in _effect_ids(r)]
+        self.assertEqual((cr["end_lease_when"], cr["complement_row_cond"]), (active["cond"], other["cond"]))
+
+    def test_done_stays_done_and_dependents_start(self):
+        for task_id in (fl.BASIC, fl.DOCS):
+            env = self.done_task(task_id)
+            for label, deliver in self.redeliveries(env, task_id):
+                with self.subTest(task=task_id, delivery=label):
+                    m = sc.mark(env)
+                    deliver()
+                    js = env.journal()[m:]
+                    self.assertEqual((env.state(task_id), sc.tr(js), sc.rets(js), sc.se(js, "record_r_code", "end_lease")),
+                                     ("done", [], [], []))
+                    self.assertIn((self.NOOP, None), sc.noops(js))
+            if task_id == fl.BASIC:
+                # SUCC's prerequisite is BASIC: it is still a post_merge_states task, so SUCC starts and is leased
+                env.start_task(fl.SUCC)
+                self.assertEqual(env.state(fl.SUCC), "queued")
+                env.grant(fl.SUCC)
+                self.assertEqual(env.state(fl.SUCC), "leased")
+
+    def test_cancelled_stays_cancelled(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.start_task(sc.BASIC)
+        env.grant(sc.BASIC)
+        env.event("owner_cancelled", sc.BASIC)
+        self.assertEqual((env.state(sc.BASIC), env.lease(sc.BASIC)["status"]), ("cancelled", "revoked"))
+        for label, deliver in (("owner_stop", lambda: env.event("owner_stop", sc.BASIC, stop_ref="S")),
+                               ("lease_granted", lambda: env.grant(sc.BASIC)),
+                               ("pr_merged_observed", lambda: env.event("pr_merged_observed", sc.BASIC))):
+            with self.subTest(event=label):
+                m = sc.mark(env)
+                deliver()
+                js = env.journal()[m:]
+                self.assertEqual((env.state(sc.BASIC), sc.tr(js), sc.rets(js), sc.noops(js)),
+                                 ("cancelled", [], [], [(self.NOOP, None)]))
+        self.assertEqual(env.task(sc.BASIC)["lease_generation"], 1)
+
+    def test_non_terminal_states_are_still_returned(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        fl.approve_to_wait(env, fl.BASIC)
+        fl.land(env, fl.BASIC, merge_commit="f" * 40)
+        self.assertEqual(env.state(fl.BASIC), "audit_queued")
+        m = sc.mark(env)
+        env.event("pr_merged_observed", fl.BASIC)
+        js = env.journal()[m:]
+        self.assertEqual((sc.tr(js), sc.rets(js), sc.noops(js)), ([("audit_queued", "returned", "unmapped_condition")], ["R-03"], []))
+
+    def test_removing_the_exclusion_reopens_the_finding(self):
+        """Without the state predicate and the noop rule the redelivery sends done to returned and SUCC stays blocked."""
+        raw = raw_rules()
+        for row in _rows(raw, frm="*", event="unmapped_condition"):
+            row["cond"] = [c for c in row["cond"] if c["field"] != "task_state.state"]
+        raw["noop_rules"] = [r for r in raw["noop_rules"] if r["event"] != "unmapped_condition"]
+        env = self.done_task(fl.BASIC, rules=raw)
+        m = sc.mark(env)
+        env.event("pr_merged_observed", fl.BASIC)
+        js = env.journal()[m:]
+        self.assertEqual((env.state(fl.BASIC), sc.tr(js), sc.rets(js)), ("returned", [("done", "returned", "unmapped_condition")], ["R-03"]))
+        env.start_task(fl.SUCC)
+        self.assertEqual(env.state(fl.SUCC), "blocked")
+
+
 class ReportValues(unittest.TestCase):
     """The report shows the values as they were compared, not as the scenario left them afterwards."""
 

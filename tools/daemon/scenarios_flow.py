@@ -722,6 +722,12 @@ def m19(rep, R, T):
             ("blocked", "queued", "prereqs_satisfied")], tr(jr(env, m)))
     env.observe(None, "batch_audit_result", batch_id="B1", verdict="pass")
     rep.eq("선행 done 뒤에도 후속은 queued, 임대 가능", ("done", "queued"), (env.state(BASIC), env.state(SUCC)))
+    # audit2-daemon-wildcard-from-terminal: the * -> returned unmapped_condition rows do not apply to done
+    m = mark(env)
+    env.event("pr_merged_observed", BASIC)
+    rep.eq("선행 done 뒤 다시 전달된 병합 관측은 기록만(event_after_terminal_state), 반송 없음, 후속 queued 유지",
+           ("done", "queued", [], [], [("event_after_terminal_state", None)]),
+           (env.state(BASIC), env.state(SUCC), tr(jr(env, m)), rets(jr(env, m)), noops(jr(env, m))))
     env.grant(SUCC)
     rep.eq("후속 임대", "leased", env.state(SUCC))
 

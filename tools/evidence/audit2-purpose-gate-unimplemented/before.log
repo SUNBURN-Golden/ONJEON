@@ -1,0 +1,30 @@
+$ python3 -I tools/evidence/audit2-purpose-gate-unimplemented/purpose_mutation.py <HEAD copy of tools/ci (git show HEAD:tools/ci/{check_product_purpose,ci_common}.py)>
+== mutation: none (live repo copy)
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: acquisition-reason-not-counted moved T-DT-04 -> T-OP-01
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: purpose-rows-all-closed moved T-OP-08 -> T-OP-07
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: P09 scope cell loses its basis
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: P19 scope cell cites unknown D-61
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: T-OP-08 final_gate false
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+== mutation: T-OP-08 --purpose closure command removed
+exit=0
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+0/7 runs exited nonzero

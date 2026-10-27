@@ -32,6 +32,7 @@
     handoff→leased 전이의 cond: handoff_record.preservation_state == remote_pushed (보존 성공. 복구 결정 뒤에도 보존이 성공해야 한다)
     임대 발급 전이(issue_lease 부수 효과·to leased·사건 lease_granted): side_effects에 issue_lease, guard lease_guards 또는 cond lease_guards all_pass
   tasks[].verification_kind: dry_run | real_executor (해당 과제만)
+  목록을 훑어 '나쁜 항목이 없음'을 보는 검사(G4c·G7b·G9·G26)는 훑은 항목이 0개면 실패한다(audit2-spec-check-vacuous).
   07_수정대응표.md: 지적마다 변경 위치·시험 종류·증명 범위·미검증
 """
 import fnmatch
@@ -194,7 +195,8 @@ def row_name(x):
 
 def integration_rows(repo):
     """설계통합안 §2.1~§2.9 표의 기능 행 이름."""
-    text = open(os.path.join(repo, "docs/blueprint/proposals/설계통합안_검토본.md"), encoding="utf-8").read()
+    with open(os.path.join(repo, "docs/blueprint/proposals/설계통합안_검토본.md"), encoding="utf-8") as f:
+        text = f.read()
     rows, sec, header_next = [], None, False
     for line in text.splitlines():
         m = re.match(r"^### (2\.\d+)\b", line)
@@ -278,7 +280,9 @@ def run(repo, T=None, D=None):
     reg = T.get("feature_registry", [])
     covered = {r for f in reg for r in f.get("covers", [])}
     miss = [r for r in rows if r not in covered]
-    check("final", "G4c 통합안 §2 기능 행이 전부 feature_registry에 매핑됨", reg and not miss, f"행 {len(rows)}개 중 미매핑 {len(miss)}: {miss[:12]}")
+    # 행을 하나도 못 읽으면(제목·표 형식이 바뀌어 정규식이 안 맞으면) 미매핑 0개로 통과하지 않는다(audit2-spec-check-vacuous)
+    check("final", "G4c 통합안 §2 기능 행이 전부 feature_registry에 매핑됨(읽은 행·기능 1개 이상)", bool(rows) and bool(reg) and not miss,
+          f"행 {len(rows)}개·기능 {len(reg)}개 중 미매핑 {len(miss)}: {miss[:12]}")
     if reg and final:
         anc = ancestors(tasks, final, {}) | {final}
         bad = [f["id"] for f in reg if not f.get("tasks") or not set(f["tasks"]) <= anc or not set(f["tasks"]) <= set(tasks)]
@@ -340,8 +344,11 @@ def run(repo, T=None, D=None):
     ]
     miss = [label for frm, ev, to, label in need if not has(frm, ev, to)]
     check("wait", "G7a 대기·복구 전이(event 필드 기준)", not miss, miss)
-    dead = sorted({s for s in D.get("states", {}) if s not in ("done", "cancelled") and not any(x.get("from") in (s, "*") and x.get("to") != "returned" for x in tr if x.get("from") != "*")})
-    check("wait", "G7b 종료가 아닌 상태마다 반송 외의 나가는 전이가 있음", not dead, dead)
+    live = [s for s in D.get("states", {}) if s not in ("done", "cancelled")]
+    dead = sorted({s for s in live if not any(x.get("from") in (s, "*") and x.get("to") != "returned" for x in tr if x.get("from") != "*")})
+    # 상태나 전이가 비면 막힌 상태 0개로 통과하지 않는다(audit2-spec-check-vacuous)
+    check("wait", "G7b 종료가 아닌 상태마다 반송 외의 나가는 전이가 있음(종료 아닌 상태·전이 1개 이상)", bool(live) and bool(tr) and not dead,
+          {"나가는 전이 없는 상태": dead, "종료 아닌 상태 수": len(live), "전이 수": len(tr)})
 
     # G8 늦은 쓰기 차단(F07)
     conc = D.get("concurrency", {})
@@ -354,8 +361,13 @@ def run(repo, T=None, D=None):
     # G9 전환 신호는 모델 제공자 출처만(F11)
     bad = []
     allowed_src = {"provider_http_response", "runner_exit_code", "runner_auth_probe", "runner_version_probe"}
-    for sig in D.get("switch_policy", {}).get("allowed_switch_signals", []):
+    sigs = D.get("switch_policy", {}).get("allowed_switch_signals", [])
+    n_det = 0
+    for sig in sigs:
+        if not sig.get("detect"):
+            bad.append(f"{sig.get('id')}: 판정 규칙(detect) 없음")  # 규칙이 없으면 출처를 볼 것도 없어 통과하던 경우
         for det in sig.get("detect", []):
+            n_det += 1
             if not isinstance(det, dict):
                 bad.append(f"{sig['id']}: 구조 없는 문자열 규칙 '{det}'")
                 continue
@@ -363,7 +375,8 @@ def run(repo, T=None, D=None):
                 bad.append(f"{sig['id']}: 출처 {det.get('source')}")
             if det.get("source") == "provider_http_response" and det.get("scope") != "model_provider":
                 bad.append(f"{sig['id']}: HTTP 규칙의 범위가 모델 제공자로 한정되지 않음")
-    check("switch", "G9 전환 신호가 모델 제공자 응답·실행기 종료 코드로만 판정", not bad, bad[:10])
+    check("switch", "G9 전환 신호가 모델 제공자 응답·실행기 종료 코드로만 판정(신호·판정 규칙 1개 이상)", bool(sigs) and n_det > 0 and not bad,
+          {"문제": bad[:10], "신호 수": len(sigs), "판정 규칙 수": n_det})
 
     # G10 CI가 이 검사와 온톨로지 검사를 실행(보고 정확성)
     wf = "".join(open(p, encoding="utf-8").read() for p in glob.glob(os.path.join(repo, ".github/workflows/*.yml")))
@@ -486,11 +499,14 @@ def run(repo, T=None, D=None):
     # F12 제약 목록 단일화, 시험 프로필 분리
     with open(os.path.join(repo, "docs/blueprint/proposals/온톨로지/tbox.json"), encoding="utf-8") as f:
         tb = json.load(f)
-    kmax = max(int(k["id"][1:]) for k in tb["constraints"])
+    kmax = max((int(k["id"][1:]) for k in tb.get("constraints", [])), default=0)
     texts = {n: read(n) for n in ("01_코드설계.md", "02_구현계약.md", "03_작업명세.md", "06_검토사항_점검.md")}
     texts["tasks.json"] = json.dumps(T, ensure_ascii=False)
-    stale = sorted({f"{n}: K1~K{m}" for n, tx in texts.items() for m in re.findall(r"K1\s*~\s*K(\d+)", tx) if int(m) != kmax})
-    check("consistency", f"G26 제약 범위 표기가 T-box(K1~K{kmax})와 같음", not stale, stale[:8])
+    # 물결표 밖의 구분자(–·-·～ 등)로 쓴 범위도 센다. 표기를 하나도 못 찾거나 T-box 제약이 없으면 통과하지 않는다(audit2-spec-check-vacuous)
+    found = [(n, int(m)) for n, tx in texts.items() for m in re.findall(r"K1\s*[~～〜\-–—]\s*K(\d+)", tx)]
+    stale = sorted({f"{n}: K1~K{m}" for n, m in found if m != kmax})
+    check("consistency", f"G26 제약 범위 표기가 T-box(K1~K{kmax})와 같음(T-box 제약·범위 표기 1개 이상)", kmax > 0 and bool(found) and not stale,
+          {"다른 표기": stale[:8], "찾은 표기 수": len(found), "T-box 제약 수": len(tb.get("constraints", []))})
     prof = T.get("test_profiles", {})
     check("consistency", "G27 시험 프로필이 역사적 사례(historical_fixture)와 서비스 적합성(service_conformance)으로 나뉨", {"historical_fixture", "service_conformance"} <= set(prof), sorted(prof) or "없음")
     c02 = read("02_구현계약.md")

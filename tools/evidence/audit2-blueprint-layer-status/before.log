@@ -1,0 +1,280 @@
+test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) ... 
+  test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) (layer='L0') ... FAIL
+  test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) (layer='L1') ... FAIL
+  test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) (layer='L6') ... FAIL
+test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) ... 
+  test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='V0') ... FAIL
+  test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='기관 목록') ... FAIL
+  test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='접근·공백') ... FAIL
+  test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='어휘 정규화') ... FAIL
+  test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='상품·특약 분모 미열거') ... FAIL
+  test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (path='data/registry/') ... FAIL
+  test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (path='tools/registry_normalize.py') ... FAIL
+test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) ... 
+  test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (phrase='수집·불변 보존 도구') ... FAIL
+  test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (phrase='V1 표본 보존 기록') ... FAIL
+  test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (phrase='전 상품 일일 수집 미완료') ... FAIL
+  test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (path='tools/crawler/') ... FAIL
+  test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (path='tools/source_archive.py') ... FAIL
+  test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (path='services/collect/') ... FAIL
+test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) ... 
+  test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='DSL 로더·평가기') ... FAIL
+  test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='합성·실제 조항') ... FAIL
+  test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='fixture_only') ... FAIL
+  test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='승인 데이터→규칙→서비스 연결 미완료') ... FAIL
+  test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (path='packages/rules-engine/') ... FAIL
+test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) ... 
+  test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='2026-10-09 관측 기록') ... FAIL
+  test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='§11') ... FAIL
+  test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='09_제품목적_대응표') ... FAIL
+  test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='완료 증거') ... FAIL
+  test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='T-OP-08') ... FAIL
+test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) ... FAIL
+
+======================================================================
+FAIL: test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) (layer='L0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 24, in test_implemented_layers_have_scoped_partial_status
+    self.assertTrue(self.rows[layer][-1].startswith("부분 구현("))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) (layer='L1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 24, in test_implemented_layers_have_scoped_partial_status
+    self.assertTrue(self.rows[layer][-1].startswith("부분 구현("))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_implemented_layers_have_scoped_partial_status (test_blueprint_layer_status.BlueprintLayerStatus.test_implemented_layers_have_scoped_partial_status) (layer='L6')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 24, in test_implemented_layers_have_scoped_partial_status
+    self.assertTrue(self.rows[layer][-1].startswith("부분 구현("))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='V0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 30, in test_l0_distinguishes_v0_from_product_and_rider_denominators
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: 'V0' not found in '설계'
+
+======================================================================
+FAIL: test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='기관 목록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 30, in test_l0_distinguishes_v0_from_product_and_rider_denominators
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '기관 목록' not found in '설계'
+
+======================================================================
+FAIL: test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='접근·공백')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 30, in test_l0_distinguishes_v0_from_product_and_rider_denominators
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '접근·공백' not found in '설계'
+
+======================================================================
+FAIL: test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='어휘 정규화')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 30, in test_l0_distinguishes_v0_from_product_and_rider_denominators
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '어휘 정규화' not found in '설계'
+
+======================================================================
+FAIL: test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (phrase='상품·특약 분모 미열거')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 30, in test_l0_distinguishes_v0_from_product_and_rider_denominators
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '상품·특약 분모 미열거' not found in '설계'
+
+======================================================================
+FAIL: test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (path='data/registry/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 58, in assert_references_exist
+    self.assertIn(f"`{path}`", status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`data/registry/`' not found in '설계'
+
+======================================================================
+FAIL: test_l0_distinguishes_v0_from_product_and_rider_denominators (test_blueprint_layer_status.BlueprintLayerStatus.test_l0_distinguishes_v0_from_product_and_rider_denominators) (path='tools/registry_normalize.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 58, in assert_references_exist
+    self.assertIn(f"`{path}`", status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`tools/registry_normalize.py`' not found in '설계'
+
+======================================================================
+FAIL: test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (phrase='수집·불변 보존 도구')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 37, in test_l1_distinguishes_archive_tooling_from_daily_full_collection
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '수집·불변 보존 도구' not found in '설계'
+
+======================================================================
+FAIL: test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (phrase='V1 표본 보존 기록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 37, in test_l1_distinguishes_archive_tooling_from_daily_full_collection
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: 'V1 표본 보존 기록' not found in '설계'
+
+======================================================================
+FAIL: test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (phrase='전 상품 일일 수집 미완료')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 37, in test_l1_distinguishes_archive_tooling_from_daily_full_collection
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '전 상품 일일 수집 미완료' not found in '설계'
+
+======================================================================
+FAIL: test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (path='tools/crawler/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 58, in assert_references_exist
+    self.assertIn(f"`{path}`", status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`tools/crawler/`' not found in '설계'
+
+======================================================================
+FAIL: test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (path='tools/source_archive.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 58, in assert_references_exist
+    self.assertIn(f"`{path}`", status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`tools/source_archive.py`' not found in '설계'
+
+======================================================================
+FAIL: test_l1_distinguishes_archive_tooling_from_daily_full_collection (test_blueprint_layer_status.BlueprintLayerStatus.test_l1_distinguishes_archive_tooling_from_daily_full_collection) (path='services/collect/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 58, in assert_references_exist
+    self.assertIn(f"`{path}`", status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`services/collect/`' not found in '설계'
+
+======================================================================
+FAIL: test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='DSL 로더·평가기')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 44, in test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: 'DSL 로더·평가기' not found in '**구현(합성 규칙 범위)**'
+
+======================================================================
+FAIL: test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='합성·실제 조항')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 44, in test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '합성·실제 조항' not found in '**구현(합성 규칙 범위)**'
+
+======================================================================
+FAIL: test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='fixture_only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 44, in test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: 'fixture_only' not found in '**구현(합성 규칙 범위)**'
+
+======================================================================
+FAIL: test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (phrase='승인 데이터→규칙→서비스 연결 미완료')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 44, in test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits
+    self.assertIn(phrase, status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '승인 데이터→규칙→서비스 연결 미완료' not found in '**구현(합성 규칙 범위)**'
+
+======================================================================
+FAIL: test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits (test_blueprint_layer_status.BlueprintLayerStatus.test_l6_includes_real_clauses_and_keeps_fixture_and_service_limits) (path='packages/rules-engine/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 58, in assert_references_exist
+    self.assertIn(f"`{path}`", status)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`packages/rules-engine/`' not found in '**구현(합성 규칙 범위)**'
+
+======================================================================
+FAIL: test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='2026-10-09 관측 기록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 50, in test_scope_note_keeps_historical_observation_and_release_evidence_boundary
+    self.assertIn(phrase, self.section)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '2026-10-09 관측 기록' not found in '\n\n```mermaid\nflowchart TD\n    L0[L0 소스 원장·분모] --> L1[L1 수집]\n    L1 --> L2[L2 문서 복원]\n    L2 --> L3[L3 추출·라벨링]\n    L3 --> L4[L4 AI 검수]\n    L4 --> L5[L5 정규 모델]\n    L5 --> L6[L6 규칙 컴파일·엔진]\n    L5 --> L7[L7 릴리스]\n    L6 --> L7\n    L7 --> L8[L8 서비스 API·뷰모델]\n    P[개인 영역: 프로필·가입내역·동의] --> L8\n    L8 --> L9[L9 앱·공개 웹·관제]\n```\n\n| 계층 | 책임 | 출력 계약 | 금지 | 상태 |\n|---|---|---|---|---|\n| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 설계 |\n| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 설계 |\n| L2 | 원문 구조 복원 | ClauseOccurrence(페이지·좌표·정확 인용·표 셀) | 좌표·문장 지어내기, 임의 길이 자르기 | 설계 |\n| L3 | 필드 후보 추출 | FieldAssertion, PremiumObservation 후보 | 빈칸을 상식으로 채우기, 문서 속 지시 실행 | 설계 |\n| L4 | 승인 또는 보류 | ReviewDecision(계열이 다른 에이전트, 코드 검사, 레드팀) | 다수결, 자기 확신 점수로 승인 | 설계 |\n| L5 | 상품·담보·가격의 정규 모델 | ProductVersion, CoverageOccurrence, RiderOccurrence, 관계 그래프 | 이름 유사도로 버전 병합 | 설계 |\n| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | **구현(합성 규칙 범위)** |\n| L7 | 불변 공개본 | ReleaseManifest | 검증 안 된 변경 배포, 공개본 수정 | 설계 |\n| L8 | 화면이 받는 유일한 형식 | PlanView, CoverageDetail, CompareView, EvidenceView | 화면 쪽 계산 | 설계 |\n| L9 | 보여주고 조작 | Flutter 앱, 공개 웹 `/coverage`, 관제 콘솔 | 데이터 상태를 넘는 표현 | 설계 |\n\n의존 방향은 위에서 아래뿐이다. 앱은 L8만 본다. 계산은 L6만 한다(ADR-0003). 개인 영역은 공개 데이터 영역(L0~L7)과 저장·권한·로그가 분리된다.\n\n**디지털 트윈의 정의:** L5의 상품 모델과 개인 영역의 계약 모델을 L6 규칙으로 실행해, 사용자가 고른 가정에서 무엇이 지급되고 무엇이 막히는지 재현하는 것. 보험사의 인수·지급 결정을 복제한다는 뜻이 아니다.\n\n'
+
+======================================================================
+FAIL: test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='§11')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 50, in test_scope_note_keeps_historical_observation_and_release_evidence_boundary
+    self.assertIn(phrase, self.section)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '§11' not found in '\n\n```mermaid\nflowchart TD\n    L0[L0 소스 원장·분모] --> L1[L1 수집]\n    L1 --> L2[L2 문서 복원]\n    L2 --> L3[L3 추출·라벨링]\n    L3 --> L4[L4 AI 검수]\n    L4 --> L5[L5 정규 모델]\n    L5 --> L6[L6 규칙 컴파일·엔진]\n    L5 --> L7[L7 릴리스]\n    L6 --> L7\n    L7 --> L8[L8 서비스 API·뷰모델]\n    P[개인 영역: 프로필·가입내역·동의] --> L8\n    L8 --> L9[L9 앱·공개 웹·관제]\n```\n\n| 계층 | 책임 | 출력 계약 | 금지 | 상태 |\n|---|---|---|---|---|\n| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 설계 |\n| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 설계 |\n| L2 | 원문 구조 복원 | ClauseOccurrence(페이지·좌표·정확 인용·표 셀) | 좌표·문장 지어내기, 임의 길이 자르기 | 설계 |\n| L3 | 필드 후보 추출 | FieldAssertion, PremiumObservation 후보 | 빈칸을 상식으로 채우기, 문서 속 지시 실행 | 설계 |\n| L4 | 승인 또는 보류 | ReviewDecision(계열이 다른 에이전트, 코드 검사, 레드팀) | 다수결, 자기 확신 점수로 승인 | 설계 |\n| L5 | 상품·담보·가격의 정규 모델 | ProductVersion, CoverageOccurrence, RiderOccurrence, 관계 그래프 | 이름 유사도로 버전 병합 | 설계 |\n| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | **구현(합성 규칙 범위)** |\n| L7 | 불변 공개본 | ReleaseManifest | 검증 안 된 변경 배포, 공개본 수정 | 설계 |\n| L8 | 화면이 받는 유일한 형식 | PlanView, CoverageDetail, CompareView, EvidenceView | 화면 쪽 계산 | 설계 |\n| L9 | 보여주고 조작 | Flutter 앱, 공개 웹 `/coverage`, 관제 콘솔 | 데이터 상태를 넘는 표현 | 설계 |\n\n의존 방향은 위에서 아래뿐이다. 앱은 L8만 본다. 계산은 L6만 한다(ADR-0003). 개인 영역은 공개 데이터 영역(L0~L7)과 저장·권한·로그가 분리된다.\n\n**디지털 트윈의 정의:** L5의 상품 모델과 개인 영역의 계약 모델을 L6 규칙으로 실행해, 사용자가 고른 가정에서 무엇이 지급되고 무엇이 막히는지 재현하는 것. 보험사의 인수·지급 결정을 복제한다는 뜻이 아니다.\n\n'
+
+======================================================================
+FAIL: test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='09_제품목적_대응표')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 50, in test_scope_note_keeps_historical_observation_and_release_evidence_boundary
+    self.assertIn(phrase, self.section)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '09_제품목적_대응표' not found in '\n\n```mermaid\nflowchart TD\n    L0[L0 소스 원장·분모] --> L1[L1 수집]\n    L1 --> L2[L2 문서 복원]\n    L2 --> L3[L3 추출·라벨링]\n    L3 --> L4[L4 AI 검수]\n    L4 --> L5[L5 정규 모델]\n    L5 --> L6[L6 규칙 컴파일·엔진]\n    L5 --> L7[L7 릴리스]\n    L6 --> L7\n    L7 --> L8[L8 서비스 API·뷰모델]\n    P[개인 영역: 프로필·가입내역·동의] --> L8\n    L8 --> L9[L9 앱·공개 웹·관제]\n```\n\n| 계층 | 책임 | 출력 계약 | 금지 | 상태 |\n|---|---|---|---|---|\n| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 설계 |\n| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 설계 |\n| L2 | 원문 구조 복원 | ClauseOccurrence(페이지·좌표·정확 인용·표 셀) | 좌표·문장 지어내기, 임의 길이 자르기 | 설계 |\n| L3 | 필드 후보 추출 | FieldAssertion, PremiumObservation 후보 | 빈칸을 상식으로 채우기, 문서 속 지시 실행 | 설계 |\n| L4 | 승인 또는 보류 | ReviewDecision(계열이 다른 에이전트, 코드 검사, 레드팀) | 다수결, 자기 확신 점수로 승인 | 설계 |\n| L5 | 상품·담보·가격의 정규 모델 | ProductVersion, CoverageOccurrence, RiderOccurrence, 관계 그래프 | 이름 유사도로 버전 병합 | 설계 |\n| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | **구현(합성 규칙 범위)** |\n| L7 | 불변 공개본 | ReleaseManifest | 검증 안 된 변경 배포, 공개본 수정 | 설계 |\n| L8 | 화면이 받는 유일한 형식 | PlanView, CoverageDetail, CompareView, EvidenceView | 화면 쪽 계산 | 설계 |\n| L9 | 보여주고 조작 | Flutter 앱, 공개 웹 `/coverage`, 관제 콘솔 | 데이터 상태를 넘는 표현 | 설계 |\n\n의존 방향은 위에서 아래뿐이다. 앱은 L8만 본다. 계산은 L6만 한다(ADR-0003). 개인 영역은 공개 데이터 영역(L0~L7)과 저장·권한·로그가 분리된다.\n\n**디지털 트윈의 정의:** L5의 상품 모델과 개인 영역의 계약 모델을 L6 규칙으로 실행해, 사용자가 고른 가정에서 무엇이 지급되고 무엇이 막히는지 재현하는 것. 보험사의 인수·지급 결정을 복제한다는 뜻이 아니다.\n\n'
+
+======================================================================
+FAIL: test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='완료 증거')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 50, in test_scope_note_keeps_historical_observation_and_release_evidence_boundary
+    self.assertIn(phrase, self.section)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '완료 증거' not found in '\n\n```mermaid\nflowchart TD\n    L0[L0 소스 원장·분모] --> L1[L1 수집]\n    L1 --> L2[L2 문서 복원]\n    L2 --> L3[L3 추출·라벨링]\n    L3 --> L4[L4 AI 검수]\n    L4 --> L5[L5 정규 모델]\n    L5 --> L6[L6 규칙 컴파일·엔진]\n    L5 --> L7[L7 릴리스]\n    L6 --> L7\n    L7 --> L8[L8 서비스 API·뷰모델]\n    P[개인 영역: 프로필·가입내역·동의] --> L8\n    L8 --> L9[L9 앱·공개 웹·관제]\n```\n\n| 계층 | 책임 | 출력 계약 | 금지 | 상태 |\n|---|---|---|---|---|\n| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 설계 |\n| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 설계 |\n| L2 | 원문 구조 복원 | ClauseOccurrence(페이지·좌표·정확 인용·표 셀) | 좌표·문장 지어내기, 임의 길이 자르기 | 설계 |\n| L3 | 필드 후보 추출 | FieldAssertion, PremiumObservation 후보 | 빈칸을 상식으로 채우기, 문서 속 지시 실행 | 설계 |\n| L4 | 승인 또는 보류 | ReviewDecision(계열이 다른 에이전트, 코드 검사, 레드팀) | 다수결, 자기 확신 점수로 승인 | 설계 |\n| L5 | 상품·담보·가격의 정규 모델 | ProductVersion, CoverageOccurrence, RiderOccurrence, 관계 그래프 | 이름 유사도로 버전 병합 | 설계 |\n| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | **구현(합성 규칙 범위)** |\n| L7 | 불변 공개본 | ReleaseManifest | 검증 안 된 변경 배포, 공개본 수정 | 설계 |\n| L8 | 화면이 받는 유일한 형식 | PlanView, CoverageDetail, CompareView, EvidenceView | 화면 쪽 계산 | 설계 |\n| L9 | 보여주고 조작 | Flutter 앱, 공개 웹 `/coverage`, 관제 콘솔 | 데이터 상태를 넘는 표현 | 설계 |\n\n의존 방향은 위에서 아래뿐이다. 앱은 L8만 본다. 계산은 L6만 한다(ADR-0003). 개인 영역은 공개 데이터 영역(L0~L7)과 저장·권한·로그가 분리된다.\n\n**디지털 트윈의 정의:** L5의 상품 모델과 개인 영역의 계약 모델을 L6 규칙으로 실행해, 사용자가 고른 가정에서 무엇이 지급되고 무엇이 막히는지 재현하는 것. 보험사의 인수·지급 결정을 복제한다는 뜻이 아니다.\n\n'
+
+======================================================================
+FAIL: test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary) (phrase='T-OP-08')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 50, in test_scope_note_keeps_historical_observation_and_release_evidence_boundary
+    self.assertIn(phrase, self.section)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'T-OP-08' not found in '\n\n```mermaid\nflowchart TD\n    L0[L0 소스 원장·분모] --> L1[L1 수집]\n    L1 --> L2[L2 문서 복원]\n    L2 --> L3[L3 추출·라벨링]\n    L3 --> L4[L4 AI 검수]\n    L4 --> L5[L5 정규 모델]\n    L5 --> L6[L6 규칙 컴파일·엔진]\n    L5 --> L7[L7 릴리스]\n    L6 --> L7\n    L7 --> L8[L8 서비스 API·뷰모델]\n    P[개인 영역: 프로필·가입내역·동의] --> L8\n    L8 --> L9[L9 앱·공개 웹·관제]\n```\n\n| 계층 | 책임 | 출력 계약 | 금지 | 상태 |\n|---|---|---|---|---|\n| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 설계 |\n| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 설계 |\n| L2 | 원문 구조 복원 | ClauseOccurrence(페이지·좌표·정확 인용·표 셀) | 좌표·문장 지어내기, 임의 길이 자르기 | 설계 |\n| L3 | 필드 후보 추출 | FieldAssertion, PremiumObservation 후보 | 빈칸을 상식으로 채우기, 문서 속 지시 실행 | 설계 |\n| L4 | 승인 또는 보류 | ReviewDecision(계열이 다른 에이전트, 코드 검사, 레드팀) | 다수결, 자기 확신 점수로 승인 | 설계 |\n| L5 | 상품·담보·가격의 정규 모델 | ProductVersion, CoverageOccurrence, RiderOccurrence, 관계 그래프 | 이름 유사도로 버전 병합 | 설계 |\n| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | **구현(합성 규칙 범위)** |\n| L7 | 불변 공개본 | ReleaseManifest | 검증 안 된 변경 배포, 공개본 수정 | 설계 |\n| L8 | 화면이 받는 유일한 형식 | PlanView, CoverageDetail, CompareView, EvidenceView | 화면 쪽 계산 | 설계 |\n| L9 | 보여주고 조작 | Flutter 앱, 공개 웹 `/coverage`, 관제 콘솔 | 데이터 상태를 넘는 표현 | 설계 |\n\n의존 방향은 위에서 아래뿐이다. 앱은 L8만 본다. 계산은 L6만 한다(ADR-0003). 개인 영역은 공개 데이터 영역(L0~L7)과 저장·권한·로그가 분리된다.\n\n**디지털 트윈의 정의:** L5의 상품 모델과 개인 영역의 계약 모델을 L6 규칙으로 실행해, 사용자가 고른 가정에서 무엇이 지급되고 무엇이 막히는지 재현하는 것. 보험사의 인수·지급 결정을 복제한다는 뜻이 아니다.\n\n'
+
+======================================================================
+FAIL: test_scope_note_keeps_historical_observation_and_release_evidence_boundary (test_blueprint_layer_status.BlueprintLayerStatus.test_scope_note_keeps_historical_observation_and_release_evidence_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-blueprint-layer-status/tools/tests/test_blueprint_layer_status.py", line 52, in test_scope_note_keeps_historical_observation_and_release_evidence_boundary
+    self.assertIn(f"]({link})", self.section)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '](blueprint/audits/2026-10-27_blueprint_layer_status.md)' not found in '\n\n```mermaid\nflowchart TD\n    L0[L0 소스 원장·분모] --> L1[L1 수집]\n    L1 --> L2[L2 문서 복원]\n    L2 --> L3[L3 추출·라벨링]\n    L3 --> L4[L4 AI 검수]\n    L4 --> L5[L5 정규 모델]\n    L5 --> L6[L6 규칙 컴파일·엔진]\n    L5 --> L7[L7 릴리스]\n    L6 --> L7\n    L7 --> L8[L8 서비스 API·뷰모델]\n    P[개인 영역: 프로필·가입내역·동의] --> L8\n    L8 --> L9[L9 앱·공개 웹·관제]\n```\n\n| 계층 | 책임 | 출력 계약 | 금지 | 상태 |\n|---|---|---|---|---|\n| L0 | 어디서 무엇을 모아야 하는지 안다 | SourceRegistry, DiscoveryManifest, ExpectedDocument, ExpectedPrice | 분모 없이 "전수" 주장 | 설계 |\n| L1 | 원문을 받아 그대로 보존 | RawAsset(바이트 해시, 관측 이력) | 인증·차단 우회, 원문 덮어쓰기 | 설계 |\n| L2 | 원문 구조 복원 | ClauseOccurrence(페이지·좌표·정확 인용·표 셀) | 좌표·문장 지어내기, 임의 길이 자르기 | 설계 |\n| L3 | 필드 후보 추출 | FieldAssertion, PremiumObservation 후보 | 빈칸을 상식으로 채우기, 문서 속 지시 실행 | 설계 |\n| L4 | 승인 또는 보류 | ReviewDecision(계열이 다른 에이전트, 코드 검사, 레드팀) | 다수결, 자기 확신 점수로 승인 | 설계 |\n| L5 | 상품·담보·가격의 정규 모델 | ProductVersion, CoverageOccurrence, RiderOccurrence, 관계 그래프 | 이름 유사도로 버전 병합 | 설계 |\n| L6 | 승인된 의미를 실행 규칙으로 | Rule(DSL), EvaluationResult | 부동소수점, 허용 목록 밖 연산, 미확인을 0으로 | **구현(합성 규칙 범위)** |\n| L7 | 불변 공개본 | ReleaseManifest | 검증 안 된 변경 배포, 공개본 수정 | 설계 |\n| L8 | 화면이 받는 유일한 형식 | PlanView, CoverageDetail, CompareView, EvidenceView | 화면 쪽 계산 | 설계 |\n| L9 | 보여주고 조작 | Flutter 앱, 공개 웹 `/coverage`, 관제 콘솔 | 데이터 상태를 넘는 표현 | 설계 |\n\n의존 방향은 위에서 아래뿐이다. 앱은 L8만 본다. 계산은 L6만 한다(ADR-0003). 개인 영역은 공개 데이터 영역(L0~L7)과 저장·권한·로그가 분리된다.\n\n**디지털 트윈의 정의:** L5의 상품 모델과 개인 영역의 계약 모델을 L6 규칙으로 실행해, 사용자가 고른 가정에서 무엇이 지급되고 무엇이 막히는지 재현하는 것. 보험사의 인수·지급 결정을 복제한다는 뜻이 아니다.\n\n'
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.007s
+
+FAILED (failures=27)

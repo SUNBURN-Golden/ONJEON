@@ -1231,7 +1231,8 @@ class FollowupRound8(unittest.TestCase):
 class StartGateEnforcement(unittest.TestCase):
     """audit1-start-gates-enforcement: blocked -> queued (prereqs_satisfied) carries a structured cond
     task.decision_gates.start subset_of task_state.decisions_recorded, and the core enforces it. The observation
-    layer checks only the prerequisite tasks; a direct prereqs_satisfied event is held to the same cond."""
+    layer raises the event once the prerequisite tasks hold; a direct prereqs_satisfied event is held to the same cond
+    (the prerequisite part is PrereqAndMergeGateCond)."""
 
     def env(self, start, rules=None):
         env = MockEnv(rules if rules is not None else str(RULES), str(TASKS))
@@ -1257,7 +1258,8 @@ class StartGateEnforcement(unittest.TestCase):
     def test_row_carries_the_structured_start_cond(self):
         row = [t for t in raw_rules()["transitions"] if (t["from"], t["to"], t["event"]) == ("blocked", "queued", "prereqs_satisfied")]
         self.assertEqual(len(row), 1)
-        self.assertEqual(row[0]["cond"], [{"field": "task.decision_gates.start", "op": "subset_of",
+        self.assertEqual(row[0]["cond"], [{"field": "prereq_tasks_in(post_merge_states)", "op": "==", "value": True},
+                                          {"field": "task.decision_gates.start", "op": "subset_of",
                                            "value": "task_state.decisions_recorded"}])
         self.assertIn("task.decision_gates.start", json.dumps(Rules(raw_rules()).transitions, ensure_ascii=False))
 
@@ -1269,7 +1271,7 @@ class StartGateEnforcement(unittest.TestCase):
         diag = self.unmet(env)
         self.assertEqual(len(diag), 1)
         self.assertEqual([(c["field"], c["left"], c["result"]) for c in diag[0]["cond"]],
-                         [("task.decision_gates.start", ["D-X"], False)])
+                         [("prereq_tasks_in(post_merge_states)", True, True), ("task.decision_gates.start", ["D-X"], False)])
 
     def test_start_gate_blocks_a_direct_event(self):
         """The reviewer's reproduction: prereqs_satisfied fed straight to the core, D-X not recorded."""
@@ -1286,7 +1288,8 @@ class StartGateEnforcement(unittest.TestCase):
         self.assertEqual(env.state(fl.GATED), "queued")
         self.assertEqual(self.transitions(env), [("blocked", "queued", "prereqs_satisfied")])
         rec = [r for r in env.journal() if r["kind"] == "transition_record" and r["task_id"] == fl.GATED][0]
-        self.assertEqual([(c["field"], c["result"]) for c in rec["cond_evaluated"]], [("task.decision_gates.start", True)])
+        self.assertEqual([(c["field"], c["result"]) for c in rec["cond_evaluated"]],
+                         [("prereq_tasks_in(post_merge_states)", True), ("task.decision_gates.start", True)])
 
     def test_start_gate_partial_record_stays_blocked(self):
         env = self.env(["D-X", "D-Y"])
@@ -1310,7 +1313,7 @@ class StartGateEnforcement(unittest.TestCase):
                 env.ports.catalog.tasks[fl.GATED]["decision_gates"]["start"] = None
             env.start_task(fl.GATED)
             self.assertEqual(env.state(fl.GATED), "blocked", start)
-            self.assertEqual([c["left"] for c in self.unmet(env)[0]["cond"]], [None], start)
+            self.assertEqual([c["left"] for c in self.unmet(env)[0]["cond"]], [True, None], start)
 
     def test_prereq_tasks_still_checked_first(self):
         env = MockEnv(str(RULES), str(TASKS))
@@ -1342,6 +1345,103 @@ class StartGateEnforcement(unittest.TestCase):
             for dec in start:
                 self.record(env, dec)
             self.assertEqual(env.state(fl.GATED), "queued", tid)
+
+
+class PrereqAndMergeGateCond(unittest.TestCase):
+    """audit2-spec-check-reads-prose-when: spec_check G6b and G5c read the rows' `when` text, which the core never
+    reads. The prerequisite part of blocked -> queued and the merge gate of the rows into merge_wait were applied
+    only by the observation layer, so a direct event skipped them. Both are now the rows' cond."""
+
+    MERGE_ROWS = {("review_approved", "audit_not_required"): "subset_of", ("review_approved", "decision_pending"): "not_subset_of",
+                  ("audit_pending", "audit_pass"): "subset_of", ("audit_pending", "decision_pending"): "not_subset_of",
+                  ("merge_wait", "decision_recorded"): "subset_of"}
+
+    def unmet(self, env, task_id, event):
+        return [r for r in env.journal() if r["kind"] == "diagnostic_record" and r["what"] == "cond_not_met"
+                and r.get("event") == event and r["task_id"] == task_id]
+
+    def test_prereq_cond_blocks_a_direct_event(self):
+        """T-MOCK-SUCC waits for T-MOCK-BASIC; prereqs_satisfied fed straight to the core does not move it."""
+        env = MockEnv(str(RULES), str(TASKS))
+        env.start_task(fl.BASIC)
+        env.core.register_task(fl.SUCC, "blocked")
+        out = env.event("prereqs_satisfied", fl.SUCC)
+        self.assertFalse(out.get("applied"), out)
+        self.assertEqual(env.state(fl.SUCC), "blocked")
+        self.assertEqual([(c["field"], c["result"]) for c in self.unmet(env, fl.SUCC, "prereqs_satisfied")[0]["cond"]],
+                         [("prereq_tasks_in(post_merge_states)", False), ("task.decision_gates.start", True)])
+
+    def test_prereq_cond_unknown_prereq(self):
+        """A prerequisite the store does not hold is not satisfied."""
+        env = MockEnv(str(RULES), str(TASKS))
+        env.core.register_task(fl.SUCC, "blocked")
+        self.assertFalse(env.event("prereqs_satisfied", fl.SUCC).get("applied"))
+        self.assertEqual(env.state(fl.SUCC), "blocked")
+
+    def test_prereq_cond_opens_in_post_merge_states(self):
+        for state in raw_rules()["post_merge_states"]:
+            env = MockEnv(str(RULES), str(TASKS))
+            env.core.register_task(fl.BASIC, state)
+            env.core.register_task(fl.SUCC, "blocked")
+            self.assertTrue(env.event("prereqs_satisfied", fl.SUCC).get("applied"), state)
+            self.assertEqual(env.state(fl.SUCC), "queued", state)
+
+    def test_removing_the_prereq_cond_reopens_the_gap(self):
+        raw = raw_rules()
+        row = [t for t in raw["transitions"] if (t["from"], t["event"]) == ("blocked", "prereqs_satisfied")][0]
+        row["cond"] = [c for c in row["cond"] if c["field"] != "prereq_tasks_in(post_merge_states)"]
+        env = MockEnv(raw, str(TASKS))
+        env.core.register_task(fl.SUCC, "blocked")
+        env.event("prereqs_satisfied", fl.SUCC)
+        self.assertEqual(env.state(fl.SUCC), "queued")
+
+    def test_merge_rows_carry_the_merge_gate_cond(self):
+        rows = {(t["from"], t["event"]): t for t in raw_rules()["transitions"] if t["to"] == "merge_wait"}
+        for key, op in self.MERGE_ROWS.items():
+            self.assertEqual(rows[key].get("cond"), [{"field": "task.decision_gates.merge", "op": op,
+                                                       "value": "task_state.decisions_recorded"}], key)
+
+    def gated(self, state, recorded=(), rules=None):
+        env = MockEnv(rules if rules is not None else str(RULES), str(TASKS))
+        env.ports.catalog.tasks[fl.BASIC]["decision_gates"]["merge"] = ["D-M"]
+        env.core.register_task(fl.BASIC, state, decisions=recorded)
+        return env
+
+    def test_merge_gate_blocks_ready_events(self):
+        """Unrecorded D-M: the ready events are rejected (the finding's direct route), decision_pending applies."""
+        for state, event in (("review_approved", "audit_not_required"), ("audit_pending", "audit_pass")):
+            env = self.gated(state)
+            self.assertFalse(env.event(event, fl.BASIC).get("applied"), event)
+            self.assertEqual(env.state(fl.BASIC), state)
+            self.assertEqual([(c["field"], c["left"], c["result"]) for c in self.unmet(env, fl.BASIC, event)[0]["cond"]],
+                             [("task.decision_gates.merge", ["D-M"], False)])
+            env = self.gated(state)
+            self.assertTrue(env.event("decision_pending", fl.BASIC).get("applied"), state)
+            self.assertEqual(env.state(fl.BASIC), "merge_wait")
+
+    def test_merge_gate_recorded(self):
+        for state, event in (("review_approved", "audit_not_required"), ("audit_pending", "audit_pass")):
+            env = self.gated(state, ["D-M"])
+            self.assertFalse(env.event("decision_pending", fl.BASIC).get("applied"), state)
+            self.assertEqual(env.state(fl.BASIC), state)
+            self.assertTrue(env.event(event, fl.BASIC).get("applied"), event)
+            self.assertEqual(env.state(fl.BASIC), "merge_wait")
+
+    def test_decision_recorded_needs_the_gate(self):
+        env = self.gated("merge_wait")
+        self.assertFalse(env.event("decision_recorded", fl.BASIC).get("applied"))
+        self.assertEqual(len(self.unmet(env, fl.BASIC, "decision_recorded")), 1)
+        env = self.gated("merge_wait", ["D-M"])
+        self.assertTrue(env.event("decision_recorded", fl.BASIC).get("applied"))
+
+    def test_removing_the_merge_cond_reopens_the_gap(self):
+        raw = raw_rules()
+        for t in raw["transitions"]:
+            if (t["from"], t["event"]) == ("review_approved", "audit_not_required"):
+                del t["cond"]
+        env = self.gated("review_approved", rules=raw)
+        self.assertTrue(env.event("audit_not_required", fl.BASIC).get("applied"))
+        self.assertEqual(env.state(fl.BASIC), "merge_wait")
 
 
 class TerminalStatesIgnoreUnmapped(unittest.TestCase):

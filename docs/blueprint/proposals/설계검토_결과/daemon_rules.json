@@ -699,9 +699,14 @@
       "from": "blocked",
       "to": "queued",
       "event": "prereqs_satisfied",
-      "when": "all(prereq_tasks.state in post_merge_states) and all(decision_gates.start ⊆ decisions_recorded). 이미 완료된 선행(done 포함)도 충족으로 센다. 선행 과제 검사는 관측 계층이 사건을 일으키기 전에 하고, 시작 관문은 cond가 검사한다(audit1-start-gates-enforcement). decision_gates.start가 목록이 아니면(null·누락) 평가할 수 없으므로 blocked에 남는다",
+      "when": "all(prereq_tasks.state in post_merge_states) and all(decision_gates.start ⊆ decisions_recorded). 이미 완료된 선행(done 포함)도 충족으로 센다. 두 조건 모두 cond로 코어가 검사한다: 선행 과제는 prereq_tasks_in(post_merge_states)(audit2-spec-check-reads-prose-when), 시작 관문은 task.decision_gates.start(audit1-start-gates-enforcement). 관측 계층은 같은 함수로 선행이 찼을 때만 사건을 일으킨다. decision_gates.start가 목록이 아니면(null·누락) 평가할 수 없으므로 blocked에 남는다",
       "by": "daemon",
       "cond": [
+        {
+          "field": "prereq_tasks_in(post_merge_states)",
+          "op": "==",
+          "value": true
+        },
         {
           "field": "task.decision_gates.start",
           "op": "subset_of",
@@ -2348,28 +2353,56 @@
       "to": "merge_wait",
       "event": "audit_not_required",
       "when": "immediate_audit_required(pr) == false and decision_gates.merge ⊆ decisions_recorded → reason = ready",
-      "by": "daemon"
+      "by": "daemon",
+      "cond": [
+        {
+          "field": "task.decision_gates.merge",
+          "op": "subset_of",
+          "value": "task_state.decisions_recorded"
+        }
+      ]
     },
     {
       "from": "review_approved",
       "to": "merge_wait",
       "event": "decision_pending",
       "when": "immediate_audit_required(pr) == false and decision_gates.merge ⊄ decisions_recorded → reason = decision_pending",
-      "by": "daemon"
+      "by": "daemon",
+      "cond": [
+        {
+          "field": "task.decision_gates.merge",
+          "op": "not_subset_of",
+          "value": "task_state.decisions_recorded"
+        }
+      ]
     },
     {
       "from": "audit_pending",
       "to": "merge_wait",
       "event": "audit_pass",
       "when": "audit_result.verdict == pass and audit_result.sha == pr.head_sha and decision_gates.merge ⊆ decisions_recorded → reason = ready",
-      "by": "auditor"
+      "by": "auditor",
+      "cond": [
+        {
+          "field": "task.decision_gates.merge",
+          "op": "subset_of",
+          "value": "task_state.decisions_recorded"
+        }
+      ]
     },
     {
       "from": "audit_pending",
       "to": "merge_wait",
       "event": "decision_pending",
       "when": "audit_result.verdict == pass and audit_result.sha == pr.head_sha and decision_gates.merge ⊄ decisions_recorded → reason = decision_pending",
-      "by": "auditor"
+      "by": "auditor",
+      "cond": [
+        {
+          "field": "task.decision_gates.merge",
+          "op": "not_subset_of",
+          "value": "task_state.decisions_recorded"
+        }
+      ]
     },
     {
       "from": "audit_pending",
@@ -2404,7 +2437,14 @@
       "to": "merge_wait",
       "event": "decision_recorded",
       "when": "reason == decision_pending and decision_gates.merge ⊆ decisions_recorded → reason = ready (사유 갱신)",
-      "by": "daemon"
+      "by": "daemon",
+      "cond": [
+        {
+          "field": "task.decision_gates.merge",
+          "op": "subset_of",
+          "value": "task_state.decisions_recorded"
+        }
+      ]
     },
     {
       "from": "merge_wait",
@@ -3593,7 +3633,7 @@
     ],
     "log_redaction": "봉투·로그에 비밀값 패턴 검출 시 R-10"
   },
-  "_cond_note": "transitions[].cond는 모의 코어가 읽는 구조화 조건이다. 술어 {field, op, value}: op ∈ {==, !=, <, <=, >, >=, in, not_in, all_pass, any, all}. field는 core_contract.store 경로·clock.now·event/envelope/request/report/signal 페이로드 경로·count(...)·coalesce(a, b) 식, value는 상수 또는 다른 경로/식(숫자 필드는 숫자). side_effects는 [{id, args}](core_contract.expected_outputs.side_effect_ids). order=before_cond 인 부수 효과는 cond 평가 전에 적용한다(attempt_counting). return_code는 반송 전이의 R 코드(G05). on_cond_fail은 cond가 거짓일 때 대신 일으킬 사건(G18). cond가 없는 전이는 사건 발생만으로 from/to/event대로 옮긴다. 자연어 when은 코어가 읽지 않는다. 결정 게이트 중 start는 blocked→queued(prereqs_satisfied)의 cond(task.decision_gates.start subset_of task_state.decisions_recorded)로 코어가 강제한다(audit1-start-gates-enforcement). start가 목록이 아니면 subset_of가 거짓이라 blocked에 남는다. 예외는 하나뿐이다: noop_rules[].when은 값이 {field, op, value} 술어 목록이고 코어가 읽는다(G33, core_contract.condition_keys). 값이 문자열인 when은 설명이다. G49: op에 subset_of·is_bool·is_list가 더해진다(core_contract.predicate_ops).",
+  "_cond_note": "transitions[].cond는 모의 코어가 읽는 구조화 조건이다. 술어 {field, op, value}: op ∈ {==, !=, <, <=, >, >=, in, not_in, all_pass, any, all}. field는 core_contract.store 경로·clock.now·event/envelope/request/report/signal 페이로드 경로·count(...)·coalesce(a, b) 식, value는 상수 또는 다른 경로/식(숫자 필드는 숫자). side_effects는 [{id, args}](core_contract.expected_outputs.side_effect_ids). order=before_cond 인 부수 효과는 cond 평가 전에 적용한다(attempt_counting). return_code는 반송 전이의 R 코드(G05). on_cond_fail은 cond가 거짓일 때 대신 일으킬 사건(G18). cond가 없는 전이는 사건 발생만으로 from/to/event대로 옮긴다. 자연어 when은 코어가 읽지 않는다. 결정 게이트 중 start는 blocked→queued(prereqs_satisfied)의 cond(task.decision_gates.start subset_of task_state.decisions_recorded)로 코어가 강제한다(audit1-start-gates-enforcement). start가 목록이 아니면 subset_of가 거짓이라 blocked에 남는다. 선행 과제도 같은 행의 cond prereq_tasks_in(post_merge_states)로 코어가 강제하고, 병합 관문(decision_gates.merge)은 merge_wait로 들어가는 행(review_approved·audit_pending → merge_wait, merge_wait 사유 갱신)의 cond(task.decision_gates.merge subset_of / not_subset_of task_state.decisions_recorded)로 강제한다(audit2-spec-check-reads-prose-when). spec_check.py는 이 cond·guard·side_effects만 보고 when 문장은 보지 않는다. 예외는 하나뿐이다: noop_rules[].when은 값이 {field, op, value} 술어 목록이고 코어가 읽는다(G33, core_contract.condition_keys). 값이 문자열인 when은 설명이다. G49: op에 subset_of·is_bool·is_list가 더해진다(core_contract.predicate_ops).",
   "state_integrity": {
     "_note": "U02. 정상 임대 만료와 상태 손상을 구분한다. 재시작 복구와 outbox 재발송은 이 분류를 먼저 거친다",
     "normal_expiry": {

@@ -1,0 +1,283 @@
+$ git rev-parse HEAD
+7c333b66c8647812c122875c1c7d180415d476a2
+$ python3 -m unittest tools.tests.test_price_display_scope -v   # new test, docs not yet changed
+test_d18_is_never_cited_as_the_r2_operations_direction (tools.tests.test_price_display_scope.PriceDisplayScope.test_d18_is_never_cited_as_the_r2_operations_direction) ... FAIL
+test_every_dec_cited_by_a_gate_row_is_indexed (tools.tests.test_price_display_scope.PriceDisplayScope.test_every_dec_cited_by_a_gate_row_is_indexed)
+A DEC record that a §3 O row or a BLUEPRINT §12 row relies on must have ... FAIL
+test_gate_is_not_a_scope_cut (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut) ... 
+  test_gate_is_not_a_scope_cut (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut) (row='| P02 |') ... FAIL
+  test_gate_is_not_a_scope_cut (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut) (row='| P09 |') ... FAIL
+test_gate_is_not_a_scope_cut (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut) ... FAIL
+test_gate_wording_is_shared_by_scope_docs_ledger_and_09 (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_wording_is_shared_by_scope_docs_ledger_and_09) ... FAIL
+test_index_check_rejects_a_dropped_row (tools.tests.test_price_display_scope.PriceDisplayScope.test_index_check_rejects_a_dropped_row) ... FAIL
+test_index_has_rows_for_dec_d18_and_dec_o04 (tools.tests.test_price_display_scope.PriceDisplayScope.test_index_has_rows_for_dec_d18_and_dec_o04) ... FAIL
+test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) ... 
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='해결') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='[DEC-O04](../decisions/DEC-O04.md)') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='사용자 확정 아님') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='가역') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='T-KN-09') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='compare_price') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='I7') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='I8') ... FAIL
+  test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='K13') ... FAIL
+test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) ... 
+  test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='[DEC-D-18](../decisions/DEC-D-18.md)') ... FAIL
+  test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='위임 결정') ... FAIL
+  test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='외부 검토 담당은 아직 지정되지 않았다') ... FAIL
+  test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='법적 판단이 아니다') ... FAIL
+test_report_links_resolve_and_point_at_evidence (tools.tests.test_price_display_scope.PriceDisplayScope.test_report_links_resolve_and_point_at_evidence) ... FAIL
+test_report_records_the_answer_and_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_report_records_the_answer_and_its_limits) ... ERROR
+test_s12_row_names_milestone_and_what_stays_allowed (tools.tests.test_price_display_scope.PriceDisplayScope.test_s12_row_names_milestone_and_what_stays_allowed) ... FAIL
+test_scope_sources_keep_public_price_in_first_release (tools.tests.test_price_display_scope.PriceDisplayScope.test_scope_sources_keep_public_price_in_first_release) ... FAIL
+
+======================================================================
+ERROR: test_report_records_the_answer_and_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_report_records_the_answer_and_its_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 181, in test_report_records_the_answer_and_its_limits
+    text = REPORT.read_text(encoding="utf-8")
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<repo>/docs/blueprint/audits/2026-10-27_price_display_scope.md'
+
+======================================================================
+FAIL: test_d18_is_never_cited_as_the_r2_operations_direction (tools.tests.test_price_display_scope.PriceDisplayScope.test_d18_is_never_cited_as_the_r2_operations_direction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 150, in test_d18_is_never_cited_as_the_r2_operations_direction
+    row = one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)")
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/tools/tests/test_price_display_scope.py", line 33, in one_row
+    raise AssertionError(f"expected one row starting {prefix!r}, got {len(rows)}")
+AssertionError: expected one row starting '| 외부 검토 담당 지정(D-18·O10)', got 0
+
+======================================================================
+FAIL: test_every_dec_cited_by_a_gate_row_is_indexed (tools.tests.test_price_display_scope.PriceDisplayScope.test_every_dec_cited_by_a_gate_row_is_indexed)
+A DEC record that a §3 O row or a BLUEPRINT §12 row relies on must have
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 138, in test_every_dec_cited_by_a_gate_row_is_indexed
+    self.assertTrue({"DEC-D-18", "DEC-O04"} <= cited)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_gate_is_not_a_scope_cut (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut) (row='| P02 |')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 94, in test_gate_is_not_a_scope_cut
+    self.assertIn(O04_RESOLVED, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: 'O04는 DEC-O04로 해결' not found in '| P02 | 약관·특약·사업방법서·상품요약서·가격 조건을 확보한다 | 담보 상세·증거 보기·가격(같은 기준) | RawAsset(원본 바이트), 문서 역할(doc_role: 보통약관·특약·별표·사업방법서·요약서·가격표), 구획·조항·추출 판, 가격 관측(PremiumObservation) | 규칙 컴파일 입력, 가격 비교 자격 | 담보 상세, 증거 보기, 비교의 가격 열 | T-DT-01, T-DT-02, T-DT-03, T-DT-06, T-KN-09, T-KN-04 | 문서 종류별 확보율 기록. **미확보 사유를 기록한 것은 확보 완료로 세지 않는다**: 확보 = 원본 보존 + 구획 추출 + 판 연결(accepted realizes). 시험 `acquisition-reason-not-counted`(T-DT-04), `coverage-status-counts-acquired-only`(T-AP-04) | R04, R05, R10 | 가격 표시는 D-18·O04 뒤(ADR-0008 §3 "첫 앱에 가격 없음"은 ADR-0009·ADR-0010으로 대체됨. 저장·비교 자격 판정은 범위 안, 화면 노출은 결정 뒤) |'
+
+======================================================================
+FAIL: test_gate_is_not_a_scope_cut (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut) (row='| P09 |')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 94, in test_gate_is_not_a_scope_cut
+    self.assertIn(O04_RESOLVED, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: 'O04는 DEC-O04로 해결' not found in '| P09 | 상품을 비교한다(같은 상황) | 같은 담보·같은 상황 비교, 같은 기준 가격 열 | 비교 대상의 담보 C0 주장·규칙·가격 비교 자격 | 여러 상품 트윈에 같은 사건 | 같은 담보 비교 | T-AP-07, T-KN-09, T-DT-06 | 실제 담보 둘 이상 비교 E2E, 확인 필요 상품이 같은 목록에 있는 캡처, 다른 조건 가격 합산 거부(I8) | R06, R11, R12, Q3, Q4 | 가격 열 노출은 O04·D-18 뒤(결정 대기, 축소 아님) |'
+
+======================================================================
+FAIL: test_gate_is_not_a_scope_cut (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 99, in test_gate_is_not_a_scope_cut
+    self.assertIn("범위 안", row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: '범위 안' not found in '| 첫 출시 데이터 | 금융당국·협회·보험사 공시 매일 크롤링, 라벨링, AI 검수, 디지털 트윈, 공개 가격 | ADR-0008·0010 |'
+
+======================================================================
+FAIL: test_gate_wording_is_shared_by_scope_docs_ledger_and_09 (tools.tests.test_price_display_scope.PriceDisplayScope.test_gate_wording_is_shared_by_scope_docs_ledger_and_09)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 78, in test_gate_wording_is_shared_by_scope_docs_ledger_and_09
+    "BLUEPRINT §12": one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)"),
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/tools/tests/test_price_display_scope.py", line 33, in one_row
+    raise AssertionError(f"expected one row starting {prefix!r}, got {len(rows)}")
+AssertionError: expected one row starting '| 외부 검토 담당 지정(D-18·O10)', got 0
+
+======================================================================
+FAIL: test_index_check_rejects_a_dropped_row (tools.tests.test_price_display_scope.PriceDisplayScope.test_index_check_rejects_a_dropped_row)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 146, in test_index_check_rejects_a_dropped_row
+    self.assertEqual(cited - dec_links(mutated), {"DEC-O04"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'DEC-O04'
+
+======================================================================
+FAIL: test_index_has_rows_for_dec_d18_and_dec_o04 (tools.tests.test_price_display_scope.PriceDisplayScope.test_index_has_rows_for_dec_d18_and_dec_o04)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 120, in test_index_has_rows_for_dec_d18_and_dec_o04
+    d18 = self.index_row("DEC-D-18")
+  File "<repo>/tools/tests/test_price_display_scope.py", line 59, in index_row
+    row = cells(one_row(self.index, f"| [{record_id}]("))
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/tools/tests/test_price_display_scope.py", line 33, in one_row
+    raise AssertionError(f"expected one row starting {prefix!r}, got {len(rows)}")
+AssertionError: expected one row starting '| [DEC-D-18](', got 0
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='해결')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '해결' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='[DEC-O04](../decisions/DEC-O04.md)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '[DEC-O04](../decisions/DEC-O04.md)' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='사용자 확정 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '사용자 확정 아님' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='가역')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '가역' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='T-KN-09')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 'T-KN-09' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='compare_price')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 'compare_price' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='I7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 'I7' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='I8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 'I8' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (tools.tests.test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) (phrase='K13')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 109, in test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 'K13' not found in '| O04 | 예산 비교에서 동일 조건 판정·묶음 규칙 | 가격 데이터 책임 | 가격 기능 활성화 전 | 가격 보존 / 근거 없는 합계·절감액 금지 |'
+
+======================================================================
+FAIL: test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='[DEC-D-18](../decisions/DEC-D-18.md)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 117, in test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '[DEC-D-18](../decisions/DEC-D-18.md)' not found in '| O10 | 추천·가격 비교·향후 상담 사업의 적용 요건 | 제품 책임자와 관련 검토 담당 | 대외 출시·후속 사업 활성화 전 | 설계·내부 개발 / 상담을 안 하면 자동 적법하다는 전제 금지 |'
+
+======================================================================
+FAIL: test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='위임 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 117, in test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '위임 결정' not found in '| O10 | 추천·가격 비교·향후 상담 사업의 적용 요건 | 제품 책임자와 관련 검토 담당 | 대외 출시·후속 사업 활성화 전 | 설계·내부 개발 / 상담을 안 하면 자동 적법하다는 전제 금지 |'
+
+======================================================================
+FAIL: test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='외부 검토 담당은 아직 지정되지 않았다')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 117, in test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '외부 검토 담당은 아직 지정되지 않았다' not found in '| O10 | 추천·가격 비교·향후 상담 사업의 적용 요건 | 제품 책임자와 관련 검토 담당 | 대외 출시·후속 사업 활성화 전 | 설계·내부 개발 / 상담을 안 하면 자동 적법하다는 전제 금지 |'
+
+======================================================================
+FAIL: test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (tools.tests.test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) (phrase='법적 판단이 아니다')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 117, in test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition
+    self.assertIn(phrase, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: '법적 판단이 아니다' not found in '| O10 | 추천·가격 비교·향후 상담 사업의 적용 요건 | 제품 책임자와 관련 검토 담당 | 대외 출시·후속 사업 활성화 전 | 설계·내부 개발 / 상담을 안 하면 자동 적법하다는 전제 금지 |'
+
+======================================================================
+FAIL: test_report_links_resolve_and_point_at_evidence (tools.tests.test_price_display_scope.PriceDisplayScope.test_report_links_resolve_and_point_at_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 168, in test_report_links_resolve_and_point_at_evidence
+    self.assertTrue(REPORT.is_file())
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_s12_row_names_milestone_and_what_stays_allowed (tools.tests.test_price_display_scope.PriceDisplayScope.test_s12_row_names_milestone_and_what_stays_allowed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 156, in test_s12_row_names_milestone_and_what_stays_allowed
+    row = cells(one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)"))
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/tools/tests/test_price_display_scope.py", line 33, in one_row
+    raise AssertionError(f"expected one row starting {prefix!r}, got {len(rows)}")
+AssertionError: expected one row starting '| 외부 검토 담당 지정(D-18·O10)', got 0
+
+======================================================================
+FAIL: test_scope_sources_keep_public_price_in_first_release (tools.tests.test_price_display_scope.PriceDisplayScope.test_scope_sources_keep_public_price_in_first_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tools/tests/test_price_display_scope.py", line 72, in test_scope_sources_keep_public_price_in_first_release
+    self.assertIn("ADR-0010", row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 'ADR-0010' not found in '| 첫 출시 데이터 | 금융당국·협회·보험사 공시 매일 크롤링, 라벨링, AI 검수, 디지털 트윈, 공개 가격 | ADR-0008·0010 |'
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.014s
+
+FAILED (failures=24, errors=1)
+exit code: 1

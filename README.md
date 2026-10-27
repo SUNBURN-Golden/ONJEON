@@ -28,7 +28,7 @@
 
 가족력·개인정보는 ADR-0009, 공개 가격·화면은 ADR-0010, 설계도와 세부 계약은 ADR-0011·0012를 따른다. 가족력 선택 입력을 유지하고 상담·포털·실견적은 비활성이다. 화면 이미지는 `docs/design/`에 보관하며 실제 상품·지급 계산 결과가 아니다.
 
-최신: [소비자 화면 설계](docs/design/CONSUMER_FLOW_SPEC.md) · [가격 데이터 수집 명세](docs/data/PREMIUM_DATA_CONTRACT.md) · ADR-0010. 공개 가격 수집·표시·예산 비교는 첫 출시 범위이며 개인 실견적 연계와 구분한다.
+최신: [소비자 화면 설계](docs/design/CONSUMER_FLOW_SPEC.md) · [가격 데이터 수집 명세](docs/data/PREMIUM_DATA_CONTRACT.md) · ADR-0010. 공개 가격 수집·표시·예산 비교는 첫 출시 범위이며 개인 실견적 연계와 구분한다. 가격 열 대외 공개 표시는 D-18(O10) 외부 검토 담당 지정 뒤이다([DEC-D-18](docs/decisions/DEC-D-18.md), 범위 축소 아님). 동일 조건·묶음 규칙(O04)은 [DEC-O04](docs/decisions/DEC-O04.md)로 기록됐다.
 
 세부 구현 계약: [시스템·데이터·수락 계약](docs/blueprint/SYSTEM_CONTRACT.md) · [요구사항 26개와 수락 사례](docs/blueprint/REQUIREMENTS.md) · [결정 원장](docs/blueprint/DECISIONS.md). 단일 진입점은 계속 `docs/BLUEPRINT.md`다(ADR-0012).
 

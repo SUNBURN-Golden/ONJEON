@@ -1,0 +1,20 @@
+# before = 40ceef77003697ffb356a98cbc68bb70bc9324e1:docs/blueprint/proposals/설계검토_결과/검증/spec_check.py; after = working tree
+# python3 -I tools/evidence/audit2-spec-check-vacuous/mutations.py <baseline copy> <working-tree spec_check.py>
+mutation                                                 check  before             after
+bundle as is                                             G4c    PASS               PASS
+§2 headings '### 2.x' → '### 2-x' (regex finds 0 rows)   G4c    PASS               FAIL
+integration rows = []                                    G4c    PASS               FAIL
+one unmapped row (control)                               G4c    FAIL               FAIL
+bundle as is                                             G7b    PASS               PASS
+states = {}                                              G7b    PASS               FAIL
+states = {} and transitions = []                         G7b    PASS               FAIL
+bundle as is                                             G9     PASS               PASS
+allowed_switch_signals = []                              G9     PASS               FAIL
+every signal's detect = []                               G9     PASS               FAIL
+first signal without detect                              G9     PASS               FAIL
+bundle as is                                             G26    PASS               PASS
+every 'K1~K16' written in words (regex finds 0)          G26    PASS               FAIL
+02 says 'K1–K15' (en dash, stale)                        G26    PASS               FAIL
+tasks.json says 'K1~K12' (control)                       G26    FAIL               FAIL
+tbox constraints = []                                    G26    ERROR(ValueError)  FAIL
+# exit 0

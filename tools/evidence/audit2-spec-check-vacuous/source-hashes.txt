@@ -1,0 +1,7 @@
+# base commit: 40ceef77003697ffb356a98cbc68bb70bc9324e1; tested working-tree source SHA-256
+8a5ff69c8648a7655ab92fb8d5ccabe22cbeb1fbe91dcb00c1ce35fb6d8b5e28  docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+4abfe854c7f73c6879ed488f0ffa87536da7e6b302b73417126007c2805957c0  tools/tests/test_spec_check_vacuous.py
+dc517af707f0fe50c0df8daab547fb4765004dfad6f2b1970b4f868e4629ff4e  tools/tests/test_spec_check_cond.py
+e401e857f17689051eda4d16fa65fd2c267199913e07240e15349f7d087ad219  tools/evidence/audit2-spec-check-vacuous/mutations.py
+f17b7037385dead4ca85cf6fcf928f5a8595b60602207b275acb78333caf0198  docs/blueprint/audits/2026-10-27_spec_check_vacuous.md
+760d4558f0822fd09075c10480d04fa2bae7717aca7ceb4dc6c7de87c4621824  docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md

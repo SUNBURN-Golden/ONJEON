@@ -14,6 +14,7 @@ recorded. What must hold:
   over a limit is refused before it is sent.
 """
 import hashlib
+import io
 import json
 import os
 import signal
@@ -532,11 +533,108 @@ class MeterChecks(Fixture):
         m = self.meter(get_bytes=10)
         with self.assertRaises(b.BudgetError):
             m.charge_get_bytes(11)
+        self.assertEqual(m.used["get_bytes"], 11)
         m = self.meter()
         m.start -= 601
         with self.assertRaises(b.BudgetError) as cm:
             m.check_call("GetObject", {"Bucket": "raw", "Key": KEY}, "archive")
         self.assertIn("run time", str(cm.exception))
+
+
+class GetBytes(Fixture):
+    """Exercise response streams independently of ContentLength and of the HTTP parser."""
+
+    meter = MeterChecks.meter
+
+    def store(self, body, limit, declared=None):
+        st = object.__new__(sa.S3Store)
+        st.bucket, st.prefix = "raw", ""
+        st.meter = self.meter(get_bytes=limit)
+        response = {"Body": body}
+        if declared is not None:
+            response["ContentLength"] = declared
+        st.s3 = mock.Mock()
+        st.s3.get_object.return_value = response
+        return st
+
+    def test_counts_actual_bytes_with_missing_zero_short_and_long_headers(self):
+        payload = b"x" * (64 * 1024 + 7)
+        for declared in (None, 0, 1, len(payload), len(payload) * 2):
+            with self.subTest(declared=declared):
+                body = mock.Mock(wraps=io.BytesIO(payload))
+                st = self.store(body, len(payload), declared)
+                self.assertEqual(st.get(KEY), payload)
+                self.assertEqual(st.meter.used["get_bytes"], len(payload))
+                self.assertTrue(all(0 < c.args[0] <= 64 * 1024 for c in body.read.call_args_list))
+                body.close.assert_called_once_with()
+
+    def test_over_limit_stops_after_one_extra_byte_and_counts_it(self):
+        for declared in (None, 0, 1, 10**9):
+            with self.subTest(declared=declared):
+                body = mock.Mock(wraps=io.BytesIO(b"x" * 200000))
+                st = self.store(body, 65540, declared)
+                with self.assertRaisesRegex(b.BudgetError, "get_bytes read 65541 > limit 65540"):
+                    st.get(KEY)
+                self.assertEqual(st.meter.used["get_bytes"], 65541)
+                self.assertEqual(body.read.call_args_list, [mock.call(65536), mock.call(5)])
+                body.close.assert_called_once_with()
+
+    def test_empty_body_and_zero_limit_boundary(self):
+        for payload in (b"", b"x"):
+            with self.subTest(payload=payload):
+                body = mock.Mock(wraps=io.BytesIO(payload))
+                st = self.store(body, 0)
+                if payload:
+                    with self.assertRaises(b.BudgetError):
+                        st.get(KEY)
+                else:
+                    self.assertEqual(st.get(KEY), b"")
+                self.assertEqual(st.meter.used["get_bytes"], len(payload))
+                body.close.assert_called_once_with()
+
+    def test_partial_reads_are_counted_and_preserved_on_stream_failure(self):
+        body = mock.Mock()
+        body.read.side_effect = [b"ab", b"c", OSError("stream interrupted")]
+        st = self.store(body, 10, 100)
+        with self.assertRaisesRegex(OSError, "stream interrupted"):
+            st.get(KEY)
+        self.assertEqual(st.meter.used["get_bytes"], 3)
+        body.close.assert_called_once_with()
+
+    def test_short_reads_continue_until_eof(self):
+        body = mock.Mock()
+        body.read.side_effect = [b"ab", b"c", b""]
+        st = self.store(body, 10)
+        self.assertEqual(st.get(KEY), b"abc")
+        self.assertEqual(st.meter.used["get_bytes"], 3)
+        body.close.assert_called_once_with()
+
+    def test_unmetered_emulator_read_closes_body(self):
+        body = mock.Mock(wraps=io.BytesIO(BODY))
+        st = self.store(body, 10)
+        st.meter = None
+        self.assertEqual(st.get(KEY), BODY)
+        body.close.assert_called_once_with()
+
+    def test_already_exceeded_limit_permits_no_more_body_reads(self):
+        body = mock.Mock(wraps=io.BytesIO(BODY))
+        st = self.store(body, 0)
+        st.meter.used["get_bytes"] = 1
+        with self.assertRaises(b.BudgetError):
+            st.get(KEY)
+        body.read.assert_not_called()
+        body.close.assert_called_once_with()
+
+    @unittest.skipUnless(HAVE_BOTO, "botocore not installed")
+    def test_incomplete_stream_keeps_bytes_returned_before_parser_error(self):
+        from botocore.exceptions import IncompleteReadError
+        from botocore.response import StreamingBody
+        raw = io.BytesIO(BODY)
+        st = self.store(StreamingBody(raw, len(BODY) + 1), 100, len(BODY) + 1)
+        with self.assertRaises(IncompleteReadError):
+            st.get(KEY)
+        self.assertEqual(st.meter.used["get_bytes"], len(BODY))
+        self.assertTrue(raw.closed)
 
 
 @unittest.skipUnless(HAVE_BOTO, "boto3 >= 1.35 not installed")
@@ -564,6 +662,75 @@ class EndToEnd(Fixture):
         with self.assertRaises(b.BudgetError) as cm:
             self.session(gate_dir).open()
         return str(cm.exception), self.stub.counts(before), self.stub.log[before:]
+
+    def seed_ledger(self, checkpoint=False):
+        policy, _ = self.load()
+        self.reserve(run_id="seed")
+        if checkpoint:
+            b.write_checkpoint(b.Ledger(self.ledger_store, policy))
+        for key in self.ledger_store.list(""):
+            self.stub.objects[("ledger", key)] = self.ledger_store.get(key)
+
+    def get_bytes_seen(self, before):
+        return sum(len(self.stub.objects[(bucket, key)])
+                   for kind, bucket, key, status, _ in self.stub.log[before:]
+                   if kind == "get" and status == 200)
+
+    def check_ledger_read_accounting(self, checkpoint):
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=5, class_a=1000)
+        self.seed_ledger(checkpoint)
+        for injected in (False, True):
+            with self.subTest(injected=injected, checkpoint=checkpoint):
+                self.assertIsNone(b.ACTIVE)
+                st = sa.S3Store("s3://ledger", self.stub.endpoint, ledger=True) if injected else None
+                before = len(self.stub.log)
+                s = b.start(str(self.job_path), self.stub.endpoint, ledger_store=st,
+                            policy_path=self.policy_path, gate_dir=self.root / f"meter-{injected}")
+                self.addCleanup(s._restore_alarm)
+                self.addCleanup(s.gate.leave)
+                try:
+                    self.assertIs(s.ledger.st.meter, s.meter)
+                    admission_bytes = self.get_bytes_seen(before)
+                    self.assertGreater(admission_bytes, 0)
+                    self.assertEqual(s.meter.used["get_bytes"], admission_bytes)
+                    self.assertEqual(s.meter.limits, PER_RUN)
+                    self.stub.objects[("raw", KEY)] = BODY
+                    self.assertEqual(sa.S3Store("s3://raw", self.stub.endpoint).get(KEY), BODY)
+                    self.assertEqual(s.meter.used["get_bytes"], admission_bytes + len(BODY))
+                finally:
+                    summary = b.finish("ok")  # clears ACTIVE before the settlement tail GET
+                self.assertIsNone(b.ACTIVE)
+                self.assertIsInstance(summary["settlement"], int, summary)
+                seen = self.get_bytes_seen(before)
+                self.assertGreater(seen, admission_bytes + len(BODY))
+                rec = json.loads(self.stub.objects[("ledger", f"{b.LEDGER_PREFIX}{summary['settlement']:010d}.json")])
+                self.assertEqual(rec["amounts"]["get_bytes"], seen)
+                self.assertEqual(summary["used"]["get_bytes"], seen)
+
+    def test_ledger_admission_archive_and_settlement_reads_are_charged(self):
+        self.check_ledger_read_accounting(checkpoint=False)
+
+    def test_checkpoint_admission_archive_and_settlement_reads_are_charged(self):
+        self.check_ledger_read_accounting(checkpoint=True)
+
+    def test_ledger_get_exhausts_admission_before_reservation(self):
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=5, class_a=1000)
+        doc = json.loads(self.policy_path.read_text())
+        doc["admission"]["limits"]["get_bytes"] = 1
+        self.policy_path.write_text(json.dumps(doc))
+        self.seed_ledger()
+        s = self.session()
+        with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+            s.open()
+        self.assertEqual(s.meter.used["get_bytes"], 2)
+        self.assertIsNone(s.reservation)
+        self.assertIsNone(s.gate._lock)
+        self.assertIsNone(b.ACTIVE)
+        self.assertTrue(s.admitted)
+        self.assertEqual(len([key for bucket, key in self.stub.objects
+                             if key.startswith(b.LEDGER_PREFIX)]), 1)
 
     def test_repeated_refused_runs_are_recorded_then_closed(self):
         """Finding 1: a run refused after reading the ledger left no trace, so repeating it was free.

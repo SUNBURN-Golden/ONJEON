@@ -4,8 +4,8 @@
 A runaway mitigation for runs of this tool: per-run limits plus the cumulative use recorded in the
 ledger. It is not an account-wide spending cap and does not bound requests made outside this tool;
 some of this tool's own requests are not recorded either (infra/r2/BUDGET.md section 5). R2 has no
-hard spending cap; a Cloudflare budget alert only sends an email. The limits here are enforced by
-this client before each request is sent:
+hard spending cap; a Cloudflare budget alert only sends an email. This client checks requests before
+sending them and counts GET body bytes as they are read (with at most one boundary-probe byte):
 
   policy     infra/r2/budget_policy.json   global caps (per UTC month; stored bytes for all time),
                                            admission limits, local gate
@@ -211,7 +211,11 @@ class Meter:
         self.used["seconds"] = elapsed
 
     def charge_get_bytes(self, n):
-        self._charge("get_bytes", int(n))
+        # These bytes have already been read, so retain them even when they cross the limit.
+        self.used["get_bytes"] += int(n)
+        if self.used["get_bytes"] > self.limits["get_bytes"]:
+            raise BudgetError(f"get_bytes read {self.used['get_bytes']} > limit {self.limits['get_bytes']} "
+                              f"(job {self.job['job_id']}); stopped reading the response")
 
     def check_call(self, op, params, role):
         self._check_time()
@@ -861,6 +865,8 @@ class Session:
             if st is None:
                 st = sa.S3Store(f"s3://{self.policy['ledger_bucket']}", self.endpoint_url, ledger=True)
             if isinstance(st, sa.S3Store):
+                # The ledger is opened before ACTIVE exists, and is also read after finish clears it.
+                st.meter = self.meter
                 self.meter.attach(st.s3, "ledger")
             self.ledger = Ledger(st, self.policy)
             month = now_utc().strftime("%Y-%m")

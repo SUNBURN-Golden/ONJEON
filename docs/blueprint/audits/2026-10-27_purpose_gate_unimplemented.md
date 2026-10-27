@@ -51,6 +51,19 @@
 | `cargo test --all --offline` | 종료 코드 0, Rust 결과 합계 458개 통과·실패 0개·무시 1개: [rust-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/rust-tests.log) |
 | 수치·결정 색인·어휘·검증 자료·제품 목적(본 검사·selftest)·명세 검사, `git diff --check` | `blueprint_counts.py`·`blueprint_status.py`·`vocab_check.py`·`validation_check.py`(본 검사·selftest)·`check_product_purpose.py`(본 검사·selftest)·`spec_check.py`(기계 44/44·존재 72/72)·`git diff --check` 모두 종료 코드 0: [consistency-checks.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/consistency-checks.log) |
 
+## 3차 수정 검증 (2026-10-28)
+
+설계 검토의 PURPOSE-SCOPE 지적을 재현했다. P18의 `BLUEPRINT §1`을 존재하지 않는 `BLUEPRINT §7.1.999`로 바꿔도 참조가 `§7.1`로 잘려 통과했다. 제목 검사에도 접두 일치가 있어 `### 8.1`만 있는 문서가 `§8`의 근거로 인정됐다. 참조의 점으로 구분된 숫자를 끝까지 읽고, 제목에서 추출한 전체 절 식별자와 정확히 비교하도록 고쳤다. 제목 번호 뒤의 마침표(`## 1.`)는 허용한다.
+
+회귀 시험 두 개를 추가했다. 실제 09의 P18만 임시 사본에서 변이하는 시험은 PURPOSE-SCOPE 한 건과 P18·전체 참조·줄 번호를 확인한다. 별도 임시 정본 시험은 실재하는 1~4단계 절의 통과, 없는 하위 절·상위 절·비슷한 번호·제목 아닌 본문 참조의 거부를 확인한다. 실제 설계 문서는 변이하지 않았다.
+
+| 명령 | 결과·로그 |
+|---|---|
+| `python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v` (검사기 수정 전, 새 시험 포함) | 26개 실행, 실패 5건(임시 정본 변이 4건·실제 P18 변이 1건): [before-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/round3/before-tests.log) |
+| 같은 명령 (수정 후) | 26개 모두 통과: [product-purpose-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/round3/product-purpose-tests.log) |
+| `ONJEON_ONTOLOGY_RUNNER="$PWD/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner" python3 -I -m unittest discover -s tools/tests -v` | 종료 코드 0, 1,157개 실행·실패 0·건너뜀 30개(boto3/botocore 의존성 25개, 보관 원본·pdftotext 환경 5개). 작업 트리에 있는 온톨로지 실행기를 지정했다: [python-tests.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/round3/python-tests.log) |
+| 제품 목적 본 검사·selftest, 결정 색인, 어휘, 검증 자료 본 검사·selftest, 명세 검사, `git diff --check` | 모두 종료 코드 0, 명세 기계 44/44·존재 72/72: [consistency-checks.log](../../../tools/evidence/audit2-purpose-gate-unimplemented/round3/consistency-checks.log) |
+
 ## 제품 목적과 한계
 
 09가 "철저한 수집·관리, 지식·레이블링, 디지털 트윈, 소비자 화면"의 완료 기준을 각 담당 과제와 최종 관문에 묶어 두는지를, 작업이 더 들어오기 전에 CI에서 지키게 하는 변경이다. `tools/release_readiness/check.py`와 증거 등록부는 여전히 없다. P01~P19 중 닫힌 행은 0개이며, 이 검사를 통과했다고 어느 행이 구현되거나 닫힌 것은 아니다. 닫힘 판정은 T-OP-08이 선행을 마친 뒤 `purpose-rows-all-closed`로 한다. 다시 검토할 조건은 결정 문서의 "Revisit if"를 따른다. T-OP-08이 대기열에 오를 때, 데몬 과제 상태나 증거 등록부 형식이 저장소에 먼저 정해질 때, 운영자가 조기 닫힘 현황판을 요청할 때, 09에 행이나 시험 ID가 추가될 때다.

@@ -265,6 +265,41 @@ class ProductPurposeTests(unittest.TestCase):
                     self.assertIn(problem, found[0].message)
                     self.assertEqual(9, found[0].line)
 
+    def test_blueprint_scope_requires_exact_section_heading(self):
+        self.plant("docs/BLUEPRINT.md", "# 설계\n## 1. 북극성\n### 7.1 범위\n"
+                   "#### 7.1.2 세부\n##### 7.1.2.3. 상세\n### 8.1 하위만 존재\n"
+                   "본문 9.9 제목이 아님\n")
+        original = self.text
+        for section, exists in (("1", True), ("7.1", True), ("7.1.2", True),
+                                ("7.1.2.3", True), ("7.1.999", False),
+                                ("7.1.2.999", False), ("7", False), ("8", False),
+                                ("7.10", False), ("9.9", False)):
+            with self.subTest(section=section):
+                self.text = original
+                ref = f"BLUEPRINT §{section}"
+                self.scope("P18", f"{ref}에 근거")
+                found = self.check_in_root()
+                if exists:
+                    self.assertEqual([], found)
+                else:
+                    self.assertEqual(["PURPOSE-SCOPE"], [f.rule for f in found])
+                    self.assertIn(f"basis not found in repo: {ref}", found[0].message)
+                    self.assertIn("P18", found[0].message)
+                    self.assertEqual(20, found[0].line)
+
+    def test_real_p18_nonexistent_blueprint_subsection_fails(self):
+        text = (P.C.ROOT / P.DEFAULT_PURPOSE).read_text(encoding="utf-8")
+        row = next(line for line in text.splitlines() if line.startswith("| P18 |"))
+        self.assertEqual(1, row.count("BLUEPRINT §1"))
+        mutated = text.replace(row, row.replace("BLUEPRINT §1", "BLUEPRINT §7.1.999"))
+        self.purpose.write_text(mutated, encoding="utf-8")
+        found = P.check(P.C.ROOT / P.DEFAULT_TASKS, self.purpose)
+        self.assertEqual(["PURPOSE-SCOPE"], [f.rule for f in found])
+        self.assertIn("P18", found[0].message)
+        self.assertIn("BLUEPRINT §7.1.999", found[0].message)
+        self.assertEqual(next(i for i, line in enumerate(text.splitlines(), 1)
+                              if line.startswith("| P18 |")), found[0].line)
+
     def test_every_real_scope_cell_cites_a_basis(self):
         text = (P.C.ROOT / P.DEFAULT_PURPOSE).read_text(encoding="utf-8")
         cited = {}

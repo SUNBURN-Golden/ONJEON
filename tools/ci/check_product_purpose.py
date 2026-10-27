@@ -57,7 +57,7 @@ EXPECTED_ROWS = {f"P{i:02}" for i in range(1, 20)}
 TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
 NO_SCOPE = "—"
 BASIS = re.compile(r"(?<![A-Za-z0-9-])(?:ADR-\d{4}|DEC-[A-Z0-9]+(?:-[A-Z0-9]+)*|D-\d{2}|O\d{2})(?![0-9])"
-                   r"|BLUEPRINT §\d+(?:\.\d+)?")
+                   r"|BLUEPRINT §\d+(?:\.\d+)*")
 
 
 def basis_exists(root, ref):
@@ -73,8 +73,10 @@ def basis_exists(root, ref):
         return ledger.is_file() and re.search(rf"^\| {ref} \|", ledger.read_text(encoding="utf-8"), re.M) is not None
     section = ref.split("§", 1)[1]
     blueprint = root / "docs/BLUEPRINT.md"
-    return blueprint.is_file() and re.search(rf"^#+ {re.escape(section)}[. ]",
-                                             blueprint.read_text(encoding="utf-8"), re.M) is not None
+    # Compare complete heading IDs; a child heading cannot establish its parent.
+    return blueprint.is_file() and section in re.findall(
+        r"^#{1,6}[ \t]+(\d+(?:\.\d+)*)\.?(?=[ \t]|$)",
+        blueprint.read_text(encoding="utf-8"), re.M)
 
 
 def check_gate(tasks_path, by_id):

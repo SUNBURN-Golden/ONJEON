@@ -1,0 +1,5 @@
+Command: python3 tools/validation_check.py
+CARGO_TARGET_DIR=$PWD/target; CARGO_NET_OFFLINE=true; TMPDIR=$PWD/target/audit2-merge-tmp; ONJEON_ONTOLOGY_RUNNER unset
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+
+validation: exit=0, elapsed=0.044s

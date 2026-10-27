@@ -1,0 +1,4 @@
+Command: cargo fmt --all -- --check
+CARGO_TARGET_DIR=$PWD/target; CARGO_NET_OFFLINE=true; TMPDIR=$PWD/target/audit2-merge-tmp; ONJEON_ONTOLOGY_RUNNER unset
+
+workspace-fmt: exit=0, elapsed=0.296s

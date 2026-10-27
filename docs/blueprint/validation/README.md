@@ -17,6 +17,8 @@
 
 실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
 
+V1 종료의 담당·순서·필수 증거와 미재생성 6건 목록은 [Audit 2 V1 종료 결정](../../decisions/audit2-v1-gate-closure.md)을 따른다. 현재 관문은 미통과이며, 로컬 시험 통과와 DEC-D-02 기록만으로 재현·교차 검수 완료로 바꾸지 않는다.
+
 ## 검사
 
 세 종류를 섞지 않는다.

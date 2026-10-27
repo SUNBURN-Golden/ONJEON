@@ -77,6 +77,16 @@ def accept(core, d, task_id, msg_type, envelope):
     return out
 
 
+def reject_without_envelope(core, d, task_id, event, on_reject):
+    """core_contract.operations.handle_event.on_reject: an event that arrived without an envelope and is not on
+    without_envelope. Recorded only (like an envelope with every required field missing); no transition."""
+    core.rec.noop(d, task_id, on_reject["noop_event"], return_code=on_reject.get("return_code"),
+                  reason=on_reject["reason"], event=event)
+    return {"applied": False, "accepted": False, "noop": on_reject["noop_event"],
+            "return_code": on_reject.get("return_code"), "transition": None, "post": [],
+            "rejected": (on_reject["reason"], event)}
+
+
 def fenced_write(core, d, task_id, event, kind, request):
     """core_contract.operations.fenced_write: the fencing check for pushes and pull request updates."""
     spec = core.rules.get("core_contract.operations.fenced_write")

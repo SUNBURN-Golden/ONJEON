@@ -5,6 +5,9 @@ from .gate_evaluator import Clockview, Ctx, Lazy
 from .ports import PreconditionFailed, SimulatedCrash, SpecGap
 from .records import Recorder
 
+# core_contract.operations.handle_event.routes: the operations an event may be routed to
+_ROUTES = ("restart_recovery", "accept_envelope", "fenced_write")
+
 
 def _reads_clock(cond):
     for p in cond or []:
@@ -31,6 +34,11 @@ class DaemonCore:
         if payload_names - self.known_events:
             raise SpecGap(f"events_in.payloads names events outside event_catalog: {sorted(payload_names - self.known_events)}")
         self.issue_reasons = rules.issue_reasons
+        self.entry = rules.get("core_contract.operations.handle_event")
+        routed, bare = set(self.entry["routes"]), set(self.entry["without_envelope"])
+        if (routed | bare) - self.known_events or routed & bare or set(self.entry["routes"].values()) - set(_ROUTES):
+            raise SpecGap("operations.handle_event: routes and without_envelope must be disjoint catalog events "
+                          f"and routes must name {sorted(_ROUTES)}")
 
     # ---- state access
     def snapshot(self):
@@ -140,17 +148,22 @@ class DaemonCore:
 
     # ---- entry points
     def handle_event(self, ev):
+        """core_contract.operations.handle_event: a routed event goes to its checked operation; an event on
+        without_envelope reaches the transition table; any other name is rejected (on_reject), state unchanged."""
         name = ev["event"]
-        if name == "daemon_restart":
+        route = self.entry["routes"].get(name)
+        if route == "restart_recovery":
             return self.restart()
         task_id, payload = ev["task_id"], dict(ev.get("payload") or {})
-        if name == "fence_violation":
-            return self.submit_envelope(task_id, "fence_violation", payload)
-        if name in ("push_requested", "pr_update_requested"):
+        if route == "accept_envelope":
+            return self.submit_envelope(task_id, name, payload)
+        if route == "fenced_write":
             kind = "push" if name == "push_requested" else "pr_update"
             out = self._txn(lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
             self._after_commit(out)
             return out
+        if name not in self.entry["without_envelope"]:
+            return self._txn(lambda d: fencing.reject_without_envelope(self, d, task_id, name, self.entry["on_reject"]))
 
         def run():
             return self._txn(lambda d: transition_engine.apply_event(self, d, task_id, name, payload))

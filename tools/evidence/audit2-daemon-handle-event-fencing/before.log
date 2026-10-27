@@ -1,0 +1,397 @@
+# before fix: base commit 0b78c4d7560bb29adf7c099af57b2712be4aa4ce (git archive into a temp dir); only tools/tests/test_daemon_dry_run.py replaced by the new version
+# python3 -m unittest tools.tests.test_daemon_dry_run.HandleEventFencing -v
+test_envelope_born_and_core_emitted_events_are_not_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_and_core_emitted_events_are_not_listed) ... ERROR
+test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) ... 
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='envelope_invalid') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='first_heartbeat') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='heartbeat') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='no_such_event') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_failed_tests') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_out_of_scope') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_pr_opened') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_verdict_requested') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_wip_preserved') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='state_corrupted') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='switch_signal') ... FAIL
+  test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='unmapped_condition') ... FAIL
+test_lease_fields_in_the_payload_are_not_an_envelope (tools.tests.test_daemon_dry_run.HandleEventFencing.test_lease_fields_in_the_payload_are_not_an_envelope)
+Even with the current lease's id, generation and token, a bare event does not pass accept_envelope. ... FAIL
+test_listing_the_event_reopens_the_finding (tools.tests.test_daemon_dry_run.HandleEventFencing.test_listing_the_event_reopens_the_finding)
+Mutation: put result_pr_opened on the list and the bare event moves building -> pr_open again. ... ERROR
+test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) ... 
+  test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) (case='unknown event listed') ... ERROR
+  test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) (case='routed and listed') ... ERROR
+  test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) (case='unknown operation') ... ERROR
+test_the_core_s_own_bare_events_are_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_core_s_own_bare_events_are_listed)
+handoff.py feeds its step results through handle_event; each of them must be on the list. ... ERROR
+test_the_entry_is_catalog_data (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_entry_is_catalog_data) ... ERROR
+test_the_envelope_path_still_applies (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_envelope_path_still_applies) ... ok
+
+======================================================================
+ERROR: test_envelope_born_and_core_emitted_events_are_not_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_and_core_emitted_events_are_not_listed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1617, in test_envelope_born_and_core_emitted_events_are_not_listed
+    bare = set(self.entry(raw)["without_envelope"])
+               ~~~~~~~~~~^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1568, in entry
+    return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'handle_event'
+
+======================================================================
+ERROR: test_listing_the_event_reopens_the_finding (tools.tests.test_daemon_dry_run.HandleEventFencing.test_listing_the_event_reopens_the_finding)
+Mutation: put result_pr_opened on the list and the bare event moves building -> pr_open again.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1671, in test_listing_the_event_reopens_the_finding
+    raw = _mutated(lambda r: self.entry(r)["without_envelope"].append("result_pr_opened"))
+  File "tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1671, in <lambda>
+    raw = _mutated(lambda r: self.entry(r)["without_envelope"].append("result_pr_opened"))
+                             ~~~~~~~~~~^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1568, in entry
+    return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'handle_event'
+
+======================================================================
+ERROR: test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) (case='unknown event listed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1686, in test_rules_that_break_the_entry_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1686, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
+                                  ~~~~~~~~~~^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1568, in entry
+    return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'handle_event'
+
+======================================================================
+ERROR: test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) (case='routed and listed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1686, in test_rules_that_break_the_entry_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1686, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
+                                  ~~~~~~~~~~^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1568, in entry
+    return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'handle_event'
+
+======================================================================
+ERROR: test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) (case='unknown operation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1686, in test_rules_that_break_the_entry_contract_are_refused
+    MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
+            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 261, in _mutated
+    fn(raw)
+    ~~^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1686, in <lambda>
+    MockEnv(_mutated(lambda r: fn(self.entry(r))), str(TASKS))
+                                  ~~~~~~~~~~^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1568, in entry
+    return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'handle_event'
+
+======================================================================
+ERROR: test_the_core_s_own_bare_events_are_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_core_s_own_bare_events_are_listed)
+handoff.py feeds its step results through handle_event; each of them must be on the list.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1630, in test_the_core_s_own_bare_events_are_listed
+    self.assertLessEqual(sent, set(self.entry()["without_envelope"]))
+                                   ~~~~~~~~~~^^
+  File "tools/tests/test_daemon_dry_run.py", line 1568, in entry
+    return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'handle_event'
+
+======================================================================
+ERROR: test_the_entry_is_catalog_data (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_entry_is_catalog_data)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1603, in test_the_entry_is_catalog_data
+    entry = self.entry(raw)
+  File "tools/tests/test_daemon_dry_run.py", line 1568, in entry
+    return (raw or raw_rules())["core_contract"]["operations"]["handle_event"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'handle_event'
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='envelope_invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 1:
+[]
+[('envelope_rejected_invalid', 'R-13')]
+
+- ([], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='first_heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 1:
+[]
+[('envelope_rejected_invalid', 'R-13')]
+
+- ([], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([], [('heartbeat', None)]) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 1:
+[('heartbeat', None)]
+[('envelope_rejected_invalid', 'R-13')]
+
+- ([], [('heartbeat', None)])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='no_such_event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([('building', 'returned', 'unmapped_condition')], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 0:
+[('building', 'returned', 'unmapped_condition')]
+[]
+
+- ([('building', 'returned', 'unmapped_condition')], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_failed_tests')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([('building', 'building', 'result_failed_tests')], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 0:
+[('building', 'building', 'result_failed_tests')]
+[]
+
+- ([('building', 'building', 'result_failed_tests')], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_out_of_scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([('building', 'returned', 'result_out_of_scope')], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 0:
+[('building', 'returned', 'result_out_of_scope')]
+[]
+
+- ([('building', 'returned', 'result_out_of_scope')], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_pr_opened')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([('building', 'pr_open', 'result_pr_opened')], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 0:
+[('building', 'pr_open', 'result_pr_opened')]
+[]
+
+- ([('building', 'pr_open', 'result_pr_opened')], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_verdict_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([('building', 'returned', 'result_verdict_requested')], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 0:
+[('building', 'returned', 'result_verdict_requested')]
+[]
+
+- ([('building', 'returned', 'result_verdict_requested')], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='result_wip_preserved')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([('building', 'returned', 'unmapped_condition')], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 0:
+[('building', 'returned', 'unmapped_condition')]
+[]
+
+- ([('building', 'returned', 'unmapped_condition')], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='state_corrupted')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 1:
+[]
+[('envelope_rejected_invalid', 'R-13')]
+
+- ([], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 1:
+[]
+[('envelope_rejected_invalid', 'R-13')]
+
+- ([], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) (event='unmapped_condition')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1640, in test_envelope_born_events_without_an_envelope_are_rejected
+    self.assert_rejected(self.building(), sc.BASIC, name)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([('building', 'returned', 'unmapped_condition')], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 0:
+[('building', 'returned', 'unmapped_condition')]
+[]
+
+- ([('building', 'returned', 'unmapped_condition')], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+======================================================================
+FAIL: test_lease_fields_in_the_payload_are_not_an_envelope (tools.tests.test_daemon_dry_run.HandleEventFencing.test_lease_fields_in_the_payload_are_not_an_envelope)
+Even with the current lease's id, generation and token, a bare event does not pass accept_envelope.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1651, in test_lease_fields_in_the_payload_are_not_an_envelope
+    self.assert_rejected(env, sc.BASIC, "first_heartbeat", fence)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "tools/tests/test_daemon_dry_run.py", line 1592, in assert_rejected
+    self.assertEqual((sc.tr(js), sc.noops(js)), ([], [("envelope_rejected_invalid", "R-13")]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([], []) != ([], [('envelope_rejected_invalid', 'R-13')])
+
+First differing element 1:
+[]
+[('envelope_rejected_invalid', 'R-13')]
+
+- ([], [])
++ ([], [('envelope_rejected_invalid', 'R-13')])
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.124s
+
+FAILED (failures=13, errors=7)
+# exit 1
+# python3 -I tools/evidence/audit2-daemon-handle-event-fencing/repro_bare_events.py   (same base tree)
+result_pr_opened       state=pr_open    transitions=[('building', 'pr_open', 'result_pr_opened')] noops=[] lease_status=completed last_heartbeat_moved=False
+result_failed_tests    state=building   transitions=[('building', 'building', 'result_failed_tests')] noops=[] lease_status=active last_heartbeat_moved=True
+switch_signal          state=building   transitions=[] noops=[] lease_status=active last_heartbeat_moved=False
+heartbeat              state=building   transitions=[] noops=[('heartbeat', None)] lease_status=active last_heartbeat_moved=True
+no_such_event          state=returned   transitions=[('building', 'returned', 'unmapped_condition')] noops=[] lease_status=revoked last_heartbeat_moved=False
+# exit 0

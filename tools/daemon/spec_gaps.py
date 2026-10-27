@@ -122,7 +122,7 @@ SPEC_GAPS = [
      "core_reads": "yes",
      "field": "transitions[*→returned unmapped_condition]", "where": D,
      "need": "side_effects가 record_r_code뿐이라 leased·building에서 반송되면 임대가 active로 남고 owner_resolved 뒤 queued→leased의 cond(lease_record.status not_in [active])가 막힌다. (비슷하게 merged_invalid_approval→cancelled(owner_cancelled)에는 set_cancelled가 없다)",
-     "core_took": "데이터대로. unmapped_condition 두 행이 lease_record.status로 갈린다(M27·M37에서 시험)"},
+     "core_took": "데이터대로. unmapped_condition 두 행이 lease_record.status로 갈린다(M27·M37에서 시험). 두 행 모두 task_state.state not_in [done, cancelled]라 종료 상태에는 걸리지 않고, 그 상태의 표에 없는 사건은 noop_rules가 event_after_terminal_state로 기록만 한다(audit2-daemon-wildcard-from-terminal, M19)"},
     {"id": "G38", "status": RESOLVED, "resolved_by": "transitions[from=handoff,event=secret_detected,to=returned], preserve_manifest.secret_patterns.scan, preserve_manifest.secret_patterns.on_match, core_contract.events_in.payloads.secret_detected",
      "core_reads": "yes", "core_change": "confirm_quiescent 직후 패턴 검사에 걸리면 secret_detected를 내고 멈춘다(지금 코어는 걸린 파일만 보존에서 제외하고 계속). M36 코어 경로 시험을 이에 맞춘다",
      "field": "preserve_manifest.secret_patterns.on_match.event=secret_detected", "where": D,

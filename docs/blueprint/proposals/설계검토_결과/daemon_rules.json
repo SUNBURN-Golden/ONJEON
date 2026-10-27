@@ -638,7 +638,8 @@
     "switch_signal_during_handoff",
     "envelope_rejected_invalid",
     "owner_stop_ignored_during_handoff",
-    "owner_stop_already_requested"
+    "owner_stop_already_requested",
+    "event_after_terminal_state"
   ],
   "_noop_note": "noop_events는 상태를 바꾸지 않고 '수신·무시' 기록만 남긴다(event-duplicate-noop). 순서가 뒤바뀐 사건(예: review_approved가 ci_passed보다 먼저)은 보류 큐에 두었다가 적용 조건이 맞을 때 처리하고, SHA가 맞지 않으면 무효(R-04)로 기록한다(event-out-of-order). 전이표 밖 조건만 unmapped_condition으로 반송한다. late_envelope_rejected(R04②): lease_id가 현재 임대가 아니거나 토큰이 현재보다 작은 결과 봉투·푸시·PR 갱신·전환 신호는 거부하고 R-11을 기록만 한다. 현재 과제의 상태를 바꾸지 않는다(late-result-rejected). fence_violation 전이는 lease_id·토큰이 현재 임대인 봉투가 펜싱 규칙을 어긴 경우에만 쓴다. envelope_duplicate_delivery(S03): 같은 임대 세대에서 같은 멱등 키의 봉투가 다시 오면 상태를 바꾸지 않고 수신·무시 기록만 남긴다(duplicate-delivery-noop). 이전 세대 키로 온 늦은 봉투는 late_envelope_rejected와 같은 처리다",
   "record_separation": {
@@ -2594,7 +2595,7 @@
       "from": "*",
       "to": "returned",
       "event": "unmapped_condition",
-      "when": "표에 없는 조건이고 활성 임대가 있으면(leased·building·handoff) 임대를 끝내고 반송한다(G37). R-03",
+      "when": "표에 없는 조건이고 활성 임대가 있으면(leased·building·handoff) 임대를 끝내고 반송한다(G37). R-03. 종료 상태(done·cancelled)에는 적용하지 않는다(audit2-daemon-wildcard-from-terminal): 그 상태의 표에 없는 사건은 noop_rules의 event_after_terminal_state로 기록만 한다",
       "by": "daemon",
       "side_effects": [
         {
@@ -2625,6 +2626,14 @@
           "field": "lease_record.status",
           "op": "==",
           "value": "active"
+        },
+        {
+          "field": "task_state.state",
+          "op": "not_in",
+          "value": [
+            "done",
+            "cancelled"
+          ]
         }
       ]
     },
@@ -2632,7 +2641,7 @@
       "from": "*",
       "to": "returned",
       "event": "unmapped_condition",
-      "when": "표에 없는 조건이고 활성 임대가 없으면(lease_record.status != active, 임대가 없을 때 포함) (R-03). 임대를 끝낼 것이 없다. 활성 행과 cond가 배타라 행 순서와 무관하다",
+      "when": "표에 없는 조건이고 활성 임대가 없으면(lease_record.status != active, 임대가 없을 때 포함) (R-03). 임대를 끝낼 것이 없다. 활성 행과 cond가 배타라 행 순서와 무관하다. 종료 상태(done·cancelled)에는 적용하지 않는다: 끝난 과제를 반송하면 post_merge_states에서 빠져 후속 과제가 막힌다",
       "by": "daemon",
       "side_effects": [
         {
@@ -2648,6 +2657,14 @@
           "field": "lease_record.status",
           "op": "!=",
           "value": "active"
+        },
+        {
+          "field": "task_state.state",
+          "op": "not_in",
+          "value": [
+            "done",
+            "cancelled"
+          ]
         }
       ]
     },
@@ -3360,6 +3377,14 @@
               "field": "lease_record.status",
               "op": "==",
               "value": "active"
+            },
+            {
+              "field": "task_state.state",
+              "op": "not_in",
+              "value": [
+                "done",
+                "cancelled"
+              ]
             }
           ],
           "complement_row_cond": [
@@ -3367,6 +3392,14 @@
               "field": "lease_record.status",
               "op": "!=",
               "value": "active"
+            },
+            {
+              "field": "task_state.state",
+              "op": "not_in",
+              "value": [
+                "done",
+                "cancelled"
+              ]
             }
           ],
           "complement_row_effects": [
@@ -5071,6 +5104,21 @@
       ],
       "noop_event": "owner_stop_already_requested",
       "note": "G50: 이미 stop을 요청한 building에서 다시 온 중단 지시는 기록만 한다. 기한(stop_requested_at + grace_s)을 늘리지도, 임대를 R-03으로 끝내지도 않는다. 기한이 지나면 hard_stop_deadline(R-07)이 끝낸다"
+    },
+    {
+      "event": "unmapped_condition",
+      "when": [
+        {
+          "field": "task_state.state",
+          "op": "in",
+          "value": [
+            "done",
+            "cancelled"
+          ]
+        }
+      ],
+      "noop_event": "event_after_terminal_state",
+      "note": "audit2-daemon-wildcard-from-terminal: 종료 상태(done·cancelled, 나가는 전이 행이 없는 상태)에서 표에 없는 사건(다시 전달된 pr_merged_observed·병합 관측 등)은 기록만 한다. 반송하지 않는다. 반송하면 done 과제가 post_merge_states에서 빠져 후속 과제의 선행 조건이 깨진다. * → returned unmapped_condition 두 행의 cond(task_state.state not_in)와 같은 목록이다"
     }
   ],
   "t_op_00_followups": {

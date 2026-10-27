@@ -1,0 +1,210 @@
+# before fix: base commit 4672d186069745880fdbdfc3da290909187f229f (git archive into a temp dir); only tools/tests/test_daemon_dry_run.py replaced by the new version
+# python3 -m unittest tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped -v
+test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) ... 
+  test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) (event='owner_stop') ... FAIL
+  test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) (event='lease_granted') ... FAIL
+  test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) (event='pr_merged_observed') ... FAIL
+test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) ... 
+  test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='landing observed again without a merge commit') ... FAIL
+  test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='landing observed again with another merge commit') ... FAIL
+  test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='pr_merged_observed fed to the core') ... FAIL
+  test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='ci failure on the merged head') ... FAIL
+  test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='an observation kind no row maps') ... FAIL
+test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) ... FAIL
+test_non_terminal_states_are_still_returned (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_non_terminal_states_are_still_returned) ... ok
+test_removing_the_exclusion_reopens_the_finding (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_removing_the_exclusion_reopens_the_finding)
+Without the state predicate and the noop rule the redelivery sends done to returned and SUCC stays blocked. ... ok
+test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... FAIL
+
+======================================================================
+FAIL: test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) (event='owner_stop')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1428, in test_cancelled_stays_cancelled
+    self.assertEqual((env.state(sc.BASIC), sc.tr(js), sc.rets(js), sc.noops(js)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("cancelled", [], [], [(self.NOOP, None)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('cancelled', 'returned', 'unmapped_condition')], ['R-03'], []) != ('cancelled', [], [], [('event_after_terminal_state', None)])
+
+First differing element 0:
+'returned'
+'cancelled'
+
+- ('returned', [('cancelled', 'returned', 'unmapped_condition')], ['R-03'], [])
++ ('cancelled', [], [], [('event_after_terminal_state', None)])
+
+======================================================================
+FAIL: test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) (event='lease_granted')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1428, in test_cancelled_stays_cancelled
+    self.assertEqual((env.state(sc.BASIC), sc.tr(js), sc.rets(js), sc.noops(js)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("cancelled", [], [], [(self.NOOP, None)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('returned', 'returned', 'unmapped_condition')], ['R-03'], []) != ('cancelled', [], [], [('event_after_terminal_state', None)])
+
+First differing element 0:
+'returned'
+'cancelled'
+
+- ('returned', [('returned', 'returned', 'unmapped_condition')], ['R-03'], [])
++ ('cancelled', [], [], [('event_after_terminal_state', None)])
+
+======================================================================
+FAIL: test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) (event='pr_merged_observed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1428, in test_cancelled_stays_cancelled
+    self.assertEqual((env.state(sc.BASIC), sc.tr(js), sc.rets(js), sc.noops(js)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("cancelled", [], [], [(self.NOOP, None)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('returned', 'returned', 'unmapped_condition')], ['R-03'], []) != ('cancelled', [], [], [('event_after_terminal_state', None)])
+
+First differing element 0:
+'returned'
+'cancelled'
+
+- ('returned', [('returned', 'returned', 'unmapped_condition')], ['R-03'], [])
++ ('cancelled', [], [], [('event_after_terminal_state', None)])
+
+======================================================================
+FAIL: test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='landing observed again without a merge commit')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1405, in test_done_stays_done_and_dependents_start
+    self.assertEqual((env.state(task_id), sc.tr(js), sc.rets(js), sc.se(js, "record_r_code", "end_lease")),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("done", [], [], []))
+                     ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('done', 'returned', 'unmappe[39 chars]de']) != ('done', [], [], [])
+
+First differing element 0:
+'returned'
+'done'
+
++ ('done', [], [], [])
+- ('returned',
+-  [('done', 'returned', 'unmapped_condition')],
+-  ['R-03'],
+-  ['record_r_code'])
+
+======================================================================
+FAIL: test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='landing observed again with another merge commit')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1405, in test_done_stays_done_and_dependents_start
+    self.assertEqual((env.state(task_id), sc.tr(js), sc.rets(js), sc.se(js, "record_r_code", "end_lease")),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("done", [], [], []))
+                     ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('returned', 'returned', 'unm[43 chars]de']) != ('done', [], [], [])
+
+First differing element 0:
+'returned'
+'done'
+
++ ('done', [], [], [])
+- ('returned',
+-  [('returned', 'returned', 'unmapped_condition')],
+-  ['R-03'],
+-  ['record_r_code'])
+
+======================================================================
+FAIL: test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='pr_merged_observed fed to the core')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1405, in test_done_stays_done_and_dependents_start
+    self.assertEqual((env.state(task_id), sc.tr(js), sc.rets(js), sc.se(js, "record_r_code", "end_lease")),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("done", [], [], []))
+                     ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('returned', 'returned', 'unm[43 chars]de']) != ('done', [], [], [])
+
+First differing element 0:
+'returned'
+'done'
+
++ ('done', [], [], [])
+- ('returned',
+-  [('returned', 'returned', 'unmapped_condition')],
+-  ['R-03'],
+-  ['record_r_code'])
+
+======================================================================
+FAIL: test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='ci failure on the merged head')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1405, in test_done_stays_done_and_dependents_start
+    self.assertEqual((env.state(task_id), sc.tr(js), sc.rets(js), sc.se(js, "record_r_code", "end_lease")),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("done", [], [], []))
+                     ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('returned', 'returned', 'unm[43 chars]de']) != ('done', [], [], [])
+
+First differing element 0:
+'returned'
+'done'
+
++ ('done', [], [], [])
+- ('returned',
+-  [('returned', 'returned', 'unmapped_condition')],
+-  ['R-03'],
+-  ['record_r_code'])
+
+======================================================================
+FAIL: test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) (task='T-MOCK-BASIC', delivery='an observation kind no row maps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1405, in test_done_stays_done_and_dependents_start
+    self.assertEqual((env.state(task_id), sc.tr(js), sc.rets(js), sc.se(js, "record_r_code", "end_lease")),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("done", [], [], []))
+                     ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('returned', [('returned', 'returned', 'unm[43 chars]de']) != ('done', [], [], [])
+
+First differing element 0:
+'returned'
+'done'
+
++ ('done', [], [], [])
+- ('returned',
+-  [('returned', 'returned', 'unmapped_condition')],
+-  ['R-03'],
+-  ['record_r_code'])
+
+======================================================================
+FAIL: test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1411, in test_done_stays_done_and_dependents_start
+    self.assertEqual(env.state(fl.SUCC), "queued")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'blocked' != 'queued'
+- blocked
++ queued
+
+
+======================================================================
+FAIL: test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tools/tests/test_daemon_dry_run.py", line 1386, in test_wildcard_rows_exclude_the_states_without_rows_of_their_own
+    self.assertEqual([(c["op"], set(c["value"])) for c in excl], [("not_in", terminal)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [('not_in', {'done', 'cancelled'})]
+
+Second list contains 1 additional elements.
+First extra element 0:
+('not_in', {'done', 'cancelled'})
+
+- []
++ [('not_in', {'done', 'cancelled'})]
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.514s
+
+FAILED (failures=10)
+# exit 1

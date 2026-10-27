@@ -370,7 +370,18 @@ class DetectExit(unittest.TestCase):
     def test_baseline_under_an_older_rule_is_not_compared(self):
         a = b'<a href="/d?id=7&jsessionid=A">x</a>'
         b = b'<a href="/d?id=7&jsessionid=B">x</a>'
-        self.assertEqual(self.detect_html("html-visible-text-v1", a, b), {"changed": 1})
+        for rule in ("html-visible-text-v1", "html-visible-text-v2"):
+            with self.subTest(rule=rule):
+                self.assertEqual(self.detect_html(rule, a, b), {"changed": 1})
+
+    def test_download_target_changes_are_changed_not_content_same(self):
+        import html_content_hash as hch
+        for before in (b'<a href=/old.pdf>terms</a>',
+                       b'<a href="#" onclick="download(\'old.pdf\')">terms</a>',
+                       b'<button onclick=download(\'old.pdf\')>terms</button>'):
+            with self.subTest(before=before):
+                self.assertEqual(self.detect_html(hch.RULE, before, before.replace(b"old.pdf", b"new.pdf")),
+                                 {"changed": 1})
 
 
 class RecordedRobotsPolicy(unittest.TestCase):

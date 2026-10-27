@@ -1,0 +1,18 @@
+test_all_open_items_are_referenced_without_a_stale_upper_bound (test_decision_records.DecisionRecords.test_all_open_items_are_referenced_without_a_stale_upper_bound) ... ok
+test_blueprint_d02_rows_state_delegation_pending_user_confirmation (test_decision_records.DecisionRecords.test_blueprint_d02_rows_state_delegation_pending_user_confirmation) ... ok
+test_canon_record_preserves_conditional_scope_and_merge_gate (test_decision_records.DecisionRecords.test_canon_record_preserves_conditional_scope_and_merge_gate) ... ok
+test_d02_keeps_delegation_and_access_conditions (test_decision_records.DecisionRecords.test_d02_keeps_delegation_and_access_conditions) ... ok
+test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) ... ok
+test_d02_provider_summary_records_composition_and_remaining_access (test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) ... ok
+test_d04_records_owner_ruling_without_reuse_approval (test_decision_records.DecisionRecords.test_d04_records_owner_ruling_without_reuse_approval) ... ok
+test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending (test_decision_records.DecisionRecords.test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending) ... ok
+test_each_record_has_a_working_link_and_status_in_section_three (test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) ... ok
+test_hierarchy_and_ledger_explicitly_describe_a_partial_index (test_decision_records.DecisionRecords.test_hierarchy_and_ledger_explicitly_describe_a_partial_index) ... ok
+test_hierarchy_defines_dec_records_and_preserves_adr_change_path (test_decision_records.DecisionRecords.test_hierarchy_defines_dec_records_and_preserves_adr_change_path) ... ok
+test_index_registration_does_not_open_operational_gates (test_decision_records.DecisionRecords.test_index_registration_does_not_open_operational_gates) ... ok
+test_o01_is_closed_by_adr0018_without_removing_the_stable_id (test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.006s
+
+OK

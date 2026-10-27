@@ -1,0 +1,6 @@
+Allowed tracked/untracked paths: 24 checked
+Protected paths: no tracked diff
+Local Markdown links: 96 targets exist in reviewed documents
+Changed/new text files: no trailing whitespace
+git diff --check: PASS
+exit code: 0

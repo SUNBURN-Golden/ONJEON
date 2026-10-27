@@ -13,6 +13,7 @@ python3 -I tools/ci/check_skeleton.py --base-url http://HOST:PORT   # also probe
 python3 -I tools/ci/check_bootstrap.py         # bootstrap-clean-main (tasks.json only; builds nothing)
 python3 -I tools/ci/check_product_purpose.py   # 09 P01..P19 task links and nine product-purpose test IDs
 python3 -I tools/blueprint_status.py          # §11 date/index matches every ADR/DEC path and content
+python3 -I tools/blueprint_counts.py          # §11 engine test/doctest, real-clause, mutation and vocabulary counts
 python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v
 python3 -I tools/ci/check_<name>.py --selftest # every checker has one
 python3 -I -m unittest discover -s tools/ci/tests
@@ -44,6 +45,18 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 `templates/test_skeleton_unexposed.py.tmpl` is copied into the api/web/mobile task that registers routes or screens. It fails (never skips) when the server URL or the UI route list is not supplied. It is exercised against a local stub server in `tests/test_ci_checkers.py`, green and red, but no real app route exists yet.
 
 ## CI wiring
+
+`ci.yml` runs `tools/blueprint_counts.py` after the Rust tests. It compares the
+generated §11 inventory with Cargo's registered tests for `onjeon-rules-engine`
+(unit/integration tests and doctests separately), real-clause rule JSON files
+(excluding case tables), `validation_check.mutations()` and canonical vocabulary
+axes. Ignored tests count as registered; this check does not claim they passed.
+After changing those sources, run `python3 -I tools/blueprint_counts.py --write`
+and review the diff. Only the marked counts block changes; historical test and
+R2 observations remain dated evidence. The existing Python discovery step runs
+`test_blueprint_counts.py`, including stale numbers, source additions, malformed
+listings, missing/duplicate/misplaced blocks, read-only checks and explicit writes.
+[Audit 2 evidence](../../docs/blueprint/audits/2026-10-27_blueprint_11_counts.md).
 
 R2 workflow credential scope is guarded by `tools/tests/test_workflow_secret_scope.py`,
 discovered by the existing Python unit-test step. The endpoint, verifier credentials

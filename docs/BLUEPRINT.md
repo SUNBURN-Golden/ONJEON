@@ -179,7 +179,7 @@ flowchart TD
 | `policy_holdings_status` / `contract_version_match` | 내 가입내역을 얼마나 아나 / 어느 버전인가 | confirmed, pending_confirmation, none_declared, unknown, skipped / matched, ambiguous, unmatched |
 | `clause_path_basis` / `relation_type` / `amount_form` | 조항 번호를 읽었나 추정했나 / 간선의 종류 / 원문이 금액을 적은 형식 | printed, inferred / attached_to, routes_to, parameter_from … / example_amount, per_unit_krw … |
 
-전체 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
+전체 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. §11의 자동 생성 등록 수 표도 같은 정본의 축 수를 대조한다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
 
 ## 7. 현행 결정 요약
 
@@ -229,7 +229,7 @@ flowchart TD
 | I2 | 계산 결과는 규칙 버전·릴리스·내용 해시·근거를 갖는다 | 엔진 `review_fixes` | 구현(엔진) |
 | I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail` 문서 테스트 | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
-| I5 | 허용 목록 밖 연산은 로드되지 않는다 | 엔진 로더 | 구현(엔진) |
+| I5 | 허용 목록 밖 연산과 타입이 맞지 않는 식은 로드되지 않는다 | 엔진 로더·`static_types`(#40: 로드 단계 타입 검사) | 구현(엔진) |
 | I6 | 화면의 숫자·사실 문장은 근거 사슬(§5.2)을 끝까지 따라간다 | API 계약 테스트 | 미구현 |
 | I7 | 가격은 조건·특약 구성·기준일·근거 없이 저장되지 않는다 | DB 제약, 테스트 | 미구현 |
 | I8 | 다른 비교 기준·버전·묶음의 가격을 합산하지 않는다 | 뷰모델 테스트 | 미구현 |
@@ -318,7 +318,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 7. 마일스톤이 끝날 때마다 §4·§8·§9·§11의 상태 열을 갱신한다.
 8. 마일스톤과 별개로 `docs/decisions/ADR-*.md` 또는 `DEC-*.md`를 추가·수정·삭제·개명하는 변경은 같은 변경에서 §11의 영향받는 상태·관문을 검토·갱신하고 기준일(UTC)을 찍는다. 검토 뒤 `python3 -I tools/blueprint_status.py --write`로 §11 기준일과 전체 결정 색인·내용 해시를 갱신한다. `python3 -I tools/blueprint_status.py`와 CI의 `tools/tests/test_blueprint_status.py`가 누락을 거부한다. 자동 생성은 색인과 날짜만 바꾸며 상태 판단·관문 승인을 대신하지 않는다.
 
-## 11. 현재 위치 (2026-10-26)
+## 11. 현재 위치 (2026-10-27)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -326,8 +326,8 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 |---|---|
 | 목적·원칙·범위 | 확정(이 문서) |
 | 계약 문서 | 데이터 파이프라인, 공개 가격, 소비자 흐름, 화면 부록, 가격 부록 |
-| 코드 | L6 규칙 엔진(`packages/rules-engine/`), 계약 스키마·생성 타입·API 계약(`packages/schemas/`, `packages/api-types/`), 온톨로지·트윈 실행(`packages/ontology/`, `packages/twin-runtime/`), 수집 원본 보존 클라이언트(`services/collect/`), AI 게이트웨이(`services/ai-gateway/`, 실제 제공자 어댑터 없음), 판단 기준 관리(`services/criteria/`), 문서 복원 코드(`services/docproc/`)가 있다. 구현·픽스처 시험 범위이며 전 상품 서비스 연결 완료는 아니다. 역사적 엔진 검증: 합성 규칙 1건, 실제 조항 규칙 8건(설계 검증용, fixture_only), Rust 단위·통합 테스트 39개 + 문서 시험(doctest) 3개(2026-10-09 기준 42건, 재실행 근거는 [REVERIFY_87a19c5 §2](blueprint/validation/REVERIFY_87a19c5.md#2-실제-실행-범위)). 현재 저장소 시험은 [이번 갱신 검증 증거](blueprint/audits/2026-10-26_blueprint_s11_refresh.md)에 별도로 기록한다 |
-| 수집·검증 도구 | `tools/registry_normalize.py`(기관 목록의 정본 어휘 정규화·원문 접근 결과 보존), `tools/crawler/`(수집·변경 감지·표 추출·업로더), 어휘·검증 자료 내부 일관성·본문 해시 검사, `tools/source_archive.py`·`tools/verify_sources.py`(보존·재현·출처 변경 감지), `tools/r2_budget.py`(실행별 제한·원장·체크포인트·잠금 제안 오프라인 검사), `infra/r2/`가 있다. 비용 장치는 저장소 도구의 폭주 완화이며 계정 전체 과금 상한은 아니다(ADR-0017). AWS S3 정의(`infra/s3/`)는 대안·미배포 |
+| 코드 | L6 규칙 엔진(`packages/rules-engine/`), 계약 스키마·생성 타입·API 계약(`packages/schemas/`, `packages/api-types/`), 온톨로지·트윈 실행(`packages/ontology/`, `packages/twin-runtime/`), 수집 원본 보존 클라이언트(`services/collect/`), AI 게이트웨이(`services/ai-gateway/`, 실제 제공자 어댑터 없음), 판단 기준 관리(`services/criteria/`), 문서 복원 코드(`services/docproc/`)가 있다. 구현·픽스처 시험 범위이며 전 상품 서비스 연결 완료는 아니다. 엔진은 합성 규칙 1건과 실제 조항 규칙(설계 검증용, `fixture_only`)을 검증하며 현재 등록 수는 아래 자동 생성 표에서 대조한다. 로드 단계 타입 검사(#40, `packages/rules-engine/tests/static_types.rs`)는 비교·조건·금액 식의 타입 불일치를 오류 경로와 함께 거부한다. 역사적 엔진 검증: Rust 단위·통합 테스트 39개 + 문서 시험(doctest) 3개(2026-10-09 기준 42건, 재실행 근거는 [REVERIFY_87a19c5 §2](blueprint/validation/REVERIFY_87a19c5.md#2-실제-실행-범위)). 2026-10-26 당시의 저장소 전체 시험은 [이전 갱신 검증 증거](blueprint/audits/2026-10-26_blueprint_s11_refresh.md)에 기록한다 |
+| 수집·검증 도구 | `tools/registry_normalize.py`(기관 목록의 정본 어휘 정규화·원문 접근 결과 보존), `tools/crawler/`(수집·변경 감지·표 추출·업로더), 어휘·검증 자료 내부 일관성·본문 해시 검사, `tools/source_archive.py`·`tools/verify_sources.py`(보존·재현·출처 변경 감지), `tools/r2_budget.py`(실행별 제한·원장·체크포인트·잠금 제안 오프라인 검사), `infra/r2/`(작업 명세·비용 정책·체크포인트·버킷 잠금 초안, 적용 승인 별도)가 있다. 비용 장치는 저장소 도구의 폭주 완화이며 계정 전체 과금 상한은 아니다(ADR-0017). AWS S3 정의(`infra/s3/`)는 대안·미배포 |
 | 개발 도구 | `tools/daemon/`의 T-OP-00 모의 전이·검증 코어와 `tools/daemon/runner_verify/`의 T-OP-09 실제 실행기 검증 도구가 있다. 개발 도구이며 출시 완성품의 일부가 아니다(09 §5). 모의 시험·격리 실행기 검증은 상주 데몬 가동 승인이 아니다. [각 도구의 범위·한계](../tools/daemon/README.md)와 [실행기 검증 한계](../tools/daemon/runner_verify/README.md)를 따른다 |
 | 데이터 | 전체 수집 대상 목록 V0: 보험사 53, 공제 등 16(공제는 범위 제외, 우체국보험 포함, ADR-0018), 제외·과거 49, 근거 66. **상품·특약은 53곳 모두 미열거**라 전 상품 목록은 아직 없다. 공시 진입점은 8곳만 확보했고 45곳은 해외 IP 샌드박스에서 확보하지 못해, 실데이터 열거는 국내 IP 수집 실행 환경(O19, 미준비) 뒤다(T-DT-04 `real_data`: D-04, O19). 설계 검증 표본 14개 파일(교보생명·KB손해보험·생명보험협회·법제처)의 인코딩. 원본 58키·파생 v2 61키를 R2에 보존하고 다시 받아 전부 바이트 일치한 것은 **2026-10-09 관측 기록**이며 이번 갱신에서 R2에 접근하지 않았다. 서비스용 전 상품 데이터는 아직 없다 |
 | 결정 기록·운영 관문 | 아래는 ADR·DEC 전체 파일 색인이다. DEC는 §0.1의 결정 게이트 기록이며 ADR을 대신하지 않는다. DEC-D-02의 모델 구성·정책 소유자는 위임 결정·사용자 확정 대기이며 접근 확인·게이트 등록이 별도다. DEC-D-04의 소유자 토큰 미폐기 결정은 R2 접근 허용이 아니다. D-04 접근 차단, O14 잠금 적용 승인·미정값, O17 대량 자동 수집 차단을 유지한다. DEC-CANON-T-CT-02는 추가 전용·조건부 위임 기록이며 병합 미승인이다. DEC-BUNDLE-STATUS는 설계검토_결과 묶음을 과제 실행·완료 기준으로만 채택(사용자 결정 2026-10-13)하며 정본 채택이 아니다(정본 반영은 D-21 경로). 다른 DEC의 위임·범위·조건도 각 원문을 따른다. 색인은 `decisions_recorded` 등록이나 관문 통과 증거가 아니다 |
@@ -335,10 +335,24 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | 불변식 | §8의 기존 표기는 18개 중 6개 구현(엔진 범위)이다. 이번 현황 갱신으로 다른 불변식을 구현 완료로 승격하지 않는다 |
 | 마일스톤 | 기존 판정: M0·V0 완료, V1 설계 탐색·원본 R2 보존·대조 완료(완전 재현 8/14). 파생 6건 재생성 검증·교차 검수와 이후 관문 판정은 별도다. 추가 코드·시험 통과를 M1 이후 전체 완료나 P01~P19 완료로 간주하지 않는다 |
 
+현재 코드 수치 검사는 `python3 -I tools/blueprint_counts.py`이며 일반 CI에서 실행한다. 변경 시 `--write`로 아래 표만 갱신한다. 어휘 전체 수·목록은 §6의 생성 문서와도 대조한다. [Audit 2 수치·누락 현황 검증 증거](blueprint/audits/2026-10-27_blueprint_11_counts.md).
+
+<!-- blueprint-counts:start -->
+현재 저장소의 등록 수(자동 생성). Rust는 `onjeon-rules-engine`만 세며, 단위·통합 시험과 doctest를 구분한다. 무시된 시험도 등록 수에 포함하며 통과·출시 판정은 실행 증거에서 확인한다.
+
+| 항목 | 등록 수 | 대조 원천 |
+|---|---:|---|
+| Rust 단위·통합 시험 | 182 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
+| 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
+| 검증 자료 변조 시험 | 38 | `tools/validation_check.py`의 `mutations()` |
+| 공유 어휘 축 | 49 | `packages/schemas/vocabulary.json`의 `axes` |
+<!-- blueprint-counts:end -->
+
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-10-26 | SHA-256(파일명·내용): `82ceec8588e9e15e165f5104fdd2bc86b4c5875cc4de59f650e93b167691884e`
+결정 기록 대조일: 2026-10-27 | SHA-256(파일명·내용): `82ceec8588e9e15e165f5104fdd2bc86b4c5875cc4de59f650e93b167691884e`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|

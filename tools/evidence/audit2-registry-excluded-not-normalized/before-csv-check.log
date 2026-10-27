@@ -1,0 +1,3 @@
+vocabulary references in documents or registry CSVs:
+  data/registry/excluded_or_historical.csv:1: deprecated field `status` -> use entity_evidence
+  data/registry/excluded_or_historical.csv:1: missing required vocabulary column `entity_evidence`

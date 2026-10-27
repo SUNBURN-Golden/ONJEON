@@ -1,0 +1,87 @@
+test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) ... ok
+test_axis_lookup (test_registry_normalize.AccessCodes.test_axis_lookup) ... ok
+test_canonical_codes_and_all_deprecated_aliases (test_registry_normalize.AccessCodes.test_canonical_codes_and_all_deprecated_aliases) ... ok
+test_home_access_mapping_keeps_unqueried_blocked_and_failed_distinct (test_registry_normalize.AccessCodes.test_home_access_mapping_keeps_unqueried_blocked_and_failed_distinct) ... ok
+test_raw_http_results_redirects_whitespace_and_empty_values (test_registry_normalize.AccessCodes.test_raw_http_results_redirects_whitespace_and_empty_values) ... ok
+test_reachable_disclosure_is_not_archived_without_preservation_evidence (test_registry_normalize.AccessCodes.test_reachable_disclosure_is_not_archived_without_preservation_evidence) ... ok
+test_unknown_results_abort_instead_of_claiming_success (test_registry_normalize.AccessCodes.test_unknown_results_abort_instead_of_claiming_success) ... ok
+test_access_log_preserves_existing_code_and_handles_absent_result (test_registry_normalize.RegistryCsv.test_access_log_preserves_existing_code_and_handles_absent_result) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:135: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdiox0580/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_access_log_retains_raw_result_and_is_idempotent (test_registry_normalize.RegistryCsv.test_access_log_retains_raw_result_and_is_idempotent) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:135: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp23wsx14f/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_all_evidence_aliases_and_canonical_values (test_registry_normalize.RegistryCsv.test_all_evidence_aliases_and_canonical_values) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwfts0gly/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_empty_registry_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_registry_is_unchanged) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpkcfja0ja/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_existing_details_product_progress_and_unrelated_fields_survive (test_registry_normalize.RegistryCsv.test_existing_details_product_progress_and_unrelated_fields_survive) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpeo474fs1/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_invalid_access_log_leaves_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_access_log_leaves_input_untouched) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:135: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp5p8e8egb/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_invalid_evidence_or_access_leaves_whole_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_evidence_or_access_leaves_whole_input_untouched) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpissmmrrr/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved (test_registry_normalize.RegistryCsv.test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp7t_gz6kd/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_normalizes_evidence_access_details_and_lower_denominator_idempotently (test_registry_normalize.RegistryCsv.test_normalizes_evidence_access_details_and_lower_denominator_idempotently) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpo4wa8gfa/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_script_normalizes_all_four_registries_in_isolated_tree (test_registry_normalize.RegistryCsv.test_script_normalizes_all_four_registries_in_isolated_tree) ... /tmp/tmp89knjae4/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp89knjae4/data/registry/insurers.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/tmp89knjae4/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp89knjae4/data/registry/cooperatives_and_others.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/tmp89knjae4/tools/registry_normalize.py:135: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp89knjae4/data/registry/access_log.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FAIL
+test_without_disclosure_does_not_add_disclosure_or_product_fields (test_registry_normalize.RegistryCsv.test_without_disclosure_does_not_add_disclosure_or_product_fields) ... /workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/registry_normalize.py:100: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpihzljgvo/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+======================================================================
+FAIL: test_script_normalizes_all_four_registries_in_isolated_tree (test_registry_normalize.RegistryCsv.test_script_normalizes_all_four_registries_in_isolated_tree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-excluded-not-normalized/tools/tests/test_registry_normalize.py", line 230, in test_script_normalizes_all_four_registries_in_isolated_tree
+    self.assertEqual(out.getvalue().splitlines(), ["insurers 2", "cooperatives_and_others 2",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                   "excluded_or_historical 2", "access_log 1"])
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ins[19 chars]ives_and_others 2', 'access_log 1'] != ['ins[19 chars]ives_and_others 2', 'excluded_or_historical 2', 'access_log 1']
+
+First differing element 2:
+'access_log 1'
+'excluded_or_historical 2'
+
+Second list contains 1 additional elements.
+First extra element 3:
+'access_log 1'
+
+- ['insurers 2', 'cooperatives_and_others 2', 'access_log 1']
++ ['insurers 2',
++  'cooperatives_and_others 2',
++  'excluded_or_historical 2',
++  'access_log 1']
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.020s
+
+FAILED (failures=1)

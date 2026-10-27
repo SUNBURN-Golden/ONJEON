@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
-      - name: Vocabulary (canonical states, generated doc, deprecated names)
+      - name: Vocabulary (canonical states, generated doc, deprecated names, registry CSVs)
         run: python3 tools/vocab_check.py
       - name: Validation set internal consistency (extracts and metadata; originals are checked by the manual `sources` workflow)
         run: python3 tools/validation_check.py

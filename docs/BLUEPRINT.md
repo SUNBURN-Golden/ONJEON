@@ -162,7 +162,7 @@ flowchart TD
 
 ## 6. 공유 어휘 (enum 레지스트리)
 
-상태값의 정본은 [`packages/schemas/vocabulary.json`](../packages/schemas/vocabulary.json)이다. 사람이 읽는 표는 [`docs/blueprint/VOCABULARY.md`](blueprint/VOCABULARY.md)이며 같은 파일에서 생성된다. 코드는 M1에서 같은 정본으로 생성한다. 새 값은 정본에 먼저 추가한다. `tools/vocab_check.py`가 CI에서 정본의 무결성, 생성 문서의 최신성, 계약 문서의 폐기된 이름을 검사한다.
+상태값의 정본은 [`packages/schemas/vocabulary.json`](../packages/schemas/vocabulary.json)이다. 사람이 읽는 표는 [`docs/blueprint/VOCABULARY.md`](blueprint/VOCABULARY.md)이며 같은 파일에서 생성된다. 코드는 M1에서 같은 정본으로 생성한다. 새 값은 정본에 먼저 추가한다. `tools/vocab_check.py`가 CI에서 정본의 무결성, 생성 문서의 최신성, 계약 문서의 폐기된 이름과 `data/registry/*.csv` 상태 열의 축별 코드·필수 열·CSV 구조를 검사한다. CSV의 원문 접근 결과·상세·메모는 보존한다([Audit 2 검사 증거](blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)).
 
 축은 서로 섞지 않는다. 핵심 구분은 다음과 같다.
 

@@ -1,0 +1,133 @@
+test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) ... 
+  test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=None) ... FAIL
+  test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=0) ... FAIL
+  test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=1) ... FAIL
+  test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=65543) ... ERROR
+  test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=131086) ... ERROR
+test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) ... 
+  test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=None) ... FAIL
+  test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=0) ... FAIL
+  test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=1) ... FAIL
+  test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=1000000000) ... FAIL
+test_ledger_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_ledger_admission_archive_and_settlement_reads_are_charged) ... 
+  test_ledger_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_ledger_admission_archive_and_settlement_reads_are_charged) (injected=False, checkpoint=False) ... FAIL
+  test_ledger_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_ledger_admission_archive_and_settlement_reads_are_charged) (injected=True, checkpoint=False) ... FAIL
+
+======================================================================
+ERROR: test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=65543)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 568, in test_counts_actual_bytes_with_missing_zero_short_and_long_headers
+    self.assertTrue(all(0 < c.args[0] <= 64 * 1024 for c in body.read.call_args_list))
+                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 568, in <genexpr>
+    self.assertTrue(all(0 < c.args[0] <= 64 * 1024 for c in body.read.call_args_list))
+                            ~~~~~~^^^
+IndexError: tuple index out of range
+
+======================================================================
+ERROR: test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=131086)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 566, in test_counts_actual_bytes_with_missing_zero_short_and_long_headers
+    self.assertEqual(st.get(KEY), payload)
+                     ~~~~~~^^^^^
+  File "tools/source_archive.py", line 242, in get
+    if not self.meter:
+        ^^^^^^^^^^^^^^
+  File "tools/r2_budget.py", line 214, in charge_get_bytes
+    # These bytes have already been read, so retain them even when they cross the limit.
+  File "tools/r2_budget.py", line 203, in _charge
+    raise BudgetError(f"{dim} would reach {self.used[dim] + n} > limit {self.limits[dim]} "
+                      f"(job {self.job['job_id']}); stopped before the request")
+r2_budget.BudgetError: budget: get_bytes would reach 131086 > limit 65543 (job t); stopped before the request
+
+======================================================================
+FAIL: test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 567, in test_counts_actual_bytes_with_missing_zero_short_and_long_headers
+    self.assertEqual(st.meter.used["get_bytes"], len(payload))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 65543
+
+======================================================================
+FAIL: test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 567, in test_counts_actual_bytes_with_missing_zero_short_and_long_headers
+    self.assertEqual(st.meter.used["get_bytes"], len(payload))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 65543
+
+======================================================================
+FAIL: test_counts_actual_bytes_with_missing_zero_short_and_long_headers (test_r2_budget.GetBytes.test_counts_actual_bytes_with_missing_zero_short_and_long_headers) (declared=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 567, in test_counts_actual_bytes_with_missing_zero_short_and_long_headers
+    self.assertEqual(st.meter.used["get_bytes"], len(payload))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 65543
+
+======================================================================
+FAIL: test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 576, in test_over_limit_stops_after_one_extra_byte_and_counts_it
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 65541 > limit 65540"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 576, in test_over_limit_stops_after_one_extra_byte_and_counts_it
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 65541 > limit 65540"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 576, in test_over_limit_stops_after_one_extra_byte_and_counts_it
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 65541 > limit 65540"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_over_limit_stops_after_one_extra_byte_and_counts_it (test_r2_budget.GetBytes.test_over_limit_stops_after_one_extra_byte_and_counts_it) (declared=1000000000)
+----------------------------------------------------------------------
+r2_budget.BudgetError: budget: get_bytes would reach 1000000000 > limit 65540 (job t); stopped before the request
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 576, in test_over_limit_stops_after_one_extra_byte_and_counts_it
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 65541 > limit 65540"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "get_bytes read 65541 > limit 65540" does not match "budget: get_bytes would reach 1000000000 > limit 65540 (job t); stopped before the request"
+
+======================================================================
+FAIL: test_ledger_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_ledger_admission_archive_and_settlement_reads_are_charged) (injected=False, checkpoint=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 693, in check_ledger_read_accounting
+    self.assertIs(s.ledger.st.meter, s.meter)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None is not <r2_budget.Meter object at 0x7f1aab817550>
+
+======================================================================
+FAIL: test_ledger_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_ledger_admission_archive_and_settlement_reads_are_charged) (injected=True, checkpoint=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-ledger-uncharged-reads/tools/tests/test_r2_budget.py", line 693, in check_ledger_read_accounting
+    self.assertIs(s.ledger.st.meter, s.meter)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None is not <r2_budget.Meter object at 0x7f1aab760230>
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.822s
+
+FAILED (failures=9, errors=2)

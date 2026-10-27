@@ -2499,15 +2499,29 @@
       "from": "merged",
       "to": "audit_queued",
       "event": "impl_counter_incremented",
-      "when": "pr is implementation PR → merged_impl_counter += 1. docs-only PR은 done으로 바로",
-      "by": "daemon"
+      "when": "pr is implementation PR → merged_impl_counter += 1. docs-only PR은 done으로 바로. 두 행은 cond event.docs_only로 배타다(값이 없으면 구현 PR로 세어 감리를 거친다)",
+      "by": "daemon",
+      "cond": [
+        {
+          "field": "event.docs_only",
+          "op": "!=",
+          "value": true
+        }
+      ]
     },
     {
       "from": "merged",
       "to": "done",
       "event": "impl_counter_incremented",
       "when": "pr is docs_only (변경 경로가 docs/** 뿐 또는 label docs-only) → 카운터를 올리지 않고 완료",
-      "by": "daemon"
+      "by": "daemon",
+      "cond": [
+        {
+          "field": "event.docs_only",
+          "op": "==",
+          "value": true
+        }
+      ]
     },
     {
       "from": "audit_queued",
@@ -4016,6 +4030,9 @@
         "secret_detected": [
           "scan_id",
           "match_count"
+        ],
+        "impl_counter_incremented": [
+          "docs_only"
         ],
         "owner_stop": [
           "stop_ref"

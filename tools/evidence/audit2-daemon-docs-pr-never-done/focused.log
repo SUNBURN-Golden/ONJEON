@@ -1,0 +1,26 @@
+# after fix: base commit 4da09a4b80b77443dad408a9af5de1e7526c62b8 + this change
+# python3 -m unittest tools.tests.test_daemon_dry_run.DocsOnlyLandingCond -v
+test_docs_pr_completes_without_count (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_docs_pr_completes_without_count) ... ok
+test_implementation_pr_is_counted (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_implementation_pr_is_counted) ... ok
+test_no_caller_names_the_destination (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_no_caller_names_the_destination) ... ok
+test_removing_the_cond_reopens_the_finding (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_removing_the_cond_reopens_the_finding)
+Without the cond the first row wins: the docs-only PR goes to audit_queued and is counted. ... ok
+test_rows_sharing_from_and_event_are_told_apart_by_cond (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_rows_sharing_from_and_event_are_told_apart_by_cond) ... ok
+test_the_core_picks_the_row_from_the_event (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_the_core_picks_the_row_from_the_event) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.080s
+
+OK
+# exit 0
+
+# python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario M23
+== M23 docs-pr-complete: 문서 PR: merged→done, 카운터 불변  [PASS]
+  [PASS] docs/** 뿐인 PR: merged→done(docs_only), 카운터 불변
+      기대: [[["merge_wait", "merged", "pr_merged_observed"], ["merged", "done", "impl_counter_incremented"]], 0, []]
+      실제: [[["merge_wait", "merged", "pr_merged_observed"], ["merged", "done", "impl_counter_incremented"]], 0, []]
+  [PASS] merged→done 행은 cond event.docs_only == true로 골랐다
+      기대: [{"field": "event.docs_only", "op": "==", "left": true, "result": true}]
+      실제: [{"field": "event.docs_only", "op": "==", "left": true, "result": true}]
+
+# exit 0

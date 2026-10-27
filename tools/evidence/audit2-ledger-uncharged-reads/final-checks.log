@@ -1,0 +1,7 @@
+$ git diff --check
+exit: 0
+changed paths: within authorized scope
+base HEAD: 8805146ceefd8ef0360c35059fd682ec3bc83603
+63b301cfe174cd6fea3c26917df3875be2cd7514aa2da331a9b08789c0bc0646 tools/source_archive.py
+73a11fdef73a30c27b4ebc8d09925b7b3d4de5e40d40c1d5005d49017e5b9514 tools/r2_budget.py
+732655b44d1a1101ad39eb15b343221ca47ecb47e60b747c644b9f12539f7580 tools/tests/test_r2_budget.py

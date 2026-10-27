@@ -237,13 +237,23 @@ class S3Store:
 
     def get(self, key):
         r = self.s3.get_object(Bucket=self.bucket, Key=self._k(key))
-        if self.meter:  # refuse to read a body that would exceed the byte limit
-            try:
-                self.meter.charge_get_bytes(r.get("ContentLength") or 0)
-            except BaseException:
-                r["Body"].close()
-                raise
-        return r["Body"].read()
+        body = r["Body"]
+        try:
+            if not self.meter:
+                return body.read()
+            chunks = []
+            self.meter.charge_get_bytes(0)  # an already exceeded limit permits no further read
+            while True:
+                remaining = self.meter.limits["get_bytes"] - self.meter.used["get_bytes"]
+                # ContentLength can be absent or wrong. At the boundary, one byte distinguishes
+                # EOF from an oversized body; charge that byte too and stop immediately.
+                chunk = body.read(min(64 * 1024, remaining + 1))
+                self.meter.charge_get_bytes(len(chunk))
+                if not chunk:
+                    return b"".join(chunks)
+                chunks.append(chunk)
+        finally:
+            body.close()
 
     def stored_sha256(self, key):
         """HEAD (Class B): ABSENT, the SHA-256 recorded at upload, or None if it exists without one."""

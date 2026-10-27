@@ -1,0 +1,3 @@
+$ cargo fmt --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml -- --check
+
+Exit code: 0

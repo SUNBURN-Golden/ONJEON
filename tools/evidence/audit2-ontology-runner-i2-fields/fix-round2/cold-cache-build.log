@@ -1,0 +1,57 @@
+Empty Cargo registry; no prebuilt runner.
+$ cargo build --offline
+error: no matching package named `serde_json` found
+location searched: crates.io index
+required by package `ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/docs/blueprint/proposals/온톨로지/검증/runner)`
+note: offline mode (via `--offline`) can sometimes cause surprising resolution failures
+help: if this error is too confusing you may wish to retry without `--offline`
+Exit code: 101 (expected 101 for the original CI setup)
+
+CI prebuild with dependency downloads enabled:
+$ cargo build --manifest-path 'docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml' --target-dir /workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/target/audit2-round2/onto
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded crypto-common v0.1.7
+  Downloaded proc-macro2 v1.0.107
+  Downloaded zmij v1.0.23
+  Downloaded itoa v1.0.18
+  Downloaded unicode-ident v1.0.26
+  Downloaded generic-array v0.14.7
+  Downloaded version_check v0.9.5
+  Downloaded block-buffer v0.10.4
+  Downloaded cpufeatures v0.2.17
+  Downloaded digest v0.10.7
+  Downloaded sha2 v0.10.9
+  Downloaded cfg-if v1.0.5
+  Downloaded serde_derive v1.0.229
+  Downloaded quote v1.0.47
+  Downloaded serde_core v1.0.229
+  Downloaded memchr v2.8.3
+  Downloaded typenum v1.20.1
+  Downloaded serde v1.0.229
+  Downloaded serde_json v1.0.154
+  Downloaded syn v3.0.8
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.154
+   Compiling serde v1.0.229
+   Compiling cfg-if v1.0.5
+   Compiling memchr v2.8.3
+   Compiling cpufeatures v0.2.17
+   Compiling itoa v1.0.18
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.8
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/packages/rules-engine)
+   Compiling ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit2-ontology-runner-i2-fields/docs/blueprint/proposals/온톨로지/검증/runner)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.56s
+Exit code: 0

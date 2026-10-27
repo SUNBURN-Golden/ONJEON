@@ -1,0 +1,4 @@
+$ cargo clippy --offline --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
+
+Exit code: 0

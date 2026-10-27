@@ -1,0 +1,12 @@
+$ cargo clippy --offline --all-targets -- -D warnings
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit2-blueprint-11-counts/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.57s
+
+exit code: 0

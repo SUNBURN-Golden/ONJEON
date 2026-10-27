@@ -1,0 +1,8 @@
+In-memory negative controls; repository files are not modified.
+HEAD before change: REJECTED: ['expected exactly one generated counts block']
+Rust 60: REJECTED: ['§11 counts are stale; review and run python3 -I tools/blueprint_counts.py --write']
+real rules 8: REJECTED: ['§11 counts are stale; review and run python3 -I tools/blueprint_counts.py --write']
+tamper tests 28: REJECTED: ['§11 counts are stale; review and run python3 -I tools/blueprint_counts.py --write']
+axes 33: REJECTED: ['§11 counts are stale; review and run python3 -I tools/blueprint_counts.py --write']
+Current inventory: PASS: {'rust_tests': 182, 'rust_doctests': 3, 'real_clause_rules': 7, 'vocabulary_axes': 49, 'tamper_tests': 38}
+exit code: 0

@@ -1,0 +1,375 @@
+test_blocking_tables_list_t_dt_04_under_o19 (test_registry_denominator.DomesticEnvironmentGate.test_blocking_tables_list_t_dt_04_under_o19) ... ok
+test_dec_o17_requires_a_domestic_designated_environment (test_registry_denominator.DomesticEnvironmentGate.test_dec_o17_requires_a_domestic_designated_environment) ... ok
+test_o19_is_an_open_ledger_item_without_a_decision_record (test_registry_denominator.DomesticEnvironmentGate.test_o19_is_an_open_ledger_item_without_a_decision_record) ... ok
+test_o19_is_gated_only_on_t_dt_04_real_data (test_registry_denominator.DomesticEnvironmentGate.test_o19_is_gated_only_on_t_dt_04_real_data) ... ok
+test_registry_readme_states_counts_and_codes (test_registry_denominator.DomesticEnvironmentGate.test_registry_readme_states_counts_and_codes) ... FAIL
+test_t_dt_04_real_data_waits_for_d04_and_o19 (test_registry_denominator.DomesticEnvironmentGate.test_t_dt_04_real_data_waits_for_d04_and_o19) ... ok
+test_codes_follow_disclosure_and_geo_state (test_registry_denominator.ReasonCodeRule.test_codes_follow_disclosure_and_geo_state) ... 
+  test_codes_follow_disclosure_and_geo_state (test_registry_denominator.ReasonCodeRule.test_codes_follow_disclosure_and_geo_state) (extra={'disclosure_status': 'unqueried', 'disclosure_url': 'https://example.invalid'}) ... FAIL
+  test_codes_follow_disclosure_and_geo_state (test_registry_denominator.ReasonCodeRule.test_codes_follow_disclosure_and_geo_state) (extra={'disclosure_status': 'archived', 'disclosure_url': ''}) ... FAIL
+test_enumerated_lists_keep_existing_codes (test_registry_denominator.ReasonCodeRule.test_enumerated_lists_keep_existing_codes) ... ok
+test_committed_csvs_are_a_fixed_point_of_the_normalizer (test_registry_denominator.RegistryConsistency.test_committed_csvs_are_a_fixed_point_of_the_normalizer) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp1c30bsf0/insurers.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp1c30bsf0/cooperatives_and_others.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) ... 
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='처브라이프생명보험') ... FAIL
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='BNP파리바카디프생명보험') ... FAIL
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='AIA생명보험') ... FAIL
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='교보라이프플래닛생명보험') ... FAIL
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='흥국화재해상보험') ... FAIL
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='DB손해보험') ... FAIL
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='에이스아메리칸화재해상보험') ... FAIL
+  test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='미쓰이스미토모해상화재보험 한국지점') ... FAIL
+test_statuses_use_the_acquisition_axis (test_registry_denominator.RegistryConsistency.test_statuses_use_the_acquisition_axis) ... ok
+test_unqueried_product_lists_carry_reason_and_known_codes (test_registry_denominator.RegistryConsistency.test_unqueried_product_lists_carry_reason_and_known_codes) ... ok
+test_insurer_and_disclosure_entry_counts (test_registry_denominator.RegistryCounts.test_insurer_and_disclosure_entry_counts) ... FAIL
+test_no_product_list_is_enumerated_yet (test_registry_denominator.RegistryCounts.test_no_product_list_is_enumerated_yet) ... ok
+test_reason_code_counts (test_registry_denominator.RegistryCounts.test_reason_code_counts) ... ok
+test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) ... 
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='not_checked', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='reachable', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='js_shell', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='geo_blocked', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='service_outage', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='origin_denied', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='rate_limited', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='connection_reset', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='tls_error', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='timeout', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='empty_reply', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='redirect_loop', access='reachable') ... FAIL
+  test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='proxy_error', access='reachable') ... FAIL
+test_axis_lookup (test_registry_normalize.AccessCodes.test_axis_lookup) ... ok
+test_canonical_codes_and_all_deprecated_aliases (test_registry_normalize.AccessCodes.test_canonical_codes_and_all_deprecated_aliases) ... ok
+test_home_access_mapping_keeps_unqueried_blocked_and_failed_distinct (test_registry_normalize.AccessCodes.test_home_access_mapping_keeps_unqueried_blocked_and_failed_distinct) ... ok
+test_raw_http_results_redirects_whitespace_and_empty_values (test_registry_normalize.AccessCodes.test_raw_http_results_redirects_whitespace_and_empty_values) ... ok
+test_reachable_disclosure_is_not_archived_without_preservation_evidence (test_registry_normalize.AccessCodes.test_reachable_disclosure_is_not_archived_without_preservation_evidence) ... FAIL
+test_unknown_results_abort_instead_of_claiming_success (test_registry_normalize.AccessCodes.test_unknown_results_abort_instead_of_claiming_success) ... ok
+test_access_log_preserves_existing_code_and_handles_absent_result (test_registry_normalize.RegistryCsv.test_access_log_preserves_existing_code_and_handles_absent_result) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpj9sij6_9/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_access_log_retains_raw_result_and_is_idempotent (test_registry_normalize.RegistryCsv.test_access_log_retains_raw_result_and_is_idempotent) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpke0ibvx_/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_all_evidence_aliases_and_canonical_values (test_registry_normalize.RegistryCsv.test_all_evidence_aliases_and_canonical_values) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbvb_l7gh/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_empty_registry_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_registry_is_unchanged) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp4mmsnvt2/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_existing_details_product_progress_and_unrelated_fields_survive (test_registry_normalize.RegistryCsv.test_existing_details_product_progress_and_unrelated_fields_survive) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps129efh5/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_invalid_access_log_leaves_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_access_log_leaves_input_untouched) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp1bl3xhjd/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_invalid_evidence_or_access_leaves_whole_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_evidence_or_access_leaves_whole_input_untouched) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpmmi6a1p8/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved (test_registry_normalize.RegistryCsv.test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwevva6g9/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FAIL
+test_normalizes_evidence_access_details_and_lower_denominator_idempotently (test_registry_normalize.RegistryCsv.test_normalizes_evidence_access_details_and_lower_denominator_idempotently) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp0r8mdoon/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FAIL
+test_script_normalizes_all_three_registries_in_isolated_tree (test_registry_normalize.RegistryCsv.test_script_normalizes_all_three_registries_in_isolated_tree) ... /tmp/tmp9xamleor/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp9xamleor/data/registry/insurers.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/tmp9xamleor/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp9xamleor/data/registry/cooperatives_and_others.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/tmp9xamleor/tools/registry_normalize.py:127: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp9xamleor/data/registry/access_log.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_without_disclosure_does_not_add_disclosure_or_product_fields (test_registry_normalize.RegistryCsv.test_without_disclosure_does_not_add_disclosure_or_product_fields) ... /workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/registry_normalize.py:92: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp99edfbhp/registry.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(path.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+======================================================================
+FAIL: test_registry_readme_states_counts_and_codes (test_registry_denominator.DomesticEnvironmentGate.test_registry_readme_states_counts_and_codes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 181, in test_registry_readme_states_counts_and_codes
+    self.assertIn("`archived` 0, `failed` 31, `blocked` 3, `unqueried` 19", text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`archived` 0, `failed` 31, `blocked` 3, `unqueried` 19' not found in '# 보험회사 수집 대상 목록 (분모 최상위) — 1차 조사\n\n> 상태값은 `packages/schemas/vocabulary.json`(축 `entity_evidence`, `host_access`, `acquisition_status`)을 따른다. 원래 조사 표기는 `tools/registry_normalize.py`로 정규화했고 원문 접근 결과는 `*_detail` 열과 `access_log.csv`의 `result` 열에 남아 있다.\n\n조사 시각: 2026-10-09 04:21–04:36 UTC (이 샌드박스 환경, 해외 IP 경유)\n상태: **1차 근거 목록**. 상품·특약 단위 분모는 아직 만들지 않았다(아래 "열거하지 않은 것" 참조).\n\n`DATA_PIPELINE_CONTRACT.md` §1의 `SourceRegistry` / `DiscoveryManifest` / `ExpectedDocument` 중 **회사 축**만 다룬다. 이 목록의 모든 회사 행은 실제로 가져온 페이지에서 나왔고, 원문 해시는 `sources.csv`에 있다. 원문 HTML은 저장소에 넣지 않았다(샌드박스 scratchpad에만 있음).\n\n## 파일\n\n| 파일 | 내용 |\n|---|---|\n| `insurers.csv` | 협회 **현행** 목록(KLIA 회원사, KNIA 정회원·준회원·비회원사)에 있는 보험회사 53곳. 보험회사 확보율의 분모 후보 |\n| `cooperatives_and_others.csv` | 공제조합·우체국보험·한국무역보험공사 16행(시드 1 포함). **보험회사 수에 섞지 않는다.** 범위는 아래 "범위(ADR-0018)" |\n| `excluded_or_historical.csv` | 가져온 페이지에는 있으나 현행 협회 목록에 없는 49행: 과거·합병 추정 보험사, DART 업종 목록의 비보험 법인, KIDI \'공영보험\'의 사회보험 기관. 제외 사유를 남기려고 둔 파일이며 분모가 아니다 |\n| `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 66건과 응답 본문 sha256 |\n| `access_log.csv` | 시도한 모든 요청 98건(실패 포함)과 결과 분류 |\n\n`insurers.csv` 열은 과제에서 정한 11개 뒤에 3개를 덧붙였다.\n- `in_current_assoc_list`: KLIA·KNIA 현행 목록에 있으면 true(이 파일에서는 전부 true).\n- `home_url`, `home_access`: 공시실 URL을 못 찾았을 때도 크롤 계획에 쓸 수 있게, 회사 홈페이지 접속 결과를 남긴다. `A -> B`는 JS·메타 리다이렉트를 한 번 더 따라간 결과다.\n\n## 범위 (ADR-0018, 2026-10-10)\n\n| 행 | 범위 | 확보율 분모 | 이유 |\n|---|---|---|---|\n| `insurers.csv` 53곳 | 기관 추적 대상. 개인보험 상품이 대상 | 대상 상품군의 판매본 | 보험사의 개인보험은 포함 |\n| 그중 재보험 전업사 8곳, 서울보증보험 | 기관은 추적. 개인보험 대상 상품이 없으면 0과 근거를 기록 | 대상 상품 0이면 분모 기여 없음 | 기관 누락과 대상 상품 없음을 구분(구현자 해석) |\n| `public-epost` 우체국보험 | **포함**. 기관 유형은 보험사와 구분 | 포함 | 사용자 결정 |\n| 공제 13곳 + 농협(구 공제) 시드 | **제외** | 제외 | 사용자 결정. NH농협생명·NH농협손해보험은 보험사로 포함 |\n| `public-ksure` 한국무역보험공사 | 제외 | 제외 | 기업 대상 정책보험, 개인보험 상품군 아님(구현자 해석) |\n| 단체보험·퇴직연금·자동차보험 상품 | 제외(후속 통합) | 제외 | 사용자 결정. 개인연금보험은 포함 |\n\n"전 상품"은 위 포함 범위 안의 전 상품·전 특약·과거 판매본이다. 일부 회사나 최신 상품만 수집하지 않는다.\n\n## 방법\n\n1. 목록 출처를 가져와 회사명을 파싱했다(python3 stdlib, 정규식).\n2. 회사마다 출처별 표기(예: KLIA "iM라이프생명", KIDI "DGB생명", DART "아이엠라이프생명보험")를 수작업 매핑표로 묶었다. 빌드 스크립트는 매핑한 표기가 실제로 파싱된 목록에 있는지 검사하고, 없으면 실패한다. 그래서 출처에 없는 회사가 들어갈 수 없다.\n3. 상태 판정은 **기관 단위**로 했다. 같은 기관의 두 페이지(KLIA 회원사 + KLIA 공시실, KNIA 회원사 + KNIA 공시실)는 하나로 센다.\n   - `two_or_more_sources`: 서로 다른 기관 2곳 이상(KLIA / KNIA / KIDI / DART)에 있음.\n   - `one_source`: 1곳에만 있음.\n   - `seed`: 가져온 페이지에 없음. 기억에만 근거한 후보이며 `listed_in`이 비어 있다.\n4. 회사 홈페이지에 한 번씩 접속했다(같은 호스트 요청 사이 1초 이상, 일반 User-Agent, 쿠키는 저장만 함). 정적 HTML의 메뉴 링크에서 상품공시 경로를 찾으면 그 URL에 다시 접속해 제목과 본문의 "상품공시/약관" 문구를 확인했다. 우회 헤더, 미러, TLS 검증 해제는 쓰지 않았다.\n5. `foreign_branch=true`는 출처의 명칭이나 주소에 "한국지점", "(지)" 표기가 있을 때만 확정값이다. 외국 재보험사 중 표기가 없는 곳은 추정값이고, 해당 행의 notes에 "추정값"이라고 적었다.\n\n## 집계\n\n### insurers.csv (53)\n\n| sector | two_or_more_sources | one_source | 계 |\n|---|---|---|---|\n| life | 22 | 0 | 22 |\n| non_life | 18 | 4 | 22 |\n| reinsurance | 2 | 6 | 8 |\n| guarantee | 1 | 0 | 1 |\n| **계** | **43** | **10** | **53** |\n\n- 외국 지점(`foreign_branch=true`): 11곳. 6곳은 명칭·주소의 "한국지점"/"(지)" 표기로 확정했다(미쓰이스미토모, AGCS, FM Global, Starr, RGA, 스위스리). 5곳은 표기가 없는 외국 재보험사의 추정값이다(뮌헨, 제네럴, SCOR, 퍼시픽라이프리, 하노버). AIA생명과 에이스아메리칸 같은 외국계 회사도 명칭에 지점 표기가 없어 false로 두었고, 확인이 필요하다.\n- 생보 22곳은 KLIA 정회원 20곳과 준회원 생보사 2곳(IBK연금보험, 교보라이프플래닛)이다. KLIA 공시실 경영공시 목록 22곳과 정확히 일치한다. 22곳 모두 KIDI 링크 목록과 DART에도 있다.\n- 손보 22곳은 KNIA 정회원 중 원수 손보사 14곳(코리안리·서울보증 제외), 준회원 1곳(에이스아메리칸화재해상), 비회원 손보 7곳(미쓰이스미토모 한국지점, AGCS 한국지점, FM Global 한국지점, Starr 한국지점, 퍼스트어메리칸권원보험, 예별손해보험, 마이브라운반려동물전문보험)이다.\n- `one_source` 10곳은 모두 KNIA 비회원사 목록에만 있다. 외국 재보험사 6곳, FM Global, Starr, 퍼스트어메리칸권원, 마이브라운이 여기에 해당한다.\n- 재보험 8곳: 코리안리(KLIA 준회원·KNIA 정회원), RGA 한국지점(KLIA 준회원·KNIA 비회원), 그리고 KNIA 비회원 6곳(뮌헨, 제네럴, 스위스리, SCOR, 퍼시픽라이프리, 하노버)이다.\n\n### cooperatives_and_others.csv (16)\n\n- KIDI \'유사보험(공제조합)\' 13곳: 수협공제, 신협공제, 새마을금고공제, 전국버스·화물자동차·택시·개인택시공제조합, 건설공제조합, 한국교직원공제회, 한국해운조합(공제), 자본재공제조합, 한국조선공업협동조합, 엔지니어링공제조합. 모두 `one_source`다.\n- KIDI \'공영보험\' 중 우체국보험(`one_source`)과 한국무역보험공사(KIDI와 DART, `two_or_more_sources`)를 넣었다.\n- `seed` 1행: 농협(구 농협공제). 가져온 어떤 페이지에도 별도 항목이 없다. 기억으로는 공제사업이 NH농협생명·손보로 이관됐다고 알지만, 출처로 확인하지 않았다.\n\n### 공시실 URL\n\n53곳 중 **8곳**만 상품공시 URL을 찾아 200 응답을 확인했다: AIA생명, BNP파리바카디프생명, 교보라이프플래닛, 처브라이프생명, 흥국화재, DB손보, 에이스아메리칸(Chubb), 미쓰이스미토모 한국지점. 나머지 45곳은 `disclosure_url`이 비어 있고 `disclosure_access=not_checked`다. 이유는 notes에 있다.\n\n## 출처별 접근 결과 (이 환경, 2026-10-09)\n\n| 출처 | 결과 | 비고 |\n|---|---|---|\n| www.klia.or.kr (생명보험협회) | 200 | 회원사 목록을 정적 HTML로 받음. 회원사변천과정(memberHis)은 JS로 채워져 파싱하지 못함 |\n| pub.insure.or.kr (생보협회 공시실) | 200 | 경영공시 회사 목록 |\n| www.knia.or.kr (손해보험협회) | 200, 간헐적 reset | 과제 지시문에는 403으로 적혀 있었다. 이번에는 첫 요청에서 connection reset이 나고 재시도에서 200을 받았다 |\n| kpub.knia.or.kr (손보협회 공시실) | 200 | 정기경영공시 회사 목록 16곳 |\n| www.kidi.or.kr (보험개발원) | 200 | 사이트링크 \'보험회사 및 공제조합\' |\n| dart.fss.or.kr (DART) | 200 | 기업개황 업종 검색. 세션 쿠키가 없으면 302가 나서, 쿠키를 저장한 뒤 다시 요청했다 |\n| www.fss.or.kr, fine.fss.or.kr, fisis.fss.or.kr | **서비스 중단 안내(200)** | FSS가 공지한 정전 점검으로 2026-10-08 18:00 ~ 10-10 24:00(KST) 동안 전체 대국민 서비스가 중단된다. **이번에는 감독당국 목록을 하나도 확보하지 못했다** |\n| www.kdic.or.kr (예금보험공사, 부보금융회사 목록 후보) | connection reset | |\n| www.data.go.kr | connection reset | 지시문과 같은 결과 |\n| ko.wikipedia.org API | 429 rate limit | 3차 출처 시도였고 재시도하지 않았다. 사용하지 않음 |\n| www.e-insmarket.or.kr (보험다모아) | 쿠키 없으면 302 루프, 쿠키 저장 시 200 | 회사 목록 페이지가 없어 사용하지 않음 |\n\n회사 홈페이지 접근(`home_access`, 53곳 중 점검한 42곳):\n- 200, 또는 JS·메타 리다이렉트를 한 번 따라간 뒤 200: 20곳. 이 중 다수는 SPA라 정적 HTML에 공시 메뉴가 없다.\n- JS 셸만 받고 리다이렉트를 따라가지 않음: 3곳(삼성생명, 미래에셋생명, KB라이프생명). KB라이프는 메타 리프레시 대상이 `https://http://notice.kblife.co.kr`로 깨져 있다. 현대해상은 JS 리다이렉트 뒤 TLS 핸드셰이크에 실패했다.\n- `connection_reset`: 10곳. KDB생명, DB생명, 신한라이프, 푸본현대생명, NH농협생명, 롯데손보, 삼성화재, NH농협손보, 예별손보, 마이브라운.\n- **`geo_blocked`(해외 IP 차단 안내 페이지)**: 3곳. ABL생명, 흥국생명(안내문의 차단 기간은 2026-10-07 ~ 10-26), IBK연금보험.\n- `empty_reply`: 2곳(하나생명, 하나손보). `tls_error`: 1곳(한화생명). `tls_error`: 1곳(동양생명). `timeout`: 1곳(iM라이프).\n- 지시문과 다른 결과: 삼성화재는 411이 아니라 connection reset이었다. DB손보는 KNIA·KIDI가 링크한 www.idbins.com이 200이었다. 지시문의 www.dbins.co.kr은 시도하지 않았다.\n\n해외 IP 차단은 이 환경 탓만이 아니다. 운영 크롤러도 국내 IP에서 돌려야 할 가능성이 크다.\n\n## 알려진 공백\n\n1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.\n2. **DART는 허가를 증명하지 않는다.** DART는 법인 등록 정보다. 그래서 업종 목록에는 국민생명, 리젠트화재, 그린손보, 한덕생명, 한일생명, 오렌지라이프 등 현행 협회 목록에 없는 회사(폐업·합병 추정)와 펀드·보증기금이 섞여 있다. DART에만 있는 이름은 `excluded_or_historical.csv`로 보냈다.\n3. **KIDI 링크 목록은 일부 오래됐다.** DGB생명(현 iM라이프 표기와 매칭), MG손해보험, 캐롯손해보험이 들어 있다. MG손보와 캐롯은 KNIA 현행 목록에 없어 `excluded_or_historical.csv`로 보냈다. 영업 중단, 계약이전, 합병 여부는 출처로 확인하지 못했다. 예별손해보험과 MG손보의 관계도 확인하지 못했다.\n4. **판매중지 상품의 분모**(ADR-0004: 판매 중지 포함)는 과거 회사를 포함할 수 있다. MG손보와 캐롯처럼 사라졌거나 이전된 회사의 기존 계약 약관을 어느 회사 공시실에서 찾을지는 아직 정하지 않았다.\n5. **외국 재보험사와 기업보험 지점 8곳은 KNIA 한 곳에만 있다.** SCOR는 한글 정식명이 없다. 법인인지 지점인지도 대부분 추정이다. 재보험사는 개인 상품공시 대상이 아니라고 보고 공시실을 탐색하지 않았다. 이 가정도 확인이 필요하다.\n6. **영문명(`name_en`)은 대부분 비어 있다.** 출처에 영문 표기가 있는 경우(Munich Re, Hannover Re, SCOR, RGA)만 채웠다.\n7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 8, `failed` 31, `blocked` 3, `unqueried` 11). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경은 열린 관문 O19(결정 원장 §3)이고, T-DT-04의 실데이터 관문(`decision_gates.real_data`: D-04, O19)이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.\n8. **명칭 변경과 합병 이력(기관 별칭)은 확보하지 못했다.** KLIA 회원사변천과정은 JS로 렌더링되고, KNIA에는 해당 페이지를 찾지 못했다.\n9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제 상품공시 URL도 탐색하지 않았다.\n10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 감독당국 목록이 복구되면 대조해야 한다.\n\n## 이번 단계에서 열거하지 않은 것\n\n- **회사별 상품·특약·판매 버전은 전혀 열거하지 않았다.** 이 디렉터리는 분모의 최상위인 회사 축뿐이다. 상품 단위 `DiscoveryManifest`와 `ExpectedDocument`(약관·사업방법서·상품요약서·보험료 공시)는 아직 없다.\n- 공시실 페이지 안의 상품 목록, 페이지 수, 판매중/판매중지 구분도 수집하지 않았다. 접근성만 확인했다.\n- 참고: 여러 회사 공시 메뉴에 **\'보호금융상품등록부\'**가 있었다(AIA, 카디프, 라이프플래닛, Chubb). 회사별 전 상품 목록의 교차검증 출처로 쓸 만한지 다음 단계에서 확인할 만하다.\n- 협회 상품비교공시(KLIA·KNIA 공시실)의 회사×상품 목록도 아직 가져오지 않았다.\n\n## 재현\n\n원문 HTML은 저장소 밖(scratchpad의 `registry_raw/`)에만 있다. 같은 URL을 다시 받으면 페이지 변경 때문에 해시가 달라질 수 있다. 출처 판정은 `sources.csv`의 `retrieved_at` 기준이다.\n\n## 전체 대상 추적 열 (정규화 후 추가)\n\n| 열 | 축 | 뜻 |\n|---|---|---|\n| `entity_evidence` | `entity_evidence` | 기관 존재 근거. `seed`는 분모에 넣지 않는다 |\n| `disclosure_access`, `home_access` | `host_access` | 이 환경에서의 접근 결과. 원문은 `*_detail` |\n| `disclosure_status` | `acquisition_status` | 공시 진입점 확보 여부(`archived`, `failed`, `blocked`, `unqueried`) |\n| `disclosure_gap_reason` | - | 확보하지 못한 이유 |\n| `product_list_status` | `acquisition_status` | 이 회사의 상품·특약 목록 열거 여부. 현재 전부 `unqueried` |\n| `product_list_reason` | - | 열거하지 않은 이유. 설계 검증 표본과 무관하게 전 대상을 추적한다 |\n| `product_list_reason_codes` | - | `unqueried`인 동안의 사유 코드(`;` 구분, `tools/registry_normalize.py`가 계산). 아래 표 |\n\n| 사유 코드 | 붙는 행 | 뜻 |\n|---|---|---|\n| `awaiting_T-DT-04` | `unqueried` 전부 | 상품·특약 목록 열거는 T-DT-04 몫이고 아직 실행 전 |\n| `awaiting_domestic_env` | `unqueried` 전부 | 실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전 |\n| `disclosure_entry_missing` | `disclosure_status`가 `archived`가 아닌 행 | 공시 진입점을 확보하지 못함 |\n| `foreign_sandbox_geo_blocked` | `home_access` 또는 `disclosure_access`가 `geo_blocked`인 행 | 해외 IP 샌드박스에서 해외 IP 차단 |\n\n현재 `insurers.csv` 53행 모두 `unqueried`이고, 45행에 `disclosure_entry_missing`, 그중 3행에 `foreign_sandbox_geo_blocked`가 붙는다. 이 수치와 코드 규칙은 `tools/tests/test_registry_denominator.py`가 실제 CSV로 검사한다.\n\n전 보험사·전 상품·전 특약이 확정 범위다(ADR-0004·0013). 설계 검증 표본(`docs/blueprint/validation/`)은 이 목록의 일부만 쓰지만 범위를 줄이는 것이 아니다. 이 표의 모든 행이 수집·처리될 때까지 상태와 사유를 갱신한다.\n\n## 이 환경의 한계\n\n조사는 해외 IP를 경유하는 샌드박스에서 했다. 해외 IP 차단(`geo_blocked`), 연결 끊김, JS 메뉴 때문에 확보하지 못한 공시 진입점이 많다. 운영 수집은 국내 경로에서 다시 확인해야 하며, 여기의 `failed`·`blocked`는 "보험사가 공개하지 않는다"는 뜻이 아니다(`not_disclosed`와 다름).\n'
+
+======================================================================
+FAIL: test_codes_follow_disclosure_and_geo_state (test_registry_denominator.ReasonCodeRule.test_codes_follow_disclosure_and_geo_state) (extra={'disclosure_status': 'unqueried', 'disclosure_url': 'https://example.invalid'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 124, in test_codes_follow_disclosure_and_geo_state
+    self.assertEqual(rn.product_list_codes(dict(base, **extra)), expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing' != 'awaiting_T-DT-04;awaiting_domestic_env'
+- awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing
+?                                       -------------------------
++ awaiting_T-DT-04;awaiting_domestic_env
+
+
+======================================================================
+FAIL: test_codes_follow_disclosure_and_geo_state (test_registry_denominator.ReasonCodeRule.test_codes_follow_disclosure_and_geo_state) (extra={'disclosure_status': 'archived', 'disclosure_url': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 124, in test_codes_follow_disclosure_and_geo_state
+    self.assertEqual(rn.product_list_codes(dict(base, **extra)), expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'awaiting_T-DT-04;awaiting_domestic_env' != 'awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing'
+- awaiting_T-DT-04;awaiting_domestic_env
++ awaiting_T-DT-04;awaiting_domestic_env;disclosure_entry_missing
+?                                       +++++++++++++++++++++++++
+
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='처브라이프생명보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='BNP파리바카디프생명보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='AIA생명보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='교보라이프플래닛생명보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='흥국화재해상보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='DB손해보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='에이스아메리칸화재해상보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) (table='insurers', row='미쓰이스미토모해상화재보험 한국지점')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 87, in test_missing_entry_points_have_a_reason_and_are_never_not_disclosed
+    self.assertNotEqual(r["disclosure_status"], "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_insurer_and_disclosure_entry_counts (test_registry_denominator.RegistryCounts.test_insurer_and_disclosure_entry_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_denominator.py", line 39, in test_insurer_and_disclosure_entry_counts
+    self.assertEqual(status, Counter(failed=31, blocked=3, unqueried=19))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Counter({'failed': 31, 'unqueried': 11, 'archived': 8, 'blocked': 3}) != Counter({'failed': 31, 'unqueried': 19, 'blocked': 3})
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='not_checked', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='reachable', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='js_shell', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='geo_blocked', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='service_outage', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='origin_denied', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='rate_limited', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='connection_reset', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='tls_error', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='timeout', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='empty_reply', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='redirect_loop', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) (home='proxy_error', access='reachable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 64, in test_access_results_alone_never_prove_archival
+    self.assertNotEqual(status, "archived")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' == 'archived'
+
+======================================================================
+FAIL: test_reachable_disclosure_is_not_archived_without_preservation_evidence (test_registry_normalize.AccessCodes.test_reachable_disclosure_is_not_archived_without_preservation_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 47, in test_reachable_disclosure_is_not_archived_without_preservation_evidence
+    self.assertEqual(status, "unqueried")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' != 'unqueried'
+- archived
++ unqueried
+
+
+======================================================================
+FAIL: test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved (test_registry_normalize.RegistryCsv.test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 127, in test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved
+    self.assertEqual(row["disclosure_status"], "unqueried")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' != 'unqueried'
+- archived
++ unqueried
+
+
+======================================================================
+FAIL: test_normalizes_evidence_access_details_and_lower_denominator_idempotently (test_registry_normalize.RegistryCsv.test_normalizes_evidence_access_details_and_lower_denominator_idempotently)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-registry-archived-overclaim/tools/tests/test_registry_normalize.py", line 106, in test_normalizes_evidence_access_details_and_lower_denominator_idempotently
+    self.assertEqual(row["disclosure_status"], "unqueried")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' != 'unqueried'
+- archived
++ unqueried
+
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.043s
+
+FAILED (failures=28)

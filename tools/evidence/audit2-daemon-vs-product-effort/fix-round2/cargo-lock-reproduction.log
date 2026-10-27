@@ -1,0 +1,4 @@
+ontology runner cargo build exceeded 1s; check for a competing Cargo build/target lock, or build the runner first and set ONJEON_ONTOLOGY_RUNNER.
+    Blocking waiting for file lock on artifact directory
+
+PASS: a real Cargo target lock is reported as a setup failure after 1s, not skipped

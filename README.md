@@ -2,13 +2,13 @@
 
 **소비자의 알 권리를 위한 보험 앱.** 내가 산 보장, 받지 못하는 조건, 상품 간 차이를 소비자가 직접 이해하고 판단하게 합니다.
 
- 독립 모바일 앱 + 웹 + AI API 개발 저장소. 설계 문서와 함께 규칙 엔진 첫 구현(`packages/rules-engine`)이 있다. 앱·크롤러·API는 아직 없다.
+보험 데이터·지식 기반과 이를 사용하는 첫 소비자 응용(모바일 앱·웹)의 개발 저장소다. 지식 기반은 내부 전용이며 정체성과 대상 범위는 [ADR-0018](docs/decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md)을 따른다. 규칙 엔진·스키마·수집 도구·내부 API·모바일 앱 골격 등의 구현과 픽스처 검증이 있으며, 실제 전 상품 데이터·트윈·소비자 화면의 연결은 미완료다. 현황은 설계도 §11, 첫 출시 완료 판정은 [09_제품목적_대응표](docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 완료 증거를 따른다.
 
 **구현의 단일 기준은 [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md)다.** 목적(정보 비대칭 해소), 범위, 계층, 공유 어휘, 설계 불변식, 구현 순서와 관문을 고정한다. 다른 문서와 충돌하면 설계도를 따른다(ADR-0011).
 
-## 문서
+## 문서·데이터·개발 도구
 
-| 문서 | 내용 |
+| 경로 | 내용 |
 |---|---|
 | `docs/BLUEPRINT.md` | **설계도. 단일 기준** |
 | `docs/PRINCIPLES.md` | 불변 원칙 10개와 PR 체크리스트 |
@@ -23,6 +23,10 @@
 | `docs/blueprint/VOCABULARY.md` | 상태 어휘 생성 문서(정본 `packages/schemas/vocabulary.json`, `tools/vocab_check.py --write`로 생성, 직접 수정 금지) |
 | `docs/blueprint/validation/` | V1 설계 검증 자료: 표본 목록·수집 기록·발췌·인코딩·GAP 보고·화면 연결·검사 실행 기록. 서비스 데이터가 아니다. 안내: `docs/blueprint/validation/README.md` |
 | `docs/blueprint/proposals/설계검토_결과/` | 설계 검토 결과 01 코드설계 · 02 구현계약 · 03 작업명세 · 04 자동개발명세 · 05 VM 실행 준비 · 06 검토사항 점검 · 07 수정 대응표 · 08 요구 추적표 · 09 제품 목적 대응표. 자동 개발 입력 `tasks.json`·`daemon_rules.json`, 재검토 요청과 검증 기록도 같은 디렉터리에 있다(안내: 디렉터리의 `README.md`) |
+| `data/registry/` | 수집 대상 기관의 1차 근거 목록·접근 결과·미확보 사유. ADR-0018 범위를 따르며 상품·특약·판매본 분모 열거는 미완료다([README](data/registry/README.md)) |
+| `infra/r2/` | 현재 원본·파생 보관소인 Cloudflare R2의 작업 명세·비용 정책·체크포인트. ADR-0016이 S3 선택을 대체했고 비용 제한은 ADR-0017을 따른다([README](infra/r2/README.md)) |
+| `infra/s3/` | `*.cfn.yaml`은 ADR-0015 당시의 AWS 대안 정의로 보존한다. ADR-0016 이후 미사용·미배포이며 현재 설정은 `infra/r2/`를 따른다([README](infra/s3/README.md)) |
+| `tools/daemon/` | T-OP-00 모의 전이·검증 코어와 T-OP-09 실행기 검증 도구. 개발 도구의 검증은 상주 데몬 가동 승인이나 출시 완료 증거가 아니다([README](tools/daemon/README.md)) |
 
 우선순위는 불변 원칙 → 제2부 → 제3부 → 제1부 순이다. 제3부 §56의 사용자 결정은 이 순서보다 우선한다.
 

@@ -31,6 +31,8 @@ def run_scenario(entry, rules, tasks):
     except Exception:  # a scenario that cannot run counts as a failure
         error = traceback.format_exc()
         rep.checks.append({"name": "시나리오 실행", "expected": "예외 없음", "actual": error.strip().splitlines()[-1], "status": sc.FAIL})
+    if not rep.checks:
+        rep.checks.append({"name": "시나리오 검사 존재", "expected": "검사 1개 이상", "actual": "검사 0개", "status": sc.FAIL})
     return {"id": mid, "test_id": test_id, "title": title, "checks": rep.checks, "error": error}
 
 
@@ -108,7 +110,7 @@ def main(argv=None):
     print(f"  검사 {total}건, 실패 {failed}건, 명세 공백 표시 {gaps}건")
     print(f"  필수 시험 ID {len(required)}개 중 이번에 실행한 것 {len(ran & set(required))}개, 실행하지 않은 것 {len(not_run)}개(이번 범위 밖)")
     if args.scenario == "all":
-        print("  실행하지 않은 시험 ID: " + ", ".join(not_run))
+        print("  실행하지 않은 시험 ID:" + (" " + ", ".join(not_run) if not_run else ""))
     print(f"  필수 목록에 없는 시험 ID {len(cov['unlisted'])}개" + "".join(f", {t}" for t in cov["unlisted"]))
     print(f"  두 번 이상 나온 시험 ID {len(cov['repeated'])}개" + "".join(f", {t}" for t in cov["repeated"]))
     print(f"  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 {len(Rules.token_log)}종(명세 공백 후보, --report에 목록)")

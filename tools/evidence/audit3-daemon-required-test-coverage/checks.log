@@ -1,0 +1,74 @@
+$ python3 -I tools/daemon/static_checks.py
+[PASS] 코어가 when·note·_ 키를 읽지 않음
+[PASS] 읽기 목록 밖 값은 관측 계층의 Rules.outside()로만
+[PASS] 코어에 dry_run·mock 분기 문자열 없음
+[PASS] 병합 API·자동 병합 호출 함수 없음
+[PASS] 네트워크·실제 CLI·프로세스 실행·동적 코드 실행(eval·exec·compile·__import__·importlib) 없음
+[PASS] 벽시계 없음(time·datetime 미사용, 시간은 clock.now()만)
+[PASS] 스케줄러·상주 루프 없음
+[PASS] lease_generation은 issue_lease 안에서만 대입
+[PASS] 전이 side_effects·인계 단계에 별도 세대 증가 없음
+[PASS] 임대 발급 전이는 모두 issue_lease를 부름
+[PASS] 다른 해시 정의 없음, 트리 해시는 git_write_tree_oid만
+[PASS] 비용 상한·예산 예약·소진 정지 표현 없음(코어·모의 과제·규칙의 동작 필드)
+[PASS] 모델 식별자 문자열 없음
+Checks: 13, failed: 0
+exit_code=0
+$ python3 tools/vocab_check.py
+vocabulary ok: 49 axes, 270 values
+exit_code=0
+$ python3 tools/validation_check.py
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+exit_code=0
+$ python3 tools/validation_check.py --selftest
+  caught: scenario line 1,500만원 → 9,999만원 -> screen/coverage_detail.cancer.json: $.scenarios[sc2].display shows amounts [99990000] but declares [
+  caught: detail price 51,290 → 1 -> screen/coverage_detail.cancer.json: $.sections.why_this_price.price_line price 1 does not equal its 
+  caught: list price 51,290 → 1 -> screen/my_design.real_sample.json: $.groups[diagnosis].price_line price 1 does not equal its one pri
+  caught: list display 월 5.1만 → 월 0.1만 -> screen/my_design.real_sample.json: $.groups[diagnosis].price_line man_display '월 0.1만' != '월 5.1만'
+  caught: when_not_paid 1,500만원 → 1,600만원 -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[1] shows amounts [16000000] but declare
+  caught: amount source points at another price -> screen/coverage_detail.cancer.json: $.sections.why_this_price.breakdown[0] shows 50790 but premium:k
+  caught: candidate amount changed -> screen/coverage_detail.cancer.json: $.sections.why_this_price.conditions[1] shows 30000000 but candi
+  caught: price chip says 여 for a male price -> screen/coverage_detail.cancer.json: $.sections.why_this_price.price_line chip '공시 예시 · 40세 여 · 기준일 0
+  caught: money written with ₩ -> screen/coverage_detail.cancer.json: $.sections.why_this_price.breakdown[0].line uses currency sign f
+  caught: money written with 억 -> screen/coverage_detail.cancer.json: $.sections.what_is_covered[0].line uses 억/천 unit for money: '암 진
+  caught: money in Korean numerals -> screen/coverage_detail.cancer.json: $.sections.what_is_covered[0].line uses Korean numerals for mone
+  caught: money hidden in a note -> screen/coverage_detail.cancer.json: $.sections.what_is_covered[2] shows amounts [99990000] but decla
+  caught: money hidden in a capability reason -> screen/coverage_detail.cancer.json: $.capabilities[0] shows amounts [99990000] but declares []
+  caught: percent changed in a line -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[1] shows numbers ['1년', '30%'] but decl
+  caught: waiting days 90일 → 30일 -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows numbers ['30일'] but declares [
+  caught: list subtitle 90일 → 60일 -> screen/my_design.real_sample.json: $.groups[diagnosis] shows numbers ['1년', '50%', '60일'] but declar
+  caught: waiting days 90일 → 0일 (substring of 90일) -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows numbers ['0일'] but declares ['
+  caught: diff 50% → 0% (substring of 50%) -> screen/coverage_detail.cancer.json: $.diff.items[3] shows numbers ['0%', '1년'] but declares ['1년', '
+  caught: list subtitle 90일 → 0일 -> screen/my_design.real_sample.json: $.groups[diagnosis] shows numbers ['0일', '1년', '50%'] but declare
+  caught: line and declared value both 0일 -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows `0일` but field:kyobo_cancer#f_
+  caught: field changed under an unchanged line -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] shows `90일` but field:kyobo_cancer#f
+  caught: field unit changed (day → calendar_month) -> screen/coverage_detail.cancer.json: $.sections.when_not_paid[0] `90일` unit 일 but kyobo_cancer#f_main
+  caught: value source points at another field -> screen/coverage_detail.cancer.json: $.sections.limits_and_renewal[1] shows `20년` but field:kyobo_can
+  caught: price condition changed under a line -> screen/coverage_detail.cancer.json: $.sections.why_this_price.conditions[0] shows `20년` but premium:
+  caught: clause value 87.7% → 7.7% (substring) -> screen/coverage_detail.cancer.json: $.sections.why_this_price.tradeoffs[1] `7.7%` is not a whole tok
+  caught: scenario question days ≠ inputs -> screen/coverage_detail.cancer.json: $.scenarios[sc2] question says 300일 but inputs differ by 200 day
+  caught: cancer event evidence → sex criteria clause -> encoded/kyobo_cancer.json: f_main_event raw_value is not inside the quoted passage of any cited clau
+  caught: waiting raw_value from the reduction clause -> encoded/kyobo_cancer.json: f_main_waiting raw_value is not inside the quoted passage of any cited cl
+  caught: art.7 clause page 47 → 48 -> encoded/kyobo_cancer.json: c_main_art7 anchor is not on d_terms page 48 (found on page [47]): 다만, 최초
+  caught: clause moved to another document -> encoded/kyobo_cancer.json: c_main_art7 anchor is not on d_sum page 47: 다만, 최초 1회의 진단확정에 한하며, 보험계약일부터
+  caught: price observation 50,790 → 1 -> encoded/kyobo_cancer.json: p_sum_m_main amount 1 is not inside the quoted passage of any cited claus
+  caught: price evidence → unrelated clause -> encoded/kyobo_cancer.json: p_sum_f_main amount 33,240 is not inside the quoted passage of any cited 
+  caught: derived manifest pin removed -> samples.csv: kyobo_cancer_summary needs a pinned derived_manifest_sha256 (reproduction verifies agai
+  caught: field promoted to accepted without review -> encoded/kyobo_cancer.json: $.fields[7] is review_status=accepted, but no cross-family review record 
+  caught: condition match drops not_in_source -> screen/coverage_detail.cancer.json: $.sections.why_this_price must list not_in_source conditions ['a
+  caught: condition match claims pay_term -> screen/coverage_detail.cancer.json: $.sections.why_this_price claims `pay_term` matches but profile=
+  caught: profile sex differs but still matched -> screen/coverage_detail.cancer.json: $.sections.why_this_price claims `sex` matches but profile='fema
+  caught: condition line hides 미확인 -> screen/coverage_detail.cancer.json: $.sections.why_this_price line must say the remaining conditions
+selftest ok: 38 mutations, each caught for its intended reason
+exit_code=0
+$ python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (36 ADR/DEC files)
+exit_code=0
+$ python3 -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 201, "tamper_tests": 38, "vocabulary_axes": 49}
+exit_code=0
+$ python3 -I tools/ci/check_product_purpose.py
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+exit_code=0
+$ git diff --check
+exit_code=0

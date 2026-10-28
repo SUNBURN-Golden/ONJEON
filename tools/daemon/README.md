@@ -12,6 +12,10 @@ python3 -m unittest tools/tests/test_daemon_static_checks.py -v
 
 `--scenario`는 `all`, M 번호(`M41`), 또는 필수 시험 ID(`restart-ttl-expired-no-resend`)를 받는다. 하나라도 기대와 다르거나 시나리오가 예외로 멈추면 종료 코드는 1이다. 실행 기록과 보고서는 `reports/`에 있다. `reports/dry_run.log`가 보고서이고, 통과한 검사도 기대·실제 열(전이 열 포함)을 줄이지 않고 다 적는다. JSON이 필요하면 `--report`로 만든다. `--require-all`을 주면 실행한 시험 ID가 T-OP-00 필수 시험 ID 33개(`mock_tasks.json` `t_op_00_required_test_ids`)와 정확히 같아야 종료 코드 0이다. 빠진 ID(실행하지 않은 시험 ID), 목록에 없는 ID(필수 목록에 없는 시험 ID), 두 번 이상 나온 ID(두 시나리오가 같은 ID를 쓰거나 목록에 두 번 적힌 것)를 요약에 적고, 하나라도 있으면 1이다(`dry_run.coverage`, audit2-daemon-coverage-reverse). STATIC과 시험 ID가 `-`인 시나리오는 세지 않는다.
 
+검사가 0개인 시나리오는 실패한다(`--require-all` 없이도 적용). 설계 검사 `spec_check.py`의 G12b는 정본 `tasks.json`의 T-OP-00 필수 ID와 두 소스의 등록 목록·함수 정의·모의 목록을 대조하며 누락·미등록·중복·읽기 오류를 거부한다. 함수 존재는 실행 성공 증명이 아니므로 CI `design-specs`에서도 `--scenario all --require-all`을 실행한다. `Coverage`는 정본 33개와 실제 실행·unittest 연결을 검증하고, `CoverageBothWays`·`test_daemon_required_test_coverage.py`는 각 ID 삭제·함수 삭제·빈 함수 변이를 검사한다. [Audit 3 증거](../evidence/audit3-daemon-required-test-coverage/README.md).
+
+설계 묶음의 `검증/실행로그_dry_run.txt`는 현재 전체 실행의 `--quiet` 출력이며 전체 기대·실제 값은 `reports/dry_run.log`에 있다. `Coverage.test_dry_run_reports_all_required_ids_run`이 이 요약 로그를 현재 실행 출력과 대조한다. STATIC의 검사 수는 정적 검사 13개와 설명 키 변조·삭제 비교 2개를 합친 15개다.
+
 ## 구성
 
 | 경로 | 내용 |
@@ -73,7 +77,7 @@ PR 이후 전이(전이표 43~85행)는 대부분 `cond`가 없다. `blocked→q
 
 ## 증거 기록(reports/)
 
-`reports/dry_run.log`(보고서)와 `reports/unittest.log`(시험 실행)의 머리말은 `generated from parent commit <sha> + tree hash of tools/daemon sources`로 시작한다. 로그는 커밋 전에 만들므로 로그 자신이 들어갈 커밋의 SHA를 적을 수 없다. 그래서 부모 커밋(이 변경을 얹은 바로 앞 커밋)과, 그 위에 얹은 소스의 내용 해시를 적는다. PR head는 부모 커밋에 이 변경 커밋 하나를 더한 것과 정확히 같다. 해시는 `tools/daemon/`(`reports/`·`runner_verify/`·`__pycache__` 제외)과 `tools/tests/test_daemon_dry_run.py`의 파일 내용으로 만들고, 같은 소스면 같은 값이 나온다. 저장소 루트에서 다시 계산한다.
+`reports/dry_run.log`(보고서)와 `reports/unittest.log`(시험 실행)의 머리말은 `generated from parent commit <sha> + tree hash of tools/daemon sources`로 시작한다. 로그는 커밋 전에 만들므로 로그 자신이 들어갈 커밋의 SHA를 적을 수 없다. 그래서 부모 커밋(이 변경을 얹은 바로 앞 커밋)과, 그 위에 얹은 소스의 내용 해시를 적는다. PR head는 부모 커밋에 이 변경 커밋 하나를 더한 것과 정확히 같다. main을 병합하는 커밋에 들어갈 로그는 둘째 부모를 `merge input main commit <sha>` 둘째 줄로 적는다. 해시는 `tools/daemon/`(`reports/`·`runner_verify/`·`__pycache__` 제외)과 `tools/tests/test_daemon_dry_run.py`의 파일 내용으로 만들고, 같은 소스면 같은 값이 나온다. 저장소 루트에서 다시 계산한다.
 
 ```sh
 { find tools/daemon -path tools/daemon/reports -prune -o -path tools/daemon/runner_verify -prune -o -path '*/__pycache__' -prune -o -type f -print; \

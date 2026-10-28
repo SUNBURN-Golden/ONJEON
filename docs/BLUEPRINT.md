@@ -324,7 +324,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 7. 마일스톤이 끝날 때마다 §4·§8·§9·§11의 상태 열을 갱신한다.
 8. 마일스톤과 별개로 `docs/decisions/ADR-*.md` 또는 `DEC-*.md`를 추가·수정·삭제·개명하는 변경은 같은 변경에서 §11의 영향받는 상태·관문을 검토·갱신하고 기준일(UTC)을 찍는다. 검토 뒤 `python3 -I tools/blueprint_status.py --write`로 §11 기준일과 전체 결정 색인·내용 해시를 갱신한다. `python3 -I tools/blueprint_status.py`와 CI의 `tools/tests/test_blueprint_status.py`가 누락을 거부한다. 자동 생성은 색인과 날짜만 바꾸며 상태 판단·관문 승인을 대신하지 않는다.
 
-## 11. 현재 위치 (2026-10-27)
+## 11. 현재 위치 (2026-10-28)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -341,7 +341,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | 불변식 | §8의 기존 표기는 18개 중 6개 구현(엔진 범위)이다. 이번 현황 갱신으로 다른 불변식을 구현 완료로 승격하지 않는다 |
 | 마일스톤 | 기존 판정: M0·V0 완료, V1 설계 탐색·원본 R2 보존·대조 완료(완전 재현 8/14). 파생 6건 재생성 검증·교차 검수와 이후 관문 판정은 별도다. 추가 코드·시험 통과를 M1 이후 전체 완료나 P01~P19 완료로 간주하지 않는다 |
 
-현재 코드 수치 검사는 `python3 -I tools/blueprint_counts.py`이며 일반 CI에서 실행한다. 변경 시 `--write`로 아래 표만 갱신한다. 어휘 전체 수·목록은 §6의 생성 문서와도 대조한다. [Audit 2 수치·누락 현황 검증 증거](blueprint/audits/2026-10-27_blueprint_11_counts.md).
+현재 코드 수치 검사는 `python3 -I tools/blueprint_counts.py`이며 일반 CI에서 실행한다. 변경 시 `--write`로 아래 표만 갱신한다. 어휘 전체 수·목록은 §6의 생성 문서와도 대조한다. [Audit 2 수치·누락 현황 검증 증거](blueprint/audits/2026-10-27_blueprint_11_counts.md). [Audit 3 재검증](blueprint/audits/2026-10-28_blueprint_s11_refresh.md)은 ADR-0014의 규칙 수 정정과 §6·§7.3·§9.2·§11의 현재 코드·결정 이력 대조를 기록한다.
 
 <!-- blueprint-counts:start -->
 현재 저장소의 등록 수(자동 생성). Rust는 `onjeon-rules-engine`만 세며, 단위·통합 시험과 doctest를 구분한다. 무시된 시험도 등록 수에 포함하며 통과·출시 판정은 실행 증거에서 확인한다.
@@ -358,7 +358,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-10-27 | SHA-256(파일명·내용): `82ceec8588e9e15e165f5104fdd2bc86b4c5875cc4de59f650e93b167691884e`
+결정 기록 대조일: 2026-10-28 | SHA-256(파일명·내용): `e7e260ab8600abed1cc147936602288e80c8c58b1b251531b4839b96582f90c5`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|

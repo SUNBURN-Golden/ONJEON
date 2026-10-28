@@ -1,0 +1,24 @@
+Scope: all changed/untracked files are within node allowlist.
+Protected paths: unchanged from HEAD.
+New audit record and incoming evidence links: all local links resolve.
+git diff --check and changed/untracked whitespace check: exit code 0.
+Changed/untracked paths:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-10-28_blueprint_s11_refresh.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+docs/decisions/ADR-0014-V1-검증-결과의-설계-반영.md
+tools/evidence/audit3-blueprint-s11-refresh/before.log
+tools/evidence/audit3-blueprint-s11-refresh/counts-tests.log
+tools/evidence/audit3-blueprint-s11-refresh/counts.log
+tools/evidence/audit3-blueprint-s11-refresh/engine-list.log
+tools/evidence/audit3-blueprint-s11-refresh/ontology-build.log
+tools/evidence/audit3-blueprint-s11-refresh/product-purpose.log
+tools/evidence/audit3-blueprint-s11-refresh/python-tests.log
+tools/evidence/audit3-blueprint-s11-refresh/rust-tests.log
+tools/evidence/audit3-blueprint-s11-refresh/scope.log
+tools/evidence/audit3-blueprint-s11-refresh/spec-check.log
+tools/evidence/audit3-blueprint-s11-refresh/status.log
+tools/evidence/audit3-blueprint-s11-refresh/tamper-tests.log
+tools/evidence/audit3-blueprint-s11-refresh/validation.log
+tools/evidence/audit3-blueprint-s11-refresh/vocabulary.log
+tools/tests/test_blueprint_counts.py

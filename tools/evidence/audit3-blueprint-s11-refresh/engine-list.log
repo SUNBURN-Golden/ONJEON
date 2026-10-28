@@ -1,0 +1,286 @@
+$ cargo test --locked --color never -p onjeon-rules-engine -- --list
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
+canonical::tests::runtime_struct_fields_are_sorted_recursively_and_types_are_explicit: test
+date::tests::month_end_clamps: test
+date::tests::out_of_range_and_overflow_return_none_instead_of_panicking: test
+date::tests::parse_date_preserves_canonical_dates_and_calendar_validation: test
+date::tests::parse_date_rejects_non_digits_in_every_component: test
+date::tests::roundtrip_and_known_dates: test
+rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id: test
+rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text: test
+tri::tests::truth_table_matches_spec_49_3: test
+value::tests::rate_parsing: test
+
+10 tests, 0 benchmarks
+     Running tests/all_any_errors.rs (/workspace/onjeon-run/shared-target/debug/deps/all_any_errors-13afaee0138aa697)
+absorbed_errors_have_deterministic_trace_entries_without_partial_children: test
+all_false_absorbs_runtime_errors_in_both_versions: test
+any_true_absorbs_runtime_errors_in_both_versions: test
+decisive_result_wins_over_errors_and_unknowns_in_every_child_order: test
+errors_are_preserved_without_a_decisive_child: test
+nested_all_any_and_if_keep_decisions_and_relevant_errors: test
+unknown_children_keep_their_blockers_without_defaulting_to_a_decision: test
+
+7 tests, 0 benchmarks
+     Running tests/content_hash_scope.rs (/workspace/onjeon-run/shared-target/debug/deps/content_hash_scope-4da944e772be22b3)
+equivalent_spellings_of_the_same_logic_hash_differently: test
+metadata_that_does_not_affect_evaluation_is_still_hashed: test
+omitted_defaults_are_not_filled_in: test
+string_whitespace_and_array_order_are_not_normalized: test
+top_level_release_id_is_excluded_but_a_nested_one_is_hashed: test
+unicode_forms_are_not_normalized: test
+whitespace_key_order_and_string_escapes_do_not_change_the_hash: test
+
+7 tests, 0 benchmarks
+     Running tests/date_format.rs (/workspace/onjeon-run/shared-target/debug/deps/date_format-c73c2d489faeeeca)
+canonical_date_literals_and_inputs_still_evaluate: test
+signed_date_inputs_are_rejected_at_evaluation: test
+signed_date_literals_are_rejected_at_load: test
+
+3 tests, 0 benchmarks
+     Running tests/days_between.rs (/workspace/onjeon-run/shared-target/debug/deps/days_between-470e13cb4e0feaea)
+forward_and_same_day_intervals_preserve_all_inclusive_boundaries: test
+missing_dates_stay_unknown_and_report_only_missing_endpoints: test
+reversed_dates_cannot_satisfy_comparison_thresholds: test
+reversed_literal_and_computed_dates_are_also_rejected: test
+
+4 tests, 0 benchmarks
+     Running tests/fixture_supplements.rs (/workspace/onjeon-run/shared-target/debug/deps/fixture_supplements-5c73c7add3657f0c)
+duplicate_ids_within_a_supplement_are_rejected: test
+every_supplement_extends_an_existing_table_without_changing_shared_cases: test
+supplement_cannot_shadow_a_shared_case: test
+supplemental_cases_inherit_base_inputs_and_apply_their_overrides: test
+
+4 tests, 0 benchmarks
+     Running tests/golden.rs (/workspace/onjeon-run/shared-target/debug/deps/golden-b070bb5f85ed9bcc)
+golden_table_matches_expert_expectations: test
+golden_table_pins_trace_and_hashes: test
+pinned_input_snapshot_hashes_are_distinct_per_distinct_input: test
+real_results_are_byte_identical_after_disk_reload_and_key_permutation: test
+real_rule_content_hashes_are_pinned: test
+same_input_gives_byte_identical_output: test
+synthetic_fixture_rule_is_fixture_only: test
+trace_records_every_evaluated_node_and_hash_changes_with_input: test
+
+8 tests, 0 benchmarks
+     Running tests/identity_evidence.rs (/workspace/onjeon-run/shared-target/debug/deps/identity_evidence-61b825b05ec1fee8)
+blank_evidence_refs_cannot_satisfy_the_evidence_requirement: test
+blank_rule_ids_are_rejected: test
+duplicate_evidence_refs_are_rejected_at_the_repeated_index: test
+empty_evidence_list_is_allowed_only_for_fixtures: test
+valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation: test
+
+5 tests, 0 benchmarks
+     Running tests/immutable_rule_doctests.rs (/workspace/onjeon-run/shared-target/debug/deps/immutable_rule_doctests-1d29f698468c1c69)
+immutable_rule_doctests_fail_only_on_private_field_access: test
+
+1 test, 0 benchmarks
+     Running tests/loader_and_arith.rs (/workspace/onjeon-run/shared-target/debug/deps/loader_and_arith-581a38e2763dfe88)
+cap_min_max_add_with_ranges: test
+date_add_exact_key_sets_preserve_calendar_results: test
+date_add_never_assumes_365_days_per_year: test
+date_add_params_are_a_closed_key_set: test
+date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches: test
+date_add_required_keys_cannot_be_replaced_by_unknown_keys: test
+days_between_inclusivity_is_explicit: test
+days_between_rejects_reversed_dates_for_every_inclusivity: test
+evaluation_rejects_undeclared_or_mistyped_inputs: test
+loader_enforces_rule_level_invariants: test
+loader_rejects_everything_outside_the_allow_list: test
+rounding_modes_are_explicit_and_exact: test
+rounding_to_unit: test
+
+13 tests, 0 benchmarks
+     Running tests/mutation.rs (/workspace/onjeon-run/shared-target/debug/deps/mutation-30bcc153d15232c8)
+allowlist_has_no_stale_entries: test
+every_mutant_is_killed_by_the_golden_table: test
+generic_mutants_are_killed_on_every_rule: test
+generic_rate_literals_mutate_in_both_representations: test
+harness_reports_a_surviving_mutant: test
+skin_rule_boundary_supplement_kills_mutants_the_shared_table_misses: test
+wrapped_real_rule_rates_preserve_mutation_coverage: test
+
+7 tests, 0 benchmarks
+     Running tests/overflow.rs (/workspace/onjeon-run/shared-target/debug/deps/overflow-a7a24fbf3280fcac)
+add_is_exact_up_to_i64_max: test
+add_overflow_in_a_nested_expression_reports_the_inner_path: test
+add_overflow_is_found_in_any_position_of_a_long_sum: test
+add_overflows_on_the_upper_bound_of_a_range_alone: test
+add_past_i64_max_overflows_instead_of_wrapping: test
+min_max_and_cap_at_i64_max_never_overflow: test
+multiply_rate_is_exact_when_the_result_is_i64_max: test
+multiply_rate_on_a_range_overflows_on_either_bound: test
+multiply_rate_overflows_when_rounding_up_to_the_unit_exceeds_i64_max: test
+multiply_rate_product_past_i64_max_overflows: test
+overflow_is_an_error_not_an_unknown_amount: test
+unspecified_rounding_overflows_when_only_the_upper_bound_does: test
+
+12 tests, 0 benchmarks
+     Running tests/range_comparisons.rs (/workspace/onjeon-run/shared-target/debug/deps/range_comparisons-52c9a26577a11945)
+audit_p201_is_rejected_before_input_dependent_failure: test
+exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes: test
+exact_money_threshold_comparisons_preserve_order_and_missing_inputs: test
+mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns: test
+nested_and_unreachable_comparisons_fail_at_both_load_boundaries: test
+pro_rata_ratio_operands_still_require_exact_money: test
+ranges_propagate_through_every_v01_money_operator_and_if_branch: test
+static_range_checks_do_not_depend_on_constant_values_or_reachable_branches: test
+v02_money_operators_preserve_input_ranges_even_with_explicit_rounding: test
+v02_rounding_operators_introduce_ranges: test
+
+10 tests, 0 benchmarks
+     Running tests/readme_test_table.rs (/workspace/onjeon-run/shared-target/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+audited_rows_are_present: test
+checker_catches_a_dropped_row_and_a_stale_row: test
+readme_does_not_call_the_content_hash_normalized: test
+readme_test_table_matches_integration_test_files: test
+
+4 tests, 0 benchmarks
+     Running tests/real_clauses.rs (/workspace/onjeon-run/shared-target/debug/deps/real_clauses-15dc6296a8f95d44)
+case_coverage_check_catches_orphans_and_unknown_rules: test
+every_real_clause_case_matches: test
+every_real_rule_evidence_ref_names_an_encoded_clause: test
+exact_case_count_check_catches_an_unexpected_extra_case: test
+exact_case_count_check_catches_each_missing_file: test
+exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered: test
+rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count: test
+screen_check_catches_tampered_numbers: test
+screen_payout_text_and_amounts_come_from_the_engine: test
+waiting_period_units_are_not_interchangeable: test
+whole_life_accident_and_disease_death_never_both_pay: test
+
+11 tests, 0 benchmarks
+     Running tests/review_fixes.rs (/workspace/onjeon-run/shared-target/debug/deps/review_fixes-89e86f8d87d7639f)
+content_hash_changes_with_content_even_if_version_is_not_bumped: test
+content_hash_ignores_formatting_and_release_but_not_evidence: test
+content_hash_is_independent_of_key_order_in_the_file: test
+date_arithmetic_beyond_supported_range_is_an_error_not_a_panic: test
+fixture_rule_content_hash_is_pinned: test
+input_dates_outside_supported_range_are_rejected: test
+loader_rejects_huge_date_offsets: test
+reloading_the_source_json_reproduces_the_same_rule_identity: test
+result_identifies_rule_version_release_content_and_evidence: test
+unspecified_rounding_range_flows_through_a_second_multiplication: test
+version_and_release_are_enforced_at_load_time: test
+
+11 tests, 0 benchmarks
+     Running tests/rule_02.rs (/workspace/onjeon-run/shared-target/debug/deps/rule_02-c69f0843eb660f70)
+anniversary_band_leap_day_anniversary_is_the_last_day_of_february: test
+anniversary_band_lower_inclusive_boundaries: test
+anniversary_band_rejects_reversed_dates_and_propagates_unknown: test
+anniversary_band_table_is_validated_at_load: test
+anniversary_band_upper_inclusive_boundaries: test
+composes_with_rule_01_operators: test
+contract_effect_defaults_to_none_and_is_validated: test
+contract_effect_follows_eligibility: test
+contract_effect_is_part_of_the_content_hash: test
+divide_count_golden_and_boundaries: test
+divide_count_rounds_the_bounds_of_a_range: test
+divide_count_unknown_inputs_block: test
+divide_count_zero_count_is_unknown: test
+list_input_changes_the_snapshot_hash: test
+list_inputs_are_validated: test
+max_over_and_lists_are_typed_at_load: test
+max_over_overflow_is_an_error: test
+max_over_takes_the_highest_per_class_and_sums_classes: test
+max_over_unknown_list_or_amount_is_unknown_not_zero: test
+multiply_count_golden_and_boundaries: test
+multiply_count_keeps_ranges: test
+multiply_count_type_checks_at_load: test
+multiply_count_unknown_is_never_zero: test
+mutated_rule_02_operators_are_caught: test
+pro_rata_accepts_int_parts_and_rejects_mixed_types: test
+pro_rata_applies_to_ranges: test
+pro_rata_boundaries: test
+pro_rata_golden_and_rounding: test
+pro_rata_requires_explicit_rounding: test
+pro_rata_unknown_inputs_block: test
+pro_rata_whole_zero_is_unknown_not_error_not_zero: test
+rule_01_documents_cannot_use_rule_02_features: test
+rule_01_results_report_no_contract_effect: test
+rule_02_operators_are_sound_under_hidden_inputs: test
+rule_02_results_are_reproducible_and_identify_the_schema: test
+subtract_floor0_golden_and_boundaries: test
+subtract_floor0_range_bounds_are_conservative: test
+subtract_floor0_unknown_is_not_floored_to_zero: test
+undetermined_eligibility_never_reports_no_effect: test
+unknown_eligibility_with_rule_02_amount_stays_undetermined: test
+zero_operands_that_are_known_differ_from_unknown_ones: test
+
+41 tests, 0 benchmarks
+     Running tests/snapshot_hash.rs (/workspace/onjeon-run/shared-target/debug/deps/snapshot_hash-8f3c0914b196cffd)
+delimiter_injection_no_longer_collides: test
+every_input_name_is_hashed_including_release_id_and_json_metacharacters: test
+hash_matches_independent_canonical_json_with_all_input_types: test
+list_member_order_amount_and_class_are_preserved_but_object_order_is_not: test
+object_order_and_null_vs_missing_do_not_change_the_snapshot: test
+runtime_types_and_string_bytes_remain_distinct: test
+
+6 tests, 0 benchmarks
+     Running tests/soundness.rs (/workspace/onjeon-run/shared-target/debug/deps/soundness-7683122ddc54e9c2)
+hide_check_catches_unknown_treated_as_false_on_real_rules: test
+hiding_an_input_never_changes_a_definite_answer: test
+hiding_an_input_never_changes_a_definite_answer_on_real_rules: test
+hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer: test
+hiding_eligibility_keeps_an_overflowing_amount_undetermined: test
+unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors: test
+unknown_eligibility_handles_all_any_errors_inside_conditional_amount: test
+unknown_eligibility_preserves_successful_conditional_amounts_and_blockers: test
+unknown_is_never_reported_as_zero_or_not_payable: test
+
+9 tests, 0 benchmarks
+     Running tests/static_types.rs (/workspace/onjeon-run/shared-target/debug/deps/static_types-e121bb97a3bf2b90)
+audit_examples_are_rejected_at_load: test
+comparisons_need_matching_operand_types: test
+date_operators_need_date_arguments: test
+if_needs_boolean_condition_and_same_typed_branches: test
+literal_forms_carry_their_types: test
+logic_operators_need_boolean_arguments: test
+money_operators_need_money_arguments: test
+ordering_on_bool_or_string_is_rejected_at_load: test
+top_level_expressions_must_be_bool_and_money: test
+well_typed_rules_still_evaluate_as_before: test
+
+10 tests, 0 benchmarks
+     Running tests/string_literals.rs (/workspace/onjeon-run/shared-target/debug/deps/string_literals-0f2e732b37dab48e)
+declared_input_names_cannot_capture_explicit_literals: test
+explicit_strings_support_eq_ne_on_either_side: test
+legacy_bare_strings_keep_input_precedence_and_rate_fallback: test
+literal_values_are_preserved_without_rate_parsing_or_normalization: test
+missing_and_null_string_inputs_remain_unknown: test
+str_rejects_non_string_arguments_and_extra_keys_at_load: test
+string_literals_compose_with_if_and_boolean_operators: test
+string_literals_obey_static_comparison_and_context_types: test
+
+8 tests, 0 benchmarks
+     Running tests/unknown_branch_errors.rs (/workspace/onjeon-run/shared-target/debug/deps/unknown_branch_errors-042ef5e7e77aab11)
+a_failing_branch_never_makes_the_other_branch_the_answer: test
+a_selected_failing_branch_is_still_an_error: test
+blockers_include_the_other_unknown_branch: test
+both_branches_failing_is_still_an_error: test
+eligibility_branch_errors_leave_eligibility_unknown: test
+failing_branch_under_unknown_condition_is_unknown_with_blockers: test
+trace_records_the_absorbed_error_and_is_deterministic: test
+type_errors_in_a_branch_are_absorbed_too: test
+
+8 tests, 0 benchmarks
+     Running tests/vocabulary.rs (/workspace/onjeon-run/shared-target/debug/deps/vocabulary-45281aec3561603e)
+amount_kind_names_are_canonical: test
+duration_units_are_canonical: test
+input_types_are_canonical_and_versioned: test
+operator_allowlist_is_canonical_and_versioned: test
+payout_names_are_canonical: test
+publication_states_are_canonical: test
+rounding_modes_are_canonical: test
+tri_names_are_canonical: test
+
+8 tests, 0 benchmarks
+   Doc-tests onjeon_rules_engine
+packages/rules-engine/src/rule.rs - rule::Rule (line 264): test
+packages/rules-engine/src/rule.rs - rule::Rule (line 277): test
+packages/rules-engine/src/rule.rs - rule::Rule (line 286): test
+
+3 tests, 0 benchmarks
+
+exit code: 0

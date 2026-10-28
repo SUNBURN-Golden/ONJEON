@@ -2,6 +2,7 @@
 import contextlib
 import io
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -175,6 +176,19 @@ class DocumentCounts(unittest.TestCase):
 
 
 class InventoryDocumentation(unittest.TestCase):
+    def test_adr_0014_real_clause_count_matches_fixture_inventory(self):
+        text = (ROOT / "docs/decisions/ADR-0014-V1-검증-결과의-설계-반영.md").read_text(encoding="utf-8")
+        counts = re.findall(r"^- 실제 조항 규칙 (\d+)건은 `fixture_only`", text, re.M)
+        rules = [path for path in (ROOT / "packages/fixtures/rules/real").glob("*.json")
+                 if not path.name.endswith(".cases.json")]
+        self.assertTrue(rules)
+        self.assertEqual(counts, [str(len(rules))])
+
+    def test_validation_readme_tamper_count_matches_mutations(self):
+        text = (ROOT / "docs/blueprint/validation/README.md").read_text(encoding="utf-8")
+        counts = re.findall(r"`--selftest` (\d+)종", text)
+        self.assertEqual(counts, [str(len(bc.validation_check.mutations()))])
+
     def test_ci_runs_counts_check_and_existing_discovery_tests(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertIn("run: python3 -I tools/blueprint_counts.py\n", workflow)

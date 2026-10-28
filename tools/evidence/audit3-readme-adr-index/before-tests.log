@@ -1,0 +1,101 @@
+test_dec_records_exist_and_are_pointed_to (tools.tests.test_readme_index.DecisionsRow.test_dec_records_exist_and_are_pointed_to) ... ok
+test_every_adr_number_is_listed (tools.tests.test_readme_index.DecisionsRow.test_every_adr_number_is_listed) ... ok
+test_daemon_is_a_development_tool_with_limited_evidence (tools.tests.test_readme_index.IndexedPaths.test_daemon_is_a_development_tool_with_limited_evidence) ... FAIL
+test_every_path_in_the_docs_table_exists (tools.tests.test_readme_index.IndexedPaths.test_every_path_in_the_docs_table_exists) ... ok
+test_r2_is_current_and_s3_templates_are_unused_alternatives (tools.tests.test_readme_index.IndexedPaths.test_r2_is_current_and_s3_templates_are_unused_alternatives) ... FAIL
+test_registry_is_an_institution_inventory_not_product_completion (tools.tests.test_readme_index.IndexedPaths.test_registry_is_an_institution_inventory_not_product_completion) ... FAIL
+test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) ... 
+  test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='data/registry/') ... FAIL
+  test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='infra/r2/') ... FAIL
+  test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='infra/s3/') ... FAIL
+  test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='tools/daemon/') ... FAIL
+test_review_results_row_names_every_file (tools.tests.test_readme_index.IndexedPaths.test_review_results_row_names_every_file) ... ok
+test_introduction_points_to_scope_and_product_completion_criteria (tools.tests.test_readme_index.ProductScope.test_introduction_points_to_scope_and_product_completion_criteria) ... FAIL
+
+======================================================================
+FAIL: test_daemon_is_a_development_tool_with_limited_evidence (tools.tests.test_readme_index.IndexedPaths.test_daemon_is_a_development_tool_with_limited_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 66, in test_daemon_is_a_development_tool_with_limited_evidence
+    text = row("tools/daemon/")
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 14, in row
+    raise AssertionError(f"README has no table row for {path_cell}")
+AssertionError: README has no table row for tools/daemon/
+
+======================================================================
+FAIL: test_r2_is_current_and_s3_templates_are_unused_alternatives (tools.tests.test_readme_index.IndexedPaths.test_r2_is_current_and_s3_templates_are_unused_alternatives)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 56, in test_r2_is_current_and_s3_templates_are_unused_alternatives
+    current = row("infra/r2/")
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 14, in row
+    raise AssertionError(f"README has no table row for {path_cell}")
+AssertionError: README has no table row for infra/r2/
+
+======================================================================
+FAIL: test_registry_is_an_institution_inventory_not_product_completion (tools.tests.test_readme_index.IndexedPaths.test_registry_is_an_institution_inventory_not_product_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 50, in test_registry_is_an_institution_inventory_not_product_completion
+    text = row("data/registry/")
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 14, in row
+    raise AssertionError(f"README has no table row for {path_cell}")
+AssertionError: README has no table row for data/registry/
+
+======================================================================
+FAIL: test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='data/registry/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 47, in test_required_rows_present
+    row(cell)
+    ~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 14, in row
+    raise AssertionError(f"README has no table row for {path_cell}")
+AssertionError: README has no table row for data/registry/
+
+======================================================================
+FAIL: test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='infra/r2/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 47, in test_required_rows_present
+    row(cell)
+    ~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 14, in row
+    raise AssertionError(f"README has no table row for {path_cell}")
+AssertionError: README has no table row for infra/r2/
+
+======================================================================
+FAIL: test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='infra/s3/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 47, in test_required_rows_present
+    row(cell)
+    ~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 14, in row
+    raise AssertionError(f"README has no table row for {path_cell}")
+AssertionError: README has no table row for infra/s3/
+
+======================================================================
+FAIL: test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) (path='tools/daemon/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 47, in test_required_rows_present
+    row(cell)
+    ~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 14, in row
+    raise AssertionError(f"README has no table row for {path_cell}")
+AssertionError: README has no table row for tools/daemon/
+
+======================================================================
+FAIL: test_introduction_points_to_scope_and_product_completion_criteria (tools.tests.test_readme_index.ProductScope.test_introduction_points_to_scope_and_product_completion_criteria)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-readme-adr-index/tools/tests/test_readme_index.py", line 91, in test_introduction_points_to_scope_and_product_completion_criteria
+    self.assertIn(f"]({path})", intro)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '](docs/decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md)' not found in '# ONJEON 온전\n\n**소비자의 알 권리를 위한 보험 앱.** 내가 산 보장, 받지 못하는 조건, 상품 간 차이를 소비자가 직접 이해하고 판단하게 합니다.\n\n 독립 모바일 앱 + 웹 + AI API 개발 저장소. 설계 문서와 함께 규칙 엔진 첫 구현(`packages/rules-engine`)이 있다. 앱·크롤러·API는 아직 없다.\n\n**구현의 단일 기준은 [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md)다.** 목적(정보 비대칭 해소), 범위, 계층, 공유 어휘, 설계 불변식, 구현 순서와 관문을 고정한다. 다른 문서와 충돌하면 설계도를 따른다(ADR-0011).\n\n'
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.005s
+
+FAILED (failures=8)

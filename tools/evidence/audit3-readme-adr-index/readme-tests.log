@@ -1,0 +1,14 @@
+test_dec_records_exist_and_are_pointed_to (tools.tests.test_readme_index.DecisionsRow.test_dec_records_exist_and_are_pointed_to) ... ok
+test_every_adr_number_is_listed (tools.tests.test_readme_index.DecisionsRow.test_every_adr_number_is_listed) ... ok
+test_daemon_is_a_development_tool_with_limited_evidence (tools.tests.test_readme_index.IndexedPaths.test_daemon_is_a_development_tool_with_limited_evidence) ... ok
+test_every_path_in_the_docs_table_exists (tools.tests.test_readme_index.IndexedPaths.test_every_path_in_the_docs_table_exists) ... ok
+test_r2_is_current_and_s3_templates_are_unused_alternatives (tools.tests.test_readme_index.IndexedPaths.test_r2_is_current_and_s3_templates_are_unused_alternatives) ... ok
+test_registry_is_an_institution_inventory_not_product_completion (tools.tests.test_readme_index.IndexedPaths.test_registry_is_an_institution_inventory_not_product_completion) ... ok
+test_required_rows_present (tools.tests.test_readme_index.IndexedPaths.test_required_rows_present) ... ok
+test_review_results_row_names_every_file (tools.tests.test_readme_index.IndexedPaths.test_review_results_row_names_every_file) ... ok
+test_introduction_points_to_scope_and_product_completion_criteria (tools.tests.test_readme_index.ProductScope.test_introduction_points_to_scope_and_product_completion_criteria) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+OK

@@ -1,0 +1,10 @@
+PASS: 22 changed/new files are within allowed paths; no protected files edited.
+PASS: protected files match HEAD.
+PASS: runtime evaluator and existing fixtures match HEAD.
+PASS: 136 local Markdown link targets exist in changed documents.
+PASS: git diff --check.
+Modified tracked files:
+docs/BLUEPRINT.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/tests/all_any_errors.rs

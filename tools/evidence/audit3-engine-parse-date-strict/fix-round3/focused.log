@@ -1,0 +1,82 @@
+Command: cargo test -p onjeon-rules-engine --locked --offline --lib --test date_format --test readme_test_table --test vocabulary --test range_comparisons --test fixture_supplements
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
+
+running 10 tests
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test date::tests::parse_date_preserves_canonical_dates_and_calendar_validation ... ok
+test date::tests::parse_date_rejects_non_digits_in_every_component ... ok
+test date::tests::roundtrip_and_known_dates ... ok
+test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
+test canonical::tests::runtime_struct_fields_are_sorted_recursively_and_types_are_explicit ... ok
+test tri::tests::truth_table_matches_spec_49_3 ... ok
+test value::tests::rate_parsing ... ok
+test rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text ... ok
+test date::tests::month_end_clamps ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/date_format.rs (target/debug/deps/date_format-c73c2d489faeeeca)
+
+running 4 tests
+test non_canonical_date_literals_are_rejected_at_load ... ok
+test non_canonical_date_inputs_are_rejected_at_evaluation ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+test date_aliases_cannot_produce_alternate_rule_hashes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/fixture_supplements.rs (target/debug/deps/fixture_supplements-5c73c7add3657f0c)
+
+running 4 tests
+test duplicate_ids_within_a_supplement_are_rejected - should panic ... ok
+test supplement_cannot_shadow_a_shared_case - should panic ... ok
+test every_supplement_extends_an_existing_table_without_changing_shared_cases ... ok
+test supplemental_cases_inherit_base_inputs_and_apply_their_overrides ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/range_comparisons.rs (target/debug/deps/range_comparisons-52c9a26577a11945)
+
+running 10 tests
+test mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns ... ok
+test audit_p201_is_rejected_before_input_dependent_failure ... ok
+test static_range_checks_do_not_depend_on_constant_values_or_reachable_branches ... ok
+test pro_rata_ratio_operands_still_require_exact_money ... ok
+test exact_money_threshold_comparisons_preserve_order_and_missing_inputs ... ok
+test v02_rounding_operators_introduce_ranges ... ok
+test v02_money_operators_preserve_input_ranges_even_with_explicit_rounding ... ok
+test nested_and_unreachable_comparisons_fail_at_both_load_boundaries ... ok
+test ranges_propagate_through_every_v01_money_operator_and_if_branch ... ok
+test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/readme_test_table.rs (target/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 5 tests
+test readme_does_not_call_the_content_hash_normalized ... ok
+test readme_explains_fixture_only_without_limiting_it_to_synthetic_rules ... ok
+test audited_rows_are_present ... ok
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/vocabulary.rs (target/debug/deps/vocabulary-45281aec3561603e)
+
+running 9 tests
+test publication_states_are_canonical ... ok
+test input_types_are_canonical_and_versioned ... ok
+test amount_kind_names_are_canonical ... ok
+test duration_units_are_canonical ... ok
+test rounding_modes_are_canonical ... ok
+test payout_names_are_canonical ... ok
+test tri_names_are_canonical ... ok
+test operator_allowlist_is_canonical_and_versioned ... ok
+test fixture_only_definition_covers_synthetic_and_real_clause_validation ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+Exit: 0

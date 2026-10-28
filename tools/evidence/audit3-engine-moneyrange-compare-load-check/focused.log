@@ -15,4 +15,3 @@ test ranges_propagate_through_every_v01_money_operator_and_if_branch ... ok
 test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
-

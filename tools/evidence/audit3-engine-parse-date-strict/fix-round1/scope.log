@@ -1,0 +1,7 @@
+PASS: every changed/new path is allowed; count: 35
+PASS: protected files unchanged
+PASS: shared/supplemental fixtures and golden/hash pins unchanged
+PASS: runtime date parser remains strict; only comments/tests changed
+PASS: local links in changed Markdown resolve; count: 152
+PASS: git diff --check
+PASS: changed Markdown/Python/Rust have no trailing whitespace

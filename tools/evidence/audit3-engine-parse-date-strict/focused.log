@@ -1,0 +1,48 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling cpufeatures v0.2.17
+   Compiling memchr v2.8.3
+   Compiling cfg-if v1.0.5
+   Compiling generic-array v0.14.7
+   Compiling itoa v1.0.18
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.71s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
+
+running 10 tests
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test date::tests::month_end_clamps ... ok
+test canonical::tests::runtime_struct_fields_are_sorted_recursively_and_types_are_explicit ... ok
+test date::tests::parse_date_preserves_canonical_dates_and_calendar_validation ... ok
+test date::tests::roundtrip_and_known_dates ... ok
+test date::tests::parse_date_rejects_non_digits_in_every_component ... ok
+test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
+test value::tests::rate_parsing ... ok
+test rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text ... ok
+test tri::tests::truth_table_matches_spec_49_3 ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/date_format.rs (target/debug/deps/date_format-c73c2d489faeeeca)
+
+running 4 tests
+test non_canonical_date_inputs_are_rejected_at_evaluation ... ok
+test non_canonical_date_literals_are_rejected_at_load ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+test date_aliases_cannot_produce_alternate_rule_hashes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

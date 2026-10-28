@@ -1,0 +1,8 @@
+PASS: no unmerged index entries; merge left in progress for supervisor commit
+PASS: strict parser and all date/hash regressions preserved from HEAD
+PASS: main README/vocabulary regressions and vocabulary source preserved
+PASS: all changed files are allowed; no protected documents or shared fixtures changed
+PASS: no conflict markers in changed files
+PASS: all local file links in changed Markdown documents exist
+PASS: working-tree and staged diff whitespace checks pass
+PASS: BLUEPRINT generated count is 210 engine tests plus 3 doctests

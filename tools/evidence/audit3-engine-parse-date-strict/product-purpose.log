@@ -1,0 +1,4 @@
+Command: python3 -I tools/ci/check_product_purpose.py
+product-purpose: 09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)
+
+Exit: 0

@@ -63,7 +63,8 @@ pub fn days_in_month(y: i64, m: i64) -> i64 {
     }
 }
 
-/// Parse ASCII "YYYY-MM-DD" into days since epoch. Returns None for invalid dates.
+/// Parse exactly zero-padded ASCII "YYYY-MM-DD" into days since epoch.
+/// Returns `None` for invalid dates; signs and alternate spellings are rejected.
 pub fn parse_date(s: &str) -> Option<i64> {
     let b = s.as_bytes();
     if b.len() != 10
@@ -125,7 +126,15 @@ mod tests {
 
     #[test]
     fn parse_date_rejects_non_digits_in_every_component() {
-        for date in ["2024-+2-+9", "2024-+2-09", "2024-02-+9", "+202-02-09"] {
+        for date in [
+            "2026-+1-+5",
+            "2026-+1-05",
+            "2026-01-+5",
+            "2024-+2-+9",
+            "2024-+2-09",
+            "2024-02-+9",
+            "+202-02-09",
+        ] {
             assert_eq!(parse_date(date), None, "must reject {date:?}");
         }
         for index in [0, 1, 2, 3, 5, 6, 8, 9] {
@@ -144,6 +153,7 @@ mod tests {
             "1970-01-01",
             "2024-02-09",
             "2024-02-29",
+            "2026-01-05",
             "2199-12-31",
         ] {
             assert_eq!(format_date(parse_date(date).unwrap()), date);

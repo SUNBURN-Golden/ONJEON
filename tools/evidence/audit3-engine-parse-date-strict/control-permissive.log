@@ -1,0 +1,60 @@
+Command: cargo test --offline --manifest-path /workspace/onjeon-run/wt/audit3-engine-parse-date-strict/tools/evidence/audit3-engine-parse-date-strict/negative-control-piuvuik4/Cargo.toml --test date_format
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/tools/evidence/audit3-engine-parse-date-strict/negative-control-piuvuik4)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.39s
+     Running tests/date_format.rs (tools/evidence/audit3-engine-parse-date-strict/negative-control-piuvuik4/target/control-permissive/debug/deps/date_format-f52c490b8f179f33)
+
+running 4 tests
+test non_canonical_date_inputs_are_rejected_at_evaluation ... FAILED
+test non_canonical_date_literals_are_rejected_at_load ... FAILED
+test date_aliases_cannot_produce_alternate_rule_hashes ... FAILED
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+
+failures:
+
+---- non_canonical_date_inputs_are_rejected_at_evaluation stdout ----
+
+thread 'non_canonical_date_inputs_are_rejected_at_evaluation' (2646592) panicked at tests/date_format.rs:52:69:
+called `Result::unwrap_err()` on an `Ok` value: EvaluationResult { rule_id: "date-format", rule_version: "1", release_id: None, rule_content_hash: "838f507b3395003d1f4cab049b79e38b0be3314fcea91c2b3b0add5e7a0cd707", evidence_refs: [], schema_version: "rule-0.1", engine_version: "0.1.0+snapshot-json-1", eligibility: False, payout: NotPayable, contract_effect: None, missing_inputs: [], trace: [TraceEntry { path: "eligibility.eq[0]", op: "input", result: "2026-01-05" }, TraceEntry { path: "eligibility.eq[1]", op: "lit", result: "2024-02-09" }, TraceEntry { path: "eligibility", op: "eq", result: "false" }], input_snapshot_hash: "65554c3a79261cafc3825771311c2a617e8bbad220423ca202f3f99bae24ffcc" }
+
+---- non_canonical_date_literals_are_rejected_at_load stdout ----
+
+thread 'non_canonical_date_literals_are_rejected_at_load' (2646593) panicked at tests/date_format.rs:40:63:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "date-format", rule_version: "1", release_id: None, content_hash: "9cf3e98292da49999443561769b098f2430b6e7e9136dd19ba8684422bcb93e8", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"event_date": Date}, eligibility: Cmp(Eq, Input("event_date"), Lit(Date(20458))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [String("event_date"), Object {"date": String("2026-+1-+5")}]}, "evidence_refs": Array [], "inputs": Object {"event_date": String("date")}, "publication_state": String("fixture_only"), "rule_id": String("date-format"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- date_aliases_cannot_produce_alternate_rule_hashes stdout ----
+
+thread 'date_aliases_cannot_produce_alternate_rule_hashes' (2646591) panicked at tests/date_format.rs:102:59:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "date-format", rule_version: "1", release_id: None, content_hash: "9cf3e98292da49999443561769b098f2430b6e7e9136dd19ba8684422bcb93e8", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"event_date": Date}, eligibility: Cmp(Eq, Input("event_date"), Lit(Date(20458))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [String("event_date"), Object {"date": String("2026-+1-+5")}]}, "evidence_refs": Array [], "inputs": Object {"event_date": String("date")}, "publication_state": String("fixture_only"), "rule_id": String("date-format"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+
+failures:
+    date_aliases_cannot_produce_alternate_rule_hashes
+    non_canonical_date_inputs_are_rejected_at_evaluation
+    non_canonical_date_literals_are_rejected_at_load
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test date_format`
+
+Exit: 101

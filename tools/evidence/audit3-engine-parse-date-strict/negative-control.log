@@ -1,0 +1,1 @@
+PASS: strict parser passes 4 tests; removing digit checks fails all 3 rejection regressions.

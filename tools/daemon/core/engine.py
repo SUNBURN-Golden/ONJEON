@@ -277,6 +277,13 @@ class DaemonCore:
         return {"applied": False, "restart": True}
 
     def _after_commit(self, out):
+        for write in out.get("writes", []):
+            self.ports.remote.execute(write["kind"], write["task_id"], write["request"])
+            # The request identity and intent are already durable. An adapter error (or a crash before this
+            # record) must not unclaim it and blindly repeat a write whose remote outcome may be unknown.
+            self._txn(write["task_id"], lambda d: self.rec.side_effect(d, write["task_id"], "execute_write",
+                                                                    kind=write["kind"]))
+            out["written"] = True
         for kind, task_id in out.get("post", []):
             if kind == "issued":
                 self.ports.faults.check("issue_lease:committed")

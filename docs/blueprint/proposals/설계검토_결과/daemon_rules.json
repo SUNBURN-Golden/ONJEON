@@ -4538,6 +4538,15 @@
         ],
         "checks": [
           {
+            "id": "required_present",
+            "pred": {
+              "field": "request.required",
+              "op": "all_present",
+              "value": true
+            },
+            "fail_key": "required_missing"
+          },
+          {
             "id": "lease_matches",
             "pred": {
               "field": "all",
@@ -4561,6 +4570,15 @@
               ]
             },
             "fail_key": "late"
+          },
+          {
+            "id": "not_seen",
+            "pred": {
+              "field": "inbox_seen[key]",
+              "op": "==",
+              "value": null
+            },
+            "fail_key": "duplicate"
           },
           {
             "id": "lease_active",
@@ -4602,6 +4620,14 @@
             "transition_event": "fence_violation",
             "return_code": "R-11",
             "write": "거부"
+          },
+          "required_missing": {
+            "noop_event": "envelope_rejected_invalid",
+            "return_code": "R-13"
+          },
+          "duplicate": {
+            "noop_event": "envelope_duplicate_delivery",
+            "return_code": null
           }
         },
         "on_pass": [
@@ -4615,7 +4641,13 @@
             "id": "record_transition"
           }
         ],
-        "_note": "G26. concurrency.fencing.checked_at의 push·pr_update 검사 연산"
+        "_note": "G26. push·pr_update는 accept_envelope.idempotency_key_fields의 키(기존 envelope_kind=signal)를 공유한다. required_present → lease_matches → not_seen → lease_active → via_daemon 순서로 검사한다. 검사 통과 뒤 inbox_seen·execute_write intent·전이 기록을 같은 트랜잭션으로 커밋하고, execute_write의 원격 호출은 커밋 뒤 트랜잭션 밖에서 한다. 완료 기록은 원격 호출이 정상 반환한 뒤 별도 트랜잭션으로 남긴다. 커밋 뒤 중단·원격 오류는 키를 유지하며 자동 재실행하지 않는다. 원격 결과 대조·재개와 exactly-once 전달 보장은 이 연산에 없다(audit3-daemon-fenced-write-dedupe).",
+        "required_fields": [
+          "lease_id",
+          "lease_generation",
+          "fencing_token",
+          "envelope_id"
+        ]
       },
       "handle_event": {
         "inputs": [

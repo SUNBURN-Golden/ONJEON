@@ -1,0 +1,20 @@
+# command: python3 -m unittest tools.tests.test_daemon_dry_run.FencedWriteDedup -v
+# base commit: 835dba23f33e8fa871514f89512d2fcd16bc921a
+# phase: fixed implementation with all 12 regression tests
+test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) ... ok
+test_completion_record_failure_does_not_unclaim_successful_remote_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_completion_record_failure_does_not_unclaim_successful_remote_write) ... ok
+test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) ... ok
+test_crash_after_commit_before_dispatch_keeps_intent_without_automatic_resend (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_crash_after_commit_before_dispatch_keeps_intent_without_automatic_resend) ... ok
+test_distinct_ids_are_independent_writes (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_distinct_ids_are_independent_writes) ... ok
+test_effect_failure_rolls_back_without_remote_write_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_effect_failure_rolls_back_without_remote_write_and_allows_retry) ... ok
+test_file_store_releases_transaction_before_dispatch_and_persists_dedup (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_file_store_releases_transaction_before_dispatch_and_persists_dedup) ... ok
+test_late_precedes_duplicate_but_duplicate_precedes_expiry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_late_precedes_duplicate_but_duplicate_precedes_expiry) ... ok
+test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) ... ok
+test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) ... ok
+test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) ... ok
+test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.329s
+
+OK

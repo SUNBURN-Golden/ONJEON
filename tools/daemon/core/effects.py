@@ -4,6 +4,7 @@ state_integrity.corruption.effects is {id, args}. The ids are core_contract.expe
 A handler turns one id into a state change and a side_effect_record. Which ids a transition runs, with which
 args and in which order, is data. How an id acts on the store and on the adapters is the code below.
 """
+import copy
 import re
 
 from . import lease as lease_mod
@@ -314,8 +315,10 @@ def h_issue_lease(core, d, task_id, args, ctx, env):
 
 def h_execute_write(core, d, task_id, args, ctx, env):
     kind = ctx.value(args["kind"])
-    core.ports.remote.execute(kind, task_id, dict(env.payload))
-    core.rec.side_effect(d, task_id, "execute_write", kind=kind)
+    if env.out is None:
+        raise SpecGap("execute_write requires an after-commit outcome")
+    env.out.setdefault("writes", []).append({"kind": kind, "task_id": task_id, "request": copy.deepcopy(env.payload)})
+    core.rec.intent(d, task_id, "execute_write", kind=kind, envelope_id=env.payload.get("envelope_id"))
 
 
 def h_record_transition(core, d, task_id, args, ctx, env):

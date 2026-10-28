@@ -82,6 +82,233 @@ for _mid, _tid, *_ in sc.SCENARIOS:
     setattr(ScenarioResults, f"test_{_mid}_{_tid.replace('-', '_')}", _make(_mid))
 
 
+class FencedWriteDedup(unittest.TestCase):
+    EVENTS = ("push_requested", "pr_update_requested")
+
+    def ready(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        lease = env.lease(sc.BASIC)
+        request = {k: lease[k] for k in ("lease_id", "lease_generation", "fencing_token", "branch")}
+        request.update(envelope_id="WRITE-1", via="daemon", sha="a" * 40, pr_number=3)
+        return env, request
+
+    def send(self, env, event, request):
+        return env.event(event, sc.BASIC, **copy.deepcopy(request))
+
+    def test_replay_is_a_noop_even_after_core_restart(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.task(sc.BASIC)
+                first = self.send(env, event, request)
+                self.assertTrue(first["accepted"] and first["written"])
+                seen = env.task(sc.BASIC)["inbox_seen"]
+                self.assertEqual(len(seen), len(before["inbox_seen"]) + 1)
+                env.new_core()
+                m = sc.mark(env)
+                again = self.send(env, event, request)
+                self.assertEqual((again["accepted"], again["written"], again["noop"], again["reason"]),
+                                 (False, False, "envelope_duplicate_delivery", "duplicate"))
+                self.assertEqual(env.task(sc.BASIC)["inbox_seen"], seen)
+                self.assertEqual(len(env.ports.remote.writes), 1)
+                self.assertEqual(sc.tr(env.journal()[m:]), [])
+                self.assertEqual(sc.se(env.journal(), "execute_write"), ["execute_write"])
+
+    def test_distinct_ids_are_independent_writes(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                self.assertTrue(self.send(env, event, request)["written"])
+                request["envelope_id"] = "WRITE-2"
+                self.assertTrue(self.send(env, event, request)["written"])
+                self.assertEqual(len(env.ports.remote.writes), 2)
+
+    def test_missing_identity_is_rejected_without_marking_seen(self):
+        for event in self.EVENTS:
+            for field in ("envelope_id", "lease_id", "lease_generation", "fencing_token"):
+                for value in (None, "absent"):
+                    with self.subTest(event=event, field=field, value=value):
+                        env, request = self.ready()
+                        before = env.task(sc.BASIC)
+                        request.pop(field)
+                        if value is None:
+                            request[field] = None
+                        out = self.send(env, event, request)
+                        self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+                        self.assertEqual(env.task(sc.BASIC), before)
+                        self.assertEqual(env.ports.remote.writes, [])
+
+    def test_remote_observes_committed_identity_and_transition_outside_transaction(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.task(sc.BASIC)
+                transaction = env.store.transaction
+                active = []
+
+                @contextlib.contextmanager
+                def tracked():
+                    with transaction() as d:
+                        active.append(True)
+                        try:
+                            yield d
+                        finally:
+                            active.pop()
+
+                def execute(kind, task_id, payload):
+                    self.assertEqual(active, [])
+                    self.assertEqual(task_id, sc.BASIC)
+                    self.assertEqual(payload, dict(request, kind=kind))
+                    committed = env.snap()
+                    self.assertEqual(len(committed["tasks"][task_id]["inbox_seen"]), len(before["inbox_seen"]) + 1)
+                    self.assertEqual(sc.tr(committed["journal"])[-1], ("building", "building", event))
+
+                with mock.patch.object(env.store, "transaction", tracked), mock.patch.object(env.ports.remote, "execute", side_effect=execute) as remote:
+                    self.assertTrue(self.send(env, event, request)["written"])
+                    remote.assert_called_once()
+
+    def test_effect_failure_rolls_back_without_remote_write_and_allows_retry(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.snap()
+                with mock.patch.object(env.core.rec, "transition", side_effect=RuntimeError("effect failed")):
+                    with self.assertRaisesRegex(RuntimeError, "effect failed"):
+                        self.send(env, event, request)
+                self.assertEqual(env.snap(), before)
+                self.assertEqual(env.ports.remote.writes, [])
+                self.assertTrue(self.send(env, event, request)["written"])
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_commit_failure_never_writes_remote_and_allows_retry(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.snap()
+                transaction = env.store.transaction
+
+                @contextlib.contextmanager
+                def fail_commit():
+                    with transaction() as d:
+                        yield d
+                        raise OSError("commit failed")
+
+                with mock.patch.object(env.store, "transaction", fail_commit):
+                    with self.assertRaisesRegex(OSError, "commit failed"):
+                        self.send(env, event, request)
+                self.assertEqual(env.snap(), before)
+                self.assertEqual(env.ports.remote.writes, [])
+                self.assertTrue(self.send(env, event, request)["written"])
+
+    def test_concurrent_replay_dispatches_once(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                barrier = Barrier(8)
+
+                def send(_):
+                    barrier.wait(timeout=10)
+                    return self.send(env, event, request)
+
+                with ThreadPoolExecutor(max_workers=8) as pool:
+                    outs = list(pool.map(send, range(8)))
+                self.assertEqual(sum(o["written"] for o in outs), 1)
+                self.assertEqual(sum(o["noop"] == "envelope_duplicate_delivery" for o in outs), 7)
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_late_precedes_duplicate_but_duplicate_precedes_expiry(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                self.send(env, event, request)
+                env.clock.set(env.lease(sc.BASIC)["expires_at"] + 1)
+                out = self.send(env, event, request)
+                self.assertEqual(out["noop"], "envelope_duplicate_delivery")
+                request["envelope_id"] = "WRITE-NEW"
+                out = self.send(env, event, request)
+                self.assertEqual((out["noop"], out["return_code"]), ("late_envelope_rejected", "R-11"))
+                env, request = self.ready()
+                self.send(env, event, request)
+                env.builder_for(sc.BASIC).send_result(env.instr(sc.BASIC), "failed_tests")
+                out = self.send(env, event, request)
+                self.assertEqual((out["noop"], out["return_code"]), ("late_envelope_rejected", "R-11"))
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                execute = env.ports.remote.execute
+
+                def uncertain_write(*args):
+                    execute(*args)
+                    raise OSError("remote outcome unknown")
+
+                with mock.patch.object(env.ports.remote, "execute", side_effect=uncertain_write) as remote:
+                    with self.assertRaisesRegex(OSError, "remote outcome unknown"):
+                        self.send(env, event, request)
+                    env.new_core()
+                    again = self.send(env, event, request)
+                    self.assertEqual((again["written"], again["noop"]), (False, "envelope_duplicate_delivery"))
+                    remote.assert_called_once()
+                self.assertEqual(len(env.ports.remote.writes), 1)
+                self.assertEqual(sc.se(env.journal(), "execute_write"), [])
+
+    def test_crash_after_commit_before_dispatch_keeps_intent_without_automatic_resend(self):
+        from daemon.core.ports import SimulatedCrash
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                with mock.patch.object(env.core, "_after_commit", side_effect=SimulatedCrash("committed")):
+                    with self.assertRaises(SimulatedCrash):
+                        self.send(env, event, request)
+                self.assertEqual(env.ports.remote.writes, [])
+                intents = [r for r in env.journal() if r["kind"] == "intent_record" and r["action"] == "execute_write"]
+                self.assertEqual([r["args"]["envelope_id"] for r in intents], [request["envelope_id"]])
+                env.new_core()
+                self.assertEqual(self.send(env, event, request)["noop"], "envelope_duplicate_delivery")
+                self.assertEqual(env.ports.remote.writes, [])
+
+    def test_completion_record_failure_does_not_unclaim_successful_remote_write(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                with mock.patch.object(env.core.rec, "side_effect", side_effect=OSError("completion record failed")):
+                    with self.assertRaisesRegex(OSError, "completion record failed"):
+                        self.send(env, event, request)
+                self.assertEqual(len(env.ports.remote.writes), 1)
+                env.new_core()
+                self.assertEqual(self.send(env, event, request)["noop"], "envelope_duplicate_delivery")
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_file_store_releases_transaction_before_dispatch_and_persists_dedup(self):
+        from daemon.runner_verify.adapters import FileStore
+        from daemon.runner_verify.common import Layout
+        for event in self.EVENTS:
+            with self.subTest(event=event), tempfile.TemporaryDirectory() as tmp:
+                env, request = self.ready()
+                store = FileStore(Layout(tmp).make())
+                with store.transaction() as d:
+                    d.update(env.snap())
+                env.ports.store = store
+                execute = env.ports.remote.execute
+
+                def write(*args):
+                    # A nested FileStore transaction raises; this also exercises the actual file lock boundary.
+                    with store.transaction() as d:
+                        self.assertEqual(len(d["tasks"][sc.BASIC]["inbox_seen"]), 2)
+                    execute(*args)
+
+                with mock.patch.object(env.ports.remote, "execute", side_effect=write):
+                    self.assertTrue(self.send(env, event, request)["written"])
+                env.new_core()
+                self.assertEqual(self.send(env, event, request)["noop"], "envelope_duplicate_delivery")
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+
 class Coverage(unittest.TestCase):
     def test_test_ids_are_the_ones_in_tasks_json(self):
         tasks = json.loads(SPEC_TASKS.read_text(encoding="utf-8"))["tasks"]

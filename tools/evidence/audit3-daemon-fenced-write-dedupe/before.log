@@ -1,0 +1,661 @@
+# command: python3 -m unittest tools.tests.test_daemon_dry_run.FencedWriteDedup -v
+# base commit: 835dba23f33e8fa871514f89512d2fcd16bc921a
+# phase: original implementation with the initial 9 regression tests
+test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) ... 
+  test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) (event='push_requested') ... FAIL
+  test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) (event='pr_update_requested') ... FAIL
+test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) ... 
+  test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) (event='push_requested') ... FAIL
+  test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) (event='pr_update_requested') ... FAIL
+test_distinct_ids_are_independent_writes (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_distinct_ids_are_independent_writes) ... ok
+test_effect_failure_rolls_back_without_remote_write_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_effect_failure_rolls_back_without_remote_write_and_allows_retry) ... 
+  test_effect_failure_rolls_back_without_remote_write_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_effect_failure_rolls_back_without_remote_write_and_allows_retry) (event='push_requested') ... FAIL
+  test_effect_failure_rolls_back_without_remote_write_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_effect_failure_rolls_back_without_remote_write_and_allows_retry) (event='pr_update_requested') ... FAIL
+test_late_precedes_duplicate_but_duplicate_precedes_expiry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_late_precedes_duplicate_but_duplicate_precedes_expiry) ... 
+  test_late_precedes_duplicate_but_duplicate_precedes_expiry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_late_precedes_duplicate_but_duplicate_precedes_expiry) (event='push_requested') ... FAIL
+  test_late_precedes_duplicate_but_duplicate_precedes_expiry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_late_precedes_duplicate_but_duplicate_precedes_expiry) (event='pr_update_requested') ... FAIL
+test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) ... 
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='envelope_id', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='envelope_id', value='absent') ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_id', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_id', value='absent') ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_generation', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_generation', value='absent') ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='fencing_token', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='fencing_token', value='absent') ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='envelope_id', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='envelope_id', value='absent') ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_id', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_id', value='absent') ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_generation', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_generation', value='absent') ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='fencing_token', value=None) ... FAIL
+  test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='fencing_token', value='absent') ... FAIL
+test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) ... 
+  test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) (event='push_requested') ... ERROR
+  test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) (event='pr_update_requested') ... ERROR
+test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) ... 
+  test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) (event='push_requested') ... FAIL
+  test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) (event='pr_update_requested') ... FAIL
+test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) ... 
+  test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) (event='push_requested') ... FAIL
+  test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) (event='pr_update_requested') ... FAIL
+
+======================================================================
+ERROR: test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) (event='push_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 248, in test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write
+    again = self.send(env, event, request)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 97, in send
+    return env.event(event, sc.BASIC, **copy.deepcopy(request))
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/mock_env.py", line 136, in event
+    return self.core.handle_event({"event": name, "task_id": task_id, "payload": payload})
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in handle_event
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 145, in _txn
+    out = fn(d)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in <lambda>
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+                                       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/fencing.py", line 108, in fenced_write
+    effects.run_effects(core, d, task_id, spec["on_pass"], env)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 366, in run_effects
+    run_effect(core, d, task_id, eff, env)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 355, in run_effect
+    handler(core, d, task_id, dict(eff.get("args") or {}), _ctx_for(core, d, task_id, env), env)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 317, in h_execute_write
+    core.ports.remote.execute(kind, task_id, dict(env.payload))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+OSError: remote outcome unknown
+
+======================================================================
+ERROR: test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) (event='pr_update_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 248, in test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write
+    again = self.send(env, event, request)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 97, in send
+    return env.event(event, sc.BASIC, **copy.deepcopy(request))
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/mock_env.py", line 136, in event
+    return self.core.handle_event({"event": name, "task_id": task_id, "payload": payload})
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in handle_event
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 145, in _txn
+    out = fn(d)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in <lambda>
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+                                       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/fencing.py", line 108, in fenced_write
+    effects.run_effects(core, d, task_id, spec["on_pass"], env)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 366, in run_effects
+    run_effect(core, d, task_id, eff, env)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 355, in run_effect
+    handler(core, d, task_id, dict(eff.get("args") or {}), _ctx_for(core, d, task_id, env), env)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 317, in h_execute_write
+    core.ports.remote.execute(kind, task_id, dict(env.payload))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+OSError: remote outcome unknown
+
+======================================================================
+FAIL: test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) (event='push_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 201, in test_commit_failure_never_writes_remote_and_allows_retry
+    self.assertEqual(env.ports.remote.writes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('push', 'T-MOCK-BASIC', 1, 'WRITE-1')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('push', 'T-MOCK-BASIC', 1, 'WRITE-1')
+
+- [('push', 'T-MOCK-BASIC', 1, 'WRITE-1')]
++ []
+
+======================================================================
+FAIL: test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) (event='pr_update_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 201, in test_commit_failure_never_writes_remote_and_allows_retry
+    self.assertEqual(env.ports.remote.writes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('pr_update', 'T-MOCK-BASIC', 1, 'WRITE-1')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('pr_update', 'T-MOCK-BASIC', 1, 'WRITE-1')
+
+- [('pr_update', 'T-MOCK-BASIC', 1, 'WRITE-1')]
++ []
+
+======================================================================
+FAIL: test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) (event='push_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 218, in test_concurrent_replay_dispatches_once
+    self.assertEqual(sum(o["written"] for o in outs), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 8 != 1
+
+======================================================================
+FAIL: test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) (event='pr_update_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 218, in test_concurrent_replay_dispatches_once
+    self.assertEqual(sum(o["written"] for o in outs), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 8 != 1
+
+======================================================================
+FAIL: test_effect_failure_rolls_back_without_remote_write_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_effect_failure_rolls_back_without_remote_write_and_allows_retry) (event='push_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 180, in test_effect_failure_rolls_back_without_remote_write_and_allows_retry
+    self.assertEqual(env.ports.remote.writes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('push', 'T-MOCK-BASIC', 1, 'WRITE-1')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('push', 'T-MOCK-BASIC', 1, 'WRITE-1')
+
+- [('push', 'T-MOCK-BASIC', 1, 'WRITE-1')]
++ []
+
+======================================================================
+FAIL: test_effect_failure_rolls_back_without_remote_write_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_effect_failure_rolls_back_without_remote_write_and_allows_retry) (event='pr_update_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 180, in test_effect_failure_rolls_back_without_remote_write_and_allows_retry
+    self.assertEqual(env.ports.remote.writes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('pr_update', 'T-MOCK-BASIC', 1, 'WRITE-1')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('pr_update', 'T-MOCK-BASIC', 1, 'WRITE-1')
+
+- [('pr_update', 'T-MOCK-BASIC', 1, 'WRITE-1')]
++ []
+
+======================================================================
+FAIL: test_late_precedes_duplicate_but_duplicate_precedes_expiry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_late_precedes_duplicate_but_duplicate_precedes_expiry) (event='push_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 229, in test_late_precedes_duplicate_but_duplicate_precedes_expiry
+    self.assertEqual(out["noop"], "envelope_duplicate_delivery")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'late_envelope_rejected' != 'envelope_duplicate_delivery'
+- late_envelope_rejected
++ envelope_duplicate_delivery
+
+
+======================================================================
+FAIL: test_late_precedes_duplicate_but_duplicate_precedes_expiry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_late_precedes_duplicate_but_duplicate_precedes_expiry) (event='pr_update_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 229, in test_late_precedes_duplicate_but_duplicate_precedes_expiry
+    self.assertEqual(out["noop"], "envelope_duplicate_delivery")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'late_envelope_rejected' != 'envelope_duplicate_delivery'
+- late_envelope_rejected
++ envelope_duplicate_delivery
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='envelope_id', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None) != (False, False, 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None)
++ (False, False, 'R-13')
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='envelope_id', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None) != (False, False, 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None)
++ (False, False, 'R-13')
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_id', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_id', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_generation', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='lease_generation', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='fencing_token', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='push_requested', field='fencing_token', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='envelope_id', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None) != (False, False, 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None)
++ (False, False, 'R-13')
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='envelope_id', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None) != (False, False, 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None)
++ (False, False, 'R-13')
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_id', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_id', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_generation', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='lease_generation', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='fencing_token', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) (event='pr_update_requested', field='fencing_token', value='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 138, in test_missing_identity_is_rejected_without_marking_seen
+    self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (False, False, 'R-11') != (False, False, 'R-13')
+
+First differing element 2:
+'R-11'
+'R-13'
+
+- (False, False, 'R-11')
+?                    ^
+
++ (False, False, 'R-13')
+?                    ^
+
+
+======================================================================
+FAIL: test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) (event='push_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 168, in test_remote_observes_committed_identity_and_transition_outside_transaction
+    self.assertTrue(self.send(env, event, request)["written"])
+                    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 97, in send
+    return env.event(event, sc.BASIC, **copy.deepcopy(request))
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/mock_env.py", line 136, in event
+    return self.core.handle_event({"event": name, "task_id": task_id, "payload": payload})
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in handle_event
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 145, in _txn
+    out = fn(d)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in <lambda>
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+                                       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/fencing.py", line 108, in fenced_write
+    effects.run_effects(core, d, task_id, spec["on_pass"], env)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 366, in run_effects
+    run_effect(core, d, task_id, eff, env)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 355, in run_effect
+    handler(core, d, task_id, dict(eff.get("args") or {}), _ctx_for(core, d, task_id, env), env)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 317, in h_execute_write
+    core.ports.remote.execute(kind, task_id, dict(env.payload))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 160, in execute
+    self.assertEqual(active, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: Lists differ: [True] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+True
+
+- [True]
++ []
+
+======================================================================
+FAIL: test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) (event='pr_update_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 168, in test_remote_observes_committed_identity_and_transition_outside_transaction
+    self.assertTrue(self.send(env, event, request)["written"])
+                    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 97, in send
+    return env.event(event, sc.BASIC, **copy.deepcopy(request))
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/mock_env.py", line 136, in event
+    return self.core.handle_event({"event": name, "task_id": task_id, "payload": payload})
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in handle_event
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 145, in _txn
+    out = fn(d)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/engine.py", line 200, in <lambda>
+    out = self._txn(task_id, lambda d: fencing.fenced_write(self, d, task_id, name, kind, payload))
+                                       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/fencing.py", line 108, in fenced_write
+    effects.run_effects(core, d, task_id, spec["on_pass"], env)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 366, in run_effects
+    run_effect(core, d, task_id, eff, env)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 355, in run_effect
+    handler(core, d, task_id, dict(eff.get("args") or {}), _ctx_for(core, d, task_id, env), env)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/daemon/core/effects.py", line 317, in h_execute_write
+    core.ports.remote.execute(kind, task_id, dict(env.payload))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 160, in execute
+    self.assertEqual(active, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: Lists differ: [True] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+True
+
+- [True]
++ []
+
+======================================================================
+FAIL: test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) (event='push_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 107, in test_replay_is_a_noop_even_after_core_restart
+    self.assertEqual(len(seen), len(before["inbox_seen"]) + 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) (event='pr_update_requested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 107, in test_replay_is_a_noop_even_after_core_restart
+    self.assertEqual(len(seen), len(before["inbox_seen"]) + 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.265s
+
+FAILED (failures=28, errors=2)

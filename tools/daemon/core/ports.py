@@ -165,7 +165,9 @@ class Catalog(ABC):
 
 
 class Remote(ABC):
-    """The outside world a fenced write reaches (push, pull request update). Called only after the checks passed."""
+    """A fenced write (push, pull request update). Called outside the store transaction, after the checks,
+    inbox identity and intent commit. An error leaves that identity claimed: replay must not repeat an
+    ambiguous remote write. This interface does not promise exactly-once delivery or automatic recovery."""
 
     @abstractmethod
     def execute(self, kind, task_id, request): ...

@@ -91,11 +91,17 @@ def reject_without_envelope(core, d, task_id, event, on_reject):
 
 
 def fenced_write(core, d, task_id, event, kind, request):
-    """core_contract.operations.fenced_write: the fencing check for pushes and pull request updates."""
+    """Check and claim the request atomically; stage remote writes for after the store commit."""
     spec = core.rules.get("core_contract.operations.fenced_write")
     request = dict(request)
     request["kind"] = kind  # request.kind: push or pr_update (the event says which)
-    ctx = core.ctx(d, task_id, envelope=request)
+    t = d["tasks"][task_id]
+    key = ev.dedup_key(core.rules, task_id, event, request)
+    funcs = {
+        "request.required": lambda _a: [f for f in spec["required_fields"] if request.get(f) is None],
+        "inbox_seen[key]": lambda _a: t["inbox_seen"].get(key),
+    }
+    ctx = core.ctx(d, task_id, envelope=request, funcs=funcs)
     for check in spec["checks"]:
         ok, rec = ctx.predicate(check["pred"])
         if ok:
@@ -103,7 +109,10 @@ def fenced_write(core, d, task_id, event, kind, request):
         out = _report(core, d, task_id, spec["on_fail"][check["fail_key"]], request, check["id"], check["fail_key"])
         out["written"] = False
         return out
-    state = d["tasks"][task_id]["task_state"]["state"]
-    env = effects.Env(tr={"event": event, "from": state, "to": state}, payload=request, envelope=request)
+    t["inbox_seen"][key] = {"first_seen_at": core.clock.now(), "lease_generation": request["lease_generation"]}
+    state = t["task_state"]["state"]
+    out = {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": [],
+           "writes": [], "written": False}
+    env = effects.Env(tr={"event": event, "from": state, "to": state}, payload=request, envelope=request, out=out)
     effects.run_effects(core, d, task_id, spec["on_pass"], env)
-    return {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": [], "written": True}
+    return out

@@ -1768,14 +1768,44 @@ class HandleEventFencing(unittest.TestCase):
         self.assertEqual((sc.noops(env.journal()[m:]), env.task(sc.BASIC)["task_state"]["stop_requested_at"] is not None),
                          ([], True))
 
-    def test_listing_the_event_reopens_the_finding(self):
-        """Mutation: put result_pr_opened on the list and the bare event moves building -> pr_open again."""
-        raw = _mutated(lambda r: self.entry(r)["without_envelope"].append("result_pr_opened"))
-        env = MockEnv(raw, str(TASKS))
-        env.bring_to_building(sc.BASIC)
-        m = sc.mark(env)
-        env.event("result_pr_opened", sc.BASIC)
-        self.assertEqual(sc.tr(env.journal()[m:]), [("building", "pr_open", "result_pr_opened")])
+    def test_result_events_cannot_be_enabled_on_the_bare_entry(self):
+        """audit3: configuration must not reopen the result envelope bypass, including via checked routes."""
+        from daemon.core.ports import SpecGap
+        names = sorted(n for n in raw_rules()["events"] if n.startswith("result_"))
+        self.assertIn("result_pr_opened", names)
+        for name in names:
+            for route in (None, "restart_recovery", "accept_envelope", "fenced_write"):
+                with self.subTest(event=name, route=route):
+                    raw = raw_rules()
+                    entry = self.entry(raw)
+                    if route is None:
+                        entry["without_envelope"].append(name)
+                    else:
+                        entry["routes"][name] = route
+                    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+                        MockEnv(raw, str(TASKS))
+
+    def test_result_events_without_any_lease_are_rejected(self):
+        """The reported building -> pr_open bypass must also be refused when there is no lease at all."""
+        for name in sorted(n for n in raw_rules()["events"] if n.startswith("result_")):
+            with self.subTest(event=name):
+                env = MockEnv(str(RULES), str(TASKS))
+                env.core.register_task(sc.BASIC, "building")
+                self.assertIsNone(env.lease(sc.BASIC))
+                self.assert_rejected(env, sc.BASIC, name)
+
+    def test_complete_result_payload_still_requires_the_envelope_entry(self):
+        env = self.building()
+        b = env.builder_for(sc.BASIC)
+        envelope = b.result_envelope(env.instr(sc.BASIC), "pr_opened")
+        self.assert_rejected(env, sc.BASIC, "result_pr_opened", envelope)
+        out = env.submit(sc.BASIC, "result", envelope)
+        self.assertEqual((out["accepted"], out["transition"]), (True, ("building", "pr_open", "result_pr_opened")))
+        before = env.task(sc.BASIC)
+        out = env.submit(sc.BASIC, "result", envelope)
+        self.assertEqual((out["accepted"], out["noop"], out["transition"]),
+                         (False, "envelope_duplicate_delivery", None))
+        self.assertEqual(env.task(sc.BASIC), before)
 
     def test_rules_that_break_the_entry_contract_are_refused(self):
         from daemon.core.ports import SpecGap

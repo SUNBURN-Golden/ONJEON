@@ -1,5 +1,5 @@
 # command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all
-# generated from parent commit 685dab50f327124e4ea7cf2f807b3efe2e4c78f9 + tree hash of tools/daemon sources sha256:955f79f10c7254f8ae83ead16969e1b17d7239fed80512eab2d2206f766c16be
+# generated from parent commit 3676595f4ef7c1efc142efe1804ff47951ad15f3 + tree hash of tools/daemon sources sha256:d088d573daecfd7ead65210b5f370a2fd689b272a57aebd0a51050cc87dfab3a
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
   [PASS] 정상 흐름 전이 열: queued→…→merge_wait
       기대: [["blocked", "queued", "prereqs_satisfied"], ["queued", "leased", "lease_granted"], ["leased", "building", "first_heartbeat"], ["building", "pr_open", "result_pr_opened"], ["pr_open", "review_pending", "ci_passed"], ["review_pending", "review_in_progress", "reviewer_assigned"], ["review_in_progress", "review_approved", "review_approved"], ["review_approved", "merge_wait", "audit_not_required"]]

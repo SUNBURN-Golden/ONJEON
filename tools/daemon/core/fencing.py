@@ -90,20 +90,46 @@ def reject_without_envelope(core, d, task_id, event, on_reject):
             "rejected": (on_reject["reason"], event)}
 
 
+def check_write(core, d, task_id, event, request, claimed=False):
+    """Return the first failed check. Dispatch rechecks fencing, skipping only its already-claimed identity."""
+    spec = core.rules.get("core_contract.operations.fenced_write")
+    t = d["tasks"][task_id]
+    key = ev.dedup_key(core.rules, task_id, event, request)
+    funcs = {
+        "request.required": lambda _a: [f for f in spec["required_fields"] if request.get(f) is None],
+        "inbox_seen[key]": lambda _a: t["inbox_seen"].get(key),
+    }
+    ctx = core.ctx(d, task_id, envelope=request, funcs=funcs)
+    for check in spec["checks"]:
+        if claimed and check["id"] == "not_seen":
+            continue
+        ok, rec = ctx.predicate(check["pred"])
+        if not ok:
+            return check
+    return None
+
+
+def reject_write(core, d, task_id, request, check):
+    spec = core.rules.get("core_contract.operations.fenced_write")
+    out = _report(core, d, task_id, spec["on_fail"][check["fail_key"]], request, check["id"], check["fail_key"])
+    out["written"] = False
+    return out
+
+
 def fenced_write(core, d, task_id, event, kind, request):
-    """core_contract.operations.fenced_write: the fencing check for pushes and pull request updates."""
+    """Check and claim the request atomically; stage remote writes for after the store commit."""
     spec = core.rules.get("core_contract.operations.fenced_write")
     request = dict(request)
     request["kind"] = kind  # request.kind: push or pr_update (the event says which)
-    ctx = core.ctx(d, task_id, envelope=request)
-    for check in spec["checks"]:
-        ok, rec = ctx.predicate(check["pred"])
-        if ok:
-            continue
-        out = _report(core, d, task_id, spec["on_fail"][check["fail_key"]], request, check["id"], check["fail_key"])
-        out["written"] = False
-        return out
-    state = d["tasks"][task_id]["task_state"]["state"]
-    env = effects.Env(tr={"event": event, "from": state, "to": state}, payload=request, envelope=request)
+    failed = check_write(core, d, task_id, event, request)
+    if failed:
+        return reject_write(core, d, task_id, request, failed)
+    t = d["tasks"][task_id]
+    key = ev.dedup_key(core.rules, task_id, event, request)
+    t["inbox_seen"][key] = {"first_seen_at": core.clock.now(), "lease_generation": request["lease_generation"]}
+    state = t["task_state"]["state"]
+    out = {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": [],
+           "writes": [], "written": False}
+    env = effects.Env(tr={"event": event, "from": state, "to": state}, payload=request, envelope=request, out=out)
     effects.run_effects(core, d, task_id, spec["on_pass"], env)
-    return {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": [], "written": True}
+    return out

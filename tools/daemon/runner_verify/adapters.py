@@ -11,6 +11,7 @@ import os
 import re
 import signal
 import subprocess
+import threading
 import time
 from pathlib import Path
 
@@ -55,7 +56,7 @@ class FileStore(Store):
     def __init__(self, layout, faults=None):
         self.layout = layout
         self.faults = faults
-        self._held = False
+        self._local = threading.local()
         for stale in layout.store_dir.glob(".state.json.*.tmp"):
             try:
                 pid = int(stale.name.split(".")[2])
@@ -74,17 +75,27 @@ class FileStore(Store):
         return data if data is not None else {"tasks": {}, "journal": []}
 
     @contextlib.contextmanager
-    def transaction(self):
-        if self._held:
-            raise RuntimeError("nested store transaction")
+    def _exclusive(self):
+        if getattr(self._local, "held", False):
+            raise RuntimeError("nested store transaction or dispatch")
         with file_lock(self.layout.store_lock):
-            self._held = True
+            self._local.held = True
             try:
-                work = self._read()
-                yield work
-                self._write(work)  # reached only when the body did not raise: all or nothing
+                yield
             finally:
-                self._held = False
+                self._local.held = False
+
+    @contextlib.contextmanager
+    def transaction(self):
+        with self._exclusive():
+            work = self._read()
+            yield work
+            self._write(work)  # reached only when the body did not raise: all or nothing
+
+    @contextlib.contextmanager
+    def dispatch_guard(self):
+        with self._exclusive():
+            yield self._read()  # committed state, no write/rename on exit
 
     def _write(self, data):
         text = json.dumps(data, ensure_ascii=False, sort_keys=True)
@@ -503,7 +514,11 @@ class PushRemote(Remote):
                                                                     "reason": "no pull request API at the test remote",
                                                                     "ns": now_ns()})
             return
-        token = self.credentials.token("builder_write_credential", task_id)
+        credential = self.credentials.entry("builder_write_credential", task_id)
+        if (not credential or credential.get("revoked_ns")
+                or credential.get("lease_id") != request.get("lease_id")):
+            raise PushFailed("permission_denied")
+        token = credential["token"]
         res = self.git._git(["push", self.git.url, f"{request['sha']}:refs/heads/{request['branch']}"],
                             env={"RV_PUSH_CREDENTIAL": token or "", "RV_PUSH_CLIENT": "daemon-fenced"}, check=False,
                             timeout=60)

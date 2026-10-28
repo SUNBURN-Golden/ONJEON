@@ -65,6 +65,12 @@ class Store(ABC):
     def snapshot(self):
         """A deep copy of the committed data."""
 
+    @abstractmethod
+    def dispatch_guard(self):
+        """Yield a committed snapshot under the same exclusive lock as transaction(), without a transaction.
+        Hold through remote dispatch so lease replacement/end cannot race validation and execution.
+        The snapshot is read-only to the caller; changes are never persisted. No nested mutations."""
+
 
 class Sender(ABC):
     @abstractmethod
@@ -165,7 +171,10 @@ class Catalog(ABC):
 
 
 class Remote(ABC):
-    """The outside world a fenced write reaches (push, pull request update). Called only after the checks passed."""
+    """A fenced write (push, pull request update). Called outside the store transaction, after the checks,
+    inbox identity and intent commit, with fencing revalidated under store.dispatch_guard() held through execution.
+    Credentials must belong to request.lease_id. An error leaves that identity claimed: replay must not repeat an
+    ambiguous remote write. This interface does not promise exactly-once delivery or automatic recovery."""
 
     @abstractmethod
     def execute(self, kind, task_id, request): ...

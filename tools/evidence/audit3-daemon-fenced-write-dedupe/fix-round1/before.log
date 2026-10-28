@@ -1,0 +1,275 @@
+test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) ... 
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='memory', change='replace') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='memory', change='end') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='memory', change='expire') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='file', change='replace') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='file', change='end') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='file', change='expire') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='memory', change='replace') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='memory', change='end') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='memory', change='expire') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='file', change='replace') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='file', change='end') ... FAIL
+  test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='file', change='expire') ... FAIL
+test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) ... 
+  test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) (entry=None) ... FAIL
+  test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) (entry={'lease_id': 'other', 'token': 'fixture-other'}) ... FAIL
+  test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) (entry={'lease_id': 'L1', 'token': 'fixture-revoked', 'revoked_ns': 1}) ... FAIL
+test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) ... FAIL
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='memory', change='replace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='memory', change='end')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='memory', change='expire')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='file', change='replace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='file', change='end')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='push_requested', backend='file', change='expire')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='memory', change='replace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='memory', change='end')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='memory', change='expire')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='file', change='replace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='file', change='end')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) (event='pr_update_requested', backend='file', change='expire')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 163, in test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "late_envelope_rejected", "R-11"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'late_envelope_rejected', 'R-11')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'late_envelope_rejected', 'R-11')
+
+======================================================================
+FAIL: test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) (entry=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 182, in test_push_adapter_requires_the_requests_lease_credential
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) (entry={'lease_id': 'other', 'token': 'fixture-other'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 182, in test_push_adapter_requires_the_requests_lease_credential
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) (entry={'lease_id': 'L1', 'token': 'fixture-revoked', 'revoked_ns': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 182, in test_push_adapter_requires_the_requests_lease_credential
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-fenced-write-dedupe/tools/tests/test_daemon_dry_run.py", line 192, in test_push_adapter_requires_the_requests_lease_credential
+    self.assertEqual(git._git.call_args.kwargs["env"]["RV_PUSH_CREDENTIAL"], "fixture-current")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: <Mock name='mock.token()' id='139995123108896'> != 'fixture-current'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.223s
+
+FAILED (failures=16)

@@ -82,6 +82,387 @@ for _mid, _tid, *_ in sc.SCENARIOS:
     setattr(ScenarioResults, f"test_{_mid}_{_tid.replace('-', '_')}", _make(_mid))
 
 
+class FencedWriteDedup(unittest.TestCase):
+    EVENTS = ("push_requested", "pr_update_requested")
+
+    def ready(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        lease = env.lease(sc.BASIC)
+        request = {k: lease[k] for k in ("lease_id", "lease_generation", "fencing_token", "branch")}
+        request.update(envelope_id="WRITE-1", via="daemon", sha="a" * 40, pr_number=3)
+        return env, request
+
+    def send(self, env, event, request):
+        return env.event(event, sc.BASIC, **copy.deepcopy(request))
+
+    def test_replay_is_a_noop_even_after_core_restart(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.task(sc.BASIC)
+                first = self.send(env, event, request)
+                self.assertTrue(first["accepted"] and first["written"])
+                seen = env.task(sc.BASIC)["inbox_seen"]
+                self.assertEqual(len(seen), len(before["inbox_seen"]) + 1)
+                env.new_core()
+                m = sc.mark(env)
+                again = self.send(env, event, request)
+                self.assertEqual((again["accepted"], again["written"], again["noop"], again["reason"]),
+                                 (False, False, "envelope_duplicate_delivery", "duplicate"))
+                self.assertEqual(env.task(sc.BASIC)["inbox_seen"], seen)
+                self.assertEqual(len(env.ports.remote.writes), 1)
+                self.assertEqual(sc.tr(env.journal()[m:]), [])
+                self.assertEqual(sc.se(env.journal(), "execute_write"), ["execute_write"])
+
+    def test_distinct_ids_are_independent_writes(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                self.assertTrue(self.send(env, event, request)["written"])
+                request["envelope_id"] = "WRITE-2"
+                self.assertTrue(self.send(env, event, request)["written"])
+                self.assertEqual(len(env.ports.remote.writes), 2)
+
+    def test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit(self):
+        from daemon.runner_verify.adapters import FileStore, PushRemote
+        from daemon.runner_verify.common import Layout
+        for event in self.EVENTS:
+            for backend in ("memory", "file"):
+                for change in ("replace", "end", "expire"):
+                    with self.subTest(event=event, backend=backend, change=change), tempfile.TemporaryDirectory() as tmp:
+                        env, request = self.ready()
+                        layout = Layout(tmp).make()
+                        if backend == "file":
+                            store = FileStore(layout)
+                            with store.transaction() as d:
+                                d.update(env.snap())
+                            env.ports.store = store
+                        # Exercise the real push adapter with a Git spy, never a Git/network write.
+                        git, credentials = mock.Mock(), mock.Mock()
+                        git._git.return_value.returncode = 0
+                        env.ports.remote = PushRemote(layout, git, credentials)
+                        after_commit = env.core._after_commit
+
+                        def interleave(out):
+                            if out.get("writes"):
+                                if change == "replace":
+                                    env.builder_for(sc.BASIC).send_result(env.instr(sc.BASIC), "failed_tests")
+                                    self.assertEqual(env.lease(sc.BASIC)["lease_generation"], 2)
+                                elif change == "end":
+                                    env.event("owner_cancelled", sc.BASIC)
+                                    self.assertNotEqual(env.lease(sc.BASIC)["status"], "active")
+                                else:
+                                    env.clock.set(env.lease(sc.BASIC)["expires_at"] + 1)
+                                credentials.entry.return_value = {
+                                    "lease_id": env.lease(sc.BASIC)["lease_id"], "token": "fixture-credential"}
+                            after_commit(out)
+
+                        with mock.patch.object(env.core, "_after_commit", side_effect=interleave):
+                            out = self.send(env, event, request)
+                        self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+                                         (False, False, "late_envelope_rejected", "R-11"))
+                        git._git.assert_not_called()
+                        credentials.entry.assert_not_called()
+                        self.assertFalse((layout.root / "remote_writes.jsonl").exists())
+                        self.assertEqual(sc.se(env.journal(), "execute_write"), [])
+                        self.assertFalse(self.send(env, event, request)["written"])
+
+    def test_push_adapter_requires_the_requests_lease_credential(self):
+        from daemon.core.ports import PushFailed
+        from daemon.runner_verify.adapters import PushRemote
+        from daemon.runner_verify.common import Layout
+        for entry in (None, {"lease_id": "other", "token": "fixture-other"},
+                      {"lease_id": "L1", "token": "fixture-revoked", "revoked_ns": 1}):
+            with self.subTest(entry=entry), tempfile.TemporaryDirectory() as tmp:
+                git, credentials = mock.Mock(), mock.Mock()
+                git._git.return_value.returncode = 0
+                credentials.entry.return_value = entry
+                remote = PushRemote(Layout(tmp).make(), git, credentials)
+                with self.assertRaises(PushFailed):
+                    remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/mock"})
+                git._git.assert_not_called()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            git, credentials = mock.Mock(), mock.Mock()
+            git._git.return_value.returncode = 0
+            credentials.entry.return_value = {"lease_id": "L1", "token": "fixture-current"}
+            remote = PushRemote(Layout(tmp).make(), git, credentials)
+            remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/mock"})
+            self.assertEqual(git._git.call_args.kwargs["env"]["RV_PUSH_CREDENTIAL"], "fixture-current")
+
+    def test_dispatch_serializes_lease_replacement_through_remote_execution(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Event
+        from daemon.core import DaemonCore
+        from daemon.runner_verify.adapters import FileStore
+        from daemon.runner_verify.common import Layout
+        for event in self.EVENTS:
+            for backend in ("memory", "file"):
+                with self.subTest(event=event, backend=backend), tempfile.TemporaryDirectory() as tmp:
+                    env, request = self.ready()
+                    if backend == "file":
+                        layout = Layout(tmp).make()
+                        store = FileStore(layout)
+                        with store.transaction() as d:
+                            d.update(env.snap())
+                        env.ports.store = store
+                    ports = copy.copy(env.ports)
+                    if backend == "file":
+                        ports.store = FileStore(layout)  # independent adapter, same flock
+                    other_core = DaemonCore(env.rules, ports)
+                    result = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), "failed_tests")
+                    started, release, attempting, replaced = Event(), Event(), Event(), Event()
+                    execute = env.ports.remote.execute
+
+                    def write(*args):
+                        started.set()
+                        self.assertTrue(release.wait(timeout=10))
+                        self.assertEqual(env.lease(sc.BASIC)["lease_generation"], request["lease_generation"])
+                        execute(*args)
+
+                    def replace():
+                        attempting.set()
+                        out = other_core.submit_envelope(sc.BASIC, "result", result)
+                        replaced.set()
+                        return out
+
+                    with mock.patch.object(env.ports.remote, "execute", side_effect=write), ThreadPoolExecutor(max_workers=2) as pool:
+                        sending = pool.submit(self.send, env, event, request)
+                        try:
+                            self.assertTrue(started.wait(timeout=10))
+                            replacing = pool.submit(replace)
+                            self.assertTrue(attempting.wait(timeout=10))
+                            self.assertFalse(replaced.wait(timeout=0.1), "lease replaced during remote execution")
+                        finally:
+                            release.set()
+                        self.assertTrue(sending.result(timeout=10)["written"])
+                        self.assertTrue(replacing.result(timeout=10)["accepted"])
+                    self.assertEqual(env.lease(sc.BASIC)["lease_generation"], 2)
+                    self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_file_dispatch_guard_blocks_another_process_without_a_transaction(self):
+        import subprocess
+        from daemon.runner_verify.adapters import FileStore
+        from daemon.runner_verify.common import Layout
+        with tempfile.TemporaryDirectory() as tmp:
+            store = FileStore(Layout(tmp).make())
+            with store.transaction() as d:
+                d["tasks"]["probe"] = "before"
+            source = ("import sys\n"
+                      f"sys.path.insert(0, {str(ROOT / 'tools')!r})\n"
+                      "from daemon.runner_verify.adapters import FileStore\n"
+                      "from daemon.runner_verify.common import Layout\n"
+                      f"store = FileStore(Layout({tmp!r}))\n"
+                      "print('attempting', flush=True)\n"
+                      "with store.transaction() as d: d['tasks']['probe'] = 'after'\n")
+            process = None
+            try:
+                with store.dispatch_guard() as d:
+                    self.assertEqual(d["tasks"]["probe"], "before")
+                    d["tasks"]["probe"] = "snapshot-only"
+                    process = subprocess.Popen([sys.executable, "-I", "-c", source], stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE, text=True)
+                    self.assertEqual(process.stdout.readline().strip(), "attempting")
+                    with self.assertRaises(subprocess.TimeoutExpired):
+                        process.communicate(timeout=0.1)
+                    self.assertEqual(store.snapshot()["tasks"]["probe"], "before")
+                _, stderr = process.communicate(timeout=10)
+                self.assertEqual(process.returncode, 0, stderr)
+                self.assertEqual(store.snapshot()["tasks"]["probe"], "after")
+            finally:
+                if process is not None:
+                    if process.poll() is None:
+                        process.kill()
+                    process.communicate()
+
+    def test_missing_identity_is_rejected_without_marking_seen(self):
+        for event in self.EVENTS:
+            for field in ("envelope_id", "lease_id", "lease_generation", "fencing_token"):
+                for value in (None, "absent"):
+                    with self.subTest(event=event, field=field, value=value):
+                        env, request = self.ready()
+                        before = env.task(sc.BASIC)
+                        request.pop(field)
+                        if value is None:
+                            request[field] = None
+                        out = self.send(env, event, request)
+                        self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+                        self.assertEqual(env.task(sc.BASIC), before)
+                        self.assertEqual(env.ports.remote.writes, [])
+
+    def test_remote_observes_committed_identity_and_transition_outside_transaction(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.task(sc.BASIC)
+                transaction = env.store.transaction
+                active = []
+
+                @contextlib.contextmanager
+                def tracked():
+                    with transaction() as d:
+                        active.append(True)
+                        try:
+                            yield d
+                        finally:
+                            active.pop()
+
+                def execute(kind, task_id, payload):
+                    self.assertEqual(active, [])
+                    self.assertEqual(task_id, sc.BASIC)
+                    self.assertEqual(payload, dict(request, kind=kind))
+                    committed = env.snap()
+                    self.assertEqual(len(committed["tasks"][task_id]["inbox_seen"]), len(before["inbox_seen"]) + 1)
+                    self.assertEqual(sc.tr(committed["journal"])[-1], ("building", "building", event))
+
+                with mock.patch.object(env.store, "transaction", tracked), mock.patch.object(env.ports.remote, "execute", side_effect=execute) as remote:
+                    self.assertTrue(self.send(env, event, request)["written"])
+                    remote.assert_called_once()
+
+    def test_effect_failure_rolls_back_without_remote_write_and_allows_retry(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.snap()
+                with mock.patch.object(env.core.rec, "transition", side_effect=RuntimeError("effect failed")):
+                    with self.assertRaisesRegex(RuntimeError, "effect failed"):
+                        self.send(env, event, request)
+                self.assertEqual(env.snap(), before)
+                self.assertEqual(env.ports.remote.writes, [])
+                self.assertTrue(self.send(env, event, request)["written"])
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_commit_failure_never_writes_remote_and_allows_retry(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                before = env.snap()
+                transaction = env.store.transaction
+
+                @contextlib.contextmanager
+                def fail_commit():
+                    with transaction() as d:
+                        yield d
+                        raise OSError("commit failed")
+
+                with mock.patch.object(env.store, "transaction", fail_commit):
+                    with self.assertRaisesRegex(OSError, "commit failed"):
+                        self.send(env, event, request)
+                self.assertEqual(env.snap(), before)
+                self.assertEqual(env.ports.remote.writes, [])
+                self.assertTrue(self.send(env, event, request)["written"])
+
+    def test_concurrent_replay_dispatches_once(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                barrier = Barrier(8)
+
+                def send(_):
+                    barrier.wait(timeout=10)
+                    return self.send(env, event, request)
+
+                with ThreadPoolExecutor(max_workers=8) as pool:
+                    outs = list(pool.map(send, range(8)))
+                self.assertEqual(sum(o["written"] for o in outs), 1)
+                self.assertEqual(sum(o["noop"] == "envelope_duplicate_delivery" for o in outs), 7)
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_late_precedes_duplicate_but_duplicate_precedes_expiry(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                self.send(env, event, request)
+                env.clock.set(env.lease(sc.BASIC)["expires_at"] + 1)
+                out = self.send(env, event, request)
+                self.assertEqual(out["noop"], "envelope_duplicate_delivery")
+                request["envelope_id"] = "WRITE-NEW"
+                out = self.send(env, event, request)
+                self.assertEqual((out["noop"], out["return_code"]), ("late_envelope_rejected", "R-11"))
+                env, request = self.ready()
+                self.send(env, event, request)
+                env.builder_for(sc.BASIC).send_result(env.instr(sc.BASIC), "failed_tests")
+                out = self.send(env, event, request)
+                self.assertEqual((out["noop"], out["return_code"]), ("late_envelope_rejected", "R-11"))
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                execute = env.ports.remote.execute
+
+                def uncertain_write(*args):
+                    execute(*args)
+                    raise OSError("remote outcome unknown")
+
+                with mock.patch.object(env.ports.remote, "execute", side_effect=uncertain_write) as remote:
+                    with self.assertRaisesRegex(OSError, "remote outcome unknown"):
+                        self.send(env, event, request)
+                    env.new_core()
+                    again = self.send(env, event, request)
+                    self.assertEqual((again["written"], again["noop"]), (False, "envelope_duplicate_delivery"))
+                    remote.assert_called_once()
+                self.assertEqual(len(env.ports.remote.writes), 1)
+                self.assertEqual(sc.se(env.journal(), "execute_write"), [])
+
+    def test_crash_after_commit_before_dispatch_keeps_intent_without_automatic_resend(self):
+        from daemon.core.ports import SimulatedCrash
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                with mock.patch.object(env.core, "_after_commit", side_effect=SimulatedCrash("committed")):
+                    with self.assertRaises(SimulatedCrash):
+                        self.send(env, event, request)
+                self.assertEqual(env.ports.remote.writes, [])
+                intents = [r for r in env.journal() if r["kind"] == "intent_record" and r["action"] == "execute_write"]
+                self.assertEqual([r["args"]["envelope_id"] for r in intents], [request["envelope_id"]])
+                env.new_core()
+                self.assertEqual(self.send(env, event, request)["noop"], "envelope_duplicate_delivery")
+                self.assertEqual(env.ports.remote.writes, [])
+
+    def test_completion_record_failure_does_not_unclaim_successful_remote_write(self):
+        for event in self.EVENTS:
+            with self.subTest(event=event):
+                env, request = self.ready()
+                with mock.patch.object(env.core.rec, "side_effect", side_effect=OSError("completion record failed")):
+                    with self.assertRaisesRegex(OSError, "completion record failed"):
+                        self.send(env, event, request)
+                self.assertEqual(len(env.ports.remote.writes), 1)
+                env.new_core()
+                self.assertEqual(self.send(env, event, request)["noop"], "envelope_duplicate_delivery")
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_file_store_releases_transaction_before_dispatch_and_persists_dedup(self):
+        from daemon.runner_verify.adapters import FileStore
+        from daemon.runner_verify.common import Layout
+        for event in self.EVENTS:
+            with self.subTest(event=event), tempfile.TemporaryDirectory() as tmp:
+                env, request = self.ready()
+                store = FileStore(Layout(tmp).make())
+                with store.transaction() as d:
+                    d.update(env.snap())
+                env.ports.store = store
+                execute = env.ports.remote.execute
+
+                def write(*args):
+                    # The committed snapshot is readable, but mutations must wait until dispatch finishes.
+                    self.assertEqual(len(store.snapshot()["tasks"][sc.BASIC]["inbox_seen"]), 2)
+                    with self.assertRaises(RuntimeError):
+                        with store.transaction():
+                            pass
+                    execute(*args)
+
+                with mock.patch.object(env.ports.remote, "execute", side_effect=write):
+                    self.assertTrue(self.send(env, event, request)["written"])
+                env.new_core()
+                self.assertEqual(self.send(env, event, request)["noop"], "envelope_duplicate_delivery")
+                self.assertEqual(len(env.ports.remote.writes), 1)
+
+
 class Coverage(unittest.TestCase):
     def test_test_ids_are_the_ones_in_tasks_json(self):
         tasks = json.loads(SPEC_TASKS.read_text(encoding="utf-8"))["tasks"]

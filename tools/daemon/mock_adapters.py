@@ -47,13 +47,27 @@ class MemoryStore(Store):
     def __init__(self):
         self._data = {"tasks": {}, "journal": []}
         self._lock = threading.RLock()
+        self._dispatching = False
 
     @contextlib.contextmanager
     def transaction(self):
         with self._lock:
+            if self._dispatching:
+                raise RuntimeError("store mutation during remote dispatch")
             work = copy.deepcopy(self._data)
             yield work
             self._data = work  # reached only when the body did not raise: all or nothing
+
+    @contextlib.contextmanager
+    def dispatch_guard(self):
+        with self._lock:
+            if self._dispatching:
+                raise RuntimeError("nested remote dispatch")
+            self._dispatching = True
+            try:
+                yield copy.deepcopy(self._data)
+            finally:
+                self._dispatching = False
 
     def snapshot(self):
         with self._lock:

@@ -277,6 +277,22 @@ class DaemonCore:
         return {"applied": False, "restart": True}
 
     def _after_commit(self, out):
+        for write in out.get("writes", []):
+            # This lock is shared with every store mutation, but opens no write transaction. A replacement
+            # committed before we acquired it must be rejected; a replacement arriving during dispatch waits.
+            with self.ports.store.dispatch_guard() as d:
+                failed = fencing.check_write(self, d, write["task_id"], write["event"], write["request"], claimed=True)
+                if failed is None:
+                    self.ports.remote.execute(write["kind"], write["task_id"], write["request"])
+            if failed is not None:
+                out.update(self._txn(write["task_id"], lambda d: fencing.reject_write(
+                    self, d, write["task_id"], write["request"], failed)))
+                continue
+            # The request identity and intent are already durable. An adapter error (or a crash before this
+            # record) must not unclaim it and blindly repeat a write whose remote outcome may be unknown.
+            self._txn(write["task_id"], lambda d: self.rec.side_effect(d, write["task_id"], "execute_write",
+                                                                    kind=write["kind"]))
+            out["written"] = True
         for kind, task_id in out.get("post", []):
             if kind == "issued":
                 self.ports.faults.check("issue_lease:committed")

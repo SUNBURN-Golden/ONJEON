@@ -1,0 +1,53 @@
+== secrets. references in .github/workflows (expect only the two step env blocks of sources.yml) ==
+.github/workflows/sources.yml:87:          ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}
+.github/workflows/sources.yml:88:          R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}
+.github/workflows/sources.yml:89:          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}
+.github/workflows/sources.yml:90:          R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}
+.github/workflows/sources.yml:91:          R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
+.github/workflows/sources.yml:101:          ONJEON_S3_ENDPOINT: ${{ secrets.ONJEON_S3_ENDPOINT }}
+.github/workflows/sources.yml:102:          R2_ACCESS_KEY_ID: ${{ secrets.R2_VERIFIER_ACCESS_KEY_ID }}
+.github/workflows/sources.yml:103:          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_VERIFIER_SECRET_ACCESS_KEY }}
+.github/workflows/sources.yml:104:          R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}
+.github/workflows/sources.yml:105:          R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
+
+== job/workflow-level env blocks in sources.yml (expect only JOB, no secrets) ==
+73:    env:
+74-      JOB: infra/r2/jobs/initial-119.json
+75-    steps:
+76-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+== installer steps carry no env / no secrets (Extractors steps) ==
+36-      # python3 -I ignores user site-packages, so dependencies go into a venv (its own site-packages
+37-      # stay visible under -I). The first run on main failed here: pdfplumber installed with --user.
+38:      - name: Extractors
+39-        run: |
+40-          sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
+41-          python3 -m venv "$RUNNER_TEMP/venv"
+42-          "$RUNNER_TEMP/venv/bin/pip" install --quiet pdfplumber==0.11.10
+43-      - name: Detect current source changes
+44-        # exit 1 if any source could not be fetched: a green run means every source was observed
+--
+75-    steps:
+76-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+77:      - name: Extractors
+78-        run: |
+79-          sudo apt-get update -q
+80-          sudo apt-get install -y -q poppler-utils ${{ inputs.ocr && 'tesseract-ocr tesseract-ocr-kor' || '' }}
+81-          python3 -m venv "$RUNNER_TEMP/venv"
+82-          "$RUNNER_TEMP/venv/bin/pip" install --quiet pdfplumber==0.11.10 boto3==1.43.100
+83-          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+
+== pip installs are version-pinned (==) ==
+.github/workflows/ci.yml:26:        run: python3 -m pip install --quiet --user --break-system-packages boto3==1.43.100
+.github/workflows/sources.yml:42:          "$RUNNER_TEMP/venv/bin/pip" install --quiet pdfplumber==0.11.10
+.github/workflows/sources.yml:82:          "$RUNNER_TEMP/venv/bin/pip" install --quiet pdfplumber==0.11.10 boto3==1.43.100
+
+== protected paths untouched ==
+(empty = clean)
+
+== all changes in this worktree ==
+?? tools/evidence/audit3-sources-workflow-secret-scope/
+
+== post-doc changes in this worktree ==
+?? docs/blueprint/audits/2026-10-28_sources_workflow_secret_scope.md
+?? tools/evidence/audit3-sources-workflow-secret-scope/

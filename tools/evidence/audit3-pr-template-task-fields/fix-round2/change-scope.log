@@ -1,0 +1,31 @@
+Target SHA: 41114559cc73ff62f2861aa40b87c96d4b81ff6f + uncommitted changes
+Live PR template byte-for-byte equal to HEAD: PASS
+All changed and untracked files under allowed tools/: PASS
+git diff --check: PASS (exit 0)
+Evidence README local links resolve: PASS
+Original template finding remains; proposal and patch are unapplied.
+Changed/untracked paths:
+tools/evidence/audit3-pr-template-task-fields/README.md
+tools/evidence/audit3-pr-template-task-fields/before-tests.log
+tools/evidence/audit3-pr-template-task-fields/fix-round1/change-scope.log
+tools/evidence/audit3-pr-template-task-fields/fix-round1/python-tests.log
+tools/evidence/audit3-pr-template-task-fields/fix-round1/rust-tests.log
+tools/evidence/audit3-pr-template-task-fields/fix-round1/spec-check.log
+tools/evidence/audit3-pr-template-task-fields/fix-round1/template-tests.log
+tools/evidence/audit3-pr-template-task-fields/fix-round2/change-scope.log
+tools/evidence/audit3-pr-template-task-fields/fix-round2/ontology-build.log
+tools/evidence/audit3-pr-template-task-fields/fix-round2/python-tests.log
+tools/evidence/audit3-pr-template-task-fields/fix-round2/rust-tests.log
+tools/evidence/audit3-pr-template-task-fields/fix-round2/spec-check.log
+tools/evidence/audit3-pr-template-task-fields/fix-round2/template-tests.log
+tools/evidence/audit3-pr-template-task-fields/ontology-build.log
+tools/evidence/audit3-pr-template-task-fields/policy-tests.log
+tools/evidence/audit3-pr-template-task-fields/proposed-tests.log
+tools/evidence/audit3-pr-template-task-fields/proposed_pull_request_template.md
+tools/evidence/audit3-pr-template-task-fields/python-tests.log
+tools/evidence/audit3-pr-template-task-fields/rust-local-tests.log
+tools/evidence/audit3-pr-template-task-fields/rust-tests.log
+tools/evidence/audit3-pr-template-task-fields/spec-check.log
+tools/evidence/audit3-pr-template-task-fields/template.patch
+tools/tests/test_pr_template.py
+Exit code: 0

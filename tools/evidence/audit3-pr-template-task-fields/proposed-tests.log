@@ -1,0 +1,9 @@
+test_existing_design_traceability_and_validation_limits_remain (tools.tests.test_pr_template.PrTemplate.test_existing_design_traceability_and_validation_limits_remain) ... ok
+test_product_purpose_row_points_to_completion_criteria (tools.tests.test_pr_template.PrTemplate.test_product_purpose_row_points_to_completion_criteria) ... ok
+test_target_sha_and_reproducible_test_log_have_separate_fields (tools.tests.test_pr_template.PrTemplate.test_target_sha_and_reproducible_test_log_have_separate_fields) ... ok
+test_task_and_author_fields_are_explicit (tools.tests.test_pr_template.PrTemplate.test_task_and_author_fields_are_explicit) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

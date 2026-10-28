@@ -1,4 +1,4 @@
-# generated from parent commit 285b9edf1dd60b80b9a7414a46d94d46ab83ecab + tree hash of tools/daemon sources sha256:137dff4091ec8316d317e53d40ac0feeeddf599cd16184693de3e67d231b7457
+# generated from parent commit b7aed69f98ee3d943ca105287b7b3679e7308bcb + tree hash of tools/daemon sources sha256:d904a958d52c7eb3b8098021ff87179c19f46ef2918bc15af0fff1386a513a77
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -52,6 +52,9 @@ test_outside_reads_are_reported_gaps (tools.tests.test_daemon_dry_run.Coverage.t
 test_test_ids_are_the_ones_in_tasks_json (tools.tests.test_daemon_dry_run.Coverage.test_test_ids_are_the_ones_in_tasks_json) ... ok
 test_coverage_names_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_coverage_names_each_direction) ... ok
 test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) ... ok
+test_empty_unlabelled_scenario_also_fails_without_require_all (tools.tests.test_daemon_dry_run.CoverageBothWays.test_empty_unlabelled_scenario_also_fails_without_require_all) ... ok
+test_every_required_id_needs_an_executed_check (tools.tests.test_daemon_dry_run.CoverageBothWays.test_every_required_id_needs_an_executed_check)
+A registered ID with a no-op body must not count as a passing test. ... ok
 test_report_json_lists_both_directions (tools.tests.test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions) ... ok
 test_require_all_fails_on_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction) ... ok
 test_docs_pr_completes_without_count (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_docs_pr_completes_without_count) ... ok
@@ -290,6 +293,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 267 tests in 62.777s
+Ran 269 tests in 123.748s
 
 OK

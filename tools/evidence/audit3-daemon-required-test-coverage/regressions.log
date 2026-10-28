@@ -1,0 +1,85 @@
+test_empty_duplicate_or_drifted_canonical_and_fixture_lists (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_empty_duplicate_or_drifted_canonical_and_fixture_lists) ... ok
+test_g12b_fails_cli_when_task_ids_still_exist_but_tests_do_not (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_g12b_fails_cli_when_task_ids_still_exist_but_tests_do_not) ... ok
+test_inventory_matches_runtime_registry_and_canonical_33_ids (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_inventory_matches_runtime_registry_and_canonical_33_ids) ... ok
+test_missing_malformed_or_nonliteral_registry_fails_closed (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_missing_malformed_or_nonliteral_registry_fails_closed) ... ok
+test_registered_name_without_function_is_detected_for_every_required_id (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_registered_name_without_function_is_detected_for_every_required_id) ... ok
+test_removing_each_required_registration_is_detected (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_removing_each_required_registration_is_detected) ... ok
+test_unknown_duplicate_and_sentinel_ids_cannot_hide_missing_tests (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_unknown_duplicate_and_sentinel_ids_cannot_hide_missing_tests) ... ok
+test_bundle_passes (tools.tests.test_spec_check_cond.Baseline.test_bundle_passes) ... ok
+test_prose_alone_does_not_pass (tools.tests.test_spec_check_cond.Baseline.test_prose_alone_does_not_pass)
+The when text still names every rule, but the conds are gone: each check fails. ... ok
+test_prose_is_not_read (tools.tests.test_spec_check_cond.Baseline.test_prose_is_not_read)
+Blank every `when` of every transition: no target check changes (they read cond / guard / side_effects). ... ok
+test_finding_row_without_cond (tools.tests.test_spec_check_cond.DocsPr.test_finding_row_without_cond)
+The finding: merged -> done with docs_only only in the prose, the core picks the cond-less sibling. ... ok
+test_payload_must_carry_docs_only (tools.tests.test_spec_check_cond.DocsPr.test_payload_must_carry_docs_only) ... ok
+test_sibling_without_cond (tools.tests.test_spec_check_cond.DocsPr.test_sibling_without_cond) ... ok
+test_g44_needs_preserved_cond (tools.tests.test_spec_check_cond.HandoffLease.test_g44_needs_preserved_cond) ... ok
+test_g33_needs_both_lease_fields (tools.tests.test_spec_check_cond.LateResult.test_g33_needs_both_lease_fields) ... ok
+test_g35_guard_or_cond (tools.tests.test_spec_check_cond.LeaseIssuingRows.test_g35_guard_or_cond)
+Either form makes the core run the guards (transition_engine.apply_event: tr['guard'] or the all_pass cond). ... ok
+test_g35_rows_outside_leased (tools.tests.test_spec_check_cond.LeaseIssuingRows.test_g35_rows_outside_leased)
+The old check looked only at to == leased; these rows issue a lease into building. ... ok
+test_g42_generation_changed_outside_issue_lease (tools.tests.test_spec_check_cond.LeaseIssuingRows.test_g42_generation_changed_outside_issue_lease) ... ok
+test_g42_issue_lease_effect (tools.tests.test_spec_check_cond.LeaseIssuingRows.test_g42_issue_lease_effect) ... ok
+test_g42_reasons_one_to_one (tools.tests.test_spec_check_cond.LeaseIssuingRows.test_g42_reasons_one_to_one) ... ok
+test_the_set_covers_more_than_rows_into_leased (tools.tests.test_spec_check_cond.LeaseIssuingRows.test_the_set_covers_more_than_rows_into_leased) ... ok
+test_both_sides_needed (tools.tests.test_spec_check_cond.MergeGate.test_both_sides_needed) ... ok
+test_every_ready_and_pending_row_is_checked (tools.tests.test_spec_check_cond.MergeGate.test_every_ready_and_pending_row_is_checked) ... ok
+test_waiting_rows_are_not_merge_gates (tools.tests.test_spec_check_cond.MergeGate.test_waiting_rows_are_not_merge_gates)
+auditor_unavailable / reviewer_unavailable wait for a person, not a decision: no merge cond is asked. ... ok
+test_g5b_needs_the_start_cond (tools.tests.test_spec_check_cond.StartAndPrereq.test_g5b_needs_the_start_cond) ... ok
+test_g5b_rejects_the_merge_gate_on_start (tools.tests.test_spec_check_cond.StartAndPrereq.test_g5b_rejects_the_merge_gate_on_start) ... ok
+test_g6b_needs_the_prereq_cond (tools.tests.test_spec_check_cond.StartAndPrereq.test_g6b_needs_the_prereq_cond) ... ok
+test_g6b_rejects_eq_merged (tools.tests.test_spec_check_cond.StartAndPrereq.test_g6b_rejects_eq_merged) ... ok
+test_bundle_passes_with_nonzero_counts (tools.tests.test_spec_check_vacuous.Baseline.test_bundle_passes_with_nonzero_counts) ... ok
+test_empty_tbox_fails_instead_of_crashing (tools.tests.test_spec_check_vacuous.G26ConstraintRange.test_empty_tbox_fails_instead_of_crashing) ... ok
+test_matching_ranges_with_supported_separators_pass (tools.tests.test_spec_check_vacuous.G26ConstraintRange.test_matching_ranges_with_supported_separators_pass)
+Replace every scanned range, so another '~' match cannot hide a parser miss. ... ok
+test_no_range_mention_fails (tools.tests.test_spec_check_vacuous.G26ConstraintRange.test_no_range_mention_fails)
+Every 'K1~K16' rewritten in words: the regex finds nothing and G26 must not pass. ... ok
+test_stale_range_still_fails (tools.tests.test_spec_check_vacuous.G26ConstraintRange.test_stale_range_still_fails) ... ok
+test_stale_range_with_other_dash_fails (tools.tests.test_spec_check_vacuous.G26ConstraintRange.test_stale_range_with_other_dash_fails)
+A stale range written with an en dash used to escape the '~'-only regex. ... ok
+test_empty_document_fails (tools.tests.test_spec_check_vacuous.G4cIntegrationRows.test_empty_document_fails) ... ok
+test_empty_registry_fails (tools.tests.test_spec_check_vacuous.G4cIntegrationRows.test_empty_registry_fails) ... ok
+test_heading_regex_stops_matching (tools.tests.test_spec_check_vacuous.G4cIntegrationRows.test_heading_regex_stops_matching)
+'### 2.1' rewritten as '### 2-1': the parser finds no row at all, and G4c must say so. ... ok
+test_no_rows_fails (tools.tests.test_spec_check_vacuous.G4cIntegrationRows.test_no_rows_fails) ... ok
+test_unmapped_row_still_fails (tools.tests.test_spec_check_vacuous.G4cIntegrationRows.test_unmapped_row_still_fails) ... ok
+test_dead_state_still_fails (tools.tests.test_spec_check_vacuous.G7bStates.test_dead_state_still_fails) ... ok
+test_no_states_and_no_transitions_fails (tools.tests.test_spec_check_vacuous.G7bStates.test_no_states_and_no_transitions_fails)
+The old check passed here: nothing to look at means nothing dead. ... ok
+test_no_states_fails (tools.tests.test_spec_check_vacuous.G7bStates.test_no_states_fails) ... ok
+test_no_transitions_fails_with_live_states (tools.tests.test_spec_check_vacuous.G7bStates.test_no_transitions_fails_with_live_states) ... ok
+test_only_terminal_states_fails (tools.tests.test_spec_check_vacuous.G7bStates.test_only_terminal_states_fails) ... ok
+test_states_missing_fails (tools.tests.test_spec_check_vacuous.G7bStates.test_states_missing_fails) ... ok
+test_every_detect_empty_fails (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_every_detect_empty_fails) ... ok
+test_no_signals_fails (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_no_signals_fails) ... ok
+test_no_switch_policy_fails (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_no_switch_policy_fails) ... ok
+test_one_empty_detect_fails_despite_other_valid_signals (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_one_empty_detect_fails_despite_other_valid_signals) ... ok
+test_one_signal_without_detect_fails (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_one_signal_without_detect_fails) ... ok
+test_third_party_http_still_fails (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_third_party_http_still_fails) ... ok
+test_unstructured_detect_still_fails (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_unstructured_detect_still_fails) ... ok
+test_wrong_source_still_fails (tools.tests.test_spec_check_vacuous.G9SwitchSignals.test_wrong_source_still_fails) ... ok
+test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ... ok
+test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ... ok
+test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) ... ok
+test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) ... ok
+test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) ... ok
+test_only_canonical_checker_and_runner_directory_are_exempt (tools.tests.test_daemon_static_checks.StaticBypasses.test_only_canonical_checker_and_runner_directory_are_exempt) ... ok
+test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) ... ok
+test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) ... ok
+test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) ... ok
+test_safe_operations_and_data_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_safe_operations_and_data_are_allowed) ... ok
+test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) ... ok
+test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) ... ok
+test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) ... ok
+test_cli_invalid_source_is_an_error (tools.tests.test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error) ... ok
+test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) ... ok
+test_no_arguments_runs_all_checks (tools.tests.test_daemon_static_checks.StaticCli.test_no_arguments_runs_all_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 69 tests in 18.300s
+
+OK

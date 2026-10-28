@@ -59,3 +59,5 @@ jobs:
         run: python3 -I docs/blueprint/proposals/온톨로지/검증/ontology_check.py "$RUNNER_TEMP/onto/debug/ontology-case-runner"
       - name: Design bundle semantic check (task graph, path permissions, final gate, daemon transitions, switch signals)
         run: python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+      - name: Daemon dry run (all T-OP-00 required tests must execute)
+        run: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all --quiet

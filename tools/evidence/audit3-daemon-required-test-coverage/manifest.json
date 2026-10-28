@@ -1,0 +1,91 @@
+{
+  "node": "audit3-daemon-required-test-coverage",
+  "parent_commit": "b7aed69f98ee3d943ca105287b7b3679e7308bcb",
+  "daemon_source_tree_sha256": "d904a958d52c7eb3b8098021ff87179c19f46ef2918bc15af0fff1386a513a77",
+  "scope_check": "all changes within authorized paths; protected paths untouched",
+  "source_sha256": {
+    ".github/workflows/ci.yml": "1f06faa7705e2e0d2bf2a7f3a9d5ab2a764a248d5b6d7012e4952d1ab84a2ec9",
+    "docs/blueprint/audits/2026-10-28_daemon_required_test_coverage.md": "a7f97fc22f3454157500471445338e56cbda0b22f7aaf7e6131c43cff95a967a",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md": "9a5a310b669722c56f942d32aa3e97f39abc8d29cc71dd22ad31cc853e82bd4b",
+    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "8f7791251e157a319f6b8bc658c1b9f5a6bc0e7e60f30c1005a4886f7124eb99",
+    "docs/blueprint/proposals/설계검토_결과/tasks.json": "86f47eea006c68e2df8b4c0d7bdb3bd8fd7548f26dd28d76c51d97c5ce2b0752",
+    "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py": "008e803bb804c33917a6a1f7a3971ab5dcdbedd78486f15f06fdd7ea8e61567a",
+    "tools/daemon/README.md": "097ecf9106c8e83390d6cd48e0fe7149ab3afbf89bb0ed180c3e88fee890b137",
+    "tools/daemon/dry_run.py": "8f21e914b6aed771d34cefa479e89c7e843ae946d07677c76d51ea7bb1ee1205",
+    "tools/daemon/mock_tasks.json": "ccb78bbaa674415d769b1290ac12a7bd4bdac29cb35f23d62fb2a3c08af279c8",
+    "tools/daemon/scenarios.py": "274f08e2ef77d0f373950bcdf51d84d29fd94bd87cbf120d23eb03887cd3fa9c",
+    "tools/daemon/scenarios_flow.py": "15b9239650cf3be4cc153728cce60d560c23b96a041693469db80911d057b94d",
+    "tools/tests/test_daemon_dry_run.py": "5a2ccf552c8eff7bf4c30e9f4009c117b25fb5a0fda12ad2a0664eccfd3af2ca",
+    "tools/tests/test_daemon_required_test_coverage.py": "023d9d312e703c67c7b2a57b8c169e97340bb2c94a16e2dacae850d99d1ca1ed"
+  },
+  "validation": [
+    {
+      "command": "python3 -m unittest tools.tests.test_daemon_dry_run.CoverageBothWays.test_every_required_id_needs_an_executed_check tools.tests.test_daemon_dry_run.CoverageBothWays.test_empty_unlabelled_scenario_also_fails_without_require_all -v",
+      "phase": "before production fix",
+      "exit_code": 1,
+      "tests": 2,
+      "subtest_failures": 34
+    },
+    {
+      "command": "python3 -m unittest tools.tests.test_daemon_required_test_coverage tools.tests.test_daemon_dry_run.CoverageBothWays -v",
+      "exit_code": 0,
+      "tests": 13
+    },
+    {
+      "command": "python3 -m unittest tools/tests/test_daemon_required_test_coverage.py tools/tests/test_spec_check_cond.py tools/tests/test_spec_check_vacuous.py tools/tests/test_daemon_static_checks.py -v",
+      "exit_code": 0,
+      "tests": 69
+    },
+    {
+      "command": "python3 -m unittest tools/tests/test_daemon_dry_run.py -v",
+      "exit_code": 0,
+      "tests": 269
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "exit_code": 0,
+      "tests": 1210,
+      "skipped": 6
+    },
+    {
+      "command": "cargo test --all",
+      "exit_code": 0,
+      "ignored": 1
+    },
+    {
+      "command": "python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py",
+      "exit_code": 0,
+      "mechanical_checks": 45,
+      "existence_checks": 72
+    },
+    {
+      "command": "python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all",
+      "exit_code": 0,
+      "scenarios": 49,
+      "checks": 692,
+      "required_ids": 33,
+      "missing": 0,
+      "unlisted": 0,
+      "repeated": 0
+    },
+    {
+      "commands_log": "checks.log",
+      "exit_code": 0
+    }
+  ],
+  "evidence_sha256": {
+    "tools/evidence/audit3-daemon-required-test-coverage/README.md": "68e0f0166cdcefead61d6f45749049839ccf7bd4719df5b89356bc37818b0ba2",
+    "tools/evidence/audit3-daemon-required-test-coverage/after.log": "4c11ae1a2abec195ff62ad128d3563db65b1199439ffee4fbf26cff48229ca24",
+    "tools/evidence/audit3-daemon-required-test-coverage/before.log": "e821d98258f6d5c4da1beb70fafc78a16182c54757f56605773e0ec1fe3d627d",
+    "tools/evidence/audit3-daemon-required-test-coverage/checks.log": "d1f9d7e3d81c51771a10d3e77d38429780a9f74b18cabea5f8be386ee19a320a",
+    "tools/evidence/audit3-daemon-required-test-coverage/coverage.json": "1795eb68f4c3e9b45dba51c78df5bde1f522533b2440bab39310b5f6461bb924",
+    "tools/evidence/audit3-daemon-required-test-coverage/python-tests.log": "643b762bd7eaf92841879c9d9877b4cdfb1f8fea3d9d4d26bb9f9ba23f1f7f24",
+    "tools/evidence/audit3-daemon-required-test-coverage/regressions.log": "666e0b7b37ba0ea9376b5b1f10afd8729ffa3dc611579008e7f087a05dbaee88",
+    "tools/evidence/audit3-daemon-required-test-coverage/rust-tests.log": "8b88d587dd74a9db131ac16bc18ac8c9e319337475c41aee4e9d2dcaf0f57987",
+    "tools/evidence/audit3-daemon-required-test-coverage/spec-check.log": "0d1a76a2e2fd75af9fbfc175fca81947092caad56dbdde8633b7592c070837df",
+    "tools/daemon/reports/dry_run.log": "dea947bc659a788c160afd1561a70bdec0fa439358016860f7f15cf135ffa45a",
+    "tools/daemon/reports/unittest.log": "efb5349a8ececfb5339429457bbfc84d13403acbf629d1a4b28b26caee540a5c",
+    "docs/blueprint/proposals/설계검토_결과/검증/실행로그_dry_run.txt": "8ce639d6ee12971b98ec2c26d0260824050023075fe77cb0304098ccbaed7a96",
+    "docs/blueprint/proposals/설계검토_결과/검증/실행로그_spec_check.txt": "0d1a76a2e2fd75af9fbfc175fca81947092caad56dbdde8633b7592c070837df"
+  }
+}

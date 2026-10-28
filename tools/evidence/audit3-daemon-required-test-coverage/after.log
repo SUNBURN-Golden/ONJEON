@@ -1,0 +1,19 @@
+test_empty_duplicate_or_drifted_canonical_and_fixture_lists (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_empty_duplicate_or_drifted_canonical_and_fixture_lists) ... ok
+test_g12b_fails_cli_when_task_ids_still_exist_but_tests_do_not (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_g12b_fails_cli_when_task_ids_still_exist_but_tests_do_not) ... ok
+test_inventory_matches_runtime_registry_and_canonical_33_ids (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_inventory_matches_runtime_registry_and_canonical_33_ids) ... ok
+test_missing_malformed_or_nonliteral_registry_fails_closed (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_missing_malformed_or_nonliteral_registry_fails_closed) ... ok
+test_registered_name_without_function_is_detected_for_every_required_id (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_registered_name_without_function_is_detected_for_every_required_id) ... ok
+test_removing_each_required_registration_is_detected (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_removing_each_required_registration_is_detected) ... ok
+test_unknown_duplicate_and_sentinel_ids_cannot_hide_missing_tests (tools.tests.test_daemon_required_test_coverage.RequiredTestInventory.test_unknown_duplicate_and_sentinel_ids_cannot_hide_missing_tests) ... ok
+test_coverage_names_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_coverage_names_each_direction) ... ok
+test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) ... ok
+test_empty_unlabelled_scenario_also_fails_without_require_all (tools.tests.test_daemon_dry_run.CoverageBothWays.test_empty_unlabelled_scenario_also_fails_without_require_all) ... ok
+test_every_required_id_needs_an_executed_check (tools.tests.test_daemon_dry_run.CoverageBothWays.test_every_required_id_needs_an_executed_check)
+A registered ID with a no-op body must not count as a passing test. ... ok
+test_report_json_lists_both_directions (tools.tests.test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions) ... ok
+test_require_all_fails_on_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.378s
+
+OK

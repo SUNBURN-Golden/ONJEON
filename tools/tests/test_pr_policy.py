@@ -25,7 +25,7 @@ class PrPolicy(unittest.TestCase):
     def test_json_and_both_documents_explicitly_defer_common_pr_criteria(self):
         self.assertEqual("non_binding_until_adopted",
                          self.tasks.get("_common_done_criteria_status"))
-        self.assertIn("채택된 정본이 아니다", self.tasks["_status"])
+        self.assertIn("BLUEPRINT 하위 계약으로 한정 채택(ADR-0019)", self.tasks["_status"])
         self.assertIn("과제 실행·완료 기준으로 채택", self.tasks["_status"])
         for name, policy in self.policies.items():
             with self.subTest(document=name):
@@ -55,10 +55,11 @@ class PrPolicy(unittest.TestCase):
 
 
 class BundleStatus(unittest.TestCase):
-    """DEC-BUNDLE-STATUS: 실행·완료 기준 채택과 정본 미채택을 모든 지위 문장이 함께 적는다."""
+    """ADR-0019: 두 계약의 채택과 묶음 전체·공통 PR 기준 제외를 함께 지킨다."""
 
     EXECUTION = "과제 실행·완료 기준으로 채택"
-    CANON = "채택된 정본이 아니다"
+    CANON = "BLUEPRINT 하위 계약으로 한정 채택(ADR-0019)"
+    ADR = ROOT / "docs/decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md"
     RECORD = ROOT / "docs/decisions/DEC-BUNDLE-STATUS.md"
 
     def setUp(self):
@@ -72,10 +73,11 @@ class BundleStatus(unittest.TestCase):
     def statements(self):
         return {"README 상태": self.status_line, "그록봇 README": self.handoff, **self.json_status}
 
-    def test_record_exists_and_states_both_halves(self):
+    def test_historical_record_identifies_partial_supersession(self):
         record = self.RECORD.read_text(encoding="utf-8")
         for phrase in ("Execution and completion basis: adopted", "Canon: not adopted",
-                       "D-21", "09_제품목적_대응표", "2026-10-13", "NOT personally decide"):
+                       "D-21", "09_제품목적_대응표", "2026-10-13", "NOT personally decide",
+                       "2026-10-29 부분 대체", self.ADR.name, "아래는 2026-10-26 결정 이력"):
             self.assertIn(phrase, record)
 
     def test_every_status_statement_carries_both_halves_and_the_record(self):
@@ -85,6 +87,9 @@ class BundleStatus(unittest.TestCase):
                 self.assertIn(self.CANON, text)
                 self.assertIn("D-21", text)
                 self.assertIn("DEC-BUNDLE-STATUS", text)
+                self.assertIn("상위 계약을 우선한다", text)
+                self.assertIn("묶음 전체·온톨로지·daemon_rules.json·common_done_criteria는 이번 정본 채택 대상이 아니다", text)
+                self.assertNotIn("채택된 정본이 아니다", text)
 
     def test_markdown_links_to_the_record_resolve(self):
         for name, base, text in (("README 상태", BUNDLE, self.status_line),
@@ -92,6 +97,7 @@ class BundleStatus(unittest.TestCase):
             with self.subTest(document=name):
                 targets = {(base / path).resolve() for path in re.findall(r"\]\(([^)]+)\)", text)}
                 self.assertIn(self.RECORD, targets)
+                self.assertIn(self.ADR, targets)
 
     def test_completion_criterion_is_09_in_bundle_handoff_and_blueprint(self):
         self.assertIn("09가 최상위 완료 기준", self.status_line)
@@ -107,6 +113,62 @@ class BundleStatus(unittest.TestCase):
         for name, text in self.json_status.items():
             with self.subTest(document=name):
                 self.assertNotIn("초안", text)
+
+
+    def test_blueprint_integrates_both_contracts_at_every_required_entry(self):
+        blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
+        for start, end in (("### 0.1 ", "### 0.2 "), ("## 9. ", "## 10. "),
+                           ("## 13. ", None)):
+            section = blueprint.split(start, 1)[1]
+            if end:
+                section = section.split(end, 1)[0]
+            with self.subTest(section=start):
+                self.assertIn("ADR-0019", section)
+                for filename in ("09_제품목적_대응표.md", "tasks.json"):
+                    relative = f"blueprint/proposals/설계검토_결과/{filename}"
+                    self.assertIn(f"]({relative})", section)
+                    self.assertTrue((ROOT / "docs" / relative).is_file())
+                self.assertIn("제품 완료", section)
+                self.assertIn("데몬 작업 소스", section)
+        for start, end in (("## 7. ", "## 8. "), ("## 11. ", "## 12. ")):
+            section = blueprint.split(start, 1)[1].split(end, 1)[0]
+            self.assertIn("ADR-0019", section)
+            self.assertIn("한정 채택", section)
+
+    def test_adoption_retains_evidence_gate_and_excludes_blanket_adoption(self):
+        adr = self.ADR.read_text(encoding="utf-8")
+        blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
+        gate = blueprint.split("### 9.5 ", 1)[1].split("## 10.", 1)[0]
+        for text in (adr, gate):
+            for phrase in ("P01~P19", "T-OP-08", "purpose-rows-all-closed",
+                           "docs/release-readiness/evidence/", "축소·후속", "합성", "마일스톤 관문"):
+                self.assertIn(phrase, text)
+        for phrase in ("non_binding_until_adopted", "daemon_rules.json", "일괄 채택하지 않는다",
+                       "D-21", "상위 계약", "새 ADR", "병합·가동 승인은 별도"):
+            self.assertIn(phrase, adr)
+        tasks = json.loads((BUNDLE / "tasks.json").read_text(encoding="utf-8"))["tasks"]
+        final = next(t for t in tasks if t["id"] == "T-OP-08")
+        self.assertIs(True, final["final_gate"])
+        self.assertIn("purpose-rows-all-closed", final["required_test_ids"])
+
+    def test_readme_and_decision_ledger_index_the_adoption(self):
+        for path, target in ((ROOT / "README.md", "docs/decisions/" + self.ADR.name),
+                             (ROOT / "docs/blueprint/DECISIONS.md", "../decisions/" + self.ADR.name)):
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(document=path):
+                self.assertIn(f"]({target})", text)
+                self.assertEqual(self.ADR, (path.parent / target).resolve())
+                for phrase in ("한정 채택", "제품 완료", "데몬 작업 소스", "개별 수락", "상위 계약"):
+                    self.assertIn(phrase, text)
+
+    def test_purpose_header_is_an_adopted_subordinate_contract(self):
+        path = BUNDLE / "09_제품목적_대응표.md"
+        header = path.read_text(encoding="utf-8").split("## 0.", 1)[0]
+        self.assertIn("BLUEPRINT 하위 계약에 한정 채택", header)
+        self.assertIn("상위 계약을 우선한다", header)
+        self.assertIn("묶음 전체·참조된 온톨로지 제안의 정본 채택은 아니다", header)
+        targets = {(path.parent / target).resolve() for target in re.findall(r"\]\(([^)]+)\)", header)}
+        self.assertIn(self.ADR, targets)
 
 
 class SerialDaemonPrerequisite(unittest.TestCase):

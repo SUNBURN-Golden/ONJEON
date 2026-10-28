@@ -1,0 +1,178 @@
+test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) ... 
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum=None, existing=False) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum=None, existing=True) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=False) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=True) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='QAN7Daj4jRwBSEn0nJHyJbslIb+UWA0jDNGHIBaCfYQ=', existing=False) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='QAN7Daj4jRwBSEn0nJHyJbslIb+UWA0jDNGHIBaCfYQ=', existing=True) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum=None, existing=False) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum=None, existing=True) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=False) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=True) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=', existing=False) ... FAIL
+  test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=', existing=True) ... FAIL
+test_corrupt_middle_object_stops_restore_and_preserves_verified_files (test_source_archive_fetch_r2.R2Fetch.test_corrupt_middle_object_stops_restore_and_preserves_verified_files) ... ERROR
+
+======================================================================
+ERROR: test_corrupt_middle_object_stops_restore_and_preserves_verified_files (test_source_archive_fetch_r2.R2Fetch.test_corrupt_middle_object_stops_restore_and_preserves_verified_files)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 128, in test_corrupt_middle_object_stops_restore_and_preserves_verified_files
+    code, out, err = self.fetch()
+                     ~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 75, in fetch
+    code = sa.cmd_fetch(self.args)
+  File "<fetch-without-hash-guard>", line 9, in cmd_fetch
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/source_archive.py", line 239, in get
+    r = self.s3.get_object(Bucket=self.bucket, Key=self._k(key))
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1035, in _make_api_call
+    api_params = self._emit_api_params(
+        api_params=api_params,
+        operation_model=operation_model,
+        context=request_context,
+    )
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1154, in _emit_api_params
+    self.meta.events.emit(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        f'before-parameter-build.{service_id}.{operation_name}',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        context=context,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 395, in _assert_expected_params
+    self._assert_expected_call_order(model, params)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 363, in _assert_expected_call_order
+    raise UnStubbedResponseError(
+    ...<6 lines>...
+    )
+botocore.exceptions.UnStubbedResponseError: Error getting response stub for operation GetObject: Unexpected API Call: A call was made but no additional calls expected. Either the API Call was not stubbed or it was called multiple times.
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum=None, existing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum=None, existing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='QAN7Daj4jRwBSEn0nJHyJbslIb+UWA0jDNGHIBaCfYQ=', existing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', checksum='QAN7Daj4jRwBSEn0nJHyJbslIb+UWA0jDNGHIBaCfYQ=', existing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum=None, existing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum=None, existing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='oMj4PtViKn3Y2yKz7TgqU6lvKQkV6M002C1F9WAt3vA=', existing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=', existing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_overwritten_bytes_rejected_even_with_expected_server_checksum (test_source_archive_fetch_r2.R2Fetch.test_overwritten_bytes_rejected_even_with_expected_server_checksum) (body=b'', checksum='47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=', existing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-archive-fetch-verify-hash/tools/tests/test_source_archive_fetch_r2.py", line 109, in test_overwritten_bytes_rejected_even_with_expected_server_checksum
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.109s
+
+FAILED (failures=12, errors=1)
+Expected detection: 12 replacement cases fail; the middle-object test rejects the unexpected later GET.

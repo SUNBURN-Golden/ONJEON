@@ -1,0 +1,115 @@
+test_audit_session_passes_the_cap_but_does_not_clear_it (test_r2_checkpoint.Lockout.test_audit_session_passes_the_cap_but_does_not_clear_it) ... ERROR
+test_checkpoint_command_flow_via_start_and_finish (test_r2_checkpoint.Lockout.test_checkpoint_command_flow_via_start_and_finish) ... ERROR
+test_checkpoint_session_at_99_covers_its_own_reservation (test_r2_checkpoint.Lockout.test_checkpoint_session_at_99_covers_its_own_reservation) ... ERROR
+test_checkpoint_session_clears_a_full_ledger (test_r2_checkpoint.Lockout.test_checkpoint_session_clears_a_full_ledger) ... ERROR
+test_checkpoint_session_clears_a_full_segment_after_a_checkpoint (test_r2_checkpoint.Lockout.test_checkpoint_session_clears_a_full_segment_after_a_checkpoint) ... ERROR
+test_normal_session_stays_refused_at_the_cap (test_r2_checkpoint.Lockout.test_normal_session_stays_refused_at_the_cap) ... ERROR
+test_over_limit_flag_is_scoped_to_recovery_ledgers (test_r2_checkpoint.Lockout.test_over_limit_flag_is_scoped_to_recovery_ledgers) ... ERROR
+test_recovery_session_still_obeys_the_budget_caps (test_r2_checkpoint.Lockout.test_recovery_session_still_obeys_the_budget_caps) ... ERROR
+test_checkpoint_session_at_the_cap_stays_metered_and_clears_it (test_r2_checkpoint.EndToEnd.test_checkpoint_session_at_the_cap_stays_metered_and_clears_it) ... skipped 'boto3>=1.35 needed'
+test_tail_reads_the_cap_but_append_cannot_extend_it (test_r2_budget.LedgerRecordCap.test_tail_reads_the_cap_but_append_cannot_extend_it)
+tail() reports the true tail for settlement; append() is the write guard that stops the ... ok
+
+======================================================================
+ERROR: test_audit_session_passes_the_cap_but_does_not_clear_it (test_r2_checkpoint.Lockout.test_audit_session_passes_the_cap_but_does_not_clear_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 578, in test_audit_session_passes_the_cap_but_does_not_clear_it
+    s = self.session("audit")
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 492, in session
+    return b.Session(str(self.job_path), ledger_store=self.ledger_store,
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     policy_path=self.policy_path, gate_dir=self.root / tag, purpose=purpose)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Session.__init__() got an unexpected keyword argument 'purpose'
+
+======================================================================
+ERROR: test_checkpoint_command_flow_via_start_and_finish (test_r2_checkpoint.Lockout.test_checkpoint_command_flow_via_start_and_finish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 566, in test_checkpoint_command_flow_via_start_and_finish
+    s = b.start(str(self.job_path), ledger_store=self.ledger_store,
+                policy_path=self.policy_path, gate_dir=self.root / "g", purpose="checkpoint")
+TypeError: start() got an unexpected keyword argument 'purpose'
+
+======================================================================
+ERROR: test_checkpoint_session_at_99_covers_its_own_reservation (test_r2_checkpoint.Lockout.test_checkpoint_session_at_99_covers_its_own_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 531, in test_checkpoint_session_at_99_covers_its_own_reservation
+    s = self.session("checkpoint")
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 492, in session
+    return b.Session(str(self.job_path), ledger_store=self.ledger_store,
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     policy_path=self.policy_path, gate_dir=self.root / tag, purpose=purpose)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Session.__init__() got an unexpected keyword argument 'purpose'
+
+======================================================================
+ERROR: test_checkpoint_session_clears_a_full_ledger (test_r2_checkpoint.Lockout.test_checkpoint_session_clears_a_full_ledger)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 508, in test_checkpoint_session_clears_a_full_ledger
+    s = self.session("checkpoint")
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 492, in session
+    return b.Session(str(self.job_path), ledger_store=self.ledger_store,
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     policy_path=self.policy_path, gate_dir=self.root / tag, purpose=purpose)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Session.__init__() got an unexpected keyword argument 'purpose'
+
+======================================================================
+ERROR: test_checkpoint_session_clears_a_full_segment_after_a_checkpoint (test_r2_checkpoint.Lockout.test_checkpoint_session_clears_a_full_segment_after_a_checkpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 549, in test_checkpoint_session_clears_a_full_segment_after_a_checkpoint
+    s = self.session("checkpoint")
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 492, in session
+    return b.Session(str(self.job_path), ledger_store=self.ledger_store,
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     policy_path=self.policy_path, gate_dir=self.root / tag, purpose=purpose)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Session.__init__() got an unexpected keyword argument 'purpose'
+
+======================================================================
+ERROR: test_normal_session_stays_refused_at_the_cap (test_r2_checkpoint.Lockout.test_normal_session_stays_refused_at_the_cap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 497, in test_normal_session_stays_refused_at_the_cap
+    s = self.session()
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 492, in session
+    return b.Session(str(self.job_path), ledger_store=self.ledger_store,
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     policy_path=self.policy_path, gate_dir=self.root / tag, purpose=purpose)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Session.__init__() got an unexpected keyword argument 'purpose'
+
+======================================================================
+ERROR: test_over_limit_flag_is_scoped_to_recovery_ledgers (test_r2_checkpoint.Lockout.test_over_limit_flag_is_scoped_to_recovery_ledgers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 590, in test_over_limit_flag_is_scoped_to_recovery_ledgers
+    flagged = b.Ledger(self.ledger_store, self.policy, over_limit_ok=True)
+TypeError: Ledger.__init__() got an unexpected keyword argument 'over_limit_ok'
+
+======================================================================
+ERROR: test_recovery_session_still_obeys_the_budget_caps (test_r2_checkpoint.Lockout.test_recovery_session_still_obeys_the_budget_caps)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 609, in test_recovery_session_still_obeys_the_budget_caps
+    s = self.session("checkpoint")
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 492, in session
+    return b.Session(str(self.job_path), ledger_store=self.ledger_store,
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     policy_path=self.policy_path, gate_dir=self.root / tag, purpose=purpose)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Session.__init__() got an unexpected keyword argument 'purpose'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.093s
+
+FAILED (errors=8, skipped=1)
+== probe: write_checkpoint() on a full ledger under HEAD code ==
+write_checkpoint at the cap -> BudgetError: budget: ledger has 100 records after the last checkpoint >= 100; checkpoint before running
+ordinary session open at the cap -> BudgetError: budget: ledger has 100 records after the last checkpoint >= 100; checkpoint before running
+== new regression tests against HEAD ==

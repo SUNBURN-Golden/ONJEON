@@ -1,0 +1,22 @@
+test_audit_session_passes_the_cap_but_does_not_clear_it (test_r2_checkpoint.Lockout.test_audit_session_passes_the_cap_but_does_not_clear_it) ... ok
+test_checkpoint_command_flow_via_start_and_finish (test_r2_checkpoint.Lockout.test_checkpoint_command_flow_via_start_and_finish) ... ok
+test_checkpoint_session_at_99_covers_its_own_reservation (test_r2_checkpoint.Lockout.test_checkpoint_session_at_99_covers_its_own_reservation) ... ok
+test_checkpoint_session_clears_a_full_ledger (test_r2_checkpoint.Lockout.test_checkpoint_session_clears_a_full_ledger) ... ok
+test_checkpoint_session_clears_a_full_segment_after_a_checkpoint (test_r2_checkpoint.Lockout.test_checkpoint_session_clears_a_full_segment_after_a_checkpoint) ... ok
+test_normal_session_stays_refused_at_the_cap (test_r2_checkpoint.Lockout.test_normal_session_stays_refused_at_the_cap) ... ok
+test_over_limit_flag_is_scoped_to_recovery_ledgers (test_r2_checkpoint.Lockout.test_over_limit_flag_is_scoped_to_recovery_ledgers) ... ok
+test_recovery_session_still_obeys_the_budget_caps (test_r2_checkpoint.Lockout.test_recovery_session_still_obeys_the_budget_caps) ... ok
+test_checkpoint_session_at_the_cap_stays_metered_and_clears_it (test_r2_checkpoint.EndToEnd.test_checkpoint_session_at_the_cap_stays_metered_and_clears_it) ... ok
+test_tail_reads_the_cap_but_append_cannot_extend_it (test_r2_budget.LedgerRecordCap.test_tail_reads_the_cap_but_append_cannot_extend_it)
+tail() reports the true tail for settlement; append() is the write guard that stops the ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 10.179s
+
+OK
+== probe: a full ledger on worktree code ==
+write_checkpoint on an ordinary ledger -> BudgetError: budget: ledger has 100 records after the last checkpoint >= 100; checkpoint before running
+ordinary session open at the cap -> BudgetError: budget: ledger has 100 records after the last checkpoint >= 100; checkpoint before running
+checkpoint session -> reservation seq 101, checkpoint written seq 101, settlement seq 102
+next ordinary read -> base_seq 101, records [102]
+== new regression tests ==

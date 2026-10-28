@@ -1,0 +1,25 @@
+test_repeated_audits_at_cap_leave_metered_checkpoint_admission_possible (test_r2_checkpoint.EndToEnd.test_repeated_audits_at_cap_leave_metered_checkpoint_admission_possible) ... FAIL
+test_repeated_audits_preserve_checkpoint_recovery_headroom (test_r2_checkpoint.Lockout.test_repeated_audits_preserve_checkpoint_recovery_headroom) ... FAIL
+
+======================================================================
+FAIL: test_repeated_audits_at_cap_leave_metered_checkpoint_admission_possible (test_r2_checkpoint.EndToEnd.test_repeated_audits_at_cap_leave_metered_checkpoint_admission_possible)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 786, in test_repeated_audits_at_cap_leave_metered_checkpoint_admission_possible
+    with self.assertRaisesRegex(b.BudgetError, "checkpoint before running"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_repeated_audits_preserve_checkpoint_recovery_headroom (test_r2_checkpoint.Lockout.test_repeated_audits_preserve_checkpoint_recovery_headroom)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-r2-ledger-cap-lockout/tools/tests/test_r2_checkpoint.py", line 581, in test_repeated_audits_preserve_checkpoint_recovery_headroom
+    self.assertFalse(s.ledger.over_limit_ok)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.042s
+
+FAILED (failures=2)

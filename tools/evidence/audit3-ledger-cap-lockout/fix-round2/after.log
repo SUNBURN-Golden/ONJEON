@@ -1,0 +1,10 @@
+test_failed_checkpoint_retries_do_not_grow_backlog_or_block_recovery (test_r2_checkpoint.EndToEnd.test_failed_checkpoint_retries_do_not_grow_backlog_or_block_recovery) ... ok
+test_checkpoint_cli_failure_retries_and_success_write_once (test_r2_checkpoint.Lockout.test_checkpoint_cli_failure_retries_and_success_write_once) ... ok
+test_failed_checkpoint_size_check_keeps_backlog_and_reservation_unchanged (test_r2_checkpoint.Lockout.test_failed_checkpoint_size_check_keeps_backlog_and_reservation_unchanged) ... ok
+test_checkpoint_reservation_race_rereads_from_the_new_base (test_r2_checkpoint.Lockout.test_checkpoint_reservation_race_rereads_from_the_new_base) ... ok
+test_checkpoint_session_on_empty_or_already_summarised_ledger (test_r2_checkpoint.Lockout.test_checkpoint_session_on_empty_or_already_summarised_ledger) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 39.358s
+
+OK

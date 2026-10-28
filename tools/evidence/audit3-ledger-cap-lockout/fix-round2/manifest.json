@@ -1,0 +1,70 @@
+{
+  "node": "audit3-r2-ledger-cap-lockout",
+  "fix_round": 2,
+  "baseline_commit": "c1ace43b804777f9de9903c0c24a62de353ba738",
+  "finding": "P1: Failed checkpoint attempts recreate permanent lockout by growing the backlog beyond admission read limits.",
+  "resolution": "Persist and confirm the checkpoint under admission limits before reserving. Recovery only bypasses the read cap; every append keeps its cap. Failed checkpoint attempts retain paid admissions without ledger growth.",
+  "source_sha256": {
+    "docs/blueprint/audits/2026-10-28_ledger_cap_lockout.md": "b197ae982da3787cfe93a7996a363b5dd487d2a30dc3325a86b0621bb930a99b",
+    "infra/r2/BUDGET.md": "ff756b6a371e1ac236d649f1db8f00197aff1c30ece1742ca58040adcbc67836",
+    "infra/r2/checkpoint/CONCURRENCY.md": "18920df4e6bf97527b63f9ca722ca76b9327b7f919c7f16322bcb259d436a0ec",
+    "infra/r2/checkpoint/DESIGN.md": "7e5040ca57ca07adad165c00f85420ab41aeafed03143f40cbe054b24470c169",
+    "tools/evidence/audit3-ledger-cap-lockout/README.md": "8c67a67a7160a48a177da9a2666196301727851b21b4debd37366940710c4a77",
+    "tools/r2_budget.py": "5fb46c2ddaccf3bc000a226e79ef8bf30b7ddac26984f96c0cebc31fba0c440d",
+    "tools/tests/test_r2_checkpoint.py": "837b3756c2c5d89a884e2040b207c2e2cf254b641ab276b901797337dd36dd94"
+  },
+  "evidence_sha256": {
+    "README.md": "f80cdab5f9e47a14b13731381be913b553ab01e1757b5fdd00fbb4b5ec1c69d6",
+    "after.log": "15d746455118f27f4418c365bf161647930e05604d4f6f87eb9851cd388d0219",
+    "before.log": "34b32ef82257181c658c5f797859c805c1ea0382f6f19614cc85d6bafe21f83a",
+    "budget-tests.log": "7d77e0ca35b54f2973426d5e8b93df6cff85f412e5d5358ae78459c6dc46b222",
+    "consistency-checks.log": "0bbaa13d91dc1d4e58ff7db06a6600cd2ca9bebd1c5e2e1e7db8314cbd5d3546",
+    "python-tests.log": "03c7081111a5ae171a1cd2b694cc13a215f95f9f9885ae1493077c54c6837906",
+    "rust-lint.log": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af",
+    "rust-tests.log": "3d68e3253d6909dc719a937066ad2dddc7ef831f87ca73e9117d28ad8adb72b6"
+  },
+  "results": {
+    "regression_before": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "exit_code": 1,
+      "observed": "First failed checkpoint grew ledger from 100 to 102 records."
+    },
+    "regression_after": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "r2_discovery": {
+      "tests": 123,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "python_discovery": {
+      "tests": 1226,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 6,
+      "exit_code": 0
+    },
+    "cargo_test_all_locked": {
+      "passed": 466,
+      "failed": 0,
+      "ignored": 1,
+      "exit_code": 0
+    },
+    "cargo_clippy": {
+      "exit_code": 0
+    },
+    "consistency_checks": {
+      "checks": 10,
+      "exit_code": 0
+    }
+  },
+  "scope": "Temporary local ledger and loopback S3 only; no production requests, credentials, commits, pushes, or GitHub calls."
+}

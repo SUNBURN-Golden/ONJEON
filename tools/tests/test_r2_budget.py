@@ -290,6 +290,18 @@ class LedgerRecordCap(Fixture):
         put.assert_not_called()
         self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
 
+    def test_tail_reads_the_cap_but_append_cannot_extend_it(self):
+        """tail() reports the true tail for settlement; append() is the write guard that stops the
+        101st record, so an ordinary ledger can never pass 100 records after the last checkpoint."""
+        prev = self.seed(100)
+        count, tail_prev = self.ledger.tail()
+        self.assertEqual((count, tail_prev), (100, prev))
+        with mock.patch.object(self.ledger_store, "put_new") as put:
+            with self.assertRaisesRegex(b.BudgetError, "checkpoint before writing"):
+                self.ledger.append({"kind": "settlement"}, count, tail_prev)
+        put.assert_not_called()
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
+
     def test_session_at_98_records_reserves_and_settles_to_100(self):
         self.seed(98)
         session = b.Session(self.job_path, ledger_store=self.ledger_store,

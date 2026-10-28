@@ -1,0 +1,6 @@
+$ cargo build --locked --manifest-path 'docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml'
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/packages/rules-engine)
+   Compiling ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/docs/blueprint/proposals/온톨로지/검증/runner)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.54s
+
+exit code: 0

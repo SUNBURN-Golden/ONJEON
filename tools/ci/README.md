@@ -67,6 +67,14 @@ the current block-style step/env layout; it is not a general YAML parser. Existi
 `test_workflow_pins.py` and `test_workflow_check.py` guard full action SHAs and `ci.yml`'s
 read-only token permissions. [Audit 2 evidence](../../docs/blueprint/audits/2026-10-26_ci_secrets_step_scope.md).
 
+`ci.yml` also runs `python3 tools/workflow_check.py` and the action-pin test file
+immediately after checkout, before installing dependencies or building Rust.
+`test_ci_workflow_security.py` executes that declared shell block in temporary
+repository copies: the current workflows pass, while missing/write permissions
+and a tag, branch or short SHA substituted for each CI action fail. These are
+offline checks; they do not verify upstream tag-to-commit provenance or execute
+GitHub Actions. [Audit 3 evidence](../../docs/blueprint/audits/2026-10-28_ci_permissions_and_pins.md).
+
 The §11 decision-index guard runs through `tools/tests/test_blueprint_status.py`
 in the existing Python unit-test CI step. On every ADR/DEC addition, edit,
 removal or rename, review the affected §11 status/gate rows, then run

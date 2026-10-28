@@ -1,0 +1,493 @@
+test_budget_is_settled_on_unsafe_key (test_source_archive_paths.LocalStorePaths.test_budget_is_settled_on_unsafe_key) ... FAIL
+test_concurrent_create_is_not_overwritten_and_staging_file_is_removed (test_source_archive_paths.LocalStorePaths.test_concurrent_create_is_not_overwritten_and_staging_file_is_removed) ... ok
+test_copy_cli_refuses_external_symlink_without_traceback (test_source_archive_paths.LocalStorePaths.test_copy_cli_refuses_external_symlink_without_traceback) ... FAIL
+test_copy_from_bucket_refuses_malicious_keys (test_source_archive_paths.LocalStorePaths.test_copy_from_bucket_refuses_malicious_keys) ... 
+  test_copy_from_bucket_refuses_malicious_keys (test_source_archive_paths.LocalStorePaths.test_copy_from_bucket_refuses_malicious_keys) (key='../outside/new') ... FAIL
+  test_copy_from_bucket_refuses_malicious_keys (test_source_archive_paths.LocalStorePaths.test_copy_from_bucket_refuses_malicious_keys) (key='nested/../../outside/sentinel') ... FAIL
+  test_copy_from_bucket_refuses_malicious_keys (test_source_archive_paths.LocalStorePaths.test_copy_from_bucket_refuses_malicious_keys) (key='/tmp/tmp9qp0bvkh/outside/new') ... FAIL
+test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) ... 
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='put_new') ... ERROR
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='get') ... FAIL
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='exists') ... FAIL
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='list') ... FAIL
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='put_new') ... FAIL
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='get') ... FAIL
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='exists') ... FAIL
+  test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='list') ... FAIL
+test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) ... FAIL
+test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) ... 
+  test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (operation='put_new') ... ERROR
+  test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (operation='get') ... ERROR
+  test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (operation='exists') ... FAIL
+  test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='put_new') ... ERROR
+  test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='get') ... ERROR
+  test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='exists') ... FAIL
+  test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='list') ... FAIL
+test_empty_key_is_only_valid_for_listing_root (test_source_archive_paths.LocalStorePaths.test_empty_key_is_only_valid_for_listing_root) ... 
+  test_empty_key_is_only_valid_for_listing_root (test_source_archive_paths.LocalStorePaths.test_empty_key_is_only_valid_for_listing_root) (operation='put_new') ... ERROR
+  test_empty_key_is_only_valid_for_listing_root (test_source_archive_paths.LocalStorePaths.test_empty_key_is_only_valid_for_listing_root) (operation='get') ... ERROR
+  test_empty_key_is_only_valid_for_listing_root (test_source_archive_paths.LocalStorePaths.test_empty_key_is_only_valid_for_listing_root) (operation='exists') ... FAIL
+test_listing_root_refuses_external_symlinks (test_source_archive_paths.LocalStorePaths.test_listing_root_refuses_external_symlinks) ... 
+  test_listing_root_refuses_external_symlinks (test_source_archive_paths.LocalStorePaths.test_listing_root_refuses_external_symlinks) (target=PosixPath('/tmp/tmpfppd2m78/outside')) ... FAIL
+  test_listing_root_refuses_external_symlinks (test_source_archive_paths.LocalStorePaths.test_listing_root_refuses_external_symlinks) (target=PosixPath('/tmp/tmpfppd2m78/outside/sentinel')) ... FAIL
+  test_listing_root_refuses_external_symlinks (test_source_archive_paths.LocalStorePaths.test_listing_root_refuses_external_symlinks) (target=PosixPath('/tmp/tmpfppd2m78/outside/missing')) ... FAIL
+test_nested_keys_roundtrip_and_preserve_write_once_behavior (test_source_archive_paths.LocalStorePaths.test_nested_keys_roundtrip_and_preserve_write_once_behavior) ... ok
+test_normal_copy_is_idempotent (test_source_archive_paths.LocalStorePaths.test_normal_copy_is_idempotent) ... ok
+test_preexisting_temporary_symlink_cannot_redirect_write (test_source_archive_paths.LocalStorePaths.test_preexisting_temporary_symlink_cannot_redirect_write) ... FAIL
+test_relative_root_remains_anchored_after_chdir (test_source_archive_paths.LocalStorePaths.test_relative_root_remains_anchored_after_chdir) ... ERROR
+test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) ... 
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='put_new') ... ERROR
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='list') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='put_new') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='list') ... FAIL
+test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) ... FAIL
+
+======================================================================
+ERROR: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 42, in assert_rejected
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 133, in put_new
+    raise Exists(key)
+source_archive.Exists: link/sentinel
+
+======================================================================
+ERROR: test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 63, in test_directory_suffix_is_only_valid_for_listing
+    self.operations("nested/")[name]()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 133, in put_new
+    raise Exists(key)
+source_archive.Exists: nested/
+
+======================================================================
+ERROR: test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 63, in test_directory_suffix_is_only_valid_for_listing
+    self.operations("nested/")[name]()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 33, in <lambda>
+    "get": lambda: self.store.get(key),
+                   ~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 145, in get
+    return (self.root / key).read_bytes()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: '/tmp/tmpup_sl42s/archive/nested'
+
+======================================================================
+ERROR: test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 42, in assert_rejected
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 133, in put_new
+    raise Exists(key)
+source_archive.Exists: nested//
+
+======================================================================
+ERROR: test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 42, in assert_rejected
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 33, in <lambda>
+    "get": lambda: self.store.get(key),
+                   ~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 145, in get
+    return (self.root / key).read_bytes()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: '/tmp/tmpup_sl42s/archive/nested'
+
+======================================================================
+ERROR: test_empty_key_is_only_valid_for_listing_root (test_source_archive_paths.LocalStorePaths.test_empty_key_is_only_valid_for_listing_root) (operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 56, in test_empty_key_is_only_valid_for_listing_root
+    self.operations("")[name]()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 133, in put_new
+    raise Exists(key)
+source_archive.Exists
+
+======================================================================
+ERROR: test_empty_key_is_only_valid_for_listing_root (test_source_archive_paths.LocalStorePaths.test_empty_key_is_only_valid_for_listing_root) (operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 56, in test_empty_key_is_only_valid_for_listing_root
+    self.operations("")[name]()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 33, in <lambda>
+    "get": lambda: self.store.get(key),
+                   ~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 145, in get
+    return (self.root / key).read_bytes()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: '/tmp/tmp9xhwwjz0/archive'
+
+======================================================================
+ERROR: test_relative_root_remains_anchored_after_chdir (test_source_archive_paths.LocalStorePaths.test_relative_root_remains_anchored_after_chdir)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 107, in test_relative_root_remains_anchored_after_chdir
+    self.assertEqual((self.root / "key").read_bytes(), b"data")
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpvte0y7jh/archive/key'
+
+======================================================================
+ERROR: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 42, in assert_rejected
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/source_archive.py", line 133, in put_new
+    raise Exists(key)
+source_archive.Exists: ../outside/sentinel
+
+======================================================================
+FAIL: test_budget_is_settled_on_unsafe_key (test_source_archive_paths.LocalStorePaths.test_budget_is_settled_on_unsafe_key)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 182, in test_budget_is_settled_on_unsafe_key
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: b'keep' != 1
+
+======================================================================
+FAIL: test_copy_cli_refuses_external_symlink_without_traceback (test_source_archive_paths.LocalStorePaths.test_copy_cli_refuses_external_symlink_without_traceback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 160, in test_copy_cli_refuses_external_symlink_without_traceback
+    self.assertEqual(result.returncode, 1, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_copy_from_bucket_refuses_malicious_keys (test_source_archive_paths.LocalStorePaths.test_copy_from_bucket_refuses_malicious_keys) (key='../outside/new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 146, in test_copy_from_bucket_refuses_malicious_keys
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_copy_from_bucket_refuses_malicious_keys (test_source_archive_paths.LocalStorePaths.test_copy_from_bucket_refuses_malicious_keys) (key='nested/../../outside/sentinel')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 146, in test_copy_from_bucket_refuses_malicious_keys
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_copy_from_bucket_refuses_malicious_keys (test_source_archive_paths.LocalStorePaths.test_copy_from_bucket_refuses_malicious_keys) (key='/tmp/tmp9qp0bvkh/outside/new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 146, in test_copy_from_bucket_refuses_malicious_keys
+    self.assertEqual(code, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/sentinel', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape) (key='link/new/deep', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_and_file_symlinks_cannot_escape (test_source_archive_paths.LocalStorePaths.test_directory_and_file_symlinks_cannot_escape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 72, in test_directory_and_file_symlinks_cannot_escape
+    self.assert_rejected(key)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 44, in assert_rejected
+    self.assertEqual(sorted(p.name for p in self.outside.iterdir()), ["sentinel"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['new', 'sentinel'] != ['sentinel']
+
+First differing element 0:
+'new'
+'sentinel'
+
+First list contains 1 additional elements.
+First extra element 1:
+'sentinel'
+
+- ['new', 'sentinel']
+?  -------
+
++ ['sentinel']
+
+======================================================================
+FAIL: test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 62, in test_directory_suffix_is_only_valid_for_listing
+    with self.subTest(operation=name), self.assertRaises(ValueError):
+                                       ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_directory_suffix_is_only_valid_for_listing (test_source_archive_paths.LocalStorePaths.test_directory_suffix_is_only_valid_for_listing) (key='nested//', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_empty_key_is_only_valid_for_listing_root (test_source_archive_paths.LocalStorePaths.test_empty_key_is_only_valid_for_listing_root) (operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 55, in test_empty_key_is_only_valid_for_listing_root
+    with self.subTest(operation=name), self.assertRaises(ValueError):
+                                       ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_listing_root_refuses_external_symlinks (test_source_archive_paths.LocalStorePaths.test_listing_root_refuses_external_symlinks) (target=PosixPath('/tmp/tmpfppd2m78/outside'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 80, in test_listing_root_refuses_external_symlinks
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_listing_root_refuses_external_symlinks (test_source_archive_paths.LocalStorePaths.test_listing_root_refuses_external_symlinks) (target=PosixPath('/tmp/tmpfppd2m78/outside/sentinel'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 80, in test_listing_root_refuses_external_symlinks
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_listing_root_refuses_external_symlinks (test_source_archive_paths.LocalStorePaths.test_listing_root_refuses_external_symlinks) (target=PosixPath('/tmp/tmpfppd2m78/outside/missing'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 80, in test_listing_root_refuses_external_symlinks
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_preexisting_temporary_symlink_cannot_redirect_write (test_source_archive_paths.LocalStorePaths.test_preexisting_temporary_symlink_cannot_redirect_write)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 117, in test_preexisting_temporary_symlink_cannot_redirect_write
+    self.assertEqual((self.outside / "sentinel").read_bytes(), b"keep")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'new' != b'keep'
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='../outside/sentinel', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../../outside/new', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 50, in test_traversal_absolute_and_noncanonical_keys_are_rejected
+    self.assert_rejected(key)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit3-local-store-path-traversal/tools/tests/test_source_archive_paths.py", line 44, in assert_rejected
+    self.assertEqual(sorted(p.name for p in self.outside.iterdir()), ["sentinel"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['new', 'sentinel'] != ['sentinel']
+
+First differing element 0:
+'new'
+'sentinel'
+
+First list contains 1 additional elements.
+First extra element 1:
+'sentinel'
+
+- ['new', 'sentinel']
+?  -------
+
++ ['sentinel']
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.052s
+
+FAILED (failures=29, errors=9)

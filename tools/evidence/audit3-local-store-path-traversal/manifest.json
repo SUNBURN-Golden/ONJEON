@@ -1,0 +1,85 @@
+{
+  "node": "audit3-local-store-path-traversal",
+  "base_commit": "0026667dfe971aef4fd8077b4b9489aa79efdb8c",
+  "scope": "offline security regressions; not product release evidence",
+  "results": [
+    {
+      "command": "python3 -m unittest discover -s tools/tests -p test_source_archive_paths.py -v (before implementation fix)",
+      "exit_code": 1,
+      "log": "tools/evidence/audit3-local-store-path-traversal/before.log"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -p test_source_archive_paths.py -v",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/after.log"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -p 'test_source_archive*.py' -v",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/archive-tests.log"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/python-tests.log"
+    },
+    {
+      "command": "cargo test --all",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/rust-tests.log"
+    },
+    {
+      "command": "python3 -I tools/vocab_check.py",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/vocabulary.log"
+    },
+    {
+      "command": "python3 -I tools/validation_check.py",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/validation.log"
+    },
+    {
+      "command": "python3 -I tools/blueprint_status.py",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/blueprint-status.log"
+    },
+    {
+      "command": "python3 -I tools/blueprint_counts.py",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/blueprint-counts.log"
+    },
+    {
+      "command": "python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py",
+      "exit_code": 0,
+      "log": "tools/evidence/audit3-local-store-path-traversal/spec-check.log"
+    }
+  ],
+  "python": {
+    "run": 1254,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 6
+  },
+  "rust": {
+    "passed": 466,
+    "failed": 0,
+    "ignored": 1
+  },
+  "sha256": {
+    "tools/source_archive.py": "b227a7e57d055ac034e60999b5be825ead05e04f6c240ddf08d89d206e5086f7",
+    "tools/tests/test_source_archive_paths.py": "8c7fe6489545e7413500d53a8e7fe02a45332ce44a9ee3505cb7bd6a994419d0",
+    "docs/blueprint/audits/2026-10-28_local_store_path_traversal.md": "6cde8ee64619b3133463c1f73a30a2232eff024c70affba8225cf85028636d85",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md": "75e2f502440fb51b96841f4f5c3569a1f9fa244f6dde6e27d7faaf9d6dd40d35",
+    "tools/evidence/audit3-local-store-path-traversal/README.md": "3e4ea8eb13c91af5202bd16f060cfe2f7e4b18470e84cdbbdf8596c0bd263267",
+    "tools/evidence/audit3-local-store-path-traversal/after.log": "14c5e1376842007e17b2ce46b3fa8825bbf0db1e2e61f9de55b0004f6d38187f",
+    "tools/evidence/audit3-local-store-path-traversal/archive-tests.log": "4e111cefbba71e66abf9265fc14cf10a1e7d801c935c85df9fbc85c02b16b8be",
+    "tools/evidence/audit3-local-store-path-traversal/before.log": "7d061f786b92149fd2c6a8c2b744b5a9588957ce4d7d60a9fb73c98c189ac3ef",
+    "tools/evidence/audit3-local-store-path-traversal/blueprint-counts.log": "6145b7ea1b233633e1369c1380cc0319109fe23e9dc01474e4efb1017104451e",
+    "tools/evidence/audit3-local-store-path-traversal/blueprint-status.log": "c7fa5fe5711832b66f06b98ff98da367d8e60d392ccf6bd0ce65fc54666efe53",
+    "tools/evidence/audit3-local-store-path-traversal/python-tests.log": "39c98b919670db80e4f80d7ef5f3311394d6c23c6201b6f962eb889f6484176c",
+    "tools/evidence/audit3-local-store-path-traversal/rust-tests.log": "d0ea6b17e9b55dce86100e0481091d71ed69cb9b338a74ca440df0e60935afd9",
+    "tools/evidence/audit3-local-store-path-traversal/spec-check.log": "0d1a76a2e2fd75af9fbfc175fca81947092caad56dbdde8633b7592c070837df",
+    "tools/evidence/audit3-local-store-path-traversal/validation.log": "d23d31090208e9a49ce95c1d69f612662cf78493f3ed4b5a9fa43298b84bfb08",
+    "tools/evidence/audit3-local-store-path-traversal/vocabulary.log": "d406799545638d6b6c169deb8acc2135c60b41dc57de153a404f74ad26325678"
+  }
+}

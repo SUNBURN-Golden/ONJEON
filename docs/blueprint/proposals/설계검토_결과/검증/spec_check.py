@@ -33,8 +33,12 @@
     임대 발급 전이(issue_lease 부수 효과·to leased·사건 lease_granted): side_effects에 issue_lease, guard lease_guards 또는 cond lease_guards all_pass
   tasks[].verification_kind: dry_run | real_executor (해당 과제만)
   목록을 훑어 '나쁜 항목이 없음'을 보는 검사(G4c·G7b·G9·G26)는 훑은 항목이 0개면 실패한다(audit2-spec-check-vacuous).
+  G12b는 T-OP-00 필수 ID와 두 시나리오 소스의 등록·함수 정의·모의 목록을 대조한다.
+  동작 통과는 별도 unittest와 dry_run.py --scenario all --require-all로 검증한다.
   07_수정대응표.md: 지적마다 변경 위치·시험 종류·증명 범위·미검증
 """
+import ast
+from collections import Counter
 import fnmatch
 import glob
 import json
@@ -79,6 +83,56 @@ def check(fid, name, ok, detail, kind="기계"):
 
 
 # ---------- 공통 도구 ----------
+def daemon_test_inventory(repo):
+    """Read the two literal scenario registries without importing/executing their code.
+
+    This checks registration and local function definitions only. Passing behavior is
+    verified by test_daemon_dry_run and the CLI's --require-all, not by this inventory.
+    Fail closed if the registry format changes instead of silently scanning zero rows.
+    """
+    entries, errors = [], []
+    for filename, registry in (("scenarios.py", "CORE_SCENARIOS"), ("scenarios_flow.py", "FLOW_SCENARIOS")):
+        path = os.path.join(repo, "tools", "daemon", filename)
+        try:
+            with open(path, encoding="utf-8") as f:
+                tree = ast.parse(f.read(), filename=path)
+            functions = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
+            values = [n.value for n in tree.body if isinstance(n, ast.Assign)
+                      and any(isinstance(t, ast.Name) and t.id == registry for t in n.targets)]
+            if len(values) != 1 or not isinstance(values[0], ast.List) or not values[0].elts:
+                raise ValueError(f"{registry}: expected one nonempty literal list")
+            for row in values[0].elts:
+                if not isinstance(row, ast.Tuple) or len(row.elts) != 4:
+                    raise ValueError(f"{registry}: expected (scenario, test_id, title, function)")
+                mid, tid, title = [ast.literal_eval(n) for n in row.elts[:3]]
+                fn = row.elts[3]
+                if not all(isinstance(s, str) and s for s in (mid, tid, title)):
+                    raise ValueError(f"{registry}: scenario, test_id and title must be nonempty strings")
+                if not isinstance(fn, ast.Name) or fn.id not in functions:
+                    raise ValueError(f"{registry}: {mid}/{tid} has no local scenario function")
+                entries.append((mid, tid))
+        except (OSError, UnicodeError, SyntaxError, ValueError, TypeError) as exc:
+            errors.append(f"{filename}: {exc}")
+    return entries, errors
+
+
+def daemon_test_coverage(repo, required):
+    entries, errors = daemon_test_inventory(repo)
+    ids = [tid for mid, tid in entries if mid != "STATIC" and tid != "-"]
+    try:
+        with open(os.path.join(repo, "tools", "daemon", "mock_tasks.json"), encoding="utf-8") as f:
+            fixture = json.load(f)["t_op_00_required_test_ids"]
+    except (OSError, UnicodeError, ValueError, KeyError, TypeError) as exc:
+        fixture = None
+        errors.append(f"mock_tasks.json: {exc}")
+    return {"required_count": len(required), "registered_count": len(ids),
+            "missing": sorted(set(required) - set(ids)), "unlisted": sorted(set(ids) - set(required)),
+            "repeated": sorted(t for t, n in Counter(ids).items() if n > 1),
+            "repeated_required": sorted(t for t, n in Counter(required).items() if n > 1),
+            "repeated_scenarios": sorted(m for m, n in Counter(m for m, _ in entries).items() if n > 1),
+            "fixture_matches": fixture == required, "errors": errors}
+
+
 def sample(pattern):
     return pattern.replace("**", "s/t").replace("*", "x").replace("?", "q")
 
@@ -420,6 +474,11 @@ def run(repo, T=None, D=None):
     have = {x for t in tasks.values() for x in t.get("required_test_ids", [])}
     for rid, fid in req.items():
         check(fid, f"G12 필수 시험 ID '{rid}'를 가진 과제가 있음", rid in have, "", kind="존재 검사")
+    # G12b: T-OP-00 IDs must name actual registered scenario functions, not just task fields.
+    cov = daemon_test_coverage(repo, tasks.get("T-OP-00", {}).get("required_test_ids", []))
+    ok = cov["required_count"] > 0 and cov["fixture_matches"] and not any(
+        cov[k] for k in ("missing", "unlisted", "repeated", "repeated_required", "repeated_scenarios", "errors"))
+    check("latewrite", "G12b T-OP-00 필수 시험 ID마다 등록된 시나리오 함수가 있고 모의 목록과 일치", ok, cov)
     # G14 실제 실행기 검증 과제가 모의 검증(dry-run)과 분리되어 있다(추가 기준 5)
     real = [t for t in tasks.values() if t.get("verification_kind") == "real_executor"]
     mock = [t for t in tasks.values() if t.get("verification_kind") == "dry_run"]

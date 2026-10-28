@@ -508,6 +508,9 @@ class Coverage(unittest.TestCase):
         self.assertIn("실행하지 않은 것 0개", buf.getvalue())
         self.assertIn("검사", buf.getvalue())
         self.assertIn("실패 0건, 명세 공백 표시 0건", buf.getvalue())
+        log = SPEC_TASKS.parent / "검증/실행로그_dry_run.txt"
+        self.assertEqual(log.read_text(encoding="utf-8").split("# output\n", 1)[1], buf.getvalue(),
+                         "regenerate the design bundle's dry-run log from the current complete run")
 
     def test_every_scenario_prints_expected_and_actual(self):
         for mid, res in results().items():
@@ -2625,6 +2628,22 @@ class CoverageBothWays(unittest.TestCase):
             data = json.loads(rep.read_text(encoding="utf-8"))
         self.assertEqual(code, 0)
         self.assertEqual((data["not_run"], data["unlisted"], data["repeated"]), (["never-run"], ["not-in-list"], []))
+
+    def test_every_required_id_needs_an_executed_check(self):
+        """A registered ID with a no-op body must not count as a passing test."""
+        for mid, tid, title, _ in sc.SCENARIOS:
+            if mid == "STATIC" or tid == "-":
+                continue
+            with self.subTest(test_id=tid):
+                empty = (mid, tid, title, lambda rep, rules, tasks: None)
+                code, out = self.run_cli([empty], [tid], "--require-all")
+                self.assertEqual(code, 1, out)
+                self.assertIn("[FAIL]", out)
+
+    def test_empty_unlabelled_scenario_also_fails_without_require_all(self):
+        code, out = self.run_cli([("M1", "-", "empty", lambda *args: None)], [])
+        self.assertEqual(code, 1, out)
+        self.assertIn("[FAIL]", out)
 
 
 class Cli(unittest.TestCase):

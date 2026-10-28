@@ -1,0 +1,244 @@
+{
+  "source_header": "# generated from parent commit b7aed69f98ee3d943ca105287b7b3679e7308bcb + tree hash of tools/daemon sources sha256:d904a958d52c7eb3b8098021ff87179c19f46ef2918bc15af0fff1386a513a77",
+  "required_count": 33,
+  "executed_required_count": 33,
+  "missing": [],
+  "unlisted": [],
+  "repeated": [],
+  "total_checks": 692,
+  "static_checks": 13,
+  "explanation_comparisons": 2,
+  "required_results": [
+    {
+      "scenario": "M10",
+      "test_id": "decision-gate-merge-only",
+      "status": "PASS",
+      "checks": 6,
+      "passed": 6
+    },
+    {
+      "scenario": "M5",
+      "test_id": "stale-approval-invalidated",
+      "status": "PASS",
+      "checks": 9,
+      "passed": 9
+    },
+    {
+      "scenario": "M17",
+      "test_id": "late-write-fenced",
+      "status": "PASS",
+      "checks": 7,
+      "passed": 7
+    },
+    {
+      "scenario": "M18",
+      "test_id": "provider-scoped-switch",
+      "status": "PASS",
+      "checks": 7,
+      "passed": 7
+    },
+    {
+      "scenario": "M19",
+      "test_id": "post-merge-prereq",
+      "status": "PASS",
+      "checks": 6,
+      "passed": 6
+    },
+    {
+      "scenario": "M21",
+      "test_id": "event-duplicate-noop",
+      "status": "PASS",
+      "checks": 2,
+      "passed": 2
+    },
+    {
+      "scenario": "M22",
+      "test_id": "event-out-of-order",
+      "status": "PASS",
+      "checks": 3,
+      "passed": 3
+    },
+    {
+      "scenario": "M23",
+      "test_id": "docs-pr-complete",
+      "status": "PASS",
+      "checks": 2,
+      "passed": 2
+    },
+    {
+      "scenario": "M24",
+      "test_id": "eleventh-pr-audit",
+      "status": "PASS",
+      "checks": 5,
+      "passed": 5
+    },
+    {
+      "scenario": "M25",
+      "test_id": "mis-merge-not-done",
+      "status": "PASS",
+      "checks": 10,
+      "passed": 10
+    },
+    {
+      "scenario": "M26",
+      "test_id": "usage-recorded-not-capped",
+      "status": "PASS",
+      "checks": 18,
+      "passed": 18
+    },
+    {
+      "scenario": "M27",
+      "test_id": "hard-stop-heartbeating-job",
+      "status": "PASS",
+      "checks": 9,
+      "passed": 9
+    },
+    {
+      "scenario": "M18a",
+      "test_id": "switch-negative-test-output",
+      "status": "PASS",
+      "checks": 3,
+      "passed": 3
+    },
+    {
+      "scenario": "M18b",
+      "test_id": "switch-negative-third-party-http",
+      "status": "PASS",
+      "checks": 3,
+      "passed": 3
+    },
+    {
+      "scenario": "M10a",
+      "test_id": "d02-mock-start-allowed",
+      "status": "PASS",
+      "checks": 4,
+      "passed": 4
+    },
+    {
+      "scenario": "M10b",
+      "test_id": "r2-local-work-allowed",
+      "status": "PASS",
+      "checks": 4,
+      "passed": 4
+    },
+    {
+      "scenario": "M28",
+      "test_id": "late-result-no-state-change",
+      "status": "PASS",
+      "checks": 10,
+      "passed": 10
+    },
+    {
+      "scenario": "M29",
+      "test_id": "handoff-order",
+      "status": "PASS",
+      "checks": 7,
+      "passed": 7
+    },
+    {
+      "scenario": "M30",
+      "test_id": "lease-guards-all-paths",
+      "status": "PASS",
+      "checks": 187,
+      "passed": 187
+    },
+    {
+      "scenario": "M31",
+      "test_id": "merge-observation-fields",
+      "status": "PASS",
+      "checks": 5,
+      "passed": 5
+    },
+    {
+      "scenario": "M32",
+      "test_id": "envelope-permission-rejects-missing",
+      "status": "PASS",
+      "checks": 14,
+      "passed": 14
+    },
+    {
+      "scenario": "M33",
+      "test_id": "handoff-quiescent-before-preserve",
+      "status": "PASS",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "scenario": "M34",
+      "test_id": "duplicate-delivery-noop",
+      "status": "PASS",
+      "checks": 8,
+      "passed": 8
+    },
+    {
+      "scenario": "M35",
+      "test_id": "retry-new-idempotency-key",
+      "status": "PASS",
+      "checks": 6,
+      "passed": 6
+    },
+    {
+      "scenario": "M36",
+      "test_id": "preserve-manifest-same-function",
+      "status": "PASS",
+      "checks": 18,
+      "passed": 18
+    },
+    {
+      "scenario": "M37",
+      "test_id": "preserve-failure-recoverable-stop",
+      "status": "PASS",
+      "checks": 87,
+      "passed": 87
+    },
+    {
+      "scenario": "M38",
+      "test_id": "daemon-restart-during-handoff",
+      "status": "PASS",
+      "checks": 68,
+      "passed": 68
+    },
+    {
+      "scenario": "M39",
+      "test_id": "envelope-id-distinct-events",
+      "status": "PASS",
+      "checks": 9,
+      "passed": 9
+    },
+    {
+      "scenario": "M40",
+      "test_id": "lease-issue-atomic-single-owner",
+      "status": "PASS",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "scenario": "M41",
+      "test_id": "restart-ttl-expired-no-resend",
+      "status": "PASS",
+      "checks": 19,
+      "passed": 19
+    },
+    {
+      "scenario": "M42",
+      "test_id": "restart-revoked-pending-void",
+      "status": "PASS",
+      "checks": 11,
+      "passed": 11
+    },
+    {
+      "scenario": "M43",
+      "test_id": "restart-valid-pending-resend",
+      "status": "PASS",
+      "checks": 14,
+      "passed": 14
+    },
+    {
+      "scenario": "M44",
+      "test_id": "restart-corrupt-record-returned",
+      "status": "PASS",
+      "checks": 19,
+      "passed": 19
+    }
+  ]
+}

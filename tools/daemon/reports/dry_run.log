@@ -1,4 +1,4 @@
-# generated from parent commit 285b9edf1dd60b80b9a7414a46d94d46ab83ecab + tree hash of tools/daemon sources sha256:137dff4091ec8316d317e53d40ac0feeeddf599cd16184693de3e67d231b7457
+# generated from parent commit b7aed69f98ee3d943ca105287b7b3679e7308bcb + tree hash of tools/daemon sources sha256:d904a958d52c7eb3b8098021ff87179c19f46ef2918bc15af0fff1386a513a77
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
   [PASS] 정상 흐름 전이 열: queued→…→merge_wait
       기대: [["blocked", "queued", "prereqs_satisfied"], ["queued", "leased", "lease_granted"], ["leased", "building", "first_heartbeat"], ["building", "pr_open", "result_pr_opened"], ["pr_open", "review_pending", "ci_passed"], ["review_pending", "review_in_progress", "reviewer_assigned"], ["review_in_progress", "review_approved", "review_approved"], ["review_approved", "merge_wait", "audit_not_required"]]
@@ -2177,7 +2177,7 @@
   STATIC  static-checks                            PASS      검사 15건 중 통과 15
   검사 692건, 실패 0건, 명세 공백 표시 0건
   필수 시험 ID 33개 중 이번에 실행한 것 33개, 실행하지 않은 것 0개(이번 범위 밖)
-  실행하지 않은 시험 ID: 
+  실행하지 않은 시험 ID:
   필수 목록에 없는 시험 ID 0개
   두 번 이상 나온 시험 ID 0개
   코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 0종(명세 공백 후보, --report에 목록)

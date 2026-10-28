@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Guard 09 product-purpose rows against tasks.json (static checks only).
 
-Complements spec_check G12 without editing the protected design bundle:
+Complements spec_check G12:
   PURPOSE-G12   all nine product-purpose test IDs from 09 section 6 are registered
+  PURPOSE-OWNER each test is registered on every task assigned by 09 sections 4/6
   PURPOSE-TASK  each P row's implementation tasks are a subset of tasks.json IDs
   PURPOSE-ROWS  P01..P19 occur exactly once with a nonempty, parseable task list
 
@@ -36,6 +37,22 @@ REQUIRED_TEST_IDS = frozenset({
 })
 EXPECTED_ROWS = {f"P{i:02}" for i in range(1, 20)}
 TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
+# 09 §6 assigns all three UX IDs to T-MB-03/T-MB-04/T-AP-07.
+# P16 additionally assigns non-hidden conditions to the API/detail/event tasks.
+# These are minimum owners: other tasks may also register the same test ID.
+REQUIRED_TEST_OWNERS = {
+    "acquisition-reason-not-counted": {"T-DT-04"},
+    "coverage-status-counts-acquired-only": {"T-AP-04"},
+    "label-kinds-complete": {"T-KN-08"},
+    "switch-diff-evidence-trace": {"T-TW-05"},
+    "multi-contract-relation-trace": {"T-TW-05"},
+    "first-view-priority": {"T-MB-03", "T-MB-04", "T-AP-07"},
+    "decisive-conditions-not-hidden": {
+        "T-MB-03", "T-MB-04", "T-AP-07", "T-AP-02", "T-MB-02", "T-AP-08",
+    },
+    "no-composite-score": {"T-MB-03", "T-MB-04", "T-AP-07"},
+    "purpose-rows-all-closed": {"T-OP-08"},
+}
 
 
 def check(tasks_path, purpose_path):
@@ -44,7 +61,7 @@ def check(tasks_path, purpose_path):
     tasks = data["tasks"]
     if not isinstance(tasks, list):
         raise ValueError("tasks must be a list")
-    task_ids, have = set(), set()
+    task_ids, have, registered = set(), set(), {}
     for task in tasks:
         tid, tests = task["id"], task.get("required_test_ids", [])
         if not isinstance(tid, str) or not TASK_ID.fullmatch(tid) or tid in task_ids:
@@ -53,10 +70,16 @@ def check(tasks_path, purpose_path):
             raise ValueError(f"{tid}: required_test_ids must be a list of strings")
         task_ids.add(tid)
         have.update(tests)
+        registered[tid] = set(tests)
 
     out = [C.Finding("PURPOSE-G12", str(tasks_path), 0,
                      f"required product-purpose test ID {test!r} is not registered")
            for test in sorted(REQUIRED_TEST_IDS - have)]
+    for test, owners in sorted(REQUIRED_TEST_OWNERS.items()):
+        for owner in sorted(owners):
+            if test not in registered.get(owner, set()):
+                out.append(C.Finding("PURPOSE-OWNER", str(tasks_path), 0,
+                                     f"{owner}: required product-purpose test ID {test!r} is not registered on its assigned task"))
     seen = set()
     task_column = None
     for line_no, line in enumerate(purpose.splitlines(), 1):
@@ -96,13 +119,21 @@ def check(tasks_path, purpose_path):
 
 
 def selftest():
-    tasks = json.dumps({"tasks": [{"id": "T-AA-01", "required_test_ids": sorted(REQUIRED_TEST_IDS)}]})
+    owners = set().union(*REQUIRED_TEST_OWNERS.values())
+    rows = [{"id": owner, "required_test_ids": sorted(
+        test for test, assigned in REQUIRED_TEST_OWNERS.items() if owner in assigned)}
+        for owner in sorted(owners)]
+    rows.append({"id": "T-AA-01", "required_test_ids": []})
+    tasks = json.dumps({"tasks": rows})
+    missing_test = json.loads(tasks)
+    next(t for t in missing_test["tasks"] if t["id"] == "T-OP-08")["required_test_ids"] = []
     purpose = "| # | 구현 작업 |\n|---|---|\n" + "".join(
         f"| P{i:02} | T-AA-01 |\n" for i in range(1, 20))
     files = {"tasks.json": tasks, "purpose.md": purpose}
     cases = [
         ("registered and linked", files, None),
-        ("missing purpose test", dict(files, **{"tasks.json": tasks.replace('"purpose-rows-all-closed",', "")}), "PURPOSE-G12"),
+        ("missing purpose test", dict(files, **{"tasks.json": json.dumps(missing_test)}), "PURPOSE-G12"),
+        ("missing assigned owner", dict(files, **{"tasks.json": tasks.replace('"first-view-priority",', "", 1)}), "PURPOSE-OWNER"),
         ("unknown row task", dict(files, **{"purpose.md": purpose.replace("T-AA-01", "T-AA-99", 1)}), "PURPOSE-TASK"),
         ("missing rows", dict(files, **{"purpose.md": ""}), "PURPOSE-ROWS"),
     ]
@@ -124,7 +155,7 @@ def main(argv=None):
                          args.purpose or args.root / DEFAULT_PURPOSE)
     except (OSError, ValueError, KeyError, TypeError) as exc:
         return C.usage_error(f"cannot read product-purpose inputs: {exc}")
-    return C.report(findings, "09 P01..P19 task links and all nine G12 product-purpose test IDs registered (static only)",
+    return C.report(findings, "09 P01..P19 task links and all nine G12 product-purpose test IDs registered on assigned tasks (static only)",
                     "product-purpose")
 
 

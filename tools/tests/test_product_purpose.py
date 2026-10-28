@@ -1,8 +1,9 @@
 """CI regression guard for 09 -> tasks.json; no release completion is claimed.
 
 Lives in tools/tests because the existing CI workflow discovers this directory.
-All mutations use temporary inputs; the protected design bundle stays read-only.
+All mutations use temporary inputs; the live design bundle stays read-only.
 """
+import copy
 import json
 import re
 import subprocess
@@ -24,9 +25,14 @@ class ProductPurposeTests(unittest.TestCase):
         self.tasks = self.root / "tasks.json"
         self.purpose = self.root / "purpose.md"
         self.data = {"tasks": [
-            {"id": "T-AA-01", "required_test_ids": sorted(P.REQUIRED_TEST_IDS)},
+            {"id": "T-AA-01", "required_test_ids": []},
             {"id": "T-AA-02", "required_test_ids": []},
         ]}
+        owners = set().union(*P.REQUIRED_TEST_OWNERS.values())
+        self.data["tasks"].extend(
+            {"id": owner, "required_test_ids": sorted(
+                test for test, assigned in P.REQUIRED_TEST_OWNERS.items() if owner in assigned)}
+            for owner in sorted(owners))
         self.text = "| # | 제품 목적 | 구현 작업(tasks.json) | 완료 증거 |\n|---|---|---|---|\n" + "".join(
             f"| P{i:02} | purpose | T-AA-01, T-AA-02 | T-ZZ-99 is an evidence reference |\n"
             for i in range(1, 20))
@@ -57,26 +63,77 @@ class ProductPurposeTests(unittest.TestCase):
     def test_registered_ids_and_shared_row_tasks_pass(self):
         self.assertEqual([], self.check())
 
-    def test_required_id_on_any_task_passes(self):
-        tests = self.data["tasks"][0]["required_test_ids"]
-        self.data["tasks"][0]["required_test_ids"] = tests[:4]
-        self.data["tasks"][1]["required_test_ids"] = tests[4:]
+    def test_additional_registration_on_other_task_passes(self):
+        self.data["tasks"][0]["required_test_ids"] = sorted(P.REQUIRED_TEST_IDS)
         self.assertEqual([], self.check())
 
     def test_each_of_nine_missing_ids_fails_for_g12(self):
+        original = copy.deepcopy(self.data)
         for test_id in sorted(P.REQUIRED_TEST_IDS):
             with self.subTest(test_id=test_id):
-                self.data["tasks"][0]["required_test_ids"] = sorted(P.REQUIRED_TEST_IDS - {test_id})
+                self.data = copy.deepcopy(original)
+                for task in self.data["tasks"]:
+                    task["required_test_ids"] = [t for t in task["required_test_ids"] if t != test_id]
                 found = self.check()
-                self.assertEqual(["PURPOSE-G12"], [f.rule for f in found])
+                self.assertEqual(1, sum(f.rule == "PURPOSE-G12" for f in found))
+                self.assertEqual({"PURPOSE-G12", "PURPOSE-OWNER"}, {f.rule for f in found})
                 self.assertIn(test_id, found[0].message)
 
     def test_id_in_tests_or_done_criteria_is_not_registration(self):
-        task = self.data["tasks"][0]
+        task = next(t for t in self.data["tasks"] if t["id"] == "T-OP-08")
         task["required_test_ids"].remove("purpose-rows-all-closed")
         task["tests"] = ["purpose-rows-all-closed"]
         task["done_criteria"] = ["purpose-rows-all-closed"]
-        self.assertEqual(["PURPOSE-G12"], [f.rule for f in self.check()])
+        self.assertEqual(["PURPOSE-G12", "PURPOSE-OWNER"], [f.rule for f in self.check()])
+
+    def test_every_assigned_owner_is_required_even_if_id_exists_elsewhere(self):
+        original = copy.deepcopy(self.data)
+        for test_id, owners in P.REQUIRED_TEST_OWNERS.items():
+            for owner in sorted(owners):
+                with self.subTest(test_id=test_id, owner=owner):
+                    self.data = copy.deepcopy(original)
+                    task = next(t for t in self.data["tasks"] if t["id"] == owner)
+                    task["required_test_ids"].remove(test_id)
+                    task["tests"] = [test_id]
+                    task["done_criteria"] = [test_id]
+                    self.data["tasks"][0]["required_test_ids"] = [test_id]
+                    found = self.check()
+                    self.assertEqual(["PURPOSE-OWNER"], [f.rule for f in found])
+                    self.assertIn(owner, found[0].message)
+                    self.assertIn(test_id, found[0].message)
+
+    def test_missing_assigned_task_fails_even_without_p_row_reference(self):
+        self.data["tasks"] = [t for t in self.data["tasks"] if t["id"] != "T-AP-07"]
+        found = self.check()
+        self.assertEqual(["PURPOSE-OWNER"] * 3, [f.rule for f in found])
+        self.assertTrue(all("T-AP-07" in f.message for f in found))
+
+    def test_live_ux_ownership_and_task_spec_agree(self):
+        bundle = P.C.ROOT / P.BUNDLE
+        tasks = {t["id"]: t for t in json.loads((bundle / "tasks.json").read_text(encoding="utf-8"))["tasks"]}
+        spec = (bundle / "03_작업명세.md").read_text(encoding="utf-8")
+        # Independent acceptance matrix for this finding (not the checker's constant).
+        expected = {
+            "T-MB-03": {"first-view-priority", "decisive-conditions-not-hidden", "no-composite-score"},
+            "T-MB-04": {"first-view-priority", "decisive-conditions-not-hidden", "no-composite-score"},
+            "T-AP-07": {"first-view-priority", "decisive-conditions-not-hidden", "no-composite-score"},
+            "T-AP-02": {"decisive-conditions-not-hidden"},
+            "T-MB-02": {"decisive-conditions-not-hidden"},
+            "T-AP-08": {"decisive-conditions-not-hidden"},
+        }
+        self.assertEqual(P.REQUIRED_TEST_IDS, P.REQUIRED_TEST_OWNERS.keys())
+        for owner, required in expected.items():
+            with self.subTest(owner=owner):
+                task = tasks[owner]
+                self.assertLessEqual(required, set(task["required_test_ids"]))
+                for test_id in required:
+                    self.assertIn(owner, P.REQUIRED_TEST_OWNERS[test_id])
+                    self.assertTrue(any(f"시험 {test_id}(09 P" in test for test in task["tests"]))
+                rows = [line for line in spec.splitlines() if line.startswith(f"| {owner} | path:")]
+                self.assertEqual(1, len(rows))
+                cells = [c.strip() for c in rows[0].strip("|").split("|")]
+                self.assertEqual(set(task["required_test_ids"]), set(cells[-1].split(", ")))
+                self.assertEqual("; ".join(task["done_criteria"]), cells[-2])
 
     def test_every_row_rejects_unknown_task_with_row_and_line(self):
         original = self.text
@@ -92,7 +149,7 @@ class ProductPurposeTests(unittest.TestCase):
                 self.assertEqual(i + 2, found[0].line)
 
     def test_removing_referenced_task_fails_all_rows(self):
-        self.data["tasks"].pop()
+        self.data["tasks"].pop(1)
         found = self.check()
         self.assertEqual(19, len(found))
         self.assertEqual({"PURPOSE-TASK"}, {f.rule for f in found})

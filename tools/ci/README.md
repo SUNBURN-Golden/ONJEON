@@ -11,7 +11,7 @@ python3 -I tools/ci/check_leak.py --selftest   # one planted violation per rule,
 python3 -I tools/ci/check_skeleton.py          # flags off, no exposure in app code or config (static)
 python3 -I tools/ci/check_skeleton.py --base-url http://HOST:PORT   # also probe inactive routes on a running server
 python3 -I tools/ci/check_bootstrap.py         # bootstrap-clean-main (tasks.json only; builds nothing)
-python3 -I tools/ci/check_product_purpose.py   # 09 P01..P19 task links and nine product-purpose test IDs
+python3 -I tools/ci/check_product_purpose.py   # 09 P01..P19 task links and nine product-purpose test IDs on assigned tasks
 python3 -I tools/blueprint_status.py          # §11 date/index matches every ADR/DEC path and content
 python3 -I tools/blueprint_counts.py          # §11 engine test/doctest, real-clause, mutation and vocabulary counts
 python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v
@@ -29,7 +29,7 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 | `check_leak` | Textual hits: ad/commission fields in sort/rank/recommend context; sensitivity labels in public serializers, analytics/crash code, agent modules, the AI gateway; log/print calls naming a label or private field; analytics event calls with literal fields outside the allowed list | Data flow. camelCase and PascalCase identifiers are matched through a snake_case form, but other renamings (aliases, abbreviations) are not. A sensitive value passed through an untyped variable is invisible. Multi-line log calls are matched on the first line only. The runtime leak tests of T-PS-04 are the other half |
 | `check_skeleton` | Every skeleton flag defaults to false and names a gate; no config switches one on; app code does not reference a skeleton flag or route; with `--base-url`, inactive routes answer 404/501 | Without `--base-url` it says nothing about any server. No server or screen exists yet, so today this guards the file and the tree only |
 | `check_bootstrap` | The task graph is self-consistent (spec_check G1, G2, G31): tests and criteria name only crates, task IDs and paths that the repo or a prerequisite provides | That anything builds. The real sample build is T-CT-07. Test-command paths outside a task's allowed_paths (7 today in tasks.json: T-OP-00, T-CT-05, T-AP-03, T-AP-05, T-OP-05) are printed as advisory; `--strict-paths` fails on them |
-| `check_product_purpose` | All nine product-purpose test IDs from 09 §6 are in `required_test_ids`; every P01..P19 implementation task exists in tasks.json. Missing, duplicate or malformed rows fail closed | That registered tests execute or any product-purpose row has completion evidence |
+| `check_product_purpose` | All nine product-purpose test IDs from 09 §6 are in `required_test_ids` on every assigned task (§6 and P16), with `PURPOSE-OWNER` reporting the task and missing ID; every P01..P19 implementation task exists in tasks.json. Missing, duplicate or malformed rows fail closed | That registered tests execute or any product-purpose row has completion evidence |
 
 ## Rule file notes
 
@@ -84,7 +84,7 @@ rows still need review; index freshness does not approve gates or prove a
 milestone or a product-purpose row complete. No record change means an older
 snapshot date remains valid. [Audit 1 evidence](../../docs/blueprint/audits/2026-10-26_blueprint_s11_refresh.md).
 
-The product-purpose guard runs through `tools/tests/test_product_purpose.py`, discovered by the existing `python3 -m unittest discover -s tools/tests -v` CI step. It checks the live bundle and exercises missing IDs and dangling row tasks using temporary inputs. The protected `spec_check.py` G12 list remains unchanged; this companion supplies the omitted checks without editing `docs/blueprint/proposals/**` or workflows.
+The product-purpose guard runs through `tools/tests/test_product_purpose.py`, discovered by the existing `python3 -m unittest discover -s tools/tests -v` CI step. It checks the live bundle and exercises missing IDs, missing assigned owners and dangling row tasks using temporary inputs. A test ID registered elsewhere cannot replace a required owner. The live UX matrix also checks that the test descriptions exist and that 03's IDs and completion criteria match tasks.json. The `spec_check.py` G12 list remains unchanged; this companion supplies the omitted checks without workflow changes. [Audit 3 evidence](../../docs/blueprint/audits/2026-10-29_tasks_purpose_test_ids.md).
 
 Local verification and environment limits: [Audit 1 product-purpose evidence](evidence/audit1-product-purpose.md).
 

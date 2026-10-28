@@ -20,6 +20,8 @@ Rules enforced here (on AWS also by the bucket policy in infra/s3/; R2 has no bu
   its observations stay.
 - observation extras must be a JSON object and cannot replace source_id, url, observed_at,
   sha256, bytes, content_type or object_key, even with the same value.
+- local keys must be canonical relative paths; resolved paths (including symlinks) must stay
+  inside the store root. Unsafe keys are rejected, never rewritten into a different key.
 - sample bytes must match samples.csv before any archive write or restored-file write.
 - there is no delete command.
 - personal policy, health, family history or DNA data never enter these stores
@@ -53,7 +55,8 @@ import mimetypes
 import os
 import re
 import sys
-from pathlib import Path
+import tempfile
+from pathlib import Path, PureWindowsPath
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))  # r2_budget; -I leaves the script directory off sys.path
@@ -123,17 +126,41 @@ def put_once(st, key, body, content_type):
         return "already_present"
 
 
+class UnsafeStoreKey(ValueError):
+    """An archive key is not canonical or would access a path outside the local store."""
+
+
 class LocalStore:
     def __init__(self, root):
-        self.root = Path(root)
+        self.root = Path(root).resolve()
+
+    def _path(self, key, *, listing=False):
+        # Bucket keys are opaque strings. Reject aliases rather than normalizing them:
+        # e.g. a/../b and b must never silently map to the same local archive object.
+        if listing and key == "":
+            return self.root
+        rel = key[:-1] if listing and key.endswith("/") else key
+        if (not rel or "\\" in rel or "\x00" in rel or PureWindowsPath(rel).drive
+                or any(part in ("", ".", "..") for part in rel.split("/"))):
+            raise UnsafeStoreKey(f"noncanonical key: {key!r}")
+        path = (self.root / rel).resolve()
+        if self.root not in path.parents:
+            raise UnsafeStoreKey(f"key leaves local store: {key!r}")
+        return path
 
     def put_new(self, key, body, content_type):
-        p = self.root / key
+        p = self._path(key)
         if p.exists():
             raise Exists(key)
         p.parent.mkdir(parents=True, exist_ok=True)
-        tmp = p.with_name(f"{p.name}.{os.getpid()}.{id(body)}.partial")
-        tmp.write_bytes(body)
+        # Exclusive random staging names cannot follow a planted .partial symlink.
+        with tempfile.NamedTemporaryFile(dir=p.parent, suffix=".partial", delete=False) as f:
+            tmp = Path(f.name)
+            try:
+                f.write(body)
+            except BaseException:
+                tmp.unlink()
+                raise
         try:
             os.link(tmp, p)  # atomic create-if-absent: a concurrent writer gets Exists, never an overwrite
         except FileExistsError:
@@ -142,16 +169,23 @@ class LocalStore:
             tmp.unlink()
 
     def get(self, key):
-        return (self.root / key).read_bytes()
+        return self._path(key).read_bytes()
 
     def exists(self, key):
-        return (self.root / key).exists()
+        return self._path(key).exists()
 
     def list(self, prefix):
-        base = self.root / prefix
+        base = self._path(prefix, listing=True)
         if not base.exists():
             return []
-        return sorted(str(p.relative_to(self.root)) for p in base.rglob("*") if p.is_file() and not p.name.endswith(".partial"))
+        keys = []
+        for p in base.rglob("*"):
+            key = p.relative_to(self.root).as_posix()
+            # Validate directory and dangling symlinks too, before probing their targets.
+            path = self._path(key)
+            if path.is_file() and not p.name.endswith(".partial"):
+                keys.append(key)
+        return sorted(keys)
 
 
 R2_HOST_SUFFIX = ".r2.cloudflarestorage.com"
@@ -610,6 +644,10 @@ def with_budget(job, endpoint_url, fn):
     except UnsafeCachePath as e:
         print(f"unsafe cache_path: {e}", file=sys.stderr)
         outcome, code = "unsafe_cache_path", 1
+        return 1
+    except UnsafeStoreKey as e:
+        print(f"unsafe store key: {e}", file=sys.stderr)
+        outcome, code = "unsafe_store_key", 1
         return 1
     except InvalidObservationExtra as e:
         print(f"invalid observation extra: {e}", file=sys.stderr)

@@ -233,7 +233,7 @@ flowchart TD
 | I2 | 계산 결과는 규칙 버전·릴리스·내용 해시·근거를 갖는다 | 엔진 `review_fixes` | 구현(엔진) |
 | I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail` 문서 테스트 | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
-| I5 | 허용 목록 밖 연산과 타입이 맞지 않는 식은 로드되지 않는다 | 엔진 로더·`static_types`(#40: 로드 단계 타입 검사) | 구현(엔진) |
+| I5 | 허용 목록 밖 연산과 타입이 맞지 않는 식은 로드되지 않는다 | 엔진 로더·`static_types`(#40: 로드 단계 타입 검사)·`range_comparisons`(범위 가능 금액 비교의 로드 거부, [Audit 3 증거](blueprint/audits/2026-10-28_engine_moneyrange_compare_load_check.md)) | 구현(엔진) |
 | I6 | 화면의 숫자·사실 문장은 근거 사슬(§5.2)을 끝까지 따라간다 | API 계약 테스트 | 미구현 |
 | I7 | 가격은 조건·특약 구성·기준일·근거 없이 저장되지 않는다 | DB 제약, 테스트 | 미구현 |
 | I8 | 다른 비교 기준·버전·묶음의 가격을 합산하지 않는다 | 뷰모델 테스트 | 미구현 |
@@ -348,7 +348,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 202 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 204 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 38 | `tools/validation_check.py`의 `mutations()` |

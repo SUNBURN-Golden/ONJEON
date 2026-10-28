@@ -1,0 +1,55 @@
+Fix round 1; base HEAD: 7493bf4b8d76587826e1b301008e899fefaeffd0
+PASS: 10 changed files are within allowed paths; no protected files edited.
+PASS: protected files, evaluator, tests, fixtures, workflow and count checker match HEAD.
+PASS: 90 local Markdown link targets exist in changed documents.
+PASS: git diff --check.
+PASS: final blueprint count check: 205 engine tests and 3 doctests.
+PASS: refreshed workspace log includes all 8 engine golden tests.
+PASS: workspace 470 Rust tests/doctests passed, 0 failed, 1 ignored; embedded Python 39 + 129 passed.
+PASS: focused regressions 24 passed; count checker regressions 17 passed; fmt and clippy passed.
+Validation was local; remote CI remains for the supervisor. No commit, push or GitHub call.
+Changed files:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-10-28_engine_all_any_short_circuit.md
+packages/rules-engine/evidence/audit3-all-any-short-circuit/clippy.log
+packages/rules-engine/evidence/audit3-all-any-short-circuit/counts-tests.log
+packages/rules-engine/evidence/audit3-all-any-short-circuit/counts-write.log
+packages/rules-engine/evidence/audit3-all-any-short-circuit/counts.log
+packages/rules-engine/evidence/audit3-all-any-short-circuit/fmt.log
+packages/rules-engine/evidence/audit3-all-any-short-circuit/focused.log
+packages/rules-engine/evidence/audit3-all-any-short-circuit/scope.log
+packages/rules-engine/evidence/audit3-all-any-short-circuit/workspace.log
+SHA-256 of validated engine source, tests and manifests:
+42700de608b885155b383297e9699f8e6a96c2c60a79f383356f0000385027b3  Cargo.toml
+6428c439df9587782a71bcac0a169e77ec7d3d905dc93aef8fce2ff43cff2681  Cargo.lock
+5fbbb53a8bf305f65e557f6cb82020ce87b2e2880a30255ecd803ed5ab5fd469  packages/rules-engine/Cargo.toml
+7e2f8dcbd186a6c34f8fb3b00f3c645b842f24010c9aac5a03c85220edc9d963  packages/rules-engine/src/canonical.rs
+b968748ba6da3e16c01130ff0451f5e0513df87a55f44c25695f3ac2f515e853  packages/rules-engine/src/date.rs
+d049490d89dafb4bcae946c10773eb4cc25150beca832de0439f76b2d69c7c2d  packages/rules-engine/src/eval.rs
+fd69f9e1d45c6bd939a76ddde043fa03a93c438250be5e9908445312d58ad923  packages/rules-engine/src/lib.rs
+bef3bb2ba9959902c3fa1c26bce29334afbc3203f865ad7ea3e23b4ad1a1af73  packages/rules-engine/src/rule.rs
+76d3dc514579ab22e29bfe554a0fb437e2bce6d89e9f29965bc8154724581503  packages/rules-engine/src/tri.rs
+50e1c8dd733a2776d46301c9afa7126130502f0e49eb03a6faaa8cdff1fa3b31  packages/rules-engine/src/value.rs
+9d9df9d460845d21529f84c309e70e24a1553c5b83b5ca601207a3c3ab8e1bbf  packages/rules-engine/tests/all_any_errors.rs
+3e0f66316a43280492ed84beb56450565f756851e1e3cd6b8d6e018f1e9422a9  packages/rules-engine/tests/common/mod.rs
+2501152f87d99dec9c9fad8d8e76246960c51fd89a1e3f9fd0c32ffebc124e90  packages/rules-engine/tests/content_hash_scope.rs
+27173ab9d6e597015b75449afe855060e56b34e7a32b7f7f35bf6843f1d4e788  packages/rules-engine/tests/date_format.rs
+3ff3961a650f2cb943ad1717699a6c9e7bf4db23a21b280e28891e4cf97d653e  packages/rules-engine/tests/days_between.rs
+353afb4f960a14ef3f439b19ee4d780484c0357bed6194a21b9452e74a88ffb0  packages/rules-engine/tests/fixture_supplements.rs
+7c19e446a8e7cd0acdc959877f51b080fd68f064fa8ac2673fc8f9b66f9e987b  packages/rules-engine/tests/golden.rs
+7673bb5b0016c811b834cc0255211ec82ea82728bd4e569d92c13cca07f2fcda  packages/rules-engine/tests/identity_evidence.rs
+c86222e70075977b43e1ce957c3195922f84e922cd9f14a1f234e266a534fb6d  packages/rules-engine/tests/immutable_rule_doctests.rs
+88de56026ce247f1842ee7f3eb75adc65d7ee21f6763036af9e95dfff300e621  packages/rules-engine/tests/loader_and_arith.rs
+fdbc597ee191a963f8fb96097ccb5aff95ad0823f80a459a5c54f2d8e1c77e5a  packages/rules-engine/tests/mutation.rs
+620d3e91777782b5dda839c7ca976503906290811c9431d00b7d070cc01826a7  packages/rules-engine/tests/overflow.rs
+6daf5746a96dfc9515bb0d078cfe528702fdfdccdc36ae2da319f674592444c3  packages/rules-engine/tests/range_comparisons.rs
+9db643f8909fa36cfd505b4dbe33f681a4cadfb19e975d852aeb6b2b3b74dab5  packages/rules-engine/tests/readme_test_table.rs
+b06d617bd3d4c95331525c2bba6e1280e1543b78df0b9f95150e67881d4c5284  packages/rules-engine/tests/real_clauses.rs
+bc96c502e0faedf2c2205a943bde20567158c948dd3332e5281e8628dfd456c7  packages/rules-engine/tests/review_fixes.rs
+66e1c6fb0a0c26416fa56652808b3967d629bdf4fdd91f921f397619030100b2  packages/rules-engine/tests/rule_02.rs
+6f54c27c02821c8b64edf6895d82f164b0d7fd8565388b03997a8630f6b7730c  packages/rules-engine/tests/snapshot_hash.rs
+dbfad977f18871f877207cf5aca1c5a00ba6371069eba52b09e44e7664ac4b74  packages/rules-engine/tests/soundness.rs
+2dd4c0754c1c58c1ddc0ebeb0f9625bda90f1c85c53404ae111be1781b3a6747  packages/rules-engine/tests/static_types.rs
+85e94e63d1115500d54553b0bf126f7aa5e1b50ea0f39748803baffc3a5dde9d  packages/rules-engine/tests/string_literals.rs
+57099f51f360b19417c1c58b24d7cad159903dee893f8b70dba89702b05e2424  packages/rules-engine/tests/unknown_branch_errors.rs
+8bed73e591e923bea67ade539d20dc07d6e63c257477c4437132c1b0dc90f813  packages/rules-engine/tests/vocabulary.rs

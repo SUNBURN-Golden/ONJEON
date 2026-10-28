@@ -1,0 +1,15 @@
+PASS: no unmerged index entries; both document conflicts resolved and staged.
+PASS: merge remains in progress for supervisor; no merge commit created.
+PASS: protected paths unchanged from HEAD.
+PASS: all changed paths allowed; no merge conflict markers.
+PASS: unchanged from HEAD: packages/rules-engine/src/rule.rs; SHA-256 bef3bb2ba9959902c3fa1c26bce29334afbc3203f865ad7ea3e23b4ad1a1af73
+PASS: unchanged from HEAD: packages/rules-engine/src/eval.rs; SHA-256 d049490d89dafb4bcae946c10773eb4cc25150beca832de0439f76b2d69c7c2d
+PASS: unchanged from HEAD: packages/rules-engine/tests/range_comparisons.rs; SHA-256 0a63e7a77aa11ceaee8212da88def204318dde4f58d83cd6000085738a120718
+PASS: main all/any regression tests preserved exactly.
+PASS: local links exist: docs/BLUEPRINT.md.
+PASS: local links exist: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md.
+PASS: local links exist: docs/blueprint/audits/2026-10-28_engine_moneyrange_compare_load_check.md.
+PASS: local links exist: packages/rules-engine/README.md.
+PASS: git diff --check HEAD. Evidence whitespace trimmed.
+PASS: workspace tests 472 passed, 0 failed, 1 ignored; Python discovery 1271 run, 0 failures, 6 skips.
+Local verification only; no commit, push or GitHub calls.

@@ -63,6 +63,41 @@ BLUEPRINT A2·A5, Q2·Q5, L6, I1·I4·I5, M0 및
 허용 경로·보호 문서 불변·엔진 운영 코드 불변·로컬 링크·공백 검사는
 [scope.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/scope.log)에 기록한다.
 
+## Fix round 1: main 병합 충돌 해결
+
+진행 중인 main 병합의 문서 충돌 두 곳을 해결했다. 09 §7에는 이 노드의
+I5·범위 금액 비교 로드 거부 증거와 main의 `all`·`any` 오류 흡수 회귀 증거를
+모두 유지했다. 엔진 README의 두 계약과 각 회귀 시험도 함께 보존한다.
+로더·평가기 운영 코드는 변경하지 않았다.
+
+BLUEPRINT §11의 충돌 값 204개·205개 중 하나를 선택하지 않고
+`tools/blueprint_counts.py --write`로 병합 결과를 다시 셌다. 엔진 단위·통합
+등록 수는 **207개**, doctest는 3개다. 기존 `test_each_live_count_change_requires_refresh`와
+`test_cli_is_read_only_until_explicit_write_and_returns_drift`가 수치 변동의
+거부·갱신 후 통과를 검증한다. main에서 들어온 실행 로그의 끝 빈 줄 하나도
+제거해 공백 검사를 통과시켰다.
+
+아래는 이 worktree에서 병합 후 직접 실행한 결과다. 원격 CI 결과가 아니다.
+Cargo 산출물과 음성 대조의 임시 크레이트는 이 worktree 안에만 생성했다.
+증거는 [round1 로그 디렉터리](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/)에 둔다.
+
+| 명령 | 결과·증거 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --locked --offline --test range_comparisons --test all_any_errors --test unknown_branch_errors --test soundness --test readme_test_table` | 38개 통과. 범위 비교 10개·main의 논리 오류 회귀 7개 포함: [focused.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/focused.log) |
+| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | Rust 단위·통합·문서 시험 472개 통과·실패 0·기존 ignored 1개. 내부 Python 시험 39개·129개 통과: [workspace.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/workspace.log) |
+| `python3 -I tools/evidence/audit3-engine-moneyrange-compare-load-check/negative_control.py` | 정상 복사본 10개 통과·범위 타입 추론 제거 시 원래 결함 검출: [negative-control.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/negative-control.log) |
+| `cargo fmt --all -- --check` 및 `cargo clippy --all-targets --locked --offline -- -D warnings` | 모두 통과: [fmt.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/fmt.log), [clippy.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/clippy.log) |
+| `python3 -I tools/blueprint_counts.py --write` 후 일반 검사 | 등록 207개·doctest 3개 일치: [counts-write.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/counts-write.log), [counts.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/counts.log) |
+| `test_blueprint_counts.py`·`test_product_purpose.py`의 unittest discovery | 각각 17개·14개 통과: [counts-tests.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/counts-tests.log), [purpose-tests.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/purpose-tests.log) |
+| `python3 -I tools/ci/check_product_purpose.py`·`spec_check.py`·`tools/blueprint_status.py` | 모두 통과: [product-purpose.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/product-purpose.log), [spec-check.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/spec-check.log), [status.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/status.log) |
+| `python3 tools/vocab_check.py`·`tools/validation_check.py` 및 `--selftest` | 모두 통과. 검증 자료 내부 일관성·변조 38종 검사이며 원본 재검증이 아니다: [vocab.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/vocab.log), [validation.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/validation.log), [validation-selftest.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/validation-selftest.log) |
+| 온톨로지 runner 빌드 후 `python3 -m unittest discover -s tools/tests -v` | 1,271개 실행·실패 0·skip 6. boto3 1.43.100, runner 경로를 `ONJEON_ONTOLOGY_RUNNER`로 전달: [ontology-build.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/ontology-build.log), [python-tests.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/python-tests.log) |
+
+미해결 index 항목·충돌 표시·허용 경로·보호 문서·운영 코드·main 시험 보존·
+로컬 링크·공백 검사는 [scope.log](../../../tools/evidence/audit3-engine-moneyrange-compare-load-check/round1/scope.log)에 기록한다.
+충돌 해결을 index에 반영했으며 병합 commit은 supervisor가 수행하도록 남긴다.
+commit·push·GitHub 호출은 수행하지 않았다.
+
 ## 제품 목적과 한계
 
 BLUEPRINT I5의 검사 근거와 엔진 README, 09 §7의 P08·P14 연결을 보강한다.

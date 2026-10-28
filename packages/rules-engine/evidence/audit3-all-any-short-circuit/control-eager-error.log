@@ -1,0 +1,32 @@
+Command: cargo test --offline --manifest-path /workspace/onjeon-run/wt/audit3-engine-all-any-short-circuit/packages/rules-engine/evidence/audit3-all-any-short-circuit/negative-control-hyw3abjr/Cargo.toml --test all_any_errors absorbs_runtime_errors_in_both_versions
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-all-any-short-circuit/packages/rules-engine/evidence/audit3-all-any-short-circuit/negative-control-hyw3abjr)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running tests/all_any_errors.rs (packages/rules-engine/evidence/audit3-all-any-short-circuit/target/debug/deps/all_any_errors-4918e4f62d07d9d9)
+
+running 2 tests
+test all_false_absorbs_runtime_errors_in_both_versions ... FAILED
+test any_true_absorbs_runtime_errors_in_both_versions ... FAILED
+
+failures:
+
+---- all_false_absorbs_runtime_errors_in_both_versions stdout ----
+
+thread 'all_false_absorbs_runtime_errors_in_both_versions' (2346774) panicked at tests/all_any_errors.rs:54:49:
+called `Result::unwrap()` on an `Err` value: DateOutOfRange { path: "eligibility.all[1].eq[0]" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- any_true_absorbs_runtime_errors_in_both_versions stdout ----
+
+thread 'any_true_absorbs_runtime_errors_in_both_versions' (2346775) panicked at tests/all_any_errors.rs:54:49:
+called `Result::unwrap()` on an `Err` value: DateOutOfRange { path: "eligibility.any[1].eq[0]" }
+
+
+failures:
+    all_false_absorbs_runtime_errors_in_both_versions
+    any_true_absorbs_runtime_errors_in_both_versions
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test all_any_errors`
+
+Exit: 101

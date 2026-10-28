@@ -1,0 +1,25 @@
+[
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+      "--offline",
+      "--target-dir",
+      "target/audit3-ci-ontology"
+    ],
+    "exit_code": 0,
+    "log": "ontology-tests.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+      "/workspace/onjeon-run/wt/audit3-ci-permissions-and-pins/target/audit3-ci-ontology/debug/ontology-case-runner"
+    ],
+    "exit_code": 0,
+    "log": "ontology-check.log"
+  }
+]

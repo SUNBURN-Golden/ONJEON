@@ -1,0 +1,35 @@
+test_each_ci_action_rejects_mutable_or_short_refs (test_ci_workflow_security.CiWorkflowSecurity.test_each_ci_action_rejects_mutable_or_short_refs) ... FAIL
+test_live_workflows_pass_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_live_workflows_pass_declared_gate) ... FAIL
+test_missing_or_write_permissions_fail_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_missing_or_write_permissions_fail_declared_gate) ... FAIL
+
+======================================================================
+FAIL: test_each_ci_action_rejects_mutable_or_short_refs (test_ci_workflow_security.CiWorkflowSecurity.test_each_ci_action_rejects_mutable_or_short_refs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-ci-permissions-and-pins/tools/tests/test_ci_workflow_security.py", line 26, in setUp
+    self.assertEqual(len(gates), 1, "ci.yml must declare one early security gate")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : ci.yml must declare one early security gate
+
+======================================================================
+FAIL: test_live_workflows_pass_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_live_workflows_pass_declared_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-ci-permissions-and-pins/tools/tests/test_ci_workflow_security.py", line 26, in setUp
+    self.assertEqual(len(gates), 1, "ci.yml must declare one early security gate")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : ci.yml must declare one early security gate
+
+======================================================================
+FAIL: test_missing_or_write_permissions_fail_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_missing_or_write_permissions_fail_declared_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-ci-permissions-and-pins/tools/tests/test_ci_workflow_security.py", line 26, in setUp
+    self.assertEqual(len(gates), 1, "ci.yml must declare one early security gate")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : ci.yml must declare one early security gate
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=3)

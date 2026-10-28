@@ -1,0 +1,40 @@
+Base commit: 83cf2b6121bb2784df06ff092f7331c4db4c39ef
+Allowed paths and protected-file exclusions: PASS
+git diff --check: PASS
+Changed documentation links: PASS
+Existing contents: read, credential non-persistence, full action pins: PASS
+.github/workflows/ci.yml actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/ci.yml actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/sources.yml actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/sources.yml actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+.github/workflows/sources.yml actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+.github/workflows/sources.yml actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+SHA-256 source evidence:
+370447efa07a2f827e3ca829cd2eea3a9634605b0cd9504c47428a68529bc67d .github/workflows/ci.yml
+eef3133669aaed4730c735582111069d0804f9e61cef604ed8d1a262f29c6516 tools/workflow_check.py
+282ac5f1762cc09c8d86e899a2251444e12d57e882e11b4818ac3458c6cb8b81 tools/tests/test_workflow_pins.py
+ff9e6aab0f9abc5a9e7af0e03ff9ccd69ed7af1814de23741b6f6f0b23497f47 tools/tests/test_ci_workflow_security.py
+Changed paths:
+.github/workflows/ci.yml
+docs/blueprint/audits/2026-10-28_ci_permissions_and_pins.md
+tools/ci/README.md
+tools/evidence/audit3-ci-permissions-and-pins/before.log
+tools/evidence/audit3-ci-permissions-and-pins/blueprint-counts.log
+tools/evidence/audit3-ci-permissions-and-pins/checks-summary.json
+tools/evidence/audit3-ci-permissions-and-pins/clippy.log
+tools/evidence/audit3-ci-permissions-and-pins/daemon-dry-run.log
+tools/evidence/audit3-ci-permissions-and-pins/final-checks.log
+tools/evidence/audit3-ci-permissions-and-pins/fmt.log
+tools/evidence/audit3-ci-permissions-and-pins/ontology-build.log
+tools/evidence/audit3-ci-permissions-and-pins/ontology-check.log
+tools/evidence/audit3-ci-permissions-and-pins/ontology-summary.json
+tools/evidence/audit3-ci-permissions-and-pins/ontology-tests.log
+tools/evidence/audit3-ci-permissions-and-pins/permissions.log
+tools/evidence/audit3-ci-permissions-and-pins/python-tests.log
+tools/evidence/audit3-ci-permissions-and-pins/rust-tests.log
+tools/evidence/audit3-ci-permissions-and-pins/spec-check.log
+tools/evidence/audit3-ci-permissions-and-pins/validation-selftest.log
+tools/evidence/audit3-ci-permissions-and-pins/validation.log
+tools/evidence/audit3-ci-permissions-and-pins/vocabulary.log
+tools/evidence/audit3-ci-permissions-and-pins/workflow-tests.log
+tools/tests/test_ci_workflow_security.py

@@ -1,0 +1,1479 @@
+test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ...
+  test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__["eval"]("1")') ... FAIL
+  test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__["exec"]("pass")') ... FAIL
+  test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='b = __builtins__; f = b["eval"]') ... FAIL
+  test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__.eval("1")') ... FAIL
+  test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='globals()["__builtins__"]["eval"]("1")') ... FAIL
+  test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='fn.__builtins__["eval"]("1")') ... FAIL
+test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ...
+  test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='import sched') ... ERROR
+  test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='import apscheduler') ... ERROR
+  test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='signal.signal(1, handler)') ... ERROR
+  test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='os.fork()') ... ERROR
+test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) ...
+  test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while pending:\n    pending.pop()\n') ... ERROR
+  test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while clock.now() < end:\n    step()\n') ... ERROR
+  test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while False:\n    pass\n') ... ERROR
+  test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while 0:\n    pass\n') ... ERROR
+  test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='# while True:\ntext = "while True:"\n') ... ERROR
+test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) ...
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='system') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='popen') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execl') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execle') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execlp') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execlpe') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execv') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execve') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execvp') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execvpe') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnl') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnle') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnlp') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnlpe') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnv') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnve') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnvp') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnvpe') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='posix_spawn') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='posix_spawnp') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='fork') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='forkpty') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='startfile') ... FAIL
+  test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='*') ... FAIL
+test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) ...
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import ctypes as native') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from ctypes import system as launch') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import ctypes.util as native') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from ctypes.util import system as launch') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import _ctypes as native') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from _ctypes import system as launch') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import posix as native') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from posix import system as launch') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import nt as native') ... FAIL
+  test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from nt import system as launch') ... FAIL
+test_only_canonical_checker_and_runner_directory_are_exempt (tools.tests.test_daemon_static_checks.StaticBypasses.test_only_canonical_checker_and_runner_directory_are_exempt) ... ok
+test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) ...
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.system') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.popen') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execl') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execle("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execle') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execlp("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execlp') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execlpe("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execlpe') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execv') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execve("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execve') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execvp') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execvpe("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execvpe') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnl') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnle("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnle') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnlp("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnlp') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnlpe("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnlpe') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnv') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnve("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnve') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnvp("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnvp') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnvpe("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnvpe') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.posix_spawn("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.posix_spawn') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.posix_spawnp("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.posix_spawnp') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.fork') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.forkpty("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.forkpty') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.startfile("unused")') ... FAIL
+  test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.startfile') ... FAIL
+test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) ...
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='system') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='popen') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execl') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execle') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execlp') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execlpe') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execv') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execve') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execvp') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execvpe') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnl') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnle') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnlp') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnlpe') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnv') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnve') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnvp') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnvpe') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='posix_spawn') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='posix_spawnp') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='fork') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='forkpty') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='startfile') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='eval') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='exec') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='compile') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='__import__') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='import_module') ... FAIL
+  test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='__builtins__') ... FAIL
+test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) ...
+  test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='ctypes') ... FAIL
+  test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='socket') ... FAIL
+  test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='subprocess') ... FAIL
+test_safe_operations_and_data_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_safe_operations_and_data_are_allowed) ... ok
+test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) ...
+  test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) (filename='static_checks.py') ... FAIL
+  test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) (filename='nested/static_checks.py') ... FAIL
+test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) ...
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='True') ... ERROR
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='1') ... ERROR
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='2') ... ERROR
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='-1') ... ERROR
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='1.0') ... ERROR
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition="'forever'") ... ERROR
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='[1]') ... ERROR
+  test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition="{'x': 1}") ... ERROR
+test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) ...
+  test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content=None) ... FAIL
+  test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{') ... FAIL
+  test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{}') ... FAIL
+test_cli_invalid_source_is_an_error (tools.tests.test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error) ... FAIL
+test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) ...
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='__builtins__["eval"]("1")') ... FAIL
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='getattr(os, "system")("unused")') ... FAIL
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='from os import system as s') ... FAIL
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='os.execvpe("unused", [], {})') ... FAIL
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='os.posix_spawn("unused", [], {})') ... FAIL
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='import ctypes') ... FAIL
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='while 1:\n    pass') ... FAIL
+test_no_arguments_runs_all_checks (tools.tests.test_daemon_static_checks.StaticCli.test_no_arguments_runs_all_checks) ... FAIL
+
+======================================================================
+ERROR: test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='import sched')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 114, in test_existing_scheduler_bans_still_hold
+    self.assertTrue(self.check_source(source, static_checks.no_scheduler_or_runner))
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='import apscheduler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 114, in test_existing_scheduler_bans_still_hold
+    self.assertTrue(self.check_source(source, static_checks.no_scheduler_or_runner))
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='signal.signal(1, handler)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 114, in test_existing_scheduler_bans_still_hold
+    self.assertTrue(self.check_source(source, static_checks.no_scheduler_or_runner))
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='os.fork()')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 114, in test_existing_scheduler_bans_still_hold
+    self.assertTrue(self.check_source(source, static_checks.no_scheduler_or_runner))
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while pending:\n    pending.pop()\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 109, in test_finite_and_false_literal_loops_and_comments_are_allowed
+    self.assertEqual(self.check_source(source, static_checks.no_scheduler_or_runner), [])
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while clock.now() < end:\n    step()\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 109, in test_finite_and_false_literal_loops_and_comments_are_allowed
+    self.assertEqual(self.check_source(source, static_checks.no_scheduler_or_runner), [])
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while False:\n    pass\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 109, in test_finite_and_false_literal_loops_and_comments_are_allowed
+    self.assertEqual(self.check_source(source, static_checks.no_scheduler_or_runner), [])
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while 0:\n    pass\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 109, in test_finite_and_false_literal_loops_and_comments_are_allowed
+    self.assertEqual(self.check_source(source, static_checks.no_scheduler_or_runner), [])
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='# while True:\ntext = "while True:"\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 109, in test_finite_and_false_literal_loops_and_comments_are_allowed
+    self.assertEqual(self.check_source(source, static_checks.no_scheduler_or_runner), [])
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='True')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='-1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='1.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition="'forever'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='[1]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+ERROR: test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition="{'x': 1}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 101, in test_truthy_literal_loops_are_rejected
+    self.assertTrue(self.check_source(f'while {condition}:\n    pass\n',
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     static_checks.no_scheduler_or_runner))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 30, in check_source
+    return check(Path(directory))
+TypeError: no_scheduler_or_runner() takes 0 positional arguments but 1 was given
+
+======================================================================
+FAIL: test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__["eval"]("1")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 39, in test_builtins_mapping_and_attribute_access
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__["exec"]("pass")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 39, in test_builtins_mapping_and_attribute_access
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='b = __builtins__; f = b["eval"]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 39, in test_builtins_mapping_and_attribute_access
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__.eval("1")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 39, in test_builtins_mapping_and_attribute_access
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='globals()["__builtins__"]["eval"]("1")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 39, in test_builtins_mapping_and_attribute_access
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='fn.__builtins__["eval"]("1")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 39, in test_builtins_mapping_and_attribute_access
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='system')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='popen')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execlpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execve')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execvp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execvpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnlpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnve')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnvp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='spawnvpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='posix_spawn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='posix_spawnp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='fork')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='forkpty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='startfile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='*')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 57, in test_from_os_import_aliases_and_star
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import ctypes as native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from ctypes import system as launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import ctypes.util as native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from ctypes.util import system as launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import _ctypes as native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from _ctypes import system as launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import posix as native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from posix import system as launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import nt as native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from nt import system as launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 63, in test_native_execution_imports
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.system')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.popen')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execle("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execlp("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execlpe("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execlpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execve("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execve')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execvp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.execvpe("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execvpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnle("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnlp("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnlpe("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnlpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnve("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnve')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnvp("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnvp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.spawnvpe("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.spawnvpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.posix_spawn("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.posix_spawn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.posix_spawnp("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.posix_spawnp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.fork')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.forkpty("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.forkpty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.startfile("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.startfile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 51, in test_process_attributes_and_aliases
+    self.assertTrue(self.check_source("import os\n" + expression))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='system')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='popen')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execlpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execve')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execvp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execvpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnlpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnve')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnvp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='spawnvpe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='posix_spawn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='posix_spawnp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='fork')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='forkpty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='startfile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='eval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='exec')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='compile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='__import__')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='import_module')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='__builtins__')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 45, in test_reflective_forbidden_members
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='ctypes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 68, in test_relative_forbidden_imports
+    self.assertTrue(self.check_source(f'from . import {name} as helper'))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='socket')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 68, in test_relative_forbidden_imports
+    self.assertTrue(self.check_source(f'from . import {name} as helper'))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='subprocess')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 68, in test_relative_forbidden_imports
+    self.assertTrue(self.check_source(f'from . import {name} as helper'))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) (filename='static_checks.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 87, in test_same_named_files_are_checked
+    self.assertTrue(self.check_source('eval("1")', filename=filename))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) (filename='nested/static_checks.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 87, in test_same_named_files_are_checked
+    self.assertTrue(self.check_source('eval("1")', filename=filename))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 154, in test_cli_input_errors_are_nonzero_and_explained
+    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 :
+
+======================================================================
+FAIL: test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 154, in test_cli_input_errors_are_nonzero_and_explained
+    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 :
+
+======================================================================
+FAIL: test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 154, in test_cli_input_errors_are_nonzero_and_explained
+    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 :
+
+======================================================================
+FAIL: test_cli_invalid_source_is_an_error (tools.tests.test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 165, in test_cli_invalid_source_is_an_error
+    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 :
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='__builtins__["eval"]("1")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 :
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='getattr(os, "system")("unused")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 :
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='from os import system as s')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 :
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='os.execvpe("unused", [], {})')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 :
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='os.posix_spawn("unused", [], {})')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 :
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='import ctypes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 :
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='while 1:\n    pass')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 :
+
+======================================================================
+FAIL: test_no_arguments_runs_all_checks (tools.tests.test_daemon_static_checks.StaticCli.test_no_arguments_runs_all_checks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 127, in test_no_arguments_runs_all_checks
+    self.assertEqual(result.stdout.count("[PASS]"), len(static_checks.all_static(RULES)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 13
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.856s
+
+FAILED (failures=124, errors=17)

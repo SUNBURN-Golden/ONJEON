@@ -1,0 +1,21 @@
+test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ... ok
+test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ... ok
+test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) ... ok
+test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) ... ok
+test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) ... ok
+test_only_canonical_checker_and_runner_directory_are_exempt (tools.tests.test_daemon_static_checks.StaticBypasses.test_only_canonical_checker_and_runner_directory_are_exempt) ... ok
+test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) ... ok
+test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) ... ok
+test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) ... ok
+test_safe_operations_and_data_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_safe_operations_and_data_are_allowed) ... ok
+test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) ... ok
+test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) ... ok
+test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) ... ok
+test_cli_invalid_source_is_an_error (tools.tests.test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error) ... ok
+test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) ... ok
+test_no_arguments_runs_all_checks (tools.tests.test_daemon_static_checks.StaticCli.test_no_arguments_runs_all_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 7.315s
+
+OK

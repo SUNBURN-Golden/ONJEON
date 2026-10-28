@@ -1,0 +1,11 @@
+The dependency-check findings refer to these unchanged HEAD inputs.
+HEAD: 285b9edf1dd60b80b9a7414a46d94d46ab83ecab
+infra/ci/deps.json: HEAD == current: True; sha256:044f9cfa54772b9c973f42d0c5cd21072a30d8a9033962861cce518c9cb7074c
+packages/ontology/Cargo.toml: HEAD == current: True; sha256:ab2293b01369bc97f82cef4709eb3120ec3e8b9b073e7898e3bbda878b4f814f
+packages/ontology/tests/common/mod.rs: HEAD == current: True; sha256:685bc96a4b496e39bc892f584fa288a640dd5bca545a98d42a120117ada86fcf
+packages/ontology/tests/fixture_origin/main.rs: HEAD == current: True; sha256:bee7071d425e0d8f7b5eafba78fe6acc7e647ceb1188d07113781aec692c02fb
+check_deps: 3 finding(s)
+  [DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+  [IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+  [IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+EXIT: 1

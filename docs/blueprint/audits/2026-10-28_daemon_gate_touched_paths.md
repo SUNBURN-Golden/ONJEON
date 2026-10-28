@@ -80,3 +80,20 @@ Python skip 6개는 비공개 원본이 필요한 기존 시험 5개와 설치�
 결과 봉투가 주장하는 변경 경로·PR 본문 필드의 코어 검사를 증명한다. 실제 Git diff와 PR 본문을 Git 호스트에서 조회·인증하는 기능은 구현하지 않았으며, 검증 어댑터의 본문 필드는 합성이다. 실행기 시험 통과도 기존 PASS/UNCONFIRMED 수락 기준을 따르며 운영 환경 검증 완료를 뜻하지 않는다.
 
 [09 제품목적 대응표 §5](../proposals/설계검토_결과/09_제품목적_대응표.md#5-출시-완성품이-아닌-것혼동-방지)에 따라 이 결과는 개발 도구·T-OP-08 축 5 운영 기록이다. P01~P19의 실제 공시 데이터·트윈·소비자 화면·첫 출시 완료 증거를 대체하지 않는다.
+
+
+## 수정 3차 — main 정적 검사 보강과 병합
+
+병합 입력은 이 노드의 `e5d852182b5bb793e73db26366edb545e8ff2c6e`와 main의 `b7aed69f98ee3d943ca105287b7b3679e7308bcb`다. 충돌은 공용 생성 보고서 `tools/daemon/reports/dry_run.log`·`unittest.log`에만 있었다. 두 보고서를 합쳐진 소스에서 다시 생성했다. 이 노드의 R-01·R-09 결과 관문과 R-10 우선순위, 이전 병합의 시험 실패 가드 처리를 유지하고, main의 정적 검사 우회 차단·실행 CLI·신규 회귀 시험 16개를 함께 보존했다. 실행 동작은 추가로 변경하지 않았다.
+
+현재 보고서의 부모·병합 입력과 소스 해시는 [round3/source-header.txt](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/source-header.txt)에 있다. 이전 절과 main의 static-check 노드에 적힌 공용 보고서 수치·해시는 각 당시 실행 기록이며, 현재 공용 보고서는 이번 병합 결과를 가리킨다.
+
+- 결과 관문 20개·시험 실패 가드 6개·main 정적 검사 16개를 함께 실행한 42개 회귀 시험이 통과했다([focused.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/focused.log)).
+- 전체 데몬 시험은 287개 통과했다([unittest.log](../../../tools/daemon/reports/unittest.log)).
+- 이 작업 트리의 `target`에 온톨로지 실행기를 빌드한 뒤 `ONJEON_ONTOLOGY_RUNNER="$PWD/target/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v`를 실행해 1221개·실패/오류 0·기존 skip 6개를 확인했다([ontology-build.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/ontology-build.log), [python-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/python-tests.log)). 신규 회귀 시험에는 skip이 없다.
+- 전체 dry-run은 검사 692건 통과, 필수 시험 ID 33개 누락·미등록·중복 0개다([dry_run.log](../../../tools/daemon/reports/dry_run.log)).
+- `cargo test --all --target-dir target`은 466개 통과·기존 ignore 1개다([cargo-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/cargo-tests.log)). 별도 실행기 시험은 59개 통과했다([runner-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/runner-tests.log)).
+- 정적 CLI 13개 검사, 어휘·검증 자료·변조 selftest·설계 묶음·BLUEPRINT 수량·제품 목적 검사가 전부 종료 0이다([consistency.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/consistency.log)).
+- 추가 CI 시험은 기존과 같이 20개 중 의존성 검사 2개 실패다([ci-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/ci-tests.log)). 위반 3건의 소스·정책·검사기가 양쪽 병합 입력과 바이트 단위로 같은 것을 재확인했다([ci-baseline.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round3/ci-baseline.log)).
+
+main에서 들어온 증거 로그와 재생성 보고서의 줄 끝 공백·빈 EOF 줄은 제거하고 결과 내용은 보존했다. 변경된 증거 파일의 manifest 해시도 갱신했다. 커밋·푸시·GitHub 호출은 하지 않았다. 병합 커밋은 감독자가 만들도록 진행 중 병합의 충돌 해소만 준비한다.

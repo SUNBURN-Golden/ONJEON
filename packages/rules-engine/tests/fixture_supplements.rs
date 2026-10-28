@@ -34,7 +34,7 @@ fn every_supplement_extends_an_existing_table_without_changing_shared_cases() {
             );
         }
     }
-    assert_eq!(added, 59, "all mutation boundary cases must remain loaded");
+    assert_eq!(added, 69, "all mutation boundary cases must remain loaded");
 }
 
 #[test]

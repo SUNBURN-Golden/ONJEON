@@ -1,0 +1,448 @@
+    Updating crates.io index
+     Locking 21 packages to latest compatible versions
+      Adding generic-array v0.14.7 (available: v0.14.9)
+      Adding sha2 v0.10.9 (available: v0.11.1)
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.154
+   Compiling serde v1.0.229
+   Compiling generic-array v0.14.7
+   Compiling itoa v1.0.18
+   Compiling cpufeatures v0.2.17
+   Compiling memchr v2.8.3
+   Compiling cfg-if v1.0.5
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling syn v3.0.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-wholelife-death-lower-bound/tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.22s
+     Running unittests src/lib.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/onjeon_rules_engine-872f05f7a9a85447)
+
+running 10 tests
+test date::tests::month_end_clamps ... ok
+test canonical::tests::runtime_struct_fields_are_sorted_recursively_and_types_are_explicit ... ok
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test date::tests::parse_date_preserves_canonical_dates_and_calendar_validation ... ok
+test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
+test date::tests::roundtrip_and_known_dates ... ok
+test rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text ... ok
+test date::tests::parse_date_rejects_non_digits_in_every_component ... ok
+test tri::tests::truth_table_matches_spec_49_3 ... ok
+test value::tests::rate_parsing ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/all_any_errors.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/all_any_errors-2a7c668cd3e506a1)
+
+running 4 tests
+test unknown_children_keep_their_blockers_without_defaulting_to_a_decision ... ok
+test absorbed_errors_have_deterministic_trace_entries_without_partial_children ... ok
+test errors_are_preserved_without_a_decisive_child ... ok
+test decisive_result_wins_over_errors_and_unknowns_in_every_child_order ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/content_hash_scope.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/content_hash_scope-019f607c419e8644)
+
+running 7 tests
+test omitted_defaults_are_not_filled_in ... ok
+test top_level_release_id_is_excluded_but_a_nested_one_is_hashed ... ok
+test whitespace_key_order_and_string_escapes_do_not_change_the_hash ... ok
+test metadata_that_does_not_affect_evaluation_is_still_hashed ... ok
+test unicode_forms_are_not_normalized ... ok
+test string_whitespace_and_array_order_are_not_normalized ... ok
+test equivalent_spellings_of_the_same_logic_hash_differently ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/date_format.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/date_format-bcaf890f76fe964f)
+
+running 3 tests
+test signed_date_literals_are_rejected_at_load ... ok
+test signed_date_inputs_are_rejected_at_evaluation ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/days_between.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/days_between-be128bee351d18eb)
+
+running 4 tests
+test reversed_literal_and_computed_dates_are_also_rejected ... ok
+test missing_dates_stay_unknown_and_report_only_missing_endpoints ... ok
+test forward_and_same_day_intervals_preserve_all_inclusive_boundaries ... ok
+test reversed_dates_cannot_satisfy_comparison_thresholds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/fixture_supplements.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/fixture_supplements-edc35a6ae1b0f665)
+
+running 4 tests
+
+thread 'supplement_cannot_shadow_a_shared_case' (441415) panicked at tests/common/mod.rs:53:9:
+example.cases.json: duplicate case ID existing
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'duplicate_ids_within_a_supplement_are_rejected' (441413) panicked at tests/common/mod.rs:53:9:
+example.cases.json: duplicate case ID repeated
+test supplement_cannot_shadow_a_shared_case - should panic ... ok
+test duplicate_ids_within_a_supplement_are_rejected - should panic ... ok
+test every_supplement_extends_an_existing_table_without_changing_shared_cases ... ok
+test supplemental_cases_inherit_base_inputs_and_apply_their_overrides ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/golden.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/golden-feb21fca89ec83e1)
+
+running 7 tests
+test synthetic_fixture_rule_is_fixture_only ... ok
+test trace_records_every_evaluated_node_and_hash_changes_with_input ... ok
+test golden_table_matches_expert_expectations ... ok
+test pinned_input_snapshot_hashes_are_distinct_per_distinct_input ... ok
+test same_input_gives_byte_identical_output ... ok
+test golden_table_pins_trace_and_hashes ... ok
+test real_rule_content_hashes_are_pinned ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/identity_evidence.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/identity_evidence-e4c9e8b25bed64b7)
+
+running 5 tests
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test blank_rule_ids_are_rejected ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/immutable_rule_doctests.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/immutable_rule_doctests-9ab0f7ac3196d0e5)
+
+running 1 test
+test immutable_rule_doctests_fail_only_on_private_field_access ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+
+     Running tests/loader_and_arith.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/loader_and_arith-a46732e7d2300603)
+
+running 13 tests
+test date_add_never_assumes_365_days_per_year ... ok
+test cap_min_max_add_with_ranges ... ok
+test date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches ... ok
+test date_add_required_keys_cannot_be_replaced_by_unknown_keys ... ok
+test date_add_params_are_a_closed_key_set ... ok
+test days_between_inclusivity_is_explicit ... ok
+test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
+test date_add_exact_key_sets_preserve_calendar_results ... ok
+test loader_rejects_everything_outside_the_allow_list ... ok
+test loader_enforces_rule_level_invariants ... ok
+test rounding_to_unit ... ok
+test days_between_rejects_reversed_dates_for_every_inclusivity ... ok
+test rounding_modes_are_explicit_and_exact ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mutation.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/mutation-5bf5d16e806488ec)
+
+running 7 tests
+test generic_rate_literals_mutate_in_both_representations ... ok
+test harness_reports_a_surviving_mutant ... ok
+test allowlist_has_no_stale_entries ... ok
+test every_mutant_is_killed_by_the_golden_table ... ok
+fixture-rule-001: 15 golden cases, 26 generated mutants
+kb-driver-fine: 12 golden cases, 28 generated mutants
+kb-driver-lawyer-fee: 20 golden cases, 79 generated mutants
+skin rule supplement kills 16 mutants missed by shared cases
+test skin_rule_boundary_supplement_kills_mutants_the_shared_table_misses ... ok
+lawyer-fee rule: 79 mutants in each representation, including 6 rate mutants; all killed
+test wrapped_real_rule_rates_preserve_mutation_coverage ... ok
+kyobo-1995-cancer-waiting: 5 golden cases, 9 generated mutants
+kyobo-cancer-main-dx: 18 golden cases, 40 generated mutants
+kyobo-small-cancer-skin: 17 golden cases, 41 generated mutants
+kyobo-wholelife-accident-death: 15 golden cases, 30 generated mutants
+kyobo-wholelife-disease-death: 28 golden cases, 89 generated mutants
+generic mutation coverage: 342 mutants, 0 unallowlisted survivors, 0 equivalence entries
+test generic_mutants_are_killed_on_every_rule ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.69s
+
+     Running tests/overflow.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/overflow-f81fd001fe420d07)
+
+running 12 tests
+test add_overflow_in_a_nested_expression_reports_the_inner_path ... ok
+test add_overflow_is_found_in_any_position_of_a_long_sum ... ok
+test add_is_exact_up_to_i64_max ... ok
+test min_max_and_cap_at_i64_max_never_overflow ... ok
+test add_past_i64_max_overflows_instead_of_wrapping ... ok
+test add_overflows_on_the_upper_bound_of_a_range_alone ... ok
+test multiply_rate_is_exact_when_the_result_is_i64_max ... ok
+test multiply_rate_on_a_range_overflows_on_either_bound ... ok
+test multiply_rate_overflows_when_rounding_up_to_the_unit_exceeds_i64_max ... ok
+test unspecified_rounding_overflows_when_only_the_upper_bound_does ... ok
+test overflow_is_an_error_not_an_unknown_amount ... ok
+test multiply_rate_product_past_i64_max_overflows ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/range_comparisons.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/range_comparisons-e0e27cf9422a9715)
+
+running 8 tests
+test pro_rata_ratio_operands_still_require_exact_money ... ok
+test mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns ... ok
+test audit_p201_is_rejected_before_input_dependent_failure ... ok
+test v02_rounding_operators_introduce_ranges ... ok
+test static_range_checks_do_not_depend_on_constant_values_or_reachable_branches ... ok
+test v02_money_operators_preserve_input_ranges_even_with_explicit_rounding ... ok
+test ranges_propagate_through_every_v01_money_operator_and_if_branch ... ok
+test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/readme_test_table.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/readme_test_table-e1dd2b04cad85f46)
+
+running 4 tests
+test readme_does_not_call_the_content_hash_normalized ... ok
+test audited_rows_are_present ... ok
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/real_clauses.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/real_clauses-30bce048148f0d81)
+
+running 11 tests
+test screen_check_catches_tampered_numbers ... ok
+
+thread 'exact_case_count_check_catches_each_missing_file' (441584) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 103
+  left: 103
+ right: 115
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test every_real_clause_case_matches ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test waiting_period_units_are_not_interchangeable ... ok
+
+thread 'exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered' (441585) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 114
+  left: 114
+ right: 115
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... ok
+
+thread 'exact_case_count_check_catches_an_unexpected_extra_case' (441583) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 116
+  left: 116
+ right: 115
+test exact_case_count_check_catches_an_unexpected_extra_case - should panic ... ok
+
+thread 'rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count' (441586) panicked at tests/real_clauses.rs:105:5:
+assertion `left == right` failed: rules without any case: ["rule-without-cases"]
+  left: {"kb-driver-fine", "kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death"}
+ right: {"kb-driver-fine", "kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death", "rule-without-cases"}
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+
+thread 'exact_case_count_check_catches_each_missing_file' (441584) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 95
+  left: 95
+ right: 115
+
+thread 'exact_case_count_check_catches_each_missing_file' (441584) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 110
+  left: 110
+ right: 115
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+
+thread 'exact_case_count_check_catches_each_missing_file' (441584) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 97
+  left: 97
+ right: 115
+
+thread 'exact_case_count_check_catches_each_missing_file' (441584) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 98
+  left: 98
+ right: 115
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+
+thread 'exact_case_count_check_catches_each_missing_file' (441584) panicked at tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 72
+  left: 72
+ right: 115
+test exact_case_count_check_catches_each_missing_file ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/review_fixes.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/review_fixes-88d89540c696f5e5)
+
+running 11 tests
+test content_hash_changes_with_content_even_if_version_is_not_bumped ... ok
+test content_hash_ignores_formatting_and_release_but_not_evidence ... ok
+test content_hash_is_independent_of_key_order_in_the_file ... ok
+test input_dates_outside_supported_range_are_rejected ... ok
+test date_arithmetic_beyond_supported_range_is_an_error_not_a_panic ... ok
+test result_identifies_rule_version_release_content_and_evidence ... ok
+test fixture_rule_content_hash_is_pinned ... ok
+test loader_rejects_huge_date_offsets ... ok
+test reloading_the_source_json_reproduces_the_same_rule_identity ... ok
+test version_and_release_are_enforced_at_load_time ... ok
+test unspecified_rounding_range_flows_through_a_second_multiplication ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rule_02.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/rule_02-16b79e2d98eb3da8)
+
+running 41 tests
+test anniversary_band_rejects_reversed_dates_and_propagates_unknown ... ok
+test anniversary_band_table_is_validated_at_load ... ok
+test anniversary_band_lower_inclusive_boundaries ... ok
+test contract_effect_follows_eligibility ... ok
+test composes_with_rule_01_operators ... ok
+test anniversary_band_leap_day_anniversary_is_the_last_day_of_february ... ok
+test contract_effect_defaults_to_none_and_is_validated ... ok
+test contract_effect_is_part_of_the_content_hash ... ok
+test anniversary_band_upper_inclusive_boundaries ... ok
+test divide_count_unknown_inputs_block ... ok
+test list_inputs_are_validated ... ok
+test list_input_changes_the_snapshot_hash ... ok
+test divide_count_rounds_the_bounds_of_a_range ... ok
+test max_over_and_lists_are_typed_at_load ... ok
+test divide_count_zero_count_is_unknown ... ok
+test multiply_count_type_checks_at_load ... ok
+test max_over_unknown_list_or_amount_is_unknown_not_zero ... ok
+test multiply_count_golden_and_boundaries ... ok
+test multiply_count_keeps_ranges ... ok
+test max_over_takes_the_highest_per_class_and_sums_classes ... ok
+test multiply_count_unknown_is_never_zero ... ok
+test max_over_overflow_is_an_error ... ok
+test pro_rata_accepts_int_parts_and_rejects_mixed_types ... ok
+test divide_count_golden_and_boundaries ... ok
+test pro_rata_requires_explicit_rounding ... ok
+test pro_rata_applies_to_ranges ... ok
+test pro_rata_boundaries ... ok
+test rule_01_results_report_no_contract_effect ... ok
+test rule_01_documents_cannot_use_rule_02_features ... ok
+test pro_rata_unknown_inputs_block ... ok
+test rule_02_results_are_reproducible_and_identify_the_schema ... ok
+test subtract_floor0_golden_and_boundaries ... ok
+test subtract_floor0_range_bounds_are_conservative ... ok
+test pro_rata_golden_and_rounding ... ok
+test pro_rata_whole_zero_is_unknown_not_error_not_zero ... ok
+test undetermined_eligibility_never_reports_no_effect ... ok
+test subtract_floor0_unknown_is_not_floored_to_zero ... ok
+test unknown_eligibility_with_rule_02_amount_stays_undetermined ... ok
+test zero_operands_that_are_known_differ_from_unknown_ones ... ok
+test rule_02_operators_are_sound_under_hidden_inputs ... ok
+test mutated_rule_02_operators_are_caught ... ok
+
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/snapshot_hash.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/snapshot_hash-49138d22b0b4a831)
+
+running 6 tests
+test list_member_order_amount_and_class_are_preserved_but_object_order_is_not ... ok
+test hash_matches_independent_canonical_json_with_all_input_types ... ok
+test delimiter_injection_no_longer_collides ... ok
+test object_order_and_null_vs_missing_do_not_change_the_snapshot ... ok
+test every_input_name_is_hashed_including_release_id_and_json_metacharacters ... ok
+test runtime_types_and_string_bytes_remain_distinct ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/soundness.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/soundness-b00c30787d57c427)
+
+running 9 tests
+test hiding_eligibility_keeps_an_overflowing_amount_undetermined ... ok
+test unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors ... ok
+test unknown_eligibility_preserves_successful_conditional_amounts_and_blockers ... ok
+test hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer ... ok
+test unknown_is_never_reported_as_zero_or_not_payable ... ok
+test unknown_eligibility_handles_all_any_errors_inside_conditional_amount ... ok
+test hiding_an_input_never_changes_a_definite_answer ... ok
+test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
+test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/static_types.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/static_types-537700fe7c5c2f12)
+
+running 10 tests
+test audit_examples_are_rejected_at_load ... ok
+test ordering_on_bool_or_string_is_rejected_at_load ... ok
+test top_level_expressions_must_be_bool_and_money ... ok
+test date_operators_need_date_arguments ... ok
+test comparisons_need_matching_operand_types ... ok
+test money_operators_need_money_arguments ... ok
+test if_needs_boolean_condition_and_same_typed_branches ... ok
+test literal_forms_carry_their_types ... ok
+test logic_operators_need_boolean_arguments ... ok
+test well_typed_rules_still_evaluate_as_before ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/unknown_branch_errors.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/unknown_branch_errors-89ed2a2ff8b18e80)
+
+running 8 tests
+test a_selected_failing_branch_is_still_an_error ... ok
+test failing_branch_under_unknown_condition_is_unknown_with_blockers ... ok
+test trace_records_the_absorbed_error_and_is_deterministic ... ok
+test both_branches_failing_is_still_an_error ... ok
+test type_errors_in_a_branch_are_absorbed_too ... ok
+test blockers_include_the_other_unknown_branch ... ok
+test eligibility_branch_errors_leave_eligibility_unknown ... ok
+test a_failing_branch_never_makes_the_other_branch_the_answer ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/vocabulary.rs (tools/evidence/audit3-wholelife-death-lower-bound/.candidate-7wxi6tci/target/debug/deps/vocabulary-26ca832bfcda3f9f)
+
+running 8 tests
+test publication_states_are_canonical ... ok
+test rounding_modes_are_canonical ... ok
+test amount_kind_names_are_canonical ... ok
+test duration_units_are_canonical ... ok
+test tri_names_are_canonical ... ok
+test operator_allowlist_is_canonical_and_versioned ... ok
+test input_types_are_canonical_and_versioned ... ok
+test payout_names_are_canonical ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests onjeon_rules_engine
+
+running 3 tests
+error[E0616]: field `amount` of struct `Rule` is private
+   --> src/rule.rs:294:6
+    |
+294 | rule.amount = other.amount;
+    |      ^^^^^^ private field
+
+error[E0616]: field `amount` of struct `Rule` is private
+   --> src/rule.rs:294:21
+    |
+294 | rule.amount = other.amount;
+    |                     ^^^^^^ private field
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0616`.
+test src/rule.rs - rule::Rule (line 286) - compile fail ... ok
+error[E0616]: field `content_hash` of struct `Rule` is private
+   --> src/rule.rs:284:6
+    |
+284 | rule.content_hash = String::new();
+    |      ^^^^^^^^^^^^ private field
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0616`.
+test src/rule.rs - rule::Rule (line 277) - compile fail ... ok
+test src/rule.rs - rule::Rule (line 264) ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+

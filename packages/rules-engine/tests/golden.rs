@@ -25,12 +25,139 @@ fn golden_table_matches_expert_expectations() {
 
 #[test]
 fn same_input_gives_byte_identical_output() {
-    let rule = Rule::from_json(&rule_json()).unwrap();
     for case in cases() {
-        let a = serde_json::to_string(&rule.evaluate(&case["inputs"]).unwrap()).unwrap();
-        let b = serde_json::to_string(&rule.evaluate(&case["inputs"]).unwrap()).unwrap();
-        assert_eq!(a, b, "result must be reproducible for {}", case["id"]);
+        assert_reproducible(
+            &rule_json(),
+            &rule_json(),
+            &case["inputs"],
+            case["id"].as_str().unwrap(),
+        );
     }
+}
+
+/// Write raw JSON rather than rebuilding a Map: the default BTreeMap would sort a
+/// reversed insertion sequence before it ever reached the rule/input loader.
+/// Object keys are permuted recursively, including objects inside arrays; array
+/// elements retain their order because expression operand order is meaningful.
+fn ordered_json(value: &J, reverse: bool) -> String {
+    match value {
+        J::Object(map) => {
+            let mut keys: Vec<_> = map.keys().collect();
+            keys.sort();
+            if reverse {
+                keys.reverse();
+            }
+            let entries: Vec<_> = keys
+                .into_iter()
+                .map(|key| {
+                    format!(
+                        "{}:{}",
+                        serde_json::to_string(key).unwrap(),
+                        ordered_json(&map[key], reverse)
+                    )
+                })
+                .collect();
+            format!("{{{}}}", entries.join(","))
+        }
+        J::Array(items) => format!(
+            "[{}]",
+            items
+                .iter()
+                .map(|v| ordered_json(v, reverse))
+                .collect::<Vec<_>>()
+                .join(",")
+        ),
+        _ => serde_json::to_string(value).unwrap(),
+    }
+}
+
+fn result_bytes(rule: &Rule, inputs: &J) -> Vec<u8> {
+    // Compare the entire public result: trace, blockers, versions, evidence and both
+    // hashes as well as eligibility/payout. `observe` deliberately omits audit fields.
+    serde_json::to_vec(&rule.evaluate(inputs).unwrap()).unwrap()
+}
+
+fn assert_reproducible(source: &J, reloaded: &J, inputs: &J, id: &str) {
+    let rule = Rule::from_json(source).unwrap();
+    let expected = result_bytes(&rule, inputs);
+    assert_eq!(
+        expected,
+        result_bytes(&rule, inputs),
+        "{id}: repeat evaluation"
+    );
+    assert_eq!(source, reloaded, "{id}: disk reload changed source");
+    assert_eq!(
+        expected,
+        result_bytes(&Rule::from_json(reloaded).unwrap(), inputs),
+        "{id}: reload"
+    );
+
+    // Exercise rule and input ordering independently, so coupled order-dependent
+    // bugs cannot cancel each other out. Parse fresh JSON and load a fresh Rule.
+    assert_ne!(
+        ordered_json(source, false),
+        ordered_json(source, true),
+        "{id}: rule permutation must change wire bytes"
+    );
+    // The synthetic all-unknown case has no keys to permute.
+    if inputs.as_object().unwrap().len() > 1 {
+        assert_ne!(
+            ordered_json(inputs, false),
+            ordered_json(inputs, true),
+            "{id}: input permutation must change wire bytes"
+        );
+    }
+    for reverse_rule in [false, true] {
+        for reverse_input in [false, true] {
+            let rule_json: J = serde_json::from_str(&ordered_json(reloaded, reverse_rule)).unwrap();
+            let input_json: J = serde_json::from_str(&ordered_json(inputs, reverse_input)).unwrap();
+            assert_eq!(
+                &rule_json, source,
+                "{id}: permutation must preserve rule values"
+            );
+            assert_eq!(
+                &input_json, inputs,
+                "{id}: permutation must preserve input values"
+            );
+            assert_eq!(
+                expected,
+                result_bytes(&Rule::from_json(&rule_json).unwrap(), &input_json),
+                "{id}: rule reversed={reverse_rule}, input reversed={reverse_input}"
+            );
+        }
+    }
+}
+
+#[test]
+fn real_results_are_byte_identical_after_disk_reload_and_key_permutation() {
+    let rules = real_rules();
+    assert_eq!(
+        rules.keys().map(String::as_str).collect::<Vec<_>>(),
+        REAL_RULE_IDS,
+        "real rule inventory must stay at seven audited rules"
+    );
+    let mut per_rule = std::collections::BTreeMap::<String, usize>::new();
+    for (case, rule_id, inputs) in real_cases() {
+        // Read the fixture files again, rather than clone or re-evaluate the Rule.
+        let reloaded = real_rules();
+        assert_reproducible(
+            rules[&rule_id].source_json(),
+            reloaded[&rule_id].source_json(),
+            &inputs,
+            case["id"].as_str().unwrap(),
+        );
+        *per_rule.entry(rule_id).or_default() += 1;
+    }
+    assert_eq!(
+        per_rule.keys().collect::<Vec<_>>(),
+        rules.keys().collect::<Vec<_>>()
+    );
+    assert_eq!(
+        per_rule.values().sum::<usize>(),
+        105,
+        "all real cases must execute"
+    );
+    println!("I18 reloaded/key-permuted cases by rule: {per_rule:?}; 4 independent order combinations per case");
 }
 
 #[test]
@@ -172,6 +299,11 @@ fn real_rule_content_hashes_are_pinned() {
     let pinned = load_json(&fixtures_dir().join("real.content_hashes.json"));
     let pinned = pinned["hashes"].as_object().expect("hashes object");
     let rules = real_rules();
+    assert_eq!(
+        rules.keys().map(String::as_str).collect::<Vec<_>>(),
+        REAL_RULE_IDS,
+        "real rule inventory must stay at seven audited rules"
+    );
     let have: Vec<&String> = rules.keys().collect();
     let want: Vec<&String> = pinned.keys().collect();
     assert_eq!(
@@ -184,11 +316,28 @@ fn real_rule_content_hashes_are_pinned() {
             pinned[id].as_str(),
             "{id}: rule_content_hash changed; update real.content_hashes.json only if intended"
         );
-        // The result reports the same hash that is pinned.
-        let case = real_cases().into_iter().find(|(_, r, _)| r == id);
-        if let Some((_, _, inputs)) = case {
-            let got = observe_full(rule, &inputs);
-            assert_eq!(got["rule_content_hash"], pinned[id], "{id}");
-        }
     }
+    // Check every result, including unknown/not-payable paths. Missing cases must
+    // fail coverage rather than silently skip a rule through `if let Some`.
+    let mut per_rule = std::collections::BTreeMap::<String, usize>::new();
+    for (case, id, inputs) in real_cases() {
+        let got = rules[&id].evaluate(&inputs).unwrap();
+        assert_eq!(
+            Some(got.rule_content_hash.as_str()),
+            pinned[&id].as_str(),
+            "{id}/{}: result hash",
+            case["id"]
+        );
+        *per_rule.entry(id).or_default() += 1;
+    }
+    assert_eq!(
+        per_rule.keys().collect::<Vec<_>>(),
+        rules.keys().collect::<Vec<_>>()
+    );
+    assert_eq!(
+        per_rule.values().sum::<usize>(),
+        105,
+        "all real cases must execute"
+    );
+    println!("Pinned content hashes checked on every result: {per_rule:?}");
 }

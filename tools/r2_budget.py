@@ -41,8 +41,9 @@ Ledger size: records are never deleted, so a run reads the newest checkpoint plu
 (`checkpoint` writes one, `audit` recomputes all of them from the raw records, `lock-rules` checks the
 bucket lock proposal offline; infra/r2/checkpoint/DESIGN.md). Ordinary runs stop when the records after
 the newest checkpoint reach per_request.max_ledger_records: that is the backlog the cap counts, and the
-`checkpoint` command is its recovery path: its session may read past the cap and write its own two
-records beyond it, and the checkpoint written then covers the run's own reservation. Audit sessions
+`checkpoint` command is its recovery path: its session may read past the cap, but must persist the
+checkpoint under admission limits before appending its reservation. Failed checkpoint writes leave
+only an admission, so retries cannot grow the backlog. Every session keeps the append cap. Audits
 keep both cap checks so repeated audits cannot consume the admission headroom needed for recovery
 (infra/r2/checkpoint/DESIGN.md).
 
@@ -366,15 +367,15 @@ class Ledger:
     checkpoint (None before the first one) and self.base_seq the last record it covers.
     over_limit_ok is True only in sessions of the `checkpoint` command: it is the recovery path for a
     backlog that reached the record cap, so its reads may pass it (the meter still bounds every
-    request) and its own reservation and settlement may land beyond it — the
-    checkpoint written covers the session's reservation, so the cap on the records after the newest
-    checkpoint holds again for every ordinary run. All other ledgers keep both checks."""
+    request). It must write its checkpoint before reserving. Every ledger keeps the append cap,
+    including failed recovery sessions, so retries cannot grow an uncheckpointed backlog."""
 
     def __init__(self, st, policy, over_limit_ok=False):
         self.st, self.policy = st, policy
         self.base, self.base_seq, self.base_sha, self.genesis_sha = None, 0, None, None
         self.hashes = {}  # seq -> SHA-256 of every record read (audit compares checkpoints with these)
         self.over_limit_ok = over_limit_ok
+        self.checkpoint_result = None
 
     def _list(self, prefix):
         try:
@@ -597,11 +598,11 @@ class Ledger:
 
     def append(self, record_body, count, prev):
         """Write record count+1; Exists -> another run won the race. The record cap counts records
-        after the checkpoint this ledger last read; a recovery session (over_limit_ok) may write its
-        own two records beyond it."""
+        after the checkpoint this ledger last read. Recovery only bypasses the read cap; it must
+        persist a checkpoint before appending a reservation at the cap."""
         import source_archive as sa
         limit = self.policy["per_request"]["max_ledger_records"]
-        if not self.over_limit_ok and count - self.base_seq >= limit:
+        if count - self.base_seq >= limit:
             raise BudgetError(f"ledger has {count - self.base_seq} records after the last checkpoint >= {limit}; "
                               "checkpoint before writing")
         seq = count + 1
@@ -623,7 +624,7 @@ def headroom(policy, job, admissions, job_id, month):
     return {d: left_glob * lim[d] for d in DIMENSIONS}, {d: left_job * lim[d] for d in DIMENSIONS}
 
 
-def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
+def reserve(ledger, policy, job, run_id, month, admissions, attempts=None, checkpoint=False):
     """Reserve the job's per-run allowance; raises BudgetError if any cap would be exceeded."""
     import source_archive as sa
     attempts = attempts or policy["per_request"]["reserve_attempts"]
@@ -645,11 +646,19 @@ def reserve(ledger, policy, job, run_id, month, admissions, attempts=None):
             if used_job[d] + want[d] + room_job[d] > job["job_caps"][d]:
                 raise BudgetError(f"job {job['job_id']} {d}: used {used_job[d]} + reservation {want[d]} + "
                                   f"admission room {room_job[d]} > job cap {job['job_caps'][d]}")
+        count = ledger.base_seq + len(records)
+        if checkpoint:
+            # The admission pays for every request up to the reservation. Persist the checkpoint
+            # first: if this fails, neither reservation nor settlement can grow the backlog. Reuse
+            # the verified read and admissions so a full backlog still fits the admission meter.
+            ledger.checkpoint_result = write_checkpoint(ledger, known=(records, prev), admissions=admissions)
+            ledger.load_base()
+            known = None  # a reservation race must reread relative to the new checkpoint
         body = {"format": "onjeon-budget-ledger-v1", "kind": "reservation", "job_id": job["job_id"],
                 "job_sha256": job["_sha256"], "profile": job["_profile"], "run_id": run_id,
                 "at": stamp(), "amounts": dict(want)}
         try:
-            rec, rec_sha = ledger.append(body, ledger.base_seq + len(records), prev)
+            rec, rec_sha = ledger.append(body, count, prev)
             return rec, rec_sha, {d: policy["caps"][d] - glob[d] - want[d] for d in DIMENSIONS}
         except sa.Exists:
             continue  # lost the race: read the newer records, re-list admissions, re-check
@@ -739,13 +748,15 @@ def build_checkpoint(ledger, records, prev, admissions, at):
             "state": checkpoint_state(ledger.base, records, admissions, at)}
 
 
-def write_checkpoint(ledger, at=None):
-    """Summarise the ledger up to its current last record into checkpoint/v1/<seq>.json (write-once)."""
+def write_checkpoint(ledger, at=None, *, known=None, admissions=None):
+    """Summarise the ledger up to its current last record into checkpoint/v1/<seq>.json (write-once).
+    known/admissions reuse the verified reservation preflight without repeating metered reads."""
     import source_archive as sa
-    records, prev = ledger.read()
+    records, prev = ledger.read() if known is None else known
     if not records:
         return {"status": "nothing_new", "seq": ledger.base_seq}
-    cp = build_checkpoint(ledger, records, prev, ledger.admissions(), at or stamp())
+    cp = build_checkpoint(ledger, records, prev, ledger.admissions() if admissions is None else admissions,
+                          at or stamp())
     body = json.dumps(cp, ensure_ascii=False, sort_keys=True, indent=1).encode() + b"\n"
     if len(body) > CHECKPOINT_BYTES:
         raise BudgetError(f"checkpoint would be {len(body)} bytes > {CHECKPOINT_BYTES}; nothing was written")
@@ -845,9 +856,9 @@ def check_lock_rules(doc):
 
 class Session:
     """One budgeted run: run control, admission, reservation, metered requests, settlement.
-    Only purpose "checkpoint" lets the ledger pass the record cap (over_limit_ok), so the run that
-    clears a full backlog can proceed. Audit sessions keep both cap checks: they add records without
-    shrinking the backlog and must leave checkpoint admission headroom intact."""
+    Only purpose "checkpoint" lets the ledger read past the record cap (over_limit_ok). It persists
+    the checkpoint under admission limits before reserving. Audit sessions keep both cap checks:
+    they add records without shrinking the backlog and must leave checkpoint admission headroom intact."""
 
     def __init__(self, job_path, endpoint_url=None, ledger_store=None, policy_path=None, gate_dir=None,
                  purpose=None):
@@ -861,6 +872,7 @@ class Session:
         self._ledger_store = ledger_store
         self.gate = LocalGate(self.policy, self.job["job_id"], gate_dir)
         self.reservation = None
+        self.checkpoint_result = None
         self.purpose = purpose
         self.admitted = False
         self._alarm_installed = False  # True while our SIGALRM handler is in place
@@ -906,10 +918,12 @@ class Session:
                 self._refuse_and_maybe_close(month, admissions, BudgetError(
                     f"admissions for {month} used up; this run is recorded and refused"))
             try:
-                rec, _sha, remaining = reserve(self.ledger, self.policy, self.job, self.run_id, month, admissions)
+                rec, _sha, remaining = reserve(self.ledger, self.policy, self.job, self.run_id, month, admissions,
+                                              checkpoint=self.purpose == "checkpoint")
             except BudgetError as e:
                 self._refuse_and_maybe_close(month, admissions, e)
             self.reservation = rec
+            self.checkpoint_result = self.ledger.checkpoint_result
             self.meter.limits = dict(self.job["per_run"])  # counters keep everything since admission
             self.meter.deadline_s = self.job["per_run"]["seconds"]
             self.meter.archive_allowed = True
@@ -1023,7 +1037,7 @@ def _cli():
             raise BudgetError(f"profile {profile!r} cannot pay for a checkpoint write ({need} bytes needed)")
         s = start(f"{path}#{profile}", a.endpoint_url, purpose=a.cmd)
         try:
-            out = write_checkpoint(s.ledger) if a.cmd == "checkpoint" else audit_checkpoints(s.ledger)
+            out = s.checkpoint_result if a.cmd == "checkpoint" else audit_checkpoints(s.ledger)
             print(json.dumps(out, indent=1))
         finally:
             print("budget " + json.dumps(finish("ok")), file=sys.stderr)

@@ -1,6 +1,6 @@
 # audit3-r2-ledger-cap-lockout 실행 증거
 
-최신 수정·검증은 [fix-round1/README.md](fix-round1/README.md)를 참조한다. 아래 로그·해시·개수는 초기 수정 당시의 이력이며, 감사의 상한 우회는 fix round 1에서 제거했다.
+최신 수정·검증은 [fix-round2/README.md](fix-round2/README.md)를 참조한다. 실패한 체크포인트가 뒤받침을 키우지 않도록 체크포인트 저장을 예약 앞으로 옮기고 모든 쓰기에 상한을 적용했다. 아래 로그·해시·개수는 초기 수정 당시의 이력이며, 감사의 상한 우회는 fix round 1에서 제거했다.
 
 기준 커밋 `568c298f413c59e5b84718fe8fc70f45269de635` + 이 노드의 미커밋 변경. [감리 수정 기록](../../../docs/blueprint/audits/2026-10-28_ledger_cap_lockout.md)과 회귀 시험([test_r2_checkpoint.py](../../tests/test_r2_checkpoint.py) `Lockout`, [test_r2_budget.py](../../tests/test_r2_budget.py) `LedgerRecordCap`)을 참조한다. 수정 범위는 원본 보관 도구의 비용 통제이며 P01~P19 출시 완료 증거가 아니다.
 

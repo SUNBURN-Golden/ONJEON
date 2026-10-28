@@ -1,48 +1,40 @@
 # Audit 3 — 원장 상한 영구 잠금 해소
 
-대상: `audit3-r2-ledger-cap-lockout`, `tools/r2_budget.py::Ledger.read/append`, `Session`, `_cli`.
+대상: `audit3-r2-ledger-cap-lockout`, `tools/r2_budget.py::Ledger.read/append`, `reserve`, `Session`, `_cli`.
 연결: Blueprint A1·L1~L2·M1, ADR-0017, 09 제품 목적 대응표 P02·P03.
 
-## 발견과 수정
+## 현재 수정 — Fix round 2
 
-**발견 1 — 영구 잠금(진).** 실행마다 원장에 예약·정산 2건을 남기고, 체크포인트 이후 기록이 `max_ledger_records`(100)에 도달하면 `Ledger.read`가 `>=`로 거부한다. 뒤받침을 줄이는 `checkpoint` 명령도 같은 입장·예약 경로를 쓰므로 100건에서 그 명령의 예약 읽기가 거부되고, 99건에서는 자신의 예약이 100번째 자리를 쓴 뒤 `write_checkpoint`의 읽기가 거부된다. 정산 실행 약 50회(`sources` 워크플로 `reproduce`의 예산 실행 3회/회 기준 약 16회)면 아무 실행·명령도 뒤받침을 읽지 못하는 영구 잠금이었다.
+**검토 P1.** 앞 수정은 `checkpoint` 세션의 쓰기 상한을 무조건 우회했다. 체크포인트 PUT만 실패해도 예약·정산 두 건은 남아 100 → 102 → 104 → 106 → 108 → 110건이 됐다. 저장소가 복구되어도 다음 실행은 예약 전 Class B 입장 한도 110에 막혀 영구 잠금이 다시 생겼다.
 
-**수정.** `Ledger`에 `over_limit_ok`(기본 False)를 두어 `read`의 `>=` 거부와 `append`의 기록 수 거부를 넘는다(순번 연속·해시 연결·정책·genesis 검증과 계량기 요청 한도는 그대로). `Session`/`start`에 `purpose`를 추가하고 `purpose == "checkpoint"`일 때만 세션 원장에 이 플래그를 준다. `_cli`의 `checkpoint` 명령만 이 우회 목적을 지정하므로 `audit`·`status`·`verify`·`upload` 등 일반 실행은 변함없이 상한에 거부된다.
+**수정.** `over_limit_ok`는 복구 읽기에만 적용한다. `append()`의 상한은 모든 세션에 적용한다. 체크포인트 실행은 입장 → 원장 검증·전체/작업 예산·남은 입장 몫 검사 → 체크포인트 저장·확인 → 예약 → 정산 순서다. 예약 전 원장·입장 읽기 결과를 재사용하여 체크포인트를 저장하고 새 체크포인트를 읽어 확인한다. 그때까지 계량기는 입장 한도를 유지하며 자료 접근도 허용하지 않는다. CLI는 이때 저장한 결과를 출력하며 두 번째 체크포인트를 쓰지 않는다.
 
-복구 세션의 예약·정산 두 건은 상한을 넘어 쓰이지만, `checkpoint` 실행이 쓰는 체크포인트는 자신의 예약까지 덮는다. 그래서 100건에서의 복구는 예약 101번 → 체크포인트 101번 → 정산 102번으로 끝나고, 직후 일반 실행은 뒤따르는 기록 1건만 읽는다. `audit` 세션은 상한을 넘지 못한다. 감사는 뒤받침을 줄이지 않아 반복 실행이 체크포인트의 예약 전 읽기 입장 한도(Class B 110)까지 소진할 수 있기 때문이다. 100건에서 거부되면 체크포인트를 먼저 쓰고 감사를 실행한다. 예약 후 감사의 전체 이력 검증은 유지한다. 복구 세션도 예약 한도(전체·작업 caps)와 입장 한도·계량기는 그대로 지키며, 100건에서 예약 전 요청은 Class B 102~103회로 입장 한도 110 안에 든다.
+100건의 성공 경로는 체크포인트 100 → 예약 101 → 정산 102다. 뒤따르는 기록은 두 건이다. 체크포인트 PUT·크기 검사·확인 읽기가 실패하면 예약이 없으므로 정산도 없다. 실패한 입장은 계속 전액 계상된다. 실패 반복은 뒤받침을 키우지 않으며 저장소가 복구되면 같은 읽기 비용으로 복구를 재시도한다. 입장·프로필·전체/작업 caps·월별 입장 제한은 올리거나 우회하지 않았다.
 
-**발견 2 — `tail()`/`append()` 상한 미검사(부분 진).** `tail()`은 상한을 검사하지 않지만 읽기 전용이다. 쓰기 경비는 `append`의 `count - base_seq >= limit` 검사(Audit 2 경계 수정, `9eb76fd`)로 일반 경로의 101번째 기록을 저장소 PUT 전에 막는다. 현재 코드에서 일반 세션이 원장을 101건으로 만드는 경로는 없으며 시험으로 고정했다. 상한을 넘는 쓰기는 위 체크포인트 복구 세션의 예약·정산 두 건뿐이다.
+100건에서 예약 완료까지 요청은 Class A 7·Class B 103(기존 체크포인트가 있으면 B 104)으로 배포 입장 한도 A 8·B 110 안이다. 쓰기 직전에도 기존 상한을 지키므로 복구 플래그가 있어도 체크포인트 없는 101번째 쓰기는 거부된다. 예약 경쟁에서 지면 새 체크포인트 기준으로 다시 읽고 한도를 재검사한다.
 
-**발견 3 — 거부된 실행의 입장 기록(의도된 동작).** 입장 기록은 읽기 전에 쓰는 것이 원칙이다. 예약 전 요청의 상한이자 회계 근거이므로, 거부된 실행이 입장을 남기지 않으면 거부 반복이 공짜가 된다(이전 감리의 발견 1이 고친 결함). BUDGET.md §4에 명시됐고 기존 시험(`test_repeated_refused_runs_are_recorded_then_closed`, `test_ledger_get_exhausts_admission_before_reservation`)이 검증하므로 코드는 바꾸지 않는다.
+## 회귀와 증거
 
-## Fix round 1 — 반복 감사의 복구 여유 소진
+[`test_r2_checkpoint.py`](../../../tools/tests/test_r2_checkpoint.py)의 새 회귀 다섯 개:
 
-초기 수정은 감사에도 상한 우회를 허용했다. 검토자가 100건에서 감사 5회 후 110건이 되고 체크포인트 예약 전 읽기가 `class_b would reach 111 > limit 110`으로 막힘을 재현했다. 우회 대상을 체크포인트로 한정했다. 입장·프로필·비용 한도는 올리지 않았다. 새 회귀는 90건에서 감사 5회 성공 → 100건에서 감사 6회 거부 → 체크포인트 101·정산 102 → 일반 읽기 및 전체 감사 재개를 확인한다. S3 스텁에서도 배포된 입장 한도와 `verify`·`status` 프로필로 감사 6회 거부 후 체크포인트 입장 Class B 102, 복구 및 일반 실행 재개를 확인한다. 거부된 감사의 입장은 계속 기록되지만 원장 예약·정산은 늘지 않는다.
+- `EndToEnd.test_failed_checkpoint_retries_do_not_grow_backlog_or_block_recovery`: 루프백 S3의 실제 botocore 요청, 배포 입장 한도와 `initial-119.json`의 `verify`·`status` 프로필을 사용한다. 100건에서 체크포인트 PUT만 다섯 번 실패시켜도 원장은 매번 100건이고 입장만 1~5건 남는다. 서버의 실제 요청·업로드 바이트를 계량기와 대조하고 한도 안임을 확인한다. 쓰기 복구 뒤 체크포인트·예약·정산·일반 실행·전체 감사를 확인하며, 실패 입장 다섯 건이 전액 계상되고 요약/전체 원장의 사용량이 같은지도 확인한다. 시험의 전체·작업 caps는 격리했다.
+- `Lockout.test_checkpoint_cli_failure_retries_and_success_write_once`: 실제 CLI·세션·로컬 원장으로 다섯 실패 뒤 성공, 실패 시 예약 없음·ACTIVE 없음·잠금 해제, 성공 시 체크포인트 한 번만 저장·정산 102를 확인한다.
+- `Lockout.test_failed_checkpoint_size_check_keeps_backlog_and_reservation_unchanged`: 크기 검사 실패 다섯 번도 뒤받침을 늘리지 않으며 검사 복구 뒤 성공한다.
+- `Lockout.test_checkpoint_reservation_race_rereads_from_the_new_base`: 체크포인트 저장 뒤 예약 경쟁을 주입해 새 기준점으로 다시 읽고 체크포인트 연결·전체 감사를 통과한다.
+- `Lockout.test_checkpoint_session_on_empty_or_already_summarised_ledger`: 빈 원장·이미 요약된 원장의 `nothing_new` 뒤 예약·정산도 정상이다.
 
-최신 실행 결과: [fix-round1 증거](../../../tools/evidence/audit3-ledger-cap-lockout/fix-round1/README.md). 아래 초기 로그는 첫 수정 당시의 이력이며 이번 회귀 실행으로 대체된다.
+기존 회귀도 현재 순서로 갱신했다: 99/100건·기존 체크포인트 뒤 100건 복구, 일반 세션/반복 감사의 상한 준수, 복구 플래그가 있는 `append()`의 상한 강제, 전체/작업 예산 거부 유지. [`test_r2_budget.py`](../../../tools/tests/test_r2_budget.py)의 `LedgerRecordCap`은 읽기 전용 `tail()` 뒤 일반 `append()`가 101번째 PUT을 보내지 않음을 계속 확인한다.
 
-## 회귀 증거
+최신 실행 결과와 소스/증거 해시: [fix-round2 증거](../../../tools/evidence/audit3-ledger-cap-lockout/fix-round2/README.md).
 
-- [`test_r2_checkpoint.py`](../../../tools/tests/test_r2_checkpoint.py) `Lockout` 8개: 100건에서 일반 세션 거부·입장 기록·로컬 잠금 해제, `checkpoint` 세션의 예약 101·체크포인트 101·정산 102와 직후 기록 1건 읽기, 99건에서 자기 예약을 덮는 체크포인트, 기존 체크포인트 뒤 100건 해소(예약 199·체크포인트 199·정산 200), `start`/`finish` 명령 경로, 반복 `audit`의 상한 준수·체크포인트 복구·복구 후 전체 감사, 플래그 미지정 원장의 읽기·쓰기 거부 유지, 복구 세션의 전체 한도 거부 유지.
-- 같은 파일의 `EndToEnd.test_checkpoint_session_at_the_cap_stays_metered_and_clears_it`: 루프백 S3 스텁에서 100건 원장의 복구 실행이 예약 전 Class A 5·Class B 102(입장 한도 안), 전체 실행이 프로필 한도 안이고, 직후 일반 실행의 원장 GET이 2회임을 서버 기록으로 대조한다.
-- [`test_r2_budget.py`](../../../tools/tests/test_r2_budget.py) `LedgerRecordCap.test_tail_reads_the_cap_but_append_cannot_extend_it`: `tail()`은 실제 꼬리를 보고하고 `append()`가 101번째 PUT 전에 거부해 원장이 100건에서 멈춤을 고정한다.
-- [수정 전 로그](../../../tools/evidence/audit3-ledger-cap-lockout/before.log): `git show HEAD:tools/r2_budget.py`를 메모리에만 로드해 실행했다. 100건 원장에서 `write_checkpoint`와 일반 세션이 모두 `ledger has 100 records ... >= 100`으로 거부(영구 잠금 재현), 신규 회귀 10개 중 8개 오류(`purpose`·`over_limit_ok` API 부재), `tail`/`append` 대조 시험은 통과(쓰기 경비가 이미 있었음을 확인), S3 스텝 시험 1개는 격리 실행에서 boto3 부재로 건너뜀.
-- [수정 후 로그](../../../tools/evidence/audit3-ledger-cap-lockout/after.log): 같은 절차에서 일반 원장·일반 세션은 계속 거부되고, `purpose="checkpoint"` 세션은 예약 101·체크포인트 101·정산 102를 쓴 뒤 다음 읽기가 `base_seq 101`·기록 `[102]`임을 확인한다. 신규 회귀 10개 모두 통과.
+## 앞선 발견과 수정 이력
+
+- 최초 발견: 실행마다 예약·정산 두 건이 쌓여 약 50회 뒤 100건 읽기 상한에 걸렸고, 복구 명령도 같은 상한에 막혔다. 처음에는 복구와 감사 세션 모두 상한을 우회했다([초기 증거](../../../tools/evidence/audit3-ledger-cap-lockout/README.md)).
+- Fix round 1: 반복 감사가 뒤받침을 키우는 경로를 막기 위해 우회를 체크포인트 세션으로 한정했다([당시 증거](../../../tools/evidence/audit3-ledger-cap-lockout/fix-round1/README.md)). 이번 수정은 체크포인트 실패 반복에도 같은 불변식을 적용한다.
+- 거부된 실행의 입장 기록은 의도된 회계다. 읽기 전에 남기며 정산되지 않으면 입장 한도 전액이 사용량에 잡힌다. 거부·복구 실패 반복도 무료 요청이 되지 않는다(`infra/r2/BUDGET.md` §4). 이를 삭제하지 않는다.
 
 ## 검증 범위
 
-임시 로컬 원장과 루프백 S3 스텁으로 시험했다. 실제 R2에 접근하거나 자격 증명을 사용하지 않았고, 커밋·푸시·GitHub 호출도 하지 않았다. 모두 이 작업 트리에서 실행했다.
+이 작업 트리의 임시 로컬 원장과 루프백 S3 스텁만 사용했다. 실제 R2·외부 서비스·자격 증명을 사용하거나 커밋·푸시·GitHub 호출을 하지 않았다. 월별 입장·비용 한도 소진은 여전히 정당한 거부다. 이미 입장 읽기 한도를 넘은 과거의 비정상 원장을 복원했다는 증거는 아니다.
 
-| 명령 | 결과 | 증거 |
-|---|---|---|
-| `python3 -m unittest discover -s tools/tests -p 'test_r2*.py' -v` | 117개 통과, 종료 0 | [예산·체크포인트 로그](../../../tools/evidence/audit3-ledger-cap-lockout/budget-tests.log) |
-| `env -u CARGO_TARGET_DIR python3 -m unittest discover -s tools/tests -v` | 1,220개 실행, 통과·건너뜀 6, 종료 0 | [전체 Python 로그](../../../tools/evidence/audit3-ledger-cap-lockout/python-tests.log) |
-| `cargo test --all --locked` | 466개 통과·실패 0·1개 무시, 종료 0 | [Rust 로그](../../../tools/evidence/audit3-ledger-cap-lockout/rust-tests.log) |
-| `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings` | 모두 종료 0 | [Rust 린트 로그](../../../tools/evidence/audit3-ledger-cap-lockout/rust-lint.log) |
-| 어휘·검증 자료·검증기 selftest·설계 수치(`blueprint_counts`)·잠금 규칙 CLI·설계 묶음 `spec_check`·데몬 `dry_run --require-all`·`git diff --check` | 모두 종료 0 | [정합성 검사 로그](../../../tools/evidence/audit3-ledger-cap-lockout/consistency-checks.log) |
-
-Python 건너뜀 6개는 비공개 로컬 원본이 필요한 기존 검사 5개와 설치된 botocore에는 해당하지 않는 구버전 검사 1개다. 신규 회귀 시험은 모두 실행·통과했다.
-
-추가 `tools/ci/tests` 실행에서는 의존성 검사 시험 2개가 기존 DEP-ZONE 위반 3건(`packages/ontology` → `onjeon-rules-engine`)으로 실패했다. 관련 파일(`packages/ontology/Cargo.toml`, `packages/ontology/tests/common/mod.rs`, `packages/ontology/tests/fixture_origin/main.rs`, `infra/ci/deps.json`)은 모두 HEAD와 바이트 단위로 같고 이 노드는 해당 의존성 정책·코드를 바꾸지 않는다([정합성 검사 로그](../../../tools/evidence/audit3-ledger-cap-lockout/consistency-checks.log)).
-
-이 증거는 원본 보관 도구의 비용 통제 경계에 한정한다. 실제 공시 확보율·R2 관측 목록 대조·화면·출시 완료 증거를 대신하지 않으며 P02·P03을 완료 처리하지 않는다.
+이 증거는 보관 도구의 비용 통제 경계에 한정하며 실제 공시 확보율·R2 관측 대조·화면·출시 완료 증거를 대신하지 않는다. P02·P03을 완료 처리하지 않는다.

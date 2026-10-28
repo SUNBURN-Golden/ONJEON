@@ -1,4 +1,4 @@
-"""Audit 2: bounded source admission and final-URL provenance before permanent writes.
+"""Audits 2/3: bounded source admission and redirect handling before permanent writes.
 
 Only loopback sockets and temporary local archives are used; no insurer or R2 access.
 """
@@ -46,6 +46,42 @@ class Response(io.BytesIO):
 
 
 class RedirectPolicy(unittest.TestCase):
+    def test_redirect_bodies_are_closed_unread_for_every_code_and_length(self):
+        for code in (301, 302, 303, 307, 308):
+            for length in (None, "invalid", 1, vs.MAX_FETCH_BYTES + 1):
+                with self.subTest(code=code, length=length):
+                    req = urllib.request.Request("https://example.org/start")
+                    req.timeout = 120
+                    response = Response(b"untrusted redirect body", length=length)
+                    headers = Message()
+                    headers["Location"] = "/document"
+                    handler = vs.PolicyRedirectHandler()
+                    handler.parent = mock.Mock()
+                    handler.parent.open.return_value = sentinel = object()
+                    result = getattr(handler, f"http_error_{code}")(req, response, code, "redirect", headers)
+                    self.assertIs(result, sentinel)
+                    self.assertTrue(response.closed)
+                    self.assertEqual(response.read_sizes, [])
+                    redirected = handler.parent.open.call_args.args[0]
+                    self.assertEqual(redirected.full_url, "https://example.org/document")
+                    self.assertEqual(redirected.redirect_dict, {redirected.full_url: 1})
+
+    def test_redirect_bodies_close_on_rejection_without_opening_target(self):
+        for code in (301, 302, 303, 307, 308):
+            for target in ("//other.org/document", "http://example.org/document", "file:///tmp/document"):
+                with self.subTest(code=code, target=target):
+                    req = urllib.request.Request("https://example.org/start")
+                    response = Response(b"untrusted redirect body")
+                    headers = Message()
+                    headers["Location"] = target
+                    handler = vs.PolicyRedirectHandler()
+                    handler.parent = mock.Mock()
+                    with self.assertRaises((vs.FetchRejected, urllib.error.HTTPError)):
+                        getattr(handler, f"http_error_{code}")(req, response, code, "redirect", headers)
+                    handler.parent.open.assert_not_called()
+                    self.assertTrue(response.closed)
+                    self.assertEqual(response.read_sizes, [])
+
     def test_every_redirect_code_refuses_cross_origin_before_standard_handler(self):
         source = urllib.request.Request("https://example.org/source")
         targets = (
@@ -172,6 +208,21 @@ class ResponseAdmission(unittest.TestCase):
                     vs.fetch("https://example.org/start", max_bytes=cap)
                 opener.assert_not_called()
 
+    def test_default_cap_rejects_declared_oversize_without_reading(self):
+        self.assertEqual(vs.MAX_FETCH_BYTES, 256 * 1024 * 1024)
+        response = Response(PDF, length=vs.MAX_FETCH_BYTES + 1)
+        with self.assertRaises(vs.FetchTooLarge):
+            self.fetch_with(response)
+        self.assertEqual(response.read_sizes, [])
+
+    def test_streaming_cap_applies_across_multiple_chunks(self):
+        cap = 1024 * 1024 + len(PDF)
+        response = Response(PDF + b"x" * (cap + 100))
+        with self.assertRaises(vs.FetchTooLarge):
+            self.fetch_with(response, max_bytes=cap)
+        self.assertEqual(response.read_sizes, [1024 * 1024, len(PDF) + 1])
+        self.assertEqual(sum(response.read_sizes), cap + 1)
+
     def test_unsupported_expectation_never_opens(self):
         with mock.patch.object(vs.urllib.request, "build_opener") as opener:
             with self.assertRaisesRegex(vs.FetchRejected, "unsupported_format"):
@@ -215,12 +266,18 @@ class DetectLocalHTTP(unittest.TestCase):
             def do_GET(self):
                 cls.requests.append(self.path)
                 targets = {"/start": "/middle", "/middle": "/document?edition=2",
+                           "/redirect-body": "/document", "/chain-external": "/external",
+                           "/relative-external": f"//localhost:{self.server.server_port}/must-not-fetch",
                            "/denied-start": "/denied",
                            "/external": f"http://localhost:{self.server.server_port}/must-not-fetch",
                            "/loop": "/loop"}
                 if self.path in targets:
                     self.send_response(302)
                     self.send_header("Location", targets[self.path])
+                    if self.path == "/redirect-body":
+                        # Never send this body: following the redirect must not wait
+                        # for or buffer its declared bytes, even at the default cap.
+                        self.send_header("Content-Length", str(vs.MAX_FETCH_BYTES + 1))
                     self.end_headers()
                     return
                 mime = "text/html" if self.path in ("/waf", "/public") else "application/pdf"
@@ -286,9 +343,22 @@ class DetectLocalHTTP(unittest.TestCase):
             self.assertFalse((root / "downloads").exists())
             self.assertEqual(list((root / "archive").rglob("*")), [])
 
+    def test_redirect_body_is_ignored_and_only_final_document_is_archived(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            code, result = self.run_detect(root, "/redirect-body", cap=len(PDF))
+            self.assertEqual((code, result["status"]), (0, "changed"))
+            self.assertEqual(result["final_url"], self.origin + "/document")
+            self.assertEqual((root / "downloads/source/document").read_bytes(), PDF)
+            observation = json.loads((root / "archive" / result["observation"]).read_text())
+            self.assertEqual(observation["bytes"], len(PDF))
+            self.assertEqual((root / "archive" / observation["object_key"]).read_bytes(), PDF)
+
     def test_rejected_fetch_never_changes_cache_or_permanent_archive(self):
         for path, fmt, cap, reason in (
             ("/external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
+            ("/chain-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
+            ("/relative-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/loop", "text_pdf", vs.MAX_FETCH_BYTES, "HTTPError"),
             ("/waf", "text_pdf", vs.MAX_FETCH_BYTES, "content_type_mismatch"),
             ("/waf", "html", vs.MAX_FETCH_BYTES, "block_page"),

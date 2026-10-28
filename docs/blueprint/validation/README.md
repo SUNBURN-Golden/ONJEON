@@ -46,6 +46,8 @@ python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --
 
 `detect`의 리다이렉트는 같은 scheme·host·유효 port에서만 허용한다(기본 포트 명시는 동일하게 취급). 다른 호스트·포트·프로토콜로의 이동은 다음 요청 전에 거부하며 HTTPS→HTTP도 포함한다. 성공 보고서와 새 보관 관측의 `url`·`final_url`은 실제 최종 응답 URL이고 `requested_url`은 입력 URL이다. 응답은 HTTP 200, 표본 형식에 맞는 MIME, 비어 있지 않은 본문과 PDF/HTML 시그니처를 검사한 뒤 저장한다. PDF는 공시 다운로드의 `application/octet-stream`·`binary/octet-stream`을 `%PDF-` 시그니처와 함께 허용한다. HTML은 앞 64 KiB에서 알려진 WAF·챌린지·로그인·접근 거부 신호를 검사한다. 기존 256 MiB 상한은 유지하며 선언 길이가 넘으면 본문을 읽지 않고, 실제 스트림이 넘으면 상한 + 1바이트에서 멈춘다. 거부된 응답은 `fetch_failed`·종료 1이고 `--archive-new`로도 캐시·원본·성공 관측을 쓰지 않는다. 이는 완전한 문서 파싱이나 모든 차단 페이지의 탐지를 보증하지 않는다. [Audit 2 로컬 검증 증거](../audits/2026-10-26_fetch_redirect_blockpage.md).
 
+Audit 3에서는 표준 urllib가 다음 URL을 열기 전에 중간 30x 본문을 무제한 `read()`하는 경로도 제거했다. 301·302·303·307·308 본문은 읽지 않고 연결을 닫으며, URL 정규화·출처 제한·루프 제한은 유지한다. 최종 문서만 위의 256 MiB 검사를 거쳐 해시·다운로드·보관 대상이 된다. [기준 코드 실패 재현과 회귀 검증](../audits/2026-10-28_verify_sources_redirect_cap.md).
+
 동적 HTML은 받을 때마다 세션 ID 등으로 바이트가 달라진다. 받은 바이트는 매번 새 원본으로 보존한다. `content_sha256`은 변경 감지의 보조 지표이고, 같아도 결과는 `bytes_changed_content_same`이지 바이트 일치가 아니다. 현재 규칙은 `html-visible-text-v3`다(`tools/html_content_hash.py`). 링크의 `sid`·`_t`·`_`·`ts`·`timestamp`는 사이트에 따라 문서 식별자일 수 있어 호스트별 목록(`HOST_VOLATILE_PARAMS`, 현재 KB손해보험의 `_t`)에서만 제거하고, `jsessionid`·`sessionid`·`phpsessid`는 모든 호스트에서 제거한다. KB의 목록이 실제 페이지의 변동 파라미터를 모두 덮는지는 비공개 원본으로 아직 확인하지 않았다.
 
 v3는 HTML 파서로 따옴표 없는 링크 속성까지 읽고, 모든 요소의 `onclick` 전체를 보수적으로 보존한다. JavaScript 실행이나 파일명 추정 없이 다운로드 인수·계산식 변경을 감지하며, 핸들러 안의 세션 값·코드 변경도 `changed`가 될 수 있다. HTML 엔티티는 한 번 해제한다. v1·v2 기준선은 v3와 비교하지 않는다. [Audit 2 회귀·변경 감지 검증 증거](../audits/2026-10-27_content_hash_onclick_links.md).

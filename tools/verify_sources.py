@@ -19,8 +19,9 @@ detect     현재 출처 변경 감지 — fetch permitted recorded URLs and com
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a
 cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: same-origin
 redirects only, final URL recorded, MIME/signature and known HTML block-page checks before any
-write. Bodies over MAX_FETCH_BYTES are refused (streaming stops at cap + 1 byte). TLS verification
-stays on; only network errors are retried. Rejections are `fetch_failed`, never new originals.
+write. Redirect response bodies are closed unread. Final bodies over MAX_FETCH_BYTES are refused
+(streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
+Rejections are `fetch_failed`, never new originals.
 
 Usage:
   verify_sources.py reproduce --raw file:///archive/raw [--derived file:///archive/derived] [--ocr] --report r.json
@@ -32,6 +33,7 @@ import csv
 import datetime as dt
 import hashlib
 import html
+import io
 import json
 import os
 import re
@@ -383,6 +385,16 @@ def check_redirect(source, target):
 
 
 class PolicyRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def http_error_302(self, req, fp, code, msg, headers):
+        # urllib drains each admitted redirect with an unbounded fp.read() before
+        # opening the next URL. These bytes are not the source document: close the
+        # connection unread and give the standard URL/loop handling an empty body.
+        fp.close()
+        with io.BytesIO() as empty_body:
+            return super().http_error_302(req, empty_body, code, msg, headers)
+
+    http_error_301 = http_error_303 = http_error_307 = http_error_308 = http_error_302
+
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         try:
             check_redirect(req.full_url, newurl)

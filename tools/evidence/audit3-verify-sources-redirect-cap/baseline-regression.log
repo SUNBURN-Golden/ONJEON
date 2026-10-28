@@ -1,0 +1,350 @@
+Baseline HEAD: faeee9e3182a4c4057497c1e923d1d01ccaed0ce
+test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) ... 
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length=None) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length='invalid') ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length=1) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length=268435457) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length=None) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length='invalid') ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length=1) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length=268435457) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length=None) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length='invalid') ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length=1) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length=268435457) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length=None) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length='invalid') ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length=1) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length=268435457) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length=None) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length='invalid') ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length=1) ... FAIL
+  test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length=268435457) ... FAIL
+test_redirect_bodies_close_on_rejection_without_opening_target (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_close_on_rejection_without_opening_target) ... ok
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length='invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=301, length=268435457)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length='invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=302, length=268435457)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length='invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=303, length=268435457)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length='invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=307, length=268435457)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length='invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+======================================================================
+FAIL: test_redirect_bodies_are_closed_unread_for_every_code_and_length (test_verify_sources_fetch.RedirectPolicy.test_redirect_bodies_are_closed_unread_for_every_code_and_length) (code=308, length=268435457)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-verify-sources-redirect-cap/tools/tests/test_verify_sources_fetch.py", line 64, in test_redirect_bodies_are_closed_unread_for_every_code_and_length
+    self.assertEqual(response.read_sizes, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [-1] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+-1
+
+- [-1]
++ []
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.007s
+
+FAILED (failures=20)
+
+Expected failure reproduction: tests=2, failures=20, errors=0

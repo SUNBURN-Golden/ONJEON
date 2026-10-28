@@ -41,12 +41,12 @@ BLUEPRINT A2·A5, Q2·Q5·Q7, L6, I1·I18, M0 엔진 유지보수 및
 | 명령 | 결과·증거 |
 |---|---|
 | `cargo test -p onjeon-rules-engine --locked --offline --test all_any_errors --test unknown_branch_errors --test soundness` | 집중 시험 24개 통과: [focused.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/focused.log) |
-| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | Rust 단위·통합·문서 시험 469개 통과, 실패 0, 기존 ignored 1개. 내부 Python 시험 39개·129개 통과. 골든 trace·해시·변이·건전성·실제 조항 포함: [workspace.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/workspace.log) |
+| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | Rust 단위·통합·문서 시험 470개 통과, 실패 0, 기존 ignored 1개. 내부 Python 시험 39개·129개 통과. 엔진 `golden.rs` 8개(실제 조항 재로딩·키 순서 변경 재현성 포함), 골든 trace·해시·변이·건전성·실제 조항 포함: [workspace.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/workspace.log) |
 | `python3 -I packages/rules-engine/evidence/audit3-all-any-short-circuit/negative_control.py` | 작업 트리 내부 임시 크레이트에서 정상 평가기 7개 통과. 자식 평가에 즉시 반환 `?`를 복원하면 새 2항 시험 둘 모두 `DateOutOfRange`로 실패(101). 실제 평가기는 변경하지 않음: [음성 대조 요약](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/negative-control.log), [정상 로그](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/control-baseline.log), [변이 로그](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/control-eager-error.log) |
 | `cargo test -p onjeon-rules-engine --locked --offline --test readme_test_table` | 최종 README와 시험 목록 정합성 4개 통과: [readme-tests.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/readme-tests.log) |
 | `cargo fmt --all -- --check` | 통과, 진단 없음: [fmt.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/fmt.log) |
 | `cargo clippy --all-targets --locked --offline -- -D warnings` | 통과: [clippy.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/clippy.log) |
-| `python3 -I tools/blueprint_counts.py --write` 후 `python3 -I tools/blueprint_counts.py` | §11 엔진 등록 수 204개·doctest 3개와 정본 일치: [counts-write.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/counts-write.log), [counts.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/counts.log) |
+| `python3 -I tools/blueprint_counts.py --write` 후 `python3 -I tools/blueprint_counts.py` | §11 엔진 등록 수 205개·doctest 3개와 정본 일치: [counts-write.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/counts-write.log), [counts.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/counts.log) |
 | `python3 -I -m unittest discover -s tools/tests -p test_blueprint_counts.py -v` | 17개 통과: [counts-tests.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/counts-tests.log) |
 | `python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v` | 14개 통과: [purpose-tests.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/purpose-tests.log) |
 | `python3 -I tools/ci/check_product_purpose.py` | P01~P19 작업 연결·필수 시험 등록 검사 통과: [product-purpose.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/product-purpose.log) |
@@ -57,6 +57,21 @@ BLUEPRINT A2·A5, Q2·Q5·Q7, L6, I1·I18, M0 엔진 유지보수 및
 기록했다. [scope.log](../../../packages/rules-engine/evidence/audit3-all-any-short-circuit/scope.log)는
 허용 경로·보호 문서 불변·평가기와 기존 fixture 불변·로컬 링크·공백 검사를 기록한다.
 commit·push·GitHub 호출은 수행하지 않았다.
+
+## Fix round 1: CI 수치·실행 증거 갱신
+
+CI run `40699142278`의 `Blueprint counts` 실패는 §11의 204개 표기가
+기준 HEAD `7493bf4`의 엔진 시험 205개와 달랐기 때문이다. 같은 HEAD의
+엔진 `golden.rs`는 8개인데 이전 작업 공간 로그에는 7개만 실행돼 있었다.
+`tools/blueprint_counts.py --write`로 생성 표를 갱신하고 작업 공간 전체 시험,
+집중 시험 24개, 수치 검사기 시험 17개, fmt·clippy를 다시 실행해 모두 통과했다.
+위 표의 해당 로그를 이번 실행 결과로 교체했다. 평가기·시험 코드는 변경하지 않았다.
+기존 수치 검사기의 `test_each_live_count_change_requires_refresh`와
+`test_cli_is_read_only_until_explicit_write_and_returns_drift`가 수치 변동의
+실패·갱신 후 통과를 검증한다.
+
+검증 산출물은 이 작업 트리 내부의 Cargo target에 생성했다. 원격 CI 재실행·확인은
+supervisor 담당이며, 이번 결과는 로컬 검증이다.
 
 ## 제품 목적과 한계
 

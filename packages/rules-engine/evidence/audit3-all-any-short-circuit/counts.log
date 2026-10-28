@@ -1,1 +1,4 @@
-BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 204, "tamper_tests": 38, "vocabulary_axes": 49}
+Command: python3 -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 205, "tamper_tests": 38, "vocabulary_axes": 49}
+
+Exit: 0

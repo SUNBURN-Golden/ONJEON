@@ -1,3 +1,4 @@
+Command: python3 -I -m unittest discover -s tools/tests -p test_blueprint_counts.py -v
 test_counts_registered_tests_in_multiple_binaries (test_blueprint_counts.CargoListing.test_counts_registered_tests_in_multiple_binaries) ... ok
 test_incomplete_or_inconsistent_listings_fail_closed (test_blueprint_counts.CargoListing.test_incomplete_or_inconsistent_listings_fail_closed) ... ok
 test_cli_discovery_failure_preserves_document_even_with_write (test_blueprint_counts.DocumentCounts.test_cli_discovery_failure_preserves_document_even_with_write) ... ok
@@ -17,6 +18,8 @@ test_no_rules_is_an_error (test_blueprint_counts.SourceCounts.test_no_rules_is_a
 test_source_additions_change_the_counts (test_blueprint_counts.SourceCounts.test_source_additions_change_the_counts) ... ok
 
 ----------------------------------------------------------------------
-Ran 17 tests in 0.011s
+Ran 17 tests in 0.009s
 
 OK
+
+Exit: 0

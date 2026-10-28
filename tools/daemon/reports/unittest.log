@@ -1,4 +1,4 @@
-# generated from parent commit e1c5f14c0de0e428e46fcb975e412f909d9557ed + tree hash of tools/daemon sources sha256:f7a8385353dfe2b8e7d43db0789f659cf02e9075ccf223614ac6897da905f7f7
+# generated from parent commit 847596e8641de2546fe7bfb37e159a0d370fd900 + tree hash of tools/daemon sources sha256:7bf5b859f1e336b71b1f400297bd59b240b06315a2692018e4c8c65de565bc05
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -172,6 +172,8 @@ test_every_pass_row_prints_equal_expected_and_actual (tools.tests.test_daemon_dr
 test_late_result_row_shows_no_remote_write (tools.tests.test_daemon_dry_run.ReportValues.test_late_result_row_shows_no_remote_write) ... ok
 test_body_text_values_must_be_nonblank_including_list_items (tools.tests.test_daemon_dry_run.ResultGates.test_body_text_values_must_be_nonblank_including_list_items) ... ok
 test_forbidden_wins_inside_allowed_paths (tools.tests.test_daemon_dry_run.ResultGates.test_forbidden_wins_inside_allowed_paths) ... ok
+test_invalid_or_duplicate_secret_result_keeps_earlier_rejection (tools.tests.test_daemon_dry_run.ResultGates.test_invalid_or_duplicate_secret_result_keeps_earlier_rejection) ... ok
+test_invalid_secret_scan_boundary_prevents_startup (tools.tests.test_daemon_dry_run.ResultGates.test_invalid_secret_scan_boundary_prevents_startup) ... ok
 test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) ... ok
 test_malformed_scope_configuration_fails_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_scope_configuration_fails_closed) ... ok
 test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) ... ok
@@ -184,6 +186,9 @@ test_predicates_recheck_the_pr_transition (tools.tests.test_daemon_dry_run.Resul
 test_required_body_fields_are_read_from_rules (tools.tests.test_daemon_dry_run.ResultGates.test_required_body_fields_are_read_from_rules) ... ok
 test_scope_applies_to_failed_results_too (tools.tests.test_daemon_dry_run.ResultGates.test_scope_applies_to_failed_results_too) ... ok
 test_scope_failure_precedes_body_failure (tools.tests.test_daemon_dry_run.ResultGates.test_scope_failure_precedes_body_failure) ... ok
+test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) ... ok
+test_secret_scan_order_is_read_from_rules (tools.tests.test_daemon_dry_run.ResultGates.test_secret_scan_order_is_read_from_rules) ... ok
+test_stale_or_expired_secret_result_cannot_revoke_current_lease (tools.tests.test_daemon_dry_run.ResultGates.test_stale_or_expired_secret_result_cannot_revoke_current_lease) ... ok
 test_stale_result_cannot_trigger_scope_or_body_rejection (tools.tests.test_daemon_dry_run.ResultGates.test_stale_result_cannot_trigger_scope_or_body_rejection) ... ok
 test_claimed_family_must_match_the_registry (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_claimed_family_must_match_the_registry) ... ok
 test_family_comes_from_the_registry (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_family_comes_from_the_registry) ... ok
@@ -299,6 +304,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 276 tests in 76.568s
+Ran 281 tests in 64.188s
 
 OK

@@ -53,6 +53,7 @@ class DaemonCore:
             raise SpecGap("operations.handle_event: result events require submit_envelope")
         lease_mod.check_mark_sent(rules)
         self.guard_wait = lease_mod.check_guard_wait(rules)
+        self.envelope_secret_scan_after = fencing.secret_scan_after(rules)
 
     # ---- state access
     def snapshot(self):

@@ -1,0 +1,101 @@
+test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) ... 
+  test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=False, body_bad=True, status='pr_opened') ... FAIL
+  test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=False, status='pr_opened') ... FAIL
+  test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=False, status='failed_tests') ... FAIL
+  test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=True, status='pr_opened') ... FAIL
+  test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=True, status='failed_tests') ... FAIL
+test_stale_or_expired_secret_result_cannot_revoke_current_lease (tools.tests.test_daemon_dry_run.ResultGates.test_stale_or_expired_secret_result_cannot_revoke_current_lease) ... ok
+
+======================================================================
+FAIL: test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=False, body_bad=True, status='pr_opened')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1532, in test_secret_precedes_scope_and_body_failures
+    self.assertEqual(out["transition"], ("building", "returned", "secret_detected"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != ('building', 'returned', 'secret_detected')
+
+======================================================================
+FAIL: test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=False, status='pr_opened')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1532, in test_secret_precedes_scope_and_body_failures
+    self.assertEqual(out["transition"], ("building", "returned", "secret_detected"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'returned', 'result_out_of_scope') != ('building', 'returned', 'secret_detected')
+
+First differing element 2:
+'result_out_of_scope'
+'secret_detected'
+
+- ('building', 'returned', 'result_out_of_scope')
+?                             ---  ^^ ^^^^^ ^^
+
++ ('building', 'returned', 'secret_detected')
+?                           +++    ^^ ^ ^ +
+
+
+======================================================================
+FAIL: test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=False, status='failed_tests')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1532, in test_secret_precedes_scope_and_body_failures
+    self.assertEqual(out["transition"], ("building", "returned", "secret_detected"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'returned', 'result_out_of_scope') != ('building', 'returned', 'secret_detected')
+
+First differing element 2:
+'result_out_of_scope'
+'secret_detected'
+
+- ('building', 'returned', 'result_out_of_scope')
+?                             ---  ^^ ^^^^^ ^^
+
++ ('building', 'returned', 'secret_detected')
+?                           +++    ^^ ^ ^ +
+
+
+======================================================================
+FAIL: test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=True, status='pr_opened')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1532, in test_secret_precedes_scope_and_body_failures
+    self.assertEqual(out["transition"], ("building", "returned", "secret_detected"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'returned', 'result_out_of_scope') != ('building', 'returned', 'secret_detected')
+
+First differing element 2:
+'result_out_of_scope'
+'secret_detected'
+
+- ('building', 'returned', 'result_out_of_scope')
+?                             ---  ^^ ^^^^^ ^^
+
++ ('building', 'returned', 'secret_detected')
+?                           +++    ^^ ^ ^ +
+
+
+======================================================================
+FAIL: test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) (scope_bad=True, body_bad=True, status='failed_tests')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1532, in test_secret_precedes_scope_and_body_failures
+    self.assertEqual(out["transition"], ("building", "returned", "secret_detected"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'returned', 'result_out_of_scope') != ('building', 'returned', 'secret_detected')
+
+First differing element 2:
+'result_out_of_scope'
+'secret_detected'
+
+- ('building', 'returned', 'result_out_of_scope')
+?                             ---  ^^ ^^^^^ ^^
+
++ ('building', 'returned', 'secret_detected')
+?                           +++    ^^ ^ ^ +
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.067s
+
+FAILED (failures=5)

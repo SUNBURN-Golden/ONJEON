@@ -335,6 +335,7 @@
           "id": "result_envelope",
           "target": "string values of result, signal and heartbeat envelopes",
           "at": "accept_envelope.before_inbox_seen",
+          "after_check": "current_lease_rules",
           "states": [
             "building"
           ]

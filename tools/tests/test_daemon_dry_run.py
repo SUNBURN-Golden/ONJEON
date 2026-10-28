@@ -1054,6 +1054,9 @@ class FollowupStructure(unittest.TestCase):
         self.assertEqual([c["id"] for c in ae["checks_in_order"]],
                          ["required_present", "lease_matches", "not_seen", "lease_active_unexpired", "current_lease_rules",
                           "result_scope", "pr_body_fields"])
+        scan = next(s for s in self.raw["preserve_manifest"]["secret_patterns"]["scan"]
+                    if s["id"] == "result_envelope")
+        self.assertEqual(scan["after_check"], "current_lease_rules")
         reasons = set()
         for t in self.raw["transitions"]:
             reasons |= {e["args"]["reason"] for e in t.get("side_effects", []) if e["id"] == "void_outbox"}
@@ -1512,6 +1515,98 @@ class ResultGates(unittest.TestCase):
         env, envelope = self.ready(touched_paths=["docs/out.md"])
         del envelope["pr_body"]
         self.assert_scope_return(env, envelope)
+
+    def test_secret_precedes_scope_and_body_failures(self):
+        # Synthetic matches only; exercise each failure separately and together.
+        for scope_bad, body_bad in ((False, True), (True, False), (True, True)):
+            for status in ("pr_opened", "failed_tests"):
+                with self.subTest(scope_bad=scope_bad, body_bad=body_bad, status=status):
+                    env, envelope = self.ready(status=status)
+                    if scope_bad:
+                        envelope["touched_paths"] = ["docs/out.md"]
+                    if body_bad:
+                        del envelope["pr_body"]
+                    synthetic = "AKIA" + "Z" * 16
+                    envelope["test_log_ref"] = synthetic
+                    seen = env.task(sc.BASIC)["inbox_seen"]
+                    mark = sc.mark(env)
+                    out = self.submit(env, envelope)
+                    self.assertFalse(out["accepted"])
+                    self.assertEqual(out["transition"], ("building", "returned", "secret_detected"))
+                    self.assertEqual(out["secret_detected"], 1)
+                    self.assertEqual(env.task(sc.BASIC)["task_state"]["return_code"], "R-10")
+                    self.assertEqual(env.lease(sc.BASIC)["status"], "revoked")
+                    self.assertEqual(env.task(sc.BASIC)["inbox_seen"], seen)
+                    self.assertNotIn(sc.BASIC, env.core.snapshot().get("pr", {}))
+                    journal = env.journal()[mark:]
+                    self.assertTrue(all(effect in sc.se(journal) for effect in
+                                        ("terminate_process", "revoke_write_credential", "revoke_token")))
+                    self.assertNotIn(synthetic, json.dumps(env.core.snapshot()))
+                    self.assertNotIn(synthetic, json.dumps(env.journal()))
+
+    def test_stale_or_expired_secret_result_cannot_revoke_current_lease(self):
+        for failure in ("stale", "expired"):
+            with self.subTest(failure=failure):
+                env, envelope = self.ready(touched_paths=["docs/out.md"])
+                del envelope["pr_body"]
+                envelope["test_log_ref"] = "AKIA" + "Z" * 16
+                if failure == "stale":
+                    envelope["fencing_token"] = "stale"
+                else:
+                    env.clock.set(env.lease(sc.BASIC)["expires_at"] + 1)
+                before = env.task(sc.BASIC)
+                out = self.submit(env, envelope)
+                self.assertEqual((out["accepted"], out["return_code"]), (False, "R-11"))
+                self.assertNotIn("secret_detected", out)
+                self.assertEqual(env.task(sc.BASIC), before)
+
+    def test_invalid_or_duplicate_secret_result_keeps_earlier_rejection(self):
+        for failure in ("required_missing", "duplicate"):
+            with self.subTest(failure=failure):
+                env, envelope = self.ready(touched_paths=["docs/out.md"])
+                del envelope["pr_body"]
+                envelope["test_log_ref"] = "AKIA" + "Z" * 16
+                if failure == "required_missing":
+                    del envelope["head_sha"]
+                    expected = ("envelope_rejected_invalid", "R-13")
+                else:
+                    from daemon.core.envelope_validator import dedup_key
+                    key = dedup_key(env.core.rules, sc.BASIC, "result", envelope)
+                    env.store.tamper(lambda d: d["tasks"][sc.BASIC]["inbox_seen"].update({key: {"first_seen_at": 0}}))
+                    expected = ("envelope_duplicate_delivery", None)
+                before = env.task(sc.BASIC)
+                out = self.submit(env, envelope)
+                self.assertFalse(out["accepted"])
+                self.assertEqual((out["noop"], out["return_code"]), expected)
+                self.assertNotIn("secret_detected", out)
+                self.assertEqual(env.task(sc.BASIC), before)
+
+    def test_secret_scan_order_is_read_from_rules(self):
+        raw = raw_rules()
+        scan = next(s for s in raw["preserve_manifest"]["secret_patterns"]["scan"]
+                    if s["id"] == "result_envelope")
+        scan["after_check"] = "pr_body_fields"
+        env, envelope = self.ready(raw)
+        del envelope["pr_body"]
+        envelope["test_log_ref"] = "AKIA" + "Z" * 16
+        self.assertEqual(self.submit(env, envelope)["return_code"], "R-09")
+
+    def test_invalid_secret_scan_boundary_prevents_startup(self):
+        from daemon.core.ports import SpecGap
+        for anchor in (None, "", "missing_check", "duplicate_check"):
+            with self.subTest(anchor=anchor):
+                raw = raw_rules()
+                scan = next(s for s in raw["preserve_manifest"]["secret_patterns"]["scan"]
+                            if s["id"] == "result_envelope")
+                if anchor is None:
+                    del scan["after_check"]
+                else:
+                    scan["after_check"] = anchor
+                if anchor == "duplicate_check":
+                    checks = raw["core_contract"]["operations"]["accept_envelope"]["checks_in_order"]
+                    checks.extend([dict(checks[0], id=anchor), dict(checks[0], id=anchor)])
+                with self.assertRaisesRegex(SpecGap, "after_check"):
+                    self.ready(raw)
 
     def test_stale_result_cannot_trigger_scope_or_body_rejection(self):
         env, envelope = self.ready(touched_paths=["docs/out.md"])

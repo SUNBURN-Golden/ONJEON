@@ -1,8 +1,18 @@
 """accept_envelope and fenced_write: ordered checks, then the noop kinds (late, duplicate, invalid) or the
 event transition. The checks, their fail keys and the on_fail table are all read from core_contract.operations."""
 from . import effects, envelope_validator as ev, observation, secret_scan, transition_engine, usage
+from .ports import SpecGap
 
 _SCANNED = ("result", "signal", "heartbeat")  # secret_patterns.scan[result_envelope].target
+
+
+def secret_scan_after(rules):
+    """Resolve the scan's ordered-check boundary; a missing/ambiguous anchor must not skip scanning."""
+    anchor = secret_scan.scan_spec(rules, "result_envelope").get("after_check")
+    checks = rules.get("core_contract.operations.accept_envelope.checks_in_order")
+    if not isinstance(anchor, str) or sum(c["id"] == anchor for c in checks) != 1:
+        raise SpecGap("result_envelope.after_check must name exactly one accept_envelope check")
+    return anchor
 
 
 def event_for(core, msg_type, envelope, task_id=None):
@@ -26,7 +36,7 @@ def _report(core, d, task_id, on_fail, envelope, check_id, fkey):
 
 
 def _secret_check(core, d, task_id, msg_type, envelope):
-    """scan[result_envelope]: at accept_envelope.before_inbox_seen, in the states it names. A match is
+    """scan[result_envelope]: after its named lease check, before inbox_seen, in the states it names. A match is
     secret_detected (R-10); the envelope is not marked seen and not processed further."""
     spec = secret_scan.scan_spec(core.rules, "result_envelope")
     if ev.envelope_type(core.rules, msg_type) not in _SCANNED or d["tasks"][task_id]["task_state"]["state"] not in spec["states"]:
@@ -56,12 +66,13 @@ def accept(core, d, task_id, msg_type, envelope):
     for check in spec["checks_in_order"]:
         ok, _rec = ctx.predicate(check["pred"])
         if ok:
+            if check["id"] == core.envelope_secret_scan_after:
+                found = _secret_check(core, d, task_id, msg_type, envelope)
+                if found is not None:
+                    return found
             continue
         fkey = check["fail_key"]
         return _report(core, d, task_id, spec["on_fail"][fkey], envelope, check["id"], fkey)
-    found = _secret_check(core, d, task_id, msg_type, envelope)
-    if found is not None:
-        return found
     t["inbox_seen"][key] = {"first_seen_at": core.clock.now(), "lease_generation": envelope.get("lease_generation")}
     out = {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": []}
     if msg_type == "result":

@@ -1,7 +1,7 @@
 # Audit 3 — 결과 봉투의 변경 경로·PR 본문 관문
 
 기록일: 2026-10-28. 노드: `audit3-daemon-gate-touched-paths`.
-검증 기준: `e1c5f14c0de0e428e46fcb975e412f909d9557ed` 위의 미커밋 작업 트리.
+최초 검증 기준: `e1c5f14c0de0e428e46fcb975e412f909d9557ed` 위의 미커밋 작업 트리. 수정 1차 기준은 아래 별도 기록을 따른다.
 관련: BLUEPRINT §11 개발 도구, 04 자동개발명세 R-01·R-09, T-OP-00 M8·M32.
 
 ## 확인과 수정
@@ -25,7 +25,7 @@ G54의 범위·본문 검사와 실패 처리는 구조화 조건으로 연결�
 | 명령 | 결과 | 증거 |
 |---|---|---|
 | `python3 -m unittest tools.tests.test_daemon_dry_run.ResultGates -v` | 15개 통과 | [focused.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/focused.log) |
-| `python3 -m unittest tools/tests/test_daemon_dry_run.py -v` | 276개 통과 | [unittest.log](../../../tools/daemon/reports/unittest.log) |
+| `python3 -m unittest tools/tests/test_daemon_dry_run.py -v` | 최초 276개 통과, 수정 1차 281개 통과로 보고서 갱신 | [unittest.log](../../../tools/daemon/reports/unittest.log) |
 | `python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all` | 검사 704건 통과, 필수 시험 ID 33개 누락·목록 밖·중복 없음 | [dry_run.log](../../../tools/daemon/reports/dry_run.log) |
 | `ONJEON_ONTOLOGY_RUNNER="$PWD/target/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v` | 1194개 실행, 실패·오류 0, 기존 skip 6 | [python-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/python-tests.log) |
 | `python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py` | 59개 통과 | [runner-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/runner-tests.log) |
@@ -36,6 +36,26 @@ G54의 범위·본문 검사와 실패 처리는 구조화 조건으로 연결�
 추가 CI 검사 실패는 `packages/ontology/Cargo.toml`의 `knowledge → twin` 의존 1건과 같은 패키지 시험의 엔진 import 2건이다. 읽기 전용 Git 객체로 기준 커밋의 입력을 읽어 동일 검사기를 실행했고, 현재 결과와 정확히 같은 위반 3건임을 대조했다. 이 노드에서 의존성 규칙이나 온톨로지를 바꾸지 않았다.
 
 Python skip 6개는 비공개 원본이 필요한 기존 시험 5개와 설치된 botocore에 해당하지 않는 구버전 시험 1개다. 새 회귀 시험에는 skip이 없다. 온톨로지 시험 실행기는 이 작업 트리의 `target`에 빌드했다([ontology-build.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/ontology-build.log)). 데몬 보고서 두 개는 기준 커밋과 현재 데몬 소스·시험의 SHA-256으로 재생성했다. 검증은 로컬 실행 결과다.
+
+## 수정 1차 — R-10 우선순위 복원
+
+기준: `847596e8641de2546fe7bfb37e159a0d370fd900` 위의 미커밋 작업 트리. 리뷰 P1은 유효한 현재 임대의 결과에서 비밀값 패턴과 범위·본문 오류가 함께 있으면 새 R-01·R-09 검사가 `_secret_check()`보다 먼저 반환하여 R-10 즉시 중단을 우회한다는 지적이었다. 합성 패턴을 `test_log_ref`에 넣은 [수정 전 재현](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/before.log)은 회귀 시험 2개에서 조합 5건 실패를 확인했다.
+
+`preserve_manifest.secret_patterns.scan[result_envelope].after_check = current_lease_rules`를 추가하고 `fencing.accept`가 그 검사의 성공 직후 비밀값 검사를 실행하도록 옮겼다. 구조화 필드로 순서를 지정하며 설명 문장은 읽지 않는다. 필수 필드·임대 일치·중복·활성/만료·현재 임대 규칙은 먼저 검사하고, 범위·본문 검사는 R-10 검사 뒤에 둔다. 검사 기준 ID가 없거나 중복되면 시작 시 `SpecGap`으로 거부하여 검사가 조용히 생략되지 않게 한다.
+
+추가 시험 5개는 정상 현재 임대의 `pr_opened`·`failed_tests`에서 범위 위반·본문 누락·두 오류 동시 발생과 합성 비밀값을 조합한다. R-10 `building → returned`, 임대 `revoked`, 프로세스 종료·쓰기 자격·토큰 폐기, inbox_seen 불변, PR 기록 없음, 저장소·저널에 일치 원문 없음까지 확인한다. 옛 임대·만료·중복·필수 필드 오류는 기존 R-11·중복·R-13 처리를 유지한다. 순서 필드 변이와 누락·잘못된 ID·중복 ID의 시작 거부도 검사한다.
+
+| 명령 | 결과 | 증거 |
+|---|---|---|
+| `python3 -m unittest tools.tests.test_daemon_dry_run.ResultGates -v` | 20개 통과 | [round1/focused.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/focused.log) |
+| `python3 -m unittest tools/tests/test_daemon_dry_run.py -v` | 281개 통과 | [unittest.log](../../../tools/daemon/reports/unittest.log) |
+| `python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all` | 704건 통과, 필수 ID 33개 누락·목록 밖·중복 없음 | [dry_run.log](../../../tools/daemon/reports/dry_run.log) |
+| `ONJEON_ONTOLOGY_RUNNER="$PWD/target/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v` | 1199개 실행, 실패·오류 0, 기존 skip 6 | [round1/python-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/python-tests.log) |
+| `python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py` | 59개 통과 | [round1/runner-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/runner-tests.log) |
+| `cargo test --all` | 466개 통과, 기존 ignore 1, 실패 0 | [round1/cargo-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/cargo-tests.log) |
+| 어휘·검증 자료·검증기 selftest·설계 명세·제품 목적 대응표 검사 | 모두 종료 0 | [vocabulary.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/vocabulary.log), [validation.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/validation.log), [validation-selftest.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/validation-selftest.log), [spec-check.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/spec-check.log), [product-purpose.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round1/product-purpose.log) |
+
+데몬 보고서의 부모 커밋·소스 해시는 이 수정 1차 기준으로 갱신했다. 최초 시험의 `focused.log` 등은 최초 증거로 남긴다. 새 회귀 시험의 skip은 없으며 Python의 기존 skip 6개와 Rust의 기존 ignore 1개는 위 최초 검증과 같다. `git diff --check`와 변경 파일의 허용 경로 대조도 통과했다.
 
 ## 증명 범위
 

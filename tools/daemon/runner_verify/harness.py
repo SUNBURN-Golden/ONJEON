@@ -360,6 +360,9 @@ class World:
                         branch=instr["branch"], head_sha="h" * 40, touched_paths=[], tests_run=[], test_log_ref="adapter://log",
                         signals_seen=[], cost_units=0, calls=0, wall_s=0)
         base.update(fields)
+        if msg_type == "result" and base["status"] == "pr_opened" and "pr_body" not in fields:
+            base["pr_body"] = {"task_id": instr["task_id"], "authors": [instr["builder"]],
+                               "target_sha": base["head_sha"], "test_log_ref": base["test_log_ref"]}
         return {"msg_type": msg_type, "task_id": instr["task_id"], "envelope": base}
 
     def wait_log(self, handle, op, suffix="main", timeout=30, count=1, **match):

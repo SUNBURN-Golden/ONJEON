@@ -1,0 +1,25 @@
+test_body_text_values_must_be_nonblank_including_list_items (tools.tests.test_daemon_dry_run.ResultGates.test_body_text_values_must_be_nonblank_including_list_items) ... ok
+test_forbidden_wins_inside_allowed_paths (tools.tests.test_daemon_dry_run.ResultGates.test_forbidden_wins_inside_allowed_paths) ... ok
+test_invalid_or_duplicate_secret_result_keeps_earlier_rejection (tools.tests.test_daemon_dry_run.ResultGates.test_invalid_or_duplicate_secret_result_keeps_earlier_rejection) ... ok
+test_invalid_secret_scan_boundary_prevents_startup (tools.tests.test_daemon_dry_run.ResultGates.test_invalid_secret_scan_boundary_prevents_startup) ... ok
+test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) ... ok
+test_malformed_scope_configuration_fails_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_scope_configuration_fails_closed) ... ok
+test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) ... ok
+test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) ... ok
+test_missing_paths_are_an_invalid_envelope (tools.tests.test_daemon_dry_run.ResultGates.test_missing_paths_are_an_invalid_envelope) ... ok
+test_normalized_and_exact_allowed_paths_open_pr (tools.tests.test_daemon_dry_run.ResultGates.test_normalized_and_exact_allowed_paths_open_pr) ... ok
+test_outside_mixed_forbidden_and_invalid_paths_return_r01 (tools.tests.test_daemon_dry_run.ResultGates.test_outside_mixed_forbidden_and_invalid_paths_return_r01) ... ok
+test_pr_body_is_only_required_for_pr_opened (tools.tests.test_daemon_dry_run.ResultGates.test_pr_body_is_only_required_for_pr_opened) ... ok
+test_predicates_recheck_the_pr_transition (tools.tests.test_daemon_dry_run.ResultGates.test_predicates_recheck_the_pr_transition) ... ok
+test_required_body_fields_are_read_from_rules (tools.tests.test_daemon_dry_run.ResultGates.test_required_body_fields_are_read_from_rules) ... ok
+test_scope_applies_to_failed_results_too (tools.tests.test_daemon_dry_run.ResultGates.test_scope_applies_to_failed_results_too) ... ok
+test_scope_failure_precedes_body_failure (tools.tests.test_daemon_dry_run.ResultGates.test_scope_failure_precedes_body_failure) ... ok
+test_secret_precedes_scope_and_body_failures (tools.tests.test_daemon_dry_run.ResultGates.test_secret_precedes_scope_and_body_failures) ... ok
+test_secret_scan_order_is_read_from_rules (tools.tests.test_daemon_dry_run.ResultGates.test_secret_scan_order_is_read_from_rules) ... ok
+test_stale_or_expired_secret_result_cannot_revoke_current_lease (tools.tests.test_daemon_dry_run.ResultGates.test_stale_or_expired_secret_result_cannot_revoke_current_lease) ... ok
+test_stale_result_cannot_trigger_scope_or_body_rejection (tools.tests.test_daemon_dry_run.ResultGates.test_stale_result_cannot_trigger_scope_or_body_rejection) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.614s
+
+OK

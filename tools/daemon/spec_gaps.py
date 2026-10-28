@@ -11,8 +11,8 @@ fields (07_수정대응표 §1f, daemon_rules.json t_op_00_followups.gap_resolut
 core read those fields: `core_reads` says whether the core reads the field now ("yes" / "partly"), `core_took` says
 how, and `core_change` keeps what t_op_00_followups asked for. G47 stays partly: the read list itself lives in
 daemon_rules.json, outside this task's paths.
-G51-G57 were found while implementing M1-M25, M27, M31 and M32. They are open: the core applies the narrowest
-reading described in `core_took` and the design owner decides.
+G51-G57 were found while implementing M1-M25, M27, M31 and M32. G54 is partly closed by structured scope / PR body
+checks (Audit 3); the others remain open. Remaining interpretations are described in `core_took`.
 """
 
 D = "daemon_rules.json"
@@ -195,9 +195,11 @@ SPEC_GAPS = [
     {"id": "G53", "status": NEW, "field": "transitions[head_sha_changed, merged_without_valid_approval, pr_merged_observed].side_effects", "where": D,
      "need": "R-04(옛 결과 무효)·R-12(무효 병합) 기록과 record_merge_observation(side_effect_ids에 있음)을 내는 전이가 없다. return_code·record_r_code를 단 행이 없다",
      "core_took": "관측 계층이 return_record(R-04·R-12)와 record_merge_observation을 직접 기록한다. task_state.return_code는 바꾸지 않는다(반송이 아니라 기록)"},
-    {"id": "G54", "status": NEW, "field": "결과 봉투 → 사건(result_<status>), 04 §1 (c) touched_paths ⊄ allowed_paths", "where": D,
+    {"id": "G54", "status": PARTLY, "field": "결과 봉투 → 사건(result_<status>), 04 §1 (c) touched_paths ⊄ allowed_paths", "where": D,
+     "resolved_by": "core_contract.operations.accept_envelope.checks_in_order(result_scope·pr_body_fields), pr_body_required_fields, on_fail, transitions[result_pr_opened·result_out_of_scope].cond",
+     "remaining": "경로 패턴 비교·정본 승인 예외의 해석은 gate_evaluator.paths_within_scope에 명시돼 있다. 실제 PR 본문 조회·출처 인증은 코어 밖 어댑터 책임이다",
      "need": "R-01 판정(결과 봉투의 touched_paths가 허용 경로 밖·금지 경로 안이면 result_out_of_scope)이 문장뿐이고, 경로 패턴 비교 방법과 canon_change 승인 범위의 예외가 구조화돼 있지 않다. subset_of(scope_within_allowed_paths)는 글자 그대로의 목록 비교라 allowed_paths가 글롭이면 정본 파일을 따로 적어야 한다",
-     "core_took": "touched 경로는 먼저 정규화한다: 빈 값·절대 경로·역슬래시·글롭 문자·'..' 조각은 비교하지 않고 범위 밖(R-01)으로 닫고, '.' 조각과 겹친 슬래시는 지운다. 그 뒤 경로마다: 승인 scope_paths에 있으면 통과, 아니면 allowed_paths 안(같음 또는 <dir>/**)이고 forbidden_paths 밖이어야 한다(forbidden_first). 금지 쪽은 닫힌 쪽으로 판정한다: <dir>/** 밖의 글롭(<dir>/*.csv 등)은 글자 그대로의 앞부분으로 읽어 그 아래 전부를 금지로 본다(patterns_overlap, G29와 같은 읽기). 아니면 result_out_of_scope(R-01)"},
+     "core_took": "gate_evaluator가 result_scope_valid·has_fields를 평가한다. touched_paths가 목록이 아니면 R-01로 닫는다. touched 경로는 먼저 정규화한다: 빈 값·절대 경로·역슬래시·글롭 문자·'..' 조각은 비교하지 않고 범위 밖(R-01)으로 닫고, '.' 조각과 겹친 슬래시는 지운다. 그 뒤 경로마다: 승인 scope_paths에 있으면 통과, 아니면 allowed_paths 안(같음 또는 <dir>/**)이고 forbidden_paths 밖이어야 한다(forbidden_first). 금지 쪽은 닫힌 쪽으로 판정한다: <dir>/** 밖의 글롭(<dir>/*.csv 등)은 글자 그대로의 앞부분으로 읽어 그 아래 전부를 금지로 본다(patterns_overlap, G29와 같은 읽기). 아니면 result_out_of_scope(R-01). pr_opened는 pr_body_required_fields의 비어 있지 않은 본문 필드가 필요하며 누락하면 R-09 noop으로 상태·임대를 유지한다. pr_open 행의 cond가 두 검사를 다시 본다"},
     {"id": "G55", "status": NEW, "field": "core_contract.store", "where": D,
      "need": "PR 기록(번호·head·base·변경 경로·리뷰/감리 결과·승인 SHA·merge_wait.reason), completion_facts, merged_impl_counter와 묶음, 보류 큐, 관측 멱등 키, 결정 기록 목록을 담을 store 항목이 없다",
      "core_took": "store에 pr, completion_facts(추가만), audit{merged_impl_counter, batches}, held, obs_seen, decisions를 둔다. 결정은 task_state.decisions_recorded에도 복사한다"},

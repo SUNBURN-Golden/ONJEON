@@ -69,6 +69,9 @@ class MockBuilder:
                "tests_run": [], "test_log_ref": "mock://log", "signals_seen": [], "cost_units": 0,
                "calls": 0, "wall_s": 0}
         env.update(over)
+        if status == "pr_opened" and "pr_body" not in over:
+            env["pr_body"] = {"task_id": instr["task_id"], "authors": [instr["builder"]],
+                              "target_sha": env["head_sha"], "test_log_ref": env["test_log_ref"]}
         return env
 
     def signal_envelope(self, instr, status="usage_limit", **over):

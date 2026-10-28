@@ -1055,7 +1055,11 @@ class FollowupStructure(unittest.TestCase):
         cc = self.raw["core_contract"]
         ae = cc["operations"]["accept_envelope"]
         self.assertEqual([c["id"] for c in ae["checks_in_order"]],
-                         ["required_present", "lease_matches", "not_seen", "lease_active_unexpired", "current_lease_rules"])
+                         ["required_present", "lease_matches", "not_seen", "lease_active_unexpired", "current_lease_rules",
+                          "result_scope", "pr_body_fields"])
+        scan = next(s for s in self.raw["preserve_manifest"]["secret_patterns"]["scan"]
+                    if s["id"] == "result_envelope")
+        self.assertEqual(scan["after_check"], "current_lease_rules")
         reasons = set()
         for t in self.raw["transitions"]:
             reasons |= {e["args"]["reason"] for e in t.get("side_effects", []) if e["id"] == "void_outbox"}
@@ -1410,6 +1414,248 @@ class Journal(unittest.TestCase):
         self.assertEqual(env.clock.now(), t0 + 10)
         env.clock.set(5)
         self.assertEqual(env.clock.now(), 5)
+
+
+class ResultGates(unittest.TestCase):
+    """R-01 and R-09 must be evaluated from structured predicates before a PR is recorded."""
+
+    def ready(self, rules=None, status="pr_opened", **fields):
+        env = MockEnv(rules or raw_rules(), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        envelope = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), status, **fields)
+        envelope.setdefault("pr_body", {"task_id": sc.BASIC, "authors": [envelope["builder"]],
+                                        "target_sha": envelope["head_sha"], "test_log_ref": envelope["test_log_ref"]})
+        return env, envelope
+
+    def submit(self, env, envelope):
+        return env.submit(sc.BASIC, "result", envelope)
+
+    def assert_scope_return(self, env, envelope):
+        out = self.submit(env, envelope)
+        self.assertEqual(out["transition"], ("building", "returned", "result_out_of_scope"))
+        self.assertEqual(env.state(sc.BASIC), "returned")
+        self.assertEqual(env.task(sc.BASIC)["task_state"]["return_code"], "R-01")
+        self.assertEqual(env.lease(sc.BASIC)["status"], "returned")
+        self.assertNotIn(sc.BASIC, env.core.snapshot().get("pr", {}))
+
+    def test_outside_mixed_forbidden_and_invalid_paths_return_r01(self):
+        for paths in (["docs/BLUEPRINT.md"], ["tools/mock/basic/ok.py", "docs/out.md"],
+                      ["tools/mock/basic/../../../docs/out.md"], ["/tools/mock/basic/ok.py"],
+                      ["tools/mock/basic/*"], [""], [7]):
+            with self.subTest(paths=paths):
+                env, envelope = self.ready(touched_paths=paths)
+                self.assert_scope_return(env, envelope)
+
+    def test_malformed_path_containers_fail_closed(self):
+        for paths in (False, 0, "", {}, {"tools/mock/basic/ok.py": True}, "tools/mock/basic/ok.py"):
+            with self.subTest(paths=paths):
+                env, envelope = self.ready(touched_paths=paths)
+                self.assert_scope_return(env, envelope)
+
+    def test_missing_paths_are_an_invalid_envelope(self):
+        env, envelope = self.ready()
+        del envelope["touched_paths"]
+        out = self.submit(env, envelope)
+        self.assertEqual((out["accepted"], out["return_code"]), (False, "R-13"))
+        self.assertEqual(env.state(sc.BASIC), "building")
+
+    def test_scope_applies_to_failed_results_too(self):
+        env, envelope = self.ready(status="failed_tests", touched_paths=["docs/out.md"])
+        self.assert_scope_return(env, envelope)
+
+    def test_normalized_and_exact_allowed_paths_open_pr(self):
+        for allowed, paths in ((["tools/mock/basic/**"], ["tools/mock/./basic//sub/ok.py"]),
+                               (["tools/mock/basic/ok.py"], ["tools/mock/basic/ok.py"]),
+                               (["tools/mock/basic/**"], [])):
+            with self.subTest(paths=paths):
+                env, envelope = self.ready(touched_paths=paths)
+                env.ports.catalog.task(sc.BASIC)["allowed_paths"] = allowed
+                out = self.submit(env, envelope)
+                self.assertEqual(out["transition"], ("building", "pr_open", "result_pr_opened"))
+                self.assertEqual(env.lease(sc.BASIC)["status"], "completed")
+
+    def test_forbidden_wins_inside_allowed_paths(self):
+        env, envelope = self.ready(touched_paths=["tools/mock/basic/private/x.csv"])
+        env.ports.catalog.task(sc.BASIC)["forbidden_paths"] = ["tools/mock/basic/private/*.csv"]
+        self.assert_scope_return(env, envelope)
+
+    def test_missing_empty_and_wrong_type_pr_fields_reject_with_r09(self):
+        for field in ("task_id", "authors", "target_sha", "test_log_ref"):
+            for value in (None, "", "  ", [], {}, False, 0):
+                with self.subTest(field=field, value=value):
+                    env, envelope = self.ready()
+                    if value is None:
+                        del envelope["pr_body"][field]
+                    else:
+                        envelope["pr_body"][field] = value
+                    before = env.task(sc.BASIC)
+                    out = self.submit(env, envelope)
+                    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+                    self.assertEqual(env.task(sc.BASIC), before)
+                    self.assertNotIn(sc.BASIC, env.core.snapshot().get("pr", {}))
+
+    def test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry(self):
+        for body in (None, "task_id authors target_sha test_log_ref", [], {}, False):
+            with self.subTest(body=body):
+                env, envelope = self.ready()
+                valid = envelope.pop("pr_body")
+                if body is not None:
+                    envelope["pr_body"] = body
+                out = self.submit(env, envelope)
+                self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+                envelope["pr_body"] = valid
+                self.assertEqual(self.submit(env, envelope)["transition"],
+                                 ("building", "pr_open", "result_pr_opened"))
+                self.assertEqual(self.submit(env, envelope)["noop"], "envelope_duplicate_delivery")
+
+    def test_pr_body_is_only_required_for_pr_opened(self):
+        env, envelope = self.ready(status="failed_tests")
+        del envelope["pr_body"]
+        out = self.submit(env, envelope)
+        self.assertEqual(out["transition"], ("building", "building", "result_failed_tests"))
+
+    def test_scope_failure_precedes_body_failure(self):
+        env, envelope = self.ready(touched_paths=["docs/out.md"])
+        del envelope["pr_body"]
+        self.assert_scope_return(env, envelope)
+
+    def test_secret_precedes_scope_and_body_failures(self):
+        # Synthetic matches only; exercise each failure separately and together.
+        for scope_bad, body_bad in ((False, True), (True, False), (True, True)):
+            for status in ("pr_opened", "failed_tests"):
+                with self.subTest(scope_bad=scope_bad, body_bad=body_bad, status=status):
+                    env, envelope = self.ready(status=status)
+                    if scope_bad:
+                        envelope["touched_paths"] = ["docs/out.md"]
+                    if body_bad:
+                        del envelope["pr_body"]
+                    synthetic = "AKIA" + "Z" * 16
+                    envelope["test_log_ref"] = synthetic
+                    seen = env.task(sc.BASIC)["inbox_seen"]
+                    mark = sc.mark(env)
+                    out = self.submit(env, envelope)
+                    self.assertFalse(out["accepted"])
+                    self.assertEqual(out["transition"], ("building", "returned", "secret_detected"))
+                    self.assertEqual(out["secret_detected"], 1)
+                    self.assertEqual(env.task(sc.BASIC)["task_state"]["return_code"], "R-10")
+                    self.assertEqual(env.lease(sc.BASIC)["status"], "revoked")
+                    self.assertEqual(env.task(sc.BASIC)["inbox_seen"], seen)
+                    self.assertNotIn(sc.BASIC, env.core.snapshot().get("pr", {}))
+                    journal = env.journal()[mark:]
+                    self.assertTrue(all(effect in sc.se(journal) for effect in
+                                        ("terminate_process", "revoke_write_credential", "revoke_token")))
+                    self.assertNotIn(synthetic, json.dumps(env.core.snapshot()))
+                    self.assertNotIn(synthetic, json.dumps(env.journal()))
+
+    def test_stale_or_expired_secret_result_cannot_revoke_current_lease(self):
+        for failure in ("stale", "expired"):
+            with self.subTest(failure=failure):
+                env, envelope = self.ready(touched_paths=["docs/out.md"])
+                del envelope["pr_body"]
+                envelope["test_log_ref"] = "AKIA" + "Z" * 16
+                if failure == "stale":
+                    envelope["fencing_token"] = "stale"
+                else:
+                    env.clock.set(env.lease(sc.BASIC)["expires_at"] + 1)
+                before = env.task(sc.BASIC)
+                out = self.submit(env, envelope)
+                self.assertEqual((out["accepted"], out["return_code"]), (False, "R-11"))
+                self.assertNotIn("secret_detected", out)
+                self.assertEqual(env.task(sc.BASIC), before)
+
+    def test_invalid_or_duplicate_secret_result_keeps_earlier_rejection(self):
+        for failure in ("required_missing", "duplicate"):
+            with self.subTest(failure=failure):
+                env, envelope = self.ready(touched_paths=["docs/out.md"])
+                del envelope["pr_body"]
+                envelope["test_log_ref"] = "AKIA" + "Z" * 16
+                if failure == "required_missing":
+                    del envelope["head_sha"]
+                    expected = ("envelope_rejected_invalid", "R-13")
+                else:
+                    from daemon.core.envelope_validator import dedup_key
+                    key = dedup_key(env.core.rules, sc.BASIC, "result", envelope)
+                    env.store.tamper(lambda d: d["tasks"][sc.BASIC]["inbox_seen"].update({key: {"first_seen_at": 0}}))
+                    expected = ("envelope_duplicate_delivery", None)
+                before = env.task(sc.BASIC)
+                out = self.submit(env, envelope)
+                self.assertFalse(out["accepted"])
+                self.assertEqual((out["noop"], out["return_code"]), expected)
+                self.assertNotIn("secret_detected", out)
+                self.assertEqual(env.task(sc.BASIC), before)
+
+    def test_secret_scan_order_is_read_from_rules(self):
+        raw = raw_rules()
+        scan = next(s for s in raw["preserve_manifest"]["secret_patterns"]["scan"]
+                    if s["id"] == "result_envelope")
+        scan["after_check"] = "pr_body_fields"
+        env, envelope = self.ready(raw)
+        del envelope["pr_body"]
+        envelope["test_log_ref"] = "AKIA" + "Z" * 16
+        self.assertEqual(self.submit(env, envelope)["return_code"], "R-09")
+
+    def test_invalid_secret_scan_boundary_prevents_startup(self):
+        from daemon.core.ports import SpecGap
+        for anchor in (None, "", "missing_check", "duplicate_check"):
+            with self.subTest(anchor=anchor):
+                raw = raw_rules()
+                scan = next(s for s in raw["preserve_manifest"]["secret_patterns"]["scan"]
+                            if s["id"] == "result_envelope")
+                if anchor is None:
+                    del scan["after_check"]
+                else:
+                    scan["after_check"] = anchor
+                if anchor == "duplicate_check":
+                    checks = raw["core_contract"]["operations"]["accept_envelope"]["checks_in_order"]
+                    checks.extend([dict(checks[0], id=anchor), dict(checks[0], id=anchor)])
+                with self.assertRaisesRegex(SpecGap, "after_check"):
+                    self.ready(raw)
+
+    def test_stale_result_cannot_trigger_scope_or_body_rejection(self):
+        env, envelope = self.ready(touched_paths=["docs/out.md"])
+        envelope["fencing_token"] = "stale"
+        del envelope["pr_body"]
+        before = env.task(sc.BASIC)
+        out = self.submit(env, envelope)
+        self.assertEqual((out["accepted"], out["return_code"]), (False, "R-11"))
+        self.assertEqual(env.task(sc.BASIC), before)
+
+    def test_required_body_fields_are_read_from_rules(self):
+        raw = raw_rules()
+        raw["core_contract"]["operations"]["accept_envelope"]["pr_body_required_fields"].append("extra_evidence")
+        env, envelope = self.ready(raw)
+        self.assertEqual(self.submit(env, envelope)["return_code"], "R-09")
+        envelope["pr_body"]["extra_evidence"] = "mock://extra"
+        self.assertEqual(self.submit(env, envelope)["transition"], ("building", "pr_open", "result_pr_opened"))
+
+    def test_predicates_recheck_the_pr_transition(self):
+        # Even if an accept check is accidentally removed, the transition's cond must block the PR.
+        for check_id, fields in (("result_scope", {"touched_paths": ["docs/out.md"]}),
+                                 ("pr_body_fields", {"pr_body": {}})):
+            with self.subTest(check_id=check_id):
+                raw = raw_rules()
+                checks = raw["core_contract"]["operations"]["accept_envelope"]["checks_in_order"]
+                checks[:] = [c for c in checks if c["id"] != check_id]
+                env, envelope = self.ready(raw, **fields)
+                self.assertIsNone(self.submit(env, envelope)["transition"])
+                self.assertEqual(env.state(sc.BASIC), "building")
+                self.assertNotIn(sc.BASIC, env.core.snapshot().get("pr", {}))
+
+    def test_body_text_values_must_be_nonblank_including_list_items(self):
+        for value in ([""], ["  "], ["author", None], [False], [42]):
+            with self.subTest(value=value):
+                env, envelope = self.ready()
+                envelope["pr_body"]["authors"] = value
+                self.assertEqual(self.submit(env, envelope)["return_code"], "R-09")
+
+    def test_malformed_scope_configuration_fails_closed(self):
+        for field, value in (("allowed_paths", None), ("allowed_paths", "tools/mock/basic/**"),
+                             ("allowed_paths", [None]), ("forbidden_paths", None),
+                             ("forbidden_paths", [42])):
+            with self.subTest(field=field, value=value):
+                env, envelope = self.ready(touched_paths=["tools/mock/basic/ok.py"])
+                env.ports.catalog.task(sc.BASIC)[field] = value
+                self.assert_scope_return(env, envelope)
 
 
 class ScopeForbiddenFirst(unittest.TestCase):

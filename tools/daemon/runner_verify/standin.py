@@ -49,6 +49,9 @@ def result_envelope(status, fields):
                status=status, branch=LEASE["branch"], head_sha="h" * 40, touched_paths=[], tests_run=[],
                test_log_ref="standin://log", signals_seen=[], cost_units=0, calls=0, wall_s=0)
     env.update(fields or {})
+    if status == "pr_opened" and "pr_body" not in (fields or {}):
+        env["pr_body"] = {"task_id": LEASE["task_id"], "authors": [LEASE["builder"]],
+                          "target_sha": env["head_sha"], "test_log_ref": env["test_log_ref"]}
     return env
 
 

@@ -1,0 +1,6 @@
+Dependency findings match the original read-only baseline exactly:
+[DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+[IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+[IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+PASS: finding sources, rules and checker identical to HEAD 1b9f3e1c51dd7b702a99f00ab38fec26036ae745
+PASS: finding sources, rules and checker identical to MERGE_HEAD 285b9edf1dd60b80b9a7414a46d94d46ab83ecab

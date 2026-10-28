@@ -438,10 +438,13 @@ def cmd_fetch(a):
         rows = list(csv.DictReader(f))
     for r in rows:
         dest = confined_path(out, r["cache_path"])  # before any fetch or write; a bad row aborts the restore
-        body = raw.get(object_key(r["sha256"]))
+        key = object_key(r["sha256"])
+        body = raw.get(key)
+        # R2 has no bucket write-once policy: even a hash-addressed key can be overwritten.
+        # Hash the downloaded bytes ourselves before touching the destination; metadata is not proof.
         digest = sha256_bytes(body)
         if digest != r["sha256"]:
-            print(f"{r['sample_id']}: hash_mismatch: expected {r['sha256']}, downloaded {digest}", file=sys.stderr)
+            print(f"{r['sample_id']}: hash_mismatch: {key}: expected {r['sha256']}, downloaded {digest}", file=sys.stderr)
             return 1
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)

@@ -229,7 +229,7 @@ flowchart TD
 
 | ID | 불변식 | 강제 위치 | 상태 |
 |---|---|---|---|
-| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트 | 구현(엔진) |
+| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md)) | 구현(엔진) |
 | I2 | 계산 결과는 규칙 버전·릴리스·내용 해시·근거를 갖는다 | 엔진 `review_fixes` | 구현(엔진) |
 | I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail` 문서 테스트 | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
@@ -246,7 +246,7 @@ flowchart TD
 | I15 | 출시 문구에 "전문가 검수"가 없다 | 문구 린트 | 미구현 |
 | I16 | 공개 릴리스는 불변이고 롤백은 manifest 교체다 | 릴리스 테스트 | 미구현 |
 | I17 | 분모 근거 없이 "전수"라고 표시하지 않는다 | `/coverage` 생성 로직 | 미구현 |
-| I18 | 같은 입력·릴리스·엔진이면 같은 결과다 | 엔진 재현성·`snapshot_hash` 테스트([정규 JSON 해시 검증](blueprint/audits/2026-10-26_engine_snapshot_hash_encoding.md)) | 구현(엔진) |
+| I18 | 같은 입력·릴리스·엔진이면 같은 결과다 | 엔진 재현성(실제 조항 7개·파일 재로딩·중첩 키 순서 변경, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·`snapshot_hash` 테스트([정규 JSON 해시 검증](blueprint/audits/2026-10-26_engine_snapshot_hash_encoding.md)) | 구현(엔진) |
 
 ## 9. 구현 순서와 관문
 
@@ -348,7 +348,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 201 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 202 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 38 | `tools/validation_check.py`의 `mutations()` |

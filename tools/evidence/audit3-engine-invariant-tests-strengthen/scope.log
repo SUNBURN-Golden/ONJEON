@@ -1,0 +1,24 @@
+Allowed-path and protected-path checks: PASS
+Changed files:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/tests/common/mod.rs
+packages/rules-engine/tests/golden.rs
+packages/rules-engine/tests/soundness.rs
+tools/evidence/audit3-engine-invariant-tests-strengthen/clippy.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/counts-tests.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/counts.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/fmt.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/focused.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/negative-controls.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/negative_controls.py
+tools/evidence/audit3-engine-invariant-tests-strengthen/product-purpose.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/purpose-tests.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/spec-check.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/status.log
+tools/evidence/audit3-engine-invariant-tests-strengthen/workspace.log
+New audit local links: PASS
+Changed text trailing whitespace: PASS
+Original real rule hash pins unchanged: PASS

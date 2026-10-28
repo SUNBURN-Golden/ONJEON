@@ -18,23 +18,13 @@ fn hiding_an_input_never_changes_a_definite_answer() {
     let rule = Rule::from_json(&rule_json()).unwrap();
     let mut checked = 0;
     for case in cases() {
-        let full = observe(&rule, &case["inputs"]);
-        if !is_definite(&full) {
-            continue;
-        }
-        for name in case["inputs"].as_object().unwrap().keys() {
-            let mut hidden = case["inputs"].clone();
-            hidden[name] = J::Null;
-            let obs = observe(&rule, &hidden);
-            if is_definite(&obs) {
-                assert_eq!(
-                    obs["payout"], full["payout"],
-                    "case {} hiding {name}: definite answer changed",
-                    case["id"]
-                );
-            }
-            checked += 1;
-        }
+        let (n, flips) = hide_each_input(
+            &|i| observe(&rule, i),
+            case["id"].as_str().unwrap(),
+            &case["inputs"],
+        );
+        assert!(flips.is_empty(), "{}", flips.join("\n"));
+        checked += n;
     }
     assert!(
         checked >= 20,
@@ -42,7 +32,7 @@ fn hiding_an_input_never_changes_a_definite_answer() {
     );
 }
 
-/// Hide each input of `inputs` in turn; return how many hidden variants were checked and
+/// Hide each known input with both null and key omission; return the number checked and
 /// every variant whose definite answer differs from the fully-known one.
 fn hide_each_input(observe: &dyn Fn(&J) -> J, id: &str, inputs: &J) -> (usize, Vec<String>) {
     let full = observe(inputs);
@@ -51,17 +41,26 @@ fn hide_each_input(observe: &dyn Fn(&J) -> J, id: &str, inputs: &J) -> (usize, V
     if !is_definite(&full) {
         return (checked, flips);
     }
-    for name in inputs.as_object().unwrap().keys() {
-        let mut hidden = inputs.clone();
-        hidden[name] = J::Null;
-        let obs = observe(&hidden);
-        if is_definite(&obs) && obs["payout"] != full["payout"] {
-            flips.push(format!(
-                "case {id} hiding {name}: {} became {}",
-                full["payout"], obs["payout"]
-            ));
+    for (name, value) in inputs.as_object().unwrap() {
+        if value.is_null() {
+            continue; // Already unknown: this would not test hiding information.
         }
-        checked += 1;
+        for mode in ["null", "omitted"] {
+            let mut hidden = inputs.clone();
+            if mode == "null" {
+                hidden[name] = J::Null;
+            } else {
+                hidden.as_object_mut().unwrap().remove(name);
+            }
+            let obs = observe(&hidden);
+            if is_definite(&obs) && obs["payout"] != full["payout"] {
+                flips.push(format!(
+                    "case {id} hiding {name} ({mode}): {} became {}",
+                    full["payout"], obs["payout"]
+                ));
+            }
+            checked += 1;
+        }
     }
     (checked, flips)
 }
@@ -70,28 +69,34 @@ fn hide_each_input(observe: &dyn Fn(&J) -> J, id: &str, inputs: &J) -> (usize, V
 fn hiding_an_input_never_changes_a_definite_answer_on_real_rules() {
     // I1 on the real-clause rules: the same invariant as the synthetic fixture above.
     let rules = real_rules();
+    assert_eq!(
+        rules.keys().map(String::as_str).collect::<Vec<_>>(),
+        REAL_RULE_IDS,
+        "real rule inventory must stay at seven audited rules"
+    );
     let mut checked = 0;
-    let mut rules_exercised = std::collections::BTreeSet::new();
+    let mut per_rule = std::collections::BTreeMap::<String, usize>::new();
     let mut flips = Vec::new();
     for (case, rule_id, inputs) in real_cases() {
         let rule = &rules[&rule_id];
         let (n, f) = hide_each_input(&|i| observe(rule, i), case["id"].as_str().unwrap(), &inputs);
         if n > 0 {
-            rules_exercised.insert(rule_id);
+            *per_rule.entry(rule_id).or_default() += n;
         }
         checked += n;
         flips.extend(f);
     }
     assert!(flips.is_empty(), "{}", flips.join("\n"));
     assert_eq!(
-        rules_exercised.len(),
-        rules.len(),
-        "every real rule needs a definite case to hide inputs from; exercised {rules_exercised:?}"
+        per_rule.keys().collect::<Vec<_>>(),
+        rules.keys().collect::<Vec<_>>(),
+        "every real rule needs a definite case to hide inputs from; exercised {per_rule:?}"
     );
     assert!(
         checked >= 200,
         "expected many hidden-input combinations on real rules, ran {checked}"
     );
+    println!("I1 null/omission variants by rule: {per_rule:?}; total {checked}");
 }
 
 #[test]
@@ -105,23 +110,25 @@ fn hide_check_catches_unknown_treated_as_false_on_real_rules() {
         let rule = &rules[&rule_id];
         let broken = |i: &J| {
             let mut i = i.clone();
-            for (name, v) in i.as_object_mut().unwrap() {
-                if v.is_null() {
-                    match rule.source_json()["inputs"][name].as_str() {
-                        Some("bool") => *v = J::Bool(false),
-                        Some("int" | "money_krw") => *v = J::from(0),
+            for (name, ty) in rule.source_json()["inputs"].as_object().unwrap() {
+                if i.get(name).is_none_or(J::is_null) {
+                    match ty.as_str() {
+                        Some("bool") => i[name] = J::Bool(false),
+                        Some("int" | "money_krw") => i[name] = J::from(0),
                         _ => {}
-                    }
+                    };
                 }
             }
             observe(rule, &i)
         };
         flips.extend(hide_each_input(&broken, case["id"].as_str().unwrap(), &inputs).1);
     }
-    assert!(
-        !flips.is_empty(),
-        "the checker must detect an unknown-as-false evaluator"
-    );
+    for mode in ["null", "omitted"] {
+        assert!(
+            flips.iter().any(|f| f.contains(&format!("({mode})"))),
+            "the checker must detect an unknown-as-false evaluator for {mode}"
+        );
+    }
 }
 
 #[test]
@@ -146,7 +153,7 @@ fn hiding_eligibility_keeps_an_overflowing_amount_undetermined() {
     let full = json!({"flag": false, "amt": i64::MAX});
     assert_eq!(rule.evaluate(&full).unwrap().payout, Payout::NotPayable);
     let (checked, flips) = hide_each_input(&|i| observe(&rule, i), "amount-overflow", &full);
-    assert_eq!(checked, 2);
+    assert_eq!(checked, 4);
     assert!(flips.is_empty(), "{flips:?}");
 
     for hidden in [

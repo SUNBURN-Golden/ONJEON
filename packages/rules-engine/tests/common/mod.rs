@@ -4,6 +4,17 @@ use serde_json::{json, Map, Value as J};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+// Deliberate inventory: losing a rule file must not shrink invariant coverage silently.
+pub const REAL_RULE_IDS: [&str; 7] = [
+    "kb-driver-fine",
+    "kb-driver-lawyer-fee",
+    "kyobo-1995-cancer-waiting",
+    "kyobo-cancer-main-dx",
+    "kyobo-small-cancer-skin",
+    "kyobo-wholelife-accident-death",
+    "kyobo-wholelife-disease-death",
+];
+
 pub fn fixtures_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../fixtures/rules")
 }

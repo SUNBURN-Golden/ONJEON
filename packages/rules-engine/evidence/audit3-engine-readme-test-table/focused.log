@@ -1,0 +1,47 @@
+$ cargo test -p onjeon-rules-engine --locked --offline --test readme_test_table --test vocabulary --test real_clauses
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running tests/readme_test_table.rs (<target>/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 5 tests
+test readme_does_not_call_the_content_hash_normalized ... ok
+test audited_rows_are_present ... ok
+test readme_explains_fixture_only_without_limiting_it_to_synthetic_rules ... ok
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/real_clauses.rs (<target>/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 11 tests
+test screen_check_catches_tampered_numbers ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test waiting_period_units_are_not_interchangeable ... ok
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+test every_real_clause_case_matches ... ok
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... ok
+test exact_case_count_check_catches_an_unexpected_extra_case - should panic ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+test exact_case_count_check_catches_each_missing_file ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/vocabulary.rs (<target>/debug/deps/vocabulary-45281aec3561603e)
+
+running 9 tests
+test payout_names_are_canonical ... ok
+test rounding_modes_are_canonical ... ok
+test operator_allowlist_is_canonical_and_versioned ... ok
+test fixture_only_definition_covers_synthetic_and_real_clause_validation ... ok
+test amount_kind_names_are_canonical ... ok
+test input_types_are_canonical_and_versioned ... ok
+test tri_names_are_canonical ... ok
+test duration_units_are_canonical ... ok
+test publication_states_are_canonical ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+EXIT_CODE: 0

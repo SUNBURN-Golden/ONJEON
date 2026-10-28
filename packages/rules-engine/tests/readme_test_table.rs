@@ -65,17 +65,40 @@ fn audited_rows_are_present() {
 
 #[test]
 fn checker_catches_a_dropped_row_and_a_stale_row() {
-    let row = README
-        .lines()
-        .find(|l| l.starts_with("| `real_clauses` |"))
-        .unwrap();
-    let dropped = README.replace(&format!("{row}\n"), "");
-    assert!(!listed(&dropped).contains("real_clauses"));
-    assert!(listed(&dropped).len() + 1 == listed(README).len());
+    for name in ["real_clauses", "vocabulary"] {
+        let row = README
+            .lines()
+            .find(|l| l.starts_with(&format!("| `{name}` |")))
+            .unwrap();
+        let dropped = README.replace(&format!("{row}\n"), "");
+        let missing: Vec<_> = on_disk().difference(&listed(&dropped)).cloned().collect();
+        assert_eq!(missing, [name], "must detect the omitted {name} row");
 
-    let stale = README.replace("| `vocabulary` |", "| `vocabulary_old` |");
-    assert!(listed(&stale).contains("vocabulary_old"));
-    assert!(!listed(&stale).contains("vocabulary"));
+        let renamed = README.replace(&format!("| `{name}` |"), &format!("| `{name}_old` |"));
+        let table = listed(&renamed);
+        let disk = on_disk();
+        let missing: Vec<_> = disk.difference(&table).cloned().collect();
+        let stale: Vec<_> = table.difference(&disk).cloned().collect();
+        assert_eq!(missing, [name]);
+        assert_eq!(stale, [format!("{name}_old")]);
+    }
+}
+
+#[test]
+fn readme_explains_fixture_only_without_limiting_it_to_synthetic_rules() {
+    let definition = README
+        .lines()
+        .find(|l| l.starts_with("- `fixture_only`는"))
+        .expect("README must explain fixture_only");
+    for phrase in [
+        "시험·설계 검증 전용",
+        "합성 규칙",
+        "실제 조항",
+        "서비스 데이터가 아님",
+    ] {
+        assert!(definition.contains(phrase), "README must mention {phrase}");
+    }
+    assert!(!README.contains("모두 `fixture_only` 합성 규칙"));
 }
 
 #[test]

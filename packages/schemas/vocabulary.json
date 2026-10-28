@@ -1,6 +1,6 @@
 {
   "version": "1.8.0",
-  "updated": "2026-10-28",
+  "updated": "2026-10-29",
   "rules": [
     "축(axis)이 다른 상태를 한 값에 섞지 않는다. 값 상태·검수 상태·기능 자격·화면 상태·초안 상태는 서로 다른 축이다.",
     "저장값은 소문자 snake_case ASCII다. 화면 문구는 이 파일의 screen_ko만 쓴다.",
@@ -1489,11 +1489,11 @@
       "name_ko": "규칙 공개 상태",
       "applies_to": "Rule",
       "layer": "L6-L7",
-      "concept_ko": "합성 픽스처와 실제 규칙을 구분",
+      "concept_ko": "규칙의 공개 상태. 원문 출처(합성·실제 조항)를 구분하는 축이 아님",
       "values": [
         {
           "code": "fixture_only",
-          "concept_ko": "합성 규칙. 근거·릴리스 없이 허용",
+          "concept_ko": "시험·설계 검증 전용 규칙. 합성 규칙과 실제 조항 기반 검증 규칙을 포함하며 서비스 데이터가 아님. 근거·릴리스 없이 허용",
           "screen_ko": null,
           "deprecated_aliases": []
         },

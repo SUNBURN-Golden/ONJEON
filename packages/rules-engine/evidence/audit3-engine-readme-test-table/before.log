@@ -1,0 +1,54 @@
+$ cargo test -p onjeon-rules-engine --offline --test readme_test_table --test vocabulary
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.35s
+     Running tests/readme_test_table.rs (<target>/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 5 tests
+test audited_rows_are_present ... ok
+test readme_does_not_call_the_content_hash_normalized ... ok
+test readme_explains_fixture_only_without_limiting_it_to_synthetic_rules ... FAILED
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+failures:
+
+---- readme_explains_fixture_only_without_limiting_it_to_synthetic_rules stdout ----
+
+thread 'readme_explains_fixture_only_without_limiting_it_to_synthetic_rules' (2890006) panicked at packages/rules-engine/tests/readme_test_table.rs:88:10:
+README must explain fixture_only
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    readme_explains_fixture_only_without_limiting_it_to_synthetic_rules
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test readme_test_table`
+
+EXIT_CODE: 101
+
+$ cargo test -p onjeon-rules-engine --offline --test vocabulary fixture_only_definition
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/vocabulary.rs (<target>/debug/deps/vocabulary-45281aec3561603e)
+
+running 1 test
+test fixture_only_definition_covers_synthetic_and_real_clause_validation ... FAILED
+
+failures:
+
+---- fixture_only_definition_covers_synthetic_and_real_clause_validation stdout ----
+
+thread 'fixture_only_definition_covers_synthetic_and_real_clause_validation' (2893296) panicked at packages/rules-engine/tests/vocabulary.rs:111:9:
+fixture_only must cover 시험·설계 검증 전용
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    fixture_only_definition_covers_synthetic_and_real_clause_validation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test vocabulary`
+
+EXIT_CODE: 101

@@ -964,11 +964,11 @@ enum SaleStatus {
   String toJson() => code;
 }
 
-/// 규칙 공개 상태: 합성 픽스처와 실제 규칙을 구분
+/// 규칙 공개 상태: 규칙의 공개 상태. 원문 출처(합성·실제 조항)를 구분하는 축이 아님
 ///
 /// Axis `publication_state`. Unknown values throw (never a default).
 enum PublicationState {
-  /// 합성 규칙. 근거·릴리스 없이 허용
+  /// 시험·설계 검증 전용 규칙. 합성 규칙과 실제 조항 기반 검증 규칙을 포함하며 서비스 데이터가 아님. 근거·릴리스 없이 허용
   fixtureOnly('fixture_only'),
   /// 후보 릴리스
   candidate('candidate'),

@@ -1,0 +1,27 @@
+Allowed: docs/BLUEPRINT.md
+Allowed: docs/blueprint/audits/2026-10-28_engine_moneyrange_compare_load_check.md
+Allowed: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+Allowed: packages/rules-engine/README.md
+Allowed: packages/rules-engine/tests/range_comparisons.rs
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/clippy.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/counts-check.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/counts-tests.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/counts.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/fmt.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/focused.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/negative-control.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/negative_control.py
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/product-purpose.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/purpose-tests.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/scope.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/spec-check.log
+Allowed: tools/evidence/audit3-engine-moneyrange-compare-load-check/workspace.log
+Unchanged: docs/PRINCIPLES.md
+Unchanged: docs/data
+Unchanged: docs/design/CONSUMER_FLOW_SPEC.md
+Unchanged: DECISION_REQUIRED.md
+Unchanged: packages/rules-engine/src
+Unchanged: packages/fixtures
+All local audit links exist.
+Temporary negative-control crates cleaned up.
+git diff --check passed.

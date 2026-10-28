@@ -95,3 +95,33 @@ README에 같은 작업 트리별 검증 명령을 기록했다.
 
 이 재검증은 로컬 결과다. 감독자 재검증도 위처럼 작업 트리 내부 target을 지정해야
 삭제된 검토 작업 트리의 바이너리를 재사용하지 않는다. commit·push·GitHub 호출은 수행하지 않았다.
+
+## Fix round 2: main 병합 충돌과 결합 검증
+
+병합 중 충돌은 BLUEPRINT §11의 자동 생성 엔진 시험 등록 수 한 곳이었다.
+날짜 회귀 시험과 main의 금액 범위 비교 회귀 시험·I5 근거 연결을 모두 유지하고,
+`CARGO_TARGET_DIR="$PWD/target" CARGO_NET_OFFLINE=true python3 -I tools/blueprint_counts.py --write`로
+결합된 코드에서 표를 재생성했다. 어느 한쪽의 206·207을 선택하지 않고 실제 등록 수
+**208개·doctest 3개**로 해결했다. 충돌 해결 파일을 index에 반영했으며 병합 commit은
+감독자에게 남겼다. main에서 들어온 증거 로그 두 파일의 마지막 빈 줄만 제거해
+`git diff --cached --check`도 통과시켰다.
+
+아래 검증은 모두 이 작업 트리에서 직접 실행했다. Cargo 실행과 Cargo를 호출하는
+Python 검사는 `CARGO_TARGET_DIR="$PWD/target"`을 사용했다.
+로그 위치: [fix-round2/](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/).
+
+| 명령 | 결과·로그 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --locked --offline --lib --test date_format --test range_comparisons --test fixture_supplements` | 단위 10개·날짜 4개·범위 비교 10개·fixture supplement 4개 통과: [focused.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/focused.log) |
+| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | Rust 473개 통과·실패 0·기존 ignored 1개. 내부 Python 39개·129개 통과: [workspace.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/workspace.log) |
+| `CARGO_NET_OFFLINE=true python3 -I -m unittest discover -s tools/tests -v` | 1,271개 실행·실패 0·skip 36: [python-tests.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/python-tests.log) |
+| `python3 -I tools/evidence/audit3-engine-parse-date-strict/negative_control.py` | 정상 날짜 시험 4개 통과, 숫자 검사 제거 시 거부 시험 3개 실패: [요약](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/negative-control.log), [정상](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/control-baseline.log), [변이](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/control-permissive.log) |
+| `cargo fmt --all -- --check` · `cargo clippy --all-targets --locked --offline -- -D warnings` | 모두 종료 코드 0: [fmt.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/fmt.log), [clippy.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/clippy.log) |
+| `python3 -I tools/blueprint_counts.py` | 등록 수 일치: [counts.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/counts.log) |
+| `python3 -I tools/ci/check_product_purpose.py` · `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 목적 대응 검사 통과·기계 검사 45/45·존재 검사 72/72 통과: [목적](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/product-purpose.log), [명세](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/spec-check.log) |
+| `python3 -I tools/blueprint_status.py` · `python3 -I tools/vocab_check.py` · `python3 -I tools/validation_check.py` | 모두 통과: [상태](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/status.log), [어휘](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/vocab.log), [검증 자료](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/validation.log) |
+
+이 결과는 병합된 엔진의 로컬 회귀 검증이며 제품 출시 완료 증거는 아니다.
+보호 문서·공유 fixture·날짜 파서 실행 로직은 변경하지 않았다.
+[scope.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/scope.log)에
+미해결 충돌 없음·양쪽 시험 보존·허용 경로·문서 링크·diff 공백 검사를 기록했다.

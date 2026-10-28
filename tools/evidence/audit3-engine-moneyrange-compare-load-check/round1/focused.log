@@ -1,0 +1,72 @@
+$ cargo test -p onjeon-rules-engine --locked --offline --test range_comparisons --test all_any_errors --test unknown_branch_errors --test soundness --test readme_test_table
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running tests/all_any_errors.rs (target/debug/deps/all_any_errors-13afaee0138aa697)
+
+running 7 tests
+test absorbed_errors_have_deterministic_trace_entries_without_partial_children ... ok
+test unknown_children_keep_their_blockers_without_defaulting_to_a_decision ... ok
+test any_true_absorbs_runtime_errors_in_both_versions ... ok
+test all_false_absorbs_runtime_errors_in_both_versions ... ok
+test errors_are_preserved_without_a_decisive_child ... ok
+test decisive_result_wins_over_errors_and_unknowns_in_every_child_order ... ok
+test nested_all_any_and_if_keep_decisions_and_relevant_errors ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/range_comparisons.rs (target/debug/deps/range_comparisons-52c9a26577a11945)
+
+running 10 tests
+test mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns ... ok
+test pro_rata_ratio_operands_still_require_exact_money ... ok
+test audit_p201_is_rejected_before_input_dependent_failure ... ok
+test static_range_checks_do_not_depend_on_constant_values_or_reachable_branches ... ok
+test v02_rounding_operators_introduce_ranges ... ok
+test v02_money_operators_preserve_input_ranges_even_with_explicit_rounding ... ok
+test exact_money_threshold_comparisons_preserve_order_and_missing_inputs ... ok
+test nested_and_unreachable_comparisons_fail_at_both_load_boundaries ... ok
+test ranges_propagate_through_every_v01_money_operator_and_if_branch ... ok
+test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/readme_test_table.rs (target/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 4 tests
+test readme_does_not_call_the_content_hash_normalized ... ok
+test audited_rows_are_present ... ok
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/soundness.rs (target/debug/deps/soundness-7683122ddc54e9c2)
+
+running 9 tests
+test hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer ... ok
+test unknown_is_never_reported_as_zero_or_not_payable ... ok
+test hiding_eligibility_keeps_an_overflowing_amount_undetermined ... ok
+test unknown_eligibility_handles_all_any_errors_inside_conditional_amount ... ok
+test unknown_eligibility_preserves_successful_conditional_amounts_and_blockers ... ok
+test unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors ... ok
+test hiding_an_input_never_changes_a_definite_answer ... ok
+test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
+test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/unknown_branch_errors.rs (target/debug/deps/unknown_branch_errors-042ef5e7e77aab11)
+
+running 8 tests
+test both_branches_failing_is_still_an_error ... ok
+test a_failing_branch_never_makes_the_other_branch_the_answer ... ok
+test blockers_include_the_other_unknown_branch ... ok
+test a_selected_failing_branch_is_still_an_error ... ok
+test failing_branch_under_unknown_condition_is_unknown_with_blockers ... ok
+test type_errors_in_a_branch_are_absorbed_too ... ok
+test eligibility_branch_errors_leave_eligibility_unknown ... ok
+test trace_records_the_absorbed_error_and_is_deterministic ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+exit code: 0

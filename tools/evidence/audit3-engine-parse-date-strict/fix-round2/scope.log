@@ -1,0 +1,6 @@
+PASS: no unmerged index entries; merge commit left to supervisor
+PASS: strict date parser and date regressions preserved from HEAD; range regressions preserved from main
+PASS: protected paths and shared fixtures unchanged
+PASS: every changed or untracked path is allowed for this node
+PASS: changed date audit and resolved blueprint have valid local links and no conflict markers
+PASS: staged and unstaged diff whitespace checks

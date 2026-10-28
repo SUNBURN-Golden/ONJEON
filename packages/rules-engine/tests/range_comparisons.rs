@@ -1,4 +1,4 @@
-//! Audit 2: a comparison must not load if either operand can produce a money range.
+//! Audits 2 and 3: a comparison must not load if either operand can produce a money range.
 use onjeon_rules_engine::{AmountOut, Payout, Rule};
 use serde_json::{json, Value as J};
 
@@ -22,6 +22,16 @@ fn range() -> J {
     scaled(json!("p"), "unspecified")
 }
 
+fn assert_load_rejected(source: &J, path: &str) {
+    // Exercise both public load boundaries; neither requires evaluation inputs.
+    let text = serde_json::to_string(source).unwrap();
+    for result in [Rule::from_json(source), Rule::from_json_str(&text)] {
+        let err = result.expect_err("range comparison must fail at load");
+        assert_eq!(err.path, path, "{source}");
+        assert!(err.message.contains("money_range"), "{err}: {source}");
+    }
+}
+
 fn assert_comparison_rejected(version: &str, expr: J) {
     for op in COMPARISONS {
         for operands in [
@@ -30,9 +40,48 @@ fn assert_comparison_rejected(version: &str, expr: J) {
             json!([expr, expr]),
         ] {
             let source = rule(version, json!({op: operands}), json!({"krw": 1}));
-            let err = Rule::from_json(&source).expect_err("range comparison must fail at load");
-            assert_eq!(err.path, format!("eligibility.{op}"), "{source}");
-            assert!(err.message.contains("money_range"), "{err}: {source}");
+            assert_load_rejected(&source, &format!("eligibility.{op}"));
+        }
+    }
+}
+
+#[test]
+fn nested_and_unreachable_comparisons_fail_at_both_load_boundaries() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for op in COMPARISONS {
+            for operands in [
+                json!([range(), {"krw": 100}]),
+                json!([{"krw": 100}, range()]),
+                json!([range(), range()]),
+            ] {
+                let cmp = json!({op: operands});
+                // Even a decisive sibling or a constant condition cannot bypass I5.
+                for (eligibility, prefix) in [
+                    (json!({"all": [false, cmp]}), "eligibility.all[1]"),
+                    (json!({"any": [true, cmp]}), "eligibility.any[1]"),
+                    (json!({"not": cmp}), "eligibility.not"),
+                    (
+                        json!({"if": false, "then": cmp, "else": true}),
+                        "eligibility.then",
+                    ),
+                    (
+                        json!({"if": true, "then": false, "else": cmp}),
+                        "eligibility.else",
+                    ),
+                    (
+                        json!({"if": cmp, "then": true, "else": false}),
+                        "eligibility.if",
+                    ),
+                ] {
+                    let source = rule(version, eligibility, json!({"krw": 1}));
+                    assert_load_rejected(&source, &format!("{prefix}.{op}"));
+                }
+                let amount = json!({"if": false, "then": {"add": [
+                    {"krw": 1}, {"if": cmp, "then": {"krw": 1}, "else": {"krw": 0}}
+                ]}, "else": {"krw": 0}});
+                let source = rule(version, json!(false), amount);
+                assert_load_rejected(&source, &format!("amount.then.add[1].if.{op}"));
+            }
         }
     }
 }
@@ -198,6 +247,51 @@ fn exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes() {
                         result.payout, expected,
                         "{version}: {rounding}: {op}: {expr}"
                     );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn exact_money_threshold_comparisons_preserve_order_and_missing_inputs() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for rounding in ["floor", "ceil", "half_up", "half_even"] {
+            for op in COMPARISONS {
+                let source = rule(
+                    version,
+                    json!({op: [scaled(json!("p"), rounding), {"krw": 100}]}),
+                    json!({"krw": 1}),
+                );
+                let loaded = Rule::from_json_str(&serde_json::to_string(&source).unwrap()).unwrap();
+                // Below, at, and above the threshold, independent of tie rounding.
+                for (p, expected_ops) in [
+                    (198, ["ne", "lt", "lte"]),
+                    (200, ["eq", "lte", "gte"]),
+                    (202, ["ne", "gt", "gte"]),
+                ] {
+                    let expected = if expected_ops.contains(&op) {
+                        Payout::Payable {
+                            amount: AmountOut::Exact { krw: 1 },
+                        }
+                    } else {
+                        Payout::NotPayable
+                    };
+                    assert_eq!(
+                        loaded.evaluate(&json!({"p": p})).unwrap().payout,
+                        expected,
+                        "{version}: {rounding}: {op}: p={p}"
+                    );
+                }
+                for inputs in [json!({}), json!({"p": null})] {
+                    let result = loaded.evaluate(&inputs).unwrap();
+                    assert_eq!(
+                        result.payout,
+                        Payout::Undetermined {
+                            conditional_amount: AmountOut::Exact { krw: 1 }
+                        }
+                    );
+                    assert_eq!(result.missing_inputs, vec!["p"]);
                 }
             }
         }

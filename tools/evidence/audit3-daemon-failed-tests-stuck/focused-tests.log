@@ -1,0 +1,20 @@
+test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) ... ok
+test_fallback_comes_from_rule_data (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_fallback_comes_from_rule_data) ... ok
+test_guard_field_also_uses_the_row_fallback (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_field_also_uses_the_row_fallback) ... ok
+test_guard_specific_invalid_instruction_keeps_R13_priority (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_specific_invalid_instruction_keeps_R13_priority) ... ok
+test_passing_guards_reissue_once (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_passing_guards_reissue_once) ... ok
+test_third_failure_keeps_R06_even_if_guards_fail (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_third_failure_keeps_R06_even_if_guards_fail) ... ok
+test_a_failed_usage_write_is_not_queued_for_a_result_not_taken (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_failed_usage_write_is_not_queued_for_a_result_not_taken) ... ok
+test_a_queued_lease_request_leaves_no_slot (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_queued_lease_request_leaves_no_slot) ... ok
+test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) ... ok
+test_an_invalid_envelope_is_a_transition_and_commits (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_an_invalid_envelope_is_a_transition_and_commits)
+instruction_envelope_valid emits envelope_invalid (G48): the result is taken and the task returns. ... ok
+test_keep_diagnostics_decides_what_stays (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_keep_diagnostics_decides_what_stays) ... ok
+test_on_guard_wait_is_data (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_on_guard_wait_is_data) ... ok
+test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) ... ok
+test_the_same_envelope_is_taken_once_the_guard_passes (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_the_same_envelope_is_taken_once_the_guard_passes) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.367s
+
+OK

@@ -4,8 +4,8 @@ Everything a row does comes from its own fields: cond, guard, side_effects (in o
 effects run before any cond of the event is looked at, once), return_code, on_cond_fail. noop_rules decide
 which events are noops. Events that no row maps are unmapped_condition (returned, R-03). A lease guard that fails
 runs its own on_fail (lease_guards[].on_fail: wait, or emit_event, G48). A failure that only waits is marked
-`guard_wait` in the outcome; the caller's transaction is then discarded (operations.issue_lease.on_guard_wait,
-engine._txn), so nothing the event wrote before the guard was looked at stays (audit2-daemon-guard-fail-partial-commit).
+`guard_wait` in the outcome when the row has no explicit on_cond_fail fallback; the caller's transaction is then
+discarded (operations.issue_lease.on_guard_wait, engine._txn), so nothing the event wrote before the guard was looked at stays (audit2-daemon-guard-fail-partial-commit).
 
 No caller names the destination: rows that share (from, event) are told apart by their cond (merged -> audit_queued /
 done on impl_counter_incremented: event.docs_only, audit2-daemon-docs-pr-never-done).
@@ -43,9 +43,9 @@ def _noop_rule(core, d, task_id, name, payload, envelope):
     return None
 
 
-def _guard_on_fail(core, d, task_id, gr, out, event):
+def _guard_on_fail(core, d, task_id, gr, out, event, tr, payload, envelope):
     """lease_guards[].on_fail of the guards that failed. emit_event runs only in its states and only when the
-    guards it depends on passed; everything else waits (no record beyond the diagnostic)."""
+    guards it depends on passed; otherwise the row fallback runs, or the event waits."""
     state = d["tasks"][task_id]["task_state"]["state"]
     passed = {n for n, ok in gr.items if ok}
     for guard in core.rules.view["lease_guards"]:
@@ -59,7 +59,20 @@ def _guard_on_fail(core, d, task_id, gr, out, event):
             payload[k] = gr.missing_fields if v == guard["check_function"] + ".missing_fields" else v
         out["emitted"].append(apply_event(core, d, task_id, on_fail["event"], payload))
         return
+    if _on_cond_fail(core, d, task_id, tr, payload, envelope, out):
+        return
     out["guard_wait"] = {"event": event, "failed": gr.failed}  # every failed guard waits: nothing of this event may be kept
+
+
+def _on_cond_fail(core, d, task_id, tr, payload, envelope, out):
+    """A row's explicit fallback follows guard-specific events and precedes a generic wait."""
+    emit = (tr or {}).get("on_cond_fail")
+    if not emit:
+        return False
+    ctx = core.ctx(d, task_id, event=payload, envelope=envelope)
+    args = {k: ctx.value(v) for k, v in (emit.get("args") or {}).items()}
+    out["emitted"].append(apply_event(core, d, task_id, emit["emit"], args, envelope))
+    return True
 
 
 def try_event(core, d, task_id, name, payload=None):
@@ -145,7 +158,7 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None, recount=Tru
             if not gr.all_pass:
                 core.rec.diagnostic(d, task_id, "guard_failed", event=name, guard=tr["guard"], failed=gr.failed)
                 out["rejected"] = ("guard", gr.failed)
-                _guard_on_fail(core, d, task_id, gr, out, name)
+                _guard_on_fail(core, d, task_id, gr, out, name, tr, payload, envelope)
                 return out
         if not ok:
             if first_fail is None:
@@ -157,13 +170,9 @@ def apply_event(core, d, task_id, name, payload=None, envelope=None, recount=Tru
     core.rec.diagnostic(d, task_id, "cond_not_met", event=name, state=ts["state"], cond=recs)
     out["rejected"] = ("cond", recs)
     if guard_fail is not None:
-        _guard_on_fail(core, d, task_id, guard_fail, out, name)
+        _guard_on_fail(core, d, task_id, guard_fail, out, name, tr, payload, envelope)
         return out
-    if tr is not None and tr.get("on_cond_fail"):
-        emit = tr["on_cond_fail"]
-        ctx = core.ctx(d, task_id, event=payload, envelope=envelope)
-        args = {k: ctx.value(v) for k, v in (emit.get("args") or {}).items()}
-        out["emitted"].append(apply_event(core, d, task_id, emit["emit"], args, envelope))
+    _on_cond_fail(core, d, task_id, tr, payload, envelope, out)
     return out
 
 

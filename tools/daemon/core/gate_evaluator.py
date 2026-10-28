@@ -1,7 +1,7 @@
 """Predicate and expression evaluation for the structured conditions in daemon_rules.json.
 
 A predicate is {field, op, value}. op is one of core_contract.predicate_ops (==, !=, <, <=, >, >=, in, not_in,
-all_pass, all_present, any, all, and subset_of, not_subset_of, is_bool, is_list added by G49).
+all_pass, all_present, any, all, has_fields, and subset_of, not_subset_of, is_bool, is_list added by G49).
 `field` is a store path, clock.now, a rules path, a function registered in `funcs`, or one of the special forms:
 "any" / "all" (value is a list of predicates), "true", `<rules list>[*].<attr>` (one boolean per list item) and
 `count(<collection> where <atom> and ...)`.
@@ -429,7 +429,57 @@ class Ctx:
             return isinstance(left, bool) == bool(right)
         if op == "is_list":
             return isinstance(left, list) == bool(right)
+        if op == "has_fields":
+            if not isinstance(left, dict) or not isinstance(right, list) or not right:
+                return False
+            return all(isinstance(key, str) and _field_present(left.get(key)) for key in right)
         raise SpecGap(f"unknown op {op}")
+
+
+def _field_present(value):
+    """PR body fields contain nonblank text, or a nonempty list of nonblank text (authors)."""
+    if isinstance(value, str):
+        return bool(value.strip())
+    return isinstance(value, list) and bool(value) and all(isinstance(x, str) and x.strip() for x in value)
+
+
+def normalize_path(path):
+    """Repository-relative file path, or None for unsafe input. No filesystem resolution."""
+    if not isinstance(path, str) or not path or "\0" in path or any(ch in path for ch in "*?[\\"):
+        return None
+    if path.startswith("/") or (len(path) > 1 and path[1] == ":"):
+        return None
+    parts = [seg for seg in path.split("/") if seg not in ("", ".")]
+    if not parts or ".." in parts:
+        return None
+    return "/".join(parts)
+
+
+def paths_within_scope(touched, task):
+    """R-01 predicate: exact paths / directory /** grants; forbidden globs fail closed.
+
+    Approved canon paths keep their existing exception. Malformed path containers are never empty changes.
+    This function is registered as result_scope_valid in the evaluation context; the rule data decides when
+    to require it and how to handle failure.
+    """
+    allowed, forbidden = task.get("allowed_paths"), task.get("forbidden_paths", [])
+    if not isinstance(touched, list) or not isinstance(allowed, list) or not isinstance(forbidden, list):
+        return False
+    if any(not isinstance(p, str) or not p for p in allowed + forbidden):
+        return False
+    approved = {normalize_path(a) for a in ((task.get("canon_change") or {}).get("approval") or {}).get("scope_paths") or []}
+    approved.discard(None)
+    for raw in touched:
+        path = normalize_path(raw)
+        if path is None:
+            return False
+        if path in approved:
+            continue
+        if not any(patterns_overlap(path, p) and (p == path or p.endswith("/**")) for p in allowed):
+            return False
+        if any(patterns_overlap(path, p) for p in forbidden):
+            return False
+    return True
 
 
 # ---------------------------------------------------------------- path pattern relations

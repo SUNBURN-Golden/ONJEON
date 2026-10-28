@@ -1,0 +1,706 @@
+test_forbidden_wins_inside_allowed_paths (tools.tests.test_daemon_dry_run.ResultGates.test_forbidden_wins_inside_allowed_paths) ... ok
+test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) ...
+  test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths=False) ... FAIL
+  test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths=0) ... FAIL
+  test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths='') ... FAIL
+  test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths={}) ... FAIL
+  test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths={'tools/mock/basic/ok.py': True}) ... FAIL
+test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) ...
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=None) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value='') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value='  ') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=[]) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value={}) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=False) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=0) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=None) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value='') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value='  ') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=[]) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value={}) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=False) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=0) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=None) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value='') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value='  ') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=[]) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value={}) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=False) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=0) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=None) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value='') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value='  ') ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=[]) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value={}) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=False) ... FAIL
+  test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=0) ... FAIL
+test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) ...
+  test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body=None) ... FAIL
+  test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body='task_id authors target_sha test_log_ref') ... FAIL
+  test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body=[]) ... FAIL
+  test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body={}) ... FAIL
+  test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body=False) ... FAIL
+test_missing_paths_are_an_invalid_envelope (tools.tests.test_daemon_dry_run.ResultGates.test_missing_paths_are_an_invalid_envelope) ... ok
+test_normalized_and_exact_allowed_paths_open_pr (tools.tests.test_daemon_dry_run.ResultGates.test_normalized_and_exact_allowed_paths_open_pr) ... ok
+test_outside_mixed_forbidden_and_invalid_paths_return_r01 (tools.tests.test_daemon_dry_run.ResultGates.test_outside_mixed_forbidden_and_invalid_paths_return_r01) ... ok
+test_pr_body_is_only_required_for_pr_opened (tools.tests.test_daemon_dry_run.ResultGates.test_pr_body_is_only_required_for_pr_opened) ... ok
+test_required_body_fields_are_read_from_rules (tools.tests.test_daemon_dry_run.ResultGates.test_required_body_fields_are_read_from_rules) ... ERROR
+test_scope_applies_to_failed_results_too (tools.tests.test_daemon_dry_run.ResultGates.test_scope_applies_to_failed_results_too) ... ok
+test_scope_failure_precedes_body_failure (tools.tests.test_daemon_dry_run.ResultGates.test_scope_failure_precedes_body_failure) ... ok
+test_stale_result_cannot_trigger_scope_or_body_rejection (tools.tests.test_daemon_dry_run.ResultGates.test_stale_result_cannot_trigger_scope_or_body_rejection) ... ok
+
+======================================================================
+ERROR: test_required_body_fields_are_read_from_rules (tools.tests.test_daemon_dry_run.ResultGates.test_required_body_fields_are_read_from_rules)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1527, in test_required_body_fields_are_read_from_rules
+    body = next(c for c in checks if c["id"] == "pr_body_fields")
+StopIteration
+
+======================================================================
+FAIL: test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1446, in test_malformed_path_containers_fail_closed
+    self.assert_scope_return(env, envelope)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1428, in assert_scope_return
+    self.assertEqual(out["transition"], ("building", "returned", "result_out_of_scope"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'pr_open', 'result_pr_opened') != ('building', 'returned', 'result_out_of_scope')
+
+First differing element 1:
+'pr_open'
+'returned'
+
+- ('building', 'pr_open', 'result_pr_opened')
+?               - ---             ^^    ---
+
++ ('building', 'returned', 'result_out_of_scope')
+?                 +++ ++           ^^^ +++++
+
+
+======================================================================
+FAIL: test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1446, in test_malformed_path_containers_fail_closed
+    self.assert_scope_return(env, envelope)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1428, in assert_scope_return
+    self.assertEqual(out["transition"], ("building", "returned", "result_out_of_scope"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'pr_open', 'result_pr_opened') != ('building', 'returned', 'result_out_of_scope')
+
+First differing element 1:
+'pr_open'
+'returned'
+
+- ('building', 'pr_open', 'result_pr_opened')
+?               - ---             ^^    ---
+
++ ('building', 'returned', 'result_out_of_scope')
+?                 +++ ++           ^^^ +++++
+
+
+======================================================================
+FAIL: test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1446, in test_malformed_path_containers_fail_closed
+    self.assert_scope_return(env, envelope)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1428, in assert_scope_return
+    self.assertEqual(out["transition"], ("building", "returned", "result_out_of_scope"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'pr_open', 'result_pr_opened') != ('building', 'returned', 'result_out_of_scope')
+
+First differing element 1:
+'pr_open'
+'returned'
+
+- ('building', 'pr_open', 'result_pr_opened')
+?               - ---             ^^    ---
+
++ ('building', 'returned', 'result_out_of_scope')
+?                 +++ ++           ^^^ +++++
+
+
+======================================================================
+FAIL: test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1446, in test_malformed_path_containers_fail_closed
+    self.assert_scope_return(env, envelope)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1428, in assert_scope_return
+    self.assertEqual(out["transition"], ("building", "returned", "result_out_of_scope"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'pr_open', 'result_pr_opened') != ('building', 'returned', 'result_out_of_scope')
+
+First differing element 1:
+'pr_open'
+'returned'
+
+- ('building', 'pr_open', 'result_pr_opened')
+?               - ---             ^^    ---
+
++ ('building', 'returned', 'result_out_of_scope')
+?                 +++ ++           ^^^ +++++
+
+
+======================================================================
+FAIL: test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) (paths={'tools/mock/basic/ok.py': True})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1446, in test_malformed_path_containers_fail_closed
+    self.assert_scope_return(env, envelope)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1428, in assert_scope_return
+    self.assertEqual(out["transition"], ("building", "returned", "result_out_of_scope"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('building', 'pr_open', 'result_pr_opened') != ('building', 'returned', 'result_out_of_scope')
+
+First differing element 1:
+'pr_open'
+'returned'
+
+- ('building', 'pr_open', 'result_pr_opened')
+?               - ---             ^^    ---
+
++ ('building', 'returned', 'result_out_of_scope')
+?                 +++ ++           ^^^ +++++
+
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value='  ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='task_id', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value='  ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='authors', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value='  ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='target_sha', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value='  ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) (field='test_log_ref', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1486, in test_missing_empty_and_wrong_type_pr_fields_reject_with_r09
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1498, in test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body='task_id authors target_sha test_log_ref')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1498, in test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1498, in test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1498, in test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+======================================================================
+FAIL: test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) (body=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-gate-touched-paths/tools/tests/test_daemon_dry_run.py", line 1498, in test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry
+    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-09"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, None) != (False, 'R-09')
+
+First differing element 0:
+True
+False
+
+- (True, None)
++ (False, 'R-09')
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.426s
+
+FAILED (failures=38, errors=1)

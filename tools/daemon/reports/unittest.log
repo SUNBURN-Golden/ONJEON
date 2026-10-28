@@ -1,4 +1,4 @@
-# generated from parent commit ed017d6a672cde82a67bc2ef2880287edb3afcb5 + tree hash of tools/daemon sources sha256:21ba374a9a469b611585d95dfcb4ac362e91db081df89639b7b07af45a034808
+# generated from parent commit e1c5f14c0de0e428e46fcb975e412f909d9557ed + tree hash of tools/daemon sources sha256:f7a8385353dfe2b8e7d43db0789f659cf02e9075ccf223614ac6897da905f7f7
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -170,6 +170,21 @@ test_removing_the_prereq_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.P
 test_check_keeps_a_copy_of_a_list_changed_later (tools.tests.test_daemon_dry_run.ReportValues.test_check_keeps_a_copy_of_a_list_changed_later) ... ok
 test_every_pass_row_prints_equal_expected_and_actual (tools.tests.test_daemon_dry_run.ReportValues.test_every_pass_row_prints_equal_expected_and_actual) ... ok
 test_late_result_row_shows_no_remote_write (tools.tests.test_daemon_dry_run.ReportValues.test_late_result_row_shows_no_remote_write) ... ok
+test_body_text_values_must_be_nonblank_including_list_items (tools.tests.test_daemon_dry_run.ResultGates.test_body_text_values_must_be_nonblank_including_list_items) ... ok
+test_forbidden_wins_inside_allowed_paths (tools.tests.test_daemon_dry_run.ResultGates.test_forbidden_wins_inside_allowed_paths) ... ok
+test_malformed_path_containers_fail_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_path_containers_fail_closed) ... ok
+test_malformed_scope_configuration_fails_closed (tools.tests.test_daemon_dry_run.ResultGates.test_malformed_scope_configuration_fails_closed) ... ok
+test_missing_empty_and_wrong_type_pr_fields_reject_with_r09 (tools.tests.test_daemon_dry_run.ResultGates.test_missing_empty_and_wrong_type_pr_fields_reject_with_r09) ... ok
+test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry (tools.tests.test_daemon_dry_run.ResultGates.test_missing_or_malformed_pr_body_rejects_then_same_envelope_can_retry) ... ok
+test_missing_paths_are_an_invalid_envelope (tools.tests.test_daemon_dry_run.ResultGates.test_missing_paths_are_an_invalid_envelope) ... ok
+test_normalized_and_exact_allowed_paths_open_pr (tools.tests.test_daemon_dry_run.ResultGates.test_normalized_and_exact_allowed_paths_open_pr) ... ok
+test_outside_mixed_forbidden_and_invalid_paths_return_r01 (tools.tests.test_daemon_dry_run.ResultGates.test_outside_mixed_forbidden_and_invalid_paths_return_r01) ... ok
+test_pr_body_is_only_required_for_pr_opened (tools.tests.test_daemon_dry_run.ResultGates.test_pr_body_is_only_required_for_pr_opened) ... ok
+test_predicates_recheck_the_pr_transition (tools.tests.test_daemon_dry_run.ResultGates.test_predicates_recheck_the_pr_transition) ... ok
+test_required_body_fields_are_read_from_rules (tools.tests.test_daemon_dry_run.ResultGates.test_required_body_fields_are_read_from_rules) ... ok
+test_scope_applies_to_failed_results_too (tools.tests.test_daemon_dry_run.ResultGates.test_scope_applies_to_failed_results_too) ... ok
+test_scope_failure_precedes_body_failure (tools.tests.test_daemon_dry_run.ResultGates.test_scope_failure_precedes_body_failure) ... ok
+test_stale_result_cannot_trigger_scope_or_body_rejection (tools.tests.test_daemon_dry_run.ResultGates.test_stale_result_cannot_trigger_scope_or_body_rejection) ... ok
 test_claimed_family_must_match_the_registry (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_claimed_family_must_match_the_registry) ... ok
 test_family_comes_from_the_registry (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_family_comes_from_the_registry) ... ok
 test_missing_or_empty_family_is_rejected (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_missing_or_empty_family_is_rejected) ... ok
@@ -284,6 +299,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 261 tests in 64.527s
+Ran 276 tests in 76.568s
 
 OK

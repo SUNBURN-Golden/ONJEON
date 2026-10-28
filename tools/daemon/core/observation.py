@@ -13,7 +13,7 @@ merged -> audit_queued / done), then the transition engine applies the row from 
 import json
 
 from . import transition_engine
-from .gate_evaluator import patterns_overlap
+from .gate_evaluator import normalize_path, paths_within_scope, patterns_overlap
 
 # ---- rules written in code (spec gaps)
 # G51: merge_wait.reason after each event that enters or stays in merge_wait (states.merge_wait is prose)
@@ -94,44 +94,20 @@ def _sync_decisions(d):
 
 # ---------------------------------------------------------------- results of the builder
 def result_event(core, task_id, envelope):
-    """The event of an accepted result envelope: result_<status>, or result_out_of_scope when touched_paths leave
-    the task's scope (04 §1 (c), R-01; G54). Scope: inside allowed_paths ∪ approval scope, and not inside
-    forbidden_paths unless the approved canon_change scope names the path."""
+    """Status event after accept_envelope's structured scope and PR body checks."""
     name = "result_" + str(envelope.get("status"))
     if name not in core.rules.transition_events:
         return "unmapped_condition"
-    if not out_of_scope(core, task_id, envelope.get("touched_paths") or []):
-        return name
-    return "result_out_of_scope"
+    return name
 
 
 def _inside(path, patterns):
     return any(patterns_overlap(path, p) and (p == path or p.endswith("/**")) for p in patterns or [])
 
 
-def _touches_forbidden(path, patterns):
-    """forbidden_first fails closed: any other glob (e.g. <dir>/*.csv) is read by its literal prefix, as
-    patterns_overlap reads it (G29), so a forbidden pattern is never skipped because its glob form is unknown."""
-    return any(patterns_overlap(path, p) for p in patterns or [])
-
-
-def normalize_path(path):
-    """A touched path as a repository-relative file path, or None when it cannot be compared safely (R-01 fails
-    closed): not a string, empty, absolute (/, \\, drive letter), a '..' segment, a NUL, or a glob character.
-    '.' segments and repeated slashes are dropped; nothing is resolved against the file system."""
-    if not isinstance(path, str) or not path or "\0" in path or any(ch in path for ch in "*?[\\"):
-        return None
-    if path.startswith("/") or (len(path) > 1 and path[1] == ":"):
-        return None
-    parts = [seg for seg in path.split("/") if seg not in ("", ".")]
-    if not parts or ".." in parts:
-        return None
-    return "/".join(parts)
-
-
 def _clean_paths(paths):
     """The normalized form of the touched paths that the PR record keeps (docs-only and immediate-audit checks
-    read it); result_event has already sent any path that does not normalize to result_out_of_scope."""
+    read it); accept_envelope has already checked every path."""
     out = []
     for raw in paths or []:
         path = normalize_path(raw)
@@ -141,18 +117,8 @@ def _clean_paths(paths):
 
 
 def out_of_scope(core, task_id, touched):
-    task = core.ports.catalog.task(task_id)
-    approved = {normalize_path(a) for a in ((task.get("canon_change") or {}).get("approval") or {}).get("scope_paths") or []}
-    approved.discard(None)
-    for raw in touched:
-        path = normalize_path(raw)
-        if path is None:
-            return True
-        if path in approved:
-            continue
-        if not _inside(path, task.get("allowed_paths")) or _touches_forbidden(path, task.get("forbidden_paths")):
-            return True
-    return False
+    """Compatibility helper; shared predicate semantics live in gate_evaluator."""
+    return not paths_within_scope(touched, core.ports.catalog.task(task_id))
 
 
 def on_pr_opened(core, d, task_id, envelope):

@@ -1,7 +1,7 @@
 """DaemonCore: the shared transition and validation core. Callers differ only in the `ports` they supply."""
 from . import effects, fencing, handoff, lease as lease_mod, observation, recovery, transition_engine, usage
 from .envelope_validator import build_instruction
-from .gate_evaluator import Clockview, Ctx, Lazy
+from .gate_evaluator import Clockview, Ctx, Lazy, paths_within_scope
 from .ports import PreconditionFailed, SimulatedCrash, SpecGap
 from .records import Recorder
 
@@ -115,6 +115,7 @@ class DaemonCore:
             "builder_available": lambda a: self.ports.builders.available(a, prev),
             "envelope_validator": lambda a: lease_mod.candidate_validation(self, d, task_id, reason)[0],
             "prereq_tasks_in": lambda a: observation.prereq_tasks_in(self, d, task_id, a),
+            "result_scope_valid": lambda _a: paths_within_scope(env.get("touched_paths"), task_def),
         }
         base.update(funcs or {})
         journal = []

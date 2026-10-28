@@ -1,4 +1,4 @@
-# generated from parent commit ed017d6a672cde82a67bc2ef2880287edb3afcb5 + tree hash of tools/daemon sources sha256:21ba374a9a469b611585d95dfcb4ac362e91db081df89639b7b07af45a034808
+# generated from parent commit e1c5f14c0de0e428e46fcb975e412f909d9557ed + tree hash of tools/daemon sources sha256:f7a8385353dfe2b8e7d43db0789f659cf02e9075ccf223614ac6897da905f7f7
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
   [PASS] 정상 흐름 전이 열: queued→…→merge_wait
       기대: [["blocked", "queued", "prereqs_satisfied"], ["queued", "leased", "lease_granted"], ["leased", "building", "first_heartbeat"], ["building", "pr_open", "result_pr_opened"], ["pr_open", "review_pending", "ci_passed"], ["review_pending", "review_in_progress", "reviewer_assigned"], ["review_in_progress", "review_approved", "review_approved"], ["review_approved", "merge_wait", "audit_not_required"]]
@@ -2213,7 +2213,7 @@
   STATIC  static-checks                            PASS      검사 15건 중 통과 15
   검사 704건, 실패 0건, 명세 공백 표시 0건
   필수 시험 ID 33개 중 이번에 실행한 것 33개, 실행하지 않은 것 0개(이번 범위 밖)
-  실행하지 않은 시험 ID: 
+  실행하지 않은 시험 ID:
   필수 목록에 없는 시험 ID 0개
   두 번 이상 나온 시험 ID 0개
   코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 0종(명세 공백 후보, --report에 목록)
@@ -2223,7 +2223,7 @@
    - G51 [새로 생김] transitions[43~85](cond 없음. merge_wait로 들어가는 행의 병합 관문은 cond로 옮김), audit_triggers, record_separation, review_assignment, post_merge_states @ daemon_rules.json: PR 이후 전이(ci·리뷰·감리·병합 관측·카운터)는 대부분 cond가 없고(blocked→queued는 선행 과제 cond prereq_tasks_in(post_merge_states)와 시작 관문 cond task.decision_gates.start subset_of task_state.decisions_recorded를 코어가 읽는다, audit1-start-gates-enforcement·audit2-spec-check-reads-prose-when. merge_wait로 들어가는 행과 사유 갱신 행의 병합 관문도 cond task.decision_gates.merge subset_of / not_subset_of로 들어갔다), 사건을 고르는 규칙은 when·immediate_rules[].rule·merge_observation_fields._rule·exclude_rule 같은 문장이거나 core_contract.reads 밖(post_merge_states, audit_triggers.periodic.every, audit_triggers.immediate_audit_paths, record_separation.merge_observation_fields)이다. (merged→audit_queued와 merged→done이 같은 (from, event)에 cond 없이 있던 문제는 cond event.docs_only로 해소했다, audit2-daemon-docs-pr-never-done.) merge_wait.reason을 담을 필드와 정하는 규칙도 없다
    - G52 [새로 생김] noop_events(ci_passed_duplicate 등), 04 §2.2 '보류 큐' @ daemon_rules.json: 관측 사건의 멱등 키, *_duplicate noop 이름과 사건의 대응(noop_rules 없음), 순서가 뒤바뀐 사건을 보류할 조건·해제 시점이 구조화돼 있지 않다
    - G53 [새로 생김] transitions[head_sha_changed, merged_without_valid_approval, pr_merged_observed].side_effects @ daemon_rules.json: R-04(옛 결과 무효)·R-12(무효 병합) 기록과 record_merge_observation(side_effect_ids에 있음)을 내는 전이가 없다. return_code·record_r_code를 단 행이 없다
-   - G54 [새로 생김] 결과 봉투 → 사건(result_<status>), 04 §1 (c) touched_paths ⊄ allowed_paths @ daemon_rules.json: R-01 판정(결과 봉투의 touched_paths가 허용 경로 밖·금지 경로 안이면 result_out_of_scope)이 문장뿐이고, 경로 패턴 비교 방법과 canon_change 승인 범위의 예외가 구조화돼 있지 않다. subset_of(scope_within_allowed_paths)는 글자 그대로의 목록 비교라 allowed_paths가 글롭이면 정본 파일을 따로 적어야 한다
+   - G54 [일부 해소] 결과 봉투 → 사건(result_<status>), 04 §1 (c) touched_paths ⊄ allowed_paths @ daemon_rules.json: R-01 판정(결과 봉투의 touched_paths가 허용 경로 밖·금지 경로 안이면 result_out_of_scope)이 문장뿐이고, 경로 패턴 비교 방법과 canon_change 승인 범위의 예외가 구조화돼 있지 않다. subset_of(scope_within_allowed_paths)는 글자 그대로의 목록 비교라 allowed_paths가 글롭이면 정본 파일을 따로 적어야 한다
    - G55 [새로 생김] core_contract.store @ daemon_rules.json: PR 기록(번호·head·base·변경 경로·리뷰/감리 결과·승인 SHA·merge_wait.reason), completion_facts, merged_impl_counter와 묶음, 보류 큐, 관측 멱등 키, 결정 기록 목록을 담을 store 항목이 없다
    - G56 [새로 생김] envelopes.result.status_values ↔ transitions @ daemon_rules.json: status wip_preserved·completed_no_change·switch_signal·lease_invalid 결과 봉투를 받을 행이 없다. hard_stop.procedure는 grace_s 안의 wip_preserved를 '자기 보고로만 기록(전이 없음)'이라 하고 receiver_validation.on_fail은 lease_invalid를 late 또는 noop으로 기록하라 하지만, 현재 임대의 그런 봉투는 수락된 뒤 unmapped_condition(R-03)이 된다
    - G57 [새로 생김] switch_policy.forbidden_switch_reasons, return_codes[R-03] @ daemon_rules.json: R-03은 '허용·금지 어느 목록에도 없는 전환 신호'를 반송하라 하지만 금지 목록은 reads 밖이고 신호 봉투에 사유 필드가 없어 허용 밖 신호를 금지와 미지로 가를 수 없다

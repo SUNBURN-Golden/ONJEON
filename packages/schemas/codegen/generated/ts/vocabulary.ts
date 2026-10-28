@@ -485,7 +485,7 @@ export function parseSaleStatus(value: unknown): SaleStatus {
 }
 
 /**
- * 규칙 공개 상태: 합성 픽스처와 실제 규칙을 구분
+ * 규칙 공개 상태: 규칙의 공개 상태. 원문 출처(합성·실제 조항)를 구분하는 축이 아님
  *
  * Axis `publication_state`.
  */

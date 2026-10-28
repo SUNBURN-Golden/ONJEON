@@ -1,0 +1,4 @@
+Command: python3 -I packages/schemas/codegen/gen.py
+ok: 30 generated files are up to date
+
+Exit: 0

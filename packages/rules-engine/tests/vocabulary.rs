@@ -1,5 +1,7 @@
 //! The engine's serialized state names and DSL tokens must exist in the canonical vocabulary
 //! (packages/schemas/vocabulary.json). This stops code and documents drifting apart.
+mod common;
+
 use onjeon_rules_engine::rule::{InputType, PUBLICATION_STATES};
 use onjeon_rules_engine::{AmountOut, Payout, Rule, Tri};
 use serde_json::{json, Value as J};
@@ -81,6 +83,51 @@ fn publication_states_are_canonical() {
     let want = axis("publication_state");
     let got: BTreeSet<String> = PUBLICATION_STATES.iter().map(|s| s.to_string()).collect();
     assert_eq!(got, want);
+}
+
+#[test]
+fn fixture_only_definition_covers_synthetic_and_real_clause_validation() {
+    let vocabulary: J =
+        serde_json::from_str(include_str!("../../schemas/vocabulary.json")).unwrap();
+    let publication = vocabulary["axes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|a| a["id"] == "publication_state")
+        .unwrap();
+    let fixture = publication["values"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|v| v["code"] == "fixture_only")
+        .unwrap();
+    let definition = fixture["concept_ko"].as_str().unwrap();
+    for phrase in [
+        "시험·설계 검증 전용",
+        "합성 규칙",
+        "실제 조항",
+        "서비스 데이터가 아님",
+        "근거·릴리스 없이 허용",
+    ] {
+        assert!(
+            definition.contains(phrase),
+            "fixture_only must cover {phrase}"
+        );
+    }
+    assert!(fixture["screen_ko"].is_null());
+
+    // The same publication state covers both origins; it is not a source-kind tag.
+    let synthetic = Rule::from_json(&common::rule_json()).unwrap();
+    assert_eq!(synthetic.publication_state(), "fixture_only");
+    let real = common::real_rules();
+    assert_eq!(real.len(), common::REAL_RULE_IDS.len());
+    for rule in real.values() {
+        assert_eq!(rule.publication_state(), "fixture_only");
+        assert_eq!(
+            rule.source_json()["example_kind"],
+            "real_clause_design_validation"
+        );
+    }
 }
 
 fn doc() -> J {

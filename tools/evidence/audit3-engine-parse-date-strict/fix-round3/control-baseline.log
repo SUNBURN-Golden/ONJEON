@@ -1,0 +1,35 @@
+Command: cargo test --offline --manifest-path /workspace/onjeon-run/wt/audit3-engine-parse-date-strict/tools/evidence/audit3-engine-parse-date-strict/negative-control-0xjldskj/Cargo.toml --test date_format
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling memchr v2.8.3
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.18
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/tools/evidence/audit3-engine-parse-date-strict/negative-control-0xjldskj)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.36s
+     Running tests/date_format.rs (tools/evidence/audit3-engine-parse-date-strict/negative-control-0xjldskj/target/control-baseline/debug/deps/date_format-f52c490b8f179f33)
+
+running 4 tests
+test non_canonical_date_inputs_are_rejected_at_evaluation ... ok
+test non_canonical_date_literals_are_rejected_at_load ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+test date_aliases_cannot_produce_alternate_rule_hashes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+Exit: 0

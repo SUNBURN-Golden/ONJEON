@@ -1,0 +1,12 @@
+Command: cargo clippy --all-targets --locked --offline -- -D warnings
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.84s
+
+Exit: 0

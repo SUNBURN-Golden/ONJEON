@@ -125,3 +125,39 @@ Python 검사는 `CARGO_TARGET_DIR="$PWD/target"`을 사용했다.
 보호 문서·공유 fixture·날짜 파서 실행 로직은 변경하지 않았다.
 [scope.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round2/scope.log)에
 미해결 충돌 없음·양쪽 시험 보존·허용 경로·문서 링크·diff 공백 검사를 기록했다.
+
+## Fix round 3: main 시험 표·어휘 정정과 결합
+
+이번 병합 충돌도 BLUEPRINT §11의 자동 생성 시험 등록 수 한 곳이었다.
+이 브랜치의 날짜·해시 거부 회귀와 main의 README 시험 표·`fixture_only` 정의
+정정 및 새 회귀 시험 2개를 모두 유지했다. main의 어휘 정본과 Rust·TypeScript·Dart·
+JSON Schema 생성물도 보존했다. 날짜 실행 파서·날짜 회귀 시험·공유 fixture·고정 해시는
+변경하지 않았다.
+
+`CARGO_TARGET_DIR="$PWD/target" CARGO_NET_OFFLINE=true python3 -I tools/blueprint_counts.py --write`로
+결합된 코드에서 표를 재생성해 **단위·통합 210개·doctest 3개**로 해결했다.
+충돌 해결 파일은 index에 반영했으며 merge commit은 감독자에게 남겼다.
+main에서 들어온 `consistency.log`의 줄 끝 공백과 마지막 빈 줄만 제거했다.
+
+검증은 이 작업 트리에서 직접 실행했다. Cargo 및 Cargo를 호출하는 Python 검사는
+작업 트리 내부 `target/`과 오프라인 모드를 사용했다.
+실행 로그 위치: [fix-round3/](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/).
+
+| 명령 | 결과·로그 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --locked --offline --lib --test date_format --test readme_test_table --test vocabulary --test range_comparisons --test fixture_supplements` | 42개 통과: [focused.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/focused.log) |
+| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | Rust 475개 통과·실패 0·기존 ignored 1개. 내부 Python 39개·129개 통과: [workspace.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/workspace.log) |
+| `python3 -I -m unittest discover -s tools/tests -v` | 1,277개 실행·실패 0·환경 의존 skip 36개: [python-tests.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/python-tests.log) |
+| `python3 -I tools/evidence/audit3-engine-parse-date-strict/negative_control.py` | 정상 날짜 시험 4개 통과, 숫자 검사 제거 시 거부 시험 3개 실패: [요약](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/negative-control.log), [정상](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/control-baseline.log), [변이](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/control-permissive.log) |
+| `cargo fmt --all -- --check` · `cargo clippy --all-targets --locked --offline -- -D warnings` | 모두 종료 코드 0: [fmt.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/fmt.log), [clippy.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/clippy.log) |
+| `python3 -I tools/blueprint_counts.py` | 등록 수 210개·doctest 3개 일치: [counts.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/counts.log) |
+| `python3 -I tools/ci/check_product_purpose.py` · `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 목적 대응 검사 통과·기계 검사 45/45·존재 검사 72/72 통과: [목적](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/product-purpose.log), [명세](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/spec-check.log) |
+| `python3 -I tools/blueprint_status.py` · `python3 -I tools/vocab_check.py` · `python3 -I packages/schemas/codegen/gen.py` · `python3 -I tools/validation_check.py` | 결정 색인·어휘·생성물 최신성·검증 자료 검사 모두 통과: [상태](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/status.log), [어휘](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/vocab.log), [생성물](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/codegen.log), [검증 자료](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/validation.log) |
+
+Python skip은 boto3/botocore 미설치·구버전, `ONJEON_ARCHIVE_RAW` 미설정,
+로컬 원본 보관소·pdftotext 필요 조건에 따른다. 원격 CI·TypeScript/Dart 별도 빌드·
+제품 출시 완료를 주장하지 않는다. 새 실행 로그는 이번 디렉터리에 보관하고
+기존 음성 대조 로그는 과거 기록 그대로 유지했다.
+[scope.log](../../../tools/evidence/audit3-engine-parse-date-strict/fix-round3/scope.log)는
+미해결 충돌 없음·양쪽 시험 보존·허용 경로·보호 파일 불변·문서 링크·diff 검사를 기록한다.
+commit·push·GitHub 호출은 수행하지 않았다.

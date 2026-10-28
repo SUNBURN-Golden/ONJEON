@@ -1,0 +1,4 @@
+Command: python3 -I tools/evidence/audit3-engine-parse-date-strict/negative_control.py
+PASS: strict parser passes 4 tests; removing digit checks fails all 3 rejection regressions.
+
+Exit: 0

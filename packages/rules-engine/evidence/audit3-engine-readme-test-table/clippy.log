@@ -1,0 +1,12 @@
+$ cargo clippy --all-targets --locked --offline -- -D warnings
+    Checking onjeon-rules-engine v0.1.0 (<worktree>/packages/rules-engine)
+    Checking onjeon-contracts v0.1.0 (<worktree>/packages/schemas)
+    Checking onjeon-ontology v0.1.0 (<worktree>/packages/ontology)
+    Checking onjeon-collect v0.1.0 (<worktree>/services/collect)
+    Checking onjeon-criteria v0.1.0 (<worktree>/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (<worktree>/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (<worktree>/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (<worktree>/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.98s
+
+EXIT_CODE: 0

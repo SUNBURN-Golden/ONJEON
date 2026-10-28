@@ -10,7 +10,8 @@
 - 로드 단계에서 모든 식의 타입을 검사한다(bool·int·money·money_range·rate·date·string). `{"eq":["target_event",1]}`처럼 타입이 다른 값의 비교, bool·string의 순서 비교, `all`/`any`/`not`/`if` 조건에 쓴 비불리언, 금액 연산자에 쓴 비금액, 가지 타입이 호환되지 않는 `if`, 불리언이 아닌 `eligibility`, 금액이 아닌 `amount`(`"amount": true`)는 오류 위치(경로)와 함께 로드에서 거부된다. 범위가 될 수 있는 금액(`money_range`)은 `eq`·`ne`·`lt`·`lte`·`gt`·`gte`의 어느 쪽 피연산자에도 쓸 수 없으며 로드에서 거부된다. `unspecified` 반올림과 금액 연산·`if`의 범위 가능성을 전파한다. 정확한 금액과 범위 금액을 섞은 `if` 및 금액 계산·출력은 허용한다.
 - 같은 입력·규칙·엔진 버전이면 바이트 단위로 같은 결과를 낸다. 결과에는 평가 trace, 결과를 막은 누락 입력, 입력 스냅샷 해시가 들어 있다.
 - `input_snapshot_hash`는 변환된 전체 선언 입력을 타입 태그(`type`·`value`)가 있는 compact UTF-8 JSON으로 직렬화하고, 모든 객체 키를 재귀적으로 정렬한 바이트의 SHA-256이다. 누락·`null`은 모두 `{"type":"unknown"}`, 날짜는 epoch 일수이며 목록 순서는 보존한다. 입력 이름·문자열·목록 class는 JSON으로 이스케이프하므로 `=`·개행으로 구조를 위조할 수 없다. 표시용 `Display`·`Debug`와 독립적이다. 이 형식부터 결과의 `engine_version`에 `+snapshot-json-1`이 붙으며, 이전 형식의 해시와 직접 비교하지 않는다. [Audit 2 계약·검증 증거](../../docs/blueprint/audits/2026-10-26_engine_snapshot_hash_encoding.md).
-- 공개 가능한 규칙은 근거 참조가 하나 이상 있어야 하고 소속 릴리스(`release_id`)를 밝혀야 한다(불변 원칙 5). 합성 규칙은 `fixture_only`다.
+- 공개 가능한 규칙은 근거 참조가 하나 이상 있어야 하고 소속 릴리스(`release_id`)를 밝혀야 한다(불변 원칙 5).
+- `fixture_only`는 시험·설계 검증 전용 상태다. 합성 규칙과 실제 조항 기반 검증 규칙 모두에 적용되며 서비스 데이터가 아님을 뜻한다. 이 상태에서는 근거·릴리스가 없어도 로드할 수 있다. 원문 출처를 구분하는 값이 아니며, 실제 조항에 근거가 있어도 공개 릴리스 규칙으로 승격되는 것은 아니다.
 - 결과마다 `rule_version`, `release_id`, `rule_content_hash`, `evidence_refs`가 붙는다. `rule_content_hash`는 로드한 규칙 JSON 값을 모든 객체 키 순서만 `BTreeMap`으로 재귀 정렬해 compact JSON으로 다시 쓴 바이트의 SHA-256이며 최상위 `release_id`만 제외한다(중첩된 `release_id`는 포함). 파일의 공백·키 순서·문자열 이스케이프 표기는 파싱 단계에서 사라지므로 해시에 영향이 없지만, 값 자체는 정규화하지 않는다: 유니코드 형식(NFC/NFD, 완성형/조합형 한글)·문자열 앞뒤 공백·배열 순서(`all`/`any` 자식, `evidence_refs`)는 그대로 해시되고, 같은 뜻의 다른 표기(`"0.5"`·`"0.50"`·`{"rate":"0.5"}`), 생략한 기본값과 명시한 기본값(`calendar`, rule-0.2 `contract_effect: "none"`), 평가에 쓰이지 않는 `example_kind`도 서로 다른 해시가 된다. 따라서 해시가 같으면 같은 규칙 내용이지만, 해시가 다르다고 계산 논리가 다르다는 뜻은 아니다. `serde_json`의 `preserve_order` 기능 여부와 무관하며, 합성 규칙의 해시는 `packages/fixtures/rules/fixture-rule-001.content_hash`, 실제 조항 규칙 7개의 해시는 `packages/fixtures/rules/real.content_hashes.json`에 고정되어 로더와 모든 실제 사례의 결과에서 대조된다. 버전을 올리지 않고 내용을 바꿔도 해시가 달라지므로 과거 계산이 어떤 규칙 내용을 썼는지 결과만으로 식별된다.
 - `rule_id`와 `evidence_refs`의 각 항목은 빈 문자열이나 공백만으로 이뤄진 문자열일 수 없다. `evidence_refs` 안의 동일 문자열 중복도 거부한다(`evidence_refs[i]`: blank 또는 duplicate). 두 DSL 버전과 모든 `publication_state`에 적용되며, `fixture_only`가 아닌 규칙은 근거가 최소 1개 필요하다. 검증은 값을 정리·정렬·중복 제거하지 않으므로 정상 규칙의 근거 순서와 내용 해시는 유지된다.
 - 로드된 `Rule`은 불변이다. 필드는 비공개이고 읽기 접근자만 있다. 규칙을 바꾸려면 `source_json()`을 복사해 고친 뒤 `Rule::from_json`으로 다시 로드해야 하며, 이때 재검증과 재해시가 일어난다. 따라서 결과에 붙는 해시와 실제로 실행된 논리가 어긋날 수 없다.
@@ -31,7 +32,7 @@
 
 ## rule-0.2 (T-TW-02)
 
-`schema_version`이 `rule-0.2`인 규칙만 아래를 쓴다. `rule-0.1` 규칙은 그대로 로드·평가되고, 0.1 문서에서 아래 연산·입력 타입·`contract_effect`를 쓰면 로드에서 거부된다. 근거는 GAP_REPORT §5, ADR-0014 §6. 실제 상품군 규칙은 해당 마일스톤(M5·M6)에서 사례와 함께 추가하며, 지금 있는 시험 규칙은 모두 `fixture_only` 합성 규칙이다.
+`schema_version`이 `rule-0.2`인 규칙만 아래를 쓴다. `rule-0.1` 규칙은 그대로 로드·평가되고, 0.1 문서에서 아래 연산·입력 타입·`contract_effect`를 쓰면 로드에서 거부된다. 근거는 GAP_REPORT §5, ADR-0014 §6. 서비스용 실제 상품군 규칙은 해당 마일스톤(M5·M6)에서 사례와 함께 추가하며, 지금 있는 시험 규칙은 합성·실제 조항 기반 모두 `fixture_only`다.
 
 | 연산 | 형태 | 규칙 |
 |---|---|---|
@@ -81,9 +82,9 @@
 | `all_any_errors` | 날짜 범위·오버플로·타입 오류와 모름을 포함한 자식 순서 6종에서 확정 결과 유지, 확정 자식이 없을 때 오류 전파, 모름의 blocker, 흡수 오류 trace·직렬화 재현성. `soundness`에도 오류를 내는 입력을 숨겨도 독립적인 확정 결과가 유지되는 회귀 시험 추가. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_all_any_lazy_error.md). Audit 3은 두 DSL 버전의 정확한 2항 사례·중첩식·`if` 조합과 즉시 오류 반환 변이 검출을 추가했다([증거](../../docs/blueprint/audits/2026-10-28_engine_all_any_short_circuit.md)) |
 | `overflow` | `add`·`multiply_rate`의 `EvalError::Overflow` 경로를 `i64::MAX` 경계에서 직접 검증: 정확히 `MAX`는 통과, 1 초과는 오류(감김·포화 없음), 단위 올림(`ceil`/`half_up`/`half_even`)·`unspecified` 범위 상한·범위 입력의 한쪽 경계만 넘는 경우, 오류 경로 문자열. `min`/`max`/`apply_cap`은 넘치지 않음 |
 | `content_hash_scope` | `rule_content_hash`의 범위(키 순서만 정렬): 공백·키 순서·문자열 이스케이프·최상위 `release_id`는 무시하고, 중첩 `release_id`·유니코드 형식(NFC/NFD·한글 자모)·문자열 공백·배열 순서·같은 뜻의 요율 표기·생략/명시 기본값·`example_kind`는 해시를 바꾼다(같은 평가 결과여도). [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-27_readme_adr_list.md) |
-| `readme_test_table` | 이 표의 첫 열 이름과 `tests/*.rs` 파일의 일치(누락·낡은 행 모두 실패), 행 하나 삭제·이름 변경을 잡는 음성 대조, 해시 계약 문장에 "정규화" 대신 키 순서·유니코드·`release_id` 범위가 적혀 있는지 |
+| `readme_test_table` | 이 표의 첫 열 이름과 `tests/*.rs` 파일의 일치(누락·낡은 행 모두 실패), `real_clauses`·`vocabulary` 행을 각각 삭제하거나 이름을 바꾸는 음성 대조, `fixture_only`의 합성·실제 조항 검증 범위와 서비스 데이터 제외 설명, 해시 계약 문장에 "정규화" 대신 키 순서·유니코드·`release_id` 범위가 적혀 있는지 |
 | `review_fixes` | 결과의 규칙 버전·릴리스·내용 해시·근거, 재로드 시 동일성, 범위의 연속 계산, 날짜 범위·오버플로(`i64::MIN`·`i64::MAX` 포함) |
-| `vocabulary` | 직렬화 상태와 어휘 정본의 일치. 입력 타입 6개·반올림 5개·날짜 기간 단위 3개·연산자 키 28개의 정확한 값 집합, 로더 수용·미지원 값 거부, rule-0.2 전용 입력·연산의 버전 제한 |
+| `vocabulary` | 직렬화 상태와 어휘 정본의 일치. `fixture_only` 정의가 합성·실제 조항 기반 검증을 포함하고 서비스 데이터에서 제외하는지, 합성 1개·실제 조항 규칙 7개가 같은 시험 전용 상태인지 확인한다. 입력 타입 6개·반올림 5개·날짜 기간 단위 3개·연산자 키 28개의 정확한 값 집합, 로더 수용·미지원 값 거부, rule-0.2 전용 입력·연산의 버전 제한 |
 | 문서 테스트·`immutable_rule_doctests` | 로드된 규칙의 필드 수정이 비공개 필드 접근 오류로 컴파일되지 않음(`compile_fail,E0616`)과 같은 준비 코드의 정상 동작. stable rustdoc는 오류 코드 표기를 강제하지 않으므로 통합 테스트가 두 예제의 실제 진단 코드가 모두 `E0616`인지 검사 |
 | 단위 | 진리표(§49.3), 날짜 변환, 요율 파싱 |
 

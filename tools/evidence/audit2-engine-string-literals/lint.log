@@ -1,0 +1,15 @@
+$ cargo fmt --all -- --check
+
+exit code: 0
+$ cargo clippy --all-targets --locked -- -D warnings
+    Checking onjeon-contracts v0.1.0 (<worktree>/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (<worktree>/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (<worktree>/packages/ontology)
+    Checking onjeon-collect v0.1.0 (<worktree>/services/collect)
+    Checking onjeon-criteria v0.1.0 (<worktree>/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (<worktree>/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (<worktree>/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (<worktree>/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.88s
+
+exit code: 0

@@ -1,6 +1,6 @@
 {
-  "version": "1.7.0",
-  "updated": "2026-10-25",
+  "version": "1.8.0",
+  "updated": "2026-10-28",
   "rules": [
     "축(axis)이 다른 상태를 한 값에 섞지 않는다. 값 상태·검수 상태·기능 자격·화면 상태·초안 상태는 서로 다른 축이다.",
     "저장값은 소문자 snake_case ASCII다. 화면 문구는 이 파일의 screen_ko만 쓴다.",
@@ -2096,6 +2096,12 @@
         {
           "code": "input",
           "concept_ko": "선언된 입력 이름 참조",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "str",
+          "concept_ko": "명시적 문자열 리터럴. rule-0.1·rule-0.2에서 JSON 문자열만 허용하며 입력 이름 조회·요율 변환·공백 제거·유니코드 정규화를 하지 않는다",
           "screen_ko": null,
           "deprecated_aliases": []
         },

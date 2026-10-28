@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /** Version of packages/schemas/vocabulary.json these unions were generated from. */
-export const VOCABULARY_VERSION = "1.7.0";
+export const VOCABULARY_VERSION = "1.8.0";
 
 /**
  * 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
@@ -729,7 +729,7 @@ export function parseDurationUnit(value: unknown): DurationUnit {
  *
  * Axis `rule_operator`.
  */
-export const RuleOperator = ["all", "any", "not", "eq", "ne", "lt", "lte", "gt", "gte", "if", "input", "rate", "krw", "date", "multiply_rate", "add", "min", "max", "apply_cap", "days_between", "date_add", "multiply_count", "subtract_floor0", "pro_rata", "divide_count", "anniversary_band", "max_over"] as const;
+export const RuleOperator = ["all", "any", "not", "eq", "ne", "lt", "lte", "gt", "gte", "if", "input", "str", "rate", "krw", "date", "multiply_rate", "add", "min", "max", "apply_cap", "days_between", "date_add", "multiply_count", "subtract_floor0", "pro_rata", "divide_count", "anniversary_band", "max_over"] as const;
 export type RuleOperator = (typeof RuleOperator)[number];
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseRuleOperator(value: unknown): RuleOperator {

@@ -1,0 +1,8 @@
+Baseline HEAD: 239ce59564baa9043221896136f32a1d505fe269
+Vocabulary comparison: HEAD:packages/schemas/vocabulary.json vs working tree
+PASS: 1.7.0 -> 1.8.0; only updated date and rule_operator.str added.
+PASS: all existing axes, values, definitions and order preserved.
+$ git diff --exit-code HEAD -- packages/fixtures/rules packages/rules-engine/tests/fixtures
+exit code: 0
+PASS: existing shared/local golden cases, traces and hash pins unchanged.
+Existing pins verified by golden_table_pins_trace_and_hashes and real_rule_content_hashes_are_pinned in workspace-tests.log.

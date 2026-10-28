@@ -1,12 +1,12 @@
 # packages/schemas: 계약 패키지 (`onjeon-contracts`)
 
-앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록이다. 근거: 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전), 화면 설계서 §11. 이 패키지는 계약의 **모양**이다. 의미 검사(릴리스 빌더, DB 제약, evidence_ref 파서)는 후속 과제(T-CT-03~05, T-KN-*)의 몫이다.
+앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록, 1.8.0은 Audit 2의 명시적 문자열 리터럴 `str` 추가다. 근거: 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전), 화면 설계서 §11. 이 패키지는 계약의 **모양**이다. 의미 검사(릴리스 빌더, DB 제약, evidence_ref 파서)는 후속 과제(T-CT-03~05, T-KN-*)의 몫이다.
 
 ## 구성
 
 | 경로 | 내용 |
 |---|---|
-| `vocabulary.json` | 상태 어휘 정본(1.7.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록 등)만 한다 |
+| `vocabulary.json` | 상태 어휘 정본(1.8.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |
 | `json/*.schema.json` | 손으로 쓴 JSON Schema(2020-12 부분집합). `common`(ID·근거 참조·금액·결과 상태), `assertion`, `release_manifest`, `evaluation_result`, `scenario_result`, `coverage_detail`, `compare_view`, `plan_view`, `evidence_view`, `need_result`, `premium_observation`, `contract_snapshot`, `error_response` |
 | `json/vocabulary.schema.json` | **생성물.** 어휘의 모든 축이 `enum`으로 들어 있는 유일한 스키마 |
 | `src/generated/` | 생성된 Rust(serde). `src/checks.rs`는 손으로 쓴 교차 필드 검사 |
@@ -30,6 +30,8 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 `build_check.sh`는 TypeScript는 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능), Dart는 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 그 언어는 **빌드하지 않은 것**이고 `SKIPPED`와 종료 코드 3을 낸다. `ONJ_REQUIRE_TOOLCHAINS=1`이면 실패다. 기존 CI 워크플로는 TypeScript·Dart를 빌드하지 않으므로(아래 '한계'), 세 언어 빌드의 근거는 `ONJ_REQUIRE_TOOLCHAINS=1`로 돌린 이 스크립트의 로그(`RESULT: all three languages build`, tsc·Dart 버전 포함)를 `codegen/evidence/build_check.log`로 **커밋한 것**이다(아래 '증거'). PR 본문에 붙인 로그는 리뷰 대상이 아니다.
 
 ## 증거 (`codegen/evidence/`)
+
+Audit 2 어휘 1.8.0의 최신 검증은 [별도 색인](../../tools/evidence/audit2-engine-string-literals/README.md)에 있다. 생성물 최신성·Rust 빌드와 workspace 시험은 통과했고, TypeScript·Dart는 도구 미설치로 빌드를 건너뛰었다. 아래 `codegen/evidence/`의 세 언어 빌드 기록은 해당 색인에 적힌 과거 트리의 증거다.
 
 검증 명령의 실제 출력을 커밋한 디렉터리다. CI는 TypeScript·Dart를 빌드하지 않고 리뷰어는 PR 본문을 보지 않으므로, 커밋된 파일만이 리뷰어가 대상 SHA에서 읽을 수 있는 근거다. 색인은 [`codegen/evidence/EVIDENCE.md`](codegen/evidence/EVIDENCE.md)이고 로그마다 정확한 명령·종료 코드·도구 버전·로그를 만든 부모 커밋·`packages/schemas` 트리(증거 디렉터리 제외)의 sha256을 적는다.
 

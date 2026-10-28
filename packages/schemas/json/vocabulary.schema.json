@@ -3,7 +3,7 @@
   "$id": "vocabulary.schema.json",
   "title": "Vocabulary",
   "description": "GENERATED from packages/schemas/vocabulary.json by codegen/gen.py. Do not edit.",
-  "x-onjeon-vocabulary-version": "1.7.0",
+  "x-onjeon-vocabulary-version": "1.8.0",
   "$defs": {
     "acquisition_status": {
       "type": "string",
@@ -550,6 +550,7 @@
         "gte",
         "if",
         "input",
+        "str",
         "rate",
         "krw",
         "date",

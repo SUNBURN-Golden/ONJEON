@@ -1,0 +1,72 @@
+$ cargo test -p onjeon-rules-engine --test string_literals
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
+     Running tests/string_literals.rs (<target>/debug/deps/string_literals-0f2e732b37dab48e)
+
+running 8 tests
+test declared_input_names_cannot_capture_explicit_literals ... FAILED
+test missing_and_null_string_inputs_remain_unknown ... FAILED
+test explicit_strings_support_eq_ne_on_either_side ... FAILED
+test literal_values_are_preserved_without_rate_parsing_or_normalization ... FAILED
+test str_rejects_non_string_arguments_and_extra_keys_at_load ... FAILED
+test string_literals_compose_with_if_and_boolean_operators ... FAILED
+test legacy_bare_strings_keep_input_precedence_and_rate_fallback ... ok
+test string_literals_obey_static_comparison_and_context_types ... FAILED
+
+failures:
+
+---- declared_input_names_cannot_capture_explicit_literals stdout ----
+
+thread 'declared_input_names_cannot_capture_explicit_literals' (337650) panicked at packages/rules-engine/tests/string_literals.rs:68:49:
+called `Result::unwrap()` on an `Err` value: RuleError { path: "eligibility.eq[1]", message: "operator `str` is not in the allow-list" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- missing_and_null_string_inputs_remain_unknown stdout ----
+
+thread 'missing_and_null_string_inputs_remain_unknown' (337654) panicked at packages/rules-engine/tests/string_literals.rs:87:99:
+called `Result::unwrap()` on an `Err` value: RuleError { path: "eligibility.eq[1]", message: "operator `str` is not in the allow-list" }
+
+---- explicit_strings_support_eq_ne_on_either_side stdout ----
+
+thread 'explicit_strings_support_eq_ne_on_either_side' (337651) panicked at packages/rules-engine/tests/string_literals.rs:36:82:
+called `Result::unwrap()` on an `Err` value: RuleError { path: "eligibility.eq[1]", message: "operator `str` is not in the allow-list" }
+
+---- literal_values_are_preserved_without_rate_parsing_or_normalization stdout ----
+
+thread 'literal_values_are_preserved_without_rate_parsing_or_normalization' (337653) panicked at packages/rules-engine/tests/string_literals.rs:51:86:
+called `Result::unwrap()` on an `Err` value: RuleError { path: "eligibility.eq[1]", message: "operator `str` is not in the allow-list" }
+
+---- str_rejects_non_string_arguments_and_extra_keys_at_load stdout ----
+
+thread 'str_rejects_non_string_arguments_and_extra_keys_at_load' (337655) panicked at packages/rules-engine/tests/string_literals.rs:103:13:
+assertion `left == right` failed
+  left: "eligibility.eq[1]"
+ right: "eligibility.eq[1].str"
+
+---- string_literals_compose_with_if_and_boolean_operators stdout ----
+
+thread 'string_literals_compose_with_if_and_boolean_operators' (337656) panicked at packages/rules-engine/tests/string_literals.rs:155:45:
+called `Result::unwrap()` on an `Err` value: RuleError { path: "eligibility.all[0].eq[1].then", message: "operator `str` is not in the allow-list" }
+
+---- string_literals_obey_static_comparison_and_context_types stdout ----
+
+thread 'string_literals_obey_static_comparison_and_context_types' (337657) panicked at packages/rules-engine/tests/string_literals.rs:126:21:
+assertion `left == right` failed
+  left: "eligibility.eq[0]"
+ right: "eligibility.eq"
+
+
+failures:
+    declared_input_names_cannot_capture_explicit_literals
+    explicit_strings_support_eq_ne_on_either_side
+    literal_values_are_preserved_without_rate_parsing_or_normalization
+    missing_and_null_string_inputs_remain_unknown
+    str_rejects_non_string_arguments_and_extra_keys_at_load
+    string_literals_compose_with_if_and_boolean_operators
+    string_literals_obey_static_comparison_and_context_types
+
+test result: FAILED. 1 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test string_literals`
+
+exit code: 101 (expected: regression on original parser)

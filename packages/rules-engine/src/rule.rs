@@ -779,6 +779,10 @@ fn parse_typed(v: &J, inputs: &Scope<'_>, path: &str) -> Result<(Expr, Ty), Rule
                     Some((name, t)) => (Expr::Input(name.to_string()), Ty::from(t)),
                     None => return Err(RuleError::at(&p, "must name a declared input")),
                 },
+                "str" => a
+                    .as_str()
+                    .map(|s| (Expr::Lit(Value::Str(s.to_owned())), Ty::Str))
+                    .ok_or_else(|| RuleError::at(&p, "must be a string"))?,
                 "rate" => a
                     .as_str()
                     .and_then(parse_rate)

@@ -1,5 +1,7 @@
 # T-CT-01 · T-CT-02 증거 색인 (`packages/schemas/codegen/evidence/`)
 
+Audit 2 어휘 1.8.0 변경의 현재 검증은 [별도 증거 색인](../../../../tools/evidence/audit2-engine-string-literals/README.md)에 기록했다. 아래 로그·트리 해시는 과거 T-CT-01·02 실행 기록이며 현재 트리의 세 언어 빌드를 증명하지 않는다. 이번에는 Rust 빌드·workspace 시험·생성물 최신성을 검증했고 TypeScript·Dart는 도구 미설치로 건너뛰었다.
+
 과제 **T-CT-01**(계약 패키지 골격 `onjeon-contracts`, JSON Schema, 코드 생성 Rust·Dart·TS, 호환 검사)이 이 디렉터리를 만들었고, 과제 **T-CT-02**(어휘 정본 1.6.0: 새 축 12개와 `doc_role` 값 2개)가 어휘 변경에 맞춰 계약을 적응시킨 뒤 로그 전부를 다시 만들었다. 구역 contracts, 단계 S0.
 
 이 디렉터리의 로그는 아래 명령을 **이 트리에서 실제로 실행한 출력**이다. 리뷰어는 PR 본문이 아니라 대상 SHA에 커밋된 이 파일들을 읽는다. 로그 본문은 손으로 고치지 않았고 실행 머신의 절대 경로만 치환 규칙(§4)으로 바꿨다(실제로 바뀐 줄은 0개). 각 로그의 첫 줄이 명령, 마지막 줄이 `exit code: N`이다.

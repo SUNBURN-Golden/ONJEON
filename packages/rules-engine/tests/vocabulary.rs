@@ -214,6 +214,7 @@ fn operator_allowlist_is_canonical_and_versioned() {
             false,
         ),
         ("input", json!({"input": "money"}), "money", false),
+        ("str", json!({"str": "surgery"}), "string", false),
         ("rate", json!({"rate": "0.5"}), "rate", false),
         ("krw", json!({"krw": 1}), "money", false),
         ("date", json!({"date": "2026-01-01"}), "date", false),
@@ -303,6 +304,7 @@ fn operator_allowlist_is_canonical_and_versioned() {
             match ty {
                 "bool" => d["eligibility"] = expr.clone(),
                 "int" => d["eligibility"] = json!({"eq": [expr, 1]}),
+                "string" => d["eligibility"] = json!({"eq": [expr, {"str": "surgery"}]}),
                 "date" => d["eligibility"] = json!({"eq": [expr, {"date": "2026-01-01"}]}),
                 "rate" => {
                     d["amount"] = json!({"multiply_rate": [{"krw": 1}, expr, {"rounding": "floor", "unit": 1}]})

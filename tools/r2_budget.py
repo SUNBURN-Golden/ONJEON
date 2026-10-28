@@ -39,7 +39,11 @@ Run control, in this order (each step before any later request):
 
 Ledger size: records are never deleted, so a run reads the newest checkpoint plus the records after it
 (`checkpoint` writes one, `audit` recomputes all of them from the raw records, `lock-rules` checks the
-bucket lock proposal offline; infra/r2/checkpoint/DESIGN.md).
+bucket lock proposal offline; infra/r2/checkpoint/DESIGN.md). Ordinary runs stop when the records after
+the newest checkpoint reach per_request.max_ledger_records: that is the backlog the cap counts, and the
+`checkpoint` and `audit` commands are its recovery path — their sessions may read past the cap and write
+their own two records beyond it, and the checkpoint written then covers the run's own reservation
+(infra/r2/checkpoint/DESIGN.md).
 
 Every request goes through Meter (botocore event hooks): only Get/Head/Put/ListObjectsV2, only the
 job's buckets and the ledger prefixes, only pinned keys and pinned bytes, Standard storage only;
@@ -358,12 +362,18 @@ CHECKPOINT_KEY = re.compile(r"^checkpoint/v1/(\d{10})\.json$")
 class Ledger:
     """Write-once control records in the ledger bucket (S3Store or LocalStore). With a checkpoint
     (CHECKPOINT_PREFIX) a run reads the newest checkpoint plus the records after it; self.base is that
-    checkpoint (None before the first one) and self.base_seq the last record it covers."""
+    checkpoint (None before the first one) and self.base_seq the last record it covers.
+    over_limit_ok is True only in sessions of the `checkpoint` and `audit` commands: they are the
+    recovery path for a backlog that reached the record cap, so their reads may pass it (the meter
+    still bounds every request) and their own reservation and settlement may land beyond it — the
+    checkpoint written covers the session's reservation, so the cap on the records after the newest
+    checkpoint holds again for every ordinary run. All other ledgers keep both checks."""
 
-    def __init__(self, st, policy):
+    def __init__(self, st, policy, over_limit_ok=False):
         self.st, self.policy = st, policy
         self.base, self.base_seq, self.base_sha, self.genesis_sha = None, 0, None, None
         self.hashes = {}  # seq -> SHA-256 of every record read (audit compares checkpoints with these)
+        self.over_limit_ok = over_limit_ok
 
     def _list(self, prefix):
         try:
@@ -439,15 +449,16 @@ class Ledger:
     def read(self, known=None, full=False):
         """All sequence records after the checkpoint (all of them with full=True, which ignores
         checkpoints and the record limit: audit only), verified. With known=(records, prev) only newer
-        records are fetched."""
+        records are fetched. A recovery session (over_limit_ok) also ignores the record limit: it reads
+        the backlog it exists to shrink, and the meter still bounds every request it makes."""
         import source_archive as sa
         if full:
             self.base, self.base_seq, self.base_sha, self.hashes = None, 0, None, {}
         elif known is None:
             self.load_base()
         limit = self.policy["per_request"]["max_ledger_records"]
-        keys = self._segment_keys(None if full else limit)
-        if not full and len(keys) >= limit:
+        keys = self._segment_keys(None if (full or self.over_limit_ok) else limit)
+        if not full and not self.over_limit_ok and len(keys) >= limit:
             raise BudgetError(f"ledger has {len(keys)} records after the last checkpoint >= {limit}; "
                               "checkpoint before running")
         first = self.base_seq + 1
@@ -584,10 +595,12 @@ class Ledger:
         return glob, job
 
     def append(self, record_body, count, prev):
-        """Write record count+1; Exists -> another run won the race."""
+        """Write record count+1; Exists -> another run won the race. The record cap counts records
+        after the checkpoint this ledger last read; a recovery session (over_limit_ok) may write its
+        own two records beyond it."""
         import source_archive as sa
         limit = self.policy["per_request"]["max_ledger_records"]
-        if count - self.base_seq >= limit:
+        if not self.over_limit_ok and count - self.base_seq >= limit:
             raise BudgetError(f"ledger has {count - self.base_seq} records after the last checkpoint >= {limit}; "
                               "checkpoint before writing")
         seq = count + 1
@@ -830,9 +843,13 @@ def check_lock_rules(doc):
 
 
 class Session:
-    """One budgeted run: run control, admission, reservation, metered requests, settlement."""
+    """One budgeted run: run control, admission, reservation, metered requests, settlement.
+    purpose "checkpoint"/"audit" marks the sessions of those commands: their ledger may pass the
+    record cap (over_limit_ok), because a run that clears or verifies a full backlog cannot be
+    stopped by it. Every other session keeps both cap checks."""
 
-    def __init__(self, job_path, endpoint_url=None, ledger_store=None, policy_path=None, gate_dir=None):
+    def __init__(self, job_path, endpoint_url=None, ledger_store=None, policy_path=None, gate_dir=None,
+                 purpose=None):
         self.policy = load_policy(policy_path) if policy_path else load_policy()
         self.job = load_job(job_path, self.policy)
         self.run_id = f"{now_utc().strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:8]}"
@@ -843,6 +860,7 @@ class Session:
         self._ledger_store = ledger_store
         self.gate = LocalGate(self.policy, self.job["job_id"], gate_dir)
         self.reservation = None
+        self.purpose = purpose
         self.admitted = False
         self._alarm_installed = False  # True while our SIGALRM handler is in place
         self._prev_alarm_handler = None
@@ -868,7 +886,7 @@ class Session:
                 # The ledger is opened before ACTIVE exists, and is also read after finish clears it.
                 st.meter = self.meter
                 self.meter.attach(st.s3, "ledger")
-            self.ledger = Ledger(st, self.policy)
+            self.ledger = Ledger(st, self.policy, over_limit_ok=self.purpose in ("checkpoint", "audit"))
             month = now_utc().strftime("%Y-%m")
             scope = self.ledger.closed(month, self.job["job_id"])
             if scope:
@@ -949,11 +967,11 @@ class Session:
 ACTIVE = None  # the Session of this process; source_archive.store() refuses R2/AWS without it
 
 
-def start(job_path, endpoint_url=None, ledger_store=None, policy_path=None, gate_dir=None):
+def start(job_path, endpoint_url=None, ledger_store=None, policy_path=None, gate_dir=None, purpose=None):
     global ACTIVE
     if ACTIVE is not None:
         raise BudgetError("a budget session is already open in this process")
-    s = Session(job_path, endpoint_url, ledger_store, policy_path, gate_dir)
+    s = Session(job_path, endpoint_url, ledger_store, policy_path, gate_dir, purpose)
     s.open()
     ACTIVE = s
     return s
@@ -1002,7 +1020,7 @@ def _cli():
                 + (CHECKPOINT_BYTES if a.cmd == "checkpoint" else 0))
         if load_job(f"{path}#{profile}", policy)["per_run"]["put_bytes"] < need:
             raise BudgetError(f"profile {profile!r} cannot pay for a checkpoint write ({need} bytes needed)")
-        s = start(f"{path}#{profile}", a.endpoint_url)
+        s = start(f"{path}#{profile}", a.endpoint_url, purpose=a.cmd)
         try:
             out = write_checkpoint(s.ledger) if a.cmd == "checkpoint" else audit_checkpoints(s.ledger)
             print(json.dumps(out, indent=1))

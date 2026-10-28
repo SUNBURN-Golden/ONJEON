@@ -482,6 +482,136 @@ class Writing(LedgerFixture):
         self.assertEqual(doc["seq"], 8)
 
 
+class Lockout(LedgerFixture):
+    """At the record cap the ledger used to lock for good: `checkpoint`, the command that shrinks the
+    backlog, could itself neither read nor write past max_ledger_records. Sessions of `checkpoint` and
+    `audit` (Session purpose) now pass the cap; the checkpoint written covers the run's own reservation,
+    so the next ordinary run sees the backlog cleared. Ordinary sessions keep both cap checks."""
+
+    def session(self, purpose=None, tag="g"):
+        return b.Session(str(self.job_path), ledger_store=self.ledger_store,
+                         policy_path=self.policy_path, gate_dir=self.root / tag, purpose=purpose)
+
+    def test_normal_session_stays_refused_at_the_cap(self):
+        self.runs(50)                                       # records 1..100: the cap
+        s = self.session()
+        with self.assertRaisesRegex(b.BudgetError, "checkpoint before running"):
+            s.open()
+        self.assertIsNone(s.gate._lock)                     # the local lock was released
+        self.assertIsNone(s.reservation)
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
+        # the refused run is still recorded: its admission counts against the month's admissions
+        self.assertEqual(len(self.ledger_store.list(b.ADMISSION_PREFIX)), 1)
+
+    def test_checkpoint_session_clears_a_full_ledger(self):
+        self.runs(50)                                       # records 1..100, no checkpoint
+        s = self.session("checkpoint")
+        s.open()
+        try:
+            self.assertEqual(s.reservation["seq"], 101)     # its own reservation may pass the cap
+            out = b.write_checkpoint(s.ledger)
+            self.assertEqual((out["status"], out["seq"], out["records_summarised"]),
+                             ("written", 101, 101))
+        finally:
+            settled = s.settle("ok")
+        self.assertEqual(settled["seq"], 102)
+        nxt = self.session(tag="n")
+        nxt.open()
+        try:
+            self.assertEqual(nxt.ledger.base_seq, 101)      # the checkpoint covers the recovery run
+            records, _ = nxt.ledger.read()                  # only the settlement and own reservation follow
+            self.assertEqual([r["seq"] for r in records], [102, 103])
+        finally:
+            self.assertEqual(nxt.settle("ok")["seq"], 104)
+        self.assertEqual(b.audit_checkpoints(self.fresh())["checkpoints"], 1)
+
+    def test_checkpoint_session_at_99_covers_its_own_reservation(self):
+        self.runs(49)
+        self.runs(1, settle=False, first=49)                # 99 records
+        s = self.session("checkpoint")
+        s.open()
+        try:
+            self.assertEqual(s.reservation["seq"], 100)
+            out = b.write_checkpoint(s.ledger)
+            self.assertEqual(out["seq"], 100)               # covers the run's own reservation
+        finally:
+            settled = s.settle("ok")
+        self.assertEqual(settled["seq"], 101)
+        records, _ = self.fresh().read()
+        self.assertEqual([r["seq"] for r in records], [101])
+
+    def test_checkpoint_session_clears_a_full_segment_after_a_checkpoint(self):
+        self.runs(49)
+        self.checkpoint()                                   # checkpoint covers 1..98
+        self.runs(50, first=49)                             # records 99..198: full again
+        with self.assertRaises(b.BudgetError):
+            self.fresh().read()
+        s = self.session("checkpoint")
+        s.open()
+        try:
+            self.assertEqual(s.reservation["seq"], 199)
+            out = b.write_checkpoint(s.ledger)
+            self.assertEqual((out["status"], out["seq"], out["records_summarised"]),
+                             ("written", 199, 101))
+        finally:
+            settled = s.settle("ok")
+        self.assertEqual(settled["seq"], 200)
+        nxt = self.fresh()
+        records, _ = nxt.read()
+        self.assertEqual((nxt.base_seq, [r["seq"] for r in records]), (199, [200]))
+        self.assertEqual(b.audit_checkpoints(self.fresh())["checkpoints"], 2)
+
+    def test_checkpoint_command_flow_via_start_and_finish(self):
+        self.runs(50)
+        s = b.start(str(self.job_path), ledger_store=self.ledger_store,
+                    policy_path=self.policy_path, gate_dir=self.root / "g", purpose="checkpoint")
+        try:
+            self.assertTrue(s.ledger.over_limit_ok)
+            self.assertEqual(b.write_checkpoint(s.ledger)["seq"], 101)
+        finally:
+            summary = b.finish("ok")
+        self.assertEqual(summary["settlement"], 102)
+        self.assertIsNone(b.ACTIVE)
+
+    def test_audit_session_passes_the_cap_but_does_not_clear_it(self):
+        self.runs(50)
+        s = self.session("audit")
+        s.open()
+        try:
+            self.assertEqual(b.audit_checkpoints(s.ledger)["records"], 101)  # own reservation included
+        finally:
+            settled = s.settle("ok")
+        self.assertEqual(settled["seq"], 102)
+        with self.assertRaises(b.BudgetError):              # auditing is read-only; still locked
+            self.fresh().read()
+
+    def test_over_limit_flag_is_scoped_to_recovery_ledgers(self):
+        self.runs(50)
+        flagged = b.Ledger(self.ledger_store, self.policy, over_limit_ok=True)
+        records, prev = flagged.read()
+        self.assertEqual(len(records), 100)
+        rec, prev = flagged.append({"kind": "reservation", "job_id": "t", "run_id": "x",
+                                    "at": b.stamp(), "amounts": amounts()}, 100, prev)
+        self.assertEqual(rec["seq"], 101)
+        with self.assertRaisesRegex(b.BudgetError, "checkpoint before running"):
+            self.fresh().read()
+        with mock.patch.object(self.ledger_store, "put_new") as put:
+            with self.assertRaisesRegex(b.BudgetError, "checkpoint before writing"):
+                self.fresh().append({"kind": "settlement"}, 101, prev)
+        put.assert_not_called()
+
+    def test_recovery_session_still_obeys_the_budget_caps(self):
+        self.runs(50)                                       # the flag lifts the record cap, not the money caps
+        doc = json.loads(self.policy_path.read_text())
+        doc["previous_policy_sha256"] = [b.sha256_file(self.policy_path)]
+        doc["caps"]["class_a"] = 10
+        self.policy_path.write_text(json.dumps(doc))
+        s = self.session("checkpoint")
+        with self.assertRaisesRegex(b.BudgetError, "global class_a"):
+            s.open()
+        self.assertIsNone(s.gate._lock)
+
+
 class MeterAndProfiles(LedgerFixture):
     def test_ledger_role_may_touch_checkpoints_but_not_head_them(self):
         policy, job = self.load()
@@ -569,6 +699,52 @@ class EndToEnd(base.Fixture):
         out = b.write_checkpoint(s.ledger)
         self.assertEqual(s.meter.snapshot()["put_bytes"] - before_put, out["bytes"])
         s.settle("ok")
+
+    def seed_full_ledger(self):
+        """100 valid records in the stub: what 50 settled runs would have left."""
+        policy, _ = self.load()
+        led = b.Ledger(self.ledger_store, policy)
+        prev = None
+        for i in range(50):
+            run, at = f"seed{i:03d}", f"{MONTH}-09T00:{i // 60:02d}:{i % 60:02d}Z"
+            rec, prev = led.append({"kind": "reservation", "job_id": "t", "run_id": run, "at": at,
+                                    "amounts": {d: 1 for d in b.DIMENSIONS}}, 2 * i, prev)
+            _s, prev = led.append({"kind": "settlement", "job_id": "t", "run_id": run,
+                                   "reservation_seq": rec["seq"], "at": at,
+                                   "amounts": {d: 1 for d in b.DIMENSIONS}}, 2 * i + 1, prev)
+        for key in self.ledger_store.list(""):
+            self.stub.objects[("ledger", key)] = self.ledger_store.get(key)
+
+    def test_checkpoint_session_at_the_cap_stays_metered_and_clears_it(self):
+        self.write_policy(per_month_global=50, class_a=10**7)
+        self.write_job(admissions_per_month=50, class_a=10**7)
+        doc = json.loads(self.job_path.read_text())
+        doc["run_profiles"]["verify"]["class_b"] = 400    # the recovery run reads the whole backlog
+        self.job_path.write_text(json.dumps(doc))
+        self.seed_full_ledger()
+        before = len(self.stub.log)
+        s = b.Session(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                      gate_dir=self.root / "g", purpose="checkpoint")
+        s.open()
+        # every request before the reservation still fits the admission limits: 2 HEADs + 100 record
+        # GETs of class B, 3 LISTs + 2 PUTs of class A — exactly why a full ledger stays clearable
+        self.assertEqual((s.meter.used["class_a"], s.meter.used["class_b"]), (5, 102))
+        for d in ("class_a", "class_b"):
+            self.assertLessEqual(s.meter.used[d], base.ADMISSION[d], d)
+        out = b.write_checkpoint(s.ledger)
+        self.assertEqual(out["seq"], 101)
+        rec = s.settle("ok")
+        self.assertEqual(rec["seq"], 102)
+        for d in ("class_a", "class_b", "put_bytes"):
+            self.assertLessEqual(s.meter.used[d], s.meter.limits[d], d)
+        before2 = len(self.stub.log)
+        s2 = b.Session(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                       gate_dir=self.root / "n")
+        s2.open()
+        self.assertEqual(s2.ledger.base_seq, 101)
+        s2.settle("ok")
+        # an ordinary run after the recovery reads only the one record that follows the checkpoint
+        self.assertEqual(len(self.ledger_gets(before2)), 2)
 
 
 class LockRules(unittest.TestCase):

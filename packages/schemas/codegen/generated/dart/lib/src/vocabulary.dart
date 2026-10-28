@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-const String vocabularyVersion = '1.7.0';
+const String vocabularyVersion = '1.8.0';
 
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
@@ -1426,6 +1426,8 @@ enum RuleOperator {
   ifValue('if'),
   /// 선언된 입력 이름 참조
   input('input'),
+  /// 명시적 문자열 리터럴. rule-0.1·rule-0.2에서 JSON 문자열만 허용하며 입력 이름 조회·요율 변환·공백 제거·유니코드 정규화를 하지 않는다
+  str('str'),
   /// 음이 아닌 십진 문자열 요율 리터럴
   rate('rate'),
   /// 음이 아닌 정수 원 금액 리터럴

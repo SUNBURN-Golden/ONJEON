@@ -287,6 +287,8 @@ flowchart TD
 
 M2의 산출물이 DSL·라벨 사전·FieldAssertion 스키마의 첫 실증이다. 여기서 드러난 부족분이 이후 설계를 고친다.
 
+문자열 조건을 컴파일할 때 입력은 `{"input":"event"}`, 고정 라벨은 `{"str":"surgery"}`처럼 명시한다(rule-0.1·rule-0.2). 일반 문자열의 기존 입력명 우선·요율 해석은 유지하므로 새 문자열 상수에 사용하지 않는다. [Audit 2 결정·회귀 검증](decisions/audit2-engine-string-literals.md).
+
 V1-b가 실제 표본으로 미리 찾은 부족분은 [GAP_REPORT.md](blueprint/validation/GAP_REPORT.md)에 있다. 그에 따른 순서: M1은 CodeSet·ParameterTable·`value_kind`·`amount_form`을 스키마에 넣는다. M2는 V1 표본의 보류 항목(표 셀 좌표, 미발췌 조항)을 실제 파이프라인으로 해소한다. rule-0.2 연산(`multiply_count`, `subtract_floor0`, `pro_rata`, `divide_count`, `anniversary_band`, 목록 입력과 `max_over`, `contract_effect`)은 해당 상품군을 계산 범위에 넣는 마일스톤(M5·M6)에서 사례와 함께 추가한다. 코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 DSL에 넣지 않고 입력 단계가 맡는다.
 
 ### 9.4 개발 구역과 레포 방향 (D15)
@@ -346,7 +348,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 193 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 201 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 38 | `tools/validation_check.py`의 `mutations()` |

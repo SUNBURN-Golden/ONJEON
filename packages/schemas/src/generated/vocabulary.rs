@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 use serde::{Deserialize, Serialize};
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-pub const VOCABULARY_VERSION: &str = "1.7.0";
+pub const VOCABULARY_VERSION: &str = "1.8.0";
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
 /// Axis `acquisition_status`. Unknown values fail to deserialize (never a default).
@@ -2115,6 +2115,9 @@ pub enum RuleOperator {
     /// 선언된 입력 이름 참조
     #[serde(rename = "input")]
     Input,
+    /// 명시적 문자열 리터럴. rule-0.1·rule-0.2에서 JSON 문자열만 허용하며 입력 이름 조회·요율 변환·공백 제거·유니코드 정규화를 하지 않는다
+    #[serde(rename = "str")]
+    Str,
     /// 음이 아닌 십진 문자열 요율 리터럴
     #[serde(rename = "rate")]
     Rate,
@@ -2179,6 +2182,7 @@ impl RuleOperator {
         RuleOperator::Gte,
         RuleOperator::If,
         RuleOperator::Input,
+        RuleOperator::Str,
         RuleOperator::Rate,
         RuleOperator::Krw,
         RuleOperator::Date,
@@ -2210,6 +2214,7 @@ impl RuleOperator {
             RuleOperator::Gte => "gte",
             RuleOperator::If => "if",
             RuleOperator::Input => "input",
+            RuleOperator::Str => "str",
             RuleOperator::Rate => "rate",
             RuleOperator::Krw => "krw",
             RuleOperator::Date => "date",

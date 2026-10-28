@@ -1,0 +1,13 @@
+$ bash packages/schemas/codegen/build_check.sh
+== generated files are up to date
+ok: 30 generated files are up to date
+== Rust: cargo build -p onjeon-contracts -p onjeon-api-types (default and --features skeleton)
+Rust: built
+Rust API: built (default and skeleton feature)
+== TypeScript: tsc --noEmit
+TypeScript: SKIPPED (no tsc; set TSC='node /path/to/tsc.js')
+== Dart: dart analyze + fixture round trip
+Dart: SKIPPED (dart SDK not installed)
+RESULT: incomplete - at least one language was skipped (see above)
+
+exit code: 3

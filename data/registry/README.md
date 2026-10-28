@@ -4,6 +4,8 @@
 
 `python3 tools/vocab_check.py`가 CI에서 `data/registry/*.csv`의 상태 열을 각 축의 현행 코드와 대조한다. 폐기된 기관 상태 열, 필수 상태 열 누락, 다른 축의 값·빈 값·과거 별칭과 잘못된 CSV 구조는 실패한다. `result`·`*_detail`·메모 등 원문 증거는 상태 코드로 해석하지 않는다.
 
+`python3 -I tools/registry_check.py`는 CI에서 기관 원장 3종의 `insurer_id`와 `sources.csv`의 `source_id`가 비어 있거나 중복되지 않는지, `listed_in`의 각 출처가 존재하는지 검사한다. `homepage_`·`homepage_redirect_`·`disclosure_` 출처 ID와 `homepage:`·`homepage_redirect:`·`disclosure:` 접근 목적의 기관 ID도 원장 3종과 대조한다. 시드 기관의 빈 `listed_in`은 허용하며, `source:*` 접근 목적은 원래 조사 파일명이므로 출처 ID로 해석하지 않는다. 검사는 네트워크 요청·CSV 수정을 하지 않는다. [Audit 3 정정·회귀 증거](../../docs/blueprint/audits/2026-10-28_registry_id_mismatch_and_check.md).
+
 조사 시각: 2026-10-09 04:21–04:36 UTC (이 샌드박스 환경, 해외 IP 경유)
 상태: **1차 근거 목록**. 상품·특약 단위 분모는 아직 만들지 않았다(아래 "열거하지 않은 것" 참조).
 

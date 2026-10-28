@@ -74,14 +74,14 @@ attempted_at,host,url,purpose,http_code,curl_exit,result,final_url,detail,host_a
 2026-10-09T04:32:41Z,www.kakaopayinscorp.co.kr,https://www.kakaopayinscorp.co.kr/,homepage:nonlife-kakaopay,200,0,200,https://www.kakaopayinscorp.co.kr/,,reachable
 2026-10-09T04:32:44Z,www.shinhanez.co.kr,https://www.shinhanez.co.kr/,homepage:nonlife-shinhanez,200,0,200_js_shell,https://www.shinhanez.co.kr/,,js_shell
 2026-10-09T04:32:46Z,www.chubb.com,https://www.chubb.com/kr-kr/,homepage:nonlife-ace-chubb,200,0,200,https://www.chubb.com/kr-kr/,,reachable
-2026-10-09T04:32:48Z,www.ms-ins.co.kr,https://www.ms-ins.co.kr/,homepage:nonlife-mitsuisumitomo,200,0,200,https://www.ms-ins.co.kr/kor/template/main.asp,,reachable
+2026-10-09T04:32:48Z,www.ms-ins.co.kr,https://www.ms-ins.co.kr/,homepage:nonlife-mitsuisumitomo-kr,200,0,200,https://www.ms-ins.co.kr/kor/template/main.asp,,reachable
 2026-10-09T04:32:51Z,www.firstam.co.kr,https://www.firstam.co.kr/,homepage:nonlife-firstam,200,0,200,https://www.firstam.co.kr/,,reachable
 2026-10-09T04:32:55Z,www.yebyeol.co.kr,https://www.yebyeol.co.kr/,homepage:nonlife-yebyeol,000,35,connection_reset,https://www.yebyeol.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
 2026-10-09T04:33:05Z,www.mybrown.co.kr,https://www.mybrown.co.kr/,homepage:nonlife-mybrown,000,35,connection_reset,https://www.mybrown.co.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
 2026-10-09T04:33:19Z,www.suhyup.co.kr,https://www.suhyup.co.kr/,homepage:coop-suhyup,200,0,200_js_shell,https://www.suhyup.co.kr/,,js_shell
 2026-10-09T04:33:22Z,www.cu.co.kr,https://www.cu.co.kr/,homepage:coop-cu,200,0,200,https://www.cu.co.kr:443/cu/main.do,,reachable
 2026-10-09T04:33:27Z,www.kfcc.co.kr,https://www.kfcc.co.kr/,homepage:coop-kfcc,200,0,200,https://www.kfcc.co.kr/,,reachable
-2026-10-09T04:33:31Z,www.epostlife.go.kr,https://www.epostlife.go.kr/,homepage:other-epost,000,35,connection_reset,https://www.epostlife.go.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
+2026-10-09T04:33:31Z,www.epostlife.go.kr,https://www.epostlife.go.kr/,homepage:public-epost,000,35,connection_reset,https://www.epostlife.go.kr/,curl: (35) Recv failure: Connection reset by peer ,connection_reset
 2026-10-09T04:33:54Z,www.aia.co.kr,https://www.aia.co.kr/ko/disclosure/our-products.html,disclosure:life-aia,200,0,200,https://www.aia.co.kr/ko/disclosure/our-products/disclosing-process.html,,reachable
 2026-10-09T04:33:56Z,www.cardif.co.kr,https://www.cardif.co.kr/disclosure/product/papag001.do,disclosure:life-bnpcardif,200,0,200,https://www.cardif.co.kr/disclosure/product/papag001.do,,reachable
 2026-10-09T04:33:59Z,www.lifeplanet.co.kr,https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev,disclosure:life-kyobo-lifeplanet,200,0,200,https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev,,reachable

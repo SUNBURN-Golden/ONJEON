@@ -1,0 +1,129 @@
+test_audit_id_mismatches_report_file_line_and_reference (test_registry_check.CrossReferences.test_audit_id_mismatches_report_file_line_and_reference) ... FAIL
+test_cli_success_failure_and_read_only_operation (test_registry_check.CrossReferences.test_cli_success_failure_and_read_only_operation) ... ok
+test_duplicate_entity_ids_within_and_across_tables_are_rejected (test_registry_check.CrossReferences.test_duplicate_entity_ids_within_and_across_tables_are_rejected) ... ok
+test_duplicate_source_ids_are_rejected (test_registry_check.CrossReferences.test_duplicate_source_ids_are_rejected) ... ok
+test_empty_and_whitespace_ids_are_rejected (test_registry_check.CrossReferences.test_empty_and_whitespace_ids_are_rejected) ... ok
+test_empty_or_whitespace_reference_components_are_rejected (test_registry_check.CrossReferences.test_empty_or_whitespace_reference_components_are_rejected) ... ok
+test_header_only_access_log_is_valid (test_registry_check.CrossReferences.test_header_only_access_log_is_valid) ... ok
+test_listed_in_is_checked_in_all_three_tables (test_registry_check.CrossReferences.test_listed_in_is_checked_in_all_three_tables) ... ok
+test_malformed_csv_fails_with_location (test_registry_check.CrossReferences.test_malformed_csv_fails_with_location) ... ok
+test_missing_each_input_and_required_column_fails (test_registry_check.CrossReferences.test_missing_each_input_and_required_column_fails) ... ok
+test_physical_line_number_accounts_for_quoted_newline (test_registry_check.CrossReferences.test_physical_line_number_accounts_for_quoted_newline) ... ok
+test_unknown_entity_in_every_structured_prefix_is_rejected (test_registry_check.CrossReferences.test_unknown_entity_in_every_structured_prefix_is_rejected) ... ok
+test_valid_references_include_all_entity_tables_kinds_and_seed (test_registry_check.CrossReferences.test_valid_references_include_all_entity_tables_kinds_and_seed) ... ok
+test_ci_runs_cross_reference_checker (test_registry_check.LiveRegistry.test_ci_runs_cross_reference_checker) ... ok
+test_repository_cross_references (test_registry_check.LiveRegistry.test_repository_cross_references) ... FAIL
+test_blocking_tables_list_t_dt_04_under_o19 (test_registry_denominator.DomesticEnvironmentGate.test_blocking_tables_list_t_dt_04_under_o19) ... ok
+test_dec_o17_requires_a_domestic_designated_environment (test_registry_denominator.DomesticEnvironmentGate.test_dec_o17_requires_a_domestic_designated_environment) ... ok
+test_o19_is_an_open_ledger_item_without_a_decision_record (test_registry_denominator.DomesticEnvironmentGate.test_o19_is_an_open_ledger_item_without_a_decision_record) ... ok
+test_o19_is_gated_only_on_t_dt_04_real_data (test_registry_denominator.DomesticEnvironmentGate.test_o19_is_gated_only_on_t_dt_04_real_data) ... ok
+test_registry_readme_states_counts_and_codes (test_registry_denominator.DomesticEnvironmentGate.test_registry_readme_states_counts_and_codes) ... ok
+test_t_dt_04_real_data_waits_for_d04_and_o19 (test_registry_denominator.DomesticEnvironmentGate.test_t_dt_04_real_data_waits_for_d04_and_o19) ... ok
+test_codes_follow_disclosure_and_geo_state (test_registry_denominator.ReasonCodeRule.test_codes_follow_disclosure_and_geo_state) ... ok
+test_enumerated_lists_keep_existing_codes (test_registry_denominator.ReasonCodeRule.test_enumerated_lists_keep_existing_codes) ... ok
+test_committed_csvs_are_a_fixed_point_of_the_normalizer (test_registry_denominator.RegistryConsistency.test_committed_csvs_are_a_fixed_point_of_the_normalizer) ... ok
+test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) ... ok
+test_statuses_use_the_acquisition_axis (test_registry_denominator.RegistryConsistency.test_statuses_use_the_acquisition_axis) ... ok
+test_unqueried_product_lists_carry_reason_and_known_codes (test_registry_denominator.RegistryConsistency.test_unqueried_product_lists_carry_reason_and_known_codes) ... ok
+test_insurer_and_disclosure_entry_counts (test_registry_denominator.RegistryCounts.test_insurer_and_disclosure_entry_counts) ... ok
+test_no_product_list_is_enumerated_yet (test_registry_denominator.RegistryCounts.test_no_product_list_is_enumerated_yet) ... ok
+test_reason_code_counts (test_registry_denominator.RegistryCounts.test_reason_code_counts) ... ok
+test_access_results_alone_never_prove_archival (test_registry_normalize.AccessCodes.test_access_results_alone_never_prove_archival) ... ok
+test_axis_lookup (test_registry_normalize.AccessCodes.test_axis_lookup) ... ok
+test_canonical_codes_and_all_deprecated_aliases (test_registry_normalize.AccessCodes.test_canonical_codes_and_all_deprecated_aliases) ... ok
+test_home_access_mapping_keeps_unqueried_blocked_and_failed_distinct (test_registry_normalize.AccessCodes.test_home_access_mapping_keeps_unqueried_blocked_and_failed_distinct) ... ok
+test_raw_http_results_redirects_whitespace_and_empty_values (test_registry_normalize.AccessCodes.test_raw_http_results_redirects_whitespace_and_empty_values) ... ok
+test_reachable_disclosure_is_not_archived_without_preservation_evidence (test_registry_normalize.AccessCodes.test_reachable_disclosure_is_not_archived_without_preservation_evidence) ... ok
+test_unknown_results_abort_instead_of_claiming_success (test_registry_normalize.AccessCodes.test_unknown_results_abort_instead_of_claiming_success) ... ok
+test_access_log_preserves_existing_code_and_handles_absent_result (test_registry_normalize.RegistryCsv.test_access_log_preserves_existing_code_and_handles_absent_result) ... ok
+test_access_log_retains_raw_result_and_is_idempotent (test_registry_normalize.RegistryCsv.test_access_log_retains_raw_result_and_is_idempotent) ... ok
+test_all_evidence_aliases_and_canonical_values (test_registry_normalize.RegistryCsv.test_all_evidence_aliases_and_canonical_values) ... ok
+test_empty_access_log_is_unchanged_and_idempotent (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged_and_idempotent) ... 
+  test_empty_access_log_is_unchanged_and_idempotent (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged_and_idempotent) (content=b'') ... ERROR
+  test_empty_access_log_is_unchanged_and_idempotent (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged_and_idempotent) (content=b'url,result\r\n') ... ERROR
+  test_empty_access_log_is_unchanged_and_idempotent (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged_and_idempotent) (content=b'url,result,host_access\r\n') ... ERROR
+test_empty_registry_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_registry_is_unchanged) ... ok
+test_existing_details_product_progress_and_unrelated_fields_survive (test_registry_normalize.RegistryCsv.test_existing_details_product_progress_and_unrelated_fields_survive) ... ok
+test_invalid_access_log_leaves_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_access_log_leaves_input_untouched) ... ok
+test_invalid_evidence_or_access_leaves_whole_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_evidence_or_access_leaves_whole_input_untouched) ... ok
+test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved (test_registry_normalize.RegistryCsv.test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved) ... ok
+test_normalizes_evidence_access_details_and_lower_denominator_idempotently (test_registry_normalize.RegistryCsv.test_normalizes_evidence_access_details_and_lower_denominator_idempotently) ... ok
+test_script_normalizes_all_four_registries_in_isolated_tree (test_registry_normalize.RegistryCsv.test_script_normalizes_all_four_registries_in_isolated_tree) ... ok
+test_without_disclosure_does_not_add_disclosure_or_product_fields (test_registry_normalize.RegistryCsv.test_without_disclosure_does_not_add_disclosure_or_product_fields) ... ok
+test_adr_0018_is_settled_for_these_rows (test_registry_scope.ScopeNotes.test_adr_0018_is_settled_for_these_rows) ... ok
+test_epost_is_included_and_not_described_as_mutual_aid (test_registry_scope.ScopeNotes.test_epost_is_included_and_not_described_as_mutual_aid) ... ok
+test_ksure_records_the_implementer_reading_as_excluded (test_registry_scope.ScopeNotes.test_ksure_records_the_implementer_reading_as_excluded) ... ok
+test_mutual_aid_rows_record_the_exclusion (test_registry_scope.ScopeNotes.test_mutual_aid_rows_record_the_exclusion) ... ok
+test_no_registry_cell_still_waits_for_a_scope_decision (test_registry_scope.ScopeNotes.test_no_registry_cell_still_waits_for_a_scope_decision) ... ok
+test_readme_scope_table_matches_the_rows (test_registry_scope.ScopeNotes.test_readme_scope_table_matches_the_rows) ... ok
+
+======================================================================
+ERROR: test_empty_access_log_is_unchanged_and_idempotent (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged_and_idempotent) (content=b'')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/tests/test_registry_normalize.py", line 196, in test_empty_access_log_is_unchanged_and_idempotent
+    self.assertEqual(rn.normalize_access_log(self.path), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/registry_normalize.py", line 142, in normalize_access_log
+    w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                                          ~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_empty_access_log_is_unchanged_and_idempotent (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged_and_idempotent) (content=b'url,result\r\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/tests/test_registry_normalize.py", line 196, in test_empty_access_log_is_unchanged_and_idempotent
+    self.assertEqual(rn.normalize_access_log(self.path), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/registry_normalize.py", line 142, in normalize_access_log
+    w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                                          ~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_empty_access_log_is_unchanged_and_idempotent (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged_and_idempotent) (content=b'url,result,host_access\r\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/tests/test_registry_normalize.py", line 196, in test_empty_access_log_is_unchanged_and_idempotent
+    self.assertEqual(rn.normalize_access_log(self.path), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/registry_normalize.py", line 142, in normalize_access_log
+    w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                                          ~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+FAIL: test_audit_id_mismatches_report_file_line_and_reference (test_registry_check.CrossReferences.test_audit_id_mismatches_report_file_line_and_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/tests/test_registry_check.py", line 57, in test_audit_id_mismatches_report_file_line_and_reference
+    self.assertIn(location, message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: 'sources.csv:4:' not found in "sources.csv:5: source_id 'homepage_nonlife-mitsuisumitomo' references unknown insurer_id 'nonlife-mitsuisumitomo'"
+
+======================================================================
+FAIL: test_repository_cross_references (test_registry_check.LiveRegistry.test_repository_cross_references)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-registry-id-mismatch-and-check/tools/tests/test_registry_check.py", line 155, in test_repository_cross_references
+    self.assertEqual(rc.check(), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ["sources.csv:49: source_id 'homepage_nonl[287 chars]st'"] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+"sources.csv:49: source_id 'homepage_nonlife-mitsuisumitomo' references unknown insurer_id 'nonlife-mitsuisumitomo'"
+
++ []
+- ["sources.csv:49: source_id 'homepage_nonlife-mitsuisumitomo' references "
+-  "unknown insurer_id 'nonlife-mitsuisumitomo'",
+-  "access_log.csv:77: purpose 'homepage:nonlife-mitsuisumitomo' references "
+-  "unknown insurer_id 'nonlife-mitsuisumitomo'",
+-  "access_log.csv:84: purpose 'homepage:other-epost' references unknown "
+-  "insurer_id 'other-epost'"]
+
+----------------------------------------------------------------------
+Ran 55 tests in 0.163s
+
+FAILED (failures=2, errors=3)

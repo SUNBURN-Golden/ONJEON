@@ -1,0 +1,632 @@
+test_empty_batch_is_valid (test_ontology_runner_io_error.RunnerIoError.test_empty_batch_is_valid) ... ERROR
+test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) ... 
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='') ... ERROR
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='[') ... ERROR
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='[{"case_id":"incomplete"}') ... ERROR
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='{}') ... ERROR
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='null') ... ERROR
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='"string"') ... ERROR
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='1') ... ERROR
+  test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='[] trailing') ... ERROR
+test_load_and_eval_errors_preserve_order_and_later_success (test_ontology_runner_io_error.RunnerIoError.test_load_and_eval_errors_preserve_order_and_later_success) ... ERROR
+test_nonobject_jobs_are_per_job_errors (test_ontology_runner_io_error.RunnerIoError.test_nonobject_jobs_are_per_job_errors) ... ERROR
+test_per_case_io_error_and_batch_continues (test_ontology_runner_io_error.RunnerIoError.test_per_case_io_error_and_batch_continues)
+Exit 0; bad rule_path cases get io_error; a case after them still evaluates. ... ERROR
+test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state)
+Both DSLs, omitted/null fixture releases and distinct synthetic releases. ... 
+  test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release='omitted')
+Both DSLs, omitted/null fixture releases and distinct synthetic releases. ... ERROR
+  test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release=None)
+Both DSLs, omitted/null fixture releases and distinct synthetic releases. ... ERROR
+  test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release='rel:runner-1')
+Both DSLs, omitted/null fixture releases and distinct synthetic releases. ... ERROR
+  test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release='rel:runner-2')
+Both DSLs, omitted/null fixture releases and distinct synthetic releases. ... ERROR
+test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state)
+Both DSLs, omitted/null fixture releases and distinct synthetic releases. ... ERROR
+test_run_engine_treats_io_error_like_load_error (test_ontology_runner_io_error.RunnerIoError.test_run_engine_treats_io_error_like_load_error)
+run_engine (check=True) stays up on io_error rows and keys them by case_id. ... ERROR
+test_failed_fallback_build_is_not_silently_skipped (test_ontology_runner_io_error.RunnerSetup.test_failed_fallback_build_is_not_silently_skipped) ... ok
+test_prebuilt_runner_does_not_require_cargo_or_cached_dependencies (test_ontology_runner_io_error.RunnerSetup.test_prebuilt_runner_does_not_require_cargo_or_cached_dependencies) ... ok
+
+======================================================================
+ERROR: test_empty_batch_is_valid (test_ontology_runner_io_error.RunnerIoError.test_empty_batch_is_valid)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 202, in test_empty_batch_is_valid
+    self.assertEqual(self.run_jobs([]), [])
+                     ~~~~~~~~~~~~~^^^^
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='[')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='[{"case_id":"incomplete"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='{}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='null')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='"string"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) (raw='[] trailing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 195, in test_invalid_batch_is_reported_without_panic
+    p = subprocess.run([self.runner], input=raw, capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_load_and_eval_errors_preserve_order_and_later_success (test_ontology_runner_io_error.RunnerIoError.test_load_and_eval_errors_preserve_order_and_later_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 174, in test_load_and_eval_errors_preserve_order_and_later_success
+    rows = self.run_jobs(batch)
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_nonobject_jobs_are_per_job_errors (test_ontology_runner_io_error.RunnerIoError.test_nonobject_jobs_are_per_job_errors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 186, in test_nonobject_jobs_are_per_job_errors
+    rows = self.run_jobs(batch)
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_per_case_io_error_and_batch_continues (test_ontology_runner_io_error.RunnerIoError.test_per_case_io_error_and_batch_continues)
+Exit 0; bad rule_path cases get io_error; a case after them still evaluates.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 98, in test_per_case_io_error_and_batch_continues
+    self.assert_batch({r["case_id"]: r for r in self.run_jobs(jobs())})
+                                                ~~~~~~~~~~~~~^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release='omitted')
+Both DSLs, omitted/null fixture releases and distinct synthetic releases.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 123, in test_release_and_schema_fields_for_every_payout_state
+    rows = self.run_jobs(batch)
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release=None)
+Both DSLs, omitted/null fixture releases and distinct synthetic releases.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 123, in test_release_and_schema_fields_for_every_payout_state
+    rows = self.run_jobs(batch)
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release='rel:runner-1')
+Both DSLs, omitted/null fixture releases and distinct synthetic releases.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 123, in test_release_and_schema_fields_for_every_payout_state
+    rows = self.run_jobs(batch)
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state) (schema='rule-0.1', release='rel:runner-2')
+Both DSLs, omitted/null fixture releases and distinct synthetic releases.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 123, in test_release_and_schema_fields_for_every_payout_state
+    rows = self.run_jobs(batch)
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 64, in run_jobs
+    p = subprocess.run([self.runner], input=json.dumps(batch), capture_output=True, text=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+======================================================================
+ERROR: test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state)
+Both DSLs, omitted/null fixture releases and distinct synthetic releases.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 144, in test_release_and_schema_fields_for_every_payout_state
+    self.assertEqual(released_hashes[0], released_hashes[1])
+                     ~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_run_engine_treats_io_error_like_load_error (test_ontology_runner_io_error.RunnerIoError.test_run_engine_treats_io_error_like_load_error)
+run_engine (check=True) stays up on io_error rows and keys them by case_id.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/tools/tests/test_ontology_runner_io_error.py", line 102, in test_run_engine_treats_io_error_like_load_error
+    evs = ontology_check.run_engine(self.runner, jobs())
+  File "/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/ontology_check.py", line 542, in run_engine
+    p = subprocess.run([runner], input=json.dumps(jobs), capture_output=True, text=True, check=True)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1857, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1801, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit2-v1-gate-closure/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner'
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.068s
+
+FAILED (errors=18)

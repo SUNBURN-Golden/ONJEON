@@ -1,0 +1,5 @@
+Command: python3 -I tools/blueprint_counts.py
+CARGO_TARGET_DIR=$PWD/target; CARGO_NET_OFFLINE=true; TMPDIR=$PWD/target/audit2-merge-tmp; ONJEON_ONTOLOGY_RUNNER unset
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 193, "tamper_tests": 38, "vocabulary_axes": 49}
+
+blueprint-counts: exit=0, elapsed=0.159s

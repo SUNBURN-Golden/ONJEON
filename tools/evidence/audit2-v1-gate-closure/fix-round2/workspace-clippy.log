@@ -1,0 +1,5 @@
+Command: cargo clippy --offline --all-targets -- -D warnings
+CARGO_TARGET_DIR=$PWD/target; CARGO_NET_OFFLINE=true; TMPDIR=$PWD/target/audit2-merge-tmp; ONJEON_ONTOLOGY_RUNNER unset
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+
+workspace-clippy: exit=0, elapsed=0.182s

@@ -230,30 +230,33 @@ class RunnerIoError(unittest.TestCase):
 
 class RunnerSetup(unittest.TestCase):
     def test_uses_cargo_executable_with_default_or_redirected_target(self):
-        for target_dir, executable in (
-            ("", str(RUNNER_DIR / "target/debug/ontology-case-runner")),
-            (str(REPO / "target/shared"), str(REPO / "target/shared/debug/ontology-case-runner")),
-            ("", str(REPO / "target/configured/x86_64-unknown-linux-gnu/debug/ontology-case-runner")),
-        ):
-            with self.subTest(executable=executable), \
-                    mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": "", "CARGO_TARGET_DIR": target_dir}), \
-                    mock.patch.object(RunnerIoError, "runner", create=True):
-                messages = [
-                    {"reason": "compiler-artifact", "target": {"name": "dependency", "kind": ["lib"]},
-                     "executable": None},
-                    {"reason": "compiler-artifact", "target": {"name": "other-bin", "kind": ["bin"]},
-                     "executable": "/wrong/binary"},
-                    {"reason": "compiler-artifact", "target": {"name": "ontology-case-runner", "kind": ["bin"]},
-                     "executable": executable, "fresh": True},
-                    {"reason": "build-finished", "success": True},
-                ]
-                with mock.patch.object(subprocess, "run", return_value=subprocess.CompletedProcess(
-                        [], 0, stdout="\n".join(map(json.dumps, messages)))) as build:
-                    RunnerIoError.setUpClass()
-                self.assertEqual(RunnerIoError.runner, executable)
-                self.assertIn("--message-format=json", build.call_args.args[0])
-                self.assertEqual(build.call_args.kwargs["cwd"], RUNNER_DIR)
-                self.assertTrue(build.call_args.kwargs["check"])
+        for override in (None, ""):
+            for target_dir, executable in (
+                ("", str(RUNNER_DIR / "target/debug/ontology-case-runner")),
+                (str(REPO / "target/shared"), str(REPO / "target/shared/debug/ontology-case-runner")),
+                ("", str(REPO / "target/configured/x86_64-unknown-linux-gnu/debug/ontology-case-runner")),
+            ):
+                with self.subTest(prebuilt=override, executable=executable), \
+                        mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": "", "CARGO_TARGET_DIR": target_dir}), \
+                        mock.patch.object(RunnerIoError, "runner", create=True):
+                    if override is None:
+                        os.environ.pop("ONJEON_ONTOLOGY_RUNNER", None)
+                    messages = [
+                        {"reason": "compiler-artifact", "target": {"name": "dependency", "kind": ["lib"]},
+                         "executable": None},
+                        {"reason": "compiler-artifact", "target": {"name": "other-bin", "kind": ["bin"]},
+                         "executable": "/wrong/binary"},
+                        {"reason": "compiler-artifact", "target": {"name": "ontology-case-runner", "kind": ["bin"]},
+                         "executable": executable, "fresh": True},
+                        {"reason": "build-finished", "success": True},
+                    ]
+                    with mock.patch.object(subprocess, "run", return_value=subprocess.CompletedProcess(
+                            [], 0, stdout="\n".join(map(json.dumps, messages)))) as build:
+                        RunnerIoError.setUpClass()
+                    self.assertEqual(RunnerIoError.runner, executable)
+                    self.assertIn("--message-format=json", build.call_args.args[0])
+                    self.assertEqual(build.call_args.kwargs["cwd"], RUNNER_DIR)
+                    self.assertTrue(build.call_args.kwargs["check"])
 
     def test_successful_build_without_executable_fails_at_setup(self):
         for messages in ([], [{"reason": "compiler-artifact", "target": {

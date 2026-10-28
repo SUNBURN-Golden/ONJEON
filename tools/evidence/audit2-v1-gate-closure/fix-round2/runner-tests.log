@@ -1,0 +1,25 @@
+Command: ['python3', '-m', 'unittest', 'discover', '-s', 'tools/tests', '-p', 'test_ontology_runner_io_error.py', '-v']
+CARGO_TARGET_DIR=$PWD/target; CARGO_NET_OFFLINE=true; TMPDIR=$PWD/target/audit2-merge-tmp; ONJEON_ONTOLOGY_RUNNER unset
+test_empty_batch_is_valid (test_ontology_runner_io_error.RunnerIoError.test_empty_batch_is_valid) ... ok
+test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) ... ok
+test_load_and_eval_errors_preserve_order_and_later_success (test_ontology_runner_io_error.RunnerIoError.test_load_and_eval_errors_preserve_order_and_later_success) ... ok
+test_nonobject_jobs_are_per_job_errors (test_ontology_runner_io_error.RunnerIoError.test_nonobject_jobs_are_per_job_errors) ... ok
+test_per_case_io_error_and_batch_continues (test_ontology_runner_io_error.RunnerIoError.test_per_case_io_error_and_batch_continues)
+Exit 0; bad rule_path cases get io_error; a case after them still evaluates. ... ok
+test_release_and_schema_fields_for_every_payout_state (test_ontology_runner_io_error.RunnerIoError.test_release_and_schema_fields_for_every_payout_state)
+Both DSLs, omitted/null fixture releases and distinct synthetic releases. ... ok
+test_run_engine_treats_io_error_like_load_error (test_ontology_runner_io_error.RunnerIoError.test_run_engine_treats_io_error_like_load_error)
+run_engine (check=True) stays up on io_error rows and keys them by case_id. ... ok
+test_failed_fallback_build_is_not_silently_skipped (test_ontology_runner_io_error.RunnerSetup.test_failed_fallback_build_is_not_silently_skipped) ... ok
+test_prebuilt_runner_does_not_require_cargo_or_cached_dependencies (test_ontology_runner_io_error.RunnerSetup.test_prebuilt_runner_does_not_require_cargo_or_cached_dependencies) ... ok
+test_real_cargo_lock_cannot_hang_setup (test_ontology_runner_io_error.RunnerSetup.test_real_cargo_lock_cannot_hang_setup) ... ok
+test_stalled_fallback_build_fails_with_cargo_diagnostic (test_ontology_runner_io_error.RunnerSetup.test_stalled_fallback_build_fails_with_cargo_diagnostic) ... ok
+test_successful_build_without_executable_fails_at_setup (test_ontology_runner_io_error.RunnerSetup.test_successful_build_without_executable_fails_at_setup) ... ok
+test_uses_cargo_executable_with_default_or_redirected_target (test_ontology_runner_io_error.RunnerSetup.test_uses_cargo_executable_with_default_or_redirected_target) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 8.842s
+
+OK
+
+Exit: 0; elapsed: 8.923s

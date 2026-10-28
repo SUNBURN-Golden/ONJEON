@@ -484,9 +484,8 @@ class Writing(LedgerFixture):
 
 class Lockout(LedgerFixture):
     """At the record cap the ledger used to lock for good: `checkpoint`, the command that shrinks the
-    backlog, could itself neither read nor write past max_ledger_records. Sessions of `checkpoint` and
-    `audit` (Session purpose) now pass the cap; the checkpoint written covers the run's own reservation,
-    so the next ordinary run sees the backlog cleared. Ordinary sessions keep both cap checks."""
+    backlog, could itself neither read nor write past max_ledger_records. Only `checkpoint` sessions
+    pass the cap; audits must leave the backlog small enough for checkpoint admission to succeed."""
 
     def session(self, purpose=None, tag="g"):
         return b.Session(str(self.job_path), ledger_store=self.ledger_store,
@@ -573,17 +572,40 @@ class Lockout(LedgerFixture):
         self.assertEqual(summary["settlement"], 102)
         self.assertIsNone(b.ACTIVE)
 
-    def test_audit_session_passes_the_cap_but_does_not_clear_it(self):
-        self.runs(50)
-        s = self.session("audit")
+    def test_repeated_audits_preserve_checkpoint_recovery_headroom(self):
+        self.runs(45)                                      # five audits can fill the last ten slots
+        for i in range(5):
+            s = self.session("audit", tag=f"audit{i}")
+            s.open()
+            try:
+                self.assertFalse(s.ledger.over_limit_ok)
+                self.assertEqual(b.audit_checkpoints(s.ledger)["records"], 91 + 2 * i)
+            finally:
+                self.assertEqual(s.settle("ok")["seq"], 92 + 2 * i)
+        for i in range(6):
+            s = self.session("audit", tag=f"refused{i}")
+            with self.assertRaisesRegex(b.BudgetError, "checkpoint before running"):
+                s.open()
+            self.assertIsNone(s.reservation)
+            self.assertIsNone(s.gate._lock)
+            self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
+        self.assertEqual(len(self.ledger_store.list(b.ADMISSION_PREFIX)), 11)
+        s = self.session("checkpoint")
         s.open()
         try:
-            self.assertEqual(b.audit_checkpoints(s.ledger)["records"], 101)  # own reservation included
+            self.assertEqual(b.write_checkpoint(s.ledger)["seq"], 101)
         finally:
-            settled = s.settle("ok")
-        self.assertEqual(settled["seq"], 102)
-        with self.assertRaises(b.BudgetError):              # auditing is read-only; still locked
-            self.fresh().read()
+            self.assertEqual(s.settle("ok")["seq"], 102)
+        records, _ = self.fresh().read()
+        self.assertEqual([r["seq"] for r in records], [102])
+        # Auditing full history still works after recovery, including the checkpoint itself.
+        s = self.session("audit", tag="after")
+        s.open()
+        try:
+            out = b.audit_checkpoints(s.ledger)
+            self.assertEqual((out["records"], out["last_checkpoint_seq"]), (103, 101))
+        finally:
+            self.assertEqual(s.settle("ok")["seq"], 104)
 
     def test_over_limit_flag_is_scoped_to_recovery_ledgers(self):
         self.runs(50)
@@ -745,6 +767,50 @@ class EndToEnd(base.Fixture):
         s2.settle("ok")
         # an ordinary run after the recovery reads only the one record that follows the checkpoint
         self.assertEqual(len(self.ledger_gets(before2)), 2)
+
+    def test_repeated_audits_at_cap_leave_metered_checkpoint_admission_possible(self):
+        # Use the shipped admission request limits, rather than increasing them to mask the lockout.
+        doc = json.loads(self.policy_path.read_text())
+        doc["admission"]["limits"] = b.load_policy()["admission"]["limits"]
+        self.policy_path.write_text(json.dumps(doc))
+        doc = json.loads(self.job_path.read_text())
+        shipped = json.loads((ROOT / "infra/r2/jobs/initial-119.json").read_text())
+        doc["run_profiles"] = {name: shipped["run_profiles"][name] for name in ("verify", "status")}
+        doc["job_caps"]["get_bytes"] = 10**9
+        self.job_path.write_text(json.dumps(doc))
+        self.seed_full_ledger()
+        for i in range(6):
+            before = len(self.stub.log)
+            s = b.Session(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                          gate_dir=self.root / f"audit{i}", purpose="audit")
+            with self.assertRaisesRegex(b.BudgetError, "checkpoint before running"):
+                s.open()
+            self.assertIsNone(s.reservation)
+            self.assertIsNone(s.gate._lock)
+            self.assertEqual(s.meter.used["class_b"], 2)  # cap rejection precedes record GETs
+            self.assertEqual(self.ledger_gets(before), [])
+            self.assertEqual(sum(bucket == "ledger" and key.startswith(b.LEDGER_PREFIX)
+                                 for bucket, key in self.stub.objects), 100)
+        self.assertEqual(sum(bucket == "ledger" and key.startswith(b.ADMISSION_PREFIX)
+                             for bucket, key in self.stub.objects), 6)
+        s = b.Session(f"{self.job_path}#status", self.stub.endpoint, policy_path=self.policy_path,
+                      gate_dir=self.root / "checkpoint", purpose="checkpoint")
+        s.open()
+        try:
+            self.assertEqual(s.meter.used["class_b"], 102)
+            self.assertLess(s.meter.used["class_b"], s.policy["admission"]["limits"]["class_b"])
+            self.assertEqual(b.write_checkpoint(s.ledger)["seq"], 101)
+        finally:
+            self.assertEqual(s.settle("ok")["seq"], 102)
+        before = len(self.stub.log)
+        s = b.Session(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                      gate_dir=self.root / "ordinary")
+        s.open()
+        try:
+            self.assertEqual(s.ledger.base_seq, 101)
+        finally:
+            self.assertEqual(s.settle("ok")["seq"], 104)
+        self.assertEqual(len(self.ledger_gets(before)), 2)
 
 
 class LockRules(unittest.TestCase):

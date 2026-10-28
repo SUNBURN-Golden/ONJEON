@@ -41,8 +41,9 @@ Ledger size: records are never deleted, so a run reads the newest checkpoint plu
 (`checkpoint` writes one, `audit` recomputes all of them from the raw records, `lock-rules` checks the
 bucket lock proposal offline; infra/r2/checkpoint/DESIGN.md). Ordinary runs stop when the records after
 the newest checkpoint reach per_request.max_ledger_records: that is the backlog the cap counts, and the
-`checkpoint` and `audit` commands are its recovery path — their sessions may read past the cap and write
-their own two records beyond it, and the checkpoint written then covers the run's own reservation
+`checkpoint` command is its recovery path: its session may read past the cap and write its own two
+records beyond it, and the checkpoint written then covers the run's own reservation. Audit sessions
+keep both cap checks so repeated audits cannot consume the admission headroom needed for recovery
 (infra/r2/checkpoint/DESIGN.md).
 
 Every request goes through Meter (botocore event hooks): only Get/Head/Put/ListObjectsV2, only the
@@ -363,9 +364,9 @@ class Ledger:
     """Write-once control records in the ledger bucket (S3Store or LocalStore). With a checkpoint
     (CHECKPOINT_PREFIX) a run reads the newest checkpoint plus the records after it; self.base is that
     checkpoint (None before the first one) and self.base_seq the last record it covers.
-    over_limit_ok is True only in sessions of the `checkpoint` and `audit` commands: they are the
-    recovery path for a backlog that reached the record cap, so their reads may pass it (the meter
-    still bounds every request) and their own reservation and settlement may land beyond it — the
+    over_limit_ok is True only in sessions of the `checkpoint` command: it is the recovery path for a
+    backlog that reached the record cap, so its reads may pass it (the meter still bounds every
+    request) and its own reservation and settlement may land beyond it — the
     checkpoint written covers the session's reservation, so the cap on the records after the newest
     checkpoint holds again for every ordinary run. All other ledgers keep both checks."""
 
@@ -844,9 +845,9 @@ def check_lock_rules(doc):
 
 class Session:
     """One budgeted run: run control, admission, reservation, metered requests, settlement.
-    purpose "checkpoint"/"audit" marks the sessions of those commands: their ledger may pass the
-    record cap (over_limit_ok), because a run that clears or verifies a full backlog cannot be
-    stopped by it. Every other session keeps both cap checks."""
+    Only purpose "checkpoint" lets the ledger pass the record cap (over_limit_ok), so the run that
+    clears a full backlog can proceed. Audit sessions keep both cap checks: they add records without
+    shrinking the backlog and must leave checkpoint admission headroom intact."""
 
     def __init__(self, job_path, endpoint_url=None, ledger_store=None, policy_path=None, gate_dir=None,
                  purpose=None):
@@ -886,7 +887,7 @@ class Session:
                 # The ledger is opened before ACTIVE exists, and is also read after finish clears it.
                 st.meter = self.meter
                 self.meter.attach(st.s3, "ledger")
-            self.ledger = Ledger(st, self.policy, over_limit_ok=self.purpose in ("checkpoint", "audit"))
+            self.ledger = Ledger(st, self.policy, over_limit_ok=self.purpose == "checkpoint")
             month = now_utc().strftime("%Y-%m")
             scope = self.ledger.closed(month, self.job["job_id"])
             if scope:

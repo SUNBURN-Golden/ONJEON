@@ -3840,15 +3840,19 @@
         "I6 계약 시험"
       ],
       "tests": [
-        "cargo test -p onjeon-api coverage evidence"
+        "cargo test -p onjeon-api coverage evidence",
+        "시험 decisive-conditions-not-hidden(09 P16): CoverageDetail 응답의 layers[1] 면책·제외·감액·한도와 missing_inputs·unresolved·decisive_inputs를 포함한 결과를 바꾸는 조건이 생략되지 않는다. 해당 조건을 제거한 변이 응답을 넣으면 계약 시험이 실패한다"
       ],
       "done_criteria": [
         "응답의 모든 금액에 amounts[].source·evidence_kind·applicability",
         "사슬이 끊긴 값은 data_missing이고 금액 자리가 비어 있다",
         "결과를 뒤집는 제외가 layers[1]",
-        "D-12 플래그 off이면 인용 문자열·쪽 이미지가 없다"
+        "D-12 플래그 off이면 인용 문자열·쪽 이미지가 없다",
+        "결과를 바꾸는 조건(면책·제외·감액·한도·미확인)이 응답에서 생략되지 않고 첫 층에 전달된다(09 P16)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "decisive-conditions-not-hidden"
+      ],
       "features": [
         "coverage-detail",
         "evidence-view",
@@ -6595,16 +6599,22 @@
       "tests": [
         "cargo test -p onjeon-api comparisons",
         "cd apps/mobile && flutter test compare",
-        "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)"
+        "시험 first-view-priority(09 P15): 담당 기준 화면(같은 담보 비교)마다 첫 뷰(스크롤·탭 없이 보이는 영역)에 상황, 금액과 보장, 중요한 차이, 필요한 질문(decisive_inputs·unresolved)이 있는지 캡처를 기준 화면과 대조한다",
+        "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)",
+        "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다"
       ],
       "done_criteria": [
         "큰 금액 자리에는 scenario: 출처만",
         "요약서 근거는 evidence_kind=summary·applicability=unverified",
         "확인 필요 상품이 같은 목록·같은 자리",
         "범위 관계는 derived 값만",
-        "비교 응답에 종합 점수·순위가 없고 확인 필요 상품이 같은 목록에 있다(09 P17)"
+        "비교 응답에 종합 점수·순위가 없고 확인 필요 상품이 같은 목록에 있다(09 P17)",
+        "담당 기준 화면의 첫 뷰에 상황·금액과 보장·중요한 차이·필요한 질문이 스크롤·탭 없이 보이는 캡처 대조를 통과한다(09 P15)",
+        "비교 응답과 화면에서 결과를 바꾸는 조건·미확인 입력이 생략되거나 접힘 뒤에 숨지 않는다(09 P16)"
       ],
       "required_test_ids": [
+        "first-view-priority",
+        "decisive-conditions-not-hidden",
         "no-composite-score"
       ],
       "features": [
@@ -6691,15 +6701,19 @@
       ],
       "tests": [
         "cargo test -p onjeon-api events",
-        "cd apps/mobile && flutter test actual_event"
+        "cd apps/mobile && flutter test actual_event",
+        "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다"
       ],
       "done_criteria": [
         "사진·진단서 입력 경로가 없다(ADR-0005 유지)",
         "코드 미확인은 undetermined",
         "청구 대행·서류 전송 기능이 없다",
-        "결과를 바꾸는 미확인과 확인 주체가 응답에서 생략되지 않는다(09 P16)"
+        "결과를 바꾸는 미확인과 확인 주체가 응답에서 생략되지 않는다(09 P16)",
+        "실제 사건 화면의 결과를 바꾸는 미확인과 확인 주체가 접힘·생략 없이 결과 보기 전에 표시된다(09 P16)"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "decisive-conditions-not-hidden"
+      ],
       "features": [
         "twin-actual-event"
       ],
@@ -6787,6 +6801,7 @@
       "tests": [
         "cd apps/mobile && flutter test && flutter test integration_test",
         "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다",
+        "시험 first-view-priority(09 P15): 담당 기준 화면(내 설계·두 안 비교·만약에)마다 첫 뷰(스크롤·탭 없이 보이는 영역)에 상황, 금액과 보장, 중요한 차이, 필요한 질문(decisive_inputs·unresolved)이 있는지 캡처를 기준 화면과 대조한다",
         "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)"
       ],
       "done_criteria": [
@@ -6795,9 +6810,11 @@
         "가격 미확인이 '비싸서 제외'로 보이지 않는다",
         "대조 확인 전 계산 버튼이 없다",
         "'추가 없음'·'유지' 결과가 화면에 그대로 보이고 가입 권고처럼 꾸며지지 않는다",
-        "내 설계·두 안 비교에 종합 점수·순위가 없고 결과를 바꾸는 조건이 숨지 않는다(09 P16·P17)"
+        "내 설계·두 안 비교에 종합 점수·순위가 없고 결과를 바꾸는 조건이 숨지 않는다(09 P16·P17)",
+        "담당 기준 화면의 첫 뷰에 상황·금액과 보장·중요한 차이·필요한 질문이 스크롤·탭 없이 보이는 캡처 대조를 통과한다(09 P15)"
       ],
       "required_test_ids": [
+        "first-view-priority",
         "decisive-conditions-not-hidden",
         "no-composite-score"
       ],

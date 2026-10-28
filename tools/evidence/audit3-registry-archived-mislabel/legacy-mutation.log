@@ -1,0 +1,20 @@
+Mutation: simulate the old reachable -> archived branch in memory.
+test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence (test_registry_denominator.RegistryConsistency.test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence) ... FAIL
+
+======================================================================
+FAIL: test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence (test_registry_denominator.RegistryConsistency.test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-registry-archived-mislabel/tools/tests/test_registry_denominator.py", line 133, in test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence
+    self.assertEqual(after["disclosure_status"], "unqueried")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'archived' != 'unqueried'
+- archived
++ unqueried
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)
+Historical defect detected: True

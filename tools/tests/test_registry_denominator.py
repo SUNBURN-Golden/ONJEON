@@ -99,6 +99,46 @@ class RegistryConsistency(unittest.TestCase):
                     rn.normalize(copy)
                     self.assertEqual(copy.read_bytes(), (REG / f"{name}.csv").read_bytes())
 
+    def test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence(self):
+        # Recreate the audit finding on the actual 53-row registry, in isolation.
+        affected_ids = {
+            "life-aia", "life-bnpcardif", "life-chubb", "life-kyobo-lifeplanet",
+            "nonlife-heungkuk", "nonlife-db", "nonlife-ace-chubb", "nonlife-mitsuisumitomo-kr",
+        }
+        legacy = rows("insurers")
+        self.assertEqual(len(legacy), 53)
+        reachable_ids = {r["insurer_id"] for r in legacy if rn.disclosure_entry_reachable(r)}
+        self.assertEqual(reachable_ids, affected_ids)
+        for r in legacy:
+            if r["insurer_id"] in affected_ids:
+                r["disclosure_status"] = "archived"
+                r["disclosure_gap_reason"] = ""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            copy = Path(tmp) / "insurers.csv"
+            with copy.open("w", encoding="utf-8", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=list(legacy[0]))
+                writer.writeheader()
+                writer.writerows(legacy)
+            self.assertEqual(rn.normalize(copy), 53)
+            with copy.open(encoding="utf-8", newline="") as f:
+                repaired = list(csv.DictReader(f))
+            self.assertEqual(len(repaired), len(legacy))
+            changed = {}
+            for before, after in zip(legacy, repaired):
+                fields = {key for key in before if before[key] != after[key]}
+                if fields:
+                    changed[before["insurer_id"]] = fields
+                if before["insurer_id"] in affected_ids:
+                    self.assertEqual(after["disclosure_status"], "unqueried")
+                    self.assertIn("불변 보관 전", after["disclosure_gap_reason"])
+            self.assertEqual(changed, {key: {"disclosure_status", "disclosure_gap_reason"}
+                                       for key in affected_ids})
+            canonical = (REG / "insurers.csv").read_bytes()
+            self.assertEqual(copy.read_bytes(), canonical)
+            rn.normalize(copy)
+            self.assertEqual(copy.read_bytes(), canonical)
+
 
 class ReasonCodeRule(unittest.TestCase):
     def test_codes_follow_disclosure_and_geo_state(self):

@@ -1,0 +1,66 @@
+{
+  "node": "audit3-r2-ledger-cap-lockout",
+  "fix_round": 1,
+  "baseline_commit": "7b7831b09d5e36cefc25dc4c16457fc6e0e4fc3c",
+  "finding": "P1: Repeated audits recreate permanent lockout",
+  "resolution": "Only checkpoint sessions bypass the ledger cap; audit sessions preserve checkpoint admission headroom.",
+  "source_sha256": {
+    "docs/blueprint/audits/2026-10-28_ledger_cap_lockout.md": "fd3060285a6ef1eb667345428efecf1b0a480291118d9e7958fd69d95c61809a",
+    "infra/r2/BUDGET.md": "74cc056ce43160fee196be0a6ea6a8b4b273a373f5aced7ca392d8921e44cb83",
+    "infra/r2/checkpoint/CONCURRENCY.md": "9f3951b652b49d7f07bf2f1f57c0f6699aa21ca99d492a0b2c791fa81408fe82",
+    "infra/r2/checkpoint/DESIGN.md": "d5e5c87892c6c564c8544669b0c32257bab9eee2de5c485c2c3909d098203a90",
+    "tools/evidence/audit3-ledger-cap-lockout/README.md": "5678a4ea38a60874e203dd0b2da9094b1271d2dd991160d878a628b4a2e10ab6",
+    "tools/r2_budget.py": "dbe23388cae516a02cddaf7a5874740d00b91250d5be60f6de463ce4f4634b97",
+    "tools/tests/test_r2_checkpoint.py": "8e59c709e5c1ed0f68b9ccb82c2e6b8d657acff1a64a28e52d10da513aa1563f"
+  },
+  "evidence_sha256": {
+    "README.md": "a5750fc4f5602b48611a5732fd5d85287ff937f4eef26638a44412a8cd86b58c",
+    "after.log": "57d06d14f0435ef8cb2e2020a3c610423d095c2f8145ae1fbd3e9a191e1be8f9",
+    "before.log": "e7ece2143fe20d678688476b28b8053e98bac80087af4887f359fff193a11078",
+    "budget-tests.log": "1794c11d7c9fe04468d56c4ebb67e6f85e05cd2026d1ba7f6e0fe601ca1929ed",
+    "consistency-checks.log": "93aa0f46a0d35522e06cb3e42895dce124ba614c8640a6a7eb1c56b3a2900b7a",
+    "python-tests.log": "e405234a0cfe3b0bb20a4b6efb9e8aea0f3fc8540e123c8fb4be73e90ba8884f",
+    "rust-lint.log": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc",
+    "rust-tests.log": "198ed4944b7de111c99a94649e89e2fb09b4f470e82f5d4deb249bddf0c4e208"
+  },
+  "results": {
+    "regression_before": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "exit_code": 1
+    },
+    "regression_after": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "r2_discovery": {
+      "tests": 118,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "python_discovery": {
+      "tests": 1221,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 6,
+      "exit_code": 0
+    },
+    "cargo_test_all_locked": {
+      "passed": 466,
+      "failed": 0,
+      "ignored": 1,
+      "exit_code": 0
+    },
+    "cargo_clippy": {
+      "exit_code": 0
+    },
+    "consistency_checks": {
+      "exit_code": 0
+    }
+  },
+  "scope": "Temporary local ledger and loopback S3 only; no production requests, credentials, commits, pushes, or GitHub calls."
+}

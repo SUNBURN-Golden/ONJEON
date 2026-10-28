@@ -1,0 +1,56 @@
+{
+  "node": "audit3-r2-ledger-cap-lockout",
+  "baseline_commit": "568c298f413c59e5b84718fe8fc70f45269de635",
+  "source_sha256": {
+    "tools/r2_budget.py": "c9e7e05f84563d1b0d61db4e63af7a005c2d1ed5a041f78b2a472f2cf520ad15",
+    "tools/tests/test_r2_budget.py": "896abcefa62e2534b17fbb1c2e35a5595e95dc3c1bd544e040f1b5ddcf568ccf",
+    "tools/tests/test_r2_checkpoint.py": "8a874ced4d02b64b2ff4b2b47bcec57f6f5b10087260e317fc430b5eeb7ac15e",
+    "infra/r2/checkpoint/DESIGN.md": "aeb29c1a231eedaf0167627122f0727dedb4a4386139b6b88d52d85d11ef282e",
+    "infra/r2/checkpoint/CONCURRENCY.md": "60e773107945621738bcee419739aa21329cac3209bf13a683bbde9b364e4062",
+    "infra/r2/BUDGET.md": "9531de807054ced3309ec3ce293af6fdfc7173ffa9c43e1725cfa358be02b30d",
+    "docs/blueprint/audits/2026-10-28_ledger_cap_lockout.md": "4c4832558b21d98afdd321b30d0621f1c8fb987d855f566d766d6293e29c71d2"
+  },
+  "evidence_sha256": {
+    "before.log": "e756b042894583917a7e82c21ee9ad65ebbab36339a3b1b7dd433f6994b300c0",
+    "after.log": "a558228cede0e326df31fc21a20588c7040142f7fe29a414e9e0db0bdf5376f0",
+    "budget-tests.log": "217f27d166a219c275cb7d545599910f3ff52ebf3abbaae48e13564a1af2433e",
+    "python-tests.log": "aea0a588b7751f895cbae71d56e0c1435efda8eb39a30979c8e2f2c153e0f841",
+    "rust-tests.log": "9b0a3d41d7ccd892e4a6247bf912841efbeb5ef74e54c0cb9739a290dbceed95",
+    "rust-lint.log": "8b91bb3bab8f2d3819b40bad786c014c4200e9811651bdd15d8f869b00e62475",
+    "consistency-checks.log": "029c5ead7c2f46852669e59281c36ead23685a8ed34e1f9d03a7defaf234571c"
+  },
+  "results": {
+    "regression_before": {
+      "tests": 10,
+      "errors": 8,
+      "skipped": 1,
+      "passed": 1,
+      "exit_code": 1,
+      "note": "HEAD code: write_checkpoint and ordinary sessions both refuse at 100 records (permanent lockout reproduced); the tail/append control passed, showing the write guard already existed"
+    },
+    "regression_after": {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "r2_discovery": {
+      "tests": 117,
+      "failures": 0,
+      "exit_code": 0
+    },
+    "python_discovery": {
+      "tests": 1220,
+      "skipped": 6,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "cargo_test_all_locked": {
+      "passed": 466,
+      "failed": 0,
+      "ignored": 1,
+      "exit_code": 0
+    }
+  }
+}

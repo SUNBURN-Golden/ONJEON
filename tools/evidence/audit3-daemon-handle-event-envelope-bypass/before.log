@@ -1,0 +1,259 @@
+test_complete_result_payload_still_requires_the_envelope_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_complete_result_payload_still_requires_the_envelope_entry) ... ok
+test_envelope_born_and_core_emitted_events_are_not_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_and_core_emitted_events_are_not_listed) ... ok
+test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) ... ok
+test_lease_fields_in_the_payload_are_not_an_envelope (tools.tests.test_daemon_dry_run.HandleEventFencing.test_lease_fields_in_the_payload_are_not_an_envelope)
+Even with the current lease's id, generation and token, a bare event does not pass accept_envelope. ... ok
+test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... 
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+  test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... FAIL
+test_result_events_without_any_lease_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_without_any_lease_are_rejected)
+The reported building -> pr_open bypass must also be refused when there is no lease at all. ... ok
+test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) ... ok
+test_the_core_s_own_bare_events_are_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_core_s_own_bare_events_are_listed)
+handoff.py feeds its step results through handle_event; each of them must be on the list. ... ok
+test_the_entry_is_catalog_data (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_entry_is_catalog_data) ... ok
+test_the_envelope_path_still_applies (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_envelope_path_still_applies) ... ok
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_failed_tests', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_out_of_scope', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_pr_opened', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_verdict_requested', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route=None)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route='restart_recovery')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route='accept_envelope')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+======================================================================
+FAIL: test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry) (event='result_wip_preserved', route='fenced_write')
+audit3: configuration must not reopen the result envelope bypass, including via checked routes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-handle-event-envelope-bypass/tools/tests/test_daemon_dry_run.py", line 1785, in test_result_events_cannot_be_enabled_on_the_bare_entry
+    with self.assertRaisesRegex(SpecGap, "result events require submit_envelope"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SpecGap not raised
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.261s
+
+FAILED (failures=20)

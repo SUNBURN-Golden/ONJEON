@@ -47,6 +47,10 @@ class DaemonCore:
         if (routed | bare) - self.known_events or routed & bare or set(self.entry["routes"].values()) - set(_ROUTES):
             raise SpecGap("operations.handle_event: routes and without_envelope must be disjoint catalog events "
                           f"and routes must name {sorted(_ROUTES)}")
+        # Result transitions are produced only after accept_envelope checks the builder's report.
+        # A configuration change must not turn them into bare events or route their payload elsewhere.
+        if any(name.startswith("result_") for name in routed | bare):
+            raise SpecGap("operations.handle_event: result events require submit_envelope")
         lease_mod.check_mark_sent(rules)
         self.guard_wait = lease_mod.check_guard_wait(rules)
 

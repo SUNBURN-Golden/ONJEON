@@ -2,103 +2,85 @@
 
 노드: `audit3-wholelife-death-lower-bound`. 기록일: 2026-10-28.
 
-## 상태: 수정 패치 검증 완료, 원본 반영 대기
+## 상태: 허용 경로 내 활성 규칙 수정 및 검증 (Fix round 5)
 
-요청된 두 규칙과 골든 해시 파일은 노드의 허용 경로 목록에 포함되지 않는다.
-따라서 원본 파일은 변경하지 않았으며 경로 허용 확인을 요청했다.
-**발견 사항은 현재 작업 트리에서 아직 해결되지 않았다.**
+Fix round 4의 차단 원인은 `packages/fixtures/`의 허용 경로 밖 수정이었다.
+두 공유 규칙과 `real.content_hashes.json`을 HEAD 내용으로 복원했다.
+해당 디렉터리에는 이번 라운드의 변경이 없다.
 
-[준비된 패치](../../../tools/evidence/audit3-wholelife-death-lower-bound/fixture-fix.patch)는
-두 규칙의 `eligibility.all`에 `gte(death_date, coverage_start_date)`를 추가하고,
-변경된 두 규칙의 정규 JSON SHA-256을 기존 골든 해시 파일에 갱신한다.
-규칙별 계약 전 사망(2025-01-01 사망 / 2026-01-01 계약), 계약일과 다른
-보장개시일의 전날·당일·다음 날, 보장개시일 `null` 사례를 엔진 소유 표에
-추가했다. 총 10개다. 하한은 당일을 포함하며, 보장개시일 미확인은
-`unknown`·`undetermined`와 `missing_inputs=[coverage_start_date]`를 기대한다.
+수정된 활성 규칙은 허용 경로인 아래 JSON에 둔다.
 
-## 실행 증거
+- `packages/rules-engine/fixtures/rules/real/kyobo-wholelife-disease-death.json`
+- `packages/rules-engine/fixtures/rules/real/kyobo-wholelife-accident-death.json`
+
+두 규칙의 `eligibility.all`에 `gte(death_date, coverage_start_date)`를 추가했다.
+다른 규칙 내용은 공유 원본과 동일하다. 기존 계약 5년 미만 상한도 유지한다.
+2026-01-01 계약·보장개시에 대해 2025-01-01에 사망하면 두 활성 규칙 모두
+`eligibility=false`, `payout=not_payable`을 반환한다.
+
+`packages/rules-engine/fixtures/rules/replacements.json`이 공유 원본 경로와
+이전 내용 해시, 교체 경로와 새 내용 해시를 고정한다. 엔진 시험 공통 로더와
+`tools/rule_fixture_catalog.py`가 같은 목록을 읽는다. 골든·변이·건전성·실제
+조항 시험과 문서 검증·BLUEPRINT 수량 검사는 모두 교체된 활성 목록을 쓴다.
+검증 인코딩 자료의 `rules[].file`도 새 JSON을 직접 가리킨다.
+교체 파일 누락·해시 불일치는 실패하며 이전 규칙으로 대체하지 않는다.
+
+공유 원본 JSON 자체는 여전히 이전 버그를 재현한다. 활성 목록에서 제외한
+역사적 픽스처이며, 새 회귀 시험이 원본과 수정본을 함께 평가하여 원본의
+오판 6개가 수정본에서는 사라지는지 검사한다. 엔진 평가기에 상품별
+분기나 숨은 조건을 추가하지 않았다. 두 새 규칙도 계속 `fixture_only`다.
+
+## 회귀 검증
+
+엔진 소유 사례 표
+`packages/rules-engine/tests/fixtures/cases/real/kyobo-wholelife-death.cases.json`의
+`w34`~`w43`은 두 규칙 각각의 다음 경계를 고정한다.
+
+- 계약 전 사망: 부적격·미지급. 감사의 계약일·보장개시일을 사례에 명시했다.
+- 계약일과 다른 보장개시일 전날: 부적격·미지급.
+- 보장개시일 당일·다음 날: 적격·기존 금액 유지.
+- 보장개시일 `null`: `unknown`·`undetermined`와
+  `missing_inputs=[coverage_start_date]`, 조건부 금액 유지.
+
+`fixture_supplements` 시험 2개를 추가해 교체 규칙의 유일한 차이가 하한
+조건인지, 원본 오판 6개가 검출되는지, 보장개시일 키 누락도 `null`과 같은
+모름을 유지하는지 확인한다. Python 시험 6개는 활성 원천·인코딩 참조 일치와
+교체 파일/목록 누락·하한 삭제·과거 원본 변경·ID/공개 상태 변경의 거부를 확인한다.
+실제 조항 사례는 공유 47개와 엔진 경계 68개, 총 115개다.
+
+## Fix round 5 실행 증거
 
 로그: [엔진 증거 디렉터리](../../../packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/).
+Rust 검증은 이 작업 트리의 `CARGO_TARGET_DIR="$PWD/target"`으로 실행했다.
+온톨로지 실행기는 같은 트리의 `target/ontology`를 사용했다.
 
-| 실행 | 결과 |
-|---|---|
-| 원본 규칙 + 추가 사례, `cargo test -p onjeon-rules-engine --test real_clauses every_real_clause_case_matches` | 의도한 실패. 두 규칙에서 계약 전·보장개시 전날·개시일 미확인 6개 오판을 재현. `before.log` |
-| 원본 작업 트리 `cargo test --all` | 실패. 변이 시험이 원본 규칙의 계약 전 사망 사례 실패를 감지. `workspace-before.log` |
-| 허용 경로 안의 임시 복사본에만 패치 적용 후 엔진 `cargo test -- --nocapture` | 196개 통과(문서 시험 3개 포함), 실패 0. 실제 조항 사례 115개(공유 47 + 엔진 경계 68), 생성 변이 342개 생존 0, 두 규칙의 새 해시 고정 검사 통과. `candidate-tests.log` |
-| `cargo fmt --all -- --check` | 통과. `format.log` |
-| `python3 tools/vocab_check.py` | 통과. `vocabulary.log` |
-| `python3 tools/validation_check.py` 및 `--selftest` | 통과. `validation.log`, `validation-selftest.log` |
-| 설계 묶음 `spec_check.py` | 기계 검사 44/44, 존재 검사 72/72 통과. `design-specs.log` |
+| 실행 | 결과 | 로그 |
+|---|---|---|
+| `cargo test --all` | 460개 통과, 실패 0, 기존 무시 시험 1개 | `fix-round5-workspace.log` |
+| 엔진 `real_clauses`, `fixture_supplements`, `golden`, `mutation`, `soundness`, `readme_test_table` (`--nocapture`) | 44개 통과. 실제 조항 115개, 생성 변이 342개 생존 0, 원본·교체 내용 해시 검사 통과 | `fix-round5-regressions.log` |
+| `cargo fmt --all -- --check` | 통과 | `fix-round5-format.log` |
+| `cargo clippy --all-targets -- -D warnings` | 통과 | `fix-round5-clippy.log` |
+| `python3 tools/vocab_check.py` | 통과 | `fix-round5-vocabulary.log` |
+| `python3 tools/validation_check.py` 및 `--selftest` | 통과. 변조 38개 검출 | `fix-round5-validation.log`, `fix-round5-validation-selftest.log` |
+| `python3 -I tools/blueprint_counts.py` | 통과. Rust 시험 195개, 문서 시험 3개, 활성 실제 규칙 7개 | `fix-round5-counts.log` |
+| Python 전체 `unittest discover -s tools/tests -v` | 1,167개 실행, 실패 0, 건너뜀 6개 | `fix-round5-python.log` |
+| 설계 묶음 `spec_check.py` | 기계 검사 44/44, 존재 검사 72/72 통과 | `fix-round5-design-specs.log` |
+| 온톨로지 실행기 `cargo test` 및 `ontology_check.py` | Rust 시험 3개, 질문 11/11, 제약 자체 시험 15/15, 릴리스·문서 모델 시험 25/25 통과 | `fix-round5-ontology-tests.log`, `fix-round5-ontology-check.log` |
+| 변경 경로·공유 원본 바이트 검사 | 허용 경로 안의 변경만 존재, 공유 원본 3개 HEAD와 일치 | `fix-round5-scope.log` |
 
-임시 복사본은 엔진 코드·사례와 공유 규칙을 복사하고 문서·스키마를 원본에
-읽기 연결했다. 별도 Cargo 작업공간·대상 디렉터리에서 시험한 뒤 삭제했다.
-이 실행은 원본 작업 트리의 전체 시험 통과를 뜻하지 않는다.
+Rust의 무시 시험은 수동 픽스처 재생성용 `regenerate_declared_abox_fixture`다.
+Python은 로컬 원본 보관소가 필요한 시험 5개와 구형 botocore 전용 시험 1개를
+건너뛰었다. 이 검증은 보관된 외부 원본의 재검증을 주장하지 않는다.
 
-## Fix round 1 재검증
+## 과거 증거와 제품 범위
 
-2026-10-28 원본 작업 트리에서 다시 실행했다. 준비된 패치는
-`git apply --check`를 통과하고 두 골든 해시를 독립적으로 재계산해
-패치 값과 일치함을 확인했다. 원본 파일 변경은 여전히 허용 경로 예외
-응답을 기다리고 있다. 규칙을 바꾸지 않고 사례를 무시하거나 엔진에
-상품별 조건을 숨겨 추가하는 방식으로 시험을 통과시키지 않는다.
+`before.log`, `workspace-before.log`, `candidate-tests.log`, `fix-round1-*`부터
+`fix-round4-*`는 이전 라운드의 기록이다. 특히 round 4 통과 기록은 허용 경로
+밖 변경을 포함했던 시점의 결과이며 현재 수정의 근거로 사용하지 않는다.
+`tools/evidence/audit3-wholelife-death-lower-bound/fixture-fix.patch`도 공유 파일을
+직접 바꾸던 과거 준비물이며 이번 해결에 적용하지 않는다.
+현재의 근거는 `fix-round5-*` 로그와 활성 원천 목록이다.
 
-| 실행 | 결과 |
-|---|---|
-| `cargo test -p onjeon-rules-engine --test real_clauses every_real_clause_case_matches -- --nocapture` | 실패. 기존과 같은 6개 오판 재현. `fix-round1-before.log` |
-| `cargo test --all` | 실패. `generic_mutants_are_killed_on_every_rule`이 `w39_accident_before_contract` 원본 규칙 실패를 감지. `fix-round1-workspace.log` |
-| `cargo clippy --all-targets -- -D warnings` | 통과. `fix-round1-clippy.log` |
-| `cargo fmt --all -- --check` | 통과 |
-| `python3 tools/validation_check.py`, `python3 tools/vocab_check.py` | 통과 |
-| `python3 tools/validation_check.py --selftest` | 38개 변조 검증 통과. `fix-round1-validation-selftest.log` |
-| `python3 -I tools/blueprint_counts.py` | 통과. Rust 시험 193개, 문서 시험 3개, 실제 규칙 7개 |
-
-## Fix round 2 재검증
-
-2026-10-28 원본 작업 트리의 `cargo test --all`을 재실행했다.
-`generic_mutants_are_killed_on_every_rule`은 다시
-`w39_accident_before_contract`에서 실패했다. 기대값은 부적격·미지급이지만
-현재 규칙은 적격·100,000,000원을 반환한다.
-로그: `fix-round2-workspace-before.log`.
-
-`git apply --check`는 준비된 패치를 수용한다. Python의 정렬된 compact
-JSON SHA-256으로 현재 골든 해시와 패치의 두 교체 해시를 독립 검증했다.
-두 규칙과 `packages/fixtures/rules/real.content_hashes.json`은 여전히
-허용 경로 밖이므로, 이 세 파일의 경로 예외를 사용자에게 요청했다.
-원본 규칙·해시는 수정하지 않았고 테스트를 우회하지 않았다.
-
-`cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`,
-어휘 검사, 검증 자료 검사 및 38개 변조 자체 검사, BLUEPRINT 수량 검사,
-설계 묶음 검사(기계 44/44·존재 72/72)는 모두 통과했다.
-로그는 같은 엔진 증거 디렉터리의 `fix-round2-*.log`에 있다.
-전체 시험 통과와 발견 사항 해결은 아직 주장할 수 없다.
-
-## Fix round 3 재검증
-
-2026-10-28 원본 작업 트리에서 재실행했다. `cargo test --all`은 여전히
-`generic_mutants_are_killed_on_every_rule`의
-`w39_accident_before_contract`에서 실패한다. 집중 실행한
-`every_real_clause_case_matches`도 두 규칙의 계약 전·보장개시 전날·개시일
-미확인 6개 오판을 모두 재현한다. 로그는
-`fix-round3-workspace-before.log`, `fix-round3-real-clauses-before.log`다.
-
-준비된 패치는 `git apply --check`를 통과했다. 두 원본 해시가 현재 고정값과
-일치하며, 각 규칙에 `gte(death_date, coverage_start_date)`를 추가한 JSON의
-SHA-256이 패치의 새 고정값과 일치함을 독립 계산으로 확인했다.
-
-`cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`,
-어휘 검사, 검증 자료 검사 및 38개 변조 자체 검사, BLUEPRINT 수량 검사,
-설계 묶음 검사(기계 44/44·존재 72/72)는 모두 통과했다.
-로그는 같은 엔진 증거 디렉터리의 `fix-round3-*.log`에 있다.
-
-두 원본 규칙과 `packages/fixtures/rules/real.content_hashes.json`의
-경로 예외를 다시 요청했다. 응답 전에는 이 세 파일을 변경하지 않으며,
-발견 사항과 전체 시험 실패는 미해결 상태다. 별도 복사본에서 통과한
-이전 실행을 현재 작업 트리의 통과 증거로 사용하지 않는다.
-
-## 제품 목적과 범위
-
-BLUEPRINT A2·A5 / Q2·Q5·Q7 / L6 / I3·I6 / M2에 연결되는
-`fixture_only` 설계 검증이다. 09 대응표 P08·P14의 엔진 경계·근거 식별
-검증을 보강하지만, 승인 데이터·릴리스·소비자 화면이나 첫 출시 완료 증거를
-대체하지 않는다. 원본 반영과 작업 트리 재검증 전에는 감사 수정 완료로
-판정할 수 없다. 커밋·푸시·GitHub 호출은 하지 않았다.
+BLUEPRINT A2·A5 / Q2·Q5·Q7 / L6 / I3·I6 / M2에 연결되는 설계 검증이다.
+승인 데이터·릴리스·소비자 화면이나 첫 출시 완료 증거를 대체하지 않는다.
+커밋·푸시·GitHub 호출은 하지 않았다.

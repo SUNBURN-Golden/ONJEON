@@ -48,8 +48,8 @@
     {"relation_id": "r_accident_defined_by", "relation_type": "defined_by", "from": "benefit:재해사망보험금", "to": "f_accident_def", "predicate": null, "evidence_refs": ["c_annex4_scope"], "review_status": "pending", "gaps": ["G08"]}
   ],
   "rules": [
-    {"rule_id": "kyobo-wholelife-accident-death", "status": "partially_expressed", "file": "packages/fixtures/rules/real/kyobo-wholelife-accident-death.json", "cases": 5, "inputs_from_outside_dsl": ["cause_in_accident_table (재해분류표 코드 판정)"], "reason": "제1보험기간만. 제2보험기간 사망보험금·특약은 인코딩하지 않음", "gaps": ["G08", "G10"]},
-    {"rule_id": "kyobo-wholelife-disease-death", "status": "partially_expressed", "file": "packages/fixtures/rules/real/kyobo-wholelife-disease-death.json", "cases": 7, "inputs_from_outside_dsl": ["cause_in_accident_table", "basic_amount_krw (저해지기간 전후로 정의가 바뀜)", "additional_reserve_krw"], "reason": "체증은 계약해당일 if 사슬로 표현(제1보험기간 5년이라 최대 4단계). 일반 체증형에는 G14 연산이 필요", "gaps": ["G10", "G13", "G14"]}
+    {"rule_id": "kyobo-wholelife-accident-death", "status": "partially_expressed", "file": "packages/rules-engine/fixtures/rules/real/kyobo-wholelife-accident-death.json", "cases": 5, "inputs_from_outside_dsl": ["cause_in_accident_table (재해분류표 코드 판정)"], "reason": "제1보험기간만. 제2보험기간 사망보험금·특약은 인코딩하지 않음", "gaps": ["G08", "G10"]},
+    {"rule_id": "kyobo-wholelife-disease-death", "status": "partially_expressed", "file": "packages/rules-engine/fixtures/rules/real/kyobo-wholelife-disease-death.json", "cases": 7, "inputs_from_outside_dsl": ["cause_in_accident_table", "basic_amount_krw (저해지기간 전후로 정의가 바뀜)", "additional_reserve_krw"], "reason": "체증은 계약해당일 if 사슬로 표현(제1보험기간 5년이라 최대 4단계). 일반 체증형에는 G14 연산이 필요", "gaps": ["G10", "G13", "G14"]}
   ],
   "premium_observations": [
     {"observation_id": "p_sum_m_main", "price_basis": "illustrative", "amount_krw": 933000, "pay_cycle": "monthly", "components": [{"scope": "main", "insured_amount_krw": 100000000, "variant": "1종(8년 저해약환급금형)"}],

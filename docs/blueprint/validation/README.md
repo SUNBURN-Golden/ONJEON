@@ -15,7 +15,12 @@
 | `REVERIFY_AUDIT1_STORAGE_DOCS.md` | BLUEPRINT의 R2 보존 완료·남은 조건·코드 목록 수정과 회귀 시험, 기존 R2 기록 대조 |
 | `REVERIFY_AUDIT1_DEC_RECORDS.md` | BLUEPRINT §0.1의 DEC 결정 게이트 기록 정의와 결정 원장 §3의 세 기록·상태 등록, 회귀 시험과 프로젝트 검사 결과 |
 
-실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
+실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`와 종신 사망 교체 규칙
+`packages/rules-engine/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
+활성 목록은 `tools/rule_fixture_catalog.py`가 읽는
+`packages/rules-engine/fixtures/rules/replacements.json`으로 원본·교체 경로와 두 해시를 대조한다.
+종신 사망 공유 원본 2개는 이전 오판 재현용으로 남으며 활성 목록에서 제외한다.
+인코딩 자료의 `rules[].file`은 교체 파일을 직접 가리킨다.
 
 V1 종료의 담당·순서·필수 증거와 미재생성 6건 목록은 [Audit 2 V1 종료 결정](../../decisions/audit2-v1-gate-closure.md)을 따른다. 현재 관문은 미통과이며, 로컬 시험 통과와 DEC-D-02 기록만으로 재현·교차 검수 완료로 바꾸지 않는다.
 

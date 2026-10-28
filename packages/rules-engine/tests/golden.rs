@@ -165,12 +165,16 @@ fn pinned_input_snapshot_hashes_are_distinct_per_distinct_input() {
     }
 }
 
-/// Every real rule's `rule_content_hash` is pinned in `real.content_hashes.json`, so an edit to
+/// Every real rule's `rule_content_hash` is pinned in the shared hashes or replacement catalog, so an edit to
 /// a published-style rule cannot change what a result claims to have run without a visible diff.
 #[test]
 fn real_rule_content_hashes_are_pinned() {
-    let pinned = load_json(&fixtures_dir().join("real.content_hashes.json"));
-    let pinned = pinned["hashes"].as_object().expect("hashes object");
+    let mut pinned = load_json(&fixtures_dir().join("real.content_hashes.json"));
+    let pinned = pinned["hashes"].as_object_mut().expect("hashes object");
+    for (id, replacement) in rule_replacements()["replacements"].as_object().unwrap() {
+        assert_eq!(pinned[id], replacement["previous_content_hash"]);
+        pinned.insert(id.clone(), replacement["content_hash"].clone());
+    }
     let rules = real_rules();
     let have: Vec<&String> = rules.keys().collect();
     let want: Vec<&String> = pinned.keys().collect();
@@ -182,7 +186,7 @@ fn real_rule_content_hashes_are_pinned() {
         assert_eq!(
             Some(rule.content_hash()),
             pinned[id].as_str(),
-            "{id}: rule_content_hash changed; update real.content_hashes.json only if intended"
+            "{id}: rule_content_hash changed; update the shared pin or replacement catalog only if intended"
         );
         // The result reports the same hash that is pinned.
         let case = real_cases().into_iter().find(|(_, r, _)| r == id);

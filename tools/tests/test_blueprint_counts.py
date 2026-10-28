@@ -39,6 +39,9 @@ class SourceCounts(unittest.TestCase):
         self.rules = self.root / "packages/fixtures/rules/real"
         self.vocab.parent.mkdir(parents=True)
         self.rules.mkdir(parents=True)
+        manifest = self.root / "packages/rules-engine/fixtures/rules/replacements.json"
+        manifest.parent.mkdir(parents=True)
+        self.write(manifest, {"replacements": {}})
         self.write(self.vocab, {"axes": {"a": {}, "b": {}}})
         self.write(self.rules / "one.json", {"rule_id": "one", "publication_state": "fixture_only"})
         self.write(self.rules / "one.cases.json", {"cases": [{}, {}]})

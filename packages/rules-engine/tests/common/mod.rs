@@ -96,7 +96,12 @@ pub fn load_json(path: &PathBuf) -> J {
     serde_json::from_str(&std::fs::read_to_string(path).expect("readable")).expect("valid json")
 }
 
-/// Every rule in `fixtures/rules/real`, keyed by `rule_id`.
+pub fn rule_replacements() -> J {
+    serde_json::from_str(include_str!("../../fixtures/rules/replacements.json")).unwrap()
+}
+
+/// Real-clause catalog: shared fixtures plus explicitly superseding engine-owned rules.
+/// Both old and new content hashes are pinned; a missing replacement never falls back.
 pub fn real_rules() -> BTreeMap<String, Rule> {
     let mut out = BTreeMap::new();
     for e in std::fs::read_dir(real_dir()).unwrap() {
@@ -106,6 +111,23 @@ pub fn real_rules() -> BTreeMap<String, Rule> {
             let rule = Rule::from_json(&load_json(&p)).unwrap_or_else(|e| panic!("{name}: {e}"));
             out.insert(rule.rule_id().to_string(), rule);
         }
+    }
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    for (id, replacement) in rule_replacements()["replacements"].as_object().unwrap() {
+        let old = out
+            .get(id)
+            .expect("replacement must supersede a shared rule");
+        assert_eq!(old.content_hash(), replacement["previous_content_hash"]);
+        let source = load_json(&root.join(replacement["supersedes"].as_str().unwrap()));
+        assert_eq!(&source, old.source_json(), "{id}: wrong superseded source");
+        let rule = Rule::from_json(&load_json(
+            &root.join(replacement["source"].as_str().unwrap()),
+        ))
+        .unwrap();
+        assert_eq!(rule.rule_id(), id);
+        assert_eq!(rule.publication_state(), "fixture_only");
+        assert_eq!(rule.content_hash(), replacement["content_hash"]);
+        out.insert(id.clone(), rule);
     }
     out
 }

@@ -1,0 +1,146 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-wholelife-death-lower-bound/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests/fixture_supplements.rs (target/debug/deps/fixture_supplements-5c73c7add3657f0c)
+
+running 6 tests
+
+thread 'supplement_cannot_shadow_a_shared_case' (701327) panicked at packages/rules-engine/tests/common/mod.rs:53:9:
+example.cases.json: duplicate case ID existing
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test supplement_cannot_shadow_a_shared_case - should panic ... ok
+
+thread 'duplicate_ids_within_a_supplement_are_rejected' (701325) panicked at packages/rules-engine/tests/common/mod.rs:53:9:
+example.cases.json: duplicate case ID repeated
+test duplicate_ids_within_a_supplement_are_rejected - should panic ... ok
+test every_supplement_extends_an_existing_table_without_changing_shared_cases ... ok
+test supplemental_cases_inherit_base_inputs_and_apply_their_overrides ... ok
+test wholelife_missing_coverage_start_is_undetermined_like_null ... ok
+test wholelife_replacements_add_only_the_coverage_start_guard_and_kill_the_original_bug ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/golden.rs (target/debug/deps/golden-b070bb5f85ed9bcc)
+
+running 7 tests
+test trace_records_every_evaluated_node_and_hash_changes_with_input ... ok
+test synthetic_fixture_rule_is_fixture_only ... ok
+test golden_table_matches_expert_expectations ... ok
+test pinned_input_snapshot_hashes_are_distinct_per_distinct_input ... ok
+test same_input_gives_byte_identical_output ... ok
+test golden_table_pins_trace_and_hashes ... ok
+test real_rule_content_hashes_are_pinned ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/mutation.rs (target/debug/deps/mutation-30bcc153d15232c8)
+
+running 7 tests
+test generic_rate_literals_mutate_in_both_representations ... ok
+test harness_reports_a_surviving_mutant ... ok
+test allowlist_has_no_stale_entries ... ok
+test every_mutant_is_killed_by_the_golden_table ... ok
+fixture-rule-001: 15 golden cases, 26 generated mutants
+kb-driver-fine: 12 golden cases, 28 generated mutants
+kb-driver-lawyer-fee: 20 golden cases, 79 generated mutants
+skin rule supplement kills 16 mutants missed by shared cases
+test skin_rule_boundary_supplement_kills_mutants_the_shared_table_misses ... ok
+lawyer-fee rule: 79 mutants in each representation, including 6 rate mutants; all killed
+test wrapped_real_rule_rates_preserve_mutation_coverage ... ok
+kyobo-1995-cancer-waiting: 5 golden cases, 9 generated mutants
+kyobo-cancer-main-dx: 18 golden cases, 40 generated mutants
+kyobo-small-cancer-skin: 17 golden cases, 41 generated mutants
+kyobo-wholelife-accident-death: 15 golden cases, 30 generated mutants
+kyobo-wholelife-disease-death: 28 golden cases, 89 generated mutants
+generic mutation coverage: 342 mutants, 0 unallowlisted survivors, 0 equivalence entries
+test generic_mutants_are_killed_on_every_rule ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s
+
+     Running tests/readme_test_table.rs (target/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 4 tests
+test audited_rows_are_present ... ok
+test readme_does_not_call_the_content_hash_normalized ... ok
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/real_clauses.rs (target/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 11 tests
+
+thread 'exact_case_count_check_catches_each_missing_file' (701515) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 103
+  left: 103
+ right: 115
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'exact_case_count_check_catches_each_missing_file' (701515) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 95
+  left: 95
+ right: 115
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+
+thread 'exact_case_count_check_catches_each_missing_file' (701515) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 110
+  left: 110
+ right: 115
+test every_real_clause_case_matches ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+
+thread 'exact_case_count_check_catches_each_missing_file' (701515) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 97
+  left: 97
+ right: 115
+
+thread 'exact_case_count_check_catches_an_unexpected_extra_case' (701514) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 116
+  left: 116
+ right: 115
+test screen_check_catches_tampered_numbers ... ok
+test waiting_period_units_are_not_interchangeable ... ok
+test exact_case_count_check_catches_an_unexpected_extra_case - should panic ... ok
+
+thread 'rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count' (701517) panicked at packages/rules-engine/tests/real_clauses.rs:105:5:
+assertion `left == right` failed: rules without any case: ["rule-without-cases"]
+  left: {"kb-driver-fine", "kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death"}
+ right: {"kb-driver-fine", "kb-driver-lawyer-fee", "kyobo-1995-cancer-waiting", "kyobo-cancer-main-dx", "kyobo-small-cancer-skin", "kyobo-wholelife-accident-death", "kyobo-wholelife-disease-death", "rule-without-cases"}
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+
+thread 'exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered' (701516) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 114
+  left: 114
+ right: 115
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... ok
+
+thread 'exact_case_count_check_catches_each_missing_file' (701515) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 98
+  left: 98
+ right: 115
+
+thread 'exact_case_count_check_catches_each_missing_file' (701515) panicked at packages/rules-engine/tests/real_clauses.rs:101:5:
+assertion `left == right` failed: expected the full real-clause case set, ran 72
+  left: 72
+ right: 115
+test exact_case_count_check_catches_each_missing_file ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/soundness.rs (target/debug/deps/soundness-7683122ddc54e9c2)
+
+running 9 tests
+test hiding_eligibility_keeps_an_overflowing_amount_undetermined ... ok
+test hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer ... ok
+test unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors ... ok
+test unknown_eligibility_preserves_successful_conditional_amounts_and_blockers ... ok
+test unknown_is_never_reported_as_zero_or_not_payable ... ok
+test unknown_eligibility_handles_all_any_errors_inside_conditional_amount ... ok
+test hiding_an_input_never_changes_a_definite_answer ... ok
+test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
+test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+

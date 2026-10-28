@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import validation_check
+from rule_fixture_catalog import load_rules
 
 START = "<!-- blueprint-counts:start -->"
 END = "<!-- blueprint-counts:end -->"
@@ -52,12 +53,9 @@ def collect(root, listing):
     counts = cargo_counts(listing)
     axes = json.loads((root / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))["axes"]
     rules = []
-    for path in sorted((root / "packages/fixtures/rules/real").glob("*.json")):
-        if path.name.endswith(".cases.json"):
-            continue
-        rule = json.loads(path.read_text(encoding="utf-8"))
+    for path, rule in load_rules(root).items():
         if not rule.get("rule_id") or rule.get("publication_state") != "fixture_only":
-            raise ValueError(f"invalid real-clause fixture: {path.name}")
+            raise ValueError(f"invalid real-clause fixture: {path}")
         rules.append(rule["rule_id"])
     if not rules or len(set(rules)) != len(rules) or not axes:
         raise ValueError("missing vocabulary/rules or duplicate rule IDs")
@@ -79,7 +77,7 @@ def render(counts):
         "|---|---:|---|",
         f"| Rust 단위·통합 시험 | {counts['rust_tests']} | `cargo test -p onjeon-rules-engine -- --list` |",
         f"| Rust 문서 시험(doctest) | {counts['rust_doctests']} | 같은 Cargo 목록의 `Doc-tests` |",
-        f"| 실제 조항 규칙(fixture_only) | {counts['real_clause_rules']} | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |",
+        f"| 실제 조항 규칙(fixture_only) | {counts['real_clause_rules']} | `tools/rule_fixture_catalog.py` (공유 규칙과 엔진 소유 교체 규칙, 사례 제외) |",
         f"| 검증 자료 변조 시험 | {counts['tamper_tests']} | `tools/validation_check.py`의 `mutations()` |",
         f"| 공유 어휘 축 | {counts['vocabulary_axes']} | `packages/schemas/vocabulary.json`의 `axes` |",
         END,

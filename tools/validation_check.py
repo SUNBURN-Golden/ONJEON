@@ -28,6 +28,8 @@ import sys
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
+from rule_fixture_catalog import load_rules
+
 ROOT = Path(__file__).resolve().parent.parent
 VAL = ROOT / "docs/blueprint/validation"
 VOCAB = json.loads((ROOT / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))
@@ -148,9 +150,7 @@ def load():
         data["screens"][p.name] = json.loads(p.read_text(encoding="utf-8"))
     for p in sorted((VAL / "extracts").glob("*.md")):
         data["extracts"][f"extracts/{p.name}"] = p.read_text(encoding="utf-8")
-    for p in sorted((ROOT / "packages/fixtures/rules/real").glob("*.json")):
-        if not p.name.endswith(".cases.json"):
-            data["rules"][str(p.relative_to(ROOT))] = json.loads(p.read_text(encoding="utf-8"))
+    data["rules"] = load_rules(ROOT)
     return data
 
 

@@ -380,6 +380,8 @@
       "id": "w34_disease_before_contract",
       "rule": "kyobo-wholelife-disease-death",
       "set": {
+        "contract_date": "2026-01-01",
+        "coverage_start_date": "2026-01-01",
         "death_date": "2025-01-01",
         "cause_in_accident_table": false
       },
@@ -472,6 +474,8 @@
       "id": "w39_accident_before_contract",
       "rule": "kyobo-wholelife-accident-death",
       "set": {
+        "contract_date": "2026-01-01",
+        "coverage_start_date": "2026-01-01",
         "death_date": "2025-01-01",
         "cause_in_accident_table": true
       },

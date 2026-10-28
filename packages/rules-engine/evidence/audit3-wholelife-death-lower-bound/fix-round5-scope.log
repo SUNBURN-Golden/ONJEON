@@ -1,0 +1,52 @@
+Allowed-path audit: PASS
+44 changed/untracked files checked (including inherited evidence)
+
+HEAD bytes unchanged: packages/fixtures/rules/real/kyobo-wholelife-disease-death.json
+HEAD bytes unchanged: packages/fixtures/rules/real/kyobo-wholelife-accident-death.json
+HEAD bytes unchanged: packages/fixtures/rules/real.content_hashes.json
+
+Changed/untracked paths:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-10-28_wholelife_death_lower_bound.md
+docs/blueprint/validation/README.md
+docs/blueprint/validation/encoded/kyobo_wholelife.json
+packages/rules-engine/README.md
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-before.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-clippy.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-counts.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-design-specs.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-format.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-ontology-build.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-ontology-check.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-ontology-tests.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-python.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-readme.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-regressions.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-validation-selftest.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-validation.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-vocabulary.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round4-workspace.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-clippy.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-counts.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-design-specs.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-format.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-ontology-check.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-ontology-tests.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-python.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-regressions.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-validation-selftest.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-validation.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-vocabulary.log
+packages/rules-engine/evidence/audit3-wholelife-death-lower-bound/fix-round5-workspace.log
+packages/rules-engine/fixtures/rules/real/kyobo-wholelife-accident-death.json
+packages/rules-engine/fixtures/rules/real/kyobo-wholelife-disease-death.json
+packages/rules-engine/fixtures/rules/replacements.json
+packages/rules-engine/tests/common/mod.rs
+packages/rules-engine/tests/fixture_supplements.rs
+packages/rules-engine/tests/fixtures/cases/real/kyobo-wholelife-death.cases.json
+packages/rules-engine/tests/golden.rs
+tools/blueprint_counts.py
+tools/rule_fixture_catalog.py
+tools/tests/test_blueprint_counts.py
+tools/tests/test_rule_fixture_catalog.py
+tools/validation_check.py

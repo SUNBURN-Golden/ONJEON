@@ -1,6 +1,7 @@
 //! Boundary cases live with the engine while shared fixtures stay reusable by other tools.
 mod common;
 use common::*;
+use onjeon_rules_engine::Rule;
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
@@ -73,4 +74,60 @@ fn duplicate_ids_within_a_supplement_are_rejected() {
         &json!({"cases": [{"id": "repeated"}, {"id": "repeated"}]}),
         Path::new("example.cases.json"),
     );
+}
+
+#[test]
+fn wholelife_replacements_add_only_the_coverage_start_guard_and_kill_the_original_bug() {
+    let rules = real_rules();
+    let replacements = rule_replacements();
+    let replacements = replacements["replacements"].as_object().unwrap();
+    assert_eq!(replacements.len(), 2);
+    for kind in ["disease", "accident"] {
+        let id = format!("kyobo-wholelife-{kind}-death");
+        let shared = load_json(&real_dir().join(format!("{id}.json")));
+        let mut corrected = rules[&id].source_json().clone();
+        let guard = corrected["eligibility"]["all"]
+            .as_array_mut()
+            .unwrap()
+            .remove(0);
+        assert_eq!(guard, json!({"gte": ["death_date", "coverage_start_date"]}));
+        assert_eq!(corrected, shared, "{id}: no unrelated rule changes");
+        assert_ne!(replacements[&id]["source"], replacements[&id]["supersedes"]);
+        let original = Rule::from_json(&shared).unwrap();
+        let mut regressions = 0;
+        for (case, rule_id, inputs) in real_cases() {
+            if rule_id != id {
+                continue;
+            }
+            assert_eq!(observe(&rules[&id], &inputs), case["expect"]);
+            if observe(&original, &inputs) != case["expect"] {
+                regressions += 1;
+            }
+        }
+        // Before contract, before a delayed coverage start, and unknown start.
+        assert_eq!(regressions, 3, "{id}: original bug must remain detectable");
+    }
+}
+
+#[test]
+fn wholelife_missing_coverage_start_is_undetermined_like_null() {
+    let rules = real_rules();
+    let mut checked = 0;
+    for (case, id, mut inputs) in real_cases() {
+        if case["id"]
+            .as_str()
+            .unwrap()
+            .ends_with("unknown_coverage_start")
+        {
+            assert!(inputs
+                .as_object_mut()
+                .unwrap()
+                .remove("coverage_start_date")
+                .unwrap()
+                .is_null());
+            assert_eq!(observe(&rules[&id], &inputs), case["expect"]);
+            checked += 1;
+        }
+    }
+    assert_eq!(checked, 2);
 }

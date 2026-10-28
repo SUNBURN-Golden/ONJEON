@@ -1,0 +1,16 @@
+{
+  "replacements": {
+    "kyobo-wholelife-disease-death": {
+      "supersedes": "packages/fixtures/rules/real/kyobo-wholelife-disease-death.json",
+      "source": "packages/rules-engine/fixtures/rules/real/kyobo-wholelife-disease-death.json",
+      "previous_content_hash": "6fdb3bc4092ef484e40cfc39b04cb42deb2b39c606038ff0afdf109b0f04bfd7",
+      "content_hash": "94cd292d2a7b567211ca319a7668bc7234fac69b01ccde3cb15b61148d139377"
+    },
+    "kyobo-wholelife-accident-death": {
+      "supersedes": "packages/fixtures/rules/real/kyobo-wholelife-accident-death.json",
+      "source": "packages/rules-engine/fixtures/rules/real/kyobo-wholelife-accident-death.json",
+      "previous_content_hash": "f6e431ea77bf8e54a850de89a5645d9adae1febb690266711be4dc51a7b42051",
+      "content_hash": "38ebb0606bcba4806e584ef5f2b57dccf8bf658c16243bddc73954bbdcd8008f"
+    }
+  }
+}

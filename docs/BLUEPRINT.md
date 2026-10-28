@@ -346,9 +346,9 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 193 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 195 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
-| 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
+| 실제 조항 규칙(fixture_only) | 7 | `tools/rule_fixture_catalog.py` (공유 규칙과 엔진 소유 교체 규칙, 사례 제외) |
 | 검증 자료 변조 시험 | 38 | `tools/validation_check.py`의 `mutations()` |
 | 공유 어휘 축 | 49 | `packages/schemas/vocabulary.json`의 `axes` |
 <!-- blueprint-counts:end -->

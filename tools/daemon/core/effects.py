@@ -317,7 +317,8 @@ def h_execute_write(core, d, task_id, args, ctx, env):
     kind = ctx.value(args["kind"])
     if env.out is None:
         raise SpecGap("execute_write requires an after-commit outcome")
-    env.out.setdefault("writes", []).append({"kind": kind, "task_id": task_id, "request": copy.deepcopy(env.payload)})
+    env.out.setdefault("writes", []).append({"kind": kind, "task_id": task_id, "event": env.tr["event"],
+                                            "request": copy.deepcopy(env.payload)})
     core.rec.intent(d, task_id, "execute_write", kind=kind, envelope_id=env.payload.get("envelope_id"))
 
 

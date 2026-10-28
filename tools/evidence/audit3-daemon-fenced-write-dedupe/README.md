@@ -1,5 +1,7 @@
 # audit3-daemon-fenced-write-dedupe 검증 증거
 
+최신 P1 경쟁 수정·재실행은 [fix-round1/README.md](fix-round1/README.md)를 참조한다. 아래 `before.log`·`after.log`·`python-tests.log`·`checks.log`는 초기 수정 당시의 기록이다. 공용 데몬 보고서 두 개는 fix round 1의 현재 소스 해시로 갱신했다.
+
 기준 커밋 `835dba23f33e8fa871514f89512d2fcd16bc921a` + 이 노드의 미커밋 변경.
 설명: [감리 기록](../../../docs/blueprint/audits/2026-10-28_daemon_fenced_write_dedupe.md).
 
@@ -9,7 +11,7 @@
 | `after.log` | 수정 구현의 회귀 시험 12개, 모두 통과. push·PR 갱신, 동시성, 롤백, 커밋·원격·완료 기록 실패와 FileStore 포함 |
 | `python-tests.log` | `python3 -m unittest discover -s tools/tests -v`: 1,175개 실행, 실패·오류 0, skip 6, 종료 0 |
 | `checks.log` | 어휘·검증 자료 및 selftest·설계 묶음·BLUEPRINT 등록 수·결정 색인 검사 |
-| `../../daemon/reports/unittest.log` | 전체 데몬 코어 단위·회귀 시험 257개 통과, 소스 내용 해시 포함 |
+| `../../daemon/reports/unittest.log` | 전체 데몬 코어 단위·회귀 시험, 소스 내용 해시 포함. 초기 257개, fix round 1 결과는 최신 증거 안내 참조 |
 | `../../daemon/reports/dry_run.log` | 모의 검사 704건 통과·필수 시험 ID 33/33(누락·미등록·중복 0), 소스 내용 해시 포함 |
 
 회귀 시험 재현:

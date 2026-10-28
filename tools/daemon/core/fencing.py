@@ -90,11 +90,9 @@ def reject_without_envelope(core, d, task_id, event, on_reject):
             "rejected": (on_reject["reason"], event)}
 
 
-def fenced_write(core, d, task_id, event, kind, request):
-    """Check and claim the request atomically; stage remote writes for after the store commit."""
+def check_write(core, d, task_id, event, request, claimed=False):
+    """Return the first failed check. Dispatch rechecks fencing, skipping only its already-claimed identity."""
     spec = core.rules.get("core_contract.operations.fenced_write")
-    request = dict(request)
-    request["kind"] = kind  # request.kind: push or pr_update (the event says which)
     t = d["tasks"][task_id]
     key = ev.dedup_key(core.rules, task_id, event, request)
     funcs = {
@@ -103,12 +101,31 @@ def fenced_write(core, d, task_id, event, kind, request):
     }
     ctx = core.ctx(d, task_id, envelope=request, funcs=funcs)
     for check in spec["checks"]:
-        ok, rec = ctx.predicate(check["pred"])
-        if ok:
+        if claimed and check["id"] == "not_seen":
             continue
-        out = _report(core, d, task_id, spec["on_fail"][check["fail_key"]], request, check["id"], check["fail_key"])
-        out["written"] = False
-        return out
+        ok, rec = ctx.predicate(check["pred"])
+        if not ok:
+            return check
+    return None
+
+
+def reject_write(core, d, task_id, request, check):
+    spec = core.rules.get("core_contract.operations.fenced_write")
+    out = _report(core, d, task_id, spec["on_fail"][check["fail_key"]], request, check["id"], check["fail_key"])
+    out["written"] = False
+    return out
+
+
+def fenced_write(core, d, task_id, event, kind, request):
+    """Check and claim the request atomically; stage remote writes for after the store commit."""
+    spec = core.rules.get("core_contract.operations.fenced_write")
+    request = dict(request)
+    request["kind"] = kind  # request.kind: push or pr_update (the event says which)
+    failed = check_write(core, d, task_id, event, request)
+    if failed:
+        return reject_write(core, d, task_id, request, failed)
+    t = d["tasks"][task_id]
+    key = ev.dedup_key(core.rules, task_id, event, request)
     t["inbox_seen"][key] = {"first_seen_at": core.clock.now(), "lease_generation": request["lease_generation"]}
     state = t["task_state"]["state"]
     out = {"accepted": True, "noop": None, "return_code": None, "transition": None, "post": [],

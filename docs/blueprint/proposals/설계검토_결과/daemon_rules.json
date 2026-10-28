@@ -4641,7 +4641,7 @@
             "id": "record_transition"
           }
         ],
-        "_note": "G26. push·pr_update는 accept_envelope.idempotency_key_fields의 키(기존 envelope_kind=signal)를 공유한다. required_present → lease_matches → not_seen → lease_active → via_daemon 순서로 검사한다. 검사 통과 뒤 inbox_seen·execute_write intent·전이 기록을 같은 트랜잭션으로 커밋하고, execute_write의 원격 호출은 커밋 뒤 트랜잭션 밖에서 한다. 완료 기록은 원격 호출이 정상 반환한 뒤 별도 트랜잭션으로 남긴다. 커밋 뒤 중단·원격 오류는 키를 유지하며 자동 재실행하지 않는다. 원격 결과 대조·재개와 exactly-once 전달 보장은 이 연산에 없다(audit3-daemon-fenced-write-dedupe).",
+        "_note": "G26. push·pr_update는 accept_envelope.idempotency_key_fields의 키(기존 envelope_kind=signal)를 공유한다. required_present → lease_matches → not_seen → lease_active → via_daemon 순서로 검사한다. 검사 통과 뒤 inbox_seen·execute_write intent·전이 기록을 같은 트랜잭션으로 커밋하고, execute_write의 원격 호출은 커밋 뒤 트랜잭션 밖에서 한다. 발송 시 저장소 변경과 같은 배타 잠금으로 not_seen 이외의 검사를 재평가하고 원격 호출 종료까지 잠금을 유지한다. 그 전에 임대가 교체·종료·만료되면 원격 호출 없이 R-11로 거부한다. 원격 자격은 요청 lease_id와 일치해야 한다. 완료 기록은 원격 호출이 정상 반환하고 잠금을 푼 뒤 별도 트랜잭션으로 남긴다. 커밋 뒤 중단·원격 오류는 키를 유지하며 자동 재실행하지 않는다. 원격 결과 대조·재개와 exactly-once 전달 보장은 이 연산에 없다(audit3-daemon-fenced-write-dedupe, fix round 1).",
         "required_fields": [
           "lease_id",
           "lease_generation",

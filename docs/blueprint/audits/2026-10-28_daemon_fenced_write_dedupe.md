@@ -19,7 +19,7 @@
 
 ## 회귀 검증
 
-[`FencedWriteDedup`](../../../tools/tests/test_daemon_dry_run.py)의 12개 시험은 두 사건 모두에 적용한다.
+초기 수정의 [`FencedWriteDedup`](../../../tools/tests/test_daemon_dry_run.py) 12개 시험은 두 사건 모두에 적용했다. Fix round 1에서는 아래처럼 16개로 확장했다.
 
 - 재전달·코어 재생성 후 재전달은 원격 쓰기 1회, 중복 noop, 새 전이 없음. 서로 다른 ID는 각각 실행한다.
 - 필수 식별자 네 개의 누락·null은 R-13이고 임대·상태·처리 키를 바꾸지 않는다.
@@ -28,20 +28,38 @@
 - 동시 요청 8개는 원격 호출 1회와 중복 noop 7건.
 - 이전 임대는 중복보다 먼저 R-11, 현재 세대 중복은 만료 뒤에도 중복, 처음 보는 만료 요청은 R-11.
 - 원격 쓰기 후 예외, 커밋 직후 발송 전 중단, 완료 기록 실패에도 처리 키를 유지한다.
-- 실제 `FileStore`의 파일 잠금·rename 커밋을 사용해 원격 호출 중 새 트랜잭션을 열 수 있고, 코어를 재생성해도 중복이 차단됨을 확인한다. 원격 어댑터는 모의이며 Git 쓰기는 하지 않는다.
+- 실제 `FileStore`의 파일 잠금·rename 커밋을 사용해 원격 호출 전에 키가 커밋되고, 코어를 재생성해도 중복이 차단됨을 확인한다. 초기 수정에서는 원격 호출 중 새 트랜잭션도 허용했으나, 아래 경쟁 수정에서는 발송 종료까지 변경을 막는다. 원격 어댑터는 모의이며 Git 쓰기는 하지 않는다.
 
 실행 결과와 재현 명령은 [증거 안내](../../../tools/evidence/audit3-daemon-fenced-write-dedupe/README.md), [수정 후 로그](../../../tools/evidence/audit3-daemon-fenced-write-dedupe/after.log), [전체 데몬 시험](../../../tools/daemon/reports/unittest.log), [모의 시나리오](../../../tools/daemon/reports/dry_run.log)에 남긴다. 데몬 보고서의 소스 해시는 README에 명시한 절차로 갱신했다.
 
 | 실행 | 결과 |
 |---|---|
 | 신규 회귀 `FencedWriteDedup` | 12개 통과 |
-| 전체 데몬 시험 | 257개 통과, 종료 0 |
+| 초기 전체 데몬 시험 | 257개 통과, 종료 0. 현재 보고서는 아래 fix round 1 실행으로 갱신 |
 | 전체 모의 시나리오 `--require-all` | 검사 704건 통과, 필수 ID 33/33, 누락·미등록·중복 0 |
 | 전체 Python `unittest discover -s tools/tests -v` | 1,175개 실행, 실패·오류 0, skip 6, 종료 0 |
 | `cargo test --all` | 종료 0. 기존 `regenerate_declared_abox_fixture` 1개 ignored |
 | 어휘·검증 자료·selftest·설계 묶음·BLUEPRINT 등록 수·결정 색인 | 모두 통과. 설계 묶음 기계 검사 44/44·존재 검사 72/72 |
 
 Python skip 6개는 원본 보관소 환경 미설정 2개, 로컬 보관소·pdftotext 필요 3개, 설치된 botocore가 조건부 쓰기를 지원해서 해당하지 않는 구버전 거부 시험 1개다. 새 회귀와 데몬 시험의 skip은 없다. 전체 Python 로그는 [여기](../../../tools/evidence/audit3-daemon-fenced-write-dedupe/python-tests.log), 나머지 도구 출력은 [여기](../../../tools/evidence/audit3-daemon-fenced-write-dedupe/checks.log)에 있다.
+
+## Fix round 1 — 커밋 후 임대 교체 경쟁 (P1)
+
+검토 기준 커밋 `ed017d6a672cde82a67bc2ef2880287edb3afcb5` + 이번 미커밋 변경.
+초기 수정은 커밋 뒤 `remote.execute` 전에 임대가 교체되는 경쟁을 막지 못했다. `PushRemote`가 task 단위로 최신 자격을 읽어 이전 세대의 SHA를 새 임대의 자격으로 쓸 수 있었다.
+
+[추가 회귀의 수정 전 실행](../../../tools/evidence/audit3-daemon-fenced-write-dedupe/fix-round1/before.log)은 시험 2개에서 하위 사례 포함 16건 실패다. push·PR 갱신 × MemoryStore·FileStore × 교체·종료·만료 12개 경우가 모두 발송을 허용했다. 자격의 누락·다른 임대·회수 3개 거부 사례와 현재 임대 자격을 선택하는 양성 대조도 실패했다.
+
+수정은 다음과 같다.
+
+- `Store.dispatch_guard()`는 `transaction()`과 같은 배타 잠금 아래 커밋된 상태 사본을 제공한다. 트랜잭션을 열거나 사본을 저장하지 않는다. MemoryStore는 같은 RLock, FileStore는 같은 flock을 쓴다.
+- `_after_commit`은 이 잠금 아래 이미 소비한 `not_seen`만 빼고 기존 구조화 검사를 다시 평가한다. 임대 ID·세대·fencing token 불일치, 종료·만료는 R-11로 거부하며 원격 호출·완료 효과 기록은 없다. 처음 커밋된 intent·처리 키는 되돌리지 않는다(기존 임대 종료·교체에 따른 키 정리는 그대로다).
+- 검사를 통과하면 원격 호출이 반환할 때까지 잠금을 유지한다. 따라서 그 사이 임대 교체·종료를 포함한 다른 저장소 변경은 기다린다. 완료 효과 기록은 잠금을 푼 뒤 별도 트랜잭션이다. 원격 어댑터의 중첩 저장소 변경은 거부한다.
+- `PushRemote`는 한 번 읽은 자격의 `lease_id`가 요청과 같고 회수되지 않았을 때만 그 자격을 Git 어댑터에 전달한다. 다른 임대의 최신 자격으로 대체하지 않는다.
+
+16개 회귀 시험은 기존 중복·롤백·오류 사례에 더해, 위 12개 발송 직전 변경 사례, 원격 실행 중 별도 코어의 임대 교체 대기(두 저장소·두 사건), 다른 OS 프로세스의 FileStore 변경 대기, 임대별 자격 선택을 검증한다. 수정 후 실행과 전체 시험 결과는 [fix round 1 증거](../../../tools/evidence/audit3-daemon-fenced-write-dedupe/fix-round1/README.md)에 기록한다. Git 어댑터는 spy로 대체했고 실제 Git·GitHub 쓰기는 실행하지 않았다.
+
+이 잠금은 저장소 전체 변경을 직렬화하므로 느린 원격 호출 동안 다른 과제의 상태 변경도 지연된다. FileStore 잠금은 프로세스 종료 때 커널이 해제한다. 원격 호출 오류 뒤 키를 남기는 기존 정책과 아래 전달 한계는 유지한다.
 
 ## 한계
 

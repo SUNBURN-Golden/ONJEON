@@ -124,6 +124,158 @@ class FencedWriteDedup(unittest.TestCase):
                 self.assertTrue(self.send(env, event, request)["written"])
                 self.assertEqual(len(env.ports.remote.writes), 2)
 
+    def test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit(self):
+        from daemon.runner_verify.adapters import FileStore, PushRemote
+        from daemon.runner_verify.common import Layout
+        for event in self.EVENTS:
+            for backend in ("memory", "file"):
+                for change in ("replace", "end", "expire"):
+                    with self.subTest(event=event, backend=backend, change=change), tempfile.TemporaryDirectory() as tmp:
+                        env, request = self.ready()
+                        layout = Layout(tmp).make()
+                        if backend == "file":
+                            store = FileStore(layout)
+                            with store.transaction() as d:
+                                d.update(env.snap())
+                            env.ports.store = store
+                        # Exercise the real push adapter with a Git spy, never a Git/network write.
+                        git, credentials = mock.Mock(), mock.Mock()
+                        git._git.return_value.returncode = 0
+                        env.ports.remote = PushRemote(layout, git, credentials)
+                        after_commit = env.core._after_commit
+
+                        def interleave(out):
+                            if out.get("writes"):
+                                if change == "replace":
+                                    env.builder_for(sc.BASIC).send_result(env.instr(sc.BASIC), "failed_tests")
+                                    self.assertEqual(env.lease(sc.BASIC)["lease_generation"], 2)
+                                elif change == "end":
+                                    env.event("owner_cancelled", sc.BASIC)
+                                    self.assertNotEqual(env.lease(sc.BASIC)["status"], "active")
+                                else:
+                                    env.clock.set(env.lease(sc.BASIC)["expires_at"] + 1)
+                                credentials.entry.return_value = {
+                                    "lease_id": env.lease(sc.BASIC)["lease_id"], "token": "fixture-credential"}
+                            after_commit(out)
+
+                        with mock.patch.object(env.core, "_after_commit", side_effect=interleave):
+                            out = self.send(env, event, request)
+                        self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+                                         (False, False, "late_envelope_rejected", "R-11"))
+                        git._git.assert_not_called()
+                        credentials.entry.assert_not_called()
+                        self.assertFalse((layout.root / "remote_writes.jsonl").exists())
+                        self.assertEqual(sc.se(env.journal(), "execute_write"), [])
+                        self.assertFalse(self.send(env, event, request)["written"])
+
+    def test_push_adapter_requires_the_requests_lease_credential(self):
+        from daemon.core.ports import PushFailed
+        from daemon.runner_verify.adapters import PushRemote
+        from daemon.runner_verify.common import Layout
+        for entry in (None, {"lease_id": "other", "token": "fixture-other"},
+                      {"lease_id": "L1", "token": "fixture-revoked", "revoked_ns": 1}):
+            with self.subTest(entry=entry), tempfile.TemporaryDirectory() as tmp:
+                git, credentials = mock.Mock(), mock.Mock()
+                git._git.return_value.returncode = 0
+                credentials.entry.return_value = entry
+                remote = PushRemote(Layout(tmp).make(), git, credentials)
+                with self.assertRaises(PushFailed):
+                    remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/mock"})
+                git._git.assert_not_called()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            git, credentials = mock.Mock(), mock.Mock()
+            git._git.return_value.returncode = 0
+            credentials.entry.return_value = {"lease_id": "L1", "token": "fixture-current"}
+            remote = PushRemote(Layout(tmp).make(), git, credentials)
+            remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/mock"})
+            self.assertEqual(git._git.call_args.kwargs["env"]["RV_PUSH_CREDENTIAL"], "fixture-current")
+
+    def test_dispatch_serializes_lease_replacement_through_remote_execution(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Event
+        from daemon.core import DaemonCore
+        from daemon.runner_verify.adapters import FileStore
+        from daemon.runner_verify.common import Layout
+        for event in self.EVENTS:
+            for backend in ("memory", "file"):
+                with self.subTest(event=event, backend=backend), tempfile.TemporaryDirectory() as tmp:
+                    env, request = self.ready()
+                    if backend == "file":
+                        layout = Layout(tmp).make()
+                        store = FileStore(layout)
+                        with store.transaction() as d:
+                            d.update(env.snap())
+                        env.ports.store = store
+                    ports = copy.copy(env.ports)
+                    if backend == "file":
+                        ports.store = FileStore(layout)  # independent adapter, same flock
+                    other_core = DaemonCore(env.rules, ports)
+                    result = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), "failed_tests")
+                    started, release, attempting, replaced = Event(), Event(), Event(), Event()
+                    execute = env.ports.remote.execute
+
+                    def write(*args):
+                        started.set()
+                        self.assertTrue(release.wait(timeout=10))
+                        self.assertEqual(env.lease(sc.BASIC)["lease_generation"], request["lease_generation"])
+                        execute(*args)
+
+                    def replace():
+                        attempting.set()
+                        out = other_core.submit_envelope(sc.BASIC, "result", result)
+                        replaced.set()
+                        return out
+
+                    with mock.patch.object(env.ports.remote, "execute", side_effect=write), ThreadPoolExecutor(max_workers=2) as pool:
+                        sending = pool.submit(self.send, env, event, request)
+                        try:
+                            self.assertTrue(started.wait(timeout=10))
+                            replacing = pool.submit(replace)
+                            self.assertTrue(attempting.wait(timeout=10))
+                            self.assertFalse(replaced.wait(timeout=0.1), "lease replaced during remote execution")
+                        finally:
+                            release.set()
+                        self.assertTrue(sending.result(timeout=10)["written"])
+                        self.assertTrue(replacing.result(timeout=10)["accepted"])
+                    self.assertEqual(env.lease(sc.BASIC)["lease_generation"], 2)
+                    self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_file_dispatch_guard_blocks_another_process_without_a_transaction(self):
+        import subprocess
+        from daemon.runner_verify.adapters import FileStore
+        from daemon.runner_verify.common import Layout
+        with tempfile.TemporaryDirectory() as tmp:
+            store = FileStore(Layout(tmp).make())
+            with store.transaction() as d:
+                d["tasks"]["probe"] = "before"
+            source = ("import sys\n"
+                      f"sys.path.insert(0, {str(ROOT / 'tools')!r})\n"
+                      "from daemon.runner_verify.adapters import FileStore\n"
+                      "from daemon.runner_verify.common import Layout\n"
+                      f"store = FileStore(Layout({tmp!r}))\n"
+                      "print('attempting', flush=True)\n"
+                      "with store.transaction() as d: d['tasks']['probe'] = 'after'\n")
+            process = None
+            try:
+                with store.dispatch_guard() as d:
+                    self.assertEqual(d["tasks"]["probe"], "before")
+                    d["tasks"]["probe"] = "snapshot-only"
+                    process = subprocess.Popen([sys.executable, "-I", "-c", source], stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE, text=True)
+                    self.assertEqual(process.stdout.readline().strip(), "attempting")
+                    with self.assertRaises(subprocess.TimeoutExpired):
+                        process.communicate(timeout=0.1)
+                    self.assertEqual(store.snapshot()["tasks"]["probe"], "before")
+                _, stderr = process.communicate(timeout=10)
+                self.assertEqual(process.returncode, 0, stderr)
+                self.assertEqual(store.snapshot()["tasks"]["probe"], "after")
+            finally:
+                if process is not None:
+                    if process.poll() is None:
+                        process.kill()
+                    process.communicate()
+
     def test_missing_identity_is_rejected_without_marking_seen(self):
         for event in self.EVENTS:
             for field in ("envelope_id", "lease_id", "lease_generation", "fencing_token"):
@@ -297,9 +449,11 @@ class FencedWriteDedup(unittest.TestCase):
                 execute = env.ports.remote.execute
 
                 def write(*args):
-                    # A nested FileStore transaction raises; this also exercises the actual file lock boundary.
-                    with store.transaction() as d:
-                        self.assertEqual(len(d["tasks"][sc.BASIC]["inbox_seen"]), 2)
+                    # The committed snapshot is readable, but mutations must wait until dispatch finishes.
+                    self.assertEqual(len(store.snapshot()["tasks"][sc.BASIC]["inbox_seen"]), 2)
+                    with self.assertRaises(RuntimeError):
+                        with store.transaction():
+                            pass
                     execute(*args)
 
                 with mock.patch.object(env.ports.remote, "execute", side_effect=write):

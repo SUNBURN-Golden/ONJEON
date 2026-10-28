@@ -375,6 +375,190 @@
         },
         "missing_inputs": []
       }
+    },
+    {
+      "id": "w34_disease_before_contract",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "death_date": "2025-01-01",
+        "cause_in_accident_table": false
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w35_disease_before_coverage_start",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "coverage_start_date": "2026-06-01",
+        "death_date": "2026-05-31",
+        "cause_in_accident_table": false
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w36_disease_on_coverage_start",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "coverage_start_date": "2026-06-01",
+        "death_date": "2026-06-01",
+        "cause_in_accident_table": false
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 50000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w37_disease_after_coverage_start",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "coverage_start_date": "2026-06-01",
+        "death_date": "2026-06-02",
+        "cause_in_accident_table": false
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 50000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w38_disease_unknown_coverage_start",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {
+        "coverage_start_date": null,
+        "cause_in_accident_table": false
+      },
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {
+          "kind": "undetermined",
+          "conditional_amount": {
+            "kind": "exact",
+            "krw": 50000000
+          }
+        },
+        "missing_inputs": [
+          "coverage_start_date"
+        ]
+      }
+    },
+    {
+      "id": "w39_accident_before_contract",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {
+        "death_date": "2025-01-01",
+        "cause_in_accident_table": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w40_accident_before_coverage_start",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {
+        "coverage_start_date": "2026-06-01",
+        "death_date": "2026-05-31",
+        "cause_in_accident_table": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w41_accident_on_coverage_start",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {
+        "coverage_start_date": "2026-06-01",
+        "death_date": "2026-06-01",
+        "cause_in_accident_table": true
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 100000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w42_accident_after_coverage_start",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {
+        "coverage_start_date": "2026-06-01",
+        "death_date": "2026-06-02",
+        "cause_in_accident_table": true
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 100000000
+          }
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w43_accident_unknown_coverage_start",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {
+        "coverage_start_date": null,
+        "cause_in_accident_table": true
+      },
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {
+          "kind": "undetermined",
+          "conditional_amount": {
+            "kind": "exact",
+            "krw": 100000000
+          }
+        },
+        "missing_inputs": [
+          "coverage_start_date"
+        ]
+      }
     }
   ]
 }

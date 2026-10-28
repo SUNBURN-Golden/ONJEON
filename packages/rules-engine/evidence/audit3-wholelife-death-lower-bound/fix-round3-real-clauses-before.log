@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/real_clauses.rs (/workspace/onjeon-run/shared-target/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 1 test
+
+thread 'every_real_clause_case_matches' (523330) panicked at packages/rules-engine/tests/real_clauses.rs:117:5:
+"w34_disease_before_contract": expected {"eligibility":"false","missing_inputs":[],"payout":{"kind":"not_payable"}} got {"eligibility":"true","missing_inputs":[],"payout":{"amount":{"kind":"exact","krw":50000000},"kind":"payable"}}
+"w35_disease_before_coverage_start": expected {"eligibility":"false","missing_inputs":[],"payout":{"kind":"not_payable"}} got {"eligibility":"true","missing_inputs":[],"payout":{"amount":{"kind":"exact","krw":50000000},"kind":"payable"}}
+"w38_disease_unknown_coverage_start": expected {"eligibility":"unknown","missing_inputs":["coverage_start_date"],"payout":{"conditional_amount":{"kind":"exact","krw":50000000},"kind":"undetermined"}} got {"eligibility":"true","missing_inputs":[],"payout":{"amount":{"kind":"exact","krw":50000000},"kind":"payable"}}
+"w39_accident_before_contract": expected {"eligibility":"false","missing_inputs":[],"payout":{"kind":"not_payable"}} got {"eligibility":"true","missing_inputs":[],"payout":{"amount":{"kind":"exact","krw":100000000},"kind":"payable"}}
+"w40_accident_before_coverage_start": expected {"eligibility":"false","missing_inputs":[],"payout":{"kind":"not_payable"}} got {"eligibility":"true","missing_inputs":[],"payout":{"amount":{"kind":"exact","krw":100000000},"kind":"payable"}}
+"w43_accident_unknown_coverage_start": expected {"eligibility":"unknown","missing_inputs":["coverage_start_date"],"payout":{"conditional_amount":{"kind":"exact","krw":100000000},"kind":"undetermined"}} got {"eligibility":"true","missing_inputs":[],"payout":{"amount":{"kind":"exact","krw":100000000},"kind":"payable"}}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test every_real_clause_case_matches ... FAILED
+
+failures:
+
+failures:
+    every_real_clause_case_matches
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test real_clauses`

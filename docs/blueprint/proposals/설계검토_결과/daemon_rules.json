@@ -335,6 +335,7 @@
           "id": "result_envelope",
           "target": "string values of result, signal and heartbeat envelopes",
           "at": "accept_envelope.before_inbox_seen",
+          "after_check": "current_lease_rules",
           "states": [
             "building"
           ]
@@ -1032,7 +1033,14 @@
           }
         }
       ],
-      "return_code": "R-01"
+      "return_code": "R-01",
+      "cond": [
+        {
+          "field": "result_scope_valid",
+          "op": "==",
+          "value": false
+        }
+      ]
     },
     {
       "from": "building",
@@ -2223,6 +2231,18 @@
             "set": 0
           }
         }
+      ],
+      "cond": [
+        {
+          "field": "result_scope_valid",
+          "op": "==",
+          "value": true
+        },
+        {
+          "field": "envelope.pr_body",
+          "op": "has_fields",
+          "value": "core_contract.operations.accept_envelope.pr_body_required_fields"
+        }
       ]
     },
     {
@@ -3020,6 +3040,7 @@
       ],
       "optional": [
         "pr_number",
+        "pr_body",
         "verdict_question",
         "handoff_record"
       ],
@@ -4393,6 +4414,51 @@
               "value": "fence_violation_report"
             },
             "fail_key": "current_lease_violation"
+          },
+          {
+            "id": "result_scope",
+            "pred": {
+              "field": "any",
+              "op": "==",
+              "value": [
+                {
+                  "field": "envelope.kind",
+                  "op": "!=",
+                  "value": "result"
+                },
+                {
+                  "field": "result_scope_valid",
+                  "op": "==",
+                  "value": true
+                }
+              ]
+            },
+            "fail_key": "out_of_scope"
+          },
+          {
+            "id": "pr_body_fields",
+            "pred": {
+              "field": "any",
+              "op": "==",
+              "value": [
+                {
+                  "field": "envelope.kind",
+                  "op": "!=",
+                  "value": "result"
+                },
+                {
+                  "field": "envelope.status",
+                  "op": "!=",
+                  "value": "pr_opened"
+                },
+                {
+                  "field": "envelope.pr_body",
+                  "op": "has_fields",
+                  "value": "core_contract.operations.accept_envelope.pr_body_required_fields"
+                }
+              ]
+            },
+            "fail_key": "pr_body_missing"
           }
         ],
         "on_fail": {
@@ -4416,6 +4482,14 @@
           "current_lease_violation": {
             "transition_event": "fence_violation",
             "return_code": "R-11"
+          },
+          "out_of_scope": {
+            "transition_event": "result_out_of_scope",
+            "return_code": "R-01"
+          },
+          "pr_body_missing": {
+            "noop_event": "envelope_rejected_invalid",
+            "return_code": "R-09"
           }
         },
         "on_pass": [
@@ -4458,7 +4532,14 @@
           "after": "required_present",
           "fail_key": "required_missing",
           "rule": "a value outside field_value_sets is treated like a missing field (R-13)"
-        }
+        },
+        "pr_body_required_fields": [
+          "task_id",
+          "authors",
+          "target_sha",
+          "test_log_ref"
+        ],
+        "_result_gates_note": "audit3-daemon-gate-touched-paths: result_scope_valid는 gate_evaluator의 경로 술어다. touched_paths는 목록이어야 하며 경로 정규화·allowed_paths·forbidden_paths·승인 정본 예외를 적용한다. R-01은 returned로 전이하고 R-09는 같은 작성자 수정을 위해 상태·임대·inbox_seen을 유지한다. pr_body는 어댑터가 PR 본문에서 읽은 필드 사전이며 has_fields는 빈 값·공백·잘못된 자료형을 거부한다. 실제 Git 호스트 본문 조회·출처 인증은 이 코어가 하지 않는다."
       },
       "receiver_validation": {
         "by": "빌더 어댑터(모의 빌더)",
@@ -5094,7 +5175,8 @@
         "all_pass",
         "all_present",
         "any",
-        "all"
+        "all",
+        "has_fields"
       ],
       "added_by_G49": {
         "subset_of": "left list is a subset of right list",

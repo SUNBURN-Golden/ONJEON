@@ -38,3 +38,6 @@ python3 -m unittest discover -s tools/ci/tests -v
 데몬 공용 보고서의 현재 소스 해시는 `137dff4091ec8316d317e53d40ac0feeeddf599cd16184693de3e67d231b7457`이다. [도구 README의 해시 절차](../../daemon/README.md#증거-기록reports)와 기존 `Cli.test_evidence_logs_name_the_parent_commit_and_source_hash`로 대조했다. 신규 시험 파일의 개별 해시는 manifest에 추가했다.
 
 작업 저장소에 커밋·푸시하거나 GitHub·실제 제공자를 호출하지 않았다. 기존 실행기 시험의 Git 쓰기는 임시 로컬 시험 저장소에 한정되고 제공자 검증은 로컬 프록시·더미 자격을 쓴다. 정적 검사는 Python 샌드박스나 계산된 속성명·일반 데이터 흐름·입력 의존 무한 루프에 대한 완전한 증명이 아니다.
+
+
+후속 병합: gate-touched-paths 노드의 수정 3차에서 공용 데몬 보고서를 두 노드가 합쳐진 소스로 재생성했다. 위 267개 시험·소스 해시는 이 노드 단독 검증 당시 기록이다. 현재 공용 보고서의 출처와 양쪽 회귀 시험 실행 결과는 [병합 검증 기록](../../../docs/blueprint/audits/2026-10-28_daemon_gate_touched_paths.md#수정-3차--main-정적-검사-보강과-병합)과 [round3 증거](../audit3-daemon-gate-touched-paths/round3/)를 참조한다.

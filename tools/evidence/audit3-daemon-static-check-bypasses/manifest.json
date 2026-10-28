@@ -12,12 +12,12 @@
   "evidence_sha256": {
     "after.log": "fe3f2ae11c4dfaa3e3858a2f0653ca8d936a8ed454b8d62f1b905d335ca51241",
     "baseline-dependencies.log": "e0b61fd2e0e0fe3138cf8fd5353e15c77fd8c67e7a73a5502dff966e7703ff8a",
-    "before.log": "d4ccc689422051b950623f3408b9421a88fcead75b515bb30b95669e75469e4e",
+    "before.log": "b7136a38153f8245da1a96da72385c7608c10828a446945a45c3cb2be83dcaa5",
     "blueprint-counts.log": "6145b7ea1b233633e1369c1380cc0319109fe23e9dc01474e4efb1017104451e",
-    "checks.log": "3ca6b560d4c1bf21a666c01ae9eb4486970ed00f8424de6460cc39f54a879e10",
+    "checks.log": "07ef2009e3db6e94c8e7405e48ff269ea4906d36b4996a1c9727ea7ca0025ef5",
     "python-tests.log": "1bcb23f3e81cda9154f97a700dd6a291c2b01179a2615975e59a6d1b1c4fbdcd",
     "runner-verify-tests.log": "3b1dba6608c5b01e1d40deb5a57b499cdedce24f4681092996771495d31990f2",
-    "rust-tests.log": "dc056474f1cee6f0a2eebc2597a8616cf2ffe49ddc1075e1cb25c9a0b43ddb1a"
+    "rust-tests.log": "f33550ebe062db23bfc92837f218c24496c9f3bc3b9f4705c6b8c1986f76de71"
   },
   "results": {
     "regression_before": {
@@ -75,5 +75,6 @@
       "preexisting_dependency_findings": 3,
       "baseline_evidence": "baseline-dependencies.log"
     }
-  }
+  },
+  "evidence_normalization": "Merge round 3: trailing whitespace and blank EOF lines removed from log evidence; results unchanged. Source hashes and results describe the original node run."
 }

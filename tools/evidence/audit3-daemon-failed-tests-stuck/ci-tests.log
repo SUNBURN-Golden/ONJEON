@@ -13,7 +13,7 @@ test_renamed_dependency_is_still_caught (test_ci_checkers.ProviderSdkRule.test_r
 test_rule_text_is_in_the_rules_file (test_ci_checkers.ProviderSdkRule.test_rule_text_is_in_the_rules_file) ... ok
 test_synthetic_cargo_toml_outside_the_gateway_fails (test_ci_checkers.ProviderSdkRule.test_synthetic_cargo_toml_outside_the_gateway_fails) ... ok
 test_bootstrap_clean_main (test_ci_checkers.RepoIsClean.test_bootstrap_clean_main) ... ok
-test_cli_exit_codes_under_isolated_mode (test_ci_checkers.RepoIsClean.test_cli_exit_codes_under_isolated_mode) ... 
+test_cli_exit_codes_under_isolated_mode (test_ci_checkers.RepoIsClean.test_cli_exit_codes_under_isolated_mode) ...
   test_cli_exit_codes_under_isolated_mode (test_ci_checkers.RepoIsClean.test_cli_exit_codes_under_isolated_mode) [check_deps.py] ... FAIL
 test_real_repo_passes_every_checker (test_ci_checkers.RepoIsClean.test_real_repo_passes_every_checker) ... FAIL
 test_each_selftest_passes (test_ci_checkers.SelfTests.test_each_selftest_passes) ... ok

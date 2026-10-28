@@ -1,0 +1,12 @@
+PASS: 33 changed paths allowed; protected paths untouched
+PASS: no unmerged index entries or conflict markers
+PASS: no unstaged tracked edits
+PASS: git diff --cached --check
+$ python3 -m unittest tools.tests.test_daemon_dry_run.Cli.test_evidence_logs_name_the_parent_commit_and_source_hash -v
+test_evidence_logs_name_the_parent_commit_and_source_hash (tools.tests.test_daemon_dry_run.Cli.test_evidence_logs_name_the_parent_commit_and_source_hash)
+The logs are made before the commit that holds them, so they name the parent commit and a content hash of ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.009s
+
+OK

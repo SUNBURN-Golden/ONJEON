@@ -1,0 +1,5 @@
+Read-only baseline from git objects: e1c5f14c0de0e428e46fcb975e412f909d9557ed
+[DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+[IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+[IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+PASS: all dependency findings equal HEAD; no new dependency findings

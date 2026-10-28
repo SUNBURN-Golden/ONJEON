@@ -1,22 +1,22 @@
-test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ... 
+test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ...
   test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__["eval"]("1")') ... FAIL
   test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__["exec"]("pass")') ... FAIL
   test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='b = __builtins__; f = b["eval"]') ... FAIL
   test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='__builtins__.eval("1")') ... FAIL
   test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='globals()["__builtins__"]["eval"]("1")') ... FAIL
   test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) (source='fn.__builtins__["eval"]("1")') ... FAIL
-test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ... 
+test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ...
   test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='import sched') ... ERROR
   test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='import apscheduler') ... ERROR
   test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='signal.signal(1, handler)') ... ERROR
   test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) (source='os.fork()') ... ERROR
-test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) ... 
+test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) ...
   test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while pending:\n    pending.pop()\n') ... ERROR
   test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while clock.now() < end:\n    step()\n') ... ERROR
   test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while False:\n    pass\n') ... ERROR
   test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='while 0:\n    pass\n') ... ERROR
   test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) (source='# while True:\ntext = "while True:"\n') ... ERROR
-test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) ... 
+test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) ...
   test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='system') ... FAIL
   test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='popen') ... FAIL
   test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='execl') ... FAIL
@@ -41,7 +41,7 @@ test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.Stat
   test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='forkpty') ... FAIL
   test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='startfile') ... FAIL
   test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) (name='*') ... FAIL
-test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) ... 
+test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) ...
   test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import ctypes as native') ... FAIL
   test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from ctypes import system as launch') ... FAIL
   test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import ctypes.util as native') ... FAIL
@@ -53,7 +53,7 @@ test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypas
   test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='import nt as native') ... FAIL
   test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) (source='from nt import system as launch') ... FAIL
 test_only_canonical_checker_and_runner_directory_are_exempt (tools.tests.test_daemon_static_checks.StaticBypasses.test_only_canonical_checker_and_runner_directory_are_exempt) ... ok
-test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) ... 
+test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) ...
   test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.system') ... FAIL
   test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.popen') ... FAIL
   test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.execl') ... FAIL
@@ -92,7 +92,7 @@ test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.Stati
   test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.forkpty') ... FAIL
   test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='os.startfile("unused")') ... FAIL
   test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) (expression='launch = os.startfile') ... FAIL
-test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) ... 
+test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) ...
   test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='system') ... FAIL
   test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='popen') ... FAIL
   test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='execl') ... FAIL
@@ -122,15 +122,15 @@ test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticB
   test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='__import__') ... FAIL
   test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='import_module') ... FAIL
   test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) (name='__builtins__') ... FAIL
-test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) ... 
+test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) ...
   test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='ctypes') ... FAIL
   test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='socket') ... FAIL
   test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) (name='subprocess') ... FAIL
 test_safe_operations_and_data_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_safe_operations_and_data_are_allowed) ... ok
-test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) ... 
+test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) ...
   test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) (filename='static_checks.py') ... FAIL
   test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) (filename='nested/static_checks.py') ... FAIL
-test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) ... 
+test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) ...
   test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='True') ... ERROR
   test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='1') ... ERROR
   test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='2') ... ERROR
@@ -139,12 +139,12 @@ test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.St
   test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition="'forever'") ... ERROR
   test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition='[1]') ... ERROR
   test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) (condition="{'x': 1}") ... ERROR
-test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) ... 
+test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) ...
   test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content=None) ... FAIL
   test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{') ... FAIL
   test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{}') ... FAIL
 test_cli_invalid_source_is_an_error (tools.tests.test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error) ... FAIL
-test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) ... 
+test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) ...
   test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='__builtins__["eval"]("1")') ... FAIL
   test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='getattr(os, "system")("unused")') ... FAIL
   test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='from os import system as s') ... FAIL
@@ -1372,7 +1372,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 154, in test_cli_input_errors_are_nonzero_and_explained
     self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 2 : 
+AssertionError: 0 != 2 :
 
 ======================================================================
 FAIL: test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{')
@@ -1381,7 +1381,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 154, in test_cli_input_errors_are_nonzero_and_explained
     self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 2 : 
+AssertionError: 0 != 2 :
 
 ======================================================================
 FAIL: test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) (content='{}')
@@ -1390,7 +1390,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 154, in test_cli_input_errors_are_nonzero_and_explained
     self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 2 : 
+AssertionError: 0 != 2 :
 
 ======================================================================
 FAIL: test_cli_invalid_source_is_an_error (tools.tests.test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error)
@@ -1399,7 +1399,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 165, in test_cli_invalid_source_is_an_error
     self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 2 : 
+AssertionError: 0 != 2 :
 
 ======================================================================
 FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='__builtins__["eval"]("1")')
@@ -1408,7 +1408,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 1 : 
+AssertionError: 0 != 1 :
 
 ======================================================================
 FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='getattr(os, "system")("unused")')
@@ -1417,7 +1417,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 1 : 
+AssertionError: 0 != 1 :
 
 ======================================================================
 FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='from os import system as s')
@@ -1426,7 +1426,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 1 : 
+AssertionError: 0 != 1 :
 
 ======================================================================
 FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='os.execvpe("unused", [], {})')
@@ -1435,7 +1435,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 1 : 
+AssertionError: 0 != 1 :
 
 ======================================================================
 FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='os.posix_spawn("unused", [], {})')
@@ -1444,7 +1444,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 1 : 
+AssertionError: 0 != 1 :
 
 ======================================================================
 FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='import ctypes')
@@ -1453,7 +1453,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 1 : 
+AssertionError: 0 != 1 :
 
 ======================================================================
 FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='while 1:\n    pass')
@@ -1462,7 +1462,7 @@ Traceback (most recent call last):
   File "/workspace/onjeon-run/wt/audit3-daemon-static-check-bypasses/tools/tests/test_daemon_static_checks.py", line 142, in test_cli_rejects_planted_violations_without_executing_them
     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 0 != 1 : 
+AssertionError: 0 != 1 :
 
 ======================================================================
 FAIL: test_no_arguments_runs_all_checks (tools.tests.test_daemon_static_checks.StaticCli.test_no_arguments_runs_all_checks)

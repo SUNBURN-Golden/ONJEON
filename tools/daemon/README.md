@@ -23,6 +23,7 @@ python3 -m unittest tools/tests/test_daemon_static_checks.py -v
 | `core/` | 공용 코어. 표준 라이브러리만 쓰고, 바깥 세계는 `core/ports.py`의 어댑터 인터페이스로만 만난다. 모의 분기 문자열이 없다(정적 검사). 실제 실행기(T-OP-09)는 어댑터만 바꿔 같은 코어를 부른다 |
 | `core/rules.py` | `core_contract.reads`로 만든 규칙 뷰. 설명 키(`when` 문장·`note`·`_*`)는 버린다. 읽기 목록 밖의 값은 `OUTSIDE_READS` 네 개뿐이고 모두 명세 공백 G51로 보고한다 |
 | `core/transition_engine.py` | `transitions[]`의 `cond`·`guard`·`side_effects`·`return_code`·`on_cond_fail`, `noop_rules`, 가드 `on_fail` |
+| `core/gate_evaluator.py` | 구조화 술어 평가, `result_scope_valid`의 변경 경로 정규화·허용/금지 범위 검사, PR 본문 필드의 `has_fields` 검사 |
 | `core/effects.py` | 부수 효과 id별 처리. 어떤 id를 어떤 순서·인자로 실행할지는 데이터다 |
 | `core/lease.py` | `issue_lease`(세대를 바꾸는 유일한 곳), 임대 잠금, `lease_guards`, outbox 발송·재발송(sent 표시는 compare-and-set) |
 | `core/fencing.py`, `core/envelope_validator.py` | `accept_envelope`, `fenced_write`, `validate_instruction`, 지시 봉투 작성, 수신 측 검증 |
@@ -45,6 +46,8 @@ python3 -m unittest tools/tests/test_daemon_static_checks.py -v
 
 `result_*` 사건을 `without_envelope`나 `routes`에 등록한 규칙도 시작 시 `SpecGap`으로 거부한다. 결과 보고는 `submit_envelope(task_id, "result", envelope)`를 통해서만 처리하며, 완전한 결과 봉투를 일반 사건의 payload에 넣어도 거부한다. 임대 없는 building 과제의 상태 보존·정상 봉투 수락·같은 봉투의 중복 거부와 규칙 변이를 `HandleEventFencing`에서 검사한다. [Audit 3 보강·검증 증거](../../docs/blueprint/audits/2026-10-28_daemon_handle_event_envelope_bypass.md).
 
+결과 봉투의 범위와 PR 본문은 `accept_envelope.checks_in_order`의 `result_scope`·`pr_body_fields`가 강제한다. 기존 필수 필드·임대·중복·만료 검사 뒤, 비밀값 검사(`preserve_manifest.secret_patterns.scan[result_envelope].after_check = current_lease_rules`)를 먼저 실행한다. 그 뒤 `gate_evaluator.paths_within_scope`가 `touched_paths` 목록의 각 경로를 정규화하고 허용·금지 경로와 정본 승인 예외를 검사한다. 자료형이 잘못된 목록도 R-01로 반송하고 PR 기록을 만들지 않는다. `pr_opened` 결과에는 `pr_body` 사전이 필요하다. 필수 키는 규칙의 `pr_body_required_fields`(`task_id`, `authors`, `target_sha`, `test_log_ref`)이며 값은 공백 아닌 문자열 또는 그러한 문자열의 비어 있지 않은 목록이다. 누락·빈 값·다른 자료형은 R-09 `envelope_rejected_invalid`로 기록하고 상태·임대·inbox_seen을 유지하므로 같은 작성자가 같은 봉투 ID로 보완할 수 있다. 비밀값 패턴도 함께 있으면 R-10이 우선하여 임대를 폐기하며 봉투를 inbox_seen에 넣지 않는다. 옛 임대·만료·중복·필수 필드 오류의 기존 우선순위는 유지한다. after_check가 누락되거나 검사 ID를 유일하게 가리키지 않으면 시작을 거부한다. `building → pr_open`의 `cond`도 범위·본문 검사를 다시 평가한다. 모의 빌더와 실행기 검증용 어댑터는 이 필드 사전을 합성하며, 코어는 실제 Git 호스트의 PR 본문 조회·인증을 하지 않는다. [Audit 3 수정·검증 증거](../../docs/blueprint/audits/2026-10-28_daemon_gate_touched_paths.md).
+
 `fenced_write`(`push_requested`·`pr_update_requested`)도 `inbox_seen`을 검사한다. 필수 식별자 → 임대 일치 → 중복 → 활성·만료 → 데몬 경유 순서이며, 키는 `accept_envelope.idempotency_key_fields`의 기존 signal 종류를 쓴다. 검사 통과 뒤 처리 키·`execute_write` intent·전이 기록을 같은 트랜잭션으로 커밋하고 원격 호출은 그 뒤 트랜잭션 밖에서 실행한다. 발송 시 `store.dispatch_guard()`로 저장소 변경과 같은 배타 잠금을 잡고, 이미 소비한 중복 검사만 빼고 다시 검사한 뒤 원격 호출이 반환할 때까지 잠금을 유지한다. 그 전에 임대가 교체·종료·만료되었으면 R-11로 거부하며 원격 호출은 없다. 잠금은 원격 호출 동안 다른 저장소 변경도 기다리게 하며, 원격 어댑터가 저장소를 중첩 변경할 수는 없다. `PushRemote`는 요청의 `lease_id`와 일치하는 활성 자격만 사용한다. 원격 호출이 정상 반환하면 잠금을 풀고 별도 트랜잭션으로 `execute_write` 효과 기록을 남긴다. 롤백·커밋 실패에서는 원격 쓰기가 없고 같은 요청으로 재시도할 수 있다. 커밋 후 중단·원격 오류·완료 기록 실패에서는 처리 키가 남아 같은 요청을 다시 실행하지 않는다. 원격 성공 여부 대조·미발송 intent의 자동 복구나 exactly-once 전달은 구현하지 않았다(`FencedWriteDedup`). [Audit 3 수정·검증 증거](../../docs/blueprint/audits/2026-10-28_daemon_fenced_write_dedupe.md).
 
 outbox 발송(`resend_outbox`)은 검사 트랜잭션 → 발송(트랜잭션 밖) → 표시 트랜잭션 순서다. 표시는 `core_contract.operations.resend_outbox.mark_sent`의 compare-and-set이다. 표시 트랜잭션에서 `checks[compare_and_set]`(`pending`)을 다시 평가해 참일 때만 `set`(status `sent`, sent_at `clock.now`)을 쓴다. 발송 중 만료·취소 뒤 재시작·손상으로 void된 행이나 다른 발송이 먼저 sent로 표시한 행은 그대로 두고, 진단 `outbox_not_pending_at_mark`와 결과 `not_marked`만 남긴다. 이미 나간 봉투의 임대는 끝났으므로 그 봉투로 온 보고는 R-11로 막힌다. 모의 발송기의 `during_send`(한 번만 실행되는 훅)가 발송과 표시 사이의 경쟁을 만든다. `mark_sent`가 없는 검사 id를 가리키거나, `set`에 status가 없거나, `on_conflict.writes`가 비어 있지 않으면 코어가 시작하지 않는다(`SendMarkCompareAndSet`, M41). [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_envelope_sent_after_void.md).
@@ -62,7 +65,7 @@ PR 이후 전이(전이표 43~85행)는 대부분 `cond`가 없다. `blocked→q
 - 필수 시험 ID 33개 전부와 M1~M44(M10a·M10b·M18a·M18b 포함)를 실행한다. 검사 수·실패 수는 `reports/dry_run.log`의 요약을 본다.
 - G29~G50: 코어가 새 필드를 읽는다(`spec_gaps.py`의 `core_reads`). G47만 일부다. 기본값이 든 `envelopes.instruction.limits`를 `core_contract.reads`에 넣는 일은 `daemon_rules.json` 변경이라 이 과제의 허용 경로 밖이다. 코어는 과제 정의의 limits를 쓴다.
 - 문장에서 꺼낸 토큰은 0종이다(`Rules.token_log`).
-- 새 명세 공백 G51~G57은 열려 있다. 설계 담당이 정할 일이다.
+- 새 명세 공백 G51~G57 중 G54는 범위·본문 검사와 실패 처리를 구조화 술어로 연결해 일부 해소했다. 경로 패턴의 해석은 여전히 `gate_evaluator`에 명시돼 있다. 나머지 공백은 열려 있다.
 
 ## 정적 검사 실행과 범위
 
@@ -74,7 +77,7 @@ PR 이후 전이(전이표 43~85행)는 대부분 `cond`가 없다. `blocked→q
 
 ## 증거 기록(reports/)
 
-`reports/dry_run.log`(보고서)와 `reports/unittest.log`(시험 실행)의 머리말은 `generated from parent commit <sha> + tree hash of tools/daemon sources`로 시작한다. 로그는 커밋 전에 만들므로 로그 자신이 들어갈 커밋의 SHA를 적을 수 없다. 그래서 부모 커밋(이 변경을 얹은 바로 앞 커밋)과, 그 위에 얹은 소스의 내용 해시를 적는다. PR head는 부모 커밋에 이 변경 커밋 하나를 더한 것과 정확히 같다. 해시는 `tools/daemon/`(`reports/`·`runner_verify/`·`__pycache__` 제외)과 `tools/tests/test_daemon_dry_run.py`의 파일 내용으로 만들고, 같은 소스면 같은 값이 나온다. 저장소 루트에서 다시 계산한다.
+`reports/dry_run.log`(보고서)와 `reports/unittest.log`(시험 실행)의 머리말은 `generated from parent commit <sha> + tree hash of tools/daemon sources`로 시작한다. 로그는 커밋 전에 만들므로 로그 자신이 들어갈 커밋의 SHA를 적을 수 없다. 그래서 부모 커밋(이 변경을 얹은 바로 앞 커밋)과, 그 위에 얹은 소스의 내용 해시를 적는다. PR head는 부모 커밋에 이 변경 커밋 하나를 더한 것과 정확히 같다. main을 병합하는 커밋에 들어갈 로그는 둘째 부모를 `merge input main commit <sha>` 둘째 줄로 적는다. 해시는 `tools/daemon/`(`reports/`·`runner_verify/`·`__pycache__` 제외)과 `tools/tests/test_daemon_dry_run.py`의 파일 내용으로 만들고, 같은 소스면 같은 값이 나온다. 저장소 루트에서 다시 계산한다.
 
 ```sh
 { find tools/daemon -path tools/daemon/reports -prune -o -path tools/daemon/runner_verify -prune -o -path '*/__pycache__' -prune -o -type f -print; \

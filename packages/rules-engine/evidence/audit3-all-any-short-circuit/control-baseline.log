@@ -1,0 +1,38 @@
+Command: cargo test --offline --manifest-path /workspace/onjeon-run/wt/audit3-engine-all-any-short-circuit/packages/rules-engine/evidence/audit3-all-any-short-circuit/negative-control-hyw3abjr/Cargo.toml --test all_any_errors
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling cpufeatures v0.2.17
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling generic-array v0.14.7
+   Compiling cfg-if v1.0.5
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-all-any-short-circuit/packages/rules-engine/evidence/audit3-all-any-short-circuit/negative-control-hyw3abjr)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.52s
+     Running tests/all_any_errors.rs (packages/rules-engine/evidence/audit3-all-any-short-circuit/target/debug/deps/all_any_errors-4918e4f62d07d9d9)
+
+running 7 tests
+test absorbed_errors_have_deterministic_trace_entries_without_partial_children ... ok
+test unknown_children_keep_their_blockers_without_defaulting_to_a_decision ... ok
+test all_false_absorbs_runtime_errors_in_both_versions ... ok
+test any_true_absorbs_runtime_errors_in_both_versions ... ok
+test decisive_result_wins_over_errors_and_unknowns_in_every_child_order ... ok
+test nested_all_any_and_if_keep_decisions_and_relevant_errors ... ok
+test errors_are_preserved_without_a_decisive_child ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+Exit: 0

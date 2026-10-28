@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/readme_test_table.rs (/workspace/onjeon-run/shared-target/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 4 tests
+test readme_does_not_call_the_content_hash_normalized ... ok
+test audited_rows_are_present ... ok
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

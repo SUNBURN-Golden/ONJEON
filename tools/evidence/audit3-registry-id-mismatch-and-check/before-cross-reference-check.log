@@ -1,0 +1,4 @@
+registry cross-reference errors:
+  sources.csv:49: source_id 'homepage_nonlife-mitsuisumitomo' references unknown insurer_id 'nonlife-mitsuisumitomo'
+  access_log.csv:77: purpose 'homepage:nonlife-mitsuisumitomo' references unknown insurer_id 'nonlife-mitsuisumitomo'
+  access_log.csv:84: purpose 'homepage:other-epost' references unknown insurer_id 'other-epost'

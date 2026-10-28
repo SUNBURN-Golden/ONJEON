@@ -135,6 +135,8 @@ def normalize(path, has_disclosure=True):
 def normalize_access_log(path):
     with path.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
+    if not rows:
+        return 0
     for r in rows:
         if "host_access" not in r:
             r["host_access"] = host_code(r.get("result", ""))

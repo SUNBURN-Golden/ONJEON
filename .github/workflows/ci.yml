@@ -22,6 +22,8 @@ jobs:
           python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
       - name: Vocabulary (canonical states, generated doc, deprecated names, registry CSVs)
         run: python3 tools/vocab_check.py
+      - name: Registry cross-references (entity IDs, source IDs, access purposes)
+        run: python3 -I tools/registry_check.py
       - name: Validation set internal consistency (extracts and metadata; originals are checked by the manual `sources` workflow)
         run: python3 tools/validation_check.py
       - name: Validation checker self-test (each known tampering must fail for its intended reason)

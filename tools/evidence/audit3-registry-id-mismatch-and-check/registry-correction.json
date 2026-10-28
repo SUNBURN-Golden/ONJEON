@@ -1,0 +1,71 @@
+{
+  "baseline": "worktree HEAD at task start",
+  "files": {
+    "access_log.csv": {
+      "rows": 98,
+      "changes": [
+        {
+          "row": 77,
+          "field": "purpose",
+          "before": "homepage:nonlife-mitsuisumitomo",
+          "after": "homepage:nonlife-mitsuisumitomo-kr"
+        },
+        {
+          "row": 84,
+          "field": "purpose",
+          "before": "homepage:other-epost",
+          "after": "homepage:public-epost"
+        }
+      ],
+      "byte_identical": false,
+      "before_sha256": "a18a9abc815e43ff4a989972921099d06144e08759c32decefe963206dda9ce9",
+      "after_sha256": "02b43143c8dd5954704883e376d6bc59dda50806c4d298acdb042115a9c718c8"
+    },
+    "cooperatives_and_others.csv": {
+      "rows": 16,
+      "changes": [],
+      "byte_identical": true,
+      "before_sha256": "7eea8af291d3a72876fd3f14663ecde5ed1dbbbe1b366ef780271a523bcd30b0",
+      "after_sha256": "7eea8af291d3a72876fd3f14663ecde5ed1dbbbe1b366ef780271a523bcd30b0"
+    },
+    "excluded_or_historical.csv": {
+      "rows": 49,
+      "changes": [],
+      "byte_identical": true,
+      "before_sha256": "d83f5b7a45434103e619a17f134cb19eff939031e2031ae070e79ba07615fc66",
+      "after_sha256": "d83f5b7a45434103e619a17f134cb19eff939031e2031ae070e79ba07615fc66"
+    },
+    "insurers.csv": {
+      "rows": 53,
+      "changes": [],
+      "byte_identical": true,
+      "before_sha256": "b128ed79281815129c62f989f9f7fd3fcd7b63ef083642564fd573d73b0eeb22",
+      "after_sha256": "b128ed79281815129c62f989f9f7fd3fcd7b63ef083642564fd573d73b0eeb22"
+    },
+    "sources.csv": {
+      "rows": 66,
+      "changes": [
+        {
+          "row": 49,
+          "field": "source_id",
+          "before": "homepage_nonlife-mitsuisumitomo",
+          "after": "homepage_nonlife-mitsuisumitomo-kr"
+        }
+      ],
+      "byte_identical": false,
+      "before_sha256": "313330d1b973a59218d152b1d27c84cf7fbe7b505c88ccbe98fd98c959836c58",
+      "after_sha256": "ea567eb698e6a868e2e692abe4dd4f75e9854c120f7fc22027b5d21f9e2daec5"
+    }
+  },
+  "normalization_idempotent": {
+    "access_log.csv": true,
+    "cooperatives_and_others.csv": true,
+    "excluded_or_historical.csv": true,
+    "insurers.csv": true
+  },
+  "excluded_evidence": {
+    "two_or_more_sources": 2,
+    "one_source": 47
+  },
+  "baseline_commit": "b962d6471f4ca73a3e3b0a46832651ba3aee0664"
+}

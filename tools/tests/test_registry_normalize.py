@@ -188,6 +188,14 @@ class RegistryCsv(unittest.TestCase):
         self.assertEqual(rn.normalize_access_log(self.path), 2)
         self.assertEqual(self.path.read_bytes(), first)
 
+    def test_empty_access_log_is_unchanged_and_idempotent(self):
+        for content in (b"", b"url,result\r\n", b"url,result,host_access\r\n"):
+            with self.subTest(content=content):
+                self.path.write_bytes(content)
+                for _ in range(2):
+                    self.assertEqual(rn.normalize_access_log(self.path), 0)
+                    self.assertEqual(self.path.read_bytes(), content)
+
     def test_access_log_preserves_existing_code_and_handles_absent_result(self):
         self.write([dict(url="a", result="unmapped historical detail", host_access="timeout")])
         self.assertEqual(rn.normalize_access_log(self.path), 1)

@@ -1,0 +1,16 @@
+Current worktree: /workspace/onjeon-run/wt/audit3-engine-parse-date-strict
+Inherited CARGO_TARGET_DIR: /workspace/onjeon-run/shared-target
+
+inherited shared cache: /workspace/onjeon-run/shared-target/debug/deps/fixture_supplements-5c73c7add3657f0c
+Compiled manifest directory: /workspace/onjeon-run/wt/_review_2305007_97522277/packages/rules-engine
+  exists=False: /workspace/onjeon-run/wt/_review_2305007_97522277/packages/rules-engine/tests/fixtures/cases
+  exists=False: /workspace/onjeon-run/wt/_review_2305007_97522277/packages/rules-engine/tests/fixtures/cases/real
+  exists=False: /workspace/onjeon-run/wt/_review_2305007_97522277/packages/rules-engine/../fixtures/rules/real/kyobo-small-cancer-skin.cases.json
+
+worktree target: /workspace/onjeon-run/wt/audit3-engine-parse-date-strict/target/debug/deps/fixture_supplements-5c73c7add3657f0c
+Compiled manifest directory: /workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/rules-engine
+  exists=True: /workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/rules-engine/tests/fixtures/cases
+  exists=True: /workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/rules-engine/tests/fixtures/cases/real
+  exists=True: /workspace/onjeon-run/wt/audit3-engine-parse-date-strict/packages/rules-engine/../fixtures/rules/real/kyobo-small-cancer-skin.cases.json
+
+Resolution: use CARGO_TARGET_DIR="$PWD/target" for this worktree; preserve shared cache and fixture assertions.

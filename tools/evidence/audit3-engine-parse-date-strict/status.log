@@ -1,0 +1,4 @@
+Command: python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (36 ADR/DEC files)
+
+Exit: 0

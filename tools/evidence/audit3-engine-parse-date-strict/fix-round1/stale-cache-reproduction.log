@@ -1,0 +1,32 @@
+Read-only replay of inherited cached binary: /workspace/onjeon-run/shared-target/debug/deps/fixture_supplements-5c73c7add3657f0c
+
+running 4 tests
+
+thread 'every_supplement_extends_an_existing_table_without_changing_shared_cases' (2645103) panicked at packages/rules-engine/tests/fixture_supplements.rs:12:45:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'supplemental_cases_inherit_base_inputs_and_apply_their_overrides' (2645105) panicked at packages/rules-engine/tests/common/mod.rs:107:57:
+readable: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+test supplemental_cases_inherit_base_inputs_and_apply_their_overrides ... FAILED
+test every_supplement_extends_an_existing_table_without_changing_shared_cases ... FAILED
+
+thread 'duplicate_ids_within_a_supplement_are_rejected' (2645102) panicked at packages/rules-engine/tests/common/mod.rs:64:9:
+example.cases.json: duplicate case ID repeated
+
+thread 'supplement_cannot_shadow_a_shared_case' (2645104) panicked at packages/rules-engine/tests/common/mod.rs:64:9:
+example.cases.json: duplicate case ID existing
+test duplicate_ids_within_a_supplement_are_rejected - should panic ... ok
+test supplement_cannot_shadow_a_shared_case - should panic ... ok
+
+failures:
+
+failures:
+    every_supplement_extends_an_existing_table_without_changing_shared_cases
+    supplemental_cases_inherit_base_inputs_and_apply_their_overrides
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+Exit: 101
+PASS: reproduced both reported failures with the stale binary; local rebuilt tests pass in focused.log.

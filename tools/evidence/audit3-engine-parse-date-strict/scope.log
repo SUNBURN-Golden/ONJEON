@@ -1,0 +1,6 @@
+PASS: all changed paths are allowed; count: 22
+PASS: protected files unchanged
+PASS: fixtures and golden/hash pins unchanged
+PASS: date parser runtime unchanged from existing strict implementation
+PASS: local links in changed Markdown resolve; count: 137
+PASS: tracked diff and other new files have no trailing whitespace

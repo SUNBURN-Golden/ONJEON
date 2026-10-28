@@ -1,0 +1,22 @@
+Command: python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v
+test_cli_bad_input_is_error (test_product_purpose.ProductPurposeTests.test_cli_bad_input_is_error) ... ok
+test_cli_passes_from_other_cwd_and_reports_findings (test_product_purpose.ProductPurposeTests.test_cli_passes_from_other_cwd_and_reports_findings) ... ok
+test_cli_root_selects_bundle (test_product_purpose.ProductPurposeTests.test_cli_root_selects_bundle) ... ok
+test_each_of_nine_missing_ids_fails_for_g12 (test_product_purpose.ProductPurposeTests.test_each_of_nine_missing_ids_fails_for_g12) ... ok
+test_every_row_rejects_unknown_task_with_row_and_line (test_product_purpose.ProductPurposeTests.test_every_row_rejects_unknown_task_with_row_and_line) ... ok
+test_id_in_tests_or_done_criteria_is_not_registration (test_product_purpose.ProductPurposeTests.test_id_in_tests_or_done_criteria_is_not_registration) ... ok
+test_missing_duplicate_unexpected_or_unparseable_rows_fail (test_product_purpose.ProductPurposeTests.test_missing_duplicate_unexpected_or_unparseable_rows_fail) ... ok
+test_real_repo_product_purpose_links (test_product_purpose.ProductPurposeTests.test_real_repo_product_purpose_links) ... ok
+test_registered_ids_and_shared_row_tasks_pass (test_product_purpose.ProductPurposeTests.test_registered_ids_and_shared_row_tasks_pass) ... ok
+test_removing_referenced_task_fails_all_rows (test_product_purpose.ProductPurposeTests.test_removing_referenced_task_fails_all_rows) ... ok
+test_repeated_headers_and_inline_code_task_ids_pass (test_product_purpose.ProductPurposeTests.test_repeated_headers_and_inline_code_task_ids_pass) ... ok
+test_required_id_on_any_task_passes (test_product_purpose.ProductPurposeTests.test_required_id_on_any_task_passes) ... ok
+test_required_ids_match_all_nine_in_section_six (test_product_purpose.ProductPurposeTests.test_required_ids_match_all_nine_in_section_six) ... ok
+test_selftest (test_product_purpose.ProductPurposeTests.test_selftest) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.410s
+
+OK
+
+Exit: 0

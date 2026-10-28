@@ -1,0 +1,9 @@
+    Checking onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/packages/schemas)
+    Checking onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/packages/rules-engine)
+    Checking onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/packages/ontology)
+    Checking onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/services/collect)
+    Checking onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/services/criteria)
+    Checking onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/services/ai-gateway)
+    Checking onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/packages/api-types)
+    Checking onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/packages/twin-runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.43s

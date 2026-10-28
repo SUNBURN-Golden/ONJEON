@@ -8,4 +8,3 @@ test readme_test_table_matches_integration_test_files ... ok
 test checker_catches_a_dropped_row_and_a_stale_row ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-

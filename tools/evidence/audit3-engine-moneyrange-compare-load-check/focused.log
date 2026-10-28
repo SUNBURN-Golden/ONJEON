@@ -1,0 +1,18 @@
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit3-engine-moneyrange-compare-load-check/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running tests/range_comparisons.rs (/workspace/onjeon-run/shared-target/debug/deps/range_comparisons-52c9a26577a11945)
+
+running 10 tests
+test pro_rata_ratio_operands_still_require_exact_money ... ok
+test mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns ... ok
+test audit_p201_is_rejected_before_input_dependent_failure ... ok
+test v02_rounding_operators_introduce_ranges ... ok
+test static_range_checks_do_not_depend_on_constant_values_or_reachable_branches ... ok
+test v02_money_operators_preserve_input_ranges_even_with_explicit_rounding ... ok
+test exact_money_threshold_comparisons_preserve_order_and_missing_inputs ... ok
+test nested_and_unreachable_comparisons_fail_at_both_load_boundaries ... ok
+test ranges_propagate_through_every_v01_money_operator_and_if_branch ... ok
+test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

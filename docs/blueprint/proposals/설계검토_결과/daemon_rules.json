@@ -1103,7 +1103,7 @@
       "from": "building",
       "to": "building",
       "event": "result_failed_tests",
-      "when": "result_envelope.status == failed_tests and consecutive_failed_tests < 3 → 같은 작성자 재임대(issue_lease, 새 토큰, lease_guards). 3회면 returned(R-06)",
+      "when": "result_envelope.status == failed_tests and consecutive_failed_tests < 3 → 같은 작성자 재임대(issue_lease, 새 토큰, lease_guards). 3회면 returned(R-06). 재임대 가드가 wait이면 on_cond_fail로 unmapped_condition → returned(R-03), 현재 임대 폐기. 지시 봉투 검증 실패의 envelope_invalid(R-13)가 우선",
       "by": "daemon",
       "guard": "lease_guards",
       "side_effects": [
@@ -1138,7 +1138,14 @@
           "op": "all_pass",
           "value": true
         }
-      ]
+      ],
+      "on_cond_fail": {
+        "emit": "unmapped_condition",
+        "args": {
+          "original_event": "result_failed_tests",
+          "reason": "retry_lease_guard_failed"
+        }
+      }
     },
     {
       "from": "building",
@@ -3583,7 +3590,7 @@
     },
     {
       "code": "R-03",
-      "when": "전환 신호가 허용·금지 어느 목록에도 없음 / 전이표에 없는 조건",
+      "when": "전환 신호가 허용·금지 어느 목록에도 없음 / 전이표에 없는 조건 / failed_tests 재임대 가드 실패(on_cond_fail)",
       "to": "user"
     },
     {
@@ -3654,7 +3661,7 @@
     ],
     "log_redaction": "봉투·로그에 비밀값 패턴 검출 시 R-10"
   },
-  "_cond_note": "transitions[].cond는 모의 코어가 읽는 구조화 조건이다. 술어 {field, op, value}: op ∈ {==, !=, <, <=, >, >=, in, not_in, all_pass, any, all}. field는 core_contract.store 경로·clock.now·event/envelope/request/report/signal 페이로드 경로·count(...)·coalesce(a, b) 식, value는 상수 또는 다른 경로/식(숫자 필드는 숫자). side_effects는 [{id, args}](core_contract.expected_outputs.side_effect_ids). order=before_cond 인 부수 효과는 cond 평가 전에 적용한다(attempt_counting). return_code는 반송 전이의 R 코드(G05). on_cond_fail은 cond가 거짓일 때 대신 일으킬 사건(G18). cond가 없는 전이는 사건 발생만으로 from/to/event대로 옮긴다. 자연어 when은 코어가 읽지 않는다. 결정 게이트 중 start는 blocked→queued(prereqs_satisfied)의 cond(task.decision_gates.start subset_of task_state.decisions_recorded)로 코어가 강제한다(audit1-start-gates-enforcement). start가 목록이 아니면 subset_of가 거짓이라 blocked에 남는다. 선행 과제도 같은 행의 cond prereq_tasks_in(post_merge_states)로 코어가 강제하고, 병합 관문(decision_gates.merge)은 merge_wait로 들어가는 행(review_approved·audit_pending → merge_wait, merge_wait 사유 갱신)의 cond(task.decision_gates.merge subset_of / not_subset_of task_state.decisions_recorded)로 강제한다(audit2-spec-check-reads-prose-when). spec_check.py는 이 cond·guard·side_effects만 보고 when 문장은 보지 않는다. 예외는 하나뿐이다: noop_rules[].when은 값이 {field, op, value} 술어 목록이고 코어가 읽는다(G33, core_contract.condition_keys). 값이 문자열인 when은 설명이다. G49: op에 subset_of·is_bool·is_list가 더해진다(core_contract.predicate_ops).",
+  "_cond_note": "transitions[].cond는 모의 코어가 읽는 구조화 조건이다. 술어 {field, op, value}: op ∈ {==, !=, <, <=, >, >=, in, not_in, all_pass, any, all}. field는 core_contract.store 경로·clock.now·event/envelope/request/report/signal 페이로드 경로·count(...)·coalesce(a, b) 식, value는 상수 또는 다른 경로/식(숫자 필드는 숫자). side_effects는 [{id, args}](core_contract.expected_outputs.side_effect_ids). order=before_cond 인 부수 효과는 cond 평가 전에 적용한다(attempt_counting). return_code는 반송 전이의 R 코드(G05). on_cond_fail은 다른 후보 행도 적용되지 않을 때 대신 일으킬 사건(G18). 가드 자체의 emit_event가 우선하고, 없으면 행의 on_cond_fail, 그것도 없으면 wait 롤백이다(Audit 3). cond가 없는 전이는 사건 발생만으로 from/to/event대로 옮긴다. 자연어 when은 코어가 읽지 않는다. 결정 게이트 중 start는 blocked→queued(prereqs_satisfied)의 cond(task.decision_gates.start subset_of task_state.decisions_recorded)로 코어가 강제한다(audit1-start-gates-enforcement). start가 목록이 아니면 subset_of가 거짓이라 blocked에 남는다. 선행 과제도 같은 행의 cond prereq_tasks_in(post_merge_states)로 코어가 강제하고, 병합 관문(decision_gates.merge)은 merge_wait로 들어가는 행(review_approved·audit_pending → merge_wait, merge_wait 사유 갱신)의 cond(task.decision_gates.merge subset_of / not_subset_of task_state.decisions_recorded)로 강제한다(audit2-spec-check-reads-prose-when). spec_check.py는 이 cond·guard·side_effects만 보고 when 문장은 보지 않는다. 예외는 하나뿐이다: noop_rules[].when은 값이 {field, op, value} 술어 목록이고 코어가 읽는다(G33, core_contract.condition_keys). 값이 문자열인 when은 설명이다. G49: op에 subset_of·is_bool·is_list가 더해진다(core_contract.predicate_ops).",
   "state_integrity": {
     "_note": "U02. 정상 임대 만료와 상태 손상을 구분한다. 재시작 복구와 outbox 재발송은 이 분류를 먼저 거친다",
     "normal_expiry": {
@@ -4172,7 +4179,7 @@
           ],
           "diagnostic": "guard_wait_rolled_back",
           "result": "guard_wait",
-          "_rule": "발급 행(guard lease_guards 또는 cond lease_guards all_pass)의 가드가 거짓이고 그 on_fail이 사건을 하나도 내지 않으면(전부 wait) 그 사건의 트랜잭션 전체를 버린다. before_cond 카운터(consecutive_failed_tests), inbox_seen 표시, 가드 평가가 만든 다음 세대 사용량 슬롯, 결과의 사용량 기록이 모두 남지 않는다. keep_diagnostics의 진단만 새 트랜잭션에 다시 쓰고 diagnostic 하나를 더한다. 결과는 accepted 거짓·reason result다. 봉투는 보지 않은 것으로 남으므로 같은 봉투의 재전달은 가드가 풀린 뒤 처음 받는 것처럼 처리된다(audit2-daemon-guard-fail-partial-commit). emit_event(envelope_invalid)가 난 거절은 전이이므로 커밋한다"
+          "_rule": "발급 행(guard lease_guards 또는 cond lease_guards all_pass)의 가드가 거짓이고 그 on_fail이 사건을 하나도 내지 않으며(전부 wait) 행에 on_cond_fail이 없으면 그 사건의 트랜잭션 전체를 버린다. 시험 실패 재임대는 행의 on_cond_fail로 즉시 returned(R-03)이므로 이 대기 롤백에 해당하지 않는다(Audit 3). before_cond 카운터(consecutive_failed_tests), inbox_seen 표시, 가드 평가가 만든 다음 세대 사용량 슬롯, 결과의 사용량 기록이 모두 남지 않는다. keep_diagnostics의 진단만 새 트랜잭션에 다시 쓰고 diagnostic 하나를 더한다. 결과는 accepted 거짓·reason result다. 봉투는 보지 않은 것으로 남으므로 같은 봉투의 재전달은 가드가 풀린 뒤 처음 받는 것처럼 처리된다(audit2-daemon-guard-fail-partial-commit). emit_event(envelope_invalid)가 난 거절은 전이이므로 커밋한다"
         }
       },
       "resend_outbox": {

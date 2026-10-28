@@ -1,0 +1,295 @@
+# generated from parent commit e1c5f14c0de0e428e46fcb975e412f909d9557ed + tree hash of tools/daemon sources sha256:772ae9608f2b38fb6d1af96206b7a04644878f6d837d0bf46a820c84dce9dbdd
+test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
+test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
+test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
+test_always_revoke_list_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_always_revoke_list_is_read_from_data) ... ok
+test_attempt_comparison_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_attempt_comparison_is_read_from_data) ... ok
+test_baseline_is_clean (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_baseline_is_clean) ... ok
+test_corruption_detect_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_corruption_detect_is_read_from_data) ... ok
+test_corruption_effects_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_corruption_effects_are_read_from_data) ... ok
+test_expiry_condition_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_expiry_condition_is_read_from_data) ... ok
+test_handoff_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_handoff_order_is_read_from_data) ... ok
+test_heartbeat_interval_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_heartbeat_interval_is_read_from_data) ... ok
+test_issue_lease_atomic_effects_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_issue_lease_atomic_effects_are_read_from_data) ... ok
+test_issue_reason_of_a_row_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_issue_reason_of_a_row_is_read_from_data) ... ok
+test_lease_guards_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_lease_guards_are_read_from_data) ... ok
+test_manifest_excludes_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_manifest_excludes_are_read_from_data) ... ok
+test_max_attempts_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_max_attempts_are_read_from_data) ... ok
+test_max_wall_s_cond_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_max_wall_s_cond_is_read_from_data) ... ok
+test_no_cost_cap_in_rules_or_core_and_a_cap_would_be_noticed (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_no_cost_cap_in_rules_or_core_and_a_cap_would_be_noticed) ... ok
+test_noop_names_must_be_listed (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_noop_names_must_be_listed) ... ok
+test_noop_rules_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_noop_rules_are_read_from_data) ... ok
+test_on_lease_end_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_on_lease_end_is_read_from_data) ... ok
+test_parallel_limit_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_parallel_limit_is_read_from_data) ... ok
+test_resend_checks_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_resend_checks_are_read_from_data) ... ok
+test_resend_on_fail_effects_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_resend_on_fail_effects_are_read_from_data) ... ok
+test_restart_resume_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_restart_resume_is_read_from_data) ... ok
+test_retry_limit_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_retry_limit_is_read_from_data) ... ok
+test_return_code_of_a_row_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_return_code_of_a_row_is_read_from_data) ... ok
+test_secret_patterns_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_secret_patterns_are_read_from_data) ... ok
+test_the_read_list_is_what_the_core_reads (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_the_read_list_is_what_the_core_reads) ... ok
+test_transition_target_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_transition_target_is_read_from_data) ... ok
+test_usage_fields_to_record_are_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_usage_fields_to_record_are_read_from_data) ... ok
+test_usage_is_recorded_whatever_the_amount (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_usage_is_recorded_whatever_the_amount) ... ok
+test_all_scenarios_exit_zero_and_print_expected_and_actual (tools.tests.test_daemon_dry_run.Cli.test_all_scenarios_exit_zero_and_print_expected_and_actual) ... ok
+test_evidence_logs_name_the_parent_commit_and_source_hash (tools.tests.test_daemon_dry_run.Cli.test_evidence_logs_name_the_parent_commit_and_source_hash)
+The logs are made before the commit that holds them, so they name the parent commit and a content hash of ... ok
+test_exit_code_is_one_when_one_check_differs (tools.tests.test_daemon_dry_run.Cli.test_exit_code_is_one_when_one_check_differs) ... ok
+test_pass_rows_print_the_full_transition_columns (tools.tests.test_daemon_dry_run.Cli.test_pass_rows_print_the_full_transition_columns)
+The report is what the final audit (T-OP-08) reads: no column is shortened, PASS rows included. ... ok
+test_report_json (tools.tests.test_daemon_dry_run.Cli.test_report_json) ... ok
+test_single_scenario_by_number_and_by_test_id (tools.tests.test_daemon_dry_run.Cli.test_single_scenario_by_number_and_by_test_id) ... ok
+test_unknown_scenario_is_an_error (tools.tests.test_daemon_dry_run.Cli.test_unknown_scenario_is_an_error) ... ok
+test_dry_run_reports_all_required_ids_run (tools.tests.test_daemon_dry_run.Coverage.test_dry_run_reports_all_required_ids_run) ... ok
+test_every_m_number_of_05_runs (tools.tests.test_daemon_dry_run.Coverage.test_every_m_number_of_05_runs) ... ok
+test_every_prose_test_line_has_a_passing_scenario (tools.tests.test_daemon_dry_run.Coverage.test_every_prose_test_line_has_a_passing_scenario)
+Each '시험 <id>(Mxx): ...' line of tasks.json is a description, not a command: it maps to the scenario ... ok
+test_every_scenario_prints_expected_and_actual (tools.tests.test_daemon_dry_run.Coverage.test_every_scenario_prints_expected_and_actual) ... ok
+test_g29_to_g50_are_read_by_the_core (tools.tests.test_daemon_dry_run.Coverage.test_g29_to_g50_are_read_by_the_core)
+spec_gaps: G29-G50 resolved and read by the core, except G47 (its read-list entry is in daemon_rules.json, ... ok
+test_gaps_are_listed_with_field_status_and_need (tools.tests.test_daemon_dry_run.Coverage.test_gaps_are_listed_with_field_status_and_need) ... ok
+test_outside_reads_are_reported_gaps (tools.tests.test_daemon_dry_run.Coverage.test_outside_reads_are_reported_gaps) ... ok
+test_test_ids_are_the_ones_in_tasks_json (tools.tests.test_daemon_dry_run.Coverage.test_test_ids_are_the_ones_in_tasks_json) ... ok
+test_coverage_names_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_coverage_names_each_direction) ... ok
+test_dropping_any_one_required_scenario_is_caught (tools.tests.test_daemon_dry_run.CoverageBothWays.test_dropping_any_one_required_scenario_is_caught) ... ok
+test_report_json_lists_both_directions (tools.tests.test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions) ... ok
+test_require_all_fails_on_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction) ... ok
+test_docs_pr_completes_without_count (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_docs_pr_completes_without_count) ... ok
+test_implementation_pr_is_counted (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_implementation_pr_is_counted) ... ok
+test_no_caller_names_the_destination (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_no_caller_names_the_destination) ... ok
+test_removing_the_cond_reopens_the_finding (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_removing_the_cond_reopens_the_finding)
+Without the cond the first row wins: the docs-only PR goes to audit_queued and is counted. ... ok
+test_rows_sharing_from_and_event_are_told_apart_by_cond (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_rows_sharing_from_and_event_are_told_apart_by_cond) ... ok
+test_the_core_picks_the_row_from_the_event (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_the_core_picks_the_row_from_the_event) ... ok
+test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) ... ok
+test_fallback_comes_from_rule_data (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_fallback_comes_from_rule_data) ... ok
+test_guard_field_also_uses_the_row_fallback (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_field_also_uses_the_row_fallback) ... ok
+test_guard_specific_invalid_instruction_keeps_R13_priority (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_specific_invalid_instruction_keeps_R13_priority) ... ok
+test_passing_guards_reissue_once (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_passing_guards_reissue_once) ... ok
+test_third_failure_keeps_R06_even_if_guards_fail (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_third_failure_keeps_R06_even_if_guards_fail) ... ok
+test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) ... ok
+test_completion_record_failure_does_not_unclaim_successful_remote_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_completion_record_failure_does_not_unclaim_successful_remote_write) ... ok
+test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) ... ok
+test_crash_after_commit_before_dispatch_keeps_intent_without_automatic_resend (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_crash_after_commit_before_dispatch_keeps_intent_without_automatic_resend) ... ok
+test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_rejects_lease_replaced_ended_or_expired_after_commit) ... ok
+test_dispatch_serializes_lease_replacement_through_remote_execution (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_dispatch_serializes_lease_replacement_through_remote_execution) ... ok
+test_distinct_ids_are_independent_writes (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_distinct_ids_are_independent_writes) ... ok
+test_effect_failure_rolls_back_without_remote_write_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_effect_failure_rolls_back_without_remote_write_and_allows_retry) ... ok
+test_file_dispatch_guard_blocks_another_process_without_a_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_file_dispatch_guard_blocks_another_process_without_a_transaction) ... ok
+test_file_store_releases_transaction_before_dispatch_and_persists_dedup (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_file_store_releases_transaction_before_dispatch_and_persists_dedup) ... ok
+test_late_precedes_duplicate_but_duplicate_precedes_expiry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_late_precedes_duplicate_but_duplicate_precedes_expiry) ... ok
+test_missing_identity_is_rejected_without_marking_seen (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_missing_identity_is_rejected_without_marking_seen) ... ok
+test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_push_adapter_requires_the_requests_lease_credential) ... ok
+test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) ... ok
+test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) ... ok
+test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) ... ok
+test_g37_unmapped_condition_ends_an_active_lease (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g37_unmapped_condition_ends_an_active_lease) ... ok
+test_g38_secret_during_handoff (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g38_secret_during_handoff) ... ok
+test_g39_index_lock_owner_alive (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g39_index_lock_owner_alive) ... ok
+test_g40_redelivered_result_is_duplicate_and_unseen_on_ended_lease_is_late (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g40_redelivered_result_is_duplicate_and_unseen_on_ended_lease_is_late) ... ok
+test_g42_outbox_lease_id_mismatch_is_caught (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g42_outbox_lease_id_mismatch_is_caught) ... ok
+test_g46_rejected_results_change_no_usage (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g46_rejected_results_change_no_usage) ... ok
+test_g48_invalid_instruction_returns_from_every_issuing_state (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g48_invalid_instruction_returns_from_every_issuing_state) ... ok
+test_g49_validator_reads_the_received_value (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g49_validator_reads_the_received_value) ... ok
+test_g50_owner_stop (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g50_owner_stop) ... ok
+test_journal_never_holds_matched_secret_text (tools.tests.test_daemon_dry_run.FollowupBehavior.test_journal_never_holds_matched_secret_text) ... ok
+test_redaction_looks_inside_tuples (tools.tests.test_daemon_dry_run.FollowupBehavior.test_redaction_looks_inside_tuples) ... ok
+test_mock_tasks_are_marked_as_fixture (tools.tests.test_daemon_dry_run.FollowupRound8.test_mock_tasks_are_marked_as_fixture) ... ok
+test_readme_does_not_claim_mock_tasks_has_no_numbers (tools.tests.test_daemon_dry_run.FollowupRound8.test_readme_does_not_claim_mock_tasks_has_no_numbers) ... ok
+test_restart_with_unreadable_phase_counts_the_restart_once (tools.tests.test_daemon_dry_run.FollowupRound8.test_restart_with_unreadable_phase_counts_the_restart_once) ... ok
+test_tick_settles_secret_hits_after_a_normal_expiry (tools.tests.test_daemon_dry_run.FollowupRound8.test_tick_settles_secret_hits_after_a_normal_expiry) ... ok
+test_g29_scope_in_the_expressions_and_overlap_of_nested_globs (tools.tests.test_daemon_dry_run.FollowupStructure.test_g29_scope_in_the_expressions_and_overlap_of_nested_globs) ... ok
+test_g29_to_g50_resolved_by_paths_exist_and_07_lists_them (tools.tests.test_daemon_dry_run.FollowupStructure.test_g29_to_g50_resolved_by_paths_exist_and_07_lists_them) ... ok
+test_g30_recovery_rows_are_exclusive_and_write_phases (tools.tests.test_daemon_dry_run.FollowupStructure.test_g30_recovery_rows_are_exclusive_and_write_phases) ... ok
+test_g31_restart_resume_forms (tools.tests.test_daemon_dry_run.FollowupStructure.test_g31_restart_resume_forms) ... ok
+test_g32_g33_read_list_and_condition_keys (tools.tests.test_daemon_dry_run.FollowupStructure.test_g32_g33_read_list_and_condition_keys) ... ok
+test_g34_to_g36_lease_end_and_credentials (tools.tests.test_daemon_dry_run.FollowupStructure.test_g34_to_g36_lease_end_and_credentials) ... ok
+test_g37_leaving_an_active_lease_ends_it (tools.tests.test_daemon_dry_run.FollowupStructure.test_g37_leaving_an_active_lease_ends_it) ... ok
+test_g38_g39_secret_and_index_lock_rows (tools.tests.test_daemon_dry_run.FollowupStructure.test_g38_g39_secret_and_index_lock_rows) ... ok
+test_g40_to_g44_order_enums_detect_events_values (tools.tests.test_daemon_dry_run.FollowupStructure.test_g40_to_g44_order_enums_detect_events_values) ... ok
+test_g45_to_g50 (tools.tests.test_daemon_dry_run.FollowupStructure.test_g45_to_g50) ... ok
+test_a_failed_usage_write_is_not_queued_for_a_result_not_taken (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_failed_usage_write_is_not_queued_for_a_result_not_taken) ... ok
+test_a_queued_lease_request_leaves_no_slot (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_queued_lease_request_leaves_no_slot) ... ok
+test_a_waiting_guard_keeps_nothing_of_the_result (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_a_waiting_guard_keeps_nothing_of_the_result) ... ok
+test_an_invalid_envelope_is_a_transition_and_commits (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_an_invalid_envelope_is_a_transition_and_commits)
+instruction_envelope_valid emits envelope_invalid (G48): the result is taken and the task returns. ... ok
+test_keep_diagnostics_decides_what_stays (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_keep_diagnostics_decides_what_stays) ... ok
+test_on_guard_wait_is_data (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_on_guard_wait_is_data) ... ok
+test_rules_that_break_the_contract_are_refused (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_rules_that_break_the_contract_are_refused) ... ok
+test_the_same_envelope_is_taken_once_the_guard_passes (tools.tests.test_daemon_dry_run.GuardWaitRollsBack.test_the_same_envelope_is_taken_once_the_guard_passes) ... ok
+test_complete_result_payload_still_requires_the_envelope_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_complete_result_payload_still_requires_the_envelope_entry) ... ok
+test_envelope_born_and_core_emitted_events_are_not_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_and_core_emitted_events_are_not_listed) ... ok
+test_envelope_born_events_without_an_envelope_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_envelope_born_events_without_an_envelope_are_rejected) ... ok
+test_lease_fields_in_the_payload_are_not_an_envelope (tools.tests.test_daemon_dry_run.HandleEventFencing.test_lease_fields_in_the_payload_are_not_an_envelope)
+Even with the current lease's id, generation and token, a bare event does not pass accept_envelope. ... ok
+test_result_events_cannot_be_enabled_on_the_bare_entry (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_cannot_be_enabled_on_the_bare_entry)
+audit3: configuration must not reopen the result envelope bypass, including via checked routes. ... ok
+test_result_events_without_any_lease_are_rejected (tools.tests.test_daemon_dry_run.HandleEventFencing.test_result_events_without_any_lease_are_rejected)
+The reported building -> pr_open bypass must also be refused when there is no lease at all. ... ok
+test_rules_that_break_the_entry_contract_are_refused (tools.tests.test_daemon_dry_run.HandleEventFencing.test_rules_that_break_the_entry_contract_are_refused) ... ok
+test_the_core_s_own_bare_events_are_listed (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_core_s_own_bare_events_are_listed)
+handoff.py feeds its step results through handle_event; each of them must be on the list. ... ok
+test_the_entry_is_catalog_data (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_entry_is_catalog_data) ... ok
+test_the_envelope_path_still_applies (tools.tests.test_daemon_dry_run.HandleEventFencing.test_the_envelope_path_still_applies) ... ok
+test_end_lease_drops_keys_of_older_generations_and_keeps_its_own (tools.tests.test_daemon_dry_run.InboxSeenPruning.test_end_lease_drops_keys_of_older_generations_and_keeps_its_own) ... ok
+test_pruning_does_not_change_how_old_envelopes_are_classified (tools.tests.test_daemon_dry_run.InboxSeenPruning.test_pruning_does_not_change_how_old_envelopes_are_classified) ... ok
+test_clock_is_virtual (tools.tests.test_daemon_dry_run.Journal.test_clock_is_virtual) ... ok
+test_journal_is_append_only_and_ordered (tools.tests.test_daemon_dry_run.Journal.test_journal_is_append_only_and_ordered) ... ok
+test_transition_record_has_the_contract_fields (tools.tests.test_daemon_dry_run.Journal.test_transition_record_has_the_contract_fields) ... ok
+test_complete_landing_is_valid (tools.tests.test_daemon_dry_run.LandingValidation.test_complete_landing_is_valid) ... ok
+test_empty_strings_do_not_validate (tools.tests.test_daemon_dry_run.LandingValidation.test_empty_strings_do_not_validate) ... ok
+test_landings_without_merge_commit_are_told_apart (tools.tests.test_daemon_dry_run.LandingValidation.test_landings_without_merge_commit_are_told_apart) ... ok
+test_missing_head_or_base_at_merge_is_invalid (tools.tests.test_daemon_dry_run.LandingValidation.test_missing_head_or_base_at_merge_is_invalid) ... ok
+test_none_equal_none_does_not_validate (tools.tests.test_daemon_dry_run.LandingValidation.test_none_equal_none_does_not_validate) ... ok
+test_two_different_landings_without_merge_commit_are_both_recorded (tools.tests.test_daemon_dry_run.LandingValidation.test_two_different_landings_without_merge_commit_are_both_recorded) ... ok
+test_baseline_is_clean (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_baseline_is_clean) ... ok
+test_conflict_relation_is_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_conflict_relation_is_read) ... ok
+test_corruption_applies_to_is_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_corruption_applies_to_is_read) ... ok
+test_credential_table_is_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_credential_table_is_read) ... ok
+test_end_lease_applies_when_is_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_end_lease_applies_when_is_read) ... ok
+test_expiry_events_by_state_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_expiry_events_by_state_are_read) ... ok
+test_field_value_sets_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_field_value_sets_are_read) ... ok
+test_guard_on_fail_states_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_guard_on_fail_states_are_read) ... ok
+test_hard_stop_trigger_events_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_hard_stop_trigger_events_are_read) ... ok
+test_idempotency_key_fields_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_idempotency_key_fields_are_read) ... ok
+test_lock_self_value_is_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_lock_self_value_is_read) ... ok
+test_outside_reads_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_outside_reads_are_read) ... ok
+test_owner_stop_noop_rules_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_owner_stop_noop_rules_are_read) ... ok
+test_predicate_ops_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_predicate_ops_are_read) ... ok
+test_restart_resume_check_branch_is_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_restart_resume_check_branch_is_read) ... ok
+test_rows_without_cond_follow_the_table (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_rows_without_cond_follow_the_table) ... ok
+test_secret_scan_states_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_secret_scan_states_are_read) ... ok
+test_switch_sources_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_switch_sources_are_read) ... ok
+test_validate_instruction_rules_are_read (tools.tests.test_daemon_dry_run.NewPathsComeFromData.test_validate_instruction_rules_are_read) ... ok
+test_decision_recorded_needs_the_gate (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_decision_recorded_needs_the_gate) ... ok
+test_merge_gate_blocks_ready_events (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_merge_gate_blocks_ready_events)
+Unrecorded D-M: the ready events are rejected (the finding's direct route), decision_pending applies. ... ok
+test_merge_gate_recorded (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_merge_gate_recorded) ... ok
+test_merge_rows_carry_the_merge_gate_cond (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_merge_rows_carry_the_merge_gate_cond) ... ok
+test_prereq_cond_blocks_a_direct_event (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_prereq_cond_blocks_a_direct_event)
+T-MOCK-SUCC waits for T-MOCK-BASIC; prereqs_satisfied fed straight to the core does not move it. ... ok
+test_prereq_cond_opens_in_post_merge_states (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_prereq_cond_opens_in_post_merge_states) ... ok
+test_prereq_cond_unknown_prereq (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_prereq_cond_unknown_prereq)
+A prerequisite the store does not hold is not satisfied. ... ok
+test_removing_the_merge_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_removing_the_merge_cond_reopens_the_gap) ... ok
+test_removing_the_prereq_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_removing_the_prereq_cond_reopens_the_gap) ... ok
+test_check_keeps_a_copy_of_a_list_changed_later (tools.tests.test_daemon_dry_run.ReportValues.test_check_keeps_a_copy_of_a_list_changed_later) ... ok
+test_every_pass_row_prints_equal_expected_and_actual (tools.tests.test_daemon_dry_run.ReportValues.test_every_pass_row_prints_equal_expected_and_actual) ... ok
+test_late_result_row_shows_no_remote_write (tools.tests.test_daemon_dry_run.ReportValues.test_late_result_row_shows_no_remote_write) ... ok
+test_claimed_family_must_match_the_registry (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_claimed_family_must_match_the_registry) ... ok
+test_family_comes_from_the_registry (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_family_comes_from_the_registry) ... ok
+test_missing_or_empty_family_is_rejected (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_missing_or_empty_family_is_rejected) ... ok
+test_only_the_assigned_reviewer_may_report (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_only_the_assigned_reviewer_may_report) ... ok
+test_self_review_of_an_assigned_author_family_is_rejected_end_to_end (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_self_review_of_an_assigned_author_family_is_rejected_end_to_end)
+The reviewer assigned earlier shares a family with an author who joined later (handoff): rejected. ... ok
+test_unregistered_or_missing_reviewer_is_rejected (tools.tests.test_daemon_dry_run.ReviewerFamilyIsRegistered.test_unregistered_or_missing_reviewer_is_rejected) ... ok
+test_M10_decision_gate_merge_only (tools.tests.test_daemon_dry_run.ScenarioResults.test_M10_decision_gate_merge_only) ... ok
+test_M10a_d02_mock_start_allowed (tools.tests.test_daemon_dry_run.ScenarioResults.test_M10a_d02_mock_start_allowed) ... ok
+test_M10b_r2_local_work_allowed (tools.tests.test_daemon_dry_run.ScenarioResults.test_M10b_r2_local_work_allowed) ... ok
+test_M11__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M11__) ... ok
+test_M12__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M12__) ... ok
+test_M13__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M13__) ... ok
+test_M14__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M14__) ... ok
+test_M15__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M15__) ... ok
+test_M16__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M16__) ... ok
+test_M17_late_write_fenced (tools.tests.test_daemon_dry_run.ScenarioResults.test_M17_late_write_fenced) ... ok
+test_M18_provider_scoped_switch (tools.tests.test_daemon_dry_run.ScenarioResults.test_M18_provider_scoped_switch) ... ok
+test_M18a_switch_negative_test_output (tools.tests.test_daemon_dry_run.ScenarioResults.test_M18a_switch_negative_test_output) ... ok
+test_M18b_switch_negative_third_party_http (tools.tests.test_daemon_dry_run.ScenarioResults.test_M18b_switch_negative_third_party_http) ... ok
+test_M19_post_merge_prereq (tools.tests.test_daemon_dry_run.ScenarioResults.test_M19_post_merge_prereq) ... ok
+test_M1__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M1__) ... ok
+test_M20__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M20__) ... ok
+test_M21_event_duplicate_noop (tools.tests.test_daemon_dry_run.ScenarioResults.test_M21_event_duplicate_noop) ... ok
+test_M22_event_out_of_order (tools.tests.test_daemon_dry_run.ScenarioResults.test_M22_event_out_of_order) ... ok
+test_M23_docs_pr_complete (tools.tests.test_daemon_dry_run.ScenarioResults.test_M23_docs_pr_complete) ... ok
+test_M24_eleventh_pr_audit (tools.tests.test_daemon_dry_run.ScenarioResults.test_M24_eleventh_pr_audit) ... ok
+test_M25_mis_merge_not_done (tools.tests.test_daemon_dry_run.ScenarioResults.test_M25_mis_merge_not_done) ... ok
+test_M26_usage_recorded_not_capped (tools.tests.test_daemon_dry_run.ScenarioResults.test_M26_usage_recorded_not_capped) ... ok
+test_M27_hard_stop_heartbeating_job (tools.tests.test_daemon_dry_run.ScenarioResults.test_M27_hard_stop_heartbeating_job) ... ok
+test_M28_late_result_no_state_change (tools.tests.test_daemon_dry_run.ScenarioResults.test_M28_late_result_no_state_change) ... ok
+test_M29_handoff_order (tools.tests.test_daemon_dry_run.ScenarioResults.test_M29_handoff_order) ... ok
+test_M2__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M2__) ... ok
+test_M30_lease_guards_all_paths (tools.tests.test_daemon_dry_run.ScenarioResults.test_M30_lease_guards_all_paths) ... ok
+test_M31_merge_observation_fields (tools.tests.test_daemon_dry_run.ScenarioResults.test_M31_merge_observation_fields) ... ok
+test_M32_envelope_permission_rejects_missing (tools.tests.test_daemon_dry_run.ScenarioResults.test_M32_envelope_permission_rejects_missing) ... ok
+test_M33_handoff_quiescent_before_preserve (tools.tests.test_daemon_dry_run.ScenarioResults.test_M33_handoff_quiescent_before_preserve) ... ok
+test_M34_duplicate_delivery_noop (tools.tests.test_daemon_dry_run.ScenarioResults.test_M34_duplicate_delivery_noop) ... ok
+test_M35_retry_new_idempotency_key (tools.tests.test_daemon_dry_run.ScenarioResults.test_M35_retry_new_idempotency_key) ... ok
+test_M36_preserve_manifest_same_function (tools.tests.test_daemon_dry_run.ScenarioResults.test_M36_preserve_manifest_same_function) ... ok
+test_M37_preserve_failure_recoverable_stop (tools.tests.test_daemon_dry_run.ScenarioResults.test_M37_preserve_failure_recoverable_stop) ... ok
+test_M38_daemon_restart_during_handoff (tools.tests.test_daemon_dry_run.ScenarioResults.test_M38_daemon_restart_during_handoff) ... ok
+test_M39_envelope_id_distinct_events (tools.tests.test_daemon_dry_run.ScenarioResults.test_M39_envelope_id_distinct_events) ... ok
+test_M3__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M3__) ... ok
+test_M40_lease_issue_atomic_single_owner (tools.tests.test_daemon_dry_run.ScenarioResults.test_M40_lease_issue_atomic_single_owner) ... ok
+test_M41_restart_ttl_expired_no_resend (tools.tests.test_daemon_dry_run.ScenarioResults.test_M41_restart_ttl_expired_no_resend) ... ok
+test_M42_restart_revoked_pending_void (tools.tests.test_daemon_dry_run.ScenarioResults.test_M42_restart_revoked_pending_void) ... ok
+test_M43_restart_valid_pending_resend (tools.tests.test_daemon_dry_run.ScenarioResults.test_M43_restart_valid_pending_resend) ... ok
+test_M44_restart_corrupt_record_returned (tools.tests.test_daemon_dry_run.ScenarioResults.test_M44_restart_corrupt_record_returned) ... ok
+test_M4__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M4__) ... ok
+test_M5_stale_approval_invalidated (tools.tests.test_daemon_dry_run.ScenarioResults.test_M5_stale_approval_invalidated) ... ok
+test_M6__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M6__) ... ok
+test_M7__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M7__) ... ok
+test_M8__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M8__) ... ok
+test_M9__ (tools.tests.test_daemon_dry_run.ScenarioResults.test_M9__) ... ok
+test_STATIC_static_checks (tools.tests.test_daemon_dry_run.ScenarioResults.test_STATIC_static_checks) ... ok
+test_approved_canon_scope_is_the_only_exception (tools.tests.test_daemon_dry_run.ScopeForbiddenFirst.test_approved_canon_scope_is_the_only_exception) ... ok
+test_dir_star_star_and_exact_forbidden_still_win (tools.tests.test_daemon_dry_run.ScopeForbiddenFirst.test_dir_star_star_and_exact_forbidden_still_win) ... ok
+test_single_star_forbidden_glob_is_not_skipped (tools.tests.test_daemon_dry_run.ScopeForbiddenFirst.test_single_star_forbidden_glob_is_not_skipped) ... ok
+test_absolute_backslash_glob_and_empty_paths_are_out_of_scope (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_absolute_backslash_glob_and_empty_paths_are_out_of_scope) ... ok
+test_dot_dot_is_refused_even_when_it_would_stay_inside (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_dot_dot_is_refused_even_when_it_would_stay_inside) ... ok
+test_dot_dot_that_leaves_the_allowed_directory_is_out_of_scope (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_dot_dot_that_leaves_the_allowed_directory_is_out_of_scope) ... ok
+test_dot_segments_and_double_slashes_are_dropped (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_dot_segments_and_double_slashes_are_dropped) ... ok
+test_forbidden_wins_after_normalization (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_forbidden_wins_after_normalization) ... ok
+test_normalize_path (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_normalize_path) ... ok
+test_the_approved_scope_exception_is_normalized_too (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_the_approved_scope_exception_is_normalized_too) ... ok
+test_a_row_voided_during_the_send_stays_void (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_row_voided_during_the_send_stays_void) ... ok
+test_a_second_send_does_not_mark_the_row_again (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_a_second_send_does_not_mark_the_row_again)
+sender_retry sends and marks the row first; the first send's marking then finds it sent and keeps its sent_at. ... ok
+test_an_undisturbed_send_is_marked (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_an_undisturbed_send_is_marked) ... ok
+test_comparing_a_check_that_still_holds_reopens_the_finding (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_comparing_a_check_that_still_holds_reopens_the_finding)
+Mutation: compare lease_match instead of pending (the lease id and generation do not change on expiry) and ... ok
+test_mark_sent_is_data (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_mark_sent_is_data) ... ok
+test_rules_that_break_the_mark_contract_are_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_rules_that_break_the_mark_contract_are_refused) ... ok
+test_the_envelope_that_went_out_is_refused (tools.tests.test_daemon_dry_run.SendMarkCompareAndSet.test_the_envelope_that_went_out_is_refused)
+The void envelope did reach the builder; its lease is over, so nothing it reports moves the task. ... ok
+test_prereq_tasks_still_checked_first (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_prereq_tasks_still_checked_first) ... ok
+test_removing_the_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_removing_the_cond_reopens_the_gap)
+The block comes from the rules file: without the cond the direct event moves the task (the finding). ... ok
+test_row_carries_the_structured_start_cond (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_row_carries_the_structured_start_cond) ... ok
+test_spec_tasks_with_a_start_gate_are_held (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_spec_tasks_with_a_start_gate_are_held)
+Every task of the spec catalog has a list start gate (none is unevaluable), and the gated ones ... ok
+test_start_gate_blocks (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_blocks) ... ok
+test_start_gate_blocks_a_direct_event (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_blocks_a_direct_event)
+The reviewer's reproduction: prereqs_satisfied fed straight to the core, D-X not recorded. ... ok
+test_start_gate_empty (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_empty)
+start=[] (59 of the 63 spec tasks, e.g. T-CT-01) is not held back. ... ok
+test_start_gate_null (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_null) ... ok
+test_start_gate_opens (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_opens) ... ok
+test_start_gate_partial_record_stays_blocked (tools.tests.test_daemon_dry_run.StartGateEnforcement.test_start_gate_partial_record_stays_blocked) ... ok
+test_core_does_not_name_prose_keys (tools.tests.test_daemon_dry_run.Static.test_core_does_not_name_prose_keys) ... ok
+test_dynamic_code_execution_and_import_are_noticed (tools.tests.test_daemon_dry_run.Static.test_dynamic_code_execution_and_import_are_noticed) ... ok
+test_existing_network_and_cli_bans_still_hold (tools.tests.test_daemon_dry_run.Static.test_existing_network_and_cli_bans_still_hold) ... ok
+test_ordinary_code_and_re_compile_are_not_flagged (tools.tests.test_daemon_dry_run.Static.test_ordinary_code_and_re_compile_are_not_flagged) ... ok
+test_static_checks (tools.tests.test_daemon_dry_run.Static.test_static_checks) ... ok
+test_this_test_file_has_no_model_identifiers (tools.tests.test_daemon_dry_run.Static.test_this_test_file_has_no_model_identifiers) ... ok
+test_missing_events_is_a_contract_error_without_prose_fallback (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_missing_events_is_a_contract_error_without_prose_fallback) ... ok
+test_read_list_exposes_structured_expiry_fields_without_prose (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_read_list_exposes_structured_expiry_fields_without_prose) ... ok
+test_removing_an_event_disables_its_expiry_classification_only (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_removing_an_event_disables_its_expiry_classification_only) ... ok
+test_restart_uses_structured_events_when_path_is_changed_or_missing (tools.tests.test_daemon_dry_run.StructuredExpiryEvents.test_restart_uses_structured_events_when_path_is_changed_or_missing) ... ok
+test_names_without_a_root_are_errors_not_literals (tools.tests.test_daemon_dry_run.StructuredFieldsOnly.test_names_without_a_root_are_errors_not_literals) ... ok
+test_read_patterns_expand (tools.tests.test_daemon_dry_run.StructuredFieldsOnly.test_read_patterns_expand) ... ok
+test_replacing_or_deleting_explanation_keys_changes_nothing (tools.tests.test_daemon_dry_run.StructuredFieldsOnly.test_replacing_or_deleting_explanation_keys_changes_nothing) ... ok
+test_structured_when_of_noop_rules_is_kept_as_cond (tools.tests.test_daemon_dry_run.StructuredFieldsOnly.test_structured_when_of_noop_rules_is_kept_as_cond) ... ok
+test_view_has_no_explanation_keys (tools.tests.test_daemon_dry_run.StructuredFieldsOnly.test_view_has_no_explanation_keys) ... ok
+test_view_is_a_subset_of_the_read_list (tools.tests.test_daemon_dry_run.StructuredFieldsOnly.test_view_is_a_subset_of_the_read_list) ... ok
+test_cancelled_stays_cancelled (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_cancelled_stays_cancelled) ... ok
+test_done_stays_done_and_dependents_start (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_done_stays_done_and_dependents_start) ... ok
+test_non_terminal_states_are_still_returned (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_non_terminal_states_are_still_returned) ... ok
+test_removing_the_exclusion_reopens_the_finding (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_removing_the_exclusion_reopens_the_finding)
+Without the state predicate and the noop rule the redelivery sends done to returned and SUCC stays blocked. ... ok
+test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
+
+----------------------------------------------------------------------
+Ran 267 tests in 76.646s
+
+OK

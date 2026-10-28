@@ -57,6 +57,24 @@ Python skip 6개는 비공개 원본이 필요한 기존 시험 5개와 설치�
 
 데몬 보고서의 부모 커밋·소스 해시는 이 수정 1차 기준으로 갱신했다. 최초 시험의 `focused.log` 등은 최초 증거로 남긴다. 새 회귀 시험의 skip은 없으며 Python의 기존 skip 6개와 Rust의 기존 ignore 1개는 위 최초 검증과 같다. `git diff --check`와 변경 파일의 허용 경로 대조도 통과했다.
 
+## 수정 2차 — main 병합 충돌 해소
+
+병합 입력은 이 노드의 `1b9f3e1c51dd7b702a99f00ab38fec26036ae745`와 main의 `285b9edf1dd60b80b9a7414a46d94d46ab83ecab`이다. 충돌은 생성 보고서 `tools/daemon/reports/dry_run.log`·`unittest.log` 두 개뿐이었다. 보고서 한쪽을 선택하지 않고 합쳐진 소스에서 다시 실행해 생성했다. R-01·R-09 결과 관문과 수정 1차의 R-10 우선순위를 유지하며, main의 시험 실패 재임대 가드 → R-03 반송과 가드 자체 R-13 우선 처리도 유지한다. 새 동작 변경은 없으며 기존 양쪽 회귀 시험을 함께 실행했다.
+
+두 보고서 머리말은 현재 부모 커밋과 병합 입력 main 커밋, 합쳐진 데몬 소스·시험의 SHA-256을 기록한다([round2/source-header.txt](../../../tools/evidence/audit3-daemon-gate-touched-paths/round2/source-header.txt)). 현재 보고서는 데몬 시험 287개 통과, dry-run 검사 692건 통과·필수 ID 33개 누락·목록 밖·중복 0개다. 이전 절의 281개·704건은 수정 1차 당시 기록이다. main의 M30 시나리오 변경이 현재 dry-run 검사 수에 반영됐다.
+
+| 명령 | 결과 | 증거 |
+|---|---|---|
+| `python3 -m unittest tools.tests.test_daemon_dry_run.ResultGates tools.tests.test_daemon_dry_run.FailedTestsGuardFallback -v` | 26개 통과 | [round2/focused.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round2/focused.log) |
+| `python3 -m unittest tools/tests/test_daemon_dry_run.py -v` | 287개 통과 | [unittest.log](../../../tools/daemon/reports/unittest.log) |
+| `python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all` | 692건 통과, 필수 ID 33개 일치 | [dry_run.log](../../../tools/daemon/reports/dry_run.log) |
+| `cargo test --all --target-dir target` | 466개 통과, 기존 ignore 1 | [round2/cargo-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round2/cargo-tests.log) |
+| `ONJEON_ONTOLOGY_RUNNER="$PWD/target/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v` | 1205개 실행, 실패·오류 0, 기존 skip 6 | [round2/python-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round2/python-tests.log) |
+| 어휘·검증 자료·검증기 selftest·설계 명세·BLUEPRINT 수량·실행기 시험 | 모두 종료 0, 실행기 시험 59개 통과 | [round2/consistency-runner.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round2/consistency-runner.log) |
+| `python3 -I tools/ci/check_product_purpose.py`; `python3 -I -m unittest discover -s tools/ci/tests` | 제품 목적 검사 통과. CI 시험 20개 중 기존 의존성 검사 실패 2개 | [round2/ci-tests.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round2/ci-tests.log) |
+
+추가 CI의 위반 3건은 최초 기준 기록과 정확히 같다. 관련 소스·규칙·검사기가 양쪽 병합 입력과 바이트 단위로 같음도 [round2/ci-baseline.log](../../../tools/evidence/audit3-daemon-gate-touched-paths/round2/ci-baseline.log)에서 확인했다. Rust 최초 실행은 환경의 공유 target에 있던 다른 작업 트리 경로의 빌드 산출물을 재사용해 실패했으며, 위 통과 기록은 이 작업 트리 안의 `target`을 지정해 다시 빌드한 결과다. 생성·병합으로 들어온 로그의 줄 끝 공백만 제거하고 시험 결과 내용은 유지했다. 커밋·푸시·GitHub 호출은 하지 않았다.
+
 ## 증명 범위
 
 결과 봉투가 주장하는 변경 경로·PR 본문 필드의 코어 검사를 증명한다. 실제 Git diff와 PR 본문을 Git 호스트에서 조회·인증하는 기능은 구현하지 않았으며, 검증 어댑터의 본문 필드는 합성이다. 실행기 시험 통과도 기존 PASS/UNCONFIRMED 수락 기준을 따르며 운영 환경 검증 완료를 뜻하지 않는다.

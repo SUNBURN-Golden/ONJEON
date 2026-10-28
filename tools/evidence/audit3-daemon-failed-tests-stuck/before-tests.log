@@ -1,0 +1,159 @@
+Baseline: e1c5f14c0de0e428e46fcb975e412f909d9557ed; current regression tests with baseline core/rules
+test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) ...
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='conflict') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='writer') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='parallel') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='lock') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='slot') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='builder') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='conflict') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='writer') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='parallel') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='lock') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='slot') ... FAIL
+  test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='builder') ... FAIL
+test_fallback_comes_from_rule_data (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_fallback_comes_from_rule_data) ... ERROR
+test_guard_field_also_uses_the_row_fallback (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_field_also_uses_the_row_fallback) ... FAIL
+test_guard_specific_invalid_instruction_keeps_R13_priority (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_specific_invalid_instruction_keeps_R13_priority) ... ok
+test_passing_guards_reissue_once (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_passing_guards_reissue_once) ... ok
+test_third_failure_keeps_R06_even_if_guards_fail (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_third_failure_keeps_R06_even_if_guards_fail) ... ok
+
+======================================================================
+ERROR: test_fallback_comes_from_rule_data (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_fallback_comes_from_rule_data)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2414, in test_fallback_comes_from_rule_data
+    self.assertEqual(row["on_cond_fail"], {"emit": "unmapped_condition", "args": {
+                     ~~~^^^^^^^^^^^^^^^^
+KeyError: 'on_cond_fail'
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='conflict')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='writer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='parallel')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='lock')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='slot')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=0, guard='builder')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='conflict')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='writer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='parallel')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='lock')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='slot')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) (failures=1, guard='builder')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2347, in test_every_waiting_guard_returns_immediately_before_retry_limit
+    self.assertTrue(out["accepted"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_guard_field_also_uses_the_row_fallback (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_field_also_uses_the_row_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-daemon-failed-tests-stuck/tmplddttupx/tools/tests/test_daemon_dry_run.py", line 2408, in test_guard_field_also_uses_the_row_fallback
+    self.assertEqual(sc.tr(env.journal()[m:]), [("building", "returned", "unmapped_condition")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [('building', 'returned', 'unmapped_condition')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+('building', 'returned', 'unmapped_condition')
+
+- []
++ [('building', 'returned', 'unmapped_condition')]
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.233s
+
+FAILED (failures=13, errors=1)
+
+exit=1

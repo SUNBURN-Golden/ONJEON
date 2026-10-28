@@ -1116,8 +1116,7 @@ def path_queued(env):
 
 
 def path_failed_tests(env):
-    """The retry is a redelivery of the same result envelope: a guard that waits takes nothing of it
-    (issue_lease.on_guard_wait, audit2-daemon-guard-fail-partial-commit), so it is processed as new afterwards."""
+    """Failed-test reports have an explicit on_cond_fail return when reissue cannot proceed."""
     env.bring_to_building(BASIC)
     res = env.builder_for(BASIC).result_envelope(env.instr(BASIC), "failed_tests")
 
@@ -1194,7 +1193,7 @@ def m30(rep, R, T):
                 attempt()
                 js = jr(env, m)
                 st_ok = env.state(task) == state0
-                if kind != "envelope":
+                if kind != "envelope" and label != "시험 실패 뒤 재임대":
                     rep.eq(f"[{label} / 주입 {kind}] 가드 대기는 트랜잭션 전체를 버린다(카운터·inbox_seen·사용량 슬롯 포함 "
                            "저널·임대 잠금 밖 store 불변), 저널에는 진단만", (True, ["diagnostic_record"]),
                            (event_writes(env.snap()) == before, sorted({r["kind"] for r in js})))
@@ -1207,6 +1206,11 @@ def m30(rep, R, T):
                         [x for x in tr(js) if x[2] == "envelope_invalid"], rets(js)))
                 if state0 == "building":
                     rep.eq(f"[{label} / 주입 {kind}] building의 지금 임대는 returned로 끝난다", "returned", t["lease_record"]["status"])
+            elif label == "시험 실패 뒤 재임대":
+                rep.eq(f"[{label} / 주입 {kind}] on_cond_fail → returned(R-03), 현재 임대 폐기, 카운터 1, 새 임대·발송 없음",
+                       ([("building", "returned", "unmapped_condition")], ["R-03"], "revoked", 1, g0, 0, s0),
+                       (tr(js), rets(js), t["lease_record"]["status"], t["task_state"]["consecutive_failed_tests"],
+                        t["lease_generation"], issue_count(env) - i0, len(sent_ids(env))))
             else:
                 rep.eq(f"[{label} / 주입 {kind}] 임대 미발급(세대·issue_lease·발송 불변, 상태 유지)", (g0, 0, s0, True),
                        (t["lease_generation"], issue_count(env) - i0, len(sent_ids(env)), st_ok))
@@ -1214,16 +1218,13 @@ def m30(rep, R, T):
             rep.eq(f"[{label} / 주입 {kind}] 평가가 끝나면 이 데몬의 임대 잠금은 풀려 있다(G45)", True,
                    (env.snap().get("lease_lock", {}).get(task) or {}).get("holder") in (None, "other-daemon"))
             release(env, kind, task)
-            if kind == "envelope":
+            if kind == "envelope" or label == "시험 실패 뒤 재임대":
                 env.event("owner_resolved", task, resolution_ref="RES-ENV")
                 env.grant(task, "from_queue")
             else:
                 retry()
             t = env.task(task)
             rep.eq(f"[{label} / 주입 {kind}] 주입을 풀면 발급되고 토큰(세대)이 +1", (g0 + 1, i0 + 1), (t["lease_generation"], issue_count(env)))
-            if label == "시험 실패 뒤 재임대" and kind != "envelope":
-                rep.eq(f"[{label} / 주입 {kind}] 같은 봉투의 재전달로 재임대, 거절된 시도는 세지 않는다(consecutive_failed_tests 1)",
-                       1, t["task_state"]["consecutive_failed_tests"])
 
     # G29: conflict_paths overlap as patterns (a nested glob), not as equal strings
     env = MockEnv(R, T)

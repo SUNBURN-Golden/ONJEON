@@ -2324,11 +2324,114 @@ class SendMarkCompareAndSet(unittest.TestCase):
                     MockEnv(_mutated(lambda r: fn(self.spec(r)["mark_sent"])), str(TASKS))
 
 
+class FailedTestsGuardFallback(unittest.TestCase):
+    """Audit 3: a completed failure report must leave building even without redelivery."""
+
+    def ready(self, failures=0, raw=None):
+        env = MockEnv(raw or str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        env.store.tamper(lambda d: d["tasks"][sc.BASIC]["task_state"].update(consecutive_failed_tests=failures))
+        res = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), "failed_tests", calls=3)
+        return env, res
+
+    def test_every_waiting_guard_returns_immediately_before_retry_limit(self):
+        for failures in (0, 1):
+            for kind in GuardWaitRollsBack.WAITS:
+                with self.subTest(failures=failures, guard=kind):
+                    env, res = self.ready(failures)
+                    sc.inject(env, kind, sc.BASIC)
+                    before, now = env.task(sc.BASIC), env.clock.now()
+                    m = sc.mark(env)
+                    out = env.submit(sc.BASIC, "result", copy.deepcopy(res))
+                    task, js = env.task(sc.BASIC), env.journal()[m:]
+                    self.assertTrue(out["accepted"])
+                    self.assertEqual(task["task_state"]["return_code"], "R-03")
+                    self.assertEqual(sc.tr(js), [("building", "returned", "unmapped_condition")])
+                    self.assertEqual(sc.rets(js), ["R-03"])
+                    self.assertEqual((task["task_state"]["state"], task["lease_record"]["status"],
+                                      task["task_state"]["consecutive_failed_tests"], task["lease_generation"]),
+                                     ("returned", "revoked", failures + 1, 1))
+                    self.assertEqual(len(task["inbox_seen"]), len(before["inbox_seen"]) + 1)
+                    self.assertEqual((sc.issue_count(env), len(sc.sent_ids(env)), env.clock.now()), (1, 1, now))
+                    self.assertEqual(sc.usage_rows(env, sc.BASIC)[0]["calls"], 3)
+                    for effect in ("terminate_process", "revoke_token", "revoke_write_credential", "revoke_preserve_credential"):
+                        self.assertIn(effect, sc.se(js))
+                    self.assertFalse(any(r["status"] == "pending" for r in task["outbox"]))
+                    self.assertNotIn("guard_wait_rolled_back", [r.get("what") for r in js])
+                    sc.release(env, kind, sc.BASIC)
+                    env.new_core()
+                    m = sc.mark(env)
+                    again = env.submit(sc.BASIC, "result", copy.deepcopy(res))
+                    self.assertEqual((again["noop"], again["return_code"]), ("envelope_duplicate_delivery", None))
+                    self.assertEqual(sc.tr(env.journal()[m:]), [])
+                    self.assertEqual(env.task(sc.BASIC)["task_state"]["consecutive_failed_tests"], failures + 1)
+                    self.assertEqual(env.state(sc.BASIC), "returned")
+
+    def test_third_failure_keeps_R06_even_if_guards_fail(self):
+        for kind in (*GuardWaitRollsBack.WAITS, "envelope"):
+            with self.subTest(guard=kind):
+                env, res = self.ready(2)
+                sc.inject(env, kind, sc.BASIC)
+                m = sc.mark(env)
+                env.submit(sc.BASIC, "result", res)
+                self.assertEqual(sc.tr(env.journal()[m:]), [("building", "returned", "result_failed_tests")])
+                self.assertEqual(sc.rets(env.journal()[m:]), ["R-06"])
+                self.assertEqual(env.task(sc.BASIC)["task_state"]["consecutive_failed_tests"], 3)
+                self.assertEqual(sc.issue_count(env), 1)
+
+    def test_guard_specific_invalid_instruction_keeps_R13_priority(self):
+        env, res = self.ready()
+        sc.inject(env, "envelope", sc.BASIC)
+        m = sc.mark(env)
+        env.submit(sc.BASIC, "result", res)
+        self.assertEqual(sc.tr(env.journal()[m:]), [("building", "returned", "envelope_invalid")])
+        self.assertEqual(sc.rets(env.journal()[m:]), ["R-13"])
+
+    def test_passing_guards_reissue_once(self):
+        for failures in (0, 1):
+            with self.subTest(failures=failures):
+                env, res = self.ready(failures)
+                m = sc.mark(env)
+                out = env.submit(sc.BASIC, "result", res)
+                self.assertEqual(out["transition"], ("building", "building", "result_failed_tests"))
+                self.assertEqual((env.task(sc.BASIC)["lease_generation"], sc.issue_count(env),
+                                  env.task(sc.BASIC)["task_state"]["consecutive_failed_tests"]), (2, 2, failures + 1))
+                self.assertEqual(sc.rets(env.journal()[m:]), [])
+
+    def test_guard_field_also_uses_the_row_fallback(self):
+        raw = raw_rules()
+        row = _transition(raw, "building", "result_failed_tests", "building")
+        row["cond"] = [p for p in row["cond"] if p["field"] != "lease_guards"]
+        env, res = self.ready(raw=raw)
+        sc.inject(env, "conflict", sc.BASIC)
+        m = sc.mark(env)
+        env.submit(sc.BASIC, "result", res)
+        self.assertEqual(sc.tr(env.journal()[m:]), [("building", "returned", "unmapped_condition")])
+        self.assertEqual(sc.rets(env.journal()[m:]), ["R-03"])
+
+    def test_fallback_comes_from_rule_data(self):
+        raw = raw_rules()
+        row = _transition(raw, "building", "result_failed_tests", "building")
+        self.assertEqual(row["on_cond_fail"], {"emit": "unmapped_condition", "args": {
+            "original_event": "result_failed_tests", "reason": "retry_lease_guard_failed"}})
+        row.pop("on_cond_fail")
+        env, res = self.ready(raw=raw)
+        sc.inject(env, "conflict", sc.BASIC)
+        out = env.submit(sc.BASIC, "result", res)
+        self.assertEqual((out["reason"], env.state(sc.BASIC)), ("guard_wait", "building"))
+
+
 class GuardWaitRollsBack(unittest.TestCase):
     """audit2-daemon-guard-fail-partial-commit: when a lease guard failed on the retry row (building -> building,
     result_failed_tests), the transaction still committed the before_cond counter, the inbox_seen mark and an empty
     usage slot of the next generation; a redelivery was a duplicate and the task sat in building until the lease timed
     out. core_contract.operations.issue_lease.on_guard_wait now discards the whole transaction."""
+    # Exercise the generic wait contract on a rule without the Audit 3 explicit fallback.
+    def waiting_rules(self, raw=None):
+        raw = copy.deepcopy(raw or raw_rules())
+        _transition(raw, "building", "result_failed_tests", "building").pop("on_cond_fail", None)
+        return raw
+
     WAITS = ("conflict", "writer", "parallel", "lock", "slot", "builder")
 
     def spec(self, raw=None):
@@ -2336,7 +2439,7 @@ class GuardWaitRollsBack(unittest.TestCase):
 
     def rejected(self, kind, raw=None, **usage):
         """BASIC is building; `kind` makes a guard wait; the builder reports failed_tests."""
-        env = MockEnv(raw or str(RULES), str(TASKS))
+        env = MockEnv(self.waiting_rules(raw), str(TASKS))
         env.bring_to_building(sc.BASIC)
         res = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), "failed_tests", **usage)
         sc.inject(env, kind, sc.BASIC)
@@ -2384,7 +2487,7 @@ class GuardWaitRollsBack(unittest.TestCase):
         self.assertEqual((again["noop"], again["return_code"]), ("late_envelope_rejected", "R-11"))
 
     def test_a_failed_usage_write_is_not_queued_for_a_result_not_taken(self):
-        env = MockEnv(str(RULES), str(TASKS))
+        env = MockEnv(self.waiting_rules(), str(TASKS))
         env.bring_to_building(sc.BASIC)
         res = env.builder_for(sc.BASIC).result_envelope(env.instr(sc.BASIC), "failed_tests", calls=3)
         sc.inject(env, "conflict", sc.BASIC)
@@ -2394,7 +2497,7 @@ class GuardWaitRollsBack(unittest.TestCase):
         self.assertNotIn("usage_record_failed_warning", [r["what"] for r in env.journal() if r["kind"] == "diagnostic_record"])
 
     def test_a_queued_lease_request_leaves_no_slot(self):
-        env = MockEnv(str(RULES), str(TASKS))
+        env = MockEnv(self.waiting_rules(), str(TASKS))
         env.start_task(sc.BASIC)
         sc.inject(env, "conflict", sc.BASIC)
         before = sc.event_writes(env.snap())

@@ -1,4 +1,4 @@
-# generated from parent commit ed017d6a672cde82a67bc2ef2880287edb3afcb5 + tree hash of tools/daemon sources sha256:21ba374a9a469b611585d95dfcb4ac362e91db081df89639b7b07af45a034808
+# generated from parent commit e1c5f14c0de0e428e46fcb975e412f909d9557ed + tree hash of tools/daemon sources sha256:772ae9608f2b38fb6d1af96206b7a04644878f6d837d0bf46a820c84dce9dbdd
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -61,6 +61,12 @@ test_removing_the_cond_reopens_the_finding (tools.tests.test_daemon_dry_run.Docs
 Without the cond the first row wins: the docs-only PR goes to audit_queued and is counted. ... ok
 test_rows_sharing_from_and_event_are_told_apart_by_cond (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_rows_sharing_from_and_event_are_told_apart_by_cond) ... ok
 test_the_core_picks_the_row_from_the_event (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_the_core_picks_the_row_from_the_event) ... ok
+test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) ... ok
+test_fallback_comes_from_rule_data (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_fallback_comes_from_rule_data) ... ok
+test_guard_field_also_uses_the_row_fallback (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_field_also_uses_the_row_fallback) ... ok
+test_guard_specific_invalid_instruction_keeps_R13_priority (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_specific_invalid_instruction_keeps_R13_priority) ... ok
+test_passing_guards_reissue_once (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_passing_guards_reissue_once) ... ok
+test_third_failure_keeps_R06_even_if_guards_fail (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_third_failure_keeps_R06_even_if_guards_fail) ... ok
 test_commit_failure_never_writes_remote_and_allows_retry (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_commit_failure_never_writes_remote_and_allows_retry) ... ok
 test_completion_record_failure_does_not_unclaim_successful_remote_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_completion_record_failure_does_not_unclaim_successful_remote_write) ... ok
 test_concurrent_replay_dispatches_once (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_concurrent_replay_dispatches_once) ... ok
@@ -284,6 +290,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 261 tests in 64.527s
+Ran 267 tests in 76.646s
 
 OK

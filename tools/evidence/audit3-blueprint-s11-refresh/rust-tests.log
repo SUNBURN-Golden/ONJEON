@@ -1,0 +1,890 @@
+$ cargo test --locked --all
+   Compiling onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/packages/schemas)
+   Compiling onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/packages/ontology)
+   Compiling onjeon-collect v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/services/collect)
+   Compiling onjeon-criteria v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/services/criteria)
+   Compiling onjeon-ai-gateway v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/services/ai-gateway)
+   Compiling onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/packages/api-types)
+   Compiling onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit3-blueprint-s11-refresh/packages/twin-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.18s
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_ai_gateway-30ef85d975ea53d9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway.rs (/workspace/onjeon-run/shared-target/debug/deps/gateway-0d3f40fd418bacb4)
+
+running 15 tests
+test provider_error_is_recorded_and_unresolved ... ok
+test non_retryable_error_is_not_retried ... ok
+test bad_prompt_version_is_rejected_before_any_call ... ok
+test integer_accepts_integral_float ... ok
+test cap_crossed_mid_retry_stops_retries ... ok
+test cost_accumulation_saturates ... ok
+test monthly_cap_degrades_with_l020 ... ok
+test multiple_families_and_unknown_family ... ok
+test resolves_valid_output_and_records_without_bodies ... ok
+test retry_recovers ... ok
+test retryable_error_is_retried ... ok
+test schema_subset_checks ... ok
+test unsupported_schema_fails_before_any_provider_call ... ok
+test schema_failure_retries_then_unresolved ... ok
+test user_daily_cap_is_per_user_and_per_day ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/provider_sdk_only_here.rs (/workspace/onjeon-run/shared-target/debug/deps/provider_sdk_only_here-e4f557ba295f2d08)
+
+running 2 tests
+test detector_flags_a_foreign_crate_with_an_sdk ... ok
+test provider_sdk_only_here ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_api_types-7c4a02dd950953e7)
+
+running 17 tests
+test tests::a_required_any_value_must_be_present ... ok
+test tests::comparison_and_evaluation_targets_are_exactly_one ... ok
+test tests::multipart_form_has_no_binary_field_and_keeps_the_password_out_of_other_types ... ok
+test tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required ... ok
+test tests::an_unknown_confirm_party_fails_instead_of_passing_as_a_string ... ok
+test tests::operation_ids_and_routes_are_unique ... ok
+test tests::every_response_body_type_has_a_required_release_id ... ok
+test tests::money_in_requests_is_integer_won ... ok
+test tests::lookup_helpers ... ok
+test tests::fixtures_round_trip ... ok
+test tests::skeleton_operations_are_not_exposed_by_default ... ok
+test tests::operation_table_matches_the_openapi_documents ... ok
+test tests::personal_and_console_are_never_publicly_cacheable ... ok
+test tests::unknown_enum_values_fail_instead_of_defaulting ... ok
+test tests::the_spec_pins_private_no_store_on_every_personal_and_console_response ... ok
+..ok: 30 generated files are up to date
+..test tests::generated_files_are_up_to_date ... ok
+...................................
+----------------------------------------------------------------------
+Ran 39 tests in 0.273s
+
+OK
+test tests::python_openapi_suite_passes ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_collect-12e9f749582ab16b)
+
+running 5 tests
+test sigv4::tests::archive_b64 ... ok
+test store::tests::archive_local_rejects_traversal_keys ... ok
+test sigv4::tests::archive_hmac_matches_rfc4231 ... ok
+test sigv4::tests::archive_sigv4_matches_aws_example ... ok
+test store::tests::archive_local_put_new_is_atomic ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_collect-0d938c33ba987883)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conformance.rs (/workspace/onjeon-run/shared-target/debug/deps/conformance-9976efb6de68b741)
+
+running 10 tests
+test invalid_listings_do_not_silently_drop_entries ... ok
+test missing_documents_have_separate_reason_records ... ok
+test concurrent_writers_never_replace_the_winner ... ok
+test python_copy_conflict_and_verify_all_outcomes ... ok
+test python_raw_hash_layout_idempotence_and_corruption ... ok
+test python_observation_conflict_and_reserved_metadata_refusal ... ok
+test python_put_once_same_and_different_bytes ... ok
+test python_symlink_escape_is_refused_for_reads_writes_and_listing ... ok
+test invalid_responses_are_only_quarantined ... ok
+test observations_preserve_url_changes_provenance_and_all_roles ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/http_conformance.rs (/workspace/onjeon-run/shared-target/debug/deps/http_conformance-8497427e04334c66)
+
+running 1 test
+test local_s3_wire_put_head_get_list_and_precondition ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/s3_conformance.rs (/workspace/onjeon-run/shared-target/debug/deps/s3_conformance-e43cc30b0344f2d4)
+
+running 2 tests
+test r2_and_aws_without_job_and_ledger_never_invoke_transport ... ok
+test conditional_put_headers_and_precondition_conflict ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_contracts-a6f716113cd32f4d)
+
+running 54 tests
+test allowlist::tests::allowlist_event_with_a_field_outside_the_list_fails ... ok
+test allowlist::tests::allowlist_checks_required_fields_and_event_names ... ok
+test errors::tests::errors_broken_catalogs_are_reported ... ok
+test errors::tests::errors_catalog_has_the_codes_of_the_contract ... ok
+test errors::tests::errors_classes_match_the_error_response_schema ... ok
+test errors::tests::errors_class_letters_name_their_vocabulary_values ... ok
+test errors::tests::errors_every_code_maps_to_a_screen_state ... ok
+test errors::tests::errors_catalog_keeps_its_rules ... ok
+test errors::tests::errors_http_codes_build_valid_error_responses ... ok
+test errors::tests::errors_unmapped_screen_state_is_reported ... ok
+test allowlist::tests::allowlist_field_names_for_the_leak_scanner ... ok
+test allowlist::tests::allowlist_file_is_consistent ... ok
+test events::tests::events_index_lists_every_event_of_the_contract ... ok
+test events::tests::events_personal_ids_stay_on_the_personal_queue ... ok
+test events::tests::events_each_event_has_exactly_one_schema_file ... ok
+test allowlist::tests::allowlist_checks_value_shapes ... ok
+test evidence_ref::tests::evidence_ref_clause_variants_round_trip ... ok
+test evidence_ref::tests::evidence_ref_fixture_converter_rejects_unmapped_or_inconsistent_input ... ok
+test evidence_ref::tests::evidence_ref_fixture_ids_convert_to_canonical_refs ... ok
+test evidence_ref::tests::evidence_ref_matches_the_schema_alternatives ... ok
+test evidence_ref::tests::evidence_ref_rejects_malformed ... ok
+test evidence_ref::tests::evidence_ref_rfc3339_accepts_offsets_and_fractions_only_when_real ... ok
+test tests::a_class_letter_is_no_longer_a_valid_error_class_on_the_wire ... ok
+test tests::accepted_assertion_needs_a_review_decision ... ok
+test evidence_ref::tests::evidence_ref_validate_checks_what_the_grammar_cannot ... ok
+test tests::assertion_is_a_relation_or_a_value_never_both_or_neither ... ok
+test evidence_ref::tests::evidence_ref_every_kind_round_trips ... ok
+test allowlist::tests::allowlist_listing_a_forbidden_looking_field_is_a_problem ... ok
+test tests::blocked_scenario_carries_no_engine_result ... ok
+test tests::enum_serialization_uses_the_vocabulary_code ... ok
+test tests::contracts_version_matches_the_generated_clients ... ok
+test tests::error_class_must_match_the_code ... ok
+test tests::error_class_words_and_code_letters_correspond_one_to_one ... ok
+test tests::evaluation_result_invariants_catch_mismatched_kinds ... ok
+test tests::every_fixture_satisfies_the_cross_field_checks_and_is_test_only ... ok
+test allowlist::tests::allowlist_listed_examples_pass_and_fail_as_declared ... ok
+test tests::fixture_assertion_is_valid_but_never_accepted ... ok
+test tests::engine_payout_kinds_are_the_contract_payout_axis ... ok
+test tests::every_fixture_round_trips_through_its_type ... ok
+test tests::no_wire_type_exposes_floating_point_money ... ok
+test tests::missing_required_field_is_an_error ... ok
+test tests::premium_comparison_eligibility_needs_the_full_condition_set ... ok
+test tests::promoted_axes_reject_unknown_values_instead_of_keeping_a_string ... ok
+test tests::generated_enums_equal_the_vocabulary_exactly ... ok
+test tests::rule_02_contract_effects_round_trip_when_the_engine_supports_them ... ok
+== self-test: a deleted field must fail the check
+test tests::unknown_enum_values_are_errors_not_defaults ... ok
+test tests::unknown_fields_are_ignored_so_minor_additions_do_not_break_old_clients ... ok
+test tests::rule_engine_output_deserializes_into_evaluation_result ... ok
+test events::tests::events_examples_validate ... ok
+.....ok: 30 generated files are up to date
+...........test tests::generated_files_are_up_to_date ... ok
+......test events::tests::events_check_vocabulary_ids_and_counts ... ok
+...test events::tests::events_reject_extra_missing_and_wrong_shape ... ok
+   structural diff: deleted field detected
+.....   compile probe: previous client cannot read documents without the deleted field
+self-test ok
+test tests::compat_check_selftest_detects_a_deleted_field ... ok
+...................................................................................................
+----------------------------------------------------------------------
+Ran 129 tests in 27.321s
+
+OK
+test tests::python_codegen_suite_passes ... ok
+
+test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 27.47s
+
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_criteria-52d9bb73ad12e5b2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conformance.rs (/workspace/onjeon-run/shared-target/debug/deps/conformance-9c33d52e6f813826)
+
+running 6 tests
+test shipped_criteria_dir_loads_clean ... ok
+test criterion_kind_matches_db_check ... ok
+test ids_and_refs_match_db_grammar ... ok
+test append_only_semantics_hold ... ok
+test every_version_carries_source_kind_and_scope ... ok
+test enums_match_vocabulary_and_schema ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/load_validate.rs (/workspace/onjeon-run/shared-target/debug/deps/load_validate-0bdfcc8692a31c8b)
+
+running 12 tests
+test default_like_keys_are_refused_anywhere ... ok
+test load_dir_reads_sorted_json_files ... ok
+test scope_must_be_present_and_nonempty ... ok
+test evidence_kind_comes_from_the_vocabulary ... ok
+test private_zone_ids_never_enter_public_criteria ... ok
+test dates_are_real_and_ordered ... ok
+test kinds_are_the_four_contract_values ... ok
+test unknown_fields_are_rejected ... ok
+test valid_file_loads ... ok
+test sources_are_required_and_deduped ... ok
+test release_file_loads_and_checks_id ... ok
+test sources_require_a_ref_of_the_right_kind ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/release_changes.rs (/workspace/onjeon-run/shared-target/debug/deps/release_changes-630460bddf3604be)
+
+running 7 tests
+test freeze_rejects_fixture_versions ... ok
+test release_file_round_trips ... ok
+test diff_to_tips_reports_corrections_since_release ... ok
+test change_list_marks_added_corrected_removed ... ok
+test verify_catches_member_loss_and_in_place_edits ... ok
+test release_id_is_separate_from_knowledge_release ... ok
+test freeze_lists_tip_versions_sorted_and_is_deterministic ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/versioning.rs (/workspace/onjeon-run/shared-target/debug/deps/versioning-0945c4417cb34a83)
+
+running 8 tests
+test first_version_carries_no_supersedes ... ok
+test version_id_must_match_criterion_and_number ... ok
+test duplicate_ids_are_rejected ... ok
+test fixture_versions_load_but_stay_marked ... ok
+test supersedes_is_the_directly_previous_version ... ok
+test correction_pairs_supersedes_and_reason ... ok
+test correction_chain_loads_from_files ... ok
+test need_criteria_versioned ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_ontology-dd70b7f222cd519b)
+
+running 2 tests
+test membership::tests::range_spans_letters ... ok
+test membership::tests::range_bound_with_minor_is_rejected ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/editions.rs (/workspace/onjeon-run/shared-target/debug/deps/editions-e829bf146644c68c)
+
+running 11 tests
+test d2_raw_hash_alone_cannot_realize_an_edition ... ok
+test edition_composition_annex ... ok
+test edition_annex_content_changed ... ok
+test edition_bundle_split_files ... ok
+test edition_ocr_normalization ... ok
+test edition_annex_missing_unconfirmed ... ok
+test edition_integrated_vs_separate_file ... ok
+test edition_not_auto_by_fingerprint ... ok
+test unknown_edition_is_an_error_and_unconfirmed_when_resolving ... ok
+test edition_repack_same ... ok
+test edition_one_rider_revised_in_integrated ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/fixture_origin/main.rs (/workspace/onjeon-run/shared-target/debug/deps/fixture_origin-6100793664c375aa)
+
+running 6 tests
+test fixture_origin_rules_are_all_fixture_only ... ok
+test fixture_origin_hashes_not_in_r2_listing ... ok
+test fixture_origin_evidence_refs_are_formal_except_listed ... ok
+test fixture_origin_claims_are_all_fixture ... ok
+test fixture_origin_marker_mutations_are_detected ... ok
+test fixture_origin_checks_pass_as_historical_and_flag_as_service ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/golden.rs (/workspace/onjeon-run/shared-target/debug/deps/golden-d8a64bd75aa36b14)
+
+running 9 tests
+test scope_relation_with_unknown_membership_is_not_comparable ... ok
+test scope_relation_with_an_empty_universe_is_not_comparable ... ok
+test judgement_names_trail_and_code_sets ... ok
+test the_eleven_questions_match_the_reference ... ok
+test correction_history_is_reproduced_per_release ... ok
+test q1_explanation_reaches_page_and_file ... ok
+test releases_reproduce_the_reference_hashes_and_integrity ... ok
+test r24_has_exactly_one_k1_violation_and_r25_r26_none ... ok
+test scope_relation_hana_vs_hyundai_is_narrower_and_needs_a_code_system ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/input_link.rs (/workspace/onjeon-run/shared-target/debug/deps/input_link-1231b0b0d3aeb649)
+
+running 10 tests
+test s01b_unapproved_duplicate_link_of_the_requested_edition_blocks ... ok
+test e3_several_configurations_apply_on_the_contract_date ... ok
+test simulate_is_blocked_by_open_conflict_and_missing_rule ... ok
+test e4_candidate_order_does_not_matter ... ok
+test e2_coverage_of_another_edition_on_the_same_configuration ... ok
+test q9_and_q10_are_blocked_with_a_reason ... ok
+test e1_other_company_coverage_on_a_hana_configuration ... ok
+test t01_unknown_scope_blocks_unrelated_rider_passes_competing_edition_blocks_order_independent ... ok
+test u01_definition_site_and_application_relation_are_different ... ok
+test s01_extra_evidence_and_a_second_unrelated_edition_do_not_block ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/mutations.rs (/workspace/onjeon-run/shared-target/debug/deps/mutations-2fe0b5e130225d6c)
+
+running 18 tests
+test k10_two_claims_supersede_the_same_one ... ok
+test k2_same_benefit_without_both_sides ... ok
+test k16_annex_fingerprint_changed_in_place ... ok
+test k12_scope_relation_differs_from_computation ... ok
+test k3_code_set_without_edition ... ok
+test k4_mixed_narrower_broader_cycle ... ok
+test k13_comparison_eligible_price_without_conditions ... ok
+test k5_valid_from_after_valid_to ... ok
+test k14_fingerprint_match_is_not_an_approval ... ok
+test k6_different_units_called_equal ... ok
+test k4_narrower_cycle ... ok
+test k1_accepted_c0_without_terms_basis ... ok
+test k9_rule_evidence_outside_basis ... ok
+test k8_private_id_in_public_zone ... ok
+test k11_enabled_with_hold_claims ... ok
+test k7_reduction_without_target ... ok
+test unbroken_candidate_is_clean ... ok
+test k12_accepted_relation_without_a_code_universe_is_not_computable ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/profile.rs (/workspace/onjeon-run/shared-target/debug/deps/profile-f326ed27baa1f467)
+
+running 3 tests
+test p1_raw_price_observation_is_kept_and_comparison_needs_dimensions ... ok
+test a_review_decision_realizes_passes_the_service_profile ... ok
+test profile_check_flags_fixture ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/releases.rs (/workspace/onjeon-run/shared-target/debug/deps/releases-80628cdb137411d1)
+
+running 9 tests
+test i3_deleted_member_is_k15 ... ok
+test i6_in_place_edit_of_a_reference_node_is_k15 ... ok
+test unknown_release_is_an_error ... ok
+test i2_in_place_edit_is_k15 ... ok
+test i4_swapped_rule_file_is_k15 ... ok
+test freeze_is_order_independent_and_hash_covers_rule_files ... ok
+test i5_replaced_reference_nodes_and_links_do_not_change_the_frozen_release ... ok
+test i7_notice_restricts_service_not_reproduction ... ok
+test release_future_supersedes_frozen ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/tbox.rs (/workspace/onjeon-run/shared-target/debug/deps/tbox-7ff757a10a57e324)
+
+running 5 tests
+test schemas_copy_is_identical_to_the_design_proposal_when_it_is_present ... ok
+test loads_the_schemas_copy ... ok
+test no_database_or_network_dependency ... ok
+test rejects_other_versions_and_incomplete_constraint_lists ... ok
+test every_constraint_the_checker_reports_is_defined_in_the_tbox ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_rules_engine-46883c887d216cb6)
+
+running 10 tests
+test date::tests::month_end_clamps ... ok
+test date::tests::parse_date_rejects_non_digits_in_every_component ... ok
+test tri::tests::truth_table_matches_spec_49_3 ... ok
+test canonical::tests::runtime_struct_fields_are_sorted_recursively_and_types_are_explicit ... ok
+test date::tests::out_of_range_and_overflow_return_none_instead_of_panicking ... ok
+test rule::canonical_tests::content_hash_matches_independent_sha256_of_the_canonical_text ... ok
+test date::tests::roundtrip_and_known_dates ... ok
+test date::tests::parse_date_preserves_canonical_dates_and_calendar_validation ... ok
+test rule::canonical_tests::canonical_bytes_sort_keys_recursively_and_drop_release_id ... ok
+test value::tests::rate_parsing ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/all_any_errors.rs (/workspace/onjeon-run/shared-target/debug/deps/all_any_errors-13afaee0138aa697)
+
+running 7 tests
+test unknown_children_keep_their_blockers_without_defaulting_to_a_decision ... ok
+test absorbed_errors_have_deterministic_trace_entries_without_partial_children ... ok
+test all_false_absorbs_runtime_errors_in_both_versions ... ok
+test any_true_absorbs_runtime_errors_in_both_versions ... ok
+test errors_are_preserved_without_a_decisive_child ... ok
+test decisive_result_wins_over_errors_and_unknowns_in_every_child_order ... ok
+test nested_all_any_and_if_keep_decisions_and_relevant_errors ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/content_hash_scope.rs (/workspace/onjeon-run/shared-target/debug/deps/content_hash_scope-4da944e772be22b3)
+
+running 7 tests
+test metadata_that_does_not_affect_evaluation_is_still_hashed ... ok
+test omitted_defaults_are_not_filled_in ... ok
+test whitespace_key_order_and_string_escapes_do_not_change_the_hash ... ok
+test string_whitespace_and_array_order_are_not_normalized ... ok
+test top_level_release_id_is_excluded_but_a_nested_one_is_hashed ... ok
+test unicode_forms_are_not_normalized ... ok
+test equivalent_spellings_of_the_same_logic_hash_differently ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/date_format.rs (/workspace/onjeon-run/shared-target/debug/deps/date_format-c73c2d489faeeeca)
+
+running 3 tests
+test signed_date_literals_are_rejected_at_load ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+test signed_date_inputs_are_rejected_at_evaluation ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/days_between.rs (/workspace/onjeon-run/shared-target/debug/deps/days_between-470e13cb4e0feaea)
+
+running 4 tests
+test missing_dates_stay_unknown_and_report_only_missing_endpoints ... ok
+test reversed_literal_and_computed_dates_are_also_rejected ... ok
+test forward_and_same_day_intervals_preserve_all_inclusive_boundaries ... ok
+test reversed_dates_cannot_satisfy_comparison_thresholds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/fixture_supplements.rs (/workspace/onjeon-run/shared-target/debug/deps/fixture_supplements-5c73c7add3657f0c)
+
+running 4 tests
+test duplicate_ids_within_a_supplement_are_rejected - should panic ... ok
+test supplement_cannot_shadow_a_shared_case - should panic ... ok
+test every_supplement_extends_an_existing_table_without_changing_shared_cases ... ok
+test supplemental_cases_inherit_base_inputs_and_apply_their_overrides ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/golden.rs (/workspace/onjeon-run/shared-target/debug/deps/golden-b070bb5f85ed9bcc)
+
+running 8 tests
+test golden_table_matches_expert_expectations ... ok
+test trace_records_every_evaluated_node_and_hash_changes_with_input ... ok
+test synthetic_fixture_rule_is_fixture_only ... ok
+test pinned_input_snapshot_hashes_are_distinct_per_distinct_input ... ok
+test golden_table_pins_trace_and_hashes ... ok
+test real_rule_content_hashes_are_pinned ... ok
+test same_input_gives_byte_identical_output ... ok
+test real_results_are_byte_identical_after_disk_reload_and_key_permutation ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/identity_evidence.rs (/workspace/onjeon-run/shared-target/debug/deps/identity_evidence-61b825b05ec1fee8)
+
+running 5 tests
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test blank_rule_ids_are_rejected ... ok
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/immutable_rule_doctests.rs (/workspace/onjeon-run/shared-target/debug/deps/immutable_rule_doctests-1d29f698468c1c69)
+
+running 1 test
+test immutable_rule_doctests_fail_only_on_private_field_access ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+     Running tests/loader_and_arith.rs (/workspace/onjeon-run/shared-target/debug/deps/loader_and_arith-581a38e2763dfe88)
+
+running 13 tests
+test date_add_exact_key_sets_preserve_calendar_results ... ok
+test date_add_never_assumes_365_days_per_year ... ok
+test date_add_params_are_a_closed_key_set ... ok
+test days_between_rejects_reversed_dates_for_every_inclusivity ... ok
+test date_add_required_keys_cannot_be_replaced_by_unknown_keys ... ok
+test date_add_rejects_day_month_end_and_unknown_keys_in_unselected_branches ... ok
+test cap_min_max_add_with_ranges ... ok
+test loader_rejects_everything_outside_the_allow_list ... ok
+test loader_enforces_rule_level_invariants ... ok
+test days_between_inclusivity_is_explicit ... ok
+test rounding_to_unit ... ok
+test evaluation_rejects_undeclared_or_mistyped_inputs ... ok
+test rounding_modes_are_explicit_and_exact ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/mutation.rs (/workspace/onjeon-run/shared-target/debug/deps/mutation-30bcc153d15232c8)
+
+running 7 tests
+test every_mutant_is_killed_by_the_golden_table ... ok
+test harness_reports_a_surviving_mutant ... ok
+test generic_rate_literals_mutate_in_both_representations ... ok
+test allowlist_has_no_stale_entries ... ok
+test skin_rule_boundary_supplement_kills_mutants_the_shared_table_misses ... ok
+test wrapped_real_rule_rates_preserve_mutation_coverage ... ok
+test generic_mutants_are_killed_on_every_rule ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.92s
+
+     Running tests/overflow.rs (/workspace/onjeon-run/shared-target/debug/deps/overflow-a7a24fbf3280fcac)
+
+running 12 tests
+test add_is_exact_up_to_i64_max ... ok
+test min_max_and_cap_at_i64_max_never_overflow ... ok
+test multiply_rate_on_a_range_overflows_on_either_bound ... ok
+test add_overflows_on_the_upper_bound_of_a_range_alone ... ok
+test multiply_rate_overflows_when_rounding_up_to_the_unit_exceeds_i64_max ... ok
+test add_past_i64_max_overflows_instead_of_wrapping ... ok
+test add_overflow_in_a_nested_expression_reports_the_inner_path ... ok
+test overflow_is_an_error_not_an_unknown_amount ... ok
+test add_overflow_is_found_in_any_position_of_a_long_sum ... ok
+test unspecified_rounding_overflows_when_only_the_upper_bound_does ... ok
+test multiply_rate_is_exact_when_the_result_is_i64_max ... ok
+test multiply_rate_product_past_i64_max_overflows ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/range_comparisons.rs (/workspace/onjeon-run/shared-target/debug/deps/range_comparisons-52c9a26577a11945)
+
+running 10 tests
+test mixed_exact_and_range_if_amounts_keep_runtime_results_and_unknowns ... ok
+test static_range_checks_do_not_depend_on_constant_values_or_reachable_branches ... ok
+test exact_money_threshold_comparisons_preserve_order_and_missing_inputs ... ok
+test pro_rata_ratio_operands_still_require_exact_money ... ok
+test audit_p201_is_rejected_before_input_dependent_failure ... ok
+test v02_money_operators_preserve_input_ranges_even_with_explicit_rounding ... ok
+test v02_rounding_operators_introduce_ranges ... ok
+test nested_and_unreachable_comparisons_fail_at_both_load_boundaries ... ok
+test ranges_propagate_through_every_v01_money_operator_and_if_branch ... ok
+test exact_money_comparisons_still_load_and_evaluate_for_all_rounding_modes ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/readme_test_table.rs (/workspace/onjeon-run/shared-target/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 4 tests
+test audited_rows_are_present ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+test readme_does_not_call_the_content_hash_normalized ... ok
+test readme_test_table_matches_integration_test_files ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/real_clauses.rs (/workspace/onjeon-run/shared-target/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 11 tests
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... ok
+test waiting_period_units_are_not_interchangeable ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test screen_check_catches_tampered_numbers ... ok
+test every_real_clause_case_matches ... ok
+test exact_case_count_check_catches_an_unexpected_extra_case - should panic ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+test exact_case_count_check_catches_each_missing_file ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/review_fixes.rs (/workspace/onjeon-run/shared-target/debug/deps/review_fixes-89e86f8d87d7639f)
+
+running 11 tests
+test loader_rejects_huge_date_offsets ... ok
+test input_dates_outside_supported_range_are_rejected ... ok
+test content_hash_changes_with_content_even_if_version_is_not_bumped ... ok
+test content_hash_ignores_formatting_and_release_but_not_evidence ... ok
+test fixture_rule_content_hash_is_pinned ... ok
+test content_hash_is_independent_of_key_order_in_the_file ... ok
+test date_arithmetic_beyond_supported_range_is_an_error_not_a_panic ... ok
+test version_and_release_are_enforced_at_load_time ... ok
+test reloading_the_source_json_reproduces_the_same_rule_identity ... ok
+test unspecified_rounding_range_flows_through_a_second_multiplication ... ok
+test result_identifies_rule_version_release_content_and_evidence ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/rule_02.rs (/workspace/onjeon-run/shared-target/debug/deps/rule_02-c69f0843eb660f70)
+
+running 41 tests
+test anniversary_band_rejects_reversed_dates_and_propagates_unknown ... ok
+test contract_effect_follows_eligibility ... ok
+test anniversary_band_upper_inclusive_boundaries ... ok
+test anniversary_band_lower_inclusive_boundaries ... ok
+test anniversary_band_leap_day_anniversary_is_the_last_day_of_february ... ok
+test anniversary_band_table_is_validated_at_load ... ok
+test composes_with_rule_01_operators ... ok
+test contract_effect_defaults_to_none_and_is_validated ... ok
+test max_over_and_lists_are_typed_at_load ... ok
+test divide_count_golden_and_boundaries ... ok
+test max_over_overflow_is_an_error ... ok
+test list_inputs_are_validated ... ok
+test max_over_unknown_list_or_amount_is_unknown_not_zero ... ok
+test max_over_takes_the_highest_per_class_and_sums_classes ... ok
+test multiply_count_keeps_ranges ... ok
+test multiply_count_golden_and_boundaries ... ok
+test multiply_count_type_checks_at_load ... ok
+test multiply_count_unknown_is_never_zero ... ok
+test contract_effect_is_part_of_the_content_hash ... ok
+test divide_count_zero_count_is_unknown ... ok
+test pro_rata_accepts_int_parts_and_rejects_mixed_types ... ok
+test divide_count_unknown_inputs_block ... ok
+test pro_rata_boundaries ... ok
+test divide_count_rounds_the_bounds_of_a_range ... ok
+test pro_rata_requires_explicit_rounding ... ok
+test pro_rata_applies_to_ranges ... ok
+test list_input_changes_the_snapshot_hash ... ok
+test pro_rata_golden_and_rounding ... ok
+test pro_rata_whole_zero_is_unknown_not_error_not_zero ... ok
+test rule_01_results_report_no_contract_effect ... ok
+test subtract_floor0_golden_and_boundaries ... ok
+test subtract_floor0_range_bounds_are_conservative ... ok
+test rule_01_documents_cannot_use_rule_02_features ... ok
+test rule_02_results_are_reproducible_and_identify_the_schema ... ok
+test pro_rata_unknown_inputs_block ... ok
+test subtract_floor0_unknown_is_not_floored_to_zero ... ok
+test undetermined_eligibility_never_reports_no_effect ... ok
+test unknown_eligibility_with_rule_02_amount_stays_undetermined ... ok
+test rule_02_operators_are_sound_under_hidden_inputs ... ok
+test zero_operands_that_are_known_differ_from_unknown_ones ... ok
+test mutated_rule_02_operators_are_caught ... ok
+
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/snapshot_hash.rs (/workspace/onjeon-run/shared-target/debug/deps/snapshot_hash-8f3c0914b196cffd)
+
+running 6 tests
+test list_member_order_amount_and_class_are_preserved_but_object_order_is_not ... ok
+test every_input_name_is_hashed_including_release_id_and_json_metacharacters ... ok
+test object_order_and_null_vs_missing_do_not_change_the_snapshot ... ok
+test hash_matches_independent_canonical_json_with_all_input_types ... ok
+test delimiter_injection_no_longer_collides ... ok
+test runtime_types_and_string_bytes_remain_distinct ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/soundness.rs (/workspace/onjeon-run/shared-target/debug/deps/soundness-7683122ddc54e9c2)
+
+running 9 tests
+test hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer ... ok
+test unknown_eligibility_preserves_successful_conditional_amounts_and_blockers ... ok
+test hiding_eligibility_keeps_an_overflowing_amount_undetermined ... ok
+test unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors ... ok
+test unknown_is_never_reported_as_zero_or_not_payable ... ok
+test unknown_eligibility_handles_all_any_errors_inside_conditional_amount ... ok
+test hiding_an_input_never_changes_a_definite_answer ... ok
+test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
+test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running tests/static_types.rs (/workspace/onjeon-run/shared-target/debug/deps/static_types-e121bb97a3bf2b90)
+
+running 10 tests
+test audit_examples_are_rejected_at_load ... ok
+test ordering_on_bool_or_string_is_rejected_at_load ... ok
+test date_operators_need_date_arguments ... ok
+test top_level_expressions_must_be_bool_and_money ... ok
+test literal_forms_carry_their_types ... ok
+test if_needs_boolean_condition_and_same_typed_branches ... ok
+test comparisons_need_matching_operand_types ... ok
+test well_typed_rules_still_evaluate_as_before ... ok
+test logic_operators_need_boolean_arguments ... ok
+test money_operators_need_money_arguments ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/string_literals.rs (/workspace/onjeon-run/shared-target/debug/deps/string_literals-0f2e732b37dab48e)
+
+running 8 tests
+test str_rejects_non_string_arguments_and_extra_keys_at_load ... ok
+test string_literals_compose_with_if_and_boolean_operators ... ok
+test legacy_bare_strings_keep_input_precedence_and_rate_fallback ... ok
+test string_literals_obey_static_comparison_and_context_types ... ok
+test explicit_strings_support_eq_ne_on_either_side ... ok
+test missing_and_null_string_inputs_remain_unknown ... ok
+test declared_input_names_cannot_capture_explicit_literals ... ok
+test literal_values_are_preserved_without_rate_parsing_or_normalization ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/unknown_branch_errors.rs (/workspace/onjeon-run/shared-target/debug/deps/unknown_branch_errors-042ef5e7e77aab11)
+
+running 8 tests
+test eligibility_branch_errors_leave_eligibility_unknown ... ok
+test type_errors_in_a_branch_are_absorbed_too ... ok
+test failing_branch_under_unknown_condition_is_unknown_with_blockers ... ok
+test both_branches_failing_is_still_an_error ... ok
+test blockers_include_the_other_unknown_branch ... ok
+test a_selected_failing_branch_is_still_an_error ... ok
+test trace_records_the_absorbed_error_and_is_deterministic ... ok
+test a_failing_branch_never_makes_the_other_branch_the_answer ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/vocabulary.rs (/workspace/onjeon-run/shared-target/debug/deps/vocabulary-45281aec3561603e)
+
+running 8 tests
+test publication_states_are_canonical ... ok
+test tri_names_are_canonical ... ok
+test duration_units_are_canonical ... ok
+test rounding_modes_are_canonical ... ok
+test operator_allowlist_is_canonical_and_versioned ... ok
+test input_types_are_canonical_and_versioned ... ok
+test amount_kind_names_are_canonical ... ok
+test payout_names_are_canonical ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_twin_runtime-d57f2c61b1a66eff)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/case-runner.rs (/workspace/onjeon-run/shared-target/debug/deps/case_runner-c6dcefdc43872b58)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (/workspace/onjeon-run/shared-target/debug/deps/cli-d0a84c56e4aa2c46)
+
+running 5 tests
+test a_malformed_rule_path_fails_without_affecting_others ... ok
+test a_job_with_an_unknown_release_fails_without_affecting_others ... ok
+test integrity_findings_block_the_job_before_the_engine ... ok
+test a_job_cannot_declare_or_bypass_judged_inputs ... ok
+test golden_jobs_through_the_cli ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/config_select.rs (/workspace/onjeon-run/shared-target/debug/deps/config_select-b5858dc26ccb15b4)
+
+running 6 tests
+test one_configuration_using_several_editions_is_not_ambiguous ... ok
+test several_applicable_configurations_block ... ok
+test a_configuration_without_any_link_blocks ... ok
+test no_applicable_configuration_reports_the_considered_links ... ok
+test selects_the_configuration_in_force_on_the_contract_date ... ok
+test candidate_order_and_duplicates_change_nothing ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/golden_questions.rs (/workspace/onjeon-run/shared-target/debug/deps/golden_questions-baf4b453d5b06156)
+
+running 4 tests
+test an_unconfirmed_edition_holds_before_the_engine ... ok
+test q9_and_q10_never_reach_the_engine ... ok
+test the_membership_judgement_carries_its_evidence ... ok
+test the_eleven_questions_match_the_reference ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/input_link.rs (/workspace/onjeon-run/shared-target/debug/deps/input_link-533f6b366b074abb)
+
+running 10 tests
+test input_link_other_edition ... ok
+test input_link_competing_editions_hold ... ok
+test input_link_multiple_candidates ... ok
+test input_link_other_company ... ok
+test input_link_other_edition_applies_hold ... ok
+test input_link_unknown_scope_hold ... ok
+test input_link_unrelated_rider_allowed ... ok
+test input_link_order_independent ... ok
+test input_link_application_scope_unverified_hold ... ok
+test input_link_multi_edition_config ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/input_stage.rs (/workspace/onjeon-run/shared-target/debug/deps/input_stage-9e3594e5806d56a6)
+
+running 15 tests
+test a_stale_or_unknown_key_in_the_declaration_fails_loudly ... ok
+test a_declaration_naming_no_rule_input_is_rejected ... ok
+test a_missing_as_of_fact_is_unknown_not_an_undated_answer ... ok
+test judge_time_calendar_month_and_year_clamp ... ok
+test judge_time_day_duration_anchor_counted_and_not ... ok
+test judge_time_records_the_assumed_counting_rule ... ok
+test judge_time_refuses_bad_input_and_never_guesses ... ok
+test a_malformed_as_of_fact_is_an_error_not_a_guess ... ok
+test a_malformed_code_fact_is_an_error_not_a_guess ... ok
+test evidence_required_false_is_a_bad_declaration ... ok
+test fill_produces_inputs_and_the_membership_judgement ... ok
+test a_missing_code_fact_leaves_the_input_unknown_with_a_judgement ... ok
+test fill_time_stage_judgement_and_its_boundary_travel ... ok
+test unsupported_judged_by_fails_explicitly ... ok
+test the_artifact_carries_the_declaration_and_the_engine_never_sees_it ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/integrity.rs (/workspace/onjeon-run/shared-target/debug/deps/integrity-a5b7140d654b6380)
+
+running 6 tests
+test a_coverage_without_a_rule_is_no_rule ... ok
+test unapproved_claims_in_scope_hold_as_link_unapproved ... ok
+test integrity_findings_stop_the_run_before_the_chain ... ok
+test the_request_contract_date_overrides_the_fact ... ok
+test a_swapped_rule_file_is_an_integrity_block_not_an_evaluation ... ok
+test a_malformed_contract_date_is_rejected ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/regen_fixture.rs (/workspace/onjeon-run/shared-target/debug/deps/regen_fixture-90781bdd0c70eed1)
+
+running 2 tests
+test regenerate_declared_abox_fixture ... ignored
+test declared_abox_fixture_is_current ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/static_guards.rs (/workspace/onjeon-run/shared-target/debug/deps/static_guards-edd3894a383e4a7c)
+
+running 3 tests
+test no_skeleton_markers_or_fixture_data_in_src ... ok
+test no_secrets_or_model_identifiers_in_src ... ok
+test no_database_or_network_access_before_the_engine ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_ai_gateway
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_api_types
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_collect
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_contracts
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_criteria
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_ontology
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_rules_engine
+
+running 3 tests
+test packages/rules-engine/src/rule.rs - rule::Rule (line 286) - compile fail ... ok
+test packages/rules-engine/src/rule.rs - rule::Rule (line 277) - compile fail ... ok
+test packages/rules-engine/src/rule.rs - rule::Rule (line 264) ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+   Doc-tests onjeon_twin_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+exit code: 0

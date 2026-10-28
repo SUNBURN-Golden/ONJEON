@@ -1,0 +1,79 @@
+{
+  "node": "audit3-daemon-static-check-bypasses",
+  "baseline_commit": "285b9edf1dd60b80b9a7414a46d94d46ab83ecab",
+  "daemon_source_tree_sha256": "137dff4091ec8316d317e53d40ac0feeeddf599cd16184693de3e67d231b7457",
+  "source_sha256": {
+    "tools/daemon/static_checks.py": "cde6e41db67de670248f1cd3bb6195fba4f2f2b67405f65d8ac33b3de2521880",
+    "tools/daemon/README.md": "8a0848e3ff7c5cd671abd5f6a527152e69644e7fe02a86d019d44cd0df089eb7",
+    "tools/tests/test_daemon_static_checks.py": "cad3259835bff14284de2c25a554b58f4b0717235517eaaf9663fb438487aad5",
+    "tools/tests/test_daemon_dry_run.py": "21de91cba3d8643ec73a302fda4535cf30a9cc6633151f3664641ac959dac473",
+    "docs/blueprint/audits/2026-10-28_daemon_static_check_bypasses.md": "aeaadc2ce627f5dbd4fee6c3f9855faf9f5399dc292cba9c17dbb8adedfb4b83"
+  },
+  "evidence_sha256": {
+    "after.log": "fe3f2ae11c4dfaa3e3858a2f0653ca8d936a8ed454b8d62f1b905d335ca51241",
+    "baseline-dependencies.log": "e0b61fd2e0e0fe3138cf8fd5353e15c77fd8c67e7a73a5502dff966e7703ff8a",
+    "before.log": "d4ccc689422051b950623f3408b9421a88fcead75b515bb30b95669e75469e4e",
+    "blueprint-counts.log": "6145b7ea1b233633e1369c1380cc0319109fe23e9dc01474e4efb1017104451e",
+    "checks.log": "3ca6b560d4c1bf21a666c01ae9eb4486970ed00f8424de6460cc39f54a879e10",
+    "python-tests.log": "1bcb23f3e81cda9154f97a700dd6a291c2b01179a2615975e59a6d1b1c4fbdcd",
+    "runner-verify-tests.log": "3b1dba6608c5b01e1d40deb5a57b499cdedce24f4681092996771495d31990f2",
+    "rust-tests.log": "dc056474f1cee6f0a2eebc2597a8616cf2ffe49ddc1075e1cb25c9a0b43ddb1a"
+  },
+  "results": {
+    "regression_before": {
+      "tests": 16,
+      "failures_including_subtests": 124,
+      "errors_including_subtests": 17,
+      "exit_code": 1
+    },
+    "regression_after": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "python_discovery": {
+      "tests": 1201,
+      "skipped": 6,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "daemon_unittest": {
+      "tests": 267,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "daemon_dry_run": {
+      "checks": 692,
+      "required_ids": 33,
+      "missing": 0,
+      "unlisted": 0,
+      "repeated": 0,
+      "exit_code": 0
+    },
+    "runner_verify": {
+      "tests": 59,
+      "failures": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    "rust_all": {
+      "exit_code": 0,
+      "ignored": 1
+    },
+    "static_cli": {
+      "checks": 13,
+      "failures": 0,
+      "exit_code": 0
+    },
+    "tools_ci": {
+      "tests": 20,
+      "failures": 2,
+      "exit_code": 1,
+      "preexisting_dependency_findings": 3,
+      "baseline_evidence": "baseline-dependencies.log"
+    }
+  }
+}

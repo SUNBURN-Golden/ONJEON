@@ -6,6 +6,8 @@
 python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json \
   --tasks tools/daemon/mock_tasks.json --scenario all [--report <경로>.json] [--quiet] [--require-all]
 python3 -m unittest tools/tests/test_daemon_dry_run.py
+python3 -I tools/daemon/static_checks.py
+python3 -m unittest tools/tests/test_daemon_static_checks.py -v
 ```
 
 `--scenario`는 `all`, M 번호(`M41`), 또는 필수 시험 ID(`restart-ttl-expired-no-resend`)를 받는다. 하나라도 기대와 다르거나 시나리오가 예외로 멈추면 종료 코드는 1이다. 실행 기록과 보고서는 `reports/`에 있다. `reports/dry_run.log`가 보고서이고, 통과한 검사도 기대·실제 열(전이 열 포함)을 줄이지 않고 다 적는다. JSON이 필요하면 `--report`로 만든다. `--require-all`을 주면 실행한 시험 ID가 T-OP-00 필수 시험 ID 33개(`mock_tasks.json` `t_op_00_required_test_ids`)와 정확히 같아야 종료 코드 0이다. 빠진 ID(실행하지 않은 시험 ID), 목록에 없는 ID(필수 목록에 없는 시험 ID), 두 번 이상 나온 ID(두 시나리오가 같은 ID를 쓰거나 목록에 두 번 적힌 것)를 요약에 적고, 하나라도 있으면 1이다(`dry_run.coverage`, audit2-daemon-coverage-reverse). STATIC과 시험 ID가 `-`인 시나리오는 세지 않는다.
@@ -57,6 +59,14 @@ PR 이후 전이(전이표 43~85행)는 대부분 `cond`가 없다. `blocked→q
 - G29~G50: 코어가 새 필드를 읽는다(`spec_gaps.py`의 `core_reads`). G47만 일부다. 기본값이 든 `envelopes.instruction.limits`를 `core_contract.reads`에 넣는 일은 `daemon_rules.json` 변경이라 이 과제의 허용 경로 밖이다. 코어는 과제 정의의 limits를 쓴다.
 - 문장에서 꺼낸 토큰은 0종이다(`Rules.token_log`).
 - 새 명세 공백 G51~G57은 열려 있다. 설계 담당이 정할 일이다.
+
+## 정적 검사 실행과 범위
+
+`python3 -I tools/daemon/static_checks.py`는 13개 정적 검사를 실제로 실행하고 각 결과와 위반 위치를 출력한다. 기본 규칙·모의 과제 경로는 스크립트 위치를 기준으로 정하므로 다른 작업 디렉터리에서도 실행할 수 있다. `--rules <경로>`·`--tasks <경로>`로 입력을 바꾼다. 종료 코드는 모두 통과하면 0, 위반이면 1, 입력 읽기·JSON·소스 구문 등 검사 완료 오류면 2다.
+
+네트워크·동적 코드 검사에는 `__builtins__` 접근, 금지 멤버의 리터럴 `getattr` 조회, `from os import system as s` 같은 별칭 가져오기, `os.exec*`·`os.spawn*`·`posix_spawn*` 등 프로세스 실행 함수 참조, `ctypes`·`_ctypes`·`posix`·`nt` 가져오기가 포함된다. `re.compile`·일반 데이터·포트 객체의 `getattr`는 허용한다. 루프 검사는 AST 리터럴 조건이 참인 `while True:`·`while 1:` 등을 거부하며 주석·문자열 속 루프 예시는 실행문으로 보지 않는다. 기존 스케줄러 패턴 검사도 유지한다.
+
+패턴 검사의 자체 제외는 이 검사기의 정확한 경로에만 적용한다. 하위 디렉터리를 포함해 다른 `static_checks.py`는 검사한다. `runner_verify/`의 기존 별도 검사 경계는 유지한다. 이 검사는 Python 샌드박스가 아니며, 계산해서 만든 속성명·일반 변수 흐름·입력에 의존하는 무한 루프까지 증명하지 않는다. [Audit 3 수정·회귀 실행 증거](../evidence/audit3-daemon-static-check-bypasses/README.md)를 참조한다.
 
 ## 증거 기록(reports/)
 

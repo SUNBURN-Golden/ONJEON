@@ -1,17 +1,22 @@
 """Static checks over the daemon sources (done_criteria of T-OP-00). Each returns a list of violations."""
 import ast
+import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 CORE = HERE / "core"
 FORBIDDEN_IMPORTS = {"socket", "ssl", "urllib", "http", "ftplib", "smtplib", "requests", "subprocess",
-                     "asyncio", "multiprocessing", "xmlrpc", "telnetlib", "pty"}
-FORBIDDEN_CALLS = {"system", "popen", "execv", "execvp", "execl", "spawnl", "spawnv", "fork", "urlopen"}
+                     "asyncio", "multiprocessing", "xmlrpc", "telnetlib", "pty", "ctypes", "_ctypes", "posix", "nt"}
+FORBIDDEN_CALLS = {"system", "popen", "execl", "execle", "execlp", "execlpe", "execv", "execve", "execvp", "execvpe",
+                   "spawnl", "spawnle", "spawnlp", "spawnlpe", "spawnv", "spawnve", "spawnvp", "spawnvpe",
+                   "posix_spawn", "posix_spawnp", "fork", "forkpty", "startfile", "urlopen"}
 # Dynamic code execution and import: the daemon runs only the code that is in its sources.
 FORBIDDEN_DYNAMIC_IMPORTS = {"importlib", "runpy", "builtins", "code", "codeop", "imp", "pkgutil"}
-FORBIDDEN_DYNAMIC_NAMES = {"eval", "exec", "compile", "__import__"}
+FORBIDDEN_DYNAMIC_NAMES = {"eval", "exec", "compile", "__import__", "__builtins__"}
+FORBIDDEN_MEMBERS = FORBIDDEN_CALLS | FORBIDDEN_DYNAMIC_NAMES | {"import_module"}
 _MODEL_WORDS = ["son" + "net", "op" + "us", "hai" + "ku", "fa" + "ble", "gr" + "ok", "g" + "pt", "g" + "lm",
                 "dev" + "in", "swe" + "2", "cur" + "sor", "cla" + "ude", "anth" + "ropic", "mist" + "ral", "gem" + "ini"]
 
@@ -20,9 +25,10 @@ RUNNER_VERIFY = HERE / "runner_verify"   # T-OP-09: the real-runner verification
 
 
 def _py_files(root, include_self=False):
-    """The checker itself is left out: it has to name the patterns it looks for. So is runner_verify/ (T-OP-09):
+    """Only this exact checker is left out: other files with the same name are checked. So is runner_verify/ (T-OP-09):
     it needs subprocess, time and signal by design, and the mock-daemon rules here do not apply to it."""
-    return sorted(p for p in root.rglob("*.py") if (include_self or p.name != "static_checks.py") and RUNNER_VERIFY not in p.parents)
+    return sorted(p for p in Path(root).rglob("*.py")
+                  if (include_self or p.resolve() != Path(__file__).resolve()) and RUNNER_VERIFY not in p.resolve().parents)
 
 
 def _parse(path):
@@ -88,7 +94,9 @@ def no_network_or_cli(root=HERE):
     """No network, CLI or process launch, and no dynamic code (eval, exec, compile, __import__, importlib ...).
 
     A bare name is flagged wherever it appears (a call, an alias such as `f = eval`, a default argument), so
-    `re.compile` is fine and `compile(...)` is not. `builtins.eval(...)` is caught by the `builtins` import ban."""
+    `re.compile` is fine and `compile(...)` is not. Builtins mappings, native execution imports, process
+    member references (including aliases), and literal getattr lookups of forbidden members are rejected.
+    This is a source guard, not a Python sandbox or general data-flow analysis."""
     bad = []
     for p in _py_files(root):
         for node in ast.walk(_parse(p)):
@@ -97,22 +105,29 @@ def no_network_or_cli(root=HERE):
                     top = a.name.split(".")[0]
                     if top in FORBIDDEN_IMPORTS or top in FORBIDDEN_DYNAMIC_IMPORTS:
                         bad.append(f"{p.name}:{node.lineno}: import {a.name}")
-            elif isinstance(node, ast.ImportFrom) and node.module and (
-                    node.module.split(".")[0] in FORBIDDEN_IMPORTS or node.module.split(".")[0] in FORBIDDEN_DYNAMIC_IMPORTS):
-                bad.append(f"{p.name}:{node.lineno}: from {node.module}")
-            elif isinstance(node, ast.ImportFrom) and not node.module:
-                for a in node.names:  # `from . import importlib` style relative imports
-                    if a.name in FORBIDDEN_DYNAMIC_IMPORTS:
-                        bad.append(f"{p.name}:{node.lineno}: from . import {a.name}")
+            elif isinstance(node, ast.ImportFrom):
+                top = (node.module or "").split(".")[0]
+                if top in FORBIDDEN_IMPORTS or top in FORBIDDEN_DYNAMIC_IMPORTS:
+                    bad.append(f"{p.name}:{node.lineno}: from {node.module}")
+                for a in node.names:
+                    if (top == "os" and (a.name in FORBIDDEN_MEMBERS or a.name == "*")) or (
+                            not node.module and a.name in FORBIDDEN_IMPORTS | FORBIDDEN_DYNAMIC_IMPORTS):
+                        bad.append(f"{p.name}:{node.lineno}: from {node.module or '.'} import {a.name}")
             elif isinstance(node, ast.Call):
                 f = node.func
                 name = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
                 if name in FORBIDDEN_CALLS:
                     bad.append(f"{p.name}:{node.lineno}: call {name}")
+                if name == "getattr" and len(node.args) >= 2:
+                    member = node.args[1]
+                    if isinstance(member, ast.Constant) and isinstance(member.value, str) and member.value in FORBIDDEN_MEMBERS:
+                        bad.append(f"{p.name}:{node.lineno}: forbidden getattr {member.value}")
             if isinstance(node, ast.Name) and node.id in FORBIDDEN_DYNAMIC_NAMES:
                 bad.append(f"{p.name}:{node.lineno}: dynamic code {node.id}")
-            elif isinstance(node, ast.Attribute) and node.attr in ("__import__", "import_module"):
-                bad.append(f"{p.name}:{node.lineno}: dynamic import {node.attr}")
+            elif isinstance(node, ast.Attribute) and node.attr in FORBIDDEN_MEMBERS - {"compile"}:
+                bad.append(f"{p.name}:{node.lineno}: forbidden member {node.attr}")
+            elif isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Constant) and node.slice.value == "__builtins__":
+                bad.append(f"{p.name}:{node.lineno}: builtins mapping access")
     return bad
 
 
@@ -130,14 +145,22 @@ def no_wall_clock():
     return bad
 
 
-def no_scheduler_or_runner():
+def no_scheduler_or_runner(root=HERE):
     """No start-up feature: no scheduler, loop-forever or process launching in the daemon sources."""
     bad = []
-    for p in _py_files(HERE):
+    for p in _py_files(root):
         src = p.read_text(encoding="utf-8")
-        for pat in (r"\bsched\b", r"while True", r"apscheduler", r"cron", r"signal\.signal", r"os\.fork"):
+        for pat in (r"\bsched\b", r"apscheduler", r"cron", r"signal\.signal", r"os\.fork"):
             for m in re.finditer(pat, src):
                 bad.append(f"{p.name}: {pat}")
+        for node in ast.walk(_parse(p)):
+            if isinstance(node, ast.While):
+                try:
+                    always_true = bool(ast.literal_eval(node.test))
+                except (ValueError, TypeError):
+                    always_true = False  # Input-dependent loops are permitted; no source code is executed.
+                if always_true:
+                    bad.append(f"{p.name}:{node.lineno}: while with truthy literal condition")
     return bad
 
 
@@ -286,3 +309,26 @@ def all_static(rules_path, tasks_path=None):
         ("비용 상한·예산 예약·소진 정지 표현 없음(코어·모의 과제·규칙의 동작 필드)", no_cost_cap(raw, tasks_path)),
         ("모델 식별자 문자열 없음", no_model_identifiers()),
     ]
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--rules", type=Path, default=HERE.parents[1] / "docs/blueprint/proposals/설계검토_결과/daemon_rules.json")
+    parser.add_argument("--tasks", type=Path, default=HERE / "mock_tasks.json")
+    args = parser.parse_args(argv)
+    try:
+        checks = all_static(args.rules, args.tasks)
+    except (OSError, UnicodeError, SyntaxError, ValueError, KeyError, TypeError) as exc:
+        print(f"[ERROR] static checks could not complete: {exc}", file=sys.stderr)
+        return 2
+    for name, violations in checks:
+        print(f"[{'FAIL' if violations else 'PASS'}] {name}")
+        for violation in violations:
+            print(f"  {violation}")
+    failed = sum(bool(violations) for _name, violations in checks)
+    print(f"Checks: {len(checks)}, failed: {failed}")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

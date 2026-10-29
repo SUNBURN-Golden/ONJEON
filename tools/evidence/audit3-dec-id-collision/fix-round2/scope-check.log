@@ -1,0 +1,4 @@
+PASS: no unmerged index entries.
+PASS: git diff --check HEAD.
+PASS: all changed files are within allowed paths.
+PASS: merge left uncommitted.

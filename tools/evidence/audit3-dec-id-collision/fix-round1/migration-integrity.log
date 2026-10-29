@@ -1,0 +1,3 @@
+PASS: all 19 direction rows preserve decision text and rationale after ID-only substitution
+PASS: all 36 ADR/DEC files retain complete content except ledger-reference substitutions
+PASS: tasks.json and daemon_rules.json are byte-identical to HEAD; no gate registration or execution ID changes

@@ -1,0 +1,6 @@
+PASS: all 19 HEAD direction rows preserved byte-for-byte.
+PASS: all 20 incoming direction rows preserved except ledger ID normalization.
+PASS: incoming BLUEPRINT sections 0.1, 7, 9.5 and 13 retained verbatim.
+PASS: incoming tasks, daemon rules, ADR-0019 and bundle status retained byte-for-byte.
+PASS: forbidden documents unchanged; no decision-required file created.
+PASS: both conflicted files have no conflict markers.

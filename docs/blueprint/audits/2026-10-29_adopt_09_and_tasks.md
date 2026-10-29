@@ -4,7 +4,7 @@
 
 ## 지적과 반영
 
-차단 지적은 결정 메모만 있고 실제 채택이 없다는 것이었다. [ADR-0019](../../decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)로 09의 제품 완료 증거 기준과 tasks.json의 데몬 작업 소스·개별 수락 계약을 BLUEPRINT 하위에 한정 채택했다. BLUEPRINT §0.1·§7·§9.5·§11·§13, 루트 README, DECISIONS D20·충돌 해소표, 두 계약의 상태, 묶음·인계 README와 daemon_rules.json 상태를 동기화했다. DEC-BUNDLE-STATUS의 과거 미채택 판단은 부분 대체 표시로 보존했다. §11의 자동 결정 색인도 갱신했다.
+차단 지적은 결정 메모만 있고 실제 채택이 없다는 것이었다. [ADR-0019](../../decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)로 09의 제품 완료 증거 기준과 tasks.json의 데몬 작업 소스·개별 수락 계약을 BLUEPRINT 하위에 한정 채택했다. BLUEPRINT §0.1·§7·§9.5·§11·§13, 루트 README, DECISIONS BP-D-20·충돌 해소표, 두 계약의 상태, 묶음·인계 README와 daemon_rules.json 상태를 동기화했다. DEC-BUNDLE-STATUS의 과거 미채택 판단은 부분 대체 표시로 보존했다. §11의 자동 결정 색인도 갱신했다.
 
 기존 경로를 유지했고 09 본문과 JSON의 `_status` 외 모든 필드는 기준 HEAD와 동일하다([대조 기록](../../../tools/evidence/audit3-adopt-09-and-tasks-as-canon/contract-preservation.log)). 작업·시험·관문·실제 완료 증거를 새로 만들거나 완화하지 않았다. 묶음 전체·온톨로지·daemon_rules.json·공통 PR 기준을 일괄 채택하지 않았고 `non_binding_until_adopted`는 그대로다.
 

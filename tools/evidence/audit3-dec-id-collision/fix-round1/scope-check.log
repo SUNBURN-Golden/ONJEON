@@ -1,0 +1,2 @@
+PASS: every changed or new tracked candidate is within node allowed paths; forbidden documents untouched
+PASS: local links in blueprint, decision note and evidence index resolve

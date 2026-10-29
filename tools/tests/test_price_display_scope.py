@@ -1,11 +1,11 @@
 """Public price display: scope vs. enable gate (audit2-price-display-scope).
 
-ADR-0010 → BLUEPRINT §7.1 / DECISIONS D08 / README decide that public price
+ADR-0010 → BLUEPRINT §7.1 / DECISIONS BP-D-08 / README decide that public price
 collection, display and comparison are first-release scope. DECISIONS §3 (O04,
 O10) decides when the price column may be shown publicly, and 09 P02/P09 point at
 those gates. The audit found the two read as a conflict because the recorded
 decisions DEC-O04 and DEC-D-18 were not referenced from the ledger, and "D-18"
-collides with §1 D18 (R2 operations). These tests pin the reconciled wording.
+collided with the former unprefixed ID of §1 BP-D-18 (R2 operations). These tests pin the reconciled wording.
 """
 import re
 import unittest
@@ -66,7 +66,7 @@ class PriceDisplayScope(unittest.TestCase):
     # --- scope source: price display stays in the first release ---------------
 
     def test_scope_sources_keep_public_price_in_first_release(self):
-        self.assertIn("공개 가격도 수집·표시·비교", one_row(self.directions, "| D08 |"))
+        self.assertIn("공개 가격도 수집·표시·비교", one_row(self.directions, "| BP-D-08 |"))
         row = one_row(self.scope, "| 첫 출시 데이터 |")
         self.assertIn("공개 가격", row)
         self.assertTrue(row.endswith("| ADR-0008·0010 |"))
@@ -120,7 +120,7 @@ class PriceDisplayScope(unittest.TestCase):
         d18 = self.index_row("DEC-D-18")
         self.assertIn("위임 결정", d18[1])
         self.assertIn("2026-10-15", d18[1])
-        for phrase in ("O10", "외부 검토 담당", "§1 D18(R2 초기 운영)과 다른 항목"):
+        for phrase in ("O10", "외부 검토 담당", "§1 BP-D-18(R2 초기 운영)과 다른 항목"):
             self.assertIn(phrase, d18[2])
         self.assertIn("아직 지정되지 않았다", d18[3])
         self.assertIn(GATE, d18[3])
@@ -146,11 +146,11 @@ class PriceDisplayScope(unittest.TestCase):
         self.assertEqual(cited - dec_links(mutated), {"DEC-O04"})
 
     def test_d18_is_never_cited_as_the_r2_operations_direction(self):
-        self.assertIn("R2 초기 운영", one_row(self.directions, "| D18 |"))
+        self.assertIn("R2 초기 운영", one_row(self.directions, "| BP-D-18 |"))
         row = one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)")
         for text in (row, one_row(self.scope, "| 첫 출시 데이터 |"),
                      one_row(self.purpose, "| P09 |")):
-            self.assertNotRegex(text, r"(?<![-\w])D18(?!\w)")
+            self.assertNotRegex(text, r"(?<![-\w])BP-D-18(?!\w)")
 
     def test_s12_row_names_milestone_and_what_stays_allowed(self):
         row = cells(one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)"))

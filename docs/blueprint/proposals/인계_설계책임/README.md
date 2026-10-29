@@ -23,8 +23,8 @@
 
 1. [PRINCIPLES](../../../PRINCIPLES.md): 불변 원칙 10개
 2. [BLUEPRINT](../../../BLUEPRINT.md): A·Q·L·I·M, 범위, 계층, 불변식, 마일스톤
-3. [SYSTEM_CONTRACT](../../SYSTEM_CONTRACT.md), [REQUIREMENTS](../../REQUIREMENTS.md)(R01~R26), [DECISIONS](../../DECISIONS.md)(D01~D18, O01~O17)
-4. PR #3 브랜치 `claude/app-site-dev-plan-0hftib`의 ADR-0018과 D19·O18: 정체성·범위에 대한 사용자 결정. main에는 아직 없다
+3. [SYSTEM_CONTRACT](../../SYSTEM_CONTRACT.md), [REQUIREMENTS](../../REQUIREMENTS.md)(R01~R26), [DECISIONS](../../DECISIONS.md)(BP-D-01~BP-D-18, O01~O17)
+4. PR #3 브랜치 `claude/app-site-dev-plan-0hftib`의 ADR-0018과 BP-D-19·O18: 정체성·범위에 대한 사용자 결정. main에는 아직 없다
 5. [설계 통합안(검토본)](../설계통합안_검토본.md): 전 기능 범위, 통합 구조, 토의와 정본의 충돌 X-01~X-15, 결정 분류
 6. [전체 구현 계획(검토본)](../구현계획_검토본.md): 완성품 기준, 다섯 평가 축, 트랙, 단계, 코드 구조, 계약(C-01~C-20), 작업 의존, PR 완료 기준, 감리 지점
 7. [온톨로지 설계안](../온톨로지/온톨로지_설계안.md): 개념·관계 의미·적용 범위와 시점·근거 역할·미확인과 충돌·정정 이력·일관성 제약 K1~K16, 실제 세 상품의 질문 → 지식 조회 → 규칙 실행 → 설명·근거 검증, 데이터 모델·규칙 엔진과의 책임 경계

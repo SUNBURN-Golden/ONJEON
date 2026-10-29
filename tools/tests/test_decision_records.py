@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RECORDS = ("DEC-D-02", "DEC-D-04", "DEC-D-12", "DEC-CANON-T-CT-02")
+RECORDS = ("DEC-D-02", "DEC-D-04", "DEC-D-12", "DEC-O12", "DEC-CANON-T-CT-02")
 
 LEDGER = ROOT / "docs/blueprint/DECISIONS.md"
 MAPPING_START = "<!-- blueprint-decision-id-mapping:start -->"
@@ -147,6 +147,52 @@ class DecisionRecords(unittest.TestCase):
         self.assertIn("사용자 확정 아님", cells[1])
         for phrase in ("접근 확인", "등록", "별도 게이트", "T-OP-03"):
             self.assertIn(phrase, cells[3])
+
+    def o12_summaries(self):
+        ledger_row = next(line for line in self.section.splitlines()
+                          if line.startswith("| O12 |"))
+        blueprint_row = next(line for line in self.open_decisions.splitlines()
+                             if line.startswith("| DSL 의미론(O12) |"))
+        return ledger_row, blueprint_row, " ".join(self.row("DEC-O12"))
+
+    def test_o12_canonical_summaries_keep_provisional_status_and_link(self):
+        for summary in self.o12_summaries():
+            with self.subTest(summary=summary):
+                for phrase in ("위임 결정", "가역", "사용자 확정 아님", "잠정 개발 기준"):
+                    self.assertIn(phrase, summary)
+                self.assertRegex(summary, r"\[DEC-O12\]\((?:\.\./)?decisions/DEC-O12\.md\)")
+                self.assertNotIn("해당 계산 구현 전", summary)
+        status = self.row("DEC-O12")[1]
+        self.assertIn("사용자 확정 아님", status)
+
+    def test_o12_release_scope_matches_task_contract(self):
+        tasks = json.loads((ROOT / "docs/blueprint/proposals/설계검토_결과/tasks.json")
+                           .read_text(encoding="utf-8"))
+        gates = {(task["id"], stage) for task in tasks["tasks"]
+                 for stage, ids in task.get("decision_gates", {}).items() if "O12" in ids}
+        self.assertEqual(gates, {("T-TW-04", "release"), ("T-TW-05", "release")})
+        for summary in self.o12_summaries():
+            with self.subTest(summary=summary):
+                for phrase in ("T-TW-04", "T-TW-05", "release", "설계·합성 시험·병합은 허용",
+                               "M2 전체 개발을 막지 않음", "`decisions_recorded`", "등록은 별도"):
+                    self.assertIn(phrase, summary)
+
+    def test_o12_s6_remains_required_after_gate_registration(self):
+        for summary in self.o12_summaries():
+            with self.subTest(summary=summary):
+                for phrase in ("등록만으로 S6 충족 아님", "연산별", "allow-list", "스키마 거부",
+                               "경계·unknown·range 합성 시험", "변이 시험", "실제 표본 1건 이상",
+                               "T-KN-08", "바이트 동일 결정성", "trace evidence_ref",
+                               "미충족 연산은 병합해도 capability-blocked", "원문 설명만"):
+                    self.assertIn(phrase, summary)
+
+    def test_current_status_explicitly_keeps_both_delegated_decisions_provisional(self):
+        status = self.blueprint.split("## 11. ", 1)[1].split("## 12. ", 1)[0]
+        row = next(line for line in status.splitlines()
+                   if line.startswith("| 결정 기록·운영 관문 |"))
+        for phrase in ("DEC-D-02", "DEC-O12", "잠정 개발 기준", "사용자 확정 아님",
+                       "T-TW-04", "T-TW-05", "release", "S6", "capability-blocked"):
+            self.assertIn(phrase, row)
 
     def test_blueprint_d02_rows_state_delegation_pending_user_confirmation(self):
         for decision, note in (

@@ -1,0 +1,17 @@
+{
+  "base_head": "1a583efae4ec68107845037fac4000eab56d44cb",
+  "sha256": {
+    "README.md": "b176bb045526c22b05213e8b9e2d8671bfe316af0b07e07497cd649e4744b6b6",
+    "docs/BLUEPRINT.md": "b1fc6de554f8b82d2f7b4c5b7f55d0539ce02da149d71963dde7daad407a6ac0",
+    "docs/blueprint/DECISIONS.md": "30822d58a43abe79fbb4db531b3ea4e585c583b0a37f48aeec646144348a796f",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md": "b57210cd0ea56ddc20833ed5046a9695210a28be898a6a6b80e5e21ee72f1f97",
+    "docs/blueprint/proposals/설계검토_결과/README.md": "d6c833220d4b70e4585a67efb6a6b92e71ffd3d750c231782b18e53bc30cc551",
+    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "ed1c1f35e2be51602ae15f703529bffb0aed092e388527353dec86dfacafa770",
+    "docs/blueprint/proposals/설계검토_결과/tasks.json": "22d77b74a0392e7be7a796f6a1957b1e4673fcab2594d7d1ac28c2b24f4771bf",
+    "docs/blueprint/proposals/설계검토_결과/그록봇_인계/README.md": "0c5b9c48c5c8cdfd723c350bab18485390bc8f3f60bfe18ea634ebeeeeeffe50",
+    "docs/decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md": "c9073463deb2be214fc7307000cc6016fd849e48b41e97b79882c32ae6e4fa3a",
+    "docs/decisions/DEC-BUNDLE-STATUS.md": "07b914b102174501a0a44ac081b70f3e2275eca317953dc9f59cbcfc123eaad7",
+    "docs/decisions/audit3-adopt-09-and-tasks-as-canon.md": "cdf8359be3cc29e3f4f53b562559176ed83263487e5e7bb8a620714597b603ae",
+    "tools/tests/test_pr_policy.py": "b4098eb224214ff2489330e9e0f194aeac8e14c5579a773964f7e44f9d09b880"
+  }
+}

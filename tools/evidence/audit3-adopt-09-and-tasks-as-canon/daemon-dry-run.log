@@ -1,0 +1,119 @@
+$ python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all --quiet
+== M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
+== M2 -: 사용량 제한 전환: 429(model_provider) → handoff → 2순위 빌더  [PASS]
+== M3 -: 시험 실패는 전환이 아니다: 같은 빌더 재임대, 3회면 R-06  [PASS]
+== M4 -: 리뷰어 없음 → merge_wait(reviewer_unavailable) → 복귀, 작성 계열·귀속 불가 리뷰는 거부  [PASS]
+== M5 stale-approval-invalidated: 승인 뒤 코드 변경: pr_open, 옛 결과 무효(R-04)  [PASS]
+== M6 -: 즉시 감리: review_approved→audit_pending→merge_wait(ready)  [PASS]
+== M7 -: 정기 감리 카운터: 구현 PR만 세어 10번째에서 묶음  [PASS]
+== M8 -: 허용 경로 밖 수정 → R-01  [PASS]
+== M9 -: 판단 요청 → R-02  [PASS]
+== M10 decision-gate-merge-only: 결정 관문: merge 결정은 merge_wait만 막는다  [PASS]
+== M10a d02-mock-start-allowed: real_data=[D-02] 미기록: 시작 허용, real_data_allowed=false  [PASS]
+== M10b r2-local-work-allowed: real_data=[D-04] 미기록: 로컬 작업 허용, R2 쓰기만 건너뜀  [PASS]
+== M11 -: 재시작 복원: 외부 상태 조회로 복원 또는 R-08  [PASS]
+== M12 -: 중복 실행 방지: 잠금으로 하나만, 열린 PR 재사용  [PASS]
+== M13 -: 충돌 경로 직렬화  [PASS]
+== M14 -: 비밀값 검출: R-10 즉시 중단(결과 봉투·인계 중 파일·기록 문자열)  [PASS]
+== M15 -: 모든 빌더 불가: paused_no_builder, 대체 없음  [PASS]
+== M16 -: 병합 금지(정적)  [PASS]
+== M17 late-write-fenced: 늦은 쓰기 펜싱: A(token 7) 거부, B(token 8)만 수락  [PASS]
+== M18 provider-scoped-switch: 전환 출처 제한: 허용 출처만 전환  [PASS]
+== M18a switch-negative-test-output: 시험 로그의 429·quota 문자열은 전환이 아니다  [PASS]
+== M18b switch-negative-third-party-http: 수집 대상 403/503·저장소 API 401은 전환이 아니다  [PASS]
+== M19 post-merge-prereq: 선행 merged→audit_queued→done 뒤 후속 queued  [PASS]
+== M20 -: 반송 재개: owner_resolved → queued(attempt+1, 새 토큰)  [PASS]
+== M21 event-duplicate-noop: 중복 사건: ci_passed·병합 관측 두 번은 noop  [PASS]
+== M22 event-out-of-order: 순서 뒤바뀐 사건: 보류 뒤 적용, SHA 불일치는 R-04  [PASS]
+== M23 docs-pr-complete: 문서 PR: merged→done, 카운터 불변  [PASS]
+== M24 eleventh-pr-audit: 11번째 PR은 새 묶음, 앞 묶음 감리가 막지 않음  [PASS]
+== M25 mis-merge-not-done: 잘못된 병합: merged_invalid_approval(R-12), done 아님  [PASS]
+== M26 usage-recorded-not-capped: 사용량 기록(슬롯·결과), 상한으로 멈추지 않음, 재시도 한도·응답 없음 정지는 그대로  [PASS]
+== M27 hard-stop-heartbeating-job: 강제 종료 기한: owner_stop 뒤 grace_s, max_wall_s  [PASS]
+== M28 late-result-no-state-change: 이전 임대의 늦은 결과·전환 신호·푸시는 noop, 현재 상태 불변  [PASS]
+== M29 handoff-order: 인계 기록 순서와 폐기 뒤 옛 세대 거부, 새 세대는 폐기 뒤에만  [PASS]
+== M30 lease-guards-all-paths: 모든 임대 발급 경로에서 가드가 하나라도 거짓이면 임대 없음  [PASS]
+== M31 merge-observation-fields: 병합 관측 필드: squash는 merged, head 변경 뒤 병합은 R-12  [PASS]
+== M32 envelope-permission-rejects-missing: 봉투 권한 필드: 누락·잘못된 승인은 R-13, 정본 무단 수정은 R-01  [PASS]
+== M33 handoff-quiescent-before-preserve: 응답 없는 빌더의 보존: isolate 먼저, 정지 확인 뒤에만 preserve  [PASS]
+== M34 duplicate-delivery-noop: 같은 멱등 키 봉투의 중복 전달은 noop  [PASS]
+== M35 retry-new-idempotency-key: 재개·재임대·인계·복귀마다 새 세대·새 키  [PASS]
+== M36 preserve-manifest-same-function: 정지 확인 OID와 보존 커밋 tree OID가 같은 함수  [PASS]
+== M37 preserve-failure-recoverable-stop: 보존 실패 주입: max_attempts 안 재시도, 넘으면 handoff_blocked  [PASS]
+== M38 daemon-restart-during-handoff: 인계 도중 재시작: phase부터 재개 또는 handoff_blocked  [PASS]
+== M39 envelope-id-distinct-events: envelope_id가 다르면 별개 사건, 같으면 noop, 없으면 거부  [PASS]
+== M40 lease-issue-atomic-single-owner: issue_lease 단일 책임, 한 트랜잭션, 세대 한 번만  [PASS]
+== M41 restart-ttl-expired-no-resend: 발급 직후 중단 뒤 TTL 경과: void(expired), 재발송 0  [PASS]
+== M42 restart-revoked-pending-void: 폐기·취소된 임대의 pending 봉투는 void, 재발송 0  [PASS]
+== M43 restart-valid-pending-resend: 유효한 pending은 같은 id로 재발송, 수신 측 검증  [PASS]
+== M44 restart-corrupt-record-returned: 손상 기록은 returned(R-08), 자동 재발급 0  [PASS]
+== STATIC static-checks: 정적 검사와 설명 키 무시 검증  [PASS]
+
+== 요약
+  M1      -                                        PASS      검사 5건 중 통과 5
+  M2      -                                        PASS      검사 6건 중 통과 6
+  M3      -                                        PASS      검사 2건 중 통과 2
+  M4      -                                        PASS      검사 11건 중 통과 11
+  M5      stale-approval-invalidated               PASS      검사 9건 중 통과 9
+  M6      -                                        PASS      검사 5건 중 통과 5
+  M7      -                                        PASS      검사 3건 중 통과 3
+  M8      -                                        PASS      검사 9건 중 통과 9
+  M9      -                                        PASS      검사 1건 중 통과 1
+  M10     decision-gate-merge-only                 PASS      검사 6건 중 통과 6
+  M10a    d02-mock-start-allowed                   PASS      검사 4건 중 통과 4
+  M10b    r2-local-work-allowed                    PASS      검사 4건 중 통과 4
+  M11     -                                        PASS      검사 5건 중 통과 5
+  M12     -                                        PASS      검사 7건 중 통과 7
+  M13     -                                        PASS      검사 3건 중 통과 3
+  M14     -                                        PASS      검사 6건 중 통과 6
+  M15     -                                        PASS      검사 2건 중 통과 2
+  M16     -                                        PASS      검사 3건 중 통과 3
+  M17     late-write-fenced                        PASS      검사 7건 중 통과 7
+  M18     provider-scoped-switch                   PASS      검사 7건 중 통과 7
+  M18a    switch-negative-test-output              PASS      검사 3건 중 통과 3
+  M18b    switch-negative-third-party-http         PASS      검사 3건 중 통과 3
+  M19     post-merge-prereq                        PASS      검사 6건 중 통과 6
+  M20     -                                        PASS      검사 3건 중 통과 3
+  M21     event-duplicate-noop                     PASS      검사 2건 중 통과 2
+  M22     event-out-of-order                       PASS      검사 3건 중 통과 3
+  M23     docs-pr-complete                         PASS      검사 2건 중 통과 2
+  M24     eleventh-pr-audit                        PASS      검사 5건 중 통과 5
+  M25     mis-merge-not-done                       PASS      검사 10건 중 통과 10
+  M26     usage-recorded-not-capped                PASS      검사 18건 중 통과 18
+  M27     hard-stop-heartbeating-job               PASS      검사 9건 중 통과 9
+  M28     late-result-no-state-change              PASS      검사 10건 중 통과 10
+  M29     handoff-order                            PASS      검사 7건 중 통과 7
+  M30     lease-guards-all-paths                   PASS      검사 187건 중 통과 187
+  M31     merge-observation-fields                 PASS      검사 5건 중 통과 5
+  M32     envelope-permission-rejects-missing      PASS      검사 14건 중 통과 14
+  M33     handoff-quiescent-before-preserve        PASS      검사 13건 중 통과 13
+  M34     duplicate-delivery-noop                  PASS      검사 8건 중 통과 8
+  M35     retry-new-idempotency-key                PASS      검사 6건 중 통과 6
+  M36     preserve-manifest-same-function          PASS      검사 18건 중 통과 18
+  M37     preserve-failure-recoverable-stop        PASS      검사 87건 중 통과 87
+  M38     daemon-restart-during-handoff            PASS      검사 68건 중 통과 68
+  M39     envelope-id-distinct-events              PASS      검사 9건 중 통과 9
+  M40     lease-issue-atomic-single-owner          PASS      검사 13건 중 통과 13
+  M41     restart-ttl-expired-no-resend            PASS      검사 19건 중 통과 19
+  M42     restart-revoked-pending-void             PASS      검사 11건 중 통과 11
+  M43     restart-valid-pending-resend             PASS      검사 14건 중 통과 14
+  M44     restart-corrupt-record-returned          PASS      검사 19건 중 통과 19
+  STATIC  static-checks                            PASS      검사 15건 중 통과 15
+  검사 692건, 실패 0건, 명세 공백 표시 0건
+  필수 시험 ID 33개 중 이번에 실행한 것 33개, 실행하지 않은 것 0개(이번 범위 밖)
+  실행하지 않은 시험 ID:
+  필수 목록에 없는 시험 ID 0개
+  두 번 이상 나온 시험 ID 0개
+  코어가 읽은 필드의 문자열 안에서 꺼낸 토큰·해석 0종(명세 공백 후보, --report에 목록)
+  읽기 목록(core_contract.reads) 밖에서 읽는 값: post_merge_states(G51), audit_triggers.periodic.every(G51), audit_triggers.immediate_audit_paths(G51), record_separation.merge_observation_fields(G51)
+  명세 공백: 해소(필드) 49건, 남았거나 새로 생긴 것 8건
+   - G47 [일부 해소] envelopes.instruction.limits.{max_wall_s,max_retries}.default @ daemon_rules.json: limits의 기본값이 reads 밖이다(reads는 envelopes.*.required만). 값을 어디서 가져오는지 정해져 있지 않다
+   - G51 [새로 생김] transitions[43~85](cond 없음. merge_wait로 들어가는 행의 병합 관문은 cond로 옮김), audit_triggers, record_separation, review_assignment, post_merge_states @ daemon_rules.json: PR 이후 전이(ci·리뷰·감리·병합 관측·카운터)는 대부분 cond가 없고(blocked→queued는 선행 과제 cond prereq_tasks_in(post_merge_states)와 시작 관문 cond task.decision_gates.start subset_of task_state.decisions_recorded를 코어가 읽는다, audit1-start-gates-enforcement·audit2-spec-check-reads-prose-when. merge_wait로 들어가는 행과 사유 갱신 행의 병합 관문도 cond task.decision_gates.merge subset_of / not_subset_of로 들어갔다), 사건을 고르는 규칙은 when·immediate_rules[].rule·merge_observation_fields._rule·exclude_rule 같은 문장이거나 core_contract.reads 밖(post_merge_states, audit_triggers.periodic.every, audit_triggers.immediate_audit_paths, record_separation.merge_observation_fields)이다. (merged→audit_queued와 merged→done이 같은 (from, event)에 cond 없이 있던 문제는 cond event.docs_only로 해소했다, audit2-daemon-docs-pr-never-done.) merge_wait.reason을 담을 필드와 정하는 규칙도 없다
+   - G52 [새로 생김] noop_events(ci_passed_duplicate 등), 04 §2.2 '보류 큐' @ daemon_rules.json: 관측 사건의 멱등 키, *_duplicate noop 이름과 사건의 대응(noop_rules 없음), 순서가 뒤바뀐 사건을 보류할 조건·해제 시점이 구조화돼 있지 않다
+   - G53 [새로 생김] transitions[head_sha_changed, merged_without_valid_approval, pr_merged_observed].side_effects @ daemon_rules.json: R-04(옛 결과 무효)·R-12(무효 병합) 기록과 record_merge_observation(side_effect_ids에 있음)을 내는 전이가 없다. return_code·record_r_code를 단 행이 없다
+   - G54 [일부 해소] 결과 봉투 → 사건(result_<status>), 04 §1 (c) touched_paths ⊄ allowed_paths @ daemon_rules.json: R-01 판정(결과 봉투의 touched_paths가 허용 경로 밖·금지 경로 안이면 result_out_of_scope)이 문장뿐이고, 경로 패턴 비교 방법과 canon_change 승인 범위의 예외가 구조화돼 있지 않다. subset_of(scope_within_allowed_paths)는 글자 그대로의 목록 비교라 allowed_paths가 글롭이면 정본 파일을 따로 적어야 한다
+   - G55 [새로 생김] core_contract.store @ daemon_rules.json: PR 기록(번호·head·base·변경 경로·리뷰/감리 결과·승인 SHA·merge_wait.reason), completion_facts, merged_impl_counter와 묶음, 보류 큐, 관측 멱등 키, 결정 기록 목록을 담을 store 항목이 없다
+   - G56 [새로 생김] envelopes.result.status_values ↔ transitions @ daemon_rules.json: status wip_preserved·completed_no_change·switch_signal·lease_invalid 결과 봉투를 받을 행이 없다. hard_stop.procedure는 grace_s 안의 wip_preserved를 '자기 보고로만 기록(전이 없음)'이라 하고 receiver_validation.on_fail은 lease_invalid를 late 또는 noop으로 기록하라 하지만, 현재 임대의 그런 봉투는 수락된 뒤 unmapped_condition(R-03)이 된다
+   - G57 [새로 생김] switch_policy.forbidden_switch_reasons, return_codes[R-03] @ daemon_rules.json: R-03은 '허용·금지 어느 목록에도 없는 전환 신호'를 반송하라 하지만 금지 목록은 reads 밖이고 신호 봉투에 사유 필드가 없어 허용 밖 신호를 금지와 미지로 가를 수 없다
+
+exit=0

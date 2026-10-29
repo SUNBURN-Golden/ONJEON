@@ -1,0 +1,3 @@
+tasks.json: all JSON fields except _status unchanged from HEAD
+daemon_rules.json: all JSON fields except _status unchanged from HEAD
+09: all purpose rows, evidence requirements and test descriptions unchanged from HEAD

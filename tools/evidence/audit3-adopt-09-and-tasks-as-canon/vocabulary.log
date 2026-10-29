@@ -1,0 +1,4 @@
+$ python3 -I tools/vocab_check.py
+vocabulary ok: 49 axes, 270 values
+
+exit=0

@@ -1,5 +1,5 @@
 {
-  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, ffbcaf6 사용자 검토와 9554c96 독립 재검토 R01~R06 반영). 과제 실행·완료 기준으로 채택(사용자 결정 2026-10-13, docs/decisions/DEC-BUNDLE-STATUS.md). 채택된 정본이 아니다: 정본 반영은 D-21 경로(새 ADR)로만 한다. 데몬이 읽는 작업 명세",
+  "_status": "설계 담당 검토용 묶음(수정판 2026-10-12, ffbcaf6 사용자 검토와 9554c96 독립 재검토 R01~R06 반영). 과제 실행·완료 기준으로 채택(사용자 결정 2026-10-13, docs/decisions/DEC-BUNDLE-STATUS.md). 09·tasks.json은 BLUEPRINT 하위 계약으로 한정 채택(ADR-0019). 09는 제품 완료 증거 기준, tasks.json은 데몬 작업 소스·개별 수락 기준이다. 상위 계약을 우선한다. 묶음 전체·온톨로지·daemon_rules.json·common_done_criteria는 이번 정본 채택 대상이 아니다. 나머지 정본 반영은 D-21 경로(새 ADR)와 PR별 작성 계열 밖 독립 리뷰를 따른다(docs/decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md). 데몬이 읽는 작업 명세",
   "_common_done_criteria_status": "non_binding_until_adopted",
   "_common_done_criteria_note": "common_done_criteria는 채택 전 모든 PR에 구속력을 갖지 않는다. 현행 PR 기준은 docs/BLUEPRINT.md와 .github/pull_request_template.md다. 채택 시 과제 ID, 작성 모델 역할·실행 경로, 대상 SHA, 테스트 로그 필드를 PR 템플릿에 반영하고 이 적용 상태와 README §0.1·03 §2를 함께 갱신한다. 사용자 지시·개별 과제의 시험 의무와 09_제품목적_대응표의 완료 증거 기준은 유지한다.",
   "_author": "설계 담당 역할(Fable)로 지정된 하위 에이전트. 자기 보고 모델명은 증명이 아니다",

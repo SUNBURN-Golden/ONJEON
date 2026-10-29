@@ -11,15 +11,15 @@ LEDGER = ROOT / "docs/blueprint/DECISIONS.md"
 MAPPING_START = "<!-- blueprint-decision-id-mapping:start -->"
 MAPPING_END = "<!-- blueprint-decision-id-mapping:end -->"
 # ASCII boundaries also catch IDs directly followed by Korean particles.
-LEGACY_ID = re.compile(r"(?<![A-Za-z0-9_-])D(?:0[1-9]|1[0-9])(?![A-Za-z0-9_])")
+LEGACY_ID = re.compile(r"(?<![A-Za-z0-9_-])D(?:0[1-9]|1[0-9]|20)(?![A-Za-z0-9_])")
 
 
 class BlueprintDecisionIds(unittest.TestCase):
     def setUp(self):
         self.ledger = LEDGER.read_text(encoding="utf-8")
-        self.ids = [f"BP-D-{i:02}" for i in range(1, 20)]
+        self.ids = [f"BP-D-{i:02}" for i in range(1, 21)]
 
-    def test_all_nineteen_directions_have_unique_namespaced_ids(self):
+    def test_all_twenty_directions_have_unique_namespaced_ids(self):
         section = self.ledger.split("## 1. ", 1)[1].split("### 1.1 ", 1)[0].split("## 2. ", 1)[0]
         ids = re.findall(r"^\| (BP-D-\d+|D\d+|D-\d+) \|", section, re.M)
         self.assertEqual(ids, self.ids)
@@ -29,7 +29,7 @@ class BlueprintDecisionIds(unittest.TestCase):
         self.assertEqual(self.ledger.count(MAPPING_END), 1)
         mapping = self.ledger.split(MAPPING_START)[1].split(MAPPING_END)[0]
         pairs = re.findall(r"^\| (D\d+) \| (BP-D-\d+) \|", mapping, re.M)
-        self.assertEqual(pairs, [(f"D{i:02}", self.ids[i - 1]) for i in range(1, 20)])
+        self.assertEqual(pairs, [(f"D{i:02}", self.ids[i - 1]) for i in range(1, 21)])
 
     def test_current_document_references_use_only_known_namespaced_ids(self):
         # Historical raw logs/diffs and medical-code JSON fixtures are not prose
@@ -51,8 +51,8 @@ class BlueprintDecisionIds(unittest.TestCase):
                 self.assertFalse(refs - set(self.ids), f"unknown ledger references: {refs}")
 
     def test_reference_guard_catches_korean_particles_and_ranges(self):
-        self.assertEqual(LEGACY_ID.findall("D14의 D16~D18 D19로"),
-                         ["D14", "D16", "D18", "D19"])
+        self.assertEqual(LEGACY_ID.findall("D14의 D16~D18 D19로 D20의"),
+                         ["D14", "D16", "D18", "D19", "D20"])
         self.assertEqual(LEGACY_ID.findall("BP-D-14의 DEC-D-16 D-18 ADR-0019"), [])
 
     def test_reported_collisions_keep_their_ledger_meaning(self):
@@ -63,6 +63,15 @@ class BlueprintDecisionIds(unittest.TestCase):
                 row = next((line for line in self.ledger.splitlines()
                             if line.startswith(f"| BP-D-{number:02} |")), "")
                 self.assertIn(meaning, row)
+
+    def test_twentieth_direction_preserves_limited_contract_adoption(self):
+        row = next(line for line in self.ledger.splitlines()
+                   if line.startswith("| BP-D-20 |"))
+        for phrase in ("09_제품목적_대응표", "tasks.json", "BLUEPRINT 하위에 한정 채택",
+                       "common_done_criteria의 정본 채택은 제외", "purpose-rows-all-closed",
+                       "실증 증거 의무 유지", "ADR-0019", "새로운 사용자 직접 결정 아님"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, row)
 
     def test_execution_gate_ids_and_record_filenames_are_preserved(self):
         tasks = json.loads((ROOT / "docs/blueprint/proposals/설계검토_결과/tasks.json")

@@ -1,10 +1,10 @@
-# Decision: DEC-D-02 (the AI provider setup and the policy owner) and DEC-O12 were delegated to Fable and are "사
+# Decision: DEC-D-02·DEC-O12 위임 결정의 잠정 상태와 차단 범위
 
 Decided by Claude Sonnet 5.5 xhigh (ONJEON autoloop, 2026-10-29 10:34 KST); reversible.
 
 **Decision:** DEC-D-02와 DEC-O12는 '위임 결정·가역·사용자 확정 아님'인 잠정 개발 기준으로 유지한다. BLUEPRINT와 결정 원장에 상태와 잔여 조건을 명시하고, 사용자 확정이나 게이트 통과로 승격하지 않는다. D-02는 기존 표기를 유지하고, O12는 단순 미정처럼 보이는 원장 행을 보완한다. M2 전체 개발은 계속한다.
 
-**Why:** DEC-D-02 및 BLUEPRINT §12는 이미 사용자 확정 대기와 접근·월 한도 확인 조건을 명시한다. tasks.json에서 D-02는 T-OP-03 start와 T-KN-06·T-OP-02 real_data에 걸리며, O12는 T-TW-04·05 release에만 걸린다. O12의 연산별 S6 검증 조건도 유지해야 한다. python3 -B -m unittest tools.tests.test_decision_records 실행 결과 20개 통과. 이는 문서 정합성 증거이며 09_제품목적_대응표의 실제 데이터·화면·출시 완료 증거를 대체하지 않는다. 이번 판단은 상태 기록에 한정하며 지출·자격증명·production·배포 승인이 아니다. 읽기 전용 환경이므로 파일 변경은 수행하지 않았다.
+**Why:** DEC-D-02 및 BLUEPRINT §12는 이미 사용자 확정 대기와 접근·월 한도 확인 조건을 명시한다. tasks.json에서 D-02는 T-OP-03 start와 T-KN-06·T-OP-02 real_data에 걸리며, O12는 T-TW-04·05 release에만 걸린다. O12의 연산별 S6 검증 조건도 유지해야 한다. 최초 검토의 결정 기록 시험 20개 통과에는 O12 상태 검증이 없어 canonical 상태 반영의 증거로 충분하지 않았다. 이는 문서 정합성 증거이며 09_제품목적_대응표의 실제 데이터·화면·출시 완료 증거를 대체하지 않는다. 이번 판단은 상태 기록에 한정하며 지출·자격증명·production·배포 승인이 아니다. 최초 검토에서는 정본 변경을 수행하지 않았으나, fix round 1에서 BLUEPRINT §11·§12와 결정 원장 §3·§3.1에 O12 잠정 상태·release 범위·S6 잔여 조건을 반영하고 O12 회귀 시험을 추가했다. [수정·재검증 증거](../../tools/evidence/audit3-delegated-decisions-status/fix-round1/README.md)를 따른다.
 
 **Options:** ['사용자 확정으로 간주: 명시적 확정 근거가 없어 기각', '소유자 확인까지 M2 전체 중단: 실제 게이트 범위보다 넓어 기각', '위임 결정을 잠정 기준으로 유지하고 해당 실행·출시 조건만 차단: 채택']
 

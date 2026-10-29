@@ -1,10 +1,84 @@
 """BLUEPRINT의 DEC 기록 지위와 결정 원장 §3의 상태·조건을 대조한다."""
+import json
 import re
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RECORDS = ("DEC-D-02", "DEC-D-04", "DEC-D-12", "DEC-CANON-T-CT-02")
+
+LEDGER = ROOT / "docs/blueprint/DECISIONS.md"
+MAPPING_START = "<!-- blueprint-decision-id-mapping:start -->"
+MAPPING_END = "<!-- blueprint-decision-id-mapping:end -->"
+# ASCII boundaries also catch IDs directly followed by Korean particles.
+LEGACY_ID = re.compile(r"(?<![A-Za-z0-9_-])D(?:0[1-9]|1[0-9])(?![A-Za-z0-9_])")
+
+
+class BlueprintDecisionIds(unittest.TestCase):
+    def setUp(self):
+        self.ledger = LEDGER.read_text(encoding="utf-8")
+        self.ids = [f"BP-D-{i:02}" for i in range(1, 20)]
+
+    def test_all_nineteen_directions_have_unique_namespaced_ids(self):
+        section = self.ledger.split("## 1. ", 1)[1].split("### 1.1 ", 1)[0].split("## 2. ", 1)[0]
+        ids = re.findall(r"^\| (BP-D-\d+|D\d+|D-\d+) \|", section, re.M)
+        self.assertEqual(ids, self.ids)
+
+    def test_legacy_mapping_is_complete_one_to_one(self):
+        self.assertEqual(self.ledger.count(MAPPING_START), 1)
+        self.assertEqual(self.ledger.count(MAPPING_END), 1)
+        mapping = self.ledger.split(MAPPING_START)[1].split(MAPPING_END)[0]
+        pairs = re.findall(r"^\| (D\d+) \| (BP-D-\d+) \|", mapping, re.M)
+        self.assertEqual(pairs, [(f"D{i:02}", self.ids[i - 1]) for i in range(1, 20)])
+
+    def test_current_document_references_use_only_known_namespaced_ids(self):
+        # Historical raw logs/diffs and medical-code JSON fixtures are not prose
+        # references. Research docs are outside this node's writable scope; the
+        # ledger mapping explicitly resolves their historical notation.
+        paths = [ROOT / "README.md", ROOT / "docs/BLUEPRINT.md"]
+        for directory in ("docs/blueprint", "docs/decisions", "infra", "tools",
+                          "services", "apps", "data", "packages/schemas",
+                          "packages/rules-engine", ".github/workflows"):
+            paths.extend((ROOT / directory).rglob("*.md"))
+        for path in paths:
+            text = path.read_text(encoding="utf-8")
+            if path == LEDGER:
+                text = re.sub(re.escape(MAPPING_START) + r".*?" + re.escape(MAPPING_END),
+                              "", text, flags=re.S)
+            with self.subTest(path=str(path.relative_to(ROOT))):
+                self.assertEqual(LEGACY_ID.findall(text), [])
+                refs = set(re.findall(r"(?<![A-Za-z0-9_-])BP-D-\d+(?![A-Za-z0-9_])", text))
+                self.assertFalse(refs - set(self.ids), f"unknown ledger references: {refs}")
+
+    def test_reference_guard_catches_korean_particles_and_ranges(self):
+        self.assertEqual(LEGACY_ID.findall("D14의 D16~D18 D19로"),
+                         ["D14", "D16", "D18", "D19"])
+        self.assertEqual(LEGACY_ID.findall("BP-D-14의 DEC-D-16 D-18 ADR-0019"), [])
+
+    def test_reported_collisions_keep_their_ledger_meaning(self):
+        for number, meaning in ((2, "Rust/Flutter"), (4, "PDF 선택 입력"),
+                                (7, "예산·두 안 비교"), (12, "V1 설계 확정"),
+                                (16, "Cloudflare R2")):
+            with self.subTest(number=number):
+                row = next((line for line in self.ledger.splitlines()
+                            if line.startswith(f"| BP-D-{number:02} |")), "")
+                self.assertIn(meaning, row)
+
+    def test_execution_gate_ids_and_record_filenames_are_preserved(self):
+        tasks = json.loads((ROOT / "docs/blueprint/proposals/설계검토_결과/tasks.json")
+                           .read_text(encoding="utf-8"))
+        used = {gate for task in tasks["tasks"]
+                for values in task.get("decision_gates", {}).values() for gate in values}
+        self.assertFalse(set(self.ids) & used)
+        self.assertFalse(set(self.ids) & set(tasks["decision_index"]))
+        for number in (2, 4, 7, 12, 16):
+            gate = f"D-{number:02}"
+            with self.subTest(gate=gate):
+                self.assertIn(gate, used)
+                self.assertIn(gate, tasks["decision_index"])
+                record = ROOT / f"docs/decisions/DEC-{gate}.md"
+                self.assertTrue(record.is_file())
+                self.assertIn(gate, record.read_text(encoding="utf-8"))
 
 
 class DecisionRecords(unittest.TestCase):
@@ -147,7 +221,7 @@ class DecisionRecords(unittest.TestCase):
         self.assertIn("소유자 직접 결정", cells[1])
         self.assertIn("폐기하지 않는다", cells[2])
         self.assertIn("O13", cells[2])
-        for phrase in ("재사용", "승인하지 않음", "D16~D18", "접근 자격"):
+        for phrase in ("재사용", "승인하지 않음", "BP-D-16~BP-D-18", "접근 자격"):
             self.assertIn(phrase, cells[3])
 
     def test_canon_record_preserves_conditional_scope_and_merge_gate(self):

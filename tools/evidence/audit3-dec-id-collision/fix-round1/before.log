@@ -1,0 +1,514 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFF.F.FFFFF.............
+======================================================================
+FAIL: test_all_nineteen_directions_have_unique_namespaced_ids (__main__.BlueprintDecisionIds.test_all_nineteen_directions_have_unique_namespaced_ids)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 25, in test_all_nineteen_directions_have_unique_namespaced_ids
+    self.assertEqual(ids, self.ids)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D01', 'D02', 'D03', 'D04', 'D05', 'D06', [85 chars]D19'] != ['BP-D-01', 'BP-D-02', 'BP-D-03', 'BP-D-04'[161 chars]-19']
+
+First differing element 0:
+'D01'
+'BP-D-01'
+
+Diff is 665 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/BLUEPRINT.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D15'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'D15'
+
+- ['D15']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/DECISIONS.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D01', 'D02', 'D03', 'D04', 'D05', 'D06',[149 chars]D18'] != []
+
+First list contains 28 additional elements.
+First extra element 0:
+'D01'
+
++ []
+- ['D01',
+-  'D02',
+-  'D03',
+-  'D04',
+-  'D05',
+-  'D06',
+-  'D07',
+-  'D08',
+-  'D09',
+-  'D10',
+-  'D11',
+-  'D12',
+-  'D13',
+-  'D14',
+-  'D15',
+-  'D16',
+-  'D14',
+-  'D17',
+-  'D18',
+-  'D19',
+-  'D19',
+-  'D11',
+-  'D19',
+-  'D14',
+-  'D16',
+-  'D16',
+-  'D18',
+-  'D18']
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/audits/2026-10-27_price_display_scope.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D08', 'D08', 'D08', 'D18', 'D18', 'D08', 'D18'] != []
+
+First list contains 7 additional elements.
+First extra element 0:
+'D08'
+
+- ['D08', 'D08', 'D08', 'D18', 'D18', 'D08', 'D18']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/audits/2026-10-27_scope_docs_adr0018.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D19', 'D19'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'D19'
+
+- ['D19', 'D19']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/validation/REVERIFY_AUDIT1_DEC_RECORDS.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D16', 'D18'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'D16'
+
+- ['D16', 'D18']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/구현계획_검토본.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D15', 'D15', 'D15'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'D15'
+
+- ['D15', 'D15', 'D15']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/수집_지식기반_설계_제안.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D19', 'D16', 'D18', 'D19', 'D16', 'D18', 'D18'] != []
+
+First list contains 7 additional elements.
+First extra element 0:
+'D19'
+
+- ['D19', 'D16', 'D18', 'D19', 'D16', 'D18', 'D18']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/설계통합안_검토본.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D19', 'D16', 'D18', 'D15', 'D15', 'D19', 'D16', 'D18'] != []
+
+First list contains 8 additional elements.
+First extra element 0:
+'D19'
+
+- ['D19', 'D16', 'D18', 'D15', 'D15', 'D19', 'D16', 'D18']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/자동개발_설정안/README.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D18'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'D18'
+
+- ['D18']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/온톨로지/온톨로지_설계안.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D15'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'D15'
+
+- ['D15']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/인계_설계책임/README.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D01', 'D18', 'D19'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'D01'
+
+- ['D01', 'D18', 'D19']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/설계검토_결과/README.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D15'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'D15'
+
+- ['D15']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/설계검토_결과/01_코드설계.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D15', 'D18', 'D18', 'D15'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'D15'
+
+- ['D15', 'D18', 'D18', 'D15']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/blueprint/proposals/설계검토_결과/06_검토사항_점검.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D15', 'D15'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'D15'
+
+- ['D15', 'D15']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D19', 'D15'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'D19'
+
+- ['D19', 'D15']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/audit3-dec-id-collision.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D02', 'D04', 'D07', 'D12', 'D16', 'D01', 'D19', 'D16'] != []
+
+First list contains 8 additional elements.
+First extra element 0:
+'D02'
+
+- ['D02', 'D04', 'D07', 'D12', 'D16', 'D01', 'D19', 'D16']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/ADR-0016-원본-보관소-R2.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D14', 'D16', 'D14', 'D14', 'D14'] != []
+
+First list contains 5 additional elements.
+First extra element 0:
+'D14'
+
+- ['D14', 'D16', 'D14', 'D14', 'D14']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D11', 'D12'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'D11'
+
+- ['D11', 'D12']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/audit2-price-display-scope.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D08', 'D08', 'D18', 'D08', 'D18'] != []
+
+First list contains 5 additional elements.
+First extra element 0:
+'D08'
+
+- ['D08', 'D08', 'D18', 'D08', 'D18']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/ADR-0015-원본-보관소-S3.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D14'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'D14'
+
+- ['D14']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/DEC-D-04.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D16', 'D18', 'D16', 'D18', 'D16', 'D18',[51 chars]D18'] != []
+
+First list contains 14 additional elements.
+First extra element 0:
+'D16'
+
++ []
+- ['D16',
+-  'D18',
+-  'D16',
+-  'D18',
+-  'D16',
+-  'D18',
+-  'D16',
+-  'D18',
+-  'D16',
+-  'D14',
+-  'D17',
+-  'D18',
+-  'D16',
+-  'D18']
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/ADR-0017-R2-비용-제한.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D17'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'D17'
+
+- ['D17']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='docs/decisions/DEC-D-02.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D18'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'D18'
+
+- ['D18']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='infra/r2/README.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D14', 'D14', 'D14', 'D14'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'D14'
+
+- ['D14', 'D14', 'D14', 'D14']
++ []
+
+======================================================================
+FAIL: test_current_document_references_use_only_known_namespaced_ids (__main__.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) (path='infra/r2/checkpoint/PR_DRAFT.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 49, in test_current_document_references_use_only_known_namespaced_ids
+    self.assertEqual(LEGACY_ID.findall(text), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['D17', 'D18'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'D17'
+
+- ['D17', 'D18']
++ []
+
+======================================================================
+FAIL: test_legacy_mapping_is_complete_one_to_one (__main__.BlueprintDecisionIds.test_legacy_mapping_is_complete_one_to_one)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 28, in test_legacy_mapping_is_complete_one_to_one
+    self.assertEqual(self.ledger.count(MAPPING_START), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_reported_collisions_keep_their_ledger_meaning (__main__.BlueprintDecisionIds.test_reported_collisions_keep_their_ledger_meaning) (number=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 65, in test_reported_collisions_keep_their_ledger_meaning
+    self.assertIn(meaning, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'Rust/Flutter' not found in ''
+
+======================================================================
+FAIL: test_reported_collisions_keep_their_ledger_meaning (__main__.BlueprintDecisionIds.test_reported_collisions_keep_their_ledger_meaning) (number=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 65, in test_reported_collisions_keep_their_ledger_meaning
+    self.assertIn(meaning, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'PDF 선택 입력' not found in ''
+
+======================================================================
+FAIL: test_reported_collisions_keep_their_ledger_meaning (__main__.BlueprintDecisionIds.test_reported_collisions_keep_their_ledger_meaning) (number=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 65, in test_reported_collisions_keep_their_ledger_meaning
+    self.assertIn(meaning, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: '예산·두 안 비교' not found in ''
+
+======================================================================
+FAIL: test_reported_collisions_keep_their_ledger_meaning (__main__.BlueprintDecisionIds.test_reported_collisions_keep_their_ledger_meaning) (number=12)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 65, in test_reported_collisions_keep_their_ledger_meaning
+    self.assertIn(meaning, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'V1 설계 확정' not found in ''
+
+======================================================================
+FAIL: test_reported_collisions_keep_their_ledger_meaning (__main__.BlueprintDecisionIds.test_reported_collisions_keep_their_ledger_meaning) (number=16)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit3-dec-id-collision/tools/tests/test_decision_records.py", line 65, in test_reported_collisions_keep_their_ledger_meaning
+    self.assertIn(meaning, row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'Cloudflare R2' not found in ''
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.082s
+
+FAILED (failures=32)

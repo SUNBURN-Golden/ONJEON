@@ -1,0 +1,21 @@
+test_all_covered_and_all_post_merge_states (test_release_readiness.ReleaseReadinessTests.test_all_covered_and_all_post_merge_states) ... ok
+test_all_tasks_in_a_row_are_required_and_repeated_headers_work (test_release_readiness.ReleaseReadinessTests.test_all_tasks_in_a_row_are_required_and_repeated_headers_work) ... ok
+test_empty_escaping_absolute_and_directory_artifacts (test_release_readiness.ReleaseReadinessTests.test_empty_escaping_absolute_and_directory_artifacts) ... ok
+test_empty_evidence_or_missing_directory_reports_19_open (test_release_readiness.ReleaseReadinessTests.test_empty_evidence_or_missing_directory_reports_19_open) ... ok
+test_every_linked_task_requires_post_merge (test_release_readiness.ReleaseReadinessTests.test_every_linked_task_requires_post_merge) ... ok
+test_evidence_directory_cannot_be_a_file (test_release_readiness.ReleaseReadinessTests.test_evidence_directory_cannot_be_a_file) ... ok
+test_fixture_evidence_failed_and_missing_named_tests (test_release_readiness.ReleaseReadinessTests.test_fixture_evidence_failed_and_missing_named_tests) ... ok
+test_invalid_denominators_never_pass (test_release_readiness.ReleaseReadinessTests.test_invalid_denominators_never_pass) ... ok
+test_invalid_inputs_exit_2_without_success_counts (test_release_readiness.ReleaseReadinessTests.test_invalid_inputs_exit_2_without_success_counts) ... ok
+test_live_contract_empty_evidence_and_default_purpose (test_release_readiness.ReleaseReadinessTests.test_live_contract_empty_evidence_and_default_purpose) ... ok
+test_malformed_and_duplicate_execution_records_are_incomplete (test_release_readiness.ReleaseReadinessTests.test_malformed_and_duplicate_execution_records_are_incomplete) ... ok
+test_missing_row_record_and_reference_lists (test_release_readiness.ReleaseReadinessTests.test_missing_row_record_and_reference_lists) ... ok
+test_purpose_rows_all_closed_every_row_requires_evidence_and_logs (test_release_readiness.ReleaseReadinessTests.test_purpose_rows_all_closed_every_row_requires_evidence_and_logs) ... ok
+test_release_readiness_rejects_incomplete_feature (test_release_readiness.ReleaseReadinessTests.test_release_readiness_rejects_incomplete_feature) ... ok
+test_text_output_reports_both_gate_counts (test_release_readiness.ReleaseReadinessTests.test_text_output_reports_both_gate_counts) ... ok
+test_unsupported_exclusions_including_partial_scope_and_pending_gates (test_release_readiness.ReleaseReadinessTests.test_unsupported_exclusions_including_partial_scope_and_pending_gates) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 7.576s
+
+OK

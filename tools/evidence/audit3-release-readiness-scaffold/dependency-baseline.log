@@ -1,0 +1,13 @@
+Pre-existing dependency-check failures: compared every reported source plus checker and rules to HEAD.
+tools/ci/check_deps.py: identical_to_HEAD=True
+tools/ci/ci_common.py: identical_to_HEAD=True
+infra/ci/deps.json: identical_to_HEAD=True
+packages/ontology/Cargo.toml: identical_to_HEAD=True
+packages/ontology/tests/common/mod.rs: identical_to_HEAD=True
+packages/ontology/tests/fixture_origin/main.rs: identical_to_HEAD=True
+check_deps: 3 finding(s)
+  [DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+  [IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+  [IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+
+exit_code=1

@@ -908,7 +908,29 @@ class EndToEnd(base.Fixture):
             self.assertEqual(s.settle("ok")["seq"], 104)
         self.assertEqual(len(self.ledger_gets(before)), 3)
 
-    def test_failed_checkpoint_retries_do_not_grow_backlog_or_block_recovery(self):
+    @mock.patch.object(b, "time", wraps=b.time)
+    def test_checkpoint_admission_deadline_rejects_before_sending_requests(self, clock):
+        clock.monotonic.return_value = 1000.0
+        s = b.Session(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                      gate_dir=self.root / "expired", purpose="checkpoint")
+        # The exact boundary is allowed; one second beyond it must stop admission.
+        clock.monotonic.return_value += s.meter.deadline_s
+        s.meter._check_time()
+        self.assertEqual(s.meter.used["seconds"], s.meter.deadline_s)
+        clock.monotonic.return_value += 1
+        with self.assertRaisesRegex(b.BudgetError, "run time 121s exceeds limit 120s"):
+            s.open()
+        self.assertEqual(self.stub.log, [])
+        self.assertIsNone(s.reservation)
+        self.assertIsNone(s.gate._lock)
+        self.assertFalse(s.meter.archive_allowed)
+
+    @mock.patch.object(b, "time", wraps=b.time)
+    def test_failed_checkpoint_retries_do_not_grow_backlog_or_block_recovery(self, clock):
+        # This tests request accounting and recovery, independent of CI scheduling.
+        # Replace only r2_budget's clock reference, not botocore/server timeouts.
+        # Deadline enforcement is covered separately above; production caps stay intact.
+        clock.monotonic.return_value = 1000.0
         # Keep the shipped request limits and profiles; isolate only monetary caps and fixtures.
         doc = json.loads(self.policy_path.read_text())
         doc["admission"]["limits"] = b.load_policy()["admission"]["limits"]

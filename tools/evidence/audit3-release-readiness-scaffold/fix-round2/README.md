@@ -1,5 +1,8 @@
 # Audit 3 release-readiness scaffold — fix round 2
 
+Latest: [fix round 3](../fix-round3/README.md) adds the actual evidence scaffold.
+The results and path restriction below describe round 2 only.
+
 The reported failure expected an injected checkpoint-write error but instead
 hit the real admission deadline: `run time 131s exceeds limit 120s`.
 `test_failed_checkpoint_retries_do_not_grow_backlog_or_block_recovery` now

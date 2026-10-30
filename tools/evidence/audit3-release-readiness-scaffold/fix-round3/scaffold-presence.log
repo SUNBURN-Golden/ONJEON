@@ -1,0 +1,5 @@
+docs/release-readiness/evidence/README.md: present, 547 bytes
+docs/release-readiness/evidence/readiness.json: present, 72 bytes
+tools/release_readiness/check.py: present, 10162 bytes
+readiness.json: version 1; task_states, rows and features empty
+Evidence README checker-contract link: resolves to an existing file

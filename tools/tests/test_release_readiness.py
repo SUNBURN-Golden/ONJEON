@@ -247,5 +247,37 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(len(live["feature_registry"]), report["features_counts"]["open"])
 
 
+class RepositoryScaffoldTests(unittest.TestCase):
+    def test_repository_scaffold_exists_and_starts_incomplete(self):
+        evidence = ROOT / "docs/release-readiness/evidence"
+        self.assertTrue((evidence / "README.md").is_file())
+        self.assertEqual(
+            {"version": 1, "task_states": {}, "rows": {}, "features": {}},
+            json.loads((evidence / "readiness.json").read_text(encoding="utf-8")),
+        )
+        # Exercise the real files: missing input also returns open counts, so
+        # counts alone cannot catch accidental removal of the scaffold.
+        for explicit in (False, True):
+            with self.subTest(explicit_purpose=explicit):
+                args = [sys.executable, "-I", str(SCRIPT), "--registry",
+                        str(C.BUNDLE / "tasks.json"), "--evidence", str(evidence)]
+                if explicit:
+                    args += ["--purpose", str(C.PURPOSE), "--json"]
+                result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
+                self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+                if explicit:
+                    report = json.loads(result.stdout)
+                    self.assertEqual({"open": 19, "closed": 0, "excluded": 0},
+                                     report["rows_counts"])
+                    self.assertEqual({"open": 64, "closed": 0, "excluded": 0},
+                                     report["features_counts"])
+                    self.assertEqual(C.ROW_IDS, set(report["rows"]))
+                else:
+                    self.assertIn("purpose-rows-all-closed: open=19, closed=0, excluded=0",
+                                  result.stdout)
+                    self.assertIn("release-readiness-rejects-incomplete: open=64, closed=0, excluded=0",
+                                  result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

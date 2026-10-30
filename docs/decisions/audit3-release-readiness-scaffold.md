@@ -10,7 +10,7 @@ Decided by Claude Sonnet 5.5 xhigh (ONJEON autoloop, 2026-10-30 11:21 KST); reve
 
 **Fix round 2:** 체크포인트 재시도 시험이 주입한 쓰기 실패에 도달하기 전에 실제 실행 시간 131초로 admission 제한 120초에 걸린 실패를 수정했다. 해당 시험에서만 `r2_budget`의 단조 시계를 고정하며 실제 HTTP 요청·계량·실패 후 복구 검증은 유지한다. 별도 회귀 시험은 120초 경계 허용과 121초에서 요청 전 거부·잠금 해제를 검증한다. 운영 코드와 비용·시간 제한은 변경하지 않았다. 재실행 결과는 [2차 검증 기록](../../tools/evidence/audit3-release-readiness-scaffold/fix-round2/README.md)에 기록한다.
 
-**남은 경로 제약:** 이 노드의 사용자 허용 목록에는 `tools/**`가 있으나 `docs/release-readiness/**`가 없다. 해당 디렉터리의 생성은 경로 예외 답변을 기다린다. 빈 manifest와 안내 문서를 추가하는 [검토 가능한 패치](../../tools/evidence/audit3-release-readiness-scaffold/evidence-scaffold.patch)를 준비했고 적용 가능 여부만 검사했다. 따라서 검사기 부재는 해결했으나 요구된 두 경로의 생성이라는 전체 지적은 아직 완전히 해결되지 않았다. 권한 답변 없이 패치를 적용하거나 수락 완료를 주장하지 않는다.
+**Fix round 3:** 이번 수정 요청이 요구한 `docs/release-readiness/evidence/README.md`와 빈 `readiness.json`을 실제 파일로 추가했다. 이전 두 차수의 경로 예외 대기는 이번 요청의 두 파일 생성 지시로 해소했다. 저장소의 두 파일 존재·빈 manifest 구조와 두 명세 명령의 초기 집계(open 행 19개·feature 64개, closed/excluded 0개, 종료 코드 1)를 회귀 시험으로 확인한다. [3차 검증 기록](../../tools/evidence/audit3-release-readiness-scaffold/fix-round3/README.md)에 실행 결과를 기록한다. 원래 지적한 두 경로가 이제 존재하며, 제품 완료나 T-OP-08 완료를 뜻하지 않는다. 사용자 규칙에 따라 커밋·푸시·GitHub 호출은 하지 않는다.
 
 **Options:** ['지금 증거 등록 구조와 미완료를 거부하는 검사기를 구현한다 — 채택', 'T-OP-08 최종 감리까지 미룬다 — 진행 상황의 증거 공백이 지속됨', '기존 check_product_purpose.py로 대체한다 — 작업 연결·시험 ID 등록만 검사하므로 불충분']
 

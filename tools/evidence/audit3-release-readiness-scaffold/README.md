@@ -1,18 +1,18 @@
 # Audit 3 release-readiness scaffold — fix round 1
 
-Latest: [fix round 2](fix-round2/README.md) addresses the subsequently reported
-checkpoint retry test timeout and records fresh verification. Results below
-describe the earlier run only.
+Latest: [fix round 3](fix-round3/README.md) applies the evidence scaffold and
+verifies its presence and initial counts. [Fix round 2](fix-round2/README.md)
+addressed the checkpoint retry test timeout. Results below describe round 1 only.
 
 The checker is implemented in `tools/release_readiness/check.py`; its input
 contract and limits are in [README](../../release_readiness/README.md).
 Regression tests are discovered by the existing Python CI step.
 
-The node's allowed paths omit `docs/release-readiness/**`. Creation of the
-required evidence directory awaits the requested path exception. The exact
-[directory patch](evidence-scaffold.patch) is prepared and passes
-`git apply --check`; it has **not** been applied. The full finding therefore
-remains open despite the implemented checker and passing acceptance mechanics.
+At round 1, the node's allowed paths omitted `docs/release-readiness/**`. Creation of the
+required evidence directory awaited a requested path exception. The exact
+[directory patch](evidence-scaffold.patch) was prepared and passed
+`git apply --check`; it was not applied in round 1. The full finding remained
+open then; round 3 applies that patch under the explicit follow-up request.
 
 | Verification | Result / evidence |
 |---|---|

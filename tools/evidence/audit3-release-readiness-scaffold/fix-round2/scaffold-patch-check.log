@@ -1,0 +1,3 @@
+$ git apply --check tools/evidence/audit3-release-readiness-scaffold/evidence-scaffold.patch
+
+exit_code=0

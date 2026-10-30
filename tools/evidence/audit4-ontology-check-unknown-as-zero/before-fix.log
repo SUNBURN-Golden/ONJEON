@@ -1,0 +1,6 @@
+Original revision: 8c59499c8437cd62034e668012680c6b00cb7d8a
+Read original checker with git show; execute in memory; actual local Rust runner.
+payable_range {"engine_payout": {"amount": {"kind": "range", "max_krw": 5000001, "min_krw": 5000000}, "kind": "payable"}, "legacy_outcome": {"kind": "payable", "krw": null}, "legacy_explanation": "KeyError: 'krw'"}
+conditional_range {"engine_payout": {"conditional_amount": {"kind": "range", "max_krw": 5000001, "min_krw": 5000000}, "kind": "undetermined"}, "legacy_outcome": {"kind": "undetermined", "krw": null}, "legacy_explanation": "결과: 판단 불가 · 대상이라면 0원 · 빠진 입력 ['dx_in_category']"}
+conditional_unknown {"engine_payout": {"conditional_amount": {"kind": "unknown"}, "kind": "undetermined"}, "legacy_outcome": {"kind": "undetermined", "krw": null}, "legacy_explanation": "결과: 판단 불가 · 대상이라면 0원 · 빠진 입력 ['dx_in_category', 'insured_amount_krw']"}
+PASS: all original findings reproduced (not a passing behavior check).

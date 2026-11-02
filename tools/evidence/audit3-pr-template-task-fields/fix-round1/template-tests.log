@@ -1,0 +1,33 @@
+Command: /usr/bin/python3 -m unittest tools.tests.test_pr_template tools.tests.test_pr_policy -v
+Target SHA: 41114559cc73ff62f2861aa40b87c96d4b81ff6f + uncommitted changes
+
+test_existing_design_traceability_and_validation_limits_remain (tools.tests.test_pr_template.PrTemplate.test_existing_design_traceability_and_validation_limits_remain) ... ok
+test_product_purpose_row_points_to_completion_criteria (tools.tests.test_pr_template.PrTemplate.test_product_purpose_row_points_to_completion_criteria) ... ok
+test_target_sha_and_reproducible_test_log_have_separate_fields (tools.tests.test_pr_template.PrTemplate.test_target_sha_and_reproducible_test_log_have_separate_fields) ... ok
+test_task_and_author_fields_are_explicit (tools.tests.test_pr_template.PrTemplate.test_task_and_author_fields_are_explicit) ... ok
+test_completion_criterion_is_09_in_bundle_handoff_and_blueprint (tools.tests.test_pr_policy.BundleStatus.test_completion_criterion_is_09_in_bundle_handoff_and_blueprint) ... ok
+test_every_status_statement_carries_both_halves_and_the_record (tools.tests.test_pr_policy.BundleStatus.test_every_status_statement_carries_both_halves_and_the_record) ... ok
+test_markdown_links_to_the_record_resolve (tools.tests.test_pr_policy.BundleStatus.test_markdown_links_to_the_record_resolve) ... ok
+test_record_exists_and_states_both_halves (tools.tests.test_pr_policy.BundleStatus.test_record_exists_and_states_both_halves) ... ok
+test_superseded_wording_is_gone (tools.tests.test_pr_policy.BundleStatus.test_superseded_wording_is_gone) ... ok
+test_authors_are_outside_the_reviewer_family (tools.tests.test_pr_policy.IndependentReviewPath.test_authors_are_outside_the_reviewer_family) ... ok
+test_claude_runs_under_other_names_are_not_cited_as_independent (tools.tests.test_pr_policy.IndependentReviewPath.test_claude_runs_under_other_names_are_not_cited_as_independent) ... ok
+test_evidence_has_out_of_family_reviews_pinned_to_merged_heads (tools.tests.test_pr_policy.IndependentReviewPath.test_evidence_has_out_of_family_reviews_pinned_to_merged_heads) ... ok
+test_record_and_handover_agree (tools.tests.test_pr_policy.IndependentReviewPath.test_record_and_handover_agree) ... ok
+test_adoption_instructions_cover_each_missing_field (tools.tests.test_pr_policy.PrPolicy.test_adoption_instructions_cover_each_missing_field) ... ok
+test_documented_current_policy_links_resolve_to_real_policy_files (tools.tests.test_pr_policy.PrPolicy.test_documented_current_policy_links_resolve_to_real_policy_files) ... ok
+test_json_and_both_documents_explicitly_defer_common_pr_criteria (tools.tests.test_pr_policy.PrPolicy.test_json_and_both_documents_explicitly_defer_common_pr_criteria) ... ok
+test_proposed_traceability_and_test_evidence_requirements_are_retained (tools.tests.test_pr_policy.PrPolicy.test_proposed_traceability_and_test_evidence_requirements_are_retained) ... ok
+test_final_audit_dependency_is_release_reporting_only (tools.tests.test_pr_policy.SerialDaemonPrerequisite.test_final_audit_dependency_is_release_reporting_only) ... ok
+test_handover_note_records_as_run_order_and_open_daemon_evidence (tools.tests.test_pr_policy.SerialDaemonPrerequisite.test_handover_note_records_as_run_order_and_open_daemon_evidence) ... ok
+test_handover_note_supersedes_the_serial_restriction (tools.tests.test_pr_policy.SerialDaemonPrerequisite.test_handover_note_supersedes_the_serial_restriction) ... ok
+test_note_links_resolve_to_the_decision_and_results (tools.tests.test_pr_policy.SerialDaemonPrerequisite.test_note_links_resolve_to_the_decision_and_results) ... ok
+test_only_the_final_audit_depends_on_daemon_tasks (tools.tests.test_pr_policy.SerialDaemonPrerequisite.test_only_the_final_audit_depends_on_daemon_tasks) ... ok
+test_s0_tasks_have_no_prerequisites_and_empty_start_gates (tools.tests.test_pr_policy.SerialDaemonPrerequisite.test_s0_tasks_have_no_prerequisites_and_empty_start_gates) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.042s
+
+OK
+
+Exit code: 0

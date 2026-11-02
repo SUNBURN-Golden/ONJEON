@@ -1,0 +1,10 @@
+Command: cargo build --manifest-path 'docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml' --target-dir /workspace/onjeon-run/wt/audit3-pr-template-task-fields/target/ontology
+Target SHA: 41114559cc73ff62f2861aa40b87c96d4b81ff6f + uncommitted changes
+Scope: prepared patch/proposal only; live PR template restored
+
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+
+Exit code: 0

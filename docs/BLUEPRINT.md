@@ -333,7 +333,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 7. 마일스톤이 끝날 때마다 §4·§8·§9·§11의 상태 열을 갱신한다.
 8. 마일스톤과 별개로 `docs/decisions/ADR-*.md` 또는 `DEC-*.md`를 추가·수정·삭제·개명하는 변경은 같은 변경에서 §11의 영향받는 상태·관문을 검토·갱신하고 기준일(UTC)을 찍는다. 검토 뒤 `python3 -I tools/blueprint_status.py --write`로 §11 기준일과 전체 결정 색인·내용 해시를 갱신한다. `python3 -I tools/blueprint_status.py`와 CI의 `tools/tests/test_blueprint_status.py`가 누락을 거부한다. 자동 생성은 색인과 날짜만 바꾸며 상태 판단·관문 승인을 대신하지 않는다.
 
-## 11. 현재 위치 (2026-10-29)
+## 11. 현재 위치 (2026-11-02)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -346,6 +346,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | 개발 도구 | `tools/daemon/`의 T-OP-00 모의 전이·검증 코어와 `tools/daemon/runner_verify/`의 T-OP-09 실제 실행기 검증 도구가 있다. 개발 도구이며 출시 완성품의 일부가 아니다(09 §5). 모의 시험·격리 실행기 검증은 상주 데몬 가동 승인이 아니다. [각 도구의 범위·한계](../tools/daemon/README.md)와 [실행기 검증 한계](../tools/daemon/runner_verify/README.md)를 따른다 |
 | 데이터 | 전체 수집 대상 목록 V0: 보험사 53, 공제 등 16(공제는 범위 제외, 우체국보험 포함, ADR-0018), 제외·과거 49, 근거 66. **상품·특약은 53곳 모두 미열거**라 전 상품 목록은 아직 없다. 공시 진입점은 8곳만 확보했고 45곳은 해외 IP 샌드박스에서 확보하지 못해, 실데이터 열거는 국내 IP 수집 실행 환경(O19, 미준비) 뒤다(T-DT-04 `real_data`: D-04, O19). 설계 검증 표본 14개 파일(교보생명·KB손해보험·생명보험협회·법제처)의 인코딩. 원본 58키·파생 v2 61키를 R2에 보존하고 다시 받아 전부 바이트 일치한 것은 **2026-10-09 관측 기록**이며 이번 갱신에서 R2에 접근하지 않았다. 서비스용 전 상품 데이터는 아직 없다 |
 | 결정 기록·운영 관문 | 2026-10-29 검토: 원장 확정 방향의 BP-D-01~BP-D-19 개명과 참조 갱신 완료([대응표](blueprint/DECISIONS.md#11-이전-id-대응표), [검증 증거](../tools/evidence/audit3-dec-id-collision/fix-round1/README.md)). 실행 게이트 D-xx·Oxx와 결정 내용·승인 상태는 유지한다. 병합으로 추가된 ADR-0019의 한정 채택은 BP-D-20으로 기록한다([병합 검증](../tools/evidence/audit3-dec-id-collision/fix-round2/README.md)). 아래는 ADR·DEC 전체 파일 색인이다. DEC는 §0.1의 결정 게이트 기록이며 ADR을 대신하지 않는다. DEC-D-02의 모델 구성·정책 소유자는 위임 결정·사용자 확정 대기이며 접근 확인·게이트 등록이 별도다. DEC-D-02와 [DEC-O12](decisions/DEC-O12.md)는 위임 결정·가역·사용자 확정 아님인 잠정 개발 기준이다. O12는 T-TW-04·T-TW-05의 release 게이트이며 등록과 연산별 S6 검증은 별도다. S6 미충족 연산은 병합해도 capability-blocked를 유지한다(§12·원장 §3). DEC-D-04의 소유자 토큰 미폐기 결정은 R2 접근 허용이 아니다. D-04 접근 차단, O14 잠금 적용 승인·미정값, O17 대량 자동 수집 차단을 유지한다. DEC-CANON-T-CT-02는 추가 전용·조건부 위임 기록이며 병합 미승인이다. DEC-BUNDLE-STATUS의 실행 기준 채택(사용자 결정 2026-10-13)을 유지하며, ADR-0019로 09·tasks.json의 제품 완료·작업 계약을 BLUEPRINT 하위 정본에 한정 채택했다. 묶음 전체·daemon_rules.json·온톨로지·common_done_criteria는 이번 정본 채택 대상이 아니다. 그 밖의 정본 반영은 D-21 경로를 따른다. 다른 DEC의 위임·범위·조건도 각 원문을 따른다. 색인은 `decisions_recorded` 등록이나 관문 통과 증거가 아니다 |
+| 2026-11-02 소유자 결정 | 준태님 본인 결정([DEC-2026-11-02](decisions/DEC-2026-11-02-owner-rulings.md)): 착수 안 한 감리 수정 전면 진행, 서비스 API는 Cloudflare Workers 무료 한도, 수집은 ONJEON 박스→R2, 월 예산 0원, 앱스토어 보류, 외부 법률 검토 없음(D-18), 외부 AI 전송은 항목별 개별 동의·탈퇴 즉시 삭제, D-04는 기존 R2 토큰 사용(재발급 없음, 위험 기록). 문서·작업·시험 반영은 후속 PR에서 한다 |
 | 앱·웹·API | `apps/mobile/`에 Flutter 탭·진입점·공통 상태 프레임이 있다. 기능 화면·실데이터 연결·전 화면 상태 캡처·사용자 이해 시험은 미완료. API 타입·OpenAPI 계약은 있으나 서비스 API·공개 웹의 출시 구현은 없다 |
 | 불변식 | §8의 기존 표기는 18개 중 6개 구현(엔진 범위)이다. 이번 현황 갱신으로 다른 불변식을 구현 완료로 승격하지 않는다 |
 | 마일스톤 | 기존 판정: M0·V0 완료, V1 설계 탐색·원본 R2 보존·대조 완료(완전 재현 8/14). 파생 6건 재생성 검증·교차 검수와 이후 관문 판정은 별도다. 추가 코드·시험 통과를 M1 이후 전체 완료나 P01~P19 완료로 간주하지 않는다 |
@@ -367,12 +368,12 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-10-29 | SHA-256(파일명·내용): `9b534071a47bd19c3adccdaf59cd35593dbd04d5442364ccc97d862cfaa3fa74`
+결정 기록 대조일: 2026-11-02 | SHA-256(파일명·내용): `d6d97661f05d1c3a3f12fca110e37b49571d88c72d5afd3442a644db03154405`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|
 | ADR (19) | [ADR-0001-기술-스택](decisions/ADR-0001-기술-스택.md), [ADR-0002-합성-픽스처-우선](decisions/ADR-0002-합성-픽스처-우선.md), [ADR-0003-규칙-엔진-단일-구현](decisions/ADR-0003-규칙-엔진-단일-구현.md), [ADR-0004-대상-범위-전-보험사-전-상품](decisions/ADR-0004-대상-범위-전-보험사-전-상품.md), [ADR-0005-계약-가져오기-PDF-단일-경로](decisions/ADR-0005-계약-가져오기-PDF-단일-경로.md), [ADR-0006-AI-검수와-AI-분모-조사](decisions/ADR-0006-AI-검수와-AI-분모-조사.md), [ADR-0007-단일-완성-출시](decisions/ADR-0007-단일-완성-출시.md), [ADR-0008-첫-출시-범위-담보-파악-집중](decisions/ADR-0008-첫-출시-범위-담보-파악-집중.md), [ADR-0009-원구상-복원과-화면-데이터-계약](decisions/ADR-0009-원구상-복원과-화면-데이터-계약.md), [ADR-0010-선택화면과-공개가격-비교](decisions/ADR-0010-선택화면과-공개가격-비교.md), [ADR-0011-설계도-채택과-문서-위계](decisions/ADR-0011-설계도-채택과-문서-위계.md), [ADR-0012-설계도-실행계약과-구현-추적](decisions/ADR-0012-설계도-실행계약과-구현-추적.md), [ADR-0013-전체-대상-목록-우선과-설계-확정](decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md), [ADR-0014-V1-검증-결과의-설계-반영](decisions/ADR-0014-V1-검증-결과의-설계-반영.md), [ADR-0015-원본-보관소-S3](decisions/ADR-0015-원본-보관소-S3.md), [ADR-0016-원본-보관소-R2](decisions/ADR-0016-원본-보관소-R2.md), [ADR-0017-R2-비용-제한](decisions/ADR-0017-R2-비용-제한.md), [ADR-0018-보험-데이터-지식-기반의-정체성과-범위](decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md), [ADR-0019-제품-완료와-작업-계약-한정-채택](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md) |
-| DEC (18) | [DEC-BUNDLE-STATUS](decisions/DEC-BUNDLE-STATUS.md), [DEC-CANON-T-CT-02](decisions/DEC-CANON-T-CT-02.md), [DEC-D-02](decisions/DEC-D-02.md), [DEC-D-03](decisions/DEC-D-03.md), [DEC-D-04](decisions/DEC-D-04.md), [DEC-D-06](decisions/DEC-D-06.md), [DEC-D-07](decisions/DEC-D-07.md), [DEC-D-08](decisions/DEC-D-08.md), [DEC-D-12](decisions/DEC-D-12.md), [DEC-D-14](decisions/DEC-D-14.md), [DEC-D-16](decisions/DEC-D-16.md), [DEC-D-17](decisions/DEC-D-17.md), [DEC-D-18](decisions/DEC-D-18.md), [DEC-O02](decisions/DEC-O02.md), [DEC-O04](decisions/DEC-O04.md), [DEC-O12](decisions/DEC-O12.md), [DEC-O14](decisions/DEC-O14.md), [DEC-O17](decisions/DEC-O17.md) |
+| DEC (19) | [DEC-2026-11-02-owner-rulings](decisions/DEC-2026-11-02-owner-rulings.md), [DEC-BUNDLE-STATUS](decisions/DEC-BUNDLE-STATUS.md), [DEC-CANON-T-CT-02](decisions/DEC-CANON-T-CT-02.md), [DEC-D-02](decisions/DEC-D-02.md), [DEC-D-03](decisions/DEC-D-03.md), [DEC-D-04](decisions/DEC-D-04.md), [DEC-D-06](decisions/DEC-D-06.md), [DEC-D-07](decisions/DEC-D-07.md), [DEC-D-08](decisions/DEC-D-08.md), [DEC-D-12](decisions/DEC-D-12.md), [DEC-D-14](decisions/DEC-D-14.md), [DEC-D-16](decisions/DEC-D-16.md), [DEC-D-17](decisions/DEC-D-17.md), [DEC-D-18](decisions/DEC-D-18.md), [DEC-O02](decisions/DEC-O02.md), [DEC-O04](decisions/DEC-O04.md), [DEC-O12](decisions/DEC-O12.md), [DEC-O14](decisions/DEC-O14.md), [DEC-O17](decisions/DEC-O17.md) |
 <!-- blueprint-decisions:end -->
 
 ## 12. 열린 결정
@@ -385,7 +386,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 |---|---|---|
 | AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기([DEC-D-02](decisions/DEC-D-02.md)). 공개 약관·공시 지식 검수: 작성=claude, 승인=비-claude X, 레드팀=별도 비-claude Y. Y 확보 전에는 X의 다른 모델·프롬프트를 쓰고 3계열 미달(degraded)을 기록한다. 업체·모델 ID는 미고정. 남은 조건: 비-claude 접근 확인·월 한도 확인, 접근 확인 뒤 게이트 등록 또는 접근 확인을 별도 real_data 게이트로 분리. T-OP-03 실측은 접근 확인·등록 전 발송 금지. 모의 시험·병합은 허용하며 M2 전체 개발을 막지 않음 |
 | 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기([DEC-D-02](decisions/DEC-D-02.md)). 정책 소유자=사용자 본인 1인. AI 승인 임계값·모델 구성 변경·사고 시 중단·재개를 담당하며 중단은 자동·누구나 가능, 재개는 소유자만 한다. 임계값 수치는 미정(O06·D-19): T-OP-03 실측 뒤 소유자 확정, 그 전 불일치는 hold |
-| 서비스 실행 클라우드 | M3 | 로컬은 Compose로 시작 가능. 원본·파생 보관소는 Cloudflare R2로 확정(ADR-0016, §7.2) |
+| 서비스 실행 클라우드 | M3 | 결정: Cloudflare Workers 무료 한도, 월 0원([DEC-2026-11-02](decisions/DEC-2026-11-02-owner-rulings.md)). 로컬은 Compose로 시작 가능. 원본·파생 보관소는 Cloudflare R2로 확정(ADR-0016, §7.2) |
 | DSL 의미론(O12) | T-TW-04·T-TW-05 release | 실손·이력·범위 금액과 기준값 비교·시각: [DEC-O12](decisions/DEC-O12.md)(위임 결정·가역·사용자 확정 아님, 잠정 개발 기준; Fable 5.1, 2026-10-15). 소유자 확정 근거 없음. T-TW-04·T-TW-05의 O12 `release` 게이트만 해당한다. 설계·합성 시험·병합은 허용하며 M2 전체 개발을 막지 않음. `decisions_recorded`의 O12 등록은 별도이며, 등록은 해당 release 게이트만 해제하고 등록만으로 S6 충족 아님. S6는 연산별 allow-list 등록·스키마 거부 시험, 경계·unknown·range 합성 시험, 변이 시험, 실제 표본 1건 이상(T-KN-08), 바이트 동일 결정성, 끊김 없는 trace evidence_ref 근거 사슬을 요구한다. 미충족 연산은 병합해도 capability-blocked로 유지하고 원문 설명만 제공한다(미지원 계산의 자유 생성 대체 금지). |
 | "필요한 돈" 기본값 출처 | M5 | 출처 없으면 기본값 없음 |
 | 색 토큰, 시안 추가 요소 C2~C4·C7 | M5 | 화면 설계서 §13 |
@@ -396,7 +397,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | R2 버킷 잠금 대상·기간·해제 권한(O14) | 버킷 잠금 적용 | 승인 전 적용 금지, 무기한 잠금 금지 |
 | 저장소 공개 범위와 공개 저장소 원문 발췌 추가 조건(O16 잔여) | 다음 원문 발췌 추가 | [DEC-D-12](decisions/DEC-D-12.md): 소비자 앱의 원문 이미지·발췌 표시 허용(준태님, 2026-10-14 07:23 KST, 선택 C). 외부 검토 없음, 법적 위험은 소유자가 감수. 기존 발췌·Git 이력 유지. 공개 저장소의 새 원문 발췌 추가는 승인하지 않음. 표시 플래그 적용·게이트 등록은 별도이며 저장소 공개 범위·그 밖의 재배포 조건은 남음 |
 | 레포 분리 전 통합 계약(O15) | 레포 분리 | §9.4 |
-| 외부 검토 담당 지정(D-18·O10): 추천·가격 비교·향후 상담의 적용 요건 | 대외 출시 | [DEC-D-18](decisions/DEC-D-18.md)(위임 결정, 2026-10-15): 대외 출시 판정 전에 외부 검토 담당을 지정한다. 외부 검토 담당은 아직 지정되지 않았다. 가격 열 대외 공개 표시는 D-18(O10) 외부 검토 담당 지정 뒤이며, 그 전에도 저장·비교 자격 판정·내부 개발 화면은 허용한다. 동일 조건·묶음 규칙(O04)은 [DEC-O04](decisions/DEC-O04.md)로 기록됐다. 공개 가격은 첫 출시 범위에서 빠지지 않는다(ADR-0010). 이 행은 법적 판단이 아니다 |
+| 외부 검토 담당 지정(D-18·O10): 추천·가격 비교·향후 상담의 적용 요건 | 대외 출시 | 2026-11-02 준태님 결정: 외부 법률 검토를 받지 않는다([DEC-2026-11-02](decisions/DEC-2026-11-02-owner-rulings.md)). 이전 기록: [DEC-D-18](decisions/DEC-D-18.md)(위임 결정, 2026-10-15): 대외 출시 판정 전에 외부 검토 담당을 지정한다. 외부 검토 담당은 아직 지정되지 않았다. 가격 열 대외 공개 표시는 D-18(O10) 외부 검토 담당 지정 뒤이며, 그 전에도 저장·비교 자격 판정·내부 개발 화면은 허용한다. 동일 조건·묶음 규칙(O04)은 [DEC-O04](decisions/DEC-O04.md)로 기록됐다. 공개 가격은 첫 출시 범위에서 빠지지 않는다(ADR-0010). 이 행은 법적 판단이 아니다 |
 
 ## 13. 실행 계약과 요구사항 추적 (ADR-0012·0019)
 

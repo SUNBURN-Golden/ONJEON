@@ -1,0 +1,29 @@
+PASS: all changed and untracked deliverables are under allowed paths.
+PASS: protected documents, evaluator source and existing fixtures match HEAD.
+PASS: git diff --check.
+PASS: local Markdown link targets exist in all changed/new Markdown files.
+PASS: negative_control.py parses as Python.
+Deliverables:
+docs/BLUEPRINT.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/tests/all_any_errors.rs
+docs/blueprint/audits/2026-11-02_engine_all_any_error_dominance.md
+packages/rules-engine/evidence/audit4-all-any-error-dominance/clippy.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/control-baseline.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/control-eager-error.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/control-error-dominance.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/counts-write.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/counts.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/doc-tests.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/fmt.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/focused.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/negative-control.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/negative_control.py
+packages/rules-engine/evidence/audit4-all-any-error-dominance/product-purpose.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/purpose-tests.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/readme-tests.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/scope.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/spec-check.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/status.log
+packages/rules-engine/evidence/audit4-all-any-error-dominance/workspace.log

@@ -1,0 +1,25 @@
+Command: cargo test --offline --manifest-path /workspace/onjeon-run/wt/audit4-engine-all-any-error-dominance/packages/rules-engine/evidence/audit4-all-any-error-dominance/negative-control-oxbed99c/Cargo.toml --test all_any_errors multiple_errors_cannot_override_a_decisive_child_in_both_versions
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit4-engine-all-any-error-dominance/packages/rules-engine/evidence/audit4-all-any-error-dominance/negative-control-oxbed99c)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.53s
+     Running tests/all_any_errors.rs (packages/rules-engine/evidence/audit4-all-any-error-dominance/target/debug/deps/all_any_errors-4918e4f62d07d9d9)
+
+running 1 test
+test multiple_errors_cannot_override_a_decisive_child_in_both_versions ... FAILED
+
+failures:
+
+---- multiple_errors_cannot_override_a_decisive_child_in_both_versions stdout ----
+
+thread 'multiple_errors_cannot_override_a_decisive_child_in_both_versions' (3467103) panicked at tests/all_any_errors.rs:280:57:
+called `Result::unwrap()` on an `Err` value: DateOutOfRange { path: "eligibility.all[2].eq[0]" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    multiple_errors_cannot_override_a_decisive_child_in_both_versions
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test all_any_errors`
+
+Exit: 101

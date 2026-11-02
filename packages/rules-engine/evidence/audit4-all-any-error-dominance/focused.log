@@ -1,0 +1,50 @@
+Command: cargo test -p onjeon-rules-engine --locked --offline --test all_any_errors --test unknown_branch_errors --test soundness
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit4-engine-all-any-error-dominance/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running tests/all_any_errors.rs (target/debug/deps/all_any_errors-13afaee0138aa697)
+
+running 9 tests
+test absorbed_errors_have_deterministic_trace_entries_without_partial_children ... ok
+test all_false_absorbs_runtime_errors_in_both_versions ... ok
+test unknown_children_keep_their_blockers_without_defaulting_to_a_decision ... ok
+test any_true_absorbs_runtime_errors_in_both_versions ... ok
+test decisive_result_wins_over_errors_and_unknowns_in_every_child_order ... ok
+test errors_are_preserved_without_a_decisive_child ... ok
+test nested_all_any_and_if_keep_decisions_and_relevant_errors ... ok
+test multiple_errors_preserve_the_first_error_without_a_decision_in_both_versions ... ok
+test multiple_errors_cannot_override_a_decisive_child_in_both_versions ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/soundness.rs (target/debug/deps/soundness-7683122ddc54e9c2)
+
+running 10 tests
+test hiding_an_irrelevant_failing_input_preserves_a_decisive_all_any_answer ... ok
+test hiding_eligibility_keeps_an_overflowing_amount_undetermined ... ok
+test hiding_eligibility_with_nested_amount_errors_is_sound_in_both_dsl_versions ... ok
+test unknown_eligibility_also_absorbs_amount_date_and_runtime_type_errors ... ok
+test unknown_eligibility_handles_all_any_errors_inside_conditional_amount ... ok
+test unknown_eligibility_preserves_successful_conditional_amounts_and_blockers ... ok
+test unknown_is_never_reported_as_zero_or_not_payable ... ok
+test hiding_an_input_never_changes_a_definite_answer ... ok
+test hiding_an_input_never_changes_a_definite_answer_on_real_rules ... ok
+test hide_check_catches_unknown_treated_as_false_on_real_rules ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running tests/unknown_branch_errors.rs (target/debug/deps/unknown_branch_errors-042ef5e7e77aab11)
+
+running 8 tests
+test both_branches_failing_is_still_an_error ... ok
+test a_failing_branch_never_makes_the_other_branch_the_answer ... ok
+test blockers_include_the_other_unknown_branch ... ok
+test trace_records_the_absorbed_error_and_is_deterministic ... ok
+test a_selected_failing_branch_is_still_an_error ... ok
+test type_errors_in_a_branch_are_absorbed_too ... ok
+test failing_branch_under_unknown_condition_is_unknown_with_blockers ... ok
+test eligibility_branch_errors_leave_eligibility_unknown ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+Exit: 0

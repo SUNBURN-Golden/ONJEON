@@ -1,0 +1,4 @@
+Command: python3 -I /workspace/onjeon-run/wt/audit4-engine-all-any-error-dominance/packages/rules-engine/evidence/audit4-all-any-error-dominance/negative_control.py
+PASS: unchanged evaluator passes 9 tests; both error-dominance mutations fail the new regression.
+
+Exit: 0

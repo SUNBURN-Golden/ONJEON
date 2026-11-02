@@ -4,6 +4,7 @@
 1. 일관성 제약 K1~K13을 A-box에 검사한다(릴리스별).
 2. 질문 → 지식 조회 → 입력 단계 판정 → 규칙 엔진 실행(Rust 실행기) → 설명·근거 사슬을 만든다.
 3. 제약마다 일부러 깨뜨린 A-box를 넣어 검사기가 의도한 이유로 실패하는지 확인한다(자체 시험).
+4. 지급 여부와 별개인 확정·범위·미확정 금액의 표시와 비교를 실제 엔진으로 검사한다.
 
 계산은 규칙 엔진만 한다. 이 스크립트는 지식 조회, 코드 소속 판정(입력 단계), 결과 설명만 한다.
 사용: python3 -I ontology_check.py <runner 실행 파일>
@@ -411,31 +412,31 @@ def applicable_links(abox, cur, configs, contract_date):
 QUESTIONS = [
     {"id": "Q1", "text": "가입 2026-08-20, 2027-04-20 위암(C16) 진단, 처음 받는 진단금. 하나 2-1은?", "configs": ["sc:hana_2601_3d_v20260701", "sc:hana_2601_3d_v20260101"], "cov": "cov:hana_2_1",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "dx_code": "C16"}, "assume": {"policy_end_date": "2046-08-20", "already_paid": False, "is_initial_contract": True, "renewal_date": None, "insured_amount_krw": 10000000},
-     "expect": {"kind": "payable", "krw": 5000000}},
+     "expect": {"kind": "payable", "amount": {"kind": "exact", "krw": 5000000}}},
     {"id": "Q2", "text": "같은 계약, 2028-08-20(가입 후 2년) 진단", "configs": ["sc:hana_2601_3d_v20260701"], "cov": "cov:hana_2_1",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2028-08-20", "dx_code": "C16"}, "assume": {"policy_end_date": "2046-08-20", "already_paid": False, "is_initial_contract": True, "renewal_date": None, "insured_amount_krw": 10000000},
-     "expect": {"kind": "payable", "krw": 10000000}},
+     "expect": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}}},
     {"id": "Q3", "text": "같은 계약, 2026-11-17 진단(계약일 포함 90일째, 보장개시 전날)", "configs": ["sc:hana_2601_3d_v20260701"], "cov": "cov:hana_2_1",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2026-11-17", "dx_code": "C16"}, "assume": {"policy_end_date": "2046-08-20", "already_paid": False, "is_initial_contract": True, "renewal_date": None, "insured_amount_krw": 10000000},
      "expect": {"kind": "not_payable"}, "note_gap": "제5조: 보장개시 전 진단이면 보장 무효·보험료 반환(계약 효과). rule-0.1은 계약 효과를 표현하지 못한다(G23)"},
     {"id": "Q3b", "text": "같은 계약, 2026-11-18 진단(보장개시일 당일)", "configs": ["sc:hana_2601_3d_v20260701"], "cov": "cov:hana_2_1",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2026-11-18", "dx_code": "C16"}, "assume": {"policy_end_date": "2046-08-20", "already_paid": False, "is_initial_contract": True, "renewal_date": None, "insured_amount_krw": 10000000},
-     "expect": {"kind": "payable", "krw": 5000000}},
+     "expect": {"kind": "payable", "amount": {"kind": "exact", "krw": 5000000}}},
     {"id": "Q4", "text": "같은 계약, 2027-04-20 유방암(C50) 진단", "configs": ["sc:hana_2601_3d_v20260701"], "cov": "cov:hana_2_1",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "dx_code": "C50"}, "assume": {"policy_end_date": "2046-08-20", "already_paid": False, "is_initial_contract": True, "renewal_date": None, "insured_amount_krw": 10000000},
      "expect": {"kind": "not_payable"}},
     {"id": "Q5", "text": "같은 계약, 2027-04-20 위 쪽 암이라고 들었지만 코드 모름", "configs": ["sc:hana_2601_3d_v20260701"], "cov": "cov:hana_2_1",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "dx_code": None}, "assume": {"policy_end_date": "2046-08-20", "already_paid": False, "is_initial_contract": True, "renewal_date": None, "insured_amount_krw": 10000000},
-     "expect": {"kind": "undetermined", "krw": 5000000}},
+     "expect": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 5000000}}},
     {"id": "Q6", "text": "가입 2026-08-20, 2027-04-20 위암(C16). 현대 2-5는?", "configs": ["sc:hi2607_general"], "cov": "cov:hi_2_5",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "dx_code": "C16"}, "assume": {"policy_end_date": "2126-08-20", "already_paid": False, "insured_amount_krw": 10000000},
-     "expect": {"kind": "payable", "krw": 10000000}},
+     "expect": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}}},
     {"id": "Q7", "text": "현대 2-5, 위 제자리암(D00.2)", "configs": ["sc:hi2607_general"], "cov": "cov:hi_2_5",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "dx_code": "D00.2"}, "assume": {"policy_end_date": "2126-08-20", "already_paid": False, "insured_amount_krw": 10000000},
      "expect": {"kind": "not_payable"}},
     {"id": "Q8", "text": "현대 2-5, 유방암(C50)", "configs": ["sc:hi2607_general"], "cov": "cov:hi_2_5",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "dx_code": "C50"}, "assume": {"policy_end_date": "2126-08-20", "already_paid": False, "insured_amount_krw": 10000000},
-     "expect": {"kind": "payable", "krw": 10000000}},
+     "expect": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}}},
     {"id": "Q9", "text": "롯데 2604 1종 일반암진단비, 위암(C16)", "configs": ["sc:lotte_2604_type1"], "cov": "cov:lotte_general_dx",
      "facts": {"contract_date": "2026-08-20", "diagnosis_date": "2027-04-20", "dx_code": "C16"}, "assume": {},
      "expect": {"kind": "blocked"}},
@@ -543,6 +544,17 @@ def run_engine(runner, jobs):
     return {r["case_id"]: r for r in json.loads(p.stdout)}
 
 
+def amount_text(amount):
+    """엔진의 금액 종류를 표시한다. 미확정을 수치로 대체하거나 범위를 계산하지 않는다."""
+    if amount["kind"] == "exact":
+        return f"{amount['krw']:,}원"
+    if amount["kind"] == "range":
+        return f"{amount['min_krw']:,}~{amount['max_krw']:,}원 (범위)"
+    if amount["kind"] == "unknown":
+        return "금액 미확정"
+    raise ValueError(f"지원하지 않는 금액 종류: {amount['kind']}")
+
+
 def explain(abox, q, res, ev):
     cur, _ = current_assertions(abox)
     clauses = {c["id"]: c for c in abox["clauses"]}
@@ -570,12 +582,12 @@ def explain(abox, q, res, ev):
     p = ev["payout"]
     if p["kind"] == "payable":
         amt = p["amount"]
-        lines.append(f"결과: {amt['krw']:,}원 (약관 기준 계산, 가정: {', '.join(k for k in q['assume'] if k in ('already_paid','policy_end_date','insured_amount_krw'))})")
+        lines.append(f"결과: {amount_text(amt)} (약관 기준 계산, 가정: {', '.join(k for k in q['assume'] if k in ('already_paid','policy_end_date','insured_amount_krw'))})")
     elif p["kind"] == "not_payable":
         lines.append("결과: 이 담보에서는 지급 대상이 아님")
     else:
         ca = p["conditional_amount"]
-        lines.append(f"결과: 판단 불가 · 대상이라면 {ca.get('krw', 0):,}원 · 빠진 입력 {ev['missing_inputs']}")
+        lines.append(f"결과: 판단 불가 · 대상이라면 {amount_text(ca)} · 빠진 입력 {ev['missing_inputs']}")
     lines.append(f"  규칙 {ev['rule_id']} {ev['rule_version']} 해시 {ev['rule_content_hash'][:12]} ({ev['publication_state']}) · 엔진 {ev['engine_version']} · 입력 해시 {ev['input_snapshot_hash'][:12]}")
     if res.get("trail"):
         lines.append("  입력 단계 판정(dx_in_category)의 근거:")
@@ -599,14 +611,49 @@ def explain(abox, q, res, ev):
 
 
 def outcome(res, ev):
+    """결과 비교에서도 금액의 exact/range/unknown 태그와 범위 양 끝을 보존한다."""
     if "blocked" in res:
         return {"kind": "blocked"}
-    p = ev["payout"]
-    if p["kind"] == "payable":
-        return {"kind": "payable", "krw": p["amount"].get("krw")}
-    if p["kind"] == "undetermined":
-        return {"kind": "undetermined", "krw": p["conditional_amount"].get("krw")}
-    return {"kind": "not_payable"}
+    return copy.deepcopy(ev["payout"])
+
+
+def amount_tests(runner):
+    """실제 fixture 규칙으로 I1 금액 표시·비교 시험(지급 여부 × 금액 상태)을 실행한다."""
+    v = view(ABOX, CURRENT)
+    cases = [
+        ("exact", 10000000, {"kind": "exact", "krw": 5000000}, "5,000,000원"),
+        ("zero", 0, {"kind": "exact", "krw": 0}, "0원"),
+        ("range", 10000001, {"kind": "range", "min_krw": 5000000, "max_krw": 5000001}, "5,000,000~5,000,001원 (범위)"),
+        ("null", None, {"kind": "unknown"}, "금액 미확정"),
+        ("missing", None, {"kind": "unknown"}, "금액 미확정"),
+    ]
+    jobs, resolved = [], []
+    for kind in ("payable", "undetermined"):
+        for label, insured, amount, text in cases:
+            q = copy.deepcopy(QUESTIONS[0])
+            q["id"] = f"amount-{kind}-{label}"
+            q["assume"]["insured_amount_krw"] = insured
+            if label == "missing":
+                del q["assume"]["insured_amount_krw"]
+            if kind == "undetermined":
+                q["facts"]["dx_code"] = None
+            r = resolve(v, q)
+            jobs.append({"case_id": q["id"], "rule_path": r["rule_path"], "inputs": r["inputs"]})
+            field = "amount" if kind == "payable" else "conditional_amount"
+            resolved.append((q, r, {"kind": kind, field: amount}, text))
+    evs = run_engine(runner, jobs)
+    out = []
+    for q, r, expected, text in resolved:
+        ev = evs[q["id"]]
+        got = outcome(r, ev)
+        lines = explain(v, q, r, ev)
+        prefix = "결과: 판단 불가 · 대상이라면 " if expected["kind"] == "undetermined" else "결과: "
+        missing = sorted(k for k in ("dx_in_category", "insured_amount_krw") if r["inputs"][k] is None)
+        good = (got == expected and lines[0].startswith(prefix + text + " ")
+                and sorted(ev["missing_inputs"]) == missing
+                and any("실행 규칙의 근거" in line for line in lines))
+        out.append((q["id"], "동작", good, f"{got} · {lines[0]}"))
+    return out
 
 
 # ---------- 자체 시험(변조) ----------
@@ -1071,9 +1118,16 @@ def main():
         p(f"- {name} [{kind} 검증]: {'통과' if good else '실패'} · {msg}")
     rt_ok = sum(1 for _, _, g, _ in rt if g)
 
-    total_ok = ok_r24 and ok_r25 and sr == "narrower" and passed == len(QUESTIONS) and st_ok == len(muts) and rt_ok == len(rt)
     p("")
-    p(f"## 요약: r24 K1 위반 재현 {ok_r24} · r25·r26 위반 0 {ok_r25} · 범위 관계 narrower {sr == 'narrower'} · 질문 {passed}/{len(QUESTIONS)} · 제약 자체 시험 {st_ok}/{len(muts)} · 릴리스·문서 모델 시험 {rt_ok}/{len(rt)} · 전체 {'통과' if total_ok else '실패'}")
+    p("## 자체 시험 3: 미확정·범위·확정 금액의 표시와 비교(I1)")
+    at = amount_tests(runner)
+    for name, kind, good, msg in at:
+        p(f"- {name} [{kind} 검증]: {'통과' if good else '실패'} · {msg}")
+    at_ok = sum(1 for _, _, g, _ in at if g)
+
+    total_ok = ok_r24 and ok_r25 and sr == "narrower" and passed == len(QUESTIONS) and st_ok == len(muts) and rt_ok == len(rt) and at_ok == len(at)
+    p("")
+    p(f"## 요약: r24 K1 위반 재현 {ok_r24} · r25·r26 위반 0 {ok_r25} · 범위 관계 narrower {sr == 'narrower'} · 질문 {passed}/{len(QUESTIONS)} · 제약 자체 시험 {st_ok}/{len(muts)} · 릴리스·문서 모델 시험 {rt_ok}/{len(rt)} · 금액 표시·비교 시험 {at_ok}/{len(at)} · 전체 {'통과' if total_ok else '실패'}")
     print("\n".join(out))
     sys.exit(0 if total_ok else 1)
 

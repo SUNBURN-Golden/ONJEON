@@ -1,0 +1,4 @@
+PASS: 22 changed/new files are in allowed paths; protected files unchanged.
+PASS: 139 local Markdown links resolve.
+PASS: recorded ontology result matches evidence log.
+PASS: 9 auxiliary checks exit 0.

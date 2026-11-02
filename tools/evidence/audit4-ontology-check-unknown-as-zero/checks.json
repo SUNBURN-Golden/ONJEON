@@ -1,0 +1,96 @@
+[
+  {
+    "check": "focused-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_ontology*.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "runner-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "spec-check",
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "product-purpose",
+    "command": [
+      "python3",
+      "-I",
+      "tools/ci/check_product_purpose.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "counts",
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_counts.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "vocabulary",
+    "command": [
+      "python3",
+      "tools/vocab_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "validation",
+    "command": [
+      "python3",
+      "tools/validation_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "validation-selftest",
+    "command": [
+      "python3",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "documentation-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_blueprint*.py",
+      "-v"
+    ],
+    "exit_code": 0
+  }
+]

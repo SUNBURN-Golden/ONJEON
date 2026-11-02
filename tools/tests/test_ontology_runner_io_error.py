@@ -14,6 +14,8 @@ artifact fails the tests. Only a missing cargo without a prebuilt runner skips
 them. The fallback build is bounded so a Cargo lock cannot consume the entire
 900-second local verification budget without identifying the blocked setup.
 """
+import contextlib
+import io
 import json
 import os
 import shutil
@@ -206,6 +208,24 @@ class RunnerIoError(unittest.TestCase):
             self.assertEqual(rows[0]["payout"], rows[-1]["payout"])
             self.assertEqual(rows[-1]["payout"]["kind"], "payable")
             self.assertEqual(ontology_check.run_engine(self.runner, batch), {r["case_id"]: r for r in rows})
+
+    def test_amount_explanations_and_outcomes_with_real_engine(self):
+        results = ontology_check.amount_tests(self.runner)
+        self.assertEqual(len(results), 10)
+        self.assertEqual(len({name for name, _, _, _ in results}), 10)
+        for name, _, good, message in results:
+            with self.subTest(case=name):
+                self.assertTrue(good, message)
+
+    def test_failed_amount_self_test_fails_the_checker(self):
+        output = io.StringIO()
+        with mock.patch.object(ontology_check, "amount_tests", return_value=[
+            ("amount-regression", "동작", False, "금액 상태 손실"),
+        ]), mock.patch.object(sys, "argv", ["ontology_check.py", self.runner]), \
+                contextlib.redirect_stdout(output), self.assertRaises(SystemExit) as stopped:
+            ontology_check.main()
+        self.assertEqual(stopped.exception.code, 1)
+        self.assertIn("금액 표시·비교 시험 0/1 · 전체 실패", output.getvalue())
 
     def test_nonobject_jobs_are_per_job_errors(self):
         batch = [None, 42, "bad job", [], {"case_id": "after", "rule_path": str(RULE), "inputs": INPUTS}]

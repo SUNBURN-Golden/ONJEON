@@ -232,7 +232,7 @@ flowchart TD
 
 | ID | 불변식 | 강제 위치 | 상태 |
 |---|---|---|---|
-| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md)) | 구현(엔진) |
+| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·온톨로지 금액 표시·비교 자체 시험([Audit 4 증거](blueprint/audits/2026-10-30_ontology_check_unknown_as_zero.md)) | 구현(엔진) |
 | I2 | 계산 결과는 규칙 버전·릴리스·내용 해시·근거를 갖는다 | 엔진 `review_fixes` | 구현(엔진) |
 | I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail` 문서 테스트 | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |

@@ -1,0 +1,46 @@
+Mutation: propagate the conditional amount error instead of deferring it.
+Command: cargo test -p onjeon-rules-engine --locked --offline --test soundness hiding_eligibility_with_nested_amount_errors_is_sound_in_both_dsl_versions -- --exact
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit4-engine-unknown-eligibility-error/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.54s
+     Running tests/soundness.rs (target/debug/deps/soundness-7683122ddc54e9c2)
+
+running 1 test
+test hiding_eligibility_with_nested_amount_errors_is_sound_in_both_dsl_versions ... FAILED
+
+failures:
+
+---- hiding_eligibility_with_nested_amount_errors_is_sound_in_both_dsl_versions stdout ----
+
+thread 'hiding_eligibility_with_nested_amount_errors_is_sound_in_both_dsl_versions' (3350105) panicked at packages/rules-engine/tests/common/mod.rs:77:10:
+evaluation must not error on fixture inputs: Overflow { path: "amount.add[1]" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    hiding_eligibility_with_nested_amount_errors_is_sound_in_both_dsl_versions
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test soundness`
+
+Exit code: 101 (101 expected)

@@ -1,0 +1,18 @@
+PASS: all changed files are allowed; no protected file changes.
+PASS: local links in changed Markdown files resolve.
+PASS: eval.rs matches baseline after mutation restoration.
+PASS: git diff --check.
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-11-02_engine_unknown_eligibility_error.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/clippy.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/counts-refresh.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/counts.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/docs-tests.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/fmt.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/focused.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/mutation.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/product-purpose.log
+packages/rules-engine/evidence/audit4-engine-unknown-eligibility-error/workspace.log
+packages/rules-engine/tests/soundness.rs

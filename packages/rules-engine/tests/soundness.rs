@@ -190,6 +190,88 @@ fn hiding_eligibility_keeps_an_overflowing_amount_undetermined() {
 }
 
 #[test]
+fn hiding_eligibility_with_nested_amount_errors_is_sound_in_both_dsl_versions() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for op in ["add", "min", "max"] {
+            let mut source = rule_json();
+            source["schema_version"] = json!(version);
+            source["inputs"] = json!({"flag": "bool", "amt": "money_krw"});
+            source["eligibility"] = json!("flag");
+            // A successful sibling must not become the answer when the nested
+            // amount fails, even for min(0, overflowing_amount).
+            source["amount"] = json!({op: [
+                {"krw": 0}, {"add": ["amt", {"krw": 1}]}
+            ]});
+            let rule = Rule::from_json(&source).unwrap();
+            let full = json!({"flag": false, "amt": i64::MAX});
+            let result = rule.evaluate(&full).unwrap();
+            assert_eq!(result.payout, Payout::NotPayable);
+            assert!(result.missing_inputs.is_empty());
+            assert!(result
+                .trace
+                .iter()
+                .all(|entry| !entry.path.starts_with("amount")));
+
+            let (checked, flips) = hide_each_input(
+                &|i| observe(&rule, i),
+                &format!("{version}-{op}-nested-overflow"),
+                &full,
+            );
+            assert_eq!(checked, 4);
+            assert!(flips.is_empty(), "{flips:?}");
+
+            let error_path = format!("amount.{op}[1]");
+            let mut hidden_bytes = Vec::new();
+            for hidden in [
+                json!({"amt": i64::MAX}),
+                json!({"flag": null, "amt": i64::MAX}),
+            ] {
+                let result = rule.evaluate(&hidden).unwrap();
+                assert_eq!(result.eligibility, Tri::Unknown);
+                assert_eq!(
+                    result.payout,
+                    Payout::Undetermined {
+                        conditional_amount: AmountOut::Unknown
+                    }
+                );
+                assert_eq!(result.missing_inputs, vec!["flag"]);
+                let amount_trace: Vec<_> = result
+                    .trace
+                    .iter()
+                    .filter(|entry| entry.path.starts_with("amount"))
+                    .collect();
+                assert_eq!(
+                    amount_trace.len(),
+                    1,
+                    "failed partial traces must be replaced"
+                );
+                assert_eq!(amount_trace[0].path, "amount");
+                assert_eq!(amount_trace[0].op, op);
+                assert_eq!(
+                    amount_trace[0].result,
+                    format!("error: arithmetic overflow at {error_path}")
+                );
+                let bytes = serde_json::to_vec(&result).unwrap();
+                assert_eq!(
+                    bytes,
+                    serde_json::to_vec(&rule.evaluate(&hidden).unwrap()).unwrap()
+                );
+                hidden_bytes.push(bytes);
+            }
+            assert_eq!(
+                hidden_bytes[0], hidden_bytes[1],
+                "null and omission must agree"
+            );
+            assert_eq!(
+                rule.evaluate(&json!({"flag": true, "amt": i64::MAX}))
+                    .unwrap_err(),
+                EvalError::Overflow { path: error_path }
+            );
+        }
+    }
+}
+
+#[test]
 fn unknown_eligibility_preserves_successful_conditional_amounts_and_blockers() {
     let rule = conditional_amount_rule(json!({"add": ["amt", {"krw": 1}]}));
     for (inputs, conditional_amount, missing) in [

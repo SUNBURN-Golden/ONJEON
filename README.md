@@ -37,3 +37,5 @@
 세부 구현 계약: [시스템·데이터·수락 계약](docs/blueprint/SYSTEM_CONTRACT.md) · [요구사항 26개와 수락 사례](docs/blueprint/REQUIREMENTS.md) · [결정 원장](docs/blueprint/DECISIONS.md). 단일 진입점은 계속 `docs/BLUEPRINT.md`다(ADR-0012). [ADR-0019](docs/decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)의 09·[tasks.json](docs/blueprint/proposals/설계검토_결과/tasks.json)은 그 하위의 제품 완료·작업 계약이며 상위 계약을 우선한다.
 
 감리 후속: 준태님의 2026-10-13 R2 토큰 미폐기 결정([DEC-D-04](docs/decisions/DEC-D-04.md))을 O13·§12·VM 실행 준비·작업명세에 반영했다. [정정 내용과 검증 증거](docs/blueprint/audits/2026-10-26_o13_d04_ruling.md)를 참조한다. `cfut_` 규칙과 D-04·O14·O17 접근 관문은 유지한다.
+
+2026-11-02 준태님 결정([DEC-2026-11-02](docs/decisions/DEC-2026-11-02-owner-rulings.md)): 감리 수정 전면 진행, 서비스 API는 Cloudflare Workers 무료 한도, 수집은 ONJEON 박스→R2, 월 예산 0원, 앱스토어 보류, 외부 법률 검토 없음, 외부 AI 전송은 항목별 개별 동의·탈퇴 즉시 삭제. D-04는 기존 R2 토큰을 폐기·재발급 없이 쓰는 것으로 충족(위험 기록, 토큰 값 출력 금지).

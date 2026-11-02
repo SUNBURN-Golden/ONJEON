@@ -1,0 +1,26 @@
+diff --git a/docs/release-readiness/evidence/README.md b/docs/release-readiness/evidence/README.md
+new file mode 100644
+--- /dev/null
++++ b/docs/release-readiness/evidence/README.md
+@@ -0,0 +1,10 @@
++# Product release evidence
++
++This scaffold starts with no observed task states or product completion records.
++All P01–P19 rows and all 64 feature registry items remain open. The empty
++`readiness.json` is an inventory, not release evidence.
++
++See [the checker contract](../../../tools/release_readiness/README.md) for input
++format, commands, exit codes and limitations. Store reviewed actual-data,
++actual-screen and release artifacts here. Checker regression logs belong under
++`tools/evidence/`; they do not close product rows or complete T-OP-08.
+diff --git a/docs/release-readiness/evidence/readiness.json b/docs/release-readiness/evidence/readiness.json
+new file mode 100644
+--- /dev/null
++++ b/docs/release-readiness/evidence/readiness.json
+@@ -0,0 +1,6 @@
++{
++  "version": 1,
++  "task_states": {},
++  "rows": {},
++  "features": {}
++}

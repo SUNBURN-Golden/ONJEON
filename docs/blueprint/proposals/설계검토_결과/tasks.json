@@ -1180,11 +1180,16 @@
   ],
   "decision_index": {
     "D-04": {
-      "start": [],
-      "real_data": [],
+      "start": [
+        "T-OP-04"
+      ],
+      "real_data": [
+        "T-DT-01",
+        "T-OP-02",
+        "T-DT-04"
+      ],
       "merge": [],
-      "release": [],
-      "status": "충족: 기존 R2 토큰을 폐기·재발급 없이 사용(위험 기록) — DEC-2026-11-02(준태님 2026-11-02 14:13 KST)"
+      "release": []
     },
     "D-02": {
       "start": [
@@ -1265,8 +1270,7 @@
       "merge": [],
       "release": [
         "T-OP-07"
-      ],
-      "status": "결정: 외부 AI 전송 허용, 항목별 개별 동의, 탈퇴 즉시 삭제 — DEC-2026-11-02(준태님 2026-11-02 14:13 KST)"
+      ]
     },
     "D-14": {
       "start": [],
@@ -1301,18 +1305,20 @@
       "release": []
     },
     "D-03": {
-      "start": [],
+      "start": [
+        "T-OP-07"
+      ],
       "real_data": [],
       "merge": [],
-      "release": [],
-      "status": "결정: 서비스 API는 Cloudflare Workers 무료 한도, 수집은 ONJEON 박스→R2, 월 예산 0원, 앱스토어 보류 — DEC-2026-11-02(준태님 2026-11-02 14:13 KST)"
+      "release": []
     },
     "D-18": {
       "start": [],
       "real_data": [],
       "merge": [],
-      "release": [],
-      "status": "결정: 외부 법률 검토 받지 않음 — DEC-2026-11-02(준태님 2026-11-02 14:13 KST)"
+      "release": [
+        "T-OP-07"
+      ]
     }
   },
   "tasks": [
@@ -2989,7 +2995,9 @@
       ],
       "decision_gates": {
         "start": [],
-        "real_data": [],
+        "real_data": [
+          "D-04"
+        ],
         "merge": [],
         "release": []
       },
@@ -3067,7 +3075,7 @@
         "Cargo.lock"
       ],
       "immediate_audit": false,
-      "blocked_by": "실데이터: D-04 충족(DEC-2026-11-02(준태님 2026-11-02 14:13 KST)) — 기존 R2 토큰으로 지정 환경(ONJEON 박스)에서만 R2 쓰기. 토큰 값 출력 금지. 로컬 경로·병합은 막히지 않는다",
+      "blocked_by": "실데이터: R2 실제 쓰기는 기존 D-04 관문에 막힌다. DEC-D-04의 미폐기 결정은 접근 승인이 아니며, 노출 토큰 재사용·출력 금지. 로컬 경로·병합은 막히지 않는다",
       "notes": ""
     },
     {
@@ -4161,7 +4169,8 @@
       "decision_gates": {
         "start": [],
         "real_data": [
-          "D-02"
+          "D-02",
+          "D-04"
         ],
         "merge": [],
         "release": []
@@ -4222,7 +4231,7 @@
         "docs/gates/s1/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "실데이터: D-02(실제 검수 결정). D-04는 충족(DEC-2026-11-02(준태님 2026-11-02 14:13 KST)). '코드 경로 관통' 기록은 막지 않는다",
+      "blocked_by": "실데이터: D-02(실제 검수 결정)·D-04(R2 보존). 둘 다 '코드 경로 관통' 기록은 막지 않고 '실제 데이터 관문 통과' 판정만 막는다",
       "notes": "수정 권한 충돌 수정: 관문 기록 폴더를 토의 자료 폴더(docs/blueprint/proposals) 밖 docs/gates/로 옮겼다"
     },
     {
@@ -4957,6 +4966,7 @@
       "decision_gates": {
         "start": [],
         "real_data": [
+          "D-04",
           "O19"
         ],
         "merge": [],
@@ -5025,7 +5035,7 @@
         "services/collect/src/adapters/**"
       ],
       "immediate_audit": false,
-      "blocked_by": "실제 R2 보존은 D-04 충족(DEC-2026-11-02(준태님 2026-11-02 14:13 KST)). 실데이터 열거는 ONJEON 박스 수집기(O19, 비용 0원)로 실행하고 R2로 스트리밍. 대량 자동 수집은 O17",
+      "blocked_by": "실제 R2 보존은 D-04. 실데이터 열거(보험사·협회 공시실의 상품·문서 분모)는 O19 국내 IP 수집 실행 환경(준비·비용은 준태님). 대량 자동 수집은 O17",
       "notes": "audit1-product-list-denominator-start: 해외 IP 샌드박스에서 공시 진입점 53곳 중 45곳 미확보(data/registry/README.md 알려진 공백 7). O19 전에는 픽스처와 확보한 8곳으로 어댑터 코드·시험만 하고, 그 결과를 09 P01·P02 분모 증거로 주장하지 않는다. 차단·미조회는 미확보(사유)로 남긴다"
     },
     {
@@ -5140,7 +5150,9 @@
       ],
       "prereq_tasks": [],
       "decision_gates": {
-        "start": [],
+        "start": [
+          "D-04"
+        ],
         "real_data": [],
         "merge": [
           "O14"
@@ -5204,7 +5216,7 @@
         "tools/r2_budget.py"
       ],
       "immediate_audit": true,
-      "blocked_by": "시작: D-04 충족 — 준태님이 기존 R2 토큰을 폐기·재발급 없이 쓰기로 결정(DEC-2026-11-02(준태님 2026-11-02 14:13 KST)). 토큰 값 출력·기록 금지. 병합: O14(잠금 승인)",
+      "blocked_by": "시작: 기존 D-04 관문 유지. DEC-D-04에 따라 노출 R2 토큰은 폐기하지 않으며, 미폐기 결정만으로 R2 접근은 승인되지 않는다. 노출 토큰 재사용·출력 금지. 병합: O14(잠금 승인)",
       "notes": ""
     },
     {
@@ -7295,12 +7307,15 @@
         "T-DT-05"
       ],
       "decision_gates": {
-        "start": [],
+        "start": [
+          "D-03"
+        ],
         "real_data": [],
         "merge": [],
         "release": [
           "D-12",
-          "D-17"
+          "D-17",
+          "D-18"
         ]
       },
       "path_policy": {
@@ -7355,311 +7370,8 @@
       "parallel_ok": false,
       "conflict_paths": [],
       "immediate_audit": false,
-      "blocked_by": "시작: D-03 결정(DEC-2026-11-02(준태님 2026-11-02 14:13 KST): Cloudflare Workers 무료 한도, 앱스토어 보류). 출시: D-12·D-17(항목별 동의·탈퇴 즉시 삭제)·D-18(외부 검토 없음으로 결정). 리허설 기록의 병합은 막히지 않는다",
+      "blocked_by": "시작: D-03(운영 환경). 출시: D-12·D-17·D-18(해당 기능 켜기). 리허설 기록의 병합은 막히지 않는다",
       "notes": ""
-    },
-    {
-      "id": "T-AP-10",
-      "name": "Cloudflare Workers 서비스 API(무료 한도): 공개 비교·개인 트윈 API를 Workers+D1/KV로 제공, 월 0원 한도 검사",
-      "zone": "app·api",
-      "stage": "S4",
-      "twin_axis": false,
-      "final_gate": false,
-      "verification_kind": null,
-      "replaces_wp": [],
-      "inputs": [
-        "docs/decisions/DEC-2026-11-02-owner-rulings.md"
-      ],
-      "prereq_tasks": [
-        "T-AP-05"
-      ],
-      "decision_gates": {
-        "start": [],
-        "real_data": [],
-        "merge": [],
-        "release": []
-      },
-      "path_policy": {
-        "precedence": "forbidden_first",
-        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
-        "exceptions": []
-      },
-      "canon_change": null,
-      "allowed_paths": [
-        "services/worker/**"
-      ],
-      "forbidden_paths": [
-        "docs/PRINCIPLES.md",
-        "docs/BLUEPRINT.md",
-        "docs/blueprint/SYSTEM_CONTRACT.md",
-        "docs/blueprint/REQUIREMENTS.md",
-        "docs/blueprint/DECISIONS.md",
-        "docs/decisions/**",
-        "docs/data/**",
-        "docs/design/CONSUMER_FLOW_SPEC.md",
-        "docs/design/화면_조작_설계서.md",
-        "docs/blueprint/proposals/**",
-        "docs/blueprint/validation/extracts/**",
-        "infra/r2/budget_policy.json",
-        "infra/r2/jobs/**",
-        "data/registry/*.csv",
-        "packages/schemas/vocabulary.json",
-        "docs/blueprint/VOCABULARY.md"
-      ],
-      "produces": [
-        "path:services/worker/**"
-      ],
-      "consumes": [],
-      "test_outputs_within_allowed": true,
-      "outputs": [
-        "Cloudflare Workers 서비스 API(무료 한도): 공개 비교·개인 트윈 API를 Workers+D1/KV로 제공, 월 0원 한도 검사"
-      ],
-      "tests": [
-        "cd services/worker && npm test"
-      ],
-      "done_criteria": [
-        "월 0원: 무료 한도 밖 기능·유료 API를 쓰지 않는다",
-        "DEC-2026-11-02(준태님 2026-11-02 14:13 KST)를 따른다"
-      ],
-      "required_test_ids": [],
-      "features": [],
-      "parallel_ok": true,
-      "conflict_paths": [
-        "services/worker/**"
-      ],
-      "immediate_audit": false,
-      "blocked_by": "없음. DEC-2026-11-02(준태님 2026-11-02 14:13 KST)에 따라 진행",
-      "notes": "2026-11-02 소유자 결정으로 추가"
-    },
-    {
-      "id": "T-AP-11",
-      "name": "외부 AI 전송 항목별 개별 동의: 동의 항목 목록·동의/철회 API·화면, 동의 안 한 항목은 전송 차단",
-      "zone": "app·api",
-      "stage": "S4",
-      "twin_axis": false,
-      "final_gate": false,
-      "verification_kind": null,
-      "replaces_wp": [],
-      "inputs": [
-        "docs/decisions/DEC-2026-11-02-owner-rulings.md"
-      ],
-      "prereq_tasks": [
-        "T-AP-10"
-      ],
-      "decision_gates": {
-        "start": [],
-        "real_data": [],
-        "merge": [],
-        "release": []
-      },
-      "path_policy": {
-        "precedence": "forbidden_first",
-        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
-        "exceptions": []
-      },
-      "canon_change": null,
-      "allowed_paths": [
-        "services/worker/src/consent/**",
-        "apps/mobile/lib/features/consent/**"
-      ],
-      "forbidden_paths": [
-        "docs/PRINCIPLES.md",
-        "docs/BLUEPRINT.md",
-        "docs/blueprint/SYSTEM_CONTRACT.md",
-        "docs/blueprint/REQUIREMENTS.md",
-        "docs/blueprint/DECISIONS.md",
-        "docs/decisions/**",
-        "docs/data/**",
-        "docs/design/CONSUMER_FLOW_SPEC.md",
-        "docs/design/화면_조작_설계서.md",
-        "docs/blueprint/proposals/**",
-        "docs/blueprint/validation/extracts/**",
-        "infra/r2/budget_policy.json",
-        "infra/r2/jobs/**",
-        "data/registry/*.csv",
-        "packages/schemas/vocabulary.json",
-        "docs/blueprint/VOCABULARY.md"
-      ],
-      "produces": [
-        "path:services/worker/src/consent/**",
-        "path:apps/mobile/lib/features/consent/**"
-      ],
-      "consumes": [],
-      "test_outputs_within_allowed": true,
-      "outputs": [
-        "외부 AI 전송 항목별 개별 동의: 동의 항목 목록·동의/철회 API·화면, 동의 안 한 항목은 전송 차단"
-      ],
-      "tests": [
-        "cd services/worker && npm test consent"
-      ],
-      "done_criteria": [
-        "월 0원: 무료 한도 밖 기능·유료 API를 쓰지 않는다",
-        "DEC-2026-11-02(준태님 2026-11-02 14:13 KST)를 따른다"
-      ],
-      "required_test_ids": [],
-      "features": [],
-      "parallel_ok": true,
-      "conflict_paths": [
-        "services/worker/src/consent/**",
-        "apps/mobile/lib/features/consent/**"
-      ],
-      "immediate_audit": false,
-      "blocked_by": "없음. DEC-2026-11-02(준태님 2026-11-02 14:13 KST)에 따라 진행",
-      "notes": "2026-11-02 소유자 결정으로 추가"
-    },
-    {
-      "id": "T-AP-12",
-      "name": "탈퇴 즉시 삭제: 탈퇴 요청 시 사용자 데이터(D1·KV·R2 개인 객체) 즉시 삭제와 삭제 증거",
-      "zone": "app·api",
-      "stage": "S4",
-      "twin_axis": false,
-      "final_gate": false,
-      "verification_kind": null,
-      "replaces_wp": [],
-      "inputs": [
-        "docs/decisions/DEC-2026-11-02-owner-rulings.md"
-      ],
-      "prereq_tasks": [
-        "T-AP-10"
-      ],
-      "decision_gates": {
-        "start": [],
-        "real_data": [],
-        "merge": [],
-        "release": []
-      },
-      "path_policy": {
-        "precedence": "forbidden_first",
-        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
-        "exceptions": []
-      },
-      "canon_change": null,
-      "allowed_paths": [
-        "services/worker/src/account/**",
-        "apps/mobile/lib/features/account/**"
-      ],
-      "forbidden_paths": [
-        "docs/PRINCIPLES.md",
-        "docs/BLUEPRINT.md",
-        "docs/blueprint/SYSTEM_CONTRACT.md",
-        "docs/blueprint/REQUIREMENTS.md",
-        "docs/blueprint/DECISIONS.md",
-        "docs/decisions/**",
-        "docs/data/**",
-        "docs/design/CONSUMER_FLOW_SPEC.md",
-        "docs/design/화면_조작_설계서.md",
-        "docs/blueprint/proposals/**",
-        "docs/blueprint/validation/extracts/**",
-        "infra/r2/budget_policy.json",
-        "infra/r2/jobs/**",
-        "data/registry/*.csv",
-        "packages/schemas/vocabulary.json",
-        "docs/blueprint/VOCABULARY.md"
-      ],
-      "produces": [
-        "path:services/worker/src/account/**",
-        "path:apps/mobile/lib/features/account/**"
-      ],
-      "consumes": [],
-      "test_outputs_within_allowed": true,
-      "outputs": [
-        "탈퇴 즉시 삭제: 탈퇴 요청 시 사용자 데이터(D1·KV·R2 개인 객체) 즉시 삭제와 삭제 증거"
-      ],
-      "tests": [
-        "cd services/worker && npm test account"
-      ],
-      "done_criteria": [
-        "월 0원: 무료 한도 밖 기능·유료 API를 쓰지 않는다",
-        "DEC-2026-11-02(준태님 2026-11-02 14:13 KST)를 따른다"
-      ],
-      "required_test_ids": [],
-      "features": [],
-      "parallel_ok": true,
-      "conflict_paths": [
-        "services/worker/src/account/**",
-        "apps/mobile/lib/features/account/**"
-      ],
-      "immediate_audit": false,
-      "blocked_by": "없음. DEC-2026-11-02(준태님 2026-11-02 14:13 KST)에 따라 진행",
-      "notes": "2026-11-02 소유자 결정으로 추가"
-    },
-    {
-      "id": "T-AP-13",
-      "name": "앱·웹을 서비스 서버에 연결: 모바일·웹 클라이언트가 Workers API를 호출(목업 대체), 오류·오프라인 처리",
-      "zone": "app·api",
-      "stage": "S4",
-      "twin_axis": false,
-      "final_gate": false,
-      "verification_kind": null,
-      "replaces_wp": [],
-      "inputs": [
-        "docs/decisions/DEC-2026-11-02-owner-rulings.md"
-      ],
-      "prereq_tasks": [
-        "T-AP-10",
-        "T-AP-11",
-        "T-AP-12"
-      ],
-      "decision_gates": {
-        "start": [],
-        "real_data": [],
-        "merge": [],
-        "release": []
-      },
-      "path_policy": {
-        "precedence": "forbidden_first",
-        "note": "금지가 허용에 우선한다. 허용 경로는 금지 경로와 겹치지 않으며, 공용 파일은 아래 좁은 예외로만 허용",
-        "exceptions": []
-      },
-      "canon_change": null,
-      "allowed_paths": [
-        "apps/mobile/lib/core/api/**",
-        "apps/web/src/api/**"
-      ],
-      "forbidden_paths": [
-        "docs/PRINCIPLES.md",
-        "docs/BLUEPRINT.md",
-        "docs/blueprint/SYSTEM_CONTRACT.md",
-        "docs/blueprint/REQUIREMENTS.md",
-        "docs/blueprint/DECISIONS.md",
-        "docs/decisions/**",
-        "docs/data/**",
-        "docs/design/CONSUMER_FLOW_SPEC.md",
-        "docs/design/화면_조작_설계서.md",
-        "docs/blueprint/proposals/**",
-        "docs/blueprint/validation/extracts/**",
-        "infra/r2/budget_policy.json",
-        "infra/r2/jobs/**",
-        "data/registry/*.csv",
-        "packages/schemas/vocabulary.json",
-        "docs/blueprint/VOCABULARY.md"
-      ],
-      "produces": [
-        "path:apps/mobile/lib/core/api/**",
-        "path:apps/web/src/api/**"
-      ],
-      "consumes": [],
-      "test_outputs_within_allowed": true,
-      "outputs": [
-        "앱·웹을 서비스 서버에 연결: 모바일·웹 클라이언트가 Workers API를 호출(목업 대체), 오류·오프라인 처리"
-      ],
-      "tests": [
-        "cd apps/mobile && flutter test api"
-      ],
-      "done_criteria": [
-        "월 0원: 무료 한도 밖 기능·유료 API를 쓰지 않는다",
-        "DEC-2026-11-02(준태님 2026-11-02 14:13 KST)를 따른다"
-      ],
-      "required_test_ids": [],
-      "features": [],
-      "parallel_ok": true,
-      "conflict_paths": [
-        "apps/mobile/lib/core/api/**",
-        "apps/web/src/api/**"
-      ],
-      "immediate_audit": false,
-      "blocked_by": "없음. DEC-2026-11-02(준태님 2026-11-02 14:13 KST)에 따라 진행",
-      "notes": "2026-11-02 소유자 결정으로 추가"
     },
     {
       "id": "T-OP-08",
@@ -7680,8 +7392,7 @@
         "T-OP-00",
         "T-OP-09",
         "T-KN-14",
-        "T-CT-07",
-        "T-AP-13"
+        "T-CT-07"
       ],
       "decision_gates": {
         "start": [],

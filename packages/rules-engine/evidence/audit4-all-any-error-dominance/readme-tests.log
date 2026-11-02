@@ -1,0 +1,15 @@
+Command: cargo test -p onjeon-rules-engine --locked --offline --test readme_test_table
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running tests/readme_test_table.rs (target/debug/deps/readme_test_table-bdb6fdb8fb6e9c5d)
+
+running 5 tests
+test readme_does_not_call_the_content_hash_normalized ... ok
+test audited_rows_are_present ... ok
+test readme_explains_fixture_only_without_limiting_it_to_synthetic_rules ... ok
+test readme_test_table_matches_integration_test_files ... ok
+test checker_catches_a_dropped_row_and_a_stale_row ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+Exit: 0

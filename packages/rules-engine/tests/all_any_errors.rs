@@ -1,4 +1,4 @@
-//! Audits 2/3: a decisive all/any result must survive an irrelevant child error,
+//! Audits 2/3/4: a decisive all/any result must survive irrelevant child errors,
 //! independently of child order. Errors that can still affect the answer remain errors.
 use onjeon_rules_engine::{AmountOut, EvalError, Payout, Rule, Tri};
 use serde_json::{json, Value as J};
@@ -251,4 +251,85 @@ fn absorbed_errors_have_deterministic_trace_entries_without_partial_children() {
             .iter()
             .any(|t| t.path == "eligibility" && t.op == op && t.result == decisive.to_string()));
     }
+}
+
+fn check_multiple_errors(has_decision: bool) {
+    for schema in ["rule-0.1", "rule-0.2"] {
+        for (op, decisive) in [("all", false), ("any", true)] {
+            let failures = failing_children();
+            for order in [
+                [0, 1, 2],
+                [0, 2, 1],
+                [1, 0, 2],
+                [1, 2, 0],
+                [2, 0, 1],
+                [2, 1, 0],
+            ] {
+                for position in 0..=4 {
+                    let mut children = vec![json!("flag")];
+                    children.extend(order.map(|i| failures[i].clone()));
+                    children.insert(
+                        position,
+                        json!(if has_decision { decisive } else { !decisive }),
+                    );
+                    let r = versioned_rule(schema, json!({op: children}));
+                    let mut null_inputs = inputs();
+                    null_inputs["flag"] = J::Null;
+                    for data in [inputs(), null_inputs] {
+                        if has_decision {
+                            let res = r.evaluate(&data).unwrap();
+                            assert_eq!(
+                                res.eligibility,
+                                if decisive { Tri::True } else { Tri::False }
+                            );
+                            assert_eq!(res.payout, expected_payout(decisive));
+                            assert!(res.missing_inputs.is_empty());
+                            let errors: Vec<_> = res
+                                .trace
+                                .iter()
+                                .filter(|t| t.result.starts_with("error: "))
+                                .collect();
+                            assert_eq!(errors.len(), 3);
+                            for error in errors {
+                                assert!(!res
+                                    .trace
+                                    .iter()
+                                    .any(|t| t.path.starts_with(&format!("{}.", error.path))));
+                            }
+                            // Reloading and null/missing input representations preserve
+                            // the entire result, including trace and both hashes.
+                            let reloaded = Rule::from_json(r.source_json()).unwrap();
+                            assert_eq!(
+                                serde_json::to_vec(&res).unwrap(),
+                                serde_json::to_vec(&reloaded.evaluate(&inputs()).unwrap()).unwrap()
+                            );
+                        } else {
+                            // With only a neutral child, even an unknown sibling must
+                            // preserve the first error's kind, message and expression path.
+                            let original = versioned_rule(schema, failures[order[0]].clone())
+                                .evaluate(&data)
+                                .unwrap_err();
+                            let first_error_index = if position <= 1 { 2 } else { 1 };
+                            let expected = original.to_string().replacen(
+                                "eligibility",
+                                &format!("eligibility.{op}[{first_error_index}]"),
+                                1,
+                            );
+                            assert_eq!(r.evaluate(&data).unwrap_err().to_string(), expected);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn multiple_errors_cannot_override_a_decisive_child_in_both_versions() {
+    check_multiple_errors(true);
+}
+
+#[test]
+fn multiple_errors_preserve_the_first_error_without_a_decision_in_both_versions() {
+    check_multiple_errors(false);
 }

@@ -1,0 +1,86 @@
+[
+  {
+    "name": "ontology-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+      "--target-dir",
+      "target/audit4-ci-ontology"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "ontology-check",
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+      "/workspace/onjeon-run/wt/audit4-ci-hardening/target/audit4-ci-ontology/debug/ontology-case-runner"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "vocabulary",
+    "command": [
+      "python3",
+      "tools/vocab_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "validation",
+    "command": [
+      "python3",
+      "tools/validation_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "validation-selftest",
+    "command": [
+      "python3",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "spec-check",
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "daemon-dry-run",
+    "command": [
+      "python3",
+      "-I",
+      "tools/daemon/dry_run.py",
+      "--rules",
+      "docs/blueprint/proposals/설계검토_결과/daemon_rules.json",
+      "--tasks",
+      "tools/daemon/mock_tasks.json",
+      "--scenario",
+      "all",
+      "--require-all",
+      "--quiet"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "blueprint-counts",
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_counts.py"
+    ],
+    "exit_code": 0
+  }
+]

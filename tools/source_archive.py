@@ -60,6 +60,8 @@ from pathlib import Path, PureWindowsPath
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))  # r2_budget; -I leaves the script directory off sys.path
+import source_metadata as sm  # noqa: E402
+
 SAMPLES = ROOT / "docs/blueprint/validation/samples.csv"
 SAFE_ID = re.compile(r"^[a-z0-9_]+$")
 OBSERVATION_FIELDS = frozenset({"source_id", "url", "observed_at", "sha256", "bytes", "content_type", "object_key"})
@@ -70,6 +72,10 @@ def sha256_bytes(b):
 
 
 def object_key(digest):
+    try:
+        sm.check_sha256(digest)
+    except ValueError as e:
+        raise UnsafeStoreKey(str(e)) from e
     return f"objects/sha256/{digest[0:2]}/{digest[2:4]}/{digest}"
 
 

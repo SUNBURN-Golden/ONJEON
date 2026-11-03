@@ -95,6 +95,11 @@ class Blueprint(unittest.TestCase):
         self.assertIn("ADR-0016", self.v1)
         self.assertIn("R2에 보존하고 다시 받아 전부 바이트 일치", self.v1)
 
+    def test_v1_links_to_adopted_r2_decision(self):
+        decision = "decisions/ADR-0016-원본-보관소-R2.md"
+        self.assertIn(f"[ADR-0016]({decision})", self.v1)
+        self.assertTrue((BLUEPRINT.parent / decision).is_file())
+
     def test_v1_remaining_conditions_keep_unverified_work(self):
         remaining = self.v1.split("남은 조건:", 1)[1]
         for phrase in ("파생 6건", "재생성 도구", "재현 검증", "다른 계열 AI 검수", "S1·S6"):
@@ -117,6 +122,13 @@ class Blueprint(unittest.TestCase):
     def test_v1_counts_match_r2_records_and_gap_report(self):
         checks = VALIDATION / "source_checks"
         gap = next(line for line in read(VALIDATION / "GAP_REPORT.md").splitlines() if "원본 보관소" in line)
+        inventory = self.text.split("## 11.", 1)[1].split("## 12.", 1)[0]
+        data = next(line for line in inventory.splitlines() if line.startswith("| 데이터 |"))
+        milestone = next(line for line in inventory.splitlines() if line.startswith("| 마일스톤 |"))
+        for line in (self.v1, data):
+            with self.subTest(observation=line[:30]):
+                self.assertIn("2026-10-09", line)
+                self.assertIn("R2에 보존하고 다시 받아 전부 바이트 일치", line)
         for name, count, label in (("raw", 58, "원본"), ("derived_v2", 61, "파생 v2")):
             with self.subTest(record=name):
                 record = json.loads(read(checks / f"2026-10-09_r2_listing_{name}.json"))
@@ -127,7 +139,7 @@ class Blueprint(unittest.TestCase):
                 for result in record["results"]:
                     self.assertEqual(result["status"], "byte_identical")
                     self.assertEqual(result["sha256_source"], result["sha256_downloaded"])
-                for line in (self.v1, gap):
+                for line in (self.v1, gap, data):
                     self.assertIn(f"{label} {count}키", line)
 
         samples = json.loads(read(checks / "2026-10-09_r2_verify_samples.json"))
@@ -149,7 +161,9 @@ class Blueprint(unittest.TestCase):
             self.assertEqual(result["sha256_recorded"], result["sha256_archived_bytes"])
             self.assertEqual(result["not_found"], 0)
         self.assertIn("원본 해시·인용 14/14", self.v1)
-        self.assertIn("완전 재현 8/14", self.v1)
+        for line in (self.v1, milestone):
+            self.assertIn("완전 재현 8/14", line)
+            self.assertIn("파생 6건", line)
         self.assertIn("나머지 6건은 재생성 도구 없음으로 미검증", self.v1)
 
     def test_section_11_already_reports_r2(self):

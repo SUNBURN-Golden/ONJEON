@@ -48,8 +48,17 @@ class CiWorkflowSecurity(unittest.TestCase):
     def test_live_workflows_pass_declared_gate(self):
         self.run_gate(self.workflow, expect_success=True)
 
-    def test_missing_or_write_permissions_fail_declared_gate(self):
-        for replacement in ("", "permissions:\n  contents: write\n"):
+    def test_missing_or_nonminimal_permissions_fail_declared_gate(self):
+        # Exercise the declared CI gate, including values that would prevent checkout
+        # or grant permissions beyond this workflow's required contents read access.
+        for replacement in (
+            "",
+            "permissions: {}\n",
+            "permissions: read-all\n",
+            "permissions:\n  contents: none\n",
+            "permissions:\n  contents: write\n",
+            "permissions:\n  contents: read\n  pull-requests: write\n",
+        ):
             with self.subTest(replacement=replacement):
                 changed = self.workflow.replace("permissions:\n  contents: read\n", replacement, 1)
                 self.assertNotEqual(changed, self.workflow)

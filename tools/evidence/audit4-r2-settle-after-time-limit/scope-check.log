@@ -1,0 +1,16 @@
+Allowed paths and protected-file exclusions: PASS
+Python parsing: PASS
+Whitespace: PASS
+docs/blueprint/audits/2026-11-03_r2_settle_after_time_limit.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+infra/r2/BUDGET.md
+tools/evidence/audit4-r2-settle-after-time-limit/README.md
+tools/evidence/audit4-r2-settle-after-time-limit/before-budget-tests.log
+tools/evidence/audit4-r2-settle-after-time-limit/budget-tests.log
+tools/evidence/audit4-r2-settle-after-time-limit/python-tests.log
+tools/evidence/audit4-r2-settle-after-time-limit/runner-tests.log
+tools/evidence/audit4-r2-settle-after-time-limit/rust-tests.log
+tools/evidence/audit4-r2-settle-after-time-limit/scope-check.log
+tools/evidence/audit4-r2-settle-after-time-limit/static-checks.log
+tools/r2_budget.py
+tools/tests/test_r2_budget.py

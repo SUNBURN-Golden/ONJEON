@@ -212,7 +212,7 @@ class Meter:
 
     def _check_time(self):
         elapsed = int(time.monotonic() - self.start)
-        if elapsed > self.deadline_s:
+        if self.deadline_s is not None and elapsed > self.deadline_s:
             raise BudgetError(f"run time {elapsed}s exceeds limit {self.deadline_s}s")
         self.used["seconds"] = elapsed
 
@@ -952,11 +952,15 @@ class Session:
 
     def settle(self, outcome):
         """Record the measured use plus the worst case of this very write, capped at the reservation.
+        Settlement and the final summary still record elapsed time but bypass the run deadline.
         If this fails the admission and the reservation simply keep counting in full."""
         try:
             self._restore_alarm()
         except BaseException:
             pass  # never let the handler restore block the settlement itself
+        # The meter starts before reservation, while SIGALRM starts after it. Even a successful
+        # run may reach this point past the meter's deadline. Keep all other limits enforced.
+        self.meter.deadline_s = None
         try:
             if self.reservation is None:
                 return None

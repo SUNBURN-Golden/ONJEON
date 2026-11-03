@@ -726,6 +726,68 @@ class EndToEnd(Fixture):
     def test_checkpoint_admission_archive_and_settlement_reads_are_charged(self):
         self.check_ledger_read_accounting(checkpoint=True)
 
+    @mock.patch.object(b.time, "monotonic", return_value=100)
+    def test_successful_run_settles_between_meter_and_alarm_deadlines(self, clock):
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=5)
+        reserve = b.reserve
+
+        def slow_reservation(*args, **kwargs):
+            rec = reserve(*args, **kwargs)
+            clock.return_value += 30  # admission time precedes the reservation's alarm
+            return rec
+
+        before = len(self.stub.log)
+        with mock.patch.object(b, "reserve", side_effect=slow_reservation):
+            s = b.start(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                        gate_dir=self.gate_dir)
+        self.addCleanup(s._restore_alarm)
+        self.addCleanup(s.gate.leave)
+        try:
+            clock.return_value = s.meter.start + PER_RUN["seconds"] + 1
+            # The workload succeeded in the gap before SIGALRM would fire.
+        finally:
+            summary = b.finish("ok")
+        self.assertIsNone(b.ACTIVE)
+        self.assertIsNone(s.gate._lock)
+        self.assertEqual(summary["settlement"], 2)
+        self.assertEqual(summary["used"]["seconds"], PER_RUN["seconds"] + 1)
+        rec = json.loads(self.stub.objects[("ledger", f"{b.LEDGER_PREFIX}0000000002.json")])
+        self.assertEqual(rec["outcome"], "ok")
+        self.assertEqual(rec["reservation_seq"], s.reservation["seq"])
+        self.assertEqual(rec["amounts"]["seconds"], PER_RUN["seconds"])
+        seen = self.stub.counts(before)
+        for dim, count in seen.items():
+            self.assertGreaterEqual(rec["amounts"][dim], count, dim)
+        self.assertEqual(summary["used"]["get_bytes"], self.get_bytes_seen(before))
+        self.assertGreater(summary["used"]["get_bytes"], 0)  # settlement's tail GET
+
+    @unittest.skipUnless(hasattr(signal, "SIGALRM"), "SIGALRM not available")
+    @mock.patch.object(b.time, "monotonic", return_value=100)
+    def test_timeout_still_settles_and_preserves_the_original_error(self, clock):
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=5)
+        s = b.start(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                    gate_dir=self.gate_dir)
+        self.addCleanup(s._restore_alarm)
+        self.addCleanup(s.gate.leave)
+        with self.assertRaisesRegex(b.BudgetError, "run time limit 600s reached"):
+            try:
+                clock.return_value = s.meter.start + PER_RUN["seconds"] + 1
+                with self.assertRaisesRegex(b.BudgetError, "run time 601s exceeds limit 600s"):
+                    sa.S3Store("s3://raw", self.stub.endpoint).get(KEY)
+                signal.getsignal(signal.SIGALRM)(signal.SIGALRM, None)
+            finally:
+                summary = b.finish("failed")
+        self.assertEqual(summary["settlement"], 2)
+        self.assertEqual(summary["used"]["seconds"], 601)
+        rec = json.loads(self.stub.objects[("ledger", f"{b.LEDGER_PREFIX}0000000002.json")])
+        self.assertEqual(rec["outcome"], "failed")
+        self.assertEqual(rec["amounts"]["seconds"], PER_RUN["seconds"])
+        self.assertIsNone(b.ACTIVE)
+        self.assertIsNone(s.gate._lock)
+        self.assertEqual(signal.alarm(0), 0)
+
     def test_ledger_get_exhausts_admission_before_reservation(self):
         self.write_policy(per_month_global=10)
         self.write_job(admissions_per_month=5, class_a=1000)
@@ -784,9 +846,11 @@ class EndToEnd(Fixture):
                     # Exhaust the remaining allowance before finish() reads the reservation tail.
                     s.meter.limits["get_bytes"] = downloaded
                 finally:
-                    summary = b.finish("ok")
+                    with mock.patch.object(b.time, "monotonic", return_value=s.meter.start + 601):
+                        summary = b.finish("ok")
                 self.assertIsNone(b.ACTIVE)
                 self.assertEqual(summary["settlement"], {"settlement_failed": "BudgetError"})
+                self.assertEqual(summary["used"]["seconds"], 601)
                 self.assertEqual(summary["used"]["get_bytes"], downloaded + 1)
                 self.assertIsNone(s.gate._lock)
                 records = [json.loads(raw) for (_, key), raw in self.stub.objects.items()
@@ -917,6 +981,24 @@ class AlarmHandler(Fixture):
             rec = s.settle("ok")
         self.assertEqual(rec, {"settlement_failed": "OSError"})
         self.assertIs(signal.getsignal(signal.SIGALRM), mine)
+
+    def test_expired_run_still_summarizes_when_settlement_write_fails(self):
+        s = self.session()
+        self.addCleanup(s._restore_alarm)
+        self.addCleanup(s.gate.leave)
+        s.open()
+        with mock.patch.object(b.time, "monotonic", return_value=s.meter.start + 601), \
+                mock.patch.object(s.ledger, "append", side_effect=OSError("down")):
+            rec = s.settle("ok")
+            summary = s.summary()
+        self.assertEqual(rec, {"settlement_failed": "OSError"})
+        self.assertEqual(summary["used"]["seconds"], 601)
+        records, _ = s.ledger.read()
+        self.assertEqual(len(records), 1)
+        _, used = b.Ledger.usage(records, "t", MONTH)
+        self.assertEqual(used, PER_RUN)
+        self.assertIsNone(s.gate._lock)
+        self.assertIs(signal.getsignal(signal.SIGALRM), self.before)
 
     def test_settle_twice_does_not_clobber_a_handler_installed_after_the_first(self):
         s = self.session()

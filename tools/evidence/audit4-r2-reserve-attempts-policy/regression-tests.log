@@ -1,0 +1,8 @@
+test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose (test_r2_budget.EndToEnd.test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose) ... ok
+test_shipped_policy_reserves_on_final_attempt_within_admission (test_r2_budget.EndToEnd.test_shipped_policy_reserves_on_final_attempt_within_admission) ... ok
+test_shipped_policy_accepts_ledger_written_before_reservation_attempt_fix (test_r2_budget.FailClosed.test_shipped_policy_accepts_ledger_written_before_reservation_attempt_fix) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.026s
+
+OK

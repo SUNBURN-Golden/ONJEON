@@ -1,0 +1,108 @@
+test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose (test_r2_budget.EndToEnd.test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose) ... FAIL
+test_shipped_policy_reserves_on_final_attempt_within_admission (test_r2_budget.EndToEnd.test_shipped_policy_reserves_on_final_attempt_within_admission) ... ERROR
+
+======================================================================
+ERROR: test_shipped_policy_reserves_on_final_attempt_within_admission (test_r2_budget.EndToEnd.test_shipped_policy_reserves_on_final_attempt_within_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/tests/test_r2_budget.py", line 753, in test_shipped_policy_reserves_on_final_attempt_within_admission
+    self.check_shipped_reservation_races(exhaust=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/tests/test_r2_budget.py", line 731, in check_shipped_reservation_races
+    session.open()
+    ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 925, in open
+    self._refuse_and_maybe_close(month, admissions, e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 889, in _refuse_and_maybe_close
+    raise err
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 922, in open
+    rec, _sha, remaining = reserve(self.ledger, self.policy, self.job, self.run_id, month, admissions,
+                           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  checkpoint=self.purpose == "checkpoint")
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 634, in reserve
+    admissions = ledger.admissions()
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 516, in admissions
+    for key in self._list(ADMISSION_PREFIX):
+               ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 382, in _list
+    return self.st.list(prefix)
+           ~~~~~~~~~~~~^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/source_archive.py", line 320, in list
+    r = self.s3.list_objects_v2(**kw)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1076, in _make_api_call
+    http, parsed_response = self._make_request(
+                            ~~~~~~~~~~~~~~~~~~^
+        operation_model, request_dict, request_context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1100, in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/endpoint.py", line 119, in make_request
+    return self._send_request(request_dict, operation_model)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/endpoint.py", line 199, in _send_request
+    success_response, exception = self._get_response(
+                                  ~~~~~~~~~~~~~~~~~~^
+        request, operation_model, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/endpoint.py", line 241, in _get_response
+    success_response, exception = self._do_get_response(
+                                  ~~~~~~~~~~~~~~~~~~~~~^
+        request, operation_model, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/endpoint.py", line 278, in _do_get_response
+    responses = self._event_emitter.emit(event_name, request=request)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 284, in <lambda>
+    events.register("before-send.s3.*", lambda request, **kw: self.on_send(request),
+                                                              ~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 273, in on_send
+    self._charge("class_a" if op in CLASS_A else "class_b", 1)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/r2_budget.py", line 209, in _charge
+    raise BudgetError(f"{dim} would reach {self.used[dim] + n} > limit {self.limits[dim]} "
+                      f"(job {self.job['job_id']}); stopped before the request")
+r2_budget.BudgetError: budget: class_a would reach 9 > limit 8 (job t); stopped before the request
+
+======================================================================
+FAIL: test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose (test_r2_budget.EndToEnd.test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose)
+----------------------------------------------------------------------
+r2_budget.BudgetError: budget: class_a would reach 9 > limit 8 (job t); stopped before the request
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/tests/test_r2_budget.py", line 756, in test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose
+    self.check_shipped_reservation_races(exhaust=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-r2-reserve-attempts-policy/tools/tests/test_r2_budget.py", line 727, in check_shipped_reservation_races
+    with self.assertRaisesRegex(b.BudgetError,
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+                                f"could not reserve after {attempts} attempts "):
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "could not reserve after 5 attempts " does not match "budget: class_a would reach 9 > limit 8 (job t); stopped before the request"
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.024s
+
+FAILED (failures=1, errors=1)

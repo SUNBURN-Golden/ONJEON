@@ -1,0 +1,4 @@
+PASS: all changed and new files are within tools/ and docs/blueprint/
+PASS: no protected path is changed or added
+PASS: modified Python files parse
+PASS: git diff --check

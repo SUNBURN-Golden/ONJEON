@@ -1,0 +1,9 @@
+test_budget_refusal_keeps_exit_code (test_r2_budget.StatusCli.test_budget_refusal_keeps_exit_code) ... ok
+test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) ... ok
+test_success_preserves_status_json_and_settlement (test_r2_budget.StatusCli.test_success_preserves_status_json_and_settlement) ... ok
+test_unexpected_error_is_not_hidden (test_r2_budget.StatusCli.test_unexpected_error_is_not_hidden) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.013s
+
+OK

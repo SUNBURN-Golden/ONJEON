@@ -45,9 +45,9 @@ jobs:
       - name: Format
         run: cargo fmt --all -- --check
       - name: Lint
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --locked --all-targets -- -D warnings
       - name: Test (golden, mutation, soundness, loader, real clauses, screen numbers)
-        run: cargo test --all
+        run: cargo test --all --locked
       - name: Blueprint counts (engine tests/doctests, real-clause rules, tamper tests, vocabulary axes)
         run: python3 -I tools/blueprint_counts.py
 
@@ -61,7 +61,7 @@ jobs:
       - name: Ontology case runner (rules engine only; computes nothing itself)
         working-directory: docs/blueprint/proposals/온톨로지/검증/runner
         run: cargo build --locked --target-dir "$RUNNER_TEMP/onto"
-      - name: Ontology runner I/O unit tests
+      - name: Ontology runner original-rule identity and I/O tests
         working-directory: docs/blueprint/proposals/온톨로지/검증/runner
         run: cargo test --locked --target-dir "$RUNNER_TEMP/onto"
       - name: Ontology runner fields and per-job error regressions

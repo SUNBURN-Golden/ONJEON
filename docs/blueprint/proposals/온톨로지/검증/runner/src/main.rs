@@ -76,6 +76,87 @@ mod tests {
     use super::*;
     use std::io::{self, Cursor};
 
+    #[test]
+    fn original_rules_keep_identity_fields_in_every_successful_result() {
+        let ontology = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let pins: J = serde_json::from_str(
+            &std::fs::read_to_string(ontology.join("rule_content_hashes.json")).unwrap(),
+        )
+        .unwrap();
+        let mut jobs = Vec::new();
+        for name in ["hana-2601-3d-cancer-dx.json", "hi2607-2-5-cancer-dx.json"] {
+            let path = ontology.join("규칙").join(name);
+            let source: J = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+            let mut inputs = json!({
+                "contract_date": "2026-01-01", "diagnosis_date": "2027-01-01",
+                "policy_end_date": "2046-01-01", "dx_in_category": true,
+                "already_paid": false, "insured_amount_krw": 10000001
+            });
+            if source["inputs"].get("is_initial_contract").is_some() {
+                inputs["is_initial_contract"] = json!(true);
+                inputs["renewal_date"] = J::Null;
+            }
+            for gate in [json!(true), json!(false), J::Null] {
+                inputs["dx_in_category"] = gate;
+                jobs.push(json!({"case_id": name, "rule_path": path, "inputs": inputs}));
+            }
+        }
+        let mut output = Vec::new();
+        run(Cursor::new(serde_json::to_vec(&jobs).unwrap()), &mut output).unwrap();
+        let rows: Vec<J> = serde_json::from_slice(&output).unwrap();
+        assert_eq!(rows.len(), 6);
+        for (job, row) in jobs.iter().zip(&rows) {
+            let source = std::fs::read_to_string(job["rule_path"].as_str().unwrap()).unwrap();
+            let rule = Rule::from_json_str(&source).unwrap();
+            let expected = serde_json::to_value(rule.evaluate(&job["inputs"]).unwrap()).unwrap();
+            for field in [
+                "rule_id",
+                "rule_version",
+                "release_id",
+                "schema_version",
+                "rule_content_hash",
+                "evidence_refs",
+                "engine_version",
+                "eligibility",
+                "payout",
+                "missing_inputs",
+                "input_snapshot_hash",
+            ] {
+                assert_eq!(
+                    row.get(field),
+                    expected.get(field),
+                    "{}: {field}",
+                    job["case_id"]
+                );
+            }
+            // get() distinguishes an explicit JSON null release_id from a dropped key.
+            assert_eq!(row.get("release_id"), Some(&J::Null));
+            assert_eq!(row["schema_version"], "rule-0.1");
+            assert_eq!(
+                row["rule_content_hash"],
+                pins[job["case_id"].as_str().unwrap()]
+            );
+            assert_eq!(row["publication_state"], "fixture_only");
+            assert_eq!(
+                row["trace_len"],
+                expected["trace"].as_array().unwrap().len()
+            );
+        }
+        assert_eq!(
+            rows.iter()
+                .map(|row| row["payout"]["kind"].as_str().unwrap())
+                .collect::<Vec<_>>(),
+            [
+                "payable",
+                "not_payable",
+                "undetermined",
+                "payable",
+                "not_payable",
+                "undetermined"
+            ]
+        );
+    }
+
     struct Unreadable;
 
     impl Read for Unreadable {

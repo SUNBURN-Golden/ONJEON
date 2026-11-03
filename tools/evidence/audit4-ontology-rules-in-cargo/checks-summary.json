@@ -1,0 +1,51 @@
+{
+  "node": "audit4-ontology-rules-in-cargo",
+  "date": "2026-11-03",
+  "base_commit": "435a0db3d03f9eb5cf866aca98229b611cf3b4db",
+  "workspace": {
+    "passed": 495,
+    "failed": 0,
+    "ignored": 1
+  },
+  "runner": {
+    "passed": 4,
+    "failed": 0,
+    "original_rule_result_rows": 6
+  },
+  "python": {
+    "tests_run": 1342,
+    "result": "OK (skipped=6)"
+  },
+  "clippy_workspace": "passed",
+  "clippy_runner": "passed",
+  "format_workspace": "passed",
+  "format_runner": "passed",
+  "blueprint_counts": {
+    "rust_tests": 230,
+    "rust_doctests": 3,
+    "real_clause_rules": 7,
+    "tamper_tests": 40,
+    "vocabulary_axes": 49
+  },
+  "ontology_check": "passed",
+  "spec_check": "passed",
+  "source_sha256": {
+    ".github/workflows/ci.yml": "25bd2f436f100925dee6fbc22beb0aa638e5e1a0f3269a059d4a6dda17d8b988",
+    "packages/rules-engine/tests/ontology_rules.rs": "4380a96c66560fcbb2f1c13d7c7d6a473607f34b3970b4e4da38068c1ec52451",
+    "docs/blueprint/proposals/온톨로지/rule_content_hashes.json": "973bc5a47d4e3f4d365fee5cd0dbcb8d429297f683df66b14e56051304275797",
+    "docs/blueprint/proposals/온톨로지/검증/runner/src/main.rs": "616c1bcd72307876206b52a68d0fc190c94416e1464b8cbe2ade1e41a98c4d30",
+    "tools/tests/test_ci_rust_toolchain.py": "46ec7d7100fd5eaadf7c8ee7be1de63b61a4cb0768bc9557b53a9013ef466b21",
+    "tools/tests/test_ontology_runner_io_error.py": "9aa29a6735624c27d0c1f06a4d348929e83a8d61d6cd0adece12028f7b251707",
+    "docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json": "6952c87225ef0dd778f807c3c3ee506fc6d528be2637c25a635670e6b0d142e7",
+    "docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json": "56bb0aa66f5460861fd86f5b782f639937353b9999457b2d0697d3942e5a2cbc"
+  },
+  "evidence_sha256": {
+    "cargo-workspace.log": "c4185443756605bedc328446f802799c245e2d5874bff17227fb228f871670a2",
+    "clippy-runner.log": "d6597b2ce92b8801ed0e4811d4313aaa14ea3a9f05c766b5b746c99a2b9e8e82",
+    "clippy-workspace.log": "72bf123d3f597245afabf97ed0bc1b7c6410f38b0cfe4120e97b44cbd9bb16fe",
+    "ontology-check.log": "1607886cdd9f1ba7989523b7058b142ff4b3b2feae13d5008833512b483c3bd5",
+    "python-tools.log": "9d391312acf06484684c904cb332340393416baa63109f6f463a5689f5c59d65",
+    "spec-check.log": "0d1a76a2e2fd75af9fbfc175fca81947092caad56dbdde8633b7592c070837df"
+  },
+  "scope": "fixture_only regression verification; not release-readiness evidence"
+}

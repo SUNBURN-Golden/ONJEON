@@ -1,0 +1,143 @@
+test_budget_refusal_keeps_exit_code (test_r2_budget.StatusCli.test_budget_refusal_keeps_exit_code) ... ok
+test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) ... 
+  test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='start', error='EndpointConnectionError') ... ERROR
+  test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='start', error='ClientError') ... ERROR
+  test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='read', error='EndpointConnectionError') ... ERROR
+  test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='read', error='ClientError') ... ERROR
+test_success_preserves_status_json_and_settlement (test_r2_budget.StatusCli.test_success_preserves_status_json_and_settlement) ... ok
+test_unexpected_error_is_not_hidden (test_r2_budget.StatusCli.test_unexpected_error_is_not_hidden) ... ok
+
+======================================================================
+ERROR: test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='start', error='EndpointConnectionError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 137, in test_storage_errors_withhold_endpoint_and_message
+    self.assertEqual(self.run_cli(), 5)
+                     ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 116, in run_cli
+    return b.main()
+           ~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/r2_budget.py", line 1052, in _cli
+    s = start(f"{path}#status", a.endpoint_url)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com"
+
+======================================================================
+ERROR: test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='start', error='ClientError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 137, in test_storage_errors_withhold_endpoint_and_message
+    self.assertEqual(self.run_cli(), 5)
+                     ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 116, in run_cli
+    return b.main()
+           ~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/r2_budget.py", line 1052, in _cli
+    s = start(f"{path}#status", a.endpoint_url)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+botocore.exceptions.ClientError: An error occurred (AccessDenied) when calling the ListObjectsV2 operation: https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com
+
+======================================================================
+ERROR: test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='read', error='EndpointConnectionError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 137, in test_storage_errors_withhold_endpoint_and_message
+    self.assertEqual(self.run_cli(), 5)
+                     ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 116, in run_cli
+    return b.main()
+           ~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/r2_budget.py", line 1055, in _cli
+    records, _ = s.ledger.read()
+                 ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+  File "/usr/lib/python3.13/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/lib/python3.13/unittest/case.py", line 556, in subTest
+    yield
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 137, in test_storage_errors_withhold_endpoint_and_message
+    self.assertEqual(self.run_cli(), 5)
+                     ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 116, in run_cli
+    return b.main()
+           ~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/r2_budget.py", line 1052, in _cli
+    s = start(f"{path}#status", a.endpoint_url)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+botocore.exceptions.EndpointConnectionError: Could not connect to the endpoint URL: "https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com"
+
+======================================================================
+ERROR: test_storage_errors_withhold_endpoint_and_message (test_r2_budget.StatusCli.test_storage_errors_withhold_endpoint_and_message) (phase='read', error='ClientError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 137, in test_storage_errors_withhold_endpoint_and_message
+    self.assertEqual(self.run_cli(), 5)
+                     ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 116, in run_cli
+    return b.main()
+           ~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/r2_budget.py", line 1055, in _cli
+    records, _ = s.ledger.read()
+                 ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+  File "/usr/lib/python3.13/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/usr/lib/python3.13/unittest/case.py", line 556, in subTest
+    yield
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 137, in test_storage_errors_withhold_endpoint_and_message
+    self.assertEqual(self.run_cli(), 5)
+                     ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/tests/test_r2_budget.py", line 116, in run_cli
+    return b.main()
+           ~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-r2-status-endpoint-leak/tools/r2_budget.py", line 1052, in _cli
+    s = start(f"{path}#status", a.endpoint_url)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+botocore.exceptions.ClientError: An error occurred (AccessDenied) when calling the ListObjectsV2 operation: https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.016s
+
+FAILED (errors=4)

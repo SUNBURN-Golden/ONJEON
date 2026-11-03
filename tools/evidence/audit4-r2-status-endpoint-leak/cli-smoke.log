@@ -1,0 +1,6 @@
+runpy __main__ smoke: injected S3Store EndpointConnectionError; no network or credentials used
+exit: 5
+stdout: empty
+stderr:
+storage error: EndpointConnectionError (message and endpoint withheld)
+PASS: endpoint/account/message/traceback absent from process output

@@ -1089,5 +1089,18 @@ def _cli():
     return 0
 
 
+def main():
+    import sys
+    try:
+        return _cli()
+    except Exception as e:
+        import source_archive as sa
+        if not isinstance(e, sa.boto_errors()):
+            raise
+        # Match source_archive: botocore messages and tracebacks contain the R2 account endpoint.
+        print(f"storage error: {type(e).__name__} (message and endpoint withheld)", file=sys.stderr)
+        return 5
+
+
 if __name__ == "__main__":
-    raise SystemExit(_cli())
+    raise SystemExit(main())

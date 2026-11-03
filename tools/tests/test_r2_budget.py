@@ -21,7 +21,7 @@ import signal
 import sys
 import tempfile
 import unittest
-from contextlib import ExitStack
+from contextlib import ExitStack, redirect_stderr, redirect_stdout
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest import mock
@@ -109,6 +109,75 @@ class Fixture(unittest.TestCase):
         a.update(amounts)
         ledger.append({"kind": "settlement", "job_id": "t", "run_id": run_id, "reservation_seq": rec["seq"],
                        "at": f"{MONTH}-09T00:00:00Z", "amounts": a}, count, prev)
+
+
+class StatusCli(Fixture):
+    def run_cli(self):
+        return b.main()
+
+    def cli(self):
+        return mock.patch.object(sys, "argv", ["r2_budget.py", "status", "--job", str(self.job_path)])
+
+    @unittest.skipUnless(HAVE_BOTO, "requires botocore")
+    def test_storage_errors_withhold_endpoint_and_message(self):
+        from botocore.exceptions import ClientError, EndpointConnectionError
+        errors = [EndpointConnectionError(endpoint_url=R2),
+                  ClientError({"Error": {"Code": "AccessDenied", "Message": R2}}, "ListObjectsV2")]
+        for phase in ("start", "read"):
+            for error in errors:
+                with self.subTest(phase=phase, error=type(error).__name__):
+                    session = mock.Mock()
+                    if phase == "read":
+                        session.ledger.read.side_effect = error
+                    out, err = io.StringIO(), io.StringIO()
+                    with self.cli(), redirect_stdout(out), redirect_stderr(err), \
+                            mock.patch.object(b, "start", side_effect=error if phase == "start" else None,
+                                              return_value=session), \
+                            mock.patch.object(b, "finish", return_value=None) as finish:
+                        self.assertEqual(self.run_cli(), 5)
+                    self.assertEqual(out.getvalue(), "")
+                    self.assertIn(f"storage error: {type(error).__name__} (message and endpoint withheld)",
+                                  err.getvalue())
+                    for sensitive in (R2, R2.split("//")[1].split(".")[0], "Traceback", "AccessDenied"):
+                        self.assertNotIn(sensitive, out.getvalue() + err.getvalue())
+                    self.assertEqual(finish.call_count, int(phase == "read"))
+
+    def test_budget_refusal_keeps_exit_code(self):
+        error = b.BudgetError("test limit")
+        with self.cli(), mock.patch.object(b, "start", side_effect=error), \
+                mock.patch.object(b, "finish") as finish, self.assertRaises(b.BudgetError) as cm:
+            self.run_cli()
+        self.assertIs(cm.exception, error)
+        self.assertEqual(cm.exception.code, 4)
+        finish.assert_not_called()
+
+    def test_unexpected_error_is_not_hidden(self):
+        with self.cli(), mock.patch.object(b, "start", side_effect=ValueError("invalid fixture")), \
+                self.assertRaisesRegex(ValueError, "invalid fixture"):
+            self.run_cli()
+
+    def test_success_preserves_status_json_and_settlement(self):
+        self.write_policy(per_month_global=1)
+        self.write_job(admissions_per_month=1)
+        doc = json.loads(self.job_path.read_text())
+        doc["run_profiles"]["status"] = PER_RUN
+        self.job_path.write_text(json.dumps(doc))
+        start = b.start
+        out, err = io.StringIO(), io.StringIO()
+        with self.cli(), redirect_stdout(out), redirect_stderr(err), \
+                mock.patch.object(b, "start", side_effect=lambda *args: start(
+                    args[0], ledger_store=self.ledger_store, policy_path=self.policy_path,
+                    gate_dir=self.gate_dir)):
+            self.assertEqual(self.run_cli(), 0)
+        status = json.loads(out.getvalue())
+        self.assertEqual(status["records"], 1)
+        self.assertEqual(status["month"], MONTH)
+        self.assertEqual(status["admissions_this_month"], 1)
+        summary = json.loads(err.getvalue().removeprefix("budget "))
+        self.assertEqual(summary["settlement"], 2)
+        records, _ = b.Ledger(self.ledger_store, b.load_policy(self.policy_path)).read()
+        self.assertEqual(records[-1]["outcome"], "ok")
+        self.assertIsNone(b.ACTIVE)
 
 
 class Reservation(Fixture):

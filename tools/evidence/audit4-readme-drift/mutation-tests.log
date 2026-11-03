@@ -1,0 +1,8 @@
+ADR 목록을 0011까지만 남김: 1개 실행, 예상한 실패 1건 검출
+  검출: tools.tests.test_readme_index.DecisionsRow.test_every_adr_number_is_listed
+감사 당시 우선순위 복원: 2개 실행, 예상한 실패 2건 검출
+  검출: tools.tests.test_readme_index.DocumentHierarchy.test_priority_points_to_blueprint_section_0_1
+  검출: tools.tests.test_readme_index.DocumentHierarchy.test_replaced_masterplan_priority_is_not_present
+BLUEPRINT 링크 유지 중에도 옛 우선순위 재삽입: 1개 실행, 예상한 실패 1건 검출
+  검출: tools.tests.test_readme_index.DocumentHierarchy.test_replaced_masterplan_priority_is_not_present
+모든 변이 검출 성공. README 파일 변경 없음.

@@ -32,6 +32,24 @@ class DecisionsRow(unittest.TestCase):
         self.assertIn("DEC-*", row("docs/decisions/"))
 
 
+class DocumentHierarchy(unittest.TestCase):
+    def test_priority_points_to_blueprint_section_0_1(self):
+        self.assertIn(
+            "[BLUEPRINT §0.1 문서 위계](docs/BLUEPRINT.md#01-문서-위계)",
+            README,
+        )
+        blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
+        self.assertIn("### 0.1 문서 위계", blueprint)
+
+    def test_replaced_masterplan_priority_is_not_present(self):
+        self.assertNotRegex(
+            README, r"불변\s*원칙\s*→\s*제2부\s*→\s*제3부\s*→\s*제1부"
+        )
+        self.assertNotRegex(
+            README, r"제3부\s*§56의\s*사용자\s*결정은\s*이\s*순서보다\s*우선"
+        )
+
+
 class IndexedPaths(unittest.TestCase):
     def test_required_rows_present(self):
         for cell in (

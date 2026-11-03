@@ -1,0 +1,950 @@
+test_completion_evidence_still_requires_real_records_and_participant_tests (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_completion_evidence_still_requires_real_records_and_participant_tests) ... ERROR
+test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) ... 
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='DEC-D-14') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='위임 결정') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='사용자 확정 아님') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='첫 출시') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='공백 관리') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='초안 생성') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='회신 보존') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='주장별 평가') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='온전 명의') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='AI 작성 보조') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='사용자 승인') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='사람이 수동 발송') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='자동 발송 금지') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='게이트 등록') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='구현') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='별도') ... FAIL
+  test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='범위 축소 아님') ... FAIL
+test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) ... 
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='DEC-D-02') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='위임 결정') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='사용자 확정 아님') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='2계열') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='작성=claude') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='승인=비-claude X') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='레드팀=별도 비-claude Y') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='degraded') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='정책 소유자=사용자 본인 1인') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='접근 확인') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='월 한도') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='접근 확인 뒤 게이트 등록') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='별도 real_data 게이트') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='O06·D-19') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='시험·병합') ... FAIL
+  test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='범위 축소 아님') ... FAIL
+test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) ... 
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='DEC-D-06') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='DEC-D-07') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='위임 결정') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='사용자 확정 아님') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='PDF만') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='사진 없음') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='사용자 진술') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='질병 코드는 미확인') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='진단서 입력은 별도 ADR') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='청구 서류·기한·보험사 공식 채널') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='조항 근거') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='안내만') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='대행·전송·연계 금지') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='지급 보장 금지') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='게이트 등록') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='구현 검증') ... FAIL
+  test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='별도') ... FAIL
+test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) ... 
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='DEC-D-12') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='소유자 직접 결정') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='2026-10-14 07:23 KST') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='선택 C') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='소비자 앱') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='원문 이미지·발췌 표시 허용') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='플래그 적용') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='게이트 등록') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='별도') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='공개 저장소의 새 원문 발췌 추가는 승인하지 않음') ... FAIL
+  test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='범위 축소 아님') ... FAIL
+test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) ... 
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='DEC-D-08') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='위임 결정') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='사용자 확정 아님') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='defaults_enabled=false') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='defaults_basis_ref 없음') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='user_assumption만') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='가정 누락은 hold') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='임의 0·평균 금지') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='출처·범위·동결 릴리스') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='비편집 기준') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='금액·점수·순위·가입 추천 없이') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='기본값·편집 기준은 별도 소유자 결정') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='O05 미해결') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='게이트 등록') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='구현 검증') ... FAIL
+  test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='별도') ... FAIL
+test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) ... 
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='DEC-D-16') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='위임 결정') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='사용자 확정 아님') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='U1~U7') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='탐색 8~12명') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='새 참가자 확인 12명 이상') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='U1·U2·U3·U5 80%') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='U4·U6·U7 90%') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='동일 오해 3명 이상 시 실패') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='첫 세션 전 PREREG 고정') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='기준 변경 시 해당 회차 무효') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='게이트 등록') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='별도') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='실제 시험·확인 회차 통과는 미완료') ... FAIL
+  test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='범위 축소 아님') ... FAIL
+test_scope_decisions_link_to_existing_records_and_keep_task_gates (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_scope_decisions_link_to_existing_records_and_keep_task_gates) ... FAIL
+
+======================================================================
+ERROR: test_completion_evidence_still_requires_real_records_and_participant_tests (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_completion_evidence_still_requires_real_records_and_participant_tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 116, in test_completion_evidence_still_requires_real_records_and_participant_tests
+    note = next(line for line in self.text.splitlines() if "2026-11-03_purpose_table_sync.md" in line)
+StopIteration
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='DEC-D-14')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'DEC-D-14' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='위임 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '위임 결정' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='사용자 확정 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사용자 확정 아님' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='첫 출시')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '첫 출시' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='공백 관리')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '공백 관리' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='초안 생성')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '초안 생성' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='회신 보존')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '회신 보존' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='주장별 평가')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '주장별 평가' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='온전 명의')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '온전 명의' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='AI 작성 보조')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'AI 작성 보조' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='사용자 승인')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사용자 승인' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='사람이 수동 발송')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사람이 수동 발송' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='자동 발송 금지')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '자동 발송 금지' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='게이트 등록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '게이트 등록' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='구현')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '구현' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='별도')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '별도' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) (row='P03', phrase='범위 축소 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '범위 축소 아님' not found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='DEC-D-02')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'DEC-D-02' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='위임 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '위임 결정' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='사용자 확정 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사용자 확정 아님' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='2계열')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '2계열' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='작성=claude')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '작성=claude' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='승인=비-claude X')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '승인=비-claude X' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='레드팀=별도 비-claude Y')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '레드팀=별도 비-claude Y' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='degraded')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'degraded' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='정책 소유자=사용자 본인 1인')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '정책 소유자=사용자 본인 1인' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='접근 확인')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '접근 확인' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='월 한도')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '월 한도' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='접근 확인 뒤 게이트 등록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '접근 확인 뒤 게이트 등록' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='별도 real_data 게이트')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '별도 real_data 게이트' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='O06·D-19')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'O06·D-19' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='시험·병합')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '시험·병합' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p06_separates_ai_configuration_from_access_and_registration (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) (row='P06', phrase='범위 축소 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '범위 축소 아님' not found in '실제 제공자 검수는 D-02 뒤. 축소 아님(결정 대기). 모의 제공자 경로는 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='DEC-D-06')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'DEC-D-06' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='DEC-D-07')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'DEC-D-07' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='위임 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '위임 결정' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='사용자 확정 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사용자 확정 아님' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='PDF만')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'PDF만' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='사진 없음')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사진 없음' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='사용자 진술')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사용자 진술' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='질병 코드는 미확인')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '질병 코드는 미확인' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='진단서 입력은 별도 ADR')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '진단서 입력은 별도 ADR' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='청구 서류·기한·보험사 공식 채널')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '청구 서류·기한·보험사 공식 채널' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='조항 근거')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '조항 근거' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='안내만')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '안내만' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='대행·전송·연계 금지')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '대행·전송·연계 금지' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='지급 보장 금지')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '지급 보장 금지' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='게이트 등록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '게이트 등록' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='구현 검증')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '구현 검증' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p11_preserves_statement_only_inputs_and_guidance_only_claims (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) (row='P11', phrase='별도')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '별도' not found in '사실 입력 범위(사진·진단서)와 청구 안내 범위는 D-06·D-07(결정 대기). 진술 입력 골격·조건부 계산은 범위 안'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='DEC-D-12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'DEC-D-12' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='소유자 직접 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '소유자 직접 결정' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='2026-10-14 07:23 KST')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '2026-10-14 07:23 KST' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='선택 C')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '선택 C' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='소비자 앱')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '소비자 앱' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='원문 이미지·발췌 표시 허용')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '원문 이미지·발췌 표시 허용' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='플래그 적용')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '플래그 적용' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='게이트 등록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '게이트 등록' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='별도')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '별도' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='공개 저장소의 새 원문 발췌 추가는 승인하지 않음')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '공개 저장소의 새 원문 발췌 추가는 승인하지 않음' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) (row='P14', phrase='범위 축소 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '범위 축소 아님' not found in '원문 이미지·발췌 재배포는 D-12 뒤(플래그 off면 조항 참조·출처 링크까지)'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='DEC-D-08')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'DEC-D-08' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='위임 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '위임 결정' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='사용자 확정 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사용자 확정 아님' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='defaults_enabled=false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'defaults_enabled=false' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='defaults_basis_ref 없음')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'defaults_basis_ref 없음' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='user_assumption만')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'user_assumption만' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='가정 누락은 hold')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '가정 누락은 hold' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='임의 0·평균 금지')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '임의 0·평균 금지' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='출처·범위·동결 릴리스')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '출처·범위·동결 릴리스' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='비편집 기준')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '비편집 기준' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='금액·점수·순위·가입 추천 없이')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '금액·점수·순위·가입 추천 없이' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='기본값·편집 기준은 별도 소유자 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '기본값·편집 기준은 별도 소유자 결정' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='O05 미해결')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'O05 미해결' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='게이트 등록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '게이트 등록' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='구현 검증')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '구현 검증' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p17_keeps_defaults_off_and_criteria_conditional (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) (row='P17', phrase='별도')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '별도' not found in '기준의 서비스 적용과 기본 필요액 제공은 D-08(결정 대기). 사용자 가정 경로는 범위 안'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='DEC-D-16')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'DEC-D-16' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='위임 결정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '위임 결정' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='사용자 확정 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '사용자 확정 아님' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='U1~U7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'U1~U7' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='탐색 8~12명')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '탐색 8~12명' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='새 참가자 확인 12명 이상')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '새 참가자 확인 12명 이상' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='U1·U2·U3·U5 80%')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'U1·U2·U3·U5 80%' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='U4·U6·U7 90%')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'U4·U6·U7 90%' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='동일 오해 3명 이상 시 실패')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '동일 오해 3명 이상 시 실패' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='첫 세션 전 PREREG 고정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '첫 세션 전 PREREG 고정' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='기준 변경 시 해당 회차 무효')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '기준 변경 시 해당 회차 무효' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='게이트 등록')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '게이트 등록' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='별도')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '별도' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='실제 시험·확인 회차 통과는 미완료')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '실제 시험·확인 회차 통과는 미완료' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_p19_records_preregistered_thresholds_without_claiming_validation (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) (row='P19', phrase='범위 축소 아님')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 31, in require_scope
+    self.assertIn(phrase, scope)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: '범위 축소 아님' not found in '시험 과제·표본·수락 수치는 D-16(결정 대기)'
+
+======================================================================
+FAIL: test_scope_decisions_link_to_existing_records_and_keep_task_gates (tools.tests.test_purpose_table_decision_sync.PurposeTableDecisionSync.test_scope_decisions_link_to_existing_records_and_keep_task_gates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-purpose-table-sync/tools/tests/test_purpose_table_decision_sync.py", line 93, in test_scope_decisions_link_to_existing_records_and_keep_task_gates
+    self.assertNotIn("결정 대기", scope, row)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '결정 대기' unexpectedly found in '외부 문의 발송은 D-14 뒤(T-KN-11 초안만). 축소 아님(결정 대기)' : P03
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.022s
+
+FAILED (failures=93, errors=1)

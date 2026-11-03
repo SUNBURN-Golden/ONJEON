@@ -1,0 +1,44 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj/Cargo.toml --test loader_rejections
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling cpufeatures v0.2.17
+   Compiling itoa v1.0.18
+   Compiling cfg-if v1.0.5
+   Compiling memchr v2.8.3
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.40s
+     Running tests/loader_rejections.rs (target/loader-control-09ecoffj/target/debug/deps/loader_rejections-0d9ee49b6b11ef0b)
+
+running 13 tests
+test every_rule_02_operator_is_gated_independently_of_input_declarations ... ok
+test expression_objects_and_if_objects_have_exact_shapes ... ok
+test document_shape_and_required_fields_are_checked_before_evaluation ... ok
+test date_add_parameter_types_units_and_month_end_values_are_checked ... ok
+test date_and_band_operators_reject_wrong_arity_before_parsing_children ... ok
+test anniversary_band_rejects_malformed_tables_and_boundary_containers ... ok
+test max_over_requires_a_declared_list_and_lists_cannot_be_compared ... ok
+test input_declarations_and_evidence_containers_require_their_declared_types ... ok
+test days_between_requires_boolean_inclusivity_and_a_closed_parameter_object ... ok
+test money_rate_and_explicit_input_literals_reject_invalid_values ... ok
+test metadata_values_do_not_silently_default ... ok
+test every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs ... ok
+test array_operator_arity_and_container_guards_reject_both_sides_of_the_bounds ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+Exit: 0

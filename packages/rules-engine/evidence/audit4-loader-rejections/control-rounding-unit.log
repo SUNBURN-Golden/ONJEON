@@ -1,0 +1,25 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj/Cargo.toml --test loader_rejections every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs -- --exact
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/loader_rejections.rs (target/loader-control-09ecoffj/target/debug/deps/loader_rejections-0d9ee49b6b11ef0b)
+
+running 1 test
+test every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs ... FAILED
+
+failures:
+
+---- every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs stdout ----
+
+thread 'every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs' (2656931) panicked at tests/loader_rejections.rs:25:26:
+value must reject {"amount":{"multiply_rate":["amt","0.5",{"rounding":"floor","unit":2}]},"calendar":"Asia/Seoul","eligibility":true,"evidence_refs":["synthetic-clause"],"inputs":{"amt":"money_krw","d1":"date","d2":"date","n":"int"},"publication_state":"fixture_only","rule_id":"loader-audit","rule_version":"1","schema_version":"rule-0.1","unknown_policy":"use_three_valued_logic_never_default_to_zero"}: Rule { rule_id: "loader-audit", rule_version: "1", release_id: None, content_hash: "f68a7686f9c97741ed826b41a41400fef55f9650c2b5082307b02d62e9b3d00e", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {"amt": MoneyKrw, "d1": Date, "d2": Date, "n": Int}, eligibility: Lit(Bool(true)), amount: MultiplyRate { money: Input("amt"), rate: Lit(Rate { num: 5, den: 10 }), rounding: Floor, unit: 2 }, contract_effect: None, source: Object {"amount": Object {"multiply_rate": Array [String("amt"), String("0.5"), Object {"rounding": String("floor"), "unit": Number(2)}]}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "inputs": Object {"amt": String("money_krw"), "d1": String("date"), "d2": String("date"), "n": String("int")}, "publication_state": String("fixture_only"), "rule_id": String("loader-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test loader_rejections`
+
+Exit: 101

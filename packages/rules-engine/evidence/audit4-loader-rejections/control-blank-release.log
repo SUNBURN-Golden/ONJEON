@@ -1,0 +1,25 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj/Cargo.toml --test loader_rejections metadata_values_do_not_silently_default -- --exact
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running tests/loader_rejections.rs (target/loader-control-09ecoffj/target/debug/deps/loader_rejections-0d9ee49b6b11ef0b)
+
+running 1 test
+test metadata_values_do_not_silently_default ... FAILED
+
+failures:
+
+---- metadata_values_do_not_silently_default stdout ----
+
+thread 'metadata_values_do_not_silently_default' (2656360) panicked at tests/loader_rejections.rs:25:26:
+value must reject {"amount":{"krw":1},"calendar":"Asia/Seoul","eligibility":true,"evidence_refs":["synthetic-clause"],"inputs":{"amt":"money_krw","d1":"date","d2":"date","n":"int"},"publication_state":"fixture_only","release_id":"","rule_id":"loader-audit","rule_version":"1","schema_version":"rule-0.1","unknown_policy":"use_three_valued_logic_never_default_to_zero"}: Rule { rule_id: "loader-audit", rule_version: "1", release_id: Some(""), content_hash: "95f42cb25d6ce0f7e03e9a38fb9bdaecab598d74424693b96b85f9ff77c07d42", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {"amt": MoneyKrw, "d1": Date, "d2": Date, "n": Int}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "inputs": Object {"amt": String("money_krw"), "d1": String("date"), "d2": String("date"), "n": String("int")}, "publication_state": String("fixture_only"), "release_id": String(""), "rule_id": String("loader-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    metadata_values_do_not_silently_default
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test loader_rejections`
+
+Exit: 101

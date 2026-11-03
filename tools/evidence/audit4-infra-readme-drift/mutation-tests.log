@@ -1,0 +1,6 @@
+Current README: PASS
+ledger/v1/ replaced by typo/v1/: rejected as expected
+admission/v1/ replaced by typo/v1/: rejected as expected
+closed/v1/ replaced by typo/v1/: rejected as expected
+checkpoint/v1/ replaced by typo/v1/: rejected as expected
+README file unchanged; all four prefix mutations rejected: PASS

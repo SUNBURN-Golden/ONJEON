@@ -1,0 +1,6 @@
+test_readme_lists_every_control_prefix_in_ledger_bucket_row (tools.tests.test_r2_readme.LedgerBucketLayout.test_readme_lists_every_control_prefix_in_ledger_bucket_row) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK

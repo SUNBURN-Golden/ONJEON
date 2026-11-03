@@ -1,0 +1,6 @@
+PASS: all 34 changed/new files are in allowed paths
+PASS: protected documents, loader/evaluator and shared fixtures unchanged
+Loader SHA-256: bef3bb2ba9959902c3fa1c26bce29334afbc3203f865ad7ea3e23b4ad1a1af73
+PASS: local README/evidence links resolve
+PASS: git diff --check and new-file trailing-whitespace checks
+No commit, push or GitHub calls performed

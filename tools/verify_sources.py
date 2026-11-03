@@ -17,7 +17,7 @@ detect     현재 출처 변경 감지 — fetch permitted recorded URLs and com
            `fetch_failed` with detail `robots_disallow`, and keep the run nonzero.
 
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a
-cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: same-origin
+cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: HTTPS-only, same-origin
 redirects only, final URL recorded, MIME/signature and known HTML block-page checks before any
 write. Redirect response bodies are closed unread. Final bodies over MAX_FETCH_BYTES are refused
 (streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
@@ -50,6 +50,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import html_content_hash as hch  # noqa: E402
 import source_archive as sa  # noqa: E402
+import source_metadata as sm  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 VAL = ROOT / "docs/blueprint/validation"
@@ -365,22 +366,21 @@ class FetchRejected(Exception):
 
 
 def source_origin(url):
-    """Only HTTP(S) URLs without credentials; default ports compare equally."""
+    """Only HTTPS URLs without credentials; default ports compare equally."""
     try:
-        p = urllib.parse.urlsplit(url)
-        if p.scheme not in {"http", "https"} or not p.hostname or p.username is not None or p.password is not None:
-            raise ValueError("not an HTTP(S) source URL without credentials")
-        port = p.port if p.port is not None else (443 if p.scheme == "https" else 80)
-        if port == 0:
-            raise ValueError("invalid port")
-        return p.scheme, p.hostname.lower(), port
+        return sm.https_origin(url)
     except ValueError as e:
         raise FetchRejected("url_disallowed: invalid source URL") from e
 
 
 def check_redirect(source, target):
     check_recorded_robots_policy(target)
-    if source_origin(source) != source_origin(target):
+    origin = source_origin(source)
+    try:
+        target_origin = source_origin(target)
+    except FetchRejected as e:
+        raise FetchRejected("redirect_disallowed: invalid HTTPS target") from e
+    if origin != target_origin:
         raise FetchRejected("redirect_disallowed: scheme, host or port changed")
 
 

@@ -1,5 +1,4 @@
-# generated from parent commit cba252d6d1f60f3cfbc77c0e82ff9e833a013a2b + tree hash of tools/daemon sources sha256:e922e2732d5eb00fd2e57ae2c0ce2432f5a1c92cb9c50705fdb8a6ebe509ee60
-# merge input main commit 568c298f413c59e5b84718fe8fc70f45269de635
+# generated from parent commit 9801a383e7c4fa3aee0e0ddf2f79e70b11bc481b + tree hash of tools/daemon sources sha256:7b92dfcec051b8b35a5448f15e95e7f68111273c5d45e374ee1abfb88870b78c
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -314,6 +313,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 289 tests in 66.419s
+Ran 289 tests in 66.227s
 
 OK

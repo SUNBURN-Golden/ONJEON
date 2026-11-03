@@ -71,9 +71,11 @@ PR 이후 전이(전이표 43~85행)는 대부분 `cond`가 없다. `blocked→q
 
 `python3 -I tools/daemon/static_checks.py`는 13개 정적 검사를 실제로 실행하고 각 결과와 위반 위치를 출력한다. 기본 규칙·모의 과제 경로는 스크립트 위치를 기준으로 정하므로 다른 작업 디렉터리에서도 실행할 수 있다. `--rules <경로>`·`--tasks <경로>`로 입력을 바꾼다. 종료 코드는 모두 통과하면 0, 위반이면 1, 입력 읽기·JSON·소스 구문 등 검사 완료 오류면 2다.
 
-네트워크·동적 코드 검사에는 `__builtins__` 접근, 금지 멤버의 리터럴 `getattr` 조회, `from os import system as s` 같은 별칭 가져오기, `os.exec*`·`os.spawn*`·`posix_spawn*` 등 프로세스 실행 함수 참조, `ctypes`·`_ctypes`·`posix`·`nt` 가져오기가 포함된다. `re.compile`·일반 데이터·포트 객체의 `getattr`는 허용한다. 루프 검사는 AST 리터럴 조건이 참인 `while True:`·`while 1:` 등을 거부하며 주석·문자열 속 루프 예시는 실행문으로 보지 않는다. 기존 스케줄러 패턴 검사도 유지한다.
+네트워크·동적 코드 검사는 AST 기반 허용 목록을 적용한다. `ALLOWED_IMPORTS`는 외부 모듈·하위 모듈과 사용할 멤버를 명시하고, `ALLOWED_LOCAL_MODULES`는 검사 대상 데몬 패키지의 모듈을 명시한다. 새 모듈·멤버와 와일드카드 가져오기는 기본 거부한다. `import`·`from ... import`의 별칭, 단순 변수 대입으로 전달된 모듈 별칭, 모듈 대상 `getattr`에도 같은 멤버 목록을 적용한다. 모듈의 계산된 속성명 조회는 거부하며, 일반 데이터·포트 객체의 `getattr`와 `re.compile`은 허용한다. 별칭은 범위·재대입에 걸쳐 보수적으로 누적하므로 허용된 코드도 검토가 필요할 수 있다.
 
-패턴 검사의 자체 제외는 이 검사기의 정확한 경로에만 적용한다. 하위 디렉터리를 포함해 다른 `static_checks.py`는 검사한다. `runner_verify/`의 기존 별도 검사 경계는 유지한다. 이 검사는 Python 샌드박스가 아니며, 계산해서 만든 속성명·일반 변수 흐름·입력에 의존하는 무한 루프까지 증명하지 않는다. [Audit 3 수정·회귀 실행 증거](../evidence/audit3-daemon-static-check-bypasses/README.md)를 참조한다.
+추가 동적 코드 검사는 `__builtins__` 접근과 금지 멤버의 리터럴 `getattr` 조회, `os.exec*`·`os.spawn*`·`posix_spawn*` 등의 참조를 거부한다. 루프 검사는 AST 리터럴 조건이 참인 `while True:`·`while 1:` 등을 거부하며 주석·문자열 속 루프 예시는 실행문으로 보지 않는다. 기존 스케줄러 패턴 검사도 유지한다.
+
+패턴 검사의 자체 제외는 이 검사기의 정확한 경로에만 적용한다. 하위 디렉터리를 포함해 다른 `static_checks.py`는 검사한다. `runner_verify/`의 기존 별도 검사 경계는 유지한다. 이 검사는 Python 샌드박스가 아니며, 일반 객체의 계산된 속성명·컨테이너/함수 반환을 통한 변수 흐름·입력에 의존하는 무한 루프까지 증명하지 않는다. [Audit 3 수정 증거](../evidence/audit3-daemon-static-check-bypasses/README.md)와 [Audit 4 허용 목록·회귀 증거](../evidence/audit4-daemon-static-check-bypass/README.md)를 참조한다.
 
 ## 증거 기록(reports/)
 

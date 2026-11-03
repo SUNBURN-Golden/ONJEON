@@ -1,0 +1,402 @@
+test_builtins_mapping_and_attribute_access (tools.tests.test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ... ok
+test_existing_scheduler_bans_still_hold (tools.tests.test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ... ok
+test_finite_and_false_literal_loops_and_comments_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) ... ok
+test_from_os_import_aliases_and_star (tools.tests.test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) ... ok
+test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) ... 
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os as operating; operating.unreviewed_api()') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; alias = os; alias.unreviewed_api()') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; first = second; second = os; first.unreviewed_api()') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='from os import unreviewed_api as launch') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import sys as runtime; runtime.modules') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import re; re.unreviewed_api()') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; getattr(os, "unreviewed_api")') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; lookup = getattr; lookup(os, "unreviewed_api")') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; getattr(os, member)') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; lookup = getattr; lookup(os, member)') ... FAIL
+  test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; alias = os; getattr(alias, member)') ... FAIL
+test_native_execution_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_native_execution_imports) ... ok
+test_only_canonical_checker_and_runner_directory_are_exempt (tools.tests.test_daemon_static_checks.StaticBypasses.test_only_canonical_checker_and_runner_directory_are_exempt) ... ok
+test_process_attributes_and_aliases (tools.tests.test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) ... ok
+test_reflective_forbidden_members (tools.tests.test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) ... ok
+test_relative_forbidden_imports (tools.tests.test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) ... ok
+test_reviewed_imports_and_aliases_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_reviewed_imports_and_aliases_are_allowed) ... ok
+test_safe_operations_and_data_are_allowed (tools.tests.test_daemon_static_checks.StaticBypasses.test_safe_operations_and_data_are_allowed) ... ok
+test_same_named_files_are_checked (tools.tests.test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) ... ok
+test_truthy_literal_loops_are_rejected (tools.tests.test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) ... ok
+test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) ... 
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import pickle as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from pickle import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import marshal as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from marshal import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import webbrowser as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from webbrowser import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import ensurepip as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from ensurepip import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import unknown_library as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from unknown_library import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import json.tool as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from json.tool import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import os.path.extra as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from os.path.extra import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import daemon.runner_verify as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from daemon.runner_verify import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import daemon.unreviewed as helper') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from daemon.unreviewed import helper as value') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from json import *') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from . import unknown_library') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from ...core import Rules') ... FAIL
+  test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from sys import modules as registry') ... FAIL
+test_cli_input_errors_are_nonzero_and_explained (tools.tests.test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) ... ok
+test_cli_invalid_source_is_an_error (tools.tests.test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error) ... ok
+test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) ... 
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='import pickle as loader') ... FAIL
+  test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='import os as op; op.unreviewed_api()') ... FAIL
+test_no_arguments_runs_all_checks (tools.tests.test_daemon_static_checks.StaticCli.test_no_arguments_runs_all_checks) ... ok
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os as operating; operating.unreviewed_api()')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; alias = os; alias.unreviewed_api()')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; first = second; second = os; first.unreviewed_api()')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='from os import unreviewed_api as launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import sys as runtime; runtime.modules')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import re; re.unreviewed_api()')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; getattr(os, "unreviewed_api")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; lookup = getattr; lookup(os, "unreviewed_api")')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; getattr(os, member)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; lookup = getattr; lookup(os, member)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_module_members_and_reflection_use_allowlist (tools.tests.test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) (source='import os; alias = os; getattr(alias, member)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 112, in test_module_members_and_reflection_use_allowlist
+    self.assertTrue(violations)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import pickle as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from pickle import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import marshal as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from marshal import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import webbrowser as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from webbrowser import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import ensurepip as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from ensurepip import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import unknown_library as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from unknown_library import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import json.tool as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from json.tool import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import os.path.extra as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from os.path.extra import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import daemon.runner_verify as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from daemon.runner_verify import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='import daemon.unreviewed as helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from daemon.unreviewed import helper as value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 89, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from json import *')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 93, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from . import unknown_library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 93, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from ...core import Rules')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 93, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unreviewed_imports_fail_closed (tools.tests.test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) (source='from sys import modules as registry')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 93, in test_unreviewed_imports_fail_closed
+    self.assertTrue(self.check_source(source))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='import pickle as loader')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 191, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : [PASS] 코어가 when·note·_ 키를 읽지 않음
+[PASS] 읽기 목록 밖 값은 관측 계층의 Rules.outside()로만
+[PASS] 코어에 dry_run·mock 분기 문자열 없음
+[PASS] 병합 API·자동 병합 호출 함수 없음
+[PASS] 네트워크·실제 CLI·프로세스 실행·동적 코드 실행(eval·exec·compile·__import__·importlib) 없음
+[PASS] 벽시계 없음(time·datetime 미사용, 시간은 clock.now()만)
+[PASS] 스케줄러·상주 루프 없음
+[PASS] lease_generation은 issue_lease 안에서만 대입
+[PASS] 전이 side_effects·인계 단계에 별도 세대 증가 없음
+[PASS] 임대 발급 전이는 모두 issue_lease를 부름
+[PASS] 다른 해시 정의 없음, 트리 해시는 git_write_tree_oid만
+[PASS] 비용 상한·예산 예약·소진 정지 표현 없음(코어·모의 과제·규칙의 동작 필드)
+[PASS] 모델 식별자 문자열 없음
+Checks: 13, failed: 0
+
+
+======================================================================
+FAIL: test_cli_rejects_planted_violations_without_executing_them (tools.tests.test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) (source='import os as op; op.unreviewed_api()')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-daemon-static-check-bypass/tools/tests/test_daemon_static_checks.py", line 191, in test_cli_rejects_planted_violations_without_executing_them
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : [PASS] 코어가 when·note·_ 키를 읽지 않음
+[PASS] 읽기 목록 밖 값은 관측 계층의 Rules.outside()로만
+[PASS] 코어에 dry_run·mock 분기 문자열 없음
+[PASS] 병합 API·자동 병합 호출 함수 없음
+[PASS] 네트워크·실제 CLI·프로세스 실행·동적 코드 실행(eval·exec·compile·__import__·importlib) 없음
+[PASS] 벽시계 없음(time·datetime 미사용, 시간은 clock.now()만)
+[PASS] 스케줄러·상주 루프 없음
+[PASS] lease_generation은 issue_lease 안에서만 대입
+[PASS] 전이 side_effects·인계 단계에 별도 세대 증가 없음
+[PASS] 임대 발급 전이는 모두 issue_lease를 부름
+[PASS] 다른 해시 정의 없음, 트리 해시는 git_write_tree_oid만
+[PASS] 비용 상한·예산 예약·소진 정지 표현 없음(코어·모의 과제·규칙의 동작 필드)
+[PASS] 모델 식별자 문자열 없음
+Checks: 13, failed: 0
+
+
+----------------------------------------------------------------------
+Ran 19 tests in 8.751s
+
+FAILED (failures=35)

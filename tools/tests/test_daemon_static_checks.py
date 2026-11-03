@@ -1,4 +1,4 @@
-"""Audit 3: inspect unsafe source without executing it; exercise the actual checker CLI."""
+"""Audit 3/4: inspect unsafe source without executing it; exercise the actual checker CLI."""
 import shutil
 import subprocess
 import sys
@@ -81,6 +81,53 @@ data = {"eval": "description", "system": "label"}
 '''
         self.assertEqual(self.check_source(source), [])
 
+    def test_unreviewed_imports_fail_closed(self):
+        for module in ("pickle", "marshal", "webbrowser", "ensurepip", "unknown_library",
+                       "json.tool", "os.path.extra", "daemon.runner_verify", "daemon.unreviewed"):
+            for source in (f"import {module} as helper", f"from {module} import helper as value"):
+                with self.subTest(source=source):
+                    self.assertTrue(self.check_source(source))
+        for source in ("from json import *", "from . import unknown_library",
+                       "from ...core import Rules", "from sys import modules as registry"):
+            with self.subTest(source=source):
+                self.assertTrue(self.check_source(source))
+
+    def test_module_members_and_reflection_use_allowlist(self):
+        for source in (
+            "import os as operating; operating.unreviewed_api()",
+            "import os; alias = os; alias.unreviewed_api()",
+            "import os; first = second; second = os; first.unreviewed_api()",
+            "from os import unreviewed_api as launch",
+            "import sys as runtime; runtime.modules",
+            "import re; re.unreviewed_api()",
+            'import os; getattr(os, "unreviewed_api")',
+            'import os; lookup = getattr; lookup(os, "unreviewed_api")',
+            "import os; getattr(os, member)",
+            "import os; lookup = getattr; lookup(os, member)",
+            "import os; alias = os; getattr(alias, member)",
+            'getattr(__builtins__, "ev" + "al")("1")',
+        ):
+            with self.subTest(source=source):
+                violations = self.check_source(source)
+                self.assertTrue(violations)
+                self.assertTrue(all("probe.py:" in violation for violation in violations))
+
+    def test_reviewed_imports_and_aliases_are_allowed(self):
+        for source in (
+            'import re as regex; compile_pattern = regex.compile; compile_pattern("a")',
+            'from re import compile as compile_pattern; compile_pattern("a")',
+            'from os import path as paths; paths.join("a", "b")',
+            'import os.path as paths; paths.join("a", "b")',
+            'from os.path import join as join_path; join_path("a", "b")',
+            'import os; alias = os; paths = alias.path; paths.join("a", "b")',
+            'import os; getattr(os, "path").join("a", "b")',
+            'from daemon.core import Rules as Policy',
+            'from .core import Rules as Policy',
+            'from . import mock_env as environment',
+        ):
+            with self.subTest(source=source):
+                self.assertEqual(self.check_source(source), [])
+
     def test_same_named_files_are_checked(self):
         for filename in ("static_checks.py", "nested/static_checks.py"):
             with self.subTest(filename=filename):
@@ -135,7 +182,9 @@ class StaticCli(unittest.TestCase):
             script = daemon / "static_checks.py"
             for source in ('__builtins__["eval"]("1")', 'getattr(os, "system")("unused")',
                            'from os import system as s', 'os.execvpe("unused", [], {})',
-                           'os.posix_spawn("unused", [], {})', 'import ctypes', 'while 1:\n    pass'):
+                           'os.posix_spawn("unused", [], {})', 'import ctypes', 'while 1:\n    pass',
+                           'import pickle as loader', 'import os as op; op.unreviewed_api()',
+                           'getattr(__builtins__, "eval")("1")'):
                 with self.subTest(source=source):
                     (daemon / "core/static_checks.py").write_text(source, encoding="utf-8")
                     result = self.run_cli(script, "--rules", str(RULES), "--tasks", str(TASKS))

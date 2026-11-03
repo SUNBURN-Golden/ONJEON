@@ -8,13 +8,34 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 CORE = HERE / "core"
-FORBIDDEN_IMPORTS = {"socket", "ssl", "urllib", "http", "ftplib", "smtplib", "requests", "subprocess",
-                     "asyncio", "multiprocessing", "xmlrpc", "telnetlib", "pty", "ctypes", "_ctypes", "posix", "nt"}
+# Review additions here: unlisted modules/submodules and external members fail closed.
+ALLOWED_IMPORTS = {
+    "abc": {"ABC", "abstractmethod"},
+    "argparse": {"ArgumentParser", "RawDescriptionHelpFormatter"},
+    "contextlib": {"contextmanager", "suppress"},
+    "copy": {"deepcopy"},
+    "fnmatch": {"fnmatch"},
+    "hashlib": {"sha1"},
+    "json": {"dumps", "loads", "load"},
+    "os": {"path"},
+    "os.path": {"join"},
+    "pathlib": {"Path"},
+    "re": {"S", "compile", "fullmatch", "search", "split"},
+    "sys": {"exit", "path"},
+    "threading": {"Lock", "RLock", "Thread"},
+    "traceback": {"format_exc"},
+}
+ALLOWED_LOCAL_MODULES = {
+    "daemon", "daemon.core", "daemon.bench", "daemon.dry_run", "daemon.mock_adapters",
+    "daemon.mock_env", "daemon.scenarios", "daemon.scenarios_flow", "daemon.spec_gaps", "daemon.static_checks",
+    *("daemon.core." + name for name in (
+        "effects", "engine", "envelope_validator", "fencing", "gate_evaluator", "handoff", "lease",
+        "observation", "ports", "records", "recovery", "rules", "secret_scan", "transition_engine", "usage")),
+}
 FORBIDDEN_CALLS = {"system", "popen", "execl", "execle", "execlp", "execlpe", "execv", "execve", "execvp", "execvpe",
                    "spawnl", "spawnle", "spawnlp", "spawnlpe", "spawnv", "spawnve", "spawnvp", "spawnvpe",
                    "posix_spawn", "posix_spawnp", "fork", "forkpty", "startfile", "urlopen"}
 # Dynamic code execution and import: the daemon runs only the code that is in its sources.
-FORBIDDEN_DYNAMIC_IMPORTS = {"importlib", "runpy", "builtins", "code", "codeop", "imp", "pkgutil"}
 FORBIDDEN_DYNAMIC_NAMES = {"eval", "exec", "compile", "__import__", "__builtins__"}
 FORBIDDEN_MEMBERS = FORBIDDEN_CALLS | FORBIDDEN_DYNAMIC_NAMES | {"import_module"}
 _MODEL_WORDS = ["son" + "net", "op" + "us", "hai" + "ku", "fa" + "ble", "gr" + "ok", "g" + "pt", "g" + "lm",
@@ -90,44 +111,128 @@ def no_merge_api():
     return bad
 
 
-def no_network_or_cli(root=HERE):
-    """No network, CLI or process launch, and no dynamic code (eval, exec, compile, __import__, importlib ...).
+def _import_module(node, path, root):
+    """Resolve relative imports within the checked daemon package, never above it."""
+    if not node.level:
+        return node.module or ""
+    package = ["daemon", *path.relative_to(root).parent.parts]
+    if node.level > len(package):
+        return ""  # Outside the reviewed package.
+    return ".".join(package[:len(package) - node.level + 1] + ([node.module] if node.module else []))
 
-    A bare name is flagged wherever it appears (a call, an alias such as `f = eval`, a default argument), so
-    `re.compile` is fine and `compile(...)` is not. Builtins mappings, native execution imports, process
-    member references (including aliases), and literal getattr lookups of forbidden members are rejected.
-    This is a source guard, not a Python sandbox or general data-flow analysis."""
+
+def _references(node, bindings):
+    """Resolve import aliases and simple assignment aliases conservatively, across scopes.
+
+    Bindings accumulate rather than trusting reassignment or execution order. This is
+    deliberately not general data-flow analysis; returned objects are not module aliases.
+    """
+    if isinstance(node, ast.Name):
+        return bindings.get(node.id, {node.id})
+    if isinstance(node, ast.Attribute):
+        return {base + "." + node.attr for base in _references(node.value, bindings)}
+    if isinstance(node, ast.Call) and "getattr" in _references(node.func, bindings) and len(node.args) >= 2:
+        member = node.args[1]
+        if isinstance(member, ast.Constant) and isinstance(member.value, str):
+            return {base + "." + member.value for base in _references(node.args[0], bindings)}
+    return set()
+
+
+def _module_bindings(tree, path, root):
+    bindings = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                bindings.setdefault(alias.asname or alias.name.split(".")[0], set()).add(
+                    alias.name if alias.asname else alias.name.split(".")[0])
+        elif isinstance(node, ast.ImportFrom):
+            module = _import_module(node, path, root)
+            for alias in node.names:
+                bindings.setdefault(alias.asname or alias.name, set()).add(module + "." + alias.name)
+    assignments = [node for node in ast.walk(tree) if isinstance(node, (ast.Assign, ast.AnnAssign))]
+    # A finite number of passes handles forward aliases without evaluating any source.
+    for _ in range(len(assignments) + 1):
+        changed = False
+        for node in assignments:
+            # Only module objects and getattr need assignment tracking. Avoid
+            # expanding arbitrary data expressions or cyclic attribute chains.
+            refs = {ref for ref in _references(node.value, bindings)
+                    if ref in ALLOWED_IMPORTS or ref == "getattr"}
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for target in targets:
+                if isinstance(target, ast.Name) and refs:
+                    previous = bindings.setdefault(target.id, set())
+                    additions = refs - previous
+                    if additions:
+                        previous.update(additions)
+                        changed = True
+        if not changed:
+            break
+    return bindings
+
+
+def _allowed_import(module, member=None):
+    if module in ALLOWED_IMPORTS:
+        return member is None or member in ALLOWED_IMPORTS[module]
+    if module not in ALLOWED_LOCAL_MODULES:
+        return False
+    if member is None:
+        return True
+    if member == "*":
+        return False
+    if module in {"daemon", "daemon.core"}:
+        return module + "." + member in ALLOWED_LOCAL_MODULES or (
+            module == "daemon.core" and member in {"DaemonCore", "Rules"})
+    return True  # Members of reviewed local source modules are checked in their definitions.
+
+
+def no_network_or_cli(root=HERE):
+    """AST allowlist for imports and external module members, plus dynamic-code guards.
+
+    No imports or calls from checked sources are executed. Unknown imports/members,
+    wildcard imports and computed getattr on external modules require policy review.
+    Ordinary port/data getattr and re.compile remain allowed. This is not a sandbox.
+    """
     bad = []
+    root = Path(root)
     for p in _py_files(root):
-        for node in ast.walk(_parse(p)):
+        tree = _parse(p)
+        bindings = _module_bindings(tree, p, root)
+        for node in ast.walk(tree):
+            reason = None
             if isinstance(node, ast.Import):
-                for a in node.names:
-                    top = a.name.split(".")[0]
-                    if top in FORBIDDEN_IMPORTS or top in FORBIDDEN_DYNAMIC_IMPORTS:
-                        bad.append(f"{p.name}:{node.lineno}: import {a.name}")
+                for alias in node.names:
+                    if not _allowed_import(alias.name):
+                        bad.append(f"{p.name}:{node.lineno}: import not allowed: {alias.name}")
             elif isinstance(node, ast.ImportFrom):
-                top = (node.module or "").split(".")[0]
-                if top in FORBIDDEN_IMPORTS or top in FORBIDDEN_DYNAMIC_IMPORTS:
-                    bad.append(f"{p.name}:{node.lineno}: from {node.module}")
-                for a in node.names:
-                    if (top == "os" and (a.name in FORBIDDEN_MEMBERS or a.name == "*")) or (
-                            not node.module and a.name in FORBIDDEN_IMPORTS | FORBIDDEN_DYNAMIC_IMPORTS):
-                        bad.append(f"{p.name}:{node.lineno}: from {node.module or '.'} import {a.name}")
+                module = _import_module(node, p, root)
+                for alias in node.names:
+                    if not _allowed_import(module, alias.name):
+                        bad.append(f"{p.name}:{node.lineno}: import not allowed: from {module or '.'} import {alias.name}")
+            elif isinstance(node, ast.Attribute):
+                for base in _references(node.value, bindings):
+                    if base in ALLOWED_IMPORTS and node.attr not in ALLOWED_IMPORTS[base]:
+                        reason = f"member not allowed: {base}.{node.attr}"
             elif isinstance(node, ast.Call):
-                f = node.func
-                name = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
-                if name in FORBIDDEN_CALLS:
-                    bad.append(f"{p.name}:{node.lineno}: call {name}")
-                if name == "getattr" and len(node.args) >= 2:
+                refs = _references(node.func, bindings)
+                if "getattr" in refs and len(node.args) >= 2:
                     member = node.args[1]
-                    if isinstance(member, ast.Constant) and isinstance(member.value, str) and member.value in FORBIDDEN_MEMBERS:
-                        bad.append(f"{p.name}:{node.lineno}: forbidden getattr {member.value}")
+                    literal = member.value if isinstance(member, ast.Constant) and isinstance(member.value, str) else None
+                    if literal in FORBIDDEN_MEMBERS:
+                        reason = f"forbidden getattr {literal}"
+                    for base in _references(node.args[0], bindings):
+                        if base in ALLOWED_IMPORTS and literal not in ALLOWED_IMPORTS[base]:
+                            reason = f"getattr member not allowed: {base}.{literal or '<computed>'}"
+                if any(ref.rsplit(".", 1)[-1] in FORBIDDEN_CALLS for ref in refs):
+                    reason = "forbidden process call"
             if isinstance(node, ast.Name) and node.id in FORBIDDEN_DYNAMIC_NAMES:
-                bad.append(f"{p.name}:{node.lineno}: dynamic code {node.id}")
+                reason = f"dynamic code {node.id}"
             elif isinstance(node, ast.Attribute) and node.attr in FORBIDDEN_MEMBERS - {"compile"}:
-                bad.append(f"{p.name}:{node.lineno}: forbidden member {node.attr}")
+                reason = f"forbidden member {node.attr}"
             elif isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Constant) and node.slice.value == "__builtins__":
-                bad.append(f"{p.name}:{node.lineno}: builtins mapping access")
+                reason = "builtins mapping access"
+            if reason:
+                bad.append(f"{p.name}:{node.lineno}: {reason}")
     return bad
 
 

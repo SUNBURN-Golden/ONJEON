@@ -1,0 +1,21 @@
+ALLOWED: .github/workflows/ci.yml
+ALLOWED: docs/BLUEPRINT.md
+ALLOWED: docs/blueprint/audits/2026-11-03_registry_normalize_tests.md
+ALLOWED: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/README.md
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/baseline-behavior.log
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/normalizer-tests.log
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/ontology-build.log
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/python-tests.log
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/registry-tests.log
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/runner-tests.log
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/rust-tests.log
+ALLOWED: tools/evidence/audit4-registry-normalize-tests/static-checks.log
+ALLOWED: tools/registry_normalize.py
+ALLOWED: tools/tests/test_registry_normalize.py
+PASS: protected files and actual registry CSVs unchanged
+PASS: Python parsing tools/registry_normalize.py
+PASS: Python parsing tools/tests/test_registry_normalize.py
+PASS: local links docs/blueprint/audits/2026-11-03_registry_normalize_tests.md
+PASS: local links tools/evidence/audit4-registry-normalize-tests/README.md
+PASS: git diff --check

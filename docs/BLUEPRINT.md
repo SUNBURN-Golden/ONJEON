@@ -168,6 +168,8 @@ flowchart TD
 
 상태값의 정본은 [`packages/schemas/vocabulary.json`](../packages/schemas/vocabulary.json)이다. 사람이 읽는 표는 [`docs/blueprint/VOCABULARY.md`](blueprint/VOCABULARY.md)이며 같은 파일에서 생성된다. 코드는 M1에서 같은 정본으로 생성한다. 새 값은 정본에 먼저 추가한다. `tools/vocab_check.py`가 CI에서 정본의 무결성, 생성 문서의 최신성, 계약 문서의 폐기된 이름과 `data/registry/*.csv` 상태 열의 축별 코드·필수 열·CSV 구조를 검사한다. CSV의 원문 접근 결과·상세·메모는 보존한다([Audit 2 검사 증거](blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)).
 
+기관 원장 정규화기는 빈 파일·헤더만 있는 CSV를 보존하고, 비어 있지 않은 CSV는 파일별로 임시 파일 동기화 후 원자적으로 교체한다. 누락된 `disclosure_access`를 접근 성공으로 해석하지 않으며, 임시 CSV 기반 회귀 시험을 CI에서 실행한다([Audit 4 검증](blueprint/audits/2026-11-03_registry_normalize_tests.md)).
+
 축은 서로 섞지 않는다. 핵심 구분은 다음과 같다.
 
 | 축 | 질문 | 예 |

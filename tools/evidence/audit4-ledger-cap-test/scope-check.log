@@ -1,0 +1,14 @@
+allowed: docs/blueprint/audits/2026-11-03_ledger_cap_test.md
+allowed: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+allowed: infra/r2/BUDGET.md
+allowed: tools/evidence/audit4-ledger-cap-test/README.md
+allowed: tools/evidence/audit4-ledger-cap-test/mutation-tests.log
+allowed: tools/evidence/audit4-ledger-cap-test/python-tests.log
+allowed: tools/evidence/audit4-ledger-cap-test/runner-tests.log
+allowed: tools/evidence/audit4-ledger-cap-test/rust-tests.log
+allowed: tools/evidence/audit4-ledger-cap-test/scope-check.log
+allowed: tools/evidence/audit4-ledger-cap-test/source-hashes.log
+allowed: tools/evidence/audit4-ledger-cap-test/static-checks.log
+allowed: tools/evidence/audit4-ledger-cap-test/verify_mutations.py
+allowed: tools/tests/test_r2_checkpoint.py
+Allowed paths, protected paths, Python parsing, whitespace, unchanged production logic/policy: PASS

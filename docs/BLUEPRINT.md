@@ -359,7 +359,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 226 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 230 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
@@ -376,6 +376,8 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | ADR (19) | [ADR-0001-기술-스택](decisions/ADR-0001-기술-스택.md), [ADR-0002-합성-픽스처-우선](decisions/ADR-0002-합성-픽스처-우선.md), [ADR-0003-규칙-엔진-단일-구현](decisions/ADR-0003-규칙-엔진-단일-구현.md), [ADR-0004-대상-범위-전-보험사-전-상품](decisions/ADR-0004-대상-범위-전-보험사-전-상품.md), [ADR-0005-계약-가져오기-PDF-단일-경로](decisions/ADR-0005-계약-가져오기-PDF-단일-경로.md), [ADR-0006-AI-검수와-AI-분모-조사](decisions/ADR-0006-AI-검수와-AI-분모-조사.md), [ADR-0007-단일-완성-출시](decisions/ADR-0007-단일-완성-출시.md), [ADR-0008-첫-출시-범위-담보-파악-집중](decisions/ADR-0008-첫-출시-범위-담보-파악-집중.md), [ADR-0009-원구상-복원과-화면-데이터-계약](decisions/ADR-0009-원구상-복원과-화면-데이터-계약.md), [ADR-0010-선택화면과-공개가격-비교](decisions/ADR-0010-선택화면과-공개가격-비교.md), [ADR-0011-설계도-채택과-문서-위계](decisions/ADR-0011-설계도-채택과-문서-위계.md), [ADR-0012-설계도-실행계약과-구현-추적](decisions/ADR-0012-설계도-실행계약과-구현-추적.md), [ADR-0013-전체-대상-목록-우선과-설계-확정](decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md), [ADR-0014-V1-검증-결과의-설계-반영](decisions/ADR-0014-V1-검증-결과의-설계-반영.md), [ADR-0015-원본-보관소-S3](decisions/ADR-0015-원본-보관소-S3.md), [ADR-0016-원본-보관소-R2](decisions/ADR-0016-원본-보관소-R2.md), [ADR-0017-R2-비용-제한](decisions/ADR-0017-R2-비용-제한.md), [ADR-0018-보험-데이터-지식-기반의-정체성과-범위](decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md), [ADR-0019-제품-완료와-작업-계약-한정-채택](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md) |
 | DEC (18) | [DEC-BUNDLE-STATUS](decisions/DEC-BUNDLE-STATUS.md), [DEC-CANON-T-CT-02](decisions/DEC-CANON-T-CT-02.md), [DEC-D-02](decisions/DEC-D-02.md), [DEC-D-03](decisions/DEC-D-03.md), [DEC-D-04](decisions/DEC-D-04.md), [DEC-D-06](decisions/DEC-D-06.md), [DEC-D-07](decisions/DEC-D-07.md), [DEC-D-08](decisions/DEC-D-08.md), [DEC-D-12](decisions/DEC-D-12.md), [DEC-D-14](decisions/DEC-D-14.md), [DEC-D-16](decisions/DEC-D-16.md), [DEC-D-17](decisions/DEC-D-17.md), [DEC-D-18](decisions/DEC-D-18.md), [DEC-O02](decisions/DEC-O02.md), [DEC-O04](decisions/DEC-O04.md), [DEC-O12](decisions/DEC-O12.md), [DEC-O14](decisions/DEC-O14.md), [DEC-O17](decisions/DEC-O17.md) |
 <!-- blueprint-decisions:end -->
+
+온톨로지 제안 원본 규칙 2개도 엔진 Cargo 시험에서 직접 로드하고 내용 해시·경계·미확인·결정성을 고정한다. runner 식별 정보와 잠금 파일 사용 검증은 [Audit 4 증거](blueprint/audits/2026-11-03_ontology_rules_in_cargo.md)에 기록한다. `fixture_only` 회귀 검증이며 실제 릴리스·소비자 화면·첫 출시 완료 판정을 바꾸지 않는다.
 
 ## 12. 열린 결정
 

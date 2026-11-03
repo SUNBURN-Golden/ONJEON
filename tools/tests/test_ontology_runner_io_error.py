@@ -8,7 +8,7 @@ emit a per-case `io_error` object and keep evaluating the remaining jobs, exitin
 
 Set ONJEON_ONTOLOGY_RUNNER to use an already-built runner (both rules-engine and
 design-specs CI jobs build it before discovery). Otherwise build with
-`cargo build --offline` and use its reported executable path (including target
+`cargo build --locked --offline` and use its reported executable path (including target
 directory/target overrides). The runner's rust-toolchain.toml selects Rust for
 this fallback even when rustup has no global default; install that toolchain
 and cache the dependencies before running offline. A failed, timed-out build or missing executable
@@ -68,7 +68,7 @@ class RunnerIoError(unittest.TestCase):
             return
         try:
             build = subprocess.run(
-                ["cargo", "build", "--offline", "--bin", "ontology-case-runner", "--message-format=json"],
+                ["cargo", "build", "--locked", "--offline", "--bin", "ontology-case-runner", "--message-format=json"],
                 cwd=RUNNER_DIR, capture_output=True, text=True, check=True, timeout=BUILD_TIMEOUT_S,
             )
         except subprocess.TimeoutExpired as exc:
@@ -277,6 +277,8 @@ class RunnerSetup(unittest.TestCase):
                         RunnerIoError.setUpClass()
                     self.assertEqual(RunnerIoError.runner, executable)
                     self.assertIn("--message-format=json", build.call_args.args[0])
+                    self.assertIn("--locked", build.call_args.args[0])
+                    self.assertIn("--offline", build.call_args.args[0])
                     self.assertEqual(build.call_args.kwargs["cwd"], RUNNER_DIR)
                     self.assertTrue(build.call_args.kwargs["check"])
 

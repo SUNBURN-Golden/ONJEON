@@ -1,0 +1,85 @@
+{
+  "node": "audit4-daemon-static-check-bypass",
+  "parent_commit": "9801a383e7c4fa3aee0e0ddf2f79e70b11bc481b",
+  "date": "2026-11-03",
+  "daemon_source_sha256": "7b92dfcec051b8b35a5448f15e95e7f68111273c5d45e374ee1abfb88870b78c",
+  "results": {
+    "regression_before": {
+      "exit": 1,
+      "tests": 19,
+      "failures": 35
+    },
+    "regression_after": {
+      "exit": 0,
+      "tests": 19
+    },
+    "static_cli": {
+      "exit": 0,
+      "checks": 13
+    },
+    "daemon_unittest": {
+      "exit": 0,
+      "tests": 289
+    },
+    "daemon_scenarios": {
+      "exit": 0,
+      "checks": 692,
+      "required_ids": 33
+    },
+    "python_discovery": {
+      "exit": 0,
+      "tests": 1340,
+      "skipped": 6
+    },
+    "rust_workspace": {
+      "exit": 0,
+      "passed": 478,
+      "ignored": 1
+    },
+    "ontology_runner": {
+      "exit": 0,
+      "tests": 3
+    },
+    "vocabulary": {
+      "exit": 0
+    },
+    "validation": {
+      "exit": 0
+    },
+    "validation_selftest": {
+      "exit": 0,
+      "mutations": 40
+    },
+    "spec_check": {
+      "exit": 0
+    },
+    "blueprint_status": {
+      "exit": 0
+    },
+    "blueprint_counts": {
+      "exit": 0
+    }
+  },
+  "files": {
+    "tools/daemon/static_checks.py": "7b1aa00d9f0faa29a1d62953f7fc71e582c488bce818d5c0adf49412997ab8c6",
+    "tools/tests/test_daemon_static_checks.py": "ec4a0b4b3dc760d9e5e9b9cfd24b7e4f7bad0c60f35c7cd219c3fcb19d00b995",
+    "tools/daemon/README.md": "1878691d15f369de66776ceec8d134846e99da7303b64c74efa13b900f48bee2",
+    "docs/BLUEPRINT.md": "e1217286bc73f1c822e7cf759d445fb58d4d6794e35bf199b2cba6475ea68701",
+    "docs/blueprint/audits/2026-11-03_daemon_static_check_bypass.md": "642708093f1932b64cd329ad568d116dcb465187bac08709eb31dcfbb4e63471",
+    "tools/daemon/reports/unittest.log": "49ff59eca8dc63aa9f788c36145492efae1bc94d9ecd8dc66adc9e32c8a66ace",
+    "tools/daemon/reports/dry_run.log": "5972951515f7ec14de58990c9ae68d68dab55b12d614acaa483bca6cafacde3b",
+    "tools/evidence/audit4-daemon-static-check-bypass/after.log": "43607d33ddd98d6e749382629e97ce2050cef829c2f71f5b222135e6250f0f77",
+    "tools/evidence/audit4-daemon-static-check-bypass/before.log": "25043ec2b1c8cd9abc46bd870b325dc5a35547999e45f4dd2c28e6d127e6cf30",
+    "tools/evidence/audit4-daemon-static-check-bypass/blueprint-counts.log": "f928365964a2adfa56f268c9f2c685273784a35c720b1a7123e67d9cc00ea6df",
+    "tools/evidence/audit4-daemon-static-check-bypass/blueprint-status.log": "5589945bed96cbdc95f4d91b2365eeb346eaf76539cb016ccbcd0e271581488f",
+    "tools/evidence/audit4-daemon-static-check-bypass/ontology-runner-tests.log": "0bf813da8b9908976124dd1dc2e9fa90036d29c8dade66112245454fc2f921be",
+    "tools/evidence/audit4-daemon-static-check-bypass/python-tests.log": "0c3009947ec68917def5e95c8723f32200703d9c6d80c8fc9de5e0ff6b0b80f2",
+    "tools/evidence/audit4-daemon-static-check-bypass/rust-tests.log": "d6032232161f6fc95959312256535d60f474f82b094ee212b42bdadafab78ecc",
+    "tools/evidence/audit4-daemon-static-check-bypass/spec-check.log": "0d1a76a2e2fd75af9fbfc175fca81947092caad56dbdde8633b7592c070837df",
+    "tools/evidence/audit4-daemon-static-check-bypass/static-checks.log": "24187a371a0a4272825d7bf2cda79dc605a52025235644c90240cfa47a12bc45",
+    "tools/evidence/audit4-daemon-static-check-bypass/validation-selftest.log": "f5f3a607a2735d4fc761b581f54ffc2ac07794e852b1e6978a3df02880258518",
+    "tools/evidence/audit4-daemon-static-check-bypass/validation.log": "d23d31090208e9a49ce95c1d69f612662cf78493f3ed4b5a9fa43298b84bfb08",
+    "tools/evidence/audit4-daemon-static-check-bypass/vocabulary.log": "d406799545638d6b6c169deb8acc2135c60b41dc57de153a404f74ad26325678",
+    "tools/evidence/audit4-daemon-static-check-bypass/README.md": "433458e44998f785b8f607fed171f0f2a042321599aeef9c94dfaa8b71385bd6"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "node": "audit4-daemon-static-check-bypass",
+  "fix_round": 1,
+  "baseline_commit": "9801a383e7c4fa3aee0e0ddf2f79e70b11bc481b",
+  "finding": "tools/daemon/static_checks.py:9-11,90-96,121 misses aliased imports, os.execve, posix_spawn, getattr(__builtins__...) and while 1:; switch to an AST-based allowlist.",
+  "resolution": "The AST allowlist and alias resolution are implemented in the node's uncommitted change, with regression tests for every reported case. This round fixed the local rustup toolchain selection failure (no global default) with the README-documented path-local override and re-ran the full Python and Rust suites.",
+  "source_sha256": {
+    "tools/daemon/static_checks.py": "7b1aa00d9f0faa29a1d62953f7fc71e582c488bce818d5c0adf49412997ab8c6",
+    "tools/tests/test_daemon_static_checks.py": "ec4a0b4b3dc760d9e5e9b9cfd24b7e4f7bad0c60f35c7cd219c3fcb19d00b995",
+    "tools/daemon/README.md": "1878691d15f369de66776ceec8d134846e99da7303b64c74efa13b900f48bee2",
+    "docs/blueprint/audits/2026-11-03_daemon_static_check_bypass.md": "642708093f1932b64cd329ad568d116dcb465187bac08709eb31dcfbb4e63471",
+    "tools/evidence/audit4-daemon-static-check-bypass/README.md": "433458e44998f785b8f607fed171f0f2a042321599aeef9c94dfaa8b71385bd6"
+  },
+  "evidence_sha256": {
+    "README.md": "36ede0864ae48a955bf9abc3a17f7f182e4f8f992f11c985e97837c739dbb2db",
+    "toolchain-selection.log": "fe0678a3057a71ea5f1244b3689449e00a5352804268d9e7494c2306844086ee",
+    "python-tests.log": "79562fe98883c037891cf016aec39d7fe4c6e4acf6e07749d18072fb1975c79b",
+    "rust-tests.log": "2732635bc64c52f9bcc509d910eddc7a21e1b53ac4eab57fa5634c244de65e1a",
+    "static-check-tests.log": "5cd1e670869a0201cbe98465f36d1a5593acf7ff2312dfeca37a54b58738dee2",
+    "static-checks.log": "24187a371a0a4272825d7bf2cda79dc605a52025235644c90240cfa47a12bc45"
+  },
+  "results": {
+    "python_discovery": {
+      "tests": 1340,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 6,
+      "exit_code": 0
+    },
+    "cargo_test_all_locked_offline": {
+      "passed": 478,
+      "failed": 0,
+      "ignored": 1,
+      "exit_code": 0
+    },
+    "static_check_tests": {
+      "tests": 19,
+      "failures": 0,
+      "exit_code": 0
+    },
+    "static_cli": {
+      "checks": 13,
+      "failed": 0,
+      "exit_code": 0
+    }
+  },
+  "scope": "Local test execution only; no global rustup default changed, no tracked toolchain file added, and no external services, credentials, commits, pushes, or GitHub calls."
+}

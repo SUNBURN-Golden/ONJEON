@@ -1,0 +1,11 @@
+PASS: unchanged loader passes all 13 tests
+PASS: calendar compiled and failed metadata_values_do_not_silently_default
+PASS: blank-release compiled and failed metadata_values_do_not_silently_default
+PASS: rounding-extra-key compiled and failed every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs
+PASS: rounding-unit compiled and failed every_rounding_operator_rejects_invalid_parameters_and_accepts_all_allowed_pairs
+PASS: inclusivity-extra-key compiled and failed days_between_requires_boolean_inclusivity_and_a_closed_parameter_object
+PASS: arity-upper-bound compiled and failed array_operator_arity_and_container_guards_reject_both_sides_of_the_bounds
+PASS: band-upper-bound compiled and failed anniversary_band_rejects_malformed_tables_and_boundary_containers
+PASS: operator-extra-key compiled and failed expression_objects_and_if_objects_have_exact_shapes
+PASS: version-gate compiled and failed every_rule_02_operator_is_gated_independently_of_input_declarations
+PASS: all 9 weakened guards detected; repository loader unchanged

@@ -1,0 +1,37 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj/Cargo.toml --test loader_rejections every_rule_02_operator_is_gated_independently_of_input_declarations -- --exact
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit4-engine-loader-rejection-tests/target/loader-control-09ecoffj)
+warning: field `v02` is never read
+   --> src/rule.rs:590:5
+    |
+588 | struct Scope<'a> {
+    |        ----- field in this struct
+589 |     inputs: &'a BTreeMap<String, InputType>,
+590 |     v02: bool,
+    |     ^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `onjeon-rules-engine` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.61s
+     Running tests/loader_rejections.rs (target/loader-control-09ecoffj/target/debug/deps/loader_rejections-0d9ee49b6b11ef0b)
+
+running 1 test
+test every_rule_02_operator_is_gated_independently_of_input_declarations ... FAILED
+
+failures:
+
+---- every_rule_02_operator_is_gated_independently_of_input_declarations stdout ----
+
+thread 'every_rule_02_operator_is_gated_independently_of_input_declarations' (2658194) panicked at tests/loader_rejections.rs:27:9:
+value: {"amount":{"multiply_count":null},"calendar":"Asia/Seoul","eligibility":true,"evidence_refs":["synthetic-clause"],"inputs":{"amt":"money_krw","d1":"date","d2":"date","n":"int"},"publication_state":"fixture_only","rule_id":"loader-audit","rule_version":"1","schema_version":"rule-0.1","unknown_policy":"use_three_valued_logic_never_default_to_zero"}: expected "requires schema_version rule-0.2", got rule error at amount.multiply_count: operator arguments must be an array
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    every_rule_02_operator_is_gated_independently_of_input_declarations
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test loader_rejections`
+
+Exit: 101

@@ -840,6 +840,7 @@ class EndToEnd(base.Fixture):
         doc["run_profiles"]["verify"]["class_b"] = 400    # the recovery run reads the whole backlog
         self.job_path.write_text(json.dumps(doc))
         self.seed_full_ledger()
+        original = dict(self.stub.objects)
         before = len(self.stub.log)
         s = b.Session(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
                       gate_dir=self.root / "g", purpose="checkpoint")
@@ -853,6 +854,21 @@ class EndToEnd(base.Fixture):
         self.assertEqual(out["seq"], 100)
         rec = s.settle("ok")
         self.assertEqual(rec["seq"], 102)
+        self.assertEqual(rec["reservation_seq"], 101)
+        # 102 is retained history, not a 102-record backlog: the checkpoint
+        # must be stored and verified before the two recovery records are sent.
+        log = self.stub.log[before:]
+        cp_key = f"{b.CHECKPOINT_PREFIX}0000000100.json"
+        reservation_key = f"{b.LEDGER_PREFIX}0000000101.json"
+        positions = [next(i for i, entry in enumerate(log)
+                          if entry[:4] == (kind, "ledger", key, 200))
+                     for kind, key in (("put", cp_key), ("get", cp_key), ("put", reservation_key))]
+        self.assertEqual(positions, sorted(positions))
+        records, _ = b.Ledger(sa.S3Store("s3://ledger", self.stub.endpoint, ledger=True), s.policy).read()
+        self.assertEqual([r["seq"] for r in records], [101, 102])
+        self.assertEqual(sum(key.startswith(b.LEDGER_PREFIX) for bucket, key in self.stub.objects), 102)
+        for key, raw in original.items():
+            self.assertEqual(self.stub.objects[key], raw)
         for d in ("class_a", "class_b", "put_bytes"):
             self.assertLessEqual(s.meter.used[d], s.meter.limits[d], d)
         before2 = len(self.stub.log)
@@ -863,6 +879,54 @@ class EndToEnd(base.Fixture):
         s2.settle("ok")
         # an ordinary run reads the two recovery records and its own reservation tail
         self.assertEqual(len(self.ledger_gets(before2)), 3)
+
+    def test_ordinary_sessions_enforce_ledger_cap_before_http_writes(self):
+        self.seed_full_ledger()
+        seeded = dict(self.stub.objects)
+        for count in (98, 99, 100):
+            with self.subTest(records=count):
+                self.stub.objects = {k: v for k, v in seeded.items()
+                                     if int(k[1][-15:-5]) <= count}
+                original = dict(self.stub.objects)
+                before = len(self.stub.log)
+                s = b.Session(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                              gate_dir=self.root / f"cap-{count}")
+                self.addCleanup(s._restore_alarm)
+                self.addCleanup(s.gate.leave)
+                if count == 100:
+                    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+                        s.open()
+                    self.assertIsNone(s.reservation)
+                    self.assertEqual(self.ledger_gets(before), [])
+                else:
+                    s.open()
+                    try:
+                        self.assertEqual(s.reservation["seq"], count + 1)
+                    finally:
+                        settled = s.settle("ok")
+                    self.assertEqual(settled["seq"] if count == 98 else settled,
+                                     100 if count == 98 else {"settlement_failed": "BudgetError"})
+                writes = [entry[2] for entry in self.stub.log[before:]
+                          if entry[0] == "put" and entry[2].startswith(b.LEDGER_PREFIX)]
+                self.assertEqual(writes, [f"{b.LEDGER_PREFIX}{seq:010d}.json"
+                                          for seq in range(count + 1, 101)])
+                records = [json.loads(raw) for (bucket, key), raw in sorted(self.stub.objects.items())
+                           if key.startswith(b.LEDGER_PREFIX)]
+                self.assertEqual(len(records), 100)
+                for key, raw in original.items():
+                    self.assertEqual(self.stub.objects[key], raw)
+                admissions = s.ledger.admissions()
+                self.assertEqual(len(admissions), 1)
+                if count == 99:
+                    baseline = [json.loads(raw) for raw in original.values()]
+                    _, old = b.Ledger.usage(baseline, "t", MONTH)
+                    _, used = b.Ledger.usage(records, "t", MONTH, admissions, base.ADMISSION)
+                    self.assertEqual(used, {d: old[d] + base.PER_RUN[d] + base.ADMISSION[d]
+                                            for d in b.DIMENSIONS})
+                self.assertIsNone(s.gate._lock)
+                self.assertIsNone(b.ACTIVE)
+                s.gate.enter()
+                s.gate.leave()
 
     def test_repeated_audits_at_cap_leave_metered_checkpoint_admission_possible(self):
         # Use the shipped admission request limits, rather than increasing them to mask the lockout.

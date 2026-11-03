@@ -1,0 +1,83 @@
+MUTANT: read allows exactly 100
+test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) ... 
+  test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=100) ... FAIL
+
+======================================================================
+FAIL: test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=100)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-ledger-cap-test/tools/tests/test_r2_checkpoint.py", line 900, in test_ordinary_sessions_enforce_ledger_cap_before_http_writes
+    self.assertEqual(self.ledger_gets(before), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ledger/v1/0000000001.json', 'ledger/v1/0[2853 chars]son'] != []
+
+First list contains 100 additional elements.
+First extra element 0:
+'ledger/v1/0000000001.json'
+
+Diff is 3205 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 14.568s
+
+FAILED (failures=1)
+
+Detected as expected; production source unchanged.
+
+MUTANT: settlement append guard missing
+test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) ... 
+  test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=99) ... FAIL
+
+======================================================================
+FAIL: test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=99)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-ledger-cap-test/tools/tests/test_r2_checkpoint.py", line 907, in test_ordinary_sessions_enforce_ledger_cap_before_http_writes
+    self.assertEqual(settled["seq"] if count == 98 else settled,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     100 if count == 98 else {"settlement_failed": "BudgetError"})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'format': 'onjeon-budget-ledger-v1', 'kind[559 chars]daf'} != {'settlement_failed': 'BudgetError'}
+Diff is 947 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 10.013s
+
+FAILED (failures=1)
+
+Detected as expected; production source unchanged.
+
+Historical reproduction: 100 -> reservation 101 -> settlement 102.
+MUTANT: historical path allows 101 and 102
+test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) ... 
+  test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=99) ... FAIL
+  test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=100) ... FAIL
+
+======================================================================
+FAIL: test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=99)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-ledger-cap-test/tools/tests/test_r2_checkpoint.py", line 907, in test_ordinary_sessions_enforce_ledger_cap_before_http_writes
+    self.assertEqual(settled["seq"] if count == 98 else settled,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     100 if count == 98 else {"settlement_failed": "BudgetError"})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'format': 'onjeon-budget-ledger-v1', 'kind[559 chars]daf'} != {'settlement_failed': 'BudgetError'}
+Diff is 947 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_ordinary_sessions_enforce_ledger_cap_before_http_writes (test_r2_checkpoint.EndToEnd.test_ordinary_sessions_enforce_ledger_cap_before_http_writes) (records=100)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-ledger-cap-test/tools/tests/test_r2_checkpoint.py", line 897, in test_ordinary_sessions_enforce_ledger_cap_before_http_writes
+    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 14.333s
+
+FAILED (failures=2)
+
+Detected as expected; production source unchanged.
+

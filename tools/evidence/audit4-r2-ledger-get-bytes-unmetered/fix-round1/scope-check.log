@@ -1,0 +1,4 @@
+PASS: changed paths are within tools/, docs/blueprint/, and .github/workflows/; protected paths unchanged.
+PASS: all changed Python files parse.
+PASS: all local links in the audit and fix-round1 README resolve.
+PASS: git diff --check.

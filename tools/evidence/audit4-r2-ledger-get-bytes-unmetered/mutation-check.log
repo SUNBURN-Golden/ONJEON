@@ -1,0 +1,68 @@
+test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) ... 
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=False) ... FAIL
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=True) ... FAIL
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=False) ... FAIL
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=True) ... FAIL
+test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) ... 
+  test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=False) ... FAIL
+  test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=True) ... FAIL
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered/tools/tests/test_r2_budget.py", line 749, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered/tools/tests/test_r2_budget.py", line 749, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered/tools/tests/test_r2_budget.py", line 749, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered/tools/tests/test_r2_budget.py", line 749, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered/tools/tests/test_r2_budget.py", line 783, in test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared
+    self.assertGreater(downloaded, 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered/tools/tests/test_r2_budget.py", line 783, in test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared
+    self.assertGreater(downloaded, 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.936s
+
+FAILED (failures=6)
+PASS: both regressions reject the missing body-meter binding; request hooks remain intact.

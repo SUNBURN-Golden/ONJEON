@@ -1,0 +1,5 @@
+PASS: all 38 changed/untracked files are in allowed paths; protected paths unchanged.
+PASS: all changed/untracked Python files parse.
+PASS: all local links in the root README, audit and round 1/2 evidence READMEs resolve.
+PASS: git diff --check.
+PASS: full Python log contains 125 successful R2 budget/checkpoint tests with no skips.

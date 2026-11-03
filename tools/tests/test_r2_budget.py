@@ -732,17 +732,69 @@ class EndToEnd(Fixture):
         doc = json.loads(self.policy_path.read_text())
         doc["admission"]["limits"]["get_bytes"] = 1
         self.policy_path.write_text(json.dumps(doc))
+        self.seed_ledger(checkpoint=True)
+        seeded = dict(self.stub.objects)
+        for checkpoint in (False, True):
+            for injected in (False, True):
+                with self.subTest(checkpoint=checkpoint, injected=injected):
+                    self.stub.objects = {k: v for k, v in seeded.items()
+                                         if checkpoint or not k[1].startswith(b.CHECKPOINT_PREFIX)}
+                    st = sa.S3Store("s3://ledger", self.stub.endpoint, ledger=True) if injected else None
+                    s = b.Session(str(self.job_path), self.stub.endpoint, ledger_store=st,
+                                  policy_path=self.policy_path,
+                                  gate_dir=self.root / f"exhaust-{checkpoint}-{injected}")
+                    self.addCleanup(s._restore_alarm)
+                    self.addCleanup(s.gate.leave)
+                    before = len(self.stub.log)
+                    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+                        s.open()
+                    self.assertEqual(s.meter.used["get_bytes"], 2)
+                    for dim, count in self.stub.counts(before).items():
+                        self.assertEqual(s.meter.used[dim], count, dim)
+                    reads = [key for kind, _, key, status, _ in self.stub.log[before:]
+                             if kind == "get" and status == 200]
+                    prefix = b.CHECKPOINT_PREFIX if checkpoint else b.LEDGER_PREFIX
+                    self.assertEqual(reads, [f"{prefix}0000000001.json"])
+                    self.assertIsNone(s.reservation)
+                    self.assertIsNone(s.gate._lock)
+                    self.assertIsNone(b.ACTIVE)
+                    self.assertTrue(s.admitted)
+                    self.assertEqual(s.meter.limits, doc["admission"]["limits"])
+                    self.assertEqual(len([key for bucket, key in self.stub.objects
+                                          if key.startswith(b.ADMISSION_PREFIX)]), 1)
+                    self.assertEqual(len([key for bucket, key in self.stub.objects
+                                          if key.startswith(b.LEDGER_PREFIX)]), 1)
+
+    def test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared(self):
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=5, class_a=1000)
         self.seed_ledger()
-        s = self.session()
-        with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
-            s.open()
-        self.assertEqual(s.meter.used["get_bytes"], 2)
-        self.assertIsNone(s.reservation)
-        self.assertIsNone(s.gate._lock)
-        self.assertIsNone(b.ACTIVE)
-        self.assertTrue(s.admitted)
-        self.assertEqual(len([key for bucket, key in self.stub.objects
-                             if key.startswith(b.LEDGER_PREFIX)]), 1)
+        seeded = dict(self.stub.objects)
+        for injected in (False, True):
+            with self.subTest(injected=injected):
+                self.stub.objects = dict(seeded)
+                st = sa.S3Store("s3://ledger", self.stub.endpoint, ledger=True) if injected else None
+                s = b.start(str(self.job_path), self.stub.endpoint, ledger_store=st,
+                            policy_path=self.policy_path, gate_dir=self.root / f"settle-{injected}")
+                self.addCleanup(s._restore_alarm)
+                self.addCleanup(s.gate.leave)
+                try:
+                    downloaded = s.meter.used["get_bytes"]
+                    self.assertGreater(downloaded, 0)
+                    # Exhaust the remaining allowance before finish() reads the reservation tail.
+                    s.meter.limits["get_bytes"] = downloaded
+                finally:
+                    summary = b.finish("ok")
+                self.assertIsNone(b.ACTIVE)
+                self.assertEqual(summary["settlement"], {"settlement_failed": "BudgetError"})
+                self.assertEqual(summary["used"]["get_bytes"], downloaded + 1)
+                self.assertIsNone(s.gate._lock)
+                records = [json.loads(raw) for (_, key), raw in self.stub.objects.items()
+                           if key.startswith(b.LEDGER_PREFIX)]
+                self.assertEqual(len(records), 2)  # seed and current reservation; no settlement
+                self.assertTrue(all(r["kind"] == "reservation" for r in records))
+                _, used = b.Ledger.usage(records, "t", MONTH)
+                self.assertEqual(used["get_bytes"], 2 * PER_RUN["get_bytes"])
 
     def test_repeated_refused_runs_are_recorded_then_closed(self):
         """Finding 1: a run refused after reading the ledger left no trace, so repeating it was free.

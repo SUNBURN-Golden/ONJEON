@@ -1,0 +1,12 @@
+$ (cwd=.) env -u RUSTUP_TOOLCHAIN rustup show active-toolchain
+error: no active toolchain
+EXIT: 1 (expected 1)
+
+$ (cwd=.) RUSTUP_TOOLCHAIN=1.98.1 rustup show active-toolchain
+1.98.1-x86_64-unknown-linux-gnu (overridden by environment variable RUSTUP_TOOLCHAIN)
+EXIT: 0 (expected 0)
+
+$ (cwd=docs/blueprint/proposals/온톨로지/검증/runner) env -u RUSTUP_TOOLCHAIN rustup show active-toolchain
+1.98.1-x86_64-unknown-linux-gnu (overridden by '/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered/docs/blueprint/proposals/온톨로지/검증/runner/rust-toolchain.toml')
+EXIT: 0 (expected 0)
+

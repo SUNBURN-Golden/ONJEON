@@ -9,7 +9,9 @@ emit a per-case `io_error` object and keep evaluating the remaining jobs, exitin
 Set ONJEON_ONTOLOGY_RUNNER to use an already-built runner (both rules-engine and
 design-specs CI jobs build it before discovery). Otherwise build with
 `cargo build --offline` and use its reported executable path (including target
-directory/target overrides); a failed, timed-out build or missing executable
+directory/target overrides). The runner's rust-toolchain.toml selects Rust for
+this fallback even when rustup has no global default; install that toolchain
+and cache the dependencies before running offline. A failed, timed-out build or missing executable
 artifact fails the tests. Only a missing cargo without a prebuilt runner skips
 them. The fallback build is bounded so a Cargo lock cannot consume the entire
 900-second local verification budget without identifying the blocked setup.

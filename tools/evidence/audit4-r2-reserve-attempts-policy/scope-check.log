@@ -1,0 +1,16 @@
+Allowed: docs/blueprint/audits/2026-11-03_r2_reserve_attempts_policy.md
+Allowed: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+Allowed: infra/r2/BUDGET.md
+Allowed: infra/r2/budget_policy.json
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/README.md
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/before-tests.log
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/budget-tests.log
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/python-tests.log
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/regression-tests.log
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/runner-tests.log
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/rust-tests.log
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/scope-check.log
+Allowed: tools/evidence/audit4-r2-reserve-attempts-policy/static-checks.log
+Allowed: tools/tests/test_r2_budget.py
+Python parse: tools/tests/test_r2_budget.py
+PASS: allowed paths, protected paths, Python parsing, whitespace

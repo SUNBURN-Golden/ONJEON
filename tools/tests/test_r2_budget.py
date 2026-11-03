@@ -21,6 +21,7 @@ import signal
 import sys
 import tempfile
 import unittest
+from contextlib import ExitStack
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest import mock
@@ -76,7 +77,7 @@ class Fixture(unittest.TestCase):
         c.update(caps)
         self.policy_path.write_text(json.dumps({
             "ledger_bucket": "ledger", "caps": c,
-            "per_request": {"max_object_bytes": 1024, "max_attempts": 3, "reserve_attempts": 3,
+            "per_request": {"max_object_bytes": 1024, "max_attempts": 3, "reserve_attempts": 2,
                             "max_ledger_records": 100},
             "admission": {"limits": ADMISSION, "per_month_global": per_month_global},
             "local_gate": {"max_runs_per_hour": max_runs_per_hour}}))
@@ -355,6 +356,16 @@ class LedgerRecordCap(Fixture):
 
 
 class FailClosed(Fixture):
+    def test_shipped_policy_accepts_ledger_written_before_reservation_attempt_fix(self):
+        previous_sha = "6d9e33cab2227c6d53e9838c6043b73911fc38802fe54895f6f13ce98325efc9"
+        policy = b.load_policy()
+        # Keep the shipped accepted policy hashes; only the fixture's genesis differs.
+        policy["ledger_genesis_sha256"] = None
+        old_policy = dict(policy, _sha256=previous_sha)
+        b.Ledger(self.ledger_store, old_policy).append({"kind": "pre-ledger"}, 0, None)
+        records, _ = b.Ledger(self.ledger_store, policy).read()
+        self.assertEqual(records[0]["policy_sha256"], previous_sha)
+
     def test_list_failure_stops(self):
         class Broken:
             def list(self, prefix):
@@ -687,6 +698,74 @@ class EndToEnd(Fixture):
         return sum(len(self.stub.objects[(bucket, key)])
                    for kind, bucket, key, status, _ in self.stub.log[before:]
                    if kind == "get" and status == 200)
+
+    def check_shipped_reservation_races(self, exhaust):
+        # Use the shipped request/admission limits: the general fixture's larger
+        # request allowance must not hide an unreachable reservation attempt.
+        shipped = b.load_policy()
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=5, class_a=1000)
+        doc = json.loads(self.policy_path.read_text())
+        doc["per_request"] = shipped["per_request"]
+        doc["admission"]["limits"] = shipped["admission"]["limits"]
+        self.policy_path.write_text(json.dumps(doc))
+        job = json.loads(self.job_path.read_text())
+        job["run_profiles"]["verify"]["get_bytes"] = 2000000
+        self.job_path.write_text(json.dumps(job))
+        attempts = shipped["per_request"]["reserve_attempts"]
+        losses = attempts if exhaust else attempts - 1
+        store = sa.S3Store("s3://ledger", self.stub.endpoint, ledger=True)
+        session = b.Session(str(self.job_path), policy_path=self.policy_path,
+                            gate_dir=self.gate_dir, ledger_store=store)
+        put = store.put_new
+        raced = 0
+
+        def race(key, body, ctype):
+            nonlocal raced
+            if key.startswith(b.LEDGER_PREFIX) and raced < losses:
+                # Another writer wins this sequence just before our conditional
+                # PUT. The next attempt must read and verify its actual record.
+                winner = json.loads(body)
+                winner["run_id"] = f"winner{raced}"
+                with self.stub.lock:
+                    self.stub.objects[("ledger", key)] = json.dumps(winner).encode()
+                raced += 1
+            return put(key, body, ctype)
+
+        before = len(self.stub.log)
+        with ExitStack() as cleanup:
+            with mock.patch.object(store, "put_new", side_effect=race):
+                if exhaust:
+                    with self.assertRaisesRegex(b.BudgetError,
+                                                f"could not reserve after {attempts} attempts "):
+                        session.open()
+                else:
+                    session.open()
+                    cleanup.callback(session.settle, "ok")
+                    self.assertEqual(session.reservation["seq"], attempts)
+            self.assertEqual(raced, losses)
+            log = self.stub.log[before:]
+            writes = [entry for entry in log if entry[0] == "put" and entry[2].startswith(b.LEDGER_PREFIX)]
+            self.assertEqual([entry[3] for entry in writes],
+                             [412] * losses + ([] if exhaust else [200]))
+            seen = self.stub.counts(before)
+            self.assertEqual(seen["class_a"], 5 + 3 * (attempts - 1))
+            self.assertEqual(session.meter.used["class_a"], seen["class_a"])
+            for dimension, actual in seen.items():
+                self.assertLessEqual(actual, shipped["admission"]["limits"][dimension], dimension)
+            if exhaust:
+                self.assertIsNone(session.reservation)
+                self.assertFalse(session.meter.archive_allowed)
+                # Failed reservations still have a durable admission and release the gate.
+                self.assertTrue(any(key.startswith(b.ADMISSION_PREFIX) for bucket, key in self.stub.objects))
+                session.gate.enter()
+                session.gate.leave()
+
+    def test_shipped_policy_reserves_on_final_attempt_within_admission(self):
+        self.check_shipped_reservation_races(exhaust=False)
+
+    def test_shipped_policy_reports_concurrency_when_all_reservation_attempts_lose(self):
+        self.check_shipped_reservation_races(exhaust=True)
 
     def check_ledger_read_accounting(self, checkpoint):
         self.write_policy(per_month_global=10)

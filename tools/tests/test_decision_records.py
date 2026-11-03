@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RECORDS = ("DEC-D-02", "DEC-D-04", "DEC-D-12", "DEC-O12", "DEC-CANON-T-CT-02")
+RECORDS = tuple(sorted(p.stem for p in (ROOT / "docs/decisions").glob("DEC-*.md")))
 
 LEDGER = ROOT / "docs/blueprint/DECISIONS.md"
 MAPPING_START = "<!-- blueprint-decision-id-mapping:start -->"
@@ -127,13 +127,15 @@ class DecisionRecords(unittest.TestCase):
                 self.assertTrue(cells[2], "decision scope is required")
                 self.assertTrue(cells[3], "remaining gate conditions are required")
 
-    def test_hierarchy_and_ledger_explicitly_describe_a_partial_index(self):
+    def test_hierarchy_and_ledger_explicitly_describe_a_complete_index(self):
         dec_paragraph = next(paragraph for paragraph in self.hierarchy.split("\n\n")
                              if "DEC-*.md" in paragraph)
-        self.assertRegex(dec_paragraph, r"§3\.1.*일부 기록.*색인")
+        self.assertRegex(dec_paragraph, r"§3\.1.*전체 기록.*색인")
         index_intro = self.section.split("### 3.1 ", 1)[1].split("| 기록 |", 1)[0]
-        self.assertIn("일부", index_intro)
-        self.assertIn("전체 DEC 기록 목록은 아니다", index_intro)
+        self.assertIn("전체 DEC 기록", index_intro)
+        self.assertNotIn("전체 DEC 기록 목록은 아니다", index_intro)
+        indexed = re.findall(r"^\| \[(DEC-[^]]+)\]", self.section, re.M)
+        self.assertEqual(sorted(indexed), list(RECORDS))
         self.assertIn("docs/decisions/DEC-*.md", index_intro)
 
     def test_index_registration_does_not_open_operational_gates(self):
@@ -194,10 +196,12 @@ class DecisionRecords(unittest.TestCase):
                        "T-TW-04", "T-TW-05", "release", "S6", "capability-blocked"):
             self.assertIn(phrase, row)
 
-    def test_blueprint_d02_rows_state_delegation_pending_user_confirmation(self):
-        for decision, note in (
-            ("AI 제공자 구성(서로 다른 모델 계열 2개 이상)", "ADR-0006 이행 조건"),
-            ("정책 소유자 지정(AI 승인 임계값·사고 시 중단)", "사람의 유일한 역할"),
+    def test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions(self):
+        for decision, note, gate in (
+            ("AI 제공자 구성(서로 다른 모델 계열 2개 이상)", "ADR-0006 이행 조건",
+             "T-OP-03 start·T-KN-06/T-OP-02 real_data"),
+            ("정책 소유자 지정(AI 승인 임계값·사고 시 중단)", "사람의 유일한 역할",
+             "O06·D-19 임계값 확정"),
         ):
             with self.subTest(decision=decision):
                 rows = [line for line in self.open_decisions.splitlines()
@@ -205,9 +209,10 @@ class DecisionRecords(unittest.TestCase):
                 self.assertEqual(len(rows), 1)
                 cells = [cell.strip() for cell in rows[0].strip("|").split("|")]
                 self.assertEqual(len(cells), 3)
-                self.assertEqual(cells[1], "M2")
+                self.assertEqual(cells[1], gate)
                 self.assertIn(note, cells[2])
                 self.assertIn("위임 결정 DEC-D-02, 사용자 확정 대기", cells[2])
+                self.assertIn("결정됨", cells[2])
 
     def test_d02_provider_summary_records_composition_and_remaining_access(self):
         row = next(line for line in self.open_decisions.splitlines()

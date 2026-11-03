@@ -133,7 +133,7 @@ class PriceDisplayScope(unittest.TestCase):
 
     def test_every_dec_cited_by_a_gate_row_is_indexed(self):
         """A DEC record that a §3 O row or a BLUEPRINT §12 row relies on must have
-        a §3.1 row; §3.1 itself stays a partial index of all DEC files."""
+        a §3.1 row; §3.1 indexes all DEC files, including those with remaining conditions."""
         cited = dec_links(self.open_items) | dec_links(self.open_decisions)
         self.assertTrue({"DEC-D-18", "DEC-O04"} <= cited)
         missing = cited - dec_links(self.index)

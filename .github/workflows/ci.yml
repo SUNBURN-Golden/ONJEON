@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+# The runner's directory-local pin does not select Rust for workspace commands.
+env:
+  RUSTUP_TOOLCHAIN: "1.98.1"
+
 jobs:
   rules-engine:
     runs-on: ubuntu-latest
@@ -30,7 +34,8 @@ jobs:
         run: python3 -m pip install --quiet --user --break-system-packages boto3==1.43.100
       # Python discovery needs a runner even when the Cargo cache is empty.
       - name: Ontology case runner for Python regressions
-        run: cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
+        working-directory: docs/blueprint/proposals/온톨로지/검증/runner
+        run: cargo build --locked --target-dir "$RUNNER_TEMP/onto"
       - name: Python unit tests (content hash, archive writes, reproduction, store providers; archived originals are not in CI)
         env:
           ONJEON_ONTOLOGY_RUNNER: ${{ runner.temp }}/onto/debug/ontology-case-runner
@@ -54,9 +59,11 @@ jobs:
         with:
           persist-credentials: false
       - name: Ontology case runner (rules engine only; computes nothing itself)
-        run: cargo build --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
+        working-directory: docs/blueprint/proposals/온톨로지/검증/runner
+        run: cargo build --locked --target-dir "$RUNNER_TEMP/onto"
       - name: Ontology runner I/O unit tests
-        run: cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir "$RUNNER_TEMP/onto"
+        working-directory: docs/blueprint/proposals/온톨로지/검증/runner
+        run: cargo test --locked --target-dir "$RUNNER_TEMP/onto"
       - name: Ontology runner fields and per-job error regressions
         run: ONJEON_ONTOLOGY_RUNNER="$RUNNER_TEMP/onto/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -p test_ontology_runner_io_error.py -v
       - name: Ontology check (constraints, frozen releases, document model, question flow, self-tests)

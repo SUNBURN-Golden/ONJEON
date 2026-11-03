@@ -37,3 +37,26 @@
 세부 구현 계약: [시스템·데이터·수락 계약](docs/blueprint/SYSTEM_CONTRACT.md) · [요구사항 26개와 수락 사례](docs/blueprint/REQUIREMENTS.md) · [결정 원장](docs/blueprint/DECISIONS.md). 단일 진입점은 계속 `docs/BLUEPRINT.md`다(ADR-0012). [ADR-0019](docs/decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)의 09·[tasks.json](docs/blueprint/proposals/설계검토_결과/tasks.json)은 그 하위의 제품 완료·작업 계약이며 상위 계약을 우선한다.
 
 감리 후속: 준태님의 2026-10-13 R2 토큰 미폐기 결정([DEC-D-04](docs/decisions/DEC-D-04.md))을 O13·§12·VM 실행 준비·작업명세에 반영했다. [정정 내용과 검증 증거](docs/blueprint/audits/2026-10-26_o13_d04_ruling.md)를 참조한다. `cfut_` 규칙과 D-04·O14·O17 접근 관문은 유지한다.
+
+## 로컬 시험
+
+CI는 Rust `1.98.1`을 명시한다. 아래 명령은 저장소 루트에서 실행하며,
+작업 트리 경로에만 rustup 재정의를 등록해 전역 Rust 기본값이 없어도
+같은 도구 체인을 선택한다. 이 설정은 다른 작업 트리에 적용되지 않는다.
+온톨로지 실행기의 `rust-toolchain.toml`은 해당 디렉터리에만 적용된다.
+
+```sh
+rustup toolchain install 1.98.1 --profile minimal
+rustup override set --path "$PWD" 1.98.1
+python3 -m pip install --user boto3==1.43.100
+cargo fetch --locked
+(cd docs/blueprint/proposals/온톨로지/검증/runner && cargo fetch --locked)
+python3 -m unittest discover -s tools/tests -v
+cargo test --all --locked --offline
+(cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
+```
+
+오프라인 시험 전에는 도구 체인과 두 Cargo 작업 공간의 의존성이 설치돼 있어야 한다.
+Python 시험은 필요한 온톨로지 실행기를 오프라인으로 빌드한다.
+재정의는 rustup의 로컬 설정이며 Git에 포함되지 않는다. 새 작업 트리에서는 위 준비를
+반복한다. 해제하려면 해당 루트에서 `rustup override unset --path "$PWD"`를 실행한다.

@@ -1,0 +1,6 @@
+PASS: changed and untracked paths are allowed.
+PASS: protected paths unchanged.
+PASS: changed Python files parse.
+PASS: git diff --check.
+PASS: evidence Markdown links resolve.
+PASS: final git diff --check.

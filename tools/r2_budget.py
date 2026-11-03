@@ -897,6 +897,7 @@ class Session:
                 st = sa.S3Store(f"s3://{self.policy['ledger_bucket']}", self.endpoint_url, ledger=True)
             if isinstance(st, sa.S3Store):
                 # The ledger is opened before ACTIVE exists, and is also read after finish clears it.
+                # Bind GET body accounting as well as the request hooks before any ledger access.
                 st.meter = self.meter
                 self.meter.attach(st.s3, "ledger")
             self.ledger = Ledger(st, self.policy, over_limit_ok=self.purpose == "checkpoint")

@@ -1,0 +1,12 @@
+$ env -u RUSTUP_TOOLCHAIN rustup show active-toolchain
+1.98.1-x86_64-unknown-linux-gnu (directory override for '/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered')
+exit=0
+
+$ env -u RUSTUP_TOOLCHAIN cargo --version
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+exit=0
+
+$ env -u RUSTUP_TOOLCHAIN cargo metadata --no-deps --format-version=1 --locked --offline
+workspace_root=/workspace/onjeon-run/wt/audit4-r2-ledger-get-bytes-unmetered
+exit=0
+

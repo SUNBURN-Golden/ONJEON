@@ -1,0 +1,18 @@
+PASS: all changed files are in tools/ or docs/blueprint/; protected files unchanged.
+PASS: every local link in the audit record exists.
+PASS: changed Python sources compile.
+PASS: git diff --check.
+Changed paths:
+docs/blueprint/audits/2026-11-03_r2_ledger_get_bytes_unmetered.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/budget-tests.log
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/mutation-check.log
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/mutation_check.py
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/product-purpose.log
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/python-tests-initial.log
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/python-tests.log
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/runner-build.log
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/scope-check.log
+tools/evidence/audit4-r2-ledger-get-bytes-unmetered/spec-check.log
+tools/r2_budget.py
+tools/tests/test_r2_budget.py

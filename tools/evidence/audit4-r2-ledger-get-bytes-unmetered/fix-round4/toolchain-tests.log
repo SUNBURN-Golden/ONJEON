@@ -1,0 +1,8 @@
+test_directory_override_works_without_affecting_other_checkouts (test_ci_rust_toolchain.CiRustToolchain.test_directory_override_works_without_affecting_other_checkouts) ... ok
+test_root_cargo_with_ci_pin_and_no_global_default (test_ci_rust_toolchain.CiRustToolchain.test_root_cargo_with_ci_pin_and_no_global_default) ... ok
+test_workspace_and_runner_select_the_same_toolchain (test_ci_rust_toolchain.CiRustToolchain.test_workspace_and_runner_select_the_same_toolchain) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.064s
+
+OK

@@ -10,7 +10,7 @@
 |---|---|---|
 | `onjeon-raw-sources` | 공시 PDF·HTML·보험료표 원본(받은 바이트 그대로)과 수집 관측 기록 | `objects/sha256/<aa>/<bb>/<sha256>`, `observations/<source_id>/<시각>_<해시앞16>.json` |
 | `onjeon-derived-sources` | 원본에서 만든 추출·OCR 결과와 파생 명세 | `derived/<원본 sha256>/<종류>/<도구>@<버전>/<파일>`, `derived/<원본 sha256>/manifests/<명세 sha256>.json` |
-| `onjeon-budget-ledger` | 비용 한도 예약·정산 원장(한 번만 쓰는 기록) | `ledger/v1/<순번 10자리>.json` |
+| `onjeon-budget-ledger` | 비용 한도 입장·예약·정산·마감 기록과 체크포인트(한 번만 쓰는 기록) | 예약·정산 `ledger/v1/<순번 10자리>.json`, 입장 `admission/v1/<월>/<작업>/<실행>.json`, 마감 `closed/v1/<월>/<작업 또는 _global>.json`, 체크포인트 `checkpoint/v1/<순번 10자리>.json` |
 
 개인 계약·건강·가족력·DNA 자료는 이 버킷들에 넣지 않는다.
 

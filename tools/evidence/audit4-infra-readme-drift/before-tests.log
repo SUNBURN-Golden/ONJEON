@@ -1,0 +1,20 @@
+test_readme_lists_every_control_prefix_in_ledger_bucket_row (tools.tests.test_r2_readme.LedgerBucketLayout.test_readme_lists_every_control_prefix_in_ledger_bucket_row) ... FAIL
+
+======================================================================
+FAIL: test_readme_lists_every_control_prefix_in_ledger_bucket_row (tools.tests.test_r2_readme.LedgerBucketLayout.test_readme_lists_every_control_prefix_in_ledger_bucket_row)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-infra-readme-drift/tools/tests/test_r2_readme.py", line 21, in test_readme_lists_every_control_prefix_in_ledger_bucket_row
+    self.assertCountEqual(documented, b.CONTROL_PREFIXES,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "R2 README ledger keys differ from allowed control prefixes")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Element counts were not equal:
+First has 0, Second has 1:  'admission/v1/'
+First has 0, Second has 1:  'closed/v1/'
+First has 0, Second has 1:  'checkpoint/v1/' : R2 README ledger keys differ from allowed control prefixes
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

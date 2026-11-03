@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools/tests",
+    "-v"
+  ],
+  "env": {
+    "CARGO_TARGET_DIR": "<worktree>/target",
+    "ONJEON_ONTOLOGY_RUNNER": "<worktree>/docs/blueprint/proposals/\uc628\ud1a8\ub85c\uc9c0/\uac80\uc99d/runner/target/debug/ontology-case-runner"
+  },
+  "exit_code": 0,
+  "log": "python-tools.log"
+}

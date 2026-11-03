@@ -1,0 +1,12 @@
+test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) ... ok
+test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) ... ok
+test_existing_samples_and_valid_hex_https_metadata_pass (test_samples_csv_validation.SampleMetadata.test_existing_samples_and_valid_hex_https_metadata_pass) ... /workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/validation_check.py:145: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit4-samples-csv-validation/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
+  data["samples"] = list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.029s
+
+OK

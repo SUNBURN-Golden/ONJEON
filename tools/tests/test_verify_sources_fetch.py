@@ -6,6 +6,8 @@ import argparse
 import functools
 import io
 import json
+import ssl
+import subprocess
 import sys
 import tempfile
 import threading
@@ -107,9 +109,10 @@ class RedirectPolicy(unittest.TestCase):
                     new = vs.PolicyRedirectHandler().redirect_request(req, None, code, "redirect", {}, target)
                     self.assertEqual(new.full_url, target)
 
-    def test_non_http_and_credentialed_initial_urls_never_open(self):
-        for url in ("file:///tmp/document", "ftp://example.org/file", "https://user:pass@example.org/file",
-                    "https:///file", "https://example.org:0/file"):
+    def test_non_https_and_credentialed_initial_urls_never_open(self):
+        for url in ("http://example.org/file", "file:///tmp/document", "ftp://example.org/file",
+                    "https://user:pass@example.org/file", "https:///file", "https://example.org:0/file",
+                    " https://example.org/file", "https://example.org/\nfile"):
             with self.subTest(url=url), mock.patch.object(vs.urllib.request, "build_opener") as opener:
                 with self.assertRaises(vs.FetchRejected):
                     vs.fetch(url)
@@ -254,7 +257,7 @@ class ResponseAdmission(unittest.TestCase):
         sleep.assert_not_called()
 
 
-class DetectLocalHTTP(unittest.TestCase):
+class DetectLocalHTTPS(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.requests = []
@@ -269,6 +272,7 @@ class DetectLocalHTTP(unittest.TestCase):
                            "/redirect-body": "/document", "/chain-external": "/external",
                            "/relative-external": f"//localhost:{self.server.server_port}/must-not-fetch",
                            "/denied-start": "/denied",
+                           "/downgrade": f"http://127.0.0.1:{self.server.server_port}/must-not-fetch",
                            "/external": f"http://localhost:{self.server.server_port}/must-not-fetch",
                            "/loop": "/loop"}
                 if self.path in targets:
@@ -291,10 +295,24 @@ class DetectLocalHTTP(unittest.TestCase):
                 self.end_headers()
                 self.wfile.write(body)
 
+        # Ephemeral test certificate, trusted only by this test's HTTPS client.
+        # Production fetch keeps urllib's normal certificate verification enabled.
+        cert_dir = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(cert_dir.cleanup)
+        cert = Path(cert_dir.name) / "cert.pem"
+        key = Path(cert_dir.name) / "key.pem"
+        subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+                        "-keyout", str(key), "-out", str(cert), "-days", "1",
+                        "-subj", "/CN=localhost", "-addext", "subjectAltName=IP:127.0.0.1,DNS:localhost"],
+                       check=True, capture_output=True)
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain(cert, key)
+        cls.client_context = ssl.create_default_context(cafile=str(cert))
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        cls.server.socket = context.wrap_socket(cls.server.socket, server_side=True)
         cls.worker = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.worker.start()
-        cls.origin = f"http://127.0.0.1:{cls.server.server_port}"
+        cls.origin = f"https://127.0.0.1:{cls.server.server_port}"
 
     @classmethod
     def tearDownClass(cls):
@@ -308,8 +326,12 @@ class DetectLocalHTTP(unittest.TestCase):
         row = {"sample_id": "source", "url": self.origin + path, "format": fmt,
                "cache_path": "source/document", "sha256": baseline}
         bounded_fetch = functools.partial(vs.fetch, max_bytes=cap)
+        build_opener = urllib.request.build_opener
+        def trusted_opener(*handlers):
+            return build_opener(*handlers, urllib.request.HTTPSHandler(context=self.client_context))
         with mock.patch.object(vs, "rows", return_value=[row]), \
                 mock.patch.object(vs, "fetch", bounded_fetch), \
+                mock.patch.object(vs.urllib.request, "build_opener", side_effect=trusted_opener), \
                 mock.patch.object(vs, "tool_version", return_value=None), \
                 mock.patch.object(vs.time, "sleep") as sleep, \
                 mock.patch("sys.stdout", new_callable=io.StringIO):
@@ -331,6 +353,18 @@ class DetectLocalHTTP(unittest.TestCase):
             self.assertEqual(observation["final_url"], result["final_url"])
             self.assertEqual(observation["requested_url"], result["requested_url"])
             self.assertEqual((root / "archive" / observation["object_key"]).read_bytes(), PDF)
+
+    def test_initial_http_url_fails_without_request_cache_or_archive(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            before = list(self.requests)
+            with mock.patch.object(self, "origin", self.origin.replace("https:", "http:")):
+                code, result = self.run_detect(root, "/document")
+            self.assertEqual((code, result["status"]), (1, "fetch_failed"))
+            self.assertTrue(result["detail"].startswith("url_disallowed"), result)
+            self.assertEqual(self.requests, before)
+            self.assertFalse((root / "downloads").exists())
+            self.assertFalse((root / "archive").exists())
 
     def test_redirected_http_error_records_final_url_without_archiving(self):
         with tempfile.TemporaryDirectory() as d:
@@ -359,6 +393,7 @@ class DetectLocalHTTP(unittest.TestCase):
             ("/external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/chain-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/relative-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
+            ("/downgrade", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/loop", "text_pdf", vs.MAX_FETCH_BYTES, "HTTPError"),
             ("/waf", "text_pdf", vs.MAX_FETCH_BYTES, "content_type_mismatch"),
             ("/waf", "html", vs.MAX_FETCH_BYTES, "block_page"),

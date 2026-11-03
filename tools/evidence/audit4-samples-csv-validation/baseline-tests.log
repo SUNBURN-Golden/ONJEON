@@ -1,0 +1,285 @@
+HEAD validation_check.py and source_archive.py loaded in memory; new metadata regressions
+test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) ... 
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='../../../../../../../../../../../../../../../../../../../../file') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/file') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../file') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=None) ... FAIL
+test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) ... 
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='http://example.org/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='file:///tmp/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='ftp://example.org/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='//example.org/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https:///file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://user:pass@example.org/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org:bad/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org:0/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org:65536/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value=' https://example.org/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org/\nfile') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org\\evil/file') ... FAIL
+  test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value=None) ... FAIL
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='../../../../../../../../../../../../../../../../../../../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 48, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='http://example.org/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='file:///tmp/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='ftp://example.org/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='//example.org/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https:///file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://user:pass@example.org/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org:bad/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org:0/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org:65536/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value=' https://example.org/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org/\nfile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value='https://example.org\\evil/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-samples-csv-validation/tools/tests/test_samples_csv_validation.py", line 56, in test_bad_urls_are_metadata_errors
+    self.assertTrue(any("samples.csv: sample url must be an HTTPS URL" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.006s
+
+FAILED (failures=23)
+expected baseline failure: True

@@ -1,0 +1,209 @@
+{
+  "node": "audit4-samples-csv-validation",
+  "base_commit": "f64e0e7dcbfe5817d47b3621e6b36b40f57f2dbf",
+  "source_sha256": {
+    "tools/source_metadata.py": "9635f61651b06e86849790654d9ae36cf8ab9a5727a064cdbb0770f943027df1",
+    "tools/source_archive.py": "4367890a9ec6268071a5178da353e2913169e783834723dccf305224502dccdb",
+    "tools/validation_check.py": "7e6ea70647aa022c423c4494c81251afbc35ac144faaa3c78337c20fe52662b8",
+    "tools/verify_sources.py": "d8aabab153e27f16c15c3a901fa4503ee734e8c3b1acbf46b2acc45b65f951d6",
+    "tools/tests/test_samples_csv_validation.py": "efd55a29640e7ec9b98d658d2622a6b2f7c11fccd0b3681ed9b1e1daf3926ade",
+    "tools/tests/test_verify_sources_fetch.py": "21563b724ed04286e51adeb98129030c4e3e94fccb819e0e992cc0e272151bd2"
+  },
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_samples_csv_validation.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "metadata-tests.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_verify_sources*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "verify-sources-tests.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/validation_check.py"
+      ],
+      "exit_code": 0,
+      "log": "validation.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/validation_check.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "log": "validation-selftest.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/vocab_check.py"
+      ],
+      "exit_code": 0,
+      "log": "vocabulary.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/blueprint_counts.py"
+      ],
+      "exit_code": 0,
+      "log": "blueprint-counts.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/blueprint_status.py"
+      ],
+      "exit_code": 0,
+      "log": "blueprint-status.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/workflow_check.py"
+      ],
+      "exit_code": 0,
+      "log": "workflows.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+      ],
+      "exit_code": 0,
+      "log": "spec-check.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+        "/workspace/onjeon-run/wt/audit4-samples-csv-validation/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner"
+      ],
+      "exit_code": 0,
+      "log": "ontology-check.log",
+      "initial_attempt": {
+        "exit_code": 1,
+        "log": "ontology-check-initial.log",
+        "reason": "runner was built in the environment default target directory; rebuilt with an explicit worktree target directory"
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "rust-format.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "rust-clippy.log"
+    }
+  ],
+  "rust": {
+    "command": [
+      "cargo",
+      "test",
+      "--all",
+      "--locked",
+      "--offline"
+    ],
+    "env": {
+      "CARGO_TARGET_DIR": "<worktree>/target"
+    },
+    "exit_code": 0,
+    "passed": 478,
+    "failed": 0,
+    "ignored": 1,
+    "log": "rust-tests.log"
+  },
+  "ontology_runner": {
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+      "--target-dir",
+      "<worktree>/docs/blueprint/proposals/온톨로지/검증/runner/target",
+      "--locked",
+      "--offline"
+    ],
+    "exit_code": 0,
+    "passed": 3,
+    "log": "ontology-runner-tests.log"
+  },
+  "initial_python_attempt": {
+    "exit_code": 1,
+    "tests": 1334,
+    "errors": 20,
+    "skipped": 6,
+    "reason": "the configured ontology runner executable path did not match the environment default build target; rebuilt explicitly inside the worktree before rerunning",
+    "log": "python-tools-initial.log"
+  },
+  "completed_at": "2026-11-03T04:05:49.133677+00:00",
+  "python": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-v"
+    ],
+    "env": {
+      "CARGO_TARGET_DIR": "<worktree>/target",
+      "ONJEON_ONTOLOGY_RUNNER": "<worktree>/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner"
+    },
+    "exit_code": 0,
+    "log": "python-tools.log",
+    "tests": 1334,
+    "passed": 1328,
+    "skipped": 6
+  }
+}

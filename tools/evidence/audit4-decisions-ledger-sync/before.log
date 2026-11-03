@@ -1,0 +1,296 @@
+test_all_twenty_directions_have_unique_namespaced_ids (tools.tests.test_decision_records.BlueprintDecisionIds.test_all_twenty_directions_have_unique_namespaced_ids) ... ok
+test_current_document_references_use_only_known_namespaced_ids (tools.tests.test_decision_records.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) ... ok
+test_execution_gate_ids_and_record_filenames_are_preserved (tools.tests.test_decision_records.BlueprintDecisionIds.test_execution_gate_ids_and_record_filenames_are_preserved) ... ok
+test_legacy_mapping_is_complete_one_to_one (tools.tests.test_decision_records.BlueprintDecisionIds.test_legacy_mapping_is_complete_one_to_one) ... ok
+test_reference_guard_catches_korean_particles_and_ranges (tools.tests.test_decision_records.BlueprintDecisionIds.test_reference_guard_catches_korean_particles_and_ranges) ... ok
+test_reported_collisions_keep_their_ledger_meaning (tools.tests.test_decision_records.BlueprintDecisionIds.test_reported_collisions_keep_their_ledger_meaning) ... ok
+test_twentieth_direction_preserves_limited_contract_adoption (tools.tests.test_decision_records.BlueprintDecisionIds.test_twentieth_direction_preserves_limited_contract_adoption) ... ok
+test_all_open_items_are_referenced_without_a_stale_upper_bound (tools.tests.test_decision_records.DecisionRecords.test_all_open_items_are_referenced_without_a_stale_upper_bound) ... ok
+test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions (tools.tests.test_decision_records.DecisionRecords.test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions) ... 
+  test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions (tools.tests.test_decision_records.DecisionRecords.test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions) (decision='AI 제공자 구성(서로 다른 모델 계열 2개 이상)') ... FAIL
+  test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions (tools.tests.test_decision_records.DecisionRecords.test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions) (decision='정책 소유자 지정(AI 승인 임계값·사고 시 중단)') ... FAIL
+test_canon_record_preserves_conditional_scope_and_merge_gate (tools.tests.test_decision_records.DecisionRecords.test_canon_record_preserves_conditional_scope_and_merge_gate) ... ok
+test_current_status_explicitly_keeps_both_delegated_decisions_provisional (tools.tests.test_decision_records.DecisionRecords.test_current_status_explicitly_keeps_both_delegated_decisions_provisional) ... ok
+test_d02_keeps_delegation_and_access_conditions (tools.tests.test_decision_records.DecisionRecords.test_d02_keeps_delegation_and_access_conditions) ... ok
+test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned (tools.tests.test_decision_records.DecisionRecords.test_d02_owner_summary_and_ledger_do_not_call_every_owner_unassigned) ... ok
+test_d02_provider_summary_records_composition_and_remaining_access (tools.tests.test_decision_records.DecisionRecords.test_d02_provider_summary_records_composition_and_remaining_access) ... ok
+test_d04_records_owner_ruling_without_reuse_approval (tools.tests.test_decision_records.DecisionRecords.test_d04_records_owner_ruling_without_reuse_approval) ... ok
+test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending (tools.tests.test_decision_records.DecisionRecords.test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending) ... ok
+test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) ... 
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-BUNDLE-STATUS') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-03') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-06') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-07') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-08') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-14') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-16') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-17') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-O02') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-O14') ... FAIL
+  test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-O17') ... FAIL
+test_hierarchy_and_ledger_explicitly_describe_a_complete_index (tools.tests.test_decision_records.DecisionRecords.test_hierarchy_and_ledger_explicitly_describe_a_complete_index) ... FAIL
+test_hierarchy_defines_dec_records_and_preserves_adr_change_path (tools.tests.test_decision_records.DecisionRecords.test_hierarchy_defines_dec_records_and_preserves_adr_change_path) ... ok
+test_index_registration_does_not_open_operational_gates (tools.tests.test_decision_records.DecisionRecords.test_index_registration_does_not_open_operational_gates) ... ok
+test_o01_is_closed_by_adr0018_without_removing_the_stable_id (tools.tests.test_decision_records.DecisionRecords.test_o01_is_closed_by_adr0018_without_removing_the_stable_id) ... ok
+test_o12_canonical_summaries_keep_provisional_status_and_link (tools.tests.test_decision_records.DecisionRecords.test_o12_canonical_summaries_keep_provisional_status_and_link) ... ok
+test_o12_release_scope_matches_task_contract (tools.tests.test_decision_records.DecisionRecords.test_o12_release_scope_matches_task_contract) ... ok
+test_o12_s6_remains_required_after_gate_registration (tools.tests.test_decision_records.DecisionRecords.test_o12_s6_remains_required_after_gate_registration) ... ok
+test_bundle_index_preserves_adr0019_supersession (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_bundle_index_preserves_adr0019_supersession) ... FAIL
+test_decision_directory_index_links_every_record_and_the_canonical_summaries (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_decision_directory_index_links_every_record_and_the_canonical_summaries) ... ERROR
+test_handoff_points_to_decisions_at_the_product_gate_table (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_handoff_points_to_decisions_at_the_product_gate_table) ... FAIL
+test_missing_decisions_have_substantive_ledger_summaries (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_missing_decisions_have_substantive_ledger_summaries) ... FAIL
+test_new_decision_navigation_and_evidence_links_resolve (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_new_decision_navigation_and_evidence_links_resolve) ... ERROR
+test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions) ... 
+  test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions) (identifier='O01') ... FAIL
+  test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions) (identifier='O12') ... FAIL
+test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions) ... FAIL
+
+======================================================================
+ERROR: test_decision_directory_index_links_every_record_and_the_canonical_summaries (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_decision_directory_index_links_every_record_and_the_canonical_summaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 69, in test_decision_directory_index_links_every_record_and_the_canonical_summaries
+    text = index_path.read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/docs/decisions/README.md'
+
+======================================================================
+ERROR: test_new_decision_navigation_and_evidence_links_resolve (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_new_decision_navigation_and_evidence_links_resolve)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 95, in test_new_decision_navigation_and_evidence_links_resolve
+    links = re.findall(r"\]\(([^)]+)\)", path.read_text())
+                                         ~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/docs/decisions/README.md'
+
+======================================================================
+FAIL: test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions (tools.tests.test_decision_records.DecisionRecords.test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions) (decision='AI 제공자 구성(서로 다른 모델 계열 2개 이상)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 210, in test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions
+    self.assertEqual(cells[1], "T-OP-03 start·T-KN-06/T-OP-02 real_data" if decision.startswith("AI 제공자") else "O06·D-19 임계값 확정")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'M2' != 'T-OP-03 start·T-KN-06/T-OP-02 real_data'
+- M2
++ T-OP-03 start·T-KN-06/T-OP-02 real_data
+
+
+======================================================================
+FAIL: test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions (tools.tests.test_decision_records.DecisionRecords.test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions) (decision='정책 소유자 지정(AI 승인 임계값·사고 시 중단)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 210, in test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions
+    self.assertEqual(cells[1], "T-OP-03 start·T-KN-06/T-OP-02 real_data" if decision.startswith("AI 제공자") else "O06·D-19 임계값 확정")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'M2' != 'O06·D-19 임계값 확정'
+- M2
++ O06·D-19 임계값 확정
+
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-BUNDLE-STATUS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-BUNDLE-STATUS exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-03')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-03 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-06')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-06 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-07')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-07 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-08')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-08 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-14')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-14 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-16')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-16 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-D-17')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-D-17 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-O02')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-O02 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-O14')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-O14 exactly once
+
+======================================================================
+FAIL: test_each_record_has_a_working_link_and_status_in_section_three (tools.tests.test_decision_records.DecisionRecords.test_each_record_has_a_working_link_and_status_in_section_three) (record='DEC-O17')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 119, in test_each_record_has_a_working_link_and_status_in_section_three
+    cells = self.row(record_id)
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 105, in row
+    self.assertEqual(len(rows), 1, f"§3 must index {record_id} exactly once")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : §3 must index DEC-O17 exactly once
+
+======================================================================
+FAIL: test_hierarchy_and_ledger_explicitly_describe_a_complete_index (tools.tests.test_decision_records.DecisionRecords.test_hierarchy_and_ledger_explicitly_describe_a_complete_index)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decision_records.py", line 133, in test_hierarchy_and_ledger_explicitly_describe_a_complete_index
+    self.assertRegex(dec_paragraph, r"§3\.1.*전체 기록.*색인")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: '§3\\.1.*전체 기록.*색인' not found in '`docs/decisions/DEC-*.md`는 실데이터 사용·정본 변경 등의 결정·위임 범위·조건·상태를 남기는 **결정 게이트 기록**이며, [결정 원장 §3](blueprint/DECISIONS.md#3-구현-전-미정-사항과-차단-범위)의 §3.1에는 일부 기록을 상태와 함께 색인한다. DEC 기록은 설계도를 변경하는 ADR을 대신하지 않는다.'
+
+======================================================================
+FAIL: test_bundle_index_preserves_adr0019_supersession (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_bundle_index_preserves_adr0019_supersession)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 63, in test_bundle_index_preserves_adr0019_supersession
+    summary = row(self.ledger, "| [DEC-BUNDLE-STATUS](")
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 14, in row
+    raise AssertionError(f"expected one {prefix!r}, got {len(rows)}")
+AssertionError: expected one '| [DEC-BUNDLE-STATUS](', got 0
+
+======================================================================
+FAIL: test_handoff_points_to_decisions_at_the_product_gate_table (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_handoff_points_to_decisions_at_the_product_gate_table)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 84, in test_handoff_points_to_decisions_at_the_product_gate_table
+    self.assertIn(f"]({target})", product)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '](../../../../decisions/README.md)' not found in '제품 (09의 네 영역)\n\n| 영역(09 행) | 과제 | 착수·실데이터를 막는 결정 |\n|---|---|---|\n| 기반(계약·어휘·로컬) | T-CT-01~07, T-OP-01 | T-CT-02 등 정본 변경은 `canon_change_approval` 필요 |\n| 수집·관리(P01~P03) | T-DT-01~06, T-OP-04, T-KN-09·10·11, T-AP-04·06, T-WB-01, T-PS-02 | D-04(R2 토큰 폐기 등): T-DT-01·T-DT-04 실데이터와 T-OP-04 착수. O02: T-DT-06. D-14: T-KN-11 병합 |\n| 지식·레이블링(P04~P06) | T-KN-01~08, T-TW-01·03, T-OP-03, T-WB-02 | D-02: T-KN-06 실데이터와 T-OP-03 착수 |\n| 디지털 트윈(P07~P14) | T-TW-02·04·05·06, T-AP-02·03·05·07·08, T-PS-01·02, T-MB-02·03·04 | D-17: T-PS-01~03 실데이터. D-06·D-07: T-AP-08 병합. O12: T-TW-04·05 출시 |\n| UX/UI(P15~P19) | T-MB-01~04, T-AP-07·09, T-KN-12·14, T-UX-01 | D-16: T-UX-01 착수. D-08: T-KN-14 출시(판단 기준·기본 필요 금액의 서비스 적용) |\n| 출시 | T-OP-02(S1 관문), T-OP-05~07, T-OP-08 | D-03: T-OP-07 착수. D-12·D-17·D-18: 출시 |\n\n각 과제의 완료는 tasks.json의 `done_criteria`와 `required_test_ids`가 판정한다. 이번에 기존 과제에 넣은 연결은 다음과 같다(09 §6).\n- `acquisition-reason-not-counted`, `coverage-status-counts-acquired-only`: 미확보 사유 기록은 확보로 세지 않는다.\n- `label-kinds-complete`: 보장·지급 사유·제외·면책·감액·한도·갱신·가입 제약·담보 간 관계\n- `switch-diff-evidence-trace`, `multi-contract-relation-trace`\n- `first-view-priority`, `decisive-conditions-not-hidden`, `no-composite-score`\n\n합성 픽스처를 통과한 것은 완료 증거가 아니다.\n\n'
+
+======================================================================
+FAIL: test_missing_decisions_have_substantive_ledger_summaries (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_missing_decisions_have_substantive_ledger_summaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 55, in test_missing_decisions_have_substantive_ledger_summaries
+    summary = row(self.ledger, f"| [DEC-{gate}](")
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 14, in row
+    raise AssertionError(f"expected one {prefix!r}, got {len(rows)}")
+AssertionError: expected one '| [DEC-D-03](', got 0
+
+======================================================================
+FAIL: test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions) (identifier='O01')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 37, in test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions
+    self.assertIn(identifier, self.section12)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'O01' not found in '열린 결정\n\n보험사·상품·표본 선정은 열린 결정이 아니다. 전 대상이 확정 범위이고 표본은 구현자가 고른다(ADR-0013).\n\n아래는 남은 확인·적용 조건을 요약한다. 위임 결정은 사용자 확정과 구분하며, 이미 정해진 범위를 다시 미정으로 취급하지 않는다. DEC 기록의 존재만으로 접근·가동 관문이 열리지는 않는다. [Audit 2 정정·검증 증거](blueprint/audits/2026-10-27_blueprint_open_decisions_stale.md).\n\n| 결정 | 막는 마일스톤 | 비고 |\n|---|---|---|\n| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기([DEC-D-02](decisions/DEC-D-02.md)). 공개 약관·공시 지식 검수: 작성=claude, 승인=비-claude X, 레드팀=별도 비-claude Y. Y 확보 전에는 X의 다른 모델·프롬프트를 쓰고 3계열 미달(degraded)을 기록한다. 업체·모델 ID는 미고정. 남은 조건: 비-claude 접근 확인·월 한도 확인, 접근 확인 뒤 게이트 등록 또는 접근 확인을 별도 real_data 게이트로 분리. T-OP-03 실측은 접근 확인·등록 전 발송 금지. 모의 시험·병합은 허용하며 M2 전체 개발을 막지 않음 |\n| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기([DEC-D-02](decisions/DEC-D-02.md)). 정책 소유자=사용자 본인 1인. AI 승인 임계값·모델 구성 변경·사고 시 중단·재개를 담당하며 중단은 자동·누구나 가능, 재개는 소유자만 한다. 임계값 수치는 미정(O06·D-19): T-OP-03 실측 뒤 소유자 확정, 그 전 불일치는 hold |\n| 서비스 실행 클라우드 | M3 | 로컬은 Compose로 시작 가능. 원본·파생 보관소는 Cloudflare R2로 확정(ADR-0016, §7.2) |\n| DSL 의미론(O12) | T-TW-04·T-TW-05 release | 실손·이력·범위 금액과 기준값 비교·시각: [DEC-O12](decisions/DEC-O12.md)(위임 결정·가역·사용자 확정 아님, 잠정 개발 기준; Fable 5.1, 2026-10-15). 소유자 확정 근거 없음. T-TW-04·T-TW-05의 O12 `release` 게이트만 해당한다. 설계·합성 시험·병합은 허용하며 M2 전체 개발을 막지 않음. `decisions_recorded`의 O12 등록은 별도이며, 등록은 해당 release 게이트만 해제하고 등록만으로 S6 충족 아님. S6는 연산별 allow-list 등록·스키마 거부 시험, 경계·unknown·range 합성 시험, 변이 시험, 실제 표본 1건 이상(T-KN-08), 바이트 동일 결정성, 끊김 없는 trace evidence_ref 근거 사슬을 요구한다. 미충족 연산은 병합해도 capability-blocked로 유지하고 원문 설명만 제공한다(미지원 계산의 자유 생성 대체 금지). |\n| "필요한 돈" 기본값 출처 | M5 | 출처 없으면 기본값 없음 |\n| 색 토큰, 시안 추가 요소 C2~C4·C7 | M5 | 화면 설계서 §13 |\n| 공개 웹 도메인·명칭 | 출시 | 개발을 막지 않음 |\n| R2 접근 자격 후속 확인(D-04 관문 유지) | 다음 R2 작업 | [DEC-D-04](decisions/DEC-D-04.md): 준태님(소유자), 2026-10-13 17:53 KST 결정으로 대화 노출 R2 토큰은 폐기하지 않는다. 후속 확인 담당: 준태님. 정정 기록일: 2026-10-26. 노출 토큰 재사용·출력 금지, 실제 R2 접근 차단 유지. 토큰 폐기를 남은 조치로 요구하지 않는다. O14·O17은 별도 관문 |\n| 대량 자동 수집 관문(O17): 원장 체크포인트, 버킷 잠금, 실행 환경·동시성·예약 실행 통제 등 | 대량 자동 수집 | 그 전에는 지정 환경 하나·동시 1개·수동 실행, 고정 키 작업만. 원장 기록 상한 100(ADR-0017, BUDGET.md §6) |\n| 국내 IP 수집 실행 환경(O19) | T-DT-04 실데이터 열거(M3) | 준비·비용은 준태님. 그 전에는 픽스처·확보한 공시 진입점 8곳으로 어댑터 개발·시험만. 해외 샌드박스 결과로 상품·문서 분모를 주장하지 않는다 |\n| R2 버킷 잠금 대상·기간·해제 권한(O14) | 버킷 잠금 적용 | 승인 전 적용 금지, 무기한 잠금 금지 |\n| 저장소 공개 범위와 공개 저장소 원문 발췌 추가 조건(O16 잔여) | 다음 원문 발췌 추가 | [DEC-D-12](decisions/DEC-D-12.md): 소비자 앱의 원문 이미지·발췌 표시 허용(준태님, 2026-10-14 07:23 KST, 선택 C). 외부 검토 없음, 법적 위험은 소유자가 감수. 기존 발췌·Git 이력 유지. 공개 저장소의 새 원문 발췌 추가는 승인하지 않음. 표시 플래그 적용·게이트 등록은 별도이며 저장소 공개 범위·그 밖의 재배포 조건은 남음 |\n| 레포 분리 전 통합 계약(O15) | 레포 분리 | §9.4 |\n| 외부 검토 담당 지정(D-18·O10): 추천·가격 비교·향후 상담의 적용 요건 | 대외 출시 | [DEC-D-18](decisions/DEC-D-18.md)(위임 결정, 2026-10-15): 대외 출시 판정 전에 외부 검토 담당을 지정한다. 외부 검토 담당은 아직 지정되지 않았다. 가격 열 대외 공개 표시는 D-18(O10) 외부 검토 담당 지정 뒤이며, 그 전에도 저장·비교 자격 판정·내부 개발 화면은 허용한다. 동일 조건·묶음 규칙(O04)은 [DEC-O04](decisions/DEC-O04.md)로 기록됐다. 공개 가격은 첫 출시 범위에서 빠지지 않는다(ADR-0010). 이 행은 법적 판단이 아니다 |\n\n'
+
+======================================================================
+FAIL: test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions) (identifier='O12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 33, in test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions
+    self.assertIn("해결", summary)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '해결' not found in '| O12 | 실손·이력·범위 비교·시각 DSL 의미론: [DEC-O12](../decisions/DEC-O12.md)(위임 결정·가역·사용자 확정 아님, 잠정 개발 기준; Fable 5.1, 2026-10-15). 소유자 확정 근거 없음 | 규칙 엔진 책임 | 해당 연산 출시 전: O12 release 등록과 S6 검증 | T-TW-04·T-TW-05의 O12 `release` 게이트만 해당한다. 설계·합성 시험·병합은 허용하며 M2 전체 개발을 막지 않음. `decisions_recorded`의 O12 등록은 별도이며, 등록은 해당 release 게이트만 해제하고 등록만으로 S6 충족 아님. S6는 연산별 allow-list 등록·스키마 거부 시험, 경계·unknown·range 합성 시험, 변이 시험, 실제 표본 1건 이상(T-KN-08), 바이트 동일 결정성, 끊김 없는 trace evidence_ref 근거 사슬을 요구한다. 미충족 연산은 병합해도 capability-blocked로 유지하고 원문 설명만 제공한다(미지원 계산의 자유 생성 대체 금지). |'
+
+======================================================================
+FAIL: test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (tools.tests.test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-decisions-ledger-sync/tools/tests/test_decisions_ledger_sync.py", line 39, in test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions
+    self.assertIn("의미론 결정은 해결", self.section12)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '의미론 결정은 해결' not found in '열린 결정\n\n보험사·상품·표본 선정은 열린 결정이 아니다. 전 대상이 확정 범위이고 표본은 구현자가 고른다(ADR-0013).\n\n아래는 남은 확인·적용 조건을 요약한다. 위임 결정은 사용자 확정과 구분하며, 이미 정해진 범위를 다시 미정으로 취급하지 않는다. DEC 기록의 존재만으로 접근·가동 관문이 열리지는 않는다. [Audit 2 정정·검증 증거](blueprint/audits/2026-10-27_blueprint_open_decisions_stale.md).\n\n| 결정 | 막는 마일스톤 | 비고 |\n|---|---|---|\n| AI 제공자 구성(서로 다른 모델 계열 2개 이상) | M2 | ADR-0006 이행 조건; 위임 결정 DEC-D-02, 사용자 확정 대기([DEC-D-02](decisions/DEC-D-02.md)). 공개 약관·공시 지식 검수: 작성=claude, 승인=비-claude X, 레드팀=별도 비-claude Y. Y 확보 전에는 X의 다른 모델·프롬프트를 쓰고 3계열 미달(degraded)을 기록한다. 업체·모델 ID는 미고정. 남은 조건: 비-claude 접근 확인·월 한도 확인, 접근 확인 뒤 게이트 등록 또는 접근 확인을 별도 real_data 게이트로 분리. T-OP-03 실측은 접근 확인·등록 전 발송 금지. 모의 시험·병합은 허용하며 M2 전체 개발을 막지 않음 |\n| 정책 소유자 지정(AI 승인 임계값·사고 시 중단) | M2 | 사람의 유일한 역할; 위임 결정 DEC-D-02, 사용자 확정 대기([DEC-D-02](decisions/DEC-D-02.md)). 정책 소유자=사용자 본인 1인. AI 승인 임계값·모델 구성 변경·사고 시 중단·재개를 담당하며 중단은 자동·누구나 가능, 재개는 소유자만 한다. 임계값 수치는 미정(O06·D-19): T-OP-03 실측 뒤 소유자 확정, 그 전 불일치는 hold |\n| 서비스 실행 클라우드 | M3 | 로컬은 Compose로 시작 가능. 원본·파생 보관소는 Cloudflare R2로 확정(ADR-0016, §7.2) |\n| DSL 의미론(O12) | T-TW-04·T-TW-05 release | 실손·이력·범위 금액과 기준값 비교·시각: [DEC-O12](decisions/DEC-O12.md)(위임 결정·가역·사용자 확정 아님, 잠정 개발 기준; Fable 5.1, 2026-10-15). 소유자 확정 근거 없음. T-TW-04·T-TW-05의 O12 `release` 게이트만 해당한다. 설계·합성 시험·병합은 허용하며 M2 전체 개발을 막지 않음. `decisions_recorded`의 O12 등록은 별도이며, 등록은 해당 release 게이트만 해제하고 등록만으로 S6 충족 아님. S6는 연산별 allow-list 등록·스키마 거부 시험, 경계·unknown·range 합성 시험, 변이 시험, 실제 표본 1건 이상(T-KN-08), 바이트 동일 결정성, 끊김 없는 trace evidence_ref 근거 사슬을 요구한다. 미충족 연산은 병합해도 capability-blocked로 유지하고 원문 설명만 제공한다(미지원 계산의 자유 생성 대체 금지). |\n| "필요한 돈" 기본값 출처 | M5 | 출처 없으면 기본값 없음 |\n| 색 토큰, 시안 추가 요소 C2~C4·C7 | M5 | 화면 설계서 §13 |\n| 공개 웹 도메인·명칭 | 출시 | 개발을 막지 않음 |\n| R2 접근 자격 후속 확인(D-04 관문 유지) | 다음 R2 작업 | [DEC-D-04](decisions/DEC-D-04.md): 준태님(소유자), 2026-10-13 17:53 KST 결정으로 대화 노출 R2 토큰은 폐기하지 않는다. 후속 확인 담당: 준태님. 정정 기록일: 2026-10-26. 노출 토큰 재사용·출력 금지, 실제 R2 접근 차단 유지. 토큰 폐기를 남은 조치로 요구하지 않는다. O14·O17은 별도 관문 |\n| 대량 자동 수집 관문(O17): 원장 체크포인트, 버킷 잠금, 실행 환경·동시성·예약 실행 통제 등 | 대량 자동 수집 | 그 전에는 지정 환경 하나·동시 1개·수동 실행, 고정 키 작업만. 원장 기록 상한 100(ADR-0017, BUDGET.md §6) |\n| 국내 IP 수집 실행 환경(O19) | T-DT-04 실데이터 열거(M3) | 준비·비용은 준태님. 그 전에는 픽스처·확보한 공시 진입점 8곳으로 어댑터 개발·시험만. 해외 샌드박스 결과로 상품·문서 분모를 주장하지 않는다 |\n| R2 버킷 잠금 대상·기간·해제 권한(O14) | 버킷 잠금 적용 | 승인 전 적용 금지, 무기한 잠금 금지 |\n| 저장소 공개 범위와 공개 저장소 원문 발췌 추가 조건(O16 잔여) | 다음 원문 발췌 추가 | [DEC-D-12](decisions/DEC-D-12.md): 소비자 앱의 원문 이미지·발췌 표시 허용(준태님, 2026-10-14 07:23 KST, 선택 C). 외부 검토 없음, 법적 위험은 소유자가 감수. 기존 발췌·Git 이력 유지. 공개 저장소의 새 원문 발췌 추가는 승인하지 않음. 표시 플래그 적용·게이트 등록은 별도이며 저장소 공개 범위·그 밖의 재배포 조건은 남음 |\n| 레포 분리 전 통합 계약(O15) | 레포 분리 | §9.4 |\n| 외부 검토 담당 지정(D-18·O10): 추천·가격 비교·향후 상담의 적용 요건 | 대외 출시 | [DEC-D-18](decisions/DEC-D-18.md)(위임 결정, 2026-10-15): 대외 출시 판정 전에 외부 검토 담당을 지정한다. 외부 검토 담당은 아직 지정되지 않았다. 가격 열 대외 공개 표시는 D-18(O10) 외부 검토 담당 지정 뒤이며, 그 전에도 저장·비교 자격 판정·내부 개발 화면은 허용한다. 동일 조건·묶음 규칙(O04)은 [DEC-O04](decisions/DEC-O04.md)로 기록됐다. 공개 가격은 첫 출시 범위에서 빠지지 않는다(ADR-0010). 이 행은 법적 판단이 아니다 |\n\n'
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.090s
+
+FAILED (failures=20, errors=2)

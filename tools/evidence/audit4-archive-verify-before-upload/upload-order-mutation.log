@@ -1,0 +1,251 @@
+Mutation: move samples.csv comparison after put_raw (in memory only).
+test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put (test_source_archive_upload_r2.R2ArchiveSamples.test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put) ... 
+  test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put (test_source_archive_upload_r2.R2ArchiveSamples.test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put) (existing=False) ... FAIL
+test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put (test_source_archive_upload_r2.R2ArchiveSamples.test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put) ... ERROR
+test_mismatched_cache_makes_no_raw_or_derived_requests (test_source_archive_upload_r2.R2ArchiveSamples.test_mismatched_cache_makes_no_raw_or_derived_requests) ... 
+  test_mismatched_cache_makes_no_raw_or_derived_requests (test_source_archive_upload_r2.R2ArchiveSamples.test_mismatched_cache_makes_no_raw_or_derived_requests) (body=b'changed original') ... ERROR
+  test_mismatched_cache_makes_no_raw_or_derived_requests (test_source_archive_upload_r2.R2ArchiveSamples.test_mismatched_cache_makes_no_raw_or_derived_requests) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') ... ERROR
+  test_mismatched_cache_makes_no_raw_or_derived_requests (test_source_archive_upload_r2.R2ArchiveSamples.test_mismatched_cache_makes_no_raw_or_derived_requests) (body=b'') ... ERROR
+
+======================================================================
+ERROR: test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put (test_source_archive_upload_r2.R2ArchiveSamples.test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 122, in test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put
+    self.assertEqual(code, 1 if not existing else 0)
+                     ^^^^
+UnboundLocalError: cannot access local variable 'code' where it is not associated with a value
+
+======================================================================
+ERROR: test_mismatched_cache_makes_no_raw_or_derived_requests (test_source_archive_upload_r2.R2ArchiveSamples.test_mismatched_cache_makes_no_raw_or_derived_requests) (body=b'changed original')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 84, in test_mismatched_cache_makes_no_raw_or_derived_requests
+    code, result = self.archive()
+                   ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 75, in archive
+    code = sa.cmd_archive_samples(self.args)
+  File "<upload-before-compare mutation>", line 18, in cmd_archive_samples
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 345, in put_raw
+    return digest, put_once(raw, object_key(digest), body, content_type)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 110, in put_once
+    stored = st.stored_sha256(key) if hasattr(st, "stored_sha256") else ABSENT
+             ~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 296, in stored_sha256
+    h = self.s3.head_object(Bucket=self.bucket, Key=self._k(key), ChecksumMode="ENABLED")
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1035, in _make_api_call
+    api_params = self._emit_api_params(
+        api_params=api_params,
+        operation_model=operation_model,
+        context=request_context,
+    )
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1154, in _emit_api_params
+    self.meta.events.emit(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        f'before-parameter-build.{service_id}.{operation_name}',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        context=context,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 395, in _assert_expected_params
+    self._assert_expected_call_order(model, params)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 363, in _assert_expected_call_order
+    raise UnStubbedResponseError(
+    ...<6 lines>...
+    )
+botocore.exceptions.UnStubbedResponseError: Error getting response stub for operation HeadObject: Unexpected API Call: A call was made but no additional calls expected. Either the API Call was not stubbed or it was called multiple times.
+
+======================================================================
+ERROR: test_mismatched_cache_makes_no_raw_or_derived_requests (test_source_archive_upload_r2.R2ArchiveSamples.test_mismatched_cache_makes_no_raw_or_derived_requests) (body=b'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 84, in test_mismatched_cache_makes_no_raw_or_derived_requests
+    code, result = self.archive()
+                   ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 75, in archive
+    code = sa.cmd_archive_samples(self.args)
+  File "<upload-before-compare mutation>", line 18, in cmd_archive_samples
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 345, in put_raw
+    return digest, put_once(raw, object_key(digest), body, content_type)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 110, in put_once
+    stored = st.stored_sha256(key) if hasattr(st, "stored_sha256") else ABSENT
+             ~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 296, in stored_sha256
+    h = self.s3.head_object(Bucket=self.bucket, Key=self._k(key), ChecksumMode="ENABLED")
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1035, in _make_api_call
+    api_params = self._emit_api_params(
+        api_params=api_params,
+        operation_model=operation_model,
+        context=request_context,
+    )
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1154, in _emit_api_params
+    self.meta.events.emit(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        f'before-parameter-build.{service_id}.{operation_name}',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        context=context,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 395, in _assert_expected_params
+    self._assert_expected_call_order(model, params)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 363, in _assert_expected_call_order
+    raise UnStubbedResponseError(
+    ...<6 lines>...
+    )
+botocore.exceptions.UnStubbedResponseError: Error getting response stub for operation HeadObject: Unexpected API Call: A call was made but no additional calls expected. Either the API Call was not stubbed or it was called multiple times.
+
+======================================================================
+ERROR: test_mismatched_cache_makes_no_raw_or_derived_requests (test_source_archive_upload_r2.R2ArchiveSamples.test_mismatched_cache_makes_no_raw_or_derived_requests) (body=b'')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 84, in test_mismatched_cache_makes_no_raw_or_derived_requests
+    code, result = self.archive()
+                   ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 75, in archive
+    code = sa.cmd_archive_samples(self.args)
+  File "<upload-before-compare mutation>", line 18, in cmd_archive_samples
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 345, in put_raw
+    return digest, put_once(raw, object_key(digest), body, content_type)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 110, in put_once
+    stored = st.stored_sha256(key) if hasattr(st, "stored_sha256") else ABSENT
+             ~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 296, in stored_sha256
+    h = self.s3.head_object(Bucket=self.bucket, Key=self._k(key), ChecksumMode="ENABLED")
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1035, in _make_api_call
+    api_params = self._emit_api_params(
+        api_params=api_params,
+        operation_model=operation_model,
+        context=request_context,
+    )
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1154, in _emit_api_params
+    self.meta.events.emit(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        f'before-parameter-build.{service_id}.{operation_name}',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        context=context,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 395, in _assert_expected_params
+    self._assert_expected_call_order(model, params)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 363, in _assert_expected_call_order
+    raise UnStubbedResponseError(
+    ...<6 lines>...
+    )
+botocore.exceptions.UnStubbedResponseError: Error getting response stub for operation HeadObject: Unexpected API Call: A call was made but no additional calls expected. Either the API Call was not stubbed or it was called multiple times.
+
+======================================================================
+FAIL: test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put (test_source_archive_upload_r2.R2ArchiveSamples.test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put) (existing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 120, in test_bad_row_is_skipped_and_matching_row_uploads_then_reruns_without_put
+    code, result = self.archive()
+                   ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/tests/test_source_archive_upload_r2.py", line 75, in archive
+    code = sa.cmd_archive_samples(self.args)
+  File "<upload-before-compare mutation>", line 18, in cmd_archive_samples
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 345, in put_raw
+    return digest, put_once(raw, object_key(digest), body, content_type)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 110, in put_once
+    stored = st.stored_sha256(key) if hasattr(st, "stored_sha256") else ABSENT
+             ~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit4-archive-verify-before-upload/tools/source_archive.py", line 296, in stored_sha256
+    h = self.s3.head_object(Bucket=self.bucket, Key=self._k(key), ChecksumMode="ENABLED")
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1035, in _make_api_call
+    api_params = self._emit_api_params(
+        api_params=api_params,
+        operation_model=operation_model,
+        context=request_context,
+    )
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1154, in _emit_api_params
+    self.meta.events.emit(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        f'before-parameter-build.{service_id}.{operation_name}',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        context=context,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/stub.py", line 403, in _assert_expected_params
+    raise StubAssertionError(
+    ...<5 lines>...
+    )
+botocore.exceptions.StubAssertionError: Error getting response stub for operation HeadObject: Expected parameters:
+{'Bucket': 'test-raw',
+ 'ChecksumMode': 'ENABLED',
+ 'Key': 'archive/objects/sha256/a0/c8/a0c8f83ed5622a7dd8db22b3ed382a53a96f290915e8cd34d82d45f5602ddef0'},
+but received:
+{'Bucket': 'test-raw',
+ 'ChecksumMode': 'ENABLED',
+ 'Key': 'archive/objects/sha256/20/f9/20f993548cc713ef7be04d1c072b10da268bdfb981a2e99959d5bf4761d776a9'}
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.115s
+
+FAILED (failures=1, errors=4)
+MUTATION REJECTED

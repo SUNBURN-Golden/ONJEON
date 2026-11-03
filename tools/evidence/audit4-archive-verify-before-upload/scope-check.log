@@ -1,0 +1,13 @@
+PASS docs/blueprint/audits/2026-11-03_archive_verify_before_upload.md
+PASS docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+PASS tools/evidence/audit4-archive-verify-before-upload/README.md
+PASS tools/evidence/audit4-archive-verify-before-upload/archive-tests.log
+PASS tools/evidence/audit4-archive-verify-before-upload/check_upload_order_mutation.py
+PASS tools/evidence/audit4-archive-verify-before-upload/python-tests.log
+PASS tools/evidence/audit4-archive-verify-before-upload/runner-tests.log
+PASS tools/evidence/audit4-archive-verify-before-upload/rust-tests.log
+PASS tools/evidence/audit4-archive-verify-before-upload/scope-check.log
+PASS tools/evidence/audit4-archive-verify-before-upload/static-checks.log
+PASS tools/evidence/audit4-archive-verify-before-upload/upload-order-mutation.log
+PASS tools/tests/test_source_archive_upload_r2.py
+Allowed/protected paths, Python parsing, Markdown links and whitespace: PASS

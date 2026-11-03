@@ -360,7 +360,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | Rust 단위·통합 시험 | 213 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
-| 검증 자료 변조 시험 | 38 | `tools/validation_check.py`의 `mutations()` |
+| 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
 | 공유 어휘 축 | 49 | `packages/schemas/vocabulary.json`의 `axes` |
 <!-- blueprint-counts:end -->
 

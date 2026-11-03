@@ -11,6 +11,7 @@ What this checks (extracts and metadata only):
   price observations, candidate insured amounts and clause text are checked here; engine
   scenario amounts are checked by `cargo test --test real_clauses`
 - a price shown against a user's profile states which conditions match and which are not stated in the source
+- samples.csv hashes are 64 hex characters and source URLs use HTTPS without credentials
 
 What this does NOT check: the original files. Hashes here are compared string to string with
 samples.csv. Re-downloading, re-hashing and re-extracting the originals is tools/verify_sources.py.
@@ -27,6 +28,9 @@ import re
 import sys
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # also usable with python -I
+import source_metadata as sm  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 VAL = ROOT / "docs/blueprint/validation"
@@ -501,6 +505,14 @@ def check(data):
     for r in data["samples"]:
         if r["sample_id"] in samples:
             errors.append(f"samples.csv: duplicate sample_id {r['sample_id']}")
+        try:
+            sm.check_sha256(r.get("sha256"))
+        except ValueError:
+            errors.append(f"samples.csv: {r['sample_id']} sha256 must be 64 hex characters")
+        try:
+            sm.https_origin(r.get("url"))
+        except ValueError:
+            errors.append(f"samples.csv: {r['sample_id']} url must be an HTTPS URL without credentials")
         if not re.fullmatch(r"[0-9a-f]{64}", r.get("derived_manifest_sha256") or ""):
             errors.append(f"samples.csv: {r['sample_id']} needs a pinned derived_manifest_sha256 (reproduction verifies against it)")
         samples[r["sample_id"]] = r
@@ -576,6 +588,8 @@ def mutations():
         "price evidence → unrelated clause": (lambda d: prem(d, "kyobo_cancer", "p_sum_f_main").update(evidence_refs=["c_main_art7"]), "p_sum_f_main amount 33,240 is not inside the quoted passage"),
         # pinned derived manifest
         "derived manifest pin removed": (lambda d: d["samples"][0].update(derived_manifest_sha256=""), "needs a pinned derived_manifest_sha256"),
+        "sample hash contains traversal": (lambda d: d["samples"][0].update(sha256="../../outside"), "sha256 must be 64 hex characters"),
+        "sample URL uses HTTP": (lambda d: d["samples"][0].update(url="http://example.org/file"), "url must be an HTTPS URL"),
         # review state
         "field promoted to accepted without review": (lambda d: field(d, "kyobo_cancer", "f_main_waiting").update(review_status="accepted"), "review_status=accepted, but no cross-family review record exists"),
         # price conditions

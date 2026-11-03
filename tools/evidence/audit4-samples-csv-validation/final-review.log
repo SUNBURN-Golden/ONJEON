@@ -1,0 +1,4 @@
+Allowed paths and protected exclusions checked: 32 files
+Source hashes match the tested code
+All final recorded checks exit 0
+git diff --check: exit 0

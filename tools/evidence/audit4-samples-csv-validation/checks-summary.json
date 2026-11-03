@@ -1,0 +1,136 @@
+[
+  {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_samples_csv_validation.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "log": "metadata-tests.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_verify_sources*.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "log": "verify-sources-tests.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/validation_check.py"
+    ],
+    "exit_code": 0,
+    "log": "validation.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "log": "validation-selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/vocab_check.py"
+    ],
+    "exit_code": 0,
+    "log": "vocabulary.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_counts.py"
+    ],
+    "exit_code": 0,
+    "log": "blueprint-counts.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_status.py"
+    ],
+    "exit_code": 0,
+    "log": "blueprint-status.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/workflow_check.py"
+    ],
+    "exit_code": 0,
+    "log": "workflows.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "exit_code": 0,
+    "log": "spec-check.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+      "/workspace/onjeon-run/wt/audit4-samples-csv-validation/docs/blueprint/proposals/온톨로지/검증/runner/target/debug/ontology-case-runner"
+    ],
+    "exit_code": 0,
+    "log": "ontology-check.log",
+    "initial_attempt": {
+      "exit_code": 1,
+      "log": "ontology-check-initial.log",
+      "reason": "runner was built in the environment default target directory; rebuilt with an explicit worktree target directory"
+    }
+  },
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log": "rust-format.log"
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "log": "rust-clippy.log"
+  }
+]

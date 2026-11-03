@@ -82,6 +82,21 @@ fn checker_catches_a_dropped_row_and_a_stale_row() {
         assert_eq!(missing, [name]);
         assert_eq!(stale, [format!("{name}_old")]);
     }
+
+    // Reproduce the audit finding: both rows omitted from the same table.
+    let dropped_both = README
+        .lines()
+        .filter(|line| {
+            !line.starts_with("| `real_clauses` |") && !line.starts_with("| `vocabulary` |")
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let table = listed(&dropped_both);
+    let disk = on_disk();
+    let missing: Vec<_> = disk.difference(&table).cloned().collect();
+    let stale: Vec<_> = table.difference(&disk).cloned().collect();
+    assert_eq!(missing, ["real_clauses", "vocabulary"]);
+    assert!(stale.is_empty());
 }
 
 #[test]

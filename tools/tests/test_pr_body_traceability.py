@@ -160,6 +160,28 @@ class CiWiring(unittest.TestCase):
         self.assertEqual({event.strip() for event in events[1].split(",")},
                          {"opened", "synchronize", "reopened", "edited"})
 
+    def test_edited_events_run_only_the_traceability_steps(self):
+        # A body/title edit cannot change code, so the heavy checks are gated off. The
+        # required `rules-engine` check still refreshes its traceability verdict on the
+        # same commit instead of rerunning the full suite.
+        job = self.workflow.split("  rules-engine:\n", 1)[1].split("\n  design-specs:\n", 1)[0]
+        steps = dict(re.findall(r"^      - name: (.+?)\n(.*?)(?=^      - |\Z)",
+                                job, re.M | re.S))
+        traceability = {
+            "PR traceability guard self-test (Audit 4)",
+            "PR body traceability (tasks.json task ID, node ID, or 09 P row)",
+        }
+        self.assertTrue(traceability <= set(steps))
+        for name, body in steps.items():
+            with self.subTest(step=name):
+                if name in traceability:
+                    self.assertNotIn("github.event.action != 'edited'", body)
+                else:
+                    self.assertIn("if: github.event.action != 'edited'", body)
+        # The separate design-specs job is also code-only; a PR edit skips it entirely.
+        design = self.workflow.split("  design-specs:\n", 1)[1]
+        self.assertIn("    if: github.event.action != 'edited'\n", design)
+
     def test_selftest_runs_on_every_ci_event(self):
         self.assertIn("check_pr_body_traceability.py --selftest", self.workflow)
 

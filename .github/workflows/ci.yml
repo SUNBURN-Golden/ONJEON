@@ -23,6 +23,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Workflow token permissions and immutable action refs
+        if: github.event.action != 'edited'
         run: |
           python3 tools/workflow_check.py
           python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
@@ -35,36 +36,49 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: python3 -I tools/ci/check_pr_body_traceability.py
       - name: Registry normalization regressions
+        if: github.event.action != 'edited'
         run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v
       - name: Vocabulary (canonical states, generated doc, deprecated names, registry CSVs)
+        if: github.event.action != 'edited'
         run: python3 tools/vocab_check.py
       - name: Validation set internal consistency (extracts and metadata; originals are checked by the manual `sources` workflow)
+        if: github.event.action != 'edited'
         run: python3 tools/validation_check.py
       - name: Validation checker self-test (each known tampering must fail for its intended reason)
+        if: github.event.action != 'edited'
         run: python3 tools/validation_check.py --selftest
       - name: Python test dependency (S3-compatible store tests need conditional put, boto3 >= 1.35)
+        if: github.event.action != 'edited'
         run: python3 -m pip install --quiet --user --break-system-packages boto3==1.43.100
       # Python discovery needs a runner even when the Cargo cache is empty.
       - name: Ontology case runner for Python regressions
+        if: github.event.action != 'edited'
         working-directory: docs/blueprint/proposals/온톨로지/검증/runner
         run: cargo build --locked --target-dir "$RUNNER_TEMP/onto"
       - name: Python unit tests (content hash, archive writes, reproduction, store providers; archived originals are not in CI)
+        if: github.event.action != 'edited'
         env:
           ONJEON_ONTOLOGY_RUNNER: ${{ runner.temp }}/onto/debug/ontology-case-runner
         run: python3 -m unittest discover -s tools/tests -v
       - name: Toolchain
+        if: github.event.action != 'edited'
         run: rustup component add rustfmt clippy
       - name: Format
+        if: github.event.action != 'edited'
         run: cargo fmt --all -- --check
       - name: Lint
+        if: github.event.action != 'edited'
         run: cargo clippy --locked --all-targets -- -D warnings
       - name: Test (golden, mutation, soundness, loader, real clauses, screen numbers)
+        if: github.event.action != 'edited'
         run: cargo test --all --locked
       - name: Blueprint counts (engine tests/doctests, real-clause rules, tamper tests, vocabulary axes)
+        if: github.event.action != 'edited'
         run: python3 -I tools/blueprint_counts.py
 
   design-specs:
     # 토의 자료(docs/blueprint/proposals)의 기계 검사. 설계 문서의 의미 검토를 대신하지 않는다
+    if: github.event.action != 'edited'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0

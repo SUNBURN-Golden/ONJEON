@@ -20,6 +20,8 @@ class CiWorkflowSecurity(unittest.TestCase):
         self.workflow = CI.read_text(encoding="utf-8")
         gates = re.findall(
             r"^      - name: Workflow token permissions and immutable action refs\n"
+            # The step is gated off for PR edits; the gate command itself is unchanged.
+            r"(?:        if: github\.event\.action != 'edited'\n)?"
             r"        run: \|\n((?:          [^\n]*\n)+)",
             self.workflow, re.MULTILINE,
         )

@@ -106,6 +106,60 @@ class DecisionRecords(unittest.TestCase):
         self.assertIn("ADR 작성만으로 승인되지 않는다", note)
         self.assertIn("DEC 존재·색인·자동 루프 완료만으로 게이트를 해제하지 않는다", note)
 
+    def test_audit_authority_note_classifies_pre_delegation_records(self):
+        note = (ROOT / "docs/decisions/audit4-dec-record-authority.md").read_text(encoding="utf-8")
+        source_times = {
+            "DEC-D-02": "2026-10-14 06:31 KST",
+            "DEC-O12": "2026-10-15 07:35 KST",
+            "DEC-O04": "2026-10-15 08:06 KST",
+            "DEC-D-08": "2026-10-15 08:22 KST",
+            "DEC-D-07": "2026-10-15 10:34 KST",
+            "DEC-D-16": "2026-10-15 10:34 KST",
+        }
+        row = next(line for line in note.splitlines()
+                   if line.startswith("| 잠정 autoloop 기록(위임 전) |"))
+        for record, stamp in source_times.items():
+            with self.subTest(record=record):
+                source = (ROOT / f"docs/decisions/{record}.md").read_text(encoding="utf-8")
+                self.assertIn(stamp, source, "the source record's own timestamp")
+                self.assertIn(f"[{record}]({record}.md)", row)
+                self.assertIn(stamp, row)
+        for phrase in ("위임(2026-10-15 14:44 KST)보다 앞서므로", "소급 승인하지 않는다",
+                       "잠정 개발 기준", "게이트 정의·완료 기준·승인 상태를 바꾸지 못한다",
+                       '원장·색인의 "위임 결정" 표기는 기존 기록의 표기를 이어받은 것'):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, note)
+
+    def test_audit_authority_note_treats_o04_as_condition_satisfaction(self):
+        note = (ROOT / "docs/decisions/audit4-dec-record-authority.md").read_text(encoding="utf-8")
+        section = note.split("**O04:**", 1)[1].split("**Delegation basis:**", 1)[0]
+        for phrase in ("게이트 정의 변경이 아니라", "기존 O04 관문의 조건 충족",
+                       "I7·I8·K13·묶음 시험", "기록 자체가 관문을 해제하지도 않는다",
+                       "recording this lifts the O04 release gate",
+                       "괄호 조건", "ADR → §7", "소유자 확정으로 승격하지 않으며"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, section)
+        source = (ROOT / "docs/decisions/DEC-O04.md").read_text(encoding="utf-8")
+        # The note reconciles the source's "recording this lifts" sentence with its
+        # parenthetical test condition instead of treating the record as self-executing.
+        for phrase in ("These rules add no new principle",
+                       "I7, I8, K13 and bundle tests pass", "lifts the O04 release gate"):
+            with self.subTest(source_phrase=phrase):
+                self.assertIn(phrase, source)
+        self.assertIn("조건 충족", section)
+
+    def test_audit_authority_note_applies_delegation_only_after_its_recorded_time(self):
+        note = (ROOT / "docs/decisions/audit4-dec-record-authority.md").read_text(encoding="utf-8")
+        basis = note.split("**Delegation basis:**", 1)[1].split("**Why:**", 1)[0]
+        self.assertIn("2026-10-15 14:44 KST", basis)
+        self.assertIn("이전 기록을 소급 승인하지 않는다", basis)
+        self.assertIn("Authority classification", note)
+        self.assertIn("[DEC-D-04](DEC-D-04.md)(2026-10-13)", note)
+        self.assertIn("[DEC-D-12](DEC-D-12.md)(2026-10-14 07:23 KST)", note)
+        earlier_owner = note.split("| 이전 사용자 결정 |", 1)[1].split("|", 1)[0]
+        self.assertIn("DEC-D-08", earlier_owner)
+        self.assertIn("2026-10-12", earlier_owner)
+
     def setUp(self):
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
         self.blueprint = blueprint

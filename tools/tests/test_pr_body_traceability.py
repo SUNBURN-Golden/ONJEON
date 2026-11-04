@@ -113,6 +113,31 @@ class CommandLine(unittest.TestCase):
         self.assertEqual(0, self.run_check(env={"PR_BODY": "P07"}).returncode)
         self.assertEqual(2, self.run_check().returncode)
 
+    def test_decision_node_body_requires_the_missing_trace_handle(self):
+        # Runs 41795807949 and 41804857097 supplied the same body without a node.
+        # Exercise PR_BODY as CI does and the supervisor's --body-file preflight.
+        evidence = ROOT / "tools/evidence/audit4-decision-id-collision/fix-round2"
+        before = (evidence / "pr-body-before.txt").read_text(encoding="utf-8")
+        after = (evidence / "pr-body.txt").read_text(encoding="utf-8")
+        trace = "Node `audit4-decision-id-collision`\n\n"
+        self.assertEqual(trace + before, after)
+        failed = self.run_check(env={"PR_BODY": before})
+        self.assertEqual(1, failed.returncode)
+        self.assertIn("PR-TRACE-MISSING", failed.stdout)
+        for round_name in ("fix-round2", "fix-round3"):
+            body_file = evidence.parent / round_name / "pr-body.txt"
+            body = body_file.read_text(encoding="utf-8")
+            with self.subTest(round=round_name):
+                self.assertTrue(body.startswith(trace))
+                for passed in (self.run_check(env={"PR_BODY": body}),
+                               self.run_check("--body-file", str(body_file))):
+                    self.assertEqual(0, passed.returncode, passed.stdout + passed.stderr)
+                # The node handle is essential: decision IDs and Refs #418 alone
+                # must not accidentally become an accepted traceability fallback.
+                removed = self.run_check(env={"PR_BODY": body[len(trace):]})
+                self.assertEqual(1, removed.returncode)
+                self.assertIn("PR-TRACE-MISSING", removed.stdout)
+
     def test_bad_tasks_file_is_a_usage_error(self):
         (self.root / "tasks.json").write_text("{not json", encoding="utf-8")
         self.assertEqual(2, self.run_check("--body", "T-AA-01").returncode)

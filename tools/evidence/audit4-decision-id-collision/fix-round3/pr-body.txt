@@ -1,0 +1,11 @@
+Node `audit4-decision-id-collision`
+
+The blueprint direction ledger uses BP-D-01 through BP-D-20. BP-D-08 means public-price collection, display and comparison; the criteria service gate keeps D-08 and DEC-D-08.md. The legacy ID mapping preserves historical references and leaves gate approvals unchanged.
+
+This decision adopts the existing namespace migration. Regression coverage checks ledger IDs, references, decision meanings and execution gate preservation. The PR-body regression checks both the CI environment input and the body-file preflight, and rejects a body with the node line removed.
+
+CI run 41804857097 received a body missing the node ID. Apply this replacement body before starting a fresh pull-request CI run. Local evidence is recorded under tools/evidence for this node in fix-round3/README.md; remote CI has not been verified here.
+
+Blueprint trace: A4 / Q4 (public-price information and its conditions).
+
+Refs #418

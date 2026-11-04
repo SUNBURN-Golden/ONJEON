@@ -1,0 +1,3 @@
+pr-traceability: 1 finding(s)
+  [PR-TRACE-MISSING] <pull request body>: no tasks.json task ID, node ID, or 09 P row (P01..P19)
+Exit code: 1 (expected 1)

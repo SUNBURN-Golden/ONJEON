@@ -1,0 +1,93 @@
+# Change scope verification (generated 2026-11-04T05:45:32Z)
+
+## merge resolution
+
+merge of origin/main (b2aed2b453eac9d26750e76246183f338a805287) into HEAD (b0108b0dc2be18aadce0f3b027e2d69df8b964e3); conflict in .github/workflows/ci.yml resolved by keeping both intents: the PR traceability steps and the registry normalization regressions step.
+
+## git status --porcelain -uall
+
+M  .github/workflows/ci.yml
+M  docs/BLUEPRINT.md
+A  docs/blueprint/audits/2026-11-03_registry_normalize_tests.md
+M  docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+ M tools/evidence/audit4-pr-template-task-field/README.md
+ M tools/evidence/audit4-pr-template-task-field/change-scope.log
+ M tools/evidence/audit4-pr-template-task-field/ci-workflow-security.log
+ M tools/evidence/audit4-pr-template-task-field/ontology-runner-tests.log
+ M tools/evidence/audit4-pr-template-task-field/pr-policy-tests.log
+ M tools/evidence/audit4-pr-template-task-field/pr-traceability-tests.log
+ M tools/evidence/audit4-pr-template-task-field/python-tests.log
+ M tools/evidence/audit4-pr-template-task-field/rust-tests.log
+A  tools/evidence/audit4-registry-normalize-tests/README.md
+A  tools/evidence/audit4-registry-normalize-tests/baseline-behavior.log
+A  tools/evidence/audit4-registry-normalize-tests/normalizer-tests.log
+A  tools/evidence/audit4-registry-normalize-tests/ontology-build.log
+A  tools/evidence/audit4-registry-normalize-tests/python-tests.log
+A  tools/evidence/audit4-registry-normalize-tests/registry-tests.log
+A  tools/evidence/audit4-registry-normalize-tests/runner-tests.log
+A  tools/evidence/audit4-registry-normalize-tests/rust-tests.log
+A  tools/evidence/audit4-registry-normalize-tests/scope-check.log
+A  tools/evidence/audit4-registry-normalize-tests/static-checks.log
+M  tools/registry_normalize.py
+M  tools/tests/test_registry_normalize.py
+
+## git diff --stat 799b17f (node base..working tree)
+
+ .github/workflows/ci.yml                           |   10 +
+ docs/BLUEPRINT.md                                  |    4 +-
+ .../audits/2026-11-03_registry_normalize_tests.md  |   14 +
+ .../proposals/설계검토_결과/03_작업명세.md         |    2 +-
+ .../proposals/설계검토_결과/09_제품목적_대응표.md  |    2 +
+ docs/blueprint/proposals/설계검토_결과/README.md   |    2 +-
+ docs/blueprint/proposals/설계검토_결과/tasks.json  |    2 +-
+ tools/ci/README.md                                 |    8 +-
+ tools/ci/check_pr_body_traceability.py             |  120 ++
+ .../audit4-pr-template-task-field/README.md        |   83 ++
+ .../actual-pr-body.log                             |    2 +
+ .../actual-pr-body.md                              |   15 +
+ .../audit4-pr-template-task-field/change-scope.log |   35 +
+ .../ci-workflow-security.log                       |   32 +
+ .../missing-handle.log                             |    3 +
+ .../ontology-runner-tests.log                      |   12 +
+ .../pr-policy-tests.log                            |   29 +
+ .../pr-traceability-selftest.log                   |    2 +
+ .../pr-traceability-tests.log                      |   21 +
+ .../product-purpose.log                            |    2 +
+ .../audit4-pr-template-task-field/python-tests.log | 1484 ++++++++++++++++++++
+ .../audit4-pr-template-task-field/rust-tests.log   |  916 ++++++++++++
+ .../audit4-pr-template-task-field/spec-check.log   |  122 ++
+ .../audit4-registry-normalize-tests/README.md      |   61 +
+ .../baseline-behavior.log                          |   69 +
+ .../normalizer-tests.log                           |   29 +
+ .../ontology-build.log                             |   23 +
+ .../python-tests.log                               | 1438 +++++++++++++++++++
+ .../registry-tests.log                             |   51 +
+ .../runner-tests.log                               |   11 +
+ .../audit4-registry-normalize-tests/rust-tests.log |  913 ++++++++++++
+ .../scope-check.log                                |   21 +
+ .../static-checks.log                              |  195 +++
+ tools/registry_normalize.py                        |   40 +-
+ tools/tests/test_pr_body_traceability.py           |  163 +++
+ tools/tests/test_registry_normalize.py             |  105 +-
+ 36 files changed, 6023 insertions(+), 18 deletions(-)
+
+## every changed path within the node's allowed paths
+PASS: all 36 changed paths are allowed
+
+## PR template unchanged from 799b17f
+484db70ef61dd57ebf8d72ddf85aef2447c27f5f  .github/pull_request_template.md
+484db70ef61dd57ebf8d72ddf85aef2447c27f5f  799b17f:.github/pull_request_template.md
+PASS: .github/pull_request_template.md matches 799b17f
+
+## forbidden files untouched
+PASS: no forbidden path changed
+
+## git diff --check (this node's source and evidence changes)
+PASS
+
+Note: a whole-tree `git diff --check` also reports trailing whitespace in
+tools/evidence/audit4-registry-normalize-tests/* inherited from origin/main;
+those captured logs predate this node and were not edited here.
+
+## new files py_compile
+PASS

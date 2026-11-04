@@ -23,7 +23,7 @@ test_only_the_final_audit_depends_on_daemon_tasks (test_pr_policy.SerialDaemonPr
 test_s0_tasks_have_no_prerequisites_and_empty_start_gates (test_pr_policy.SerialDaemonPrerequisite.test_s0_tasks_have_no_prerequisites_and_empty_start_gates) ... ok
 
 ----------------------------------------------------------------------
-Ran 23 tests in 0.045s
+Ran 23 tests in 0.048s
 
 OK
 exit=0

@@ -15,7 +15,7 @@ test_body_file_and_exit_codes (test_pr_body_traceability.CommandLine.test_body_f
 test_env_body_and_missing_body_usage_error (test_pr_body_traceability.CommandLine.test_env_body_and_missing_body_usage_error) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 0.173s
+Ran 15 tests in 0.202s
 
 OK
 exit=0

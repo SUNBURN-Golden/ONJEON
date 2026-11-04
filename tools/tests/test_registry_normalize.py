@@ -1,12 +1,15 @@
 """Registry normalization on disposable CSVs; repository registries stay read-only."""
 import csv
 import io
+import os
+import re
 import runpy
 import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import registry_normalize as rn
@@ -172,10 +175,92 @@ class RegistryCsv(unittest.TestCase):
                 self.assertEqual(self.path.read_bytes(), before)
 
     def test_empty_registry_is_unchanged(self):
-        self.write([], ["status", "home_access"])
-        before = self.path.read_bytes()
-        self.assertEqual(rn.normalize(self.path), 0)
-        self.assertEqual(self.path.read_bytes(), before)
+        for contents in (b"", b"status,home_access\r\n"):
+            with self.subTest(contents=contents):
+                self.path.write_bytes(contents)
+                self.assertEqual(rn.normalize(self.path), 0)
+                self.assertEqual(self.path.read_bytes(), contents)
+
+    def test_missing_disclosure_access_does_not_claim_reachable_or_archived(self):
+        for home, expected in ((None, "unqueried"), ("200", "failed"), ("403", "blocked")):
+            with self.subTest(home=home):
+                row = dict(entity_evidence="seed", disclosure_url="https://example.invalid/terms")
+                if home is not None:
+                    row["home_access"] = home
+                self.write([row])
+                self.assertEqual(rn.normalize(self.path), 1)
+                normalized = self.read()[0]
+                self.assertEqual(normalized["disclosure_status"], expected)
+                self.assertTrue(normalized["disclosure_gap_reason"])
+                self.assertIn("disclosure_entry_missing", normalized["product_list_reason_codes"])
+                first = self.path.read_bytes()
+                rn.normalize(self.path)
+                self.assertEqual(self.path.read_bytes(), first)
+
+    def test_empty_access_log_is_unchanged(self):
+        for contents in (b"", b"url,result\r\n", b"url,result,host_access\n"):
+            with self.subTest(contents=contents):
+                self.path.write_bytes(contents)
+                self.assertEqual(rn.normalize_access_log(self.path), 0)
+                self.assertEqual(self.path.read_bytes(), contents)
+                self.assertEqual(list(self.path.parent.iterdir()), [self.path])
+
+    def normalization_cases(self):
+        return ((rn.normalize, dict(entity_evidence="seed", home_access="200"), "home_access", "reachable"),
+                (rn.normalize_access_log, dict(result="429"), "host_access", "rate_limited"))
+
+    def test_atomic_replacement_keeps_original_until_complete_and_preserves_mode(self):
+        replace = os.replace
+        for normalize, row, column, expected in self.normalization_cases():
+            with self.subTest(normalizer=normalize.__name__):
+                self.write([row])
+                self.path.chmod(0o640)
+                before = self.path.read_bytes()
+
+                def inspect_then_replace(source, destination):
+                    source, destination = Path(source), Path(destination)
+                    self.assertEqual(destination, self.path)
+                    self.assertEqual(source.parent, self.path.parent)
+                    self.assertNotEqual(source, self.path)
+                    self.assertEqual(self.path.read_bytes(), before)
+                    with source.open(encoding="utf-8", newline="") as f:
+                        self.assertEqual(list(csv.DictReader(f))[0][column], expected)
+                    replace(source, destination)
+
+                with patch.object(rn.os, "replace", side_effect=inspect_then_replace) as swapped:
+                    self.assertEqual(normalize(self.path), 1)
+                swapped.assert_called_once()
+                self.assertEqual(self.read()[0][column], expected)
+                self.assertEqual(self.path.stat().st_mode & 0o777, 0o640)
+                self.assertEqual(list(self.path.parent.iterdir()), [self.path])
+
+    def test_partial_write_failure_preserves_original_and_cleans_temporary_file(self):
+        for normalize, row, _, _ in self.normalization_cases():
+            with self.subTest(normalizer=normalize.__name__):
+                self.write([row, row])
+                before = self.path.read_bytes()
+
+                def partial_write(writer, rows):
+                    writer.writerow(rows[0])
+                    raise OSError("simulated disk full")
+
+                with patch.object(csv.DictWriter, "writerows", partial_write):
+                    with self.assertRaisesRegex(OSError, "simulated disk full"):
+                        normalize(self.path)
+                self.assertEqual(self.path.read_bytes(), before)
+                self.assertEqual(list(self.path.parent.iterdir()), [self.path])
+
+    def test_sync_or_replace_failure_preserves_original_and_cleans_temporary_file(self):
+        for normalize, row, _, _ in self.normalization_cases():
+            for operation in ("fsync", "replace"):
+                with self.subTest(normalizer=normalize.__name__, operation=operation):
+                    self.write([row])
+                    before = self.path.read_bytes()
+                    with patch.object(rn.os, operation, side_effect=OSError("simulated I/O error")):
+                        with self.assertRaisesRegex(OSError, "simulated I/O error"):
+                            normalize(self.path)
+                    self.assertEqual(self.path.read_bytes(), before)
+                    self.assertEqual(list(self.path.parent.iterdir()), [self.path])
 
     def test_access_log_retains_raw_result_and_is_idempotent(self):
         self.write([dict(url="https://example.invalid/a", result="200 -> 429 (target)"),
@@ -246,6 +331,18 @@ class RegistryCsv(unittest.TestCase):
         with redirect_stdout(io.StringIO()):
             runpy.run_path(str(script), run_name="__main__")
         self.assertEqual({p.name: p.read_bytes() for p in registry.glob("*.csv")}, before)
+
+
+class WorkflowWiring(unittest.TestCase):
+    def test_ci_runs_registry_regressions_before_dependency_install_or_build(self):
+        workflow = (rn.ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        step = re.search(
+            r"^      - name: Registry normalization regressions\n"
+            r"        run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v$",
+            workflow, re.MULTILINE)
+        self.assertIsNotNone(step, "CI must explicitly run registry normalization regressions")
+        self.assertLess(step.start(), workflow.index("python3 -m pip install"))
+        self.assertLess(step.start(), workflow.index("run: cargo build"))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,16 @@
-# Audit 4: PR 과제·P행 추적 강제 (수정 3차)
+# Audit 4: PR 과제·P행 추적 강제 (수정 4차)
 
 노드: `audit4-pr-template-task-field` | 작성·검증: Codex 구현 담당, 로컬 도구 → bash → Python/Rust.
-기준 SHA: `edaddab` + 이 디렉터리의 미커밋 산출물. 검증일: 2026-11-04.
+기준 SHA: `b0108b0` + `origin/main` `b2aed2b` 병합 + 이 디렉터리의 미커밋 산출물. 검증일: 2026-11-04.
+
+## 수정 4차: main 병합
+
+`origin/main`(`b2aed2b`)을 병합하며 `.github/workflows/ci.yml` 한 곳이 충돌했다. 양쪽 의도를
+모두 남겼다: 이 노드의 PR 본문 추적 검사(selftest + `pull_request` 본문 검사)와 main의
+`Registry normalization regressions` 단계다. 충돌 표시는 남기지 않았고, 병합 뒤
+`python3 tools/workflow_check.py`, `test_workflow_pins.py`,
+`test_ci_workflow_security.py`, `test_registry_normalize.py`가 모두 통과한다.
+PR 본문 추적 검사 자체의 동작·규칙은 3차와 같다.
 
 ## 해결 상태와 경로 제한
 
@@ -50,7 +59,7 @@
 | `python3 -I -m unittest discover -s tools/tests -p test_pr_policy.py -v` | PASS 23개: 한정 채택·공통 PR 기준 미채택 유지 ([로그](pr-policy-tests.log)) |
 | `python3 -I tools/ci/check_product_purpose.py` | PASS: 09 행·과제·필수 시험 ID 정합성 ([로그](product-purpose.log)) |
 | `python3 tools/workflow_check.py`, `test_workflow_pins.py`, `test_ci_workflow_security.py` | PASS: 토큰 권한·action SHA 고정·CI 보안 변이 ([로그](ci-workflow-security.log)) |
-| `python3 -m unittest discover -s tools/tests -v` | PASS: 1,383개 실행·6개 건너뜀, 실패/오류 0 ([로그](python-tests.log)) |
+| `python3 -m unittest discover -s tools/tests -v` | PASS: 1,389개 실행·6개 건너뜀, 실패/오류 0 (main 병합분 포함, [로그](python-tests.log)) |
 | `cargo test --all --locked --offline` | PASS: Rust 495개·무시 1개, 실패 0 ([로그](rust-tests.log)) |
 | `cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline` | PASS: 4개 ([로그](ontology-runner-tests.log)) |
 | `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | PASS: 기계 45/45·존재 72/72 ([로그](spec-check.log)) |

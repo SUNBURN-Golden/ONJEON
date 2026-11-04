@@ -12,10 +12,15 @@
   while `product_list_status = unqueried`
 
 Idempotent: running it twice gives the same files.
+Empty files (including header-only CSVs) are left unchanged. Each nonempty CSV
+is replaced atomically after writing and syncing a temporary file beside it.
 """
 import csv
 import json
+import os
 import re
+import stat
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -96,6 +101,28 @@ def product_list_codes(row):
     return ";".join(codes)
 
 
+def atomic_write_csv(path, rows):
+    """Publish a complete CSV, preserving permissions and cleaning up on failure."""
+    mode = stat.S_IMODE(path.stat().st_mode)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", newline="", dir=path.parent,
+            prefix=f".{path.name}.", suffix=".tmp", delete=False,
+        ) as f:
+            temporary = Path(f.name)
+            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w.writeheader()
+            w.writerows(rows)
+            os.chmod(temporary, mode)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def normalize(path, has_disclosure=True):
     with path.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
@@ -124,24 +151,19 @@ def normalize(path, has_disclosure=True):
             r.setdefault("product_list_reason", "상품·특약 목록 열거 전(M3 어댑터 단계). 표본 검증과 무관하게 전 대상을 추적")
             r["product_list_reason_codes"] = product_list_codes(r)
         out.append(r)
-    order = list(out[0].keys())
-    with path.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=order)
-        w.writeheader()
-        w.writerows(out)
+    atomic_write_csv(path, out)
     return len(out)
 
 
 def normalize_access_log(path):
     with path.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
+    if not rows:
+        return 0
     for r in rows:
         if "host_access" not in r:
             r["host_access"] = host_code(r.get("result", ""))
-    with path.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
-        w.writeheader()
-        w.writerows(rows)
+    atomic_write_csv(path, rows)
     return len(rows)
 
 

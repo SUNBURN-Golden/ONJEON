@@ -1076,14 +1076,20 @@ test_unknown_results_abort_instead_of_claiming_success (test_registry_normalize.
 test_access_log_preserves_existing_code_and_handles_absent_result (test_registry_normalize.RegistryCsv.test_access_log_preserves_existing_code_and_handles_absent_result) ... ok
 test_access_log_retains_raw_result_and_is_idempotent (test_registry_normalize.RegistryCsv.test_access_log_retains_raw_result_and_is_idempotent) ... ok
 test_all_evidence_aliases_and_canonical_values (test_registry_normalize.RegistryCsv.test_all_evidence_aliases_and_canonical_values) ... ok
+test_atomic_replacement_keeps_original_until_complete_and_preserves_mode (test_registry_normalize.RegistryCsv.test_atomic_replacement_keeps_original_until_complete_and_preserves_mode) ... ok
+test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) ... ok
 test_empty_registry_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_registry_is_unchanged) ... ok
 test_existing_details_product_progress_and_unrelated_fields_survive (test_registry_normalize.RegistryCsv.test_existing_details_product_progress_and_unrelated_fields_survive) ... ok
 test_invalid_access_log_leaves_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_access_log_leaves_input_untouched) ... ok
 test_invalid_evidence_or_access_leaves_whole_input_untouched (test_registry_normalize.RegistryCsv.test_invalid_evidence_or_access_leaves_whole_input_untouched) ... ok
 test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved (test_registry_normalize.RegistryCsv.test_legacy_archived_claim_is_repaired_and_access_evidence_is_preserved) ... ok
+test_missing_disclosure_access_does_not_claim_reachable_or_archived (test_registry_normalize.RegistryCsv.test_missing_disclosure_access_does_not_claim_reachable_or_archived) ... ok
 test_normalizes_evidence_access_details_and_lower_denominator_idempotently (test_registry_normalize.RegistryCsv.test_normalizes_evidence_access_details_and_lower_denominator_idempotently) ... ok
+test_partial_write_failure_preserves_original_and_cleans_temporary_file (test_registry_normalize.RegistryCsv.test_partial_write_failure_preserves_original_and_cleans_temporary_file) ... ok
 test_script_normalizes_all_four_registries_in_isolated_tree (test_registry_normalize.RegistryCsv.test_script_normalizes_all_four_registries_in_isolated_tree) ... ok
+test_sync_or_replace_failure_preserves_original_and_cleans_temporary_file (test_registry_normalize.RegistryCsv.test_sync_or_replace_failure_preserves_original_and_cleans_temporary_file) ... ok
 test_without_disclosure_does_not_add_disclosure_or_product_fields (test_registry_normalize.RegistryCsv.test_without_disclosure_does_not_add_disclosure_or_product_fields) ... ok
+test_ci_runs_registry_regressions_before_dependency_install_or_build (test_registry_normalize.WorkflowWiring.test_ci_runs_registry_regressions_before_dependency_install_or_build) ... ok
 test_adr_0018_is_settled_for_these_rows (test_registry_scope.ScopeNotes.test_adr_0018_is_settled_for_these_rows) ... ok
 test_epost_is_included_and_not_described_as_mutual_aid (test_registry_scope.ScopeNotes.test_epost_is_included_and_not_described_as_mutual_aid) ... ok
 test_ksure_records_the_implementer_reading_as_excluded (test_registry_scope.ScopeNotes.test_ksure_records_the_implementer_reading_as_excluded) ... ok
@@ -1472,7 +1478,7 @@ test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.Wo
 test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 1383 tests in 184.537s
+Ran 1389 tests in 191.446s
 
 OK (skipped=6)
 exit=0

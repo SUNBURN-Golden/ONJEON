@@ -32,6 +32,8 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: python3 -I tools/ci/check_pr_body_traceability.py
+      - name: Registry normalization regressions
+        run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v
       - name: Vocabulary (canonical states, generated doc, deprecated names, registry CSVs)
         run: python3 tools/vocab_check.py
       - name: Validation set internal consistency (extracts and metadata; originals are checked by the manual `sources` workflow)

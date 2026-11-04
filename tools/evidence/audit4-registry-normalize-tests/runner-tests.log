@@ -1,0 +1,11 @@
+   Compiling ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit4-registry-normalize-tests/docs/blueprint/proposals/온톨로지/검증/runner)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+     Running unittests src/main.rs (target/onto/debug/deps/ontology_case_runner-b848efe05799e456)
+
+running 3 tests
+test tests::invalid_utf8_stdin_reports_error_without_output ... ok
+test tests::unreadable_stdin_reports_error_without_output ... ok
+test tests::broken_stdout_reports_error ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

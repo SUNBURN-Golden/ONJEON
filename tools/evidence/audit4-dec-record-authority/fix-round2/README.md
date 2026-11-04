@@ -1,5 +1,8 @@
 # Audit 4 DEC authority: round 2 local verification
 
+Historical record. The latest supplied failure and current supervisor actions
+are recorded in [round 3](../fix-round3/README.md).
+
 Node `audit4-dec-record-authority`. Verified on 2026-11-04 at base
 `de12fdea3a0fa8b2d846946799a0b9de0873c767` plus the uncommitted round 2 changes.
 Commands ran from the repository root with `RUSTUP_TOOLCHAIN=1.98.1` for Rust

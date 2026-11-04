@@ -6,6 +6,7 @@ Registration is not completion evidence.
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -76,7 +77,7 @@ class BodyCheck(unittest.TestCase):
     def test_decision_node_empty_builder_summary_requires_a_trace_handle(self):
         evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
         body = (evidence / "failed-pr-body.md").read_text(encoding="utf-8")
-        # CI runs 41783150105 and 41795070906: spec and issue references do not
+        # CI runs 41783150105, 41795070906 and 41802792915: spec and issue references do not
         # identify the node. Fix the body, without exempting decision PRs.
         self.assertEqual(["PR-TRACE-MISSING"], self.rules(body))
         self.assertEqual([], self.rules("Node `audit4-dec-record-authority`\n\n" + body))
@@ -145,6 +146,19 @@ class CiWiring(unittest.TestCase):
         self.assertIn("python3 -I tools/ci/check_pr_body_traceability.py", self.workflow)
         self.assertIn("PR_BODY: ${{ github.event.pull_request.body }}", self.workflow)
         self.assertIn("if: github.event_name == 'pull_request'", self.workflow)
+
+    def test_pr_edits_trigger_fresh_checks_without_losing_default_events(self):
+        # Match the repository's block-style event configuration, without a YAML
+        # dependency. A corrected body must trigger CI even when the head is unchanged.
+        trigger = re.search(r"(?m)^on:\n((?:[ \t]+[^\n]*\n|\n)+)", self.workflow)
+        self.assertIsNotNone(trigger)
+        events = re.search(
+            r"(?m)^  pull_request:\n(?:    #[^\n]*\n)*    types: \[([^\]]+)\]$",
+            trigger[1],
+        )
+        self.assertIsNotNone(events, "PR body edits need an explicit activity list")
+        self.assertEqual({event.strip() for event in events[1].split(",")},
+                         {"opened", "synchronize", "reopened", "edited"})
 
     def test_selftest_runs_on_every_ci_event(self):
         self.assertIn("check_pr_body_traceability.py --selftest", self.workflow)

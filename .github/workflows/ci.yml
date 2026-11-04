@@ -4,6 +4,8 @@ on:
   push:
     branches: [main, "claude/**"]
   pull_request:
+    # Recheck traceability with a fresh event body after a PR description is fixed.
+    types: [opened, synchronize, reopened, edited]
 
 # PR-head code runs here, so the token is read-only and is not left in .git/config.
 permissions:

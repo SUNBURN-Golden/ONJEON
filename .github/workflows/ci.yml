@@ -24,6 +24,8 @@ jobs:
         run: |
           python3 tools/workflow_check.py
           python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
+      - name: Registry normalization regressions
+        run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v
       - name: Vocabulary (canonical states, generated doc, deprecated names, registry CSVs)
         run: python3 tools/vocab_check.py
       - name: Validation set internal consistency (extracts and metadata; originals are checked by the manual `sources` workflow)

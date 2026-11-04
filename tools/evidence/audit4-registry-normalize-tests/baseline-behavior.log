@@ -1,0 +1,69 @@
+Read-only baseline: git show HEAD:tools/registry_normalize.py
+Compile with the live __file__ for canonical vocabulary lookup; run only disposable CSV tests.
+test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) ... 
+  test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) (contents=b'') ... ERROR
+  test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) (contents=b'url,result\r\n') ... ERROR
+  test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) (contents=b'url,result,host_access\n') ... ERROR
+test_partial_write_failure_preserves_original_and_cleans_temporary_file (test_registry_normalize.RegistryCsv.test_partial_write_failure_preserves_original_and_cleans_temporary_file) ... 
+  test_partial_write_failure_preserves_original_and_cleans_temporary_file (test_registry_normalize.RegistryCsv.test_partial_write_failure_preserves_original_and_cleans_temporary_file) (normalizer='normalize') ... FAIL
+  test_partial_write_failure_preserves_original_and_cleans_temporary_file (test_registry_normalize.RegistryCsv.test_partial_write_failure_preserves_original_and_cleans_temporary_file) (normalizer='normalize_access_log') ... FAIL
+test_missing_disclosure_access_does_not_claim_reachable_or_archived (test_registry_normalize.RegistryCsv.test_missing_disclosure_access_does_not_claim_reachable_or_archived) ... ok
+
+======================================================================
+ERROR: test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) (contents=b'')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/tests/test_registry_normalize.py", line 204, in test_empty_access_log_is_unchanged
+    self.assertEqual(rn.normalize_access_log(self.path), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/registry_normalize.py", line 142, in normalize_access_log
+    code = host_code(raw)
+    
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) (contents=b'url,result\r\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/tests/test_registry_normalize.py", line 204, in test_empty_access_log_is_unchanged
+    self.assertEqual(rn.normalize_access_log(self.path), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/registry_normalize.py", line 142, in normalize_access_log
+    code = host_code(raw)
+    
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_empty_access_log_is_unchanged (test_registry_normalize.RegistryCsv.test_empty_access_log_is_unchanged) (contents=b'url,result,host_access\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/tests/test_registry_normalize.py", line 204, in test_empty_access_log_is_unchanged
+    self.assertEqual(rn.normalize_access_log(self.path), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/registry_normalize.py", line 142, in normalize_access_log
+    code = host_code(raw)
+    
+IndexError: list index out of range
+
+======================================================================
+FAIL: test_partial_write_failure_preserves_original_and_cleans_temporary_file (test_registry_normalize.RegistryCsv.test_partial_write_failure_preserves_original_and_cleans_temporary_file) (normalizer='normalize')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/tests/test_registry_normalize.py", line 250, in test_partial_write_failure_preserves_original_and_cleans_temporary_file
+    self.assertEqual(self.path.read_bytes(), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'ent[19 chars]ccess,home_access_detail,disclosure_status,dis[890 chars]\r\n' != b'ent[19 chars]ccess\r\nseed,200\r\nseed,200\r\n'
+
+======================================================================
+FAIL: test_partial_write_failure_preserves_original_and_cleans_temporary_file (test_registry_normalize.RegistryCsv.test_partial_write_failure_preserves_original_and_cleans_temporary_file) (normalizer='normalize_access_log')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-normalize-tests/tools/tests/test_registry_normalize.py", line 250, in test_partial_write_failure_preserves_original_and_cleans_temporary_file
+    self.assertEqual(self.path.read_bytes(), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'result,host_access\r\n429,rate_limited\r\n' != b'result\r\n429\r\n429\r\n'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+FAILED (failures=2, errors=3)

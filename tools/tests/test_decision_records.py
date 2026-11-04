@@ -91,6 +91,21 @@ class BlueprintDecisionIds(unittest.TestCase):
 
 
 class DecisionRecords(unittest.TestCase):
+    def test_audit_authority_note_cites_delegation_without_expanding_it(self):
+        note = (ROOT / "docs/decisions/audit4-dec-record-authority.md").read_text(encoding="utf-8")
+        self.assertIn("[DEC-O17](DEC-O17.md)", note)
+        source = (ROOT / "docs/decisions/DEC-O17.md").read_text(encoding="utf-8")
+        for original, summary in (("cost", "비용"), ("hardware", "하드웨어"),
+                                  ("mainnet", "메인넷"), ("secret keys", "비밀 키"),
+                                  ("production deployment", "운영 배포"), ("payment", "결제")):
+            with self.subTest(exclusion=original):
+                self.assertIn(original, source.split("The delegation excludes", 1)[1].split(".", 1)[0])
+                self.assertIn(summary, note.split("**Delegation basis:**", 1)[1].split("**Why:**", 1)[0])
+        self.assertIn("위임에서 제외", note)
+        self.assertIn("ADR → BLUEPRINT §7", note)
+        self.assertIn("ADR 작성만으로 승인되지 않는다", note)
+        self.assertIn("DEC 존재·색인·자동 루프 완료만으로 게이트를 해제하지 않는다", note)
+
     def setUp(self):
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
         self.blueprint = blueprint

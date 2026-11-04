@@ -73,6 +73,15 @@ class BodyCheck(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertIn("PR-TRACE-MISSING", self.rules(body))
 
+    def test_decision_node_empty_builder_summary_requires_a_trace_handle(self):
+        evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
+        body = (evidence / "failed-pr-body.md").read_text(encoding="utf-8")
+        # CI runs 41783150105 and 41795070906: spec and issue references do not
+        # identify the node. Fix the body, without exempting decision PRs.
+        self.assertEqual(["PR-TRACE-MISSING"], self.rules(body))
+        self.assertEqual([], self.rules("Node `audit4-dec-record-authority`\n\n" + body))
+        self.assertEqual([], self.rules((evidence / "pr-body.md").read_text(encoding="utf-8")))
+
     def test_rejects_a_task_id_that_is_not_in_tasks_json(self):
         self.assertEqual(["PR-TRACE-TASK"], self.rules("T-ZZ-99"))
         # A valid P row does not excuse a named task ID that does not exist.
@@ -112,6 +121,16 @@ class CommandLine(unittest.TestCase):
     def test_env_body_and_missing_body_usage_error(self):
         self.assertEqual(0, self.run_check(env={"PR_BODY": "P07"}).returncode)
         self.assertEqual(2, self.run_check().returncode)
+
+    def test_decision_node_bodies_through_ci_environment(self):
+        evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
+        for filename, code in (("failed-pr-body.md", 1), ("pr-body.md", 0)):
+            with self.subTest(filename=filename):
+                body = (evidence / filename).read_text(encoding="utf-8")
+                result = self.run_check(env={"PR_BODY": body})
+                self.assertEqual(code, result.returncode, result.stdout + result.stderr)
+                if code:
+                    self.assertIn("PR-TRACE-MISSING", result.stdout)
 
     def test_bad_tasks_file_is_a_usage_error(self):
         (self.root / "tasks.json").write_text("{not json", encoding="utf-8")

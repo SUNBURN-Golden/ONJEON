@@ -13,6 +13,7 @@ python3 -I tools/ci/check_skeleton.py --base-url http://HOST:PORT   # also probe
 python3 -I tools/ci/check_bootstrap.py         # bootstrap-clean-main (tasks.json only; builds nothing)
 python3 -I tools/ci/check_product_purpose.py   # 09 P01..P19 task links and nine product-purpose test IDs on assigned tasks
 python3 -I tools/ci/check_pr_body_traceability.py --body-file FILE   # PR body names a tasks.json task ID, node ID (labelled or bare `auditN-...`), or 09 P row
+python3 -I tools/ci/check_pr_body_traceability.py --body TEXT --head-ref BRANCH   # body or head branch may carry the handle
 python3 -I tools/ci/check_pr_body_traceability.py --selftest
 python3 -I tools/blueprint_status.py          # §11 date/index matches every ADR/DEC path and content
 python3 -I tools/blueprint_counts.py          # §11 engine test/doctest, real-clause, mutation and vocabulary counts
@@ -32,7 +33,7 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 | `check_skeleton` | Every skeleton flag defaults to false and names a gate; no config switches one on; app code does not reference a skeleton flag or route; with `--base-url`, inactive routes answer 404/501 | Without `--base-url` it says nothing about any server. No server or screen exists yet, so today this guards the file and the tree only |
 | `check_bootstrap` | The task graph is self-consistent (spec_check G1, G2, G31): tests and criteria name only crates, task IDs and paths that the repo or a prerequisite provides | That anything builds. The real sample build is T-CT-07. Test-command paths outside a task's allowed_paths (7 today in tasks.json: T-OP-00, T-CT-05, T-AP-03, T-AP-05, T-OP-05) are printed as advisory; `--strict-paths` fails on them |
 | `check_product_purpose` | All nine product-purpose test IDs from 09 §6 are in `required_test_ids` on every assigned task (§6 and P16), with `PURPOSE-OWNER` reporting the task and missing ID; every P01..P19 implementation task exists in tasks.json. Missing, duplicate or malformed rows fail closed | That registered tests execute or any product-purpose row has completion evidence |
-| `check_pr_body_traceability` | The PR body names a `tasks.json` task ID that exists, an out-of-list node ID (labelled, or a bare `auditN-...` slug as the orchestrator emits it), or an 09 P row (P01..P19). Reading the body rather than the template means a missing or edited template cannot leave a PR untraceable | That the task or P row is complete, that evidence exists, or that the PR implements what it names. It does not modify the PR template |
+| `check_pr_body_traceability` | The PR body or head branch names a `tasks.json` task ID that exists, an out-of-list node ID (labelled, or a bare `auditN-...` slug as the orchestrator emits it), or an 09 P row (P01..P19). Reading the body rather than the template means a missing or edited template cannot leave a PR untraceable; the head branch covers an auto-generated body that omits the orchestrator's node slug (`grokbot/onjeon-audit4-example-node`). A task ID from either source must exist in tasks.json | That the task or P row is complete, that evidence exists, or that the PR implements what it names. It does not modify the PR template, and a body-only invocation without `--head-ref` remains as strict as before |
 
 ## Rule file notes
 
@@ -72,9 +73,10 @@ read-only token permissions. [Audit 2 evidence](../../docs/blueprint/audits/2026
 
 `ci.yml` also runs `python3 tools/workflow_check.py` and the action-pin test file
 immediately after checkout, before installing dependencies or building Rust. On
-`pull_request` events it passes `github.event.pull_request.body` to
-`check_pr_body_traceability.py`; the selftest runs on every event. The check is
-traceability only and does not read or modify `.github/pull_request_template.md`.
+`pull_request` events it passes `github.event.pull_request.body` and
+`github.head_ref` to `check_pr_body_traceability.py`; the selftest runs on every
+event. The check is traceability only and does not read or modify
+`.github/pull_request_template.md`.
 `test_ci_workflow_security.py` executes that declared shell block in temporary
 repository copies: the current workflows pass, while missing/write permissions
 and a tag, branch or short SHA substituted for each CI action fail. These are

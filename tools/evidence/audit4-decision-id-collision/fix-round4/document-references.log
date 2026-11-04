@@ -1,0 +1,6 @@
+test_current_document_references_use_only_known_namespaced_ids (tools.tests.test_decision_records.BlueprintDecisionIds.test_current_document_references_use_only_known_namespaced_ids) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.085s
+
+OK

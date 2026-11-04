@@ -1,0 +1,20 @@
+UNCHANGED data/registry/access_log.csv SHA-256 a18a9abc815e43ff4a989972921099d06144e08759c32decefe963206dda9ce9
+UNCHANGED data/registry/cooperatives_and_others.csv SHA-256 7eea8af291d3a72876fd3f14663ecde5ed1dbbbe1b366ef780271a523bcd30b0
+UNCHANGED data/registry/excluded_or_historical.csv SHA-256 d83f5b7a45434103e619a17f134cb19eff939031e2031ae070e79ba07615fc66
+UNCHANGED data/registry/insurers.csv SHA-256 b128ed79281815129c62f989f9f7fd3fcd7b63ef083642564fd573d73b0eeb22
+UNCHANGED data/registry/sources.csv SHA-256 313330d1b973a59218d152b1d27c84cf7fbe7b505c88ccbe98fd98c959836c58
+LINKS OK data/registry/README.md
+LINKS OK docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md
+LINKS OK tools/evidence/audit4-registry-crosscheck-stale/README.md
+git diff --check: PASS
+SCOPE OK data/registry/README.md
+SCOPE OK docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/README.md
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/before.log
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/integrity-check.log
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/ontology-runner-tests.log
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/python-tests.log
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/registry-tests.log
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/rust-tests.log
+SCOPE OK tools/evidence/audit4-registry-crosscheck-stale/vocabulary.log
+SCOPE OK tools/tests/test_registry_crosscheck_note.py

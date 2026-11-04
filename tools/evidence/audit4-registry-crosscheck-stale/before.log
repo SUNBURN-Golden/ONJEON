@@ -1,0 +1,169 @@
+test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) ... 
+  test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='조회 시각·URL·응답 해시') ... FAIL
+  test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='기관별 일치·누락·명칭 차이') ... FAIL
+  test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='sources.csv') ... FAIL
+  test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='access_log.csv') ... FAIL
+test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) ... FAIL
+test_historical_outage_is_the_only_committed_authority_attempt (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_historical_outage_is_the_only_committed_authority_attempt) ... ok
+test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) ... 
+  test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='2026-11-04') ... FAIL
+  test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='후속 교차검증은 미수행') ... FAIL
+  test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='2026-10-09') ... FAIL
+  test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='현재 서비스 중단 여부는 확인하지 않았다') ... FAIL
+test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) ... FAIL
+test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) ... 
+  test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='기관 목록 대조') ... FAIL
+  test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='상품 목록 열거') ... FAIL
+  test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='53곳 모두 `unqueried`') ... FAIL
+  test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='T-DT-04') ... FAIL
+  test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='D-04') ... FAIL
+  test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='O19') ... FAIL
+
+======================================================================
+FAIL: test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='조회 시각·URL·응답 해시')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 67, in test_followup_requires_retrieval_and_comparison_evidence
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '조회 시각·URL·응답 해시' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='기관별 일치·누락·명칭 차이')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 67, in test_followup_requires_retrieval_and_comparison_evidence
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '기관별 일치·누락·명칭 차이' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='sources.csv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 67, in test_followup_requires_retrieval_and_comparison_evidence
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'sources.csv' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence) (phrase='access_log.csv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 67, in test_followup_requires_retrieval_and_comparison_evidence
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'access_log.csv' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_followup_requires_retrieval_and_comparison_evidence (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_followup_requires_retrieval_and_comparison_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 69, in test_followup_requires_retrieval_and_comparison_evidence
+    self.assertIn("공백 1의 후속 교차검증", small_insurers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '공백 1의 후속 교차검증' not found in '10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 감독당국 목록이 복구되면 대조해야 한다.'
+
+======================================================================
+FAIL: test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='2026-11-04')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 32, in test_note_distinguishes_last_attempt_from_unperformed_followup
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '2026-11-04' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='후속 교차검증은 미수행')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 32, in test_note_distinguishes_last_attempt_from_unperformed_followup
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '후속 교차검증은 미수행' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='2026-10-09')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 32, in test_note_distinguishes_last_attempt_from_unperformed_followup
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '2026-10-09' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup) (phrase='현재 서비스 중단 여부는 확인하지 않았다')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 32, in test_note_distinguishes_last_attempt_from_unperformed_followup
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '현재 서비스 중단 여부는 확인하지 않았다' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_note_distinguishes_last_attempt_from_unperformed_followup (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_distinguishes_last_attempt_from_unperformed_followup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 33, in test_note_distinguishes_last_attempt_from_unperformed_followup
+    self.assertNotIn("2026-10-11 이후", self.gaps)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '2026-10-11 이후' unexpectedly found in '\n\n1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.\n2. **DART는 허가를 증명하지 않는다.** DART는 법인 등록 정보다. 그래서 업종 목록에는 국민생명, 리젠트화재, 그린손보, 한덕생명, 한일생명, 오렌지라이프 등 현행 협회 목록에 없는 회사(폐업·합병 추정)와 펀드·보증기금이 섞여 있다. DART에만 있는 이름은 `excluded_or_historical.csv`로 보냈다.\n3. **KIDI 링크 목록은 일부 오래됐다.** DGB생명(현 iM라이프 표기와 매칭), MG손해보험, 캐롯손해보험이 들어 있다. MG손보와 캐롯은 KNIA 현행 목록에 없어 `excluded_or_historical.csv`로 보냈다. 영업 중단, 계약이전, 합병 여부는 출처로 확인하지 못했다. 예별손해보험과 MG손보의 관계도 확인하지 못했다.\n4. **판매중지 상품의 분모**(ADR-0004: 판매 중지 포함)는 과거 회사를 포함할 수 있다. MG손보와 캐롯처럼 사라졌거나 이전된 회사의 기존 계약 약관을 어느 회사 공시실에서 찾을지는 아직 정하지 않았다.\n5. **외국 재보험사와 기업보험 지점 8곳은 KNIA 한 곳에만 있다.** SCOR는 한글 정식명이 없다. 법인인지 지점인지도 대부분 추정이다. 재보험사는 개인 상품공시 대상이 아니라고 보고 공시실을 탐색하지 않았다. 이 가정도 확인이 필요하다.\n6. **영문명(`name_en`)은 대부분 비어 있다.** 출처에 영문 표기가 있는 경우(Munich Re, Hannover Re, SCOR, RGA)만 채웠다.\n7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 0, `failed` 31, `blocked` 3, `unqueried` 19. `unqueried`는 접근 확인 후 보관 전 8곳과 미조회 11곳). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경은 열린 관문 O19(결정 원장 §3)이고, T-DT-04의 실데이터 관문(`decision_gates.real_data`: D-04, O19)이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.\n8. **명칭 변경과 합병 이력(기관 별칭)은 확보하지 못했다.** KLIA 회원사변천과정은 JS로 렌더링되고, KNIA에는 해당 페이지를 찾지 못했다.\n9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제는 ADR-0018로 범위·확보율 분모에서 제외됐으므로 공제 상품공시 URL은 탐색하지 않는다. 행별 `notes`도 위 "범위(ADR-0018)" 표의 결정을 적는다(우체국보험 포함, 공제·한국무역보험공사 제외). 다만 정규화기는 범위 열 없이 이 파일의 모든 행에 `product_list_status=unqueried`와 `awaiting_T-DT-04` 사유를 붙이므로, 제외 행의 사유 코드는 분모 편입을 뜻하지 않는다.\n10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 감독당국 목록이 복구되면 대조해야 한다.\n'
+
+======================================================================
+FAIL: test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='기관 목록 대조')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 61, in test_product_enumeration_is_separate_and_still_unqueried
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '기관 목록 대조' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='상품 목록 열거')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 61, in test_product_enumeration_is_separate_and_still_unqueried
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '상품 목록 열거' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='53곳 모두 `unqueried`')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 61, in test_product_enumeration_is_separate_and_still_unqueried
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '53곳 모두 `unqueried`' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='T-DT-04')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 61, in test_product_enumeration_is_separate_and_still_unqueried
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'T-DT-04' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='D-04')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 61, in test_product_enumeration_is_separate_and_still_unqueried
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'D-04' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+======================================================================
+FAIL: test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='O19')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit4-registry-crosscheck-stale/tools/tests/test_registry_crosscheck_note.py", line 61, in test_product_enumeration_is_separate_and_still_unqueried
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'O19' not found in '1. **감독당국(FSS/FISIS/파인) 교차검증이 없다.** 서비스 중단 때문이다. 2026-10-11 이후 FISIS 보험회사 목록과 파인 금융회사 조회로 다시 검증해야 한다. 그때까지 `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다.'
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.004s
+
+FAILED (failures=16)

@@ -47,9 +47,28 @@ class BodyCheck(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual([], self.rules(body))
 
+    def test_accepts_a_bare_audit_slug_as_the_orchestrator_emits_it(self):
+        # The builder PR body names the node in prose and in an evidence path, with no
+        # backticks; CI must still recognise it (round 3 regression).
+        for body in ("Node audit4-pr-template-task-field — in scope fix",
+                     "Builder node: audit4-pr-template-task-field.",
+                     "[evidence](/workspace/onjeon-run/wt/audit4-pr-template-task-field/"
+                     "tools/evidence/audit4-pr-template-task-field/README.md)"):
+            with self.subTest(body=body):
+                self.assertEqual([], self.rules(body))
+
+    def test_accepts_the_round_2_builder_pr_body_snapshot(self):
+        # Snapshot of the body that failed CI run 41771859128: the slug appears only
+        # un-backticked in prose and in an evidence path.
+        body = (ROOT / "tools/evidence/audit4-pr-template-task-field"
+                / "actual-pr-body.md").read_text(encoding="utf-8")
+        self.assertEqual([], self.rules(body))
+
     def test_rejects_an_empty_or_unlabelled_body(self):
         for body in ("", "Fixes a typo in the README.",
                      "example-node",
+                     "audit4",
+                     "Xaudit4-example-node",
                      "P00 P20", "T-aa-01"):
             with self.subTest(body=body):
                 self.assertIn("PR-TRACE-MISSING", self.rules(body))

@@ -1,62 +1,49 @@
-# Change scope verification (generated 2026-11-04T04:09:11Z)
+# Change scope verification (generated 2026-11-04T05:32:02Z)
 
 ## git status --porcelain -uall
- M .github/workflows/ci.yml
- M docs/BLUEPRINT.md
- M "docs/blueprint/proposals/\354\204\244\352\263\204\352\262\200\355\206\240_\352\262\260\352\263\274/03_\354\236\221\354\227\205\353\252\205\354\204\270.md"
- M "docs/blueprint/proposals/\354\204\244\352\263\204\352\262\200\355\206\240_\352\262\260\352\263\274/README.md"
- M "docs/blueprint/proposals/\354\204\244\352\263\204\352\262\200\355\206\240_\352\262\260\352\263\274/tasks.json"
  M tools/ci/README.md
+ M tools/ci/check_pr_body_traceability.py
  M tools/evidence/audit4-pr-template-task-field/README.md
- D tools/evidence/audit4-pr-template-task-field/before-tests.log
  M tools/evidence/audit4-pr-template-task-field/change-scope.log
  M tools/evidence/audit4-pr-template-task-field/ontology-runner-tests.log
- M tools/evidence/audit4-pr-template-task-field/pr-policy-tests.log
- D tools/evidence/audit4-pr-template-task-field/preview-tests.log
- M tools/evidence/audit4-pr-template-task-field/product-purpose.log
- D tools/evidence/audit4-pr-template-task-field/pull_request_template.patch
- D tools/evidence/audit4-pr-template-task-field/pull_request_template.preview.md
+ M tools/evidence/audit4-pr-template-task-field/pr-traceability-selftest.log
+ M tools/evidence/audit4-pr-template-task-field/pr-traceability-tests.log
  M tools/evidence/audit4-pr-template-task-field/python-tests.log
  M tools/evidence/audit4-pr-template-task-field/rust-tests.log
- D tools/evidence/audit4-pr-template-task-field/test_pr_template_traceability.py
- D tools/evidence/audit4-pr-template-task-field/verify_preview.py
-?? tools/ci/check_pr_body_traceability.py
-?? tools/evidence/audit4-pr-template-task-field/ci-workflow-security.log
-?? tools/evidence/audit4-pr-template-task-field/missing-handle.log
-?? tools/evidence/audit4-pr-template-task-field/pr-traceability-selftest.log
-?? tools/evidence/audit4-pr-template-task-field/pr-traceability-tests.log
-?? tools/evidence/audit4-pr-template-task-field/spec-check.log
-?? tools/tests/test_pr_body_traceability.py
+ M tools/tests/test_pr_body_traceability.py
+?? tools/evidence/audit4-pr-template-task-field/actual-pr-body.log
+?? tools/evidence/audit4-pr-template-task-field/actual-pr-body.md
 
-## git diff --stat
- .github/workflows/ci.yml                           |   8 +
- docs/BLUEPRINT.md                                  |   2 +-
- ...236\221\354\227\205\353\252\205\354\204\270.md" |   2 +-
- .../README.md"                                     |   2 +-
- .../tasks.json"                                    |   2 +-
- tools/ci/README.md                                 |   8 +-
- .../audit4-pr-template-task-field/README.md        |  95 +++--
- .../audit4-pr-template-task-field/before-tests.log |  77 ----
- .../audit4-pr-template-task-field/change-scope.log |  17 -
- .../ontology-runner-tests.log                      |  10 +-
- .../pr-policy-tests.log                            |   3 +-
- .../preview-tests.log                              |  12 -
- .../product-purpose.log                            |   1 +
- .../pull_request_template.patch                    |  93 ----
- .../pull_request_template.preview.md               |  37 --
- .../audit4-pr-template-task-field/python-tests.log |  24 +-
- .../audit4-pr-template-task-field/rust-tests.log   | 471 ++++++++++-----------
- .../test_pr_template_traceability.py               |  72 ----
- .../verify_preview.py                              |  46 --
- 19 files changed, 332 insertions(+), 650 deletions(-)
+## git diff --stat 799b17f (node base..working tree)
+ .github/workflows/ci.yml                           |    8 +
+ docs/BLUEPRINT.md                                  |    2 +-
+ ...236\221\354\227\205\353\252\205\354\204\270.md" |    2 +-
+ .../README.md"                                     |    2 +-
+ .../tasks.json"                                    |    2 +-
+ tools/ci/README.md                                 |    8 +-
+ tools/ci/check_pr_body_traceability.py             |  120 ++
+ .../audit4-pr-template-task-field/README.md        |   74 +
+ .../audit4-pr-template-task-field/change-scope.log |   17 +
+ .../ci-workflow-security.log                       |   12 +
+ .../missing-handle.log                             |    3 +
+ .../ontology-runner-tests.log                      |   12 +
+ .../pr-policy-tests.log                            |   29 +
+ .../pr-traceability-selftest.log                   |    2 +
+ .../pr-traceability-tests.log                      |   21 +
+ .../product-purpose.log                            |    2 +
+ .../audit4-pr-template-task-field/python-tests.log | 1478 ++++++++++++++++++++
+ .../audit4-pr-template-task-field/rust-tests.log   |  916 ++++++++++++
+ .../audit4-pr-template-task-field/spec-check.log   |  122 ++
+ tools/tests/test_pr_body_traceability.py           |  163 +++
+ 20 files changed, 2990 insertions(+), 5 deletions(-)
 
 ## every changed path within the node's allowed paths
-PASS: all 26 changed paths are allowed
+PASS: all 22 changed paths are allowed
 
-## PR template unchanged from HEAD
-PASS: .github/pull_request_template.md matches HEAD
-3c943f93d930610ddcd40dc4014cfbe0a6aba82c083014f622328abd8f2a3a3a  .github/pull_request_template.md
-3c943f93d930610ddcd40dc4014cfbe0a6aba82c083014f622328abd8f2a3a3a  HEAD:.github/pull_request_template.md
+## PR template unchanged from 799b17f
+484db70ef61dd57ebf8d72ddf85aef2447c27f5f  .github/pull_request_template.md
+484db70ef61dd57ebf8d72ddf85aef2447c27f5f  799b17f:.github/pull_request_template.md
+PASS: .github/pull_request_template.md matches 799b17f
 
 ## forbidden files untouched
 PASS: no forbidden path changed

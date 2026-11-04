@@ -1,7 +1,7 @@
-# Audit 4: PR 과제·P행 추적 강제 (수정 2차)
+# Audit 4: PR 과제·P행 추적 강제 (수정 3차)
 
 노드: `audit4-pr-template-task-field` | 작성·검증: Codex 구현 담당, 로컬 도구 → bash → Python/Rust.
-기준 SHA: `c657028` + 이 디렉터리의 미커밋 산출물. 검증일: 2026-11-04.
+기준 SHA: `edaddab` + 이 디렉터리의 미커밋 산출물. 검증일: 2026-11-04.
 
 ## 해결 상태와 경로 제한
 
@@ -18,7 +18,9 @@
 
 - `tools/ci/check_pr_body_traceability.py`: PR 본문에 다음 중 하나가 있어야 통과한다.
   - `tasks.json`에 실제로 존재하는 과제 ID(`T-XX-NN`). 없는 ID는 `PR-TRACE-TASK`로 실패.
-  - 목록 외 노드 ID(라벨 표기 또는 인라인 코드 `auditN-...`, 예: ``Node `audit4-pr-template-task-field` ``).
+  - 목록 외 노드 ID(라벨 표기, 또는 백틱 없이 쓰인 `auditN-...` 슬러그. 예:
+    `Node audit4-pr-template-task-field`). 오케스트레이터가 본문 산문과 증거 경로에
+    백틱 없이 슬러그를 쓰므로 3차에서 맨 슬러그를 받도록 넓혔다.
   - 09 제품목적 대응표 P행(`P01`~`P19`).
   - 어느 것도 없으면 `PR-TRACE-MISSING`으로 실패한다.
 - `.github/workflows/ci.yml`: `pull_request` 이벤트에서 `github.event.pull_request.body`를
@@ -28,7 +30,8 @@
   수정 1차의 "템플릿 입력란 추가" 문구를 실제 적용 방식으로 정정했다.
   `common_done_criteria` 전체 채택 상태는 `non_binding_until_adopted` 그대로다.
 - `tools/tests/test_pr_body_traceability.py`: 검사 규칙·경계값·CLI 종료 코드·CI 배선·문서
-  정합성 회귀 시험 13개. 기존 CI의 `unittest discover -s tools/tests`가 자동 발견한다.
+  정합성 회귀 시험 15개. 기존 CI의 `unittest discover -s tools/tests`가 자동 발견한다.
+  그중 하나는 2차 CI 실패 본문 스냅숏(`actual-pr-body.md`)을 그대로 검사한다.
 - `tools/ci/README.md`: 검사기 명령·증명 범위·CI 배선을 기록했다.
 
 수정 1차의 미적용 패키지(`pull_request_template.patch`, 미리보기, 별도 시험 사본,
@@ -40,28 +43,31 @@
 
 | 명령 | 결과·증거 |
 |---|---|
-| `python3 -I tools/ci/check_pr_body_traceability.py --selftest` | PASS: 위반 6개를 각자의 규칙으로 검출, 정상 5개 통과 ([로그](pr-traceability-selftest.log)) |
+| `python3 -I tools/ci/check_pr_body_traceability.py --selftest` | PASS: 위반 6개를 각자의 규칙으로 검출, 정상 7개 통과 ([로그](pr-traceability-selftest.log)) |
+| `python3 -I tools/ci/check_pr_body_traceability.py --body-file tools/evidence/audit4-pr-template-task-field/actual-pr-body.md` | PASS 0: 백틱 없는 `audit4-pr-template-task-field` 슬러그를 인식 ([본문](actual-pr-body.md), [로그](actual-pr-body.log)). 2차 CI 실패 본문을 그대로 재사용했다 |
 | `PR_BODY='Fixes a typo in the README.' python3 -I tools/ci/check_pr_body_traceability.py` | FAIL 1: `PR-TRACE-MISSING` ([로그](missing-handle.log)). 추적 지점이 없는 본문을 실제로 거부한다 |
-| `python3 -I -m unittest discover -s tools/tests -p test_pr_body_traceability.py -v` | PASS 13개 ([로그](pr-traceability-tests.log)) |
+| `python3 -I -m unittest discover -s tools/tests -p test_pr_body_traceability.py -v` | PASS 15개 ([로그](pr-traceability-tests.log)) |
 | `python3 -I -m unittest discover -s tools/tests -p test_pr_policy.py -v` | PASS 23개: 한정 채택·공통 PR 기준 미채택 유지 ([로그](pr-policy-tests.log)) |
 | `python3 -I tools/ci/check_product_purpose.py` | PASS: 09 행·과제·필수 시험 ID 정합성 ([로그](product-purpose.log)) |
 | `python3 tools/workflow_check.py`, `test_workflow_pins.py`, `test_ci_workflow_security.py` | PASS: 토큰 권한·action SHA 고정·CI 보안 변이 ([로그](ci-workflow-security.log)) |
-| `ONJEON_ONTOLOGY_RUNNER=... python3 -m unittest discover -s tools/tests -v` | PASS: 1,381개 실행·6개 건너뜀, 실패/오류 0 ([로그](python-tests.log)) |
+| `python3 -m unittest discover -s tools/tests -v` | PASS: 1,383개 실행·6개 건너뜀, 실패/오류 0 ([로그](python-tests.log)) |
 | `cargo test --all --locked --offline` | PASS: Rust 495개·무시 1개, 실패 0 ([로그](rust-tests.log)) |
 | `cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline` | PASS: 4개 ([로그](ontology-runner-tests.log)) |
 | `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | PASS: 기계 45/45·존재 72/72 ([로그](spec-check.log)) |
 | `python3 -I tools/blueprint_counts.py` | PASS: 등록 수와 일치 |
 | `python3 -I -m py_compile ...`, `git diff --check` | PASS ([범위·공백 검사](change-scope.log)) |
 
-새 CI 검사는 이 저장소의 PR 본문(`Node \`audit4-pr-template-task-field\` ...`)처럼 노드 ID가
-라벨 또는 `auditN-...` 인라인 코드로 있으면 통과한다. 본문이 비어 있거나 추적 지점이 없으면
-CI가 실패한다.
+새 CI 검사는 이 저장소의 PR 본문처럼 노드 슬러그가 라벨·백틱 없이 산문이나 경로에 있어도
+통과한다(2차에서는 백틱을 요구해 이 PR 자체가 CI에서 실패했다 — 3차 회귀 시험과
+[실제 본문 로그](actual-pr-body.log)로 고쳤다). 본문이 비어 있거나 `auditN-...` 슬러그·과제
+ID·P행이 모두 없으면 CI가 실패한다.
 
 ## 한계
 
 - 이 검사는 **추적 지점의 존재**만 본다. 이름 붙인 과제·P행이 완료됐는지, 증거가 있는지,
   PR이 그 작업을 실제로 수행했는지는 검사하지 않는다.
-- CI 검사는 병합 후 다음 PR부터 효력이 있다. 이 노드 PR 자체의 통과를 소급해 증명하지 않는다.
+- GitHub CI 실행 자체는 이 작업 트리 밖에서 일어난다. 실제 PR 본문으로 로컬 검사 통과를
+  증명했고, 다음 CI 실행이 최종 확인이다.
 - 템플릿 입력란은 추가되지 않았다. 템플릿에 필드를 넣으려면 허용 경로 확장이 필요하며,
   그 판단은 이 노드의 권한 밖이다.
 - 실제 데이터·상품/계약 트윈·소비자 화면·사용자 이해 시험 또는 P01~P19 출시 완료 증거를

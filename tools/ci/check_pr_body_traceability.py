@@ -4,7 +4,8 @@
 A PR must be traceable to the work contract or to the product completion standard.
 The body may name any one of:
   - a `tasks.json` task ID (`T-XX-NN`), which must exist in tasks.json;
-  - an out-of-list node ID: labelled, or an inline-code `` `auditN-some-node` ``;
+  - an out-of-list node ID: labelled, or a bare (not necessarily inline-code)
+    `` auditN-some-node `` slug; the orchestrator emits it in prose and paths;
   - an 09_제품목적_대응표 P row (`P01`..`P19`).
 
 The PR template is the usual place to record this, but this guard reads the body
@@ -32,10 +33,11 @@ import ci_common as C  # noqa: E402
 
 DEFAULT_TASKS = Path("docs/blueprint/proposals/설계검토_결과/tasks.json")
 TASK_ID = re.compile(r"(?<![A-Za-z0-9])(T-[A-Z]{2}-\d{2})(?![0-9])")
-# A labelled node ID, or a bare inline-code audit node ID. Other unlabelled hyphenated
-# words are too easy to hit by accident.
+# A labelled node ID. Bare hyphenated words other than audit slugs are too easy to hit
+# by accident, so only `auditN-...` is accepted unlabelled: the orchestrator writes the
+# audit node slug in plain prose and filesystem paths without backticks.
 NODE_ID = re.compile(r"(?:노드(?:\s*ID)?|Node|node)\s*[:：]?\s*`([a-z0-9]+(?:-[a-z0-9]+)+)`")
-AUDIT_NODE_ID = re.compile(r"`(audit\d+-[a-z0-9-]+)`")
+AUDIT_NODE_ID = re.compile(r"(?<![A-Za-z0-9])(audit\d+(?:-[a-z0-9]+)+)(?![A-Za-z0-9])")
 P_ROW = re.compile(r"(?<![A-Za-z0-9])(P(?:0[1-9]|1[0-9]))(?![0-9])")
 
 
@@ -66,7 +68,9 @@ def selftest():
         ("task ID and P row", "T-AA-01 P03", None),
         ("single P row", "Closes P19 evidence.", None),
         ("labelled node ID", "Node `audit4-example-node`", None),
-        ("bare audit node ID", "`audit4-example-node`", None),
+        ("inline-code audit node ID", "`audit4-example-node`", None),
+        ("bare audit node ID in prose", "Node audit4-example-node — in scope fix", None),
+        ("bare audit node ID in a path", "/wt/audit4-example-node/tools/ci", None),
         ("Korean node label", "노드 ID: `audit4-example-node`", None),
         ("empty body", "", "PR-TRACE-MISSING"),
         ("no trace handle", "Fixes a typo in the README.", "PR-TRACE-MISSING"),

@@ -112,7 +112,7 @@ class CommandLine(unittest.TestCase):
 
     def run_check(self, *args, env=None):
         base = {k: v for k, v in os.environ.items()
-                if k not in ("PR_BODY", "PR_HEAD_REF")}
+                if k not in ("PR_BODY", "PR_HEAD_REF", "GITHUB_HEAD_REF")}
         base.update(env or {})
         return subprocess.run(
             [sys.executable, "-I", str(CI / "check_pr_body_traceability.py"),
@@ -171,6 +171,30 @@ class CommandLine(unittest.TestCase):
                     "PR_BODY": before, "PR_HEAD_REF": "grokbot/onjeon-unrelated-node"})
                 self.assertEqual(1, unrelated.returncode)
                 self.assertIn("PR-TRACE-MISSING", unrelated.stdout)
+
+    def test_github_head_ref_is_read_when_pr_head_ref_is_not_mapped(self):
+        # Run 41809010985 ran a workflow that passed only PR_BODY. GitHub still
+        # exports GITHUB_HEAD_REF for pull_request runs, so the branch handle is
+        # available without relying on the explicit mapping.
+        body = (ROOT / "tools/evidence/audit4-decision-id-collision/fix-round2"
+                / "pr-body-before.txt").read_text(encoding="utf-8")
+        traced = self.run_check(env={
+            "PR_BODY": body,
+            "GITHUB_HEAD_REF": "grokbot/onjeon-audit4-decision-id-collision",
+        })
+        self.assertEqual(0, traced.returncode, traced.stdout + traced.stderr)
+        # An empty explicit mapping falls through to the built-in variable.
+        fallthrough = self.run_check(env={
+            "PR_BODY": body,
+            "PR_HEAD_REF": "",
+            "GITHUB_HEAD_REF": "grokbot/onjeon-audit4-decision-id-collision",
+        })
+        self.assertEqual(0, fallthrough.returncode, fallthrough.stdout + fallthrough.stderr)
+        # An unrelated built-in branch is not a handle.
+        unrelated = self.run_check(env={
+            "PR_BODY": body, "GITHUB_HEAD_REF": "grokbot/onjeon-unrelated-node"})
+        self.assertEqual(1, unrelated.returncode)
+        self.assertIn("PR-TRACE-MISSING", unrelated.stdout)
 
     def test_bad_tasks_file_is_a_usage_error(self):
         (self.root / "tasks.json").write_text("{not json", encoding="utf-8")

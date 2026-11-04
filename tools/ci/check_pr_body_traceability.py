@@ -12,8 +12,10 @@ The PR template is the usual place to record this, but this guard reads the body
 itself so a missing or edited template cannot leave a PR untraceable. The head
 branch is a second accepted source because the orchestrator derives every branch
 name from the node slug (`grokbot/onjeon-audit4-example-node`) while an
-auto-generated body may omit it. Registration is not completion evidence: a P row
-here does not close the row.
+auto-generated body may omit it. The branch comes from `--head-ref`,
+`PR_HEAD_REF`, or GitHub's built-in `GITHUB_HEAD_REF`, so a workflow that does
+not map the ref explicitly still finds it. Registration is not completion
+evidence: a P row here does not close the row.
 
   PR-TRACE-MISSING  body and head branch name no task ID, node ID, or P row
   PR-TRACE-TASK     a `T-XX-NN` task ID is not present in tasks.json
@@ -21,6 +23,7 @@ here does not close the row.
 Usage: python3 -I tools/ci/check_pr_body_traceability.py --body-file FILE
        python3 -I tools/ci/check_pr_body_traceability.py --body TEXT --head-ref BRANCH
        PR_BODY='...' PR_HEAD_REF='...' python3 -I tools/ci/check_pr_body_traceability.py
+       PR_BODY='...' GITHUB_HEAD_REF='...' python3 -I tools/ci/check_pr_body_traceability.py
        python3 -I tools/ci/check_pr_body_traceability.py --selftest
 Exit: 0 clean, 1 findings, 2 usage or unreadable/invalid input.
 """
@@ -133,7 +136,13 @@ def main(argv=None):
         body = os.environ["PR_BODY"]
     else:
         return C.usage_error("no PR body: pass --body-file/--body or set PR_BODY")
-    head_ref = args.head_ref if args.head_ref is not None else os.environ.get("PR_HEAD_REF")
+    head_ref = args.head_ref
+    if head_ref is None:
+        # PR_HEAD_REF is the explicit CI mapping; GITHUB_HEAD_REF is exported by
+        # GitHub for every pull_request run, so the branch is still read when the
+        # workflow predates that mapping (CI run 41809010985).
+        head_ref = (os.environ.get("PR_HEAD_REF")
+                    or os.environ.get("GITHUB_HEAD_REF"))
     try:
         findings = check(body, args.tasks or args.root / DEFAULT_TASKS, head_ref)
     except (OSError, ValueError, KeyError, TypeError) as exc:

@@ -1,0 +1,13 @@
+Node `audit4-decision-id-collision`
+
+Audit 4 finding: "D08" in `DECISIONS.md:16` (public prices are collected, shown and compared) and "D-08" (the criteria service gate) are different decisions with near-identical IDs. Which namespace gets renamed?
+
+## Acceptance
+- [ ] finding resolved with tests/evidence
+
+## Builder summary
+
+
+Builder: st_design
+
+Refs #418

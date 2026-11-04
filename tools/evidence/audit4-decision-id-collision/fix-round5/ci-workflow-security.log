@@ -1,0 +1,10 @@
+$ python3 -B -m unittest discover -s tools/tests -p test_ci_workflow_security.py -v
+test_each_ci_action_rejects_mutable_or_short_refs (test_ci_workflow_security.CiWorkflowSecurity.test_each_ci_action_rejects_mutable_or_short_refs) ... ok
+test_live_workflows_pass_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_live_workflows_pass_declared_gate) ... ok
+test_missing_or_nonminimal_permissions_fail_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_missing_or_nonminimal_permissions_fail_declared_gate) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.874s
+
+OK
+exit=0

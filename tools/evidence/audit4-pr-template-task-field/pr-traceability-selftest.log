@@ -1,0 +1,2 @@
+check_pr_body_traceability selftest ok: 6 violations each caught for its intended rule, 5 clean case(s) pass
+exit=0

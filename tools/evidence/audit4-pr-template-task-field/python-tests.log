@@ -768,13 +768,7 @@ ok
 test_exact_zero_range_and_unknown_for_both_payout_kinds (test_ontology_check_amounts.AmountPresentation.test_exact_zero_range_and_unknown_for_both_payout_kinds) ... ok
 test_range_and_unknown_never_compare_equal (test_ontology_check_amounts.AmountPresentation.test_range_and_unknown_never_compare_equal) ... ok
 test_unsupported_amount_kind_is_rejected (test_ontology_check_amounts.AmountPresentation.test_unsupported_amount_kind_is_rejected) ... ok
-test_amount_explanations_and_outcomes_with_real_engine (test_ontology_runner_io_error.RunnerIoError.test_amount_explanations_and_outcomes_with_real_engine) ... /workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:40: ResourceWarning: unclosed file <_io.BufferedReader name='/workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:40: ResourceWarning: unclosed file <_io.BufferedReader name='/workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:531: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json' mode='r' encoding='utf-8'>
+test_amount_explanations_and_outcomes_with_real_engine (test_ontology_runner_io_error.RunnerIoError.test_amount_explanations_and_outcomes_with_real_engine) ... /workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:531: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit4-pr-template-task-field/docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json' mode='r' encoding='utf-8'>
   rule = json.load(open(os.path.join(ROOT, rule_a["rule_path"]), encoding="utf-8"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -816,6 +810,19 @@ test_real_cargo_lock_cannot_hang_setup (test_ontology_runner_io_error.RunnerSetu
 test_stalled_fallback_build_fails_with_cargo_diagnostic (test_ontology_runner_io_error.RunnerSetup.test_stalled_fallback_build_fails_with_cargo_diagnostic) ... ok
 test_successful_build_without_executable_fails_at_setup (test_ontology_runner_io_error.RunnerSetup.test_successful_build_without_executable_fails_at_setup) ... ok
 test_uses_cargo_executable_with_default_or_redirected_target (test_ontology_runner_io_error.RunnerSetup.test_uses_cargo_executable_with_default_or_redirected_target) ... ok
+test_accepts_a_labelled_out_of_list_node_id (test_pr_body_traceability.BodyCheck.test_accepts_a_labelled_out_of_list_node_id) ... ok
+test_accepts_an_existing_task_id (test_pr_body_traceability.BodyCheck.test_accepts_an_existing_task_id) ... ok
+test_accepts_every_p_row_in_range (test_pr_body_traceability.BodyCheck.test_accepts_every_p_row_in_range) ... ok
+test_rejects_a_task_id_that_is_not_in_tasks_json (test_pr_body_traceability.BodyCheck.test_rejects_a_task_id_that_is_not_in_tasks_json) ... ok
+test_rejects_an_empty_or_unlabelled_body (test_pr_body_traceability.BodyCheck.test_rejects_an_empty_or_unlabelled_body) ... ok
+test_task_id_must_stand_on_token_boundaries (test_pr_body_traceability.BodyCheck.test_task_id_must_stand_on_token_boundaries) ... ok
+test_blueprint_requires_a_traceability_handle_in_the_pr_body (test_pr_body_traceability.CanonicalPolicy.test_blueprint_requires_a_traceability_handle_in_the_pr_body) ... ok
+test_bundle_states_are_honest_about_the_template (test_pr_body_traceability.CanonicalPolicy.test_bundle_states_are_honest_about_the_template) ... ok
+test_pr_body_is_passed_to_the_check_on_pull_requests_only (test_pr_body_traceability.CiWiring.test_pr_body_is_passed_to_the_check_on_pull_requests_only) ... ok
+test_selftest_runs_on_every_ci_event (test_pr_body_traceability.CiWiring.test_selftest_runs_on_every_ci_event) ... ok
+test_bad_tasks_file_is_a_usage_error (test_pr_body_traceability.CommandLine.test_bad_tasks_file_is_a_usage_error) ... ok
+test_body_file_and_exit_codes (test_pr_body_traceability.CommandLine.test_body_file_and_exit_codes) ... ok
+test_env_body_and_missing_body_usage_error (test_pr_body_traceability.CommandLine.test_env_body_and_missing_body_usage_error) ... ok
 test_adoption_retains_evidence_gate_and_excludes_blanket_adoption (test_pr_policy.BundleStatus.test_adoption_retains_evidence_gate_and_excludes_blanket_adoption) ... ok
 test_blueprint_integrates_both_contracts_at_every_required_entry (test_pr_policy.BundleStatus.test_blueprint_integrates_both_contracts_at_every_required_entry) ... ok
 test_completion_criterion_is_09_in_bundle_handoff_and_blueprint (test_pr_policy.BundleStatus.test_completion_criterion_is_09_in_bundle_handoff_and_blueprint) ... ok
@@ -1457,6 +1464,7 @@ test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.Wo
 test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 1368 tests in 282.642s
+Ran 1381 tests in 189.489s
 
 OK (skipped=6)
+exit=0

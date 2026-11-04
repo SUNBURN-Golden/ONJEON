@@ -1,6 +1,6 @@
-# Audit 4: DEC record authority — fix round 1
+# Audit 4: DEC record authority — fix rounds 1 and 2
 
-Node `audit4-dec-record-authority`. Verified locally on 2026-11-04 against
+Node `audit4-dec-record-authority`. Round 1 verified locally on 2026-11-04 against
 `582104b9dd41725f28d380af7f17b8c9aabc6029` plus this worktree's changes.
 
 ## Resolution and supervisor handoff
@@ -13,8 +13,10 @@ workflow retain their requirements.
 
 The supervisor must replace the PR body with [pr-body.md](pr-body.md) and rerun CI
 against the resulting head. This body passes the unchanged checker locally.
-No GitHub operation, commit, or push was performed in this worktree. This evidence
-does not claim that the existing remote body has changed or that remote CI is green.
+The current round starts at existing commit `de12fdea3a0fa8b2d846946799a0b9de0873c767`.
+The round 2 editor has made no commit, push, or GitHub call. This statement concerns
+this editing session, not the worktree’s prior commit history. This evidence does
+not claim that the existing remote body has changed or that remote CI is green.
 The external `onjeonloop.py` mentioned in review is absent from this repository;
 its PR creation logic was not changed.
 
@@ -33,7 +35,31 @@ changed. The edited audit note is outside the generated ADR/DEC inventory;
 §11 already preserves delegated status, the bundle's user decision, and remaining
 gate conditions.
 
-## Reproduction
+## Round 2: blocking remote action remains pending
+
+The supplied CI run 41795070906 failed at the same PR-body check on PR #417,
+head `de12fdea3a0fa8b2d846946799a0b9de0873c767`. Its supplied body matches
+[failed-pr-body.md](failed-pr-body.md); the prior replacement was not applied.
+Repository edits alone cannot change the PR-body event input. The user reserves
+GitHub operations, commits and pushes for the supervisor, so the editor cannot
+complete the reviewer's required remote action.
+
+Supervisor handoff (required before merge):
+
+1. Apply [pr-body.md](pr-body.md) to PR #417. From the repository root, the
+   supervisor can run `gh pr edit 417 --body-file tools/evidence/audit4-dec-record-authority/pr-body.md`.
+2. Publish the reviewed changes and run PR CI with the corrected body as its
+   event input. Check the traceability step's `PR_BODY` contains this node ID;
+   an invocation that still receives the old body will still fail.
+3. Confirm the `rules-engine` job is green for the resulting head and record the
+   run URL and head SHA. This remote verification is still pending here.
+
+The decision note now directly cites DEC-O17's delegation and all six exclusions.
+The commit-history wording above is corrected. Round 2 local commands and results
+are in [fix-round2/README.md](fix-round2/README.md); earlier logs below are retained
+as round 1 evidence, not presented as a new remote CI result.
+
+## Round 1 reproduction
 
 Run from the repository root using the prerequisites in the root README.
 

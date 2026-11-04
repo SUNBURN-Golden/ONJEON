@@ -76,7 +76,7 @@ class BodyCheck(unittest.TestCase):
     def test_decision_node_empty_builder_summary_requires_a_trace_handle(self):
         evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
         body = (evidence / "failed-pr-body.md").read_text(encoding="utf-8")
-        # CI run 41783150105: a spec, acceptance and issue reference do not
+        # CI runs 41783150105 and 41795070906: spec and issue references do not
         # identify the node. Fix the body, without exempting decision PRs.
         self.assertEqual(["PR-TRACE-MISSING"], self.rules(body))
         self.assertEqual([], self.rules("Node `audit4-dec-record-authority`\n\n" + body))

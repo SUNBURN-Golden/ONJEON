@@ -51,13 +51,16 @@ class BlueprintDecisionIds(unittest.TestCase):
                 self.assertFalse(refs - set(self.ids), f"unknown ledger references: {refs}")
 
     def test_reference_guard_catches_korean_particles_and_ranges(self):
+        self.assertEqual(LEGACY_ID.findall('"D08" D08 대응표 D08만'),
+                         ["D08", "D08", "D08"])
         self.assertEqual(LEGACY_ID.findall("D14의 D16~D18 D19로 D20의"),
                          ["D14", "D16", "D18", "D19", "D20"])
         self.assertEqual(LEGACY_ID.findall("BP-D-14의 DEC-D-16 D-18 ADR-0019"), [])
 
     def test_reported_collisions_keep_their_ledger_meaning(self):
         for number, meaning in ((2, "Rust/Flutter"), (4, "PDF 선택 입력"),
-                                (7, "예산·두 안 비교"), (12, "V1 설계 확정"),
+                                (7, "예산·두 안 비교"), (8, "공개 가격도 수집·표시·비교"),
+                                (12, "V1 설계 확정"),
                                 (16, "Cloudflare R2")):
             with self.subTest(number=number):
                 row = next((line for line in self.ledger.splitlines()
@@ -80,7 +83,7 @@ class BlueprintDecisionIds(unittest.TestCase):
                 for values in task.get("decision_gates", {}).values() for gate in values}
         self.assertFalse(set(self.ids) & used)
         self.assertFalse(set(self.ids) & set(tasks["decision_index"]))
-        for number in (2, 4, 7, 12, 16):
+        for number in (2, 4, 7, 8, 12, 16):
             gate = f"D-{number:02}"
             with self.subTest(gate=gate):
                 self.assertIn(gate, used)
@@ -88,6 +91,11 @@ class BlueprintDecisionIds(unittest.TestCase):
                 record = ROOT / f"docs/decisions/DEC-{gate}.md"
                 self.assertTrue(record.is_file())
                 self.assertIn(gate, record.read_text(encoding="utf-8"))
+
+        criteria_gates = [(task["id"], phase) for task in tasks["tasks"]
+                          for phase, gates in task.get("decision_gates", {}).items()
+                          if "D-08" in gates]
+        self.assertEqual(criteria_gates, [("T-KN-14", "release")])
 
 
 class DecisionRecords(unittest.TestCase):

@@ -2,7 +2,7 @@
 
 2026-11-04. The blueprint direction namespace is `BP-D-xx`; public-price collection, display and comparison remain `BP-D-08`. The criteria application gate remains `D-08`, with record `DEC-D-08.md`. This round corrects three legacy references in the Audit 4 decision record. The existing migration and operational gate conditions are unchanged.
 
-Before the fix, the current-document reference test reproduced the reported failure in `docs/decisions/audit4-decision-id-collision.md` with three legacy matches. The namespace guard remains unchanged. Its regression cases now include those quoted and Korean-suffixed references; the collision checks also cover the public-price meaning, preserved criteria gate and record, and the gate's exclusive use for `T-KN-14` release.
+The original pre-fix run was not saved in this bundle; the logs below establish only the post-fix results. The namespace guard and its regression cases were already present from the Audit 3 migration, including quoted and Korean-suffixed references, the public-price meaning, preserved criteria gate and record, and the gate's exclusive use for `T-KN-14` release. Fix round 1 changed the decision document, not those tests.
 
 Commands run from the worktree root unless stated otherwise:
 

@@ -113,6 +113,20 @@ class CommandLine(unittest.TestCase):
         self.assertEqual(0, self.run_check(env={"PR_BODY": "P07"}).returncode)
         self.assertEqual(2, self.run_check().returncode)
 
+    def test_decision_node_body_requires_the_missing_trace_handle(self):
+        # CI run 41795807949: a decision description and issue reference alone
+        # cannot identify the node. Exercise the same PR_BODY entry point as CI.
+        evidence = ROOT / "tools/evidence/audit4-decision-id-collision/fix-round2"
+        before = (evidence / "pr-body-before.txt").read_text(encoding="utf-8")
+        after = (evidence / "pr-body.txt").read_text(encoding="utf-8")
+        trace = "Node `audit4-decision-id-collision`\n\n"
+        self.assertEqual(trace + before, after)
+        failed = self.run_check(env={"PR_BODY": before})
+        self.assertEqual(1, failed.returncode)
+        self.assertIn("PR-TRACE-MISSING", failed.stdout)
+        passed = self.run_check(env={"PR_BODY": after})
+        self.assertEqual(0, passed.returncode, passed.stdout + passed.stderr)
+
     def test_bad_tasks_file_is_a_usage_error(self):
         (self.root / "tasks.json").write_text("{not json", encoding="utf-8")
         self.assertEqual(2, self.run_check("--body", "T-AA-01").returncode)

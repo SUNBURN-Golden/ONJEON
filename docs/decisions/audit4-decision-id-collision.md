@@ -8,6 +8,6 @@ Decided by Claude Sonnet 5.5 xhigh (ONJEON autoloop, 2026-11-04 15:05 KST); reve
 
 **Options:** ['원장 전체를 BP-D-xx로 개명 — 채택', '실행 게이트와 DEC 파일명 개명 — 실행 참조 마이그레이션 부담으로 기각', '공개 가격 결정만 개명하거나 하이픈 차이만 설명 — 다른 번호의 혼동이 남아 기각']
 
-**Validation:** Fix round 1에서 이 기록의 이전 원장 표기를 현행 참조로 정정했다. 이전 표기는 원장 §1.1 대응표에서만 허용한다. 회귀시험은 BP-D-08의 공개 가격 의미와 D-08의 작업 게이트·DEC 파일명 보존을 포함한다. [시험 명령과 실행 증거](../../tools/evidence/audit4-decision-id-collision/fix-round1/README.md)를 참조한다.
+**Validation:** Fix round 1에서 이 기록의 이전 원장 표기를 현행 참조로 정정했다. 현행 문서 참조 검사 대상에서는 이전 표기를 원장 §1.1 대응표에서만 허용한다. 검사 대상 밖인 `docs/research`의 역사적 표기는 원장 §1.1의 대응표로 해석한다. Audit 3에서 작성한 기존 회귀시험은 BP-D-08의 공개 가격 의미와 D-08의 작업 게이트·DEC 파일명 보존을 포함한다. [Fix round 1 시험 증거](../../tools/evidence/audit4-decision-id-collision/fix-round1/README.md)와 [Fix round 2 재검증·PR 본문 수정 인계](../../tools/evidence/audit4-decision-id-collision/fix-round2/README.md)를 참조한다.
 
 **Revisit if:** 이전 원장 ID를 기계 식별자로 사용하는 외부 소비자가 발견되거나, 원장과 실행 게이트의 통합 ID 체계를 도입할 때.

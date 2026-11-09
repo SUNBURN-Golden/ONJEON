@@ -8,6 +8,7 @@
 //!   an input snapshot hash so it can be reproduced.
 
 mod canonical;
+mod strict_json;
 
 pub mod date;
 pub mod eval;
@@ -16,7 +17,7 @@ pub mod tri;
 pub mod value;
 
 pub use eval::{AmountOut, ContractEffectOut, EvalError, EvaluationResult, Payout, TraceEntry};
-pub use rule::{ContractEffect, Rule, RuleError};
+pub use rule::{parse_rule_json, ContractEffect, Rule, RuleError};
 pub use tri::Tri;
 
 /// Engine version recorded in every result. The suffix identifies the snapshot encoding change.

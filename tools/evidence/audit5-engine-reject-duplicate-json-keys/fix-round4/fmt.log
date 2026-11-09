@@ -1,0 +1,3 @@
+$ CARGO_TARGET_DIR="$PWD/target" ONJ_REQUIRE_RULE_02=1 cargo fmt --all -- --check
+
+EXIT: 0

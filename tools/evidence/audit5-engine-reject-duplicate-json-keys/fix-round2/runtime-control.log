@@ -1,0 +1,2 @@
+     Locking 24 packages to latest compatible versions
+PASS: unfixed runtime: 2 expected failures, 2 controls passed; patched runtime: 4 passed

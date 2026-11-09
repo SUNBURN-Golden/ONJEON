@@ -32,4 +32,3 @@ test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
 test nonblank_rule_ids_are_preserved_in_every_result_state ... ok
 
 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-

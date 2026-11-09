@@ -1,0 +1,4 @@
+$ CARGO_TARGET_DIR="$PWD/target" ONJ_REQUIRE_RULE_02=1 python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (37 ADR/DEC files)
+
+EXIT: 0

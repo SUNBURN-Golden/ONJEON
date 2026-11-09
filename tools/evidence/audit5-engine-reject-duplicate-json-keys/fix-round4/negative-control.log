@@ -1,0 +1,4 @@
+$ CARGO_TARGET_DIR="$PWD/target" ONJ_REQUIRE_RULE_02=1 python3 -I packages/rules-engine/evidence/audit5-duplicate-json-keys/negative_control.py
+PASS: fixed parser: 6 passed; last-wins mutation: 4 expected failures, 2 controls passed
+
+EXIT: 0

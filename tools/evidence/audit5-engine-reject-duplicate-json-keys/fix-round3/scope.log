@@ -1,0 +1,3 @@
+PASS: 6 tracked and 26 untracked paths match allowed scope; no protected files changed.
+PASS: git diff --check.
+PASS: all 44 audit-document link targets exist.

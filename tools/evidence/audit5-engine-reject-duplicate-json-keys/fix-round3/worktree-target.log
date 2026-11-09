@@ -1,0 +1,8 @@
+test_arguments_and_failure_exit_code_reach_caller (test_worktree_target.WorktreeTargetTests.test_arguments_and_failure_exit_code_reach_caller) ... ok
+test_missing_command_fails (test_worktree_target.WorktreeTargetTests.test_missing_command_fails) ... ok
+test_overrides_shared_target_for_command_and_descendant_from_any_cwd (test_worktree_target.WorktreeTargetTests.test_overrides_shared_target_for_command_and_descendant_from_any_cwd) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.102s
+
+OK

@@ -7,6 +7,7 @@
 - 3값 논리(참·거짓·모름). 모르는 입력은 0이나 거짓으로 바뀌지 않는다.
 - 금액은 정수 원. 부동소수점이 없다. 반올림 규칙과 단위는 규칙에 명시해야 한다(`unspecified`는 하한~상한 범위를 돌려준다).
 - 허용 목록 연산자만 로드된다. 모르는 연산자, 부동소수점 리터럴, 반올림 누락, `month_end` 누락, `date_add`·`multiply_rate`·`days_between` 파라미터의 알 수 없는 키(`day` 단위의 `month_end` 포함), 알 수 없는 최상위 키는 로드 단계에서 거부된다.
+- `Rule::from_json_str`은 JSON의 모든 객체에서 중복 키를 거부한다. 최상위 메타데이터·입력 선언·중첩식·연산 파라미터·배열 안 객체·실행되지 않는 분기도 검사하며, 값이 같아도 중복이다. 키는 JSON 이스케이프를 해독한 뒤 비교하므로 `"krw"`·`"\u006brw"`도 중복이다. 오류는 `$` 경로와 중복 키·행·열을 포함한다. 별개 객체의 같은 키와 서로 다른 유니코드 형식의 키는 허용한다. 원시 규칙/아티팩트 바이트를 먼저 처리해야 할 호출자는 `parse_rule_json`을 쓴 뒤 `Rule::from_json`으로 DSL을 검증한다. 이미 생성한 `serde_json::Value`에는 중복 이력이 없으므로 `Rule::from_json`은 이를 복원해 검사할 수 없다. [Audit 5 수정·검증 증거](../../docs/blueprint/audits/2026-11-09_engine_reject_duplicate_json_keys.md).
 - 로드 단계에서 모든 식의 타입을 검사한다(bool·int·money·money_range·rate·date·string). `{"eq":["target_event",1]}`처럼 타입이 다른 값의 비교, bool·string의 순서 비교, `all`/`any`/`not`/`if` 조건에 쓴 비불리언, 금액 연산자에 쓴 비금액, 가지 타입이 호환되지 않는 `if`, 불리언이 아닌 `eligibility`, 금액이 아닌 `amount`(`"amount": true`)는 오류 위치(경로)와 함께 로드에서 거부된다. 범위가 될 수 있는 금액(`money_range`)은 `eq`·`ne`·`lt`·`lte`·`gt`·`gte`의 어느 쪽 피연산자에도 쓸 수 없으며 로드에서 거부된다. `unspecified` 반올림과 금액 연산·`if`의 범위 가능성을 전파한다. 정확한 금액과 범위 금액을 섞은 `if` 및 금액 계산·출력은 허용한다.
 - 같은 입력·규칙·엔진 버전이면 바이트 단위로 같은 결과를 낸다. 결과에는 평가 trace, 결과를 막은 누락 입력, 입력 스냅샷 해시가 들어 있다.
 - `input_snapshot_hash`는 변환된 전체 선언 입력을 타입 태그(`type`·`value`)가 있는 compact UTF-8 JSON으로 직렬화하고, 모든 객체 키를 재귀적으로 정렬한 바이트의 SHA-256이다. 누락·`null`은 모두 `{"type":"unknown"}`, 날짜는 epoch 일수이며 목록 순서는 보존한다. 입력 이름·문자열·목록 class는 JSON으로 이스케이프하므로 `=`·개행으로 구조를 위조할 수 없다. 표시용 `Display`·`Debug`와 독립적이다. 이 형식부터 결과의 `engine_version`에 `+snapshot-json-1`이 붙으며, 이전 형식의 해시와 직접 비교하지 않는다. [Audit 2 계약·검증 증거](../../docs/blueprint/audits/2026-10-26_engine_snapshot_hash_encoding.md).
@@ -64,6 +65,7 @@
 
 | 테스트 | 내용 |
 |---|---|
+| `duplicate_json_keys` | 두 DSL 버전·모든 공개 상태의 최상위 키 중복, `amount`·`krw` 덮어쓰기, 동일 값·이스케이프 키·입력 선언·배열·미선택 분기·연산 파라미터·미사용 메타데이터의 재귀 검사. 정상 소스·해시·전체 결과 보존, 숫자 경계·문자열·UTF-8·후행 입력·깊이 제한도 검증한다 |
 | `ontology_rules` | 제안 원본 `docs/blueprint/proposals/온톨로지/규칙/*.json` 2개를 직접 로드한다. 파일 목록과 `rule_content_hashes.json`의 엔진 내용 해시를 고정하고, 90일 면책·1년 감액·만기·기지급·제외·갱신 경계, 누락/null의 미확인 보존, 결과 식별 정보와 재로딩 결정성, 동일 버전의 로직·근거 변경 해시 불일치를 검사한다. `fixture_only` 설계 검증이며 서비스 릴리스 검증이 아니다 |
 | `golden` | §34.1 경계표 확장 15건(공유 `packages/fixtures/rules/*.cases.json` + 엔진 `tests/fixtures/cases/*.cases.json`), 재현성, trace. 합성 규칙과 실제 조항 규칙 7개·105사례에서 파일 재로딩, 규칙·입력의 중첩 객체 키 순서를 독립적으로 정순/역순 조합 4개로 바꾼 새 JSON 로딩 뒤 전체 결과 바이트(trace·누락 입력·버전·근거·두 해시 포함)를 비교한다(I18). 고정된 7개 규칙 목록과 실제 사례 수로 검사 누락을 거부한다. 케이스별 `trace`는 `fixture-rule-001.golden.json`과 추가 반올림 케이스의 `tests/fixtures/fixture-rule-001.rounding.golden.json`, 현재 형식의 `input_snapshot_hash`는 엔진 소유 `tests/fixtures/fixture-rule-001.snapshot-json-1.hashes.json`(공유 파일의 이전 해시를 대체), `rule_content_hash`는 `fixture-rule-001.content_hash`와 `real.content_hashes.json`(실규칙 전체)에 고정되어 회귀를 잡는다. 의도한 변경일 때만 갱신 |
 | `snapshot_hash` | 두 DSL 버전에서 구분자 주입 충돌 방지, 특수 입력 이름·문자열, 전체 입력 타입·타입 구분·정수 경계, 수기 정규 JSON의 SHA-256 대조, 객체 키 순서 독립, 누락/null 동등성, 목록 class·금액·순서 보존, 엔진 버전·직렬화 재현성 |

@@ -44,10 +44,14 @@ CI는 Rust `1.98.1`을 명시한다. 아래 명령은 저장소 루트에서 실
 작업 트리 경로에만 rustup 재정의를 등록해 전역 Rust 기본값이 없어도
 같은 도구 체인을 선택한다. 이 설정은 다른 작업 트리에 적용되지 않는다.
 온톨로지 실행기의 `rust-toolchain.toml`은 해당 디렉터리에만 적용된다.
+Cargo 빌드 결과도 작업 트리별로 분리한다. 상속된 공유 `CARGO_TARGET_DIR`은
+다른 체크아웃의 오래된 메타데이터를 재사용해 실제 공개 API를 찾지 못할 수 있다.
+CI도 워크플로 환경에서 `CARGO_TARGET_DIR`을 `${{ github.workspace }}/target`으로 고정한다.
 
 ```sh
 rustup toolchain install 1.98.1 --profile minimal
 rustup override set --path "$PWD" 1.98.1
+export CARGO_TARGET_DIR="$PWD/target"
 python3 -m pip install --user boto3==1.43.100
 cargo fetch --locked
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo fetch --locked)
@@ -55,6 +59,10 @@ python3 -m unittest discover -s tools/tests -v
 cargo test --all --locked --offline
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
 ```
+
+단일 명령에는 `python3 -I tools/ci/with_worktree_target.py cargo clippy --all-targets --locked --offline -- -D warnings`를
+쓸 수 있다. Python 시험 명령도 감쌀 수 있으며 자식 Cargo 프로세스까지 같은 작업 트리의
+`target/`을 사용한다. 명령은 저장소 루트에서 실행되고 종료 코드는 그대로 전달된다.
 
 오프라인 시험 전에는 도구 체인과 두 Cargo 작업 공간의 의존성이 설치돼 있어야 한다.
 Python 시험은 필요한 온톨로지 실행기를 오프라인으로 빌드한다.

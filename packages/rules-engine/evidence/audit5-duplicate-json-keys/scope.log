@@ -1,0 +1,4 @@
+PASS: allowed paths; protected files and out-of-scope twin runtime unchanged
+PASS: changed Markdown links resolve; git diff --check
+Scope: engine loader fixed; twin-runtime proposal remains unapplied and untested
+No commit, push, or GitHub calls performed

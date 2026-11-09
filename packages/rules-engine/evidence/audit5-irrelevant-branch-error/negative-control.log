@@ -1,0 +1,3 @@
+PASS: control-eager-logical rejected by kyobo_waiting_exclusion_survives_an_out_of_range_waiting_date (DateOutOfRange)
+PASS: control-eager-amount rejected by logical_and_amount_errors_preserve_unknown_eligibility_together (Overflow)
+PASS: baseline 2/2; both reported defects detected; real evaluator unchanged.

@@ -1,0 +1,25 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit5-engine-irrelevant-branch-error/packages/rules-engine/evidence/audit5-irrelevant-branch-error/negative-control-q7svwgm3/packages/rules-engine/Cargo.toml --test irrelevant_branch_errors logical_and_amount_errors_preserve_unknown_eligibility_together
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-irrelevant-branch-error/packages/rules-engine/evidence/audit5-irrelevant-branch-error/negative-control-q7svwgm3/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running tests/irrelevant_branch_errors.rs (target/audit5-control/debug/deps/irrelevant_branch_errors-53e433c523179c93)
+
+running 1 test
+test logical_and_amount_errors_preserve_unknown_eligibility_together ... FAILED
+
+failures:
+
+---- logical_and_amount_errors_preserve_unknown_eligibility_together stdout ----
+
+thread 'logical_and_amount_errors_preserve_unknown_eligibility_together' (1348442) panicked at tests/irrelevant_branch_errors.rs:95:53:
+called `Result::unwrap()` on an `Err` value: Overflow { path: "amount" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    logical_and_amount_errors_preserve_unknown_eligibility_together
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test irrelevant_branch_errors`
+
+Exit: 101

@@ -359,7 +359,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 247 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 248 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
@@ -380,6 +380,8 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 온톨로지 제안 원본 규칙 2개도 엔진 Cargo 시험에서 직접 로드하고 내용 해시·경계·미확인·결정성을 고정한다. runner 식별 정보와 잠금 파일 사용 검증은 [Audit 4 증거](blueprint/audits/2026-11-03_ontology_rules_in_cargo.md)에 기록한다. `fixture_only` 회귀 검증이며 실제 릴리스·소비자 화면·첫 출시 완료 판정을 바꾸지 않는다.
 
 엔진 공통 시험 하네스는 실제 규칙 파일명과 `rule_id`의 일치를 검사하고, 공유·추가 사례의 알 수 없는 키와 객체가 아닌 `set`을 거부한다. 중복 ID로 규칙이 덮어써지거나 `Set` 오타로 기본 입력만 실행되는 결함의 회귀 검증과 검사 제거 변이 증거는 [Audit 5 하네스 검증](blueprint/audits/2026-11-10_engine_test_harness_guards.md)에 기록한다. P08·P14의 엔진 시험 기반 증거이며 실제 상품 트윈·화면 연결·첫 출시 완료 증거는 별도다.
+
+윤년 말일 계약의 자해 사망 경계(`2028-02-29` → `2030-02-28`)는 현재 clamp·당일 포함 가정에서 질병사망보험금 70,000,000원이 계산된다. 이를 엔진 소유 사례와 회귀 시험에서 **G13-pending**으로 고정했다([Audit 5 증거](blueprint/audits/2026-11-10_engine_flag_g13_wholelife.md)). 원문 날짜 관례는 미확인이며 `fixture_only` 기대값이다. G13 해결·실제 지급 확정·P08·P14 전체 완료를 뜻하지 않는다.
 
 ## 12. 열린 결정
 

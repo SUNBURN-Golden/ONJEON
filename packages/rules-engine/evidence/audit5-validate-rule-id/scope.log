@@ -1,0 +1,26 @@
+PASS: all tracked/untracked changes are within node allowlist.
+PASS: protected paths, production engine source and shared fixtures unchanged.
+PASS: git diff --check.
+PASS: audit local links exist.
+Changed files:
+docs/BLUEPRINT.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/tests/identity_evidence.rs
+docs/blueprint/audits/2026-11-09_engine_validate_rule_id.md
+packages/rules-engine/evidence/audit5-validate-rule-id/clippy.log
+packages/rules-engine/evidence/audit5-validate-rule-id/control-baseline.log
+packages/rules-engine/evidence/audit5-validate-rule-id/control-missing-guard.log
+packages/rules-engine/evidence/audit5-validate-rule-id/counts-write.log
+packages/rules-engine/evidence/audit5-validate-rule-id/counts.log
+packages/rules-engine/evidence/audit5-validate-rule-id/fmt.log
+packages/rules-engine/evidence/audit5-validate-rule-id/focused.log
+packages/rules-engine/evidence/audit5-validate-rule-id/negative-control.log
+packages/rules-engine/evidence/audit5-validate-rule-id/negative_control.py
+packages/rules-engine/evidence/audit5-validate-rule-id/ontology-runner.log
+packages/rules-engine/evidence/audit5-validate-rule-id/product-purpose.log
+packages/rules-engine/evidence/audit5-validate-rule-id/python.log
+packages/rules-engine/evidence/audit5-validate-rule-id/scope.log
+packages/rules-engine/evidence/audit5-validate-rule-id/spec-check.log
+packages/rules-engine/evidence/audit5-validate-rule-id/status.log
+packages/rules-engine/evidence/audit5-validate-rule-id/workspace.log

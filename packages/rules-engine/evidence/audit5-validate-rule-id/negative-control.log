@@ -1,0 +1,2 @@
+PASS: baseline 7/7; missing rule_id guard detected by both blank-ID tests.
+PASS: production loader unchanged; temporary crate removed.

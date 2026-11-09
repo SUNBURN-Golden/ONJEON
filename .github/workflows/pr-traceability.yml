@@ -1,0 +1,28 @@
+name: pr-traceability
+
+# Audit 4: a PR body must name a tasks.json task ID, an out-of-list node ID, or a
+# 09 P row. This is its own workflow and check on purpose: a body edit only re-runs
+# this small guard. It must never be able to report the code/test job green without
+# the tests actually running (BLUEPRINT §10 rule 1).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+# The body is read-only input; the token needs nothing beyond checkout.
+permissions:
+  contents: read
+
+jobs:
+  pr-traceability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: PR traceability guard self-test (Audit 4)
+        run: python3 -I tools/ci/check_pr_body_traceability.py --selftest
+      - name: PR body traceability (tasks.json task ID, node ID, or 09 P row)
+        # The PR template is outside every node's editable paths; the body itself is checked.
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python3 -I tools/ci/check_pr_body_traceability.py

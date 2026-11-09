@@ -1,0 +1,44 @@
+$ PR_BODY loaded from failed-pr-body.md: python3 -I tools/ci/check_pr_body_traceability.py
+pr-traceability: 1 finding(s)
+  [PR-TRACE-MISSING] <pull request body>: no tasks.json task ID, node ID, or 09 P row (P01..P19)
+exit=1; expected=1
+
+$ PR_BODY loaded from pr-body.md: python3 -I tools/ci/check_pr_body_traceability.py
+pr-traceability: PR body names a tasks.json task ID, node ID, or 09 P row (traceability only)
+exit=0; expected=0
+
+$ python3 -I tools/ci/check_pr_body_traceability.py --selftest
+check_pr_body_traceability selftest ok: 6 violations each caught for its intended rule, 7 clean case(s) pass
+exit=0
+
+$ python3 -m unittest tools.tests.test_pr_body_traceability -v
+test_accepts_a_bare_audit_slug_as_the_orchestrator_emits_it (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_a_bare_audit_slug_as_the_orchestrator_emits_it) ... ok
+test_accepts_a_labelled_out_of_list_node_id (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_a_labelled_out_of_list_node_id) ... ok
+test_accepts_an_existing_task_id (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_an_existing_task_id) ... ok
+test_accepts_every_p_row_in_range (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_every_p_row_in_range) ... ok
+test_accepts_the_round_2_builder_pr_body_snapshot (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_the_round_2_builder_pr_body_snapshot) ... ok
+test_decision_node_empty_builder_summary_requires_a_trace_handle (tools.tests.test_pr_body_traceability.BodyCheck.test_decision_node_empty_builder_summary_requires_a_trace_handle) ... ok
+test_rejects_a_task_id_that_is_not_in_tasks_json (tools.tests.test_pr_body_traceability.BodyCheck.test_rejects_a_task_id_that_is_not_in_tasks_json) ... ok
+test_rejects_an_empty_or_unlabelled_body (tools.tests.test_pr_body_traceability.BodyCheck.test_rejects_an_empty_or_unlabelled_body) ... ok
+test_task_id_must_stand_on_token_boundaries (tools.tests.test_pr_body_traceability.BodyCheck.test_task_id_must_stand_on_token_boundaries) ... ok
+test_blueprint_requires_a_traceability_handle_in_the_pr_body (tools.tests.test_pr_body_traceability.CanonicalPolicy.test_blueprint_requires_a_traceability_handle_in_the_pr_body) ... ok
+test_bundle_states_are_honest_about_the_template (tools.tests.test_pr_body_traceability.CanonicalPolicy.test_bundle_states_are_honest_about_the_template) ... ok
+test_pr_body_is_passed_to_the_check_on_pull_requests_only (tools.tests.test_pr_body_traceability.CiWiring.test_pr_body_is_passed_to_the_check_on_pull_requests_only) ... ok
+test_pr_edits_trigger_fresh_checks_without_losing_default_events (tools.tests.test_pr_body_traceability.CiWiring.test_pr_edits_trigger_fresh_checks_without_losing_default_events) ... ok
+test_selftest_runs_on_every_ci_event (tools.tests.test_pr_body_traceability.CiWiring.test_selftest_runs_on_every_ci_event) ... ok
+test_bad_tasks_file_is_a_usage_error (tools.tests.test_pr_body_traceability.CommandLine.test_bad_tasks_file_is_a_usage_error) ... ok
+test_body_file_and_exit_codes (tools.tests.test_pr_body_traceability.CommandLine.test_body_file_and_exit_codes) ... ok
+test_decision_node_bodies_through_ci_environment (tools.tests.test_pr_body_traceability.CommandLine.test_decision_node_bodies_through_ci_environment) ... ok
+test_env_body_and_missing_body_usage_error (tools.tests.test_pr_body_traceability.CommandLine.test_env_body_and_missing_body_usage_error) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.287s
+
+OK
+exit=0
+
+Workflow trigger regression: current workflow passes.
+Workflow trigger regression: removing edited fails as expected.
+Workflow trigger regression: removing opened fails as expected.
+Workflow trigger regression: removing synchronize fails as expected.
+Workflow trigger regression: removing reopened fails as expected.

@@ -1,0 +1,5 @@
+PASS: all changed/new files are inside the node allow-list: 24
+PASS: protected documents, shared fixtures and engine runtime source unchanged
+PASS: audit evidence links resolve: 19
+PASS: BLUEPRINT, GAP_REPORT, 09 purpose evidence and engine README link the audit
+PASS: git diff --check

@@ -375,6 +375,28 @@
         },
         "missing_inputs": []
       }
+    },
+    {
+      "id": "w34_g13_pending_leap_day_self_harm_two_years",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "G13-pending: 2028-02-29 보장개시 + 2년을 month_end=clamp로 2030-02-28로 계산하고 당일을 포함하여 지급하는 엔진 가정. 계약해당일 말일 처리와 '2년이 지난 후' 당일 포함은 약관 원문 근거 미확인. fixture_only 회귀 기대값이며 실제 지급 확정이 아니다.",
+      "set": {
+        "contract_date": "2028-02-29",
+        "coverage_start_date": "2028-02-29",
+        "self_harm": true,
+        "death_date": "2030-02-28"
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {
+          "kind": "payable",
+          "amount": {
+            "kind": "exact",
+            "krw": 70000000
+          }
+        },
+        "missing_inputs": []
+      }
     }
   ]
 }

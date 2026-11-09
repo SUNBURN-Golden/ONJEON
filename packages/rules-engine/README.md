@@ -6,6 +6,7 @@
 
 - 3값 논리(참·거짓·모름). 모르는 입력은 0이나 거짓으로 바뀌지 않는다.
 - 금액은 정수 원. 부동소수점이 없다. 반올림 규칙과 단위는 규칙에 명시해야 한다(`unspecified`는 하한~상한 범위를 돌려준다).
+- 요율은 ASCII 숫자 1~9자리의 정수부와 선택적인 소수부(소수점 뒤 1~9자리)를 갖는 비음수 문자열이다. `5.`·`.5`·부호·공백·비ASCII 숫자는 거부한다. 일반 요율 문자열·명시적 `rate`·rule-0.2 `anniversary_band` 구간표에 동일하게 적용한다. `5`·`5.0`·`0.5`·`0.50`·`0005.00`은 허용하며 내용 해시는 위 표기를 그대로 구분한다. [Audit 5 검증 증거](../../docs/blueprint/audits/2026-11-09_engine_strict_literal_parse.md).
 - 허용 목록 연산자만 로드된다. 모르는 연산자, 부동소수점 리터럴, 반올림 누락, `month_end` 누락, `date_add`·`multiply_rate`·`days_between` 파라미터의 알 수 없는 키(`day` 단위의 `month_end` 포함), 알 수 없는 최상위 키는 로드 단계에서 거부된다.
 - 로드 단계에서 모든 식의 타입을 검사한다(bool·int·money·money_range·rate·date·string). `{"eq":["target_event",1]}`처럼 타입이 다른 값의 비교, bool·string의 순서 비교, `all`/`any`/`not`/`if` 조건에 쓴 비불리언, 금액 연산자에 쓴 비금액, 가지 타입이 호환되지 않는 `if`, 불리언이 아닌 `eligibility`, 금액이 아닌 `amount`(`"amount": true`)는 오류 위치(경로)와 함께 로드에서 거부된다. 범위가 될 수 있는 금액(`money_range`)은 `eq`·`ne`·`lt`·`lte`·`gt`·`gte`의 어느 쪽 피연산자에도 쓸 수 없으며 로드에서 거부된다. `unspecified` 반올림과 금액 연산·`if`의 범위 가능성을 전파한다. 정확한 금액과 범위 금액을 섞은 `if` 및 금액 계산·출력은 허용한다.
 - 같은 입력·규칙·엔진 버전이면 바이트 단위로 같은 결과를 낸다. 결과에는 평가 trace, 결과를 막은 누락 입력, 입력 스냅샷 해시가 들어 있다.
@@ -79,6 +80,7 @@
 | `loader_rejections` | 두 DSL 버전·두 로드 진입점에서 문서·메타데이터·입력 선언·리터럴·객체 형태·인자 수·반올림·날짜·구간표·목록·버전 제한의 기존 거부 조건과 오류 경로를 직접 검증한다. 미선택 가지도 검사하며 정상 파라미터·상한 경계의 로드·평가를 보존한다([Audit 4 증거](../../docs/blueprint/audits/2026-11-03_engine_loader_rejections.md)) |
 | `days_between` | 두 DSL 버전·포함 플래그 4조합에서 역순 날짜의 비교 6종·임계값 0/1/90/180 거부, 리터럴·계산 날짜 오류 경로, 정상 순서·같은 날·윤일의 0일 포함 경계값·trace·재현성, 누락·null의 모름·blocker 유지 |
 | `date_format`·날짜 단위 시험 | 두 DSL 버전의 날짜 리터럴·평가 입력에서 선행 `+`·0 채움 누락·공백·비ASCII 숫자 거부, 숫자 위치별 비숫자 거부, 정상 형식·윤일·지원 경계 보존. JSON 텍스트 로드에서 부호의 유니코드 이스케이프도 거부하고 정상 날짜의 재로드·평가 해시를 보존한다. [Audit 2](../../docs/blueprint/audits/2026-10-26_engine_parse_date_plus_sign.md)·[Audit 3 재검증·변이 증거](../../docs/blueprint/audits/2026-10-28_engine_parse_date_strict.md) |
+| `rate_format` | 두 DSL 버전·두 로더·소수점 JSON 이스케이프에서 불완전한 요율 거부와 오류 경로, 미선택 가지·rule-0.2 구간표의 미선택 행 검증, 정상 정수·소수·9자리 경계의 지급액·원본·내용 해시·재로딩 결정성, 입력 이름 우선·명시적 문자열 보존. [Audit 5 증거](../../docs/blueprint/audits/2026-11-09_engine_strict_literal_parse.md) |
 | `identity_evidence` | 두 DSL 버전·모든 공개 상태·두 로드 진입점에서 빈/공백 ID·근거와 인접/비인접 중복 근거 거부, 오류 경로, 픽스처만 빈 근거 목록 허용, 정상 ID·근거 순서·해시·결과 보존. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_empty_ids_evidence.md). [Audit 5 재검증](../../docs/blueprint/audits/2026-11-09_engine_validate_rule_id.md)은 JSON 이스케이프·추가 유니코드 공백 거부, 정상 한글·앞뒤 공백 ID의 모든 결과 상태·직렬화·재로딩 보존, ID 검증 제거 변이 검출을 확인한다 |
 | `unknown_branch_errors` | 조건이 모름일 때 가지의 오류가 모름+blocker가 되는지, 선택된 가지·양쪽 가지의 오류는 유지되는지, trace 기록 |
 | `irrelevant_branch_errors` | Audit 5의 실제 교보 1995 면책 규칙 재현(`2199-11-01`, 암 분류 제외): 자식 순서·두 DSL 버전·금액 입력 누락/null/알려짐과 관계없이 `not_payable`. 논리식 날짜 오류와 금액 오버플로가 함께 있어도 자격 모름·조건부 계약 효과·blocker·결정성 유지, 자격 확정 시 관련 오류 전파 또는 금액 평가 생략. [검증 증거](../../docs/blueprint/audits/2026-11-09_engine_irrelevant_branch_error.md) |

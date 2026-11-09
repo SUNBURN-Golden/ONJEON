@@ -1,0 +1,4 @@
+PASS: all changed files are within this worktree and allowed node paths.
+PASS: protected documents and shared fixtures/golden values unchanged.
+PASS: audit and engine README links resolve.
+PASS: git diff --check.

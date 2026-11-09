@@ -1,5 +1,10 @@
 # Audit 5: check sample hashes before put_raw
 
+Fix round 1 addresses CI run `42720338918`'s floating-point clock fixture
+failure and reruns the archive and project checks. See the
+[round 1 record](fix-round1/README.md) for the reproduction, changes and current
+test evidence. The logs below record the original verification run.
+
 The base already contains Audit 2's fix: read once, compare the byte hash with
 `samples.csv`, then pass the same bytes to `put_raw` only on a match. This node
 preserves that behavior, documents the snapshot requirement in code, and adds

@@ -1,0 +1,46 @@
+Reproduce CI clock rounding with monotonic start=1023.1
+Elapsed: 600.9999999999999
+test_expired_run_still_summarizes_when_settlement_write_fails (test_r2_budget.AlarmHandler.test_expired_run_still_summarizes_when_settlement_write_fails) ... FAIL
+
+======================================================================
+FAIL: test_expired_run_still_summarizes_when_settlement_write_fails (test_r2_budget.AlarmHandler.test_expired_run_still_summarizes_when_settlement_write_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_r2_budget.py", line 1143, in test_expired_run_still_summarizes_when_settlement_write_fails
+    self.assertEqual(summary["used"]["seconds"], 601)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 600 != 601
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (failures=1)
+EXIT CODE: 1
+Reproduce the same rounding in settlement GET exhaustion
+test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) ... 
+  test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=False) ... FAIL
+  test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=True) ... FAIL
+
+======================================================================
+FAIL: test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_r2_budget.py", line 1001, in test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared
+    self.assertEqual(summary["used"]["seconds"], 601)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 600 != 601
+
+======================================================================
+FAIL: test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_r2_budget.py", line 1001, in test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared
+    self.assertEqual(summary["used"]["seconds"], 601)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 600 != 601
+
+----------------------------------------------------------------------
+Ran 1 test in 0.840s
+
+FAILED (failures=2)
+EXIT CODE: 1

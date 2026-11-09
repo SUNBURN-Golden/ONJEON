@@ -6,6 +6,7 @@ Registration is not completion evidence.
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -73,6 +74,15 @@ class BodyCheck(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertIn("PR-TRACE-MISSING", self.rules(body))
 
+    def test_decision_node_empty_builder_summary_requires_a_trace_handle(self):
+        evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
+        body = (evidence / "failed-pr-body.md").read_text(encoding="utf-8")
+        # CI runs 41783150105, 41795070906 and 41802792915: spec and issue references do not
+        # identify the node. Fix the body, without exempting decision PRs.
+        self.assertEqual(["PR-TRACE-MISSING"], self.rules(body))
+        self.assertEqual([], self.rules("Node `audit4-dec-record-authority`\n\n" + body))
+        self.assertEqual([], self.rules((evidence / "pr-body.md").read_text(encoding="utf-8")))
+
     def test_rejects_a_task_id_that_is_not_in_tasks_json(self):
         self.assertEqual(["PR-TRACE-TASK"], self.rules("T-ZZ-99"))
         # A valid P row does not excuse a named task ID that does not exist.
@@ -82,6 +92,12 @@ class BodyCheck(unittest.TestCase):
         self.assertEqual([], self.rules("T-AA-01."))
         self.assertIn("PR-TRACE-MISSING", self.rules("XT-AA-01"))
         self.assertIn("PR-TRACE-MISSING", self.rules("T-AA-001"))
+
+    def test_dec_record_id_is_not_mistaken_for_a_task_id(self):
+        # DEC-CANON-T-CT-02 ends in a hyphenated "T-CT-02"; that suffix is part of
+        # the decision-record ID, not a tasks.json task ID.
+        self.assertEqual([], self.rules("Node `audit4-x` DEC-CANON-T-CT-02"))
+        self.assertEqual(["PR-TRACE-TASK"], self.rules("T-ZZ-99"))
 
 
 class CommandLine(unittest.TestCase):
@@ -113,6 +129,16 @@ class CommandLine(unittest.TestCase):
         self.assertEqual(0, self.run_check(env={"PR_BODY": "P07"}).returncode)
         self.assertEqual(2, self.run_check().returncode)
 
+    def test_decision_node_bodies_through_ci_environment(self):
+        evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
+        for filename, code in (("failed-pr-body.md", 1), ("pr-body.md", 0)):
+            with self.subTest(filename=filename):
+                body = (evidence / filename).read_text(encoding="utf-8")
+                result = self.run_check(env={"PR_BODY": body})
+                self.assertEqual(code, result.returncode, result.stdout + result.stderr)
+                if code:
+                    self.assertIn("PR-TRACE-MISSING", result.stdout)
+
     def test_bad_tasks_file_is_a_usage_error(self):
         (self.root / "tasks.json").write_text("{not json", encoding="utf-8")
         self.assertEqual(2, self.run_check("--body", "T-AA-01").returncode)
@@ -121,14 +147,53 @@ class CommandLine(unittest.TestCase):
 class CiWiring(unittest.TestCase):
     def setUp(self):
         self.workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.guard = (ROOT / ".github/workflows/pr-traceability.yml").read_text(encoding="utf-8")
 
-    def test_pr_body_is_passed_to_the_check_on_pull_requests_only(self):
-        self.assertIn("python3 -I tools/ci/check_pr_body_traceability.py", self.workflow)
-        self.assertIn("PR_BODY: ${{ github.event.pull_request.body }}", self.workflow)
-        self.assertIn("if: github.event_name == 'pull_request'", self.workflow)
+    def pull_request_block(self, workflow):
+        trigger = re.search(r"(?m)^on:\n((?:[ \t]+[^\n]*\n|\n)+)", workflow)
+        self.assertIsNotNone(trigger)
+        return trigger[1]
 
-    def test_selftest_runs_on_every_ci_event(self):
-        self.assertIn("check_pr_body_traceability.py --selftest", self.workflow)
+    def test_guard_runs_in_its_own_workflow_and_cannot_stop_the_test_job(self):
+        # The guard used to run before the tests inside `rules-engine`. A body with no
+        # trace handle then aborted that job before cargo/unittest ran. It now has its
+        # own workflow, so a body edit cannot suppress or replace the code/test job.
+        self.assertIn("python3 -I tools/ci/check_pr_body_traceability.py", self.guard)
+        self.assertIn("PR_BODY: ${{ github.event.pull_request.body }}", self.guard)
+        self.assertNotIn("check_pr_body_traceability.py", self.workflow)
+        self.assertNotIn("PR_BODY", self.workflow)
+
+    def test_guard_workflow_is_a_separate_check_without_heavy_steps(self):
+        self.assertIn("name: pr-traceability\n", self.guard)
+        self.assertIn("jobs:\n  pr-traceability:\n", self.guard)
+        self.assertNotIn("  rules-engine:\n", self.guard)
+        for heavy in ("cargo test", "cargo build", "unittest discover", "pip install"):
+            with self.subTest(command=heavy):
+                self.assertNotIn(heavy, self.guard)
+
+    def test_pr_edits_refresh_only_the_traceability_check(self):
+        # A corrected body must re-run the guard even when the head is unchanged. The
+        # code/test workflow keeps GitHub's default PR events and never hears an edit,
+        # so no green `rules-engine` check can be manufactured without running tests.
+        events = re.search(
+            r"(?m)^  pull_request:\n(?:    #[^\n]*\n)*    types: \[([^\]]+)\]$",
+            self.pull_request_block(self.guard),
+        )
+        self.assertIsNotNone(events, "the guard needs an explicit activity list")
+        self.assertEqual({event.strip() for event in events[1].split(",")},
+                         {"opened", "synchronize", "reopened", "edited"})
+        ci_pr = self.pull_request_block(self.workflow)
+        self.assertNotIn("types:", ci_pr)
+        self.assertNotRegex(ci_pr, r"\bedited\b")
+
+    def test_body_edit_cannot_skip_or_overwrite_the_test_job(self):
+        # No step- or job-level edit gating may remain: those are what let a later
+        # `edited` run report `rules-engine` green with every test step skipped.
+        self.assertNotIn("github.event.action", self.workflow)
+        self.assertNotIn("github.event.action", self.guard)
+
+    def test_selftest_runs_on_every_guard_event(self):
+        self.assertIn("check_pr_body_traceability.py --selftest", self.guard)
 
 
 class CanonicalPolicy(unittest.TestCase):

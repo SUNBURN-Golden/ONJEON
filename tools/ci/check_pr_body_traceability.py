@@ -32,7 +32,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ci_common as C  # noqa: E402
 
 DEFAULT_TASKS = Path("docs/blueprint/proposals/설계검토_결과/tasks.json")
-TASK_ID = re.compile(r"(?<![A-Za-z0-9])(T-[A-Z]{2}-\d{2})(?![0-9])")
+# Hyphens are part of the token boundary: DEC-CANON-T-CT-02 contains "T-CT-02"
+# as a suffix, not as a tasks.json task ID.
+TASK_ID = re.compile(r"(?<![A-Za-z0-9-])(T-[A-Z]{2}-\d{2})(?![A-Za-z0-9-])")
 # A labelled node ID. Bare hyphenated words other than audit slugs are too easy to hit
 # by accident, so only `auditN-...` is accepted unlabelled: the orchestrator writes the
 # audit node slug in plain prose and filesystem paths without backticks.
@@ -72,6 +74,7 @@ def selftest():
         ("bare audit node ID in prose", "Node audit4-example-node — in scope fix", None),
         ("bare audit node ID in a path", "/wt/audit4-example-node/tools/ci", None),
         ("Korean node label", "노드 ID: `audit4-example-node`", None),
+        ("DEC id suffix is not a task ID", "Node `audit4-example-node` DEC-CANON-T-CT-02", None),
         ("empty body", "", "PR-TRACE-MISSING"),
         ("no trace handle", "Fixes a typo in the README.", "PR-TRACE-MISSING"),
         ("unknown task ID", "T-ZZ-99", "PR-TRACE-TASK"),

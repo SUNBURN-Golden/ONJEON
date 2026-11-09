@@ -1,0 +1,64 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling generic-array v0.14.7
+   Compiling memchr v2.8.3
+   Compiling cpufeatures v0.2.17
+   Compiling itoa v1.0.18
+   Compiling cfg-if v1.0.5
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling syn v3.0.6
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-flag-g13-wholelife/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.65s
+     Running tests/fixture_supplements.rs (target/debug/deps/fixture_supplements-5c73c7add3657f0c)
+
+running 4 tests
+test supplement_cannot_shadow_a_shared_case - should panic ... ok
+test duplicate_ids_within_a_supplement_are_rejected - should panic ... ok
+test every_supplement_extends_an_existing_table_without_changing_shared_cases ... ok
+test supplemental_cases_inherit_base_inputs_and_apply_their_overrides ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/golden.rs (target/debug/deps/golden-b070bb5f85ed9bcc)
+
+running 8 tests
+test synthetic_fixture_rule_is_fixture_only ... ok
+test trace_records_every_evaluated_node_and_hash_changes_with_input ... ok
+test golden_table_matches_expert_expectations ... ok
+test pinned_input_snapshot_hashes_are_distinct_per_distinct_input ... ok
+test golden_table_pins_trace_and_hashes ... ok
+test real_rule_content_hashes_are_pinned ... ok
+test same_input_gives_byte_identical_output ... ok
+test real_results_are_byte_identical_after_disk_reload_and_key_permutation ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+
+     Running tests/real_clauses.rs (target/debug/deps/real_clauses-15dc6296a8f95d44)
+
+running 12 tests
+test exact_case_count_check_catches_an_unexpected_extra_case - should panic ... ok
+test screen_check_catches_tampered_numbers ... ok
+test every_real_clause_case_matches ... ok
+test waiting_period_units_are_not_interchangeable ... ok
+test every_real_rule_evidence_ref_names_an_encoded_clause ... ok
+test screen_payout_text_and_amounts_come_from_the_engine ... ok
+test exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered - should panic ... ok
+test rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count - should panic ... ok
+test whole_life_leap_day_self_harm_boundary_is_g13_pending ... ok
+test whole_life_accident_and_disease_death_never_both_pay ... ok
+test case_coverage_check_catches_orphans_and_unknown_rules ... ok
+test exact_case_count_check_catches_each_missing_file ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

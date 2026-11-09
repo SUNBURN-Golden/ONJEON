@@ -1,0 +1,38 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit5-engine-test-harness-guards/target/harness-control-dqjy79mi/packages/rules-engine/Cargo.toml --test harness_guards
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling generic-array v0.14.7
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-test-harness-guards/target/harness-control-dqjy79mi/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.65s
+     Running tests/harness_guards.rs (target/harness-control-build/debug/deps/harness_guards-3e4d4add4a3becdb)
+
+running 7 tests
+test rule_filename_must_match_its_id_even_without_a_collision ... ok
+test matching_rule_files_preserve_every_rule_and_ignore_case_tables ... ok
+test valid_shared_and_supplemental_case_formats_keep_their_inputs ... ok
+test duplicate_rule_ids_are_rejected_in_either_filename_order ... ok
+test malformed_overrides_cannot_silently_use_base_inputs ... ok
+test unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+test unknown_real_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+Exit: 0

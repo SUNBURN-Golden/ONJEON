@@ -201,3 +201,27 @@ API를 찾지 못하지만, 이 작업 트리의 `target/`으로 실행하면 �
 [scope.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round4/scope.log).
 이번 수정은 보고된 빌드 실패를 다룬다. 위 2차의 실제 런타임 소스 허용 경로 제한은
 계속 적용되며, 런타임 패치를 실제 적용했다고 주장하지 않는다.
+
+## 수정 5차: main 병합 충돌 해결
+
+진행 중인 main 병합에서 유일한 충돌은 BLUEPRINT §11의 자동 생성 시험 등록 수였다.
+현재 브랜치의 중복 JSON 키 거부·공개 파서 문서 시험과 main의 규칙 ID 검증 시험을
+모두 유지하고 `tools/blueprint_counts.py --write`로 병합된 소스의 등록 수를 다시 셌다.
+결과는 엔진 단위·통합 시험 240개, doctest 4개다. 양쪽의 과거 실행 증거는 보존했다.
+로더 동작과 실제 런타임 소스는 이번 충돌 해결에서 변경하지 않았다.
+
+Rust 1.98.1과 작업 트리 전용 `CARGO_TARGET_DIR="$PWD/target"`을 사용한 직접 재실행:
+
+| 명령 | 결과·증거 |
+|---|---|
+| `python3 -I tools/blueprint_counts.py --write` | 병합된 등록 수 재생성: [counts-write.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/counts-write.log) |
+| `cargo test -p onjeon-rules-engine --locked --offline --test duplicate_json_keys --test identity_evidence` | 중복 키 6개·식별 및 근거 7개 모두 통과: [focused.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/focused.log) |
+| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | Rust 506개 통과·실패 0·기존 ignored 1개: [workspace.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/workspace.log) |
+| `python3 -m unittest discover -s tools/tests -v` | 1,408개 실행·실패 0·기존 skip 6개: [python-tests.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/python-tests.log) |
+| `cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline` | 4개 통과: [ontology-runner.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/ontology-runner.log) |
+| `cargo fmt --all -- --check` / `cargo clippy --all-targets --locked --offline -- -D warnings` | 통과: [fmt.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/fmt.log), [clippy.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/clippy.log) |
+| `python3 -I tools/blueprint_counts.py` / `python3 -I tools/blueprint_status.py` | 수치·결정 색인 일치: [counts.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/counts.log), [status.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/status.log) |
+| `python3 -I tools/ci/check_product_purpose.py` / `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 통과: [product-purpose.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/product-purpose.log), [spec-check.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/spec-check.log) |
+
+최종 병합 상태·허용 경로·보호 파일·문서 링크·공백 검사:
+[scope.log](../../../tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round5/scope.log).

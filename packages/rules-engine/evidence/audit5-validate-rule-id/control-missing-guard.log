@@ -1,0 +1,37 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit5-engine-validate-rule-id/packages/rules-engine/evidence/audit5-validate-rule-id/negative-control-8vapz9dh/Cargo.toml --test identity_evidence
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-validate-rule-id/packages/rules-engine/evidence/audit5-validate-rule-id/negative-control-8vapz9dh)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.69s
+     Running tests/identity_evidence.rs (target/audit5-id-control/debug/deps/identity_evidence-d794a8734d028f95)
+
+running 7 tests
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test json_escaped_whitespace_rule_ids_are_rejected_after_decoding ... FAILED
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test blank_rule_ids_are_rejected ... FAILED
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test nonblank_rule_ids_are_preserved_in_every_result_state ... ok
+
+failures:
+
+---- json_escaped_whitespace_rule_ids_are_rejected_after_decoding stdout ----
+
+thread 'json_escaped_whitespace_rule_ids_are_rejected_after_decoding' (1606100) panicked at tests/identity_evidence.rs:60:34:
+escaped blank ID must fail at load: Rule { rule_id: " ", rule_version: "1", release_id: Some("rel-1"), content_hash: "2dc6eb57f96102be03234952599788628cd7526464e518e5fdd7d9f3208c545d", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["clause-2", "clause-1"], inputs: {}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "eligibility": Bool(true), "evidence_refs": Array [String("clause-2"), String("clause-1")], "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("rel-1"), "rule_id": String(" "), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- blank_rule_ids_are_rejected stdout ----
+
+thread 'blank_rule_ids_are_rejected' (1606096) panicked at tests/identity_evidence.rs:43:34:
+blank rule ID must fail at load: Rule { rule_id: "", rule_version: "1", release_id: Some("rel-1"), content_hash: "137c705ba763bee7a46d7276bc2506a61fdf6a3f3eee87ce68b0a3c02a05bd5f", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["clause-2", "clause-1"], inputs: {}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "eligibility": Bool(true), "evidence_refs": Array [String("clause-2"), String("clause-1")], "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("rel-1"), "rule_id": String(""), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+
+failures:
+    blank_rule_ids_are_rejected
+    json_escaped_whitespace_rule_ids_are_rejected_after_decoding
+
+test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `--test identity_evidence`
+
+Exit: 101

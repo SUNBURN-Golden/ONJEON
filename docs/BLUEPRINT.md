@@ -326,7 +326,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 ## 10. 드리프트 방지 규칙
 
-1. 모든 PR은 템플릿(`.github/pull_request_template.md`)에 해당하는 A·Q·L·I·M을 적는다. 본문에 `tasks.json` 과제 ID(목록 외 작업은 노드 ID와 사유) 또는 09 P행(`P01`~`P19`) 중 하나로 작업·완료 기준 추적 지점을 적는다. `python3 -I tools/ci/check_pr_body_traceability.py`가 CI에서 이를 확인한다. 어디에도 연결되지 않으면 범위 밖이다.
+1. 모든 PR은 템플릿(`.github/pull_request_template.md`)에 해당하는 A·Q·L·I·M을 적는다. 본문 또는 PR 머리 브랜치(`github.head_ref`, 워크플로가 넘기지 않으면 내장 `GITHUB_HEAD_REF`)에 `tasks.json` 과제 ID(목록 외 작업은 노드 ID와 사유) 또는 09 P행(`P01`~`P19`) 중 하나로 작업·완료 기준 추적 지점을 적는다. `python3 -I tools/ci/check_pr_body_traceability.py`가 CI에서 이를 확인한다. 어디에도 연결되지 않으면 범위 밖이다.
 2. 새 상태값·enum은 §6에 먼저 추가하는 PR을 낸 뒤 쓴다.
 3. 결정 변경은 ADR → §7 갱신 순서다. 대화에서 바뀐 방향도 ADR로 남긴다.
 4. 불변식은 테스트로 강제될 때만 "구현"이다.
@@ -335,7 +335,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 7. 마일스톤이 끝날 때마다 §4·§8·§9·§11의 상태 열을 갱신한다.
 8. 마일스톤과 별개로 `docs/decisions/ADR-*.md` 또는 `DEC-*.md`를 추가·수정·삭제·개명하는 변경은 같은 변경에서 §11의 영향받는 상태·관문을 검토·갱신하고 기준일(UTC)을 찍는다. 검토 뒤 `python3 -I tools/blueprint_status.py --write`로 §11 기준일과 전체 결정 색인·내용 해시를 갱신한다. `python3 -I tools/blueprint_status.py`와 CI의 `tools/tests/test_blueprint_status.py`가 누락을 거부한다. 자동 생성은 색인과 날짜만 바꾸며 상태 판단·관문 승인을 대신하지 않는다.
 
-## 11. 현재 위치 (2026-11-03)
+## 11. 현재 위치 (2026-11-04)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -369,7 +369,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-11-03 | SHA-256(파일명·내용): `9b534071a47bd19c3adccdaf59cd35593dbd04d5442364ccc97d862cfaa3fa74`
+결정 기록 대조일: 2026-11-04 | SHA-256(파일명·내용): `9b534071a47bd19c3adccdaf59cd35593dbd04d5442364ccc97d862cfaa3fa74`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|

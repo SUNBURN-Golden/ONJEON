@@ -19,7 +19,7 @@
 
 `tasks.json`은 과제 실행·완료 기준으로 채택됐지만([DEC-BUNDLE-STATUS](../../../decisions/DEC-BUNDLE-STATUS.md)), 그 안의 `common_done_criteria`는 PR 템플릿 채택과 별개이며 **채택 전 모든 PR에 구속력을 갖지 않는다**(`_common_done_criteria_status=non_binding_until_adopted`). 현행 PR 기준은 [BLUEPRINT](../../../BLUEPRINT.md)와 [PR 템플릿](../../../../.github/pull_request_template.md)이다. 채택 시 과제 ID, 작성 모델 역할·실행 경로, 대상 SHA, 테스트 로그 필드를 PR 템플릿에 반영하고 JSON의 적용 상태와 이 절·[03 §2](03_작업명세.md#2-모든-과제에-공통인-완료-기준)를 함께 갱신한다.
 
-Audit 4(2026-11-04)의 추적 요구는 PR 본문의 `tasks.json` 과제 ID·노드 ID·09 P행을 `tools/ci/check_pr_body_traceability.py`로 확인하는 방식으로 적용했다. PR 템플릿은 이 노드의 허용 경로 밖이라 변경하지 않았고, 이는 `common_done_criteria` 전체의 채택이 아니며 위 적용 상태를 바꾸지 않는다. 이 선언은 공통 PR 기준의 적용 상태를 명확히 한다. 사용자 지시와 개별 과제에서 요구한 시험·로그 의무는 그대로 따른다. 제품 완료 판정은 계속 [09_제품목적_대응표](09_제품목적_대응표.md)의 완료 증거를 따른다. 검토용 완료 기준은 삭제하지 않는다.
+Audit 4(2026-11-04)의 추적 요구는 PR 본문 또는 머리 브랜치(`github.head_ref`)의 `tasks.json` 과제 ID·노드 ID·09 P행을 `tools/ci/check_pr_body_traceability.py`로 확인하는 방식으로 적용했다. PR 템플릿은 이 노드의 허용 경로 밖이라 변경하지 않았고, 이는 `common_done_criteria` 전체의 채택이 아니며 위 적용 상태를 바꾸지 않는다. 이 선언은 공통 PR 기준의 적용 상태를 명확히 한다. 사용자 지시와 개별 과제에서 요구한 시험·로그 의무는 그대로 따른다. 제품 완료 판정은 계속 [09_제품목적_대응표](09_제품목적_대응표.md)의 완료 증거를 따른다. 검토용 완료 기준은 삭제하지 않는다.
 
 ## 1. 수정 이력 (ffbcaf6 대비)
 

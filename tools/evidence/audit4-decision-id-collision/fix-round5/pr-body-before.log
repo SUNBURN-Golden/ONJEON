@@ -1,0 +1,4 @@
+$ PR_BODY=<run 41809010985 body> python3 -I tools/ci/check_pr_body_traceability.py
+pr-traceability: 1 finding(s)
+  [PR-TRACE-MISSING] <pull request body or head branch>: no tasks.json task ID, node ID, or 09 P row (P01..P19)
+exit=1

@@ -27,8 +27,8 @@ class BodyCheck(unittest.TestCase):
             {"id": "T-AA-01"}, {"id": "T-OP-08"},
         ]}), encoding="utf-8")
 
-    def rules(self, body):
-        return [f.rule for f in T.check(body, self.tasks)]
+    def rules(self, body, head_ref=None):
+        return [f.rule for f in T.check(body, self.tasks, head_ref)]
 
     def test_accepts_an_existing_task_id(self):
         self.assertEqual([], self.rules("Agent node: `audit4-x`. Task T-AA-01."))
@@ -83,6 +83,24 @@ class BodyCheck(unittest.TestCase):
         self.assertIn("PR-TRACE-MISSING", self.rules("XT-AA-01"))
         self.assertIn("PR-TRACE-MISSING", self.rules("T-AA-001"))
 
+    def test_accepts_a_trace_handle_from_the_head_branch(self):
+        # The orchestrator derives branch names from the node slug; an auto-generated
+        # body may omit it. Run 41809010985's body did exactly that.
+        for body, head_ref in (
+                ("Fixes a typo in the README.", "grokbot/onjeon-audit4-example-node"),
+                ("", "grokbot/onjeon-audit4-example-node"),
+                ("Fixes a typo in the README.", "feature/T-AA-01"),
+                ("", "pr/P04")):
+            with self.subTest(body=body, head_ref=head_ref):
+                self.assertEqual([], self.rules(body, head_ref))
+
+    def test_an_unrelated_head_branch_is_not_a_trace_handle(self):
+        self.assertIn("PR-TRACE-MISSING", self.rules("Fixes a typo.", "feature/typo"))
+        self.assertIn("PR-TRACE-MISSING", self.rules("", "grokbot/onjeon-typo"))
+
+    def test_a_task_id_in_the_head_branch_is_still_validated(self):
+        self.assertEqual(["PR-TRACE-TASK"], self.rules("", "feature/T-ZZ-99"))
+
 
 class CommandLine(unittest.TestCase):
     def setUp(self):
@@ -93,7 +111,8 @@ class CommandLine(unittest.TestCase):
             json.dumps({"tasks": [{"id": "T-AA-01"}]}), encoding="utf-8")
 
     def run_check(self, *args, env=None):
-        base = {k: v for k, v in os.environ.items() if k != "PR_BODY"}
+        base = {k: v for k, v in os.environ.items()
+                if k not in ("PR_BODY", "PR_HEAD_REF", "GITHUB_HEAD_REF")}
         base.update(env or {})
         return subprocess.run(
             [sys.executable, "-I", str(CI / "check_pr_body_traceability.py"),
@@ -113,6 +132,70 @@ class CommandLine(unittest.TestCase):
         self.assertEqual(0, self.run_check(env={"PR_BODY": "P07"}).returncode)
         self.assertEqual(2, self.run_check().returncode)
 
+    def test_decision_node_body_requires_the_missing_trace_handle(self):
+        # Runs 41795807949 and 41804857097 supplied the same body without a node.
+        # Exercise PR_BODY as CI does and the supervisor's --body-file preflight.
+        evidence = ROOT / "tools/evidence/audit4-decision-id-collision/fix-round2"
+        before = (evidence / "pr-body-before.txt").read_text(encoding="utf-8")
+        after = (evidence / "pr-body.txt").read_text(encoding="utf-8")
+        trace = "Node `audit4-decision-id-collision`\n\n"
+        self.assertEqual(trace + before, after)
+        failed = self.run_check(env={"PR_BODY": before})
+        self.assertEqual(1, failed.returncode)
+        self.assertIn("PR-TRACE-MISSING", failed.stdout)
+        for round_name in ("fix-round2", "fix-round3"):
+            body_file = evidence.parent / round_name / "pr-body.txt"
+            body = body_file.read_text(encoding="utf-8")
+            with self.subTest(round=round_name):
+                self.assertTrue(body.startswith(trace))
+                for passed in (self.run_check(env={"PR_BODY": body}),
+                               self.run_check("--body-file", str(body_file))):
+                    self.assertEqual(0, passed.returncode, passed.stdout + passed.stderr)
+                # The node handle is essential: decision IDs and Refs #418 alone
+                # must not accidentally become an accepted traceability fallback.
+                removed = self.run_check(env={"PR_BODY": body[len(trace):]})
+                self.assertEqual(1, removed.returncode)
+                self.assertIn("PR-TRACE-MISSING", removed.stdout)
+                # Run 41809010985's body has no handle, but the orchestrator branch
+                # does. CI passes it as PR_HEAD_REF, so the pull request is traceable
+                # without editing the remote body.
+                traced = self.run_check(env={
+                    "PR_BODY": before,
+                    "PR_HEAD_REF": "grokbot/onjeon-audit4-decision-id-collision",
+                })
+                self.assertEqual(0, traced.returncode, traced.stdout + traced.stderr)
+                self.assertEqual(0, self.run_check(
+                    "--body", before,
+                    "--head-ref", "grokbot/onjeon-audit4-decision-id-collision").returncode)
+                unrelated = self.run_check(env={
+                    "PR_BODY": before, "PR_HEAD_REF": "grokbot/onjeon-unrelated-node"})
+                self.assertEqual(1, unrelated.returncode)
+                self.assertIn("PR-TRACE-MISSING", unrelated.stdout)
+
+    def test_github_head_ref_is_read_when_pr_head_ref_is_not_mapped(self):
+        # Run 41809010985 ran a workflow that passed only PR_BODY. GitHub still
+        # exports GITHUB_HEAD_REF for pull_request runs, so the branch handle is
+        # available without relying on the explicit mapping.
+        body = (ROOT / "tools/evidence/audit4-decision-id-collision/fix-round2"
+                / "pr-body-before.txt").read_text(encoding="utf-8")
+        traced = self.run_check(env={
+            "PR_BODY": body,
+            "GITHUB_HEAD_REF": "grokbot/onjeon-audit4-decision-id-collision",
+        })
+        self.assertEqual(0, traced.returncode, traced.stdout + traced.stderr)
+        # An empty explicit mapping falls through to the built-in variable.
+        fallthrough = self.run_check(env={
+            "PR_BODY": body,
+            "PR_HEAD_REF": "",
+            "GITHUB_HEAD_REF": "grokbot/onjeon-audit4-decision-id-collision",
+        })
+        self.assertEqual(0, fallthrough.returncode, fallthrough.stdout + fallthrough.stderr)
+        # An unrelated built-in branch is not a handle.
+        unrelated = self.run_check(env={
+            "PR_BODY": body, "GITHUB_HEAD_REF": "grokbot/onjeon-unrelated-node"})
+        self.assertEqual(1, unrelated.returncode)
+        self.assertIn("PR-TRACE-MISSING", unrelated.stdout)
+
     def test_bad_tasks_file_is_a_usage_error(self):
         (self.root / "tasks.json").write_text("{not json", encoding="utf-8")
         self.assertEqual(2, self.run_check("--body", "T-AA-01").returncode)
@@ -122,9 +205,10 @@ class CiWiring(unittest.TestCase):
     def setUp(self):
         self.workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
 
-    def test_pr_body_is_passed_to_the_check_on_pull_requests_only(self):
+    def test_pr_body_and_head_branch_are_passed_on_pull_requests_only(self):
         self.assertIn("python3 -I tools/ci/check_pr_body_traceability.py", self.workflow)
         self.assertIn("PR_BODY: ${{ github.event.pull_request.body }}", self.workflow)
+        self.assertIn("PR_HEAD_REF: ${{ github.head_ref }}", self.workflow)
         self.assertIn("if: github.event_name == 'pull_request'", self.workflow)
 
     def test_selftest_runs_on_every_ci_event(self):
@@ -136,7 +220,8 @@ class CanonicalPolicy(unittest.TestCase):
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
         rules = blueprint.split("## 10. 드리프트 방지 규칙", 1)[1].split("## 11.", 1)[0]
         for text in ("`tasks.json` 과제 ID", "노드 ID와 사유", "09 P행",
-                     "`P01`~`P19`", "tools/ci/check_pr_body_traceability.py"):
+                     "`P01`~`P19`", "PR 머리 브랜치", "github.head_ref",
+                     "tools/ci/check_pr_body_traceability.py"):
             with self.subTest(text=text):
                 self.assertIn(text, rules)
 

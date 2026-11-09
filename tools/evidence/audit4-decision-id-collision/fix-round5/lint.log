@@ -1,0 +1,3 @@
+$ cargo clippy --locked --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+exit=0

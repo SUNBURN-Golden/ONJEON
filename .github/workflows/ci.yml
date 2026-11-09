@@ -26,11 +26,13 @@ jobs:
           python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
       - name: PR traceability guard self-test (Audit 4)
         run: python3 -I tools/ci/check_pr_body_traceability.py --selftest
-      - name: PR body traceability (tasks.json task ID, node ID, or 09 P row)
-        # The PR template is outside every node's editable paths; the body itself is checked.
+      - name: PR traceability (tasks.json task ID, node ID, or 09 P row)
+        # The PR template is outside every node's editable paths; the body and the
+        # head branch (which the orchestrator derives from the node slug) are checked.
         if: github.event_name == 'pull_request'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
+          PR_HEAD_REF: ${{ github.head_ref }}
         run: python3 -I tools/ci/check_pr_body_traceability.py
       - name: Registry normalization regressions
         run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v

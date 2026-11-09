@@ -2,22 +2,28 @@
 """PR body traceability guard (Audit 4).
 
 A PR must be traceable to the work contract or to the product completion standard.
-The body may name any one of:
+The PR body or its head branch may name any one of:
   - a `tasks.json` task ID (`T-XX-NN`), which must exist in tasks.json;
   - an out-of-list node ID: labelled, or a bare (not necessarily inline-code)
     `` auditN-some-node `` slug; the orchestrator emits it in prose and paths;
   - an 09_제품목적_대응표 P row (`P01`..`P19`).
 
 The PR template is the usual place to record this, but this guard reads the body
-itself so a missing or edited template cannot leave a PR untraceable. Registration
-is not completion evidence: a P row here does not close the row.
+itself so a missing or edited template cannot leave a PR untraceable. The head
+branch is a second accepted source because the orchestrator derives every branch
+name from the node slug (`grokbot/onjeon-audit4-example-node`) while an
+auto-generated body may omit it. The branch comes from `--head-ref`,
+`PR_HEAD_REF`, or GitHub's built-in `GITHUB_HEAD_REF`, so a workflow that does
+not map the ref explicitly still finds it. Registration is not completion
+evidence: a P row here does not close the row.
 
-  PR-TRACE-MISSING  body names no task ID, node ID, or P row
+  PR-TRACE-MISSING  body and head branch name no task ID, node ID, or P row
   PR-TRACE-TASK     a `T-XX-NN` task ID is not present in tasks.json
 
 Usage: python3 -I tools/ci/check_pr_body_traceability.py --body-file FILE
-       python3 -I tools/ci/check_pr_body_traceability.py --body TEXT
-       PR_BODY='...' python3 -I tools/ci/check_pr_body_traceability.py
+       python3 -I tools/ci/check_pr_body_traceability.py --body TEXT --head-ref BRANCH
+       PR_BODY='...' PR_HEAD_REF='...' python3 -I tools/ci/check_pr_body_traceability.py
+       PR_BODY='...' GITHUB_HEAD_REF='...' python3 -I tools/ci/check_pr_body_traceability.py
        python3 -I tools/ci/check_pr_body_traceability.py --selftest
 Exit: 0 clean, 1 findings, 2 usage or unreadable/invalid input.
 """
@@ -41,11 +47,20 @@ AUDIT_NODE_ID = re.compile(r"(?<![A-Za-z0-9])(audit\d+(?:-[a-z0-9]+)+)(?![A-Za-z
 P_ROW = re.compile(r"(?<![A-Za-z0-9])(P(?:0[1-9]|1[0-9]))(?![0-9])")
 
 
-def check(body, tasks_path):
-    """Return findings for a PR body against a tasks.json file."""
-    task_ids = set(TASK_ID.findall(body))
-    node_ids = set(NODE_ID.findall(body)) | set(AUDIT_NODE_ID.findall(body))
-    p_rows = set(P_ROW.findall(body))
+def handles(text):
+    """Return the task IDs, node IDs and P rows named in text."""
+    return (set(TASK_ID.findall(text)),
+            set(NODE_ID.findall(text)) | set(AUDIT_NODE_ID.findall(text)),
+            set(P_ROW.findall(text)))
+
+
+def check(body, tasks_path, head_ref=None):
+    """Return findings for a PR body and optional head branch against tasks.json."""
+    task_ids, node_ids, p_rows = handles(body)
+    ref_task_ids, ref_node_ids, ref_p_rows = handles(head_ref or "")
+    task_ids |= ref_task_ids
+    node_ids |= ref_node_ids
+    p_rows |= ref_p_rows
     findings = []
 
     if task_ids:
@@ -57,32 +72,46 @@ def check(body, tasks_path):
                 f"{task_id} is not a task ID in tasks.json"))
     if not task_ids and not node_ids and not p_rows:
         findings.append(C.Finding(
-            "PR-TRACE-MISSING", "<pull request body>", 0,
+            "PR-TRACE-MISSING", "<pull request body or head branch>", 0,
             "no tasks.json task ID, node ID, or 09 P row (P01..P19)"))
     return findings
 
 
 def selftest():
-    files = {"tasks.json": json.dumps({"tasks": [{"id": "T-AA-01"}]})}
+    tasks = {"tasks.json": json.dumps({"tasks": [{"id": "T-AA-01"}]})}
     cases = [
-        ("task ID and P row", "T-AA-01 P03", None),
-        ("single P row", "Closes P19 evidence.", None),
-        ("labelled node ID", "Node `audit4-example-node`", None),
-        ("inline-code audit node ID", "`audit4-example-node`", None),
-        ("bare audit node ID in prose", "Node audit4-example-node — in scope fix", None),
-        ("bare audit node ID in a path", "/wt/audit4-example-node/tools/ci", None),
-        ("Korean node label", "노드 ID: `audit4-example-node`", None),
-        ("empty body", "", "PR-TRACE-MISSING"),
-        ("no trace handle", "Fixes a typo in the README.", "PR-TRACE-MISSING"),
-        ("unknown task ID", "T-ZZ-99", "PR-TRACE-TASK"),
-        ("unknown task ID beside a valid P row", "T-ZZ-99 P01", "PR-TRACE-TASK"),
-        ("out-of-range P row", "P20", "PR-TRACE-MISSING"),
-        ("unlabelled non-audit slug", "example-node", "PR-TRACE-MISSING"),
+        # (name, body, head_ref, expected rule)
+        ("task ID and P row", "T-AA-01 P03", None, None),
+        ("single P row", "Closes P19 evidence.", None, None),
+        ("labelled node ID", "Node `audit4-example-node`", None, None),
+        ("inline-code audit node ID", "`audit4-example-node`", None, None),
+        ("bare audit node ID in prose", "Node audit4-example-node — in scope fix", None, None),
+        ("bare audit node ID in a path", "/wt/audit4-example-node/tools/ci", None, None),
+        ("Korean node label", "노드 ID: `audit4-example-node`", None, None),
+        ("node slug only in head branch", "", "grokbot/onjeon-audit4-example-node", None),
+        ("task ID only in head branch", "Fixes a typo.", "feature/T-AA-01", None),
+        ("P row only in head branch", "", "pr/P04", None),
+        ("empty body", "", None, "PR-TRACE-MISSING"),
+        ("no trace handle", "Fixes a typo in the README.", None, "PR-TRACE-MISSING"),
+        ("unrelated head branch", "Fixes a typo.", "feature/typo", "PR-TRACE-MISSING"),
+        ("unknown task ID", "T-ZZ-99", None, "PR-TRACE-TASK"),
+        ("unknown task ID in head branch", "", "feature/T-ZZ-99", "PR-TRACE-TASK"),
+        ("unknown task ID beside a valid P row", "T-ZZ-99 P01", None, "PR-TRACE-TASK"),
+        ("out-of-range P row", "P20", None, "PR-TRACE-MISSING"),
+        ("unlabelled non-audit slug", "example-node", None, "PR-TRACE-MISSING"),
     ]
+
+    def run(root):
+        head_file = root / "head.txt"
+        head_ref = head_file.read_text(encoding="utf-8") if head_file.exists() else None
+        return check((root / "body.txt").read_text(encoding="utf-8"),
+                     root / "tasks.json", head_ref)
+
     return C.run_selftest(
         "check_pr_body_traceability",
-        [(name, dict(files, **{"body.txt": body}), rule) for name, body, rule in cases],
-        lambda root: check((root / "body.txt").read_text(encoding="utf-8"), root / "tasks.json"))
+        [(name, dict(tasks, **{"body.txt": body}, **({"head.txt": head} if head else {})), rule)
+         for name, body, head, rule in cases],
+        run)
 
 
 def main(argv=None):
@@ -91,6 +120,7 @@ def main(argv=None):
     parser.add_argument("--tasks", type=Path)
     parser.add_argument("--body-file", type=Path)
     parser.add_argument("--body")
+    parser.add_argument("--head-ref")
     parser.add_argument("--selftest", action="store_true")
     args = parser.parse_args(argv)
     if args.selftest:
@@ -106,13 +136,21 @@ def main(argv=None):
         body = os.environ["PR_BODY"]
     else:
         return C.usage_error("no PR body: pass --body-file/--body or set PR_BODY")
+    head_ref = args.head_ref
+    if head_ref is None:
+        # PR_HEAD_REF is the explicit CI mapping; GITHUB_HEAD_REF is exported by
+        # GitHub for every pull_request run, so the branch is still read when the
+        # workflow predates that mapping (CI run 41809010985).
+        head_ref = (os.environ.get("PR_HEAD_REF")
+                    or os.environ.get("GITHUB_HEAD_REF"))
     try:
-        findings = check(body, args.tasks or args.root / DEFAULT_TASKS)
+        findings = check(body, args.tasks or args.root / DEFAULT_TASKS, head_ref)
     except (OSError, ValueError, KeyError, TypeError) as exc:
         return C.usage_error(f"cannot read traceability inputs: {exc}")
     return C.report(
         findings,
-        "PR body names a tasks.json task ID, node ID, or 09 P row (traceability only)",
+        "PR body or head branch names a tasks.json task ID, node ID, or 09 P row "
+        "(traceability only)",
         "pr-traceability")
 
 

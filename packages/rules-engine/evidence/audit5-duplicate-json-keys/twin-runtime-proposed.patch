@@ -1,0 +1,93 @@
+diff --git a/packages/twin-runtime/src/input_stage.rs b/packages/twin-runtime/src/input_stage.rs
+index 460f9b5..3dabaed 100644
+--- a/packages/twin-runtime/src/input_stage.rs
++++ b/packages/twin-runtime/src/input_stage.rs
+@@ -17,7 +17,7 @@
+ 
+ use crate::snapshot::Snapshot;
+ use onjeon_ontology::{membership, Linked, OntologyError};
+-use onjeon_rules_engine::Rule;
++use onjeon_rules_engine::{parse_rule_json, Rule};
+ use serde::{Deserialize, Serialize};
+ use serde_json::{Map, Value};
+ use std::fmt;
+@@ -249,9 +249,10 @@ impl std::error::Error for FillError {}
+ /// `inputs_from_outside_dsl` declaration for the input stage. The declaration is part
+ /// of the rule file the release pins; the engine's loader knows only the DSL keys, so
+ /// the key is lifted off the JSON before `Rule::from_json` sees the body. A file
+-/// without the key declares no outside inputs.
++/// without the key declares no outside inputs. Duplicate JSON keys anywhere in the
++/// artifact are rejected before extracting the declaration or hashing the DSL.
+ pub fn load_rule_artifact(bytes: &[u8]) -> Result<(Rule, Vec<OutsideInput>), String> {
+-    let mut v: Value = serde_json::from_slice(bytes).map_err(|e| format!("invalid JSON: {e}"))?;
++    let mut v = parse_rule_json(bytes).map_err(|e| e.to_string())?;
+     let decl = v
+         .as_object_mut()
+         .and_then(|o| o.remove("inputs_from_outside_dsl"));
+diff --git a/packages/twin-runtime/tests/input_stage.rs b/packages/twin-runtime/tests/input_stage.rs
+index fd513e5..de9baeb 100644
+--- a/packages/twin-runtime/tests/input_stage.rs
++++ b/packages/twin-runtime/tests/input_stage.rs
+@@ -400,3 +400,62 @@ fn a_stale_or_unknown_key_in_the_declaration_fails_loudly() {
+     let e = load_rule_artifact(&serde_json::to_vec(&v).unwrap()).unwrap_err();
+     assert!(e.contains("inputs_from_outside_dsl"), "{e}");
+ }
++
++#[test]
++fn artifact_loader_rejects_duplicate_keys_before_extracting_the_declaration() {
++    let plain = std::fs::read(golden_dir().join("규칙/hana-2601-3d-cancer-dx.json")).unwrap();
++    let value: Value = serde_json::from_slice(&plain).unwrap();
++    let text = serde_json::to_string(&value).unwrap();
++    let prefix = &text[..text.len() - 1];
++    for (extra, key) in [
++        (r#""amount":{"krw":1},"amount":{"krw":999}"#, "amount"),
++        (r#""example_kind":{"nested":[{"krw":1,"krw":999}]}"#, "krw"),
++        (
++            r#""inputs_from_outside_dsl":[],"inputs_from_outside_dsl":null"#,
++            "inputs_from_outside_dsl",
++        ),
++        (
++            r#""inputs_from_outside_dsl":null,"\u0069nputs_from_outside_dsl":[]"#,
++            "inputs_from_outside_dsl",
++        ),
++        (
++            r#""inputs_from_outside_dsl":[{"name":"x","name":"y","judged_by":"ontology"}]"#,
++            "name",
++        ),
++        (
++            r#""inputs_from_outside_dsl":[{"name":"x","judged_by":"ontology","duration":{"value":1,"value":2,"unit":"day"}}]"#,
++            "value",
++        ),
++    ] {
++        let text = format!("{prefix},{extra}}}");
++        let err = load_rule_artifact(text.as_bytes()).unwrap_err();
++        assert!(
++            err.contains(&format!("duplicate JSON key {key:?}")),
++            "{err}"
++        );
++    }
++}
++
++#[test]
++fn artifact_parser_keeps_valid_body_hash_and_optional_declaration_behavior() {
++    let plain = std::fs::read(golden_dir().join("규칙/hana-2601-3d-cancer-dx.json")).unwrap();
++    let value: Value = serde_json::from_slice(&plain).unwrap();
++    let text = serde_json::to_string(&value).unwrap();
++    let prefix = &text[..text.len() - 1];
++    let baseline = onjeon_rules_engine::Rule::from_json(&value).unwrap();
++    for extra in [
++        "",
++        r#", "inputs_from_outside_dsl":null"#,
++        r#", "inputs_from_outside_dsl":[]"#,
++    ] {
++        let (rule, outside) = load_rule_artifact(format!("{prefix}{extra}}}").as_bytes()).unwrap();
++        assert!(outside.is_empty());
++        assert_eq!(rule.content_hash(), baseline.content_hash());
++        assert_eq!(rule.source_json(), baseline.source_json());
++    }
++    for bytes in [b"{} trailing".as_slice(), b"{\"x\":\"\xff\"}"] {
++        assert!(load_rule_artifact(bytes)
++            .unwrap_err()
++            .contains("invalid JSON:"));
++    }
++}

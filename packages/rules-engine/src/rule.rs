@@ -249,6 +249,14 @@ impl fmt::Display for RuleError {
 
 impl std::error::Error for RuleError {}
 
+/// Parse raw rule/artifact bytes, rejecting duplicate decoded keys at every depth.
+/// This only checks JSON syntax and key uniqueness; DSL validation still requires
+/// [`Rule::from_json`]. Artifact loaders must use this before extracting metadata
+/// so no duplicate is silently overwritten by `serde_json::Value` deserialization.
+pub fn parse_rule_json(bytes: &[u8]) -> Result<J, RuleError> {
+    crate::strict_json::parse(bytes).map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))
+}
+
 /// A validated, immutable rule.
 ///
 /// The only way to obtain a `Rule` is [`Rule::from_json`] / [`Rule::from_json_str`],
@@ -330,12 +338,15 @@ const TOP_LEVEL_KEYS: [&str; 13] = [
 ];
 
 impl Rule {
+    /// Load raw JSON text, rejecting duplicate keys before DSL validation/hashing.
     pub fn from_json_str(s: &str) -> Result<Rule, RuleError> {
-        let v: J = serde_json::from_str(s)
-            .map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))?;
+        let v = parse_rule_json(s.as_bytes())?;
         Rule::from_json(&v)
     }
 
+    /// Validate an already constructed value. A `Value` cannot retain duplicate
+    /// keys; load untrusted source text with [`Rule::from_json_str`] or parse raw
+    /// artifact bytes with [`parse_rule_json`] before calling this method.
     pub fn from_json(v: &J) -> Result<Rule, RuleError> {
         let obj = v
             .as_object()

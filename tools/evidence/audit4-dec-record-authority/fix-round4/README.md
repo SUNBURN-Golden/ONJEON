@@ -7,6 +7,17 @@ round 4 working-tree changes. Commands ran from the repository root with
 
 ## Review findings and round 4 response
 
+> **Round 5 correction (2026-11-09).** Two claims in this round-4 record were
+> wrong or superseded. (a) The note did **not** classify every record:
+> [DEC-CANON-T-CT-02](../../../../docs/decisions/DEC-CANON-T-CT-02.md) (a
+> separate 2026-10-13 16:58 KST delegation) and D-16's 2026-10-26 amendment
+> were missing; round 5 adds the complete classification and tests that iterate
+> every `DEC-*.md`. (b) The `edited`-event gating described in item 1 was itself
+> a blocker: a body edit could report `rules-engine` green with every test
+> skipped. Round 5 moves the guard into a separate `pr-traceability` workflow so
+> a body edit cannot create or overwrite the `rules-engine` check. The local logs
+> below remain historical evidence for the tree they were run on.
+
 1. **Required `rules-engine` check red / body not applied.** The supplied
    failure is **41802792915**, PR #417, head
    **83837b547eeaab42434790c24eed557431182e11**. Its body lacks a trace handle

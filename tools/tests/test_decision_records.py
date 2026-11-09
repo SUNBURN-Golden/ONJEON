@@ -154,11 +154,105 @@ class DecisionRecords(unittest.TestCase):
         self.assertIn("2026-10-15 14:44 KST", basis)
         self.assertIn("이전 기록을 소급 승인하지 않는다", basis)
         self.assertIn("Authority classification", note)
-        self.assertIn("[DEC-D-04](DEC-D-04.md)(2026-10-13)", note)
+        self.assertIn("[DEC-D-04](DEC-D-04.md)(2026-10-13 17:53 KST)", note)
         self.assertIn("[DEC-D-12](DEC-D-12.md)(2026-10-14 07:23 KST)", note)
         earlier_owner = note.split("| 이전 사용자 결정 |", 1)[1].split("|", 1)[0]
         self.assertIn("DEC-D-08", earlier_owner)
         self.assertIn("2026-10-12", earlier_owner)
+
+    def classification_section(self):
+        note = (ROOT / "docs/decisions/audit4-dec-record-authority.md").read_text(encoding="utf-8")
+        return note.split("**Authority classification", 1)[1].split("**O04:**", 1)[0]
+
+    def classification_row(self, prefix):
+        for line in self.classification_section().splitlines():
+            if line.startswith(f"| {prefix}"):
+                cells = [cell.strip() for cell in line.strip("|").split("|")]
+                return set(re.findall(r"\[(DEC-[^]]+)\]", cells[1]))
+        self.fail(f"no classification row starting with {prefix!r}")
+
+    def test_audit_authority_note_classifies_every_dec_record(self):
+        # Iterating the directory, rather than a hand-picked subset, means a new
+        # DEC-*.md file fails this test until the note classifies it.
+        expected = {
+            "소유자 직접 결정": {"DEC-D-04", "DEC-D-12"},
+            "이전 사용자 결정": {"DEC-BUNDLE-STATUS", "DEC-D-08"},
+            "별도 위임 결정(2026-10-13 16:58 KST)": {"DEC-CANON-T-CT-02"},
+            "잠정 autoloop 기록(위임 전)": {
+                "DEC-D-02", "DEC-O12", "DEC-O04", "DEC-D-08", "DEC-D-07", "DEC-D-16",
+            },
+            "위임 후 autoloop 기록(2026-10-15 14:44 KST 위임)": {
+                "DEC-D-03", "DEC-D-06", "DEC-D-14", "DEC-D-17", "DEC-D-18",
+                "DEC-O02", "DEC-O14", "DEC-O17", "DEC-BUNDLE-STATUS",
+            },
+        }
+        for prefix, records in expected.items():
+            with self.subTest(category=prefix):
+                self.assertEqual(records, self.classification_row(prefix))
+        classified = set().union(*(self.classification_row(p) for p in expected))
+        self.assertEqual(set(RECORDS), classified,
+                         "every docs/decisions/DEC-*.md record must be classified")
+
+    def test_audit_authority_note_classifies_every_amendment_timestamp(self):
+        # Discovery is driven by the source records' own amendment markers, so a new
+        # amendment timestamp cannot silently skip classification.
+        discovered = {}
+        for record in RECORDS:
+            text = (ROOT / f"docs/decisions/{record}.md").read_text(encoding="utf-8")
+            dates = set(re.findall(r"amended (\d{4}-\d{2}-\d{2})", text))
+            dates |= set(re.findall(r"Addendum \((\d{4}-\d{2}-\d{2})", text))
+            dates |= set(re.findall(r"(\d{4}-\d{2}-\d{2})[^\n]*부분 대체", text))
+            if dates:
+                discovered[record] = dates
+        self.assertEqual(discovered, {
+            "DEC-D-16": {"2026-10-26"},
+            "DEC-O17": {"2026-10-26"},
+            "DEC-BUNDLE-STATUS": {"2026-10-29"},
+        })
+        section = self.classification_section()
+        amendments = section.split("**Amendments and addenda:**", 1)[1]
+        for record, dates in discovered.items():
+            with self.subTest(record=record):
+                self.assertIn(f"[{record}]({record}.md)", amendments)
+                for date in dates:
+                    self.assertIn(date, amendments)
+        self.assertIn("2026-10-15 14:44 KST 위임 이후", amendments)
+        self.assertIn("ADR-0019", amendments)
+
+    def test_audit_authority_note_scopes_the_earlier_delegation(self):
+        # DEC-CANON-T-CT-02 records a separate 2026-10-13 16:58 KST delegation.
+        # It must be classified and scoped to T-CT-02, not silently treated as
+        # pre-delegation or as a general delegation covering other records.
+        section = self.classification_section()
+        self.assertIn("[DEC-CANON-T-CT-02](DEC-CANON-T-CT-02.md)", section)
+        self.assertIn("2026-10-13 16:58 KST", section)
+        self.assertIn("T-CT-02", section)
+        self.assertIn("DEC-O17", section)
+        source = (ROOT / "docs/decisions/DEC-CANON-T-CT-02.md").read_text(encoding="utf-8")
+        self.assertIn("2026-10-13 16:58 KST", source)
+        self.assertIn("T-CT-02", source)
+        note = (ROOT / "docs/decisions/audit4-dec-record-authority.md").read_text(encoding="utf-8")
+        basis = note.split("**Delegation basis:**", 1)[1].split("**Why:**", 1)[0]
+        self.assertIn("2026-10-13 16:58 KST", basis)
+        self.assertIn("T-CT-02", basis)
+
+    def test_audit_authority_note_reconciles_o12_and_d08_gate_wording(self):
+        note = (ROOT / "docs/decisions/audit4-dec-record-authority.md").read_text(encoding="utf-8")
+        section = note.split("**Gate wording (O12·D-08):**", 1)[1]
+        section = section.split("**Delegation basis:**", 1)[0]
+        for phrase in (
+            "Registering DEC-O12 in decisions_recorded lifts the O12 release gate on T-TW-04 and T-TW-05",
+            "Registering D-08 lifts only T-KN-14's release gate",
+            "S6", "capability-blocked", "등록만으로", "소유자 확정으로 승격되지 않으며",
+            "O05", "defaults_enabled=true", "별도 소유자 결정",
+            "기록 자체가 관문을 해제한다는 뜻이 아니",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, section)
+        o12 = (ROOT / "docs/decisions/DEC-O12.md").read_text(encoding="utf-8")
+        d08 = (ROOT / "docs/decisions/DEC-D-08.md").read_text(encoding="utf-8")
+        self.assertIn("lifts the O12 release gate", o12)
+        self.assertIn("lifts only T-KN-14's release gate", d08)
 
     def setUp(self):
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")

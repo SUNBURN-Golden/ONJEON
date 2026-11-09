@@ -338,8 +338,6 @@ class WorkflowWiring(unittest.TestCase):
         workflow = (rn.ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         step = re.search(
             r"^      - name: Registry normalization regressions\n"
-            # The step is gated off for PR edits; it still runs on code pushes and PR updates.
-            r"(?:        if: github\.event\.action != 'edited'\n)?"
             r"        run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v$",
             workflow, re.MULTILINE)
         self.assertIsNotNone(step, "CI must explicitly run registry normalization regressions")

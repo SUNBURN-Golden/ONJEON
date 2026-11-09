@@ -1,0 +1,36 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit5-engine-test-harness-guards/target/harness-control-dqjy79mi/packages/rules-engine/Cargo.toml --test harness_guards
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-test-harness-guards/target/harness-control-dqjy79mi/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running tests/harness_guards.rs (target/harness-control-build/debug/deps/harness_guards-3e4d4add4a3becdb)
+
+running 7 tests
+test rule_filename_must_match_its_id_even_without_a_collision ... FAILED
+test duplicate_rule_ids_are_rejected_in_either_filename_order ... FAILED
+test matching_rule_files_preserve_every_rule_and_ignore_case_tables ... ok
+test malformed_overrides_cannot_silently_use_base_inputs ... ok
+test unknown_real_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+test valid_shared_and_supplemental_case_formats_keep_their_inputs ... ok
+test unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+
+failures:
+
+---- rule_filename_must_match_its_id_even_without_a_collision stdout ----
+
+thread 'rule_filename_must_match_its_id_even_without_a_collision' (1943399) panicked at tests/harness_guards.rs:46:52:
+invalid fixture must be rejected: ()
+
+---- duplicate_rule_ids_are_rejected_in_either_filename_order stdout ----
+
+thread 'duplicate_rule_ids_are_rejected_in_either_filename_order' (1943396) panicked at tests/harness_guards.rs:46:52:
+invalid fixture must be rejected: ()
+
+
+failures:
+    duplicate_rule_ids_are_rejected_in_either_filename_order
+    rule_filename_must_match_its_id_even_without_a_collision
+
+test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test harness_guards`
+
+Exit: 101

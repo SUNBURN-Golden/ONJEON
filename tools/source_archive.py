@@ -398,6 +398,8 @@ def cmd_archive_samples(a):
         if not p.exists():
             results.append({"sample_id": r["sample_id"], "status": "missing_in_cache"})
             continue
+        # Validate this snapshot before any write; pass the same bytes to put_raw,
+        # since the cache file may change after the comparison.
         body = p.read_bytes()
         digest = sha256_bytes(body)
         if digest != r["sha256"]:

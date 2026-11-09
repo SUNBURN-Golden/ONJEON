@@ -1,0 +1,15 @@
+PASS docs/blueprint/audits/2026-11-10_archive_provider_classification.md
+PASS docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+PASS tools/evidence/audit5-archive-provider-classification/README.md
+PASS tools/evidence/audit5-archive-provider-classification/budget-tests.log
+PASS tools/evidence/audit5-archive-provider-classification/check_provider_mutation.py
+PASS tools/evidence/audit5-archive-provider-classification/provider-mutation.log
+PASS tools/evidence/audit5-archive-provider-classification/provider-tests.log
+PASS tools/evidence/audit5-archive-provider-classification/python-tests.log
+PASS tools/evidence/audit5-archive-provider-classification/runner-tests.log
+PASS tools/evidence/audit5-archive-provider-classification/rust-tests.log
+PASS tools/evidence/audit5-archive-provider-classification/scope-checks.log
+PASS tools/evidence/audit5-archive-provider-classification/static-checks.log
+PASS tools/source_archive.py
+PASS tools/tests/test_store_provider.py
+PASS allowed/protected paths, Python parsing, Markdown local links, whitespace

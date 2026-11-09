@@ -1,0 +1,379 @@
+test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) ... 
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://s3.amazonaws.com') ... FAIL
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://s3.ap-northeast-2.amazonaws.com.') ... FAIL
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://bucket.s3.us-east-1.amazonaws.com') ... FAIL
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://192.0.2.1:5000') ... FAIL
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://example.invalid') ... FAIL
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://127.0.0.2:5000') ... FAIL
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://localhost.example.invalid') ... FAIL
+  test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://127.0.0.1.example.invalid') ... FAIL
+test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) ... 
+  test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://x.r2.cloudflarestorage.com.evil.example') ... FAIL
+  test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.') ... FAIL
+  test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://x.notr2.cloudflarestorage.com.') ... FAIL
+  test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://example.invalid/x.r2.cloudflarestorage.com.') ... FAIL
+  test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://example.invalid/?endpoint=https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com.') ... FAIL
+test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) ... 
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=False, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=False, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=True, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=True, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=False, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=False, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=True, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=True, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=False, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=False, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=True, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=True, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=False, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=False, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=True, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=True, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=False, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=False, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=True, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=True, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=False, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=False, ledger=True) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=True, ledger=False) ... FAIL
+  test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=True, ledger=True) ... FAIL
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://s3.amazonaws.com')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://s3.ap-northeast-2.amazonaws.com.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://bucket.s3.us-east-1.amazonaws.com')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://192.0.2.1:5000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='https://example.invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://127.0.0.2:5000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://localhost.example.invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_explicit_aws_and_other_remote_endpoints_are_refused (test_store_provider.Provider.test_explicit_aws_and_other_remote_endpoints_are_refused) (endpoint='http://127.0.0.1.example.invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 57, in test_explicit_aws_and_other_remote_endpoints_are_refused
+    with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://x.r2.cloudflarestorage.com.evil.example')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 84, in test_lookalike_host_is_not_r2
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 84, in test_lookalike_host_is_not_r2
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://x.notr2.cloudflarestorage.com.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 84, in test_lookalike_host_is_not_r2
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://example.invalid/x.r2.cloudflarestorage.com.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 84, in test_lookalike_host_is_not_r2
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_lookalike_host_is_not_r2 (test_store_provider.Provider.test_lookalike_host_is_not_r2) (endpoint='https://example.invalid/?endpoint=https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 84, in test_lookalike_host_is_not_r2
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=False, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=False, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=True, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=False, budget=True, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=False, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=False, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=True, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://s3.ap-northeast-2.amazonaws.com', from_env=True, budget=True, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=False, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=False, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=True, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=False, budget=True, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=False, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=False, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=True, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://example.invalid', from_env=True, budget=True, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=False, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=False, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=True, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=False, budget=True, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=False, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=False, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=True, ledger=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_remote_endpoint_is_refused_before_client_creation (test_store_provider.EndpointGate.test_remote_endpoint_is_refused_before_client_creation) (endpoint='https://x.r2.cloudflarestorage.com.evil.example.', from_env=True, budget=True, ledger=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-provider-classification/tools/tests/test_store_provider.py", line 103, in test_remote_endpoint_is_refused_before_client_creation
+    with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.025s
+
+FAILED (failures=37)
+MUTATION REJECTED: all three regression tests detected the permissive fallback

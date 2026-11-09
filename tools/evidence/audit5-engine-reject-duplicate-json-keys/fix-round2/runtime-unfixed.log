@@ -1,0 +1,31 @@
+   Compiling onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-reject-duplicate-json-keys/tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round2/runtime-control-otyfgnuv/packages/twin-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s
+     Running tests/input_stage.rs (target/audit5-runtime-control/debug/deps/input_stage-5d00bc0969753372)
+
+running 4 tests
+test artifact_loader_rejects_duplicate_keys_before_extracting_the_declaration ... FAILED
+test artifact_parser_keeps_valid_body_hash_evaluation_and_optional_declaration ... ok
+test artifact_duplicates_stop_evaluate_request_before_any_engine_call ... FAILED
+test the_artifact_carries_the_declaration_and_the_engine_never_sees_it ... ok
+
+failures:
+
+---- artifact_loader_rejects_duplicate_keys_before_extracting_the_declaration stdout ----
+
+thread 'artifact_loader_rejects_duplicate_keys_before_extracting_the_declaration' (1622459) panicked at tests/input_stage.rs:441:55:
+called `Result::unwrap_err()` on an `Ok` value: (Rule { rule_id: "hana-2601-3d-cancer-dx", rule_version: "v1-ontology-case", release_id: None, content_hash: "1973bc4005be1164c300eebc0e66063efbc9b5c432f3abfbe57bd1ea8e1ed785", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["hana_2601_3d#c_2_1_art1_1", "hana_2601_3d#c_2_1_art1_2", "hana_2601_3d#c_2_1_art4_1", "hana_2601_3d#annex1", "hana_2601_3d#annex12"], inputs: {"already_paid": Bool, "contract_date": Date, "diagnosis_date": Date, "dx_in_category": Bool, "insured_amount_krw": MoneyKrw, "is_initial_contract": Bool, "policy_end_date": Date, "renewal_date": Date}, eligibility: All([Cmp(Gte, Input("diagnosis_date"), If(Input("is_initial_contract"), DateAdd { date: Input("contract_date"), value: 90, unit: Day }, Input("renewal_date"))), Cmp(Lte, Input("diagnosis_date"), Input("policy_end_date")), Cmp(Eq, Input("dx_in_category"), Lit(Bool(true))), Cmp(Eq, Input("already_paid"), Lit(Bool(false)))]), amount: Lit(Money(999)), contract_effect: None, source: Object {"amount": Object {"krw": Number(999)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"all": Array [Object {"gte": Array [String("diagnosis_date"), Object {"else": String("renewal_date"), "if": String("is_initial_contract"), "then": Object {"date_add": Array [String("contract_date"), Object {"unit": String("day"), "value": Number(90)}]}}]}, Object {"lte": Array [String("diagnosis_date"), String("policy_end_date")]}, Object {"eq": Array [String("dx_in_category"), Bool(true)]}, Object {"eq": Array [String("already_paid"), Bool(false)]}]}, "evidence_refs": Array [String("hana_2601_3d#c_2_1_art1_1"), String("hana_2601_3d#c_2_1_art1_2"), String("hana_2601_3d#c_2_1_art4_1"), String("hana_2601_3d#annex1"), String("hana_2601_3d#annex12")], "example_kind": String("ontology_case_validation"), "inputs": Object {"already_paid": String("bool"), "contract_date": String("date"), "diagnosis_date": String("date"), "dx_in_category": String("bool"), "insured_amount_krw": String("money_krw"), "is_initial_contract": String("bool"), "policy_end_date": String("date"), "renewal_date": String("date")}, "publication_state": String("fixture_only"), "rule_id": String("hana-2601-3d-cancer-dx"), "rule_version": String("v1-ontology-case"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }, [])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- artifact_duplicates_stop_evaluate_request_before_any_engine_call stdout ----
+
+thread 'artifact_duplicates_stop_evaluate_request_before_any_engine_call' (1622458) panicked at tests/input_stage.rs:464:51:
+rule load must fail
+
+
+failures:
+    artifact_duplicates_stop_evaluate_request_before_any_engine_call
+    artifact_loader_rejects_duplicate_keys_before_extracting_the_declaration
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--test input_stage`

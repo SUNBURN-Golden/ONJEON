@@ -253,6 +253,16 @@ impl std::error::Error for RuleError {}
 /// This only checks JSON syntax and key uniqueness; DSL validation still requires
 /// [`Rule::from_json`]. Artifact loaders must use this before extracting metadata
 /// so no duplicate is silently overwritten by `serde_json::Value` deserialization.
+///
+/// ```
+/// use onjeon_rules_engine::parse_rule_json;
+///
+/// let error = parse_rule_json(br#"{"amount":{"krw":1},"amount":{"krw":999}}"#)
+///     .unwrap_err();
+/// assert!(error.message.contains("duplicate JSON key \"amount\""));
+/// assert!(parse_rule_json(br#"{"krw":1,"krw":999}"#).is_err());
+/// assert_eq!(parse_rule_json(br#"{"krw":1}"#).unwrap()["krw"], 1);
+/// ```
 pub fn parse_rule_json(bytes: &[u8]) -> Result<J, RuleError> {
     crate::strict_json::parse(bytes).map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))
 }

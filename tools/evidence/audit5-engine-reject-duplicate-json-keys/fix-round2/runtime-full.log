@@ -1,0 +1,122 @@
+   Compiling onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-reject-duplicate-json-keys/tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round2/runtime-control-otyfgnuv/packages/twin-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.59s
+     Running unittests src/lib.rs (target/audit5-runtime-control/debug/deps/onjeon_twin_runtime-45fd0117dc142e4b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/case-runner.rs (target/audit5-runtime-control/debug/deps/case_runner-2e6b29074b598377)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (target/audit5-runtime-control/debug/deps/cli-ec9863c35f4f063d)
+
+running 5 tests
+test a_malformed_rule_path_fails_without_affecting_others ... ok
+test a_job_with_an_unknown_release_fails_without_affecting_others ... ok
+test a_job_cannot_declare_or_bypass_judged_inputs ... ok
+test integrity_findings_block_the_job_before_the_engine ... ok
+test golden_jobs_through_the_cli ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/config_select.rs (target/audit5-runtime-control/debug/deps/config_select-62cab2bdb2e7b586)
+
+running 6 tests
+test several_applicable_configurations_block ... ok
+test one_configuration_using_several_editions_is_not_ambiguous ... ok
+test a_configuration_without_any_link_blocks ... ok
+test no_applicable_configuration_reports_the_considered_links ... ok
+test candidate_order_and_duplicates_change_nothing ... ok
+test selects_the_configuration_in_force_on_the_contract_date ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/golden_questions.rs (target/audit5-runtime-control/debug/deps/golden_questions-59e4c3920d670e72)
+
+running 4 tests
+test an_unconfirmed_edition_holds_before_the_engine ... ok
+test q9_and_q10_never_reach_the_engine ... ok
+test the_membership_judgement_carries_its_evidence ... ok
+test the_eleven_questions_match_the_reference ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/input_link.rs (target/audit5-runtime-control/debug/deps/input_link-195ac5eb6a47d5e7)
+
+running 10 tests
+test input_link_multiple_candidates ... ok
+test input_link_competing_editions_hold ... ok
+test input_link_other_edition ... ok
+test input_link_other_company ... ok
+test input_link_other_edition_applies_hold ... ok
+test input_link_order_independent ... ok
+test input_link_unknown_scope_hold ... ok
+test input_link_unrelated_rider_allowed ... ok
+test input_link_application_scope_unverified_hold ... ok
+test input_link_multi_edition_config ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/input_stage.rs (target/audit5-runtime-control/debug/deps/input_stage-5d00bc0969753372)
+
+running 18 tests
+test artifact_loader_rejects_duplicate_keys_before_extracting_the_declaration ... ok
+test artifact_parser_keeps_valid_body_hash_evaluation_and_optional_declaration ... ok
+test a_stale_or_unknown_key_in_the_declaration_fails_loudly ... ok
+test a_malformed_as_of_fact_is_an_error_not_a_guess ... ok
+test a_declaration_naming_no_rule_input_is_rejected ... ok
+test judge_time_calendar_month_and_year_clamp ... ok
+test judge_time_day_duration_anchor_counted_and_not ... ok
+test a_missing_code_fact_leaves_the_input_unknown_with_a_judgement ... ok
+test judge_time_records_the_assumed_counting_rule ... ok
+test judge_time_refuses_bad_input_and_never_guesses ... ok
+test a_malformed_code_fact_is_an_error_not_a_guess ... ok
+test a_missing_as_of_fact_is_unknown_not_an_undated_answer ... ok
+test evidence_required_false_is_a_bad_declaration ... ok
+test fill_produces_inputs_and_the_membership_judgement ... ok
+test fill_time_stage_judgement_and_its_boundary_travel ... ok
+test unsupported_judged_by_fails_explicitly ... ok
+test the_artifact_carries_the_declaration_and_the_engine_never_sees_it ... ok
+test artifact_duplicates_stop_evaluate_request_before_any_engine_call ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/integrity.rs (target/audit5-runtime-control/debug/deps/integrity-0950ccaf981fe656)
+
+running 6 tests
+test a_coverage_without_a_rule_is_no_rule ... ok
+test unapproved_claims_in_scope_hold_as_link_unapproved ... ok
+test a_swapped_rule_file_is_an_integrity_block_not_an_evaluation ... ok
+test the_request_contract_date_overrides_the_fact ... ok
+test integrity_findings_stop_the_run_before_the_chain ... ok
+test a_malformed_contract_date_is_rejected ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/regen_fixture.rs (target/audit5-runtime-control/debug/deps/regen_fixture-f74838dbb1b344ab)
+
+running 2 tests
+test regenerate_declared_abox_fixture ... ignored
+test declared_abox_fixture_is_current ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/static_guards.rs (target/audit5-runtime-control/debug/deps/static_guards-ee22b84e3650b531)
+
+running 3 tests
+test no_skeleton_markers_or_fixture_data_in_src ... ok
+test no_secrets_or_model_identifiers_in_src ... ok
+test no_database_or_network_access_before_the_engine ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_twin_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

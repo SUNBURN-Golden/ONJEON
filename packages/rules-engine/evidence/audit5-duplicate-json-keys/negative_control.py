@@ -9,9 +9,12 @@ import tempfile
 HERE = Path(__file__).resolve().parent
 ENGINE = HERE.parents[1]
 ROOT = ENGINE.parents[1]
-env = dict(os.environ, CARGO_TARGET_DIR=str(ROOT / "target" / "audit5-negative-control"))
 with tempfile.TemporaryDirectory(prefix="control-", dir=HERE) as temporary:
     crate = Path(temporary)
+    # Cargo can reuse the preceding run's mutated library when copytree keeps
+    # older source mtimes. Give each control run its own build directory so the
+    # baseline always compiles the fixed source, even after a last-wins run.
+    env = dict(os.environ, CARGO_TARGET_DIR=str(crate / "target"))
     shutil.copytree(ENGINE / "src", crate / "src")
     (crate / "tests").mkdir()
     shutil.copy2(ENGINE / "tests/duplicate_json_keys.rs", crate / "tests")

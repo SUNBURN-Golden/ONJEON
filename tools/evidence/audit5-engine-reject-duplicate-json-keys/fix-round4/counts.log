@@ -1,0 +1,4 @@
+$ CARGO_TARGET_DIR="$PWD/target" ONJ_REQUIRE_RULE_02=1 python3 -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 4, "rust_tests": 238, "tamper_tests": 40, "vocabulary_axes": 49}
+
+EXIT: 0

@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_contracts-a6f716113cd32f4d)
+
+running 1 test
+test tests::rule_02_contract_effects_round_trip_when_the_engine_supports_them ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.01s
+

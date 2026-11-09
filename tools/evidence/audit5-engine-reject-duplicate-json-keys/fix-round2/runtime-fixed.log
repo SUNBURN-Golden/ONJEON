@@ -1,0 +1,12 @@
+   Compiling onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-reject-duplicate-json-keys/tools/evidence/audit5-engine-reject-duplicate-json-keys/fix-round2/runtime-control-otyfgnuv/packages/twin-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
+     Running tests/input_stage.rs (target/audit5-runtime-control/debug/deps/input_stage-5d00bc0969753372)
+
+running 4 tests
+test artifact_loader_rejects_duplicate_keys_before_extracting_the_declaration ... ok
+test artifact_parser_keeps_valid_body_hash_evaluation_and_optional_declaration ... ok
+test the_artifact_carries_the_declaration_and_the_engine_never_sees_it ... ok
+test artifact_duplicates_stop_evaluate_request_before_any_engine_call ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.04s
+

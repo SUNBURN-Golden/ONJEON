@@ -1,0 +1,13 @@
+$ CARGO_TARGET_DIR="$PWD/target" ONJ_REQUIRE_RULE_02=1 python3 -m unittest discover -s tools/tests -p test_worktree_target.py -v
+test_arguments_and_failure_exit_code_reach_caller (test_worktree_target.WorktreeTargetTests.test_arguments_and_failure_exit_code_reach_caller) ... ok
+test_ci_sets_worktree_target_before_python_and_cargo_checks (test_worktree_target.WorktreeTargetTests.test_ci_sets_worktree_target_before_python_and_cargo_checks) ... ok
+test_missing_command_fails (test_worktree_target.WorktreeTargetTests.test_missing_command_fails) ... ok
+test_overrides_shared_target_for_command_and_descendant_from_any_cwd (test_worktree_target.WorktreeTargetTests.test_overrides_shared_target_for_command_and_descendant_from_any_cwd) ... ok
+test_real_engine_api_build_ignores_stale_library_from_another_checkout (test_worktree_target.WorktreeTargetTests.test_real_engine_api_build_ignores_stale_library_from_another_checkout) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 6.487s
+
+OK
+
+EXIT: 0

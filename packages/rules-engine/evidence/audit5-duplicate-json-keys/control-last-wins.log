@@ -1,4 +1,4 @@
-   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-reject-duplicate-json-keys/packages/rules-engine/evidence/audit5-duplicate-json-keys/control-t168sfff)
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-reject-duplicate-json-keys/packages/rules-engine/evidence/audit5-duplicate-json-keys/control-6jxoo6q7)
 warning: struct `UniqueValue` is never constructed
   --> src/strict_json.rs:14:8
    |
@@ -14,38 +14,38 @@ warning: struct `UniqueVisitor` is never constructed
    |        ^^^^^^^^^^^^^
 
 warning: `onjeon-rules-engine` (lib) generated 2 warnings
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
-     Running tests/duplicate_json_keys.rs (target/audit5-negative-control/debug/deps/duplicate_json_keys-7eb60aae285ac1b2)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running tests/duplicate_json_keys.rs (packages/rules-engine/evidence/audit5-duplicate-json-keys/control-6jxoo6q7/target/debug/deps/duplicate_json_keys-7eb60aae285ac1b2)
 
 running 6 tests
-test every_top_level_key_is_unique_in_both_versions_and_all_publication_states ... FAILED
-test arrays_unselected_branches_and_operator_parameters_are_checked_recursively ... FAILED
 test input_names_and_escaped_equivalent_keys_are_checked_after_decoding ... FAILED
+test arrays_unselected_branches_and_operator_parameters_are_checked_recursively ... FAILED
+test every_top_level_key_is_unique_in_both_versions_and_all_publication_states ... FAILED
 test strict_artifact_parser_preserves_json_values_and_syntax_guards ... ok
 test repeated_constructor_keys_cannot_bypass_the_one_key_check ... FAILED
 test unique_keys_keep_source_hash_and_full_evaluation_unchanged ... ok
 
 failures:
 
----- every_top_level_key_is_unique_in_both_versions_and_all_publication_states stdout ----
+---- input_names_and_escaped_equivalent_keys_are_checked_after_decoding stdout ----
 
-thread 'every_top_level_key_is_unique_in_both_versions_and_all_publication_states' (1529319) panicked at tests/duplicate_json_keys.rs:18:35:
-called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "duplicate-audit", rule_version: "1", release_id: Some("synthetic-release"), content_hash: "4fac8755cf20cc6050d5200addecd602460857d342aac334dc4c85de8787f0a7", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "example_kind": String("synthetic"), "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("synthetic-release"), "rule_id": String("duplicate-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+thread 'input_names_and_escaped_equivalent_keys_are_checked_after_decoding' (1744964) panicked at tests/duplicate_json_keys.rs:18:35:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "duplicate-audit", rule_version: "1", release_id: Some("synthetic-release"), content_hash: "54f2b5df8aefc92f2996467549edc4c4f0ce5bdbd075d11ece48c632c5f7c2f4", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {"x": MoneyKrw}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "example_kind": String("synthetic"), "inputs": Object {"x": String("money_krw")}, "publication_state": String("fixture_only"), "release_id": String("synthetic-release"), "rule_id": String("duplicate-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ---- arrays_unselected_branches_and_operator_parameters_are_checked_recursively stdout ----
 
-thread 'arrays_unselected_branches_and_operator_parameters_are_checked_recursively' (1529318) panicked at tests/duplicate_json_keys.rs:18:35:
+thread 'arrays_unselected_branches_and_operator_parameters_are_checked_recursively' (1744962) panicked at tests/duplicate_json_keys.rs:18:35:
 called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "duplicate-audit", rule_version: "1", release_id: Some("synthetic-release"), content_hash: "f5ff61125db91a6923cb845841c719c34bc2efcde1387b25eb8ac7116d71322c", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {}, eligibility: Lit(Bool(true)), amount: Add([Lit(Money(1)), Lit(Money(999))]), contract_effect: None, source: Object {"amount": Object {"add": Array [Object {"krw": Number(1)}, Object {"krw": Number(999)}]}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "example_kind": String("synthetic"), "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("synthetic-release"), "rule_id": String("duplicate-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
 
----- input_names_and_escaped_equivalent_keys_are_checked_after_decoding stdout ----
+---- every_top_level_key_is_unique_in_both_versions_and_all_publication_states stdout ----
 
-thread 'input_names_and_escaped_equivalent_keys_are_checked_after_decoding' (1529320) panicked at tests/duplicate_json_keys.rs:18:35:
-called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "duplicate-audit", rule_version: "1", release_id: Some("synthetic-release"), content_hash: "54f2b5df8aefc92f2996467549edc4c4f0ce5bdbd075d11ece48c632c5f7c2f4", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {"x": MoneyKrw}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "example_kind": String("synthetic"), "inputs": Object {"x": String("money_krw")}, "publication_state": String("fixture_only"), "release_id": String("synthetic-release"), "rule_id": String("duplicate-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+thread 'every_top_level_key_is_unique_in_both_versions_and_all_publication_states' (1744963) panicked at tests/duplicate_json_keys.rs:18:35:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "duplicate-audit", rule_version: "1", release_id: Some("synthetic-release"), content_hash: "4fac8755cf20cc6050d5200addecd602460857d342aac334dc4c85de8787f0a7", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "example_kind": String("synthetic"), "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("synthetic-release"), "rule_id": String("duplicate-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
 
 ---- repeated_constructor_keys_cannot_bypass_the_one_key_check stdout ----
 
-thread 'repeated_constructor_keys_cannot_bypass_the_one_key_check' (1529321) panicked at tests/duplicate_json_keys.rs:18:35:
+thread 'repeated_constructor_keys_cannot_bypass_the_one_key_check' (1744965) panicked at tests/duplicate_json_keys.rs:18:35:
 called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "duplicate-audit", rule_version: "1", release_id: Some("synthetic-release"), content_hash: "1ca2ed9109d187ce192b2ecefa76340d48c37ce261b8e7aba357146ea6ec5ed3", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["synthetic-clause"], inputs: {}, eligibility: Lit(Bool(true)), amount: Lit(Money(999)), contract_effect: None, source: Object {"amount": Object {"krw": Number(999)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("synthetic-clause")], "example_kind": String("synthetic"), "inputs": Object {}, "publication_state": String("fixture_only"), "release_id": String("synthetic-release"), "rule_id": String("duplicate-audit"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
 
 

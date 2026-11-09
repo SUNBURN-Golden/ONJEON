@@ -4,6 +4,20 @@ Static checkers and their rule file. Rules: `infra/ci/deps.json`. Skeleton flags
 
 ## Commands
 
+For local Cargo checks in concurrent worktrees, use
+`python3 -I tools/ci/with_worktree_target.py COMMAND [ARG ...]`, for example
+`python3 -I tools/ci/with_worktree_target.py cargo clippy --all-targets --locked --offline -- -D warnings`.
+The command runs at the repository root with `CARGO_TARGET_DIR` set to this
+worktree's `target/`, overriding an inherited shared build directory for the
+command and its descendants. It preserves arguments and exit status, so it also
+wraps Python checks that invoke Cargo. `tools/tests/test_worktree_target.py`
+exercises isolation across child processes, argument forwarding and failures.
+`ci.yml` sets the same directory at workflow scope through
+`CARGO_TARGET_DIR: ${{ github.workspace }}/target`, covering its plain Cargo
+commands and Python checks. The regression also seeds an actual engine library
+without the root parser export, reproduces `E0432` in a second checkout with
+older source timestamps, and verifies both the wrapper and CI environment fix.
+
 ```text
 python3 -I tools/ci/check_deps.py              # zone dependencies, provider-SDK rule (manifests and imports)
 python3 -I tools/ci/check_leak.py              # I10, I11, 52.3

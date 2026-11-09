@@ -1,0 +1,13 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running tests/duplicate_json_keys.rs (target/debug/deps/duplicate_json_keys-ef93de540cdd2b2d)
+
+running 6 tests
+test strict_artifact_parser_preserves_json_values_and_syntax_guards ... ok
+test arrays_unselected_branches_and_operator_parameters_are_checked_recursively ... ok
+test input_names_and_escaped_equivalent_keys_are_checked_after_decoding ... ok
+test repeated_constructor_keys_cannot_bypass_the_one_key_check ... ok
+test unique_keys_keep_source_hash_and_full_evaluation_unchanged ... ok
+test every_top_level_key_is_unique_in_both_versions_and_all_publication_states ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

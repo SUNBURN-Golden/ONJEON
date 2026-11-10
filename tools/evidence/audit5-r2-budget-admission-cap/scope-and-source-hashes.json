@@ -1,0 +1,14 @@
+{
+  "scope": "PASS",
+  "parent_head": "ec4922b5c4f67d34784a90e725fa8e2358b71d43",
+  "changed_source_sha256": {
+    "docs/BLUEPRINT.md": "6d1e3f01a842afd8192e7139140b7f72ed3e29bd916446688607f488162c8780",
+    "docs/blueprint/audits/2026-11-10_r2_budget_admission_cap.md": "f7d79be2a4d698106b981f0d6348c12351ca966d66f77b2a753f6edbc5a05256",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md": "06e8babb58de23ef866bee9cced2f53a672c22102540d1c461fc01da3d86669a",
+    "infra/r2/BUDGET.md": "0d72309cf8a1e46a8d7a3d5acc22bbd6e13783f19b632e53b4e4d4887f882d3c",
+    "tools/r2_budget.py": "7449375ad5343acda28bce2a004b2d966968926b102c67bd59a87c665843a9b5",
+    "tools/tests/fixtures/o13_unchanged_gates.json": "68ce80f481eed96d353f0f6cdbd45c223e2541c384b97d03e2b398fcbdb450cb",
+    "tools/tests/test_r2_budget.py": "cb93fa62dc435ec4013bc95376d95c6047a56e4c8fd7a166fc7b6296a7a7e358"
+  },
+  "policy_sha256": "e914b74ed5590895fc47b67f3c8934ce1750bc8b95caa94d6e31cdd16ee8fee5"
+}

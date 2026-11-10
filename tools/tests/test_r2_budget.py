@@ -360,6 +360,24 @@ class LedgerRecordCap(Fixture):
         put.assert_not_called()
         self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 100)
 
+    def test_append_cap_is_checkpoint_relative_even_for_recovery(self):
+        self.seed(50)
+        b.write_checkpoint(self.ledger)
+        self.ledger.load_base()
+        _, prev = self.ledger.read()
+        for count in range(50, 150):
+            _, prev = self.ledger.append({"kind": "pre_ledger_usage", "job_id": "t",
+                                          "at": b.stamp(), "amounts": {}}, count, prev)
+        with mock.patch.object(self.ledger_store, "put_new") as put:
+            for recovery in (False, True):
+                self.ledger.over_limit_ok = recovery
+                for kind in ("reservation", "settlement"):
+                    with self.subTest(recovery=recovery, kind=kind):
+                        with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+                            self.ledger.append({"kind": kind}, 150, prev)
+        put.assert_not_called()
+        self.assertEqual(len(self.ledger_store.list(b.LEDGER_PREFIX)), 150)
+
     def test_tail_reads_the_cap_but_append_cannot_extend_it(self):
         """tail() reports the true tail for settlement; append() is the write guard that stops the
         101st record, so an ordinary ledger can never pass 100 records after the last checkpoint."""
@@ -1040,6 +1058,108 @@ class EndToEnd(Fixture):
         self.assertIn("remembered", msg)
         self.assertEqual(log, [])
         self.assertEqual(len([k for (bk, k) in self.stub.objects if k.startswith(b.ADMISSION_PREFIX)]), 4)
+
+    def test_successful_last_admission_closes_before_reserving(self):
+        for global_limit, job_limit, scope in ((3, 2, "t"), (2, 3, "_global"), (2, 2, "_global")):
+            with self.subTest(global_limit=global_limit, job_limit=job_limit):
+                self.stub.objects.clear()
+                self.write_policy(per_month_global=global_limit)
+                self.write_job(admissions_per_month=job_limit, class_a=1000)
+                gate = self.root / f"last-{global_limit}-{job_limit}"
+                for i in range(2):
+                    before = len(self.stub.log)
+                    session = self.session(gate)
+                    session.open()
+                    settled = session.settle("ok")
+                    self.assertEqual(settled["seq"], 2 * (i + 1))
+                    seen = self.stub.counts(before)
+                    for d, actual in seen.items():
+                        self.assertGreaterEqual(settled["amounts"][d], actual, d)
+                log = self.stub.log[before:]
+                close_key = f"{b.CLOSED_PREFIX}{MONTH}/{scope}.json"
+                puts = [key for kind, _, key, _, _ in log if kind == "put"]
+                self.assertEqual(puts[1:], [close_key, f"{b.LEDGER_PREFIX}0000000003.json",
+                                          f"{b.LEDGER_PREFIX}0000000004.json"])
+                # The Nth successful run wrote and remembered closure; N+1 spends no admission.
+                _, _, same = self.run_once(gate)
+                self.assertEqual(same, [])
+                _, _, fresh = self.run_once(gate / "fresh")
+                self.assertEqual([entry[0] for entry in fresh],
+                                 ["head"] if scope == "_global" else ["head", "head"])
+                self.assertEqual(len([k for _, k in self.stub.objects
+                                      if k.startswith(b.ADMISSION_PREFIX)]), 2)
+                self.assertEqual(len([k for _, k in self.stub.objects
+                                      if k.startswith(b.LEDGER_PREFIX)]), 4)
+
+    def test_last_admission_closes_before_ledger_read_failure(self):
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=1)
+        self.stub.faults.append(("GET", b.CHECKPOINT_PREFIX, 403))  # checkpoint LIST
+        msg, _, log = self.run_once(self.gate_dir)
+        self.assertIn("ledger list failed", msg)
+        close_key = f"{b.CLOSED_PREFIX}{MONTH}/t.json"
+        self.assertIn(("ledger", close_key), self.stub.objects)
+        close_index = next(i for i, entry in enumerate(log) if entry[:3] == ("put", "ledger", close_key))
+        read_index = next(i for i, entry in enumerate(log)
+                          if entry[:3] == ("list", "ledger", b.CHECKPOINT_PREFIX))
+        self.assertLess(close_index, read_index)
+        self.assertFalse(any(key.startswith(b.LEDGER_PREFIX) for _, key in self.stub.objects))
+        _, _, late = self.run_once(self.gate_dir / "fresh")
+        self.assertEqual([entry[0] for entry in late], ["head", "head"])
+
+    def test_failed_closure_is_remembered_and_stops_before_reservation(self):
+        self.write_policy(per_month_global=10)
+        self.write_job(admissions_per_month=1)
+        self.stub.faults.append(("PUT", b.CLOSED_PREFIX, 403))
+        session = self.session()
+        before = len(self.stub.log)
+        with self.assertRaisesRegex(b.BudgetError, "closure write failed"):
+            session.open()
+        self.assertIsNone(session.reservation)
+        self.assertFalse(session.meter.archive_allowed)
+        self.assertIsNone(session.gate._lock)
+        for dimension, actual in self.stub.counts(before).items():
+            self.assertEqual(session.meter.used[dimension], actual, dimension)
+            self.assertLessEqual(actual, ADMISSION[dimension], dimension)
+        _, _, log = self.run_once(self.gate_dir)
+        self.assertEqual(log, [])
+        self.assertEqual(len([k for _, k in self.stub.objects if k.startswith(b.ADMISSION_PREFIX)]), 1)
+
+    def test_job_closure_allows_other_job_until_global_cap(self):
+        self.write_policy(per_month_global=2)
+        self.write_job(admissions_per_month=1)
+        first = self.session()
+        first.open()
+        self.assertEqual(first.settle("ok")["seq"], 2)
+        # Share the same local gate and global ledger with a distinct job.
+        doc = json.loads(self.job_path.read_text())
+        doc["job_id"] = "other"
+        self.job_path.write_text(json.dumps(doc))
+        second = self.session()
+        second.open()
+        self.assertEqual(second.settle("ok")["seq"], 4)
+        self.assertIn(("ledger", f"{b.CLOSED_PREFIX}{MONTH}/_global.json"), self.stub.objects)
+        self.assertEqual(len([k for _, k in self.stub.objects if k.startswith(b.ADMISSION_PREFIX)]), 2)
+        _, _, log = self.run_once(self.gate_dir)
+        self.assertEqual(log, [])
+
+    def test_zero_admission_cap_sends_nothing(self):
+        for global_limit, job_limit in ((0, 1), (1, 0)):
+            with self.subTest(global_limit=global_limit, job_limit=job_limit):
+                self.write_policy(per_month_global=global_limit)
+                self.write_job(admissions_per_month=job_limit)
+                _, _, log = self.run_once(self.gate_dir)
+                self.assertEqual(log, [])
+
+    def test_month_rollover_allows_admission_after_successful_closure(self):
+        self.write_policy(per_month_global=1)
+        self.write_job(admissions_per_month=1, class_a=1000)
+        for month in (1, 2):
+            with mock.patch.object(b, "now_utc", return_value=datetime(2026, month, 9, tzinfo=timezone.utc)):
+                session = self.session()
+                session.open()
+                self.assertEqual(session.settle("ok")["seq"], 2 * month)
+        self.assertEqual(len([k for _, k in self.stub.objects if k.startswith(b.ADMISSION_PREFIX)]), 2)
 
     def test_settlement_retry_is_counted_in_the_settlement(self):
         """Finding 2: the settlement added one Class A for its own PUT; a retried PUT was missing."""

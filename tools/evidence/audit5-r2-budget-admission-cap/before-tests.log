@@ -1,0 +1,82 @@
+test_last_admission_closes_before_ledger_read_failure (test_r2_budget.EndToEnd.test_last_admission_closes_before_ledger_read_failure) ... ok
+test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) ... 
+  test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=3, job_limit=2) ... FAIL
+  test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=3) ... FAIL
+  test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=2) ... FAIL
+
+======================================================================
+FAIL: test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=3, job_limit=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 1081, in test_successful_last_admission_closes_before_reserving
+    self.assertEqual(puts[1:], [close_key, f"{b.LEDGER_PREFIX}0000000003.json",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              f"{b.LEDGER_PREFIX}0000000004.json"])
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json'] != ['closed/v1/2026-01/t.json', 'ledger/v1/000[38 chars]son']
+
+First differing element 0:
+'ledger/v1/0000000003.json'
+'closed/v1/2026-01/t.json'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'ledger/v1/0000000004.json'
+
+- ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json']
++ ['closed/v1/2026-01/t.json',
++  'ledger/v1/0000000003.json',
++  'ledger/v1/0000000004.json']
+
+======================================================================
+FAIL: test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 1081, in test_successful_last_admission_closes_before_reserving
+    self.assertEqual(puts[1:], [close_key, f"{b.LEDGER_PREFIX}0000000003.json",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              f"{b.LEDGER_PREFIX}0000000004.json"])
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json'] != ['closed/v1/2026-01/_global.json', 'ledger/[44 chars]son']
+
+First differing element 0:
+'ledger/v1/0000000003.json'
+'closed/v1/2026-01/_global.json'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'ledger/v1/0000000004.json'
+
+- ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json']
++ ['closed/v1/2026-01/_global.json',
++  'ledger/v1/0000000003.json',
++  'ledger/v1/0000000004.json']
+
+======================================================================
+FAIL: test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 1081, in test_successful_last_admission_closes_before_reserving
+    self.assertEqual(puts[1:], [close_key, f"{b.LEDGER_PREFIX}0000000003.json",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              f"{b.LEDGER_PREFIX}0000000004.json"])
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json'] != ['closed/v1/2026-01/_global.json', 'ledger/[44 chars]son']
+
+First differing element 0:
+'ledger/v1/0000000003.json'
+'closed/v1/2026-01/_global.json'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'ledger/v1/0000000004.json'
+
+- ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json']
++ ['closed/v1/2026-01/_global.json',
++  'ledger/v1/0000000003.json',
++  'ledger/v1/0000000004.json']
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.611s
+
+FAILED (failures=3)

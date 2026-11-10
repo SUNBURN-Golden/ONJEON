@@ -29,8 +29,8 @@ Run control, in this order (each step before any later request):
      meter enforces the policy's admission limits, so the record bounds everything the run spends
      before reserving (listing and reading the ledger, the reservation write, retries). An admission
      whose run never settles counts against the caps at those limits, so a refused run that is
-     repeated is paid for every time. When the month's admissions for the job (or in total) are
-     used up the run writes the closure marker.
+     repeated is paid for every time. The last allowed admission for the job (or in total) writes
+     and remembers closure before reading the ledger, whether or not its reservation succeeds.
   4. reservation: the run's whole per-run profile, only if it fits under the caps after leaving
      room for every admission still allowed this month. Then archive requests may start.
   5. settlement: what the run measured since step 3 plus the worst case of the settlement write
@@ -878,18 +878,31 @@ class Session:
         self._alarm_installed = False  # True while our SIGALRM handler is in place
         self._prev_alarm_handler = None
 
-    def _refuse_and_maybe_close(self, month, admissions, err):
+    def _close_if_exhausted(self, month, admissions):
+        """Close at N, while the last admitted run may still reserve and settle.
+
+        Remember locally first so a failed remote closure cannot allow another admission on this
+        machine. Global closure covers every job, including a simultaneous job-limit boundary.
+        """
         job_n = this_month(admissions, month, self.job["job_id"])
         if this_month(admissions, month) >= self.policy["admission"]["per_month_global"]:
-            self.ledger.close(month, "_global", "global admissions for the month used up")
-            self.gate.remember_closed("_global")
+            scope, reason = "_global", "global admissions for the month used up"
         elif job_n >= self.job["admissions_per_month"]:
-            self.ledger.close(month, self.job["job_id"], "job admissions for the month used up")
-            self.gate.remember_closed(self.job["job_id"])
-        raise err
+            scope, reason = self.job["job_id"], "job admissions for the month used up"
+        else:
+            return
+        self.gate.remember_closed(scope)
+        try:
+            self.ledger.close(month, scope, reason)
+        except BudgetError:
+            raise
+        except Exception as e:
+            raise BudgetError(f"closure write failed ({type(e).__name__}); not running")
 
     def open(self):
         import source_archive as sa
+        if self.policy["admission"]["per_month_global"] <= 0 or self.job["admissions_per_month"] <= 0:
+            raise BudgetError("admissions are disabled by a zero cap; nothing was sent")
         self.gate.enter()
         try:
             st = self._ledger_store
@@ -914,15 +927,12 @@ class Session:
                 raise BudgetError(f"admission write failed ({type(e).__name__}); not running")
             self.admitted = True
             admissions = self.ledger.admissions()
+            self._close_if_exhausted(month, admissions)
             if (this_month(admissions, month) > self.policy["admission"]["per_month_global"]
                     or this_month(admissions, month, self.job["job_id"]) > self.job["admissions_per_month"]):
-                self._refuse_and_maybe_close(month, admissions, BudgetError(
-                    f"admissions for {month} used up; this run is recorded and refused"))
-            try:
-                rec, _sha, remaining = reserve(self.ledger, self.policy, self.job, self.run_id, month, admissions,
-                                              checkpoint=self.purpose == "checkpoint")
-            except BudgetError as e:
-                self._refuse_and_maybe_close(month, admissions, e)
+                raise BudgetError(f"admissions for {month} used up; this run is recorded and refused")
+            rec, _sha, remaining = reserve(self.ledger, self.policy, self.job, self.run_id, month, admissions,
+                                          checkpoint=self.purpose == "checkpoint")
             self.reservation = rec
             self.checkpoint_result = self.ledger.checkpoint_result
             self.meter.limits = dict(self.job["per_run"])  # counters keep everything since admission

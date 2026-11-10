@@ -14,7 +14,7 @@ ALLOWED_IMPORTS = {
     "argparse": {"ArgumentParser", "RawDescriptionHelpFormatter"},
     "contextlib": {"contextmanager", "suppress"},
     "copy": {"deepcopy"},
-    "fnmatch": {"fnmatch"},
+    "fnmatch": {"fnmatch", "fnmatchcase"},
     "hashlib": {"sha1"},
     "json": {"dumps", "loads", "load"},
     "os": {"path"},

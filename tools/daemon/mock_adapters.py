@@ -234,12 +234,13 @@ class MockGit(Git):
     def _excluded(self, rel, extra=()):
         if rel in extra:
             return True
-        parts = rel.split("/")
+        parts = rel.casefold().split("/")
         for pat in self.excludes:
+            pat = pat.casefold()
             if pat.endswith("/"):
                 if pat[:-1] in parts[:-1]:
                     return True
-            elif fnmatch.fnmatch(parts[-1], pat):
+            elif fnmatch.fnmatchcase(parts[-1], pat):
                 return True
         return False
 

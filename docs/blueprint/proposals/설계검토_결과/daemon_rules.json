@@ -299,11 +299,13 @@
       ".venv/",
       "__pycache__/",
       ".env",
+      ".env.*",
       "*.pem",
       "*.key",
       "*credentials*",
       "*secret*"
     ],
+    "_exclude_matching": "Case-insensitive basename globs at any depth; trailing / matches directory components. .env.* includes local and production variants.",
     "empty_dirs": "Git 트리는 빈 디렉터리를 담지 않는다. 보존 대상 아님",
     "compare": "quiescent_tree_oid(confirm_quiescent의 마지막 git_write_tree_oid 결과) == commit.tree_oid(보존 커밋의 tree). 같은 함수·같은 includes/excludes로 계산한 OID끼리만 비교한다. 다른 해시(파일 목록 SHA-256 등)는 쓰지 않는다",
     "used_by": [
@@ -316,10 +318,14 @@
     "secret_patterns": {
       "patterns": [
         "cfut_[A-Za-z0-9_\\-]{20,}",
-        "AKIA[0-9A-Z]{16}",
+        "(?:AKIA|ASIA)[0-9A-Z]{16}",
         "-----BEGIN [A-Z ]*PRIVATE KEY-----",
-        "(?i)(api[_-]?key|secret|token|password)\\s*[:=]\\s*['\\\"]?[A-Za-z0-9_\\-]{16,}",
-        "ghp_[A-Za-z0-9]{36}",
+        "(?i)(?:api[_-]?key|secret(?:[_-]access[_-]key)?|access[_-]key[_-]id|token|password)['\"]?\\s*[:=]\\s*['\"]?[A-Za-z0-9_/+~=-]{16,}",
+        "(?:ghp_|ghs_)[A-Za-z0-9]{36}",
+        "github_pat_[A-Za-z0-9_]{82}",
+        "(?i)\\bBearer[ \\t]+[A-Za-z0-9._~+/-]{16,}=*",
+        "(?i)(?:r2|s3|aws|cloudflare|cf)[_-]?(?:secret[_-]?access[_-]?key|access[_-]?key(?:[_-]?id)?)['\"]?\\s*[:=]\\s*['\"]?(?:[A-Fa-f0-9]{64}|[A-Fa-f0-9]{32})(?![A-Za-z0-9_])",
+        "(?<![A-Za-z0-9_])(?:[A-Fa-f0-9]{64}|[A-Fa-f0-9]{32})(?![A-Za-z0-9_])",
         "xox[baprs]-[A-Za-z0-9-]{10,}"
       ],
       "scan": [

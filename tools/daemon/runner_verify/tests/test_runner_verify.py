@@ -88,7 +88,7 @@ class Adapters(unittest.TestCase):
 
     def test_exclude_pathspecs_cover_the_manifest(self):
         pats = exclude_pathspecs([".git/", "target/", ".env", "*.pem"])
-        self.assertEqual(pats, [":(exclude,glob)**/target/**", ":(exclude,glob)**/.env", ":(exclude,glob)**/*.pem"])
+        self.assertEqual(pats, [":(exclude,glob,icase)**/target/**", ":(exclude,glob,icase)**/.env", ":(exclude,glob,icase)**/*.pem"])
 
     def test_push_failure_classes(self):
         mk = lambda err: type("R", (), {"stderr": err, "stdout": "", "returncode": 1})()
@@ -312,6 +312,13 @@ class StaticChecks(unittest.TestCase):
         self.assertNotEqual(static_checks.secrets_absent(RULES, extra_texts=[("t", "api" + "_key = '" + "x" * 20 + "'")]), [])
         self.assertNotEqual(static_checks.runner_profile_confirmed_only({"cli": {"limit_exit_codes": [1], "unavailable_exit_codes": [], "confirmed": False}}), [])
         self.assertEqual(static_checks.runner_profile_confirmed_only({"cli": {"limit_exit_codes": [], "unavailable_exit_codes": [], "confirmed": False}}), [])
+
+    def test_secret_scan_static_check_uses_per_value_digest_context(self):
+        digest, key = "c3" * 32, "b2" * 32
+        self.assertEqual(static_checks.secrets_absent(
+            RULES, extra_texts=[("digest", 'checksum = "' + digest + '"')]), [])
+        self.assertNotEqual(static_checks.secrets_absent(
+            RULES, extra_texts=[("mixed", json.dumps({"sha256": digest, "value": key}))]), [])
 
     def test_a_merge_function_would_be_caught(self):
         import ast

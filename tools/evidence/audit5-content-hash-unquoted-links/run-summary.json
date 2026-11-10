@@ -1,0 +1,194 @@
+{
+  "date": "2026-11-10",
+  "base_commit": "8a025508e1099adee1d3ac968f1ac0e43cd629a6",
+  "rule": "html-visible-text-v3",
+  "production_module_unchanged": true,
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_html_content_hash.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "tools/evidence/audit5-content-hash-unquoted-links/hash-tests.log",
+      "log_sha256": "bd3387c4ebe84be4d89a1caa363ae5ab27ad71bf9122edebaca6ec785b30498c"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_verify_sources.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "tools/evidence/audit5-content-hash-unquoted-links/detect-tests.log",
+      "log_sha256": "791293df526ec611df8b511e07fe8d52da8d30fd9924f17889e6ddfb2559e44b"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/evidence/audit5-content-hash-unquoted-links/check_link_mutations.py"
+      ],
+      "exit_code": 0,
+      "log": "tools/evidence/audit5-content-hash-unquoted-links/link-mutations.log",
+      "log_sha256": "ae4868c74351815e725d7fcc0a783c47de5e20fdf2f0292ab5725336e10c08ee"
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--manifest-path",
+        "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+        "--target-dir",
+        "docs/blueprint/proposals/온톨로지/검증/runner/target",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "log": "tools/evidence/audit5-content-hash-unquoted-links/runner-build.log",
+      "log_sha256": "36cadc97da3fb4d2fbe3a1acdb291411fbe20c4c422197f338a6f5f4da7d4a2e"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "tools/evidence/audit5-content-hash-unquoted-links/python-tests.log",
+      "log_sha256": "4a9db29a9d6448c7b6f24ad1c216d3c156a9147e77173c0d200e0e6275b94145"
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--all",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "log": "tools/evidence/audit5-content-hash-unquoted-links/rust-tests.log",
+      "log_sha256": "5e4326f4974538612563f85226cdc7b5a71993d0aa59128410fb7b9490ca16db"
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--manifest-path",
+        "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "log": "tools/evidence/audit5-content-hash-unquoted-links/runner-tests.log",
+      "log_sha256": "17d6ecac1ce4cec1c46db0669d2b30474f6e77207cd87fb591bc7d8bd625aabb"
+    }
+  ],
+  "static_checks": [
+    {
+      "command": [
+        "python3",
+        "tools/vocab_check.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "tools/validation_check.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "tools/validation_check.py",
+        "--selftest"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/ci/check_product_purpose.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/blueprint_counts.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "sources_sha256": {
+    "tools/html_content_hash.py": "95ab54870b838fe1abbfa95b73ecbc112d8c7c9220171e93f828a2953e747144",
+    "tools/verify_sources.py": "d8aabab153e27f16c15c3a901fa4503ee734e8c3b1acbf46b2acc45b65f951d6",
+    "tools/tests/test_html_content_hash.py": "0211d13f51e8c14c303f080ddcd2d6bc11af45eeda63c060ec91d86fd83278b5",
+    "tools/tests/test_verify_sources.py": "2c58776b516920e98e299c9143545fc3f4a509dfa1699fec738146bf8fe3e239",
+    "tools/evidence/audit5-content-hash-unquoted-links/check_link_mutations.py": "121ce7ee76b7d2eee743b3404d4de12a6b1b8f5049dccd6b1a950a0d4c64b2a3"
+  }
+}

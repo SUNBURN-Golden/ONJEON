@@ -1,4 +1,4 @@
-"""Audit 3: restore only bytes matching the requested content-addressed R2 key.
+"""Audits 3/5: restore only bytes matching the requested content-addressed R2 key.
 
 Real S3Store reads, botocore Stubber responses, synthetic credentials, no network.
 """
@@ -133,6 +133,62 @@ class R2Fetch(unittest.TestCase):
         self.assertEqual((self.out / self.row["cache_path"]).read_bytes(), self.body)
         self.assertFalse((self.out / "corrupt").exists())
         self.assertFalse((self.out / "later").exists())
+
+    def test_rerun_rehashes_overwritten_object_and_keeps_last_verified_restore(self):
+        with Stubber(self.raw.s3) as stub:
+            first = self.queue_get(stub, self.row, self.body)
+            self.assertEqual(self.fetch()[0], 0)
+            dest = self.out / self.row["cache_path"]
+            self.assertEqual(dest.read_bytes(), self.body)
+            # An external writer replaces the same key after a successful restore.
+            # Even a checksum claiming the original digest must not bypass rehashing.
+            checksum = base64.b64encode(hashlib.sha256(self.body).digest()).decode()
+            second = self.queue_get(stub, self.row, b"X" * len(self.body), checksum)
+            code, out, err = self.fetch()
+            stub.assert_no_pending_responses()
+        self.assertEqual(code, 1)
+        self.assertEqual(out, "")
+        self.assertIn("sample: hash_mismatch", err)
+        self.assertEqual(dest.read_bytes(), self.body)
+        self.assertTrue(first.closed)
+        self.assertTrue(second.closed)
+
+    def test_cli_hash_mismatch_returns_failure_and_settles_budget_as_failed(self):
+        out, err = io.StringIO(), io.StringIO()
+        argv = ["source_archive.py", "--endpoint-url", self.args.endpoint_url,
+                "--job", "synthetic-job.json", "fetch", "--raw", self.args.raw,
+                "--out", self.args.out]
+        with Stubber(self.raw.s3) as stub, \
+                mock.patch.object(sa, "store", return_value=self.raw) as store, \
+                mock.patch.object(sys, "argv", argv), \
+                mock.patch.object(r2_budget, "start") as start, \
+                mock.patch.object(r2_budget, "finish", return_value={"outcome": "exit_1"}) as finish, \
+                redirect_stdout(out), redirect_stderr(err):
+            stream = self.queue_get(stub, self.row, b"corrupt")
+            code = sa.main()
+            stub.assert_no_pending_responses()
+        self.assertEqual(code, 1)
+        store.assert_called_once_with(self.args.raw, self.args.endpoint_url)
+        start.assert_called_once_with("synthetic-job.json", self.args.endpoint_url)
+        finish.assert_called_once_with("exit_1")
+        self.assertEqual(out.getvalue(), "")
+        self.assertIn("sample: hash_mismatch", err.getvalue())
+        self.assertIn('budget {"outcome": "exit_1"}', err.getvalue())
+        self.assertFalse(self.out.exists())
+        self.assertTrue(stream.closed)
+
+    def test_empty_object_restores_when_manifest_hash_matches_empty_bytes(self):
+        self.row["sha256"] = sa.sha256_bytes(b"")
+        self.write_samples(self.row)
+        with Stubber(self.raw.s3) as stub:
+            stream = self.queue_get(stub, self.row, b"")
+            code, out, err = self.fetch()
+            stub.assert_no_pending_responses()
+        self.assertEqual(code, 0)
+        self.assertIn("restored originals", out)
+        self.assertEqual(err, "")
+        self.assertEqual((self.out / self.row["cache_path"]).read_bytes(), b"")
+        self.assertTrue(stream.closed)
 
 
 if __name__ == "__main__":

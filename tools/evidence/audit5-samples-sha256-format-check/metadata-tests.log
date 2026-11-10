@@ -1,0 +1,12 @@
+test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) ... ok
+test_bad_urls_are_metadata_errors (test_samples_csv_validation.SampleMetadata.test_bad_urls_are_metadata_errors) ... ok
+test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) ... ok
+test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) ... ok
+test_existing_samples_and_valid_hex_https_metadata_pass (test_samples_csv_validation.SampleMetadata.test_existing_samples_and_valid_hex_https_metadata_pass) ... ok
+test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) ... ok
+test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.227s
+
+OK

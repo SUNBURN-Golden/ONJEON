@@ -1,0 +1,42 @@
+$ python3 -I tools/ci/check_pr_body_traceability.py --selftest
+check_pr_body_traceability selftest ok: 6 violations each caught for its intended rule, 8 clean case(s) pass
+exit=0
+
+$ python3 -I tools/ci/check_pr_body_traceability.py --body-file tools/evidence/audit4-dec-record-authority/failed-pr-body.md
+pr-traceability: 1 finding(s)
+  [PR-TRACE-MISSING] <pull request body>: no tasks.json task ID, node ID, or 09 P row (P01..P19)
+exit=1
+
+$ PR_BODY="$(cat tools/evidence/audit4-dec-record-authority/pr-body.md)" python3 -I tools/ci/check_pr_body_traceability.py
+pr-traceability: PR body names a tasks.json task ID, node ID, or 09 P row (traceability only)
+exit=0
+
+$ python3 -m unittest tools.tests.test_pr_body_traceability -v
+test_accepts_a_bare_audit_slug_as_the_orchestrator_emits_it (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_a_bare_audit_slug_as_the_orchestrator_emits_it) ... ok
+test_accepts_a_labelled_out_of_list_node_id (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_a_labelled_out_of_list_node_id) ... ok
+test_accepts_an_existing_task_id (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_an_existing_task_id) ... ok
+test_accepts_every_p_row_in_range (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_every_p_row_in_range) ... ok
+test_accepts_the_round_2_builder_pr_body_snapshot (tools.tests.test_pr_body_traceability.BodyCheck.test_accepts_the_round_2_builder_pr_body_snapshot) ... ok
+test_dec_record_id_is_not_mistaken_for_a_task_id (tools.tests.test_pr_body_traceability.BodyCheck.test_dec_record_id_is_not_mistaken_for_a_task_id) ... ok
+test_decision_node_empty_builder_summary_requires_a_trace_handle (tools.tests.test_pr_body_traceability.BodyCheck.test_decision_node_empty_builder_summary_requires_a_trace_handle) ... ok
+test_rejects_a_task_id_that_is_not_in_tasks_json (tools.tests.test_pr_body_traceability.BodyCheck.test_rejects_a_task_id_that_is_not_in_tasks_json) ... ok
+test_rejects_an_empty_or_unlabelled_body (tools.tests.test_pr_body_traceability.BodyCheck.test_rejects_an_empty_or_unlabelled_body) ... ok
+test_task_id_must_stand_on_token_boundaries (tools.tests.test_pr_body_traceability.BodyCheck.test_task_id_must_stand_on_token_boundaries) ... ok
+test_blueprint_requires_a_traceability_handle_in_the_pr_body (tools.tests.test_pr_body_traceability.CanonicalPolicy.test_blueprint_requires_a_traceability_handle_in_the_pr_body) ... ok
+test_bundle_states_are_honest_about_the_template (tools.tests.test_pr_body_traceability.CanonicalPolicy.test_bundle_states_are_honest_about_the_template) ... ok
+test_body_edit_cannot_skip_or_overwrite_the_test_job (tools.tests.test_pr_body_traceability.CiWiring.test_body_edit_cannot_skip_or_overwrite_the_test_job) ... ok
+test_guard_runs_in_its_own_workflow_and_cannot_stop_the_test_job (tools.tests.test_pr_body_traceability.CiWiring.test_guard_runs_in_its_own_workflow_and_cannot_stop_the_test_job) ... ok
+test_guard_workflow_is_a_separate_check_without_heavy_steps (tools.tests.test_pr_body_traceability.CiWiring.test_guard_workflow_is_a_separate_check_without_heavy_steps) ... ok
+test_pr_edits_refresh_only_the_traceability_check (tools.tests.test_pr_body_traceability.CiWiring.test_pr_edits_refresh_only_the_traceability_check) ... ok
+test_selftest_runs_on_every_guard_event (tools.tests.test_pr_body_traceability.CiWiring.test_selftest_runs_on_every_guard_event) ... ok
+test_bad_tasks_file_is_a_usage_error (tools.tests.test_pr_body_traceability.CommandLine.test_bad_tasks_file_is_a_usage_error) ... ok
+test_body_file_and_exit_codes (tools.tests.test_pr_body_traceability.CommandLine.test_body_file_and_exit_codes) ... ok
+test_decision_node_bodies_through_ci_environment (tools.tests.test_pr_body_traceability.CommandLine.test_decision_node_bodies_through_ci_environment) ... ok
+test_env_body_and_missing_body_usage_error (tools.tests.test_pr_body_traceability.CommandLine.test_env_body_and_missing_body_usage_error) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.220s
+
+OK
+exit=0
+

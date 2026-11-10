@@ -1,0 +1,5 @@
+PASS: only node test, audit, purpose-table entry and evidence paths changed
+PASS: protected files unchanged
+PASS: changed Python files parse
+PASS: local Markdown links resolve
+PASS: git diff --check

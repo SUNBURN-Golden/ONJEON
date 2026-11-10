@@ -1,0 +1,228 @@
+"""Audit 4: a pull request must be traceable without editing the PR template.
+
+The template is outside this node's allowed paths, so the guard reads the PR body.
+These tests cover the check, its CI wiring and the canonical BLUEPRINT policy.
+Registration is not completion evidence.
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+CI = ROOT / "tools/ci"
+sys.path.insert(0, str(CI))
+import check_pr_body_traceability as T  # noqa: E402
+
+
+class BodyCheck(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.tasks = Path(self.tmp.name) / "tasks.json"
+        self.tasks.write_text(json.dumps({"tasks": [
+            {"id": "T-AA-01"}, {"id": "T-OP-08"},
+        ]}), encoding="utf-8")
+
+    def rules(self, body):
+        return [f.rule for f in T.check(body, self.tasks)]
+
+    def test_accepts_an_existing_task_id(self):
+        self.assertEqual([], self.rules("Agent node: `audit4-x`. Task T-AA-01."))
+
+    def test_accepts_every_p_row_in_range(self):
+        for n in range(1, 20):
+            with self.subTest(row=f"P{n:02}"):
+                self.assertEqual([], self.rules(f"Closes P{n:02} evidence."))
+                self.assertEqual([], self.rules(f"Closes P{n:02}."))
+
+    def test_accepts_a_labelled_out_of_list_node_id(self):
+        for body in ("Node `audit4-pr-template-task-field` — in scope fix",
+                     "노드 ID: `audit4-pr-template-task-field`",
+                     "노드 `audit4-pr-template-task-field`",
+                     "`audit4-pr-template-task-field` — in scope fix"):
+            with self.subTest(body=body):
+                self.assertEqual([], self.rules(body))
+
+    def test_accepts_a_bare_audit_slug_as_the_orchestrator_emits_it(self):
+        # The builder PR body names the node in prose and in an evidence path, with no
+        # backticks; CI must still recognise it (round 3 regression).
+        for body in ("Node audit4-pr-template-task-field — in scope fix",
+                     "Builder node: audit4-pr-template-task-field.",
+                     "[evidence](/workspace/onjeon-run/wt/audit4-pr-template-task-field/"
+                     "tools/evidence/audit4-pr-template-task-field/README.md)"):
+            with self.subTest(body=body):
+                self.assertEqual([], self.rules(body))
+
+    def test_accepts_the_round_2_builder_pr_body_snapshot(self):
+        # Snapshot of the body that failed CI run 41771859128: the slug appears only
+        # un-backticked in prose and in an evidence path.
+        body = (ROOT / "tools/evidence/audit4-pr-template-task-field"
+                / "actual-pr-body.md").read_text(encoding="utf-8")
+        self.assertEqual([], self.rules(body))
+
+    def test_rejects_an_empty_or_unlabelled_body(self):
+        for body in ("", "Fixes a typo in the README.",
+                     "example-node",
+                     "audit4",
+                     "Xaudit4-example-node",
+                     "P00 P20", "T-aa-01"):
+            with self.subTest(body=body):
+                self.assertIn("PR-TRACE-MISSING", self.rules(body))
+
+    def test_decision_node_empty_builder_summary_requires_a_trace_handle(self):
+        evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
+        body = (evidence / "failed-pr-body.md").read_text(encoding="utf-8")
+        # CI runs 41783150105, 41795070906 and 41802792915: spec and issue references do not
+        # identify the node. Fix the body, without exempting decision PRs.
+        self.assertEqual(["PR-TRACE-MISSING"], self.rules(body))
+        self.assertEqual([], self.rules("Node `audit4-dec-record-authority`\n\n" + body))
+        self.assertEqual([], self.rules((evidence / "pr-body.md").read_text(encoding="utf-8")))
+
+    def test_rejects_a_task_id_that_is_not_in_tasks_json(self):
+        self.assertEqual(["PR-TRACE-TASK"], self.rules("T-ZZ-99"))
+        # A valid P row does not excuse a named task ID that does not exist.
+        self.assertEqual(["PR-TRACE-TASK"], self.rules("T-ZZ-99 P01"))
+
+    def test_task_id_must_stand_on_token_boundaries(self):
+        self.assertEqual([], self.rules("T-AA-01."))
+        self.assertIn("PR-TRACE-MISSING", self.rules("XT-AA-01"))
+        self.assertIn("PR-TRACE-MISSING", self.rules("T-AA-001"))
+
+    def test_dec_record_id_is_not_mistaken_for_a_task_id(self):
+        # DEC-CANON-T-CT-02 ends in a hyphenated "T-CT-02"; that suffix is part of
+        # the decision-record ID, not a tasks.json task ID.
+        self.assertEqual([], self.rules("Node `audit4-x` DEC-CANON-T-CT-02"))
+        self.assertEqual(["PR-TRACE-TASK"], self.rules("T-ZZ-99"))
+
+
+class CommandLine(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        (self.root / "tasks.json").write_text(
+            json.dumps({"tasks": [{"id": "T-AA-01"}]}), encoding="utf-8")
+
+    def run_check(self, *args, env=None):
+        base = {k: v for k, v in os.environ.items() if k != "PR_BODY"}
+        base.update(env or {})
+        return subprocess.run(
+            [sys.executable, "-I", str(CI / "check_pr_body_traceability.py"),
+             "--tasks", str(self.root / "tasks.json"), *args],
+            capture_output=True, text=True, env=base, timeout=30)
+
+    def test_body_file_and_exit_codes(self):
+        body = self.root / "body.md"
+        body.write_text("Node `audit4-example`", encoding="utf-8")
+        self.assertEqual(0, self.run_check("--body-file", str(body)).returncode)
+        body.write_text("no trace handle", encoding="utf-8")
+        failed = self.run_check("--body-file", str(body))
+        self.assertEqual(1, failed.returncode)
+        self.assertIn("PR-TRACE-MISSING", failed.stdout)
+
+    def test_env_body_and_missing_body_usage_error(self):
+        self.assertEqual(0, self.run_check(env={"PR_BODY": "P07"}).returncode)
+        self.assertEqual(2, self.run_check().returncode)
+
+    def test_decision_node_bodies_through_ci_environment(self):
+        evidence = ROOT / "tools/evidence/audit4-dec-record-authority"
+        for filename, code in (("failed-pr-body.md", 1), ("pr-body.md", 0)):
+            with self.subTest(filename=filename):
+                body = (evidence / filename).read_text(encoding="utf-8")
+                result = self.run_check(env={"PR_BODY": body})
+                self.assertEqual(code, result.returncode, result.stdout + result.stderr)
+                if code:
+                    self.assertIn("PR-TRACE-MISSING", result.stdout)
+
+    def test_bad_tasks_file_is_a_usage_error(self):
+        (self.root / "tasks.json").write_text("{not json", encoding="utf-8")
+        self.assertEqual(2, self.run_check("--body", "T-AA-01").returncode)
+
+
+class CiWiring(unittest.TestCase):
+    def setUp(self):
+        self.workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.guard = (ROOT / ".github/workflows/pr-traceability.yml").read_text(encoding="utf-8")
+
+    def pull_request_block(self, workflow):
+        trigger = re.search(r"(?m)^on:\n((?:[ \t]+[^\n]*\n|\n)+)", workflow)
+        self.assertIsNotNone(trigger)
+        return trigger[1]
+
+    def test_guard_runs_in_its_own_workflow_and_cannot_stop_the_test_job(self):
+        # The guard used to run before the tests inside `rules-engine`. A body with no
+        # trace handle then aborted that job before cargo/unittest ran. It now has its
+        # own workflow, so a body edit cannot suppress or replace the code/test job.
+        self.assertIn("python3 -I tools/ci/check_pr_body_traceability.py", self.guard)
+        self.assertIn("PR_BODY: ${{ github.event.pull_request.body }}", self.guard)
+        self.assertNotIn("check_pr_body_traceability.py", self.workflow)
+        self.assertNotIn("PR_BODY", self.workflow)
+
+    def test_guard_workflow_is_a_separate_check_without_heavy_steps(self):
+        self.assertIn("name: pr-traceability\n", self.guard)
+        self.assertIn("jobs:\n  pr-traceability:\n", self.guard)
+        self.assertNotIn("  rules-engine:\n", self.guard)
+        for heavy in ("cargo test", "cargo build", "unittest discover", "pip install"):
+            with self.subTest(command=heavy):
+                self.assertNotIn(heavy, self.guard)
+
+    def test_pr_edits_refresh_only_the_traceability_check(self):
+        # A corrected body must re-run the guard even when the head is unchanged. The
+        # code/test workflow keeps GitHub's default PR events and never hears an edit,
+        # so no green `rules-engine` check can be manufactured without running tests.
+        events = re.search(
+            r"(?m)^  pull_request:\n(?:    #[^\n]*\n)*    types: \[([^\]]+)\]$",
+            self.pull_request_block(self.guard),
+        )
+        self.assertIsNotNone(events, "the guard needs an explicit activity list")
+        self.assertEqual({event.strip() for event in events[1].split(",")},
+                         {"opened", "synchronize", "reopened", "edited"})
+        ci_pr = self.pull_request_block(self.workflow)
+        self.assertNotIn("types:", ci_pr)
+        self.assertNotRegex(ci_pr, r"\bedited\b")
+
+    def test_body_edit_cannot_skip_or_overwrite_the_test_job(self):
+        # No step- or job-level edit gating may remain: those are what let a later
+        # `edited` run report `rules-engine` green with every test step skipped.
+        self.assertNotIn("github.event.action", self.workflow)
+        self.assertNotIn("github.event.action", self.guard)
+
+    def test_selftest_runs_on_every_guard_event(self):
+        self.assertIn("check_pr_body_traceability.py --selftest", self.guard)
+
+
+class CanonicalPolicy(unittest.TestCase):
+    def test_blueprint_requires_a_traceability_handle_in_the_pr_body(self):
+        blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
+        rules = blueprint.split("## 10. 드리프트 방지 규칙", 1)[1].split("## 11.", 1)[0]
+        for text in ("`tasks.json` 과제 ID", "노드 ID와 사유", "09 P행",
+                     "`P01`~`P19`", "tools/ci/check_pr_body_traceability.py"):
+            with self.subTest(text=text):
+                self.assertIn(text, rules)
+
+    def test_bundle_states_are_honest_about_the_template(self):
+        bundle = ROOT / "docs/blueprint/proposals/설계검토_결과"
+        tasks = json.loads((bundle / "tasks.json").read_text(encoding="utf-8"))
+        readme = (bundle / "README.md").read_text(encoding="utf-8")
+        work_spec = (bundle / "03_작업명세.md").read_text(encoding="utf-8")
+        policies = {
+            "tasks.json": tasks["_common_done_criteria_note"],
+            "README §0.1": readme.split("## 0.1 ", 1)[1].split("## 1.", 1)[0],
+            "03 §2": work_spec.split("## 2.", 1)[1].split("## 3.", 1)[0],
+        }
+        self.assertEqual("non_binding_until_adopted",
+                         tasks["_common_done_criteria_status"])
+        for name, policy in policies.items():
+            with self.subTest(document=name):
+                self.assertIn("check_pr_body_traceability.py", policy)
+                self.assertIn("PR 템플릿은 이 노드의 허용 경로 밖이라 변경하지 않았", policy)
+                self.assertNotIn("입력란을 추가했으나", policy)
+
+
+if __name__ == "__main__":
+    unittest.main()

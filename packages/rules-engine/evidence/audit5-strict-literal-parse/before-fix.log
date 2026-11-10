@@ -1,0 +1,57 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling typenum v1.20.1
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling cpufeatures v0.2.17
+   Compiling itoa v1.0.18
+   Compiling cfg-if v1.0.5
+   Compiling memchr v2.8.3
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-strict-literal-parse/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.04s
+     Running tests/rate_format.rs (target/debug/deps/rate_format-7b280eb83be55e86)
+
+running 4 tests
+test incomplete_rate_literals_cannot_load_or_acquire_content_hashes ... FAILED
+test anniversary_bands_reject_invalid_rates_in_all_rows ... FAILED
+test invalid_rate_spellings_remain_valid_declared_input_names_and_strings ... FAILED
+test complete_rates_preserve_payouts_source_hashes_and_reload_determinism ... ok
+
+failures:
+
+---- incomplete_rate_literals_cannot_load_or_acquire_content_hashes stdout ----
+
+thread 'incomplete_rate_literals_cannot_load_or_acquire_content_hashes' (1794145) panicked at packages/rules-engine/tests/rate_format.rs:38:28:
+must reject {"amount":{"multiply_rate":[{"krw":1000000000},"5.",{"rounding":"floor","unit":1}]},"eligibility":true,"evidence_refs":[],"inputs":{},"publication_state":"fixture_only","rule_id":"rate-format","rule_version":"1","schema_version":"rule-0.1","unknown_policy":"use_three_valued_logic_never_default_to_zero"}: Rule { rule_id: "rate-format", rule_version: "1", release_id: None, content_hash: "1c1daf3b3d136522532fb23879a437903302ef02286a6c5e52817ddc6a0c787f", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {}, eligibility: Lit(Bool(true)), amount: MultiplyRate { money: Lit(Money(1000000000)), rate: Lit(Rate { num: 5, den: 1 }), rounding: Floor, unit: 1 }, contract_effect: None, source: Object {"amount": Object {"multiply_rate": Array [Object {"krw": Number(1000000000)}, String("5."), Object {"rounding": String("floor"), "unit": Number(1)}]}, "eligibility": Bool(true), "evidence_refs": Array [], "inputs": Object {}, "publication_state": String("fixture_only"), "rule_id": String("rate-format"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- anniversary_bands_reject_invalid_rates_in_all_rows stdout ----
+
+thread 'anniversary_bands_reject_invalid_rates_in_all_rows' (1794143) panicked at packages/rules-engine/tests/rate_format.rs:38:28:
+must reject {"amount":{"multiply_rate":[{"krw":1000000000},{"anniversary_band":[{"date":"2026-01-05"},{"date":"2026-01-05"},[[0,"5."]],{"boundary":"lower_inclusive"}]},{"rounding":"floor","unit":1}]},"eligibility":true,"evidence_refs":[],"inputs":{},"publication_state":"fixture_only","rule_id":"rate-format","rule_version":"1","schema_version":"rule-0.2","unknown_policy":"use_three_valued_logic_never_default_to_zero"}: Rule { rule_id: "rate-format", rule_version: "1", release_id: None, content_hash: "0a9d3991d3f26e3602168981c7dffdd2996775f06ce2c170971eccec1eda4056", schema_version: "rule-0.2", publication_state: "fixture_only", evidence_refs: [], inputs: {}, eligibility: Lit(Bool(true)), amount: MultiplyRate { money: Lit(Money(1000000000)), rate: AnniversaryBand { from: Lit(Date(20458)), at: Lit(Date(20458)), bands: [(0, Rate { num: 5, den: 1 })], boundary: Lower }, rounding: Floor, unit: 1 }, contract_effect: None, source: Object {"amount": Object {"multiply_rate": Array [Object {"krw": Number(1000000000)}, Object {"anniversary_band": Array [Object {"date": String("2026-01-05")}, Object {"date": String("2026-01-05")}, Array [Array [Number(0), String("5.")]], Object {"boundary": String("lower_inclusive")}]}, Object {"rounding": String("floor"), "unit": Number(1)}]}, "eligibility": Bool(true), "evidence_refs": Array [], "inputs": Object {}, "publication_state": String("fixture_only"), "rule_id": String("rate-format"), "rule_version": String("1"), "schema_version": String("rule-0.2"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- invalid_rate_spellings_remain_valid_declared_input_names_and_strings stdout ----
+
+thread 'invalid_rate_spellings_remain_valid_declared_input_names_and_strings' (1794146) panicked at packages/rules-engine/tests/rate_format.rs:38:28:
+must reject {"amount":{"multiply_rate":[".5",{"rate":".5"},{"rounding":"floor","unit":1}]},"eligibility":{"eq":[{"str":".5"},{"str":".5"}]},"evidence_refs":[],"inputs":{".5":"money_krw"},"publication_state":"fixture_only","rule_id":"rate-format","rule_version":"1","schema_version":"rule-0.1","unknown_policy":"use_three_valued_logic_never_default_to_zero"}: Rule { rule_id: "rate-format", rule_version: "1", release_id: None, content_hash: "0123199c1f0f78fcfdaf6692ab6bb420f37cc879ec78290fc4553111727f7025", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {".5": MoneyKrw}, eligibility: Cmp(Eq, Lit(Str(".5")), Lit(Str(".5"))), amount: MultiplyRate { money: Input(".5"), rate: Lit(Rate { num: 5, den: 10 }), rounding: Floor, unit: 1 }, contract_effect: None, source: Object {"amount": Object {"multiply_rate": Array [String(".5"), Object {"rate": String(".5")}, Object {"rounding": String("floor"), "unit": Number(1)}]}, "eligibility": Object {"eq": Array [Object {"str": String(".5")}, Object {"str": String(".5")}]}, "evidence_refs": Array [], "inputs": Object {".5": String("money_krw")}, "publication_state": String("fixture_only"), "rule_id": String("rate-format"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+
+failures:
+    anniversary_bands_reject_invalid_rates_in_all_rows
+    incomplete_rate_literals_cannot_load_or_acquire_content_hashes
+    invalid_rate_spellings_remain_valid_declared_input_names_and_strings
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p onjeon-rules-engine --test rate_format`

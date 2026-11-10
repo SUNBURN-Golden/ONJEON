@@ -31,6 +31,8 @@ Targets: file:///abs/dir  or  s3://bucket[/prefix]. The S3 API endpoint comes fr
 ONJEON_S3_ENDPOINT (unset = AWS S3, ap-northeast-2). An endpoint on *.r2.cloudflarestorage.com selects
 Cloudflare R2 (infra/r2/): region "auto", credentials from R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY,
 no SSE header (R2 encrypts every object at rest). Otherwise credentials come from the standard AWS chain.
+Only http(s) endpoints on localhost/127.0.0.1 are accepted as test emulators; other explicit
+endpoints (including AWS endpoints) are refused. DNS trailing dots are ignored for classification.
 Never pass keys on the command line, never print them.
 
 Usage:
@@ -198,18 +200,24 @@ R2_HOST_SUFFIX = ".r2.cloudflarestorage.com"
 
 
 def provider_of(endpoint_url):
-    """aws (no endpoint), r2 (Cloudflare R2 S3 API) or emulator (any other endpoint, tests only)."""
+    """Classify AWS defaults, R2 or allowlisted local emulators; refuse other endpoints."""
     if not endpoint_url:
         return "aws"
     from urllib.parse import urlparse
-    u = urlparse(endpoint_url)
-    # A DNS root dot denotes the same host; it must not bypass R2's budget gate.
-    host = (u.hostname or "").rstrip(".").lower()
+    refused = "unsupported S3 endpoint; use HTTPS R2, localhost/127.0.0.1, or omit the endpoint for AWS"
+    try:
+        u = urlparse(endpoint_url)
+        # A DNS root dot denotes the same host; it must not bypass R2's budget gate.
+        host = (u.hostname or "").rstrip(".").lower()
+    except ValueError:
+        raise SystemExit(refused) from None
     if host.endswith(R2_HOST_SUFFIX):
         if u.scheme != "https":
             raise SystemExit("R2 endpoint must be https")
         return "r2"
-    return "emulator"
+    if u.scheme in ("http", "https") and host in ("localhost", "127.0.0.1"):
+        return "emulator"
+    raise SystemExit(refused)
 
 
 class S3Store:
@@ -587,7 +595,8 @@ def cmd_verify_copy(a):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--endpoint-url", help="S3 API endpoint (R2 or an emulator); default $ONJEON_S3_ENDPOINT, else AWS")
+    ap.add_argument("--endpoint-url", help="S3 API endpoint (HTTPS R2 or localhost/127.0.0.1 emulator); "
+                    "default $ONJEON_S3_ENDPOINT, else AWS")
     ap.add_argument("--job", help="budget job (infra/r2/jobs/*.json); required for R2/AWS targets")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("archive-samples")

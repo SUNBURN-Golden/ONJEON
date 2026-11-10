@@ -1,0 +1,2 @@
+PASS: baseline 7/7; missing filename guard detected by 2 tests; missing case guards by 3.
+PASS: repository harness unchanged; isolated crates removed.

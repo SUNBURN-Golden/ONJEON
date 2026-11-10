@@ -3,6 +3,9 @@ name: ci
 on:
   push:
     branches: [main, "claude/**"]
+  # The PR body traceability guard runs in the separate `pr-traceability` workflow.
+  # Keeping it out of this workflow means a body edit re-runs only that small check
+  # and can never replace a failed or not-yet-run code/test job with success.
   pull_request:
 
 # PR-head code runs here, so the token is read-only and is not left in .git/config.
@@ -22,7 +25,7 @@ jobs:
           persist-credentials: false
       - name: Workflow token permissions and immutable action refs
         run: |
-          python3 tools/workflow_check.py
+          python3 tools/workflow_check.py .github/workflows/ci.yml .github/workflows/pr-traceability.yml
           python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
       - name: Registry normalization regressions
         run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v

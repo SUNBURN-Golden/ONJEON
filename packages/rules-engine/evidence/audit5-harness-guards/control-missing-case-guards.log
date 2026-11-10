@@ -1,0 +1,52 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit5-engine-test-harness-guards/target/harness-control-dqjy79mi/packages/rules-engine/Cargo.toml --test harness_guards
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit5-engine-test-harness-guards/target/harness-control-dqjy79mi/packages/rules-engine)
+warning: unused variable: `uses_base`
+  --> tests/common/mod.rs:53:9
+   |
+53 |     let uses_base = file.get("base").is_some();
+   |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_uses_base`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `onjeon-rules-engine` (test "harness_guards") generated 1 warning (run `cargo fix --test "harness_guards" -p onjeon-rules-engine` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running tests/harness_guards.rs (target/harness-control-build/debug/deps/harness_guards-3e4d4add4a3becdb)
+
+running 7 tests
+test malformed_overrides_cannot_silently_use_base_inputs ... FAILED
+test unknown_real_case_keys_are_rejected_in_shared_files_and_supplements ... FAILED
+test unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements ... FAILED
+test rule_filename_must_match_its_id_even_without_a_collision ... ok
+test valid_shared_and_supplemental_case_formats_keep_their_inputs ... ok
+test matching_rule_files_preserve_every_rule_and_ignore_case_tables ... ok
+test duplicate_rule_ids_are_rejected_in_either_filename_order ... ok
+
+failures:
+
+---- malformed_overrides_cannot_silently_use_base_inputs stdout ----
+
+thread 'malformed_overrides_cannot_silently_use_base_inputs' (1943535) panicked at tests/harness_guards.rs:46:52:
+invalid fixture must be rejected: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- unknown_real_case_keys_are_rejected_in_shared_files_and_supplements stdout ----
+
+thread 'unknown_real_case_keys_are_rejected_in_shared_files_and_supplements' (1943538) panicked at tests/harness_guards.rs:46:52:
+invalid fixture must be rejected: ()
+
+---- unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements stdout ----
+
+thread 'unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements' (1943539) panicked at tests/harness_guards.rs:46:52:
+invalid fixture must be rejected: ()
+
+
+failures:
+    malformed_overrides_cannot_silently_use_base_inputs
+    unknown_real_case_keys_are_rejected_in_shared_files_and_supplements
+    unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements
+
+test result: FAILED. 4 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--test harness_guards`
+
+Exit: 101

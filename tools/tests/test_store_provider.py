@@ -40,8 +40,28 @@ FAKE = {"R2_ACCESS_KEY_ID": "k" * 32, "R2_SECRET_ACCESS_KEY": "s" * 64}
 class Provider(unittest.TestCase):
     def test_selection(self):
         self.assertEqual(sa.provider_of(None), "aws")
+        self.assertEqual(sa.provider_of(""), "aws")
         self.assertEqual(sa.provider_of(R2), "r2")
-        self.assertEqual(sa.provider_of("http://127.0.0.1:5000"), "emulator")
+
+    def test_only_allowlisted_local_hosts_are_emulators(self):
+        for host in ("localhost", "LOCALHOST.", "127.0.0.1", "127.0.0.1."):
+            for scheme in ("http", "https"):
+                with self.subTest(host=host, scheme=scheme):
+                    self.assertEqual(sa.provider_of(f"{scheme}://{host}:5000/"), "emulator")
+
+    def test_explicit_aws_and_other_remote_endpoints_are_refused(self):
+        for endpoint in ("https://s3.amazonaws.com", "https://s3.ap-northeast-2.amazonaws.com.",
+                         "https://bucket.s3.us-east-1.amazonaws.com", "http://192.0.2.1:5000",
+                         "https://example.invalid", "http://127.0.0.2:5000",
+                         "http://localhost.example.invalid", "http://127.0.0.1.example.invalid"):
+            with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                sa.provider_of(endpoint)
+
+    def test_malformed_or_non_http_endpoints_are_refused(self):
+        for endpoint in ("localhost:5000", "//localhost:5000", "http://", "https://[broken",
+                         "ftp://localhost", "file://127.0.0.1"):
+            with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                sa.provider_of(endpoint)
 
     def test_r2_requires_https(self):
         for endpoint in (R2, R2 + ".", R2.upper() + ".:443/"):
@@ -61,7 +81,52 @@ class Provider(unittest.TestCase):
                          "https://example.invalid/x.r2.cloudflarestorage.com.",
                          "https://example.invalid/?endpoint=" + R2 + "."):
             with self.subTest(endpoint=endpoint):
-                self.assertEqual(sa.provider_of(endpoint), "emulator")
+                with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                    sa.provider_of(endpoint)
+
+
+@unittest.skipUnless(HAVE_BOTO, "boto3 not installed")
+class EndpointGate(unittest.TestCase):
+    def test_remote_endpoint_is_refused_before_client_creation(self):
+        for endpoint in ("https://s3.ap-northeast-2.amazonaws.com", "https://example.invalid",
+                         "https://x.r2.cloudflarestorage.com.evil.example."):
+            for from_env in (False, True):
+                for active in (None, mock.Mock(meter=None, policy={"per_request": {"max_attempts": 3}})):
+                    for ledger in (False, True):
+                        with self.subTest(endpoint=endpoint, from_env=from_env,
+                                          budget=active is not None, ledger=ledger), \
+                                mock.patch.dict(os.environ, {"ONJEON_S3_ENDPOINT": endpoint}), \
+                                mock.patch.object(r2_budget, "ACTIVE", active), \
+                                mock.patch.object(boto3, "client") as client:
+                            model = client.return_value.meta.service_model
+                            model.operation_model.return_value.input_shape.members = {"IfNoneMatch": None}
+                            with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+                                sa.S3Store("s3://raw", None if from_env else endpoint, ledger=ledger)
+                            self.assertNotIn(endpoint, str(cm.exception))
+                            client.assert_not_called()
+
+    def test_default_aws_still_requires_a_budget(self):
+        with mock.patch.dict(os.environ, {"ONJEON_S3_ENDPOINT": ""}), \
+                mock.patch.object(r2_budget, "ACTIVE", None), \
+                mock.patch.object(boto3, "client") as client:
+            with self.assertRaisesRegex(SystemExit, "aws access needs a budget job"):
+                sa.S3Store("s3://raw")
+            client.assert_not_called()
+
+    def test_local_emulator_can_create_a_client_without_a_budget(self):
+        for endpoint in ("http://localhost:5000", "http://127.0.0.1:5000",
+                         "http://LOCALHOST.:5000", "http://127.0.0.1.:5000"):
+            for from_env in (False, True):
+                with self.subTest(endpoint=endpoint, from_env=from_env), \
+                        mock.patch.dict(os.environ, {"ONJEON_S3_ENDPOINT": endpoint}), \
+                        mock.patch.object(r2_budget, "ACTIVE", None), \
+                        mock.patch.object(boto3, "client") as client:
+                    model = client.return_value.meta.service_model
+                    model.operation_model.return_value.input_shape.members = {"IfNoneMatch": None}
+                    st = sa.S3Store("s3://raw", None if from_env else endpoint)
+                    self.assertEqual(st.provider, "emulator")
+                    self.assertIsNone(st.meter)
+                    self.assertEqual(client.call_args.kwargs["endpoint_url"], endpoint)
 
 
 @unittest.skipUnless(HAVE_BOTO, "boto3 not installed")

@@ -9,9 +9,9 @@ use serde_json::{json, Value as J};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
-// 47 shared design-validation cases + 58 engine-owned boundary cases.
+// 47 shared design-validation cases + 59 engine-owned boundary cases.
 // Update deliberately when adding or removing cases; never derive this from discovered files.
-const EXPECTED_REAL_CLAUSE_CASES: usize = 47 + 58;
+const EXPECTED_REAL_CLAUSE_CASES: usize = 47 + 59;
 
 fn rules() -> BTreeMap<String, Rule> {
     let rules = real_rules();
@@ -254,6 +254,54 @@ fn case_coverage_check_catches_orphans_and_unknown_rules() {
         problems.iter().any(|p| p.contains("names no rule")),
         "{problems:?}"
     );
+}
+
+#[test]
+fn whole_life_leap_day_self_harm_boundary_is_g13_pending() {
+    let (case, rule_id, inputs) = real_cases()
+        .into_iter()
+        .find(|(case, ..)| case["id"] == "w34_g13_pending_leap_day_self_harm_two_years")
+        .expect("G13 leap-day self-harm case must remain in the executed case set");
+    assert_eq!(rule_id, "kyobo-wholelife-disease-death");
+    assert!(
+        case["note"].as_str().unwrap().contains("G13-pending"),
+        "the unverified date convention must remain explicitly G13-pending"
+    );
+    assert_eq!(
+        case["set"],
+        json!({
+            "contract_date": "2028-02-29",
+            "coverage_start_date": "2028-02-29",
+            "self_harm": true,
+            "death_date": "2030-02-28"
+        })
+    );
+    assert_eq!(inputs["is_revived"], false);
+    assert_eq!(inputs["self_harm_without_free_will"], false);
+    let rules = rules();
+    let rule = &rules[&rule_id];
+    assert_eq!(rule.publication_state(), "fixture_only");
+    let clamp_expectation = json!({
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 70000000}},
+        "missing_inputs": []
+    });
+    assert_eq!(case["expect"], clamp_expectation);
+    assert_eq!(observe(rule, &inputs), clamp_expectation);
+
+    // These pin the current clamp/inclusive assumption, not the policy's legal meaning.
+    let mut adjacent = inputs.clone();
+    adjacent["death_date"] = json!("2030-02-27");
+    assert_eq!(
+        observe(rule, &adjacent),
+        json!({
+            "eligibility": "false",
+            "payout": {"kind": "not_payable"},
+            "missing_inputs": []
+        })
+    );
+    adjacent["death_date"] = json!("2030-03-01");
+    assert_eq!(observe(rule, &adjacent), clamp_expectation);
 }
 
 #[test]

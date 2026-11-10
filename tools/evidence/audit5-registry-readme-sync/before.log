@@ -1,0 +1,240 @@
+test_every_insurer_appears_once_and_only_as_matched (tools.tests.test_registry_authority_crosscheck.CrosscheckTable.test_every_insurer_appears_once_and_only_as_matched) ... ok
+test_excluded_rows_map_to_the_excluded_file (tools.tests.test_registry_authority_crosscheck.CrosscheckTable.test_excluded_rows_map_to_the_excluded_file) ... ok
+test_fine_only_aioi_row_is_explicitly_unresolved (tools.tests.test_registry_authority_crosscheck.CrosscheckTable.test_fine_only_aioi_row_is_explicitly_unresolved) ... ok
+test_missing_entity_is_genworth_and_does_not_change_the_denominator (tools.tests.test_registry_authority_crosscheck.CrosscheckTable.test_missing_entity_is_genworth_and_does_not_change_the_denominator) ... ok
+test_name_match_classes_are_documented_values (tools.tests.test_registry_authority_crosscheck.CrosscheckTable.test_name_match_classes_are_documented_values) ... ok
+test_shape_and_authority_category_counts (tools.tests.test_registry_authority_crosscheck.CrosscheckTable.test_shape_and_authority_category_counts) ... ok
+test_authority_section_states_the_crosscheck_counts_and_scope (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_authority_section_states_the_crosscheck_counts_and_scope) ... ERROR
+test_file_table_counts_match_the_committed_csvs (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_file_table_counts_match_the_committed_csvs) ... FAIL
+test_home_access_table_reconciles_with_insurers_csv (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_home_access_table_reconciles_with_insurers_csv) ... FAIL
+test_tls_error_is_listed_once_and_names_three_companies (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_tls_error_is_listed_once_and_names_three_companies) ... FAIL
+test_fisis_posts_name_the_part_and_base_month (tools.tests.test_registry_authority_crosscheck.RetrievalEvidence.test_fisis_posts_name_the_part_and_base_month) ... ok
+test_fourteen_authority_requests_succeeded_without_an_outage_page (tools.tests.test_registry_authority_crosscheck.RetrievalEvidence.test_fourteen_authority_requests_succeeded_without_an_outage_page) ... ok
+test_nine_authority_sources_were_retrieved_on_the_recheck_date (tools.tests.test_registry_authority_crosscheck.RetrievalEvidence.test_nine_authority_sources_were_retrieved_on_the_recheck_date) ... ok
+test_2026_10_09_outage_attempts_are_preserved (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_2026_10_09_outage_attempts_are_preserved) ... ok
+test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) ... 
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='2026-11-10에 수행했다') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='FISIS 금융회사 목록(기준년월 202606)') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='파인 제도권 금융회사 조회') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='authority_crosscheck_2026-11-10.csv') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='현행 `insurers.csv` 53곳은 두 목록 모두에 있다') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='젠워스') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='동경해상일동화재보험') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='다시 계산하지 않았다') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='기관 목록에 한정') ... FAIL
+  test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='Audit 5') ... FAIL
+test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) ... FAIL
+test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) ... 
+  test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='이 대조는 기관 목록에 한정') ... FAIL
+test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) ... 
+  test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='FISIS에만 있는 젠워스') ... FAIL
+  test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='파인에만 있는 동경해상일동화재보험(주)서울지점') ... FAIL
+  test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='Aioi') ... FAIL
+  test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='`insurers.csv` 분모') ... FAIL
+test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) ... FAIL
+test_two_or_more_sources_keeps_its_old_meaning (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_two_or_more_sources_keeps_its_old_meaning) ... 
+  test_two_or_more_sources_keeps_its_old_meaning (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_two_or_more_sources_keeps_its_old_meaning) (phrase='다시 계산하지 않았다') ... FAIL
+
+======================================================================
+ERROR: test_authority_section_states_the_crosscheck_counts_and_scope (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_authority_section_states_the_crosscheck_counts_and_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_authority_crosscheck.py", line 163, in test_authority_section_states_the_crosscheck_counts_and_scope
+    section = self.text.split("## 감독당국 교차검증 (2026-11-10)", 1)[1].split("\n## ", 1)[0]
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+FAIL: test_file_table_counts_match_the_committed_csvs (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_file_table_counts_match_the_committed_csvs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_authority_crosscheck.py", line 174, in test_file_table_counts_match_the_committed_csvs
+    self.assertIn(f"{len(rows('sources'))}건", line)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '75건' not found in '| `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 66건과 응답 본문 sha256 |'
+
+======================================================================
+FAIL: test_home_access_table_reconciles_with_insurers_csv (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_home_access_table_reconciles_with_insurers_csv)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_authority_crosscheck.py", line 147, in test_home_access_table_reconciles_with_insurers_csv
+    self.assertEqual(stated, Counter({k: v for k, v in actual.items() if k != "not_checked"}))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Counter() != Counter({'reachable': 20, 'connection_reset': 10,[77 chars]: 1})
+
+======================================================================
+FAIL: test_tls_error_is_listed_once_and_names_three_companies (tools.tests.test_registry_authority_crosscheck.ReadmeTally.test_tls_error_is_listed_once_and_names_three_companies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_authority_crosscheck.py", line 155, in test_tls_error_is_listed_once_and_names_three_companies
+    self.assertEqual(self.text.count("`tls_error`"), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='2026-11-10에 수행했다')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '2026-11-10에 수행했다' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='FISIS 금융회사 목록(기준년월 202606)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FISIS 금융회사 목록(기준년월 202606)' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='파인 제도권 금융회사 조회')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '파인 제도권 금융회사 조회' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='authority_crosscheck_2026-11-10.csv')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'authority_crosscheck_2026-11-10.csv' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='현행 `insurers.csv` 53곳은 두 목록 모두에 있다')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '현행 `insurers.csv` 53곳은 두 목록 모두에 있다' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='젠워스')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '젠워스' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='동경해상일동화재보험')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '동경해상일동화재보험' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='다시 계산하지 않았다')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '다시 계산하지 않았다' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='기관 목록에 한정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '기관 목록에 한정' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded) (phrase='Audit 5')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 35, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Audit 5' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_note_records_the_2026_11_10_recheck_as_done_and_bounded (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_note_records_the_2026_11_10_recheck_as_done_and_bounded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 36, in test_note_records_the_2026_11_10_recheck_as_done_and_bounded
+    self.assertNotIn("후속 교차검증은 미수행", self.gaps)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '후속 교차검증은 미수행' unexpectedly found in '\n\n1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).\n2. **DART는 허가를 증명하지 않는다.** DART는 법인 등록 정보다. 그래서 업종 목록에는 국민생명, 리젠트화재, 그린손보, 한덕생명, 한일생명, 오렌지라이프 등 현행 협회 목록에 없는 회사(폐업·합병 추정)와 펀드·보증기금이 섞여 있다. DART에만 있는 이름은 `excluded_or_historical.csv`로 보냈다.\n3. **KIDI 링크 목록은 일부 오래됐다.** DGB생명(현 iM라이프 표기와 매칭), MG손해보험, 캐롯손해보험이 들어 있다. MG손보와 캐롯은 KNIA 현행 목록에 없어 `excluded_or_historical.csv`로 보냈다. 영업 중단, 계약이전, 합병 여부는 출처로 확인하지 못했다. 예별손해보험과 MG손보의 관계도 확인하지 못했다.\n4. **판매중지 상품의 분모**(ADR-0004: 판매 중지 포함)는 과거 회사를 포함할 수 있다. MG손보와 캐롯처럼 사라졌거나 이전된 회사의 기존 계약 약관을 어느 회사 공시실에서 찾을지는 아직 정하지 않았다.\n5. **외국 재보험사와 기업보험 지점 8곳은 KNIA 한 곳에만 있다.** SCOR는 한글 정식명이 없다. 법인인지 지점인지도 대부분 추정이다. 재보험사는 개인 상품공시 대상이 아니라고 보고 공시실을 탐색하지 않았다. 이 가정도 확인이 필요하다.\n6. **영문명(`name_en`)은 대부분 비어 있다.** 출처에 영문 표기가 있는 경우(Munich Re, Hannover Re, SCOR, RGA)만 채웠다.\n7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 0, `failed` 31, `blocked` 3, `unqueried` 19. `unqueried`는 접근 확인 후 보관 전 8곳과 미조회 11곳). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경은 열린 관문 O19(결정 원장 §3)이고, T-DT-04의 실데이터 관문(`decision_gates.real_data`: D-04, O19)이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.\n8. **명칭 변경과 합병 이력(기관 별칭)은 확보하지 못했다.** KLIA 회원사변천과정은 JS로 렌더링되고, KNIA에는 해당 페이지를 찾지 못했다.\n9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제는 ADR-0018로 범위·확보율 분모에서 제외됐으므로 공제 상품공시 URL은 탐색하지 않는다. 행별 `notes`도 위 "범위(ADR-0018)" 표의 결정을 적는다(우체국보험 포함, 공제·한국무역보험공사 제외). 다만 정규화기는 범위 열 없이 이 파일의 모든 행에 `product_list_status=unqueried`와 `awaiting_T-DT-04` 사유를 붙이므로, 제외 행의 사유 코드는 분모 편입을 뜻하지 않는다.\n10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 공백 1의 후속 교차검증에서 기관 누락 여부를 대조하고 미확인 결과도 남겨야 한다.\n'
+
+======================================================================
+FAIL: test_product_enumeration_is_separate_and_still_unqueried (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_product_enumeration_is_separate_and_still_unqueried) (phrase='이 대조는 기관 목록에 한정')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 70, in test_product_enumeration_is_separate_and_still_unqueried
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '이 대조는 기관 목록에 한정' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+======================================================================
+FAIL: test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='FISIS에만 있는 젠워스')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 77, in test_small_insurer_gap_names_the_two_unresolved_entities
+    self.assertIn(phrase, small_insurers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FISIS에만 있는 젠워스' not found in '10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 공백 1의 후속 교차검증에서 기관 누락 여부를 대조하고 미확인 결과도 남겨야 한다.'
+
+======================================================================
+FAIL: test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='파인에만 있는 동경해상일동화재보험(주)서울지점')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 77, in test_small_insurer_gap_names_the_two_unresolved_entities
+    self.assertIn(phrase, small_insurers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '파인에만 있는 동경해상일동화재보험(주)서울지점' not found in '10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 공백 1의 후속 교차검증에서 기관 누락 여부를 대조하고 미확인 결과도 남겨야 한다.'
+
+======================================================================
+FAIL: test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='Aioi')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 77, in test_small_insurer_gap_names_the_two_unresolved_entities
+    self.assertIn(phrase, small_insurers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Aioi' not found in '10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 공백 1의 후속 교차검증에서 기관 누락 여부를 대조하고 미확인 결과도 남겨야 한다.'
+
+======================================================================
+FAIL: test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities) (phrase='`insurers.csv` 분모')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 77, in test_small_insurer_gap_names_the_two_unresolved_entities
+    self.assertIn(phrase, small_insurers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '`insurers.csv` 분모' not found in '10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 공백 1의 후속 교차검증에서 기관 누락 여부를 대조하고 미확인 결과도 남겨야 한다.'
+
+======================================================================
+FAIL: test_small_insurer_gap_names_the_two_unresolved_entities (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_small_insurer_gap_names_the_two_unresolved_entities)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 78, in test_small_insurer_gap_names_the_two_unresolved_entities
+    self.assertNotIn("공백 1의 후속 교차검증", small_insurers)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '공백 1의 후속 교차검증' unexpectedly found in '10. **KNIA 비회원사 목록 밖의 소형·신설 보험사**(예: 다른 디지털·전문 보험사)가 더 있을 수 있다. 공백 1의 후속 교차검증에서 기관 누락 여부를 대조하고 미확인 결과도 남겨야 한다.'
+
+======================================================================
+FAIL: test_two_or_more_sources_keeps_its_old_meaning (tools.tests.test_registry_crosscheck_note.CrosscheckNote.test_two_or_more_sources_keeps_its_old_meaning) (phrase='다시 계산하지 않았다')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-readme-sync/tools/tests/test_registry_crosscheck_note.py", line 43, in test_two_or_more_sources_keeps_its_old_meaning
+    self.assertIn(phrase, self.fss_note)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '다시 계산하지 않았다' not found in '1. **감독당국(FSS/FISIS/파인) 후속 교차검증은 미수행이다(기록 대조: 2026-11-04).** `access_log.csv`의 마지막 감독당국 접근 기록은 2026-10-09의 서비스 중단 안내이며, 그 뒤의 재조회·대조 증거는 없다. 당시 중단 안내는 과거 관측이고 현재 서비스 중단 여부는 확인하지 않았다. `two_or_more_sources`는 "협회 + KIDI/DART"를 뜻하며, 감독당국 허가 목록과 대조한 결과가 아니다. 후속 작업은 FISIS 보험회사 목록과 파인 금융회사 조회의 조회 시각·URL·응답 해시를 `sources.csv`·`access_log.csv`에 남기고, 기관별 일치·누락·명칭 차이와 미확인 사유를 기록해야 한다. 기관 목록 대조와 상품 목록 열거는 별개이며, 상품 목록은 53곳 모두 `unqueried`다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이번 정정은 기존 기록 대조이며 새 조회나 관문 통과가 아니다([Audit 4 증거](../../docs/blueprint/audits/2026-11-04_registry_crosscheck_stale.md)).'
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.014s
+
+FAILED (failures=21, errors=1)
+old README: 18 run, 21 failures, 1 errors

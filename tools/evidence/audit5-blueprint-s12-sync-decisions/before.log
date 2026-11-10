@@ -1,0 +1,75 @@
+test_audit_evidence_document_is_linked_and_present (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_audit_evidence_document_is_linked_and_present) ... FAIL
+test_every_linked_decision_record_exists (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_every_linked_decision_record_exists) ... FAIL
+test_finding_items_are_settled_with_their_record_and_conditions (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_finding_items_are_settled_with_their_record_and_conditions) ... FAIL
+test_intro_names_each_resolved_decision_question (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_intro_names_each_resolved_decision_question) ... FAIL
+test_open_items_are_the_ones_without_a_decision_record (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_open_items_are_the_ones_without_a_decision_record) ... FAIL
+test_section_separates_settled_from_open (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_section_separates_settled_from_open) ... FAIL
+test_settled_items_are_not_listed_as_open (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_settled_items_are_not_listed_as_open) ... FAIL
+
+======================================================================
+FAIL: test_audit_evidence_document_is_linked_and_present (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_audit_evidence_document_is_linked_and_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s12-sync-decisions/tools/tests/test_blueprint_s12_sync_decisions.py", line 65, in setUp
+    self.assertEqual(len(parts), 2, "§12 must have a 12.1 settled subsection")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : §12 must have a 12.1 settled subsection
+
+======================================================================
+FAIL: test_every_linked_decision_record_exists (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_every_linked_decision_record_exists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s12-sync-decisions/tools/tests/test_blueprint_s12_sync_decisions.py", line 65, in setUp
+    self.assertEqual(len(parts), 2, "§12 must have a 12.1 settled subsection")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : §12 must have a 12.1 settled subsection
+
+======================================================================
+FAIL: test_finding_items_are_settled_with_their_record_and_conditions (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_finding_items_are_settled_with_their_record_and_conditions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s12-sync-decisions/tools/tests/test_blueprint_s12_sync_decisions.py", line 65, in setUp
+    self.assertEqual(len(parts), 2, "§12 must have a 12.1 settled subsection")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : §12 must have a 12.1 settled subsection
+
+======================================================================
+FAIL: test_intro_names_each_resolved_decision_question (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_intro_names_each_resolved_decision_question)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s12-sync-decisions/tools/tests/test_blueprint_s12_sync_decisions.py", line 65, in setUp
+    self.assertEqual(len(parts), 2, "§12 must have a 12.1 settled subsection")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : §12 must have a 12.1 settled subsection
+
+======================================================================
+FAIL: test_open_items_are_the_ones_without_a_decision_record (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_open_items_are_the_ones_without_a_decision_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s12-sync-decisions/tools/tests/test_blueprint_s12_sync_decisions.py", line 65, in setUp
+    self.assertEqual(len(parts), 2, "§12 must have a 12.1 settled subsection")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : §12 must have a 12.1 settled subsection
+
+======================================================================
+FAIL: test_section_separates_settled_from_open (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_section_separates_settled_from_open)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s12-sync-decisions/tools/tests/test_blueprint_s12_sync_decisions.py", line 65, in setUp
+    self.assertEqual(len(parts), 2, "§12 must have a 12.1 settled subsection")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : §12 must have a 12.1 settled subsection
+
+======================================================================
+FAIL: test_settled_items_are_not_listed_as_open (test_blueprint_s12_sync_decisions.BlueprintS12SyncDecisions.test_settled_items_are_not_listed_as_open)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s12-sync-decisions/tools/tests/test_blueprint_s12_sync_decisions.py", line 65, in setUp
+    self.assertEqual(len(parts), 2, "§12 must have a 12.1 settled subsection")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2 : §12 must have a 12.1 settled subsection
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.004s
+
+FAILED (failures=7)

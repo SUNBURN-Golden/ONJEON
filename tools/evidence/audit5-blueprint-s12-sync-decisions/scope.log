@@ -1,0 +1,12 @@
+$ git status --short
+ M docs/BLUEPRINT.md
+?? docs/blueprint/audits/2026-11-10_blueprint_s12_sync_decisions.md
+?? tools/evidence/audit5-blueprint-s12-sync-decisions/
+?? tools/tests/test_blueprint_s12_sync_decisions.py
+
+$ git diff --stat
+ docs/BLUEPRINT.md | 39 ++++++++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
+
+protected docs unchanged (git diff --name-only against HEAD for protected paths):
+(empty = unchanged)

@@ -5,10 +5,10 @@ source scans do not mistake the corpus for credentials. Return labels only, neve
 
 The preflight has two sides: every corpus value must match, and every ordinary value in
 non_secret() must not match. The negative side rejects an empty or all-matching pattern and
-pins the non-detection of digest contexts (Cargo.lock checksums, sha256 lines), which share
-the bare 32/64-hex shape with R2 secret keys. Bare R2 keys themselves are positive cases:
-the rules exclude a hex value only when its line carries a digest name such as `checksum`,
-`sha256`, `content_hash` or `tree_hash`.
+pins the non-detection of digest *values* (Cargo.lock checksums, sha256 lines), which share the
+bare 32/64-hex shape with R2 secret keys. Bare R2 keys themselves are positive cases, including
+a bare key in the same minified JSON object as a digest: only the value assigned to a digest
+label (`checksum`, `sha256`, `content_hash`, `tree_hash`, ...) is exempt.
 """
 import json
 
@@ -24,6 +24,7 @@ CASES = (
     "bare-r2-key-32",
     "bare-r2-key-64",
     "bare-r2-key-json",
+    "bare-r2-key-mixed-with-digest",
     "s3-secret-key",
     "aws-secret-key-upper",
     "json-token",
@@ -62,6 +63,8 @@ def corpus():
         "bare-r2-key-32": hex32,
         "bare-r2-key-64": hex64,
         "bare-r2-key-json": json.dumps({"value": hex64}),
+        # A digest field in the same minified object must exempt only its own value.
+        "bare-r2-key-mixed-with-digest": json.dumps({"sha256": "c3" * 32, "value": hex64}),
         "s3-secret-key": "S3_SECRET_ACCESS_KEY=" + hex64,
         "aws-secret-key-upper": "AWS_SECRET_ACCESS_KEY=" + hex64.upper(),
         "json-token": json.dumps({"token": opaque}),

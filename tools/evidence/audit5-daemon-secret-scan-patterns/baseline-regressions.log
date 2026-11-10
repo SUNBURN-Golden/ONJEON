@@ -11,6 +11,6 @@ test_report_and_readme_links_resolve (tools.tests.test_o13_ruling.RulingDocument
 test_separate_cfut_rule_and_daemon_secret_boundary_remain (tools.tests.test_o13_ruling.RulingDocumentation.test_separate_cfut_rule_and_daemon_secret_boundary_remain) ... ok
 
 ----------------------------------------------------------------------
-Ran 11 tests in 0.060s
+Ran 11 tests in 0.039s
 
 OK

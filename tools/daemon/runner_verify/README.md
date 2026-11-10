@@ -10,10 +10,10 @@ python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py
 
 `--remote`는 `auto`(버려지는 bare 저장소를 새로 만든다) 또는 **이 도구가 만든** 저장소의 경로다. URL과 제품 저장소는 거부한다(종료 코드 2). 실제 호스트의 보호 브랜치·단기 자격은 사람이 적용하는 설정(04 §8, 05 §4)이라 이 도구가 대신 만들지 못한다: 그 부분은 결과에 "증명하지 않은 것"으로 남는다. 하나라도 검사가 실패하거나 정적·로그 검사가 위반이면 종료 코드 1이다. 미확인은 기록되고 종료 코드를 바꾸지 않는다.
 
-CLI는 `--rules`의 비밀값 패턴으로 합성 자격증명 corpus 28개 형식을 먼저 검사한다.
+CLI는 `--rules`의 비밀값 패턴으로 합성 자격증명 corpus 29개 형식을 먼저 검사한다.
 자격 이름 없는 32/64자리 hex도 양성 사례이며, `checksum`·`sha256`·`content_hash`·`tree_hash`
-같은 digest 이름이 붙은 값만 음성 경계로 남는다. 비밀이 아닌 경계 값(일반 digest·checksum·짧은 값)을
-탐지하는 패턴과 빈 패턴도 거부한다.
+같은 digest 이름에 바로 대입된 값만 음성 경계로 남는다. digest가 같은 줄의 다른 필드에 있어도
+그 값은 탐지한다. 비밀이 아닌 경계 값(일반 digest·checksum·짧은 값)을 탐지하는 패턴과 빈 패턴도 거부한다.
 누락·잘못된 패턴·규칙 읽기 실패는 종료 코드 1이며 시나리오와 시험 원격 준비에 도달하지 않는다.
 검사 결과에는 사례 이름만 출력한다. corpus·세 스캔 지점·파일 제외 회귀는
 `python3 -m unittest tools/tests/test_daemon_secret_scan.py -v`로 커밋·푸시 없이 검증한다.

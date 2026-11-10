@@ -11,10 +11,12 @@ test_corpus_labels_are_pinned (tools.tests.test_daemon_secret_scan.SecretCorpus.
 test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) ... ok
 test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) ... ok
 test_digest_bearing_files_do_not_stop_handoff (tools.tests.test_daemon_secret_scan.SecretCorpus.test_digest_bearing_files_do_not_stop_handoff) ... ok
+test_digest_exemption_is_limited_to_its_own_value (tools.tests.test_daemon_secret_scan.SecretCorpus.test_digest_exemption_is_limited_to_its_own_value) ... ok
+test_mixed_digest_and_bare_key_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_mixed_digest_and_bare_key_stops_handoff_before_commit_or_push) ... ok
 test_nonsecret_boundaries_and_ordinary_digests_are_preserved (tools.tests.test_daemon_secret_scan.SecretCorpus.test_nonsecret_boundaries_and_ordinary_digests_are_preserved) ... ok
 test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 1.452s
+Ran 17 tests in 1.428s
 
 OK

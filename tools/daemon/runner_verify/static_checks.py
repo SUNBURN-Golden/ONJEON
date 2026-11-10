@@ -7,6 +7,7 @@ import re
 import subprocess
 from pathlib import Path
 
+from ..core import Rules, secret_scan
 from .common import PKG_DIR, ROOT, read_json
 
 SELF = Path(__file__).name
@@ -76,13 +77,14 @@ def push_targets():
 
 
 def secrets_absent(rules_path, extra_texts=()):
-    pats = [re.compile(x) for x in read_json(rules_path)["preserve_manifest"]["secret_patterns"]["patterns"]]
+    # Same matcher as the daemon: a hex value assigned to a digest label is not a credential, so a
+    # checksum fixture is not reported while a bare key next to one still is.
+    pats = secret_scan.patterns(Rules(read_json(rules_path)))
     bad = []
     texts = [(p.name, p.read_text(encoding="utf-8")) for p in sources() + test_sources() + fixtures()] + list(extra_texts)
     for name, text in texts:
-        for pat in pats:
-            if pat.search(text):
-                bad.append(f"{name}: secret pattern {pat.pattern[:24]!r}")
+        if secret_scan.count(pats, text):
+            bad.append(f"{name}: secret pattern match")
     return bad
 
 

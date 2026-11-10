@@ -1,9 +1,10 @@
 test_a_merge_function_would_be_caught (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_a_merge_function_would_be_caught) ... ok
 test_all_static_checks_pass (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_all_static_checks_pass) ... ok
 test_checks_can_fail (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_checks_can_fail) ... ok
+test_secret_scan_static_check_uses_per_value_digest_context (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_secret_scan_static_check_uses_per_value_digest_context) ... ok
 test_the_tool_never_writes_outside_its_own_paths_by_construction (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_the_tool_never_writes_outside_its_own_paths_by_construction) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 0.300s
+Ran 5 tests in 0.347s
 
 OK

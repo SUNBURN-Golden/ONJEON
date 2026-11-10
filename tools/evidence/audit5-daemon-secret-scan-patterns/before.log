@@ -1,0 +1,1491 @@
+test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) ...
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='.env.local') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='.ENV.LOCAL') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/.Env.production') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/cert.PEM') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='private.KEY') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='Credentials.JSON') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/SeCrEt.txt') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='TARGET/keep.txt') ... FAIL
+  test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/Node_Modules/keep.txt') ... FAIL
+test_real_git_manifest_matches_mock_without_commits_or_pushes (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_real_git_manifest_matches_mock_without_commits_or_pushes) ... FAIL
+test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) ...
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-env') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-env-quoted') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-json') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='json-token') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='json-api-key') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='json-password') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='single-quoted-token') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='mixed-case-assignment') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-access-bare') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-secret-bare') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-upper-hex') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-delimited') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='aws-session') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='github-fine-grained') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='github-app') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='bearer-opaque') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='bearer-jwt') ... FAIL
+  test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='bearer-alphabet') ... FAIL
+test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) ...
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env-quoted', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env-quoted', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env-quoted', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-json', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-json', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-json', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-token', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-token', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-token', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-api-key', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-api-key', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-api-key', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-password', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-password', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-password', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='single-quoted-token', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='single-quoted-token', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='single-quoted-token', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='mixed-case-assignment', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='mixed-case-assignment', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='mixed-case-assignment', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-access-bare', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-access-bare', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-access-bare', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-secret-bare', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-secret-bare', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-secret-bare', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-upper-hex', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-upper-hex', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-upper-hex', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-delimited', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-delimited', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-delimited', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='aws-session', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='aws-session', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='aws-session', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-fine-grained', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-fine-grained', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-fine-grained', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-app', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-app', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-app', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-opaque', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-opaque', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-opaque', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-jwt', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-jwt', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-jwt', kind='heartbeat') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-alphabet', kind='result') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-alphabet', kind='switch_signal') ... FAIL
+  test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-alphabet', kind='heartbeat') ... FAIL
+test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) ...
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-env') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-env-quoted') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-json') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='json-token') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='json-api-key') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='json-password') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='single-quoted-token') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='mixed-case-assignment') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-access-bare') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-secret-bare') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-upper-hex') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-delimited') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='aws-session') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='github-fine-grained') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='github-app') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='bearer-opaque') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='bearer-jwt') ... FAIL
+  test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='bearer-alphabet') ... FAIL
+test_nonsecret_boundaries_and_ordinary_git_ids_are_preserved (tools.tests.test_daemon_secret_scan.SecretCorpus.test_nonsecret_boundaries_and_ordinary_git_ids_are_preserved) ... ok
+test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) ...
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-env') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-env-quoted') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-json') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='json-token') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='json-api-key') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='json-password') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='single-quoted-token') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='mixed-case-assignment') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-access-bare') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-secret-bare') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-upper-hex') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-delimited') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='aws-session') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='github-fine-grained') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='github-app') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='bearer-opaque') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='bearer-jwt') ... FAIL
+  test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='bearer-alphabet') ... FAIL
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='.env.local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: '.env.local' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='.ENV.LOCAL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: '.ENV.LOCAL' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/.Env.production')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: 'nested/.Env.production' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/cert.PEM')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: 'nested/cert.PEM' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='private.KEY')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: 'private.KEY' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='Credentials.JSON')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: 'Credentials.JSON' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/SeCrEt.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: 'nested/SeCrEt.txt' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='TARGET/keep.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: 'TARGET/keep.txt' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) (excluded='nested/Node_Modules/keep.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 148, in test_mock_manifest_excludes_env_variants_and_case_variants
+    self.assertNotIn(rel, files)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: 'nested/Node_Modules/keep.txt' unexpectedly found in {'src/work.py': "print('work')\n", 'notes.txt': 'n\n', '.env.local': 'ordinary text', '.ENV.LOCAL': 'ordinary text', 'nested/.Env.production': 'ordinary text', 'nested/cert.PEM': 'ordinary text', 'private.KEY': 'ordinary text', 'Credentials.JSON': 'ordinary text', 'nested/SeCrEt.txt': 'ordinary text', 'TARGET/keep.txt': 'ordinary text', 'nested/Node_Modules/keep.txt': 'ordinary text', 'src/app.py': 'ordinary text', 'nested/settings.json': 'ordinary text', 'environment.txt': 'ordinary text', '.envoy': 'ordinary text', 'keynote.md': 'ordinary text'}
+
+======================================================================
+FAIL: test_real_git_manifest_matches_mock_without_commits_or_pushes (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_real_git_manifest_matches_mock_without_commits_or_pushes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 173, in test_real_git_manifest_matches_mock_without_commits_or_pushes
+    self.assertEqual(set(files), set(KEPT))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'.env.local'
+'nested/.Env.production'
+'.ENV.LOCAL'
+'Credentials.JSON'
+'nested/SeCrEt.txt'
+'nested/cert.PEM'
+'private.KEY'
+'nested/Node_Modules/keep.txt'
+'TARGET/keep.txt'
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-env')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['R2_SECRET_ACCESS_KEY=b2b2b2b2b2b2b2b2b2b2[41 chars]2b2'] != ['<redacted>']
+
+First differing element 0:
+'R2_SECRET_ACCESS_KEY=b2b2b2b2b2b2b2b2b2b2[40 chars]b2b2'
+'<redacted>'
+
+- ['R2_SECRET_ACCESS_KEY=b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-env-quoted')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['export R2_SECRET_ACCESS_KEY="b2b2b2b2b2b2[50 chars]b2"'] != ['<redacted>']
+
+First differing element 0:
+'export R2_SECRET_ACCESS_KEY="b2b2b2b2b2b2[49 chars]2b2"'
+'<redacted>'
+
++ ['<redacted>']
+- ['export '
+-  'R2_SECRET_ACCESS_KEY="b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['{"R2_SECRET_ACCESS_KEY": "b2b2b2b2b2b2b2b[48 chars]2"}'] != ['<redacted>']
+
+First differing element 0:
+'{"R2_SECRET_ACCESS_KEY": "b2b2b2b2b2b2b2b[47 chars]b2"}'
+'<redacted>'
+
++ ['<redacted>']
+- ['{"R2_SECRET_ACCESS_KEY": '
+-  '"b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"}']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='json-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['{"token": "SyntheticValueSyntheticValueSyntheticValue"}'] != ['<redacted>']
+
+First differing element 0:
+'{"token": "SyntheticValueSyntheticValueSyntheticValue"}'
+'<redacted>'
+
+- ['{"token": "SyntheticValueSyntheticValueSyntheticValue"}']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='json-api-key')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['{"api_key": "SyntheticValueSyntheticValueSyntheticValue"}'] != ['<redacted>']
+
+First differing element 0:
+'{"api_key": "SyntheticValueSyntheticValueSyntheticValue"}'
+'<redacted>'
+
+- ['{"api_key": "SyntheticValueSyntheticValueSyntheticValue"}']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='json-password')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['{"password": "SyntheticValueSyntheticValueSyntheticValue"}'] != ['<redacted>']
+
+First differing element 0:
+'{"password": "SyntheticValueSyntheticValueSyntheticValue"}'
+'<redacted>'
+
+- ['{"password": "SyntheticValueSyntheticValueSyntheticValue"}']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='single-quoted-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ["'token': 'SyntheticValueSyntheticValueSyntheticValue'"] != ['<redacted>']
+
+First differing element 0:
+"'token': 'SyntheticValueSyntheticValueSyntheticValue'"
+'<redacted>'
+
+- ["'token': 'SyntheticValueSyntheticValueSyntheticValue'"]
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='mixed-case-assignment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['r2_Secret_Access_Key = "SyntheticValueSyntheticValueSyntheticValue"'] != ['<redacted>']
+
+First differing element 0:
+'r2_Secret_Access_Key = "SyntheticValueSyntheticValueSyntheticValue"'
+'<redacted>'
+
+- ['r2_Secret_Access_Key = "SyntheticValueSyntheticValueSyntheticValue"']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-access-bare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1'] != ['<redacted>']
+
+First differing element 0:
+'a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1'
+'<redacted>'
+
+- ['a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-secret-bare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2'] != ['<redacted>']
+
+First differing element 0:
+'b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2'
+'<redacted>'
+
+- ['b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-upper-hex')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2'] != ['<redacted>']
+
+First differing element 0:
+'B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2'
+'<redacted>'
+
+- ['B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='r2-delimited')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['key (a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1)'] != ['<redacted>']
+
+First differing element 0:
+'key (a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1)'
+'<redacted>'
+
+- ['key (a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1)']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='aws-session')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ASIAZZZZZZZZZZZZZZZZ'] != ['<redacted>']
+
+First differing element 0:
+'ASIAZZZZZZZZZZZZZZZZ'
+'<redacted>'
+
+- ['ASIAZZZZZZZZZZZZZZZZ']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='github-fine-grained')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['github_pat_zzzzzzzzzzzzzzzzzzzzzz_yyyyyyy[49 chars]yyy'] != ['<redacted>']
+
+First differing element 0:
+'github_pat_zzzzzzzzzzzzzzzzzzzzzz_yyyyyyy[48 chars]yyyy'
+'<redacted>'
+
+- ['github_pat_zzzzzzzzzzzzzzzzzzzzzz_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='github-app')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ghs_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'] != ['<redacted>']
+
+First differing element 0:
+'ghs_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+'<redacted>'
+
+- ['ghs_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='bearer-opaque')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['Authorization: Bearer SyntheticValueSyntheticValueSyntheticValue'] != ['<redacted>']
+
+First differing element 0:
+'Authorization: Bearer SyntheticValueSyntheticValueSyntheticValue'
+'<redacted>'
+
+- ['Authorization: Bearer SyntheticValueSyntheticValueSyntheticValue']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='bearer-jwt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['Bearer eyJzzzzzzzzzzzzzzzzzzzzzzzz.eyJzzz[46 chars]zzz'] != ['<redacted>']
+
+First differing element 0:
+'Bearer eyJzzzzzzzzzzzzzzzzzzzzzzzz.eyJzzz[45 chars]zzzz'
+'<redacted>'
+
++ ['<redacted>']
+- ['Bearer '
+-  'eyJzzzzzzzzzzzzzzzzzzzzzzzz.eyJzzzzzzzzzzzzzzzzzzzzzzzz.eyJzzzzzzzzzzzzzzzzzzzzzzzz']
+
+======================================================================
+FAIL: test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) (case='bearer-alphabet')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 135, in test_corpus_is_redacted_before_journal_append
+    self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['bearer zzzzzzzzzzzzzzzzzzzz.~+/-_=='] != ['<redacted>']
+
+First differing element 0:
+'bearer zzzzzzzzzzzzzzzzzzzz.~+/-_=='
+'<redacted>'
+
+- ['bearer zzzzzzzzzzzzzzzzzzzz.~+/-_==']
++ ['<redacted>']
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env-quoted', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env-quoted', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-env-quoted', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-json', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-json', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-json', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-token', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-token', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-token', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-api-key', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-api-key', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-api-key', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-password', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-password', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='json-password', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='single-quoted-token', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='single-quoted-token', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='single-quoted-token', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='mixed-case-assignment', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='mixed-case-assignment', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='mixed-case-assignment', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-access-bare', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-access-bare', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-access-bare', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-secret-bare', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-secret-bare', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-secret-bare', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-upper-hex', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-upper-hex', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-upper-hex', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-delimited', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-delimited', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='r2-delimited', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='aws-session', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='aws-session', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='aws-session', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-fine-grained', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-fine-grained', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-fine-grained', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-app', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-app', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='github-app', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-opaque', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-opaque', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-opaque', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-jwt', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-jwt', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-jwt', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-alphabet', kind='result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-alphabet', kind='switch_signal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) (case='bearer-alphabet', kind='heartbeat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 121, in test_corpus_rejects_result_signal_and_heartbeat_without_storing_values
+    self.assertFalse(out["accepted"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-env')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-env-quoted')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='json-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='json-api-key')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='json-password')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='single-quoted-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='mixed-case-assignment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-access-bare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-secret-bare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-upper-hex')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='r2-delimited')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='aws-session')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='github-fine-grained')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='github-app')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='bearer-opaque')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='bearer-jwt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) (case='bearer-alphabet')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 100, in test_corpus_stops_handoff_before_commit_or_push
+    self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('leased', None, 'active') != ('returned', 'R-10', 'revoked')
+
+First differing element 0:
+'leased'
+'returned'
+
+- ('leased', None, 'active')
++ ('returned', 'R-10', 'revoked')
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-env')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-env-quoted')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='json-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='json-api-key')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='json-password')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='single-quoted-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='mixed-case-assignment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-access-bare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-secret-bare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-upper-hex')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='r2-delimited')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='aws-session')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='github-fine-grained')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='github-app')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='bearer-opaque')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='bearer-jwt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) (case='bearer-alphabet')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-daemon-secret-scan-patterns/tools/tests/test_daemon_secret_scan.py", line 75, in test_real_format_corpus_is_detected_and_recursively_redacted
+    self.assertGreater(secret_scan.count(self.pats, value), 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.327s
+
+FAILED (failures=118)

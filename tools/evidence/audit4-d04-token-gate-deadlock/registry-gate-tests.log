@@ -1,0 +1,21 @@
+test_blocking_tables_list_t_dt_04_under_o19 (test_registry_denominator.DomesticEnvironmentGate.test_blocking_tables_list_t_dt_04_under_o19) ... ok
+test_dec_o17_requires_a_domestic_designated_environment (test_registry_denominator.DomesticEnvironmentGate.test_dec_o17_requires_a_domestic_designated_environment) ... ok
+test_o19_is_an_open_ledger_item_without_a_decision_record (test_registry_denominator.DomesticEnvironmentGate.test_o19_is_an_open_ledger_item_without_a_decision_record) ... ok
+test_o19_is_gated_only_on_t_dt_04_real_data (test_registry_denominator.DomesticEnvironmentGate.test_o19_is_gated_only_on_t_dt_04_real_data) ... ok
+test_registry_readme_states_counts_and_codes (test_registry_denominator.DomesticEnvironmentGate.test_registry_readme_states_counts_and_codes) ... ok
+test_t_dt_04_real_data_still_waits_for_o19_after_d04_resolution (test_registry_denominator.DomesticEnvironmentGate.test_t_dt_04_real_data_still_waits_for_o19_after_d04_resolution) ... ok
+test_codes_follow_disclosure_and_geo_state (test_registry_denominator.ReasonCodeRule.test_codes_follow_disclosure_and_geo_state) ... ok
+test_enumerated_lists_keep_existing_codes (test_registry_denominator.ReasonCodeRule.test_enumerated_lists_keep_existing_codes) ... ok
+test_committed_csvs_are_a_fixed_point_of_the_normalizer (test_registry_denominator.RegistryConsistency.test_committed_csvs_are_a_fixed_point_of_the_normalizer) ... ok
+test_missing_entry_points_have_a_reason_and_are_never_not_disclosed (test_registry_denominator.RegistryConsistency.test_missing_entry_points_have_a_reason_and_are_never_not_disclosed) ... ok
+test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence (test_registry_denominator.RegistryConsistency.test_repairs_exactly_eight_legacy_archived_rows_without_changing_evidence) ... ok
+test_statuses_use_the_acquisition_axis (test_registry_denominator.RegistryConsistency.test_statuses_use_the_acquisition_axis) ... ok
+test_unqueried_product_lists_carry_reason_and_known_codes (test_registry_denominator.RegistryConsistency.test_unqueried_product_lists_carry_reason_and_known_codes) ... ok
+test_insurer_and_disclosure_entry_counts (test_registry_denominator.RegistryCounts.test_insurer_and_disclosure_entry_counts) ... ok
+test_no_product_list_is_enumerated_yet (test_registry_denominator.RegistryCounts.test_no_product_list_is_enumerated_yet) ... ok
+test_reason_code_counts (test_registry_denominator.RegistryCounts.test_reason_code_counts) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.023s
+
+OK

@@ -1,0 +1,251 @@
+{
+  "note": "Pre-change gates excluding resolved D-04; all other decision gates and cost policy remain unchanged.",
+  "task_gates": {
+    "T-KN-06": {
+      "real_data": [
+        "D-02"
+      ]
+    },
+    "T-AP-02": {
+      "release": [
+        "D-12"
+      ]
+    },
+    "T-OP-02": {
+      "real_data": [
+        "D-02"
+      ]
+    },
+    "T-TW-04": {
+      "release": [
+        "O12"
+      ]
+    },
+    "T-KN-09": {
+      "release": [
+        "O04"
+      ]
+    },
+    "T-KN-14": {
+      "release": [
+        "D-08"
+      ]
+    },
+    "T-OP-03": {
+      "start": [
+        "D-02"
+      ]
+    },
+    "T-DT-04": {
+      "real_data": [
+        "O19"
+      ]
+    },
+    "T-DT-05": {
+      "release": [
+        "O17"
+      ]
+    },
+    "T-OP-04": {
+      "merge": [
+        "O14"
+      ]
+    },
+    "T-DT-06": {
+      "real_data": [
+        "O02"
+      ]
+    },
+    "T-PS-01": {
+      "real_data": [
+        "D-17"
+      ]
+    },
+    "T-PS-02": {
+      "real_data": [
+        "D-17"
+      ]
+    },
+    "T-PS-03": {
+      "real_data": [
+        "D-17"
+      ]
+    },
+    "T-TW-05": {
+      "release": [
+        "O12"
+      ]
+    },
+    "T-KN-11": {
+      "merge": [
+        "D-14"
+      ]
+    },
+    "T-AP-08": {
+      "merge": [
+        "D-06",
+        "D-07"
+      ]
+    },
+    "T-UX-01": {
+      "start": [
+        "D-16"
+      ]
+    },
+    "T-OP-07": {
+      "start": [
+        "D-03"
+      ],
+      "release": [
+        "D-12",
+        "D-17",
+        "D-18"
+      ]
+    }
+  },
+  "decision_index": {
+    "D-02": {
+      "start": [
+        "T-OP-03"
+      ],
+      "real_data": [
+        "T-KN-06",
+        "T-OP-02"
+      ],
+      "merge": [],
+      "release": []
+    },
+    "D-12": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-AP-02",
+        "T-OP-07"
+      ]
+    },
+    "O12": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-TW-04",
+        "T-TW-05"
+      ]
+    },
+    "O04": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-KN-09"
+      ]
+    },
+    "D-08": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-KN-14"
+      ]
+    },
+    "O17": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-DT-05"
+      ]
+    },
+    "O14": {
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-OP-04"
+      ],
+      "release": []
+    },
+    "O02": {
+      "start": [],
+      "real_data": [
+        "T-DT-06"
+      ],
+      "merge": [],
+      "release": []
+    },
+    "D-17": {
+      "start": [],
+      "real_data": [
+        "T-PS-01",
+        "T-PS-02",
+        "T-PS-03"
+      ],
+      "merge": [],
+      "release": [
+        "T-OP-07"
+      ]
+    },
+    "D-14": {
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-KN-11"
+      ],
+      "release": []
+    },
+    "D-06": {
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-AP-08"
+      ],
+      "release": []
+    },
+    "D-07": {
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-AP-08"
+      ],
+      "release": []
+    },
+    "D-16": {
+      "start": [
+        "T-UX-01"
+      ],
+      "real_data": [],
+      "merge": [],
+      "release": []
+    },
+    "D-03": {
+      "start": [
+        "T-OP-07"
+      ],
+      "real_data": [],
+      "merge": [],
+      "release": []
+    },
+    "D-18": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-OP-07"
+      ]
+    }
+  },
+  "ledger_rows": [
+    "| O14 | [DEC-O14](../decisions/DEC-O14.md)의 보수적 기본값(위임 결정·사용자 확정 아님). 구체 미정값과 적용 승인은 잔여. R2 버킷 잠금 규칙(대상 접두어·기간·해제 권한·잘못 올린 객체 처리). R2에는 버전 관리·Object Lock이 없어 덮어쓰기·삭제를 저장소 단에서 막는 수단은 이것뿐 . 원장 버킷 `ledger/`의 끝 기록 삭제 방지도 포함(ADR-0017)| 데이터 운영·정책 책임 | 버킷 잠금 적용 전 | 도구의 조건부 쓰기 + 삭제 명령 없음 + 별도 사본 / 무기한 잠금 금지, 승인 전 적용 금지 (초안 `infra/r2/README.md` §4) |",
+    "| O17 | [DEC-O17](../decisions/DEC-O17.md)의 보수적 기본값(위임 결정·사용자 확정 아님). 대량 자동 수집은 계속 차단. 대량 자동 수집 관문: 원장 체크포인트, 버킷 잠금(O14), 토큰 재발급, 실행 환경 수·동시성·예약 실행 통제, 대상 키를 미리 고정할 수 없는 수집 작업의 허용 범위와 한도, 원장 수치와 Cloudflare 청구 대조 방법, 실제 R2에서 실행 통제 검증 | 데이터 운영 책임 | 대량 자동 수집 시작 전 | 지정 환경 하나·동시 1개·수동 실행, 고정 키 작업만 (`infra/r2/BUDGET.md` §6) |",
+    "| O19 | 국내 IP 수집 실행 환경: 보험사·협회 공시실을 실제로 열거할 실행 환경 하나(국내 리전 VM 또는 국내 경유 프록시)의 준비와 비용. 해외 IP 샌드박스에서는 공시 진입점 53곳 중 45곳을 확보하지 못했다(`data/registry/README.md` 알려진 공백 7) | 데이터 운영 책임(준비·비용은 준태님) | T-DT-04 실데이터 열거 전 | 픽스처·확보한 8곳 대상 어댑터 코드·시험·병합 / 해외 샌드박스 결과로 상품·문서 분모(09 P01·P02) 증거 주장 금지, 차단·미조회를 `not_disclosed`로 기록 금지 |"
+  ],
+  "unchanged_sha256": {
+    "docs/decisions/DEC-D-02.md": "1977653dbdda0510229ba55f791a4f42f46a22cf63c2de9598bdf993e5298b95",
+    "docs/decisions/DEC-O14.md": "4c3b1c20de72186d8eea7b4198470befeca8b3044e7b6156d38ecbe05b2a0e3f",
+    "docs/decisions/DEC-O17.md": "63f3638c51cb803da6865413c479110ae549a06bf4e76b26762c9c1c8de3cb24",
+    "docs/decisions/ADR-0017-R2-비용-제한.md": "ba35af15a3132be9b1860b0c788f3c6b1b29664e0f86489b8aa3a8970f479f57",
+    "infra/r2/BUDGET.md": "94c86c1bed97073105831cb7ed2ff478a4e5388f7429a652bbc7cf9f62b05ada",
+    "infra/r2/budget_policy.json": "e914b74ed5590895fc47b67f3c8934ce1750bc8b95caa94d6e31cdd16ee8fee5",
+    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "ed1c1f35e2be51602ae15f703529bffb0aed092e388527353dec86dfacafa770"
+  }
+}

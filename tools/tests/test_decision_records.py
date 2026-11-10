@@ -83,7 +83,12 @@ class BlueprintDecisionIds(unittest.TestCase):
         for number in (2, 4, 7, 12, 16):
             gate = f"D-{number:02}"
             with self.subTest(gate=gate):
-                self.assertIn(gate, used)
+                if gate == "D-04":
+                    # Owner acceptance resolved this gate; preserve its ID and record.
+                    self.assertNotIn(gate, used)
+                    self.assertFalse(any(tasks["decision_index"][gate].values()))
+                else:
+                    self.assertIn(gate, used)
                 self.assertIn(gate, tasks["decision_index"])
                 record = ROOT / f"docs/decisions/DEC-{gate}.md"
                 self.assertTrue(record.is_file())
@@ -439,12 +444,15 @@ class DecisionRecords(unittest.TestCase):
         self.assertIn("원장 §3의 전체 O 항목", section)
         self.assertIn("해결된 범위와 남은 차단 조건", section)
 
-    def test_d04_records_owner_ruling_without_reuse_approval(self):
+    def test_d04_records_latest_owner_risk_acceptance(self):
         cells = self.row("DEC-D-04")
-        self.assertIn("소유자 직접 결정", cells[1])
+        self.assertIn("소유자 직접 위험 수용", cells[1])
+        self.assertIn("해결", cells[1])
+        self.assertIn("2026-11-10", cells[1])
         self.assertIn("폐기하지 않는다", cells[2])
-        self.assertIn("O13", cells[2])
-        for phrase in ("재사용", "승인하지 않음", "BP-D-16~BP-D-18", "접근 자격"):
+        self.assertIn("재발급 없이 사용", cells[2])
+        for phrase in ("D-04 start·real_data 차단 제거", "ONJEON box secrets env",
+                       "값 출력·로그 금지", "BP-D-16~BP-D-18", "O14", "O17", "D-02", "O19", "ADR-0017"):
             self.assertIn(phrase, cells[3])
 
     def test_canon_record_preserves_conditional_scope_and_merge_gate(self):

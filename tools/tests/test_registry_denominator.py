@@ -175,8 +175,8 @@ class DomesticEnvironmentGate(unittest.TestCase):
         self.task = next(t for t in tasks if t["id"] == "T-DT-04")
         self.tasks = tasks
 
-    def test_t_dt_04_real_data_waits_for_d04_and_o19(self):
-        self.assertEqual(self.task["decision_gates"]["real_data"], ["D-04", "O19"])
+    def test_t_dt_04_real_data_still_waits_for_o19_after_d04_resolution(self):
+        self.assertEqual(self.task["decision_gates"]["real_data"], ["O19"])
         self.assertEqual(self.task["decision_gates"]["start"], [])
         self.assertIn("O19", self.task["blocked_by"])
         self.assertIn("국내 IP", self.task["blocked_by"])
@@ -214,7 +214,7 @@ class DomesticEnvironmentGate(unittest.TestCase):
                 self.assertEqual(cells[1:5], ["—", "T-DT-04", "—", "—"])
         spec = (BUNDLE / "03_작업명세.md").read_text(encoding="utf-8")
         self.assertIn("| T-DT-04 | 분모 열거 어댑터", spec)
-        self.assertIn("| T-DT-01 | — / D-04, O19 / — / — |", spec)
+        self.assertIn("| T-DT-01 | — / O19 / — / — |", spec)
 
     def test_registry_readme_states_counts_and_codes(self):
         text = (REG / "README.md").read_text(encoding="utf-8")

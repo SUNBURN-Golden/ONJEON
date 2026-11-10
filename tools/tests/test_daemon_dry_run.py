@@ -1963,11 +1963,12 @@ class StartGateEnforcement(unittest.TestCase):
 
     def test_spec_tasks_with_a_start_gate_are_held(self):
         """Every task of the spec catalog has a list start gate (none is unevaluable), and the gated ones
-        (T-OP-03 D-02, T-OP-04 D-04, T-OP-07 D-03, T-UX-01 D-16) would be held by the cond until their decision is recorded."""
+        (T-OP-03 D-02, T-OP-07 D-03, T-UX-01 D-16) would be held by the cond until their decision is recorded.
+        T-OP-04's D-04 is resolved by the owner's existing-token risk acceptance."""
         tasks = json.loads(SPEC_TASKS.read_text(encoding="utf-8"))["tasks"]
         self.assertTrue(all(isinstance(t["decision_gates"]["start"], list) for t in tasks))
         gated = {t["id"]: t["decision_gates"]["start"] for t in tasks if t["decision_gates"]["start"]}
-        self.assertEqual(gated, {"T-OP-03": ["D-02"], "T-OP-04": ["D-04"], "T-OP-07": ["D-03"], "T-UX-01": ["D-16"]})
+        self.assertEqual(gated, {"T-OP-03": ["D-02"], "T-OP-07": ["D-03"], "T-UX-01": ["D-16"]})
         for tid, start in sorted(gated.items()):
             env = self.env(list(start))
             env.start_task(fl.GATED)

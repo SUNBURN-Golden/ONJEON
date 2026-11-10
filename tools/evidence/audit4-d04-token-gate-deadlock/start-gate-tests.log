@@ -1,0 +1,7 @@
+test_spec_tasks_with_a_start_gate_are_held (test_daemon_dry_run.StartGateEnforcement.test_spec_tasks_with_a_start_gate_are_held)
+Every task of the spec catalog has a list start gate (none is unevaluable), and the gated ones ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.016s
+
+OK

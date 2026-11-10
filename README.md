@@ -36,7 +36,7 @@
 
 세부 구현 계약: [시스템·데이터·수락 계약](docs/blueprint/SYSTEM_CONTRACT.md) · [요구사항 26개와 수락 사례](docs/blueprint/REQUIREMENTS.md) · [결정 원장](docs/blueprint/DECISIONS.md). 단일 진입점은 계속 `docs/BLUEPRINT.md`다(ADR-0012). [ADR-0019](docs/decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)의 09·[tasks.json](docs/blueprint/proposals/설계검토_결과/tasks.json)은 그 하위의 제품 완료·작업 계약이며 상위 계약을 우선한다.
 
-감리 후속: 준태님의 2026-10-13 R2 토큰 미폐기 결정([DEC-D-04](docs/decisions/DEC-D-04.md))을 O13·§12·VM 실행 준비·작업명세에 반영했다. [정정 내용과 검증 증거](docs/blueprint/audits/2026-10-26_o13_d04_ruling.md)를 참조한다. `cfut_` 규칙과 D-04·O14·O17 접근 관문은 유지한다.
+감리 후속: 준태님의 기존 R2 토큰 유지·사용 결정(2026-10-13, 2026-11-02, 2026-11-10 재확인)을 [DEC-D-04](docs/decisions/DEC-D-04.md)와 [위험 수용 기록](docs/blueprint/audits/2026-11-10_d04_token_risk_acceptance.md)에 반영했다. D-04 폐기·재발급 차단은 제거했고 기존 토큰은 ONJEON box secrets env에서만 읽는다. O14·O17·D-02·O19·ADR-0017과 다른 관문은 유지한다.
 
 ## 로컬 시험
 

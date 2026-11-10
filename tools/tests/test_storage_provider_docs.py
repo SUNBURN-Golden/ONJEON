@@ -81,7 +81,8 @@ class Blueprint(unittest.TestCase):
     def test_open_decisions_preserve_r2_operational_gates(self):
         section = self.text.split("## 12.", 1)[1].split("## 13.", 1)[0]
         for label, phrases in (
-            ("R2 접근 자격", ("D-04 관문 유지", "실제 R2 접근 차단 유지", "DEC-D-04")),
+            ("R2 기존 토큰 사용", ("D-04 해결", "재발급 없이", "ONJEON box secrets env",
+                               "값 출력·로그 금지", "DEC-D-04")),
             ("대량 자동 수집 관문", ("O17", "원장 체크포인트", "버킷 잠금")),
             ("R2 버킷 잠금", ("O14", "승인 전 적용 금지", "무기한 잠금 금지")),
         ):

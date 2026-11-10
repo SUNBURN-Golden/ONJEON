@@ -1,0 +1,16 @@
+test_dt01_real_data_allowed_without_d04 (test_o13_ruling.RulingAccessGates.test_dt01_real_data_allowed_without_d04) ... ok
+test_dt04_still_requires_domestic_ip_gate (test_o13_ruling.RulingAccessGates.test_dt04_still_requires_domestic_ip_gate) ... ok
+test_independent_lock_bulk_and_all_other_gates_unchanged (test_o13_ruling.RulingAccessGates.test_independent_lock_bulk_and_all_other_gates_unchanged) ... ok
+test_op02_still_requires_d02_but_not_d04 (test_o13_ruling.RulingAccessGates.test_op02_still_requires_d02_but_not_d04) ... ok
+test_resolved_d04_needs_no_runtime_registration (test_o13_ruling.RulingAccessGates.test_resolved_d04_needs_no_runtime_registration) ... ok
+test_bundle_tables_and_handoff_do_not_reintroduce_d04 (test_o13_ruling.RulingDocumentation.test_bundle_tables_and_handoff_do_not_reintroduce_d04) ... ok
+test_explicit_owner_risk_acceptance_and_revisit_triggers (test_o13_ruling.RulingDocumentation.test_explicit_owner_risk_acceptance_and_revisit_triggers) ... ok
+test_live_policy_rows_follow_latest_owner_ruling (test_o13_ruling.RulingDocumentation.test_live_policy_rows_follow_latest_owner_ruling) ... ok
+test_missing_owner_or_env_and_stale_denial_are_rejected (test_o13_ruling.RulingDocumentation.test_missing_owner_or_env_and_stale_denial_are_rejected) ... ok
+test_report_and_readme_links_resolve (test_o13_ruling.RulingDocumentation.test_report_and_readme_links_resolve) ... ok
+test_separate_cfut_rule_and_daemon_secret_boundary_remain (test_o13_ruling.RulingDocumentation.test_separate_cfut_rule_and_daemon_secret_boundary_remain) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.040s
+
+OK

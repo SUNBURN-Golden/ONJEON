@@ -76,7 +76,7 @@
 | T-CT-02 | 어휘 정본 확장 | 정본 변경 과제. 지시 봉투에 `canon_change_approval`(사용자 결정 참조)이 없으면 거부(R-13) |
 | T-OP-01 | 로컬 Compose | — |
 | T-TW-02 | rule-0.2 연산 7개 | 계산 의미 변경이라 즉시 감리 |
-| T-OP-04 | R2 관문 | start 관문 D-04(R2 토큰 폐기 등). 그 전에는 시작하지 않는다 |
+| T-OP-04 | R2 관문 | D-04 해결: 기존 R2 토큰을 ONJEON box secrets env에서만 읽어 사용. O14 병합·O17 대량 수집 관문 유지 |
 
 ## 5. 사용자가 정하거나 준비할 것
 
@@ -199,7 +199,7 @@
 | 영역(09 행) | 과제 | 단계별 결정·잔여 실행 조건 |
 |---|---|---|
 | 기반(계약·어휘·로컬) | T-CT-01~07, T-OP-01 | [DEC-CANON-T-CT-02](../../../../decisions/DEC-CANON-T-CT-02.md): T-CT-02 등 정본 변경은 `canon_change_approval` 필요·병합 미승인 |
-| 수집·관리(P01~P03) | T-DT-01~06, T-OP-04, T-KN-09·10·11, T-AP-04·06, T-WB-01, T-PS-02 | [DEC-D-04](../../../../decisions/DEC-D-04.md)(소유자 토큰 미폐기 결정, 실제 R2 접근 차단 유지): T-DT-01·T-DT-04 실데이터와 T-OP-04 착수. [DEC-O02](../../../../decisions/DEC-O02.md): T-DT-06 실데이터. [DEC-D-14](../../../../decisions/DEC-D-14.md): T-KN-11 병합. [DEC-O04](../../../../decisions/DEC-O04.md): T-KN-09 release·가격 비교 시험 별도 |
+| 수집·관리(P01~P03) | T-DT-01~06, T-OP-04, T-KN-09·10·11, T-AP-04·06, T-WB-01, T-PS-02 | [DEC-D-04](../../../../decisions/DEC-D-04.md)(2026-11-10 소유자 위험 수용 재확인, D-04 해결): 기존 R2 토큰을 폐기·재발급 없이 ONJEON box secrets env에서만 읽어 사용. 값 출력·로그 금지. T-DT-01·T-DT-04·T-OP-02(b)·T-OP-04의 다른 관문은 유지. [DEC-O02](../../../../decisions/DEC-O02.md): T-DT-06 실데이터. [DEC-D-14](../../../../decisions/DEC-D-14.md): T-KN-11 병합. [DEC-O04](../../../../decisions/DEC-O04.md): T-KN-09 release·가격 비교 시험 별도 |
 | 지식·레이블링(P04~P06) | T-KN-01~08, T-TW-01·03, T-OP-03, T-WB-02 | [DEC-D-02](../../../../decisions/DEC-D-02.md): 구성·정책 소유자 결정됨(위임·사용자 확정 아님). T-KN-06·T-OP-02 실데이터와 T-OP-03 착수는 비-claude 접근 확인·월 한도 확인·등록 조건 뒤 |
 | 디지털 트윈(P07~P14) | T-TW-02·04·05·06, T-AP-02·03·05·07·08, T-PS-01·02, T-MB-02·03·04 | [DEC-D-17](../../../../decisions/DEC-D-17.md): T-PS-01~03 실데이터. [DEC-D-06](../../../../decisions/DEC-D-06.md)·[DEC-D-07](../../../../decisions/DEC-D-07.md): T-AP-08 병합. [DEC-O12](../../../../decisions/DEC-O12.md): 의미론 결정 해결(위임·사용자 확정 아님), T-TW-04·05 release 등록·연산별 S6 별도 |
 | UX/UI(P15~P19) | T-MB-01~04, T-AP-07·09, T-KN-12·14, T-UX-01 | [DEC-D-16](../../../../decisions/DEC-D-16.md): T-UX-01 착수·실제 시험 별도. [DEC-D-08](../../../../decisions/DEC-D-08.md): T-KN-14 release(비편집 기준 조건부 적용·기본 필요 금액 비활성) |

@@ -175,9 +175,10 @@ class Blueprint(unittest.TestCase):
         self.assertEqual(tuple(map(int, m.groups())), (tests, docs))
 
     def test_count_has_a_historical_date_and_evidence(self):
-        self.assertIn("2026-10-09 기준", self.code_row)
+        self.assertIn("2026-10-09 당시", self.code_row)
         self.assertIn("재실행 근거", self.code_row)
         self.assertIn("blueprint/validation/REVERIFY_87a19c5.md", self.code_row)
+        self.assertIn("현재 등록 수는 아래 자동 생성 표", self.code_row)
 
     def test_states_the_count_once(self):
         self.assertEqual(len(BARE.findall(self.code_row)) + len(SPLIT.findall(self.code_row)), 1)

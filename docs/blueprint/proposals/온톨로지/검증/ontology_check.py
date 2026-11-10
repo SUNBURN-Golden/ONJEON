@@ -16,6 +16,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)  # 온톨로지/
@@ -689,15 +690,14 @@ def mutations():
 
 def with_bad_rule(mutated, fn):
     rp = os.path.join(ROOT, "규칙", "hana-2601-3d-cancer-dx.json")
-    bad = json.loads(open(rp, encoding="utf-8").read())
+    with open(rp, encoding="utf-8") as source:
+        bad = json.load(source)
     bad["evidence_refs"].append("hana_2601_3d#c_2_1_art5")
-    tmp = os.path.join(ROOT, "규칙", "_tmp_bad.json")
-    open(tmp, "w", encoding="utf-8").write(json.dumps(bad, ensure_ascii=False))
-    try:
-        next(x for x in mutated["assertions"] if x["id"] == "a:hana_rule")["rule_path"] = "규칙/_tmp_bad.json"
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", prefix="onjeon-ontology-bad-rule-", suffix=".json") as tmp:
+        json.dump(bad, tmp, ensure_ascii=False)
+        tmp.flush()  # 검사기는 경로를 다시 열어 읽는다.
+        next(x for x in mutated["assertions"] if x["id"] == "a:hana_rule")["rule_path"] = tmp.name
         return fn()
-    finally:
-        os.remove(tmp)
 
 
 def answer(v, runner, qid):

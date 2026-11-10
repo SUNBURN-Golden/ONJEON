@@ -1,0 +1,54 @@
+[
+  {
+    "name": "spec-check",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "purpose-tests",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_product_purpose.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "blueprint-counts",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "tools/blueprint_counts.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "blueprint-status",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "tools/blueprint_status.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0
+  }
+]

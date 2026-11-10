@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-I",
+    "/workspace/onjeon-run/wt/audit5-ontology-check-tmp-in-tree/docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+    "/workspace/onjeon-run/wt/audit5-ontology-check-tmp-in-tree/target/debug/ontology-case-runner"
+  ],
+  "concurrent_processes": 2,
+  "returncodes": [
+    0,
+    0
+  ],
+  "stdout_identical": true,
+  "rule_tree_unchanged": true,
+  "legacy_tempfile_absent": true
+}

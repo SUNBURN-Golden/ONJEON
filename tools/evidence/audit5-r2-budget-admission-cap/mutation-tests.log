@@ -1,0 +1,151 @@
+MUTANT: monthly closure waits for N+1
+test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) ... 
+  test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=3, job_limit=2) ... FAIL
+  test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=3) ... FAIL
+  test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=2) ... FAIL
+
+======================================================================
+FAIL: test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=3, job_limit=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 1081, in test_successful_last_admission_closes_before_reserving
+    self.assertEqual(puts[1:], [close_key, f"{b.LEDGER_PREFIX}0000000003.json",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              f"{b.LEDGER_PREFIX}0000000004.json"])
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json'] != ['closed/v1/2026-01/t.json', 'ledger/v1/000[38 chars]son']
+
+First differing element 0:
+'ledger/v1/0000000003.json'
+'closed/v1/2026-01/t.json'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'ledger/v1/0000000004.json'
+
+- ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json']
++ ['closed/v1/2026-01/t.json',
++  'ledger/v1/0000000003.json',
++  'ledger/v1/0000000004.json']
+
+======================================================================
+FAIL: test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 1081, in test_successful_last_admission_closes_before_reserving
+    self.assertEqual(puts[1:], [close_key, f"{b.LEDGER_PREFIX}0000000003.json",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              f"{b.LEDGER_PREFIX}0000000004.json"])
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json'] != ['closed/v1/2026-01/_global.json', 'ledger/[44 chars]son']
+
+First differing element 0:
+'ledger/v1/0000000003.json'
+'closed/v1/2026-01/_global.json'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'ledger/v1/0000000004.json'
+
+- ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json']
++ ['closed/v1/2026-01/_global.json',
++  'ledger/v1/0000000003.json',
++  'ledger/v1/0000000004.json']
+
+======================================================================
+FAIL: test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) (global_limit=2, job_limit=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 1081, in test_successful_last_admission_closes_before_reserving
+    self.assertEqual(puts[1:], [close_key, f"{b.LEDGER_PREFIX}0000000003.json",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              f"{b.LEDGER_PREFIX}0000000004.json"])
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json'] != ['closed/v1/2026-01/_global.json', 'ledger/[44 chars]son']
+
+First differing element 0:
+'ledger/v1/0000000003.json'
+'closed/v1/2026-01/_global.json'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'ledger/v1/0000000004.json'
+
+- ['ledger/v1/0000000003.json', 'ledger/v1/0000000004.json']
++ ['closed/v1/2026-01/_global.json',
++  'ledger/v1/0000000003.json',
++  'ledger/v1/0000000004.json']
+
+----------------------------------------------------------------------
+Ran 1 test in 1.907s
+
+FAILED (failures=3)
+
+Detected as expected; production source unchanged.
+
+MUTANT: append permits record 101
+test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) ... 
+  test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=False, kind='reservation') ... FAIL
+  test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=False, kind='settlement') ... FAIL
+  test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=True, kind='reservation') ... FAIL
+  test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=True, kind='settlement') ... FAIL
+test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) ... FAIL
+
+======================================================================
+FAIL: test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=False, kind='reservation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 376, in test_append_cap_is_checkpoint_relative_even_for_recovery
+    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=False, kind='settlement')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 376, in test_append_cap_is_checkpoint_relative_even_for_recovery
+    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=True, kind='reservation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 376, in test_append_cap_is_checkpoint_relative_even_for_recovery
+    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery) (recovery=True, kind='settlement')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 376, in test_append_cap_is_checkpoint_relative_even_for_recovery
+    with self.assertRaisesRegex(b.BudgetError, "100.*>= 100"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_append_cap_is_checkpoint_relative_even_for_recovery (test_r2_budget.LedgerRecordCap.test_append_cap_is_checkpoint_relative_even_for_recovery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-admission-cap/tools/tests/test_r2_budget.py", line 378, in test_append_cap_is_checkpoint_relative_even_for_recovery
+    put.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'put_new' to not have been called. Called 4 times.
+Calls: [call('ledger/v1/0000000151.json', b'{\n "kind": "reservation",\n "policy_sha256": "d42c8788f265e482726a97bbf001cde4eb23e9a18076371046aa54ecd7976b74",\n "prev_sha256": "66b04c173b8185224d01906fe39fab8eb0d97b4f3c4bd4201f72447d85bcf2c8",\n "seq": 151\n}\n', 'application/json'),
+ call('ledger/v1/0000000151.json', b'{\n "kind": "settlement",\n "policy_sha256": "d42c8788f265e482726a97bbf001cde4eb23e9a18076371046aa54ecd7976b74",\n "prev_sha256": "66b04c173b8185224d01906fe39fab8eb0d97b4f3c4bd4201f72447d85bcf2c8",\n "seq": 151\n}\n', 'application/json'),
+ call('ledger/v1/0000000151.json', b'{\n "kind": "reservation",\n "policy_sha256": "d42c8788f265e482726a97bbf001cde4eb23e9a18076371046aa54ecd7976b74",\n "prev_sha256": "66b04c173b8185224d01906fe39fab8eb0d97b4f3c4bd4201f72447d85bcf2c8",\n "seq": 151\n}\n', 'application/json'),
+ call('ledger/v1/0000000151.json', b'{\n "kind": "settlement",\n "policy_sha256": "d42c8788f265e482726a97bbf001cde4eb23e9a18076371046aa54ecd7976b74",\n "prev_sha256": "66b04c173b8185224d01906fe39fab8eb0d97b4f3c4bd4201f72447d85bcf2c8",\n "seq": 151\n}\n', 'application/json')].
+
+----------------------------------------------------------------------
+Ran 1 test in 0.035s
+
+FAILED (failures=5)
+
+Detected as expected; production source unchanged.
+

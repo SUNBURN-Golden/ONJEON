@@ -1,0 +1,18 @@
+test_admitted_run_spends_within_its_admission_before_reserving (test_r2_budget.EndToEnd.test_admitted_run_spends_within_its_admission_before_reserving) ... ok
+test_checkpoint_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_checkpoint_admission_archive_and_settlement_reads_are_charged) ... ok
+test_last_admission_closes_before_ledger_read_failure (test_r2_budget.EndToEnd.test_last_admission_closes_before_ledger_read_failure) ... ok
+test_ledger_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_ledger_admission_archive_and_settlement_reads_are_charged) ... ok
+test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) ... ok
+test_month_rollover_allows_admission_after_successful_closure (test_r2_budget.EndToEnd.test_month_rollover_allows_admission_after_successful_closure) ... ok
+test_shipped_policy_reserves_on_final_attempt_within_admission (test_r2_budget.EndToEnd.test_shipped_policy_reserves_on_final_attempt_within_admission) ... ok
+test_successful_last_admission_closes_before_reserving (test_r2_budget.EndToEnd.test_successful_last_admission_closes_before_reserving) ... ok
+test_zero_admission_cap_sends_nothing (test_r2_budget.EndToEnd.test_zero_admission_cap_sends_nothing) ... ok
+test_lost_race_relists_admissions (test_r2_budget.Reservation.test_lost_race_relists_admissions)
+A retry reads fresh records; admissions made meanwhile must be counted too, or two racing ... ok
+test_reservations_leave_room_for_the_admissions_still_allowed (test_r2_budget.Reservation.test_reservations_leave_room_for_the_admissions_still_allowed) ... ok
+test_unsettled_admissions_count_at_the_admission_limits_in_every_month (test_r2_budget.Reservation.test_unsettled_admissions_count_at_the_admission_limits_in_every_month) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 8.481s
+
+OK

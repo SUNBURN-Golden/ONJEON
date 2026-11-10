@@ -1,0 +1,7 @@
+BLUEPRINT-S11: current decision index (37 ADR/DEC files)
+blueprint_status exit=0
+git diff --check exit=0
+ M docs/blueprint/DECISIONS.md
+?? docs/blueprint/audits/2026-11-10_decisions_ledger_sync.md
+?? tools/evidence/audit5-decisions-ledger-sync/
+?? tools/tests/test_audit5_decisions_ledger_sync.py

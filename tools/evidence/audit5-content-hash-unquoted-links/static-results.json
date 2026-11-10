@@ -1,0 +1,81 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/vocab_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/ci/check_product_purpose.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_counts.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "+1.98.1",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "+1.98.1",
+      "clippy",
+      "--locked",
+      "--offline",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0
+  }
+]

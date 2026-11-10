@@ -1,0 +1,4 @@
+PASS: all changed/new paths allowed and no protected paths changed
+PASS: changed Python files parse and local Markdown links resolve
+PASS: git diff --check
+PASS: production v3 module is byte-identical to HEAD

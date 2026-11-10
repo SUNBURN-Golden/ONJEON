@@ -50,6 +50,28 @@ class MeaningfulChangesChangeTheHash(unittest.TestCase):
 class DownloadTargetsChangeTheHash(unittest.TestCase):
     """Audit 2: targets must survive attribute quoting and inline click handlers."""
 
+    def test_file_down_filename_changes_without_visible_text_changes(self):
+        # Audit 5's exact handler: the filename is the only changed byte.
+        for tag in ("a", "button"):
+            for attr in ('onclick="fileDown(\'x.pdf\')"',
+                         'ONCLICK = "return fileDown(\'x.pdf\');"',
+                         "onclick=fileDown('x.pdf')",
+                         'onclick="fileDown(&quot;x.pdf&quot;)"'):
+                with self.subTest(tag=tag, attr=attr):
+                    before = f'<{tag} {attr}>약관</{tag}>'.encode()
+                    after = before.replace(b"x.pdf", b"y.pdf")
+                    self.assertIn("[onclick:", h.normalized_text(before))
+                    self.assertIn("x.pdf", h.normalized_text(before))
+                    self.assertNotEqual(ch(before), ch(after))
+
+    def test_unquoted_href_keeps_filename_while_removing_session(self):
+        before = b'<a href=/x.pdf?sessionid=A&id=7#terms>terms</a>'
+        session_only = before.replace(b"sessionid=A", b"sessionid=B")
+        filename_only = before.replace(b"x.pdf", b"y.pdf")
+        self.assertEqual(h.normalized_text(before), "[link:/x.pdf?id=7#terms] terms")
+        self.assertEqual(ch(before), ch(session_only))
+        self.assertNotEqual(ch(before), ch(filename_only))
+
     def test_link_attributes_with_each_quoting_style(self):
         for tag, attr in (("a", "href"), ("iframe", "src"), ("embed", "src"),
                           ("object", "data"), ("form", "action")):

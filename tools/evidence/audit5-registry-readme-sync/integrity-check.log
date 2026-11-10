@@ -1,0 +1,13 @@
+$ git -c core.whitespace=cr-at-eol diff --check
+exit=0
+
+$ wc -l data/registry/{sources,access_log,authority_crosscheck_2026-11-10}.csv
+   76 data/registry/sources.csv
+  113 data/registry/access_log.csv
+   58 data/registry/authority_crosscheck_2026-11-10.csv
+  247 total
+
+$ git diff --numstat data/registry
+30	11	data/registry/README.md
+14	0	data/registry/access_log.csv
+9	0	data/registry/sources.csv

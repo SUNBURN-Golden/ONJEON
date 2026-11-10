@@ -1,0 +1,232 @@
+[
+  {
+    "check": "permissions",
+    "command": [
+      "python3",
+      "tools/workflow_check.py",
+      ".github/workflows/ci.yml",
+      ".github/workflows/pr-traceability.yml"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.02
+  },
+  {
+    "check": "workflow-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_workflow*.py",
+      "-v"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.1
+  },
+  {
+    "check": "ci-security-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_ci_workflow_security.py",
+      "-v"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 1.03
+  },
+  {
+    "check": "ontology-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "--target-dir",
+      "/workspace/onjeon-run/wt/audit5-ci-permissions-and-credentials/target/audit5-ci-ontology"
+    ],
+    "cwd": "docs/blueprint/proposals/온톨로지/검증/runner",
+    "exit_code": 0,
+    "seconds": 4.56
+  },
+  {
+    "check": "python-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-v"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 194.89
+  },
+  {
+    "check": "ci-checker-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/ci/tests",
+      "-v"
+    ],
+    "cwd": ".",
+    "exit_code": 1,
+    "seconds": 4.73
+  },
+  {
+    "check": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.34
+  },
+  {
+    "check": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 4.18
+  },
+  {
+    "check": "rust-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--all",
+      "--locked",
+      "--offline"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 40.15
+  },
+  {
+    "check": "ontology-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--target-dir",
+      "/workspace/onjeon-run/wt/audit5-ci-permissions-and-credentials/target/audit5-ci-ontology"
+    ],
+    "cwd": "docs/blueprint/proposals/온톨로지/검증/runner",
+    "exit_code": 0,
+    "seconds": 0.4
+  },
+  {
+    "check": "ontology-check",
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+      "/workspace/onjeon-run/wt/audit5-ci-permissions-and-credentials/target/audit5-ci-ontology/debug/ontology-case-runner"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.24
+  },
+  {
+    "check": "vocabulary",
+    "command": [
+      "python3",
+      "tools/vocab_check.py"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.06
+  },
+  {
+    "check": "validation",
+    "command": [
+      "python3",
+      "tools/validation_check.py"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.05
+  },
+  {
+    "check": "validation-selftest",
+    "command": [
+      "python3",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.4
+  },
+  {
+    "check": "spec-check",
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.11
+  },
+  {
+    "check": "daemon-dry-run",
+    "command": [
+      "python3",
+      "-I",
+      "tools/daemon/dry_run.py",
+      "--rules",
+      "docs/blueprint/proposals/설계검토_결과/daemon_rules.json",
+      "--tasks",
+      "tools/daemon/mock_tasks.json",
+      "--scenario",
+      "all",
+      "--require-all",
+      "--quiet"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 15.76
+  },
+  {
+    "check": "blueprint-counts",
+    "command": [
+      "python3",
+      "-I",
+      "tools/blueprint_counts.py"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.15
+  }
+]

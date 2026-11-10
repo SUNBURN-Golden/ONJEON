@@ -1,5 +1,5 @@
 # python-tests.log
-기준 HEAD: d0cbde3 / 2026-11-10T18:44:42+09:00
+기준 HEAD: 15c5d82 / 2026-11-10T19:15:19+09:00 (fix round 1)
 
 $ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/tests -v
 test_audit_and_evidence_records_exist_and_are_linked (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_audit_and_evidence_records_exist_and_are_linked) ... ok
@@ -13,6 +13,7 @@ test_links_in_new_records_resolve_inside_the_repository (test_audit5_design_bund
 test_dry_run_executes_all_33_required_ids (test_audit5_design_bundle_status_stale.DaemonRequiredCoverage.test_dry_run_executes_all_33_required_ids) ... ok
 test_bundle_readme_reports_seventh_revision_and_merged_daemon_work (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_bundle_readme_reports_seventh_revision_and_merged_daemon_work) ... ok
 test_contract_no_longer_says_only_rule_files_exist (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_contract_no_longer_says_only_rule_files_exist) ... ok
+test_handoff_does_not_overclaim_the_mock_and_executor_limits (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_handoff_does_not_overclaim_the_mock_and_executor_limits) ... ok
 test_handoff_marks_old_16_of_33_state_as_historical (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_handoff_marks_old_16_of_33_state_as_historical) ... ok
 test_vm_prep_records_the_existing_dry_run_tool (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_vm_prep_records_the_existing_dry_run_tool) ... ok
 test_audit_note_points_at_the_sync_record_and_its_limit (test_audit5_design_bundle_status_stale.PurposeTableDecisionRecorded.test_audit_note_points_at_the_sync_record_and_its_limit) ... ok
@@ -821,16 +822,16 @@ test_range_and_unknown_never_compare_equal (test_ontology_check_amounts.AmountPr
 test_unsupported_amount_kind_is_rejected (test_ontology_check_amounts.AmountPresentation.test_unsupported_amount_kind_is_rejected) ... ok
 test_cleanup_and_propagation_on_callback_exception (test_ontology_check_tempfile.BadRuleTemporaryFile.test_cleanup_and_propagation_on_callback_exception) ... ok
 test_cleanup_when_serialization_fails (test_ontology_check_tempfile.BadRuleTemporaryFile.test_cleanup_when_serialization_fails) ... ok
-test_constraints_and_frozen_release_still_detect_bad_rule (test_ontology_check_tempfile.BadRuleTemporaryFile.test_constraints_and_frozen_release_still_detect_bad_rule) ... /workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-mrz7vy0f.json' mode='r' encoding='utf-8'>
+test_constraints_and_frozen_release_still_detect_bad_rule (test_ontology_check_tempfile.BadRuleTemporaryFile.test_constraints_and_frozen_release_still_detect_bad_rule) ... /workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-3x7ggfwb.json' mode='r' encoding='utf-8'>
   rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 /workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json' mode='r' encoding='utf-8'>
   rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/onjeon-ontology-bad-rule-lhoiff2w.json'>
+/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/onjeon-ontology-bad-rule-j7_id86r.json'>
   out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-lhoiff2w.json' mode='r' encoding='utf-8'>
+/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-j7_id86r.json' mode='r' encoding='utf-8'>
   rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -857,13 +858,13 @@ ResourceWarning: Enable tracemalloc to get the object allocation traceback
 /workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:532: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json' mode='r' encoding='utf-8'>
   rule = json.load(open(os.path.join(ROOT, rule_a["rule_path"]), encoding="utf-8"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-tvu25bav.json' mode='r' encoding='utf-8'>
+/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-es8suc7e.json' mode='r' encoding='utf-8'>
   rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/onjeon-ontology-bad-rule-vo0cicph.json'>
+/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/onjeon-ontology-bad-rule-6d6s2lag.json'>
   out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-vo0cicph.json' mode='r' encoding='utf-8'>
+/workspace/onjeon-run/wt/audit5-design-bundle-status-stale/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-6d6s2lag.json' mode='r' encoding='utf-8'>
   rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -1584,6 +1585,6 @@ test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.Wo
 test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 1485 tests in 205.677s
+Ran 1486 tests in 210.544s
 
 OK (skipped=6)

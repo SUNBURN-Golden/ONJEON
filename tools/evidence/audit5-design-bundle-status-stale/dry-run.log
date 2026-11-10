@@ -1,5 +1,5 @@
 # dry-run.log
-기준 HEAD: d0cbde3 / 2026-11-10T18:38:47+09:00
+기준 HEAD: 15c5d82 / 2026-11-10T19:14:56+09:00 (fix round 1)
 
 $ PYTHONDONTWRITEBYTECODE=1 python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all --quiet
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]

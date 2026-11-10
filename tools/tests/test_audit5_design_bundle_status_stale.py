@@ -104,6 +104,18 @@ class DesignBundleStatusClaims(unittest.TestCase):
             with self.subTest(stale=stale):
                 self.assertNotIn(stale, self.handoff)
 
+    def test_handoff_does_not_overclaim_the_mock_and_executor_limits(self):
+        # The "not proven" list must not be followed by "all confirmed".
+        for stale in ("모두 단계 2·3", "구현하지 않은 시나리오"):
+            with self.subTest(stale=stale):
+                self.assertNotIn(stale, self.handoff)
+        for phrase in ("R1~R22", "PASS 17·PARTIAL 5·FAIL 0",
+                       "실제 제공자 청구와 사용량 기록의 대조",
+                       "실제 CI·리뷰 서비스", "벤더 CLI 전체",
+                       "아직 확인하지 않았다"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.handoff)
+
 
 class PurposeTableDecisionRecorded(unittest.TestCase):
     DECISIONS = {

@@ -10,6 +10,11 @@ DEC 기록이 있는데도 미해결 결정처럼 읽혔다.
 수정: 네 문서의 T-OP-00·T-OP-09 상태를 병합·검증 결과와 남은 PARTIAL·
 명세 공백으로 갱신하고, 09의 해당 행에 "결정 기록됨"과 "남은 조건"을
 분리해 적었다. 결정 내용·관문·승인 상태·실제 시험 결과는 바꾸지 않았다.
+픽스 라운드 1에서 인계 README의 "모두 단계 2·3에서 확인했다" 과장과
+"구현하지 않은 시나리오" 잔존 문구를 바로잡아 실제 한계(R10 청구 대조,
+R8 실제 CI·리뷰 서비스, 벤더 CLI 전체)를 그대로 적고, 이 문구를 막는
+시험을 추가했다. `07_수정대응표.md`의 "칸의 뜻"과 역사 표의 "(이 판)"도
+그 판 시점임을 밝히도록 고쳤다.
 감리 기록: [2026-11-10_design_bundle_status_stale.md](../../../docs/blueprint/audits/2026-11-10_design_bundle_status_stale.md).
 
 ## 로그
@@ -18,7 +23,7 @@ DEC 기록이 있는데도 미해결 결정처럼 읽혔다.
 |---|---|---|
 | [before.log](before.log) | 수정 전 HEAD(d0cbde3) 문서에서 낡은 문구 확인 | 4개 문서에서 낡은 현재상태 문구 확인, 09에는 "결정 기록됨" 표기 없음 |
 | [focused.log](focused.log) | `test_audit5_design_bundle_status_stale` + 기존 09·가격·데몬 시험 | 모두 통과 |
-| [python-tests.log](python-tests.log) | `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/tests -v` | 1,485건 실행, 실패·오류 0, 건너뜀 6 |
+| [python-tests.log](python-tests.log) | `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/tests -v` | 1,486건 실행, 실패·오류 0, 건너뜀 6 |
 | [dry-run.log](dry-run.log) | `python3 -I tools/daemon/dry_run.py ... --scenario all --require-all --quiet` | 종료 코드 0, 필수 시험 ID 33/33, 누락·목록 밖·중복 0 |
 | [status.log](status.log) | `spec_check.py`·`git diff --check`·`git status` | 통과·공백 오류 없음 |
 

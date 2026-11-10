@@ -1,0 +1,23 @@
+$ git status --porcelain -uall
+ M README.md
+ M tools/tests/test_readme_index.py
+?? docs/blueprint/audits/2026-11-10_readme_refresh.md
+?? tools/evidence/audit5-readme-refresh/README.md
+?? tools/evidence/audit5-readme-refresh/focused.log
+?? tools/evidence/audit5-readme-refresh/mutation.log
+?? tools/evidence/audit5-readme-refresh/ontology-build.log
+?? tools/evidence/audit5-readme-refresh/ontology-tests.log
+?? tools/evidence/audit5-readme-refresh/python-tests.log
+?? tools/evidence/audit5-readme-refresh/readme_mutation.py
+?? tools/evidence/audit5-readme-refresh/rust-tests.log
+?? tools/evidence/audit5-readme-refresh/scope.log
+?? tools/evidence/audit5-readme-refresh/status.log
+
+$ git diff --check
+exit=0
+
+$ protected-path diffs (tracked+untracked)
+none
+
+$ new docs link check
+missing_local_links = []

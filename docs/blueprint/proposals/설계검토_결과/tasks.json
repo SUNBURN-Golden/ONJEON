@@ -244,7 +244,9 @@
       ],
       "evidence": "동의·가족력·삭제·내보내기 E2E(합성 자료, D-17 전)",
       "acceptance_tests": [
-        "cargo test -p onjeon-personal consent deletion export",
+        "cargo test -p onjeon-personal consent",
+        "cargo test -p onjeon-personal deletion",
+        "cargo test -p onjeon-personal export",
         "integration_test me_tab"
       ],
       "excluded": false,
@@ -466,7 +468,8 @@
       ],
       "evidence": "일일 확인 실행 기록, 200 로그인 HTML 미성공 처리 기록",
       "acceptance_tests": [
-        "cargo test -p onjeon-collect archive schedule"
+        "cargo test -p onjeon-collect archive",
+        "cargo test -p onjeon-collect schedule"
       ],
       "excluded": false,
       "scope_decision": null
@@ -521,7 +524,8 @@
       "evidence": "실제 원문에서 추출된 pending 주장과 코드 검사 로그",
       "acceptance_tests": [
         "cargo test -p onjeon-ai-review extraction",
-        "cargo test -p onjeon-knowledge store structures"
+        "cargo test -p onjeon-knowledge store",
+        "cargo test -p onjeon-knowledge structures"
       ],
       "excluded": false,
       "scope_decision": null
@@ -730,7 +734,8 @@
       ],
       "evidence": "여러 계약 합산 금지·부분 보류 시험 로그",
       "acceptance_tests": [
-        "cargo test -p onjeon-twin-runtime multi dependency",
+        "cargo test -p onjeon-twin-runtime multi",
+        "cargo test -p onjeon-twin-runtime dependency",
         "partial-hold-independent-contract-kept"
       ],
       "excluded": false,
@@ -833,7 +838,8 @@
       ],
       "evidence": "삭제 순서·늦은 쓰기 거부·백업 재적용 시험 로그",
       "acceptance_tests": [
-        "cargo test -p onjeon-personal consent deletion"
+        "cargo test -p onjeon-personal consent",
+        "cargo test -p onjeon-personal deletion"
       ],
       "excluded": false,
       "scope_decision": null
@@ -867,7 +873,8 @@
       ],
       "evidence": "개인 문서 유래 상품 후보가 수집 큐에 없음을 확인한 누출 시험",
       "acceptance_tests": [
-        "cargo test -p onjeon-personal leak denominator_signal"
+        "cargo test -p onjeon-personal leak",
+        "cargo test -p onjeon-personal denominator_signal"
       ],
       "excluded": false,
       "scope_decision": null
@@ -986,7 +993,7 @@
       ],
       "evidence": "4주 리허설 기록(중요 오류 0건)",
       "acceptance_tests": [
-        "(운영 기록)"
+        "시험 (운영 기록)"
       ],
       "excluded": false,
       "scope_decision": null
@@ -1119,7 +1126,8 @@
       ],
       "evidence": "정액 중복·실손 비례분담·부분 보류 기록",
       "acceptance_tests": [
-        "cargo test -p onjeon-twin-runtime multi dependency"
+        "cargo test -p onjeon-twin-runtime multi",
+        "cargo test -p onjeon-twin-runtime dependency"
       ],
       "excluded": false,
       "scope_decision": null
@@ -1531,7 +1539,7 @@
         "R1~R22 결과 기록, §1b 확인표 채움(미확인은 미확인)"
       ],
       "tests": [
-        "bash tools/daemon/runner_verify/run.sh --remote <시험용 원격> --report docs/vm_check/<날짜>/runner_verify.json",
+        "bash tools/daemon/runner_verify/run.sh --remote \"$TEST_REMOTE\" --report \"docs/vm_check/$RUN_DATE/runner_verify.json\"",
         "시험 late-write-fenced(R1·R3, 실제 실행기): 만료된 임대 A의 실제 푸시가 보호 브랜치·회수 자격으로 원격에서 거부되고 R-11이 기록된다. A 전환 중 B 시작 시 두 프로세스가 동시에 쓰기 자격을 가진 시각 구간이 자격 발급·회수 로그상 없다",
         "시험 late-result-rejected(R2): 만료된 임대 A의 결과 봉투가 lease_id·토큰 불일치로 거부되고(late_envelope_rejected) 현재 임대의 상태 전이가 없다. 인계 순서(stop → isolate → confirm_quiescent → preserve → revoke_token → issue_next_lease)가 실제 프로세스·원격 로그에서 그 순서로 나타난다",
         "시험 resume-after-interrupt(R4): 데몬 강제 종료 뒤 재시작이 외부 상태로 복원하거나 R-08. WIP 커밋 보존",
@@ -1671,7 +1679,7 @@
       "tests": [
         "cargo test -p onjeon-contracts",
         "python3 tools/vocab_check.py",
-        "bash packages/schemas/codegen/check_compat.sh <prev_tag>"
+        "bash packages/schemas/codegen/check_compat.sh \"$PREV_TAG\""
       ],
       "done_criteria": [
         "세 언어 생성물이 빌드된다",
@@ -2041,7 +2049,7 @@
         "DB 역할 4종(data_writer, knowledge_writer, criteria_writer, personal) 권한 스크립트"
       ],
       "tests": [
-        "bash infra/db/test.sh (Compose Postgres에서 제약 시험)"
+        "bash infra/db/public/test.sh"
       ],
       "done_criteria": [
         "조건 없는 가격 행 삽입이 거부된다(I7)",
@@ -3240,8 +3248,8 @@
       ],
       "tests": [
         "cargo test -p onjeon-knowledge store",
-        "cargo test -p onjeon-knowledge fixture_rejection(service_conformance 프로필: 픽스처 A-box 적재 시 fixture_assumption·origin=fixture accepted 전부 거부)",
-        "cargo test -p onjeon-knowledge edition_conflict(통합약관 구획과 개별 특약 파일이 같은 판을 담을 때 Conflict가 생기지 않고, 동일 적용 범위에서 양립 불가한 주장만 Conflict가 된다)",
+        "cargo test -p onjeon-knowledge fixture_rejection",
+        "cargo test -p onjeon-knowledge edition_conflict",
         "시험 profile-historical-vs-service: 같은 사례 A-box를 (a) historical_fixture 프로필로 읽으면 r26 위반 0·질문 11/11(decision.by=fixture_assumption 허용), (b) service_conformance 프로필로 이 과제의 서비스 적재기에 넣으면 origin=fixture·fixture_assumption 때문에 accepted 전부 거부된다(B1~B3). 두 기대값을 한 시험 안에서 따로 보고한다. 릴리스 미생성은 릴리스 빌더 과제의 시험",
         "시험 price-raw-kept-comparison-gated(골든 P1, 재검토 R06①): 조건·구성·기준일이 빈 원시 가격 관측이 저장되고(evidence·raw_amount·observed_at만 필수, missing_dimensions 기록) comparison_eligible=false다. comparison_eligible=true로 바꾸려면 조건·구성·기준일 전부와 review accepted가 필요하고(K13) 없으면 거부된다. 자격 없는 관측은 compare_price·정렬·예산 필터 후보에 들지 않는다"
       ],
@@ -3442,8 +3450,8 @@
         "hold 경로 실행 기록"
       ],
       "tests": [
-        "cargo test -p onjeon-ai-review review (모의 제공자 2계열)",
-        "실제 제공자 2계열 실행 기록(D-02 후)"
+        "cargo test -p onjeon-ai-review review",
+        "시험 실제 제공자 2계열 실행 기록(D-02 후)"
       ],
       "done_criteria": [
         "다수결 코드 경로가 없다(I14, 정적 검사)",
@@ -3832,7 +3840,8 @@
         "I6 계약 시험"
       ],
       "tests": [
-        "cargo test -p onjeon-api coverage evidence",
+        "cargo test -p onjeon-api coverage",
+        "cargo test -p onjeon-api evidence",
         "시험 decisive-conditions-not-hidden(09 P16): CoverageDetail 응답의 layers[1] 면책·제외·감액·한도와 missing_inputs·unresolved·decisive_inputs를 포함한 결과를 바꾸는 조건이 생략되지 않는다. 해당 조건을 제거한 변이 응답을 넣으면 계약 시험이 실패한다"
       ],
       "done_criteria": [
@@ -4920,7 +4929,7 @@
         "실측 보고서(수치는 측정값만)"
       ],
       "tests": [
-        "(측정 작업. 자동 시험 없음)"
+        "시험 (측정 작업. 자동 시험 없음)"
       ],
       "done_criteria": [
         "수치 기준을 쓰지 않고 측정값만 기록한다",
@@ -5654,7 +5663,9 @@
         "consent API, family-history API(본인만), deletion_job, export(JSON·PDF)"
       ],
       "tests": [
-        "cargo test -p onjeon-personal consent deletion export"
+        "cargo test -p onjeon-personal consent",
+        "cargo test -p onjeon-personal deletion",
+        "cargo test -p onjeon-personal export"
       ],
       "done_criteria": [
         "삭제 뒤 진행 중 작업이 데이터를 되살리지 않는다(ONJ-PS-S-031)",
@@ -5748,7 +5759,8 @@
       ],
       "tests": [
         "cargo test -p onjeon-rules-engine",
-        "cargo test -p onjeon-twin-runtime multi plan_diff",
+        "cargo test -p onjeon-twin-runtime multi",
+        "cargo test -p onjeon-twin-runtime plan_diff",
         "시험 switch-diff-evidence-trace(09 P12 갈아타기): 현재 계약 트윈과 보완안 트윈의 두 안 차이(diff_type별 항목: 면책 재시작·감액·해지 손실·줄어드는 보장)마다 trace[].evidence_ref로 입력·조건·규칙·약관 조항까지 추적되고, 근거가 끊긴 항목은 사실로 표시되지 않는다(I6)",
         "시험 multi-contract-relation-trace(09 P13): 정액 중복·실손 비례분담 결과의 각 계약 몫이 어느 계약의 어느 규칙·조항·입력에서 왔는지 추적되고, 합산이 금지된 경우 그 사유(규칙·조항)가 근거로 보인다"
       ],
@@ -7169,7 +7181,7 @@
         "항목별 결과 기록"
       ],
       "tests": [
-        "(점검 작업)"
+        "시험 (점검 작업)"
       ],
       "done_criteria": [
         "항목별 결과가 있고 미해결은 미해결로 적혀 있다"
@@ -7252,7 +7264,7 @@
         "시험 계획(사전 고정), 실행 기록, 결과"
       ],
       "tests": [
-        "(사용자 시험)"
+        "시험 (사용자 시험)"
       ],
       "done_criteria": [
         "수락 수치가 시험 전에 고정되어 있다",
@@ -7345,7 +7357,7 @@
         "리허설 기록"
       ],
       "tests": [
-        "(운영 기록)"
+        "시험 (운영 기록)"
       ],
       "done_criteria": [
         "4주 동안 중요 오류 0건 기록",

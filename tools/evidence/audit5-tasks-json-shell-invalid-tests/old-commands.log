@@ -1,0 +1,63 @@
+== pre-fix commands must be rejected ==
+DETECTED T-OP-09: ['셸이 리다이렉션으로 읽는 자리표시자 <…>'] :: bash tools/daemon/runner_verify/run.sh --remote <시험용 원격> --report docs/vm_check/<날짜>/runner_verify.json
+DETECTED T-CT-01: ['셸이 리다이렉션으로 읽는 자리표시자 <…>'] :: bash packages/schemas/codegen/check_compat.sh <prev_tag>
+DETECTED T-CT-05: ['인용하지 않은 괄호(명령 뒤 설명)'] :: bash infra/db/test.sh (Compose Postgres에서 제약 시험)
+DETECTED T-KN-04: ['인용하지 않은 괄호(명령 뒤 설명)'] :: cargo test -p onjeon-knowledge fixture_rejection(service_conformance 프로필: 픽스처 A-box 적재 시 fixture_assumption·origin=fixture accepted 전부 거부)
+DETECTED T-KN-06: ['인용하지 않은 괄호(명령 뒤 설명)'] :: cargo test -p onjeon-ai-review review (모의 제공자 2계열)
+DETECTED T-OP-03: ['인용하지 않은 괄호(명령 뒤 설명)', '명령 이름이 아닌 산문: (측정'] :: (측정 작업. 자동 시험 없음)
+DETECTED T-OP-06: ['인용하지 않은 괄호(명령 뒤 설명)', '명령 이름이 아닌 산문: (점검'] :: (점검 작업)
+DETECTED T-UX-01: ['인용하지 않은 괄호(명령 뒤 설명)', '명령 이름이 아닌 산문: (사용자'] :: (사용자 시험)
+DETECTED T-OP-07: ['인용하지 않은 괄호(명령 뒤 설명)', '명령 이름이 아닌 산문: (운영'] :: (운영 기록)
+
+== pre-fix two-filter cargo test must be rejected ==
+DETECTED task T-AP-02: filters=['coverage', 'evidence'] :: cargo test -p onjeon-api coverage evidence
+DETECTED task T-PS-03: filters=['consent', 'deletion', 'export'] :: cargo test -p onjeon-personal consent deletion export
+DETECTED task T-TW-05: filters=['multi', 'plan_diff'] :: cargo test -p onjeon-twin-runtime multi plan_diff
+DETECTED feature_registry me: filters=['consent', 'deletion', 'export'] :: cargo test -p onjeon-personal consent deletion export
+DETECTED feature_registry collect: filters=['archive', 'schedule'] :: cargo test -p onjeon-collect archive schedule
+DETECTED feature_registry labeling: filters=['store', 'structures'] :: cargo test -p onjeon-knowledge store structures
+DETECTED feature_registry multi-contract: filters=['multi', 'dependency'] :: cargo test -p onjeon-twin-runtime multi dependency
+DETECTED feature_registry twin-multi: filters=['multi', 'dependency'] :: cargo test -p onjeon-twin-runtime multi dependency
+DETECTED feature_registry consent-deletion: filters=['consent', 'deletion'] :: cargo test -p onjeon-personal consent deletion
+DETECTED feature_registry no-denominator-signal: filters=['leak', 'denominator_signal'] :: cargo test -p onjeon-personal leak denominator_signal
+
+== current commands for the same tasks must pass ==
+OK       T-OP-09: bash tools/daemon/runner_verify/run.sh --remote "$TEST_REMOTE" --report "docs/vm_check/$RUN_DATE/runner_verify.json"
+OK       T-CT-01: cargo test -p onjeon-contracts
+OK       T-CT-01: python3 tools/vocab_check.py
+OK       T-CT-01: bash packages/schemas/codegen/check_compat.sh "$PREV_TAG"
+OK       T-CT-05: bash infra/db/public/test.sh
+OK       T-KN-04: cargo test -p onjeon-knowledge store
+OK       T-KN-04: cargo test -p onjeon-knowledge fixture_rejection
+OK       T-KN-04: cargo test -p onjeon-knowledge edition_conflict
+OK       T-KN-06: cargo test -p onjeon-ai-review review
+OK       T-AP-02: cargo test -p onjeon-api coverage
+OK       T-AP-02: cargo test -p onjeon-api evidence
+OK       T-PS-03: cargo test -p onjeon-personal consent
+OK       T-PS-03: cargo test -p onjeon-personal deletion
+OK       T-PS-03: cargo test -p onjeon-personal export
+OK       T-TW-05: cargo test -p onjeon-rules-engine
+OK       T-TW-05: cargo test -p onjeon-twin-runtime multi
+OK       T-TW-05: cargo test -p onjeon-twin-runtime plan_diff
+
+== current commands for the same features must pass ==
+OK       me: cargo test -p onjeon-personal consent
+OK       me: cargo test -p onjeon-personal deletion
+OK       me: cargo test -p onjeon-personal export
+OK       me: integration_test me_tab
+OK       collect: cargo test -p onjeon-collect archive
+OK       collect: cargo test -p onjeon-collect schedule
+OK       labeling: cargo test -p onjeon-ai-review extraction
+OK       labeling: cargo test -p onjeon-knowledge store
+OK       labeling: cargo test -p onjeon-knowledge structures
+OK       multi-contract: cargo test -p onjeon-twin-runtime multi
+OK       multi-contract: cargo test -p onjeon-twin-runtime dependency
+OK       multi-contract: partial-hold-independent-contract-kept
+OK       twin-multi: cargo test -p onjeon-twin-runtime multi
+OK       twin-multi: cargo test -p onjeon-twin-runtime dependency
+OK       consent-deletion: cargo test -p onjeon-personal consent
+OK       consent-deletion: cargo test -p onjeon-personal deletion
+OK       no-denominator-signal: cargo test -p onjeon-personal leak
+OK       no-denominator-signal: cargo test -p onjeon-personal denominator_signal
+
+PASS

@@ -44,6 +44,7 @@ import glob
 import json
 import os
 import re
+import shlex
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -72,6 +73,7 @@ LABELS = {
     "gates": ("좁게 차단한다는 설명과 기계 규칙", "F10"), "needcrit": ("필요성 판단·판단 기준 관리", "F11"),
     "consistency": ("제약·근거·승격 상태 정의의 정합성", "F12"),
     "ci": ("검증 수준 정정(검토서 본문, 번호 없음)", "본문"), "trace": ("요구사항→계약→작업→시험→출시 증거 대응표(검토서 다음 작업 3)", "본문"),
+    "shell": ("시험 명령의 셸 구문 오류", "Audit 5"),
     "link": ("입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)", "R02"),
     "—": ("그래프 기본", "—"),
 }
@@ -143,6 +145,88 @@ def overlap(a, b):
         return True
     pa, pb = a.split("*")[0], b.split("*")[0]
     return (a.endswith("**") and pb.startswith(pa)) or (b.endswith("**") and pa.startswith(pb))
+
+
+def unquoted_view(command):
+    """셸 인용부호 밖의 글자만 남긴다. 인용한 '<…>'·괄호는 셸 구문이 아니므로 보지 않는다."""
+    out, quote, escaped = [], None, False
+    for ch in command:
+        if escaped:
+            out.append(" ")
+            escaped = False
+            continue
+        if ch == "\\" and quote != "'":
+            out.append(" ")
+            escaped = True
+            continue
+        if quote:
+            if ch == quote:
+                quote = None
+            out.append(" ")
+            continue
+        if ch in ("'", '"'):
+            quote = ch
+            out.append(" ")
+            continue
+        out.append(ch)
+    return "".join(out)
+
+
+ANGLE_PLACEHOLDER = re.compile(r"<[^<>]*>")
+COMMAND_NAME = re.compile(r"[A-Za-z0-9_./-]+")
+CARGO_TEST_VALUE_FLAGS = {
+    "-p", "--package", "--test", "--bench", "--bin", "--example", "--features", "--target",
+    "--target-dir", "--profile", "--manifest-path", "--exclude", "--color", "--message-format",
+}
+
+
+def shell_command_problems(command):
+    """`tasks[].tests`의 한 줄이 셸에서 실행 가능한 명령인지 본다.
+
+    설명 줄(`시험 …`)은 호출자가 거른다. 여기서는 명령만 받는다. 셸이 리다이렉션으로 읽는
+    `<자리표시자>`(예: `<시험용 원격>`, `docs/vm_check/<날짜>/…`, `<prev_tag>`), 인용하지 않은
+    괄호(명령 뒤에 붙은 설명), 그리고 명령 이름 자리에 오는 산문을 문제로 낸다.
+    실제 입력 리다이렉션(`< path`)은 꺾쇠가 공백으로 분리되어 있어 걸리지 않는다.
+    """
+    try:
+        tokens = shlex.split(command, posix=True)
+    except ValueError as exc:
+        return [f"셸 인용 오류: {exc}"]
+    if not tokens:
+        return ["빈 명령"]
+    bare = unquoted_view(command)
+    problems = []
+    if ANGLE_PLACEHOLDER.search(bare):
+        problems.append("셸이 리다이렉션으로 읽는 자리표시자 <…>")
+    if "(" in bare or ")" in bare:
+        problems.append("인용하지 않은 괄호(명령 뒤 설명)")
+    if not COMMAND_NAME.fullmatch(tokens[0]):
+        problems.append(f"명령 이름이 아닌 산문: {tokens[0]}")
+    return problems
+
+
+def cargo_test_filters(command):
+    """`cargo test`의 위치 인자(TESTNAME) 목록. cargo test 는 하나만 받는다. 해당 없으면 None."""
+    try:
+        tokens = shlex.split(command, posix=True)
+    except ValueError:
+        return None
+    if len(tokens) < 2 or tokens[0] != "cargo" or tokens[1] != "test":
+        return None
+    filters, i = [], 2
+    while i < len(tokens):
+        tok = tokens[i]
+        if tok in ("--", "&&", ";", "||", "|"):
+            break
+        if tok in CARGO_TEST_VALUE_FLAGS:
+            i += 2
+            continue
+        if tok.startswith("-"):
+            i += 1
+            continue
+        filters.append(tok)
+        i += 1
+    return filters
 
 
 def ancestors(tasks, tid, memo=None):
@@ -700,6 +784,39 @@ def run(repo, T=None, D=None):
     check("consistency", "G40 [R06②] 02의 ClauseOccurrence ID 형식이 하나이고 추출 판을 포함", len(forms) == 1 and re.search(r"extract|추출", forms[0] if forms else ""), forms or "형식 없음")
     t09 = " ".join(" ".join(t.get("tests", []) + [c if isinstance(c, str) else c.get("text", "") for c in t.get("done_criteria", [])]) for tid, t in tasks.items() if tid == "T-AP-09")
     check("consistency", "G41 [R06③] T-AP-09가 이유 종류별 근거(사실→주장, 가정→사용자 가정, 기준 평가→기준 판)를 검사", all(w in t09 for w in ("사실 이유", "가정 이유", "기준 평가 이유")), "", kind="존재 검사")
+    # Audit 5: tasks.json 의 시험 명령이 셸에서 실행 가능해야 하고, cargo test 는 필터를 하나만 받는다.
+    # '시험 …' 으로 시작하는 줄은 명령이 아니라 설명(T-OP-00 필수 시험 ID 등)이므로 건너뛴다.
+    shell_bad, cargo_bad = [], []
+    examined = skipped = registry_cargo = 0
+    for tid, t in tasks.items():
+        for cmd in t.get("tests", []):
+            if not isinstance(cmd, str) or not cmd.strip():
+                shell_bad.append(f"{tid}: 빈 시험 항목")
+                continue
+            if cmd.startswith("시험 "):
+                skipped += 1
+                continue
+            examined += 1
+            for problem in shell_command_problems(cmd):
+                shell_bad.append(f"{tid}: {problem}: {cmd}")
+            filters = cargo_test_filters(cmd)
+            if filters is not None and len(filters) > 1:
+                cargo_bad.append(f"{tid}: cargo test 필터 {len(filters)}개 {filters}: {cmd}")
+    for feature in reg:
+        for cmd in feature.get("acceptance_tests", []):
+            if not isinstance(cmd, str):
+                continue
+            filters = cargo_test_filters(cmd)
+            if filters is None:
+                continue
+            registry_cargo += 1
+            if len(filters) > 1:
+                cargo_bad.append(f"feature {feature.get('id')}: cargo test 필터 {len(filters)}개 {filters}: {cmd}")
+    check("shell", "G48 시험 명령이 셸 구문으로 유효하고 cargo test 필터가 하나 이하(설명 '시험 …'은 제외)",
+          examined > 0 and registry_cargo > 0 and not shell_bad and not cargo_bad,
+          {"셸 구문 문제": shell_bad[:10], "cargo test 필터 2개 이상": cargo_bad[:10],
+           "검사한 과제 시험 명령": examined, "건너뛴 '시험 …' 설명": skipped,
+           "검사한 기능 수락 시험의 cargo test": registry_cargo})
     # 다음 작업 3: 요구사항 추적표
     try:
         t08 = read("08_요구추적표.md")

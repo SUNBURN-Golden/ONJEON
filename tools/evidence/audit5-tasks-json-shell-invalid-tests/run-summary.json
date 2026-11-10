@@ -1,0 +1,69 @@
+{
+  "node": "audit5-tasks-json-shell-invalid-tests",
+  "date": "2026-11-10",
+  "base_commit": "d9997b0bd8fede9ad956c0c1af7e7e583a869ef5",
+  "worktree_dirty": true,
+  "commands": [
+    {
+      "command": "python3 -m unittest discover -s tools/tests -p 'test_spec_check_shell.py' -v",
+      "exit_code": 0,
+      "result": "Ran 15 tests; OK",
+      "log": "focused-tests.log"
+    },
+    {
+      "command": "python3 -I tools/evidence/audit5-tasks-json-shell-invalid-tests/check_old_commands.py",
+      "exit_code": 0,
+      "result": "19/19 reported commands detected; all current replacements accepted; PASS",
+      "log": "old-commands.log"
+    },
+    {
+      "command": "python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py",
+      "exit_code": 0,
+      "result": "기계 검사 46/46 · 존재 검사 72/72 · 전체 통과",
+      "log": "spec-check.log"
+    },
+    {
+      "command": "python3 -I tools/ci/check_bootstrap.py",
+      "exit_code": 0,
+      "result": "no G1/G2/G31 violations; 6 advisory path notes",
+      "log": "bootstrap.log"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "exit_code": 0,
+      "result": "Ran 1506 tests; OK (skipped=6)",
+      "log": "python-tests.log"
+    },
+    {
+      "command": "cargo test --all --locked --offline",
+      "exit_code": 0,
+      "result": "70 test-result groups ok; 0 failed",
+      "log": "rust-tests.log"
+    },
+    {
+      "command": "cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline",
+      "exit_code": 0,
+      "result": "4 passed; 0 failed",
+      "log": "runner-tests.log"
+    }
+  ],
+  "source_sha256": {
+    "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py": "9304d326fce5015148112a5e5238dae084ff1d8092716932be75f67d1166a8ed",
+    "docs/blueprint/proposals/설계검토_결과/tasks.json": "a32b04af0f30012bedb960af7930a8e0d0375016d70d603f87b77e3e810050da",
+    "docs/blueprint/proposals/설계검토_결과/03_작업명세.md": "ef27230a0649f68952c2c0204ae6ab98fe90155901c841fd7365391002a4f96f",
+    "docs/blueprint/proposals/설계검토_결과/07_수정대응표.md": "17163527b263b77abb089fc2a6d199698f35a3ea4bfab440ae2523d0312e6a3b",
+    "tools/tests/test_spec_check_shell.py": "35b8577d5d7a1bca91a9185713143b30c128d209d5a03d7348d91308e01ce31f",
+    "docs/blueprint/audits/2026-11-10_tasks_json_shell_invalid_tests.md": "6ac2fcce669e536f69d9a87fa3b262630a0e91011a7f8ad79b7a5c2bc614faa6",
+    "tools/evidence/audit5-tasks-json-shell-invalid-tests/check_old_commands.py": "08a32490181ddfcb34789340cdf0c63a6fb6e8cd52dc0cb8bbf2713349ad7c5a",
+    "tools/evidence/audit5-tasks-json-shell-invalid-tests/README.md": "6087a2671eb32df6a302518aff051f1c139dd74dc18a6f691cb2094120dca264"
+  },
+  "log_sha256": {
+    "focused-tests.log": "479c3cd738c5c07c500ca322f30a53bf9831d63c26b8b00fbb424dd542dd13e4",
+    "old-commands.log": "15b27c67aa24da60cd106047c56f16b568dca37119202785e35bca6c13446a02",
+    "spec-check.log": "5cc8e8156a439298cc8428c3cf3790d0578d2ee0094ae4f4f8db1a49c2ce5cd4",
+    "bootstrap.log": "de649fd5a9cb175b9d6ea24bdf944ce86931446d8416f84c7725d935a248313c",
+    "python-tests.log": "93424f87c6c5fda4b726d86eeda9aceb6de97af0b75689ed2a73d896868bd814",
+    "rust-tests.log": "5e57b4ff324303ae9f958943d6055a4657af9ab938c2bea174901157646faf25",
+    "runner-tests.log": "6724369819286b05df79fd7a350042782600de86ca2342400322fb0d03c07eee"
+  }
+}

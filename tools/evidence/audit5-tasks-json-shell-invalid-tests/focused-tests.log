@@ -1,0 +1,21 @@
+test_flags_and_values_are_not_filters (test_spec_check_shell.CargoFilters.test_flags_and_values_are_not_filters) ... ok
+test_non_cargo_test_is_ignored (test_spec_check_shell.CargoFilters.test_non_cargo_test_is_ignored) ... ok
+test_one_positional_filter_is_allowed (test_spec_check_shell.CargoFilters.test_one_positional_filter_is_allowed) ... ok
+test_two_positional_filters_are_counted (test_spec_check_shell.CargoFilters.test_two_positional_filters_are_counted) ... ok
+test_baseline_passes (test_spec_check_shell.CheckG48.test_baseline_passes) ... ok
+test_descriptive_sihm_lines_are_skipped (test_spec_check_shell.CheckG48.test_descriptive_sihm_lines_are_skipped)
+A '시험 …' line is a description (required test IDs, manual evidence), not a command. ... ok
+test_empty_inputs_fail_instead_of_passing_vacuously (test_spec_check_shell.CheckG48.test_empty_inputs_fail_instead_of_passing_vacuously) ... ok
+test_placeholder_in_a_task_fails (test_spec_check_shell.CheckG48.test_placeholder_in_a_task_fails) ... ok
+test_trailing_prose_in_a_task_fails (test_spec_check_shell.CheckG48.test_trailing_prose_in_a_task_fails) ... ok
+test_two_filters_in_a_task_fails (test_spec_check_shell.CheckG48.test_two_filters_in_a_task_fails) ... ok
+test_two_filters_in_the_feature_registry_fails (test_spec_check_shell.CheckG48.test_two_filters_in_the_feature_registry_fails) ... ok
+test_normal_commands_pass (test_spec_check_shell.CommandShape.test_normal_commands_pass) ... ok
+test_quoted_placeholders_and_real_redirection_are_allowed (test_spec_check_shell.CommandShape.test_quoted_placeholders_and_real_redirection_are_allowed) ... ok
+test_trailing_prose_and_parenthesized_descriptions_are_rejected (test_spec_check_shell.CommandShape.test_trailing_prose_and_parenthesized_descriptions_are_rejected) ... ok
+test_unquoted_angle_placeholders_are_rejected (test_spec_check_shell.CommandShape.test_unquoted_angle_placeholders_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.564s
+
+OK

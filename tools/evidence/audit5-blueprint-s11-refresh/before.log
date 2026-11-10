@@ -1,0 +1,59 @@
+test_audit_evidence_is_linked_and_present (test_blueprint_s11_refresh.S11Refresh.test_audit_evidence_is_linked_and_present) ... FAIL
+test_dev_tools_remain_in_the_inventory (test_blueprint_s11_refresh.S11Refresh.test_dev_tools_remain_in_the_inventory) ... ok
+test_generated_table_cheap_sources_match_live_inventory (test_blueprint_s11_refresh.S11Refresh.test_generated_table_cheap_sources_match_live_inventory) ... ok
+test_historical_engine_counts_are_labelled_and_point_to_generated_table (test_blueprint_s11_refresh.S11Refresh.test_historical_engine_counts_are_labelled_and_point_to_generated_table) ... FAIL
+test_ledger_range_and_open_decision_table_reach_o19 (test_blueprint_s11_refresh.S11Refresh.test_ledger_range_and_open_decision_table_reach_o19) ... ok
+test_no_handwritten_axis_count_in_the_inventory (test_blueprint_s11_refresh.S11Refresh.test_no_handwritten_axis_count_in_the_inventory) ... ok
+test_no_stale_audit_phrases_or_bare_budget_path (test_blueprint_s11_refresh.S11Refresh.test_no_stale_audit_phrases_or_bare_budget_path) ... 
+  test_no_stale_audit_phrases_or_bare_budget_path (test_blueprint_s11_refresh.S11Refresh.test_no_stale_audit_phrases_or_bare_budget_path) (line='| 대량 자동 수집 관문(O17): 원장 체크포인트, 버킷 잠금, 실행 환경·동시성·예약 실행 통제 등 | ') ... FAIL
+test_top_date_records_the_same_s11_revision (test_blueprint_s11_refresh.S11Refresh.test_top_date_records_the_same_s11_revision) ... FAIL
+test_v1_and_gap_report_keep_the_r2_decision (test_blueprint_s11_refresh.S11Refresh.test_v1_and_gap_report_keep_the_r2_decision) ... ERROR
+
+======================================================================
+ERROR: test_v1_and_gap_report_keep_the_r2_decision (test_blueprint_s11_refresh.S11Refresh.test_v1_and_gap_report_keep_the_r2_decision)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s11-refresh/tools/tests/test_blueprint_s11_refresh.py", line 81, in test_v1_and_gap_report_keep_the_r2_decision
+    v1 = next(line for line in self.inventory.splitlines() if line.startswith("| V1 |"))
+StopIteration
+
+======================================================================
+FAIL: test_audit_evidence_is_linked_and_present (test_blueprint_s11_refresh.S11Refresh.test_audit_evidence_is_linked_and_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s11-refresh/tools/tests/test_blueprint_s11_refresh.py", line 107, in test_audit_evidence_is_linked_and_present
+    self.assertTrue(AUDIT.is_file())
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_historical_engine_counts_are_labelled_and_point_to_generated_table (test_blueprint_s11_refresh.S11Refresh.test_historical_engine_counts_are_labelled_and_point_to_generated_table)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s11-refresh/tools/tests/test_blueprint_s11_refresh.py", line 52, in test_historical_engine_counts_are_labelled_and_point_to_generated_table
+    self.assertIn("2026-10-09 당시", code)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '2026-10-09 당시' not found in '| 코드 | L6 규칙 엔진(`packages/rules-engine/`), 계약 스키마·생성 타입·API 계약(`packages/schemas/`, `packages/api-types/`), 온톨로지·트윈 실행(`packages/ontology/`, `packages/twin-runtime/`), 수집 원본 보존 클라이언트(`services/collect/`), AI 게이트웨이(`services/ai-gateway/`, 실제 제공자 어댑터 없음), 판단 기준 관리(`services/criteria/`), 문서 복원 코드(`services/docproc/`)가 있다. 구현·픽스처 시험 범위이며 전 상품 서비스 연결 완료는 아니다. 엔진은 합성 규칙 1건과 실제 조항 규칙(설계 검증용, `fixture_only`)을 검증하며 현재 등록 수는 아래 자동 생성 표에서 대조한다. 로드 단계 타입 검사(#40, `packages/rules-engine/tests/static_types.rs`)는 비교·조건·금액 식의 타입 불일치를 오류 경로와 함께 거부한다. 역사적 엔진 검증: Rust 단위·통합 테스트 39개 + 문서 시험(doctest) 3개(2026-10-09 기준 42건, 재실행 근거는 [REVERIFY_87a19c5 §2](blueprint/validation/REVERIFY_87a19c5.md#2-실제-실행-범위)). 2026-10-26 당시의 저장소 전체 시험은 [이전 갱신 검증 증거](blueprint/audits/2026-10-26_blueprint_s11_refresh.md)에 기록한다 |'
+
+======================================================================
+FAIL: test_no_stale_audit_phrases_or_bare_budget_path (test_blueprint_s11_refresh.S11Refresh.test_no_stale_audit_phrases_or_bare_budget_path) (line='| 대량 자동 수집 관문(O17): 원장 체크포인트, 버킷 잠금, 실행 환경·동시성·예약 실행 통제 등 | ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s11-refresh/tools/tests/test_blueprint_s11_refresh.py", line 65, in test_no_stale_audit_phrases_or_bare_budget_path
+    self.assertIn("infra/r2/BUDGET.md", line)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'infra/r2/BUDGET.md' not found in '| 대량 자동 수집 관문(O17): 원장 체크포인트, 버킷 잠금, 실행 환경·동시성·예약 실행 통제 등 | 대량 자동 수집 | [DEC-O17](decisions/DEC-O17.md)(위임 결정·사용자 확정 아님): 기본 운영 범위 결정, 대량 자동 수집 차단 유지. 체크포인트·O14·토큰 재발급·청구 대조·실제 R2 검증은 잔여. 그 전에는 지정 환경 하나·동시 1개·수동 실행, 고정 키 작업만. 원장 기록 상한 100(ADR-0017, BUDGET.md §6) |'
+
+======================================================================
+FAIL: test_top_date_records_the_same_s11_revision (test_blueprint_s11_refresh.S11Refresh.test_top_date_records_the_same_s11_revision)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-blueprint-s11-refresh/tools/tests/test_blueprint_s11_refresh.py", line 47, in test_top_date_records_the_same_s11_revision
+    self.assertIn("최초 작성 2026-10-09", header)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '최초 작성 2026-10-09' not found in '# 온전 설계도 (Blueprint) v1.0\n\n2026-10-09 | 상태: 채택(ADR-0011) | 이 문서가 구현의 단일 기준이다.\n'
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.006s
+
+FAILED (failures=4, errors=1)

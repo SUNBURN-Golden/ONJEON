@@ -1,0 +1,31 @@
+$ git status --short
+ M docs/BLUEPRINT.md
+ M tools/tests/test_validation_test_counts.py
+?? docs/blueprint/audits/2026-11-10_blueprint_s11_refresh.md
+?? tools/evidence/audit5-blueprint-s11-refresh/
+?? tools/tests/test_blueprint_s11_refresh.py
+
+$ git diff --name-only
+docs/BLUEPRINT.md
+tools/tests/test_validation_test_counts.py
+
+$ git ls-files --others --exclude-standard
+docs/blueprint/audits/2026-11-10_blueprint_s11_refresh.md
+tools/evidence/audit5-blueprint-s11-refresh/README.md
+tools/evidence/audit5-blueprint-s11-refresh/before.log
+tools/evidence/audit5-blueprint-s11-refresh/counts.log
+tools/evidence/audit5-blueprint-s11-refresh/focused.log
+tools/evidence/audit5-blueprint-s11-refresh/ontology-build.log
+tools/evidence/audit5-blueprint-s11-refresh/ontology-tests.log
+tools/evidence/audit5-blueprint-s11-refresh/python-tests.log
+tools/evidence/audit5-blueprint-s11-refresh/rust-tests.log
+tools/evidence/audit5-blueprint-s11-refresh/scope.log
+tools/evidence/audit5-blueprint-s11-refresh/status.log
+tools/evidence/audit5-blueprint-s11-refresh/validation-count-tests.log
+tools/tests/test_blueprint_s11_refresh.py
+
+$ git diff --check
+diff-check: clean
+
+$ git diff HEAD -- protected paths (must be empty)
+protected-diff: empty

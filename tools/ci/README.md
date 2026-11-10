@@ -92,6 +92,14 @@ snapshot date remains valid. [Audit 1 evidence](../../docs/blueprint/audits/2026
 
 The product-purpose guard runs through `tools/tests/test_product_purpose.py`, discovered by the existing `python3 -m unittest discover -s tools/tests -v` CI step. It checks the live bundle and exercises missing IDs, missing assigned owners and dangling row tasks using temporary inputs. A test ID registered elsewhere cannot replace a required owner. The live UX matrix also checks that the test descriptions exist and that 03's IDs and completion criteria match tasks.json. The `spec_check.py` G12 list remains unchanged; this companion supplies the omitted checks without workflow changes. [Audit 3 evidence](../../docs/blueprint/audits/2026-10-29_tasks_purpose_test_ids.md).
 
+`ci.yml` also runs `python3 -I tools/check_tracked_secrets.py` immediately after
+checkout. It fails when `git ls-files` contains an `.env*` name, a `*.pem` or
+`*.key` name, or a `.venv` component; `infra/compose/.env.example` is the only
+allowed tracked template. This is the repo-wide enforcement for the Audit 5
+ignore finding, whose root `.gitignore` is outside that node's allowed_paths;
+per-tree `.gitignore` files cover locally generated files.
+[Audit 5 evidence](../../docs/blueprint/audits/2026-11-10_gitignore_secret_files.md).
+
 Local verification and environment limits: [Audit 1 product-purpose evidence](evidence/audit1-product-purpose.md).
 
 The other checker commands and `tools/ci/tests` are not wired here. `.github/workflows/**` is the implementer's; add those commands to `ci.yml`.

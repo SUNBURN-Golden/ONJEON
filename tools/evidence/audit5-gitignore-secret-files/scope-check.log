@@ -1,0 +1,18 @@
+$ git diff -- .gitignore
+[empty: root .gitignore unchanged vs HEAD]
+
+$ git status --short
+ M .github/workflows/ci.yml
+ M tools/ci/README.md
+?? apps/.gitignore
+?? data/.gitignore
+?? docs/blueprint/audits/2026-11-10_gitignore_secret_files.md
+?? infra/.gitignore
+?? packages/rules-engine/.gitignore
+?? packages/schemas/.gitignore
+?? services/.gitignore
+?? tools/.gitignore
+?? tools/check_tracked_secrets.py
+?? tools/evidence/audit5-gitignore-secret-files/
+?? tools/tests/test_gitignore.py
+?? tools/tests/test_tracked_secrets.py

@@ -1,0 +1,5 @@
+# Local credentials and virtual environments (Audit 5).
+.env*
+*.pem
+*.key
+.venv/

@@ -358,6 +358,8 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 CI의 최소 읽기 권한·checkout 자격 증명 비보존·액션 SHA 고정은 [Audit 5 재검증](blueprint/audits/2026-11-10_ci_permissions_and_credentials.md)에 기록한다. 실제 CI 검사 명령에 대한 checkout별 변이 시험을 포함하며, 09 §5의 개발 도구 검증 근거다.
 
+`sources.yml`의 R2 endpoint·검증·원장 자격 증명은 두 보관소 소비 단계의 `env`에만 있다. [Audit 5 단계 범위 재검증](blueprint/audits/2026-11-10_sources_yml_step_scoped_secrets.md)은 실제 파일의 작업 수준 이동 및 설치·액션 등 8개 비소비 단계 노출 변이를 거부한다. P03의 보존 도구 회귀 증거이며 실제 R2 관측 대조·첫 출시 완료 판정은 별도다.
+
 현재 코드 수치 검사는 `python3 -I tools/blueprint_counts.py`이며 일반 CI에서 실행한다. 변경 시 `--write`로 아래 표만 갱신한다. 어휘 전체 수·목록은 §6의 생성 문서와도 대조한다. [Audit 2 수치·누락 현황 검증 증거](blueprint/audits/2026-10-27_blueprint_11_counts.md). [Audit 3 재검증](blueprint/audits/2026-10-28_blueprint_s11_refresh.md)은 ADR-0014의 규칙 수 정정과 §6·§7.3·§9.2·§11의 현재 코드·결정 이력 대조를 기록한다.
 
 <!-- blueprint-counts:start -->

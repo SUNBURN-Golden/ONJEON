@@ -71,6 +71,36 @@ class WorkflowSecretScope(unittest.TestCase):
     def test_live_sources_secrets_are_step_scoped(self):
         self.assert_scoped(SOURCE.read_text(encoding="utf-8"))
 
+    def test_live_job_level_credentials_regression_is_rejected(self):
+        text = SOURCE.read_text(encoding="utf-8")
+        self.assertEqual(text.count(ENV), len(CONSUMERS))
+        job = "    env:\n      JOB: infra/r2/jobs/initial-119.json\n"
+        self.assertEqual(text.count(job), 1)
+        # Restore the reported finding on an in-memory copy of the real workflow:
+        # hoist all five bindings out of both consumers into the shared job env.
+        bindings = "".join(line[4:] + "\n" for line in ENV.splitlines()[1:])
+        mutated = text.replace(ENV, "").replace(job, job + bindings, 1)
+        with self.assertRaisesRegex(AssertionError, "secret outside consumer step env"):
+            self.assert_scoped(mutated)
+
+    def test_live_nonconsumer_steps_reject_each_credential(self):
+        text = SOURCE.read_text(encoding="utf-8")
+        self.assert_scoped(text)
+        steps = list(re.finditer(r"(?m)^      - (.+)\n", text))
+        nonconsumers = [step for step in steps
+                        if step.group(1) not in {f"name: {name}" for name in CONSUMERS}]
+        self.assertEqual(len(nonconsumers), 8)
+        # Exercise both real Extractors steps (apt-get/venv/pip), checkout,
+        # artifact uploads, detection and summary, without touching the file.
+        for step in nonconsumers:
+            for key, secret in BINDINGS.items():
+                with self.subTest(step=step.group(1), line=text.count("\n", 0, step.start()) + 1,
+                                  key=key):
+                    env = f"        env:\n          {key}: ${{{{ secrets.{secret} }}}}\n"
+                    mutated = text[:step.end()] + env + text[step.end():]
+                    with self.assertRaisesRegex(AssertionError, "secret outside consumer step env"):
+                        self.assert_scoped(mutated)
+
     def test_consumers_receive_all_bindings(self):
         self.assert_scoped(GOOD)
 

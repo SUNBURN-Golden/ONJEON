@@ -1,0 +1,20 @@
+test_count_agrees_with_split_evidence (test_validation_test_counts.Blueprint.test_count_agrees_with_split_evidence) ... ok
+test_count_has_a_historical_date_and_evidence (test_validation_test_counts.Blueprint.test_count_has_a_historical_date_and_evidence) ... ok
+test_states_the_count_once (test_validation_test_counts.Blueprint.test_states_the_count_once) ... ok
+test_both_commits_agree_per_binary (test_validation_test_counts.EvidenceLogs.test_both_commits_agree_per_binary) ... ok
+test_every_section_passed (test_validation_test_counts.EvidenceLogs.test_every_section_passed) ... ok
+test_logs_carry_no_machine_paths (test_validation_test_counts.EvidenceLogs.test_logs_carry_no_machine_paths) ... ok
+test_logs_record_the_command_and_a_clean_exit (test_validation_test_counts.EvidenceLogs.test_logs_record_the_command_and_a_clean_exit) ... ok
+test_split_matches_reverify_row (test_validation_test_counts.EvidenceLogs.test_split_matches_reverify_row) ... ok
+test_breakdown_adds_up (test_validation_test_counts.ReverifyRecord.test_breakdown_adds_up) ... ok
+test_no_bare_combined_count (test_validation_test_counts.ReverifyRecord.test_no_bare_combined_count) ... ok
+test_rerun_is_not_passed_off_as_ci_log (test_validation_test_counts.ReverifyRecord.test_rerun_is_not_passed_off_as_ci_log) ... ok
+test_points_at_verification_record (test_validation_test_counts.ValidationReadme.test_points_at_verification_record) ... ok
+test_corrected_wording_matches_reverify (test_validation_test_counts.VerificationRecord.test_corrected_wording_matches_reverify) ... ok
+test_per_binary_table_matches_logs (test_validation_test_counts.VerificationRecord.test_per_binary_table_matches_logs) ... ok
+test_points_at_sources (test_validation_test_counts.VerificationRecord.test_points_at_sources) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.004s
+
+OK

@@ -1,0 +1,14 @@
+test_audit_evidence_is_linked_and_present (test_blueprint_s11_refresh.S11Refresh.test_audit_evidence_is_linked_and_present) ... ok
+test_dev_tools_remain_in_the_inventory (test_blueprint_s11_refresh.S11Refresh.test_dev_tools_remain_in_the_inventory) ... ok
+test_generated_table_cheap_sources_match_live_inventory (test_blueprint_s11_refresh.S11Refresh.test_generated_table_cheap_sources_match_live_inventory) ... ok
+test_historical_engine_counts_are_labelled_and_point_to_generated_table (test_blueprint_s11_refresh.S11Refresh.test_historical_engine_counts_are_labelled_and_point_to_generated_table) ... ok
+test_ledger_range_and_open_decision_table_reach_o19 (test_blueprint_s11_refresh.S11Refresh.test_ledger_range_and_open_decision_table_reach_o19) ... ok
+test_no_handwritten_axis_count_in_the_inventory (test_blueprint_s11_refresh.S11Refresh.test_no_handwritten_axis_count_in_the_inventory) ... ok
+test_no_stale_audit_phrases_or_bare_budget_path (test_blueprint_s11_refresh.S11Refresh.test_no_stale_audit_phrases_or_bare_budget_path) ... ok
+test_top_date_records_the_same_s11_revision (test_blueprint_s11_refresh.S11Refresh.test_top_date_records_the_same_s11_revision) ... ok
+test_v1_and_gap_report_keep_the_r2_decision (test_blueprint_s11_refresh.S11Refresh.test_v1_and_gap_report_keep_the_r2_decision) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.004s
+
+OK

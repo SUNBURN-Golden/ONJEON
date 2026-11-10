@@ -134,6 +134,72 @@ class ArchiveCommands(unittest.TestCase):
         put.assert_not_called()
         self.assertEqual({key: self.raw.get(key) for key in self.raw.list("")}, before)
 
+    def test_repaired_cache_archives_and_reruns_without_retaining_rejected_bytes(self):
+        p = self.cache_original()
+        rejected = b"unapproved cached original"
+        p.write_bytes(rejected)
+        src = self.root / "extracted" / "nested"
+        src.mkdir(parents=True)
+        (src / "page.tables.txt").write_bytes(b"table cells")
+        self.args.derived = self.derived.root.as_uri()
+        self.args.derived_src = str(src.parent)
+
+        code, result = self.archive()
+        self.assertEqual((code, result), (1, [dict(sample_id="sample",
+                         status="hash_differs_from_samples_csv", sha256=sa.sha256_bytes(rejected))]))
+        self.assertFalse(self.raw.root.exists())
+        self.assertFalse(self.derived.root.exists())
+
+        p.write_bytes(self.body)
+        code, result = self.archive()
+        self.assertEqual(code, 0)
+        self.assertEqual((result[0]["object"], result[0]["observation"]), ("stored", "stored"))
+        self.assertEqual(result[0]["derived"]["outputs"], 1)
+        self.assertEqual(self.raw.list("objects/"), [sa.object_key(self.row["sha256"])])
+        self.assertEqual(len(self.raw.list("observations/")), 1)
+        before = [{key: st.get(key) for key in st.list("")} for st in (self.raw, self.derived)]
+
+        # A later bad cache must preserve both stores byte for byte.
+        p.write_bytes(rejected)
+        self.assertEqual(self.archive()[0], 1)
+        self.assertEqual([{key: st.get(key) for key in st.list("")}
+                          for st in (self.raw, self.derived)], before)
+        p.write_bytes(self.body)
+        code, result = self.archive()
+        self.assertEqual(code, 0)
+        self.assertEqual((result[0]["object"], result[0]["observation"]),
+                         ("already_present", "already_present"))
+        self.assertEqual([{key: st.get(key) for key in st.list("")}
+                          for st in (self.raw, self.derived)], before)
+        self.assertFalse(self.raw.exists(sa.object_key(sa.sha256_bytes(rejected))))
+
+    def test_archive_uses_verified_snapshot_when_cache_changes_before_put(self):
+        original_content_type = sa.content_type_of
+        changed = b"unapproved replacement after verification"
+        for change in ("replace", "remove"):
+            with self.subTest(change=change):
+                p = self.cache_original()
+
+                def change_cache(path, fmt):
+                    # content_type_of runs between the hash check and put_raw.
+                    if change == "replace":
+                        p.write_bytes(changed)
+                    else:
+                        p.unlink()
+                    return original_content_type(path, fmt)
+
+                with mock.patch.object(sa, "content_type_of", side_effect=change_cache) as ctype:
+                    code, result = self.archive()
+                ctype.assert_called_once_with(p, self.row["format"])
+                self.assertEqual(code, 0)
+                self.assertEqual(result[0]["sha256"], self.row["sha256"])
+                self.assertEqual(self.raw.get(sa.object_key(self.row["sha256"])), self.body)
+                self.assertEqual(self.raw.list("objects/"), [sa.object_key(self.row["sha256"])])
+                observation = json.loads(self.raw.get(self.raw.list("observations/")[0]))
+                self.assertEqual(observation["sha256"], self.row["sha256"])
+                self.assertEqual(observation["bytes"], len(self.body))
+                self.assertFalse(self.raw.exists(sa.object_key(sa.sha256_bytes(changed))))
+
     def test_archive_conflicting_stored_object_aborts_without_observation(self):
         self.cache_original()
         key = sa.object_key(self.row["sha256"])

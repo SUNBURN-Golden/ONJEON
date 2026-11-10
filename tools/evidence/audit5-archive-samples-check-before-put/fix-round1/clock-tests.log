@@ -1,0 +1,25 @@
+Host monotonic clock = 100.1
+test_expired_run_still_summarizes_when_settlement_write_fails (test_r2_budget.AlarmHandler.test_expired_run_still_summarizes_when_settlement_write_fails) ... ok
+test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.797s
+
+OK
+Host monotonic clock = 1023.1
+test_expired_run_still_summarizes_when_settlement_write_fails (test_r2_budget.AlarmHandler.test_expired_run_still_summarizes_when_settlement_write_fails) ... ok
+test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.793s
+
+OK
+Host monotonic clock = 1000000.123456789
+test_expired_run_still_summarizes_when_settlement_write_fails (test_r2_budget.AlarmHandler.test_expired_run_still_summarizes_when_settlement_write_fails) ... ok
+test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.807s
+
+OK
+EXIT CODE: 0

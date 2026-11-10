@@ -1,0 +1,89 @@
+Mutation: upload-before-check (in memory only)
+test_hash_mismatch_writes_no_raw_observation_or_derived_objects (test_source_archive_commands.ArchiveCommands.test_hash_mismatch_writes_no_raw_observation_or_derived_objects) ... FAIL
+test_hash_mismatch_preserves_existing_archive_without_calling_put_raw (test_source_archive_commands.ArchiveCommands.test_hash_mismatch_preserves_existing_archive_without_calling_put_raw) ... FAIL
+test_repaired_cache_archives_and_reruns_without_retaining_rejected_bytes (test_source_archive_commands.ArchiveCommands.test_repaired_cache_archives_and_reruns_without_retaining_rejected_bytes) ... FAIL
+
+======================================================================
+FAIL: test_hash_mismatch_writes_no_raw_observation_or_derived_objects (test_source_archive_commands.ArchiveCommands.test_hash_mismatch_writes_no_raw_observation_or_derived_objects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_source_archive_commands.py", line 124, in test_hash_mismatch_writes_no_raw_observation_or_derived_objects
+    self.assertEqual(self.raw.list(""), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['objects/sha256/a0/13/a013442b6696292ad9c[42 chars]2fa'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'objects/sha256/a0/13/a013442b6696292ad9c79e42a39ac4f4fceea10a1fea85c16da38ea19adbc2fa'
+
+- ['objects/sha256/a0/13/a013442b6696292ad9c79e42a39ac4f4fceea10a1fea85c16da38ea19adbc2fa']
++ []
+
+======================================================================
+FAIL: test_hash_mismatch_preserves_existing_archive_without_calling_put_raw (test_source_archive_commands.ArchiveCommands.test_hash_mismatch_preserves_existing_archive_without_calling_put_raw)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_source_archive_commands.py", line 134, in test_hash_mismatch_preserves_existing_archive_without_calling_put_raw
+    put.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'put_raw' to not have been called. Called 1 times.
+Calls: [call(<source_archive.LocalStore object at 0x7f4ccb8d3460>, b'changed original', 'text/html')].
+
+======================================================================
+FAIL: test_repaired_cache_archives_and_reruns_without_retaining_rejected_bytes (test_source_archive_commands.ArchiveCommands.test_repaired_cache_archives_and_reruns_without_retaining_rejected_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_source_archive_commands.py", line 150, in test_repaired_cache_archives_and_reruns_without_retaining_rejected_bytes
+    self.assertFalse(self.raw.root.exists())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.036s
+
+FAILED (failures=3)
+upload-before-check: MUTATION REJECTED
+Mutation: reread-cache-after-check (in memory only)
+test_archive_uses_verified_snapshot_when_cache_changes_before_put (test_source_archive_commands.ArchiveCommands.test_archive_uses_verified_snapshot_when_cache_changes_before_put) ... 
+  test_archive_uses_verified_snapshot_when_cache_changes_before_put (test_source_archive_commands.ArchiveCommands.test_archive_uses_verified_snapshot_when_cache_changes_before_put) (change='replace') ... FAIL
+  test_archive_uses_verified_snapshot_when_cache_changes_before_put (test_source_archive_commands.ArchiveCommands.test_archive_uses_verified_snapshot_when_cache_changes_before_put) (change='remove') ... ERROR
+
+======================================================================
+ERROR: test_archive_uses_verified_snapshot_when_cache_changes_before_put (test_source_archive_commands.ArchiveCommands.test_archive_uses_verified_snapshot_when_cache_changes_before_put) (change='remove')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_source_archive_commands.py", line 192, in test_archive_uses_verified_snapshot_when_cache_changes_before_put
+    code, result = self.archive()
+                   ~~~~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_source_archive_commands.py", line 54, in archive
+    code = sa.cmd_archive_samples(self.args)
+  File "<reread-cache-after-check mutation>", line 24, in cmd_archive_samples
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmpokbhmvgs/cache/nested/page.html'
+
+======================================================================
+FAIL: test_archive_uses_verified_snapshot_when_cache_changes_before_put (test_source_archive_commands.ArchiveCommands.test_archive_uses_verified_snapshot_when_cache_changes_before_put) (change='replace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-archive-samples-check-before-put/tools/tests/test_source_archive_commands.py", line 195, in test_archive_uses_verified_snapshot_when_cache_changes_before_put
+    self.assertEqual(result[0]["sha256"], self.row["sha256"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'e564d522941a5cc9ea0402fab0a164f1fe85c274879ac8d133b6c4bfa3f9d6e3' != '96fbb45508661798d5a18df017a21b980aa85f2ea3d0d719aa902f1bb0a8f7b8'
+- e564d522941a5cc9ea0402fab0a164f1fe85c274879ac8d133b6c4bfa3f9d6e3
++ 96fbb45508661798d5a18df017a21b980aa85f2ea3d0d719aa902f1bb0a8f7b8
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.008s
+
+FAILED (failures=1, errors=1)
+reread-cache-after-check: MUTATION REJECTED
+
+EXIT CODE: 0

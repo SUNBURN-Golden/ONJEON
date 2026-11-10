@@ -1,0 +1,20 @@
+Allowed worktree path: docs/blueprint/audits/2026-11-10_archive_samples_check_before_put.md
+Local Markdown links: passed
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/README.md
+Local Markdown links: passed
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/README.md
+Local Markdown links: passed
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/archive-tests.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/before-clock-tests.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/clock-tests.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/mutations.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/python-tests.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/runner-tests.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/rust-checks.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/rust-lint.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/rust-tests.log
+Allowed worktree path: tools/evidence/audit5-archive-samples-check-before-put/fix-round1/static-checks.log
+Allowed worktree path: tools/tests/test_r2_budget.py
+Python syntax: passed
+Whitespace: passed
+EXIT CODE: 0

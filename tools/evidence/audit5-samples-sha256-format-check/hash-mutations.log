@@ -1,0 +1,1561 @@
+test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) ... 
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='../../../../../../../../../../../../../../../../../../../../file') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/file') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../file') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../../../../../../../../../../../../../../../../../evil') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=None) ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=0) ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=True) ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=[]) ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value={}) ... FAIL
+test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) ... 
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=0) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=1) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=2) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=3) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=4) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=5) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=6) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=7) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=8) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=9) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=10) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=11) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=12) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=13) ... FAIL
+test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) ... 
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='../../../../../../../../../../../../../../../../../../../../file') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='/tmp/file') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ab/cd/../../file') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest=None) ... FAIL
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='../../../../../../../../../../../../../../../../../../../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../../../../../../../../../../../../../../../../../evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_cancer_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_cancer_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_cancer_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_cancer_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_cancer_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_cancer_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_silson_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_silson_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_silson_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_silson_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_silson_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_silson_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: fss_std_terms_byl15 sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: fss_std_terms_byl15 sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: fss_std_terms_byl15 sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_care_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_care_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_care_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_wholelife_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_wholelife_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_wholelife_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_wholelife_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_wholelife_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_wholelife_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kb_driver_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kb_driver_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kb_driver_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kb_driver_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kb_driver_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kb_driver_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: klia_pub_cancer_compare sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: klia_pub_cancer_compare sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: klia_pub_cancer_compare sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: klia_pub_cancer_criteria sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: klia_pub_cancer_criteria sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: klia_pub_cancer_criteria sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=12)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kb_caregiver_cost_html sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kb_caregiver_cost_html sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kb_caregiver_cost_html sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=13)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_1995_cancer_scanned sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_1995_cancer_scanned sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_1995_cancer_scanned sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='../../../../../../../../../../../../../../../../../../../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='/tmp/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ab/cd/../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.267s
+
+FAILED (failures=49)
+MUTATION REJECTED: row guard removed; all 3 selected tests detected it
+test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) ... 
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='../../../../../../../../../../../../../../../../../../../../file') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../../../../../../../../../../../../../../../../../evil') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ') ... FAIL
+  test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠') ... FAIL
+test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) ... 
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=0) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=1) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=2) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=3) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=4) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=5) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=6) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=7) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=8) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=9) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=10) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=11) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=12) ... FAIL
+  test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=13) ... FAIL
+test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) ... 
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='../../../../../../../../../../../../../../../../../../../../file') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ') ... FAIL
+  test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠') ... FAIL
+test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) ... 
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg') ... FAIL
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='../../../../../../../../../../../../../../../../../../../../file') ... FAIL
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil') ... FAIL
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil') ... FAIL
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ') ... FAIL
+  test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠') ... FAIL
+test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) ... 
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='../../../../../../../../../../../../../../../../../../../../file') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='/tmp/file') ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='ab/cd/../../file') ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠') ... ERROR
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=None) ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=0) ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=True) ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=[]) ... FAIL
+  test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest={}) ... FAIL
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='../../../../../../../../../../../../../../../../../../../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+ERROR: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 652, in with_budget
+    code = fn()
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 124, in <lambda>
+    self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
+                                                        ~~~~~~~~~~~~^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 493, in cmd_fetch
+    digest = sha256_bytes(body)
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/source_archive.py", line 73, in sha256_bytes
+    return hashlib.sha256(b).hexdigest()
+           ~~~~~~~~~~~~~~^^^
+TypeError: object supporting the buffer API required
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='../../../../../../../../../../../../../../../../../../../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ab/cd/../../../../../../../../../../../../../../../../../../evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_bad_hashes_are_metadata_errors_independent_of_encoded_documents (test_samples_csv_validation.SampleMetadata.test_bad_hashes_are_metadata_errors_independent_of_encoded_documents) (value='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 52, in test_bad_hashes_are_metadata_errors_independent_of_encoded_documents
+    self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for e in vc.check(data)[0]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_cancer_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_cancer_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_cancer_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_cancer_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_cancer_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_cancer_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_silson_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_silson_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_silson_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_silson_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_silson_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_silson_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: fss_std_terms_byl15 sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: fss_std_terms_byl15 sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: fss_std_terms_byl15 sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_care_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_care_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_care_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_wholelife_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_wholelife_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_wholelife_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_wholelife_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_wholelife_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_wholelife_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kb_driver_terms sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kb_driver_terms sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kb_driver_terms sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kb_driver_summary sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kb_driver_summary sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kb_driver_summary sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: klia_pub_cancer_compare sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: klia_pub_cancer_compare sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: klia_pub_cancer_compare sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: klia_pub_cancer_criteria sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: klia_pub_cancer_criteria sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: klia_pub_cancer_criteria sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=12)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kb_caregiver_cost_html sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kb_caregiver_cost_html sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kb_caregiver_cost_html sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_each_row_is_checked_even_when_encoded_hashes_match (test_samples_csv_validation.SampleMetadata.test_each_row_is_checked_even_when_encoded_hashes_match) (row_index=13)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 67, in test_each_row_is_checked_even_when_encoded_hashes_match
+    self.assertEqual(vc.check(data)[0], [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['samples.csv: kyobo_1995_cancer_scanned sha256 must be 64 hex characters']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'samples.csv: kyobo_1995_cancer_scanned sha256 must be 64 hex characters'
+
+- []
++ ['samples.csv: kyobo_1995_cancer_scanned sha256 must be 64 hex characters']
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='../../../../../../../../../../../../../../../../../../../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex (test_samples_csv_validation.SampleMetadata.test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 94, in test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex
+    self.assertEqual(result, 1, output.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : internal consistency ok (extracts and metadata; originals not re-verified): 1 samples, 0 families, 0 clauses, 0 fields, 0 price observations, 0 screen models, 1 gaps
+
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='../../../../../../../../../../../../../../../../../../../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='ab/cd/../../../../../../../../../../../../../../../../../../evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_object_key_rejects_bad_hashes_directly (test_samples_csv_validation.SampleMetadata.test_object_key_rejects_bad_hashes_directly) (digest='٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 100, in test_object_key_rejects_bad_hashes_directly
+    with self.subTest(digest=digest), self.assertRaisesRegex(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: UnsafeStoreKey not raised
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 2 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='/tmp/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 3 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest='ab/cd/../../file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 3 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 8 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file'),
+ call('objects/sha256/ab//c/ab/cd/../../../../../../../../../../../../../../../../../../evil'),
+ call('objects/sha256//t/mp//tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+ call('objects/sha256/../\\./..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil'),
+ call('objects/sha256/ａａ/ａａ/ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ'),
+ call('objects/sha256/٠٠/٠٠/٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 8 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file'),
+ call('objects/sha256/ab//c/ab/cd/../../../../../../../../../../../../../../../../../../evil'),
+ call('objects/sha256//t/mp//tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+ call('objects/sha256/../\\./..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil'),
+ call('objects/sha256/ａａ/ａａ/ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ'),
+ call('objects/sha256/٠٠/٠٠/٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 8 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file'),
+ call('objects/sha256/ab//c/ab/cd/../../../../../../../../../../../../../../../../../../evil'),
+ call('objects/sha256//t/mp//tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+ call('objects/sha256/../\\./..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil'),
+ call('objects/sha256/ａａ/ａａ/ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ'),
+ call('objects/sha256/٠٠/٠٠/٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 8 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file'),
+ call('objects/sha256/ab//c/ab/cd/../../../../../../../../../../../../../../../../../../evil'),
+ call('objects/sha256//t/mp//tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+ call('objects/sha256/../\\./..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil'),
+ call('objects/sha256/ａａ/ａａ/ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ'),
+ call('objects/sha256/٠٠/٠٠/٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 8 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file'),
+ call('objects/sha256/ab//c/ab/cd/../../../../../../../../../../../../../../../../../../evil'),
+ call('objects/sha256//t/mp//tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+ call('objects/sha256/../\\./..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil'),
+ call('objects/sha256/ａａ/ａａ/ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ'),
+ call('objects/sha256/٠٠/٠٠/٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')].
+
+======================================================================
+FAIL: test_invalid_hash_is_rejected_before_any_store_probe_or_read (test_samples_csv_validation.SampleMetadata.test_invalid_hash_is_rejected_before_any_store_probe_or_read) (digest={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-samples-sha256-format-check/tools/tests/test_samples_csv_validation.py", line 128, in test_invalid_hash_is_rejected_before_any_store_probe_or_read
+    raw.get.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'get' to not have been called. Called 8 times.
+Calls: [call('objects/sha256/gg/gg/gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg'),
+ call('objects/sha256/aa/aa/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'),
+ call('objects/sha256/..//./../../../../../../../../../../../../../../../../../../../../file'),
+ call('objects/sha256/ab//c/ab/cd/../../../../../../../../../../../../../../../../../../evil'),
+ call('objects/sha256//t/mp//tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+ call('objects/sha256/../\\./..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\evil'),
+ call('objects/sha256/ａａ/ａａ/ａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａａ'),
+ call('objects/sha256/٠٠/٠٠/٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠٠')].
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.268s
+
+FAILED (failures=47, errors=8)
+MUTATION REJECTED: length-only hash guard; all 5 selected tests detected it

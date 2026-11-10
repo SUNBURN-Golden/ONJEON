@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-10",
+  "base_commit": "0e255d3fd720891deae2806de18c0bc62697f87f",
+  "commands": [
+    {
+      "command": "python3 -m unittest discover -s tools/tests -p test_samples_csv_validation.py -v",
+      "exit_code": 0,
+      "log": "metadata-tests.log",
+      "log_sha256": "36948c78e571846d1133d42d9381e23dd2f071d99e9ef4f48aa189e2a926769a"
+    },
+    {
+      "command": "python3 tools/evidence/audit5-samples-sha256-format-check/check_hash_mutations.py",
+      "exit_code": 0,
+      "log": "hash-mutations.log",
+      "log_sha256": "596dd0ac054e1e12e3682c82a2e42374ec1bb819ad2b01968c3c24ff5ca9f2c1"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -p 'test_source_archive*.py' -v",
+      "exit_code": 0,
+      "log": "source-tests.log",
+      "log_sha256": "249008f139b8c1cd1b587c4d0cb6ec38258947bac02e2164d505a8f3c37702ae"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "exit_code": 0,
+      "log": "python-tests.log",
+      "log_sha256": "c249ab6aa16cd457a4da90ed2c19a343f859bf27523222eb17b86724a3771da6"
+    },
+    {
+      "command": "cargo test --all --locked --offline",
+      "exit_code": 0,
+      "log": "rust-tests.log",
+      "log_sha256": "90abbf847526f708e1ac02bfe26895e28153042deee1de809d84f1181dcae444"
+    },
+    {
+      "command": "cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline",
+      "exit_code": 0,
+      "log": "runner-tests.log",
+      "log_sha256": "a8730ef0fb7115db62704eeb9527f549a8fe8822fa2ba5cbdd9bde1ecbff8790"
+    }
+  ],
+  "source_sha256": {
+    "tools/validation_check.py": "25a82e6f8ea77bd2c9baa64326591692d731f756524a3366d6a26e8e8a25e5c4",
+    "tools/source_metadata.py": "9635f61651b06e86849790654d9ae36cf8ab9a5727a064cdbb0770f943027df1",
+    "tools/source_archive.py": "8461d1bd5f46cee7dce2bd8702d7ac7a9112421e096c3818d8d64bf119434e68",
+    "tools/verify_sources.py": "d8aabab153e27f16c15c3a901fa4503ee734e8c3b1acbf46b2acc45b65f951d6",
+    "tools/tests/test_samples_csv_validation.py": "7e6f67095ede0e9f80ae3e489108a07ee252ea2e1beb6772b8e7733cf00d3bca",
+    "tools/evidence/audit5-samples-sha256-format-check/check_hash_mutations.py": "a19cb2495ef5707f1ecaae40e1ada59337b48f16344b2ea3b7f638da8cefab36"
+  }
+}

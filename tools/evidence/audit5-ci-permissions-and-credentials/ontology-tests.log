@@ -1,0 +1,12 @@
+   Compiling ontology-case-runner v0.0.0 (/workspace/onjeon-run/wt/audit5-ci-permissions-and-credentials/docs/blueprint/proposals/온톨로지/검증/runner)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+     Running unittests src/main.rs (/workspace/onjeon-run/wt/audit5-ci-permissions-and-credentials/target/audit5-ci-ontology/debug/deps/ontology_case_runner-e3b77011e72a8ecb)
+
+running 4 tests
+test tests::invalid_utf8_stdin_reports_error_without_output ... ok
+test tests::unreadable_stdin_reports_error_without_output ... ok
+test tests::broken_stdout_reports_error ... ok
+test tests::original_rules_keep_identity_fields_in_every_successful_result ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

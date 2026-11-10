@@ -356,6 +356,8 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | 불변식 | §8의 기존 표기는 18개 중 6개 구현(엔진 범위)이다. 이번 현황 갱신으로 다른 불변식을 구현 완료로 승격하지 않는다 |
 | 마일스톤 | 기존 판정: M0·V0 완료, V1 설계 탐색·원본 R2 보존·대조 완료(완전 재현 8/14). 파생 6건 재생성 검증·교차 검수와 이후 관문 판정은 별도다. 추가 코드·시험 통과를 M1 이후 전체 완료나 P01~P19 완료로 간주하지 않는다 |
 
+CI의 최소 읽기 권한·checkout 자격 증명 비보존·액션 SHA 고정은 [Audit 5 재검증](blueprint/audits/2026-11-10_ci_permissions_and_credentials.md)에 기록한다. 실제 CI 검사 명령에 대한 checkout별 변이 시험을 포함하며, 09 §5의 개발 도구 검증 근거다.
+
 현재 코드 수치 검사는 `python3 -I tools/blueprint_counts.py`이며 일반 CI에서 실행한다. 변경 시 `--write`로 아래 표만 갱신한다. 어휘 전체 수·목록은 §6의 생성 문서와도 대조한다. [Audit 2 수치·누락 현황 검증 증거](blueprint/audits/2026-10-27_blueprint_11_counts.md). [Audit 3 재검증](blueprint/audits/2026-10-28_blueprint_s11_refresh.md)은 ADR-0014의 규칙 수 정정과 §6·§7.3·§9.2·§11의 현재 코드·결정 이력 대조를 기록한다.
 
 <!-- blueprint-counts:start -->

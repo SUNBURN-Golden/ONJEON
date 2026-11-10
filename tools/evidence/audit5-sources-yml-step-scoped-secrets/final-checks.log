@@ -1,0 +1,17 @@
+allowed modified/new path: docs/BLUEPRINT.md
+allowed modified/new path: docs/blueprint/audits/2026-11-10_sources_yml_step_scoped_secrets.md
+allowed modified/new path: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+allowed modified/new path: tools/evidence/audit5-sources-yml-step-scoped-secrets/checks.log
+allowed modified/new path: tools/evidence/audit5-sources-yml-step-scoped-secrets/ontology-tests.log
+allowed modified/new path: tools/evidence/audit5-sources-yml-step-scoped-secrets/python-tests.log
+allowed modified/new path: tools/evidence/audit5-sources-yml-step-scoped-secrets/rust-tests.log
+allowed modified/new path: tools/evidence/audit5-sources-yml-step-scoped-secrets/workflow-tests.log
+allowed modified/new path: tools/tests/test_workflow_secret_scope.py
+sources.yml: existing step-scoped configuration unchanged
+SHA256 .github/workflows/sources.yml: 2dc5ba43f4875be43f2f38007e55721fac541349b452748e501c1a10b31d8f95
+SHA256 tools/tests/test_workflow_secret_scope.py: 90347691bcbaf3e2940b0433b2d4b85a7c0d74923fd0f92b2b2375cc10e863e3
+Audit evidence links: all local targets exist
+git diff --check: EXIT_CODE=0
+
+After final evidence documentation update:
+All four test commands EXIT_CODE=0; evidence links exist; git diff --check EXIT_CODE=0

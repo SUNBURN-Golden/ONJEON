@@ -892,6 +892,104 @@ class EndToEnd(Fixture):
     def test_checkpoint_admission_archive_and_settlement_reads_are_charged(self):
         self.check_ledger_read_accounting(checkpoint=True)
 
+    def test_ledger_get_uses_policy_total_attempts_before_active_is_set(self):
+        for attempts in (1, 2, 4):
+            for exhausted in (False, True):
+                with self.subTest(attempts=attempts, exhausted=exhausted):
+                    self.write_policy(per_month_global=10)
+                    self.write_job(admissions_per_month=5, class_a=1000)
+                    policy = json.loads(self.policy_path.read_text())
+                    policy["per_request"]["max_attempts"] = attempts
+                    self.policy_path.write_text(json.dumps(policy))
+                    job = json.loads(self.job_path.read_text())
+                    job["run_profiles"]["verify"]["seconds"] = 1200
+                    self.job_path.write_text(json.dumps(job))
+                    self.stub.objects.clear()
+                    self.stub.faults.clear()
+                    self.ledger_store = sa.LocalStore(self.root / f"seed-{attempts}-{exhausted}")
+                    self.seed_ledger()
+                    key = f"{b.LEDGER_PREFIX}0000000001.json"
+                    failures = attempts if exhausted else attempts - 1
+                    self.stub.faults.extend([("GET", key, 503)] * failures)
+                    before = len(self.stub.log)
+                    s = self.session(self.root / f"retry-{attempts}-{exhausted}")
+                    self.addCleanup(s._restore_alarm)
+                    self.addCleanup(s.gate.leave)
+                    self.assertIsNone(b.ACTIVE)
+                    # Skip only retry backoff; botocore still sends every real HTTP attempt.
+                    with mock.patch("botocore.endpoint.time.sleep", return_value=None):
+                        if exhausted:
+                            with self.assertRaisesRegex(b.BudgetError, "unreadable.*ClientError"):
+                                s.open()
+                        else:
+                            s.open()
+                    reads = [entry for entry in self.stub.log[before:]
+                             if entry[:3] == ("get", "ledger", key)]
+                    self.assertEqual([entry[3] for entry in reads],
+                                     [503] * failures + ([] if exhausted else [200]))
+                    self.assertEqual(len(reads), attempts)
+                    self.assertEqual(s.ledger.st.s3.meta.config.retries["total_max_attempts"], attempts)
+                    self.assertIs(s.ledger.st.meter, s.meter)
+                    self.assertEqual(s.meter.used["retries"], attempts - 1)
+                    self.assertEqual(s.meter.used["get_bytes"],
+                                     0 if exhausted else len(self.stub.objects[("ledger", key)]))
+                    for dim, actual in self.stub.counts(before).items():
+                        self.assertEqual(s.meter.used[dim], actual, dim)
+                    if exhausted:
+                        self.assertIsNone(s.reservation)
+                        self.assertFalse(s.meter.archive_allowed)
+                        self.assertIsNone(s.gate._lock)
+                        self.assertTrue(s.admitted)
+                    else:
+                        self.assertIsInstance(s.settle("ok").get("seq"), int)
+
+    def test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared(self):
+        for attempts in (1, 2, 4):
+            with self.subTest(attempts=attempts):
+                self.write_policy(per_month_global=10)
+                self.write_job(admissions_per_month=5, class_a=1000)
+                policy = json.loads(self.policy_path.read_text())
+                policy["per_request"]["max_attempts"] = attempts
+                self.policy_path.write_text(json.dumps(policy))
+                job = json.loads(self.job_path.read_text())
+                job["run_profiles"]["verify"]["seconds"] = 1200
+                self.job_path.write_text(json.dumps(job))
+                self.stub.objects.clear()
+                self.stub.objects[("raw", KEY)] = BODY
+                before = len(self.stub.log)
+                s = b.start(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
+                            gate_dir=self.root / f"settlement-retry-{attempts}")
+                self.addCleanup(s._restore_alarm)
+                self.addCleanup(s.gate.leave)
+                try:
+                    archive = sa.S3Store("s3://raw", self.stub.endpoint)
+                    self.assertEqual(archive.s3.meta.config.retries["total_max_attempts"], attempts)
+                    self.stub.faults.extend([("GET", KEY, 503)] * (attempts - 1))
+                    with mock.patch("botocore.endpoint.time.sleep", return_value=None):
+                        self.assertEqual(archive.get(KEY), BODY)
+                    reads = [entry[3] for entry in self.stub.log[before:]
+                             if entry[:3] == ("get", "raw", KEY)]
+                    self.assertEqual(reads, [503] * (attempts - 1) + [200])
+                    self.stub.faults.extend([("PUT", f"{b.LEDGER_PREFIX}0000000002.json", 503)]
+                                           * (attempts - 1))
+                finally:
+                    with mock.patch("botocore.endpoint.time.sleep", return_value=None):
+                        summary = b.finish("ok")
+                self.assertIsNone(b.ACTIVE)
+                self.assertEqual(summary["settlement"], 2)
+                writes = [entry[3] for entry in self.stub.log[before:]
+                          if entry[:3] == ("put", "ledger", f"{b.LEDGER_PREFIX}0000000002.json")]
+                self.assertEqual(writes, [503] * (attempts - 1) + [200])
+                rec = json.loads(self.stub.objects[("ledger", f"{b.LEDGER_PREFIX}0000000002.json")])
+                self.assertEqual(rec["includes_settlement_worst_case"], b.settlement_worst_case(s.policy))
+                self.assertEqual(summary["used"]["get_bytes"], self.get_bytes_seen(before))
+                self.assertEqual(rec["amounts"]["get_bytes"], summary["used"]["get_bytes"])
+                self.assertEqual(summary["used"]["retries"], 2 * (attempts - 1))
+                self.assertEqual(rec["amounts"]["retries"], summary["used"]["retries"])
+                for dim, actual in self.stub.counts(before).items():
+                    self.assertEqual(summary["used"][dim], actual, dim)
+                    self.assertGreaterEqual(rec["amounts"][dim], actual, dim)
+
     @mock.patch.object(b.time, "monotonic", return_value=100)
     def test_successful_run_settles_between_meter_and_alarm_deadlines(self, clock):
         self.write_policy(per_month_global=10)

@@ -221,7 +221,7 @@ def provider_of(endpoint_url):
 
 
 class S3Store:
-    def __init__(self, url, endpoint_url=None, ledger=False):
+    def __init__(self, url, endpoint_url=None, ledger=False, *, budget=None):
         import boto3  # only needed for s3:// targets
         from botocore.config import Config
         rest = url[len("s3://"):]
@@ -230,7 +230,9 @@ class S3Store:
         endpoint_url = endpoint_url or os.environ.get("ONJEON_S3_ENDPOINT") or None
         self.provider = provider_of(endpoint_url)
         import r2_budget
-        budget = r2_budget.ACTIVE
+        # The session opens its ledger before ACTIVE is set. Use that session's
+        # policy and meter from construction, including the admission requests.
+        budget = budget if budget is not None else r2_budget.ACTIVE
         if self.provider in ("aws", "r2") and budget is None and not ledger:
             raise SystemExit(f"{self.provider} access needs a budget job (--job infra/r2/jobs/<job>.json); "
                              "nothing was sent")
@@ -244,7 +246,8 @@ class S3Store:
             kw = {"aws_access_key_id": key, "aws_secret_access_key": secret}
         # checksums only when we send one ourselves (SHA-256 below); keeps S3-compatible stores working
         attempts = budget.policy["per_request"]["max_attempts"] if budget else 3
-        base = {"signature_version": "s3v4", "retries": {"max_attempts": attempts, "mode": "standard"},
+        # Config.max_attempts counts retries; the policy counts the initial attempt too.
+        base = {"signature_version": "s3v4", "retries": {"total_max_attempts": attempts, "mode": "standard"},
                 "connect_timeout": r2_budget.CONNECT_TIMEOUT, "read_timeout": r2_budget.READ_TIMEOUT}
         try:  # botocore >= 1.36 adds default CRC checksums; older versions have neither the default nor the option
             cfg = Config(**base, request_checksum_calculation="when_required",

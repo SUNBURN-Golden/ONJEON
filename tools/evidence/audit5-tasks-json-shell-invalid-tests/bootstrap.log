@@ -1,0 +1,8 @@
+advisory: 6 test-command path(s) are neither in the repo nor under the task's allowed_paths (run with --strict-paths to fail on them):
+  [BOOT-PATH] tasks.json: T-OP-00: test command names services/knowledge/**, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-OP-00: test command names services/knowledge/release/**, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-AP-03: test command names services/api/contract_test.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-AP-05: test command names services/api/contract_test.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-OP-05: test command names tools/drills/circuit_breaker.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-OP-05: test command names tools/drills/rollback.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+bootstrap-clean-main: no G1/G2/G31 violations (static only; nothing was built); 6 advisory path note(s) above

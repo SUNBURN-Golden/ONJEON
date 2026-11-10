@@ -75,6 +75,35 @@ class CiWorkflowSecurity(unittest.TestCase):
                     self.assertIn("third-party actions must be pinned", output)
                     self.assertIn(ref[1] + "@" + replacement, output)
 
+    def test_each_checkout_rejects_missing_or_persisted_credentials(self):
+        # Mutate each real checkout independently: another hardened checkout must
+        # not hide the affected job's default (true) or explicitly enabled storage.
+        checkouts = list(re.finditer(
+            r"(?m)^      - uses: actions/checkout@[^\n]+\n"
+            r"        with:\n(?P<setting>          persist-credentials: false\n)",
+            self.workflow,
+        ))
+        self.assertEqual(len(checkouts), self.workflow.count("uses: actions/checkout@"))
+        self.assertTrue(checkouts, "ci.yml must contain checkout steps")
+        for checkout in checkouts:
+            for replacement in ("", "          persist-credentials: true\n"):
+                with self.subTest(line=checkout.start(), replacement=replacement):
+                    changed = (self.workflow[:checkout.start("setting")] + replacement
+                               + self.workflow[checkout.end("setting"):])
+                    output = self.run_gate(changed, expect_success=False)
+                    self.assertIn("actions/checkout without `persist-credentials: false`", output)
+
+    def test_other_step_cannot_supply_checkout_credential_setting(self):
+        changed = self.workflow.replace(
+            "        with:\n          persist-credentials: false\n",
+            "      - run: echo unrelated\n"
+            "        env:\n          persist-credentials: false\n",
+            1,
+        )
+        self.assertNotEqual(changed, self.workflow)
+        output = self.run_gate(changed, expect_success=False)
+        self.assertIn("actions/checkout without `persist-credentials: false`", output)
+
 
 if __name__ == "__main__":
     unittest.main()

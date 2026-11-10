@@ -204,6 +204,34 @@ class CliDependencies(unittest.TestCase):
             code = vs.main()
         return code, stdout.getvalue()
 
+    def test_detect_cli_reports_exact_audit5_download_filename_changes(self):
+        import html_content_hash as hch
+        for before in (b'<a href=x.pdf>terms</a>',
+                       b'<a href="#" onclick="fileDown(\'x.pdf\')">terms</a>',
+                       b'<button onclick="fileDown(\'x.pdf\')">terms</button>'):
+            for change in (False, True):
+                with self.subTest(before=before, change=change), tempfile.TemporaryDirectory() as d:
+                    after = before.replace(b"x.pdf", b"y.pdf") if change else before
+                    status = "changed" if change else "unchanged_bytes"
+                    row = {"sample_id": "s1", "url": "https://example.org/disclosure",
+                           "format": "html", "cache_path": "s1/page.html",
+                           "sha256": sa.sha256_bytes(before), "content_hash_rule": hch.RULE,
+                           "content_sha256": hch.content_sha256(before, "example.org")}
+                    out, report = Path(d) / "out", Path(d) / "report.json"
+                    with mock.patch.object(vs, "rows", return_value=[row]), \
+                            mock.patch.object(vs, "fetch", return_value=(after, "text/html", row["url"])):
+                        code, _ = self.run_main(["detect", "--out", str(out), "--report", str(report)])
+                    self.assertEqual(code, 0)
+                    doc = json.loads(report.read_text())
+                    self.assertEqual(doc["summary"], {status: 1})
+                    result, = doc["results"]
+                    self.assertEqual(result["status"], status)
+                    self.assertEqual(result["baseline_sha256"], sa.sha256_bytes(before))
+                    self.assertEqual(result["sha256_now"], sa.sha256_bytes(after))
+                    if change:
+                        self.assertEqual(result["content_hash_rule"], hch.RULE)
+                    self.assertEqual((out / row["cache_path"]).read_bytes(), after)
+
     def test_detect_without_pdfplumber_writes_report_and_preserves_exit_status(self):
         body = b"%PDF-1.4 sample bytes"
         row = {"sample_id": "s1", "url": "https://example.org/source.pdf", "format": "pdf",

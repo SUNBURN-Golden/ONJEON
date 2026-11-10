@@ -1,0 +1,156 @@
+test_unquoted_href_keeps_filename_while_removing_session (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_href_keeps_filename_while_removing_session) ... FAIL
+
+======================================================================
+FAIL: test_unquoted_href_keeps_filename_while_removing_session (test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_href_keeps_filename_while_removing_session)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 71, in test_unquoted_href_keeps_filename_while_removing_session
+    self.assertEqual(h.normalized_text(before), "[link:/x.pdf?id=7#terms] terms")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'terms' != '[link:/x.pdf?id=7#terms] terms'
+- terms
++ [link:/x.pdf?id=7#terms] terms
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+MUTATION REJECTED: omit_unquoted_href: test_html_content_hash.DownloadTargetsChangeTheHash.test_unquoted_href_keeps_filename_while_removing_session
+test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) ... 
+  test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) (before=b'<a href=x.pdf>terms</a>', change=True) ... FAIL
+
+======================================================================
+FAIL: test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) (before=b'<a href=x.pdf>terms</a>', change=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_verify_sources.py", line 226, in test_detect_cli_reports_exact_audit5_download_filename_changes
+    self.assertEqual(doc["summary"], {status: 1})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'bytes_changed_content_same': 1} != {'changed': 1}
+- {'bytes_changed_content_same': 1}
++ {'changed': 1}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.020s
+
+FAILED (failures=1)
+MUTATION REJECTED: omit_unquoted_href: test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes
+test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) ... 
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr='onclick="fileDown(\'x.pdf\')"') ... FAIL
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr='ONCLICK = "return fileDown(\'x.pdf\');"') ... FAIL
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr="onclick=fileDown('x.pdf')") ... FAIL
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr='onclick="fileDown(&quot;x.pdf&quot;)"') ... FAIL
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr='onclick="fileDown(\'x.pdf\')"') ... FAIL
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr='ONCLICK = "return fileDown(\'x.pdf\');"') ... FAIL
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr="onclick=fileDown('x.pdf')") ... FAIL
+  test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr='onclick="fileDown(&quot;x.pdf&quot;)"') ... FAIL
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr='onclick="fileDown(\'x.pdf\')"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr='ONCLICK = "return fileDown(\'x.pdf\');"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr="onclick=fileDown('x.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='a', attr='onclick="fileDown(&quot;x.pdf&quot;)"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr='onclick="fileDown(\'x.pdf\')"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr='ONCLICK = "return fileDown(\'x.pdf\');"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr="onclick=fileDown('x.pdf')")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+======================================================================
+FAIL: test_file_down_filename_changes_without_visible_text_changes (test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes) (tag='button', attr='onclick="fileDown(&quot;x.pdf&quot;)"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_html_content_hash.py", line 63, in test_file_down_filename_changes_without_visible_text_changes
+    self.assertIn("[onclick:", h.normalized_text(before))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[onclick:' not found in '약관'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=8)
+MUTATION REJECTED: omit_onclick: test_html_content_hash.DownloadTargetsChangeTheHash.test_file_down_filename_changes_without_visible_text_changes
+test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) ... 
+  test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) (before=b'<a href="#" onclick="fileDown(\'x.pdf\')">terms</a>', change=True) ... FAIL
+  test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) (before=b'<button onclick="fileDown(\'x.pdf\')">terms</button>', change=True) ... FAIL
+
+======================================================================
+FAIL: test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) (before=b'<a href="#" onclick="fileDown(\'x.pdf\')">terms</a>', change=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_verify_sources.py", line 226, in test_detect_cli_reports_exact_audit5_download_filename_changes
+    self.assertEqual(doc["summary"], {status: 1})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'bytes_changed_content_same': 1} != {'changed': 1}
+- {'bytes_changed_content_same': 1}
++ {'changed': 1}
+
+======================================================================
+FAIL: test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) (before=b'<button onclick="fileDown(\'x.pdf\')">terms</button>', change=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-content-hash-unquoted-links/tools/tests/test_verify_sources.py", line 226, in test_detect_cli_reports_exact_audit5_download_filename_changes
+    self.assertEqual(doc["summary"], {status: 1})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'bytes_changed_content_same': 1} != {'changed': 1}
+- {'bytes_changed_content_same': 1}
++ {'changed': 1}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.017s
+
+FAILED (failures=2)
+MUTATION REJECTED: omit_onclick: test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes

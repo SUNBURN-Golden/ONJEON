@@ -44,7 +44,7 @@ class SecretCorpus(unittest.TestCase):
     def test_corpus_labels_are_pinned(self):
         # Removing a format from corpus() must not silently remove it from the preflight too.
         self.assertEqual(set(corpus()), set(CASES))
-        self.assertEqual(len(corpus()), 25)
+        self.assertEqual(len(corpus()), 28)
 
     def test_real_format_corpus_is_detected_and_recursively_redacted(self):
         for label, value in corpus().items():
@@ -60,6 +60,23 @@ class SecretCorpus(unittest.TestCase):
         for label, value in non_secret().items():
             with self.subTest(case=label):
                 self.assertEqual(secret_scan.redact(self.pats, value), (value, 0))
+
+    def test_bare_32_and_64_hex_keys_are_detected_not_exempted(self):
+        # The acceptance scope includes bare R2 keys. They are positive cases; only a digest
+        # label on the same line may suppress detection.
+        hex32, hex64 = "a1" * 16, "b2" * 32
+        for label, value in (("bare-32", hex32), ("bare-64", hex64),
+                             ("json-bare-64", json.dumps({"value": hex64}))):
+            with self.subTest(case=label):
+                self.assertGreater(secret_scan.count(self.pats, value), 0)
+                self.assertEqual(secret_scan.redact(self.pats, value), (secret_scan.REDACTED, 1))
+        for label, value in (("checksum", 'checksum = "' + hex64 + '"'),
+                             ("sha256", '"sha256": "' + hex64 + '"'),
+                             ("sha256-line", "sha256:" + hex64),
+                             ("tree-hash", 'tree_hash = "' + hex32 + '"'),
+                             ("content-hash", '"content_hash": "' + hex64 + '"')):
+            with self.subTest(case=label):
+                self.assertEqual(secret_scan.count(self.pats, value), 0)
 
     def test_corpus_stops_handoff_before_commit_or_push(self):
         for label, value in corpus().items():
@@ -181,6 +198,20 @@ class ManifestExcludes(unittest.TestCase):
 class RunnerPreflight(unittest.TestCase):
     def test_current_rules_cover_every_preflight_case(self):
         self.assertEqual(secret_scan_preflight.missing_cases(RULES), [])
+
+    def test_preflight_rejects_rules_that_omit_bare_key_detection(self):
+        # No exception in the corpus: removing the bare-key pattern must fail the preflight.
+        original = json.loads(RULES.read_text(encoding="utf-8"))
+        patterns = original["preserve_manifest"]["secret_patterns"]["patterns"]
+        kept = [p for p in patterns if "content[_-]?hash" not in p]
+        self.assertEqual(len(kept), len(patterns) - 1)
+        original["preserve_manifest"]["secret_patterns"]["patterns"] = kept
+        with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
+            path = Path(tmp) / "rules.json"
+            path.write_text(json.dumps(original), encoding="utf-8")
+            failures = secret_scan_preflight.missing_cases(path)
+        for label in ("bare-r2-key-32", "bare-r2-key-64", "bare-r2-key-json"):
+            self.assertIn(f"missing-format:{label}", failures)
 
     def test_empty_and_all_matching_patterns_are_rejected(self):
         original = json.loads(RULES.read_text(encoding="utf-8"))

@@ -40,8 +40,9 @@ python3 -m unittest tools/tests/test_daemon_static_checks.py -v
 GitHub ghp_·ghs_·github_pat_, Bearer와 기존 Cloudflare·Slack·개인키 형식을 검사한다.
 `excludes`는 깊이와 무관한 파일명 glob이며 대소문자를 구분하지 않는다.
 끝이 `/`인 패턴은 디렉터리 구성요소를 제외하고, `.env`와 `.env.*`는 로컬·운영 변형을 제외한다.
-32/64자리 hex는 `*_ACCESS_KEY_ID`·`*_SECRET_ACCESS_KEY` 같은 R2/S3/AWS credential 이름 바로 뒤에서만
-탐지한다. Cargo.lock `checksum`·`sha256:` 로그처럼 같은 모양의 일반 해시는 자격증명이 아니므로 제외한다.
+32/64자리 hex는 `*_ACCESS_KEY_ID`·`*_SECRET_ACCESS_KEY` 같은 R2/S3/AWS credential 이름 바로 뒤에서와
+자격 이름 없이 홀로 있는 값 모두에서 탐지한다. 다만 같은 줄에 `checksum`·`sha256`·`content_hash`·
+`tree_hash` 같은 digest 이름이 붙은 값은 일반 해시로 보고 제외한다.
 40자리 Git OID와 인접 영숫자에 포함된 부분 문자열도 제외한다.
 실제 형식의 합성 corpus 회귀는 `python3 -m unittest tools/tests/test_daemon_secret_scan.py -v`로 실행한다.
 T-OP-09 CLI는 선택된 규칙이 corpus를 모두 탐지하고 비밀이 아닌 경계 값을 하나도 탐지하지 않는지

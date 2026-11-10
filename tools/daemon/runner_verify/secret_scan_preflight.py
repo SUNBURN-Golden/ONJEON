@@ -5,8 +5,10 @@ source scans do not mistake the corpus for credentials. Return labels only, neve
 
 The preflight has two sides: every corpus value must match, and every ordinary value in
 non_secret() must not match. The negative side rejects an empty or all-matching pattern and
-pins the deliberate non-detection of bare digests (Cargo.lock checksums, sha256 lines), which
-share the 32/64-hex shape with R2 secret keys.
+pins the non-detection of digest contexts (Cargo.lock checksums, sha256 lines), which share
+the bare 32/64-hex shape with R2 secret keys. Bare R2 keys themselves are positive cases:
+the rules exclude a hex value only when its line carries a digest name such as `checksum`,
+`sha256`, `content_hash` or `tree_hash`.
 """
 import json
 
@@ -19,6 +21,9 @@ CASES = (
     "r2-json",
     "r2-access-id",
     "r2-access-json",
+    "bare-r2-key-32",
+    "bare-r2-key-64",
+    "bare-r2-key-json",
     "s3-secret-key",
     "aws-secret-key-upper",
     "json-token",
@@ -52,6 +57,11 @@ def corpus():
         "r2-json": json.dumps({"R2_SECRET_ACCESS_KEY": hex64}),
         "r2-access-id": "R2_ACCESS_KEY_ID=" + hex32,
         "r2-access-json": json.dumps({"r2_access_key_id": hex32}),
+        # R2 keys also appear on their own, without a credential name: a standalone 32-hex access
+        # key id and a 64-hex secret access key, plus one as an unlabelled JSON value.
+        "bare-r2-key-32": hex32,
+        "bare-r2-key-64": hex64,
+        "bare-r2-key-json": json.dumps({"value": hex64}),
         "s3-secret-key": "S3_SECRET_ACCESS_KEY=" + hex64,
         "aws-secret-key-upper": "AWS_SECRET_ACCESS_KEY=" + hex64.upper(),
         "json-token": json.dumps({"token": opaque}),
@@ -77,7 +87,8 @@ def corpus():
 
 
 def non_secret():
-    """Ordinary values the rules must leave alone; digests share the hex key shape."""
+    """Ordinary values the rules must leave alone. Digest *contexts* share the hex key shape but
+    are not credentials; a bare hex value is a positive case above, not an exception here."""
     hex32, hex64 = "a1" * 16, "b2" * 32
     return {
         "plain-text": "public documentation",
@@ -96,8 +107,6 @@ def non_secret():
         "hex-128": "a" * 128,
         "hex-in-identifier": "prefix_" + "a" * 32,
         "hex-with-suffix": "a" * 64 + "_suffix",
-        "bare-hex-32": hex32,
-        "bare-hex-64": hex64,
         "cargo-lock-checksum": 'checksum = "' + hex64 + '"',
         "json-sha256": '"sha256": "' + hex64 + '"',
         "sha256-line": "sha256:" + hex64,

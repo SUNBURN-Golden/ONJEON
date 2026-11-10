@@ -2,9 +2,10 @@
 
 Matched text is never stored: a match leaves only scan_id, match_count and the file path or field name.
 Patterns come from the rule data, including quoted JSON assignments and provider token shapes.
-R2/S3/AWS 32/64-hex keys are matched only next to a credential name: a bare digest of the same length
-(a lock-file checksum, a source hash, a log line) is not a credential and would otherwise stop every
-preservation that contains an ordinary hash.
+R2/S3/AWS 32/64-hex keys are matched next to a credential name and also as bare values. A digest of
+the same length is not a credential, so a bare value is skipped when its line carries a checksum or
+hash label (`checksum`, `content_hash`, `tree_hash`, ...); otherwise every ordinary lock-file hash
+would stop the preservation.
 """
 import re
 

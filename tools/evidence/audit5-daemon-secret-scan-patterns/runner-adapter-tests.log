@@ -5,12 +5,8 @@ test_push_failure_classes (tools.daemon.runner_verify.tests.test_runner_verify.A
 test_store_refuses_nested_transactions (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_refuses_nested_transactions) ... ok
 test_store_survives_a_kill_in_the_middle_of_a_write (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_survives_a_kill_in_the_middle_of_a_write) ... ok
 test_store_transaction_is_all_or_nothing (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_transaction_is_all_or_nothing) ... ok
-test_a_merge_function_would_be_caught (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_a_merge_function_would_be_caught) ... ok
-test_all_static_checks_pass (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_all_static_checks_pass) ... ok
-test_checks_can_fail (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_checks_can_fail) ... ok
-test_the_tool_never_writes_outside_its_own_paths_by_construction (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_the_tool_never_writes_outside_its_own_paths_by_construction) ... ok
 
 ----------------------------------------------------------------------
-Ran 11 tests in 0.287s
+Ran 7 tests in 0.044s
 
 OK

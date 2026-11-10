@@ -50,9 +50,11 @@ test_ci_build_lint_and_test_commands_use_the_lockfile (test_ci_rust_toolchain.Ci
 test_directory_override_works_without_affecting_other_checkouts (test_ci_rust_toolchain.CiRustToolchain.test_directory_override_works_without_affecting_other_checkouts) ... ok
 test_root_cargo_with_ci_pin_and_no_global_default (test_ci_rust_toolchain.CiRustToolchain.test_root_cargo_with_ci_pin_and_no_global_default) ... ok
 test_workspace_and_runner_select_the_same_toolchain (test_ci_rust_toolchain.CiRustToolchain.test_workspace_and_runner_select_the_same_toolchain) ... ok
+test_each_checkout_rejects_missing_or_persisted_credentials (test_ci_workflow_security.CiWorkflowSecurity.test_each_checkout_rejects_missing_or_persisted_credentials) ... ok
 test_each_ci_action_rejects_mutable_or_short_refs (test_ci_workflow_security.CiWorkflowSecurity.test_each_ci_action_rejects_mutable_or_short_refs) ... ok
 test_live_workflows_pass_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_live_workflows_pass_declared_gate) ... ok
 test_missing_or_nonminimal_permissions_fail_declared_gate (test_ci_workflow_security.CiWorkflowSecurity.test_missing_or_nonminimal_permissions_fail_declared_gate) ... ok
+test_other_step_cannot_supply_checkout_credential_setting (test_ci_workflow_security.CiWorkflowSecurity.test_other_step_cannot_supply_checkout_credential_setting) ... ok
 test_classification_leaves_body_unconsumed_and_gaps_have_reasons (test_crawler_adapter_interface.AdapterContractTest.test_classification_leaves_body_unconsumed_and_gaps_have_reasons) ... ok
 test_discovery_resolves_document_refs (test_crawler_adapter_interface.AdapterContractTest.test_discovery_resolves_document_refs) ... ok
 test_document_ref_rejects_invalid_fields (test_crawler_adapter_interface.AdapterContractTest.test_document_ref_rejects_invalid_fields) ... ok
@@ -677,7 +679,9 @@ test_real_git_manifest_matches_mock_without_commits_or_pushes (test_daemon_secre
 test_current_rules_cover_every_preflight_case (test_daemon_secret_scan.RunnerPreflight.test_current_rules_cover_every_preflight_case) ... ok
 test_empty_and_all_matching_patterns_are_rejected (test_daemon_secret_scan.RunnerPreflight.test_empty_and_all_matching_patterns_are_rejected) ... ok
 test_missing_or_invalid_patterns_stop_cli_before_any_scenario (test_daemon_secret_scan.RunnerPreflight.test_missing_or_invalid_patterns_stop_cli_before_any_scenario) ... ok
+test_preflight_rejects_rules_that_omit_bare_key_detection (test_daemon_secret_scan.RunnerPreflight.test_preflight_rejects_rules_that_omit_bare_key_detection) ... ok
 test_unreadable_and_malformed_rules_stop_cli (test_daemon_secret_scan.RunnerPreflight.test_unreadable_and_malformed_rules_stop_cli) ... ok
+test_bare_32_and_64_hex_keys_are_detected_not_exempted (test_daemon_secret_scan.SecretCorpus.test_bare_32_and_64_hex_keys_are_detected_not_exempted) ... ok
 test_corpus_is_redacted_before_journal_append (test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) ... ok
 test_corpus_labels_are_pinned (test_daemon_secret_scan.SecretCorpus.test_corpus_labels_are_pinned) ... ok
 test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) ... ok
@@ -1526,6 +1530,6 @@ test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.Wo
 test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 1440 tests in 195.394s
+Ran 1444 tests in 200.935s
 
 OK (skipped=6)

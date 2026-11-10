@@ -1,0 +1,101 @@
+$ /usr/bin/python3 tools/evidence/audit5-registry-archived-mislabel/mutation_check.py
+reachable -> archived: 2 disposable scripts, 4 failures, 0 errors
+test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) ... 
+  test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=0, table='insurers', empty_log=b'') ... FAIL
+  test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=1, table='insurers', empty_log=b'') ... FAIL
+  test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=0, table='insurers', empty_log=b'url,result\r\n') ... FAIL
+  test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=1, table='insurers', empty_log=b'url,result\r\n') ... FAIL
+
+======================================================================
+FAIL: test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=0, table='insurers', empty_log=b'')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-archived-mislabel/tools/tests/test_registry_normalize.py", line 385, in test_repairs_legacy_registry_with_empty_access_log_from_another_directory
+    self.assertEqual((registry / f"{name}.csv").read_bytes(), contents)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'ins[19325 chars].do),archived,,unqueried,\xec\x83\x81\xed\x92\[58511 chars]\r\n' != b'ins[19325 chars].do),unqueried,\xea\xb3\xb5\xec\x8b\x9c URL \x[60495 chars]\r\n'
+
+======================================================================
+FAIL: test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=1, table='insurers', empty_log=b'')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-archived-mislabel/tools/tests/test_registry_normalize.py", line 385, in test_repairs_legacy_registry_with_empty_access_log_from_another_directory
+    self.assertEqual((registry / f"{name}.csv").read_bytes(), contents)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'ins[19325 chars].do),archived,,unqueried,\xec\x83\x81\xed\x92\[58511 chars]\r\n' != b'ins[19325 chars].do),unqueried,\xea\xb3\xb5\xec\x8b\x9c URL \x[60495 chars]\r\n'
+
+======================================================================
+FAIL: test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=0, table='insurers', empty_log=b'url,result\r\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-archived-mislabel/tools/tests/test_registry_normalize.py", line 385, in test_repairs_legacy_registry_with_empty_access_log_from_another_directory
+    self.assertEqual((registry / f"{name}.csv").read_bytes(), contents)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'ins[19325 chars].do),archived,,unqueried,\xec\x83\x81\xed\x92\[58511 chars]\r\n' != b'ins[19325 chars].do),unqueried,\xea\xb3\xb5\xec\x8b\x9c URL \x[60495 chars]\r\n'
+
+======================================================================
+FAIL: test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (attempt=1, table='insurers', empty_log=b'url,result\r\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-archived-mislabel/tools/tests/test_registry_normalize.py", line 385, in test_repairs_legacy_registry_with_empty_access_log_from_another_directory
+    self.assertEqual((registry / f"{name}.csv").read_bytes(), contents)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'ins[19325 chars].do),archived,,unqueried,\xec\x83\x81\xed\x92\[58511 chars]\r\n' != b'ins[19325 chars].do),unqueried,\xea\xb3\xb5\xec\x8b\x9c URL \x[60495 chars]\r\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.119s
+
+FAILED (failures=4)
+
+empty access-log guard removed: 2 disposable scripts, 2 failures, 0 errors
+test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) ... 
+  test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (empty_log=b'') ... FAIL
+  test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (empty_log=b'url,result\r\n') ... FAIL
+
+======================================================================
+FAIL: test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (empty_log=b'')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-archived-mislabel/tools/tests/test_registry_normalize.py", line 377, in test_repairs_legacy_registry_with_empty_access_log_from_another_directory
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/tmp/tmpk9xj2wt1/tools/registry_normalize.py", line 173, in <module>
+    print("access_log", normalize_access_log(REG / "access_log.csv"))
+                        ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/tmpk9xj2wt1/tools/registry_normalize.py", line 164, in normalize_access_log
+    atomic_write_csv(path, rows)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/tmp/tmpk9xj2wt1/tools/registry_normalize.py", line 114, in atomic_write_csv
+    w = csv.DictWriter(f, fieldnames=list(rows[0]))
+                                          ~~~~^^^
+IndexError: list index out of range
+
+
+======================================================================
+FAIL: test_repairs_legacy_registry_with_empty_access_log_from_another_directory (test_registry_normalize.RegistryCli.test_repairs_legacy_registry_with_empty_access_log_from_another_directory) (empty_log=b'url,result\r\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-registry-archived-mislabel/tools/tests/test_registry_normalize.py", line 377, in test_repairs_legacy_registry_with_empty_access_log_from_another_directory
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/tmp/tmpjy1op3ot/tools/registry_normalize.py", line 173, in <module>
+    print("access_log", normalize_access_log(REG / "access_log.csv"))
+                        ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/tmpjy1op3ot/tools/registry_normalize.py", line 164, in normalize_access_log
+    atomic_write_csv(path, rows)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/tmp/tmpjy1op3ot/tools/registry_normalize.py", line 114, in atomic_write_csv
+    w = csv.DictWriter(f, fieldnames=list(rows[0]))
+                                          ~~~~^^^
+IndexError: list index out of range
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.100s
+
+FAILED (failures=2)
+
+PASS: both historical defects detected; repository script/CSVs unchanged
+EXIT_CODE=0

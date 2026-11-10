@@ -1,0 +1,20 @@
+test_readable_mutation_outside_repo_and_cleanup_on_return (test_ontology_check_tempfile.BadRuleTemporaryFile.test_readable_mutation_outside_repo_and_cleanup_on_return) ... FAIL
+
+======================================================================
+FAIL: test_readable_mutation_outside_repo_and_cleanup_on_return (test_ontology_check_tempfile.BadRuleTemporaryFile.test_readable_mutation_outside_repo_and_cleanup_on_return)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-ontology-check-tmp-in-tree/tools/tests/test_ontology_check_tempfile.py", line 42, in test_readable_mutation_outside_repo_and_cleanup_on_return
+    self.assertIs(check.with_bad_rule(mutated, inspect), sentinel)
+                  ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "<HEAD with_bad_rule>", line 698, in with_bad_rule
+  File "/workspace/onjeon-run/wt/audit5-ontology-check-tmp-in-tree/tools/tests/test_ontology_check_tempfile.py", line 37, in inspect
+    self.assertTrue(path.is_absolute())
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+Expected baseline failure confirmed; original helper cleaned up its file.

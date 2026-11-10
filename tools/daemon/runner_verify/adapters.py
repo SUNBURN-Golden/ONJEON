@@ -314,15 +314,15 @@ _FULL_RE = re.compile(r"No space left on device|disk quota exceeded", re.I)
 
 
 def exclude_pathspecs(patterns):
-    """preserve_manifest.excludes -> git pathspecs. `x/` is a directory at any depth, `*.k` a file name glob."""
+    """Case-insensitive manifest exclusions: `x/` is a directory at any depth, `*.k` a basename glob."""
     out = []
     for pat in patterns:
         if pat == ".git/":
             continue  # git never adds its own directory
         if pat.endswith("/"):
-            out.append(f":(exclude,glob)**/{pat[:-1]}/**")
+            out.append(f":(exclude,glob,icase)**/{pat[:-1]}/**")
         else:
-            out.append(f":(exclude,glob)**/{pat}")
+            out.append(f":(exclude,glob,icase)**/{pat}")
     return out
 
 

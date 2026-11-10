@@ -1,0 +1,26 @@
+test_dt01_real_data_allowed_without_d04 (tools.tests.test_o13_ruling.RulingAccessGates.test_dt01_real_data_allowed_without_d04) ... ok
+test_dt04_still_requires_domestic_ip_gate (tools.tests.test_o13_ruling.RulingAccessGates.test_dt04_still_requires_domestic_ip_gate) ... ok
+test_independent_lock_bulk_and_all_other_gates_unchanged (tools.tests.test_o13_ruling.RulingAccessGates.test_independent_lock_bulk_and_all_other_gates_unchanged) ... ok
+test_op02_still_requires_d02_but_not_d04 (tools.tests.test_o13_ruling.RulingAccessGates.test_op02_still_requires_d02_but_not_d04) ... ok
+test_resolved_d04_needs_no_runtime_registration (tools.tests.test_o13_ruling.RulingAccessGates.test_resolved_d04_needs_no_runtime_registration) ... ok
+test_bundle_tables_and_handoff_do_not_reintroduce_d04 (tools.tests.test_o13_ruling.RulingDocumentation.test_bundle_tables_and_handoff_do_not_reintroduce_d04) ... ok
+test_explicit_owner_risk_acceptance_and_revisit_triggers (tools.tests.test_o13_ruling.RulingDocumentation.test_explicit_owner_risk_acceptance_and_revisit_triggers) ... ok
+test_live_policy_rows_follow_latest_owner_ruling (tools.tests.test_o13_ruling.RulingDocumentation.test_live_policy_rows_follow_latest_owner_ruling) ... ok
+test_missing_owner_or_env_and_stale_denial_are_rejected (tools.tests.test_o13_ruling.RulingDocumentation.test_missing_owner_or_env_and_stale_denial_are_rejected) ... ok
+test_report_and_readme_links_resolve (tools.tests.test_o13_ruling.RulingDocumentation.test_report_and_readme_links_resolve) ... ok
+test_separate_cfut_rule_and_daemon_secret_boundary_remain (tools.tests.test_o13_ruling.RulingDocumentation.test_separate_cfut_rule_and_daemon_secret_boundary_remain) ... ok
+test_mock_manifest_excludes_env_variants_and_case_variants (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) ... ok
+test_real_git_manifest_matches_mock_without_commits_or_pushes (tools.tests.test_daemon_secret_scan.ManifestExcludes.test_real_git_manifest_matches_mock_without_commits_or_pushes) ... ok
+test_current_rules_cover_every_preflight_case (tools.tests.test_daemon_secret_scan.RunnerPreflight.test_current_rules_cover_every_preflight_case) ... ok
+test_missing_or_invalid_patterns_stop_cli_before_any_scenario (tools.tests.test_daemon_secret_scan.RunnerPreflight.test_missing_or_invalid_patterns_stop_cli_before_any_scenario) ... ok
+test_unreadable_and_malformed_rules_stop_cli (tools.tests.test_daemon_secret_scan.RunnerPreflight.test_unreadable_and_malformed_rules_stop_cli) ... ok
+test_corpus_is_redacted_before_journal_append (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) ... ok
+test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) ... ok
+test_corpus_stops_handoff_before_commit_or_push (tools.tests.test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) ... ok
+test_nonsecret_boundaries_and_ordinary_git_ids_are_preserved (tools.tests.test_daemon_secret_scan.SecretCorpus.test_nonsecret_boundaries_and_ordinary_git_ids_are_preserved) ... ok
+test_real_format_corpus_is_detected_and_recursively_redacted (tools.tests.test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 1.138s
+
+OK

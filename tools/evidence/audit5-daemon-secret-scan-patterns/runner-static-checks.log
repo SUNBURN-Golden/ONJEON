@@ -1,0 +1,7 @@
+병합 API·호스팅 서비스 호출 없음: []
+제품 저장소 경로(ROOT)는 거부·읽기에만 쓴다: []
+git push 대상이 리터럴 주소·제품 원격이 아니다: []
+비밀값 패턴 없음(소스·fixture): []
+모델 식별자 모양 없음(소스·fixture): []
+fixture는 origin=fixture, fixture_only=true: []
+트리 해시(write-tree)는 Git 어댑터 한 곳: []

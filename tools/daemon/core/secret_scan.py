@@ -1,6 +1,8 @@
 """preserve_manifest.secret_patterns (G38): the three scan points and the redaction of journal text.
 
 Matched text is never stored: a match leaves only scan_id, match_count and the file path or field name.
+Patterns come from the rule data, including quoted JSON assignments and provider token shapes.
+Bare R2 hex shapes are conservative: a digest of the same length is also a match.
 """
 import re
 

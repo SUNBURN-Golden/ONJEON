@@ -1,5 +1,5 @@
 {
-  "note": "Pre-change gates excluding resolved D-04; all other decision gates and cost policy remain unchanged. Audit 5 admission-cap closure updated only BUDGET.md's execution order, Nth-admission closure and failure limitations; its document hash is refreshed, with gate and policy hashes retained.",
+  "note": "Pre-change gates excluding resolved D-04; all other decision gates and cost policy remain unchanged. Audit 5 admission-cap closure updated only BUDGET.md's execution order, Nth-admission closure and failure limitations; its document hash is refreshed, with gate and policy hashes retained. Audit 5 secret-scan closure updated only daemon_rules.json secret patterns, .env.* / case-insensitive exclusion semantics and explanatory metadata; its file hash is refreshed after comparing all other JSON fields to HEAD. Decision gates, credentials, transitions and cost policy are unchanged.",
   "task_gates": {
     "T-KN-06": {
       "real_data": [
@@ -246,6 +246,6 @@
     "docs/decisions/ADR-0017-R2-비용-제한.md": "ba35af15a3132be9b1860b0c788f3c6b1b29664e0f86489b8aa3a8970f479f57",
     "infra/r2/BUDGET.md": "0d72309cf8a1e46a8d7a3d5acc22bbd6e13783f19b632e53b4e4d4887f882d3c",
     "infra/r2/budget_policy.json": "e914b74ed5590895fc47b67f3c8934ce1750bc8b95caa94d6e31cdd16ee8fee5",
-    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "ed1c1f35e2be51602ae15f703529bffb0aed092e388527353dec86dfacafa770"
+    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "666c0a4df09dc87dacea0ada74215a09357b32edbe1a98589c58c12cb6fed9ff"
   }
 }

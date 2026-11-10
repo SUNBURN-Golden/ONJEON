@@ -1,0 +1,4 @@
+Compared HEAD daemon_rules.json with current JSON.
+Only preserve_manifest.excludes, preserve_manifest.secret_patterns.patterns and explanatory _exclude_matching changed.
+All other fields, including transitions, credentials and gates, are identical.
+PASS

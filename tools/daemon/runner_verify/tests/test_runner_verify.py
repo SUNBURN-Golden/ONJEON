@@ -88,7 +88,7 @@ class Adapters(unittest.TestCase):
 
     def test_exclude_pathspecs_cover_the_manifest(self):
         pats = exclude_pathspecs([".git/", "target/", ".env", "*.pem"])
-        self.assertEqual(pats, [":(exclude,glob)**/target/**", ":(exclude,glob)**/.env", ":(exclude,glob)**/*.pem"])
+        self.assertEqual(pats, [":(exclude,glob,icase)**/target/**", ":(exclude,glob,icase)**/.env", ":(exclude,glob,icase)**/*.pem"])
 
     def test_push_failure_classes(self):
         mk = lambda err: type("R", (), {"stderr": err, "stdout": "", "returncode": 1})()

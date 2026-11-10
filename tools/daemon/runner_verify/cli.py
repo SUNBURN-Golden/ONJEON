@@ -10,12 +10,14 @@ This is a development tool. It is not the daemon, merges nothing and writes only
 """
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from daemon.runner_verify import reporting, static_checks  # noqa: E402
+from daemon.core.ports import SpecGap  # noqa: E402
+from daemon.runner_verify import reporting, secret_scan_preflight, static_checks  # noqa: E402
 from daemon.runner_verify.common import DEFAULT_RULES, DEFAULT_TASKS, ROOT  # noqa: E402
 from daemon.runner_verify.context import Ctx  # noqa: E402
 from daemon.runner_verify.remote import RemoteRefused, check_accepts  # noqa: E402
@@ -36,6 +38,15 @@ def main(argv=None):
     ap.add_argument("--workdir", help="parent directory of the throwaway state directories")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args(argv)
+
+    try:
+        missing = secret_scan_preflight.missing_cases(args.rules)
+    except (OSError, ValueError, TypeError, KeyError, re.error, SpecGap):
+        print("secret scan preflight failed: unreadable or invalid rules", file=sys.stderr)
+        return 1
+    if missing:
+        print("secret scan preflight failed: " + ", ".join(missing), file=sys.stderr)
+        return 1
 
     if args.remote not in ("auto", "local"):
         try:

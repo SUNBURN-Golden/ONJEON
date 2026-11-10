@@ -36,6 +36,15 @@ python3 -m unittest tools/tests/test_daemon_static_checks.py -v
 | `static_checks.py` | 병합 API·네트워크·CLI·벽시계·스케줄러·두 번째 해시·모델 식별자·비용 상한이 없음, 세대 대입은 `issue_lease` 안에서만 |
 | `spec_gaps.py` | 명세 공백 목록과 코어가 택한 해석 |
 
+비밀값 검사는 R2 환경변수·JSON 대입, 단독 32/64자리 hex, AWS AKIA·ASIA,
+GitHub ghp_·ghs_·github_pat_, Bearer와 기존 Cloudflare·Slack·개인키 형식을 검사한다.
+`excludes`는 깊이와 무관한 파일명 glob이며 대소문자를 구분하지 않는다.
+끝이 `/`인 패턴은 디렉터리 구성요소를 제외하고, `.env`와 `.env.*`는 로컬·운영 변형을 제외한다.
+32/64자리 hex는 같은 모양의 일반 해시도 탐지하는 보수적 규칙이며 40자리 Git OID는 제외한다.
+실제 형식의 합성 corpus 회귀는 `python3 -m unittest tools/tests/test_daemon_secret_scan.py -v`로 실행한다.
+T-OP-09 CLI는 선택된 규칙이 corpus를 모두 탐지하는지 시나리오·원격 준비 전에 확인하고 실패 시 종료한다.
+이 검증의 [Audit 5 증거](../evidence/audit5-daemon-secret-scan-patterns/README.md)는 개발 도구 범위다.
+
 정상 만료는 `state_integrity.normal_expiry.events_by_state`의 상태별 사건이 구조화된 `events` 목록과 현재 상태의 전이 행에 모두 있을 때 선택한다. `core_contract.reads`는 정상 만료의 `detect`·`events_by_state`·`events`를 명시하며 설명 문장(`path`·`outbox`·`next_lease`)은 코어 뷰에 넣지 않는다. [Audit 1 수정·검증 증거](../../docs/blueprint/audits/2026-10-26_daemon_recovery_structured_events.md).
 
 `* → returned`(`unmapped_condition`) 두 행은 cond `task_state.state not_in [done, cancelled]`로 종료 상태(나가는 행이 없는 두 상태)를 뺀다. 그 상태의 표에 없는 사건(다시 전달된 `pr_merged_observed`·병합 관측 등)은 `noop_rules`가 `event_after_terminal_state`로 기록만 하므로 done 과제가 반송되어 후속 과제를 막지 않는다(`TerminalStatesIgnoreUnmapped`, M19). [Audit 2 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_wildcard_from_terminal.md).

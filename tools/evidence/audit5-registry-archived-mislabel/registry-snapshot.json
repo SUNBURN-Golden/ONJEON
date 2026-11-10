@@ -1,0 +1,22 @@
+{
+  "tools/registry_normalize.py": {
+    "sha256": "0bbb959ae947b04898a4bea432513dcb926cc778cdd2e54858485c6da58d5616",
+    "matches_HEAD": true
+  },
+  "data/registry/insurers.csv": {
+    "sha256": "b128ed79281815129c62f989f9f7fd3fcd7b63ef083642564fd573d73b0eeb22",
+    "matches_HEAD": true
+  },
+  "data/registry/cooperatives_and_others.csv": {
+    "sha256": "7eea8af291d3a72876fd3f14663ecde5ed1dbbbe1b366ef780271a523bcd30b0",
+    "matches_HEAD": true
+  },
+  "data/registry/excluded_or_historical.csv": {
+    "sha256": "d83f5b7a45434103e619a17f134cb19eff939031e2031ae070e79ba07615fc66",
+    "matches_HEAD": true
+  },
+  "data/registry/access_log.csv": {
+    "sha256": "a18a9abc815e43ff4a989972921099d06144e08759c32decefe963206dda9ce9",
+    "matches_HEAD": true
+  }
+}

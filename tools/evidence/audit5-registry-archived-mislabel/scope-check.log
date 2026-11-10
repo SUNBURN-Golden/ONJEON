@@ -1,0 +1,16 @@
+$ /usr/bin/python3 tools/evidence/audit5-registry-archived-mislabel/scope_check.py
+ALLOWED docs/BLUEPRINT.md
+ALLOWED docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+ALLOWED tools/tests/test_registry_normalize.py
+ALLOWED docs/blueprint/audits/2026-11-10_registry_archived_mislabel.md
+ALLOWED tools/evidence/audit5-registry-archived-mislabel/
+PYTHON_PARSE_OK tools/tests/test_registry_normalize.py
+PYTHON_PARSE_OK tools/evidence/audit5-registry-archived-mislabel/mutation_check.py
+PYTHON_PARSE_OK tools/evidence/audit5-registry-archived-mislabel/scope_check.py
+LOCAL_LINKS_OK docs/blueprint/audits/2026-11-10_registry_archived_mislabel.md
+LOCAL_LINKS_OK tools/evidence/audit5-registry-archived-mislabel/README.md
+REPOSITORY_NORMALIZER_AND_REGISTRY_UNCHANGED
+SNAPSHOT_WRITTEN tools/evidence/audit5-registry-archived-mislabel/registry-snapshot.json
+DIFF_CHECK_OK
+PASS
+EXIT_CODE=0

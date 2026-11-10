@@ -174,6 +174,8 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 
 기관 원장 정규화기는 빈 파일·헤더만 있는 CSV를 보존하고, 비어 있지 않은 CSV는 파일별로 임시 파일 동기화 후 원자적으로 교체한다. 누락된 `disclosure_access`를 접근 성공으로 해석하지 않으며, 임시 CSV 기반 회귀 시험을 CI에서 실행한다([Audit 4 검증](blueprint/audits/2026-11-03_registry_normalize_tests.md)).
 
+공시 접근 확인 8곳은 `disclosure_access=reachable`과 보관 전 사유를 유지하고 `disclosure_status=unqueried`로 기록한다. 접근 확인만으로 `archived`를 생성하지 않는다. 실제 원장 복사본의 과거 오표기 8건과 빈 접근 로그를 함께 처리하는 CLI·멱등성·변이 검출 증거는 [Audit 5 검증](blueprint/audits/2026-11-10_registry_archived_mislabel.md)에 기록한다. P01·P02의 원장 도구 검증이며 실제 원문 보관·첫 출시 완료 증거는 별도다.
+
 축은 서로 섞지 않는다. 핵심 구분은 다음과 같다.
 
 | 축 | 질문 | 예 |

@@ -45,7 +45,7 @@
 | 목록 입력 `class_money_list` + `max_over` | 입력 `[{class, krw}]`, `{"max_over": "<입력 이름>"}` → money | 같은 `class`에서는 최고 금액 하나만, 다른 `class`는 각각 더한다(G04). 빈 목록은 0(사건 없음이 확정), 목록이 없거나 항목의 `krw`가 `null`이면 모름(모르는 항목이 최고일 수 있다). 목록은 비교할 수 없고 `max_over` 인자는 선언된 목록 입력의 이름이어야 한다 |
 | `contract_effect` | 최상위 키 `none`/`void_refund_premium`/`terminated_pay_reserve`(기본 `none`) | 결과의 `contract_effect`: 적격이면 `applies{effect}`, 부적격이면 `none`, **적격 미정이면 `undetermined{conditional_effect}`**(규칙이 효과를 선언했는데 `none`으로 바뀌지 않는다). rule-0.1 결과는 항상 `none`. 값은 규칙 내용 해시에 포함된다 |
 
-코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 여전히 DSL 밖(입력 단계)이다. 금액 범위와의 비교 및 `pro_rata`의 범위 가능 `part`·`whole`은 로드 단계에서 거부한다(정확한 값만 허용).
+코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 여전히 DSL 밖(입력 단계)이다. 금액 범위와의 비교 및 `pro_rata`의 범위 가능 `part`·`whole`은 로드 단계에서 거부한다(정확한 값만 허용). 범위 비교의 의미는 [DEC-O12](../../docs/decisions/DEC-O12.md) S3에서 확정됐다: 범위의 모든 값이 같은 결론에 동의할 때만 참·거짓이고 아니면 모름, 구간 산술은 단조 연산에만, 범위를 대표값으로 접지 않음, `between`은 양 끝 포함 플래그 필수. 엔진은 연산별 S6 출시 조건 전까지 이 비교를 로드에서 거부하는 capability-blocked 상태다.
 
 ## 마스터플랜 §34.1 예시와 다른 점
 
@@ -88,7 +88,7 @@
 | `all_any_errors` | 날짜 범위·오버플로·타입 오류와 모름을 포함한 자식 순서 6종에서 확정 결과 유지, 확정 자식이 없을 때 오류 전파, 모름의 blocker, 흡수 오류 trace·직렬화 재현성. `soundness`에도 오류를 내는 입력을 숨겨도 독립적인 확정 결과가 유지되는 회귀 시험 추가. [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-26_engine_all_any_lazy_error.md). Audit 3은 두 DSL 버전의 정확한 2항 사례·중첩식·`if` 조합과 즉시 오류 반환 변이 검출을 추가했다([증거](../../docs/blueprint/audits/2026-10-28_engine_all_any_short_circuit.md)). Audit 4는 서로 다른 오류 3종·모름·확정/중립 자식의 순서, 첫 오류 경로, null/키 누락·재로딩 결정성과 오류 우선 변이 2종 검출을 추가했다([증거](../../docs/blueprint/audits/2026-11-02_engine_all_any_error_dominance.md)) |
 | `overflow` | `add`·`multiply_rate`의 `EvalError::Overflow` 경로를 `i64::MAX` 경계에서 직접 검증: 정확히 `MAX`는 통과, 1 초과는 오류(감김·포화 없음), 단위 올림(`ceil`/`half_up`/`half_even`)·`unspecified` 범위 상한·범위 입력의 한쪽 경계만 넘는 경우, 오류 경로 문자열. `min`/`max`/`apply_cap`은 넘치지 않음 |
 | `content_hash_scope` | `rule_content_hash`의 범위(키 순서만 정렬): 공백·키 순서·문자열 이스케이프·최상위 `release_id`는 무시하고, 중첩 `release_id`·유니코드 형식(NFC/NFD·한글 자모)·문자열 공백·배열 순서·같은 뜻의 요율 표기·생략/명시 기본값·`example_kind`는 해시를 바꾼다(같은 평가 결과여도). [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-27_readme_adr_list.md) |
-| `readme_test_table` | 이 표의 첫 열 이름과 `tests/*.rs` 파일의 일치(누락·낡은 행 모두 실패), `real_clauses`·`vocabulary` 행을 각각 또는 동시에 삭제하거나 각각 이름을 바꾸는 음성 대조, `fixture_only`의 합성·실제 조항 검증 범위와 서비스 데이터 제외 설명, 해시 계약 문장에 "정규화" 대신 키 순서·유니코드·`release_id` 범위가 적혀 있는지. [Audit 4 재검증 증거](../../docs/blueprint/audits/2026-11-04_engine_readme_test_table.md) |
+| `readme_test_table` | 이 표의 첫 열 이름과 `tests/*.rs` 파일의 일치(누락·낡은 행 모두 실패), `real_clauses`·`vocabulary` 행을 각각 또는 동시에 삭제하거나 각각 이름을 바꾸는 음성 대조, `fixture_only`의 합성·실제 조항 검증 범위와 서비스 데이터 제외 설명, 해시 계약 문장에 "정규화" 대신 키 순서·유니코드·`release_id` 범위가 적혀 있는지, 범위 비교 의미·S6 출시 조건이 DEC-O12 S3를 따르고 W3로 미뤄지지 않는지. [Audit 4 재검증 증거](../../docs/blueprint/audits/2026-11-04_engine_readme_test_table.md), [Audit 5 동기화 증거](../../docs/blueprint/audits/2026-11-10_engine_readme_sync.md) |
 | `review_fixes` | 결과의 규칙 버전·릴리스·내용 해시·근거, 재로드 시 동일성, 범위의 연속 계산, 날짜 범위·오버플로(`i64::MIN`·`i64::MAX` 포함) |
 | `vocabulary` | 직렬화 상태와 어휘 정본의 일치. `fixture_only` 정의가 합성·실제 조항 기반 검증을 포함하고 서비스 데이터에서 제외하는지, 합성 1개·실제 조항 규칙 7개가 같은 시험 전용 상태인지 확인한다. 입력 타입 6개·반올림 5개·날짜 기간 단위 3개·연산자 키 28개의 정확한 값 집합, 로더 수용·미지원 값 거부, rule-0.2 전용 입력·연산의 버전 제한 |
 | 문서 테스트·`immutable_rule_doctests` | 로드된 규칙의 필드 수정이 비공개 필드 접근 오류로 컴파일되지 않음(`compile_fail,E0616`)과 같은 준비 코드의 정상 동작. stable rustdoc는 오류 코드 표기를 강제하지 않으므로 통합 테스트가 두 예제의 실제 진단 코드가 모두 `E0616`인지 검사 |
@@ -106,6 +106,6 @@ Audit 2의 어휘 1.8.0은 `rule_operator`에 `str`을 추가하며, 두 DSL 버
 
 ## 아직 없는 것
 
-금액 범위와의 비교 의미는 아직 지원하지 않는다. 범위 가능 식은 로드에서 보수적으로 거부하며, 상수·입력에 따라 정확한 값이 되거나 상한·0배·확정 `if` 조건으로 범위가 사라질 수 있어도 예외를 추론하지 않는다. 범위가 기준값을 걸치는 경우를 모름으로 처리할지는 W3 설계에서 정한다. 그 밖에 `first_match`, `in_set`, 상환형 연산(`subtract_deductible`, `coinsurance`, `cumulative_cap`; `pro_rata`는 rule-0.2에 있음), 청구 이력 상태, 코드 체계(KCD) 참조형, 규칙 스키마(JSON Schema) 파일. 제3부 §49.2, §54.4 W3에서 필요하다.
+금액 범위와의 비교는 아직 구현하지 않는다. 범위 가능 식은 로드에서 보수적으로 거부하며, 상수·입력에 따라 정확한 값이 되거나 상한·0배·확정 `if` 조건으로 범위가 사라질 수 있어도 예외를 추론하지 않는다. 비교 의미는 미정이 아니다. [DEC-O12](../../docs/decisions/DEC-O12.md) S3가 범위의 모든 값이 같은 결론에 동의할 때만 참·거짓, 아니면 모름으로, 구간 산술은 단조 연산에만, 범위를 대표값으로 접지 않음, `between`의 양 끝 포함 플래그 필수로 확정했다. 구현과 출시는 연산별 S6 조건(T-TW-04·T-TW-05)을 따른다. 그 밖에 `first_match`, `in_set`, 상환형 연산(`subtract_deductible`, `coinsurance`, `cumulative_cap`; `pro_rata`는 rule-0.2에 있음), 청구 이력 상태, 코드 체계(KCD) 참조형, 규칙 스키마(JSON Schema) 파일. 제3부 §49.2, §54.4 W3에서 필요하다.
 
 Audit 3 I1·I18·실제 규칙 해시 검사 보강의 실행 결과와 범위는 [검증 증거](../../docs/blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md)에 기록한다. 실제 조항 규칙은 계속 `fixture_only` 설계 검증 자료다.

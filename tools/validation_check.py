@@ -142,7 +142,8 @@ def walk_vocab(obj, where, errors):
 
 def load():
     data = {"samples": [], "gaps": set(), "families": {}, "screens": {}, "extracts": {}, "rules": {}}
-    data["samples"] = list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+    with (VAL / "samples.csv").open(encoding="utf-8", newline="") as f:
+        data["samples"] = list(csv.DictReader(f))
     gap = VAL / "GAP_REPORT.md"
     if gap.exists():
         data["gaps"] = set(re.findall(r"^\| (G\d\d) \|", gap.read_text(encoding="utf-8"), re.M))
@@ -505,6 +506,8 @@ def check(data):
     for r in data["samples"]:
         if r["sample_id"] in samples:
             errors.append(f"samples.csv: duplicate sample_id {r['sample_id']}")
+        # Check every row independently of encoded-document equality: the digest also
+        # becomes an archive key and a materialized filename in the source tools.
         try:
             sm.check_sha256(r.get("sha256"))
         except ValueError:

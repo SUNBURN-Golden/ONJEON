@@ -1,0 +1,18 @@
+PASS allowed path: docs/blueprint/audits/2026-11-10_samples_sha256_format_check.md
+PASS allowed path: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/README.md
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/check_hash_mutations.py
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/hash-mutations.log
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/metadata-tests.log
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/python-tests.log
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/run-summary.json
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/runner-tests.log
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/rust-tests.log
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/scope-checks.log
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/source-tests.log
+PASS allowed path: tools/evidence/audit5-samples-sha256-format-check/static-checks.log
+PASS allowed path: tools/tests/test_samples_csv_validation.py
+PASS allowed path: tools/validation_check.py
+PASS Python parsing
+PASS local Markdown links
+PASS whitespace and git diff --check

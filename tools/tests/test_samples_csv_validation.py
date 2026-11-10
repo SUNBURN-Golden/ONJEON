@@ -1,11 +1,12 @@
 """Untrusted sample hashes and source URLs must fail before archive/network I/O."""
 import argparse
 import copy
+import csv
 import io
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -16,7 +17,10 @@ import verify_sources as vs
 
 
 BAD_HASHES = ("", "a" * 63, "a" * 65, "g" * 64, "a" * 63 + "\n",
-              "../" * 20 + "file", "/tmp/file", "ab/cd/../../file", None)
+              "a" * 64 + "\n", "../" * 20 + "file", "/tmp/file", "ab/cd/../../file",
+              "ab/cd/" + "../" * 18 + "evil", "/tmp/" + "a" * 59,
+              "..\\" * 20 + "evil", "ａ" * 64, "٠" * 64,
+              None, 0, True, b"a" * 64, [], {})
 BAD_URLS = ("", "http://example.org/file", "file:///tmp/file", "ftp://example.org/file",
             "//example.org/file", "https:///file", "https://user:pass@example.org/file",
             "https://example.org:bad/file", "https://example.org:0/file",
@@ -47,6 +51,55 @@ class SampleMetadata(unittest.TestCase):
                 data["samples"][0]["sha256"] = value
                 self.assertTrue(any("samples.csv: sample sha256 must be 64 hex characters" in e
                                     for e in vc.check(data)[0]))
+
+    def test_each_row_is_checked_even_when_encoded_hashes_match(self):
+        for row_index in range(len(vc.load()["samples"])):
+            with self.subTest(row_index=row_index):
+                data = vc.load()
+                row = data["samples"][row_index]
+                # Exactly 64 characters, but unsafe as either an object key or a filename.
+                row["sha256"] = "ab/cd/" + "../" * 18 + "evil"
+                self.assertEqual(len(row["sha256"]), 64)
+                for family in data["families"].values():
+                    for doc in family["documents"]:
+                        if doc["sample_id"] == row["sample_id"]:
+                            doc["sha256"] = row["sha256"]
+                self.assertEqual(vc.check(data)[0], [
+                    f"samples.csv: {row['sample_id']} sha256 must be 64 hex characters"])
+
+    def test_csv_cli_rejects_bad_or_missing_sha256_and_accepts_valid_hex(self):
+        for digest in (*[x for x in BAD_HASHES if isinstance(x, str)],
+                       None, "0123456789abcdef" * 4, "ABCDEF0123456789" * 4):
+            with self.subTest(digest=digest), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                row = dict(self.data["samples"][0])
+                if digest is None:
+                    del row["sha256"]  # Missing CSV column, distinct from an empty cell.
+                else:
+                    row["sha256"] = digest
+                with (root / "samples.csv").open("w", encoding="utf-8", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=list(row))
+                    writer.writeheader()
+                    writer.writerow(row)
+                (root / "GAP_REPORT.md").write_text("| G01 | gap |\n", encoding="utf-8")
+                output = io.StringIO()
+                with mock.patch.object(vc, "VAL", root), \
+                        mock.patch.object(sys, "argv", ["validation_check.py"]), \
+                        redirect_stdout(output):
+                    result = vc.main()
+                if digest in ("0123456789abcdef" * 4, "ABCDEF0123456789" * 4):
+                    self.assertEqual(result, 0, output.getvalue())
+                    self.assertIn("internal consistency ok", output.getvalue())
+                else:
+                    self.assertEqual(result, 1, output.getvalue())
+                    self.assertIn("samples.csv: sample sha256 must be 64 hex characters",
+                                  output.getvalue())
+
+    def test_object_key_rejects_bad_hashes_directly(self):
+        for digest in BAD_HASHES:
+            with self.subTest(digest=digest), self.assertRaisesRegex(
+                    sa.UnsafeStoreKey, "sha256 must be 64 hex characters"):
+                sa.object_key(digest)
 
     def test_bad_urls_are_metadata_errors(self):
         for value in BAD_URLS:

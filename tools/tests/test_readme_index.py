@@ -1,4 +1,5 @@
 """README 인덱스의 경로·결정·구현 범위를 저장소 정본과 대조한다."""
+import fnmatch
 import re
 import unittest
 from pathlib import Path
@@ -6,18 +7,31 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 README = (ROOT / "README.md").read_text(encoding="utf-8")
 
+# 결정 디렉터리의 DEC 기록 계열. README 행이 이 계열을 모두 안내해야 한다.
+DEC_FAMILIES = (
+    "DEC-D-*.md",
+    "DEC-O*.md",
+    "DEC-CANON-*.md",
+    "DEC-BUNDLE-STATUS.md",
+)
 
-def row(path_cell):
-    for line in README.splitlines():
+
+def row(path_cell, text=None):
+    for line in (README if text is None else text).splitlines():
         if line.startswith(f"| `{path_cell}`"):
             return line
     raise AssertionError(f"README has no table row for {path_cell}")
 
 
+def listed_adr_numbers(text):
+    """ADR 행에서 `NNNN ` 형태로 나열된 번호를 문서 순서대로 돌려준다."""
+    return re.findall(r"(?<!\d)(\d{4}) ", text)
+
+
 class DecisionsRow(unittest.TestCase):
     def test_every_adr_number_is_listed(self):
         text = row("docs/decisions/")
-        listed = set(re.findall(r"(?<!\d)(\d{4}) ", text))
+        listed = set(listed_adr_numbers(text))
         on_disk = {
             m.group(1)
             for p in (ROOT / "docs/decisions").glob("ADR-*.md")
@@ -27,9 +41,31 @@ class DecisionsRow(unittest.TestCase):
         self.assertEqual(on_disk - listed, set(), "ADRs missing from README")
         self.assertEqual(listed - on_disk, set(), "README lists ADRs that do not exist")
 
+    def test_adr_numbers_are_listed_once_in_ascending_order(self):
+        numbers = listed_adr_numbers(row("docs/decisions/"))
+        self.assertEqual(numbers, sorted(set(numbers)),
+                         "README ADR list has duplicates or is out of order")
+
     def test_dec_records_exist_and_are_pointed_to(self):
         self.assertTrue(list((ROOT / "docs/decisions").glob("DEC-*.md")))
         self.assertIn("DEC-*", row("docs/decisions/"))
+
+    def test_dec_record_families_are_named_and_cover_every_record(self):
+        text = row("docs/decisions/")
+        for family in ("DEC-D-xx", "DEC-Oxx", "DEC-CANON-*", "DEC-BUNDLE-STATUS"):
+            with self.subTest(family=family):
+                self.assertIn(family, text)
+        for pattern in DEC_FAMILIES:
+            with self.subTest(pattern=pattern):
+                self.assertTrue(list((ROOT / "docs/decisions").glob(pattern)),
+                                f"no records match {pattern}")
+        records = (ROOT / "docs/decisions").glob("DEC-*.md")
+        unmatched = [
+            p.name
+            for p in records
+            if not any(fnmatch.fnmatchcase(p.name, pattern) for pattern in DEC_FAMILIES)
+        ]
+        self.assertEqual(unmatched, [], "README DEC families do not cover these records")
 
 
 class DocumentHierarchy(unittest.TestCase):

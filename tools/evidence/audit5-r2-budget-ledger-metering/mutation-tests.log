@@ -1,0 +1,273 @@
+test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) ... 
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=False) ... FAIL
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=True) ... FAIL
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=False) ... FAIL
+  test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=True) ... FAIL
+test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) ... 
+  test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=False) ... FAIL
+  test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=True) ... FAIL
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 1075, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=False, injected=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 1075, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 1075, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) (checkpoint=True, injected=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 1075, in test_ledger_get_exhausts_admission_before_reservation
+    with self.assertRaisesRegex(b.BudgetError, "get_bytes read 2 > limit 1"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 1111, in test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared
+    self.assertGreater(downloaded, 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+======================================================================
+FAIL: test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) (injected=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 1111, in test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared
+    self.assertGreater(downloaded, 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.961s
+
+FAILED (failures=6)
+PASS: rejected 'st.meter = self.meter' -> 'st.meter = None'
+test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) ... 
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=False) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=True) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=False) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=True) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=False) ... ERROR
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=True) ... FAIL
+
+======================================================================
+ERROR: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/r2_budget.py", line 390, in _get
+    return self.st.get(key)
+           ~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/source_archive.py", line 290, in get
+    r = self.s3.get_object(Bucket=self.bucket, Key=self._k(key))
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/home/box/.local/lib/python3.13/site-packages/botocore/client.py", line 1094, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (ServiceUnavailable) when calling the GetObject operation (reached max retries: 2): ServiceUnavailable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 925, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    s.open()
+    ~~~~~~^^
+  File "<mutant ledger=True, budget=self>", line 34, in open
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/r2_budget.py", line 635, in reserve
+    records, prev = ledger.read(known)
+                    ~~~~~~~~~~~^^^^^^^
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/r2_budget.py", line 475, in read
+    raw = self._get(key, "ledger record")
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/r2_budget.py", line 394, in _get
+    raise BudgetError(f"{what} {key} unreadable ({type(e).__name__})")
+r2_budget.BudgetError: budget: ledger record ledger/v1/0000000001.json unreadable (ClientError)
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 931, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    self.assertEqual(s.ledger.st.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 922, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    with self.assertRaisesRegex(b.BudgetError, "unreadable.*ClientError"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 931, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    self.assertEqual(s.ledger.st.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 2
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 922, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    with self.assertRaisesRegex(b.BudgetError, "unreadable.*ClientError"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 928, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    self.assertEqual([entry[3] for entry in reads],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [503] * failures + ([] if exhausted else [200]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [503, 503, 503] != [503, 503, 503, 503]
+
+Second list contains 1 additional elements.
+First extra element 3:
+503
+
+- [503, 503, 503]
++ [503, 503, 503, 503]
+?            +++++
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.792s
+
+FAILED (failures=5, errors=1)
+PASS: rejected 'ledger=True, budget=self' -> 'ledger=True'
+test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) ... 
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=False) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=True) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=False) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=True) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=False) ... FAIL
+  test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=True) ... FAIL
+test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) ... 
+  test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) (attempts=1) ... FAIL
+  test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) (attempts=2) ... FAIL
+  test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) (attempts=4) ... FAIL
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 931, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    self.assertEqual(s.ledger.st.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=1, exhausted=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 922, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    with self.assertRaisesRegex(b.BudgetError, "unreadable.*ClientError"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 931, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    self.assertEqual(s.ledger.st.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 2
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=2, exhausted=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 922, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    with self.assertRaisesRegex(b.BudgetError, "unreadable.*ClientError"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BudgetError not raised
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 931, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    self.assertEqual(s.ledger.st.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+======================================================================
+FAIL: test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) (attempts=4, exhausted=True)
+----------------------------------------------------------------------
+r2_budget.BudgetError: budget: retries would reach 4 > limit 3 (job t); stopped before the request
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 922, in test_ledger_get_uses_policy_total_attempts_before_active_is_set
+    with self.assertRaisesRegex(b.BudgetError, "unreadable.*ClientError"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "unreadable.*ClientError" does not match "budget: retries would reach 4 > limit 3 (job t); stopped before the request"
+
+======================================================================
+FAIL: test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) (attempts=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 966, in test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared
+    self.assertEqual(archive.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) (attempts=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 966, in test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared
+    self.assertEqual(archive.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 2
+
+======================================================================
+FAIL: test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) (attempts=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit5-r2-budget-ledger-metering/tools/tests/test_r2_budget.py", line 966, in test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared
+    self.assertEqual(archive.s3.meta.config.retries["total_max_attempts"], attempts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.861s
+
+FAILED (failures=9)
+PASS: rejected '"total_max_attempts": attempts' -> '"max_attempts": attempts'

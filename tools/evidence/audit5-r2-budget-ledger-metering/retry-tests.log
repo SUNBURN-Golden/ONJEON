@@ -1,0 +1,6 @@
+test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.025s
+
+OK

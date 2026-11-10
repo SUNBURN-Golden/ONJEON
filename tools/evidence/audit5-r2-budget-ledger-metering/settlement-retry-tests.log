@@ -1,0 +1,6 @@
+test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.306s
+
+OK

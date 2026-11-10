@@ -10,7 +10,7 @@
 | 증거 | 결과 |
 |---|---|
 | [before.log](before.log) | 수정 전 초기 회귀 7개 실행, 하위 사례 실패 118건, 오류 0, 종료 1 |
-| [after.log](after.log) | 기존 회귀 7개와 사전 검사 회귀 3개: 10개 통과, 종료 0 |
+| [after.log](after.log) | 기존 회귀 7개와 사전 검사 회귀 6개(Fix round 1 포함): 13개 통과, 종료 0 |
 | [모의 시나리오](../../daemon/reports/dry_run.log) | 검사 692건 통과, 필수 ID 33/33, 누락·미등록·중복 0, 종료 0 |
 | [데몬 회귀](../../daemon/reports/unittest.log) | 289개 통과, 종료 0; 현재 소스 내용 해시 기록 |
 | [runner-adapter-tests.log](runner-adapter-tests.log) | 실제 실행기 Adapters·StaticChecks 11개 통과, 종료 0 |
@@ -18,7 +18,7 @@
 | [runner-static-checks.log](runner-static-checks.log) | 실제 실행기 정적 검사 7/7 통과 |
 | [python-before-baseline-tests.log](python-before-baseline-tests.log) | 최초 전체 Python 1,434개 실행, 규칙 파일의 기존 전체 해시 고정 때문에 실패 1건, 기존 skip 6개 |
 | [rules-scope-check.log](rules-scope-check.log), [baseline-regressions.log](baseline-regressions.log) | 탐지·제외·설명 이외 JSON은 HEAD와 동일; D-04 해시 픽스처 갱신 후 관련 회귀 21개 통과 |
-| [python-tests.log](python-tests.log) | 최종 전체 Python 1,435개 실행, 실패·오류 0, 기존 skip 6개, 종료 0 |
+| [python-tests.log](python-tests.log) | 최종 전체 Python 1,440개 실행, 실패·오류 0, 기존 skip 6개, 종료 0 |
 | [rust-tests.log](rust-tests.log) | 워크스페이스 513개 통과, 기존 fixture 재생성 시험 1개 ignored, 종료 0 |
 | [ontology-runner-tests.log](ontology-runner-tests.log) | 온톨로지 실행기 4개 통과, 종료 0 |
 | [spec-check.log](spec-check.log) | 기계 검사 45/45·존재 검사 72/72 통과, 종료 0 |
@@ -27,8 +27,9 @@
 
 초기 7개 시험에는 corpus가 시험 파일 안에 있었고, 구현 후 같은 corpus를 실행기 사전 검사 모듈로
 옮겨 공유했다. `before.log`의 합성 문자열·행 번호는 이 초기 버전을 가리킨다.
-새 3개 시험은 현재 규칙 통과, 빈/누락/잘못된 패턴 차단, 읽기/JSON/구조 오류 차단을 검증한다.
-최종 전체 Python 실행은 이 10개를 모두 포함한다. 기존 skip 6개는 보관소 환경 미설정 2개,
+이후 3개 시험은 현재 규칙 통과, 빈/누락/잘못된 패턴 차단, 읽기/JSON/구조 오류 차단을 검증했고,
+Fix round 1에서 3개를 더해 corpus 라벨 25개 고정, digest 파일이 있는 인계 통과와 비밀 아님 경계의
+유지, 빈 패턴·모두 일치 패턴 거부를 검증한다. 최종 전체 Python 실행은 이 13개를 모두 포함한다. 기존 skip 6개는 보관소 환경 미설정 2개,
 로컬 보관소·pdftotext 필요 3개, 설치된 botocore가 조건부 쓰기를 지원해 해당하지 않는 구버전 시험 1개다.
 
 재현(루트에서 Rust 1.98.1·잠긴 의존성 준비 후):
@@ -51,9 +52,12 @@ python3 -I tools/blueprint_counts.py
 ```
 
 실제 Git 제외 시험은 임시 인덱스·트리만 만들고 subprocess 명령을 init·add·write-tree·ls-files로
-제한한다. 데몬 보존 시험은 메모리 모의 포트를 사용한다. CLI 실패 시험은 Ctx·시나리오 호출과
-보고서 디렉터리 생성이 모두 없는지 확인한다. Git 커밋·푸시·GitHub·실제 제공자 호출은 없으며,
-커밋·푸시를 수행하는 T-OP-09 전체 시나리오는 실행하지 않았다.
+제한하며, 기본 인덱스는 전후 `ls-files -s`가 같은지 확인한다. 데몬 보존 시험은 메모리 모의 포트를
+사용한다. CLI 실패 시험은 Ctx·시나리오 호출과 보고서 디렉터리 생성이 모두 없는지 확인한다.
+Git 커밋·푸시·GitHub·실제 제공자 호출은 없으며, 커밋·푸시를 수행하는 T-OP-09 전체 시나리오는
+실행하지 않았다.
 
-단독 32/64자리 hex는 같은 길이의 일반 해시도 차단할 수 있다. 임의 형식 비밀값 전체의 탐지를
-보장하지 않는다. 이 결과는 BLUEPRINT §9.5·09 §5의 개발 도구 증거이며 P01~P19나 첫 출시 완료 증거가 아니다.
+자격 이름 없는 단독 32/64자리 hex는 같은 모양의 일반 digest와 구분할 수 없어 탐지하지 않는다.
+`R2_SECRET_ACCESS_KEY=<hex>`처럼 credential 이름이 붙은 값은 탐지한다. 패턴 기반 검사이므로
+임의 형식 비밀값 전체의 탐지를 보장하지 않는다. 이 결과는 BLUEPRINT §9.5·09 §5의 개발 도구
+증거이며 P01~P19나 첫 출시 완료 증거가 아니다.

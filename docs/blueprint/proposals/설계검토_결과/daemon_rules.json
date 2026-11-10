@@ -324,7 +324,7 @@
         "(?:ghp_|ghs_)[A-Za-z0-9]{36}",
         "github_pat_[A-Za-z0-9_]{82}",
         "(?i)\\bBearer[ \\t]+[A-Za-z0-9._~+/-]{16,}=*",
-        "(?<![A-Za-z0-9_])(?:[A-Fa-f0-9]{64}|[A-Fa-f0-9]{32})(?![A-Za-z0-9_])",
+        "(?i)(?:r2|s3|aws|cloudflare|cf)[_-]?(?:secret[_-]?access[_-]?key|access[_-]?key(?:[_-]?id)?)['\"]?\\s*[:=]\\s*['\"]?(?:[A-Fa-f0-9]{64}|[A-Fa-f0-9]{32})(?![A-Za-z0-9_])",
         "xox[baprs]-[A-Za-z0-9-]{10,}"
       ],
       "scan": [

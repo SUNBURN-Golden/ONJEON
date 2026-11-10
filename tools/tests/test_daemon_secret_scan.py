@@ -20,7 +20,7 @@ from daemon import scenarios as sc
 from daemon.core import Rules, secret_scan
 from daemon.mock_env import MockEnv
 from daemon.runner_verify import cli, secret_scan_preflight
-from daemon.runner_verify.secret_scan_preflight import corpus
+from daemon.runner_verify.secret_scan_preflight import CASES, corpus, non_secret
 from daemon.runner_verify.adapters import RealGit
 from daemon.runner_verify.common import Layout
 
@@ -41,6 +41,11 @@ class SecretCorpus(unittest.TestCase):
         cls.rules = Rules(json.loads(RULES.read_text(encoding="utf-8")))
         cls.pats = secret_scan.patterns(cls.rules)
 
+    def test_corpus_labels_are_pinned(self):
+        # Removing a format from corpus() must not silently remove it from the preflight too.
+        self.assertEqual(set(corpus()), set(CASES))
+        self.assertEqual(len(corpus()), 25)
+
     def test_real_format_corpus_is_detected_and_recursively_redacted(self):
         for label, value in corpus().items():
             with self.subTest(case=label):
@@ -51,16 +56,9 @@ class SecretCorpus(unittest.TestCase):
                 self.assertEqual(clean, {"details": ["safe", (secret_scan.REDACTED,)]})
                 self.assertEqual(secret_scan.count_in(self.pats, nested), hits)
 
-    def test_nonsecret_boundaries_and_ordinary_git_ids_are_preserved(self):
-        values = [
-            "public documentation", "R2_SECRET_ACCESS_KEY=", '"token": "short"',
-            "Bearer <redacted>", "Bearer ${TOKEN}", "api_key=${API_KEY}",
-            "token = self.credentials.token(name, task_id)",
-            "a" * 31, "a" * 33, "a" * 40, "a" * 63, "a" * 65, "a" * 128,
-            "prefix_" + "a" * 32, "a" * 64 + "_suffix",
-        ]
-        for index, value in enumerate(values):
-            with self.subTest(case=index):
+    def test_nonsecret_boundaries_and_ordinary_digests_are_preserved(self):
+        for label, value in non_secret().items():
+            with self.subTest(case=label):
                 self.assertEqual(secret_scan.redact(self.pats, value), (value, 0))
 
     def test_corpus_stops_handoff_before_commit_or_push(self):
@@ -73,7 +71,21 @@ class SecretCorpus(unittest.TestCase):
                 self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
                                   env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
                 self.assertEqual((env.ports.git.commit_count, env.ports.git.push_count), (0, 0))
-                self.assertNotIn(value, json.dumps(env.journal()))
+                self.assertEqual(secret_scan.count_in(self.pats, env.journal()), 0)
+
+    def test_digest_bearing_files_do_not_stop_handoff(self):
+        # Lock-file checksums and log hashes share the 32/64-hex shape but are not credentials.
+        env, path = sc.handoff_bench(str(RULES), str(TASKS))
+        hex32, hex64 = "a1" * 16, "b2" * 32
+        env.ports.worktree.write(path, "Cargo.lock", 'checksum = "' + hex64 + '"\n')
+        env.ports.worktree.write(path, "checksums.json",
+                                 json.dumps({"sha256": hex64, "content_hash": hex32}) + "\n")
+        env.ports.worktree.write(path, "build.log", "sha256:" + hex64 + "\n")
+        env.clock.advance(1)
+        sc.switch(env)
+        self.assertEqual(env.state(sc.HANDOFF), "leased")
+        self.assertGreaterEqual(env.ports.git.commit_count, 1)
+        self.assertEqual(env.ports.git.push_count, 1)
 
     def test_corpus_rejects_result_signal_and_heartbeat_without_storing_values(self):
         for label, value in corpus().items():
@@ -96,7 +108,7 @@ class SecretCorpus(unittest.TestCase):
                     self.assertEqual(env.task(sc.BASIC)["task_state"]["return_code"], "R-10")
                     self.assertEqual(env.lease(sc.BASIC)["status"], "revoked")
                     self.assertEqual(env.task(sc.BASIC)["inbox_seen"], seen)
-                    self.assertNotIn(value, json.dumps(env.core.snapshot()))
+                    self.assertEqual(secret_scan.count_in(self.pats, env.core.snapshot()), 0)
 
     def test_corpus_is_redacted_before_journal_append(self):
         for label, value in corpus().items():
@@ -107,7 +119,7 @@ class SecretCorpus(unittest.TestCase):
                 snapshot = env.core.snapshot()
                 self.assertEqual(snapshot["journal"][-1]["details"], [secret_scan.REDACTED])
                 self.assertGreater(snapshot["secret_hits"][-1]["match_count"], 0)
-                self.assertNotIn(value, json.dumps(snapshot))
+                self.assertEqual(secret_scan.count_in(self.pats, snapshot), 0)
 
 
 class ManifestExcludes(unittest.TestCase):
@@ -142,20 +154,49 @@ class ManifestExcludes(unittest.TestCase):
                     target = layout.clone / rel
                     target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_text("ordinary text", encoding="utf-8")
+                digest = "b2" * 32
+                digest_files = {
+                    "Cargo.lock": 'checksum = "' + digest + '"\n',
+                    "manifest.json": json.dumps({"sha256": digest}) + "\n",
+                }
+                for rel, content in digest_files.items():
+                    (layout.clone / rel).write_text(content, encoding="utf-8")
+                expected = set(KEPT) | set(digest_files)
                 files = git.included_files(layout.clone)
-                self.assertEqual(set(files), set(KEPT))
-                # The manifest filters both newly added and already staged files.
+                self.assertEqual(set(files), expected)
+                # A digest-bearing file is preserved but is not a secret; a bare 64-hex value
+                # without a credential name must not stop the handoff.
+                pats = secret_scan.patterns(rules)
+                for rel, _content in digest_files.items():
+                    self.assertEqual(secret_scan.count(pats, files[rel]), 0, rel)
+                # included_files uses a throwaway index, so the default index never affects the
+                # manifest and is never changed by it. Stage everything, then compare both sides.
                 git._git(["add", "-A"], cwd=layout.clone)
-                self.assertEqual(set(git.included_files(layout.clone)), set(KEPT))
+                staged_before = git._git(["ls-files", "-s", "-z"], cwd=layout.clone).stdout
+                self.assertEqual(set(git.included_files(layout.clone)), expected)
+                staged_after = git._git(["ls-files", "-s", "-z"], cwd=layout.clone).stdout
+                self.assertEqual(staged_after, staged_before)
 
 
 class RunnerPreflight(unittest.TestCase):
     def test_current_rules_cover_every_preflight_case(self):
         self.assertEqual(secret_scan_preflight.missing_cases(RULES), [])
 
+    def test_empty_and_all_matching_patterns_are_rejected(self):
+        original = json.loads(RULES.read_text(encoding="utf-8"))
+        for patterns, expected in (([""], lambda f: f == "empty-pattern"),
+                                   (["."], lambda f: f.startswith("non-secret:")),
+                                   ([".*"], lambda f: f.startswith("non-secret:"))):
+            with self.subTest(patterns=patterns), tempfile.TemporaryDirectory(dir=ROOT) as tmp:
+                original["preserve_manifest"]["secret_patterns"]["patterns"] = patterns
+                rules_path = Path(tmp) / "rules.json"
+                rules_path.write_text(json.dumps(original), encoding="utf-8")
+                failures = secret_scan_preflight.missing_cases(rules_path)
+                self.assertTrue(any(expected(f) for f in failures), failures)
+
     def test_missing_or_invalid_patterns_stop_cli_before_any_scenario(self):
         original = json.loads(RULES.read_text(encoding="utf-8"))
-        for patterns in ([], ["never-matches"], ["["]):
+        for patterns in ([], ["never-matches"], ["["], [""], ["."], [".*"]):
             with self.subTest(patterns=patterns), tempfile.TemporaryDirectory(dir=ROOT) as tmp:
                 original["preserve_manifest"]["secret_patterns"]["patterns"] = patterns
                 rules_path = Path(tmp) / "rules.json"

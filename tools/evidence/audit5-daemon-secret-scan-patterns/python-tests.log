@@ -675,12 +675,15 @@ test_unknown_duplicate_and_sentinel_ids_cannot_hide_missing_tests (test_daemon_r
 test_mock_manifest_excludes_env_variants_and_case_variants (test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) ... ok
 test_real_git_manifest_matches_mock_without_commits_or_pushes (test_daemon_secret_scan.ManifestExcludes.test_real_git_manifest_matches_mock_without_commits_or_pushes) ... ok
 test_current_rules_cover_every_preflight_case (test_daemon_secret_scan.RunnerPreflight.test_current_rules_cover_every_preflight_case) ... ok
+test_empty_and_all_matching_patterns_are_rejected (test_daemon_secret_scan.RunnerPreflight.test_empty_and_all_matching_patterns_are_rejected) ... ok
 test_missing_or_invalid_patterns_stop_cli_before_any_scenario (test_daemon_secret_scan.RunnerPreflight.test_missing_or_invalid_patterns_stop_cli_before_any_scenario) ... ok
 test_unreadable_and_malformed_rules_stop_cli (test_daemon_secret_scan.RunnerPreflight.test_unreadable_and_malformed_rules_stop_cli) ... ok
 test_corpus_is_redacted_before_journal_append (test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) ... ok
+test_corpus_labels_are_pinned (test_daemon_secret_scan.SecretCorpus.test_corpus_labels_are_pinned) ... ok
 test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) ... ok
 test_corpus_stops_handoff_before_commit_or_push (test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) ... ok
-test_nonsecret_boundaries_and_ordinary_git_ids_are_preserved (test_daemon_secret_scan.SecretCorpus.test_nonsecret_boundaries_and_ordinary_git_ids_are_preserved) ... ok
+test_digest_bearing_files_do_not_stop_handoff (test_daemon_secret_scan.SecretCorpus.test_digest_bearing_files_do_not_stop_handoff) ... ok
+test_nonsecret_boundaries_and_ordinary_digests_are_preserved (test_daemon_secret_scan.SecretCorpus.test_nonsecret_boundaries_and_ordinary_digests_are_preserved) ... ok
 test_real_format_corpus_is_detected_and_recursively_redacted (test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) ... ok
 test_builtins_mapping_and_attribute_access (test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ... ok
 test_existing_scheduler_bans_still_hold (test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ... ok
@@ -931,7 +934,9 @@ test_job_closure_allows_other_job_until_global_cap (test_r2_budget.EndToEnd.test
 test_last_admission_closes_before_ledger_read_failure (test_r2_budget.EndToEnd.test_last_admission_closes_before_ledger_read_failure) ... ok
 test_ledger_admission_archive_and_settlement_reads_are_charged (test_r2_budget.EndToEnd.test_ledger_admission_archive_and_settlement_reads_are_charged) ... ok
 test_ledger_get_exhausts_admission_before_reservation (test_r2_budget.EndToEnd.test_ledger_get_exhausts_admission_before_reservation) ... ok
+test_ledger_get_uses_policy_total_attempts_before_active_is_set (test_r2_budget.EndToEnd.test_ledger_get_uses_policy_total_attempts_before_active_is_set) ... ok
 test_month_rollover_allows_admission_after_successful_closure (test_r2_budget.EndToEnd.test_month_rollover_allows_admission_after_successful_closure) ... ok
+test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared (test_r2_budget.EndToEnd.test_policy_attempts_cover_archive_and_settlement_after_active_is_cleared) ... ok
 test_repeated_refused_runs_are_recorded_then_closed (test_r2_budget.EndToEnd.test_repeated_refused_runs_are_recorded_then_closed)
 Finding 1: a run refused after reading the ledger left no trace, so repeating it was free. ... ok
 test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared (test_r2_budget.EndToEnd.test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared) ... ok
@@ -1521,6 +1526,6 @@ test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.Wo
 test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 1435 tests in 189.668s
+Ran 1440 tests in 195.394s
 
 OK (skipped=6)

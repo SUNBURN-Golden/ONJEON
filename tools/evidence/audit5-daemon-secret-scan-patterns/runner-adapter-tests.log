@@ -11,6 +11,6 @@ test_checks_can_fail (tools.daemon.runner_verify.tests.test_runner_verify.Static
 test_the_tool_never_writes_outside_its_own_paths_by_construction (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_the_tool_never_writes_outside_its_own_paths_by_construction) ... ok
 
 ----------------------------------------------------------------------
-Ran 11 tests in 0.366s
+Ran 11 tests in 0.287s
 
 OK

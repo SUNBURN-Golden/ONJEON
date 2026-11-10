@@ -1,4 +1,5 @@
-Compared HEAD daemon_rules.json with current JSON.
-Only preserve_manifest.excludes, preserve_manifest.secret_patterns.patterns and explanatory _exclude_matching changed.
+Compared base commit 83666d081b71191a653f77f208e12b76dd1b4dda daemon_rules.json with current JSON.
+Changed paths: preserve_manifest._exclude_matching, preserve_manifest.excludes, preserve_manifest.secret_patterns.patterns
+Only the secret patterns, exclusion list and their explanatory _exclude_matching differ.
 All other fields, including transitions, credentials and gates, are identical.
 PASS

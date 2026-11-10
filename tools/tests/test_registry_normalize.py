@@ -4,6 +4,8 @@ import io
 import os
 import re
 import runpy
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -331,6 +333,59 @@ class RegistryCsv(unittest.TestCase):
         with redirect_stdout(io.StringIO()):
             runpy.run_path(str(script), run_name="__main__")
         self.assertEqual({p.name: p.read_bytes() for p in registry.glob("*.csv")}, before)
+
+
+class RegistryCli(unittest.TestCase):
+    def test_repairs_legacy_registry_with_empty_access_log_from_another_directory(self):
+        # Exercise the real entry point with all four CSVs, without touching the
+        # repository registry. The eight legacy claims and empty log were the
+        # two audit findings; both must be safe in a single normalization run.
+        names = ("insurers", "cooperatives_and_others", "excluded_or_historical", "access_log")
+        originals = {name: (rn.REG / f"{name}.csv").read_bytes() for name in names}
+        for empty_log in (b"", b"url,result\r\n"):
+            with self.subTest(empty_log=empty_log), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                script = root / "tools/registry_normalize.py"
+                script.parent.mkdir()
+                shutil.copyfile(rn.__file__, script)
+                vocab = root / "packages/schemas/vocabulary.json"
+                vocab.parent.mkdir(parents=True)
+                shutil.copyfile(rn.ROOT / "packages/schemas/vocabulary.json", vocab)
+                registry = root / "data/registry"
+                registry.mkdir(parents=True)
+                for name, contents in originals.items():
+                    (registry / f"{name}.csv").write_bytes(contents)
+                insurers = registry / "insurers.csv"
+                with insurers.open(encoding="utf-8", newline="") as f:
+                    legacy = list(csv.DictReader(f))
+                affected = [r for r in legacy if r["disclosure_url"].strip()
+                            and r["disclosure_access"] == "reachable"]
+                self.assertEqual(len(legacy), 53)
+                self.assertEqual(len(affected), 8)
+                for row in affected:
+                    row["disclosure_status"] = "archived"
+                    row["disclosure_gap_reason"] = ""
+                with insurers.open("w", encoding="utf-8", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=list(legacy[0]))
+                    writer.writeheader()
+                    writer.writerows(legacy)
+                (registry / "access_log.csv").write_bytes(empty_log)
+                expected = dict(originals, access_log=empty_log)
+                for attempt in range(2):
+                    result = subprocess.run([sys.executable, str(script)], cwd=script.parent,
+                                            text=True, capture_output=True, timeout=30)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stderr, "")
+                    self.assertEqual(result.stdout.splitlines(), [
+                        "insurers 53", "cooperatives_and_others 16",
+                        "excluded_or_historical 49", "access_log 0",
+                    ])
+                    for name, contents in expected.items():
+                        with self.subTest(attempt=attempt, table=name):
+                            self.assertEqual((registry / f"{name}.csv").read_bytes(), contents)
+                    self.assertEqual({p.name for p in registry.iterdir()},
+                                     {f"{name}.csv" for name in names})
+        self.assertEqual({name: (rn.REG / f"{name}.csv").read_bytes() for name in names}, originals)
 
 
 class WorkflowWiring(unittest.TestCase):

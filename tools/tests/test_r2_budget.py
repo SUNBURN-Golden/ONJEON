@@ -975,13 +975,15 @@ class EndToEnd(Fixture):
                     self.assertEqual(len([key for bucket, key in self.stub.objects
                                           if key.startswith(b.LEDGER_PREFIX)]), 1)
 
-    def test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared(self):
+    @mock.patch.object(b.time, "monotonic", return_value=100)
+    def test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared(self, clock):
         self.write_policy(per_month_global=10)
         self.write_job(admissions_per_month=5, class_a=1000)
         self.seed_ledger()
         seeded = dict(self.stub.objects)
         for injected in (False, True):
             with self.subTest(injected=injected):
+                clock.return_value = 100
                 self.stub.objects = dict(seeded)
                 st = sa.S3Store("s3://ledger", self.stub.endpoint, ledger=True) if injected else None
                 s = b.start(str(self.job_path), self.stub.endpoint, ledger_store=st,
@@ -994,8 +996,8 @@ class EndToEnd(Fixture):
                     # Exhaust the remaining allowance before finish() reads the reservation tail.
                     s.meter.limits["get_bytes"] = downloaded
                 finally:
-                    with mock.patch.object(b.time, "monotonic", return_value=s.meter.start + 601):
-                        summary = b.finish("ok")
+                    clock.return_value = s.meter.start + 601
+                    summary = b.finish("ok")
                 self.assertIsNone(b.ACTIVE)
                 self.assertEqual(summary["settlement"], {"settlement_failed": "BudgetError"})
                 self.assertEqual(summary["used"]["seconds"], 601)
@@ -1130,13 +1132,15 @@ class AlarmHandler(Fixture):
         self.assertEqual(rec, {"settlement_failed": "OSError"})
         self.assertIs(signal.getsignal(signal.SIGALRM), mine)
 
-    def test_expired_run_still_summarizes_when_settlement_write_fails(self):
+    @mock.patch.object(b.time, "monotonic", return_value=100)
+    def test_expired_run_still_summarizes_when_settlement_write_fails(self, clock):
         s = self.session()
         self.addCleanup(s._restore_alarm)
         self.addCleanup(s.gate.leave)
         s.open()
-        with mock.patch.object(b.time, "monotonic", return_value=s.meter.start + 601), \
-                mock.patch.object(s.ledger, "append", side_effect=OSError("down")):
+        # Control the start too: (real_start + 601) - real_start can round below 601.
+        clock.return_value = s.meter.start + 601
+        with mock.patch.object(s.ledger, "append", side_effect=OSError("down")):
             rec = s.settle("ok")
             summary = s.summary()
         self.assertEqual(rec, {"settlement_failed": "OSError"})

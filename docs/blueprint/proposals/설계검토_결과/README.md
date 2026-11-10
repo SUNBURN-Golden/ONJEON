@@ -7,7 +7,7 @@
 - **일부 상품 시연이나 자동 개발 데몬 완성을 첫 출시 완성품으로 바꾸지 않는다.** 데몬 과제(T-OP-00·T-OP-09, daemon_rules.json)는 개발 도구이며 출시 완성품의 일부가 아니다. 최종 관문 T-OP-08은 09의 모든 행(근거 있는 축소·후속 제외)이 등록부 증거로 닫혀야 통과한다(`purpose-rows-all-closed`).
 - 범위를 줄이거나 후속으로 옮긴 것은 09의 "축소·후속" 칸에 근거(사용자 결정 ID·정본)와 함께만 적는다. 근거 없는 축소는 없다.
 
-작성 2026-10-12 | 검토 대상 SHA **ffbcaf6**(사용자 검토 "수정 후 재검토", 상세 검토서 `검증/사용자검토_ffbcaf6/REVIEW.md`) → 2cdd663(수정판 1차) → 9554c96(수정판 2차, 독립 재검토 "수정 후 재검토", `검증/사용자재검토_9554c96/REVIEW.md`) → e02755a(수정판 3차, 재검토 S01~S03) → 10f470c(수정판 4차, 재검토 T01~T04) → 12c1726(수정판 5차, 재검토 U01·U02) → 이 판(U01·U02 대조) | 상태: **수정판 6차 제출. 과제 실행·완료 기준으로 채택(사용자 결정 2026-10-13, [DEC-BUNDLE-STATUS](../../../decisions/DEC-BUNDLE-STATUS.md)): 09·tasks.json·daemon_rules.json이 과제 실행과 완료 판정의 기준이고 상위 계약 아래 09가 최상위 완료 기준이다. 09·tasks.json은 BLUEPRINT 하위 계약으로 한정 채택(ADR-0019). 09는 제품 완료 증거 기준, tasks.json은 데몬 작업 소스·개별 수락 기준이다. 상위 계약을 우선한다. 묶음 전체·온톨로지·daemon_rules.json·common_done_criteria는 이번 정본 채택 대상이 아니다. 나머지 정본 반영은 D-21 경로(새 ADR)와 PR별 작성 계열 밖 독립 리뷰를 따른다([ADR-0019](../../../decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)).** 작성 세션은 실행하지 않았다.
+작성 2026-10-12 | 검토 대상 SHA **ffbcaf6**(사용자 검토 "수정 후 재검토", 상세 검토서 `검증/사용자검토_ffbcaf6/REVIEW.md`) → 2cdd663(수정판 1차) → 9554c96(수정판 2차, 독립 재검토 "수정 후 재검토", `검증/사용자재검토_9554c96/REVIEW.md`) → e02755a(수정판 3차, 재검토 S01~S03) → 10f470c(수정판 4차, 재검토 T01~T04) → 12c1726(수정판 5차, 재검토 T01~T04) → 1f70cdc(수정판 6차, 재검토 U01·U02) → 이 판(수정판 7차, 사용자 결정 U-05·빌더 공백 G01~G28 대조) | 상태: **수정판 7차 제출. 과제 실행·완료 기준으로 채택(사용자 결정 2026-10-13, [DEC-BUNDLE-STATUS](../../../decisions/DEC-BUNDLE-STATUS.md)): 09·tasks.json·daemon_rules.json이 과제 실행과 완료 판정의 기준이고 상위 계약 아래 09가 최상위 완료 기준이다. 09·tasks.json은 BLUEPRINT 하위 계약으로 한정 채택(ADR-0019). 09는 제품 완료 증거 기준, tasks.json은 데몬 작업 소스·개별 수락 기준이다. 상위 계약을 우선한다. 묶음 전체·온톨로지·daemon_rules.json·common_done_criteria는 이번 정본 채택 대상이 아니다. 나머지 정본 반영은 D-21 경로(새 ADR)와 PR별 작성 계열 밖 독립 리뷰를 따른다([ADR-0019](../../../decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)).** 작성 세션은 실행하지 않았다.
 
 ## 0. 작성 주체와 실행 경로
 
@@ -27,12 +27,12 @@ Audit 4(2026-11-04)의 추적 요구는 PR 본문의 `tasks.json` 과제 ID·노
 |---|---|
 | ffbcaf6 | 첫 제출(01~06, tasks.json, daemon_rules.json). 검토 대상 4549fd0 |
 | 수정판 1차(2cdd663) | 사용자 검토 요지(상세 검토서 수신 전) 반영. 유지한 것: 구역 분리, 개인 영역 보호, 온톨로지와 계산 엔진의 역할 구분, 근거·정정 이력, 독립 리뷰 방향 |
-| 수정판 2차(이 판) | 상세 검토서 원본 F01~F12 대조. tasks.json 0.3(decision_gates 네 키, path_policy·Cargo 잠금, feature_registry 증거·수락 시험, test_profiles, verification_kind, 필수 시험 ID 36종), daemon_rules 0.3(noop 사건, 모든 활성 상태의 head_sha_changed, merged_invalid_approval, hard_stop, budget_enforcement, signal_validation, execution_core, record_separation), 02 §6a 근거 정책·비교 자격·environment 분리, 08_요구추적표 신설, WP 개수 정정(실제 WP 행 40개). 상세는 [07_수정대응표.md](07_수정대응표.md) |
-| 수정판 3차(이 판) | 독립 재검토 9554c96의 R01~R06 대조(07 §1a). R01 판의 구성과 근거 묶음·판정 결과 셋(02 §1.1·§1.2·§1.3a, T-KN-01 시험 4종), R02 입력 단계 연결 검증(02 §1.7·C-26, 01 §4, T-TW-01 시험 4종), R03 검사 도구와 통합 시험 분리(T-CT-06/T-CT-07 신설, T-KN-03, T-KN-01→T-KN-04 프로필 시험), R04 데몬 전이·늦은 결과 no-op·인계 순서·공통 임대 가드·병합 관측 필드(daemon_rules 0.3: handoff_sequence, lease_guards, late_envelope_rejected, merge_observation_fields; T-OP-00 시험 5종), R05 봉투 권한 필드 real_data_allowed·canon_change_approval(R-13, T-CT-02), R06 가격 원시 보존·조항 ID 한 형식·이유 종류별 근거(02 §1.1·§1.5·§6, T-KN-04·T-DT-02·T-AP-09). 릴리스 input_stage_edition(02 §1.3). A-01 권고 문구 기록(02 §1.6, 07 §3). 온톨로지 쪽 수정(K16·K13·resolve, rel:case-r26, 결과 21/21)은 구현자가 했다 |
+| 수정판 2차(그 판) | 상세 검토서 원본 F01~F12 대조. tasks.json 0.3(decision_gates 네 키, path_policy·Cargo 잠금, feature_registry 증거·수락 시험, test_profiles, verification_kind, 필수 시험 ID 36종), daemon_rules 0.3(noop 사건, 모든 활성 상태의 head_sha_changed, merged_invalid_approval, hard_stop, budget_enforcement, signal_validation, execution_core, record_separation), 02 §6a 근거 정책·비교 자격·environment 분리, 08_요구추적표 신설, WP 개수 정정(실제 WP 행 40개). 상세는 [07_수정대응표.md](07_수정대응표.md) |
+| 수정판 3차(그 판) | 독립 재검토 9554c96의 R01~R06 대조(07 §1a). R01 판의 구성과 근거 묶음·판정 결과 셋(02 §1.1·§1.2·§1.3a, T-KN-01 시험 4종), R02 입력 단계 연결 검증(02 §1.7·C-26, 01 §4, T-TW-01 시험 4종), R03 검사 도구와 통합 시험 분리(T-CT-06/T-CT-07 신설, T-KN-03, T-KN-01→T-KN-04 프로필 시험), R04 데몬 전이·늦은 결과 no-op·인계 순서·공통 임대 가드·병합 관측 필드(daemon_rules 0.3: handoff_sequence, lease_guards, late_envelope_rejected, merge_observation_fields; T-OP-00 시험 5종), R05 봉투 권한 필드 real_data_allowed·canon_change_approval(R-13, T-CT-02), R06 가격 원시 보존·조항 ID 한 형식·이유 종류별 근거(02 §1.1·§1.5·§6, T-KN-04·T-DT-02·T-AP-09). 릴리스 input_stage_edition(02 §1.3). A-01 권고 문구 기록(02 §1.6, 07 §3). 온톨로지 쪽 수정(K16·K13·resolve, rel:case-r26, 결과 21/21)은 구현자가 했다 |
 | 수정판 4차(10f470c) | 재검토 e02755a의 S02·S03만 좁혀 반영(07 §1b). S02 인계 순서를 stop → isolate → confirm_quiescent → preserve(데몬 보존 전용 자격) → revoke_token → issue_next_lease로 개정하고 정지 확인 조건(`concurrency.quiescence`)을 둠. S03 `lease_generation` 기반 멱등 키와 `duplicate_delivery`/`retry` 정책 분리, 임대 발급 전이의 side_effects. T-OP-00·T-OP-09에 handoff-quiescent-before-preserve·duplicate-delivery-noop·retry-new-idempotency-key(M33~M35, R11~R13). **명세 수정이며 실제 데몬 동작 증명이 아니다.** S01(복수 특약 후보 복수 차단)은 구현자가 온톨로지를 고친 뒤 02 §1.7·T-TW-01 문구를 맞춘다(이 판 미반영). 검사기 G34 순서 변경·G42 추가는 구현자 몫이며 이 판 실행 시 옛 G34는 실패한다 |
 | 수정판 5차(12c1726) | 재검토 10f470c의 T01~T04만 좁혀 반영(07 §1c). T01(구현자 온톨로지 수정: 범위 미확인 연결 scope_unknown 보류·무관한 특약 허용·경쟁 판 보류·순서 독립, 결과 24/24)을 02 §1.7·T-TW-01에 반영. T02 `preserve_manifest`(git write-tree tree OID 비교, 삭제·미추적·모드·링크·제외 경로 정의, 정지 확인과 보존 확인이 같은 함수). T03 `handoff_blocked` 상태·실패 사건 전이·`handoff_failure_policy`(always_revoke에 preserve_credential, max_attempts, recovery_decision, R-14), 로컬/원격 보존 상태 분리. T04 `envelope_identity=envelope_id`·멱등 키에 envelope_id, `lease_issue`(issue_lease 단일 발급, atomic_record, restart_recovery), 전이·인계 단계의 별도 증가 제거. T-OP-00·T-OP-09에 5종 시험(M36~M40, R14~R18). **T02~T04는 명세 수정이며 실제 데몬 동작 증명이 아니다** |
 | 수정판 6차(직전) | 재검토 12c1726의 U01·U02만 반영(07 §1d). U01: 02 §1.2 `applies_to`·`application_scope_complete`, §1.7 1a 재작성(정의 위치≠적용 관계, 건너뛰기는 (가)(나) 둘 다, 사례 시험 전제), T-TW-01 시험 2종(온톨로지 쪽은 구현자 진행 중). U02: 복구 실패 뒤 재발급 규칙 통일(returned(R-08) → owner_resolved → queued → issue_lease, 자동 재발급 없음), `state_integrity`(정상 만료 vs 손상, 재발송 조건), 봉투에 lease_generation·lease_expires_at, 수신 측 검증, **모의 코어 계약 `core_contract`와 `transitions[].cond` 구조화**(05 §5a), T-OP-00 M41~M44·T-OP-09 R19~R22. **계약 정리이며 동작 증명이 아니다. 모의 코어 구현·실행은 빌더가 한다** |
-| 수정판 7차(이 판) | **[사용자 결정 U-05, 2026-10-13] 개발 비용 정책** 반영: daemon_rules `budget_enforcement` → `usage_recording`(기록만, 상한 없음, 기록 실패가 실행을 막지 않음), 봉투 `budget` → `limits`(max_wall_s는 응답 없음·무한 반복 통제), budget_exhausted 사건·예산 소진 정지 삭제, R-07을 max_wall_s 초과로 재정의, lease_guards의 예약을 `usage_slot_ready`로, hard_stop은 중단 지시·응답 없음·비밀값용으로만. T-OP-00·T-OP-09 `usage-recorded-not-capped`. 남은 사용자 결정에서 비용 상한 삭제(README §5, 04 §9, 05 §3, 07 §5). **빌더 발견 명세 공백 G01~G28 구조화**(07 §1e): 수치 필드 숫자화(+decided), side_effects {id,args}, return_code, retry_limits·attempt_counting, state_corrupted 전이, noop_rules, event_catalog, envelopes.signal/heartbeat/fence_violation_report, secret_patterns, fenced_write, 검사 순서 등. 명세 수정이며 동작 증명 아님. 빌더가 바뀐 계약으로 모의 코어를 고쳐 재실행한다 |
+| 수정판 7차(이 판) | **[사용자 결정 U-05, 2026-10-13] 개발 비용 정책** 반영: daemon_rules `budget_enforcement` → `usage_recording`(기록만, 상한 없음, 기록 실패가 실행을 막지 않음), 봉투 `budget` → `limits`(max_wall_s는 응답 없음·무한 반복 통제), budget_exhausted 사건·예산 소진 정지 삭제, R-07을 max_wall_s 초과로 재정의, lease_guards의 예약을 `usage_slot_ready`로, hard_stop은 중단 지시·응답 없음·비밀값용으로만. T-OP-00·T-OP-09 `usage-recorded-not-capped`. 남은 사용자 결정에서 비용 상한 삭제(README §5, 04 §9, 05 §3, 07 §5). **빌더 발견 명세 공백 G01~G28 구조화**(07 §1e): 수치 필드 숫자화(+decided), side_effects {id,args}, return_code, retry_limits·attempt_counting, state_corrupted 전이, noop_rules, event_catalog, envelopes.signal/heartbeat/fence_violation_report, secret_patterns, fenced_write, 검사 순서 등. 명세 수정이며 동작 증명 아님. 이후 빌더가 바뀐 계약으로 모의 코어를 고쳐 재실행했다(#21·#97) |
 
 읽은 자료는 이전 판과 같고, 추가로 `공개지식_모델_토의초안.md` §1, `공개지식_모델_1차_정리.md` §3, `불확실_상황_시험.md` §2, `소비자_기능_필요정보.md` §4·§6, 온톨로지 onto-0.2(tbox·abox·ontology_check.py·결과.txt), `검증/spec_check.py`·`재현_ffbcaf6.txt`를 읽었다. 사용자 상세 검토서(REVIEW.md, check_results.json)는 읽지 못했다.
 
@@ -70,7 +70,7 @@ Audit 4(2026-11-04)의 추적 요구는 PR 본문의 `tasks.json` 과제 ID·노
 5. 온톨로지 사례는 시험 전용 고정(origin=fixture, decision.by=fixture_assumption, fixture_only). 지름길은 B1~B9에서 막힘(설계).
 6. 트윈 축을 S0~S1에 고정. 범위 관계는 공식 CodeSystem 있을 때만 accepted.
 7. 데몬은 전령. 전이표 밖 조건은 반송. 시작 전이는 decision_gates.start만, 병합 대기는 merge만. 선행 충족은 post_merge_states. 전환 신호는 모델 제공자 응답·실행기 종료 코드·프로브만.
-8. 늦은 쓰기 차단은 펜싱 토큰·격리 작업 트리·데몬 전용 푸시·자격 회수로 **명세**했다. 모의 검증(T-OP-00)과 실제 실행기 검증(T-OP-09)은 분리된 과제이며 둘 다 아직 없다. "차단된다"는 증명되지 않았다.
+8. 늦은 쓰기 차단은 펜싱 토큰·격리 작업 트리·데몬 전용 푸시·자격 회수로 **명세**했다. 모의 검증(T-OP-00, #21·#97; 필수 시험 ID 33개 전부 실행)과 실제 실행기 검증(T-OP-09, #98; R1~R22 PASS 17·PARTIAL 5·FAIL 0)은 분리된 과제이며 둘 다 병합됐다([T-OP-00 도구](../../../../tools/daemon/README.md), [T-OP-09 결과](../../../vm_check/2026-10-16/RESULTS.md)). PARTIAL(R6·R7·R9·R11·R21)과 명세 공백 G51~G57 등은 남은 후속이다. 실제 가동에서 "차단된다"는 아직 증명되지 않았다.
 9. 수치(임대 TTL·동시 임대·grace_s·window_s·max_attempts)는 정하지 않았다(JSON에는 보수 기본값 숫자 + `decided: false`). 비용 상한은 사용자 결정 U-05(2026-10-13)로 두지 않는다.
 
 ## 5. [사용자 결정 필요]로 올린 항목
@@ -119,7 +119,7 @@ O14·O17·D-02·O19·ADR-0017과 다른 관문은 유지한다. 실제 R2 보존
 
 ## 7. 구현됨 / 설계 구분 (보고 정확성)
 
-02 §10의 표가 기준이다. 요약: **구현됨**은 규칙 엔진(I1~I5·I18), 어휘 검사기, 원본 보관·R2 원장 도구, 그리고 토의 자료 수준의 검증기 둘(ontology_check.py, spec_check.py)뿐이다. DB 제약·적재 거부·릴리스 빌더·API·개인정보 강제·판단 기준·의존 기록·데몬은 **전부 설계(구현 예정, 과제 ID)**다. 이전 판 보고의 "기존 엔진 검사 통과"는 이 묶음의 설계가 구현되었다는 뜻이 아니다.
+02 §10의 표가 기준이다. 요약: **구현됨**은 규칙 엔진(I1~I5·I18), 어휘 검사기, 원본 보관·R2 원장 도구, 그리고 토의 자료 수준의 검증기 둘(ontology_check.py, spec_check.py)뿐이다. DB 제약·적재 거부·릴리스 빌더·API·개인정보 강제·판단 기준·의존 기록은 **전부 설계(구현 예정, 과제 ID)**다. 데몬은 모의 코어(T-OP-00, #21·#97)와 실제 실행기 일부 검증(T-OP-09, #98)이 있으나, 그것은 개발 도구이며 실제 가동·출시 완성품 증거가 아니다. 이전 판 보고의 "기존 엔진 검사 통과"는 이 묶음의 설계가 구현되었다는 뜻이 아니다.
 
 ## 8. 이 묶음에 들어 있지 않은 것
 
@@ -129,10 +129,12 @@ O14·O17·D-02·O19·ADR-0017과 다른 관문은 유지한다. 실제 R2 보존
 
 - VM의 CLI·인증·모델·한도·종료 코드(05 §1b 전부 미확인). GPT Astra·Grok·SWE2·GLM 경로.
 - 사용자 상세 검토서 밖의 추가 요구(있다면). 검토서 F01~F12·본문·다음 작업 1~3은 07에 대응시켰다.
-- 데몬 안전장치의 실제 동작(T-OP-00·T-OP-09 없음). "이전 CLI의 쓰기가 차단된다"는 미증명.
+- 데몬 안전장치의 실제 가동 동작. T-OP-00 모의 검증(#21·#97)과 T-OP-09 실제 실행기 검증(#98, PASS 17·PARTIAL 5·FAIL 0)은 병합됐지만, PARTIAL 5건(R6·R7·R9·R11·R21)과 명세 공백 G51~G57 등 후속이 남아 있고 실제 호스트·벤더 CLI 전체에서 "이전 CLI의 쓰기가 차단된다"는 미증명이다.
 - 과제 크기·순서·수치의 적정성. 크레이트·스크립트 이름의 최종 확정.
 - 판단 기준·부분 보류·릴리스 공지의 제품 의미 적절성(사람 검토 대상).
 - G10(CI 단계)은 구현자 커밋에 달려 있다.
+
+상태 갱신 근거: [Audit 5 설계 묶음 상태 동기화](../../audits/2026-11-10_design_bundle_status_stale.md). 이 갱신은 문서 정합성 수정이며 실제 데몬 가동·출시 완료 증거를 대신하지 않는다.
 
 ## 10. 다음 검토자에게
 

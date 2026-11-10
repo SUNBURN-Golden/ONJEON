@@ -1,0 +1,142 @@
+# focused.log
+기준 HEAD: 15c5d82 / 2026-11-10T19:12:20+09:00 (fix round 1)
+
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_audit5_design_bundle_status_stale.py -v
+test_audit_and_evidence_exist_with_logs (test_audit5_design_bundle_status_stale.AuditEvidenceRecords.test_audit_and_evidence_exist_with_logs) ... ok
+test_links_in_new_records_resolve_inside_the_repository (test_audit5_design_bundle_status_stale.AuditEvidenceRecords.test_links_in_new_records_resolve_inside_the_repository) ... ok
+test_dry_run_executes_all_33_required_ids (test_audit5_design_bundle_status_stale.DaemonRequiredCoverage.test_dry_run_executes_all_33_required_ids) ... ok
+test_bundle_readme_reports_seventh_revision_and_merged_daemon_work (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_bundle_readme_reports_seventh_revision_and_merged_daemon_work) ... ok
+test_contract_no_longer_says_only_rule_files_exist (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_contract_no_longer_says_only_rule_files_exist) ... ok
+test_handoff_does_not_overclaim_the_mock_and_executor_limits (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_handoff_does_not_overclaim_the_mock_and_executor_limits) ... ok
+test_handoff_marks_old_16_of_33_state_as_historical (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_handoff_marks_old_16_of_33_state_as_historical) ... ok
+test_vm_prep_records_the_existing_dry_run_tool (test_audit5_design_bundle_status_stale.DesignBundleStatusClaims.test_vm_prep_records_the_existing_dry_run_tool) ... ok
+test_audit_note_points_at_the_sync_record_and_its_limit (test_audit5_design_bundle_status_stale.PurposeTableDecisionRecorded.test_audit_note_points_at_the_sync_record_and_its_limit) ... ok
+test_each_settled_gate_is_marked_recorded_and_keeps_its_residual_condition (test_audit5_design_bundle_status_stale.PurposeTableDecisionRecorded.test_each_settled_gate_is_marked_recorded_and_keeps_its_residual_condition) ... ok
+test_price_display_rows_keep_the_scope_contract_and_the_open_reviewer (test_audit5_design_bundle_status_stale.PurposeTableDecisionRecorded.test_price_display_rows_keep_the_scope_contract_and_the_open_reviewer) ... ok
+test_residual_conditions_are_not_reported_as_completed (test_audit5_design_bundle_status_stale.PurposeTableDecisionRecorded.test_residual_conditions_are_not_reported_as_completed) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 16.827s
+
+OK
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_purpose_table_decision_sync.py -v
+test_completion_evidence_still_requires_real_records_and_participant_tests (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_completion_evidence_still_requires_real_records_and_participant_tests) ... ok
+test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p03_includes_the_full_inquiry_workflow_and_manual_send_boundary) ... ok
+test_p06_separates_ai_configuration_from_access_and_registration (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p06_separates_ai_configuration_from_access_and_registration) ... ok
+test_p11_preserves_statement_only_inputs_and_guidance_only_claims (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p11_preserves_statement_only_inputs_and_guidance_only_claims) ... ok
+test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p14_records_owner_permission_without_enabling_the_flag_or_repo_redistribution) ... ok
+test_p17_keeps_defaults_off_and_criteria_conditional (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p17_keeps_defaults_off_and_criteria_conditional) ... ok
+test_p19_records_preregistered_thresholds_without_claiming_validation (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_p19_records_preregistered_thresholds_without_claiming_validation) ... ok
+test_scope_decisions_link_to_existing_records_and_keep_task_gates (test_purpose_table_decision_sync.PurposeTableDecisionSync.test_scope_decisions_link_to_existing_records_and_keep_task_gates) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.006s
+
+OK
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_price_display_scope.py -v
+test_d18_is_never_cited_as_the_r2_operations_direction (test_price_display_scope.PriceDisplayScope.test_d18_is_never_cited_as_the_r2_operations_direction) ... ok
+test_every_dec_cited_by_a_gate_row_is_indexed (test_price_display_scope.PriceDisplayScope.test_every_dec_cited_by_a_gate_row_is_indexed)
+A DEC record that a §3 O row or a BLUEPRINT §12 row relies on must have ... ok
+test_gate_is_not_a_scope_cut (test_price_display_scope.PriceDisplayScope.test_gate_is_not_a_scope_cut) ... ok
+test_gate_wording_is_shared_by_scope_docs_ledger_and_09 (test_price_display_scope.PriceDisplayScope.test_gate_wording_is_shared_by_scope_docs_ledger_and_09) ... ok
+test_index_check_rejects_a_dropped_row (test_price_display_scope.PriceDisplayScope.test_index_check_rejects_a_dropped_row) ... ok
+test_index_has_rows_for_dec_d18_and_dec_o04 (test_price_display_scope.PriceDisplayScope.test_index_has_rows_for_dec_d18_and_dec_o04) ... ok
+test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits (test_price_display_scope.PriceDisplayScope.test_o04_row_is_resolved_by_dec_o04_and_keeps_its_limits) ... ok
+test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition (test_price_display_scope.PriceDisplayScope.test_o10_row_records_dec_d18_and_keeps_the_reviewer_condition) ... ok
+test_report_links_resolve_and_point_at_evidence (test_price_display_scope.PriceDisplayScope.test_report_links_resolve_and_point_at_evidence) ... ok
+test_report_records_the_answer_and_its_limits (test_price_display_scope.PriceDisplayScope.test_report_records_the_answer_and_its_limits) ... ok
+test_s12_row_names_milestone_and_what_stays_allowed (test_price_display_scope.PriceDisplayScope.test_s12_row_names_milestone_and_what_stays_allowed) ... ok
+test_scope_sources_keep_public_price_in_first_release (test_price_display_scope.PriceDisplayScope.test_scope_sources_keep_public_price_in_first_release) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.009s
+
+OK
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v
+test_additional_registration_on_other_task_passes (test_product_purpose.ProductPurposeTests.test_additional_registration_on_other_task_passes) ... ok
+test_cli_bad_input_is_error (test_product_purpose.ProductPurposeTests.test_cli_bad_input_is_error) ... ok
+test_cli_passes_from_other_cwd_and_reports_findings (test_product_purpose.ProductPurposeTests.test_cli_passes_from_other_cwd_and_reports_findings) ... ok
+test_cli_root_selects_bundle (test_product_purpose.ProductPurposeTests.test_cli_root_selects_bundle) ... ok
+test_each_of_nine_missing_ids_fails_for_g12 (test_product_purpose.ProductPurposeTests.test_each_of_nine_missing_ids_fails_for_g12) ... ok
+test_every_assigned_owner_is_required_even_if_id_exists_elsewhere (test_product_purpose.ProductPurposeTests.test_every_assigned_owner_is_required_even_if_id_exists_elsewhere) ... ok
+test_every_row_rejects_unknown_task_with_row_and_line (test_product_purpose.ProductPurposeTests.test_every_row_rejects_unknown_task_with_row_and_line) ... ok
+test_id_in_tests_or_done_criteria_is_not_registration (test_product_purpose.ProductPurposeTests.test_id_in_tests_or_done_criteria_is_not_registration) ... ok
+test_live_ux_ownership_and_task_spec_agree (test_product_purpose.ProductPurposeTests.test_live_ux_ownership_and_task_spec_agree) ... ok
+test_missing_assigned_task_fails_even_without_p_row_reference (test_product_purpose.ProductPurposeTests.test_missing_assigned_task_fails_even_without_p_row_reference) ... ok
+test_missing_duplicate_unexpected_or_unparseable_rows_fail (test_product_purpose.ProductPurposeTests.test_missing_duplicate_unexpected_or_unparseable_rows_fail) ... ok
+test_real_repo_product_purpose_links (test_product_purpose.ProductPurposeTests.test_real_repo_product_purpose_links) ... ok
+test_registered_ids_and_shared_row_tasks_pass (test_product_purpose.ProductPurposeTests.test_registered_ids_and_shared_row_tasks_pass) ... ok
+test_removing_referenced_task_fails_all_rows (test_product_purpose.ProductPurposeTests.test_removing_referenced_task_fails_all_rows) ... ok
+test_repeated_headers_and_inline_code_task_ids_pass (test_product_purpose.ProductPurposeTests.test_repeated_headers_and_inline_code_task_ids_pass) ... ok
+test_required_ids_match_all_nine_in_section_six (test_product_purpose.ProductPurposeTests.test_required_ids_match_all_nine_in_section_six) ... ok
+test_selftest (test_product_purpose.ProductPurposeTests.test_selftest) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.533s
+
+OK
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_decisions_ledger_sync.py -v
+test_bundle_index_preserves_adr0019_supersession (test_decisions_ledger_sync.DecisionsLedgerSync.test_bundle_index_preserves_adr0019_supersession) ... ok
+test_decision_directory_index_links_every_record_and_the_canonical_summaries (test_decisions_ledger_sync.DecisionsLedgerSync.test_decision_directory_index_links_every_record_and_the_canonical_summaries) ... ok
+test_handoff_points_to_decisions_at_the_product_gate_table (test_decisions_ledger_sync.DecisionsLedgerSync.test_handoff_points_to_decisions_at_the_product_gate_table) ... ok
+test_missing_decisions_have_substantive_ledger_summaries (test_decisions_ledger_sync.DecisionsLedgerSync.test_missing_decisions_have_substantive_ledger_summaries) ... ok
+test_new_decision_navigation_and_evidence_links_resolve (test_decisions_ledger_sync.DecisionsLedgerSync.test_new_decision_navigation_and_evidence_links_resolve) ... ok
+test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions (test_decisions_ledger_sync.DecisionsLedgerSync.test_o01_o04_o12_close_the_decision_question_and_keep_execution_conditions) ... ok
+test_product_purpose_links_the_finding_without_claiming_product_completion (test_decisions_ledger_sync.DecisionsLedgerSync.test_product_purpose_links_the_finding_without_claiming_product_completion) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.010s
+
+OK
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_audit5_decisions_ledger_sync.py -v
+test_audit_and_evidence_records_exist_and_are_linked (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_audit_and_evidence_records_exist_and_are_linked) ... ok
+test_every_dec_record_has_exactly_one_ledger_row (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_every_dec_record_has_exactly_one_ledger_row) ... ok
+test_legacy_ledger_ids_do_not_collide_with_dec_gate_ids (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_legacy_ledger_ids_do_not_collide_with_dec_gate_ids) ... ok
+test_o01_is_closed_by_adr0018_not_left_open (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_o01_is_closed_by_adr0018_not_left_open) ... ok
+test_o16_records_dec_d12_settlement_and_separates_residual_conditions (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_o16_records_dec_d12_settlement_and_separates_residual_conditions) ... ok
+test_registry_cells_no_longer_wait_for_a_scope_decision (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_registry_cells_no_longer_wait_for_a_scope_decision) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.029s
+
+OK
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_daemon_required_test_coverage.py -v
+test_empty_duplicate_or_drifted_canonical_and_fixture_lists (test_daemon_required_test_coverage.RequiredTestInventory.test_empty_duplicate_or_drifted_canonical_and_fixture_lists) ... ok
+test_g12b_fails_cli_when_task_ids_still_exist_but_tests_do_not (test_daemon_required_test_coverage.RequiredTestInventory.test_g12b_fails_cli_when_task_ids_still_exist_but_tests_do_not) ... ok
+test_inventory_matches_runtime_registry_and_canonical_33_ids (test_daemon_required_test_coverage.RequiredTestInventory.test_inventory_matches_runtime_registry_and_canonical_33_ids) ... ok
+test_missing_malformed_or_nonliteral_registry_fails_closed (test_daemon_required_test_coverage.RequiredTestInventory.test_missing_malformed_or_nonliteral_registry_fails_closed) ... ok
+test_registered_name_without_function_is_detected_for_every_required_id (test_daemon_required_test_coverage.RequiredTestInventory.test_registered_name_without_function_is_detected_for_every_required_id) ... ok
+test_removing_each_required_registration_is_detected (test_daemon_required_test_coverage.RequiredTestInventory.test_removing_each_required_registration_is_detected) ... ok
+test_unknown_duplicate_and_sentinel_ids_cannot_hide_missing_tests (test_daemon_required_test_coverage.RequiredTestInventory.test_unknown_duplicate_and_sentinel_ids_cannot_hide_missing_tests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.154s
+
+OK
+
+$ PYTHONDONTWRITEBYTECODE=1 python3 -I -m unittest discover -s tools/tests -p test_readme_index.py -v
+test_adr_numbers_are_listed_once_in_ascending_order (test_readme_index.DecisionsRow.test_adr_numbers_are_listed_once_in_ascending_order) ... ok
+test_dec_record_families_are_named_and_cover_every_record (test_readme_index.DecisionsRow.test_dec_record_families_are_named_and_cover_every_record) ... ok
+test_dec_records_exist_and_are_pointed_to (test_readme_index.DecisionsRow.test_dec_records_exist_and_are_pointed_to) ... ok
+test_every_adr_number_is_listed (test_readme_index.DecisionsRow.test_every_adr_number_is_listed) ... ok
+test_priority_points_to_blueprint_section_0_1 (test_readme_index.DocumentHierarchy.test_priority_points_to_blueprint_section_0_1) ... ok
+test_replaced_masterplan_priority_is_not_present (test_readme_index.DocumentHierarchy.test_replaced_masterplan_priority_is_not_present) ... ok
+test_daemon_is_a_development_tool_with_limited_evidence (test_readme_index.IndexedPaths.test_daemon_is_a_development_tool_with_limited_evidence) ... ok
+test_every_path_in_the_docs_table_exists (test_readme_index.IndexedPaths.test_every_path_in_the_docs_table_exists) ... ok
+test_r2_is_current_and_s3_templates_are_unused_alternatives (test_readme_index.IndexedPaths.test_r2_is_current_and_s3_templates_are_unused_alternatives) ... ok
+test_registry_is_an_institution_inventory_not_product_completion (test_readme_index.IndexedPaths.test_registry_is_an_institution_inventory_not_product_completion) ... ok
+test_required_rows_present (test_readme_index.IndexedPaths.test_required_rows_present) ... ok
+test_review_results_row_names_every_file (test_readme_index.IndexedPaths.test_review_results_row_names_every_file) ... ok
+test_introduction_points_to_scope_and_product_completion_criteria (test_readme_index.ProductScope.test_introduction_points_to_scope_and_product_completion_criteria) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.005s
+
+OK

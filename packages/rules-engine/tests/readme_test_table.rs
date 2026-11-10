@@ -117,6 +117,41 @@ fn readme_explains_fixture_only_without_limiting_it_to_synthetic_rules() {
 }
 
 #[test]
+fn readme_uses_the_dec_o12_range_comparison_semantics() {
+    // DEC-O12 S3 settled the meaning of a comparison against a possible range.
+    // The README must cite that decision and must not send it back to W3, while
+    // still stating honestly that the engine rejects such comparisons at load
+    // until the operation meets its S6 release conditions.
+    assert!(
+        !README.contains("W3 설계에서 정한다") && !README.contains("W3에서 정한다"),
+        "README must not defer settled range-comparison semantics to W3"
+    );
+    let paragraph = README
+        .lines()
+        .find(|l| l.starts_with("금액 범위와의 비교는 아직 구현하지 않는다"))
+        .expect("README describes the missing range-comparison support");
+    for phrase in [
+        "DEC-O12",
+        "S3",
+        "모든 값",
+        "모름",
+        "단조",
+        "대표값",
+        "between",
+        "S6",
+    ] {
+        assert!(
+            paragraph.contains(phrase),
+            "range-comparison status must mention {phrase}"
+        );
+    }
+    // Honesty about the current capability: still rejected at load, not computed.
+    assert!(README.contains("로드 단계에서 거부"));
+    assert!(README.contains("로드에서 보수적으로 거부"));
+    assert!(README.contains("capability-blocked"));
+}
+
+#[test]
 fn readme_does_not_call_the_content_hash_normalized() {
     let line = README
         .lines()

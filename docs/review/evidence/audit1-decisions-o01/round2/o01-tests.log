@@ -1,0 +1,28 @@
+$ python3 -I -m unittest discover -s tools/tests -p test_decisions_o01.py -v
+test_o01_is_closed_with_existing_decision_references (test_decisions_o01.O01DecisionTests.test_o01_is_closed_with_existing_decision_references) ... FAIL
+test_o01_preserves_approved_scope (test_decisions_o01.O01DecisionTests.test_o01_preserves_approved_scope) ... FAIL
+
+======================================================================
+FAIL: test_o01_is_closed_with_existing_decision_references (test_decisions_o01.O01DecisionTests.test_o01_is_closed_with_existing_decision_references)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-decisions-o01-close/tools/tests/test_decisions_o01.py", line 17, in test_o01_is_closed_with_existing_decision_references
+    self.assertIn("~~공제·우체국보험의 포함 여부~~", self.row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '~~공제·우체국보험의 포함 여부~~' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+======================================================================
+FAIL: test_o01_preserves_approved_scope (test_decisions_o01.O01DecisionTests.test_o01_preserves_approved_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit1-decisions-o01-close/tools/tests/test_decisions_o01.py", line 27, in test_o01_preserves_approved_scope
+    self.assertIn("우체국보험 포함(기관 유형 구분)", self.row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '우체국보험 포함(기관 유형 구분)' not found in '| O01 | 공제·우체국보험의 포함 여부(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=2)
+
+exit_code=1

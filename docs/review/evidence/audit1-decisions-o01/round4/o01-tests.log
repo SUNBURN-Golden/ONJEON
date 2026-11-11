@@ -1,0 +1,15 @@
+$ python3 -I -m unittest discover -s tools/tests -p test_decisions_o01.py -v
+test_ledger_keeps_five_columns (test_decisions_o01.O01Row.test_ledger_keeps_five_columns) ... ok
+test_ledger_row_is_stale_or_closed (test_decisions_o01.O01Row.test_ledger_row_is_stale_or_closed) ... ok
+test_patch_replaces_exactly_the_o01_row (test_decisions_o01.O01Row.test_patch_replaces_exactly_the_o01_row) ... ok
+test_patch_row_is_the_decided_scope (test_decisions_o01.O01Row.test_patch_row_is_the_decided_scope) ... ok
+test_adr_0018_closes_the_open_question (test_decisions_o01.Premise.test_adr_0018_closes_the_open_question) ... ok
+test_adr_0018_section_4_decides_both_institution_types (test_decisions_o01.Premise.test_adr_0018_section_4_decides_both_institution_types) ... ok
+test_d19_records_the_decided_scope (test_decisions_o01.Premise.test_d19_records_the_decided_scope) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+EXIT_CODE=0
+

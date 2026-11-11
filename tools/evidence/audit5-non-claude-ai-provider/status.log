@@ -1,0 +1,10 @@
+$ git status --short
+?? docs/decisions/audit5-non-claude-ai-provider.md
+?? tools/evidence/audit5-non-claude-ai-provider/
+?? tools/tests/test_audit5_non_claude_ai_provider.py
+
+$ git diff --check
+(no whitespace errors)
+
+$ python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (37 ADR/DEC files)

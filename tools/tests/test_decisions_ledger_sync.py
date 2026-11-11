@@ -61,7 +61,7 @@ class DecisionsLedgerSync(unittest.TestCase):
 
     def test_bundle_index_preserves_adr0019_supersession(self):
         summary = row(self.ledger, "| [DEC-BUNDLE-STATUS](")
-        for phrase in ("ADR-0019", "09·tasks.json", "한정 채택", "D-21", "묶음 전체"):
+        for phrase in ("ADR-0019", "09·tasks.json", "한정 채택", "D-21", "묶음의 나머지"):
             self.assertIn(phrase, summary)
 
     def test_decision_directory_index_links_every_record_and_the_canonical_summaries(self):

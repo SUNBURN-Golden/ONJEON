@@ -246,6 +246,6 @@
     "docs/decisions/ADR-0017-R2-비용-제한.md": "ba35af15a3132be9b1860b0c788f3c6b1b29664e0f86489b8aa3a8970f479f57",
     "infra/r2/BUDGET.md": "0d72309cf8a1e46a8d7a3d5acc22bbd6e13783f19b632e53b4e4d4887f882d3c",
     "infra/r2/budget_policy.json": "e914b74ed5590895fc47b67f3c8934ce1750bc8b95caa94d6e31cdd16ee8fee5",
-    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "ddf38d66c47ef8f5bde90b7bb886dc015bb75004e1257b4f508962dfd18e34ad"
+    "docs/blueprint/proposals/설계검토_결과/daemon_rules.json": "37f0864f7134e935c982d68ec190ac27e3331545e546468edf85ed856e27b190"
   }
 }

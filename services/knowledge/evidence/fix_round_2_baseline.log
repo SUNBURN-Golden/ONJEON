@@ -1,0 +1,6 @@
+Command: compare check_deps.check(git archive HEAD) with current worktree
+HEAD: 176f180434aba862c2e842fb4529c2f62b831fe0
+Result: identical 3 pre-existing findings, zero added findings
+DEP-ZONE packages/ontology/Cargo.toml: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+IMP-ZONE packages/ontology/tests/common/mod.rs: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+IMP-ZONE packages/ontology/tests/fixture_origin/main.rs: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')

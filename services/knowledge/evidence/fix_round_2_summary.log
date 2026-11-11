@@ -1,0 +1,17 @@
+T-KN-04 fix round 2 -- local validation, 2026-10-23
+bash services/knowledge/test.sh: PASS, 21 passed / 0 failed / 0 ignored (PostgreSQL 17.11)
+cargo test --workspace: PASS, 306 passed / 0 failed / 1 explicitly ignored DB test (executed by test.sh)
+cargo clippy --workspace --all-targets -- -D warnings: PASS
+cargo fmt --all -- --check: PASS
+cargo test -p onjeon-knowledge store: PASS
+cargo test -p onjeon-knowledge fixture_rejection: PASS
+cargo test -p onjeon-knowledge edition_conflict: PASS
+bash infra/db/public/test.sh: PASS, 166 passed / 0 failed
+python3 -I tools/ci/check_leak.py: PASS
+python3 -I tools/ci/check_skeleton.py: PASS (static)
+python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime: PASS, 2 tests
+python3 -I -m unittest discover -s tools/ci/tests: FAIL, 18 passed / 2 failed; identical pre-existing ontology zone violations (see baseline.log)
+git diff --check: PASS
+Path policy: PASS; only services/knowledge/** and cargo-generated Cargo.lock modified
+Remote CI: not run here; GitHub/commit/push prohibited by user
+Independent review: previous BLOCK targets base HEAD only; new committed SHA review remains external

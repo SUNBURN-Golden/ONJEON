@@ -1,0 +1,70 @@
+T-KN-04 fix round 4 -- bash services/knowledge/test.sh (2026-10-23T14:33:39Z)
+PostgreSQL: postgres (PostgreSQL) 17.11 (Debian 17.11-0+deb13u1); disposable fixture_only database
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_knowledge-6900daebe4110364)
+
+running 1 test
+test tests::candidate_rechecks_price_origin_and_review_in_degraded_snapshots ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/postgres.rs (target/debug/deps/postgres-91e971a17f7be0a6)
+
+running 1 test
+PostgreSQL restart persistence; B2/B3/price DB rechecks; c0; append_only; deferred K10; external-row candidate rejection; scope_relation round trip; K7 node shape; unlisted raw asset: PASS
+test persistence_restart_db_constraints_and_candidate_integration ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running tests/r26.rs (target/debug/deps/r26-aa920d4edfb2f17b)
+
+running 1 test
+r26: historical violations=0, questions=11/11, service and B1/B2/B3 rejected
+test profile_historical_vs_service ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/repository.rs (target/debug/deps/repository-3b0ef9e30e7b81ba)
+
+running 21 tests
+test b1_fixture_path_is_rejected ... ok
+test allowlist_extracts_sha256_from_archive_listing ... ok
+test accepted_requires_a_complete_review_decision ... ok
+test assertion_is_append_only_and_changes_by_supersedes ... ok
+test b1_normalizes_parent_paths_and_forbids_blueprint_and_symlinks ... ok
+test fixture_rejection ... ok
+test gap_and_acquisition_task_states_are_independent ... ok
+test canonical_c0_is_checked_and_cannot_be_promoted ... ok
+test accepted_prices_require_origin_and_real_review_decision ... ok
+test conflict_links_divergent_superseding_assertions ... ok
+test ontology_shaped_nodes_keep_their_class ... ok
+test price_raw_kept_comparison_gated ... ok
+test r2_allowlist_applies_to_raw_evidence ... ok
+test k7_reads_reductions_in_the_persisted_node_shape ... ok
+test raw_assets_are_allowlisted_at_load_and_at_candidate_check ... ok
+test scope_relations_keep_object_and_value_for_k4_and_k12 ... ok
+test edition_conflict_uses_actual_segments_editions_and_clauses ... ok
+test store ... ok
+test violating_candidate_is_not_promoted ... ok
+test real_r2_listings_extract_all_58_verified_hashes ... ok
+test indirect_evidence_and_candidate_recheck_the_current_allowlist ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests onjeon_knowledge
+
+running 1 test
+error[E0599]: no method named `update_assertion` found for struct `KnowledgeRepository` in the current scope
+   --> services/knowledge/src/lib.rs:154:12
+    |
+154 | repository.update_assertion("a:existing", serde_json::json!({}));
+    |            ^^^^^^^^^^^^^^^^ method not found in `KnowledgeRepository`
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0599`.
+test services/knowledge/src/lib.rs - KnowledgeRepository (line 150) - compile fail ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+EXIT_CODE: 0

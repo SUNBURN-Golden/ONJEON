@@ -1,0 +1,188 @@
+server: 17.11 (Debian 17.11-0+deb13u1) (temporary cluster, binaries: /usr/lib/postgresql/17/bin)
+== 마이그레이션 적용 ==
+PASS  public + criteria migrations apply
+PASS  personal migrations apply
+PASS  re-applying the schema is refused (no silent drift)
+== 구조: 모든 공개 테이블에 K8 트리거, 정본 대조 ==
+PASS  chk_no_private_ids on every public/criteria table (19)
+PASS  all 15 public + 3 criteria + 9 personal tables exist
+PASS  FK fk_assertion_review_decision exists
+PASS  FK fk_segment_raw exists
+PASS  FK fk_clause_segment exists
+PASS  FK fk_realizes_segment exists
+PASS  FK fk_realizes_edition exists
+PASS  FK fk_segment_of_raw exists
+PASS  FK fk_in_segment_clause exists
+PASS  FK fk_edition_of_lineage exists
+vocab-sync: 20 axes checked, 0 problem(s)
+PASS  vocabulary domains match packages/schemas/vocabulary.json (and node kinds ⊆ tbox classes)
+== 준비 데이터 (관리 역할) ==
+PASS  seed: raw, segments, clause, edition, lineage, decisions
+PASS  review_decision with one model family is refused
+PASS  review_decision accepted with a red-team counterexample is refused
+PASS  segment id that lies about its page range is refused
+== 구조 주장의 대상 (FK 우회 방지) ==
+PASS  realizes with only a value (no object) is rejected
+PASS  personal/writer roles cannot shadow guard tables with TEMP tables
+PASS  guard functions pin search_path
+== I7: 가격 ==
+PASS  I7 price row without conditions (empty object) is rejected
+PASS  I7 price row without conditions (NULL) is rejected
+PASS  I7 eligible row without package binding is rejected
+PASS  I7 eligible row without as-of date is rejected
+PASS  I7 eligible row that is still pending is rejected
+PASS  I7 raw row with blank conditions is rejected even when it admits the blank
+PASS  I7 missing_dimensions with a NULL element cannot hide a blank package binding
+PASS  price row without evidence is rejected
+PASS  accepted price row without review_decision is rejected
+PASS  price row with conditions but blank package/as-of is preserved with honest missing_dimensions, not eligible
+PASS  complete accepted price row is eligible
+== K8: 공개 스키마에 개인 식별자 접두어 ==
+PASS  K8 node.label with 'contract:' is rejected
+PASS  K8 node.label with 'person:' is rejected
+PASS  K8 node.label with 'upload:' is rejected
+PASS  K8 node.label with 'del:' is rejected
+PASS  K8 node.label with 'consent:' is rejected
+PASS  K8 node.label with 'assume:' is rejected
+PASS  K8 prefix in upper case is rejected
+PASS  K8 prefix hidden inside jsonb is rejected
+PASS  K8 prefix hidden in a text[] column is rejected
+PASS  K8 prefix in an assertion evidence ref is rejected
+PASS  K8 prefix in a gap subject is rejected
+PASS  K8 does not fire on 'model:' (contains 'del:' but is not a prefix)
+== accepted ⇒ ReviewDecision, fixture ⇒ not accepted ==
+PASS  accepted without review_decision_id is rejected
+PASS  accepted with an unknown review_decision is rejected
+PASS  accepted pointing at a hold decision is rejected
+PASS  origin=fixture accepted is rejected (even with a decision)
+PASS  origin=fixture pending is allowed
+PASS  origin=fixture hold and rejected are allowed
+PASS  hold without hold_reason is rejected
+PASS  assertion with both object and value is rejected
+PASS  evidence with an unknown role is rejected
+PASS  basis evidence that is not a clause is rejected
+PASS  assertion with empty evidence is rejected
+== FK: realizes 대상, 구획→원본, 조항→구획 ==
+PASS  applies_to with a clause subject is stored (tbox domain TermsEdition|ClauseOccurrence)
+PASS  applies_to with a missing edition subject is rejected
+PASS  realizes to a missing edition is rejected
+PASS  realizes from a missing segment is rejected
+PASS  segment_of a missing raw asset is rejected
+PASS  edition_of a missing lineage is rejected
+PASS  document_segment with a missing raw asset is rejected
+PASS  clause with a missing segment is rejected
+PASS  valid pending realizes is stored
+== K1·K14: C0 basis, realizes 지문 ==
+PASS  accepted c0 content assertion without accepted realizes on the segment is rejected
+PASS  accepted realizes on a segment without fingerprint is rejected
+PASS  accepted realizes whose only evidence is the raw file hash is rejected (K14)
+PASS  accepted structural assertion without observation evidence is rejected
+PASS  accepted realizes with fingerprinted segment + segment observation + review decision
+PASS  accepted c0 whose basis clause is in a summary segment is rejected
+PASS  accepted c0 with only cross_check evidence is rejected
+PASS  accepted c0 whose basis clause does not exist is rejected
+PASS  accepted c0 with a terms clause basis + accepted realizes + decision
+PASS  c0 pending needs no basis yet
+== 정정 사슬, 불변성 ==
+PASS  correction without correction_reason is rejected
+PASS  two assertions superseding the same one without a conflict are rejected at commit
+PASS  two superseders are fine when one Conflict row groups them (deferred)
+PASS  UPDATE of an assertion is refused (append-only)
+PASS  DELETE of an assertion is refused (append-only, even for the owner)
+PASS  TRUNCATE of an assertion is refused
+PASS  UPDATE of a raw asset is refused
+== 릴리스 manifest (K15, B3·B5·B10) ==
+PASS  seed: clean production-eligible assertion and a test-environment one
+PASS  production release with a fixture assertion is rejected
+PASS  production release with a test-environment decision is rejected (B10)
+PASS  release naming a row that is not stored is rejected (I3)
+PASS  release members must be sorted and unique
+PASS  test release may contain test-environment and fixture rows
+PASS  clean production release is stored
+PASS  frozen release content cannot be changed
+PASS  even the owner cannot change frozen release content
+PASS  withdrawal mark is allowed
+PASS  a withdrawal cannot be undone
+PASS  a withdrawal reason cannot be rewritten
+PASS  a release cannot supersede itself
+PASS  superseded_by can be set once
+PASS  superseded_by cannot be re-pointed
+PASS  seed: fixture node
+PASS  production release with a fixture node is rejected
+PASS  release rows cannot be deleted
+== CodeSystem (B8) ==
+PASS  service CodeSystem without official source raw asset is rejected
+PASS  fixture CodeSystem must carry the fixture- name
+PASS  fixture CodeSystem needs no source
+PASS  official CodeSystem with raw asset + code list hash
+== 판단 기준(criteria) ==
+PASS  criterion + version 1 + source in one transaction
+PASS  criterion version without a source cannot commit
+PASS  version 2 that does not supersede version 1 is rejected
+PASS  unknown source kind is rejected
+PASS  correction = new version superseding the old one (v1 stays)
+PASS  v1 was not erased by the correction
+PASS  a version cannot be superseded twice
+PASS  criterion version cannot be updated
+PASS  criterion text with a private prefix is rejected (K8)
+== I12: 역할 권한 (공개 DB) ==
+PASS  I12 personal cannot insert into a public table
+PASS  I12 personal cannot insert an assertion
+PASS  I12 personal cannot update a public table
+PASS  I12 personal cannot delete from a public table
+PASS  I12 personal cannot truncate a public table
+PASS  I12 personal cannot create objects in the public schema
+PASS  I12 personal cannot insert into criteria
+PASS  personal may read released knowledge
+PASS  personal cannot read raw archive rows
+PASS  data_writer cannot write judgements (assertion)
+PASS  data_writer cannot write criteria
+PASS  knowledge_writer cannot write raw archive rows
+PASS  criteria_writer cannot write public knowledge
+PASS  data_writer writes observations
+PASS  nobody can delete (data_writer)
+PASS  acquisition tasks (operational state) can change
+== 개인 영역 DB ==
+PASS  personal writes profile, consent, upload
+PASS  unknown consent purpose is rejected
+PASS  snapshot 'matched' without a release/sales config is rejected
+PASS  snapshot component with an unknown fact_source is rejected
+PASS  snapshot with vocabulary-valid components (contract: ids are legal here)
+PASS  assumption v1 then v2 superseding v1
+PASS  assumption v2 without supersedes is rejected
+PASS  an assumption cannot be an 'actual' fact
+PASS  evaluation without release_id is rejected (I16)
+PASS  evaluation with an unknown usage_restriction is rejected
+PASS  evaluation + dependency record
+PASS  dependency with an unknown overlap state is rejected
+PASS  plan item with an unknown action is rejected
+PASS  plan with vocabulary actions
+PASS  deletion step with an unknown target is rejected
+PASS  deletion job starts
+PASS  write after deletion started is rejected (ONJ-PS-S-031)
+PASS  late evaluation write is rejected too
+PASS  the deletion record itself cannot be deleted
+PASS  I12 data_writer cannot read personal data
+PASS  I12 data_writer cannot write personal data
+PASS  I12 knowledge_writer cannot read personal data
+PASS  I12 knowledge_writer cannot write personal data
+PASS  I12 criteria_writer cannot read personal data
+PASS  I12 criteria_writer cannot write personal data
+PASS  personal DB has no public knowledge tables
+== 변이 시험: 제약을 풀면 같은 입력이 통과해야 한다 (시험이 그 제약을 보고 있다는 증거) ==
+PASS  mutation 'chk_fixture_never_accepted': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_accepted_needs_decision': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_premium_raw_vs_eligible': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_no_private_ids': input now passes, so the real constraint was what rejected it
+PASS  mutation 'I12 grants': input now passes, so the real constraint was what rejected it
+PASS  mutation 'fk_realizes_edition': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_structural_ref_object': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_premium_missing_no_null': input now passes, so the real constraint was what rejected it
+PASS  mutation 'chk_c0_basis': input now passes, so the real constraint was what rejected it
+== 정적 검사 ==
+PASS  B7: no packages/fixtures or docs/blueprint reference in migrations
+PASS  no secret-looking literals
+PASS  no model identifier strings in db files
+
+RESULT: passed=166 failed=0
+DB CONSTRAINTS: PASSED

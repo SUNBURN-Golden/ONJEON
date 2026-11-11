@@ -1,0 +1,56 @@
+{
+  "task_id": "T-KN-04",
+  "fix_round": 5,
+  "head_sha": "06feb70ba3d22c277c1743893d76652f1aa4cad1",
+  "target_kind": "uncommitted_worktree_on_head",
+  "new_commit_sha": null,
+  "author_role": "round 5: OpenAI-family builder, API coding-agent session with local command tools; prior records: OpenAI-family authors in rounds 2-3 and Anthropic-family author in round 4; round 1 family unrecorded",
+  "worktree": "wt/T-KN-04",
+  "handoff_ready": true,
+  "all_acceptance_met": false,
+  "findings": {
+    "1": "fixed and regression-tested",
+    "2": "fixed and regression-tested",
+    "3": "pending supervisor publication to live PR",
+    "4": "pending qualifying non-author-family review at new committed SHA"
+  },
+  "independent_review": {
+    "status": "missing",
+    "known_author_families": [
+      "OpenAI",
+      "Anthropic"
+    ],
+    "qualifying_review_commit_sha": null,
+    "local_hashes_are_review_evidence": false
+  },
+  "supervisor_steps": [
+    "Commit and push this worktree, recording the resulting head SHA.",
+    "Publish PR_BODY.md to the live PR description and set its actual review target to that head SHA.",
+    "Obtain and submit an independent review from a family outside the author families, pinned to that head SHA.",
+    "Confirm remote CI and the remaining acceptance conditions before merge."
+  ],
+  "remote_ci": "not invoked; supervisor owns commit, push and GitHub",
+  "tracked_diff_sha256": "c652b6d8aff4a8b24fb4c2e57c298dbad0833e37cc39a4082e7cbab10a229f6f",
+  "file_sha256": {
+    "Cargo.toml": "bd24f8a8f8794d4385cbd74b0bd264e7fbb75039b15deba62ce4634bdae78a92",
+    "Cargo.lock": "86613fab88696158fd2dd9fd6f5d6914bae3e6350745fb5fa27959525c05840a",
+    "services/knowledge/Cargo.toml": "7030aaa03b5a880ee2163b8965249d2aad8c72911aca1347fd4812964945266e",
+    "services/knowledge/PR_BODY.md": "a6a3a2b8858402c6220912f08a839a0c457a501852180258eedbd0b3c286aae3",
+    "services/knowledge/README.md": "3eac89d88621bbb5b574b14213ea3c730fcc344cbe0c859b0ba07c2d79141591",
+    "services/knowledge/evidence/fix_round_5_db.log": "292b50483509d15dc63216bbf4027817ab791f6eaae1e87fe5492165aa447a1c",
+    "services/knowledge/evidence/fix_round_5_format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "services/knowledge/evidence/fix_round_5_lint.log": "8816e980532987e91f485f187566be9d8c4e2093c1c9b9c19fde3d8c1c173856",
+    "services/knowledge/evidence/fix_round_5_schema.log": "8bd3fcf361dd3ef1351ec490d7c1d546fb934f2ec2cb23d57f13a3b27422ebf5",
+    "services/knowledge/evidence/fix_round_5_static.log": "8806a183b88f75ed8ddfe13effeff55359212bf15b5d86104f4262a3e01184fd",
+    "services/knowledge/evidence/fix_round_5_summary.log": "1232e8e4acad9389e1d9b200b8353387aa764e84809fb6f77b27e95938c24c98",
+    "services/knowledge/evidence/fix_round_5_workspace.log": "5c77ee6a024115b2c1dd30ccb68e2f7c62d20db5f0639005a4a6ecfbdb777a98",
+    "services/knowledge/migrations/001_repository.sql": "9d943d5e3f58f9c674d3f44059311b0acbfc258b6f0b5c145991650e73f33918",
+    "services/knowledge/src/lib.rs": "17cbb9807f8308955a06377ef28d35ece6708a9835b2d85958f7bd80586cd73a",
+    "services/knowledge/src/postgres_store.rs": "5f4c8c92da565edd5f31f03f4981e5aef017fe4b572494e461a5b328e1117b4c",
+    "services/knowledge/test.sh": "949293bc8fd2579e92e58e4bc0f36d82dc87a0f5f1b3ee00baebd4de2052c46c",
+    "services/knowledge/tests/postgres.rs": "a4da8fb3178fec5b361bfe8ca1ba8fbd463073edc42a8bcd3e51ecd4192de005",
+    "services/knowledge/tests/r26.rs": "51c9eede9b9f7570b86d16cecf47a341a519369e1f31116fb03c68fd4100c586",
+    "services/knowledge/tests/repository.rs": "7910c8a7668efab0745ac2e9ece5e95ca297869dbaf956cb56d6379ff6ee5b39",
+    "services/knowledge/tests/support/questions.rs": "f97a890b0c8a93cddfed251eb4031d173a3f10258bfdadae62356c73da2b5219"
+  }
+}

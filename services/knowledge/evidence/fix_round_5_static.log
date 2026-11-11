@@ -1,0 +1,13 @@
+$ python3 -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+exit: 0
+$ python3 -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+exit: 0
+$ python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime
+..
+----------------------------------------------------------------------
+Ran 2 tests in 2.626s
+
+OK
+exit: 0

@@ -1,0 +1,98 @@
+$ cargo test -p onjeon-knowledge store
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_knowledge-6900daebe4110364)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/postgres.rs (target/debug/deps/postgres-91e971a17f7be0a6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/r26.rs (target/debug/deps/r26-aa920d4edfb2f17b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/repository.rs (target/debug/deps/repository-3b0ef9e30e7b81ba)
+
+running 1 test
+test store ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+
+exit=0
+$ cargo test -p onjeon-knowledge fixture_rejection
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_knowledge-6900daebe4110364)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/postgres.rs (target/debug/deps/postgres-91e971a17f7be0a6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/r26.rs (target/debug/deps/r26-aa920d4edfb2f17b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/repository.rs (target/debug/deps/repository-3b0ef9e30e7b81ba)
+
+running 1 test
+test fixture_rejection ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+
+exit=0
+$ cargo test -p onjeon-knowledge edition_conflict
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_knowledge-6900daebe4110364)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/postgres.rs (target/debug/deps/postgres-91e971a17f7be0a6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/r26.rs (target/debug/deps/r26-aa920d4edfb2f17b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/repository.rs (target/debug/deps/repository-3b0ef9e30e7b81ba)
+
+running 1 test
+test edition_conflict_uses_actual_segments_editions_and_clauses ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+
+exit=0
+$ cargo fmt --all -- --check
+exit=0
+$ python3 -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+exit=0
+$ python3 -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+exit=0

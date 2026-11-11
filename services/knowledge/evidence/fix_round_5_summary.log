@@ -1,0 +1,25 @@
+T-KN-04 fix round 5 -- local fixes and supervisor handoff, 2026-10-24
+Validation target: uncommitted worktree on 06feb70ba3d22c277c1743893d76652f1aa4cad1; file hashes in review_target_round_5.json
+Reviewer finding 1 [P1]: FIXED. Canonical fingerprint_rule/fingerprint_sha256 override extension fingerprint, including NULLs. K16 rejects mismatched hashes and rules after PostgreSQL reconnect. Matching canonical fingerprints allow promotion despite a conflicting extension.
+Reviewer finding 2 [P1]: FIXED. SQL nodes always have attrs; canonical kind determines the checker's class even with a conflicting extension class or attrs.class. Missing CodeSet metadata produces all four K3 findings after reconnect; promotion is rejected and candidate count remains zero.
+Regressions: repository::canonical_fingerprint_columns_gate_edition_confirmation; repository::canonical_node_kind_overrides_conflicting_classes; postgres::canonical_segment_fingerprint_blocks_extension_bypass_after_reconnect; postgres::canonical_node_class_blocks_extension_bypass_after_reconnect
+DB test isolation: each test clones the empty migrated fixture_only template; independent violations cannot mask promotion failures. test.sh removes the complete disposable cluster.
+bash services/knowledge/test.sh: PASS, 29 passed / 0 failed / 0 ignored (unit 1, repository 23, r26 1, postgres 3, doc 1); PostgreSQL 17.11
+cargo test --locked --workspace: PASS, 414 passed / 0 failed / 4 ignored
+Ignored: knowledge DB tests (3) executed by test.sh; twin-runtime fixture regeneration utility (1), with freshness test passing
+cargo clippy --locked --workspace --all-targets -- -D warnings: PASS
+cargo fmt --all -- --check: PASS
+bash infra/db/public/test.sh: PASS, 166 passed / 0 failed
+python3 -I tools/ci/check_leak.py: PASS
+python3 -I tools/ci/check_skeleton.py: PASS
+python3 -I -m unittest discover -s tools/ci/tests -k SkeletonRuntime: PASS, 2 tests
+profile-historical-vs-service: PASS, historical violations=0, questions=11/11, service and B1/B2/B3 rejected
+price-raw-kept-comparison-gated: PASS
+The E0599 output in the DB log belongs to the successful compile_fail doctest proving update_assertion is absent.
+Path policy: PASS, every modified or new file is under services/knowledge/**; Cargo.toml and Cargo.lock unchanged
+Whitespace: git diff --check HEAD PASS; new files have no trailing whitespace and end with a newline
+No migration, vocabulary, protected document, or workflow changes. No commit, push, GitHub invocation, delegation, or external model call.
+Reviewer finding 3 [P2]: UNRESOLVED EXTERNALLY. PR_BODY.md refreshed with A/Q/L/I/M, R mappings, author roles/families/execution paths, current base SHA and actual test results. It is a draft, not proof of publication. User prohibits GitHub calls; supervisor must commit/push, place the actual new head SHA in the live PR description, and publish this body.
+Reviewer finding 4 [P2]: UNRESOLVED EXTERNALLY. OpenAI and Anthropic are recorded author families; the existing OpenAI review is ineligible. No qualifying independent review was performed in this session. Supervisor must obtain and submit a review from a non-author family, pinned to the actual new head SHA. Local file hashes are validation provenance only.
+Remote CI: not invoked; supervisor must inspect the committed target's CI.
+Local handoff ready: yes. All acceptance conditions satisfied: no (PR publication and qualifying independent review remain blocking).

@@ -1,0 +1,45 @@
+$ python3 -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+exit=0
+$ python3 -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+exit=0
+$ python3 -I -m unittest discover -s tools/ci/tests
+...............FF...
+======================================================================
+FAIL: test_cli_exit_codes_under_isolated_mode (test_ci_checkers.RepoIsClean.test_cli_exit_codes_under_isolated_mode) [check_deps.py]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/T-KN-04/tools/ci/tests/test_ci_checkers.py", line 49, in test_cli_exit_codes_under_isolated_mode
+    self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : check_deps: 3 finding(s)
+  [DEP-ZONE] packages/ontology/Cargo.toml:15: zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']
+  [IMP-ZONE] packages/ontology/tests/common/mod.rs:350: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+  [IMP-ZONE] packages/ontology/tests/fixture_origin/main.rs:126: zone 'knowledge' may not import 'onjeon_rules_engine' (zone 'twin')
+
+
+======================================================================
+FAIL: test_real_repo_passes_every_checker (test_ci_checkers.RepoIsClean.test_real_repo_passes_every_checker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/T-KN-04/tools/ci/tests/test_ci_checkers.py", line 37, in test_real_repo_passes_every_checker
+    self.assertEqual([], check_deps.check(C.ROOT, rules))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [Finding(rule='DEP-ZONE', path='packages/o[468 chars]')")]
+
+Second list contains 3 additional elements.
+First extra element 0:
+Finding(rule='DEP-ZONE', path='packages/ontology/Cargo.toml', line=15, message="zone 'knowledge' may not depend on 'onjeon-rules-engine' (zone 'twin'); allowed zones: ['contracts']")
+
+Diff is 694 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 20 tests in 4.435s
+
+FAILED (failures=2)
+check_deps selftest ok: 19 violations each caught for its intended rule, 7 clean case(s) pass
+check_leak selftest ok: 29 violations each caught for its intended rule, 5 clean case(s) pass
+check_skeleton selftest ok: 18 violations each caught for its intended rule, 5 clean case(s) pass
+check_bootstrap selftest ok: 9 violations each caught for its intended rule, 3 clean case(s) pass
+exit=1

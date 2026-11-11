@@ -10,6 +10,7 @@ The unit tests need no originals or extractors. The archive tests run only when
 ONJEON_ARCHIVE_RAW and ONJEON_ARCHIVE_DERIVED point at local stores (the originals are not in
 the public repository) and pdftotext is installed.
 """
+import gc
 import io
 import json
 import os
@@ -18,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import warnings
 from pathlib import Path
 from unittest import mock
 
@@ -51,6 +53,23 @@ class Decide(unittest.TestCase):
         for (missing, derived), want in cases:
             with self.subTest(derived=derived, missing=missing):
                 self.assertEqual(vs.decide(missing, derived), want)
+
+
+class RowsFileHandling(unittest.TestCase):
+    """rows() built its DictReader on an unmanaged open(), so samples.csv stayed
+    open until garbage collection and the suite surfaced ResourceWarning noise."""
+
+    def test_rows_returns_the_samples_without_leaking_the_handle(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", ResourceWarning)
+            rows = vs.rows()
+            gc.collect()
+        self.assertTrue(rows)
+        self.assertIn("sample_id", rows[0])
+        self.assertIn("sha256", rows[0])
+        leaked = [w for w in caught
+                  if issubclass(w.category, ResourceWarning) and "samples.csv" in str(w.message)]
+        self.assertEqual(leaked, [], f"rows() left samples.csv open: {leaked}")
 
 
 class VerifyDerived(unittest.TestCase):

@@ -20,8 +20,10 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)  # 온톨로지/
-TBOX = json.load(open(os.path.join(ROOT, "tbox.json"), encoding="utf-8"))
-ABOX = json.load(open(os.path.join(ROOT, "abox_cases.json"), encoding="utf-8"))
+with open(os.path.join(ROOT, "tbox.json"), encoding="utf-8") as _f:
+    TBOX = json.load(_f)
+with open(os.path.join(ROOT, "abox_cases.json"), encoding="utf-8") as _f:
+    ABOX = json.load(_f)
 ANCHORS = {"계약일", "보장개시일", "갱신일", "부활일", "결과보고일", "진단확정일", "청구일"}
 UNITS = {"day", "calendar_month", "calendar_year"}
 PRIVATE_PREFIX = ("contract:", "person:", "upload:")
@@ -38,7 +40,11 @@ def _rule_files(items):
     for a in items:
         if a.get("rule_path"):
             path = os.path.join(ROOT, a["rule_path"])
-            out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
+            if os.path.exists(path):
+                with open(path, "rb") as f:
+                    out[a["rule_path"]] = hashlib.sha256(f.read()).hexdigest()
+            else:
+                out[a["rule_path"]] = None
     return out
 
 
@@ -279,7 +285,8 @@ def check_constraints(abox):
     # K9
     for a in cur:
         if a["predicate"] == "implemented_by" and a["review_status"] == "accepted":
-            rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
+            with open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8") as f:
+                rule = json.load(f)
             cov = a["subject"]
             basis = set()
             covered = {cov} | {x["object"] for x in cur if x["subject"] == cov and x["predicate"] == "uses_definition"}
@@ -529,7 +536,8 @@ def resolve(abox, q):
     rule_a = next(a for a in cur if a["subject"] == q["cov"] and a["predicate"] == "implemented_by")
     inputs = dict(q["assume"])
     inputs.update({"contract_date": q["facts"]["contract_date"], "diagnosis_date": q["facts"]["diagnosis_date"], "dx_in_category": m})
-    rule = json.load(open(os.path.join(ROOT, rule_a["rule_path"]), encoding="utf-8"))
+    with open(os.path.join(ROOT, rule_a["rule_path"]), encoding="utf-8") as f:
+        rule = json.load(f)
     inputs = {k: inputs.get(k) for k in rule["inputs"]}
     return {"steps": steps, "config": sc, "category": cat, "membership": m, "trail": trail, "rule_path": os.path.join(ROOT, rule_a["rule_path"]), "rule_assertion": rule_a["id"], "inputs": inputs}
 

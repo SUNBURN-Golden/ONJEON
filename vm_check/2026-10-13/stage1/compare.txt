@@ -1,0 +1,1 @@
+IDENTICAL to docs/blueprint/proposals/설계검토_결과/검증/실행로그_dry_run.txt (timing stripped)

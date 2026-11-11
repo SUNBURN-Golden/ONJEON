@@ -1,0 +1,10 @@
+$ claude.version
+2.1.290 (Claude Code)
+
+$ sonnet2.rc
+rc=0 ms=4333
+
+$ fable2.rc
+rc=0 ms=6241
+
+[마스킹: 계정·토큰은 ***로 치환]

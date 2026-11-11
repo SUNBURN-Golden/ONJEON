@@ -1,0 +1,18 @@
+# 적용 문구 존재 확인 (고정 문구 S, 각 문서의 출현 횟수)
+1	docs/blueprint/proposals/설계검토_결과/README.md
+1	docs/blueprint/proposals/설계검토_결과/그록봇_인계/README.md
+1	docs/blueprint/proposals/설계검토_결과/tasks.json
+1	docs/blueprint/proposals/설계검토_결과/daemon_rules.json
+1	docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+1	docs/decisions/DEC-BUNDLE-STATUS.md
+2	docs/blueprint/DECISIONS.md
+1	docs/BLUEPRINT.md
+
+# 요약 행 변형 문구 (루트 README·BLUEPRINT §7.2)
+1	README.md
+1	docs/BLUEPRINT.md §7.2
+
+# 기존 넓은 문구 O의 잔존 위치 (결정 기록의 인용·회귀 상수·증거 인용만 허용)
+docs/decisions/audit5-canonize-design-bundle.md
+tools/tests/test_pr_policy.py
+tools/evidence/audit5-canonize-design-bundle/README.md

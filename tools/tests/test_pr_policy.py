@@ -55,10 +55,13 @@ class PrPolicy(unittest.TestCase):
 
 
 class BundleStatus(unittest.TestCase):
-    """ADR-0019: 두 계약의 채택과 묶음 전체·공통 PR 기준 제외를 함께 지킨다."""
+    """ADR-0019: 두 계약의 채택과 묶음의 나머지·공통 PR 기준 제외를 함께 지킨다."""
 
     EXECUTION = "과제 실행·완료 기준으로 채택"
     CANON = "BLUEPRINT 하위 계약으로 한정 채택(ADR-0019)"
+    SCOPED = ("묶음의 나머지(01~08, 온톨로지 제안, U-01~U-04, A-01)와 "
+              "common_done_criteria, daemon_rules.json은 이번 정본 채택 대상이 아니다.")
+    OVERBROAD = "묶음 전체·온톨로지·daemon_rules.json·common_done_criteria는 이번 정본 채택 대상이 아니다."
     ADR = ROOT / "docs/decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md"
     RECORD = ROOT / "docs/decisions/DEC-BUNDLE-STATUS.md"
 
@@ -88,8 +91,31 @@ class BundleStatus(unittest.TestCase):
                 self.assertIn("D-21", text)
                 self.assertIn("DEC-BUNDLE-STATUS", text)
                 self.assertIn("상위 계약을 우선한다", text)
-                self.assertIn("묶음 전체·온톨로지·daemon_rules.json·common_done_criteria는 이번 정본 채택 대상이 아니다", text)
+                self.assertIn(self.SCOPED, text)
+                self.assertNotIn(self.OVERBROAD, text)
                 self.assertNotIn("채택된 정본이 아니다", text)
+
+    def test_scoped_exclusion_covers_every_status_statement_and_the_ledger(self):
+        """Audit 5: exclude only the non-driving remainder, keeping daemon_rules explicit."""
+        documents = [BUNDLE / "README.md", BUNDLE / "그록봇_인계/README.md",
+                     BUNDLE / "tasks.json", BUNDLE / "daemon_rules.json",
+                     BUNDLE / "09_제품목적_대응표.md", self.RECORD,
+                     ROOT / "docs/blueprint/DECISIONS.md", ROOT / "docs/BLUEPRINT.md"]
+        for path in documents:
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(document=str(path.relative_to(ROOT))):
+                self.assertIn(self.SCOPED, text)
+                self.assertNotIn(self.OVERBROAD, text)
+
+    def test_root_readme_and_blueprint_summary_scope_the_exclusion(self):
+        """Audit 5: 요약 행도 '묶음 전체'가 아니라 비구동 잔여물만 제외한다고 적는다."""
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("묶음의 나머지(01~08, 온톨로지 제안, U-01~U-04, A-01)·common_done_criteria와 "
+                      "공통 PR 기준 채택은 제외한다", readme)
+        self.assertNotIn("묶음 전체·공통 PR 기준 채택은 제외", readme)
+        blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
+        self.assertIn("공통 PR 기준·묶음의 나머지 채택 제외", blueprint)
+        self.assertNotIn("공통 PR 기준·묶음 전체 채택 제외", blueprint)
 
     def test_markdown_links_to_the_record_resolve(self):
         for name, base, text in (("README 상태", BUNDLE, self.status_line),
@@ -166,7 +192,7 @@ class BundleStatus(unittest.TestCase):
         header = path.read_text(encoding="utf-8").split("## 0.", 1)[0]
         self.assertIn("BLUEPRINT 하위 계약에 한정 채택", header)
         self.assertIn("상위 계약을 우선한다", header)
-        self.assertIn("묶음 전체·참조된 온톨로지 제안의 정본 채택은 아니다", header)
+        self.assertIn(self.SCOPED, header)
         targets = {(path.parent / target).resolve() for target in re.findall(r"\]\(([^)]+)\)", header)}
         self.assertIn(self.ADR, targets)
 

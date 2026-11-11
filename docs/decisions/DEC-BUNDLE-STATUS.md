@@ -6,7 +6,7 @@
 
 **Question (Audit 1 finding `audit1-bundle-canonical-status`):** `설계검토_결과/README.md:10` said the bundle "is not an adopted canon, correction judgment awaits independent re-review", while `그록봇_인계/README.md:3` says the user decided to run on it and 09 is the top criterion. Is the bundle canonical (then drop the disclaimer), or not (then 09 cannot be the completion criterion)?
 
-**2026-10-29 부분 대체:** [ADR-0019](ADR-0019-제품-완료와-작업-계약-한정-채택.md)가 아래 2번의 정본 미채택 판단 중 09·tasks.json의 역할만 대체한다. 두 파일은 이제 BLUEPRINT 하위의 제품 완료 증거·데몬 작업 소스 및 개별 수락 계약이다. 상위 계약이 우선하며 묶음 전체·온톨로지·daemon_rules.json·common_done_criteria는 이번 정본 채택 대상이 아니다. 아래는 2026-10-26 결정 이력이며 현재 상태는 ADR-0019·BLUEPRINT §0.1·§9·§13을 따른다.
+**2026-10-29 부분 대체:** [ADR-0019](ADR-0019-제품-완료와-작업-계약-한정-채택.md)가 아래 2번의 정본 미채택 판단 중 09·tasks.json의 역할만 대체한다. 두 파일은 이제 BLUEPRINT 하위의 제품 완료 증거·데몬 작업 소스 및 개별 수락 계약이다. 상위 계약이 우선하며 묶음의 나머지(01~08, 온톨로지 제안, U-01~U-04, A-01)와 common_done_criteria, daemon_rules.json은 이번 정본 채택 대상이 아니다. 아래는 2026-10-26 결정 이력이며 현재 상태는 ADR-0019·BLUEPRINT §0.1·§9·§13을 따른다.
 
 **Decision (2026-10-26 historical):** The word '채택' (adopted) covered two different statuses. They are now stated separately:
 

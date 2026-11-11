@@ -68,7 +68,7 @@ class BlueprintDecisionIds(unittest.TestCase):
         row = next(line for line in self.ledger.splitlines()
                    if line.startswith("| BP-D-20 |"))
         for phrase in ("09_제품목적_대응표", "tasks.json", "BLUEPRINT 하위에 한정 채택",
-                       "common_done_criteria의 정본 채택은 제외", "purpose-rows-all-closed",
+                       "common_done_criteria, daemon_rules.json은 이번 정본 채택 대상이 아니다", "purpose-rows-all-closed",
                        "실증 증거 의무 유지", "ADR-0019", "새로운 사용자 직접 결정 아님"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, row)

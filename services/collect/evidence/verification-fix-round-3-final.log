@@ -1,0 +1,15 @@
+T-DT-04 fix round 3: final evidence and path audit
+$ python3 -B -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+exit_code=0
+$ python3 -B -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+exit_code=0
+$ git diff --check
+
+exit_code=0
+input_target_sha=0422e539e49265d1815bbe7dca02d6e24b35c3c2
+source_hash_matches=32
+path_audit=PASS; changed paths are within services/collect/**
+dependency_gate=BLOCKED; verification-07.log retains 3 ontology findings outside allowed paths
+independent_review=PENDING; supervisor final SHA and different author family reviewer required

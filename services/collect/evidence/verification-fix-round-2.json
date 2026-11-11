@@ -1,0 +1,273 @@
+{
+  "task_id": "T-DT-04",
+  "fix_round": 2,
+  "base_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha": "be571a90b8cc64c506e0f06b0b751617e95ea947",
+  "target_sha_scope": "Input review SHA plus uncommitted changed bytes. This is not a final committed fix SHA.",
+  "author_role": "implementation_and_self_verification",
+  "execution_path": "CLI / T-DT-04 worktree / cargo and Python unittest",
+  "independent_review": "pending_supervisor_final_SHA_and_different_author_family",
+  "source_hash_comparison": {
+    "matched": 32,
+    "mismatches": [],
+    "pins": "verification.json"
+  },
+  "changed_paths": [
+    "services/collect/evidence/PR_본문.md",
+    "services/collect/evidence/dependency-boundary.json",
+    "services/collect/evidence/handoff.json",
+    "services/collect/evidence/verification-01.log",
+    "services/collect/evidence/verification-02.log",
+    "services/collect/evidence/verification-03.log",
+    "services/collect/evidence/verification-05.log",
+    "services/collect/evidence/verification-06.log",
+    "services/collect/evidence/verification-07.log",
+    "services/collect/evidence/verification-08.log",
+    "services/collect/evidence/verification-09.log",
+    "services/collect/evidence/verification-10.log",
+    "services/collect/evidence/verification-11.log",
+    "services/collect/evidence/verification-12.log",
+    "services/collect/evidence/verification-fix-round-2-final.log",
+    "services/collect/evidence/verification-fix-round-2.json",
+    "services/collect/evidence/verification.json",
+    "services/collect/src/adapters/institution.rs",
+    "services/collect/src/adapters/listpage.rs",
+    "services/collect/src/adapters/progress.rs",
+    "services/collect/src/adapters/regression.rs",
+    "services/collect/src/adapters/verification-fix4.json",
+    "services/collect/src/adapters/verification-fix5.json",
+    "services/collect/tests/adapters.rs",
+    "services/collect/tests/verify.py"
+  ],
+  "outside_allowed_paths": [],
+  "findings": [
+    {
+      "id": 1,
+      "status": "addressed",
+      "change": "Require positive list or verified empty evidence with or without a total marker; shipped associations tested against maintenance pages, navigation and JS shells."
+    },
+    {
+      "id": 2,
+      "status": "addressed",
+      "change": "Seed required whole-institution product and per-role document unknowns; unqueried institutions suppress aggregate rates; scoped success cannot erase the global gap."
+    },
+    {
+      "id": 3,
+      "status": "addressed",
+      "change": "Use actual discovered document identities and explicit roles; independent product set; preserve per-document evidence/reasons and deduplicate repeated/shared references."
+    },
+    {
+      "id": 4,
+      "status": "addressed_with_declared_support_limits",
+      "change": "Replace nonfunctional EntryProbe with concrete Lifeplanet embedded-inventory product/document parsers and 8 survey-backed plans; successful adapter-to-manifest-to-progress regression. Other unsupported institutions remain unexplored."
+    },
+    {
+      "id": 5,
+      "status": "blocked_outside_allowed_paths",
+      "change": "Reran unchanged full dependency gate; 3 ontology findings remain. Supervisor must route repair to an authorized task before merge. See dependency-boundary.json."
+    }
+  ],
+  "results": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "-p",
+        "onjeon-collect",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "verification-00.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "onjeon-collect",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "verification-01.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "onjeon-collect",
+        "adapters"
+      ],
+      "exit_code": 0,
+      "log": "verification-02.log",
+      "passed_tests": 56
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace"
+      ],
+      "exit_code": 0,
+      "log": "verification-03.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "onjeon-collect"
+      ],
+      "exit_code": 0,
+      "log": "verification-04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "services/collect/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "verification-05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "verification-06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-I",
+        "tools/ci/check_deps.py"
+      ],
+      "exit_code": 1,
+      "log": "verification-07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-I",
+        "tools/ci/check_leak.py"
+      ],
+      "exit_code": 0,
+      "log": "verification-08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-I",
+        "tools/ci/check_leak.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "log": "verification-09.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-I",
+        "tools/ci/check_skeleton.py"
+      ],
+      "exit_code": 0,
+      "log": "verification-10.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-I",
+        "tools/ci/check_skeleton.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "log": "verification-11.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "verification-12.log"
+    }
+  ],
+  "all_checks_green": false,
+  "merge_gate": "BLOCKED: ontology dependency check fails; final committed fix SHA and independent different-family review are pending.",
+  "evidence_files_sha256": {
+    "services/collect/evidence/PR_본문.md": "791123890c887344f403a72c81ca066bf388306da512daf2dd8c78c7cfddd0d6",
+    "services/collect/evidence/handoff.json": "b547f922495bf3b7bbfee00d30c5f8572c46a91be95d1029cf62465cd8c049a4",
+    "services/collect/evidence/dependency-boundary.json": "c74287b9d1e91e672e0c95fa732d8ad1cb8250731cc2184abf1a888620e9fe85",
+    "services/collect/evidence/verification.json": "12a76517262716ab5f074ae6a777505174dc394d82a65997178fa48e23d12497",
+    "services/collect/evidence/verification-00.log": "6c7e2f9327953719b15988fe28b04a03377115a16a8debdb3e72d4b044711da2",
+    "services/collect/evidence/verification-01.log": "de4c8efb42566318518af98320508b8e31c5f83a037c4b7fd49135cfde125a13",
+    "services/collect/evidence/verification-02.log": "447995d56be30d8e7b08c3cb2089a6f37a53739ffa869ccc51db9a20a20ebc6a",
+    "services/collect/evidence/verification-03.log": "8e97ec636e2ed4a0653a8f11c8c8649e9336cf5db1709ea2c0fec23425b88f76",
+    "services/collect/evidence/verification-04.log": "ebb1b4d123163bd05035d352a040d63a77164d065977db9ab0c908196a31d514",
+    "services/collect/evidence/verification-05.log": "02ec73805c7551b13fa17a09307578a84be7494056a894ee993ec93914f4a181",
+    "services/collect/evidence/verification-06.log": "6cfe5befae33b09a49bdf9e8380e7b809c6ed2fa767b390764024b33226271e8",
+    "services/collect/evidence/verification-07.log": "8793f4bb5f3dd18a2672738c7a61abc6da4d6ef71b663382ccebb4795544a6f8",
+    "services/collect/evidence/verification-08.log": "c41b190ab15f1e24837084afee2265957e81bd872a6dc3b196f24dfb9d48697d",
+    "services/collect/evidence/verification-09.log": "04aa443450c92a252a46f3e448392c39f0c20d24939e68a6d44d718cb8c423b5",
+    "services/collect/evidence/verification-10.log": "81db991e4f4691d097e2c1a64c209d16de4c05839333780f891e55a492145881",
+    "services/collect/evidence/verification-11.log": "f8d3ebc31eeba33c789d9051b51a265e4dd4c06d0fb9541ca7fdc29f6e64018f",
+    "services/collect/evidence/verification-12.log": "fa77ab6dcf895a30623113e37b6ee812c6cd35b0cbb9693a0c18de550e6b1cf6"
+  },
+  "historical_evidence": "verification-fix-round-1.json, verification-fix*-review.log and src/adapters/verification-fix4.json / verification-fix5.json describe prior runs and are superseded for current behavior.",
+  "supervisor_actions": [
+    "Repair ontology dependencies/imports through a task authorized for packages/ontology; rerun the unchanged complete dependency checker.",
+    "Create final commit, pin verification and review to that SHA, obtain independent reviewer from another author family.",
+    "Confirm final path scope. STATUS READY is a handoff, not a merge or release approval."
+  ],
+  "changed_file_hashes_except_this_report": {
+    "services/collect/evidence/PR_본문.md": "791123890c887344f403a72c81ca066bf388306da512daf2dd8c78c7cfddd0d6",
+    "services/collect/evidence/dependency-boundary.json": "c74287b9d1e91e672e0c95fa732d8ad1cb8250731cc2184abf1a888620e9fe85",
+    "services/collect/evidence/handoff.json": "b547f922495bf3b7bbfee00d30c5f8572c46a91be95d1029cf62465cd8c049a4",
+    "services/collect/evidence/verification-01.log": "de4c8efb42566318518af98320508b8e31c5f83a037c4b7fd49135cfde125a13",
+    "services/collect/evidence/verification-02.log": "447995d56be30d8e7b08c3cb2089a6f37a53739ffa869ccc51db9a20a20ebc6a",
+    "services/collect/evidence/verification-03.log": "8e97ec636e2ed4a0653a8f11c8c8649e9336cf5db1709ea2c0fec23425b88f76",
+    "services/collect/evidence/verification-05.log": "02ec73805c7551b13fa17a09307578a84be7494056a894ee993ec93914f4a181",
+    "services/collect/evidence/verification-06.log": "6cfe5befae33b09a49bdf9e8380e7b809c6ed2fa767b390764024b33226271e8",
+    "services/collect/evidence/verification-07.log": "8793f4bb5f3dd18a2672738c7a61abc6da4d6ef71b663382ccebb4795544a6f8",
+    "services/collect/evidence/verification-08.log": "c41b190ab15f1e24837084afee2265957e81bd872a6dc3b196f24dfb9d48697d",
+    "services/collect/evidence/verification-09.log": "04aa443450c92a252a46f3e448392c39f0c20d24939e68a6d44d718cb8c423b5",
+    "services/collect/evidence/verification-10.log": "81db991e4f4691d097e2c1a64c209d16de4c05839333780f891e55a492145881",
+    "services/collect/evidence/verification-11.log": "f8d3ebc31eeba33c789d9051b51a265e4dd4c06d0fb9541ca7fdc29f6e64018f",
+    "services/collect/evidence/verification-12.log": "fa77ab6dcf895a30623113e37b6ee812c6cd35b0cbb9693a0c18de550e6b1cf6",
+    "services/collect/evidence/verification-fix-round-2-final.log": "f41f945cd516854b3d6c2157d93d0f60a96ddd1ece06f36e6a0135fbb8e45152",
+    "services/collect/evidence/verification.json": "12a76517262716ab5f074ae6a777505174dc394d82a65997178fa48e23d12497",
+    "services/collect/src/adapters/institution.rs": "3ee8dccf0e97d69952b7092186d318357539f40e154b8e2340ee67f50a66ae79",
+    "services/collect/src/adapters/listpage.rs": "002e3575a2d1c600b58ba9f57a94fa21d7ec45818d530c86302c4b6356850251",
+    "services/collect/src/adapters/progress.rs": "53e04e870548d23a31af4f6030dba1efc51fd1773c2f5aa264c21db8c864fa46",
+    "services/collect/src/adapters/regression.rs": "d3e03fc0857d6f7c632e986844c95d8a06d60f1936ee35f3869b4420f6d76429",
+    "services/collect/src/adapters/verification-fix4.json": "60d430d301767f5d14c51db36050641366347c2cbb6161fbf4edb390c3dd5048",
+    "services/collect/src/adapters/verification-fix5.json": "bb596437e4a72a05eebeb29a4b5277a9e612df1ae3e0e50cd031dc6ce6ab81d4",
+    "services/collect/tests/adapters.rs": "52809667b73d9b5a7d4a45e718f2947f9f3032edb8d33abfeaba1fba4a7d6a68",
+    "services/collect/tests/verify.py": "677168c053a220dca789ebf2d8ddd5a6494e635b9d9d0da52e26d4cc3ba17595"
+  }
+}

@@ -1,4 +1,5 @@
 $ cargo clippy -p onjeon-collect --all-targets -- -D warnings
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+    Checking onjeon-collect v0.1.0 (<worktree>/services/collect)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.43s
 
 exit_code=0

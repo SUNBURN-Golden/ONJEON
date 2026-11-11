@@ -1,0 +1,1185 @@
+test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) ... 
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': '--receive-pack=/bin/sh'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': '+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': ''}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': None}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': 40}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'main'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'task/T-MOCK-OTHER-a1'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': '--force'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'task/T-MOCK-BASIC-a1:refs/heads/main'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'task/T-MOCK-BASIC-a1 x'}) ... FAIL
+  test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': None}) ... FAIL
+test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) ... FAIL
+test_preserve_push_validates_and_passes_the_option_separator (test_daemon_dry_run.PushRefspecAdapter.test_preserve_push_validates_and_passes_the_option_separator) ... FAIL
+test_valid_push_passes_the_option_separator_before_the_refspec (test_daemon_dry_run.PushRefspecAdapter.test_valid_push_passes_the_option_separator_before_the_refspec) ... FAIL
+test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) ... 
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='main') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='release/1') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-OTHER-a1') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-BASIC-a2') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='--receive-pack=/bin/sh') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='+task/T-MOCK-BASIC-a1') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-BASIC-a1:refs/heads/main') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-BASIC-a1 --force') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/../main') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='') ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch=None) ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch=7) ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch=['task/T-MOCK-BASIC-a1']) ... FAIL
+  test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='absent') ... FAIL
+test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) ... 
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='--receive-pack=/bin/sh') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='--force') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='gggggggggggggggggggggggggggggggggggggggg') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='') ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=None) ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=40) ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']) ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha={'sha': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}) ... FAIL
+  test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='absent') ... FAIL
+test_late_duplicate_and_bypass_precedence_is_unchanged (test_daemon_dry_run.PushRefspecFencing.test_late_duplicate_and_bypass_precedence_is_unchanged) ... ok
+test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written (test_daemon_dry_run.PushRefspecFencing.test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written) ... FAIL
+test_the_check_comes_from_the_rules_data (test_daemon_dry_run.PushRefspecFencing.test_the_check_comes_from_the_rules_data) ... ok
+test_the_dispatch_recheck_evaluates_the_same_check (test_daemon_dry_run.PushRefspecFencing.test_the_dispatch_recheck_evaluates_the_same_check) ... ERROR
+test_valid_push_and_pr_update_without_refspec_still_write (test_daemon_dry_run.PushRefspecFencing.test_valid_push_and_pr_update_without_refspec_still_write) ... ok
+
+======================================================================
+ERROR: test_the_dispatch_recheck_evaluates_the_same_check (test_daemon_dry_run.PushRefspecFencing.test_the_dispatch_recheck_evaluates_the_same_check)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 573, in test_the_dispatch_recheck_evaluates_the_same_check
+    self.assertEqual(failed["id"], "push_refspec")
+                     ~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': '--receive-pack=/bin/sh'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': '+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'sha': 40})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'main'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'task/T-MOCK-OTHER-a1'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': '--force'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'task/T-MOCK-BASIC-a1:refs/heads/main'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': 'task/T-MOCK-BASIC-a1 x'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) (kw={'branch': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 618, in test_invalid_refspec_raises_before_credential_and_git
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 625, in test_invalid_refspec_raises_before_credential_and_git
+    self.assertTrue(all(r["executed"] is False and r["reason"] == "invalid_refspec" for r in records))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_preserve_push_validates_and_passes_the_option_separator (test_daemon_dry_run.PushRefspecAdapter.test_preserve_push_validates_and_passes_the_option_separator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 644, in test_preserve_push_validates_and_passes_the_option_separator
+    self.assertEqual(args, ["push", "remote.invalid", "--", "a" * 40 + ":refs/heads/task/T-MOCK-BASIC-a1"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['pus[18 chars]d', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:[28 chars]-a1'] != ['pus[18 chars]d', '--', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[34 chars]-a1']
+
+First differing element 2:
+'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/task/T-MOCK-BASIC-a1'
+'--'
+
+Second list contains 1 additional elements.
+First extra element 3:
+'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/task/T-MOCK-BASIC-a1'
+
+  ['push',
+   'remote.invalid',
++  '--',
+   'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/task/T-MOCK-BASIC-a1']
+
+======================================================================
+FAIL: test_valid_push_passes_the_option_separator_before_the_refspec (test_daemon_dry_run.PushRefspecAdapter.test_valid_push_passes_the_option_separator_before_the_refspec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 631, in test_valid_push_passes_the_option_separator_before_the_refspec
+    self.assertEqual(args, ["push", "remote.invalid", "--", "a" * 40 + ":refs/heads/task/T-MOCK-BASIC-a1"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['pus[18 chars]d', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:[28 chars]-a1'] != ['pus[18 chars]d', '--', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[34 chars]-a1']
+
+First differing element 2:
+'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/task/T-MOCK-BASIC-a1'
+'--'
+
+Second list contains 1 additional elements.
+First extra element 3:
+'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/task/T-MOCK-BASIC-a1'
+
+  ['push',
+   'remote.invalid',
++  '--',
+   'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/task/T-MOCK-BASIC-a1']
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='release/1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-OTHER-a1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-BASIC-a2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='--receive-pack=/bin/sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='+task/T-MOCK-BASIC-a1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-BASIC-a1:refs/heads/main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/T-MOCK-BASIC-a1 --force')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='task/../main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch=['task/T-MOCK-BASIC-a1'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) (branch='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 521, in test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='--receive-pack=/bin/sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='--force')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='gggggggggggggggggggggggggggggggggggggggg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=40)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha=['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha={'sha': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) (sha='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 510, in test_invalid_sha_is_rejected_without_write_or_claim
+    self.assert_invalid(env, request, before)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 492, in assert_invalid
+    self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (False, False, "envelope_rejected_invalid", "R-13"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, True, None, None) != (False, False, 'envelope_rejected_invalid', 'R-13')
+
+First differing element 0:
+True
+False
+
+- (True, True, None, None)
++ (False, False, 'envelope_rejected_invalid', 'R-13')
+
+======================================================================
+FAIL: test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written (test_daemon_dry_run.PushRefspecFencing.test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/tests/test_daemon_dry_run.py", line 526, in test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written
+    self.assertFalse(self.send(env, request)["written"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.342s
+
+FAILED (failures=46, errors=1)
+
+=== runner_verify PushRefspecGit (real git remote), before the fix ===
+test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) ... 
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '--receive-pack=/bin/sh'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '--force'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '+33e298141562e1d4e910e433448b945bd8eec57b'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '33e298141562e1d4e910e433448b945bd8eec57'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '33e298141562e1d4e910e433448b945bd8eec57b0'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': ''}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': None}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': 40}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'main'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-OTHER-a1'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-BASIC-a2'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': '--force'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-BASIC-a1:refs/heads/main'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-BASIC-a1 --force'}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': ''}) ... FAIL
+  test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': None}) ... FAIL
+test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) ... FAIL
+test_preserve_push_passes_the_option_separator_and_validates (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_preserve_push_passes_the_option_separator_and_validates) ... ERROR
+test_valid_push_passes_the_option_separator_and_lands_on_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_valid_push_passes_the_option_separator_and_lands_on_the_remote) ... ERROR
+
+======================================================================
+ERROR: test_preserve_push_passes_the_option_separator_and_validates (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_preserve_push_passes_the_option_separator_and_validates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 248, in test_preserve_push_passes_the_option_separator_and_validates
+    self.assertEqual(self.git.push(self.BRANCH, self.sha), self.sha)
+                     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/adapters.py", line 441, in push
+    raise PushFailed(classify_push_failure(res))
+daemon.core.ports.PushFailed: push failed: other
+
+======================================================================
+ERROR: test_valid_push_passes_the_option_separator_and_lands_on_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_valid_push_passes_the_option_separator_and_lands_on_the_remote)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 220, in test_valid_push_passes_the_option_separator_and_lands_on_the_remote
+    self.push_remote.execute("push", "T-MOCK-BASIC", dict(self.request))
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/adapters.py", line 530, in execute
+    raise PushFailed(classify_push_failure(res))
+daemon.core.ports.PushFailed: push failed: other
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '--receive-pack=/bin/sh'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '--rec[47 chars]a1']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '--receive-pack=/bin/sh:refs/heads/task/T-MOCK-BASIC-a1']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '--receive-pack=/bin/sh:refs/heads/task/T-MOCK-BASIC-a1']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '--force'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '--force:refs/heads/task/T-MOCK-BASIC-a1']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '--force:refs/heads/task/T-MOCK-BASIC-a1']
+
+- [['push', '/tmp/tmprprubcgb/r.git', '--force:refs/heads/task/T-MOCK-BASIC-a1']]
++ []
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '+33e298141562e1d4e910e433448b945bd8eec57b'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 236, in test_invalid_refspec_never_reaches_git_or_the_remote
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '33e298141562e1d4e910e433448b945bd8eec57'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 236, in test_invalid_refspec_never_reaches_git_or_the_remote
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': '33e298141562e1d4e910e433448b945bd8eec57b0'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 236, in test_invalid_refspec_never_reaches_git_or_the_remote
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', 'AAAAA[65 chars]a1']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:refs/heads/task/T-MOCK-BASIC-a1']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:refs/heads/task/T-MOCK-BASIC-a1']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', ':refs/heads/task/T-MOCK-BASIC-a1']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', ':refs/heads/task/T-MOCK-BASIC-a1']
+
+- [['push', '/tmp/tmprprubcgb/r.git', ':refs/heads/task/T-MOCK-BASIC-a1']]
++ []
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', 'None:refs/heads/task/T-MOCK-BASIC-a1']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', 'None:refs/heads/task/T-MOCK-BASIC-a1']
+
+- [['push', '/tmp/tmprprubcgb/r.git', 'None:refs/heads/task/T-MOCK-BASIC-a1']]
++ []
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'sha': 40})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '40:refs/heads/task/T-MOCK-BASIC-a1']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '40:refs/heads/task/T-MOCK-BASIC-a1']
+
+- [['push', '/tmp/tmprprubcgb/r.git', '40:refs/heads/task/T-MOCK-BASIC-a1']]
++ []
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'main'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '33e29[49 chars]in']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/main']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/main']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-OTHER-a1'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '33e29[65 chars]a1']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/task/T-MOCK-OTHER-a1']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/task/T-MOCK-OTHER-a1']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-BASIC-a2'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 236, in test_invalid_refspec_never_reaches_git_or_the_remote
+    with self.assertRaises(PushFailed):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: PushFailed not raised
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': '--force'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '33e29[52 chars]ce']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/--force']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/--force']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-BASIC-a1:refs/heads/main'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '33e29[81 chars]in']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/task/T-MOCK-BASIC-a1:refs/heads/main']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/task/T-MOCK-BASIC-a1:refs/heads/main']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': 'task/T-MOCK-BASIC-a1 --force'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '33e29[73 chars]ce']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/task/T-MOCK-BASIC-a1 --force']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/task/T-MOCK-BASIC-a1 '
+-   '--force']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '33e29[45 chars]s/']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) (kw={'branch': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 238, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(self.pushes(spy), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['push', '/tmp/tmprprubcgb/r.git', '33e29[49 chars]ne']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['push', '/tmp/tmprprubcgb/r.git', '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/None']
+
++ []
+- [['push',
+-   '/tmp/tmprprubcgb/r.git',
+-   '33e298141562e1d4e910e433448b945bd8eec57b:refs/heads/None']]
+
+======================================================================
+FAIL: test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/daemon/runner_verify/tests/test_runner_verify.py", line 239, in test_invalid_refspec_never_reaches_git_or_the_remote
+    self.assertEqual(remote.refs(self.path, self.home), refs_before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'ref[52 chars]4aae', 'refs/heads/task/T-MOCK-BASIC-a1': '33e[113 chars]57b'} != {'ref[52 chars]4aae'}
+- {'refs/heads/main': '594b0dee72e7b5124735ce92f9b42314aaa94aae',
+?                                                               ^
+
++ {'refs/heads/main': '594b0dee72e7b5124735ce92f9b42314aaa94aae'}
+?                                                               ^
+
+-  'refs/heads/task/T-MOCK-BASIC-a1': '33e298141562e1d4e910e433448b945bd8eec57b',
+-  'refs/heads/task/T-MOCK-BASIC-a2': '33e298141562e1d4e910e433448b945bd8eec57b'}
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.411s
+
+FAILED (failures=18, errors=2)

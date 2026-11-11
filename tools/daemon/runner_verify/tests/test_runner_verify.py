@@ -14,13 +14,15 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "tools"))
 
+from daemon.core.ports import PushFailed  # noqa: E402
 from daemon.runner_verify import cli_probe, registry, remote, reporting, static_checks  # noqa: E402
-from daemon.runner_verify.adapters import FileStore, ProcessFaults, RemoteCredentials, classify_push_failure, exclude_pathspecs, token_sha  # noqa: E402
-from daemon.runner_verify.common import DEFAULT_RULES, Layout, ClockFile, group_members, open_handles  # noqa: E402
+from daemon.runner_verify.adapters import FileStore, ProcessFaults, PushRemote, RealGit, RemoteCredentials, classify_push_failure, exclude_pathspecs, token_sha  # noqa: E402
+from daemon.runner_verify.common import DEFAULT_RULES, Layout, ClockFile, group_members, open_handles, read_jsonl  # noqa: E402
 from daemon.runner_verify.context import Ctx  # noqa: E402
 from daemon.runner_verify.proxy import ProviderProxy  # noqa: E402
 from daemon.runner_verify.report import FAIL, GAP, PARTIAL, PASS, UNCONFIRMED, Rep  # noqa: E402
@@ -169,6 +171,101 @@ class RemoteTests(unittest.TestCase):
 
     def test_a_marked_repository_is_accepted(self):
         self.assertEqual(remote.check_accepts(self.path), self.path)
+
+
+class PushRefspecGit(unittest.TestCase):
+    """audit6-daemon-push-refspec-validation, against a real git remote: the push adapters refuse an option-shaped
+    or +force-prefixed sha and a branch that is not the lease's task branch before git runs, and a valid push passes
+    -- before the refspec so no part of the request can be read as a git option."""
+
+    BRANCH = "task/T-MOCK-BASIC-a1"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.home = Path(cls.tmp.name) / "home"
+        cls.home.mkdir()
+        cls.path = remote.provision(Path(cls.tmp.name) / "r.git", cls.home)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def setUp(self):
+        self.layout_tmp = tempfile.TemporaryDirectory()
+        self.layout = Layout(self.layout_tmp.name).make()
+        env = remote.git_env(self.layout.home)
+        remote.run_git(["clone", "-q", str(self.path), str(self.layout.clone)], env=env)
+        (self.layout.clone / "f.txt").write_text("refspec fixture\n", encoding="utf-8")
+        remote.run_git(["add", "-A"], cwd=self.layout.clone, env=env)
+        remote.run_git(["commit", "-q", "-m", "refspec fixture"], cwd=self.layout.clone, env=env)
+        self.sha = remote.run_git(["rev-parse", "HEAD"], cwd=self.layout.clone, env=env).stdout.strip()
+        self.credentials = RemoteCredentials(self.layout, str(self.path), 600)
+        self.credentials.issue("builder_write_credential", "T-MOCK-BASIC", "L1")
+        self.git = RealGit(self.layout, str(self.path), [], self.credentials)
+        self.push_remote = PushRemote(self.layout, self.git, self.credentials)
+        self.request = {"lease_id": "L1", "sha": self.sha, "branch": self.BRANCH}
+
+    def tearDown(self):
+        self.layout_tmp.cleanup()
+
+    def pushes(self, spy):
+        return [c.args[0] for c in spy.call_args_list if c.args[0][:1] == ["push"]]
+
+    def decisions(self):
+        return [e for e in remote.push_log(self.path) if e["event"] == "pre_receive"]
+
+    def test_valid_push_passes_the_option_separator_and_lands_on_the_remote(self):
+        with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+            self.push_remote.execute("push", "T-MOCK-BASIC", dict(self.request))
+        self.assertEqual(self.pushes(spy), [["push", str(self.path), "--", f"{self.sha}:refs/heads/{self.BRANCH}"]])
+        self.assertEqual(remote.refs(self.path, self.home).get(f"refs/heads/{self.BRANCH}"), self.sha)
+        last = self.decisions()[-1]
+        self.assertEqual((last["decision"], last["reason"], last["ref"], last["client"]),
+                         ("accepted", "ok", f"refs/heads/{self.BRANCH}", "daemon-fenced"))
+
+    def test_invalid_refspec_never_reaches_git_or_the_remote(self):
+        # a wrong attempt of the same task (a2) is the core's lease-equality check, not the adapter's shape check
+        bad = [{"sha": s} for s in ("--receive-pack=/bin/sh", "--force", "+" + self.sha, self.sha[:39], self.sha + "0",
+                                    "A" * 40, "", None, 40)]
+        bad += [{"branch": b} for b in ("main", "task/T-MOCK-OTHER-a1", "--force",
+                                        self.BRANCH + ":refs/heads/main", self.BRANCH + " --force", "", None)]
+        refs_before, log_before = remote.refs(self.path, self.home), remote.push_log(self.path)
+        for kw in bad:
+            with self.subTest(kw=kw):
+                with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+                    with self.assertRaises(PushFailed):
+                        self.push_remote.execute("push", "T-MOCK-BASIC", dict(self.request, **kw))
+                self.assertEqual(self.pushes(spy), [])
+        self.assertEqual(remote.refs(self.path, self.home), refs_before)
+        self.assertEqual(remote.push_log(self.path), log_before)
+        records = read_jsonl(self.layout.root / "remote_writes.jsonl")
+        self.assertEqual(len(records), len(bad))
+        self.assertTrue(all(r["executed"] is False and r["reason"] == "invalid_refspec" for r in records))
+
+    def test_preserve_push_passes_the_option_separator_and_validates(self):
+        branch = "task/T-MOCK-BASIC-a2"  # its own branch: the shared remote keeps the other tests' refs
+        self.credentials.issue("preserve_credential", "T-MOCK-BASIC", "L1")
+        with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+            self.assertEqual(self.git.push(branch, self.sha), self.sha)
+        self.assertEqual(self.pushes(spy), [["push", str(self.path), "--", f"{self.sha}:refs/heads/{branch}"]])
+        last = self.decisions()[-1]
+        self.assertEqual((last["decision"], last["reason"], last["client"]), ("accepted", "ok", "daemon-preserve"))
+        for sha, b in (("--receive-pack=/bin/sh", branch), ("+" + self.sha, branch),
+                       (self.sha[:39], branch), (self.sha, "main"), (self.sha, branch + ":refs/heads/main")):
+            with self.subTest(sha=sha, branch=b):
+                with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+                    with self.assertRaises(PushFailed):
+                        self.git.push(b, sha)
+                self.assertEqual(spy.call_args_list, [])
+        # a well-formed branch of another task passes the shape check (the task is derived from the branch); no
+        # credential is issued for that task, so the push carries an empty token and the remote refuses it
+        with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+            with self.assertRaises(PushFailed):
+                self.git.push("task/T-MOCK-OTHER-a1", self.sha)
+        self.assertEqual(len(self.pushes(spy)), 1)
+        last = self.decisions()[-1]
+        self.assertEqual((last["decision"], last["reason"]), ("rejected", "permission_denied"))
 
 
 class StatusRules(unittest.TestCase):

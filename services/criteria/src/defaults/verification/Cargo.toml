@@ -1,0 +1,24 @@
+[package]
+name = "onjeon-criteria-defaults-verification"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Test-only entry point for T-KN-13 while criteria module wiring is outside allowed paths"
+
+# This check is deliberately separate from the product workspace. It does not
+# replace the missing defaults declaration in onjeon-criteria's src/lib.rs.
+[workspace]
+
+[lib]
+path = "lib.rs"
+
+[[test]]
+name = "product_api"
+path = "product_api.rs"
+
+[dependencies]
+onjeon-criteria = { path = "../../.." }
+onjeon-contracts = { path = "../../../../../packages/schemas" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"

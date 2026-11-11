@@ -131,7 +131,8 @@ def ocr_page(pdf, page, workdir):
 
 
 def rows():
-    return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
+    with (VAL / "samples.csv").open(encoding="utf-8") as f:
+        return list(csv.DictReader(f))
 
 
 def materialize(args, sample_rows):

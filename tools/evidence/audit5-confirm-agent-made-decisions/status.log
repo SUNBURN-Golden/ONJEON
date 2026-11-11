@@ -1,0 +1,14 @@
+$ git status --short
+ M docs/blueprint/proposals/온톨로지/검증/ontology_check.py
+ M tools/tests/test_verify_sources.py
+ M tools/verify_sources.py
+?? docs/decisions/audit5-confirm-agent-made-decisions.md
+?? tools/evidence/audit5-confirm-agent-made-decisions/
+?? tools/tests/test_audit5_confirm_agent_made_decisions.py
+?? tools/tests/test_ontology_check_file_handles.py
+
+$ git diff --check
+(no whitespace errors)
+
+$ python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (37 ADR/DEC files)

@@ -202,6 +202,9 @@ def m4(rep, R, T):
 # =============================================================== M5
 def m5(rep, R, T):
     def head_change(env, t, new):
+        # the new head is a new commit with the same content: its real diff exists before the observation
+        pr = pr_of(env, t)
+        env.ports.git.ensure_diff(t, pr["base_sha"], new, pr["changed_paths"])
         m = mark(env)
         env.observe(t, "head_sha", sha=new)
         return jr(env, m)
@@ -880,6 +883,36 @@ def m23(rep, R, T):
     rep.eq("merged→done 행은 cond event.docs_only == true로 골랐다",
            [{"field": "event.docs_only", "op": "==", "left": True, "result": True}],
            [{k: c[k] for k in ("field", "op", "left", "result")} for c in done["cond_evaluated"]])
+
+    # audit6-daemon-scope-from-real-diff: the scope is the real diff, not the builder's claim or label
+    env = MockEnv(R, T)
+    rules_path = "docs/blueprint/proposals/설계검토_결과/daemon_rules.json"
+    task = copy.deepcopy(env.ports.catalog.task(DOCS))
+    task["task_id"], task["allowed_paths"], task["conflict_paths"] = "T-MOCK-RULES", ["docs/**"], ["docs/**"]
+    env.ports.catalog.add(task)
+    open_pr(env, "T-MOCK-RULES", touched=[rules_path])
+    env.observe("T-MOCK-RULES", "ci", conclusion="success", sha=H1)
+    m = mark(env)
+    review(env, "T-MOCK-RULES")
+    rep.eq("규칙 파일만 바꾼 PR은 docs/** 아래여도 즉시 감리(immediate_audit_paths)",
+           ("audit_pending", [("review_in_progress", "review_approved", "review_approved"),
+                              ("review_approved", "audit_pending", "audit_required")]),
+           (env.state("T-MOCK-RULES"), tr(jr(env, m))))
+    env.observe("T-MOCK-RULES", "audit_result", verdict="pass", sha=H1)
+    m = mark(env)
+    land(env, "T-MOCK-RULES")
+    rep.eq("규칙 파일 PR은 docs-only로 세지 않는다: 구현 PR 카운터 +1, merged→audit_queued",
+           ([("merge_wait", "merged", "pr_merged_observed"), ("merged", "audit_queued", "impl_counter_incremented")], 1),
+           (tr(jr(env, m)), counter(env)["merged_impl_counter"]))
+
+    env = MockEnv(R, T)
+    approve_to_wait(env, BASIC)
+    with env.ports.store.transaction() as d:
+        d["pr"][BASIC]["labels"].append("docs-only")
+    m = mark(env)
+    land(env, BASIC)
+    rep.eq("빌더의 docs-only 라벨은 코드 PR을 감리에서 빼지 않는다(실제 diff가 범위)",
+           ("audit_queued", 1), (env.state(BASIC), counter(env)["merged_impl_counter"]))
 
 
 # =============================================================== M27

@@ -255,7 +255,6 @@ def r17(rep, cx):
 
 # =============================================================== R8
 def r8(rep, cx):
-    H1 = "1" * 40
     with cx.world() as w:
         go = str(w.layout.root / "go")
         w.init_task(GATED).result
@@ -263,13 +262,26 @@ def r8(rep, cx):
         w.grant(GATED).result
         instr = w.latest_instruction(GATED)
         touched = "tools/mock/gated/x.py"
-        h = w.start_builder(instr, [{"op": "first_heartbeat"}, {"op": "result", "status": "pr_opened",
-                                                                   "fields": {"pr_number": 9, "head_sha": H1, "touched_paths": [touched]}},
+        # audit6-daemon-scope-from-real-diff: the builder commits one file but claims another (both in scope);
+        # the daemon must take the scope from the real diff, not the claim
+        h = w.start_builder(instr, [{"op": "first_heartbeat"},
+                                    {"op": "write", "path": touched, "content": "x = 1\n"},
+                                    {"op": "git_commit", "message": "gated work"},
+                                    {"op": "result", "status": "pr_opened",
+                                     "fields": {"pr_number": 9, "head_sha": "@HEAD@",
+                                                "touched_paths": ["tools/mock/gated/claimed.py"]}},
                                     {"op": "sleep", "s": 3600}])
         w.wait_log(h, "result")
         m = w.mark()
         drain_ok(w)
-        w.observe(GATED, "ci", {"conclusion": "success", "sha": H1}).result
+        pr = w.snap()["pr"][GATED]
+        rep.eq("PR 범위는 실제 diff(merge-base..head), 빌더가 신고한 경로가 아니다(audit6)",
+               ([touched], False), (pr["changed_paths"], pr["diff_unavailable"]))
+        rep.eq("신고와 실제 diff가 다르면 진단 기록이 남는다",
+               [("pr_claimed_paths_differ", ["tools/mock/gated/claimed.py"], [touched])],
+               [(r["what"], r["claimed_paths"], r["diff_paths"]) for r in w.journal()[m:]
+                if r["kind"] == "diagnostic_record" and r["what"] == "pr_claimed_paths_differ"])
+        w.observe(GATED, "ci", {"conclusion": "success", "sha": pr["head_sha"]}).result
         pr = w.snap()["pr"][GATED]
         w.observe(GATED, "review_result", {"verdict": "approved", "sha": pr["head_sha"], "reviewer": pr["reviewer"],
                                            "reviewer_family": w.ports().builders.family(pr["reviewer"])}).result

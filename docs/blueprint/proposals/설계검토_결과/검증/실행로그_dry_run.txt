@@ -1,4 +1,5 @@
-# generated from parent commit c872a7500318a21ed83bf505518310a11e873a00 + tree hash of tools/daemon sources sha256:dcde70d478c9489d8a6dfdd6c89051c68746f82d2c5012e1d431caf455e66432
+# generated from parent commit 439cbadc45e895059c3f1ecad43f6131639a7725 + tree hash of tools/daemon sources sha256:c0ad4f4af70dd7c2b5f7bdb85ede4c33e58d5fc834c33ea3ae1b68dceb2ba581
+# merge input main commit ee9331b3660d033b2dcf09df1e5344c081815497
 # command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all --quiet
 # Full expected/actual: tools/daemon/reports/dry_run.log
 # STATIC = 13 static checks + 2 explanation-key comparisons

@@ -8,10 +8,10 @@
 
 | 증거 | 결과 |
 |---|---|
-| [python-tests.log](python-tests.log) | 전체 Python 1,590개 실행, 실패·오류 0, 기존 skip 6개, 종료 0 |
+| [python-tests.log](python-tests.log) | 전체 Python 1,600개 실행, 실패·오류 0, 기존 skip 6개, 종료 0 |
 | [모의 시나리오](../../daemon/reports/dry_run.log) | 검사 695건 통과, 필수 ID 33/33, 누락·미등록·중복 0, 종료 0 |
-| [데몬 회귀](../../daemon/reports/unittest.log) | 296개 통과, 종료 0; 현재 소스 내용 해시 기록 |
-| [runner-adapter-tests.log](runner-adapter-tests.log) | 실제 실행기 시험 61개 통과(R8 실제 diff 시나리오 포함), 종료 0 |
+| [데몬 회귀](../../daemon/reports/unittest.log) | 306개 통과, 종료 0; 현재 소스 내용 해시 기록 |
+| [runner-adapter-tests.log](runner-adapter-tests.log) | 실제 실행기 시험 64개 통과(R8 실제 diff 시나리오 포함), 종료 0 |
 | [static-checks.log](static-checks.log) | 공용 코어 정적 검사 13/13 통과, 종료 0 |
 | [rules-scope-check.log](rules-scope-check.log) | `daemon_rules.json`의 HEAD 대비 차이가 `immediate_audit_paths`·`_immediate_audit_paths_note`뿐; D-04 해시 픽스처는 갱신 이유와 함께 그 파일 해시만 다시 고정 |
 | [rust-tests.log](rust-tests.log) | 워크스페이스 514개 통과, 기존 fixture 재생성 시험 1개 ignored, 종료 0 |
@@ -50,3 +50,15 @@ init·add·commit·checkout·mv·rev-parse·merge-base·diff를 쓰며 원격을
 R8 실제 실행기 시나리오는 기존 runner_verify 경계 안에서만 실행된다.
 이번 작업에서 Git 커밋·푸시·GitHub·실제 제공자 호출은 하지 않았다.
 이 증거는 09 §5의 개발 도구 보강이며 P01~P19의 완료 판정을 바꾸지 않는다.
+
+재실행(2026-11-12, audit6-daemon-push-refspec-validation 수정 3차): 이 작업 트리에는
+refspec 노드의 커밋된 변경이 함께 있으므로 전체 관문을 다시 실행해 로그를 갱신했다.
+Python 1,600개 통과(skip 6)·데몬 회귀 306개·runner_verify 64개·워크스페이스 Rust 515개
+(ignored 1)·온톨로지 실행기 4개·모의 시나리오 695건(필수 ID 33/33)·정적 검사 13/13·
+spec_check 46/46·72/72·vocab·validation(selftest 포함)·blueprint_status·blueprint_counts
+모두 종료 0. 증가는 refspec 회귀(Python +10·데몬 회귀 +10·runner_verify +3)와
+게이트웨이 `provider_sdk_only_here`의 stale 아티팩트 수정에 추가된 회귀 시험(Rust +1)이다.
+그 수정의 배경과 재현은 [refspec 증거 안내](../audit6-daemon-push-refspec-validation/README.md)의
+수정 3차 기록에 있다. [manifest.json](manifest.json)의 해시는 이 병합 트리 기준으로
+다시 고정했다(refspec 노드도 함께 고친 `daemon_rules.json`·어댑터·시험·보고서·o13 픽스처 포함).
+이 재실행에서도 Git 커밋·푸시·GitHub 호출은 하지 않았다.

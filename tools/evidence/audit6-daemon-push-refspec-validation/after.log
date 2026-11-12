@@ -1,0 +1,25 @@
+test_invalid_refspec_raises_before_credential_and_git (test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) ... ok
+test_preserve_push_validates_and_passes_the_option_separator (test_daemon_dry_run.PushRefspecAdapter.test_preserve_push_validates_and_passes_the_option_separator) ... ok
+test_valid_push_passes_the_option_separator_before_the_refspec (test_daemon_dry_run.PushRefspecAdapter.test_valid_push_passes_the_option_separator_before_the_refspec) ... ok
+test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) ... ok
+test_invalid_sha_is_rejected_without_write_or_claim (test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) ... ok
+test_late_duplicate_and_bypass_precedence_is_unchanged (test_daemon_dry_run.PushRefspecFencing.test_late_duplicate_and_bypass_precedence_is_unchanged) ... ok
+test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written (test_daemon_dry_run.PushRefspecFencing.test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written) ... ok
+test_the_check_comes_from_the_rules_data (test_daemon_dry_run.PushRefspecFencing.test_the_check_comes_from_the_rules_data) ... ok
+test_the_dispatch_recheck_evaluates_the_same_check (test_daemon_dry_run.PushRefspecFencing.test_the_dispatch_recheck_evaluates_the_same_check) ... ok
+test_valid_push_and_pr_update_without_refspec_still_write (test_daemon_dry_run.PushRefspecFencing.test_valid_push_and_pr_update_without_refspec_still_write) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.338s
+
+OK
+
+=== runner_verify PushRefspecGit (real git remote), after the fix ===
+test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) ... ok
+test_preserve_push_passes_the_option_separator_and_validates (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_preserve_push_passes_the_option_separator_and_validates) ... ok
+test_valid_push_passes_the_option_separator_and_lands_on_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_valid_push_passes_the_option_separator_and_lands_on_the_remote) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.241s
+
+OK

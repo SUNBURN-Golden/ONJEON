@@ -1,4 +1,5 @@
-# generated from parent commit c872a7500318a21ed83bf505518310a11e873a00 + tree hash of tools/daemon sources sha256:dcde70d478c9489d8a6dfdd6c89051c68746f82d2c5012e1d431caf455e66432
+# generated from parent commit 439cbadc45e895059c3f1ecad43f6131639a7725 + tree hash of tools/daemon sources sha256:c0ad4f4af70dd7c2b5f7bdb85ede4c33e58d5fc834c33ea3ae1b68dceb2ba581
+# merge input main commit ee9331b3660d033b2dcf09df1e5344c081815497
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -178,6 +179,16 @@ test_prereq_cond_unknown_prereq (tools.tests.test_daemon_dry_run.PrereqAndMergeG
 A prerequisite the store does not hold is not satisfied. ... ok
 test_removing_the_merge_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_removing_the_merge_cond_reopens_the_gap) ... ok
 test_removing_the_prereq_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_removing_the_prereq_cond_reopens_the_gap) ... ok
+test_invalid_refspec_raises_before_credential_and_git (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) ... ok
+test_preserve_push_validates_and_passes_the_option_separator (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_preserve_push_validates_and_passes_the_option_separator) ... ok
+test_valid_push_passes_the_option_separator_before_the_refspec (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_valid_push_passes_the_option_separator_before_the_refspec) ... ok
+test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) ... ok
+test_invalid_sha_is_rejected_without_write_or_claim (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) ... ok
+test_late_duplicate_and_bypass_precedence_is_unchanged (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_late_duplicate_and_bypass_precedence_is_unchanged) ... ok
+test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written) ... ok
+test_the_check_comes_from_the_rules_data (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_the_check_comes_from_the_rules_data) ... ok
+test_the_dispatch_recheck_evaluates_the_same_check (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_the_dispatch_recheck_evaluates_the_same_check) ... ok
+test_valid_push_and_pr_update_without_refspec_still_write (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_valid_push_and_pr_update_without_refspec_still_write) ... ok
 test_check_keeps_a_copy_of_a_list_changed_later (tools.tests.test_daemon_dry_run.ReportValues.test_check_keeps_a_copy_of_a_list_changed_later) ... ok
 test_every_pass_row_prints_equal_expected_and_actual (tools.tests.test_daemon_dry_run.ReportValues.test_every_pass_row_prints_equal_expected_and_actual) ... ok
 test_late_result_row_shows_no_remote_write (tools.tests.test_daemon_dry_run.ReportValues.test_late_result_row_shows_no_remote_write) ... ok
@@ -322,6 +333,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 296 tests in 66.496s
+Ran 306 tests in 73.149s
 
 OK

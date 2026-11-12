@@ -63,3 +63,52 @@ test provider_sdk_only_here ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.01s
 
+
+$ cargo test -p onjeon-ai-gateway --locked --offline
+# re-run after the scan_dir fix (audit6-daemon-push-refspec-validation, fix round 3):
+# the workspace scan now prefers the runtime CARGO_MANIFEST_DIR over the compile-time
+# path, so a test binary reused from a shared target dir built in another (possibly
+# deleted) worktree no longer fails with NotFound on the vanished working directory.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (target/debug/deps/onjeon_ai_gateway-30ef85d975ea53d9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gateway.rs (target/debug/deps/gateway-0d3f40fd418bacb4)
+
+running 15 tests
+test provider_error_is_recorded_and_unresolved ... ok
+test non_retryable_error_is_not_retried ... ok
+test cap_crossed_mid_retry_stops_retries ... ok
+test resolves_valid_output_and_records_without_bodies ... ok
+test retry_recovers ... ok
+test monthly_cap_degrades_with_l020 ... ok
+test retryable_error_is_retried ... ok
+test schema_failure_retries_then_unresolved ... ok
+test cost_accumulation_saturates ... ok
+test user_daily_cap_is_per_user_and_per_day ... ok
+test bad_prompt_version_is_rejected_before_any_call ... ok
+test unsupported_schema_fails_before_any_provider_call ... ok
+test schema_subset_checks ... ok
+test integer_accepts_integral_float ... ok
+test multiple_families_and_unknown_family ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/provider_sdk_only_here.rs (target/debug/deps/provider_sdk_only_here-e4f557ba295f2d08)
+
+running 3 tests
+test detector_flags_a_foreign_crate_with_an_sdk ... ok
+test scan_dir_prefers_the_runtime_manifest_dir ... ok
+test provider_sdk_only_here ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+   Doc-tests onjeon_ai_gateway
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

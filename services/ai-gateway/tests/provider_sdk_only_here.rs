@@ -62,6 +62,14 @@ fn offenders(meta: &Value) -> Vec<String> {
     out
 }
 
+/// Where the workspace scan runs. Cargo sets CARGO_MANIFEST_DIR for the test process at
+/// runtime; prefer it over the compile-time path, which goes stale when a shared target
+/// dir reuses a binary built in another (possibly deleted) worktree — spawning with a
+/// vanished working directory fails with NotFound before cargo even runs.
+fn scan_dir(runtime: Option<String>) -> String {
+    runtime.unwrap_or_else(|| env!("CARGO_MANIFEST_DIR").to_string())
+}
+
 #[test]
 fn provider_sdk_only_here() {
     let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
@@ -73,7 +81,7 @@ fn provider_sdk_only_here() {
             "--no-deps",
             "--offline",
         ])
-        .current_dir(env!("CARGO_MANIFEST_DIR"))
+        .current_dir(scan_dir(std::env::var("CARGO_MANIFEST_DIR").ok()))
         .output()
         .expect("cargo metadata runs");
     assert!(out.status.success(), "cargo metadata failed");
@@ -105,4 +113,13 @@ fn detector_flags_a_foreign_crate_with_an_sdk() {
         offenders(&meta),
         vec!["other-crate -> async-openai".to_string()]
     );
+}
+
+#[test]
+fn scan_dir_prefers_the_runtime_manifest_dir() {
+    assert_eq!(
+        scan_dir(Some("/runtime/worktree/services/ai-gateway".into())),
+        "/runtime/worktree/services/ai-gateway"
+    );
+    assert_eq!(scan_dir(None), env!("CARGO_MANIFEST_DIR"));
 }

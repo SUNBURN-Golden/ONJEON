@@ -753,6 +753,13 @@ class EndToEnd(Fixture):
 
     def setUp(self):
         super().setUp()
+        # These tests check request/byte accounting, not wall time. On a loaded host the stub's
+        # HTTP can stall past the admission's seconds limit and fail a run for reasons unrelated
+        # to what is verified here. Freeze only r2_budget's clock reference, not botocore/server
+        # timeouts; the deadline tests below advance the clock explicitly.
+        clock = mock.patch.object(b, "time", wraps=b.time)
+        clock.start().monotonic.return_value = 1000.0
+        self.addCleanup(clock.stop)
         from s3_stub import S3Stub
         self.stub = S3Stub()
         self.env = mock.patch.dict(os.environ, EMU, clear=False)
@@ -990,15 +997,16 @@ class EndToEnd(Fixture):
                     self.assertEqual(summary["used"][dim], actual, dim)
                     self.assertGreaterEqual(rec["amounts"][dim], actual, dim)
 
-    @mock.patch.object(b.time, "monotonic", return_value=100)
+    @mock.patch.object(b, "time", wraps=b.time)
     def test_successful_run_settles_between_meter_and_alarm_deadlines(self, clock):
+        clock.monotonic.return_value = 100
         self.write_policy(per_month_global=10)
         self.write_job(admissions_per_month=5)
         reserve = b.reserve
 
         def slow_reservation(*args, **kwargs):
             rec = reserve(*args, **kwargs)
-            clock.return_value += 30  # admission time precedes the reservation's alarm
+            clock.monotonic.return_value += 30  # admission time precedes the reservation's alarm
             return rec
 
         before = len(self.stub.log)
@@ -1008,7 +1016,7 @@ class EndToEnd(Fixture):
         self.addCleanup(s._restore_alarm)
         self.addCleanup(s.gate.leave)
         try:
-            clock.return_value = s.meter.start + PER_RUN["seconds"] + 1
+            clock.monotonic.return_value = s.meter.start + PER_RUN["seconds"] + 1
             # The workload succeeded in the gap before SIGALRM would fire.
         finally:
             summary = b.finish("ok")
@@ -1027,8 +1035,9 @@ class EndToEnd(Fixture):
         self.assertGreater(summary["used"]["get_bytes"], 0)  # settlement's tail GET
 
     @unittest.skipUnless(hasattr(signal, "SIGALRM"), "SIGALRM not available")
-    @mock.patch.object(b.time, "monotonic", return_value=100)
+    @mock.patch.object(b, "time", wraps=b.time)
     def test_timeout_still_settles_and_preserves_the_original_error(self, clock):
+        clock.monotonic.return_value = 100
         self.write_policy(per_month_global=10)
         self.write_job(admissions_per_month=5)
         s = b.start(str(self.job_path), self.stub.endpoint, policy_path=self.policy_path,
@@ -1037,7 +1046,7 @@ class EndToEnd(Fixture):
         self.addCleanup(s.gate.leave)
         with self.assertRaisesRegex(b.BudgetError, "run time limit 600s reached"):
             try:
-                clock.return_value = s.meter.start + PER_RUN["seconds"] + 1
+                clock.monotonic.return_value = s.meter.start + PER_RUN["seconds"] + 1
                 with self.assertRaisesRegex(b.BudgetError, "run time 601s exceeds limit 600s"):
                     sa.S3Store("s3://raw", self.stub.endpoint).get(KEY)
                 signal.getsignal(signal.SIGALRM)(signal.SIGALRM, None)
@@ -1091,15 +1100,16 @@ class EndToEnd(Fixture):
                     self.assertEqual(len([key for bucket, key in self.stub.objects
                                           if key.startswith(b.LEDGER_PREFIX)]), 1)
 
-    @mock.patch.object(b.time, "monotonic", return_value=100)
+    @mock.patch.object(b, "time", wraps=b.time)
     def test_settlement_get_exhausts_remaining_bytes_after_active_is_cleared(self, clock):
+        clock.monotonic.return_value = 100
         self.write_policy(per_month_global=10)
         self.write_job(admissions_per_month=5, class_a=1000)
         self.seed_ledger()
         seeded = dict(self.stub.objects)
         for injected in (False, True):
             with self.subTest(injected=injected):
-                clock.return_value = 100
+                clock.monotonic.return_value = 100
                 self.stub.objects = dict(seeded)
                 st = sa.S3Store("s3://ledger", self.stub.endpoint, ledger=True) if injected else None
                 s = b.start(str(self.job_path), self.stub.endpoint, ledger_store=st,
@@ -1112,7 +1122,7 @@ class EndToEnd(Fixture):
                     # Exhaust the remaining allowance before finish() reads the reservation tail.
                     s.meter.limits["get_bytes"] = downloaded
                 finally:
-                    clock.return_value = s.meter.start + 601
+                    clock.monotonic.return_value = s.meter.start + 601
                     summary = b.finish("ok")
                 self.assertIsNone(b.ACTIVE)
                 self.assertEqual(summary["settlement"], {"settlement_failed": "BudgetError"})

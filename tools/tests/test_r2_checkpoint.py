@@ -758,6 +758,13 @@ class EndToEnd(base.Fixture):
 
     def setUp(self):
         super().setUp()
+        # These tests check request/byte accounting, not wall time. On a loaded host the stub's
+        # HTTP can stall past the admission's seconds limit and fail a run for reasons unrelated
+        # to what is verified here. Freeze only r2_budget's clock reference, not botocore/server
+        # timeouts; the deadline tests below advance the clock explicitly.
+        clock = mock.patch.object(b, "time", wraps=b.time)
+        clock.start().monotonic.return_value = 1000.0
+        self.addCleanup(clock.stop)
         from s3_stub import S3Stub
         self.stub = S3Stub()
         self.env = mock.patch.dict(os.environ, base.EMU, clear=False)

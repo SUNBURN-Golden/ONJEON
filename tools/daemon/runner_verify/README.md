@@ -27,7 +27,7 @@ CLI는 `--rules`의 비밀값 패턴으로 합성 자격증명 corpus 29개 형�
 | 빌더 프로세스: 자기 세션·프로세스 그룹, 실제 SIGTERM/SIGKILL, 실제 작업 트리 쓰기 | **스크립트 프로세스(`standin.py`)이지 벤더 CLI가 아니다.** claude CLI 하나만 시험 프록시에 붙여 R6·R7·R10·R9(변형)에서 실제로 돌렸다 |
 | git: 실제 worktree, 임시 인덱스의 `git add -A` + `git write-tree`(트리 해시는 이 한 곳), `commit-tree`, 실제 push | 원격이 로컬 bare 저장소다 |
 | 원격: 보호 브랜치(main·release/*), `task/T-MOCK-*`만 쓰기 가능, hook이 임대별 단기 자격(발급·회수·만료·범위)을 푸시 시점에 검사하고 모든 결정을 `rv/push_log.jsonl`에 남긴다 | 실제 Git 호스트의 설정·토큰 발급 API·거부 응답 형식은 아니다 |
-| 전달 경로: 파일 큐(임시 파일 + rename), 로컬 HTTP | 네트워크 지연·재정렬은 없다 |
+| 전달 경로: 파일 큐(임시 파일 + rename), 로컬 HTTP. 드레인 중 실패한 메시지(어떤 예외든, 깨진 JSON 포함)는 `daemon_done/`에 `ok:False` 기록과 함께 격리하고 뒤의 전달은 계속한다 | 네트워크 지연·재정렬은 없다 |
 | 정지 확인: `/proc/<pid>/fd`·`fdinfo`로 쓰기 핸들 검사(이 호스트에 lsof 없음), mtime, tree OID 두 번 | |
 | 가득 찬 디스크: user namespace의 64 KiB tmpfs를 git 객체 디렉터리로 | 저장소 전체가 찬 경우의 다른 실패 지점은 보지 않았다 |
 | 시계: 실제 시각 + offset 파일. TTL·grace는 offset을 올려 지나가게 하고 `sleep`은 `--time-scale` 비율만 실제로 기다린다 | 이동한 총량은 보고서 `environment`에 적는다. `--time-scale 1`이면 모두 실제로 기다린다 |
@@ -37,7 +37,7 @@ CLI는 `--rules`의 비밀값 패턴으로 합성 자격증명 corpus 29개 형�
 | 파일 | 내용 |
 |---|---|
 | `adapters.py` | 코어 포트의 실제 구현: `FileStore`, `ShiftedClock`, `ProcessFaults`(SIGKILL), `RemoteCredentials`, `GroupProcessControl`, `FsWorktree`, `RealGit`, `FileSender`, `PushRemote`, `ProbedBuilderPool` |
-| `daemon_main.py` | 데몬 작업 한 개(`grant`·`event`·`submit`·`drain`·`tick`·`restart`·`observe`·`issue-credential`·`serve`). `--die-at 지점[@건너뛸 횟수]`로 SIGKILL |
+| `daemon_main.py` | 데몬 작업 한 개(`grant`·`event`·`submit`·`drain`·`tick`·`restart`·`observe`·`issue-credential`·`serve`). `--die-at 지점[@건너뛸 횟수]`로 SIGKILL. 독성 메시지 격리는 `DrainPoisonMessage` 시험이 고정한다 |
 | `remote.py`, `hook_pre_receive.py` | 시험 원격의 생성·거부 규칙. 표식 파일이 없는 저장소·URL·제품 저장소는 거부 |
 | `standin.py` | `T-MOCK-*` 전용 스크립트 빌더(쓰기 루프, SIGTERM 무시, 하트비트, 봉투, 푸시, 다른 세션의 자식) |
 | `proxy.py`, `cli_probe.py` | 시험 프록시(429·5xx·401·정상·붙잡기)와 벤더 CLI 시험. 원문은 저장하지 않고 상태 필드만 남긴다 |

@@ -303,6 +303,169 @@ class DrainGuardWait(unittest.TestCase):
             self.assertEqual(sorted(p.name for p in layout.daemon_done.iterdir()), ["2.json", "2.json.out"])
 
 
+class DrainPoisonMessage(unittest.TestCase):
+    """audit6-daemon-drain-poison-message: one inbox file failing with an exception outside the old catch list
+    (a PushFailed, a timeout, `"envelope": "x"`) stopped the whole drain, so every later file stayed undelivered
+    until leases expired. Any failing message is now quarantined — moved to daemon_done with an ok:False record,
+    the original file preserved — and the drain delivers the rest. Unparseable JSON is quarantined too instead of
+    staying in the inbox forever."""
+
+    def _run_drain(self, files, exc):
+        """files: [(name, message-or-raw-text)]; the fake core raises exc for envelope_id POISON."""
+        from types import SimpleNamespace
+        from daemon.runner_verify import daemon_main
+
+        class Core:
+            guard_wait = {"result": "guard_wait"}
+            ports = SimpleNamespace(faults=SimpleNamespace(check=lambda point: None))
+
+            def submit_envelope(self, task_id, kind, envelope):
+                if envelope.get("envelope_id") == "POISON":
+                    raise exc
+                if envelope.get("envelope_id") == "WAIT":
+                    return {"accepted": False, "reason": "guard_wait"}
+                return {"accepted": True}
+
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        layout = Layout(tmp.name).make()
+        for name, msg in files:
+            text = msg if isinstance(msg, str) else json.dumps(msg)
+            (layout.daemon_inbox / name).write_text(text, encoding="utf-8")
+        return layout, daemon_main.op_drain(layout, Core(), None)
+
+    def test_any_exception_quarantines_the_file_and_the_drain_continues(self):
+        from daemon.core.ports import PushFailed
+        good = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "GOOD"}}
+        poison = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "POISON"}}
+        for exc in (PushFailed("network"), TimeoutError("git push timed out"),
+                    subprocess.TimeoutExpired(["git", "push"], timeout=120),
+                    AttributeError("'str' object has no attribute 'get'"), TypeError("string indices must be integers")):
+            with self.subTest(exc=type(exc).__name__):
+                layout, done = self._run_drain([("1.json", good), ("2.json", poison), ("3.json", good)], exc)
+                self.assertEqual([(r["name"], r["ok"]) for r in done],
+                                 [("1.json", True), ("2.json", False), ("3.json", True)])
+                self.assertEqual(done[1]["error"], type(exc).__name__)
+                self.assertIn(str(exc)[:300], done[1]["msg"])
+                self.assertEqual(list(layout.daemon_inbox.iterdir()), [], "the drain emptied the inbox")
+                self.assertEqual(sorted(p.name for p in layout.daemon_done.iterdir()),
+                                 ["1.json", "1.json.out", "2.json", "2.json.out", "3.json", "3.json.out"])
+                out = json.loads((layout.daemon_done / "2.json.out").read_text(encoding="utf-8"))
+                self.assertEqual((out["ok"], out["error"]), (False, type(exc).__name__))
+                self.assertEqual((layout.daemon_done / "2.json").read_text(encoding="utf-8"), json.dumps(poison),
+                                 "the quarantined original is preserved for inspection")
+
+    def test_unparseable_json_is_quarantined_not_left_in_the_inbox(self):
+        good = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "GOOD"}}
+        layout, done = self._run_drain([("1.json", "{not json"), ("2.json", good)], None)
+        self.assertEqual([(r["name"], r["ok"]) for r in done], [("1.json", False), ("2.json", True)])
+        self.assertEqual(done[0]["error"], "JSONDecodeError")
+        self.assertEqual(list(layout.daemon_inbox.iterdir()), [])
+        self.assertEqual((layout.daemon_done / "1.json").read_text(encoding="utf-8"), "{not json")
+
+    def test_a_poison_file_does_not_disturb_guard_wait_redelivery(self):
+        from daemon.core.ports import PushFailed
+        wait = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "WAIT"}}
+        poison = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "POISON"}}
+        good = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "GOOD"}}
+        layout, done = self._run_drain([("1.json", wait), ("2.json", poison), ("3.json", good)], PushFailed("network"))
+        self.assertEqual([(r["name"], r["ok"]) for r in done],
+                         [("1.json", True), ("2.json", False), ("3.json", True)])
+        self.assertEqual([p.name for p in layout.daemon_inbox.iterdir()], ["1.json"],
+                         "the waiting envelope is still redelivered by the next drain")
+
+    def test_real_drain_quarantines_poison_and_delivers_the_rest(self):
+        """The real daemon process over the real adapters: `"envelope": "x"` raises AttributeError in the core,
+        an unissued credential makes the remote adapter raise PushFailed, bad JSON never parses — and the valid
+        heartbeat after them is still accepted (leased→building) in the same drain."""
+        from daemon.runner_verify.harness import BASIC
+        with Ctx().world() as w:
+            self.assertTrue(w.init_task(BASIC).ok)
+            self.assertTrue(w.grant(BASIC).ok)
+            lease = w.lease(BASIC)
+            base = {"task_id": BASIC, "lease_id": lease["lease_id"],
+                    "lease_generation": lease["lease_generation"], "fencing_token": lease["fencing_token"]}
+            w.queue_file({"msg_type": "heartbeat", "task_id": BASIC, "envelope": "x"}, name="1-poison-envelope.json")
+            (w.layout.daemon_inbox / "2-poison-json.json").write_text("{not json", encoding="utf-8")
+            w.queue_file({"msg_type": "push_requested", "task_id": BASIC,
+                          "payload": dict(base, envelope_id="POISON-PUSH", via="daemon",
+                                          branch=lease["branch"], sha="0" * 40)}, name="3-poison-push.json")
+            w.queue_file({"msg_type": "first_heartbeat", "task_id": BASIC,
+                          "envelope": dict(base, envelope_id="GOOD-HB", at=w.clock.now())}, name="4-good.json")
+            res = w.drain()
+            self.assertTrue(res.ok, res.payload or res.stderr)
+            done = res.result
+            self.assertEqual([r["name"] for r in done],
+                             ["1-poison-envelope.json", "2-poison-json.json", "3-poison-push.json", "4-good.json"])
+            self.assertEqual([r["ok"] for r in done], [False, False, False, True])
+            self.assertEqual([r["error"] for r in done[:3]], ["AttributeError", "JSONDecodeError", "PushFailed"])
+            self.assertTrue(done[3]["outcome"]["accepted"])
+            self.assertEqual(w.state(BASIC), "building", "the heartbeat after the poison files still moved the task")
+            self.assertEqual(list(w.layout.daemon_inbox.glob("*.json")), [])
+            for r in done[:3]:
+                out = json.loads((w.layout.daemon_done / (r["name"] + ".out")).read_text(encoding="utf-8"))
+                self.assertEqual((out["ok"], out["error"]), (False, r["error"]))
+                self.assertTrue((w.layout.daemon_done / r["name"]).exists(), "the original is preserved")
+
+    def test_an_unexpected_operation_failure_still_answers_rv_result(self):
+        """The top-level catch (the finding's second site): a failure outside the old catch list — here a missing
+        config makes build_core raise TypeError — still prints the one RV_RESULT line the harness parses."""
+        from daemon.runner_verify.harness import DAEMON_MAIN
+        with tempfile.TemporaryDirectory() as tmp:
+            Layout(tmp).make()  # no config.json
+            res = subprocess.run([sys.executable, "-I", DAEMON_MAIN, "--state", tmp, "drain"],
+                                 capture_output=True, text=True)
+            self.assertEqual(res.returncode, 3)
+            line = next(l for l in res.stdout.splitlines() if l.startswith("RV_RESULT "))
+            payload = json.loads(line[len("RV_RESULT "):])
+            self.assertFalse(payload["ok"])
+            self.assertEqual(payload["error"], "TypeError")
+            self.assertIn("trace", payload)
+
+    def test_http_delivery_answers_a_poison_message_and_keeps_serving(self):
+        import http.client
+        import time
+        from daemon.runner_verify.common import read_jsonl
+        from daemon.runner_verify.harness import BASIC
+        with Ctx().world() as w:
+            self.assertTrue(w.init_task(BASIC).ok)
+            self.assertTrue(w.grant(BASIC).ok)
+            lease = w.lease(BASIC)
+            proc = w.daemon_async("serve", "--port", "0", "--duration", "30")
+            try:
+                port_file = w.layout.root / "http_port"
+                deadline = time.time() + 10
+                while not port_file.exists() and time.time() < deadline:
+                    time.sleep(0.05)
+                port = int(port_file.read_text(encoding="utf-8"))
+
+                def post(body):
+                    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+                    try:
+                        conn.request("POST", "/message", body)
+                        resp = conn.getresponse()
+                        return resp.status, json.loads(resp.read())
+                    finally:
+                        conn.close()
+
+                status, res = post("{not json")
+                self.assertEqual((status, res["ok"], res["error"]), (200, False, "JSONDecodeError"))
+                status, res = post(json.dumps({"msg_type": "heartbeat", "task_id": BASIC, "envelope": "x"}))
+                self.assertEqual((status, res["ok"], res["error"]), (200, False, "AttributeError"))
+                good = {"msg_type": "first_heartbeat", "task_id": BASIC,
+                        "envelope": dict(envelope_id="HTTP-GOOD", task_id=BASIC, lease_id=lease["lease_id"],
+                                         lease_generation=lease["lease_generation"],
+                                         fencing_token=lease["fencing_token"], at=w.clock.now())}
+                status, res = post(json.dumps(good))
+                self.assertEqual((status, res["ok"]), (200, True))
+                self.assertTrue(res["outcome"]["accepted"])
+                log = read_jsonl(w.layout.root / "http_server.jsonl")
+                self.assertEqual([e["res"]["ok"] for e in log], [False, False, True])
+            finally:
+                (w.layout.root / "http_stop").write_text("1", encoding="utf-8")
+                proc.wait(timeout=15)
+
+
 class ReportLogic(unittest.TestCase):
     def test_scenario_status(self):
         rep = Rep()

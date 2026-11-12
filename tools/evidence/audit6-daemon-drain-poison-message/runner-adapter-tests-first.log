@@ -1,0 +1,125 @@
+test_changed_paths_is_the_real_diff (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_changed_paths_is_the_real_diff)
+audit6-daemon-scope-from-real-diff: merge-base(base, head)..head with renames as delete+add; a commit ... ok
+test_clock_offset_and_scaled_sleep (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_clock_offset_and_scaled_sleep) ... ok
+test_exclude_pathspecs_cover_the_manifest (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_exclude_pathspecs_cover_the_manifest) ... ok
+test_faults_kill_only_the_armed_point (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_faults_kill_only_the_armed_point) ... ok
+test_push_failure_classes (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_push_failure_classes) ... ok
+test_store_refuses_nested_transactions (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_refuses_nested_transactions) ... ok
+test_store_survives_a_kill_in_the_middle_of_a_write (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_survives_a_kill_in_the_middle_of_a_write) ... ok
+test_store_transaction_is_all_or_nothing (tools.daemon.runner_verify.tests.test_runner_verify.Adapters.test_store_transaction_is_all_or_nothing) ... ok
+test_a_remote_url_is_refused_with_exit_code_2 (tools.daemon.runner_verify.tests.test_runner_verify.Cli.test_a_remote_url_is_refused_with_exit_code_2) ... ok
+test_checked_in_result_files_are_consistent_with_their_report (tools.daemon.runner_verify.tests.test_runner_verify.Cli.test_checked_in_result_files_are_consistent_with_their_report) ... ok
+test_two_scenarios_end_to_end_write_every_output_file (tools.daemon.runner_verify.tests.test_runner_verify.Cli.test_two_scenarios_end_to_end_write_every_output_file) ... ok
+test_a_waiting_envelope_stays_in_the_inbox (tools.daemon.runner_verify.tests.test_runner_verify.DrainGuardWait.test_a_waiting_envelope_stays_in_the_inbox) ... ok
+test_a_poison_file_does_not_disturb_guard_wait_redelivery (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_a_poison_file_does_not_disturb_guard_wait_redelivery) ... ok
+test_an_unexpected_operation_failure_still_answers_rv_result (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_an_unexpected_operation_failure_still_answers_rv_result)
+The top-level catch (the finding's second site): a failure outside the old catch list — here a missing ... ok
+test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) ... ok
+test_http_delivery_answers_a_poison_message_and_keeps_serving (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_http_delivery_answers_a_poison_message_and_keeps_serving) ... /usr/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=5 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_real_drain_quarantines_poison_and_delivers_the_rest (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_real_drain_quarantines_poison_and_delivers_the_rest)
+The real daemon process over the real adapters: `"envelope": "x"` raises AttributeError in the core, ... ok
+test_unparseable_json_is_quarantined_not_left_in_the_inbox (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_unparseable_json_is_quarantined_not_left_in_the_inbox) ... ok
+test_modes_and_metering (tools.daemon.runner_verify.tests.test_runner_verify.ProxyTests.test_modes_and_metering) ... ok
+test_a_marked_repository_is_accepted (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_a_marked_repository_is_accepted) ... ok
+test_an_unmarked_bare_repository_is_refused (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_an_unmarked_bare_repository_is_refused) ... ok
+test_credential_lifecycle_decides_the_push (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_credential_lifecycle_decides_the_push) ... ok
+test_every_decision_is_logged (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_every_decision_is_logged) ... ok
+test_only_task_branches_of_mock_tasks_are_writable (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_only_task_branches_of_mock_tasks_are_writable) ... ok
+test_protected_main_refuses_even_a_valid_credential (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_protected_main_refuses_even_a_valid_credential) ... ok
+test_urls_and_the_product_repository_are_refused (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_urls_and_the_product_repository_are_refused) ... ok
+test_a_failure_is_recorded_as_a_failure (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_a_failure_is_recorded_as_a_failure) ... ok
+test_registry_covers_r1_to_r22_and_all_required_test_ids (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_registry_covers_r1_to_r22_and_all_required_test_ids) ... ok
+test_scenario_status (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_scenario_status) ... ok
+test_spec_tests_name_the_runner_script (tools.daemon.runner_verify.tests.test_runner_verify.ReportLogic.test_spec_tests_name_the_runner_script) ... ok
+test_every_required_test_id_was_run_and_none_failed (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_every_required_test_id_was_run_and_none_failed) ... FAIL
+test_no_secret_or_raw_output_in_the_results (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_no_secret_or_raw_output_in_the_results) ... ok
+test_the_exit_code_profile_of_the_real_cli_is_empty_unless_confirmed (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_the_exit_code_profile_of_the_real_cli_is_empty_unless_confirmed) ... ok
+test_unconfirmed_parts_are_exactly_the_ones_without_a_path_on_this_host (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_unconfirmed_parts_are_exactly_the_ones_without_a_path_on_this_host)
+A part may be UNCONFIRMED only for a runner path that has no confirmed way to be driven here. ... ok
+test_R10_usage_recorded_not_capped (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R10_usage_recorded_not_capped) ... FAIL
+test_R11_handoff_quiescent_before_preserve (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R11_handoff_quiescent_before_preserve) ... ok
+test_R12_duplicate_delivery_noop (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R12_duplicate_delivery_noop) ... ok
+test_R13_retry_new_idempotency_key (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R13_retry_new_idempotency_key) ... ok
+test_R14_preserve_manifest_same_function (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R14_preserve_manifest_same_function) ... ok
+test_R15_preserve_failure_recoverable_stop (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R15_preserve_failure_recoverable_stop) ... ok
+test_R16_daemon_restart_during_handoff (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R16_daemon_restart_during_handoff) ... ok
+test_R17_envelope_id_distinct_events (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R17_envelope_id_distinct_events) ... ok
+test_R18_lease_issue_atomic_single_owner (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R18_lease_issue_atomic_single_owner) ... ok
+test_R19_restart_ttl_expired_no_resend (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R19_restart_ttl_expired_no_resend) ... ok
+test_R1_late_write_fenced (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R1_late_write_fenced) ... ok
+test_R20_restart_revoked_pending_void (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R20_restart_revoked_pending_void) ... ok
+test_R21_restart_valid_pending_resend (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R21_restart_valid_pending_resend) ... ok
+test_R22_restart_corrupt_record_returned (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R22_restart_corrupt_record_returned) ... ok
+test_R2_late_result_rejected (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R2_late_result_rejected) ... ok
+test_R3_late_write_fenced (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R3_late_write_fenced) ... ok
+test_R4_resume_after_interrupt (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R4_resume_after_interrupt) ... ok
+test_R5_duplicate_run_prevented (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R5_duplicate_run_prevented) ... ok
+test_R6_provider_scoped_switch (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R6_provider_scoped_switch) ... ok
+test_R7_provider_scoped_switch (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R7_provider_scoped_switch) ... ok
+test_R8_decision_gate_and_resume (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R8_decision_gate_and_resume) ... ok
+test_R9_hard_stop_heartbeating_job (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R9_hard_stop_heartbeating_job) ... ok
+test_a_merge_function_would_be_caught (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_a_merge_function_would_be_caught) ... ok
+test_all_static_checks_pass (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_all_static_checks_pass) ... ok
+test_checks_can_fail (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_checks_can_fail) ... ok
+test_secret_scan_static_check_uses_per_value_digest_context (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_secret_scan_static_check_uses_per_value_digest_context) ... ok
+test_the_tool_never_writes_outside_its_own_paths_by_construction (tools.daemon.runner_verify.tests.test_runner_verify.StaticChecks.test_the_tool_never_writes_outside_its_own_paths_by_construction) ... ok
+test_429_is_a_usage_limit_only_through_the_status_channel (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_429_is_a_usage_limit_only_through_the_status_channel) ... ok
+test_auth_failure (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_auth_failure) ... ok
+test_every_cli_target_without_a_proxy_path_says_why (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_every_cli_target_without_a_proxy_path_says_why) ... ok
+test_exit_codes_enter_the_profile_only_if_unique_to_the_situation (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_exit_codes_enter_the_profile_only_if_unique_to_the_situation) ... ok
+test_service_unavailable_needs_three_in_a_row (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_service_unavailable_needs_three_in_a_row) ... ok
+test_stream_parser_keeps_only_structured_fields (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_stream_parser_keeps_only_structured_fields) ... ok
+
+======================================================================
+FAIL: test_every_required_test_id_was_run_and_none_failed (tools.daemon.runner_verify.tests.test_runner_verify.ScenarioAggregates.test_every_required_test_id_was_run_and_none_failed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 607, in test_every_required_test_id_was_run_and_none_failed
+    for tid, statuses in ran.items():
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FAIL' unexpectedly found in ['FAIL'] : usage-recorded-not-capped
+
+======================================================================
+FAIL: test_R10_usage_recorded_not_capped (tools.daemon.runner_verify.tests.test_runner_verify.Scenarios.test_R10_usage_recorded_not_capped)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 586, in test
+    res = results()[rid]
+AssertionError: 'Traceback (most recent call last):\n  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/reporting.py", line 28, in run_scenario\n    fn(rep, cx)\n    ~~^^^^^^^^^\n  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/scn_cli.py", line 269, in r10\n    h2 = w.start_builder(instr2, [{"op": "first_heartbeat"}, {"op": "result", "status": "failed_tests", "fields": {"cost_units": HUGE}},\n                                  {"op": "sleep", "s": 3600}])\n  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/harness.py", line 308, in start_builder\n    res = self.daemon("issue-credential", instr["task_id"], cred, instr["lease_id"])\n  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/harness.py", line 143, in daemon\n    proc = subprocess.run(self._cmd(op_args, **kw), capture_output=True, text=True, timeout=timeout,\n                          env=self._env())\n  File "/usr/lib/python3.13/subprocess.py", line 556, in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3.13/subprocess.py", line 1222, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate\n    self._check_timeout(endtime, orig_timeout, stdout, stderr)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout\n    raise TimeoutExpired(\n    ...<2 lines>...\n            stderr=b\'\'.join(stderr_seq) if stderr_seq else None)\nsubprocess.TimeoutExpired: Command \'[\'/usr/bin/python3\', \'-I\', \'/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py\', \'--state\', \'/tmp/rv-v2g3gvbb\', \'issue-credential\', \'T-MOCK-BASIC\', \'builder_token\', \'01RVC017EC27681740B0878871\']\' timed out after 300 seconds\n' is not None : Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/reporting.py", line 28, in run_scenario
+    fn(rep, cx)
+    ~~^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/scn_cli.py", line 269, in r10
+    h2 = w.start_builder(instr2, [{"op": "first_heartbeat"}, {"op": "result", "status": "failed_tests", "fields": {"cost_units": HUGE}},
+                                  {"op": "sleep", "s": 3600}])
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/harness.py", line 308, in start_builder
+    res = self.daemon("issue-credential", instr["task_id"], cred, instr["lease_id"])
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/harness.py", line 143, in daemon
+    proc = subprocess.run(self._cmd(op_args, **kw), capture_output=True, text=True, timeout=timeout,
+                          env=self._env())
+  File "/usr/lib/python3.13/subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/usr/bin/python3', '-I', '/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py', '--state', '/tmp/rv-v2g3gvbb', 'issue-credential', 'T-MOCK-BASIC', 'builder_token', '01RVC017EC27681740B0878871']' timed out after 300 seconds
+
+
+----------------------------------------------------------------------
+Ran 67 tests in 1290.775s
+
+FAILED (failures=2)

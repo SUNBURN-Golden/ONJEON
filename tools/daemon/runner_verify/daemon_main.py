@@ -17,7 +17,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from daemon.core import DaemonCore, Rules  # noqa: E402
-from daemon.core.ports import PreconditionFailed, SpecGap  # noqa: E402
 from daemon.runner_verify import adapters  # noqa: E402
 from daemon.runner_verify.common import Layout, append_jsonl, now_ns, read_json  # noqa: E402
 
@@ -55,12 +54,13 @@ def op_drain(layout, core, args):
     for path in sorted(layout.daemon_inbox.glob("*.json")):
         try:
             msg = json.loads(path.read_text(encoding="utf-8"))
-        except ValueError:
-            continue
-        try:
             res = {"name": path.name, "ok": True, "outcome": outcome(handle_message(core, msg)),
                    "msg_type": msg["msg_type"], "task_id": msg["task_id"]}
-        except (PreconditionFailed, SpecGap, KeyError, RuntimeError) as exc:
+        except Exception as exc:
+            # audit6-daemon-drain-poison-message: any failure of one message (a PushFailed, a timeout, a malformed
+            # envelope or file) quarantines that file below and the drain continues with the next one. A narrow
+            # catch list let one bad file stop every later delivery until leases expired. Fault points kill with
+            # SIGKILL, which no except can intercept, so the crash scenarios are unchanged.
             res = {"name": path.name, "ok": False, "error": type(exc).__name__, "msg": str(exc)[:300]}
         if res["ok"] and res["outcome"].get("reason") == core.guard_wait["result"]:
             # issue_lease.on_guard_wait: the envelope was not taken (not seen); the next drain delivers it again
@@ -99,16 +99,21 @@ def op_serve(layout, core, args):
             pass
 
         def do_POST(self):
-            body = json.loads(self.rfile.read(int(self.headers.get("content-length") or 0)))
+            raw = self.rfile.read(int(self.headers.get("content-length") or 0))
             with state["lock"]:
                 state["n"] += 1
                 n = state["n"]
                 try:
+                    body = json.loads(raw)
                     res = {"ok": True, "outcome": outcome(handle_message(core, body))}
-                except (PreconditionFailed, SpecGap, KeyError, RuntimeError) as exc:
+                except Exception as exc:
+                    # the HTTP twin of the drain's quarantine: one bad message is an error answer, not a dead
+                    # request handler; the server keeps delivering the next ones
+                    body = None
                     res = {"ok": False, "error": type(exc).__name__}
-            append_jsonl(log, {"n": n, "envelope_id": (body.get("envelope") or {}).get("envelope_id"), "res": res,
-                               "ns": now_ns()})
+            env = body.get("envelope") if isinstance(body, dict) else None
+            append_jsonl(log, {"n": n, "envelope_id": env.get("envelope_id") if isinstance(env, dict) else None,
+                               "res": res, "ns": now_ns()})
             if n == 1 and args.delay_first_response:
                 time.sleep(args.delay_first_response)
             data = json.dumps(res).encode()
@@ -201,7 +206,8 @@ def main(argv=None):
         else:
             res = op_serve(layout, core, args)
         payload = {"ok": True, "result": res, "instance_id": core.instance_id}
-    except (PreconditionFailed, SpecGap, KeyError, RuntimeError) as exc:
+    except Exception as exc:
+        # any operation failure still answers with the one RV_RESULT line the harness parses, never a raw traceback
         payload = {"ok": False, "error": type(exc).__name__, "msg": str(exc)[:500],
                    "trace": traceback.format_exc()[-800:]}
     sys.stdout.write("RV_RESULT " + json.dumps(payload, ensure_ascii=False, default=str) + "\n")

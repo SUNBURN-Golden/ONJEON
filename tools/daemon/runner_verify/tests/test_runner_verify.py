@@ -103,6 +103,45 @@ class Adapters(unittest.TestCase):
         faults.check("p")  # first hit skipped
         self.assertTrue(faults.fails("x") is False)
 
+    def test_changed_paths_is_the_real_diff(self):
+        """audit6-daemon-scope-from-real-diff: merge-base(base, head)..head with renames as delete+add; a commit
+        on main after the branch point is not in the PR's scope; an unknown sha is QueryUnavailable (fail closed)."""
+        from daemon.runner_verify.adapters import RealGit
+        from daemon.runner_verify.remote import git_env
+        from daemon.core.ports import QueryUnavailable
+        clone = self.layout.clone
+        clone.mkdir()
+        env = git_env(self.layout.home)
+
+        def git(*args):
+            res = subprocess.run(["git", *args], cwd=clone, env=env, capture_output=True, text=True)
+            self.assertEqual(res.returncode, 0, res.stderr)
+            return res.stdout.strip()
+
+        git("init", "-q", "-b", "main")
+        (clone / "base.txt").write_text("base\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-qm", "base")
+        base = git("rev-parse", "HEAD")
+        git("checkout", "-qb", "task")
+        git("mv", "base.txt", "renamed.txt")
+        (clone / "tools").mkdir()
+        (clone / "tools" / "new.py").write_text("x = 1\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-qm", "work")
+        head = git("rev-parse", "HEAD")
+        git("checkout", "-q", "main")
+        (clone / "main_only.txt").write_text("m\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-qm", "main moves on")
+        rg = RealGit(self.layout, self.layout.root / "remote.git", [],
+                     RemoteCredentials(self.layout, self.layout.root / "remote.git", 60))
+        self.assertEqual(rg.changed_paths("T-MOCK-X", base, head), ["base.txt", "renamed.txt", "tools/new.py"])
+        with self.assertRaises(QueryUnavailable):
+            rg.changed_paths("T-MOCK-X", base, "1" * 40)
+        with self.assertRaises(QueryUnavailable):
+            rg.changed_paths("T-MOCK-X", "", head)
+
 
 class RemoteTests(unittest.TestCase):
     @classmethod

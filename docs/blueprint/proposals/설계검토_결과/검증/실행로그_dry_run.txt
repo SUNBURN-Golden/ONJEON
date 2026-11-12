@@ -1,5 +1,4 @@
-# generated from parent commit cba252d6d1f60f3cfbc77c0e82ff9e833a013a2b + tree hash of tools/daemon sources sha256:e922e2732d5eb00fd2e57ae2c0ce2432f5a1c92cb9c50705fdb8a6ebe509ee60
-# merge input main commit 568c298f413c59e5b84718fe8fc70f45269de635
+# generated from parent commit c872a7500318a21ed83bf505518310a11e873a00 + tree hash of tools/daemon sources sha256:dcde70d478c9489d8a6dfdd6c89051c68746f82d2c5012e1d431caf455e66432
 # command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all --quiet
 # Full expected/actual: tools/daemon/reports/dry_run.log
 # STATIC = 13 static checks + 2 explanation-key comparisons
@@ -81,7 +80,7 @@
   M20     -                                        PASS      검사 3건 중 통과 3
   M21     event-duplicate-noop                     PASS      검사 2건 중 통과 2
   M22     event-out-of-order                       PASS      검사 3건 중 통과 3
-  M23     docs-pr-complete                         PASS      검사 2건 중 통과 2
+  M23     docs-pr-complete                         PASS      검사 5건 중 통과 5
   M24     eleventh-pr-audit                        PASS      검사 5건 중 통과 5
   M25     mis-merge-not-done                       PASS      검사 10건 중 통과 10
   M26     usage-recorded-not-capped                PASS      검사 18건 중 통과 18
@@ -104,7 +103,7 @@
   M43     restart-valid-pending-resend             PASS      검사 14건 중 통과 14
   M44     restart-corrupt-record-returned          PASS      검사 19건 중 통과 19
   STATIC  static-checks                            PASS      검사 15건 중 통과 15
-  검사 692건, 실패 0건, 명세 공백 표시 0건
+  검사 695건, 실패 0건, 명세 공백 표시 0건
   필수 시험 ID 33개 중 이번에 실행한 것 33개, 실행하지 않은 것 0개(이번 범위 밖)
   실행하지 않은 시험 ID:
   필수 목록에 없는 시험 ID 0개

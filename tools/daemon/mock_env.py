@@ -69,9 +69,15 @@ class MockBuilder:
                "tests_run": [], "test_log_ref": "mock://log", "signals_seen": [], "cost_units": 0,
                "calls": 0, "wall_s": 0}
         env.update(over)
-        if status == "pr_opened" and "pr_body" not in over:
-            env["pr_body"] = {"task_id": instr["task_id"], "authors": [instr["builder"]],
-                              "target_sha": env["head_sha"], "test_log_ref": env["test_log_ref"]}
+        if status == "pr_opened":
+            if "pr_body" not in over:
+                env["pr_body"] = {"task_id": instr["task_id"], "authors": [instr["builder"]],
+                                  "target_sha": env["head_sha"], "test_log_ref": env["test_log_ref"]}
+            # the mock commit exists before the builder reports it: its real diff is the bench's ground truth.
+            # ensure_diff keeps a diff the scenario already set (set_diff), so the claim can differ from it.
+            # a malformed container stays malformed: the receiver validation must see it and reject it
+            if isinstance(env["touched_paths"], list):
+                self.env.ports.git.ensure_diff(instr["task_id"], instr["base_sha"], env["head_sha"], env["touched_paths"])
         return env
 
     def signal_envelope(self, instr, status="usage_limit", **over):

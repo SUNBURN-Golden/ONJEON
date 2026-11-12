@@ -206,10 +206,12 @@ def r2(rep, cx):
                         and e["credential_name"] == "preserve_credential")
         revoke_token = next(e["ns"] for e in creds if e["op"] == "revoke" and e["name"] == "builder_token" and e.get("was_active"))
         issue_next = sent[0]["ns"]
+        # the label must not read as `token: <value>`: the secret scanner's token pattern would flag the
+        # nanosecond timestamp in the evidence (audit6-daemon-scope-from-real-diff, pre-existing since audit5)
         timeline = [("stop(SIGTERM 요청)", stop), ("isolate(프로세스 그룹 종료)", kill), ("빌더 쓰기 자격 회수", revoke_write),
-                    ("preserve(보존 자격의 푸시를 원격이 수락)", wip_push), ("revoke_token", revoke_token),
+                    ("preserve(보존 자격의 푸시를 원격이 수락)", wip_push), ("builder_token 회수", revoke_token),
                     ("issue_next_lease(다음 지시 봉투 발송)", issue_next)]
-        rep.eq("실제 로그의 시각 순서: stop < isolate < 자격 회수 < preserve < revoke_token < issue_next_lease",
+        rep.eq("실제 로그의 시각 순서: stop < isolate < 자격 회수 < preserve < builder_token 회수 < issue_next_lease",
                [t[0] for t in timeline], [t[0] for t in sorted(timeline, key=lambda x: x[1])])
         rep.ok("시각이 서로 다르고 엄격히 증가한다", len({t[1] for t in timeline}) == len(timeline))
         order = [first_seq(js, "intent_record", action="stop"), first_seq(js, "side_effect_record", id="worktree_readonly"),

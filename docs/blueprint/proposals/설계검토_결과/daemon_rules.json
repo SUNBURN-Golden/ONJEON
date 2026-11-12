@@ -2929,8 +2929,12 @@
       "infra/db/**",
       "infra/r2/**",
       "tools/r2_budget.py",
-      "infra/ci/**"
+      "infra/ci/**",
+      "tools/daemon/**",
+      "daemon_rules.json",
+      "docs/blueprint/proposals/설계검토_결과/daemon_rules.json"
     ],
+    "_immediate_audit_paths_note": "audit6-daemon-scope-from-real-diff: 데몬 자신(tools/daemon/**)과 데몬 규칙 파일을 바꾸는 PR은 즉시 감리 대상이다. 규칙 파일이 docs/** 아래에 있어도 docs-only로 감리를 건너뛰지 않는다. 패턴 읽기는 conflict_match(G29)와 같다: 글자 그대로의 경로 또는 <dir>/**. 글롭 없는 basename(daemon_rules.json)은 루트의 그 파일에만 일치하므로, 현재 정본 위치의 전체 경로도 함께 적는다. changed_paths는 빌더 봉투의 touched_paths가 아니라 Git 어댑터의 실제 diff에서 계산한다(core/observation.py)",
     "design_change_audit": "01~07 문서의 구조·계약을 바꾸는 PR, T-box(C-20) 변경, D-09·D-10·D-15 확정 시, 과제 취소로 선행 목록을 바꿀 때",
     "stage_gate_audit": [
       "S0",

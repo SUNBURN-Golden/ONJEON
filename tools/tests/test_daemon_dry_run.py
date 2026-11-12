@@ -2380,7 +2380,8 @@ class TerminalStatesIgnoreUnmapped(unittest.TestCase):
 class DocsOnlyLandingCond(unittest.TestCase):
     """audit2-daemon-docs-pr-never-done (docs-pr-complete): merged -> audit_queued and merged -> done share
     (merged, impl_counter_incremented) and had no cond, so the first row always won and only a destination named by
-    the caller (`to`) reached done. The rows now carry cond event.docs_only and nobody names the destination."""
+    the caller (`to`) reached done. The rows now carry cond event.docs_only and nobody names the destination.
+    audit6-daemon-scope-from-real-diff: event.docs_only is computed from the real git diff only, never from a label."""
 
     def merged(self, task_id, touched=None):
         """The task in merged without the observation layer counting it (pr_merged_observed fed to the core)."""
@@ -2436,15 +2437,22 @@ class DocsOnlyLandingCond(unittest.TestCase):
         self.assertEqual(sc.tr(env.journal()[m:]), [("merged", "audit_queued", "impl_counter_incremented")])
 
     def test_docs_pr_completes_without_count(self):
-        cases = (("docs/** paths", fl.DOCS, ["docs/mock/guide.md"], ()),
-                 ("label docs-only", fl.BASIC, None, ("docs-only",)))
-        for label, task_id, touched, labels in cases:
-            with self.subTest(case=label):
-                env, js = self.landed(task_id, touched, labels)
-                self.assertEqual(sc.tr(js), [("merge_wait", "merged", "pr_merged_observed"),
-                                             ("merged", "done", "impl_counter_incremented")])
-                self.assertEqual((fl.counter(env)["merged_impl_counter"], fl.counter(env)["batches"]), (0, []))
-                self.assertEqual(sc.se(js, "increment_counter"), [])
+        # audit6-daemon-scope-from-real-diff: only the real diff decides; a docs-only label no longer completes a PR
+        env, js = self.landed(fl.DOCS, ["docs/mock/guide.md"])
+        self.assertEqual(sc.tr(js), [("merge_wait", "merged", "pr_merged_observed"),
+                                     ("merged", "done", "impl_counter_incremented")])
+        self.assertEqual((fl.counter(env)["merged_impl_counter"], fl.counter(env)["batches"]), (0, []))
+        self.assertEqual(sc.se(js, "increment_counter"), [])
+
+    def test_docs_only_label_does_not_decide_the_landing(self):
+        """audit6-daemon-scope-from-real-diff: the label used to send a code PR to done; the real diff decides now."""
+        env, js = self.landed(fl.BASIC, None, ("docs-only",))
+        self.assertEqual(sc.tr(js)[-1], ("merged", "audit_queued", "impl_counter_incremented"))
+        self.assertEqual(fl.counter(env)["merged_impl_counter"], 1)
+        # and the label is not needed either: a real docs diff completes without it
+        env, js = self.landed(fl.DOCS, ["docs/mock/guide.md"], ())
+        self.assertEqual(sc.tr(js)[-1], ("merged", "done", "impl_counter_incremented"))
+        self.assertEqual(fl.counter(env)["merged_impl_counter"], 0)
 
     def test_implementation_pr_is_counted(self):
         env, js = self.landed(fl.BASIC)
@@ -2465,6 +2473,163 @@ class DocsOnlyLandingCond(unittest.TestCase):
         js = env.journal()[m:]
         self.assertEqual((env.state(fl.DOCS), sc.tr(js)[-1], fl.counter(env)["merged_impl_counter"]),
                          ("audit_queued", ("merged", "audit_queued", "impl_counter_incremented"), 1))
+
+
+class ScopeFromRealDiff(unittest.TestCase):
+    """audit6-daemon-scope-from-real-diff: observation.py took the PR scope from the builder's own touched_paths
+    and the docs-only label. The scope is now the Git adapter's real diff (merge-base..head): the claim is only
+    compared against it for the journal, an unavailable diff fails closed to immediate audit, and tools/daemon/**
+    and the rules file are immediate audit paths, so a PR editing the daemon or its rules cannot pass as docs-only
+    even though the rules file lives under docs/**."""
+
+    RULES_PATH = "docs/blueprint/proposals/설계검토_결과/daemon_rules.json"
+    NEW_PATHS = ("tools/daemon/**", "daemon_rules.json", RULES_PATH)
+
+    def clone_task(self, env, task_id, allowed):
+        task = copy.deepcopy(env.ports.catalog.task(fl.DOCS))
+        task["task_id"], task["allowed_paths"], task["conflict_paths"] = task_id, allowed, allowed
+        env.ports.catalog.add(task)
+        return task_id
+
+    def open_with_truth(self, env, task_id, truth, claimed, head=fl.H1):
+        """The commit's real content (truth) exists before the builder reports; the report claims `claimed`."""
+        env.bring_to_building(task_id)
+        instr = env.instr(task_id)
+        env.ports.git.set_diff(task_id, instr["base_sha"], head, truth)
+        return env.builder_for(task_id).send_result(instr, "pr_opened", pr_number=7, head_sha=head,
+                                                    touched_paths=claimed)
+
+    def diagnostics(self, env, what, task_id):
+        return [r for r in env.journal() if r["kind"] == "diagnostic_record" and r["what"] == what
+                and r["task_id"] == task_id]
+
+    def test_scope_is_the_adapters_diff_not_the_envelope(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        truth, claim = ["tools/mock/basic/real.py"], ["tools/mock/basic/claimed.py"]
+        out = self.open_with_truth(env, fl.BASIC, truth, claim)
+        self.assertTrue(out["accepted"])
+        pr = fl.pr_of(env, fl.BASIC)
+        self.assertEqual((pr["changed_paths"], pr["diff_unavailable"]), (truth, False))
+        differ = self.diagnostics(env, "pr_claimed_paths_differ", fl.BASIC)
+        self.assertEqual([(r["claimed_paths"], r["diff_paths"]) for r in differ], [(claim, truth)])
+        # an honest claim leaves no diagnostic
+        env = MockEnv(str(RULES), str(TASKS))
+        self.open_with_truth(env, fl.BASIC, truth, truth)
+        self.assertEqual(self.diagnostics(env, "pr_claimed_paths_differ", fl.BASIC), [])
+
+    def test_lying_builder_cannot_hide_a_daemon_change(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        truth = ["docs/mock/guide.md", "tools/daemon/core/observation.py"]
+        self.open_with_truth(env, fl.DOCS, truth, ["docs/mock/guide.md"])
+        env.observe(fl.DOCS, "ci", conclusion="success", sha=fl.H1)
+        m = sc.mark(env)
+        fl.review(env, fl.DOCS)
+        self.assertEqual((env.state(fl.DOCS), sc.tr(env.journal()[m:])[-1]),
+                         ("audit_pending", ("review_approved", "audit_pending", "audit_required")))
+        env.observe(fl.DOCS, "audit_result", verdict="pass", sha=fl.H1)
+        m = sc.mark(env)
+        fl.land(env, fl.DOCS)
+        self.assertEqual((sc.tr(env.journal()[m:])[-1], fl.counter(env)["merged_impl_counter"]),
+                         (("merged", "audit_queued", "impl_counter_incremented"), 1))
+
+    def test_rules_file_pr_is_immediate_audit_and_counted(self):
+        for task_id, allowed, path in (("T-MOCK-RULES", ["docs/**"], self.RULES_PATH),
+                                       ("T-MOCK-RULES-ROOT", ["daemon_rules.json"], "daemon_rules.json")):
+            with self.subTest(path=path):
+                env = MockEnv(str(RULES), str(TASKS))
+                self.clone_task(env, task_id, allowed)
+                fl.open_pr(env, task_id, touched=[path])
+                env.observe(task_id, "ci", conclusion="success", sha=fl.H1)
+                m = sc.mark(env)
+                fl.review(env, task_id)
+                self.assertEqual((env.state(task_id), sc.tr(env.journal()[m:])[-1]),
+                                 ("audit_pending", ("review_approved", "audit_pending", "audit_required")))
+                env.observe(task_id, "audit_result", verdict="pass", sha=fl.H1)
+                self.assertEqual(fl.pr_of(env, task_id)["merge_wait_reason"], "ready")
+                m = sc.mark(env)
+                fl.land(env, task_id)
+                self.assertEqual((sc.tr(env.journal()[m:])[-1], fl.counter(env)["merged_impl_counter"]),
+                                 (("merged", "audit_queued", "impl_counter_incremented"), 1))
+
+    def test_diff_unavailable_fails_closed(self):
+        for label, poison in (("no diff at all", "pop"), ("malformed answer", "docs/mock/x.md"),
+                              ("unsafe path", ["../escape.py"]), ("empty diff", [])):
+            with self.subTest(case=label):
+                env = MockEnv(str(RULES), str(TASKS))
+                env.bring_to_building(fl.BASIC)
+                instr = env.instr(fl.BASIC)
+                envelope = env.builder_for(fl.BASIC).result_envelope(instr, "pr_opened", pr_number=7,
+                                                                     head_sha=fl.H1, touched_paths=["tools/mock/basic/x.py"])
+                key = (fl.BASIC, instr["base_sha"], fl.H1)
+                if poison == "pop":
+                    env.ports.git.pr_diffs.pop(key)
+                else:
+                    env.ports.git.pr_diffs[key] = poison
+                out = env.submit(fl.BASIC, "result", envelope)
+                self.assertTrue(out["accepted"])
+                pr = fl.pr_of(env, fl.BASIC)
+                if label == "empty diff":
+                    self.assertEqual((pr["changed_paths"], pr["diff_unavailable"]), ([], False))
+                else:
+                    self.assertEqual((pr["changed_paths"], pr["diff_unavailable"]), ([], True))
+                    self.assertEqual(len(self.diagnostics(env, "pr_diff_unavailable", fl.BASIC)), 1)
+                env.observe(fl.BASIC, "ci", conclusion="success", sha=fl.H1)
+                m = sc.mark(env)
+                fl.review(env, fl.BASIC)
+                if label == "empty diff":
+                    # an empty diff is not docs-only either, but it is not an unknown scope: no forced audit
+                    self.assertEqual(env.state(fl.BASIC), "merge_wait")
+                else:
+                    self.assertEqual((env.state(fl.BASIC), sc.tr(env.journal()[m:])[-1]),
+                                     ("audit_pending", ("review_approved", "audit_pending", "audit_required")))
+                env.observe(fl.BASIC, "audit_result", verdict="pass", sha=fl.H1)
+                m = sc.mark(env)
+                fl.land(env, fl.BASIC)
+                self.assertEqual((sc.tr(env.journal()[m:])[-1], fl.counter(env)["merged_impl_counter"]),
+                                 (("merged", "audit_queued", "impl_counter_incremented"), 1))
+
+    def test_head_change_refreshes_the_scope(self):
+        # a code PR whose new head only changes docs completes without a count ...
+        env = MockEnv(str(RULES), str(TASKS))
+        fl.approve_to_wait(env, fl.BASIC)
+        pr = fl.pr_of(env, fl.BASIC)
+        env.ports.git.set_diff(fl.BASIC, pr["base_sha"], fl.H2, ["docs/mock/late.md"])
+        env.observe(fl.BASIC, "head_sha", sha=fl.H2)
+        self.assertEqual(fl.pr_of(env, fl.BASIC)["changed_paths"], ["docs/mock/late.md"])
+        env.observe(fl.BASIC, "ci", conclusion="success", sha=fl.H2)
+        fl.review(env, fl.BASIC)
+        self.assertEqual((env.state(fl.BASIC), fl.pr_of(env, fl.BASIC)["merge_wait_reason"]), ("merge_wait", "ready"))
+        fl.land(env, fl.BASIC)
+        self.assertEqual((env.state(fl.BASIC), fl.counter(env)["merged_impl_counter"]), ("done", 0))
+        # ... and a docs PR whose new head changes the daemon requires immediate audit
+        env = MockEnv(str(RULES), str(TASKS))
+        fl.approve_to_wait(env, fl.DOCS, touched=["docs/mock/guide.md"])
+        pr = fl.pr_of(env, fl.DOCS)
+        env.ports.git.set_diff(fl.DOCS, pr["base_sha"], fl.H2, ["tools/daemon/core/observation.py"])
+        env.observe(fl.DOCS, "head_sha", sha=fl.H2)
+        self.assertEqual(fl.pr_of(env, fl.DOCS)["changed_paths"], ["tools/daemon/core/observation.py"])
+        env.observe(fl.DOCS, "ci", conclusion="success", sha=fl.H2)
+        m = sc.mark(env)
+        fl.review(env, fl.DOCS)
+        self.assertEqual((env.state(fl.DOCS), sc.tr(env.journal()[m:])[-1]),
+                         ("audit_pending", ("review_approved", "audit_pending", "audit_required")))
+
+    def test_removing_the_new_paths_reopens_the_finding(self):
+        """Without the new immediate_audit_paths entries the rules PR is docs-only again: no audit, no count."""
+        raw = raw_rules()
+        raw["audit_triggers"]["immediate_audit_paths"] = [p for p in raw["audit_triggers"]["immediate_audit_paths"]
+                                                          if p not in self.NEW_PATHS]
+        env = MockEnv(raw, str(TASKS))
+        self.clone_task(env, "T-MOCK-RULES", ["docs/**"])
+        fl.open_pr(env, "T-MOCK-RULES", touched=[self.RULES_PATH])
+        env.observe("T-MOCK-RULES", "ci", conclusion="success", sha=fl.H1)
+        fl.review(env, "T-MOCK-RULES")
+        self.assertEqual((env.state("T-MOCK-RULES"), fl.pr_of(env, "T-MOCK-RULES")["merge_wait_reason"]),
+                         ("merge_wait", "ready"))
+        m = sc.mark(env)
+        fl.land(env, "T-MOCK-RULES")
+        self.assertEqual((sc.tr(env.journal()[m:])[-1], fl.counter(env)["merged_impl_counter"]),
+                         (("merged", "done", "impl_counter_incremented"), 0))
 
 
 def _fields(node):

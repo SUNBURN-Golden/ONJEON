@@ -9,10 +9,10 @@
 |---|---|
 | [before.log](before.log) | 수정 전 구현(HEAD)에 회귀 시험 추가 실행: 모의 코어 10개 실패 46·오류 1, 실제 git 원격 3개 실패 18·오류 2, 종료 1 |
 | [after.log](after.log) | 수정 후 회귀 13개(모의 코어·어댑터 10 + 실제 git 원격 3) 통과, 종료 0 |
-| [모의 시나리오](../../daemon/reports/dry_run.log) | 검사 692건 통과, 필수 ID 33/33, 누락·미등록·중복 0, 종료 0 |
-| [데몬 회귀](../../daemon/reports/unittest.log) | 299개 통과, 종료 0; 현재 소스 내용 해시 기록 |
-| [python-tests.log](python-tests.log) | 전체 Python 1,567개 실행, 실패·오류 0, 기존 skip 6, 종료 0 |
-| [rust-tests.log](rust-tests.log) | 워크스페이스 `cargo +1.98.1 test --all --locked --offline`: 514개 통과, 기존 fixture 재생성 1개 ignored, 실패 0, 종료 0 |
+| [모의 시나리오](../../daemon/reports/dry_run.log) | 검사 695건 통과, 필수 ID 33/33, 누락·미등록·중복 0, 종료 0 |
+| [데몬 회귀](../../daemon/reports/unittest.log) | 306개 통과, 종료 0; 현재 소스 내용 해시 기록 |
+| [python-tests.log](python-tests.log) | 전체 Python 1,600개 실행, 실패·오류 0, 기존 skip 6, 종료 0 |
+| [rust-tests.log](rust-tests.log) | 워크스페이스 `cargo +1.98.1 test --all --locked --offline`: 515개 통과, 기존 fixture 재생성 1개 ignored, 실패 0, 종료 0 |
 | [ontology-runner-tests.log](ontology-runner-tests.log) | 온톨로지 실행기 `cargo test --locked --offline`: 4개 통과, 종료 0 |
 
 재현 명령(저장소 루트):
@@ -48,3 +48,21 @@ blueprint_counts·spec_check(46/46·72/72)·ontology_check·모의 시나리오 
 아래 python-tests.log·rust-tests.log·ontology-runner-tests.log는 이 재실행 결과로 갱신했다.
 runner_verify의 기존 실패 1건은 HEAD 내보내기 트리에서 같은 단건 시험으로 다시 확인했다.
 `tools/verify_sources.py`의 ResourceWarning은 수정 전부터 있던 것으로(시험 실패 아님) 이 노드 범위 밖이다.
+
+수정 3차(2026-11-12): 차단된 로컬 실패는 `provider_sdk_only_here`(services/ai-gateway)였다.
+공유 표적 디렉터리(`CARGO_TARGET_DIR`)가 이미 삭제된 형제 작업 트리에서 컴파일된 시험 바이너리를
+재사용하고 있었고, 컴파일 시점 `env!("CARGO_MANIFEST_DIR")` 경로가 사라져 `cargo metadata`의
+작업 디렉터리 준비가 NotFound로 실패했다(푸시 refspec 구현과 무관한 stale 아티팩트 문제).
+시험을 cargo가 실행 시점에 설정하는 런타임 `CARGO_MANIFEST_DIR`을 우선하도록 고치고
+(직접 실행 시 컴파일 시점 값으로 폴백) 회귀 시험 `scan_dir_prefers_the_runtime_manifest_dir`을
+추가했다. 이 작업 트리에서 워크스페이스 바이너리를 다시 컴파일한 뒤 전체 관문을 재실행했다:
+Python 1,600개 통과(skip 6), `cargo test --all --locked --offline` 515개 통과(ignored 1),
+온톨로지 실행기 4개 통과, runner_verify 64개 통과, `cargo fmt --check`·`clippy -D warnings`·
+정적 검사 13/13·spec_check(46/46·72/72)·vocab·validation(selftest 포함)·blueprint_status·
+blueprint_counts·모의 시나리오 695건(필수 ID 33/33) 모두 종료 0.
+증가한 수는 이 트리에 audit6-daemon-scope-from-real-diff 변경도 함께 있기 때문이다
+(그 증거의 Python 1,590·runner_verify 61·데몬 회귀 296에 refspec 회귀 +10·+3·+10,
+Rust +1은 이번 차수의 새 회귀 시험). 모의 검사 695건은 그 증거와 같다.
+수정 1차에서 적은 runner_verify 기존 실패 1건은 현재 트리에서 재현하지 않는다
+(비밀값 패턴 개선이 main에 병합됨). python-tests.log·rust-tests.log·ontology-runner-tests.log는
+이 재실행 결과로 갱신했고, 게이트웨이 크레이트의 TEST_LOG.txt에도 재실행 기록을 추가했다.

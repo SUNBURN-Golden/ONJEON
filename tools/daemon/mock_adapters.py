@@ -12,7 +12,8 @@ import threading
 
 from .core.ports import (
     BuilderPool, Catalog, Clock, CommitFailed, Credentials, Faults, Git, GuardChecks, IdSource, Ports,
-    ProcessControl, PushFailed, Remote, ReviewerPool, Sender, SimulatedCrash, SpecGap, Store, Worktree,
+    ProcessControl, PushFailed, QueryUnavailable, Remote, ReviewerPool, Sender, SimulatedCrash, SpecGap, Store,
+    Worktree,
 )
 
 
@@ -209,6 +210,7 @@ class MockGit(Git):
         self.ignored_exclude_entries = [e for e in excludes if not pat.match(e)]
         self.commits = {}
         self.remote = {}
+        self.pr_diffs = {}  # (task_id, base_sha, head_sha) -> the commit's real changed paths (bench ground truth)
         self.injected = {}
         self.commit_count = 0
         self.push_count = 0
@@ -344,6 +346,23 @@ class MockGit(Git):
 
     def base_sha(self, task_id):
         return "b" * 40
+
+    # --- the real PR diff (audit6-daemon-scope-from-real-diff). The registry is the mock world's ground truth:
+    # set_diff writes a commit's actual content, ensure_diff only synthesizes one when none exists yet (the mock
+    # builder's convenience). The core reads this, never the envelope's touched_paths, so a test can set a truth
+    # that differs from the builder's claim.
+    def set_diff(self, task_id, base_sha, head_sha, paths):
+        self.pr_diffs[(task_id, base_sha, head_sha)] = list(paths)
+
+    def ensure_diff(self, task_id, base_sha, head_sha, paths):
+        self.pr_diffs.setdefault((task_id, base_sha, head_sha), list(paths))
+
+    def changed_paths(self, task_id, base_sha, head_sha):
+        self._maybe_fail("changed_paths")
+        key = (task_id, base_sha, head_sha)
+        if key not in self.pr_diffs:
+            raise QueryUnavailable(f"no mock diff for {key}")
+        return list(self.pr_diffs[key])
 
 
 # ------------------------------------------------------------------ processes, sender, pool, guards

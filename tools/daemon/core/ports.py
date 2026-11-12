@@ -134,6 +134,13 @@ class Git(ABC):
     @abstractmethod
     def base_sha(self, task_id): ...
 
+    @abstractmethod
+    def changed_paths(self, task_id, base_sha, head_sha):
+        """The repository-relative paths of the task's real pull request diff: merge-base(base, head)..head,
+        renames as delete+add so both paths are in scope. This is the adapter's ground truth, never the
+        builder's reported touched_paths (audit6-daemon-scope-from-real-diff). Raise QueryUnavailable when the
+        diff cannot be computed; the core then fails closed (immediate audit required, never docs-only)."""
+
 
 class GuardChecks(ABC):
     """Lease guards whose kind is `adapter` (they need the outside world). Store and core guards never get here."""

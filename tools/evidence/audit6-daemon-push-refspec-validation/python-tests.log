@@ -1,3 +1,25 @@
+test_adr0006_reserves_policy_to_one_human_owner (test_audit5_confirm_agent_made_decisions.CanonWordingSeparatesDelegationFromConfirmation.test_adr0006_reserves_policy_to_one_human_owner) ... ok
+test_blueprint_s12_1_keeps_delegation_distinct_and_d16_unrun (test_audit5_confirm_agent_made_decisions.CanonWordingSeparatesDelegationFromConfirmation.test_blueprint_s12_1_keeps_delegation_distinct_and_d16_unrun) ... ok
+test_decisions_index_forbids_promotion (test_audit5_confirm_agent_made_decisions.CanonWordingSeparatesDelegationFromConfirmation.test_decisions_index_forbids_promotion) ... ok
+test_09_p18_requires_the_explanation_vs_source_task (test_audit5_confirm_agent_made_decisions.D16ConfirmationHook.test_09_p18_requires_the_explanation_vs_source_task) ... ok
+test_prereg_records_owner_confirmation_once_committed (test_audit5_confirm_agent_made_decisions.D16ConfirmationHook.test_prereg_records_owner_confirmation_once_committed) ... ok
+test_tux01_owns_prereg_and_pre_fixed_numbers (test_audit5_confirm_agent_made_decisions.D16ConfirmationHook.test_tux01_owns_prereg_and_pre_fixed_numbers) ... ok
+test_d02_gates_are_exactly_where_the_record_says (test_audit5_confirm_agent_made_decisions.GatesAreUnchanged.test_d02_gates_are_exactly_where_the_record_says) ... ok
+test_d07_d08_d16_gates_are_unchanged (test_audit5_confirm_agent_made_decisions.GatesAreUnchanged.test_d07_d08_d16_gates_are_unchanged) ... ok
+test_o04_o12_release_gates_are_unchanged (test_audit5_confirm_agent_made_decisions.GatesAreUnchanged.test_o04_o12_release_gates_are_unchanged) ... ok
+test_record_keeps_d16_numbers_as_a_working_baseline_not_proof (test_audit5_confirm_agent_made_decisions.RecordKeepsRatificationOwnerOnly.test_record_keeps_d16_numbers_as_a_working_baseline_not_proof) ... ok
+test_record_keeps_the_six_as_provisional_baselines (test_audit5_confirm_agent_made_decisions.RecordKeepsRatificationOwnerOnly.test_record_keeps_the_six_as_provisional_baselines) ... ok
+test_record_links_resolve (test_audit5_confirm_agent_made_decisions.RecordKeepsRatificationOwnerOnly.test_record_links_resolve) ... ok
+test_record_refuses_self_ratification (test_audit5_confirm_agent_made_decisions.RecordKeepsRatificationOwnerOnly.test_record_refuses_self_ratification) ... ok
+test_record_requires_owner_confirmed_criteria_for_the_confirmation_round (test_audit5_confirm_agent_made_decisions.RecordKeepsRatificationOwnerOnly.test_record_requires_owner_confirmed_criteria_for_the_confirmation_round) ... ok
+test_record_routes_a_per_decision_checklist (test_audit5_confirm_agent_made_decisions.RecordKeepsRatificationOwnerOnly.test_record_routes_a_per_decision_checklist) ... ok
+test_record_waives_no_gate_and_changes_no_canon (test_audit5_confirm_agent_made_decisions.RecordKeepsRatificationOwnerOnly.test_record_waives_no_gate_and_changes_no_canon) ... ok
+test_all_six_are_fable_autoloop_records (test_audit5_confirm_agent_made_decisions.SixRecordsStayDelegated.test_all_six_are_fable_autoloop_records) ... ok
+test_audit4_classifies_the_six_as_pre_delegation_provisional (test_audit5_confirm_agent_made_decisions.SixRecordsStayDelegated.test_audit4_classifies_the_six_as_pre_delegation_provisional) ... ok
+test_d02_d07_d08_carry_explicit_delegation_markers (test_audit5_confirm_agent_made_decisions.SixRecordsStayDelegated.test_d02_d07_d08_carry_explicit_delegation_markers) ... ok
+test_d16_admits_its_numbers_have_no_basis (test_audit5_confirm_agent_made_decisions.SixRecordsStayDelegated.test_d16_admits_its_numbers_have_no_basis) ... ok
+test_d16_freezes_prereg_and_requires_a_new_record_for_changes (test_audit5_confirm_agent_made_decisions.SixRecordsStayDelegated.test_d16_freezes_prereg_and_requires_a_new_record_for_changes) ... ok
+test_ledger_rows_keep_owner_confirmation_pending (test_audit5_confirm_agent_made_decisions.SixRecordsStayDelegated.test_ledger_rows_keep_owner_confirmation_pending) ... ok
 test_audit_and_evidence_records_exist_and_are_linked (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_audit_and_evidence_records_exist_and_are_linked) ... ok
 test_every_dec_record_has_exactly_one_ledger_row (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_every_dec_record_has_exactly_one_ledger_row) ... ok
 test_legacy_ledger_ids_do_not_collide_with_dec_gate_ids (test_audit5_decisions_ledger_sync.Audit5DecisionsLedgerSync.test_legacy_ledger_ids_do_not_collide_with_dec_gate_ids) ... ok
@@ -470,6 +492,8 @@ test_every_required_id_needs_an_executed_check (test_daemon_dry_run.CoverageBoth
 A registered ID with a no-op body must not count as a passing test. ... ok
 test_report_json_lists_both_directions (test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions) ... ok
 test_require_all_fails_on_each_direction (test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction) ... ok
+test_docs_only_label_does_not_decide_the_landing (test_daemon_dry_run.DocsOnlyLandingCond.test_docs_only_label_does_not_decide_the_landing)
+audit6-daemon-scope-from-real-diff: the label used to send a code PR to done; the real diff decides now. ... ok
 test_docs_pr_completes_without_count (test_daemon_dry_run.DocsOnlyLandingCond.test_docs_pr_completes_without_count) ... ok
 test_implementation_pr_is_counted (test_daemon_dry_run.DocsOnlyLandingCond.test_implementation_pr_is_counted) ... ok
 test_no_caller_names_the_destination (test_daemon_dry_run.DocsOnlyLandingCond.test_no_caller_names_the_destination) ... ok
@@ -681,6 +705,13 @@ test_STATIC_static_checks (test_daemon_dry_run.ScenarioResults.test_STATIC_stati
 test_approved_canon_scope_is_the_only_exception (test_daemon_dry_run.ScopeForbiddenFirst.test_approved_canon_scope_is_the_only_exception) ... ok
 test_dir_star_star_and_exact_forbidden_still_win (test_daemon_dry_run.ScopeForbiddenFirst.test_dir_star_star_and_exact_forbidden_still_win) ... ok
 test_single_star_forbidden_glob_is_not_skipped (test_daemon_dry_run.ScopeForbiddenFirst.test_single_star_forbidden_glob_is_not_skipped) ... ok
+test_diff_unavailable_fails_closed (test_daemon_dry_run.ScopeFromRealDiff.test_diff_unavailable_fails_closed) ... ok
+test_head_change_refreshes_the_scope (test_daemon_dry_run.ScopeFromRealDiff.test_head_change_refreshes_the_scope) ... ok
+test_lying_builder_cannot_hide_a_daemon_change (test_daemon_dry_run.ScopeFromRealDiff.test_lying_builder_cannot_hide_a_daemon_change) ... ok
+test_removing_the_new_paths_reopens_the_finding (test_daemon_dry_run.ScopeFromRealDiff.test_removing_the_new_paths_reopens_the_finding)
+Without the new immediate_audit_paths entries the rules PR is docs-only again: no audit, no count. ... ok
+test_rules_file_pr_is_immediate_audit_and_counted (test_daemon_dry_run.ScopeFromRealDiff.test_rules_file_pr_is_immediate_audit_and_counted) ... ok
+test_scope_is_the_adapters_diff_not_the_envelope (test_daemon_dry_run.ScopeFromRealDiff.test_scope_is_the_adapters_diff_not_the_envelope) ... ok
 test_absolute_backslash_glob_and_empty_paths_are_out_of_scope (test_daemon_dry_run.ScopePathsAreNormalized.test_absolute_backslash_glob_and_empty_paths_are_out_of_scope) ... ok
 test_dot_dot_is_refused_even_when_it_would_stay_inside (test_daemon_dry_run.ScopePathsAreNormalized.test_dot_dot_is_refused_even_when_it_would_stay_inside) ... ok
 test_dot_dot_that_leaves_the_allowed_directory_is_out_of_scope (test_daemon_dry_run.ScopePathsAreNormalized.test_dot_dot_that_leaves_the_allowed_directory_is_out_of_scope) ... ok
@@ -856,64 +887,22 @@ test_live_policy_rows_follow_latest_owner_ruling (test_o13_ruling.RulingDocument
 test_missing_owner_or_env_and_stale_denial_are_rejected (test_o13_ruling.RulingDocumentation.test_missing_owner_or_env_and_stale_denial_are_rejected) ... ok
 test_report_and_readme_links_resolve (test_o13_ruling.RulingDocumentation.test_report_and_readme_links_resolve) ... ok
 test_separate_cfut_rule_and_daemon_secret_boundary_remain (test_o13_ruling.RulingDocumentation.test_separate_cfut_rule_and_daemon_secret_boundary_remain) ... ok
-test_blocked_and_not_payable_keep_their_meaning (test_ontology_check_amounts.AmountPresentation.test_blocked_and_not_payable_keep_their_meaning) ... /workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
+test_blocked_and_not_payable_keep_their_meaning (test_ontology_check_amounts.AmountPresentation.test_blocked_and_not_payable_keep_their_meaning) ... ok
 test_exact_zero_range_and_unknown_for_both_payout_kinds (test_ontology_check_amounts.AmountPresentation.test_exact_zero_range_and_unknown_for_both_payout_kinds) ... ok
 test_range_and_unknown_never_compare_equal (test_ontology_check_amounts.AmountPresentation.test_range_and_unknown_never_compare_equal) ... ok
 test_unsupported_amount_kind_is_rejected (test_ontology_check_amounts.AmountPresentation.test_unsupported_amount_kind_is_rejected) ... ok
+test_constraints_and_resolve_do_not_leak_rule_handles (test_ontology_check_file_handles.FileHandleHygiene.test_constraints_and_resolve_do_not_leak_rule_handles) ... ok
+test_import_closes_tbox_and_abox (test_ontology_check_file_handles.FileHandleHygiene.test_import_closes_tbox_and_abox) ... ok
+test_rule_files_hashes_without_leaking_handles (test_ontology_check_file_handles.FileHandleHygiene.test_rule_files_hashes_without_leaking_handles) ... ok
 test_cleanup_and_propagation_on_callback_exception (test_ontology_check_tempfile.BadRuleTemporaryFile.test_cleanup_and_propagation_on_callback_exception) ... ok
 test_cleanup_when_serialization_fails (test_ontology_check_tempfile.BadRuleTemporaryFile.test_cleanup_when_serialization_fails) ... ok
-test_constraints_and_frozen_release_still_detect_bad_rule (test_ontology_check_tempfile.BadRuleTemporaryFile.test_constraints_and_frozen_release_still_detect_bad_rule) ... /workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-b61cy_bk.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/onjeon-ontology-bad-rule-oydbzlge.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-oydbzlge.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
+test_constraints_and_frozen_release_still_detect_bad_rule (test_ontology_check_tempfile.BadRuleTemporaryFile.test_constraints_and_frozen_release_still_detect_bad_rule) ... ok
 test_killed_process_leaves_no_debris_in_rule_tree (test_ontology_check_tempfile.BadRuleTemporaryFile.test_killed_process_leaves_no_debris_in_rule_tree) ... ok
 test_overlapping_calls_have_independent_files (test_ontology_check_tempfile.BadRuleTemporaryFile.test_overlapping_calls_have_independent_files) ... ok
 test_readable_mutation_outside_repo_and_cleanup_on_return (test_ontology_check_tempfile.BadRuleTemporaryFile.test_readable_mutation_outside_repo_and_cleanup_on_return) ... ok
-test_amount_explanations_and_outcomes_with_real_engine (test_ontology_runner_io_error.RunnerIoError.test_amount_explanations_and_outcomes_with_real_engine) ... /workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:532: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, rule_a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
+test_amount_explanations_and_outcomes_with_real_engine (test_ontology_runner_io_error.RunnerIoError.test_amount_explanations_and_outcomes_with_real_engine) ... ok
 test_empty_batch_is_valid (test_ontology_runner_io_error.RunnerIoError.test_empty_batch_is_valid) ... ok
-test_failed_amount_self_test_fails_the_checker (test_ontology_runner_io_error.RunnerIoError.test_failed_amount_self_test_fails_the_checker) ... /workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hana-2601-3d-cancer-dx.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:532: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/규칙/hi2607-2-5-cancer-dx.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, rule_a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-q57v58y3.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:41: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/onjeon-ontology-bad-rule-be4l3r_n.json'>
-  out[a["rule_path"]] = hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/proposals/온톨로지/검증/ontology_check.py:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/onjeon-ontology-bad-rule-be4l3r_n.json' mode='r' encoding='utf-8'>
-  rule = json.load(open(os.path.join(ROOT, a["rule_path"]), encoding="utf-8"))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
+test_failed_amount_self_test_fails_the_checker (test_ontology_runner_io_error.RunnerIoError.test_failed_amount_self_test_fails_the_checker) ... ok
 test_invalid_batch_is_reported_without_panic (test_ontology_runner_io_error.RunnerIoError.test_invalid_batch_is_reported_without_panic) ... ok
 test_load_and_eval_errors_preserve_order_and_later_success (test_ontology_runner_io_error.RunnerIoError.test_load_and_eval_errors_preserve_order_and_later_success) ... ok
 test_nonobject_jobs_are_per_job_errors (test_ontology_runner_io_error.RunnerIoError.test_nonobject_jobs_are_per_job_errors) ... ok
@@ -1539,10 +1528,7 @@ test_deleted_listed_output_fails_with_exit_1 (test_verify_sources.ArchiveReprodu
 test_tampered_stored_output_fails_with_exit_1 (test_verify_sources.ArchiveReproduce.test_tampered_stored_output_fails_with_exit_1) ... skipped 'local archive and pdftotext required'
 test_untampered_sample_is_reproduced (test_verify_sources.ArchiveReproduce.test_untampered_sample_is_reproduced) ... skipped 'local archive and pdftotext required'
 test_detect_cli_reports_exact_audit5_download_filename_changes (test_verify_sources.CliDependencies.test_detect_cli_reports_exact_audit5_download_filename_changes) ... ok
-test_detect_with_only_robots_disallowed_samples_fails_without_requests (test_verify_sources.CliDependencies.test_detect_with_only_robots_disallowed_samples_fails_without_requests) ... /workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/verify_sources.py:134: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
-  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
+test_detect_with_only_robots_disallowed_samples_fails_without_requests (test_verify_sources.CliDependencies.test_detect_with_only_robots_disallowed_samples_fails_without_requests) ... ok
 test_detect_without_pdfplumber_writes_report_and_preserves_exit_status (test_verify_sources.CliDependencies.test_detect_without_pdfplumber_writes_report_and_preserves_exit_status) ... ok
 test_reproduce_with_pdfplumber_dispatches (test_verify_sources.CliDependencies.test_reproduce_with_pdfplumber_dispatches) ... ok
 test_reproduce_without_pdfplumber_stops_before_processing (test_verify_sources.CliDependencies.test_reproduce_without_pdfplumber_stops_before_processing) ... ok
@@ -1563,11 +1549,9 @@ test_blocked_redirect_is_reported_and_not_retried (test_verify_sources.RecordedR
 test_permitted_redirect_uses_standard_handler (test_verify_sources.RecordedRobotsPolicy.test_permitted_redirect_uses_standard_handler) ... ok
 test_policy_applies_to_host_regardless_of_path_case_port_or_scheme (test_verify_sources.RecordedRobotsPolicy.test_policy_applies_to_host_regardless_of_path_case_port_or_scheme) ... ok
 test_policy_matches_hostname_not_url_substrings (test_verify_sources.RecordedRobotsPolicy.test_policy_matches_hostname_not_url_substrings) ... ok
-test_real_samples_are_reported_without_fetching_writing_or_archiving (test_verify_sources.RecordedRobotsPolicy.test_real_samples_are_reported_without_fetching_writing_or_archiving) ... /workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/tools/verify_sources.py:134: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/onjeon-run/wt/audit6-daemon-push-refspec-validation/docs/blueprint/validation/samples.csv' mode='r' encoding='utf-8'>
-  return list(csv.DictReader((VAL / "samples.csv").open(encoding="utf-8")))
-ResourceWarning: Enable tracemalloc to get the object allocation traceback
-ok
+test_real_samples_are_reported_without_fetching_writing_or_archiving (test_verify_sources.RecordedRobotsPolicy.test_real_samples_are_reported_without_fetching_writing_or_archiving) ... ok
 test_redirect_to_recorded_disallow_is_refused_before_request (test_verify_sources.RecordedRobotsPolicy.test_redirect_to_recorded_disallow_is_refused_before_request) ... ok
+test_rows_returns_the_samples_without_leaking_the_handle (test_verify_sources.RowsFileHandling.test_rows_returns_the_samples_without_leaking_the_handle) ... ok
 test_intact_record_and_identical_regeneration_is_reproduced (test_verify_sources.VerifyDerived.test_intact_record_and_identical_regeneration_is_reproduced) ... ok
 test_listed_output_bytes_changed_is_invalid (test_verify_sources.VerifyDerived.test_listed_output_bytes_changed_is_invalid) ... ok
 test_listed_output_deleted_is_invalid (test_verify_sources.VerifyDerived.test_listed_output_deleted_is_invalid) ... ok
@@ -1665,6 +1649,6 @@ test_secret_in_action_input_or_script_is_rejected (test_workflow_secret_scope.Wo
 test_workflow_or_job_env_regression_is_rejected (test_workflow_secret_scope.WorkflowSecretScope.test_workflow_or_job_env_regression_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 1567 tests in 217.317s
+Ran 1600 tests in 422.934s
 
 OK (skipped=6)

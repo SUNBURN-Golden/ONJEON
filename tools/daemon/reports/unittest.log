@@ -1,4 +1,5 @@
-# generated from parent commit 1f0ef65e06485e23551878d30ff783248db28602 + tree hash of tools/daemon sources sha256:a66a25987a6a402a0905c540d2ffdee0cfe83dafed285e1b9a1f6afe102c023e
+# generated from parent commit 439cbadc45e895059c3f1ecad43f6131639a7725 + tree hash of tools/daemon sources sha256:c0ad4f4af70dd7c2b5f7bdb85ede4c33e58d5fc834c33ea3ae1b68dceb2ba581
+# merge input main commit ee9331b3660d033b2dcf09df1e5344c081815497
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -57,6 +58,8 @@ test_every_required_id_needs_an_executed_check (tools.tests.test_daemon_dry_run.
 A registered ID with a no-op body must not count as a passing test. ... ok
 test_report_json_lists_both_directions (tools.tests.test_daemon_dry_run.CoverageBothWays.test_report_json_lists_both_directions) ... ok
 test_require_all_fails_on_each_direction (tools.tests.test_daemon_dry_run.CoverageBothWays.test_require_all_fails_on_each_direction) ... ok
+test_docs_only_label_does_not_decide_the_landing (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_docs_only_label_does_not_decide_the_landing)
+audit6-daemon-scope-from-real-diff: the label used to send a code PR to done; the real diff decides now. ... ok
 test_docs_pr_completes_without_count (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_docs_pr_completes_without_count) ... ok
 test_implementation_pr_is_counted (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_implementation_pr_is_counted) ... ok
 test_no_caller_names_the_destination (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_no_caller_names_the_destination) ... ok
@@ -268,6 +271,13 @@ test_STATIC_static_checks (tools.tests.test_daemon_dry_run.ScenarioResults.test_
 test_approved_canon_scope_is_the_only_exception (tools.tests.test_daemon_dry_run.ScopeForbiddenFirst.test_approved_canon_scope_is_the_only_exception) ... ok
 test_dir_star_star_and_exact_forbidden_still_win (tools.tests.test_daemon_dry_run.ScopeForbiddenFirst.test_dir_star_star_and_exact_forbidden_still_win) ... ok
 test_single_star_forbidden_glob_is_not_skipped (tools.tests.test_daemon_dry_run.ScopeForbiddenFirst.test_single_star_forbidden_glob_is_not_skipped) ... ok
+test_diff_unavailable_fails_closed (tools.tests.test_daemon_dry_run.ScopeFromRealDiff.test_diff_unavailable_fails_closed) ... ok
+test_head_change_refreshes_the_scope (tools.tests.test_daemon_dry_run.ScopeFromRealDiff.test_head_change_refreshes_the_scope) ... ok
+test_lying_builder_cannot_hide_a_daemon_change (tools.tests.test_daemon_dry_run.ScopeFromRealDiff.test_lying_builder_cannot_hide_a_daemon_change) ... ok
+test_removing_the_new_paths_reopens_the_finding (tools.tests.test_daemon_dry_run.ScopeFromRealDiff.test_removing_the_new_paths_reopens_the_finding)
+Without the new immediate_audit_paths entries the rules PR is docs-only again: no audit, no count. ... ok
+test_rules_file_pr_is_immediate_audit_and_counted (tools.tests.test_daemon_dry_run.ScopeFromRealDiff.test_rules_file_pr_is_immediate_audit_and_counted) ... ok
+test_scope_is_the_adapters_diff_not_the_envelope (tools.tests.test_daemon_dry_run.ScopeFromRealDiff.test_scope_is_the_adapters_diff_not_the_envelope) ... ok
 test_absolute_backslash_glob_and_empty_paths_are_out_of_scope (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_absolute_backslash_glob_and_empty_paths_are_out_of_scope) ... ok
 test_dot_dot_is_refused_even_when_it_would_stay_inside (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_dot_dot_is_refused_even_when_it_would_stay_inside) ... ok
 test_dot_dot_that_leaves_the_allowed_directory_is_out_of_scope (tools.tests.test_daemon_dry_run.ScopePathsAreNormalized.test_dot_dot_that_leaves_the_allowed_directory_is_out_of_scope) ... ok
@@ -323,6 +333,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 299 tests in 73.821s
+Ran 306 tests in 73.149s
 
 OK

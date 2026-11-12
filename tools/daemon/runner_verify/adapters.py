@@ -480,6 +480,20 @@ class RealGit(Git):
     def base_sha(self, task_id):
         return self._git(["rev-parse", "refs/remotes/origin/main"]).stdout.strip()
 
+    def changed_paths(self, task_id, base_sha, head_sha):
+        """The real PR diff: merge-base(base, head)..head. --no-renames lists a rename as delete+add so both
+        paths are in scope. The builder's worktrees share this clone's object store, so its commits are visible
+        here without a push. An unanswerable query raises QueryUnavailable and the core fails closed (audit6)."""
+        if not (isinstance(base_sha, str) and base_sha and isinstance(head_sha, str) and head_sha):
+            raise QueryUnavailable("missing base/head sha")
+        base = self._git(["merge-base", base_sha, head_sha], check=False)
+        if base.returncode != 0:
+            raise QueryUnavailable((base.stderr or base.stdout).strip()[-200:])
+        res = self._git(["diff", "--name-only", "--no-renames", "-z", base.stdout.strip(), head_sha], check=False)
+        if res.returncode != 0:
+            raise QueryUnavailable((res.stderr or res.stdout).strip()[-200:])
+        return sorted(p for p in res.stdout.split("\0") if p)
+
 
 def classify_push_failure(res):
     text = (res.stderr or "") + (res.stdout or "")

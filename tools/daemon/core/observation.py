@@ -14,14 +14,16 @@ import json
 
 from . import transition_engine
 from .gate_evaluator import normalize_path, paths_within_scope, patterns_overlap
+from .ports import QueryUnavailable
 
 # ---- rules written in code (spec gaps)
 # G51: merge_wait.reason after each event that enters or stays in merge_wait (states.merge_wait is prose)
 REASON_AFTER = {"audit_not_required": "ready", "audit_pass": "ready", "decision_recorded": "ready",
                 "decision_pending": "decision_pending", "reviewer_unavailable": "reviewer_unavailable",
                 "auditor_unavailable": "auditor_unavailable"}
-# G51: docs-only PR (04 §2.2 row merged -> done: 'docs/** 뿐 또는 label docs-only')
-DOCS_ONLY_PATTERN, DOCS_ONLY_LABEL = "docs/**", "docs-only"
+# G51: docs-only PR (04 §2.2 row merged -> done). audit6-daemon-scope-from-real-diff: the scope is the Git
+# adapter's real diff, never the builder's touched_paths or its docs-only label; the label is recorded only.
+DOCS_ONLY_PATTERN = "docs/**"
 # G52: the noop each duplicated observation leaves (noop_events has the names, no noop_rules map them)
 DUPLICATE_NOOP = {"ci_passed": "ci_passed_duplicate", "pr_merged_observed": "pr_merged_observed_duplicate",
                   "merged_without_valid_approval": "pr_merged_observed_duplicate",
@@ -106,8 +108,8 @@ def _inside(path, patterns):
 
 
 def _clean_paths(paths):
-    """The normalized form of the touched paths that the PR record keeps (docs-only and immediate-audit checks
-    read it); accept_envelope has already checked every path."""
+    """The normalized, deduplicated form of a path list (the builder's claimed touched_paths, kept for the
+    claim-vs-diff diagnostic only; the PR record's scope comes from _diff_paths)."""
     out = []
     for raw in paths or []:
         path = normalize_path(raw)
@@ -116,29 +118,59 @@ def _clean_paths(paths):
     return out
 
 
+def _diff_paths(core, d, task_id, pr):
+    """audit6-daemon-scope-from-real-diff: the PR record's changed_paths is the Git adapter's real diff
+    (base...head), never the builder's reported touched_paths. A diff that cannot be computed (QueryUnavailable,
+    a malformed answer, an unsafe path) leaves the scope unknown: diff_unavailable closes the audit checks
+    (immediate audit required, never docs-only) instead of guessing an empty change."""
+    try:
+        raw = core.ports.git.changed_paths(task_id, pr["base_sha"], pr["head_sha"])
+    except QueryUnavailable:
+        raw = None
+    paths = [normalize_path(p) for p in raw] if isinstance(raw, list) else []
+    if not isinstance(raw, list) or any(p is None for p in paths):
+        pr["changed_paths"], pr["diff_unavailable"] = [], True
+        core.rec.diagnostic(d, task_id, "pr_diff_unavailable", base_sha=pr["base_sha"], head_sha=pr["head_sha"])
+        return
+    pr["changed_paths"] = list(dict.fromkeys(paths))
+    pr["diff_unavailable"] = False
+
+
+def _note_claimed_paths(core, d, task_id, pr, envelope):
+    """The builder's claim is recorded, not trusted: when it differs from the real diff the journal names both."""
+    if pr["diff_unavailable"]:
+        return
+    claimed = _clean_paths(envelope.get("touched_paths"))
+    if sorted(claimed) != sorted(pr["changed_paths"]):
+        core.rec.diagnostic(d, task_id, "pr_claimed_paths_differ", claimed_paths=claimed, diff_paths=pr["changed_paths"])
+
+
 def out_of_scope(core, task_id, touched):
     """Compatibility helper; shared predicate semantics live in gate_evaluator."""
     return not paths_within_scope(touched, core.ports.catalog.task(task_id))
 
 
 def on_pr_opened(core, d, task_id, envelope):
-    """The pull request record. concurrency.pr_dedup: an open pull request of the task is reused."""
+    """The pull request record. concurrency.pr_dedup: an open pull request of the task is reused. The scope
+    (changed_paths) is the Git adapter's real diff of the current head, not the envelope's touched_paths
+    (audit6-daemon-scope-from-real-diff); the claim is only compared against it for the journal."""
     lease = d["tasks"][task_id]["lease_record"] or {}
     pr = _pr(d, task_id)
     if pr is None:
         pr = {"pr_number": envelope.get("pr_number"), "head_sha": envelope.get("head_sha"), "base_sha": lease.get("base_sha"),
-              "changed_paths": _clean_paths(envelope.get("touched_paths")), "labels": list(envelope.get("labels") or []),
+              "changed_paths": [], "diff_unavailable": False, "labels": list(envelope.get("labels") or []),
               "review_results": [], "audit_results": [], "reviewer": None, "merge_wait_reason": None,
               "approved_head_sha": None, "approved_base_sha": None, "auditor_available": True}
         d["pr"][task_id] = pr
+        _diff_paths(core, d, task_id, pr)
+        _note_claimed_paths(core, d, task_id, pr, envelope)
         core.rec.diagnostic(d, task_id, "pr_record_created", pr_number=pr["pr_number"])
         return
-    for p in _clean_paths(envelope.get("touched_paths")):
-        if p not in pr["changed_paths"]:
-            pr["changed_paths"].append(p)
     if envelope.get("head_sha") and envelope["head_sha"] != pr["head_sha"]:
         _invalidate(core, d, task_id, pr)
         pr["head_sha"] = envelope["head_sha"]
+    _diff_paths(core, d, task_id, pr)
+    _note_claimed_paths(core, d, task_id, pr, envelope)
     core.rec.diagnostic(d, task_id, "pr_record_reused", pr_number=pr["pr_number"],
                         claimed_pr_number=envelope.get("pr_number"))
 
@@ -217,21 +249,35 @@ def _landing_gates_recorded(core, d, task_id):
     return set(gates) <= set(d["tasks"][task_id]["task_state"]["decisions_recorded"])
 
 
-def immediate_audit_required(core, d, task_id):
-    """audit_triggers.immediate_rules: changed paths ∩ immediate_audit_paths, or task.immediate_audit. The label
-    and body rules are prose and are not applied (G51)."""
-    pr = _pr(d, task_id)
+def _immediate_path_hit(core, pr):
     paths = core.rules.outside("audit_triggers.immediate_audit_paths")
-    if any(patterns_overlap(c, p) for c in pr["changed_paths"] for p in paths):
+    return any(patterns_overlap(c, p) for c in pr["changed_paths"] for p in paths)
+
+
+def immediate_audit_required(core, d, task_id):
+    """audit_triggers.immediate_rules: the real diff's paths ∩ immediate_audit_paths, or task.immediate_audit.
+    The label and body rules are prose and are not applied (G51). An unknown diff (diff_unavailable) fails
+    closed: a scope that cannot be computed is audited, never skipped (audit6-daemon-scope-from-real-diff)."""
+    pr = _pr(d, task_id)
+    if pr["diff_unavailable"]:
+        return True
+    if _immediate_path_hit(core, pr):
         return True
     return bool(core.ports.catalog.task(task_id).get("immediate_audit"))
 
 
-def docs_only(d, task_id):
+def docs_only(core, d, task_id):
+    """G51 (audit6-daemon-scope-from-real-diff): docs-only is computed from the real diff alone — every changed
+    path under docs/** and no immediate-audit path among them (a rules change under docs/** is still a contract
+    change). The builder's docs-only label is recorded in pr.labels but never trusted, and an unknown or empty
+    diff is never docs-only. The observation layer only passes this verdict as event.docs_only; the merged rows'
+    cond picks the destination."""
     pr = _pr(d, task_id)
-    if DOCS_ONLY_LABEL in pr["labels"]:
-        return True
-    return bool(pr["changed_paths"]) and all(patterns_overlap(c, DOCS_ONLY_PATTERN) for c in pr["changed_paths"])
+    if pr["diff_unavailable"] or not pr["changed_paths"]:
+        return False
+    if _immediate_path_hit(core, pr):
+        return False
+    return all(patterns_overlap(c, DOCS_ONLY_PATTERN) for c in pr["changed_paths"])
 
 
 def _eligible_reviewer(core, d, task_id):
@@ -247,7 +293,7 @@ def _eligible_reviewer(core, d, task_id):
 def _count_landing(core, d, task_id):
     """merged -> audit_queued (implementation PR, counter +1, periodic batch) or done (docs-only, no count). The
     event carries docs_only and the rows' cond on event.docs_only pick the destination; the count follows the row."""
-    out = _apply(core, d, task_id, "impl_counter_incremented", {"docs_only": docs_only(d, task_id)})
+    out = _apply(core, d, task_id, "impl_counter_incremented", {"docs_only": docs_only(core, d, task_id)})
     if out.get("transition") != ("merged", "audit_queued", "impl_counter_incremented"):
         return out
     audit = _audit(d)
@@ -441,6 +487,7 @@ def _observe(core, d, task_id, kind, p):
             return _duplicate(core, d, task_id, "head_sha_changed")
         _invalidate(core, d, task_id, pr)
         pr["head_sha"] = p["sha"]
+        _diff_paths(core, d, task_id, pr)  # the scope follows the head: re-read the real diff (audit6)
         if _has_row(core, _state(d, task_id), "head_sha_changed"):
             out = _apply(core, d, task_id, "head_sha_changed", {"sha": p["sha"]})
         else:

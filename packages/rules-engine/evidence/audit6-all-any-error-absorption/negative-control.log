@@ -1,0 +1,3 @@
+PASS: control-eager-error rejected by reversed_days_between_errors_are_absorbed_only_by_input_decisions (reversed-date Type error, exit 101)
+PASS: control-error-priority rejected by reversed_days_between_errors_are_absorbed_only_by_input_decisions (reversed-date Type error, exit 101)
+PASS: unchanged evaluator passes all 11 regressions; both mutations rejected.

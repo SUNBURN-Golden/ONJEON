@@ -1,0 +1,25 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit6-engine-all-any-error-absorption/packages/rules-engine/evidence/audit6-all-any-error-absorption/negative-control-l_2d76ar/Cargo.toml --test all_any_errors reversed_days_between_errors_are_absorbed_only_by_input_decisions
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit6-engine-all-any-error-absorption/packages/rules-engine/evidence/audit6-all-any-error-absorption/negative-control-l_2d76ar)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.12s
+     Running tests/all_any_errors.rs (packages/rules-engine/evidence/audit6-all-any-error-absorption/target/debug/deps/all_any_errors-4918e4f62d07d9d9)
+
+running 1 test
+test reversed_days_between_errors_are_absorbed_only_by_input_decisions ... FAILED
+
+failures:
+
+---- reversed_days_between_errors_are_absorbed_only_by_input_decisions stdout ----
+
+thread 'reversed_days_between_errors_are_absorbed_only_by_input_decisions' (3529727) panicked at tests/all_any_errors.rs:114:56:
+called `Result::unwrap()` on an `Err` value: Type { path: "eligibility.all[0].lt[0]", message: "days_between needs the first date on or before the second, found the second 1 day(s) earlier; compare the dates with lt/gt instead" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    reversed_days_between_errors_are_absorbed_only_by_input_decisions
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--test all_any_errors`
+
+Exit: 101

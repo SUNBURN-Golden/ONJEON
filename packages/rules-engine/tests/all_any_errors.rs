@@ -1,4 +1,4 @@
-//! Audits 2/3/4: a decisive all/any result must survive irrelevant child errors,
+//! Audits 2/3/4/6: a decisive all/any result must survive irrelevant child errors,
 //! independently of child order. Errors that can still affect the answer remain errors.
 use onjeon_rules_engine::{AmountOut, EvalError, Payout, Rule, Tri};
 use serde_json::{json, Value as J};
@@ -84,6 +84,134 @@ fn all_false_absorbs_runtime_errors_in_both_versions() {
 #[test]
 fn any_true_absorbs_runtime_errors_in_both_versions() {
     check_decisive_pairs("any", true);
+}
+
+fn days_comparison(inclusive_start: bool, inclusive_end: bool) -> J {
+    json!({"lt": [{"days_between": ["d", {"date": "1900-01-01"},
+        {"inclusive_start": inclusive_start, "inclusive_end": inclusive_end}]}, 90]})
+}
+
+#[test]
+fn reversed_days_between_errors_are_absorbed_only_by_input_decisions() {
+    for schema in ["rule-0.1", "rule-0.2"] {
+        for (op, decisive) in [("all", false), ("any", true)] {
+            for inclusive_start in [false, true] {
+                for inclusive_end in [false, true] {
+                    for error_index in 0..2 {
+                        let mut children = vec![json!("flag")];
+                        children
+                            .insert(error_index, days_comparison(inclusive_start, inclusive_end));
+                        let r = versioned_rule(schema, json!({op: children}));
+                        let failed_path = format!("eligibility.{op}[{error_index}]");
+                        let expected_error = EvalError::Type {
+                            path: format!("{failed_path}.lt[0]"),
+                            message: "days_between needs the first date on or before the second, \
+                                found the second 1 day(s) earlier; compare the dates with \
+                                lt/gt instead"
+                                .into(),
+                        };
+                        let data = json!({"d": "1900-01-02", "flag": decisive});
+                        let result = r.evaluate(&data).unwrap();
+                        assert_eq!(result.payout, expected_payout(decisive));
+                        assert_eq!(
+                            result.eligibility,
+                            if decisive { Tri::True } else { Tri::False }
+                        );
+                        assert!(result.missing_inputs.is_empty());
+                        let errors: Vec<_> = result
+                            .trace
+                            .iter()
+                            .filter(|entry| entry.result.starts_with("error: "))
+                            .collect();
+                        assert_eq!(errors.len(), 1);
+                        assert_eq!(errors[0].path, failed_path);
+                        assert_eq!(errors[0].op, "lt");
+                        assert_eq!(errors[0].result, format!("error: {expected_error}"));
+                        assert!(!result
+                            .trace
+                            .iter()
+                            .any(|entry| entry.path.starts_with(&format!("{failed_path}."))));
+                        assert!(result.trace.iter().any(|entry| entry.path == "eligibility"
+                            && entry.op == op
+                            && entry.result == decisive.to_string()));
+                        let reloaded = Rule::from_json_str(&r.source_json().to_string()).unwrap();
+                        assert_eq!(
+                            serde_json::to_vec(&result).unwrap(),
+                            serde_json::to_vec(&reloaded.evaluate(&data).unwrap()).unwrap()
+                        );
+
+                        // A neutral or unknown input cannot settle the result. Keep
+                        // the original reversed-date error, including its exact path.
+                        for data in [
+                            json!({"d": "1900-01-02", "flag": !decisive}),
+                            json!({"d": "1900-01-02", "flag": null}),
+                            json!({"d": "1900-01-02"}),
+                        ] {
+                            assert_eq!(r.evaluate(&data).unwrap_err(), expected_error);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn missing_date_blockers_survive_until_an_input_decides_all_any() {
+    for schema in ["rule-0.1", "rule-0.2"] {
+        for (op, decisive) in [("all", false), ("any", true)] {
+            for inclusive_start in [false, true] {
+                for inclusive_end in [false, true] {
+                    for error_index in 0..2 {
+                        let mut children = vec![json!("flag")];
+                        children
+                            .insert(error_index, days_comparison(inclusive_start, inclusive_end));
+                        let r = versioned_rule(schema, json!({op: children}));
+                        for (flag, missing) in [
+                            (json!(decisive), vec![]),
+                            (json!(!decisive), vec!["d"]),
+                            (J::Null, vec!["d", "flag"]),
+                        ] {
+                            let data = json!({"flag": flag});
+                            let result = r.evaluate(&data).unwrap();
+                            assert_eq!(result.missing_inputs, missing);
+                            if flag == json!(decisive) {
+                                assert_eq!(
+                                    result.eligibility,
+                                    if decisive { Tri::True } else { Tri::False }
+                                );
+                                assert_eq!(result.payout, expected_payout(decisive));
+                            } else {
+                                assert_eq!(result.eligibility, Tri::Unknown);
+                                assert_eq!(
+                                    result.payout,
+                                    Payout::Undetermined {
+                                        conditional_amount: AmountOut::Exact { krw: 100 }
+                                    }
+                                );
+                            }
+                            assert!(!result
+                                .trace
+                                .iter()
+                                .any(|entry| entry.result.starts_with("error: ")));
+                            let mut null_data = data.clone();
+                            null_data["d"] = J::Null;
+                            assert_eq!(
+                                serde_json::to_vec(&result).unwrap(),
+                                serde_json::to_vec(&r.evaluate(&null_data).unwrap()).unwrap()
+                            );
+                            if flag.is_null() {
+                                assert_eq!(
+                                    serde_json::to_vec(&result).unwrap(),
+                                    serde_json::to_vec(&r.evaluate(&json!({})).unwrap()).unwrap()
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 #[test]

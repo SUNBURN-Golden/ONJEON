@@ -1,0 +1,29 @@
+PASS: all changed/untracked deliverables are in allowed paths inside this worktree.
+PASS: protected documents are unchanged.
+PASS: runtime evaluator and shared fixtures are unchanged.
+PASS: git diff --check.
+PASS: 24 local links in the final Audit 6 record exist.
+PASS: engine README and 09 purpose table link to the Audit 6 record.
+Changed/untracked deliverables:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-11-13_engine_all_any_error_absorption.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/evidence/audit6-all-any-error-absorption/clippy.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/control-baseline.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/control-eager-error.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/control-error-priority.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/counts-write.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/counts.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/fmt.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/focused.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/negative-control.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/negative_control.py
+packages/rules-engine/evidence/audit6-all-any-error-absorption/ontology-runner.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/product-purpose.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/python-tests.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/scope.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/spec-check.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/status.log
+packages/rules-engine/evidence/audit6-all-any-error-absorption/workspace.log
+packages/rules-engine/tests/all_any_errors.rs

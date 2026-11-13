@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "tools"))
 
 from daemon.core.ports import PushFailed  # noqa: E402
-from daemon.runner_verify import cli_probe, registry, remote, reporting, static_checks  # noqa: E402
+from daemon.runner_verify import cli_probe, hook_pre_receive, registry, remote, reporting, static_checks  # noqa: E402
 from daemon.runner_verify.adapters import FileStore, ProcessFaults, PushRemote, RealGit, RemoteCredentials, classify_push_failure, exclude_pathspecs, token_sha  # noqa: E402
 from daemon.runner_verify.common import DEFAULT_RULES, Layout, ClockFile, group_members, open_handles, read_jsonl  # noqa: E402
 from daemon.runner_verify.context import Ctx  # noqa: E402
@@ -183,7 +183,12 @@ class RemoteTests(unittest.TestCase):
         ref = "refs/heads/task/T-MOCK-BASIC-a1"
         res = self.push(ref, "never-issued")
         self.assertIn("RV-REJECT permission_denied", res.stderr)
-        remote.register_token(self.path, token_sha("t-live"), "builder_write_credential", "T-MOCK-BASIC", "L1", 600)
+        layout = Layout(Path(self.tmp.name) / "authority").make()
+        with FileStore(layout).transaction() as d:
+            d["tasks"]["T-MOCK-BASIC"] = {"lease_record": {
+                "lease_id": "L1", "status": "active", "expires_at": ClockFile(layout.clock).now() + 600}}
+        remote.register_token(self.path, token_sha("t-live"), "builder_write_credential", "T-MOCK-BASIC", "L1", 600,
+                              lease_layout=layout)
         self.assertEqual(self.push(ref, "t-live").returncode, 0)
         remote.revoke_token(self.path, token_sha("t-live"))
         self.assertIn("RV-REJECT credential_revoked", self.push(ref, "t-live", force=True).stderr)
@@ -239,6 +244,9 @@ class PushRefspecGit(unittest.TestCase):
         remote.run_git(["add", "-A"], cwd=self.layout.clone, env=env)
         remote.run_git(["commit", "-q", "-m", "refspec fixture"], cwd=self.layout.clone, env=env)
         self.sha = remote.run_git(["rev-parse", "HEAD"], cwd=self.layout.clone, env=env).stdout.strip()
+        with FileStore(self.layout).transaction() as d:
+            d["tasks"]["T-MOCK-BASIC"] = {"lease_record": {
+                "lease_id": "L1", "status": "active", "expires_at": ClockFile(self.layout.clock).now() + 600}}
         self.credentials = RemoteCredentials(self.layout, str(self.path), 600)
         self.credentials.issue("builder_write_credential", "T-MOCK-BASIC", "L1")
         self.git = RealGit(self.layout, str(self.path), [], self.credentials)
@@ -305,6 +313,135 @@ class PushRefspecGit(unittest.TestCase):
         self.assertEqual(len(self.pushes(spy)), 1)
         last = self.decisions()[-1]
         self.assertEqual((last["decision"], last["reason"]), ("rejected", "permission_denied"))
+
+
+class CredentialLeaseFencing(unittest.TestCase):
+    """Audit 6: a 7200 s credential cannot authorize a builder after its 3600 s lease expires, even without
+    tick/restart/revoke. Exercise the actual credential issuer and pre-receive hook on a throwaway remote."""
+
+    def setUp(self):
+        from daemon.runner_verify.harness import BASIC, world
+        self.task = BASIC
+        self.w = self.enterContext(world())
+        self.w.init_task(self.task).result
+        self.w.grant(self.task).result
+        self.instr = self.w.latest_instruction(self.task)
+        self.assertTrue(self.issue()["issued"])
+        self.token = self.w.ports().credentials.token("builder_write_credential", self.task)
+        self.head = self.w.git(["rev-parse", "HEAD"]).stdout.strip()
+
+    def issue(self, name="builder_write_credential"):
+        return self.w.daemon("issue-credential", self.task, name, self.instr["lease_id"]).result
+
+    def push(self, token=None):
+        tree = self.w.git(["rev-parse", "HEAD^{tree}"]).stdout.strip()
+        self.head = self.w.git(["commit-tree", tree, "-p", self.head, "-m", "lease fencing fixture"]).stdout.strip()
+        return self.w.git(["push", str(self.w.remote), "--", f"{self.head}:refs/heads/{self.instr['branch']}"],
+                          check=False, env={"RV_PUSH_CREDENTIAL": token or self.token, "RV_PUSH_CLIENT": "builder"})
+
+    def assert_rejected(self, reason, token=None):
+        refs_before = self.w.remote_refs()
+        result = self.push(token)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("RV-REJECT " + reason, result.stderr)
+        self.assertEqual(self.w.remote_refs(), refs_before)
+        record = self.w.push_log()[-1]
+        self.assertEqual((record["event"], record["decision"], record["reason"]),
+                         ("pre_receive", "rejected", reason))
+
+    def test_expiry_blocks_direct_push_without_daemon_cleanup(self):
+        self.assertEqual(self.push().returncode, 0)
+        self.w.advance(self.w.ttl() + 1)
+        # The credential is still live on its independent real clock and the stored lease still says active.
+        with mock.patch.object(hook_pre_receive, "RV", str(self.w.remote / "rv")):
+            entry = hook_pre_receive.credential_state(self.token)
+            self.assertGreater(entry["expires_ns"], hook_pre_receive.time.time_ns())
+        self.assertEqual(self.w.lease(self.task)["status"], "active")
+        self.assertTrue(self.w.ports().credentials.is_active("builder_write_credential", self.task))
+        self.assert_rejected("lease_expired")
+
+    def test_exact_expiry_boundary_is_rejected(self):
+        expiry = self.w.lease(self.task)["expires_at"]
+        ref = "refs/heads/" + self.instr["branch"]
+        with mock.patch.object(hook_pre_receive, "RV", str(self.w.remote / "rv")):
+            with mock.patch.object(hook_pre_receive.time, "time", return_value=expiry - 1):
+                self.assertEqual(hook_pre_receive.decide(ref, self.token)[:2], ("accepted", "ok"))
+            with mock.patch.object(hook_pre_receive.time, "time", return_value=expiry):
+                self.assertEqual(hook_pre_receive.decide(ref, self.token)[:2], ("rejected", "lease_expired"))
+
+    def test_credential_expiry_still_blocks_a_live_lease(self):
+        ref = "refs/heads/" + self.instr["branch"]
+        with mock.patch.object(hook_pre_receive, "RV", str(self.w.remote / "rv")):
+            expiry = hook_pre_receive.credential_state(self.token)["expires_ns"]
+            with mock.patch.object(hook_pre_receive.time, "time_ns", return_value=expiry):
+                self.assertEqual(hook_pre_receive.decide(ref, self.token)[:2], ("rejected", "credential_expired"))
+
+    def test_heartbeat_renewal_keeps_the_same_credential_usable(self):
+        msg = self.w.envelope_msg(self.instr, "first_heartbeat")
+        self.assertTrue(self.w.submit(self.task, msg["msg_type"], msg["envelope"]).result["accepted"])
+        original_expiry = self.w.lease(self.task)["expires_at"]
+        self.w.advance(self.w.ttl() - 10)
+        msg = self.w.envelope_msg(self.instr, "heartbeat")
+        self.assertTrue(self.w.submit(self.task, msg["msg_type"], msg["envelope"]).result["accepted"])
+        self.assertGreater(self.w.lease(self.task)["expires_at"], original_expiry)
+        self.w.advance(20)
+        self.assertGreater(self.w.clock.now(), original_expiry)
+        self.assertEqual(self.push().returncode, 0)
+        self.w.advance(self.w.ttl())
+        self.assert_rejected("lease_expired")
+
+    def test_ended_and_replaced_leases_block_unrevoked_credentials(self):
+        original = self.w.lease(self.task)
+        for status in ("expired", "revoked", "returned"):
+            with self.subTest(status=status):
+                self.w.tamper(lambda d: d["tasks"][self.task]["lease_record"].update(status=status))
+                self.assert_rejected("lease_not_current_or_not_active")
+        self.w.tamper(lambda d: d["tasks"][self.task].update(
+            lease_record=dict(original, lease_id="replacement-lease", status="active")))
+        self.assert_rejected("lease_not_current_or_not_active")
+
+    def test_missing_or_malformed_authority_fails_closed(self):
+        original = self.w.layout.store.read_bytes()
+        for content in (None, b"{", b"null", b'{"tasks": {}}',
+                        b'{"tasks": {"T-MOCK-BASIC": {"lease_record": null}}}'):
+            with self.subTest(content=content):
+                if content is None:
+                    self.w.layout.store.unlink()
+                else:
+                    self.w.layout.store.write_bytes(content)
+                self.assert_rejected("lease_unavailable")
+                self.w.layout.store.write_bytes(original)
+        for content in ("{", "null", '{"offset": "NaN"}'):
+            with self.subTest(clock=content):
+                self.w.layout.clock.write_text(content, encoding="utf-8")
+                self.assert_rejected("lease_unavailable")
+
+    def test_malformed_lease_expiry_fails_closed(self):
+        for expiry in (None, "future", True, float("nan"), float("inf")):
+            with self.subTest(expiry=expiry):
+                self.w.tamper(lambda d: d["tasks"][self.task]["lease_record"].update(expires_at=expiry))
+                self.assert_rejected("lease_unavailable")
+
+    def test_unbound_builder_credential_fails_closed(self):
+        remote.register_token(self.w.remote, token_sha("unbound-fixture"), "builder_write_credential",
+                              self.task, self.instr["lease_id"], 7200)
+        self.assert_rejected("lease_unavailable", "unbound-fixture")
+
+    def test_expired_lease_cannot_obtain_or_replace_builder_credentials(self):
+        self.w.advance(self.w.ttl() + 1)
+        before = self.w.cred_log()
+        for name in ("builder_write_credential", "builder_token"):
+            with self.subTest(name=name):
+                self.assertEqual(self.issue(name), {"issued": False, "reason": "lease_expired"})
+        self.assertEqual(self.w.cred_log(), before)
+
+    def test_daemon_preserve_credential_can_write_after_lease_expiry(self):
+        self.w.advance(self.w.ttl() + 1)
+        self.w.ports().credentials.issue("preserve_credential", self.task, self.instr["lease_id"])
+        token = self.w.ports().credentials.token("preserve_credential", self.task)
+        self.assertEqual(self.push(token).returncode, 0)
+        remote.revoke_token(self.w.remote, token_sha(token))
+        self.assert_rejected("credential_revoked", token)
 
 
 class StatusRules(unittest.TestCase):

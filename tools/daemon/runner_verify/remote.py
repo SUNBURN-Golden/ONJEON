@@ -124,10 +124,13 @@ def refs(remote, home):
     return dict(line.split(" ", 1) for line in res.stdout.splitlines() if line)
 
 
-def register_token(remote, token_sha, name, task_id, lease_id, ttl_s):
+def register_token(remote, token_sha, name, task_id, lease_id, ttl_s, *, lease_layout=None):
+    """Record host-side authority; builder writes without a lease binding are rejected by the hook."""
     append_jsonl(Path(remote) / "rv" / "tokens.jsonl", {
         "op": "issue", "token_sha": token_sha, "name": name, "task_id": task_id, "lease_id": lease_id,
-        "ts_ns": now_ns(), "expires_ns": now_ns() + int(ttl_s * 1e9)})
+        "ts_ns": now_ns(), "expires_ns": now_ns() + int(ttl_s * 1e9),
+        **({"lease_store": str(lease_layout.store), "lease_clock": str(lease_layout.clock)}
+           if lease_layout is not None else {})})
 
 
 def revoke_token(remote, token_sha):

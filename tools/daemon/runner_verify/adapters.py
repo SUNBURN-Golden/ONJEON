@@ -150,8 +150,9 @@ def token_sha(token):
 
 class RemoteCredentials(Credentials):
     """Short-lived push credentials. issue() makes a random token, stores it where the builder host reads it and
-    registers it at the verification remote; revoke() marks it revoked at the remote and in the store. Every call
-    is appended to creds/log.jsonl with the real time (issue/revoke intervals are read from this log)."""
+    registers it at the verification remote, binding builder writes to the authoritative lease snapshot;
+    revoke() marks it revoked at the remote and in the store. Every call is appended to creds/log.jsonl with
+    the real time (issue/revoke intervals are read from this log)."""
 
     def __init__(self, layout, remote_path, ttl_s):
         self.layout, self.remote, self.ttl_s = layout, remote_path, ttl_s
@@ -183,7 +184,10 @@ class RemoteCredentials(Credentials):
                                              "issued_ns": now_ns(), "revoked_ns": None}
 
         self._mutate(put)
-        rv_remote.register_token(self.remote, token_sha(token), name, task_id, lease_id, self.ttl_s)
+        # Builder writes are fenced by the current lease at the remote, even when the daemon never ticks.
+        # Preserve credentials belong to the daemon's handoff and may need to write after the lease ends.
+        rv_remote.register_token(self.remote, token_sha(token), name, task_id, lease_id, self.ttl_s,
+                                 lease_layout=self.layout if name == "builder_write_credential" else None)
         append_jsonl(self.log, {"op": "issue", "name": name, "task_id": task_id, "lease_id": lease_id,
                                 "token_sha": token_sha(token)[:12], "ns": now_ns(), "pid": os.getpid()})
 

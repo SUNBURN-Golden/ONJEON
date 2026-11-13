@@ -3,7 +3,8 @@ stand-in builder. Standard library only.
 
 The clock is the real wall clock plus an offset kept in a file. The harness raises the offset to let a TTL or a
 grace period pass without waiting for it (and `sleep` runs a scaled fraction of the real time). Processes, files,
-git and the remote are real; only the daemon's reading of "now" is shifted. Every shift is written to the report.
+git and the remote are real; daemon time and the remote hook's lease-expiry checks use the shifted "now".
+Credential TTLs still use real time. Every shift is written to the report.
 """
 import contextlib
 import fcntl

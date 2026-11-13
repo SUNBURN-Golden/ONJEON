@@ -161,7 +161,7 @@ fn generated_files_are_up_to_date() {
 #[test]
 fn python_codegen_suite_passes() {
     let status = std::process::Command::new("python3")
-        .args(["-I", "-m", "unittest", "discover", "-s"])
+        .args(["-I", "-m", "unittest", "discover", "-v", "-s"])
         .arg(schemas_dir().join("codegen/tests"))
         .status()
         .expect("python3 is required to run the codegen suite");
@@ -174,6 +174,16 @@ fn compat_check_selftest_detects_a_deleted_field() {
     let status = std::process::Command::new("bash")
         .arg(schemas_dir().join("codegen/check_compat.sh"))
         .arg("--selftest")
+        .env("CARGO_NET_OFFLINE", "true")
+        .env(
+            "CARGO_TARGET_DIR",
+            schemas_dir()
+                .parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .join("target/compat-probe"),
+        )
         .status()
         .expect("bash is required to run the compat self-test");
     assert!(status.success(), "check_compat.sh --selftest failed");

@@ -1,7 +1,7 @@
-"""Real-format, synthetic-only corpus; no provider calls, commits or pushes.
+"""Real-format, synthetic-only corpus; no provider calls or remote pushes.
 
 Values are assembled at runtime so fixture source cannot be confused with a credential.
-The Git integration exercises only a temporary index and tree, never a commit or remote.
+Git integration creates local fixture commits only in a temporary repository, never a remote.
 """
 import contextlib
 import io
@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from daemon import scenarios as sc
 from daemon.core import Rules, secret_scan
+from daemon.core.ports import QueryUnavailable
 from daemon.mock_env import MockEnv
 from daemon.runner_verify import cli, secret_scan_preflight
 from daemon.runner_verify.secret_scan_preflight import CASES, corpus, non_secret
@@ -44,7 +45,7 @@ class SecretCorpus(unittest.TestCase):
     def test_corpus_labels_are_pinned(self):
         # Removing a format from corpus() must not silently remove it from the preflight too.
         self.assertEqual(set(corpus()), set(CASES))
-        self.assertEqual(len(corpus()), 29)
+        self.assertEqual(len(corpus()), 36)
 
     def test_real_format_corpus_is_detected_and_recursively_redacted(self):
         for label, value in corpus().items():
@@ -173,6 +174,83 @@ class SecretCorpus(unittest.TestCase):
                 self.assertEqual(secret_scan.count_in(self.pats, snapshot), 0)
 
 
+class HistoryScan(unittest.TestCase):
+    """preserve_history (audit6): a secret committed earlier and removed from the worktree is still
+    carried by the push, so the history the adapter reports is scanned at every preserve boundary.
+    An unreadable history fails closed: it must never push what it could not scan."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rules = Rules(json.loads(RULES.read_text(encoding="utf-8")))
+        cls.pats = secret_scan.patterns(cls.rules)
+
+    def test_secret_in_committed_history_stops_handoff(self):
+        env, path = sc.handoff_bench(str(RULES), str(TASKS))
+        env.ports.git.record_history("commit:" + "d" * 40, "wip\n+token = '" + "AKIA" + "Z" * 16 + "'\n")
+        env.clock.advance(1)
+        sc.switch(env)
+        self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"],
+                          env.lease(sc.HANDOFF)["status"]), ("returned", "R-10", "revoked"))
+        self.assertEqual((env.ports.git.commit_count, env.ports.git.push_count), (0, 0))
+        self.assertEqual(secret_scan.count_in(self.pats, env.journal()), 0)
+
+    def test_history_hit_is_also_caught_at_commit_and_push_boundaries(self):
+        # History that appears after confirm_quiescent is still caught at preserve_commit, and history
+        # that appears after the commit is still caught at preserve_push: nothing leaves unscanned.
+        secret = "sk-ant-" + "api03-" + "z" * 40
+        for clean_calls, commits, pushes in ((1, 0, 0), (2, 1, 0)):
+            with self.subTest(clean_calls=clean_calls):
+                env, path = sc.handoff_bench(str(RULES), str(TASKS))
+                calls = []
+
+                def history(worktree, base, _orig=env.ports.git.history_texts):
+                    calls.append(1)
+                    return {} if len(calls) <= clean_calls else {"commit:" + "e" * 40: "+ " + secret}
+
+                env.ports.git.history_texts = history
+                env.clock.advance(1)
+                sc.switch(env)
+                self.assertEqual((env.state(sc.HANDOFF), env.task(sc.HANDOFF)["task_state"]["return_code"]),
+                                 ("returned", "R-10"))
+                self.assertEqual((env.ports.git.commit_count, env.ports.git.push_count), (commits, pushes))
+                self.assertEqual(secret_scan.count_in(self.pats, env.journal()), 0)
+
+    def test_clean_history_does_not_stop_handoff(self):
+        env, path = sc.handoff_bench(str(RULES), str(TASKS))
+        env.ports.git.record_history("commit:" + "d" * 40, "wip\n+ordinary docs\n")
+        env.clock.advance(1)
+        sc.switch(env)
+        self.assertEqual(env.state(sc.HANDOFF), "leased")
+        self.assertEqual(env.ports.git.push_count, 1)
+
+    def test_unreadable_history_fails_closed(self):
+        # quiescence_failed retries (max_attempts 3) then stops at handoff_blocked: never pushed.
+        env, path = sc.handoff_bench(str(RULES), str(TASKS))
+        env.ports.git.inject("history_texts", [QueryUnavailable("no log")] * 6)
+        env.clock.advance(1)
+        sc.switch(env)
+        self.assertEqual(env.state(sc.HANDOFF), "handoff_blocked")
+        self.assertEqual((env.ports.git.commit_count, env.ports.git.push_count), (0, 0))
+
+    def test_unreadable_history_at_commit_or_push_boundary_fails_closed(self):
+        for clean_calls, commits in ((1, 0), (2, 1)):
+            with self.subTest(clean_calls=clean_calls):
+                env, _path = sc.handoff_bench(str(RULES), str(TASKS))
+                calls = []
+
+                def history(worktree, base):
+                    calls.append(1)
+                    if len(calls) > clean_calls:
+                        raise QueryUnavailable("unreadable history fixture")
+                    return {}
+
+                env.ports.git.history_texts = history
+                env.clock.advance(1)
+                sc.switch(env)
+                self.assertEqual(env.state(sc.HANDOFF), "handoff_blocked")
+                self.assertEqual((env.ports.git.commit_count, env.ports.git.push_count), (commits, 0))
+
+
 class ManifestExcludes(unittest.TestCase):
     def test_mock_manifest_excludes_env_variants_and_case_variants(self):
         env, path = sc.handoff_bench(str(RULES), str(TASKS))
@@ -227,6 +305,123 @@ class ManifestExcludes(unittest.TestCase):
                 self.assertEqual(set(git.included_files(layout.clone)), expected)
                 staged_after = git._git(["ls-files", "-s", "-z"], cwd=layout.clone).stdout
                 self.assertEqual(staged_after, staged_before)
+
+
+class RealGitScan(unittest.TestCase):
+    """The real adapter (audit6): included_files reads whole files (no 2 MB cap) and history_texts
+    returns the commits the push would carry. Git plumbing only: a temporary index/tree and local
+    commits in a scratch repo, never a remote or a product path."""
+
+    def _layout_git(self, tmp):
+        layout = Layout(tmp).make()
+        layout.clone.mkdir()
+        rules = Rules(json.loads(RULES.read_text(encoding="utf-8")))
+        git = RealGit(layout, "unused", rules.get("preserve_manifest.excludes"), None)
+        return layout, rules, git
+
+    def _whitelist(self, allowed):
+        run = subprocess.run
+
+        def local_git_only(args, **kwargs):
+            self.assertEqual(args[0], "git")
+            self.assertIn(args[1], allowed)
+            return run(args, **kwargs)
+
+        return mock.patch("subprocess.run", side_effect=local_git_only)
+
+    def test_included_files_reads_whole_file_beyond_two_mebibytes(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
+            layout, rules, git = self._layout_git(tmp)
+            with self._whitelist({"init", "add", "write-tree", "ls-files"}):
+                git._git(["init", "-q"], cwd=layout.clone)
+                # non-hex filler: only the secret near the end may match, proving the tail was read
+                big = "z" * 2_500_000 + "\ntoken = '" + "AKIA" + "Z" * 16 + "'\n"
+                (layout.clone / "big.txt").write_text(big, encoding="utf-8")
+                files = git.included_files(layout.clone)
+                self.assertEqual(files["big.txt"], big)
+                self.assertGreater(secret_scan.count(secret_scan.patterns(rules), files["big.txt"]), 0)
+
+    def test_history_texts_cover_message_and_patch_of_commits_the_push_carries(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
+            layout, rules, git = self._layout_git(tmp)
+            allowed = {"init", "add", "commit", "rev-parse", "write-tree", "ls-files", "log", "show"}
+            with self._whitelist(allowed):
+                git._git(["init", "-q", "-b", "main"], cwd=layout.clone)
+                (layout.clone / "src").mkdir()
+                (layout.clone / "src" / "clean.txt").write_text("clean\n", encoding="utf-8")
+                git._git(["add", "-A"], cwd=layout.clone)
+                git._git(["commit", "-qm", "base"], cwd=layout.clone)
+                base = git._git(["rev-parse", "HEAD"], cwd=layout.clone).stdout.strip()
+                secret = "AKIA" + "Z" * 16
+                (layout.clone / "src" / "creds.txt").write_text("token = '" + secret + "'\n",
+                                                                encoding="utf-8")
+                git._git(["add", "-A"], cwd=layout.clone)
+                git._git(["commit", "-qm", "add creds"], cwd=layout.clone)
+                # removing the file does not remove it from history: the push still carries it
+                (layout.clone / "src" / "creds.txt").unlink()
+                git._git(["add", "-A"], cwd=layout.clone)
+                git._git(["commit", "-qm", "remove creds"], cwd=layout.clone)
+                self.assertNotIn("src/creds.txt", git.included_files(layout.clone))
+                pats = secret_scan.patterns(rules)
+                texts = git.history_texts(layout.clone, base)
+                self.assertEqual(len(texts), 2)
+                self.assertTrue(all(k.startswith("commit:") for k in texts))
+                self.assertGreater(sum(secret_scan.count(pats, t) for t in texts.values()), 0)
+                # nothing the push would not carry is returned
+                self.assertEqual(git.history_texts(layout.clone, "HEAD"), {})
+
+    def test_unreadable_history_raises_query_unavailable(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
+            layout, _rules, git = self._layout_git(tmp)
+            with self._whitelist({"init"}):
+                git._git(["init", "-q"], cwd=layout.clone)
+            with self.assertRaises(QueryUnavailable):
+                git.history_texts(layout.clone, "0" * 40)
+
+    def test_history_scans_binary_and_diff_disabled_files_after_deletion(self):
+        # Git's normal patches hide binary blobs and paths marked -diff. A textconv driver can
+        # also hide raw credentials. Inspect original bytes, without invoking that driver.
+        for binary, attribute in ((False, "-diff"), (True, "-diff"), (False, "diff=fixture")):
+            with self.subTest(binary=binary, attribute=attribute), tempfile.TemporaryDirectory(dir=ROOT) as tmp:
+                layout, rules, git = self._layout_git(tmp)
+                allowed = {"init", "add", "commit", "rev-parse", "log", "show", "config"}
+                with self._whitelist(allowed):
+                    git._git(["init", "-q", "-b", "main"], cwd=layout.clone)
+                    git._git(["config", "diff.fixture.textconv", "false"], cwd=layout.clone)
+                    (layout.clone / ".gitattributes").write_text("*.dat " + attribute + "\n", encoding="utf-8")
+                    git._git(["add", "-A"], cwd=layout.clone)
+                    git._git(["commit", "-qm", "base"], cwd=layout.clone)
+                    base = git._git(["rev-parse", "HEAD"], cwd=layout.clone).stdout.strip()
+                    value = corpus()["github-oauth"]
+                    blob = (b"\x00\xff" if binary else b"") + value.encode() + b"\n"
+                    (layout.clone / "settings.dat").write_bytes(blob)
+                    git._git(["add", "-A"], cwd=layout.clone)
+                    git._git(["commit", "-qm", "add settings"], cwd=layout.clone)
+                    (layout.clone / "settings.dat").unlink()
+                    git._git(["add", "-A"], cwd=layout.clone)
+                    git._git(["commit", "-qm", "remove settings"], cwd=layout.clone)
+                    texts = git.history_texts(layout.clone, base)
+                    self.assertEqual(len(texts), 2)
+                    self.assertTrue(all(value in text for text in texts.values()))
+                    self.assertTrue(all(secret_scan.count(secret_scan.patterns(rules), text)
+                                        for text in texts.values()))
+
+    def test_history_scans_secret_in_commit_message(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
+            layout, rules, git = self._layout_git(tmp)
+            with self._whitelist({"init", "add", "commit", "rev-parse", "log", "show"}):
+                git._git(["init", "-q", "-b", "main"], cwd=layout.clone)
+                (layout.clone / "clean.txt").write_text("clean\n", encoding="utf-8")
+                git._git(["add", "-A"], cwd=layout.clone)
+                git._git(["commit", "-qm", "base"], cwd=layout.clone)
+                base = git._git(["rev-parse", "HEAD"], cwd=layout.clone).stdout.strip()
+                value = corpus()["anthropic"]
+                git._git(["commit", "--allow-empty", "-qm", "message fixture " + value], cwd=layout.clone)
+                texts = git.history_texts(layout.clone, base)
+                self.assertEqual(len(texts), 1)
+                text = next(iter(texts.values()))
+                self.assertIn(value, text)
+                self.assertGreater(secret_scan.count(secret_scan.patterns(rules), text), 0)
 
 
 class RunnerPreflight(unittest.TestCase):

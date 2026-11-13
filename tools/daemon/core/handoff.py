@@ -11,7 +11,8 @@ After a daemon restart the transitions decide where to resume (daemon_restart_du
 wip_commit_sha there, G31). The step functions below only do their own step.
 """
 from . import effects, lease as lease_mod, secret_scan
-from .ports import CommitFailed, DiskFullError, IndexLockError, PushFailed, SimulatedCrash, SpecGap
+from .ports import (CommitFailed, DiskFullError, IndexLockError, PushFailed, QueryUnavailable, SimulatedCrash,
+                    SpecGap)
 
 WAIT = "wait"
 HANDLED = "handled"  # the failure was already turned into transitions by the engine
@@ -40,6 +41,49 @@ def secret_files(core, path):
             flagged.append(rel)
             n += k
     return flagged, n
+
+
+def secret_history(core, task_id, path):
+    """secret_patterns.scan[preserve_history]: (commit labels that match, match count). The push carries
+    the commits base..HEAD with their messages and patches, so a secret committed earlier and removed
+    from the working tree is still caught (audit6-daemon-secret-patterns). Unlike files, a matching
+    commit cannot be excluded: the handoff stops with secret_detected. A base/history the adapter cannot
+    read is not proof of a clean history: CommitFailed becomes QueryUnavailable so callers fail closed;
+    IndexLockError and DiskFullError keep their own failure rows."""
+    pats = secret_scan.patterns(core.rules)
+    try:
+        base = core.ports.git.base_sha(task_id)
+        texts = core.ports.git.history_texts(path, base)
+    except CommitFailed as e:
+        raise QueryUnavailable(f"history base unreadable: {e.reason}") from e
+    flagged, n = [], 0
+    for label, text in sorted(texts.items()):
+        k = secret_scan.count(pats, text)
+        if k:
+            flagged.append(label)
+            n += k
+    return flagged, n
+
+
+def _secret_verdict(core, task_id, run_id, file_result, hist_result):
+    """(event, payload) to return, or None. Files flagged by preserve_files and commits flagged by
+    preserve_history together decide the one secret_detected event; scan_id names the scan points
+    that fired, match_count the total. The matched text is never recorded."""
+    state = core.snapshot()["tasks"][task_id]["task_state"]["state"]
+    matches, ids, args = 0, [], {}
+    for scan_id, key, (hits, n) in (("preserve_files", "files", file_result),
+                                    ("preserve_history", "commits", hist_result)):
+        spec = secret_scan.scan_spec(core.rules, scan_id)
+        if hits and n and state in spec["states"]:
+            args[key] = hits
+            matches += n
+            ids.append(scan_id)
+    if not ids:
+        return None
+    with core.ports.store.transaction() as d:
+        core.rec.result(d, task_id, run_id, "secret_detected", **args, match_count=matches)
+    event = core.rules.get("preserve_manifest.secret_patterns.on_match.event")
+    return (event, secret_scan.event_payload(core.rules, "+".join(ids), matches))
 
 
 def tree_oid(core, path, flagged):
@@ -103,16 +147,25 @@ def step_confirm_quiescent(core, task_id):
         return ("index_lock", {"owner_pid_alive": e.owner_pid_alive})
     except DiskFullError:
         return ("disk_full", {})
+    except CommitFailed:
+        return ("quiescence_failed", {"reason": "git_error"})
     if reasons:
         with core.ports.store.transaction() as d:
             core.rec.result(d, task_id, "confirm_quiescent", "not_quiescent", reasons=reasons)
         return ("quiescence_failed", {"reason": ",".join(reasons)})
-    spec = secret_scan.scan_spec(core.rules, "preserve_files")
-    if flagged and core.snapshot()["tasks"][task_id]["task_state"]["state"] in spec["states"]:
+    try:
+        verdict = _secret_verdict(core, task_id, "confirm_quiescent", (flagged, matches),
+                                  secret_history(core, task_id, path))
+    except QueryUnavailable:
         with core.ports.store.transaction() as d:
-            core.rec.result(d, task_id, "confirm_quiescent", "secret_detected", files=flagged, match_count=matches)
-        event = core.rules.get("preserve_manifest.secret_patterns.on_match.event")
-        return (event, secret_scan.event_payload(core.rules, "preserve_files", matches))
+            core.rec.result(d, task_id, "confirm_quiescent", "not_quiescent", reasons=["history_unavailable"])
+        return ("quiescence_failed", {"reason": "history_unavailable"})
+    except IndexLockError as e:
+        return ("index_lock", {"owner_pid_alive": e.owner_pid_alive})
+    except DiskFullError:
+        return ("disk_full", {})
+    if verdict:
+        return verdict
     with core.ports.store.transaction() as d:
         d["tasks"][task_id]["handoff_record"]["quiescent_tree_oid"] = o2
         core.rec.result(d, task_id, "confirm_quiescent", "quiescent", quiescent_tree_oid=o2)
@@ -127,7 +180,21 @@ def _commit_part(core, task_id):
     with core.ports.store.transaction() as d:
         core.rec.intent(d, task_id, "preserve_commit", quiescent_tree_oid=hr["quiescent_tree_oid"])
     try:
-        res = core.ports.git.preserve_commit(path, lease["branch"], msg, excludes=tuple(secret_files(core, path)[0]))
+        file_scan = secret_files(core, path)
+        verdict = _secret_verdict(core, task_id, "preserve_commit", file_scan,
+                                  secret_history(core, task_id, path))
+    except QueryUnavailable:
+        return ("preserve_commit_failed", {"reason": "history_unavailable"})
+    except IndexLockError as e:
+        return ("index_lock", {"owner_pid_alive": e.owner_pid_alive})
+    except DiskFullError:
+        return ("disk_full", {})
+    except CommitFailed as e:
+        return ("preserve_commit_failed", {"reason": e.reason})
+    if verdict:
+        return verdict
+    try:
+        res = core.ports.git.preserve_commit(path, lease["branch"], msg, excludes=tuple(file_scan[0]))
     except IndexLockError as e:
         return ("index_lock", {"owner_pid_alive": e.owner_pid_alive})
     except DiskFullError:
@@ -151,6 +218,17 @@ def _push_part(core, task_id):
     core.ports.faults.check("handoff:preserve:after_local_commit_recorded")
     with core.ports.store.transaction() as d:
         core.rec.intent(d, task_id, "preserve_push", wip_commit_sha=hr["wip_commit_sha"])
+    try:
+        verdict = _secret_verdict(core, task_id, "preserve_push", ([], 0),
+                                  secret_history(core, task_id, path))
+    except QueryUnavailable:
+        return ("preserve_push_failed", {"reason": "history_unavailable"})
+    except IndexLockError as e:
+        return ("index_lock", {"owner_pid_alive": e.owner_pid_alive})
+    except DiskFullError:
+        return ("disk_full", {})
+    if verdict:
+        return verdict
     try:
         ref = core.ports.git.push(lease["branch"], hr["wip_commit_sha"])
     except PushFailed as e:

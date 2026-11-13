@@ -1,0 +1,61 @@
+# focused round 3: secret scan + static checks (incl. new parse-once cache regressions)
+test_clean_history_does_not_stop_handoff (test_daemon_secret_scan.HistoryScan.test_clean_history_does_not_stop_handoff) ... ok
+test_history_hit_is_also_caught_at_commit_and_push_boundaries (test_daemon_secret_scan.HistoryScan.test_history_hit_is_also_caught_at_commit_and_push_boundaries) ... ok
+test_secret_in_committed_history_stops_handoff (test_daemon_secret_scan.HistoryScan.test_secret_in_committed_history_stops_handoff) ... ok
+test_unreadable_history_at_commit_or_push_boundary_fails_closed (test_daemon_secret_scan.HistoryScan.test_unreadable_history_at_commit_or_push_boundary_fails_closed) ... ok
+test_unreadable_history_fails_closed (test_daemon_secret_scan.HistoryScan.test_unreadable_history_fails_closed) ... ok
+test_mock_manifest_excludes_env_variants_and_case_variants (test_daemon_secret_scan.ManifestExcludes.test_mock_manifest_excludes_env_variants_and_case_variants) ... ok
+test_real_git_manifest_matches_mock_without_commits_or_pushes (test_daemon_secret_scan.ManifestExcludes.test_real_git_manifest_matches_mock_without_commits_or_pushes) ... ok
+test_history_scans_binary_and_diff_disabled_files_after_deletion (test_daemon_secret_scan.RealGitScan.test_history_scans_binary_and_diff_disabled_files_after_deletion) ... ok
+test_history_scans_secret_in_commit_message (test_daemon_secret_scan.RealGitScan.test_history_scans_secret_in_commit_message) ... ok
+test_history_texts_cover_message_and_patch_of_commits_the_push_carries (test_daemon_secret_scan.RealGitScan.test_history_texts_cover_message_and_patch_of_commits_the_push_carries) ... ok
+test_included_files_reads_whole_file_beyond_two_mebibytes (test_daemon_secret_scan.RealGitScan.test_included_files_reads_whole_file_beyond_two_mebibytes) ... ok
+test_unreadable_history_raises_query_unavailable (test_daemon_secret_scan.RealGitScan.test_unreadable_history_raises_query_unavailable) ... ok
+test_current_rules_cover_every_preflight_case (test_daemon_secret_scan.RunnerPreflight.test_current_rules_cover_every_preflight_case) ... ok
+test_empty_and_all_matching_patterns_are_rejected (test_daemon_secret_scan.RunnerPreflight.test_empty_and_all_matching_patterns_are_rejected) ... ok
+test_missing_or_invalid_patterns_stop_cli_before_any_scenario (test_daemon_secret_scan.RunnerPreflight.test_missing_or_invalid_patterns_stop_cli_before_any_scenario) ... ok
+test_preflight_rejects_rules_that_omit_bare_key_detection (test_daemon_secret_scan.RunnerPreflight.test_preflight_rejects_rules_that_omit_bare_key_detection) ... ok
+test_unreadable_and_malformed_rules_stop_cli (test_daemon_secret_scan.RunnerPreflight.test_unreadable_and_malformed_rules_stop_cli) ... ok
+test_bare_32_and_64_hex_keys_are_detected_not_exempted (test_daemon_secret_scan.SecretCorpus.test_bare_32_and_64_hex_keys_are_detected_not_exempted) ... ok
+test_corpus_is_redacted_before_journal_append (test_daemon_secret_scan.SecretCorpus.test_corpus_is_redacted_before_journal_append) ... ok
+test_corpus_labels_are_pinned (test_daemon_secret_scan.SecretCorpus.test_corpus_labels_are_pinned) ... ok
+test_corpus_rejects_result_signal_and_heartbeat_without_storing_values (test_daemon_secret_scan.SecretCorpus.test_corpus_rejects_result_signal_and_heartbeat_without_storing_values) ... ok
+test_corpus_stops_handoff_before_commit_or_push (test_daemon_secret_scan.SecretCorpus.test_corpus_stops_handoff_before_commit_or_push) ... ok
+test_digest_bearing_files_do_not_stop_handoff (test_daemon_secret_scan.SecretCorpus.test_digest_bearing_files_do_not_stop_handoff) ... ok
+test_digest_exemption_is_limited_to_its_own_value (test_daemon_secret_scan.SecretCorpus.test_digest_exemption_is_limited_to_its_own_value) ... ok
+test_mixed_digest_and_bare_key_stops_handoff_before_commit_or_push (test_daemon_secret_scan.SecretCorpus.test_mixed_digest_and_bare_key_stops_handoff_before_commit_or_push) ... ok
+test_nonsecret_boundaries_and_ordinary_digests_are_preserved (test_daemon_secret_scan.SecretCorpus.test_nonsecret_boundaries_and_ordinary_digests_are_preserved) ... ok
+test_real_format_corpus_is_detected_and_recursively_redacted (test_daemon_secret_scan.SecretCorpus.test_real_format_corpus_is_detected_and_recursively_redacted) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 9.646s
+
+OK
+
+test_builtins_mapping_and_attribute_access (test_daemon_static_checks.StaticBypasses.test_builtins_mapping_and_attribute_access) ... ok
+test_existing_scheduler_bans_still_hold (test_daemon_static_checks.StaticBypasses.test_existing_scheduler_bans_still_hold) ... ok
+test_finite_and_false_literal_loops_and_comments_are_allowed (test_daemon_static_checks.StaticBypasses.test_finite_and_false_literal_loops_and_comments_are_allowed) ... ok
+test_from_os_import_aliases_and_star (test_daemon_static_checks.StaticBypasses.test_from_os_import_aliases_and_star) ... ok
+test_module_members_and_reflection_use_allowlist (test_daemon_static_checks.StaticBypasses.test_module_members_and_reflection_use_allowlist) ... ok
+test_native_execution_imports (test_daemon_static_checks.StaticBypasses.test_native_execution_imports) ... ok
+test_only_canonical_checker_and_runner_directory_are_exempt (test_daemon_static_checks.StaticBypasses.test_only_canonical_checker_and_runner_directory_are_exempt) ... ok
+test_process_attributes_and_aliases (test_daemon_static_checks.StaticBypasses.test_process_attributes_and_aliases) ... ok
+test_reflective_forbidden_members (test_daemon_static_checks.StaticBypasses.test_reflective_forbidden_members) ... ok
+test_relative_forbidden_imports (test_daemon_static_checks.StaticBypasses.test_relative_forbidden_imports) ... ok
+test_reviewed_imports_and_aliases_are_allowed (test_daemon_static_checks.StaticBypasses.test_reviewed_imports_and_aliases_are_allowed) ... ok
+test_safe_operations_and_data_are_allowed (test_daemon_static_checks.StaticBypasses.test_safe_operations_and_data_are_allowed) ... ok
+test_same_named_files_are_checked (test_daemon_static_checks.StaticBypasses.test_same_named_files_are_checked) ... ok
+test_truthy_literal_loops_are_rejected (test_daemon_static_checks.StaticBypasses.test_truthy_literal_loops_are_rejected) ... ok
+test_unreviewed_imports_fail_closed (test_daemon_static_checks.StaticBypasses.test_unreviewed_imports_fail_closed) ... ok
+test_cli_input_errors_are_nonzero_and_explained (test_daemon_static_checks.StaticCli.test_cli_input_errors_are_nonzero_and_explained) ... ok
+test_cli_invalid_source_is_an_error (test_daemon_static_checks.StaticCli.test_cli_invalid_source_is_an_error) ... ok
+test_cli_rejects_planted_violations_without_executing_them (test_daemon_static_checks.StaticCli.test_cli_rejects_planted_violations_without_executing_them) ... ok
+test_no_arguments_runs_all_checks (test_daemon_static_checks.StaticCli.test_no_arguments_runs_all_checks) ... ok
+test_direct_checks_read_fresh_content_after_a_cached_run (test_daemon_static_checks.StaticSourceCache.test_direct_checks_read_fresh_content_after_a_cached_run) ... ok
+test_each_source_is_parsed_once_per_run (test_daemon_static_checks.StaticSourceCache.test_each_source_is_parsed_once_per_run) ... ok
+test_results_are_identical_across_runs_and_cache_is_released (test_daemon_static_checks.StaticSourceCache.test_results_are_identical_across_runs_and_cache_is_released) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 36.940s
+
+OK

@@ -52,7 +52,34 @@ def _py_files(root, include_self=False):
                   if (include_self or p.resolve() != Path(__file__).resolve()) and RUNNER_VERIFY not in p.resolve().parents)
 
 
+# One all_static() run reads and parses every source once and shares the results between the checks
+# (parsing the tree once per check made the CLI several times slower than needed). The cache is active
+# only inside all_static(): the sources do not change during a run, and a direct check call — a test
+# rewriting a probe file between calls — always reads fresh. Never enable it across runs.
+_SOURCES = None
+
+
+def _read(path):
+    path = Path(path)
+    if _SOURCES is not None:
+        entry = _SOURCES.get(path)
+        if entry is None:
+            entry = [path.read_text(encoding="utf-8"), None]
+            _SOURCES[path] = entry
+        return entry[0]
+    return path.read_text(encoding="utf-8")
+
+
 def _parse(path):
+    path = Path(path)
+    if _SOURCES is not None:
+        entry = _SOURCES.get(path)
+        if entry is None:
+            entry = [path.read_text(encoding="utf-8"), None]
+            _SOURCES[path] = entry
+        if entry[1] is None:
+            entry[1] = ast.parse(entry[0], filename=str(path))
+        return entry[1]
     return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
 
@@ -67,7 +94,7 @@ def no_natural_language_reads():
                     continue
                 if v in ("when", "note") or (v.startswith("_") and not v.startswith("__") and len(v) > 1):
                     bad.append(f"{p.name}:{node.lineno}: string {v!r}")
-    rules_src = (CORE / "rules.py").read_text(encoding="utf-8")
+    rules_src = _read(CORE / "rules.py")
     for m in re.finditer(r"""["'](when|note)["']""", rules_src):
         line = rules_src[: m.start()].count("\n") + 1
         text = rules_src.splitlines()[line - 1]
@@ -81,7 +108,7 @@ def outside_reads_only_in_observation():
     layer; no core module reads the raw file."""
     bad = []
     for p in _py_files(CORE):
-        src = p.read_text(encoding="utf-8")
+        src = _read(p)
         if p.name not in ("observation.py", "rules.py") and ".outside(" in src:
             bad.append(f"{p.name}: Rules.outside() outside the observation layer")
         if p.name != "rules.py" and re.search(r"\.raw\b", src):
@@ -92,7 +119,7 @@ def outside_reads_only_in_observation():
 def no_dry_run_branch_in_core():
     bad = []
     for p in _py_files(CORE):
-        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+        for i, line in enumerate(_read(p).splitlines(), 1):
             if re.search(r"dry[_ -]?run|mock", line, re.I):
                 bad.append(f"{p.name}:{i}: {line.strip()}")
     return bad
@@ -254,7 +281,7 @@ def no_scheduler_or_runner(root=HERE):
     """No start-up feature: no scheduler, loop-forever or process launching in the daemon sources."""
     bad = []
     for p in _py_files(root):
-        src = p.read_text(encoding="utf-8")
+        src = _read(p)
         for pat in (r"\bsched\b", r"apscheduler", r"cron", r"signal\.signal", r"os\.fork"):
             for m in re.finditer(pat, src):
                 bad.append(f"{p.name}: {pat}")
@@ -339,7 +366,7 @@ def no_cost_cap(rules_raw=None, tasks_path=None):
     behavior (events, transitions, lease_guards, instruction required list, hard_stop.trigger) name none."""
     bad = []
     for p in _py_files(CORE):
-        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+        for i, line in enumerate(_read(p).splitlines(), 1):
             if re.search(r"\b(?:budget|reserv|exhaust|cost_cap|max_cost|max_calls)", line, re.I):
                 bad.append(f"core/{p.name}:{i}: {line.strip()}")
     if tasks_path is not None:
@@ -364,7 +391,7 @@ def single_tree_identity_function():
     """No second hash definition: no sha256 etc., and tree hashing is only called from git_write_tree_oid."""
     bad = []
     for p in _py_files(HERE):
-        src = p.read_text(encoding="utf-8")
+        src = _read(p)
         for pat in (r"sha256", r"sha512", r"blake2", r"md5", r"crc32"):
             if re.search(pat, src):
                 bad.append(f"{p.name}: {pat}")
@@ -380,7 +407,7 @@ def single_tree_identity_function():
 
         visit(tree, None)
     for p in _py_files(CORE):
-        if "hashlib" in p.read_text(encoding="utf-8"):
+        if "hashlib" in _read(p):
             bad.append(f"core/{p.name}: hashlib in the core")
     return bad
 
@@ -389,7 +416,7 @@ def no_model_identifiers(extra_files=()):
     bad = []
     files = [p for p in HERE.rglob("*") if p.is_file() and p.suffix in (".py", ".json") and RUNNER_VERIFY not in p.parents] + [Path(x) for x in extra_files]
     for p in files:
-        text = p.read_text(encoding="utf-8").lower()
+        text = _read(p).lower()
         for w in _MODEL_WORDS:
             if re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", text):
                 bad.append(f"{p.name}: {w}")
@@ -397,8 +424,17 @@ def no_model_identifiers(extra_files=()):
 
 
 def all_static(rules_path, tasks_path=None):
+    global _SOURCES
     raw = json.loads(Path(rules_path).read_text(encoding="utf-8"))
     tasks_path = tasks_path or HERE / "mock_tasks.json"
+    _SOURCES = {}
+    try:
+        return _all_checks(raw, tasks_path)
+    finally:
+        _SOURCES = None
+
+
+def _all_checks(raw, tasks_path):
     return [
         ("코어가 when·note·_ 키를 읽지 않음", no_natural_language_reads()),
         ("읽기 목록 밖 값은 관측 계층의 Rules.outside()로만", outside_reads_only_in_observation()),

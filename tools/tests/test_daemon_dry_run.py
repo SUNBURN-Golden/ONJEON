@@ -64,6 +64,67 @@ def failing(checks):
     return [c for c in checks if c["status"] == sc.FAIL]
 
 
+class StoreCopy(unittest.TestCase):
+    """The store copies its whole state on every snapshot/transaction. The fast deep copy must stay
+    a deep copy: equal to the original, isolated from it, and faithful to the tuples the journal
+    holds (gate_evaluator GuardResult.items), not only to JSON."""
+
+    def _state(self):
+        return {"tasks": {"T": {"task_state": {"state": "building", "attempt": 2},
+                                "outbox": [{"lease_id": "L", "guards": ("a", "b")}]}},
+                "journal": [{"seq": 1, "kind": "transition_record",
+                             "cond_evaluated": [{"left": {"guards": ("g0", "g1")}}]}],
+                "nested": [({"k": [1, 2.5, True, None]},)]}
+
+    def test_copy_state_equals_deepcopy_and_preserves_tuples(self):
+        from daemon.mock_adapters import _copy_state
+        data = self._state()
+        out = _copy_state(data)
+        self.assertEqual(out, data)
+        self.assertEqual(out, copy.deepcopy(data))
+        self.assertIsInstance(out["journal"][0]["cond_evaluated"][0]["left"]["guards"], tuple)
+        self.assertIsInstance(out["nested"][0], tuple)
+
+    def test_copy_state_is_isolated(self):
+        from daemon.mock_adapters import _copy_state
+        data = self._state()
+        out = _copy_state(data)
+        out["tasks"]["T"]["task_state"]["state"] = "returned"
+        out["tasks"]["T"]["outbox"][0]["guards"] = ("changed",)
+        out["journal"].append({"seq": 2})
+        out["nested"][0][0]["k"].append(99)
+        self.assertEqual(data, self._state())
+
+    def test_snapshot_and_transaction_stay_isolated_and_keep_tuples(self):
+        from daemon.mock_adapters import MemoryStore
+        store = MemoryStore()
+        with store.transaction() as d:
+            d.update(self._state())
+        snap = store.snapshot()
+        self.assertEqual(snap, self._state())
+        self.assertIsInstance(snap["journal"][0]["cond_evaluated"][0]["left"]["guards"], tuple)
+        snap["tasks"]["T"]["task_state"]["state"] = "returned"
+        self.assertEqual(store.snapshot()["tasks"]["T"]["task_state"]["state"], "building")
+        # a committed transaction persists, and the tuple survives the copy
+        with store.transaction() as d:
+            d["tasks"]["T"]["outbox"][0]["guards"] = ("x",)
+        self.assertEqual(store.snapshot()["tasks"]["T"]["outbox"][0]["guards"], ("x",))
+        # a transaction that raises rolls back: all or nothing
+        with self.assertRaises(RuntimeError):
+            with store.transaction() as d:
+                d["tasks"]["T"]["outbox"][0]["guards"] = ("y",)
+                raise RuntimeError("boom")
+        self.assertEqual(store.snapshot()["tasks"]["T"]["outbox"][0]["guards"], ("x",))
+
+    def test_copy_state_matches_deepcopy_on_a_real_scenario_store(self):
+        from daemon.mock_adapters import _copy_state
+        env, _path = sc.handoff_bench(str(RULES), str(TASKS))
+        env.clock.advance(1)
+        sc.switch(env)
+        data = env.store.snapshot()
+        self.assertEqual(_copy_state(data), copy.deepcopy(data))
+
+
 class ScenarioResults(unittest.TestCase):
     pass
 

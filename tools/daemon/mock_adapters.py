@@ -17,6 +17,27 @@ from .core.ports import (
 )
 
 
+def _copy_state(value):
+    """Deep copy of the store's tree of JSON-like values (dict/list/tuple/scalars).
+
+    snapshot/transaction copy the whole persisted state on every call, and copy.deepcopy's
+    per-object dispatch dominates the run time. Special-casing the container types the store
+    actually holds is several times faster and is still a deep copy; any other type falls back
+    to copy.deepcopy. The state is a tree (no cycles), so no memo table is needed. Dict keys are
+    hashable, hence immutable, and are reused as-is.
+    """
+    t = type(value)
+    if t is dict:
+        return {k: _copy_state(v) for k, v in value.items()}
+    if t is list:
+        return [_copy_state(v) for v in value]
+    if t is tuple:
+        return tuple(_copy_state(v) for v in value)
+    if value is None or t in (str, int, float, bool):
+        return value
+    return copy.deepcopy(value)
+
+
 class VirtualClock(Clock):
     """clock.now() / advance(seconds) / set(ts). advance ticks one virtual second at a time so that
     mock processes write while time passes."""
@@ -55,7 +76,7 @@ class MemoryStore(Store):
         with self._lock:
             if self._dispatching:
                 raise RuntimeError("store mutation during remote dispatch")
-            work = copy.deepcopy(self._data)
+            work = _copy_state(self._data)
             yield work
             self._data = work  # reached only when the body did not raise: all or nothing
 
@@ -66,13 +87,13 @@ class MemoryStore(Store):
                 raise RuntimeError("nested remote dispatch")
             self._dispatching = True
             try:
-                yield copy.deepcopy(self._data)
+                yield _copy_state(self._data)
             finally:
                 self._dispatching = False
 
     def snapshot(self):
         with self._lock:
-            return copy.deepcopy(self._data)
+            return _copy_state(self._data)
 
     def tamper(self, fn):
         """Fault injection: change the persisted state the way a crash or a bad write would."""
@@ -211,6 +232,7 @@ class MockGit(Git):
         self.commits = {}
         self.remote = {}
         self.pr_diffs = {}  # (task_id, base_sha, head_sha) -> the commit's real changed paths (bench ground truth)
+        self.history = {}  # label -> committed text the preserve push would carry (bench ground truth, like pr_diffs)
         self.injected = {}
         self.commit_count = 0
         self.push_count = 0
@@ -274,6 +296,16 @@ class MockGit(Git):
 
     def included_files(self, worktree, excludes=()):
         return {rel: e["content"] for rel, e in self._included(worktree, tuple(excludes)).items()}
+
+    # --- the already-committed history the push carries (audit6-daemon-secret-patterns). The mock worktree
+    # has no commit objects of its own, so the registry is the mock world's ground truth: a test seeds it
+    # with record_history and the core scans it exactly like the real adapter's base..HEAD log.
+    def record_history(self, label, text):
+        self.history[label] = text
+
+    def history_texts(self, worktree, base_sha):
+        self._maybe_fail("history_texts")
+        return dict(self.history)
 
     def git_write_tree_oid(self, worktree, includes=None, excludes=()):
         self.oid_calls += 1

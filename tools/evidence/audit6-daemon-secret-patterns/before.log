@@ -1,0 +1,11 @@
+missing_cases on HEAD rules: 6
+  missing-format:github-oauth
+  missing-format:github-user-to-server
+  missing-format:github-refresh
+  missing-format:anthropic
+  missing-format:url-userinfo
+  missing-format:url-userinfo-short
+bytes returned: 2000000 of 2500028
+tail secret seen by scan: False
+has history_texts: False
+audit-listed shapes already detected on HEAD: github-fine-grained, github-app, github-classic, aws-session, aws-long-lived, aws-secret-key-40, r2-env, r2-access-id, s3-secret-key, bearer-opaque, json-token, bare-r2-key-64, cloudflare, slack

@@ -36,8 +36,12 @@ python3 -m unittest tools/tests/test_daemon_static_checks.py -v
 | `static_checks.py` | 병합 API·네트워크·CLI·벽시계·스케줄러·두 번째 해시·모델 식별자·비용 상한이 없음, 세대 대입은 `issue_lease` 안에서만 |
 | `spec_gaps.py` | 명세 공백 목록과 코어가 택한 해석 |
 
-비밀값 검사는 R2/S3/AWS 자격 이름이 붙은 32/64자리 hex, R2 환경변수·JSON 대입, AWS AKIA·ASIA,
-GitHub ghp_·ghs_·github_pat_, Bearer와 기존 Cloudflare·Slack·개인키 형식을 검사한다.
+비밀값 검사는 R2/S3/AWS 자격 이름이 붙은 32/64자리 hex, R2 환경변수·JSON 대입, AWS AKIA·ASIA·자격 이름이 붙은
+40자 비밀키, GitHub ghp_·gho_·ghu_·ghs_·ghr_·github_pat_, Anthropic sk-ant-, URL 자격(scheme://user:token@),
+Bearer와 기존 Cloudflare·Slack·개인키 형식을 검사한다. 보존 대상 파일은 크기 상한 없이 전체를 읽고,
+`preserve_history`는 푸시가 싣는 이력(base..HEAD)의 커밋 메시지·패치도 검사한다. 이미 커밋된 비밀은 작업 트리에서
+지워도 푸시로 새어 나가므로 커밋·푸시 직전에 다시 검사하며, 이력을 읽지 못하면 닫힌 쪽으로 실패한다
+(`quiescence_failed`/`preserve_commit_failed`/`preserve_push_failed`의 `history_unavailable`).
 `excludes`는 깊이와 무관한 파일명 glob이며 대소문자를 구분하지 않는다.
 끝이 `/`인 패턴은 디렉터리 구성요소를 제외하고, `.env`와 `.env.*`는 로컬·운영 변형을 제외한다.
 32/64자리 hex는 `*_ACCESS_KEY_ID`·`*_SECRET_ACCESS_KEY` 같은 R2/S3/AWS credential 이름 바로 뒤에서와

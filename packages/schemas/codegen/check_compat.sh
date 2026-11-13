@@ -35,7 +35,9 @@ probe() {
   local out rc=0
   out="$(mktemp -d "$tmp/probe.XXXXXX")"
   compat --probe "$out" --prev "$1" --new "$2" ${lock[@]+"${lock[@]}"} >/dev/null || return 2
-  (cd "$out" && cargo run --quiet) || rc=$?
+  # Select the toolchain from this checkout, even when the probe lives outside its rustup
+  # directory override. --manifest-path still builds/runs the throwaway crate's own workspace.
+  (cd "$repo" && cargo run --quiet --manifest-path "$out/Cargo.toml") || rc=$?
   case "$rc" in
     0|1) return "$rc" ;;
     *) echo "error: compile probe could not be built or run (cargo exit $rc)" >&2; return 2 ;;

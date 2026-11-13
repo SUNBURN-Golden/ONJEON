@@ -339,11 +339,11 @@ class RealGit(Git):
         self.env.update(extra_env or {})
 
     # ---- plumbing
-    def _git(self, args, cwd=None, env=None, check=True, timeout=120):
+    def _git(self, args, cwd=None, env=None, check=True, timeout=120, errors=None):
         full = dict(self.env)
         full.update(env or {})
         res = subprocess.run(["git"] + list(args), cwd=cwd or self.clone, env=full, capture_output=True, text=True,
-                             timeout=timeout)
+                             timeout=timeout, errors=errors)
         if check and res.returncode != 0:
             self._raise(res)
         return res
@@ -410,9 +410,29 @@ class RealGit(Git):
                     out[path] = os.readlink(full)
                 else:
                     with open(full, "rb") as f:
-                        out[path] = f.read(2_000_000).decode("utf-8", errors="replace")
+                        out[path] = f.read().decode("utf-8", errors="replace")
             except OSError:
                 out[path] = ""
+        return out
+
+    def history_texts(self, worktree, base_sha):
+        """The commits the preserve push adds: base..HEAD, message and patch text per commit (label
+        `commit:<sha>`). -m shows a diff for each parent of a merge, --first-parent keeps it to the
+        branch's own side. Force raw text even for binary/-diff paths and disable textconv: Git's
+        presentation defaults must not hide credentials. Invalid UTF-8 bytes are replaced, leaving
+        ASCII credential shapes intact. An unreadable range raises QueryUnavailable: the push is
+        then refused, never sent unscanned."""
+        res = self._git(["log", "--format=%H", "-z", f"{base_sha}..HEAD"], cwd=worktree, check=False)
+        if res.returncode != 0:
+            raise QueryUnavailable((res.stderr or res.stdout).strip()[-200:])
+        out = {}
+        for sha in filter(None, res.stdout.split("\0")):
+            show = self._git(["show", "-m", "--first-parent", "--no-color", "--no-ext-diff",
+                              "--no-textconv", "--text", "--format=%B", "--patch", sha],
+                             cwd=worktree, check=False, errors="replace")
+            if show.returncode != 0:
+                raise QueryUnavailable((show.stderr or show.stdout).strip()[-200:])
+            out[f"commit:{sha}"] = show.stdout
         return out
 
     # ---- Git port

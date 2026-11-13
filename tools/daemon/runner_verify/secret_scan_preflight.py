@@ -34,9 +34,16 @@ CASES = (
     "mixed-case-assignment",
     "aws-long-lived",
     "aws-session",
+    "aws-secret-key-40",
     "github-classic",
     "github-fine-grained",
     "github-app",
+    "github-oauth",
+    "github-user-to-server",
+    "github-refresh",
+    "anthropic",
+    "url-userinfo",
+    "url-userinfo-short",
     "bearer-opaque",
     "bearer-jwt",
     "bearer-alphabet",
@@ -74,9 +81,18 @@ def corpus():
         "mixed-case-assignment": 'r2_Secret_Access_Key = "' + opaque + '"',
         "aws-long-lived": "AKIA" + "Z" * 16,
         "aws-session": "ASIA" + "Z" * 16,
+        # A labelled AWS secret access key is 40 base64-ish characters, not hex: "/" and "+" included.
+        "aws-secret-key-40": "AWS_SECRET_ACCESS_KEY=" + "A" * 38 + "/+",
         "github-classic": "ghp_" + "z" * 36,
         "github-fine-grained": "github_pat_" + "z" * 22 + "_" + "y" * 59,
         "github-app": "ghs_" + "z" * 36,
+        "github-oauth": "gho_" + "z" * 36,
+        "github-user-to-server": "ghu_" + "z" * 36,
+        "github-refresh": "ghr_" + "z" * 36,
+        "anthropic": "sk-ant-" + "api03-" + "z" * 40,
+        # Credentials in a URL userinfo, with a long and a short ("user:tok@") token.
+        "url-userinfo": "https" + "://" + "builder" + ":" + opaque + "@" + "host.invalid/path",
+        "url-userinfo-short": "git" + "://" + "u" + ":" + "tok" + "@" + "h",
         "bearer-opaque": "Authorization: Bearer " + opaque,
         "bearer-jwt": "Bearer " + ".".join(["eyJ" + "z" * 24] * 3),
         "bearer-alphabet": "bearer " + "z" * 20 + ".~+/-_==",
@@ -115,6 +131,12 @@ def non_secret():
         "sha256-line": "sha256:" + hex64,
         "tree-hash": 'tree_hash = "' + hex32 + '"',
         "content-hash": '"content_hash": "' + hex64 + '"',
+        # URLs that carry no userinfo credential: no colon before the host, a port is not a password,
+        # and a lone user@ is not a user:token pair.
+        "url-no-userinfo": "https" + "://" + "example.invalid/path",
+        "url-port-no-at": "git://127.0.0.1:9/blocked.git",
+        "url-user-only": "ssh://git@host.invalid/repo.git",
+        "scp-like-remote": "git@example.invalid:x/y.git",
     }
 
 

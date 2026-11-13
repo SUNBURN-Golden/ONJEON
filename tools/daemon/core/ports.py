@@ -120,7 +120,15 @@ class Git(ABC):
 
     @abstractmethod
     def included_files(self, worktree, excludes=()):
-        """{relative path: content} of the files the tree identity function would put into the tree."""
+        """{relative path: content} of the files the tree identity function would put into the tree.
+        Contents are returned whole: no size cap, so a secret anywhere in a file is seen."""
+
+    @abstractmethod
+    def history_texts(self, worktree, base_sha):
+        """{commit:<sha>: message + patch text} of the commits base..HEAD the preserve push would carry.
+        A secret committed earlier and removed from the working tree is still pushed with the history,
+        so it is scanned too. Raise QueryUnavailable when the history cannot be read; the core fails
+        closed (it must not push what it could not scan)."""
 
     @abstractmethod
     def push(self, branch, sha): ...

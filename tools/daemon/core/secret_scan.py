@@ -1,6 +1,9 @@
-"""preserve_manifest.secret_patterns (G38): the three scan points and the redaction of journal text.
+"""preserve_manifest.secret_patterns (G38): the scan points and the redaction of journal text.
 
-Matched text is never stored: a match leaves only scan_id, match_count and the file path or field name.
+preserve_files scans the files the tree identity function includes (whole contents, no size cap) and
+preserve_history the commits base..HEAD the push carries (message and patch text), both at handoff;
+result_envelope and journal_text cover envelopes and recorded strings. Matched text is never stored:
+a match leaves only scan_id, match_count and the file path or field name.
 Patterns come from the rule data, including quoted JSON assignments and provider token shapes.
 R2/S3/AWS 32/64-hex keys are matched next to a credential name and also as bare values. A digest of
 the same length is not a credential, so a bare hex match is skipped only when a checksum or hash

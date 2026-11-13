@@ -1,0 +1,26 @@
+test_history_scans_binary_and_diff_disabled_files_after_deletion (tools.tests.test_daemon_secret_scan.RealGitScan.test_history_scans_binary_and_diff_disabled_files_after_deletion) ... 
+  test_history_scans_binary_and_diff_disabled_files_after_deletion (tools.tests.test_daemon_secret_scan.RealGitScan.test_history_scans_binary_and_diff_disabled_files_after_deletion) (binary=False) ... FAIL
+  test_history_scans_binary_and_diff_disabled_files_after_deletion (tools.tests.test_daemon_secret_scan.RealGitScan.test_history_scans_binary_and_diff_disabled_files_after_deletion) (binary=True) ... FAIL
+
+======================================================================
+FAIL: test_history_scans_binary_and_diff_disabled_files_after_deletion (tools.tests.test_daemon_secret_scan.RealGitScan.test_history_scans_binary_and_diff_disabled_files_after_deletion) (binary=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-secret-patterns/tools/tests/test_daemon_secret_scan.py", line 386, in test_history_scans_binary_and_diff_disabled_files_after_deletion
+    self.assertTrue(all(value in text for text in texts.values()))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_history_scans_binary_and_diff_disabled_files_after_deletion (tools.tests.test_daemon_secret_scan.RealGitScan.test_history_scans_binary_and_diff_disabled_files_after_deletion) (binary=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-secret-patterns/tools/tests/test_daemon_secret_scan.py", line 386, in test_history_scans_binary_and_diff_disabled_files_after_deletion
+    self.assertTrue(all(value in text for text in texts.values()))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 0.399s
+
+FAILED (failures=2)

@@ -321,8 +321,10 @@
         "(?:AKIA|ASIA)[0-9A-Z]{16}",
         "-----BEGIN [A-Z ]*PRIVATE KEY-----",
         "(?i)(?:api[_-]?key|secret(?:[_-]access[_-]key)?|access[_-]key[_-]id|token|password)['\"]?\\s*[:=]\\s*['\"]?[A-Za-z0-9_/+~=-]{16,}",
-        "(?:ghp_|ghs_)[A-Za-z0-9]{36}",
+        "(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,}",
         "github_pat_[A-Za-z0-9_]{82}",
+        "sk-ant-[A-Za-z0-9_-]{20,}",
+        "[A-Za-z][A-Za-z0-9+.\\-]{0,31}://[^/\\s?#:@]+:[^/\\s?#@]+@",
         "(?i)\\bBearer[ \\t]+[A-Za-z0-9._~+/-]{16,}=*",
         "(?i)(?:r2|s3|aws|cloudflare|cf)[_-]?(?:secret[_-]?access[_-]?key|access[_-]?key(?:[_-]?id)?)['\"]?\\s*[:=]\\s*['\"]?(?:[A-Fa-f0-9]{64}|[A-Fa-f0-9]{32})(?![A-Za-z0-9_])",
         "(?<![A-Za-z0-9_])(?:[A-Fa-f0-9]{64}|[A-Fa-f0-9]{32})(?![A-Za-z0-9_])",
@@ -331,8 +333,16 @@
       "scan": [
         {
           "id": "preserve_files",
-          "target": "contents of the files in preserve_manifest.includes",
+          "target": "contents of the files in preserve_manifest.includes; every included file is read whole (no size cap)",
           "at": "handoff.confirm_quiescent",
+          "states": [
+            "handoff"
+          ]
+        },
+        {
+          "id": "preserve_history",
+          "target": "commit messages and patch text of the commits the preserve push adds (base..HEAD)",
+          "at": "handoff.confirm_quiescent, and again before preserve_commit/preserve_push sends anything",
           "states": [
             "handoff"
           ]
@@ -370,7 +380,7 @@
         ],
         "never_record": "the matched text; only scan_id, match_count and the file path or field name"
       },
-      "_note": "G21. 패턴은 값의 모양만 적는다. 실제 비밀값은 어디에도 적지 않는다"
+      "_note": "G21. 패턴은 값의 모양만 적는다. 실제 비밀값은 어디에도 적지 않는다. Audit6: gho_·ghu_·ghr_·sk-ant-·URL 자격(scheme://user:token@) 형식을 더하고, preserve_history가 이미 커밋된 이력(base..HEAD의 메시지·패치)까지 검사하며, 파일 크기 상한은 없다"
     }
   },
   "handoff_failure_policy": {

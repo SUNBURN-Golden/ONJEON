@@ -1,0 +1,6 @@
+# HEAD baseline (ee9331b) tools/daemon: parse count and wall time of one all_static() run
+# baseline extracted with: git archive HEAD tools/daemon docs/.../daemon_rules.json | tar -x -C /tmp/audit6-baseline
+ast.parse calls: 160 over 24 distinct files (max per file: 7)
+all_static wall time: 2.841s (load average at measurement: see uptime; machine was shared)
+checks: 13, failed: 0
+# the CLI test spawns this run 10x with a 30s per-process timeout; under full-suite load one run exceeded it

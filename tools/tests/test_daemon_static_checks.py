@@ -161,6 +161,51 @@ data = {"eval": "description", "system": "label"}
                 self.assertTrue(self.check_source(source, static_checks.no_scheduler_or_runner))
 
 
+class StaticSourceCache(unittest.TestCase):
+    """audit6 round 3: one all_static() run parses each source once (the CLI timed out under load when
+    every check re-parsed the whole tree). The cache must not change results, must end with the run,
+    and must never serve a direct check call stale content."""
+
+    def test_each_source_is_parsed_once_per_run(self):
+        import ast
+        original = ast.parse
+        filenames = []
+
+        def counting(source, *args, **kwargs):
+            filenames.append(kwargs.get("filename"))
+            return original(source, *args, **kwargs)
+
+        static_checks.ast.parse = counting
+        try:
+            static_checks.all_static(RULES)
+        finally:
+            static_checks.ast.parse = original
+        self.assertTrue(filenames)
+        self.assertEqual(len(filenames), len(set(filenames)), filenames)
+        self.assertEqual(set(filenames), {str(p) for p in static_checks._py_files(static_checks.HERE)})
+
+    def test_results_are_identical_across_runs_and_cache_is_released(self):
+        first = static_checks.all_static(RULES)
+        self.assertIsNone(static_checks._SOURCES)
+        second = static_checks.all_static(RULES)
+        self.assertIsNone(static_checks._SOURCES)
+        self.assertEqual(first, second)
+        self.assertEqual(sum(bool(v) for _name, v in first), 0, first)
+
+    def test_direct_checks_read_fresh_content_after_a_cached_run(self):
+        static_checks.all_static(RULES)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "probe.py"
+            path.write_text("x = 1\n", encoding="utf-8")
+            self.assertEqual(static_checks.no_network_or_cli(Path(directory)), [])
+            path.write_text('__builtins__["eval"]("1")\n', encoding="utf-8")
+            self.assertTrue(static_checks.no_network_or_cli(Path(directory)))
+            # _parse outside a run must also see the rewrite, not a cached tree.
+            path.write_text("import ctypes\n", encoding="utf-8")
+            tree = static_checks._parse(path)
+            self.assertEqual(tree.body[0].names[0].name, "ctypes")
+
+
 class StaticCli(unittest.TestCase):
     def run_cli(self, script, *arguments):
         # A different cwd and isolated Python exercise path defaults and the standalone entry point.

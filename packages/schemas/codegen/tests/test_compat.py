@@ -5,15 +5,18 @@
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 REPO_LOCK = HERE.parents[3] / "Cargo.lock"
+PROBE_TARGET = REPO_LOCK.parent / "target" / "compat-probe"
 
 import compat  # noqa: E402
 import schema_model as sm  # noqa: E402
@@ -233,8 +236,13 @@ class CheckCompatScript(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.target = tempfile.mkdtemp()
-        cls.env = {**os.environ, "CARGO_TARGET_DIR": os.environ.get("CARGO_TARGET_DIR", str(sm.SCHEMAS_DIR.parent.parent / "target" / "compat-probe"))}
+        # Stay under the checkout so its rustup directory override also selects Cargo in the
+        # throwaway repositories. Keep nested builds away from the caller's workspace build lock.
+        PROBE_TARGET.mkdir(parents=True, exist_ok=True)
+        cls.target = tempfile.mkdtemp(dir=PROBE_TARGET.parent)
+        # `cargo test --offline` does not propagate that flag to a new Cargo process. In particular,
+        # the no-lockfile regression must resolve from the installed cache, never wait on a registry.
+        cls.env = {**os.environ, "CARGO_TARGET_DIR": str(PROBE_TARGET), "CARGO_NET_OFFLINE": "true"}
 
     @classmethod
     def tearDownClass(cls):
@@ -258,9 +266,30 @@ class CheckCompatScript(unittest.TestCase):
             subprocess.run([*git, "-C", str(root), "tag", "contracts-0.1.0"], check=True)
         return root, dst
 
-    def run_check(self, root, dst, *args):
-        p = subprocess.run(["bash", str(dst / "codegen" / "check_compat.sh"), *args], capture_output=True, text=True, env=self.env, cwd=root)
-        return p.returncode, p.stdout + p.stderr
+    def run_check(self, root, dst, *args, timeout=120):
+        with subprocess.Popen(["bash", str(dst / "codegen" / "check_compat.sh"), *args],
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                              env=self.env, cwd=root, start_new_session=True) as p:
+            try:
+                stdout, stderr = p.communicate(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                # Cargo is a grandchild of this shell. Killing just the shell leaves a build
+                # running with the target lock held, so terminate the group and reap the shell.
+                os.killpg(p.pid, signal.SIGKILL)
+                stdout, stderr = p.communicate()
+                self.fail(f"check_compat.sh timed out after {timeout}s\n{stdout}{stderr}")
+            return p.returncode, stdout + stderr
+
+    def test_timeout_stops_child_build_and_reports_its_output(self):
+        root, dst = self.repo()
+        (dst / "codegen" / "check_compat.sh").write_text(
+            "python3 -c 'import time; print(\"probe started\", flush=True); time.sleep(10)'\n",
+            encoding="utf-8")
+        started = time.monotonic()
+        with self.assertRaisesRegex(self.failureException, r"(?s)timed out.*probe started"):
+            self.run_check(root, dst, "--selftest", timeout=1)
+        # communicate() would wait for the child's inherited output pipe if only bash were killed.
+        self.assertLess(time.monotonic() - started, 5)
 
     @staticmethod
     def bump(dst, version):
@@ -275,7 +304,7 @@ class CheckCompatScript(unittest.TestCase):
         self.assertIn("compatible with contracts-0.1.0", out)
 
     def test_selftest_runs_without_a_repository_lockfile(self):
-        """No Cargo.lock: the probe resolves serde itself. The script's empty `--lock` argument list must
+        """No Cargo.lock: the probe resolves serde from the offline cache. The empty `--lock` list must
         expand to nothing under `set -u` (bash before 4.4 fails on an empty array), so the self-test still runs."""
         root, dst = self.repo(tagged=False, lockfile=False)
         self.assertFalse((root / "Cargo.lock").exists())

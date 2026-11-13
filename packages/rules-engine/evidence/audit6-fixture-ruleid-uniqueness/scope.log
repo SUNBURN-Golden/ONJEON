@@ -1,0 +1,32 @@
+PASS: all tracked and untracked changes are in allowed paths.
+PASS: protected documents, shared fixtures and engine runtime source are unchanged.
+PASS: audit evidence links resolve; git diff --check is clean.
+Changed files:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-11-14_engine_fixture_ruleid_uniqueness.md
+docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+packages/rules-engine/README.md
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/baseline.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/clippy.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/counts-write.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/counts.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/engine.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/fmt.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/missing-duplicate-guard.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/missing-filename-guard.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/missing-merged-inventory-guard.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/missing-shared-inventory-guard.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/missing-supplement-inventory-guard.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/negative-control.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/negative_control.py
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/ontology-runner.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/product-purpose.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/python-in-tree-tmp.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/python-tempfile-recheck.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/python.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/scope.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/spec-check.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/status.log
+packages/rules-engine/evidence/audit6-fixture-ruleid-uniqueness/workspace.log
+packages/rules-engine/tests/common/mod.rs
+packages/rules-engine/tests/harness_guards.rs

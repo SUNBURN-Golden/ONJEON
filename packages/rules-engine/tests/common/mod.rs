@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use onjeon_rules_engine::Rule;
 use serde_json::{json, Map, Value as J};
-use std::collections::BTreeMap;
+use std::collections::{btree_map::Entry, BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
 // Deliberate inventory: losing a rule file must not shrink invariant coverage silently.
@@ -52,13 +52,70 @@ pub fn case_file_in(shared: &Path, supplements: &Path, relative: &Path) -> J {
     let mut file = load_json(&shared_path);
     let uses_base = file.get("base").is_some();
     validate_case_keys(&file, uses_base, &shared_path);
+    validate_rule_ids(&file, &shared_path, file["rule_id"].as_str());
     let supplement = supplements.join(relative);
     if supplement.exists() {
         let extra = load_json(&supplement);
         validate_case_keys(&extra, uses_base, &supplement);
+        validate_rule_ids(&extra, &supplement, file["rule_id"].as_str());
         extend_case_file(&mut file, &extra, relative);
+        // Supplements inherit the shared declaration, including its allowed rule IDs.
+        validate_rule_ids(&file, &supplement, file["rule_id"].as_str());
     }
     file
+}
+
+/// An optional multi-rule inventory must name exactly the rules exercised by the
+/// table. Check before merging too, so supplements cannot hide lost shared coverage.
+fn validate_rule_ids(file: &J, path: &Path, default_rule_id: Option<&str>) {
+    let Some(ids) = file.get("rule_ids") else {
+        return;
+    };
+    let ids = ids
+        .as_array()
+        .filter(|ids| !ids.is_empty())
+        .unwrap_or_else(|| panic!("{}: rule_ids must be a nonempty array", path.display()));
+    let mut declared = BTreeSet::new();
+    for (index, id) in ids.iter().enumerate() {
+        let id = id
+            .as_str()
+            .filter(|id| !id.trim().is_empty())
+            .unwrap_or_else(|| {
+                panic!(
+                    "{}: rule_ids[{index}] must be a nonblank string",
+                    path.display()
+                )
+            });
+        assert!(
+            declared.insert(id),
+            "{}: duplicate rule_ids entry `{id}`",
+            path.display()
+        );
+    }
+    let mut exercised = BTreeSet::new();
+    for (index, case) in file["cases"]
+        .as_array()
+        .expect("validated cases")
+        .iter()
+        .enumerate()
+    {
+        let id = case["rule"]
+            .as_str()
+            .or(default_rule_id)
+            .unwrap_or_else(|| panic!("{}: cases[{index}] names no rule", path.display()));
+        assert!(
+            declared.contains(id),
+            "{}: cases[{index}] rule `{id}` is not declared in rule_ids",
+            path.display()
+        );
+        exercised.insert(id);
+    }
+    assert_eq!(
+        declared,
+        exercised,
+        "{}: rule_ids must equal the rules exercised by cases",
+        path.display()
+    );
 }
 
 /// Case fields are format-specific: accepting an unused field can hide a misspelled
@@ -159,6 +216,12 @@ pub fn real_rules_in(dir: &Path) -> BTreeMap<String, Rule> {
         let name = p.file_name().unwrap().to_string_lossy().to_string();
         if name.ends_with(".json") && !name.ends_with(".cases.json") {
             let rule = Rule::from_json(&load_json(&p)).unwrap_or_else(|e| panic!("{name}: {e}"));
+            let entry = match out.entry(rule.rule_id().to_string()) {
+                Entry::Vacant(entry) => entry,
+                Entry::Occupied(entry) => {
+                    panic!("{}: duplicate rule_id `{}`", p.display(), entry.key())
+                }
+            };
             assert_eq!(
                 p.file_stem().and_then(|s| s.to_str()),
                 Some(rule.rule_id()),
@@ -166,7 +229,7 @@ pub fn real_rules_in(dir: &Path) -> BTreeMap<String, Rule> {
                 p.display(),
                 rule.rule_id()
             );
-            out.insert(rule.rule_id().to_string(), rule);
+            entry.insert(rule);
         }
     }
     out

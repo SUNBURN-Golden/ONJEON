@@ -1,5 +1,4 @@
-# generated from parent commit 439cbadc45e895059c3f1ecad43f6131639a7725 + tree hash of tools/daemon sources sha256:c0ad4f4af70dd7c2b5f7bdb85ede4c33e58d5fc834c33ea3ae1b68dceb2ba581
-# merge input main commit ee9331b3660d033b2dcf09df1e5344c081815497
+# generated from parent commit a51a495a6eb2a8518825e1f7951ea915aa10a088 + tree hash of tools/daemon sources sha256:e43581e34b264518b04c8a5d4f569d787d2391ad74757fd118897e351d5618c0
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]
   [PASS] 정상 흐름 전이 열: queued→…→merge_wait
       기대: [["blocked", "queued", "prereqs_satisfied"], ["queued", "leased", "lease_granted"], ["leased", "building", "first_heartbeat"], ["building", "pr_open", "result_pr_opened"], ["pr_open", "review_pending", "ci_passed"], ["review_pending", "review_in_progress", "reviewer_assigned"], ["review_in_progress", "review_approved", "review_approved"], ["review_approved", "merge_wait", "audit_not_required"]]

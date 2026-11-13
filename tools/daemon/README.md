@@ -72,6 +72,16 @@ outbox 발송(`resend_outbox`)은 검사 트랜잭션 → 발송(트랜잭션 �
 
 행에 `on_cond_fail`이 없고 거짓인 가드가 전부 `wait`이면 전이 엔진은 결과에 `guard_wait`를 단다. `engine._txn`은 그 사건의 트랜잭션 전체를 버린다(`core_contract.operations.issue_lease.on_guard_wait`, `transaction: rollback`). 카운터·`inbox_seen`·가드 평가가 만든 다음 세대 사용량 슬롯·결과 사용량(`usage_retry` 포함)은 남지 않는다. `keep_diagnostics`(`guard_failed`·`cond_not_met`)와 `guard_wait_rolled_back` 진단만 새 트랜잭션에 쓴다. 결과는 `accepted: false`, `reason: guard_wait`다. 실제 실행기의 파일 큐(`runner_verify/daemon_main.py` drain)는 이런 봉투를 inbox에 남겨 다음 drain에서 다시 넣는다. 계약에 rollback이나 필수 이름이 없으면 코어가 시작하지 않는다(`GuardWaitRollsBack`, M30). [Audit 2 트랜잭션 수정·검증 증거](../../docs/blueprint/audits/2026-10-27_daemon_guard_fail_partial_commit.md).
 
+수신 봉투와 `fenced_write` 요청의 필수 식별자는 자료형도 검사한다(audit6-daemon-type-confusion).
+`lease_generation`·`fencing_token`·필수 `attempt`는 정확한 `int`만 허용하며 `bool`·`float`·문자열은
+R-13 `required_missing`으로 거부한다. 필수 `task_id`·`lease_id`·`envelope_id`는 공백 아닌 `str`이어야 한다.
+거부된 입력은 상태·임대·`inbox_seen`·원격 쓰기를 바꾸지 않아 수정 재전송할 수 있다.
+술어 `==`·`!=`도 자료형을 구분하며 목록·사전 안의 값까지 적용한다. 따라서 수신기 임대 검사도
+`true`·`1.0`을 세대 `1`로 인정하지 않는다. 중복 키는 검증된 식별자로만 만들고 정상 키의 기존 형식을
+유지하여 저장된 중복 방지 기록을 계속 쓴다. push·PR 갱신은 같은 `envelope_id`의 처리 키를 공유하므로
+내용이나 사건 종류를 바꿔 재전송해도 재시작 뒤까지 한 번만 실행한다. 서로 다른 ID는 별도 요청이다.
+[Audit 6 수정·검증 증거](../evidence/audit6-daemon-type-confusion/README.md).
+
 ## 관측 계층(명세 공백 G51~G55)
 
 PR 이후 전이(전이표 43~85행)는 대부분 `cond`가 없다. `blocked→queued`(prereqs_satisfied)는 선행 과제와 시작 관문을 모두 `cond`로 코어가 평가한다: `prereq_tasks_in(post_merge_states) == true`(`core/observation.py`의 같은 함수, 읽기 목록 밖 `post_merge_states`는 `Rules.outside()`로만)와 `task.decision_gates.start subset_of task_state.decisions_recorded`. 관측 계층은 선행 과제가 찼을 때만 사건을 내며, 기록되지 않은 start 결정이 있거나 start가 목록이 아니면(null·누락) 과제는 `blocked`에 남고 `cond_not_met` 진단에 그 게이트가 남는다. 사건을 직접 넣어도 같다(`StartGateEnforcement`, [audit1-start-gates-enforcement](../../docs/decisions/audit1-start-gates-enforcement.md); 선행 과제 쪽은 `PrereqAndMergeGateCond`). 병합 관문도 merge_wait로 들어가는 행(review_approved·audit_pending → merge_wait의 ready·decision_pending, merge_wait 사유 갱신)의 `cond` `task.decision_gates.merge subset_of` / `not_subset_of task_state.decisions_recorded`다. 관측 계층이 사건을 고르고 행의 cond가 같은 관문을 다시 본다(audit2-spec-check-reads-prose-when). 어떤 사건을 낼지 정하는 규칙은 `when` 문장, `audit_triggers.immediate_rules[].rule`, `record_separation.merge_observation_fields._rule` 같은 문장이거나 읽기 목록 밖에 있다. 코어가 문장을 읽지 않으므로 `core/observation.py`가 04 §2.2·§4·§5의 규칙을 코드로 적용한다. 행이 하는 일은 여전히 전이표가 정한다. 이 해석은 모두 `spec_gaps.py`의 G51~G55에 적었고, 설계 담당이 구조화 필드로 옮기면 이 모듈을 그 필드를 읽도록 바꾼다.

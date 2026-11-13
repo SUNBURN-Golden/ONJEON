@@ -121,7 +121,7 @@ def check_write(core, d, task_id, event, request, claimed=False):
     t = d["tasks"][task_id]
     key = ev.dedup_key(core.rules, task_id, event, request)
     funcs = {
-        "request.required": lambda _a: [f for f in spec["required_fields"] if request.get(f) is None],
+        "request.required": lambda _a: ev.invalid_fields(request, spec["required_fields"]),
         "inbox_seen[key]": lambda _a: t["inbox_seen"].get(key),
         "push_refspec_valid": lambda _a: push_refspec_valid(request, t.get("lease_record") or {}),
     }

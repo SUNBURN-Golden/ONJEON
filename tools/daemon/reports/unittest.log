@@ -1,5 +1,4 @@
-# generated from parent commit 439cbadc45e895059c3f1ecad43f6131639a7725 + tree hash of tools/daemon sources sha256:c0ad4f4af70dd7c2b5f7bdb85ede4c33e58d5fc834c33ea3ae1b68dceb2ba581
-# merge input main commit ee9331b3660d033b2dcf09df1e5344c081815497
+# generated from parent commit a51a495a6eb2a8518825e1f7951ea915aa10a088 + tree hash of tools/daemon sources sha256:e43581e34b264518b04c8a5d4f569d787d2391ad74757fd118897e351d5618c0
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -67,6 +66,13 @@ test_removing_the_cond_reopens_the_finding (tools.tests.test_daemon_dry_run.Docs
 Without the cond the first row wins: the docs-only PR goes to audit_queued and is counted. ... ok
 test_rows_sharing_from_and_event_are_told_apart_by_cond (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_rows_sharing_from_and_event_are_told_apart_by_cond) ... ok
 test_the_core_picks_the_row_from_the_event (tools.tests.test_daemon_dry_run.DocsOnlyLandingCond.test_the_core_picks_the_row_from_the_event) ... ok
+test_bool_and_float_replay_cannot_be_accepted_twice (tools.tests.test_daemon_dry_run.EnvelopeIdentityTypes.test_bool_and_float_replay_cannot_be_accepted_twice) ... ok
+test_identity_fields_reject_wrong_types_without_consuming_the_id (tools.tests.test_daemon_dry_run.EnvelopeIdentityTypes.test_identity_fields_reject_wrong_types_without_consuming_the_id) ... ok
+test_invalid_identity_has_no_dedup_key_and_valid_keys_stay_compatible (tools.tests.test_daemon_dry_run.EnvelopeIdentityTypes.test_invalid_identity_has_no_dedup_key_and_valid_keys_stay_compatible) ... ok
+test_predicate_equality_is_type_strict_including_nested_values (tools.tests.test_daemon_dry_run.EnvelopeIdentityTypes.test_predicate_equality_is_type_strict_including_nested_values) ... ok
+test_receiver_does_not_start_for_bool_or_float_fencing_fields (tools.tests.test_daemon_dry_run.EnvelopeIdentityTypes.test_receiver_does_not_start_for_bool_or_float_fencing_fields) ... ok
+test_result_and_signal_attempt_is_an_int (tools.tests.test_daemon_dry_run.EnvelopeIdentityTypes.test_result_and_signal_attempt_is_an_int) ... ok
+test_text_envelope_ids_remain_opaque_and_distinct (tools.tests.test_daemon_dry_run.EnvelopeIdentityTypes.test_text_envelope_ids_remain_opaque_and_distinct) ... ok
 test_every_waiting_guard_returns_immediately_before_retry_limit (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_every_waiting_guard_returns_immediately_before_retry_limit) ... ok
 test_fallback_comes_from_rule_data (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_fallback_comes_from_rule_data) ... ok
 test_guard_field_also_uses_the_row_fallback (tools.tests.test_daemon_dry_run.FailedTestsGuardFallback.test_guard_field_also_uses_the_row_fallback) ... ok
@@ -89,6 +95,8 @@ test_push_adapter_requires_the_requests_lease_credential (tools.tests.test_daemo
 test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_error_keeps_committed_identity_and_does_not_repeat_ambiguous_write) ... ok
 test_remote_observes_committed_identity_and_transition_outside_transaction (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_remote_observes_committed_identity_and_transition_outside_transaction) ... ok
 test_replay_is_a_noop_even_after_core_restart (tools.tests.test_daemon_dry_run.FencedWriteDedup.test_replay_is_a_noop_even_after_core_restart) ... ok
+test_invalid_identity_never_writes_or_claims_the_request (tools.tests.test_daemon_dry_run.FencedWriteIdentityTypes.test_invalid_identity_never_writes_or_claims_the_request) ... ok
+test_replay_deduplicates_by_envelope_id_with_changed_payload_and_event (tools.tests.test_daemon_dry_run.FencedWriteIdentityTypes.test_replay_deduplicates_by_envelope_id_with_changed_payload_and_event) ... ok
 test_g37_unmapped_condition_ends_an_active_lease (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g37_unmapped_condition_ends_an_active_lease) ... ok
 test_g38_secret_during_handoff (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g38_secret_during_handoff) ... ok
 test_g39_index_lock_owner_alive (tools.tests.test_daemon_dry_run.FollowupBehavior.test_g39_index_lock_owner_alive) ... ok
@@ -333,6 +341,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 306 tests in 73.149s
+Ran 315 tests in 226.711s
 
 OK

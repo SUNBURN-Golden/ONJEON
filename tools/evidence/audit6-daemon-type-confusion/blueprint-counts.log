@@ -1,0 +1,3 @@
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 249, "tamper_tests": 40, "vocabulary_axes": 49}
+
+exit_code=0

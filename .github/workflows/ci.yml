@@ -47,6 +47,8 @@ jobs:
         env:
           ONJEON_ONTOLOGY_RUNNER: ${{ runner.temp }}/onto/debug/ontology-case-runner
         run: python3 -m unittest discover -s tools/tests -v
+      - name: Daemon builder credentials expire with the lease (local verification remote only)
+        run: python3 -m unittest tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing -v
       - name: Toolchain
         run: rustup component add rustfmt clippy
       - name: Format

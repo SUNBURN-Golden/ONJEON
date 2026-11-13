@@ -74,13 +74,15 @@ def op_drain(layout, core, args):
 
 
 def op_issue_credential(layout, core, args):
-    """The builder host asks for its credentials after its receiver-side validation. Only the current, active lease
-    gets them: a replaced lease cannot obtain a credential any more."""
+    """The builder host asks for its credentials after receiver-side validation. Only the current, active,
+    unexpired lease gets them, including when no tick has yet cleaned up an expired lease."""
     lease = core.current_lease(args.task)
     if not lease or lease.get("status") != "active" or lease.get("lease_id") != args.lease_id:
         return {"issued": False, "reason": "lease_not_current_or_not_active"}
     if args.name not in ("builder_write_credential", "builder_token"):
         return {"issued": False, "reason": "name_not_issuable_to_builder"}
+    if core.clock.now() >= lease["expires_at"]:
+        return {"issued": False, "reason": "lease_expired"}
     core.ports.credentials.issue(args.name, args.task, lease["lease_id"])
     return {"issued": True, "lease_id": lease["lease_id"]}
 

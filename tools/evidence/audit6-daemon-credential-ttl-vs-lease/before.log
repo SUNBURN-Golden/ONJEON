@@ -1,0 +1,62 @@
+HEAD hook and issue-credential implementation; new regression tests retained.
+test_expiry_blocks_direct_push_without_daemon_cleanup (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expiry_blocks_direct_push_without_daemon_cleanup) ... FAIL
+test_expired_lease_cannot_obtain_or_replace_builder_credentials (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expired_lease_cannot_obtain_or_replace_builder_credentials) ... 
+  test_expired_lease_cannot_obtain_or_replace_builder_credentials (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expired_lease_cannot_obtain_or_replace_builder_credentials) (name='builder_write_credential') ... FAIL
+  test_expired_lease_cannot_obtain_or_replace_builder_credentials (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expired_lease_cannot_obtain_or_replace_builder_credentials) (name='builder_token') ... FAIL
+test_expired_lease_cannot_obtain_or_replace_builder_credentials (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expired_lease_cannot_obtain_or_replace_builder_credentials) ... FAIL
+
+======================================================================
+FAIL: test_expiry_blocks_direct_push_without_daemon_cleanup (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expiry_blocks_direct_push_without_daemon_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-credential-ttl-vs-lease/tools/daemon/runner_verify/tests/test_runner_verify.py", line 361, in test_expiry_blocks_direct_push_without_daemon_cleanup
+    self.assert_rejected("lease_expired")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-credential-ttl-vs-lease/tools/daemon/runner_verify/tests/test_runner_verify.py", line 345, in assert_rejected
+    self.assertNotEqual(result.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_expired_lease_cannot_obtain_or_replace_builder_credentials (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expired_lease_cannot_obtain_or_replace_builder_credentials) (name='builder_write_credential')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-credential-ttl-vs-lease/tools/daemon/runner_verify/tests/test_runner_verify.py", line 435, in test_expired_lease_cannot_obtain_or_replace_builder_credentials
+    self.assertEqual(self.issue(name), {"issued": False, "reason": "lease_expired"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'issued': True, 'lease_id': '01RVADD2FA87EE59430BB4E910'} != {'issued': False, 'reason': 'lease_expired'}
+- {'issued': True, 'lease_id': '01RVADD2FA87EE59430BB4E910'}
++ {'issued': False, 'reason': 'lease_expired'}
+
+======================================================================
+FAIL: test_expired_lease_cannot_obtain_or_replace_builder_credentials (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expired_lease_cannot_obtain_or_replace_builder_credentials) (name='builder_token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-credential-ttl-vs-lease/tools/daemon/runner_verify/tests/test_runner_verify.py", line 435, in test_expired_lease_cannot_obtain_or_replace_builder_credentials
+    self.assertEqual(self.issue(name), {"issued": False, "reason": "lease_expired"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'issued': True, 'lease_id': '01RVADD2FA87EE59430BB4E910'} != {'issued': False, 'reason': 'lease_expired'}
+- {'issued': True, 'lease_id': '01RVADD2FA87EE59430BB4E910'}
++ {'issued': False, 'reason': 'lease_expired'}
+
+======================================================================
+FAIL: test_expired_lease_cannot_obtain_or_replace_builder_credentials (tools.daemon.runner_verify.tests.test_runner_verify.CredentialLeaseFencing.test_expired_lease_cannot_obtain_or_replace_builder_credentials)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-credential-ttl-vs-lease/tools/daemon/runner_verify/tests/test_runner_verify.py", line 436, in test_expired_lease_cannot_obtain_or_replace_builder_credentials
+    self.assertEqual(self.w.cred_log(), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'le[183 chars]7c4'}, {'lease_id': '01RVADD2FA87EE59430BB4E91[332 chars]19'}] != [{'le[183 chars]7c4'}]
+
+First list contains 2 additional elements.
+First extra element 1:
+{'lease_id': '01RVADD2FA87EE59430BB4E910', 'name': 'builder_write_credential', 'ns': 1794534881461654420, 'op': 'issue', 'pid': 3085421, 'task_id': 'T-MOCK-BASIC', 'token_sha': '94d12b7ab3a3'}
+
+Diff is 756 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.273s
+
+FAILED (failures=4)
+
+EXIT_CODE=1

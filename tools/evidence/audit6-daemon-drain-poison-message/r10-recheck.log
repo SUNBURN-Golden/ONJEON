@@ -1,0 +1,184 @@
+{
+  "r": "R10",
+  "test_id": "usage-recorded-not-capped",
+  "title": "사용량 기록(상한 없음, U-05)",
+  "status": "PASS",
+  "seconds": 8065.4,
+  "real_components": [
+    "OS 프로세스·프로세스 그룹(SIGTERM/SIGKILL)",
+    "실제 파일 시스템(권한·mtime·/proc 핸들 검사)",
+    "실제 git(worktree·임시 인덱스·write-tree·push)",
+    "로컬 bare 원격(보호 브랜치·단기 자격 hook)",
+    "파일 잠금+원자적 rename 상태 저장소",
+    "공용 전이·검증 코어(tools/daemon/core)",
+    "claude CLI(시험 프록시)",
+    "시험 프록시 계량"
+  ],
+  "limits": [
+    "cost_units 단위 미정의, 금액은 기록 불가"
+  ],
+  "checks": [
+    {
+      "name": "실제 CLI 실행이 끝났고 프록시가 모델 호출을 계량했다",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "detail": {
+        "calls": 1,
+        "tokens_metered": 2846,
+        "cli_reported_cost_usd": 0.011399999999999999
+      }
+    },
+    {
+      "name": "usage_record(세대 1)에 calls·wall_s·cost_units가 기록된다",
+      "status": "PASS",
+      "expected": [
+        1,
+        2,
+        2846
+      ],
+      "actual": [
+        1,
+        2,
+        2846
+      ]
+    },
+    {
+      "name": "기록 뒤 같은 과제의 새 임대(세대 2)가 막히지 않는다",
+      "status": "PASS",
+      "expected": [
+        "building",
+        2
+      ],
+      "actual": [
+        "building",
+        2
+      ]
+    },
+    {
+      "name": "누적 사용량이 10^9여도 기록되고 거부되지 않는다",
+      "status": "PASS",
+      "expected": [
+        1000000000,
+        1000000000,
+        1000000000
+      ],
+      "actual": [
+        1000000000,
+        1000000000,
+        1000000000
+      ]
+    },
+    {
+      "name": "새 임대(같은 과제 세대 2)가 막히지 않았다",
+      "status": "PASS",
+      "expected": [
+        "building",
+        2
+      ],
+      "actual": [
+        "building",
+        2
+      ]
+    },
+    {
+      "name": "같은 실패 재시도 한도는 그대로: 세 번째 시험 실패에서 R-06 반송(전환이 아니다)",
+      "status": "PASS",
+      "expected": [
+        [
+          "R-06"
+        ],
+        "returned",
+        3
+      ],
+      "actual": [
+        [
+          "R-06"
+        ],
+        "returned",
+        3
+      ]
+    },
+    {
+      "name": "다른 과제의 새 임대도 막히지 않는다(누적 사용량이 커도)",
+      "status": "PASS",
+      "expected": "leased",
+      "actual": "leased"
+    },
+    {
+      "name": "응답 없음 정지는 그대로: 하트비트 두 번 누락이면 R-08",
+      "status": "PASS",
+      "expected": [
+        [
+          "R-08"
+        ],
+        "returned"
+      ],
+      "actual": [
+        [
+          "R-08"
+        ],
+        "returned"
+      ]
+    },
+    {
+      "name": "기록이 실패해도 결과 봉투는 수락되고 재임대가 이어진다(경고와 재시도 항목만)",
+      "status": "PASS",
+      "expected": [
+        true,
+        "building",
+        2,
+        [
+          "usage_record_failed_warning"
+        ]
+      ],
+      "actual": [
+        true,
+        "building",
+        2,
+        [
+          "usage_record_failed_warning"
+        ]
+      ]
+    },
+    {
+      "name": "재시도 항목이 남아 있고, 비동기 재시도가 값을 채운다",
+      "status": "PASS",
+      "expected": [
+        1,
+        1,
+        [
+          3,
+          9,
+          7
+        ]
+      ],
+      "actual": [
+        1,
+        1,
+        [
+          3,
+          9,
+          7
+        ]
+      ]
+    }
+  ],
+  "evidence": {
+    "metering": {
+      "calls": "프록시 계량",
+      "wall_s": "호스트 측정",
+      "cost_units": "프록시가 센 토큰 수(단위는 명세에 없다)",
+      "cost_amount": "기록 불가(프록시는 단가표를 모른다; 제공자 청구 대조는 월 1회 사람)",
+      "cli_self_reported_cost_usd_reference": 0.011399999999999999
+    }
+  },
+  "not_proven": [
+    "호출 수·토큰은 프록시를 거친 호출만 계량한다. 프록시를 거치지 않는 직접 호출·제공자 청구액과의 대조는 하지 않았다(사람이 월 1회, 05 §3)",
+    "cost_units의 단위는 명세에 정의가 없다. 이 시험은 프록시가 센 토큰 수를 넣었고 금액이 아니다",
+    "누적 10^9는 스크립트 프로세스가 결과 봉투에 적은 자기 보고 값이다"
+  ],
+  "findings": [],
+  "error": null
+}
+R10 assertions passed

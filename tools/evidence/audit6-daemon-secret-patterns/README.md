@@ -3,8 +3,35 @@
 2026-11-12 최초 기록 · 2026-11-13 재검증. [수정 기록](../../../docs/blueprint/audits/2026-11-12_daemon_secret_patterns.md) ·
 [회귀 시험](../../tests/test_daemon_secret_scan.py)(`HistoryScan`, `RealGitScan`, 확장 corpus) ·
 [실행기 어댑터](../../daemon/runner_verify/adapters.py)(`included_files` 무제한, `history_texts`).
-기준 커밋 `ee9331b3660d033b2dcf09df1e5344c081815497` 위 미커밋 변경이며,
-[manifest.json](manifest.json)은 변경 소스·문서·시험·로그의 SHA-256을 기록한다.
+변경은 브랜치 커밋 `8b2cf5c8551ed354c7a305e7abfbde102eb7b62a`에 기록됐고,
+수정 4회차는 main `a51a495a6eb2a8518825e1f7951ea915aa10a088` 병합 충돌을 해소하며
+전체 재검증을 기록했다. [manifest.json](manifest.json)은 변경 소스·문서·시험·로그의 SHA-256을 기록한다.
+
+수정 4회차(2026-11-13): main(`a51a495a6eb2a8518825e1f7951ea915aa10a088`, PR #507 리스
+만료 뒤 푸시 차단·#505 독성 메시지 격리·#501 push refspec 검증) 병합 충돌 다섯 건을
+양쪽 의도를 모두 살려 해소하고 전체 재실행했다.
+
+| 충돌 파일 | 해소 |
+|---|---|
+| `09_제품목적_대응표.md` | 독성 메시지 격리 불릿(main)과 비밀값 탐지 보강 불릿(이 브랜치)을 모두 유지했다. 리스 만료 단락은 자동 병합됐다 |
+| `o13_unchanged_gates.json` | 설명에 push-refspec 문장(main)과 secret-patterns 문장(이 브랜치)을 모두 잇고, 규칙 파일 해시를 병합 결과로 다시 고정했다. 병합 결과와 각 부모의 차이가 상대방 필드뿐임을 구조적으로 확인했다(브랜치 부모 대비 `push_refspec` 추가, main 대비 `secret_patterns` 변경) |
+| `reports/dry_run.log` | 머리말을 병합 부모와 현재 소스 해시로 다시 쓰고, 본문은 `tools/daemon/README.md`가 요구하는 기대·실제 전체 보고서로 복원했다(main 본문과 바이트 일치). 3회차 로그 재작성 때 quiet 요약만 남아 있던 것을 바로잡았다 |
+| `검증/실행로그_dry_run.txt` | 현재 전체 실행의 `--quiet` 출력으로 다시 생성했다. 본문은 3회차와 같다(push-refspec 규칙은 모의 시나리오 출력을 바꾸지 않는다) |
+| `reports/unittest.log` | 이번 전체 실행([python-round4.log](python-round4.log))에서 데몬 네 모듈(모의 310·비밀값 27·정적 22·필수 커버리지 7) 366개 결과를 발췌했고, 머리말은 병합 부모와 현재 소스 해시를 적는다 |
+
+| 수정 4회차 증거 | 결과 |
+|---|---|
+| [python-round4.log](python-round4.log) | 전체 Python 1,617개/433.919초, 실패·오류 0·기존 skip 6개, 종료 0 |
+| [runner-round4.log](runner-round4.log) | 실제 실행기 회귀 80개/724.807초 통과, 종료 0 |
+| [rust-round4.log](rust-round4.log) | `timeout 900s cargo test --all --locked --offline`: 515개 통과·기존 ignored 1개, 종료 0 |
+| [fmt-round4.log](fmt-round4.log), [clippy-round4.log](clippy-round4.log) | fmt·Clippy `-D warnings` 통과 |
+| [ontology-round4.log](ontology-round4.log) | 온톨로지 실행기 4개 통과 |
+| [dry-run-round4.log](dry-run-round4.log) | 모의 데몬 695개 검사·필수 ID 33/33 통과 |
+| [focused-round4.log](focused-round4.log) | 비밀값 27개·정적 22개 통과 |
+| [static-round4.log](static-round4.log), [spec-round4.log](spec-round4.log), [secrets-round4.log](secrets-round4.log) | 정적 13/13·명세 기계 46/46·존재 72/72·추적 비밀 파일 검사 통과 |
+| [vocabulary-round4.log](vocabulary-round4.log), [validation-round4.log](validation-round4.log), [validation-selftest-round4.log](validation-selftest-round4.log), [blueprint-status-round4.log](blueprint-status-round4.log), [blueprint-counts-round4.log](blueprint-counts-round4.log) | 어휘·검증 자료·청사진 색인 검사 통과(병합로 입력이 바뀌어 다시 실행) |
+
+`검증/실행로그_spec_check.txt`는 본문이 현재 실행 출력과 같아 그대로다.
 
 수정 3회차(2026-11-13): 감독자의 전체 Python 실행 실패(정적 검사 CLI 시험의
 30초 초과)를 처리했다. 실패는 이번 패턴 변경과 무관한 기존 구조였다.

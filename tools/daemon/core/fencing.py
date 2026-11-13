@@ -1,9 +1,12 @@
 """accept_envelope and fenced_write: ordered checks, then the noop kinds (late, duplicate, invalid) or the
 event transition. The checks, their fail keys and the on_fail table are all read from core_contract.operations."""
+import re
+
 from . import effects, envelope_validator as ev, observation, secret_scan, transition_engine, usage
 from .ports import SpecGap
 
 _SCANNED = ("result", "signal", "heartbeat")  # secret_patterns.scan[result_envelope].target
+_SHA40 = re.compile(r"[0-9a-f]{40}")
 
 
 def secret_scan_after(rules):
@@ -101,6 +104,17 @@ def reject_without_envelope(core, d, task_id, event, on_reject):
             "rejected": (on_reject["reason"], event)}
 
 
+def push_refspec_valid(request, lease):
+    """fenced_write.checks[push_refspec]: a push carries a full 40-hex lowercase object id and the branch of its
+    own lease. A git option (--receive-pack=...), a +force prefix, a truncated sha or a foreign branch is an
+    invalid envelope, not a write. pr_update has no refspec and is not checked here."""
+    if request.get("kind") != "push":
+        return True
+    sha, branch = request.get("sha"), request.get("branch")
+    return (isinstance(sha, str) and _SHA40.fullmatch(sha) is not None
+            and isinstance(branch, str) and bool(lease.get("branch")) and branch == lease["branch"])
+
+
 def check_write(core, d, task_id, event, request, claimed=False):
     """Return the first failed check. Dispatch rechecks fencing, skipping only its already-claimed identity."""
     spec = core.rules.get("core_contract.operations.fenced_write")
@@ -109,6 +123,7 @@ def check_write(core, d, task_id, event, request, claimed=False):
     funcs = {
         "request.required": lambda _a: [f for f in spec["required_fields"] if request.get(f) is None],
         "inbox_seen[key]": lambda _a: t["inbox_seen"].get(key),
+        "push_refspec_valid": lambda _a: push_refspec_valid(request, t.get("lease_record") or {}),
     }
     ctx = core.ctx(d, task_id, envelope=request, funcs=funcs)
     for check in spec["checks"]:

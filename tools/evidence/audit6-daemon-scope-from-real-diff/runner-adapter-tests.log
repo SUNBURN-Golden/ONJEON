@@ -12,6 +12,9 @@ test_checked_in_result_files_are_consistent_with_their_report (tools.daemon.runn
 test_two_scenarios_end_to_end_write_every_output_file (tools.daemon.runner_verify.tests.test_runner_verify.Cli.test_two_scenarios_end_to_end_write_every_output_file) ... ok
 test_a_waiting_envelope_stays_in_the_inbox (tools.daemon.runner_verify.tests.test_runner_verify.DrainGuardWait.test_a_waiting_envelope_stays_in_the_inbox) ... ok
 test_modes_and_metering (tools.daemon.runner_verify.tests.test_runner_verify.ProxyTests.test_modes_and_metering) ... ok
+test_invalid_refspec_never_reaches_git_or_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_invalid_refspec_never_reaches_git_or_the_remote) ... ok
+test_preserve_push_passes_the_option_separator_and_validates (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_preserve_push_passes_the_option_separator_and_validates) ... ok
+test_valid_push_passes_the_option_separator_and_lands_on_the_remote (tools.daemon.runner_verify.tests.test_runner_verify.PushRefspecGit.test_valid_push_passes_the_option_separator_and_lands_on_the_remote) ... ok
 test_a_marked_repository_is_accepted (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_a_marked_repository_is_accepted) ... ok
 test_an_unmarked_bare_repository_is_refused (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_an_unmarked_bare_repository_is_refused) ... ok
 test_credential_lifecycle_decides_the_push (tools.daemon.runner_verify.tests.test_runner_verify.RemoteTests.test_credential_lifecycle_decides_the_push) ... ok
@@ -63,7 +66,6 @@ test_service_unavailable_needs_three_in_a_row (tools.daemon.runner_verify.tests.
 test_stream_parser_keeps_only_structured_fields (tools.daemon.runner_verify.tests.test_runner_verify.StatusRules.test_stream_parser_keeps_only_structured_fields) ... ok
 
 ----------------------------------------------------------------------
-Ran 61 tests in 195.171s
+Ran 64 tests in 447.542s
 
 OK
-EXIT: 0

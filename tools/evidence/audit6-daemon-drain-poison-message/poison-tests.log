@@ -1,0 +1,19 @@
+test_a_poison_file_does_not_disturb_guard_wait_redelivery (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_a_poison_file_does_not_disturb_guard_wait_redelivery) ... ok
+test_an_unexpected_operation_failure_still_answers_rv_result (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_an_unexpected_operation_failure_still_answers_rv_result)
+The top-level catch (the finding's second site): a failure outside the old catch list — here a missing ... ok
+test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) ... ok
+test_http_delivery_answers_a_poison_message_and_keeps_serving (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_http_delivery_answers_a_poison_message_and_keeps_serving) ... /usr/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=5 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_real_drain_quarantines_poison_and_delivers_the_rest (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_real_drain_quarantines_poison_and_delivers_the_rest)
+The real daemon process over the real adapters: `"envelope": "x"` raises AttributeError in the core, ... ok
+test_unparseable_json_is_quarantined_not_left_in_the_inbox (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_unparseable_json_is_quarantined_not_left_in_the_inbox) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 8.869s
+
+OK

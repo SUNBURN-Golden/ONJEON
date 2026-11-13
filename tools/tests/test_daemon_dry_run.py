@@ -241,7 +241,7 @@ class FencedWriteDedup(unittest.TestCase):
                 credentials.entry.return_value = entry
                 remote = PushRemote(Layout(tmp).make(), git, credentials)
                 with self.assertRaises(PushFailed):
-                    remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/mock"})
+                    remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/T-MOCK-BASIC-a1"})
                 git._git.assert_not_called()
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -249,7 +249,7 @@ class FencedWriteDedup(unittest.TestCase):
             git._git.return_value.returncode = 0
             credentials.entry.return_value = {"lease_id": "L1", "token": "fixture-current"}
             remote = PushRemote(Layout(tmp).make(), git, credentials)
-            remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/mock"})
+            remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/T-MOCK-BASIC-a1"})
             self.assertEqual(git._git.call_args.kwargs["env"]["RV_PUSH_CREDENTIAL"], "fixture-current")
 
     def test_dispatch_serializes_lease_replacement_through_remote_execution(self):
@@ -522,6 +522,196 @@ class FencedWriteDedup(unittest.TestCase):
                 env.new_core()
                 self.assertEqual(self.send(env, event, request)["noop"], "envelope_duplicate_delivery")
                 self.assertEqual(len(env.ports.remote.writes), 1)
+
+
+class PushRefspecFencing(unittest.TestCase):
+    """audit6-daemon-push-refspec-validation: a push request must carry a full 40-hex lowercase object id and the
+    branch of its own lease. A git option (--receive-pack=...), a +force prefix or a foreign branch is an invalid
+    envelope (R-13): no remote write, no inbox_seen claim, no state change. The check is data (fenced_write.checks)
+    and runs after the existing late/duplicate/expiry/bypass checks, so their precedence is unchanged."""
+
+    BAD_SHA = ["--receive-pack=/bin/sh", "--force", "+" + "a" * 40, "a" * 39, "a" * 41, "g" * 40, "A" * 40,
+               "a" * 40 + "\n", " " + "a" * 39, "", None, 40, ["a" * 40], {"sha": "a" * 40}]
+    BAD_BRANCH = ["main", "release/1", "task/T-MOCK-OTHER-a1", "task/T-MOCK-BASIC-a2", "--receive-pack=/bin/sh",
+                  "+task/T-MOCK-BASIC-a1", "task/T-MOCK-BASIC-a1:refs/heads/main", "task/T-MOCK-BASIC-a1 --force",
+                  "task/../main", "", None, 7, ["task/T-MOCK-BASIC-a1"]]
+
+    def ready(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        lease = env.lease(sc.BASIC)
+        request = {k: lease[k] for k in ("lease_id", "lease_generation", "fencing_token", "branch")}
+        request.update(envelope_id="REFSPEC-1", via="daemon", sha="a" * 40)
+        return env, request
+
+    def send(self, env, request):
+        return env.event("push_requested", sc.BASIC, **copy.deepcopy(request))
+
+    def assert_invalid(self, env, request, before):
+        m = sc.mark(env)
+        out = self.send(env, request)
+        self.assertEqual((out["accepted"], out["written"], out["noop"], out["return_code"]),
+                         (False, False, "envelope_rejected_invalid", "R-13"))
+        self.assertEqual(env.task(sc.BASIC), before)
+        self.assertEqual(env.ports.remote.writes, [])
+        noops = [r for r in env.journal()[m:] if r["kind"] == "noop_record"]
+        self.assertEqual([(r["noop_event"], r["return_code"], r.get("failed_check")) for r in noops],
+                         [("envelope_rejected_invalid", "R-13", "push_refspec")])
+        self.assertEqual(sc.tr(env.journal()[m:]), [])
+
+    def test_invalid_sha_is_rejected_without_write_or_claim(self):
+        for sha in self.BAD_SHA + ["absent"]:
+            with self.subTest(sha=sha):
+                env, request = self.ready()
+                before = env.task(sc.BASIC)
+                if sha == "absent":
+                    request.pop("sha")
+                else:
+                    request["sha"] = sha
+                self.assert_invalid(env, request, before)
+
+    def test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim(self):
+        for branch in self.BAD_BRANCH + ["absent"]:
+            with self.subTest(branch=branch):
+                env, request = self.ready()
+                before = env.task(sc.BASIC)
+                if branch == "absent":
+                    request.pop("branch")
+                else:
+                    request["branch"] = branch
+                self.assert_invalid(env, request, before)
+
+    def test_rejected_request_is_not_claimed_and_a_corrected_resend_is_written(self):
+        env, request = self.ready()
+        request["sha"] = "--receive-pack=/bin/sh"
+        self.assertFalse(self.send(env, request)["written"])
+        request["sha"] = "a" * 40  # same envelope_id: the rejection did not claim it
+        out = self.send(env, request)
+        self.assertTrue(out["accepted"] and out["written"])
+        self.assertEqual(len(env.ports.remote.writes), 1)
+
+    def test_valid_push_and_pr_update_without_refspec_still_write(self):
+        env, request = self.ready()
+        self.assertTrue(self.send(env, request)["written"])
+        pr = dict(request, envelope_id="REFSPEC-PR")
+        pr.pop("sha")
+        pr.pop("branch")
+        pr["pr_number"] = 3
+        out = env.event("pr_update_requested", sc.BASIC, **pr)
+        self.assertTrue(out["accepted"] and out["written"])
+        self.assertEqual([w[0] for w in env.ports.remote.writes], ["push", "pr_update"])
+
+    def test_late_duplicate_and_bypass_precedence_is_unchanged(self):
+        # a late lease is R-11 even with an invalid refspec
+        env, request = self.ready()
+        old = copy.deepcopy(request)
+        env.builder_for(sc.BASIC).send_result(env.instr(sc.BASIC), "failed_tests")
+        env.run_builders("first_heartbeat")
+        old["sha"] = "--receive-pack=/bin/sh"
+        out = self.send(env, old)
+        self.assertEqual((out["noop"], out["return_code"]), ("late_envelope_rejected", "R-11"))
+        # a claimed envelope stays a duplicate even when the redelivery carries an invalid refspec
+        env, request = self.ready()
+        self.assertTrue(self.send(env, request)["written"])
+        request["sha"] = "+" + "a" * 40
+        out = self.send(env, request)
+        self.assertEqual((out["noop"], out["return_code"]), ("envelope_duplicate_delivery", None))
+        # bypassing the daemon is a fence violation even with an invalid refspec
+        env, request = self.ready()
+        request.update(via="builder", sha="--receive-pack=/bin/sh")
+        m = sc.mark(env)
+        out = self.send(env, request)
+        self.assertFalse(out["written"])
+        self.assertEqual(sc.tr(env.journal()[m:]), [("building", "returned", "fence_violation")])
+        self.assertEqual(env.ports.remote.writes, [])
+
+    def test_the_dispatch_recheck_evaluates_the_same_check(self):
+        from daemon.core import fencing
+        env, request = self.ready()
+        with env.ports.store.dispatch_guard() as d:
+            failed = fencing.check_write(env.core, d, sc.BASIC, "push_requested",
+                                         dict(request, kind="push", sha="--receive-pack=/bin/sh"), claimed=True)
+            self.assertEqual(failed["id"], "push_refspec")
+            ok = fencing.check_write(env.core, d, sc.BASIC, "push_requested", dict(request, kind="push"), claimed=True)
+            self.assertIsNone(ok)
+
+    def test_the_check_comes_from_the_rules_data(self):
+        def drop(raw):
+            checks = raw["core_contract"]["operations"]["fenced_write"]["checks"]
+            checks[:] = [c for c in checks if c["id"] != "push_refspec"]
+        env = MockEnv(_mutated(drop), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        lease = env.lease(sc.BASIC)
+        request = {k: lease[k] for k in ("lease_id", "lease_generation", "fencing_token", "branch")}
+        request.update(envelope_id="REFSPEC-MUT", via="daemon", sha="--receive-pack=/bin/sh")
+        out = env.event("push_requested", sc.BASIC, **request)
+        self.assertTrue(out["written"], "without the data check the malicious refspec reaches the remote adapter")
+
+
+class PushRefspecAdapter(unittest.TestCase):
+    """audit6-daemon-push-refspec-validation: the push adapter re-validates the refspec before it touches the
+    credential or git, and passes -- so no part of the request can be read as a git option."""
+
+    def setUp(self):
+        from daemon.runner_verify.adapters import PushRemote
+        from daemon.runner_verify.common import Layout
+        self.tmp = tempfile.TemporaryDirectory()
+        self.layout = Layout(self.tmp.name).make()
+        self.git, self.credentials = mock.Mock(), mock.Mock()
+        self.git._git.return_value.returncode = 0
+        self.git.url = "remote.invalid"
+        self.credentials.entry.return_value = {"lease_id": "L1", "token": "fixture-current"}
+        self.remote = PushRemote(self.layout, self.git, self.credentials)
+        self.request = {"lease_id": "L1", "sha": "a" * 40, "branch": "task/T-MOCK-BASIC-a1"}
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_invalid_refspec_raises_before_credential_and_git(self):
+        from daemon.core.ports import PushFailed
+        bad = [{"sha": s} for s in ("--receive-pack=/bin/sh", "+" + "a" * 40, "a" * 39, "A" * 40, "", None, 40)]
+        bad += [{"branch": b} for b in ("main", "task/T-MOCK-OTHER-a1", "--force",
+                                        "task/T-MOCK-BASIC-a1:refs/heads/main", "task/T-MOCK-BASIC-a1 x", None)]
+        for kw in bad:
+            with self.subTest(kw=kw):
+                self.git._git.reset_mock()
+                self.credentials.entry.reset_mock()
+                with self.assertRaises(PushFailed):
+                    self.remote.execute("push", sc.BASIC, dict(self.request, **kw))
+                self.git._git.assert_not_called()
+                self.credentials.entry.assert_not_called()
+        from daemon.runner_verify.common import read_jsonl
+        records = read_jsonl(self.layout.root / "remote_writes.jsonl")
+        self.assertEqual(len(records), len(bad))
+        self.assertTrue(all(r["executed"] is False and r["reason"] == "invalid_refspec" for r in records))
+
+    def test_valid_push_passes_the_option_separator_before_the_refspec(self):
+        self.remote.execute("push", sc.BASIC, dict(self.request))
+        self.git._git.assert_called_once()
+        args = self.git._git.call_args.args[0]
+        self.assertEqual(args, ["push", "remote.invalid", "--", "a" * 40 + ":refs/heads/task/T-MOCK-BASIC-a1"])
+        self.assertEqual(self.git._git.call_args.kwargs["env"]["RV_PUSH_CREDENTIAL"], "fixture-current")
+
+    def test_preserve_push_validates_and_passes_the_option_separator(self):
+        from daemon.core.ports import PushFailed
+        from daemon.runner_verify.adapters import RealGit
+        git = RealGit(self.layout, "remote.invalid", [], self.credentials)
+        git._git = mock.Mock()
+        git._git.return_value.returncode = 0
+        git._git.return_value.stdout = "a" * 40 + "\n"
+        self.credentials.token.return_value = "fixture-preserve"
+        self.assertEqual(git.push("task/T-MOCK-BASIC-a1", "a" * 40), "a" * 40)
+        args = git._git.call_args_list[0].args[0]
+        self.assertEqual(args, ["push", "remote.invalid", "--", "a" * 40 + ":refs/heads/task/T-MOCK-BASIC-a1"])
+        self.assertEqual(git._git.call_args_list[0].kwargs["env"]["RV_PUSH_CLIENT"], "daemon-preserve")
+        # the preserve path derives the task from the branch: a well-formed branch of another task is a credential
+        # scope question at the remote, not a refspec shape error (see PushRefspecGit in the runner_verify tests)
+        for sha, branch in (("--receive-pack=/bin/sh", "task/T-MOCK-BASIC-a1"), ("+" + "a" * 40, "task/T-MOCK-BASIC-a1"),
+                            ("a" * 40, "main"), ("a" * 40, "task/T-MOCK-BASIC-a1:refs/heads/main")):
+            git._git.reset_mock()
+            with self.subTest(sha=sha, branch=branch), self.assertRaises(PushFailed):
+                git.push(branch, sha)
+            git._git.assert_not_called()
 
 
 class Coverage(unittest.TestCase):

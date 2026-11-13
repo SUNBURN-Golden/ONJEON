@@ -1,4 +1,5 @@
-# generated from parent commit ee9331b3660d033b2dcf09df1e5344c081815497 + tree hash of tools/daemon sources sha256:77a2f05d5e7e7a055a766abce22701731047465650f4f03c729047993033b23e
+# generated from parent commit 8b2cf5c8551ed354c7a305e7abfbde102eb7b62a + tree hash of tools/daemon sources sha256:3fa318286efc919a0a418c919ca33b4b9208605fa01dc6f7b442ba227c28b7fb
+# merge input main commit a51a495a6eb2a8518825e1f7951ea915aa10a088
 # command: python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all --quiet
 # output
 == M1 -: 정상 흐름: queued→…→merge_wait(ready), 병합 API 0건  [PASS]

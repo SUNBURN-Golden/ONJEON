@@ -150,8 +150,9 @@ def token_sha(token):
 
 class RemoteCredentials(Credentials):
     """Short-lived push credentials. issue() makes a random token, stores it where the builder host reads it and
-    registers it at the verification remote; revoke() marks it revoked at the remote and in the store. Every call
-    is appended to creds/log.jsonl with the real time (issue/revoke intervals are read from this log)."""
+    registers it at the verification remote, binding builder writes to the authoritative lease snapshot;
+    revoke() marks it revoked at the remote and in the store. Every call is appended to creds/log.jsonl with
+    the real time (issue/revoke intervals are read from this log)."""
 
     def __init__(self, layout, remote_path, ttl_s):
         self.layout, self.remote, self.ttl_s = layout, remote_path, ttl_s
@@ -183,7 +184,10 @@ class RemoteCredentials(Credentials):
                                              "issued_ns": now_ns(), "revoked_ns": None}
 
         self._mutate(put)
-        rv_remote.register_token(self.remote, token_sha(token), name, task_id, lease_id, self.ttl_s)
+        # Builder writes are fenced by the current lease at the remote, even when the daemon never ticks.
+        # Preserve credentials belong to the daemon's handoff and may need to write after the lease ends.
+        rv_remote.register_token(self.remote, token_sha(token), name, task_id, lease_id, self.ttl_s,
+                                 lease_layout=self.layout if name == "builder_write_credential" else None)
         append_jsonl(self.log, {"op": "issue", "name": name, "task_id": task_id, "lease_id": lease_id,
                                 "token_sha": token_sha(token)[:12], "ns": now_ns(), "pid": os.getpid()})
 
@@ -311,6 +315,19 @@ class FsWorktree(Worktree):
 # ---------------------------------------------------------------- git
 _LOCK_RE = re.compile(r"index\.lock|\.lock': File exists|Unable to create '.*\.lock'")
 _FULL_RE = re.compile(r"No space left on device|disk quota exceeded", re.I)
+_SHA_RE = re.compile(r"[0-9a-f]{40}")
+_BRANCH_RE = re.compile(r"task/([A-Za-z0-9_-]+)-a([0-9]+)")
+
+
+def valid_push_refspec(task_id, sha, branch):
+    """The push refspec is built from the request, so both parts are validated before git sees them: a full
+    40-hex lowercase object id (git would resolve a truncated sha, and a + prefix forces the push) and the task's
+    own branch task/<task_id>-a<attempt> (a --... value would be read as a git option). The core's check
+    (fenced_write.checks[push_refspec]) additionally compares the branch with the lease's own branch, attempt
+    included; the adapter has no lease, so shape and task scope are its fence."""
+    return (isinstance(sha, str) and _SHA_RE.fullmatch(sha) is not None
+            and isinstance(branch, str) and _BRANCH_RE.fullmatch(branch) is not None
+            and _BRANCH_RE.fullmatch(branch).group(1) == task_id)
 
 
 def exclude_pathspecs(patterns):
@@ -452,9 +469,11 @@ class RealGit(Git):
         return m.group(1) if m else None
 
     def push(self, branch, sha):
-        task_id = self._branch_task(branch)
+        task_id = self._branch_task(branch) if isinstance(branch, str) else None
+        if not valid_push_refspec(task_id, sha, branch):
+            raise PushFailed("other")
         token = self.credentials.token("preserve_credential", task_id) if task_id else None
-        res = self._git(["push", self.url, f"{sha}:refs/heads/{branch}"],
+        res = self._git(["push", self.url, "--", f"{sha}:refs/heads/{branch}"],
                         env={"RV_PUSH_CREDENTIAL": token or "", "RV_PUSH_CLIENT": "daemon-preserve"}, check=False,
                         timeout=60)
         if res.returncode != 0:
@@ -548,12 +567,17 @@ class PushRemote(Remote):
                                                                     "reason": "no pull request API at the test remote",
                                                                     "ns": now_ns()})
             return
+        if not valid_push_refspec(task_id, request.get("sha"), request.get("branch")):
+            # the raw values are untrusted: record the refusal, not the payload
+            append_jsonl(self.layout.root / "remote_writes.jsonl", {"kind": kind, "task_id": task_id, "executed": False,
+                                                                    "reason": "invalid_refspec", "ns": now_ns()})
+            raise PushFailed("other")
         credential = self.credentials.entry("builder_write_credential", task_id)
         if (not credential or credential.get("revoked_ns")
                 or credential.get("lease_id") != request.get("lease_id")):
             raise PushFailed("permission_denied")
         token = credential["token"]
-        res = self.git._git(["push", self.git.url, f"{request['sha']}:refs/heads/{request['branch']}"],
+        res = self.git._git(["push", self.git.url, "--", f"{request['sha']}:refs/heads/{request['branch']}"],
                             env={"RV_PUSH_CREDENTIAL": token or "", "RV_PUSH_CLIENT": "daemon-fenced"}, check=False,
                             timeout=60)
         append_jsonl(self.layout.root / "remote_writes.jsonl", {

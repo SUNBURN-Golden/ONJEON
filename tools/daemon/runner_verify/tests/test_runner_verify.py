@@ -14,13 +14,15 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from daemon.runner_verify import cli_probe, registry, remote, reporting, static_checks  # noqa: E402
-from daemon.runner_verify.adapters import FileStore, ProcessFaults, RemoteCredentials, classify_push_failure, exclude_pathspecs, token_sha  # noqa: E402
-from daemon.runner_verify.common import DEFAULT_RULES, Layout, ClockFile, group_members, open_handles  # noqa: E402
+from daemon.core.ports import PushFailed  # noqa: E402
+from daemon.runner_verify import cli_probe, hook_pre_receive, registry, remote, reporting, static_checks  # noqa: E402
+from daemon.runner_verify.adapters import FileStore, ProcessFaults, PushRemote, RealGit, RemoteCredentials, classify_push_failure, exclude_pathspecs, token_sha  # noqa: E402
+from daemon.runner_verify.common import DEFAULT_RULES, Layout, ClockFile, group_members, open_handles, read_jsonl  # noqa: E402
 from daemon.runner_verify.context import Ctx  # noqa: E402
 from daemon.runner_verify.proxy import ProviderProxy  # noqa: E402
 from daemon.runner_verify.report import FAIL, GAP, PARTIAL, PASS, UNCONFIRMED, Rep  # noqa: E402
@@ -181,7 +183,12 @@ class RemoteTests(unittest.TestCase):
         ref = "refs/heads/task/T-MOCK-BASIC-a1"
         res = self.push(ref, "never-issued")
         self.assertIn("RV-REJECT permission_denied", res.stderr)
-        remote.register_token(self.path, token_sha("t-live"), "builder_write_credential", "T-MOCK-BASIC", "L1", 600)
+        layout = Layout(Path(self.tmp.name) / "authority").make()
+        with FileStore(layout).transaction() as d:
+            d["tasks"]["T-MOCK-BASIC"] = {"lease_record": {
+                "lease_id": "L1", "status": "active", "expires_at": ClockFile(layout.clock).now() + 600}}
+        remote.register_token(self.path, token_sha("t-live"), "builder_write_credential", "T-MOCK-BASIC", "L1", 600,
+                              lease_layout=layout)
         self.assertEqual(self.push(ref, "t-live").returncode, 0)
         remote.revoke_token(self.path, token_sha("t-live"))
         self.assertIn("RV-REJECT credential_revoked", self.push(ref, "t-live", force=True).stderr)
@@ -208,6 +215,233 @@ class RemoteTests(unittest.TestCase):
 
     def test_a_marked_repository_is_accepted(self):
         self.assertEqual(remote.check_accepts(self.path), self.path)
+
+
+class PushRefspecGit(unittest.TestCase):
+    """audit6-daemon-push-refspec-validation, against a real git remote: the push adapters refuse an option-shaped
+    or +force-prefixed sha and a branch that is not the lease's task branch before git runs, and a valid push passes
+    -- before the refspec so no part of the request can be read as a git option."""
+
+    BRANCH = "task/T-MOCK-BASIC-a1"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.home = Path(cls.tmp.name) / "home"
+        cls.home.mkdir()
+        cls.path = remote.provision(Path(cls.tmp.name) / "r.git", cls.home)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def setUp(self):
+        self.layout_tmp = tempfile.TemporaryDirectory()
+        self.layout = Layout(self.layout_tmp.name).make()
+        env = remote.git_env(self.layout.home)
+        remote.run_git(["clone", "-q", str(self.path), str(self.layout.clone)], env=env)
+        (self.layout.clone / "f.txt").write_text("refspec fixture\n", encoding="utf-8")
+        remote.run_git(["add", "-A"], cwd=self.layout.clone, env=env)
+        remote.run_git(["commit", "-q", "-m", "refspec fixture"], cwd=self.layout.clone, env=env)
+        self.sha = remote.run_git(["rev-parse", "HEAD"], cwd=self.layout.clone, env=env).stdout.strip()
+        with FileStore(self.layout).transaction() as d:
+            d["tasks"]["T-MOCK-BASIC"] = {"lease_record": {
+                "lease_id": "L1", "status": "active", "expires_at": ClockFile(self.layout.clock).now() + 600}}
+        self.credentials = RemoteCredentials(self.layout, str(self.path), 600)
+        self.credentials.issue("builder_write_credential", "T-MOCK-BASIC", "L1")
+        self.git = RealGit(self.layout, str(self.path), [], self.credentials)
+        self.push_remote = PushRemote(self.layout, self.git, self.credentials)
+        self.request = {"lease_id": "L1", "sha": self.sha, "branch": self.BRANCH}
+
+    def tearDown(self):
+        self.layout_tmp.cleanup()
+
+    def pushes(self, spy):
+        return [c.args[0] for c in spy.call_args_list if c.args[0][:1] == ["push"]]
+
+    def decisions(self):
+        return [e for e in remote.push_log(self.path) if e["event"] == "pre_receive"]
+
+    def test_valid_push_passes_the_option_separator_and_lands_on_the_remote(self):
+        with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+            self.push_remote.execute("push", "T-MOCK-BASIC", dict(self.request))
+        self.assertEqual(self.pushes(spy), [["push", str(self.path), "--", f"{self.sha}:refs/heads/{self.BRANCH}"]])
+        self.assertEqual(remote.refs(self.path, self.home).get(f"refs/heads/{self.BRANCH}"), self.sha)
+        last = self.decisions()[-1]
+        self.assertEqual((last["decision"], last["reason"], last["ref"], last["client"]),
+                         ("accepted", "ok", f"refs/heads/{self.BRANCH}", "daemon-fenced"))
+
+    def test_invalid_refspec_never_reaches_git_or_the_remote(self):
+        # a wrong attempt of the same task (a2) is the core's lease-equality check, not the adapter's shape check
+        bad = [{"sha": s} for s in ("--receive-pack=/bin/sh", "--force", "+" + self.sha, self.sha[:39], self.sha + "0",
+                                    "A" * 40, "", None, 40)]
+        bad += [{"branch": b} for b in ("main", "task/T-MOCK-OTHER-a1", "--force",
+                                        self.BRANCH + ":refs/heads/main", self.BRANCH + " --force", "", None)]
+        refs_before, log_before = remote.refs(self.path, self.home), remote.push_log(self.path)
+        for kw in bad:
+            with self.subTest(kw=kw):
+                with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+                    with self.assertRaises(PushFailed):
+                        self.push_remote.execute("push", "T-MOCK-BASIC", dict(self.request, **kw))
+                self.assertEqual(self.pushes(spy), [])
+        self.assertEqual(remote.refs(self.path, self.home), refs_before)
+        self.assertEqual(remote.push_log(self.path), log_before)
+        records = read_jsonl(self.layout.root / "remote_writes.jsonl")
+        self.assertEqual(len(records), len(bad))
+        self.assertTrue(all(r["executed"] is False and r["reason"] == "invalid_refspec" for r in records))
+
+    def test_preserve_push_passes_the_option_separator_and_validates(self):
+        branch = "task/T-MOCK-BASIC-a2"  # its own branch: the shared remote keeps the other tests' refs
+        self.credentials.issue("preserve_credential", "T-MOCK-BASIC", "L1")
+        with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+            self.assertEqual(self.git.push(branch, self.sha), self.sha)
+        self.assertEqual(self.pushes(spy), [["push", str(self.path), "--", f"{self.sha}:refs/heads/{branch}"]])
+        last = self.decisions()[-1]
+        self.assertEqual((last["decision"], last["reason"], last["client"]), ("accepted", "ok", "daemon-preserve"))
+        for sha, b in (("--receive-pack=/bin/sh", branch), ("+" + self.sha, branch),
+                       (self.sha[:39], branch), (self.sha, "main"), (self.sha, branch + ":refs/heads/main")):
+            with self.subTest(sha=sha, branch=b):
+                with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+                    with self.assertRaises(PushFailed):
+                        self.git.push(b, sha)
+                self.assertEqual(spy.call_args_list, [])
+        # a well-formed branch of another task passes the shape check (the task is derived from the branch); no
+        # credential is issued for that task, so the push carries an empty token and the remote refuses it
+        with mock.patch.object(self.git, "_git", wraps=self.git._git) as spy:
+            with self.assertRaises(PushFailed):
+                self.git.push("task/T-MOCK-OTHER-a1", self.sha)
+        self.assertEqual(len(self.pushes(spy)), 1)
+        last = self.decisions()[-1]
+        self.assertEqual((last["decision"], last["reason"]), ("rejected", "permission_denied"))
+
+
+class CredentialLeaseFencing(unittest.TestCase):
+    """Audit 6: a 7200 s credential cannot authorize a builder after its 3600 s lease expires, even without
+    tick/restart/revoke. Exercise the actual credential issuer and pre-receive hook on a throwaway remote."""
+
+    def setUp(self):
+        from daemon.runner_verify.harness import BASIC, world
+        self.task = BASIC
+        self.w = self.enterContext(world())
+        self.w.init_task(self.task).result
+        self.w.grant(self.task).result
+        self.instr = self.w.latest_instruction(self.task)
+        self.assertTrue(self.issue()["issued"])
+        self.token = self.w.ports().credentials.token("builder_write_credential", self.task)
+        self.head = self.w.git(["rev-parse", "HEAD"]).stdout.strip()
+
+    def issue(self, name="builder_write_credential"):
+        return self.w.daemon("issue-credential", self.task, name, self.instr["lease_id"]).result
+
+    def push(self, token=None):
+        tree = self.w.git(["rev-parse", "HEAD^{tree}"]).stdout.strip()
+        self.head = self.w.git(["commit-tree", tree, "-p", self.head, "-m", "lease fencing fixture"]).stdout.strip()
+        return self.w.git(["push", str(self.w.remote), "--", f"{self.head}:refs/heads/{self.instr['branch']}"],
+                          check=False, env={"RV_PUSH_CREDENTIAL": token or self.token, "RV_PUSH_CLIENT": "builder"})
+
+    def assert_rejected(self, reason, token=None):
+        refs_before = self.w.remote_refs()
+        result = self.push(token)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("RV-REJECT " + reason, result.stderr)
+        self.assertEqual(self.w.remote_refs(), refs_before)
+        record = self.w.push_log()[-1]
+        self.assertEqual((record["event"], record["decision"], record["reason"]),
+                         ("pre_receive", "rejected", reason))
+
+    def test_expiry_blocks_direct_push_without_daemon_cleanup(self):
+        self.assertEqual(self.push().returncode, 0)
+        self.w.advance(self.w.ttl() + 1)
+        # The credential is still live on its independent real clock and the stored lease still says active.
+        with mock.patch.object(hook_pre_receive, "RV", str(self.w.remote / "rv")):
+            entry = hook_pre_receive.credential_state(self.token)
+            self.assertGreater(entry["expires_ns"], hook_pre_receive.time.time_ns())
+        self.assertEqual(self.w.lease(self.task)["status"], "active")
+        self.assertTrue(self.w.ports().credentials.is_active("builder_write_credential", self.task))
+        self.assert_rejected("lease_expired")
+
+    def test_exact_expiry_boundary_is_rejected(self):
+        expiry = self.w.lease(self.task)["expires_at"]
+        ref = "refs/heads/" + self.instr["branch"]
+        with mock.patch.object(hook_pre_receive, "RV", str(self.w.remote / "rv")):
+            with mock.patch.object(hook_pre_receive.time, "time", return_value=expiry - 1):
+                self.assertEqual(hook_pre_receive.decide(ref, self.token)[:2], ("accepted", "ok"))
+            with mock.patch.object(hook_pre_receive.time, "time", return_value=expiry):
+                self.assertEqual(hook_pre_receive.decide(ref, self.token)[:2], ("rejected", "lease_expired"))
+
+    def test_credential_expiry_still_blocks_a_live_lease(self):
+        ref = "refs/heads/" + self.instr["branch"]
+        with mock.patch.object(hook_pre_receive, "RV", str(self.w.remote / "rv")):
+            expiry = hook_pre_receive.credential_state(self.token)["expires_ns"]
+            with mock.patch.object(hook_pre_receive.time, "time_ns", return_value=expiry):
+                self.assertEqual(hook_pre_receive.decide(ref, self.token)[:2], ("rejected", "credential_expired"))
+
+    def test_heartbeat_renewal_keeps_the_same_credential_usable(self):
+        msg = self.w.envelope_msg(self.instr, "first_heartbeat")
+        self.assertTrue(self.w.submit(self.task, msg["msg_type"], msg["envelope"]).result["accepted"])
+        original_expiry = self.w.lease(self.task)["expires_at"]
+        self.w.advance(self.w.ttl() - 10)
+        msg = self.w.envelope_msg(self.instr, "heartbeat")
+        self.assertTrue(self.w.submit(self.task, msg["msg_type"], msg["envelope"]).result["accepted"])
+        self.assertGreater(self.w.lease(self.task)["expires_at"], original_expiry)
+        self.w.advance(20)
+        self.assertGreater(self.w.clock.now(), original_expiry)
+        self.assertEqual(self.push().returncode, 0)
+        self.w.advance(self.w.ttl())
+        self.assert_rejected("lease_expired")
+
+    def test_ended_and_replaced_leases_block_unrevoked_credentials(self):
+        original = self.w.lease(self.task)
+        for status in ("expired", "revoked", "returned"):
+            with self.subTest(status=status):
+                self.w.tamper(lambda d: d["tasks"][self.task]["lease_record"].update(status=status))
+                self.assert_rejected("lease_not_current_or_not_active")
+        self.w.tamper(lambda d: d["tasks"][self.task].update(
+            lease_record=dict(original, lease_id="replacement-lease", status="active")))
+        self.assert_rejected("lease_not_current_or_not_active")
+
+    def test_missing_or_malformed_authority_fails_closed(self):
+        original = self.w.layout.store.read_bytes()
+        for content in (None, b"{", b"null", b'{"tasks": {}}',
+                        b'{"tasks": {"T-MOCK-BASIC": {"lease_record": null}}}'):
+            with self.subTest(content=content):
+                if content is None:
+                    self.w.layout.store.unlink()
+                else:
+                    self.w.layout.store.write_bytes(content)
+                self.assert_rejected("lease_unavailable")
+                self.w.layout.store.write_bytes(original)
+        for content in ("{", "null", '{"offset": "NaN"}'):
+            with self.subTest(clock=content):
+                self.w.layout.clock.write_text(content, encoding="utf-8")
+                self.assert_rejected("lease_unavailable")
+
+    def test_malformed_lease_expiry_fails_closed(self):
+        for expiry in (None, "future", True, float("nan"), float("inf")):
+            with self.subTest(expiry=expiry):
+                self.w.tamper(lambda d: d["tasks"][self.task]["lease_record"].update(expires_at=expiry))
+                self.assert_rejected("lease_unavailable")
+
+    def test_unbound_builder_credential_fails_closed(self):
+        remote.register_token(self.w.remote, token_sha("unbound-fixture"), "builder_write_credential",
+                              self.task, self.instr["lease_id"], 7200)
+        self.assert_rejected("lease_unavailable", "unbound-fixture")
+
+    def test_expired_lease_cannot_obtain_or_replace_builder_credentials(self):
+        self.w.advance(self.w.ttl() + 1)
+        before = self.w.cred_log()
+        for name in ("builder_write_credential", "builder_token"):
+            with self.subTest(name=name):
+                self.assertEqual(self.issue(name), {"issued": False, "reason": "lease_expired"})
+        self.assertEqual(self.w.cred_log(), before)
+
+    def test_daemon_preserve_credential_can_write_after_lease_expiry(self):
+        self.w.advance(self.w.ttl() + 1)
+        self.w.ports().credentials.issue("preserve_credential", self.task, self.instr["lease_id"])
+        token = self.w.ports().credentials.token("preserve_credential", self.task)
+        self.assertEqual(self.push(token).returncode, 0)
+        remote.revoke_token(self.w.remote, token_sha(token))
+        self.assert_rejected("credential_revoked", token)
 
 
 class StatusRules(unittest.TestCase):
@@ -301,6 +535,169 @@ class DrainGuardWait(unittest.TestCase):
             self.assertEqual([(r["name"], r["outcome"]["accepted"]) for r in done], [("1.json", False), ("2.json", True)])
             self.assertEqual(sorted(p.name for p in layout.daemon_inbox.iterdir()), ["1.json"])
             self.assertEqual(sorted(p.name for p in layout.daemon_done.iterdir()), ["2.json", "2.json.out"])
+
+
+class DrainPoisonMessage(unittest.TestCase):
+    """audit6-daemon-drain-poison-message: one inbox file failing with an exception outside the old catch list
+    (a PushFailed, a timeout, `"envelope": "x"`) stopped the whole drain, so every later file stayed undelivered
+    until leases expired. Any failing message is now quarantined — moved to daemon_done with an ok:False record,
+    the original file preserved — and the drain delivers the rest. Unparseable JSON is quarantined too instead of
+    staying in the inbox forever."""
+
+    def _run_drain(self, files, exc):
+        """files: [(name, message-or-raw-text)]; the fake core raises exc for envelope_id POISON."""
+        from types import SimpleNamespace
+        from daemon.runner_verify import daemon_main
+
+        class Core:
+            guard_wait = {"result": "guard_wait"}
+            ports = SimpleNamespace(faults=SimpleNamespace(check=lambda point: None))
+
+            def submit_envelope(self, task_id, kind, envelope):
+                if envelope.get("envelope_id") == "POISON":
+                    raise exc
+                if envelope.get("envelope_id") == "WAIT":
+                    return {"accepted": False, "reason": "guard_wait"}
+                return {"accepted": True}
+
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        layout = Layout(tmp.name).make()
+        for name, msg in files:
+            text = msg if isinstance(msg, str) else json.dumps(msg)
+            (layout.daemon_inbox / name).write_text(text, encoding="utf-8")
+        return layout, daemon_main.op_drain(layout, Core(), None)
+
+    def test_any_exception_quarantines_the_file_and_the_drain_continues(self):
+        from daemon.core.ports import PushFailed
+        good = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "GOOD"}}
+        poison = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "POISON"}}
+        for exc in (PushFailed("network"), TimeoutError("git push timed out"),
+                    subprocess.TimeoutExpired(["git", "push"], timeout=120),
+                    AttributeError("'str' object has no attribute 'get'"), TypeError("string indices must be integers")):
+            with self.subTest(exc=type(exc).__name__):
+                layout, done = self._run_drain([("1.json", good), ("2.json", poison), ("3.json", good)], exc)
+                self.assertEqual([(r["name"], r["ok"]) for r in done],
+                                 [("1.json", True), ("2.json", False), ("3.json", True)])
+                self.assertEqual(done[1]["error"], type(exc).__name__)
+                self.assertIn(str(exc)[:300], done[1]["msg"])
+                self.assertEqual(list(layout.daemon_inbox.iterdir()), [], "the drain emptied the inbox")
+                self.assertEqual(sorted(p.name for p in layout.daemon_done.iterdir()),
+                                 ["1.json", "1.json.out", "2.json", "2.json.out", "3.json", "3.json.out"])
+                out = json.loads((layout.daemon_done / "2.json.out").read_text(encoding="utf-8"))
+                self.assertEqual((out["ok"], out["error"]), (False, type(exc).__name__))
+                self.assertEqual((layout.daemon_done / "2.json").read_text(encoding="utf-8"), json.dumps(poison),
+                                 "the quarantined original is preserved for inspection")
+
+    def test_unparseable_json_is_quarantined_not_left_in_the_inbox(self):
+        good = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "GOOD"}}
+        layout, done = self._run_drain([("1.json", "{not json"), ("2.json", good)], None)
+        self.assertEqual([(r["name"], r["ok"]) for r in done], [("1.json", False), ("2.json", True)])
+        self.assertEqual(done[0]["error"], "JSONDecodeError")
+        self.assertEqual(list(layout.daemon_inbox.iterdir()), [])
+        self.assertEqual((layout.daemon_done / "1.json").read_text(encoding="utf-8"), "{not json")
+
+    def test_a_poison_file_does_not_disturb_guard_wait_redelivery(self):
+        from daemon.core.ports import PushFailed
+        wait = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "WAIT"}}
+        poison = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "POISON"}}
+        good = {"msg_type": "heartbeat", "task_id": "T", "envelope": {"envelope_id": "GOOD"}}
+        layout, done = self._run_drain([("1.json", wait), ("2.json", poison), ("3.json", good)], PushFailed("network"))
+        self.assertEqual([(r["name"], r["ok"]) for r in done],
+                         [("1.json", True), ("2.json", False), ("3.json", True)])
+        self.assertEqual([p.name for p in layout.daemon_inbox.iterdir()], ["1.json"],
+                         "the waiting envelope is still redelivered by the next drain")
+
+    def test_real_drain_quarantines_poison_and_delivers_the_rest(self):
+        """The real daemon process over the real adapters: `"envelope": "x"` raises AttributeError in the core,
+        an unissued credential makes the remote adapter raise PushFailed, bad JSON never parses — and the valid
+        heartbeat after them is still accepted (leased→building) in the same drain."""
+        from daemon.runner_verify.harness import BASIC
+        with Ctx().world() as w:
+            self.assertTrue(w.init_task(BASIC).ok)
+            self.assertTrue(w.grant(BASIC).ok)
+            lease = w.lease(BASIC)
+            base = {"task_id": BASIC, "lease_id": lease["lease_id"],
+                    "lease_generation": lease["lease_generation"], "fencing_token": lease["fencing_token"]}
+            w.queue_file({"msg_type": "heartbeat", "task_id": BASIC, "envelope": "x"}, name="1-poison-envelope.json")
+            (w.layout.daemon_inbox / "2-poison-json.json").write_text("{not json", encoding="utf-8")
+            w.queue_file({"msg_type": "push_requested", "task_id": BASIC,
+                          "payload": dict(base, envelope_id="POISON-PUSH", via="daemon",
+                                          branch=lease["branch"], sha="0" * 40)}, name="3-poison-push.json")
+            w.queue_file({"msg_type": "first_heartbeat", "task_id": BASIC,
+                          "envelope": dict(base, envelope_id="GOOD-HB", at=w.clock.now())}, name="4-good.json")
+            res = w.drain()
+            self.assertTrue(res.ok, res.payload or res.stderr)
+            done = res.result
+            self.assertEqual([r["name"] for r in done],
+                             ["1-poison-envelope.json", "2-poison-json.json", "3-poison-push.json", "4-good.json"])
+            self.assertEqual([r["ok"] for r in done], [False, False, False, True])
+            self.assertEqual([r["error"] for r in done[:3]], ["AttributeError", "JSONDecodeError", "PushFailed"])
+            self.assertTrue(done[3]["outcome"]["accepted"])
+            self.assertEqual(w.state(BASIC), "building", "the heartbeat after the poison files still moved the task")
+            self.assertEqual(list(w.layout.daemon_inbox.glob("*.json")), [])
+            for r in done[:3]:
+                out = json.loads((w.layout.daemon_done / (r["name"] + ".out")).read_text(encoding="utf-8"))
+                self.assertEqual((out["ok"], out["error"]), (False, r["error"]))
+                self.assertTrue((w.layout.daemon_done / r["name"]).exists(), "the original is preserved")
+
+    def test_an_unexpected_operation_failure_still_answers_rv_result(self):
+        """The top-level catch (the finding's second site): a failure outside the old catch list — here a missing
+        config makes build_core raise TypeError — still prints the one RV_RESULT line the harness parses."""
+        from daemon.runner_verify.harness import DAEMON_MAIN
+        with tempfile.TemporaryDirectory() as tmp:
+            Layout(tmp).make()  # no config.json
+            res = subprocess.run([sys.executable, "-I", DAEMON_MAIN, "--state", tmp, "drain"],
+                                 capture_output=True, text=True)
+            self.assertEqual(res.returncode, 3)
+            line = next(l for l in res.stdout.splitlines() if l.startswith("RV_RESULT "))
+            payload = json.loads(line[len("RV_RESULT "):])
+            self.assertFalse(payload["ok"])
+            self.assertEqual(payload["error"], "TypeError")
+            self.assertIn("trace", payload)
+
+    def test_http_delivery_answers_a_poison_message_and_keeps_serving(self):
+        import http.client
+        import time
+        from daemon.runner_verify.common import read_jsonl
+        from daemon.runner_verify.harness import BASIC
+        with Ctx().world() as w:
+            self.assertTrue(w.init_task(BASIC).ok)
+            self.assertTrue(w.grant(BASIC).ok)
+            lease = w.lease(BASIC)
+            proc = w.daemon_async("serve", "--port", "0", "--duration", "30")
+            try:
+                port_file = w.layout.root / "http_port"
+                deadline = time.time() + 10
+                while not port_file.exists() and time.time() < deadline:
+                    time.sleep(0.05)
+                port = int(port_file.read_text(encoding="utf-8"))
+
+                def post(body):
+                    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+                    try:
+                        conn.request("POST", "/message", body)
+                        resp = conn.getresponse()
+                        return resp.status, json.loads(resp.read())
+                    finally:
+                        conn.close()
+
+                status, res = post("{not json")
+                self.assertEqual((status, res["ok"], res["error"]), (200, False, "JSONDecodeError"))
+                status, res = post(json.dumps({"msg_type": "heartbeat", "task_id": BASIC, "envelope": "x"}))
+                self.assertEqual((status, res["ok"], res["error"]), (200, False, "AttributeError"))
+                good = {"msg_type": "first_heartbeat", "task_id": BASIC,
+                        "envelope": dict(envelope_id="HTTP-GOOD", task_id=BASIC, lease_id=lease["lease_id"],
+                                         lease_generation=lease["lease_generation"],
+                                         fencing_token=lease["fencing_token"], at=w.clock.now())}
+                status, res = post(json.dumps(good))
+                self.assertEqual((status, res["ok"]), (200, True))
+                self.assertTrue(res["outcome"]["accepted"])
+                log = read_jsonl(w.layout.root / "http_server.jsonl")
+                self.assertEqual([e["res"]["ok"] for e in log], [False, False, True])
+            finally:
+                (w.layout.root / "http_stop").write_text("1", encoding="utf-8")
+                proc.wait(timeout=15)
 
 
 class ReportLogic(unittest.TestCase):

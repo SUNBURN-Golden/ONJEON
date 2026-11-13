@@ -8,11 +8,16 @@ Rules, in this order, for every ref a push updates:
      that may write, and issued for the task the branch belongs to        -> RV-REJECT permission_denied |
                                                                              credential_revoked | credential_expired |
                                                                              scope_mismatch
+  4. builder writes require their current, active, unexpired lease        -> RV-REJECT lease_unavailable |
+                                                                             lease_not_current_or_not_active |
+                                                                             lease_expired
+     (preserve credentials are the daemon's separate handoff authority)
 Every decision is appended to rv/push_log.jsonl before the ref is touched. Standard library only.
 """
 import fcntl
 import hashlib
 import json
+import math
 import os
 import re
 import sys
@@ -66,6 +71,33 @@ def control(name):
         return None
 
 
+def lease_rejection(entry):
+    """Read the atomic state snapshot using the daemon's shifted clock. No tick/revoke is needed to expire a
+    builder. Missing bindings/state and malformed data fail closed. Do not take the store lock: a daemon
+    preserve push can run inside its transaction, and readers see either complete snapshot after rename."""
+    try:
+        with open(entry["lease_store"], encoding="utf-8") as f:
+            lease = json.load(f)["tasks"][entry["task_id"]]["lease_record"]
+        offset = 0.0
+        try:
+            with open(entry["lease_clock"], encoding="utf-8") as f:
+                offset = float(json.load(f).get("offset", 0.0))
+        except FileNotFoundError:
+            pass  # ClockFile also uses offset 0 until the first clock advance.
+        if not isinstance(lease, dict) or not math.isfinite(offset):
+            return "lease_unavailable"
+        if lease.get("lease_id") != entry["lease_id"] or lease.get("status") != "active":
+            return "lease_not_current_or_not_active"
+        expires = lease["expires_at"]
+        if type(expires) not in (int, float) or not math.isfinite(expires):
+            return "lease_unavailable"
+        if expires <= int(time.time() + offset):
+            return "lease_expired"
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, OverflowError):
+        return "lease_unavailable"
+    return None
+
+
 def decide(ref, token):
     forced = control("force_reject")
     if forced:
@@ -84,10 +116,14 @@ def decide(ref, token):
         return "rejected", "permission_denied", None
     if entry["revoked_ns"] is not None:
         return "rejected", "credential_revoked", entry
-    if entry["expires_ns"] < time.time_ns():
+    if entry["expires_ns"] <= time.time_ns():
         return "rejected", "credential_expired", entry
     if entry["name"] not in WRITERS or entry["task_id"] != m.group(1):
         return "rejected", "scope_mismatch", entry
+    if entry["name"] == "builder_write_credential":
+        reason = lease_rejection(entry)
+        if reason:
+            return "rejected", reason, entry
     return "accepted", "ok", entry
 
 

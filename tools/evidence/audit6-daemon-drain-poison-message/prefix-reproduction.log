@@ -1,0 +1,213 @@
+test_a_poison_file_does_not_disturb_guard_wait_redelivery (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_a_poison_file_does_not_disturb_guard_wait_redelivery) ... ERROR
+test_an_unexpected_operation_failure_still_answers_rv_result (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_an_unexpected_operation_failure_still_answers_rv_result)
+The top-level catch (the finding's second site): a failure outside the old catch list — here a missing ... FAIL
+test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) ... 
+  test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='PushFailed') ... ERROR
+  test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='TimeoutError') ... ERROR
+  test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='AttributeError') ... ERROR
+  test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='TypeError') ... ERROR
+test_http_delivery_answers_a_poison_message_and_keeps_serving (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_http_delivery_answers_a_poison_message_and_keeps_serving) ... ERROR
+test_real_drain_quarantines_poison_and_delivers_the_rest (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_real_drain_quarantines_poison_and_delivers_the_rest)
+The real daemon process over the real adapters: `"envelope": "x"` raises AttributeError in the core, ... /workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/rules.py:121: ResourceWarning: unclosed file <_io.FileIO name=3 mode='rb' closefd=True>
+  for k, v in b.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/rules.py:121: ResourceWarning: unclosed file <_io.FileIO name=5 mode='rb' closefd=True>
+  for k, v in b.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FAIL
+test_unparseable_json_is_quarantined_not_left_in_the_inbox (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_unparseable_json_is_quarantined_not_left_in_the_inbox) ... FAIL
+
+======================================================================
+ERROR: test_a_poison_file_does_not_disturb_guard_wait_redelivery (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_a_poison_file_does_not_disturb_guard_wait_redelivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 370, in test_a_poison_file_does_not_disturb_guard_wait_redelivery
+    layout, done = self._run_drain([("1.json", wait), ("2.json", poison), ("3.json", good)], PushFailed("network"))
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 335, in _run_drain
+    return layout, daemon_main.op_drain(layout, Core(), None)
+                   ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 61, in op_drain
+    res = {"name": path.name, "ok": True, "outcome": outcome(handle_message(core, msg)),
+                                                             ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 50, in handle_message
+    return core.submit_envelope(task_id, kind, msg["envelope"])
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 324, in submit_envelope
+    raise exc
+daemon.core.ports.PushFailed: push failed: network
+
+======================================================================
+ERROR: test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='PushFailed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 344, in test_any_exception_quarantines_the_file_and_the_drain_continues
+    layout, done = self._run_drain([("1.json", good), ("2.json", poison), ("3.json", good)], exc)
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 335, in _run_drain
+    return layout, daemon_main.op_drain(layout, Core(), None)
+                   ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 61, in op_drain
+    res = {"name": path.name, "ok": True, "outcome": outcome(handle_message(core, msg)),
+                                                             ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 50, in handle_message
+    return core.submit_envelope(task_id, kind, msg["envelope"])
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 324, in submit_envelope
+    raise exc
+daemon.core.ports.PushFailed: push failed: network
+
+======================================================================
+ERROR: test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='TimeoutError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 344, in test_any_exception_quarantines_the_file_and_the_drain_continues
+    layout, done = self._run_drain([("1.json", good), ("2.json", poison), ("3.json", good)], exc)
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 335, in _run_drain
+    return layout, daemon_main.op_drain(layout, Core(), None)
+                   ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 61, in op_drain
+    res = {"name": path.name, "ok": True, "outcome": outcome(handle_message(core, msg)),
+                                                             ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 50, in handle_message
+    return core.submit_envelope(task_id, kind, msg["envelope"])
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 324, in submit_envelope
+    raise exc
+TimeoutError: git push timed out
+
+======================================================================
+ERROR: test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='AttributeError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 344, in test_any_exception_quarantines_the_file_and_the_drain_continues
+    layout, done = self._run_drain([("1.json", good), ("2.json", poison), ("3.json", good)], exc)
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 335, in _run_drain
+    return layout, daemon_main.op_drain(layout, Core(), None)
+                   ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 61, in op_drain
+    res = {"name": path.name, "ok": True, "outcome": outcome(handle_message(core, msg)),
+                                                             ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 50, in handle_message
+    return core.submit_envelope(task_id, kind, msg["envelope"])
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 324, in submit_envelope
+    raise exc
+AttributeError: 'str' object has no attribute 'get'
+
+======================================================================
+ERROR: test_any_exception_quarantines_the_file_and_the_drain_continues (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_any_exception_quarantines_the_file_and_the_drain_continues) (exc='TypeError')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 344, in test_any_exception_quarantines_the_file_and_the_drain_continues
+    layout, done = self._run_drain([("1.json", good), ("2.json", poison), ("3.json", good)], exc)
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 335, in _run_drain
+    return layout, daemon_main.op_drain(layout, Core(), None)
+                   ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 61, in op_drain
+    res = {"name": path.name, "ok": True, "outcome": outcome(handle_message(core, msg)),
+                                                             ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 50, in handle_message
+    return core.submit_envelope(task_id, kind, msg["envelope"])
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 324, in submit_envelope
+    raise exc
+TypeError: string indices must be integers
+
+======================================================================
+ERROR: test_http_delivery_answers_a_poison_message_and_keeps_serving (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_http_delivery_answers_a_poison_message_and_keeps_serving)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 450, in test_http_delivery_answers_a_poison_message_and_keeps_serving
+    status, res = post("{not json")
+                  ~~~~^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 445, in post
+    resp = conn.getresponse()
+  File "/usr/lib/python3.13/http/client.py", line 1459, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/client.py", line 305, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+                             " response")
+http.client.RemoteDisconnected: Remote end closed connection without response
+
+======================================================================
+FAIL: test_an_unexpected_operation_failure_still_answers_rv_result (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_an_unexpected_operation_failure_still_answers_rv_result)
+The top-level catch (the finding's second site): a failure outside the old catch list — here a missing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 417, in test_an_unexpected_operation_failure_still_answers_rv_result
+    self.assertEqual(res.returncode, 3)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 3
+
+======================================================================
+FAIL: test_real_drain_quarantines_poison_and_delivers_the_rest (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_real_drain_quarantines_poison_and_delivers_the_rest)
+The real daemon process over the real adapters: `"envelope": "x"` raises AttributeError in the core,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 395, in test_real_drain_quarantines_poison_and_delivers_the_rest
+    self.assertTrue(res.ok, res.payload or res.stderr)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 213, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 191, in main
+    res = op_drain(layout, core, args)
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 61, in op_drain
+    res = {"name": path.name, "ok": True, "outcome": outcome(handle_message(core, msg)),
+                                                             ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/daemon_main.py", line 50, in handle_message
+    return core.submit_envelope(task_id, kind, msg["envelope"])
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/engine.py", line 220, in submit_envelope
+    out = self._locked(task_id, run) if lease_event else run()
+                                                         ~~~^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/engine.py", line 217, in run
+    return self._txn(task_id, lambda d: fencing.accept(self, d, task_id, msg_type, envelope))
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/engine.py", line 147, in _txn
+    out = fn(d)
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/engine.py", line 217, in <lambda>
+    return self._txn(task_id, lambda d: fencing.accept(self, d, task_id, msg_type, envelope))
+                                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/fencing.py", line 57, in accept
+    key = ev.dedup_key(rules, task_id, msg_type, envelope)
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/core/envelope_validator.py", line 82, in dedup_key
+    parts = {"task_id": task_id, "lease_generation": envelope.get("lease_generation"),
+                                                     ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+======================================================================
+FAIL: test_unparseable_json_is_quarantined_not_left_in_the_inbox (tools.daemon.runner_verify.tests.test_runner_verify.DrainPoisonMessage.test_unparseable_json_is_quarantined_not_left_in_the_inbox)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-daemon-drain-poison-message/tools/daemon/runner_verify/tests/test_runner_verify.py", line 360, in test_unparseable_json_is_quarantined_not_left_in_the_inbox
+    self.assertEqual([(r["name"], r["ok"]) for r in done], [("1.json", False), ("2.json", True)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('2.json', True)] != [('1.json', False), ('2.json', True)]
+
+First differing element 0:
+('2.json', True)
+('1.json', False)
+
+Second list contains 1 additional elements.
+First extra element 1:
+('2.json', True)
+
+- [('2.json', True)]
++ [('1.json', False), ('2.json', True)]
+
+----------------------------------------------------------------------
+Ran 6 tests in 4.873s
+
+FAILED (failures=3, errors=6)
+exit=1

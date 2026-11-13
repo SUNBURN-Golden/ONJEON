@@ -1,0 +1,7 @@
+PASS: baseline: 0 expected failures detected
+PASS: missing-duplicate-guard: 1 expected failures detected
+PASS: missing-filename-guard: 2 expected failures detected
+PASS: missing-shared-inventory-guard: 3 expected failures detected
+PASS: missing-supplement-inventory-guard: 2 expected failures detected
+PASS: missing-merged-inventory-guard: 1 expected failures detected
+PASS: repository harness unchanged; isolated crates removed.

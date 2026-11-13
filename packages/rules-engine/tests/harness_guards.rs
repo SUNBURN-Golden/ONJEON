@@ -107,6 +107,27 @@ fn duplicate_rule_ids_are_rejected_in_either_filename_order() {
     }
 }
 
+#[test]
+fn duplicate_rule_id_is_reported_before_any_overwrite() {
+    for identical in [true, false] {
+        let fixtures = Fixtures::new();
+        let rule = rule_json();
+        fixtures.write("fixture-rule-001.json", &rule);
+        let mut copy = rule.clone();
+        if !identical {
+            copy["amount"]["then"]["multiply_rate"][1] = json!("0.4");
+        }
+        onjeon_rules_engine::Rule::from_json(&copy).expect("valid duplicate rule");
+        fixtures.write("z-copy.json", &copy);
+        rejects(
+            || {
+                real_rules_in(&fixtures.0);
+            },
+            &["z-copy.json", "duplicate rule_id `fixture-rule-001`"],
+        );
+    }
+}
+
 fn table(real: bool) -> J {
     if real {
         json!({"rule_id": "example", "base": {"amount": 10, "flag": true}, "cases": [
@@ -117,6 +138,161 @@ fn table(real: bool) -> J {
             {"id": "shared", "note": "allowed metadata", "inputs": {"amount": 10}, "expect": {}}
         ]})
     }
+}
+
+fn multi_rule_table() -> J {
+    json!({"rule_ids": ["example", "other"], "rule_id": "example", "base": {}, "cases": [
+        {"id": "default", "expect": {}},
+        {"id": "explicit", "rule": "other", "expect": {}}
+    ]})
+}
+
+#[test]
+fn multi_rule_inventory_preserves_order_defaults_and_supplements() {
+    let fixtures = Fixtures::new();
+    let mut shared = multi_rule_table();
+    // Inventory order is independent of case order and is preserved, not normalized.
+    shared["rule_ids"] = json!(["other", "example"]);
+    fixtures.write("shared/example.cases.json", &shared);
+    let extra = json!({"rule_ids": ["other", "example"], "cases": [
+        {"id": "extra-default", "expect": {}},
+        {"id": "extra", "rule": "other", "expect": {}}
+    ]});
+    fixtures.write("extra/example.cases.json", &extra);
+    let loaded = fixtures.cases();
+    assert_eq!(loaded["rule_ids"], shared["rule_ids"]);
+    assert_eq!(loaded["rule_id"], shared["rule_id"]);
+    assert_eq!(loaded["cases"][0], shared["cases"][0]);
+    assert_eq!(loaded["cases"][1], shared["cases"][1]);
+    assert_eq!(loaded["cases"][2], extra["cases"][0]);
+    assert_eq!(loaded["cases"][3], extra["cases"][1]);
+}
+
+#[test]
+fn malformed_rule_inventories_are_rejected_in_shared_files_and_supplements() {
+    for origin in ["shared", "extra"] {
+        for (ids, diagnostic) in [
+            (J::Null, "rule_ids must be a nonempty array"),
+            (json!("example"), "rule_ids must be a nonempty array"),
+            (json!({}), "rule_ids must be a nonempty array"),
+            (json!([]), "rule_ids must be a nonempty array"),
+            (json!([1]), "rule_ids[0] must be a nonblank string"),
+            (json!([null]), "rule_ids[0] must be a nonblank string"),
+            (json!([""]), "rule_ids[0] must be a nonblank string"),
+            (
+                json!([" \t\u{3000}"]),
+                "rule_ids[0] must be a nonblank string",
+            ),
+            (
+                json!(["example", "example"]),
+                "duplicate rule_ids entry `example`",
+            ),
+        ] {
+            let fixtures = Fixtures::new();
+            let mut broken = multi_rule_table();
+            broken["rule_ids"] = ids;
+            if origin == "extra" {
+                fixtures.write("shared/example.cases.json", &multi_rule_table());
+            }
+            fixtures.write(&format!("{origin}/example.cases.json"), &broken);
+            rejects(
+                || {
+                    fixtures.cases();
+                },
+                &[origin, "example.cases.json", diagnostic],
+            );
+        }
+    }
+}
+
+#[test]
+fn rule_inventory_must_equal_case_selections_in_each_source_file() {
+    for origin in ["shared", "extra"] {
+        for (ids, diagnostic) in [
+            (
+                json!(["example"]),
+                "rule `other` is not declared in rule_ids",
+            ),
+            (
+                json!(["example", "other", "unused"]),
+                "rule_ids must equal the rules exercised by cases",
+            ),
+        ] {
+            let fixtures = Fixtures::new();
+            let mut broken = multi_rule_table();
+            broken["rule_ids"] = ids;
+            if origin == "extra" {
+                fixtures.write("shared/example.cases.json", &multi_rule_table());
+            }
+            fixtures.write(&format!("{origin}/example.cases.json"), &broken);
+            rejects(
+                || {
+                    fixtures.cases();
+                },
+                &[origin, "example.cases.json", diagnostic],
+            );
+        }
+    }
+    let fixtures = Fixtures::new();
+    let mut broken = multi_rule_table();
+    broken.as_object_mut().unwrap().remove("rule_id");
+    fixtures.write("shared/example.cases.json", &broken);
+    rejects(
+        || {
+            fixtures.cases();
+        },
+        &["shared", "example.cases.json", "cases[0] names no rule"],
+    );
+}
+
+#[test]
+fn supplements_cannot_select_rules_outside_the_shared_inventory() {
+    // Both an absent inventory and a valid local inventory must obey the shared one.
+    for declares_ids in [false, true] {
+        let fixtures = Fixtures::new();
+        fixtures.write("shared/example.cases.json", &multi_rule_table());
+        let mut extra = json!({"cases": [
+            {"id": "extra", "rule": "unexpected", "expect": {}}
+        ]});
+        if declares_ids {
+            extra["rule_ids"] = json!(["unexpected"]);
+        }
+        fixtures.write("extra/example.cases.json", &extra);
+        rejects(
+            || {
+                fixtures.cases();
+            },
+            &[
+                "extra",
+                "example.cases.json",
+                "rule `unexpected` is not declared in rule_ids",
+            ],
+        );
+    }
+}
+
+#[test]
+fn supplements_cannot_hide_unexercised_shared_inventory_entries() {
+    let fixtures = Fixtures::new();
+    let mut shared = multi_rule_table();
+    shared["cases"].as_array_mut().unwrap().pop();
+    fixtures.write("shared/example.cases.json", &shared);
+    fixtures.write(
+        "extra/example.cases.json",
+        &json!({"cases": [
+            {"id": "extra", "rule": "other", "expect": {}}
+        ]}),
+    );
+    rejects(
+        || {
+            fixtures.cases();
+        },
+        &[
+            "shared",
+            "example.cases.json",
+            "rule_ids must equal the rules exercised by cases",
+        ],
+    );
 }
 
 #[test]

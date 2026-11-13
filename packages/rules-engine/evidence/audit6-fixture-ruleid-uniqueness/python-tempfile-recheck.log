@@ -1,0 +1,11 @@
+test_cleanup_and_propagation_on_callback_exception (test_ontology_check_tempfile.BadRuleTemporaryFile.test_cleanup_and_propagation_on_callback_exception) ... ok
+test_cleanup_when_serialization_fails (test_ontology_check_tempfile.BadRuleTemporaryFile.test_cleanup_when_serialization_fails) ... ok
+test_constraints_and_frozen_release_still_detect_bad_rule (test_ontology_check_tempfile.BadRuleTemporaryFile.test_constraints_and_frozen_release_still_detect_bad_rule) ... ok
+test_killed_process_leaves_no_debris_in_rule_tree (test_ontology_check_tempfile.BadRuleTemporaryFile.test_killed_process_leaves_no_debris_in_rule_tree) ... ok
+test_overlapping_calls_have_independent_files (test_ontology_check_tempfile.BadRuleTemporaryFile.test_overlapping_calls_have_independent_files) ... ok
+test_readable_mutation_outside_repo_and_cleanup_on_return (test_ontology_check_tempfile.BadRuleTemporaryFile.test_readable_mutation_outside_repo_and_cleanup_on_return) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.198s
+
+OK

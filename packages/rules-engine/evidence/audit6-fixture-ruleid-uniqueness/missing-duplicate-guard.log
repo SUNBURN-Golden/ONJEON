@@ -1,0 +1,52 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine/Cargo.toml --test harness_guards
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine)
+warning: unused import: `btree_map::Entry`
+ --> tests/common/mod.rs:4:24
+  |
+4 | use std::collections::{btree_map::Entry, BTreeMap, BTreeSet};
+  |                        ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `onjeon-rules-engine` (test "harness_guards") generated 1 warning (run `cargo fix --test "harness_guards" -p onjeon-rules-engine` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.38s
+     Running tests/harness_guards.rs (target/audit6-harness-control-build/debug/deps/harness_guards-3e4d4add4a3becdb)
+
+running 13 tests
+test rule_filename_must_match_its_id_even_without_a_collision ... ok
+test rule_inventory_must_equal_case_selections_in_each_source_file ... ok
+test malformed_overrides_cannot_silently_use_base_inputs ... ok
+test multi_rule_inventory_preserves_order_defaults_and_supplements ... ok
+test supplements_cannot_select_rules_outside_the_shared_inventory ... ok
+test supplements_cannot_hide_unexercised_shared_inventory_entries ... ok
+test unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+test malformed_rule_inventories_are_rejected_in_shared_files_and_supplements ... ok
+test duplicate_rule_ids_are_rejected_in_either_filename_order ... ok
+test valid_shared_and_supplemental_case_formats_keep_their_inputs ... ok
+test duplicate_rule_id_is_reported_before_any_overwrite ... FAILED
+test unknown_real_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+test matching_rule_files_preserve_every_rule_and_ignore_case_tables ... ok
+
+failures:
+
+---- duplicate_rule_id_is_reported_before_any_overwrite stdout ----
+
+thread 'duplicate_rule_id_is_reported_before_any_overwrite' (3863576) panicked at tests/common/mod.rs:219:13:
+assertion `left == right` failed: /workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine/../../target/harness-guards-3863575-52/z-copy.json: file name must equal rule_id `fixture-rule-001` plus .json
+  left: Some("z-copy")
+ right: Some("fixture-rule-001")
+
+thread 'duplicate_rule_id_is_reported_before_any_overwrite' (3863576) panicked at tests/harness_guards.rs:53:9:
+expected "duplicate rule_id `fixture-rule-001`" in assertion `left == right` failed: /workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine/../../target/harness-guards-3863575-52/z-copy.json: file name must equal rule_id `fixture-rule-001` plus .json
+  left: Some("z-copy")
+ right: Some("fixture-rule-001")
+
+
+failures:
+    duplicate_rule_id_is_reported_before_any_overwrite
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `--test harness_guards`
+
+Exit: 101

@@ -1,0 +1,46 @@
+Command: cargo test --locked --offline --manifest-path /workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine/Cargo.toml --test harness_guards
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.53s
+     Running tests/harness_guards.rs (target/audit6-harness-control-build/debug/deps/harness_guards-3e4d4add4a3becdb)
+
+running 13 tests
+test duplicate_rule_ids_are_rejected_in_either_filename_order ... FAILED
+test duplicate_rule_id_is_reported_before_any_overwrite ... ok
+test malformed_overrides_cannot_silently_use_base_inputs ... ok
+test matching_rule_files_preserve_every_rule_and_ignore_case_tables ... ok
+test supplements_cannot_select_rules_outside_the_shared_inventory ... ok
+test rule_filename_must_match_its_id_even_without_a_collision ... FAILED
+test rule_inventory_must_equal_case_selections_in_each_source_file ... ok
+test malformed_rule_inventories_are_rejected_in_shared_files_and_supplements ... ok
+test multi_rule_inventory_preserves_order_defaults_and_supplements ... ok
+test unknown_real_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+test valid_shared_and_supplemental_case_formats_keep_their_inputs ... ok
+test supplements_cannot_hide_unexercised_shared_inventory_entries ... ok
+test unknown_synthetic_case_keys_are_rejected_in_shared_files_and_supplements ... ok
+
+failures:
+
+---- duplicate_rule_ids_are_rejected_in_either_filename_order stdout ----
+
+thread 'duplicate_rule_ids_are_rejected_in_either_filename_order' (3863873) panicked at tests/common/mod.rs:222:21:
+/workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine/../../target/harness-guards-3863871-0/fixture-rule-001.json: duplicate rule_id `fixture-rule-001`
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'duplicate_rule_ids_are_rejected_in_either_filename_order' (3863873) panicked at tests/harness_guards.rs:53:9:
+expected "a-copy.json" in /workspace/onjeon-run/wt/audit6-engine-fixture-ruleid-uniqueness/target/audit6-harness-bp0xi_4g/packages/rules-engine/../../target/harness-guards-3863871-0/fixture-rule-001.json: duplicate rule_id `fixture-rule-001`
+
+---- rule_filename_must_match_its_id_even_without_a_collision stdout ----
+
+thread 'rule_filename_must_match_its_id_even_without_a_collision' (3863878) panicked at tests/harness_guards.rs:46:52:
+invalid fixture must be rejected: ()
+
+
+failures:
+    duplicate_rule_ids_are_rejected_in_either_filename_order
+    rule_filename_must_match_its_id_even_without_a_collision
+
+test result: FAILED. 11 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--test harness_guards`
+
+Exit: 101

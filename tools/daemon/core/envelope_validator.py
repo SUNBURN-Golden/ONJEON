@@ -54,13 +54,28 @@ def envelope_type(rules, msg_type):
 
 
 def missing_fields(rules, msg_type, envelope):
-    """Required fields that are absent, then fields whose value is outside field_value_sets (G44: such a value is
-    treated like a missing field)."""
-    out = [f for f in required_fields(rules, msg_type) if envelope.get(f) is None]
+    """Missing/malformed required identities, then values outside field_value_sets (G44: required_missing)."""
+    out = invalid_fields(envelope, required_fields(rules, msg_type))
     sets = rules.get("core_contract.operations.accept_envelope.field_value_sets").get(envelope_type(rules, msg_type), {})
     for field, values in sets.items():
         if envelope.get(field) is not None and envelope.get(field) not in values:
             out.append(field)
+    return out
+
+
+def invalid_fields(envelope, fields):
+    """Missing fields and malformed identities share required_missing (R-13); never coerce wire values."""
+    out = []
+    for field in fields:
+        value = envelope.get(field)
+        if value is None:
+            out.append(field)
+        elif field in ("lease_generation", "fencing_token", "attempt"):
+            if type(value) is not int:
+                out.append(field)
+        elif field in ("task_id", "lease_id", "envelope_id"):
+            if type(value) is not str or not value.strip():
+                out.append(field)
     return out
 
 
@@ -79,9 +94,13 @@ def envelope_kind(msg_type):
 
 
 def dedup_key(rules, task_id, msg_type, envelope):
+    """Only canonical identity types have keys. Preserve existing valid keys across daemon restarts."""
     parts = {"task_id": task_id, "lease_generation": envelope.get("lease_generation"),
              "envelope_kind": envelope_kind(msg_type), "envelope_id": envelope.get("envelope_id")}
-    return "|".join(str(parts[f]) for f in key_fields(rules))
+    fields = key_fields(rules)
+    if invalid_fields(parts, fields):
+        return None
+    return "|".join(format(parts[f], "d") if type(parts[f]) is int else parts[f] for f in fields)
 
 
 # ---------------------------------------------------------------- validate_instruction (G49)

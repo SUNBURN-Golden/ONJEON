@@ -20,6 +20,17 @@ _IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _BUILTINS = ("coalesce", "max", "count")
 
 
+def strict_equal(left, right):
+    """Wire values retain their types: bool, int and float are distinct even inside containers."""
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, list):
+        return len(left) == len(right) and all(strict_equal(a, b) for a, b in zip(left, right))
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(strict_equal(v, right[k]) for k, v in left.items())
+    return left == right
+
+
 class Clockview:
     def __init__(self, now):
         self.now = now
@@ -401,9 +412,9 @@ class Ctx:
     @staticmethod
     def _compare(left, op, right):
         if op == "==":
-            return left == right
+            return strict_equal(left, right)
         if op == "!=":
-            return left != right
+            return not strict_equal(left, right)
         if op in ("<", "<=", ">", ">="):
             if left is None or right is None:
                 return False

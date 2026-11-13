@@ -463,6 +463,172 @@ class FencedWriteDedup(unittest.TestCase):
                 self.assertEqual(len(env.ports.remote.writes), 1)
 
 
+class EnvelopeIdentityTypes(unittest.TestCase):
+    """Audit 6: wire identity types cannot create a second spelling of an accepted envelope."""
+
+    def ready(self):
+        env = MockEnv(str(RULES), str(TASKS))
+        env.bring_to_building(sc.BASIC)
+        return env
+
+    def messages(self, env):
+        builder, instr = env.builder_for(sc.BASIC), env.instr(sc.BASIC)
+        return {
+            "heartbeat": builder.heartbeat_envelope(instr),
+            "first_heartbeat": builder.heartbeat_envelope(instr),
+            "result": builder.result_envelope(instr, "lease_invalid"),
+            "switch_signal": builder.signal_envelope(instr),
+            "fence_violation": dict(builder.heartbeat_envelope(instr), kind="direct_push", observed_at=env.clock.now()),
+        }
+
+    def test_identity_fields_reject_wrong_types_without_consuming_the_id(self):
+        cases = {
+            "lease_generation": (True, False, 1.0, "1", [], {}),
+            "fencing_token": (True, False, 1.0, "1", [], {}),
+            "envelope_id": (True, 1, 1.0, [], {}, "", " "),
+            "lease_id": (True, 1, 1.0, [], {}, "", " "),
+            "task_id": (True, 1, 1.0, [], {}, "", " "),
+        }
+        for msg_type in self.messages(self.ready()):
+            for field, values in cases.items():
+                for value in values:
+                    with self.subTest(msg_type=msg_type, field=field, value=value):
+                        env = self.ready()
+                        valid = self.messages(env)[msg_type]
+                        before = env.task(sc.BASIC)
+                        out = env.submit(sc.BASIC, msg_type, dict(valid, **{field: value}))
+                        self.assertEqual((out["accepted"], out["noop"], out["return_code"]),
+                                         (False, "envelope_rejected_invalid", "R-13"))
+                        self.assertEqual(env.task(sc.BASIC), before)
+                        corrected = env.submit(sc.BASIC, msg_type, valid)
+                        if msg_type == "fence_violation":
+                            self.assertEqual(corrected["reason"], "current_lease_violation")
+                            self.assertEqual(corrected["return_code"], "R-11")
+                        else:
+                            self.assertTrue(corrected["accepted"])
+
+    def test_bool_and_float_replay_cannot_be_accepted_twice(self):
+        for msg_type in ("heartbeat", "result"):
+            for value in (True, 1.0):
+                for malformed_first in (False, True):
+                    with self.subTest(msg_type=msg_type, value=value, malformed_first=malformed_first):
+                        env = self.ready()
+                        valid = self.messages(env)[msg_type]
+                        malformed = dict(valid, lease_generation=value, fencing_token=value)
+                        ordered = (malformed, valid) if malformed_first else (valid, malformed)
+                        outs = [env.submit(sc.BASIC, msg_type, e) for e in ordered]
+                        self.assertEqual(sum(o["accepted"] for o in outs), 1)
+                        seen = env.task(sc.BASIC)["inbox_seen"]
+                        env.new_core()
+                        self.assertEqual(env.submit(sc.BASIC, msg_type, valid)["noop"], "envelope_duplicate_delivery")
+                        self.assertEqual(env.task(sc.BASIC)["inbox_seen"], seen)
+
+    def test_receiver_does_not_start_for_bool_or_float_fencing_fields(self):
+        from daemon.core.envelope_validator import receiver_validation
+        for field in ("lease_generation", "fencing_token"):
+            for value in (True, 1.0, "1"):
+                with self.subTest(field=field, value=value):
+                    env = self.ready()
+                    instr = dict(env.instr(sc.BASIC), **{field: value})
+                    self.assertFalse(receiver_validation(env.rules, instr, env.core, env.clock)[0])
+
+    def test_result_and_signal_attempt_is_an_int(self):
+        for msg_type in ("result", "switch_signal"):
+            for value in (True, 1.0, "1", [], {}):
+                with self.subTest(msg_type=msg_type, value=value):
+                    env = self.ready()
+                    valid = self.messages(env)[msg_type]
+                    before = env.task(sc.BASIC)
+                    out = env.submit(sc.BASIC, msg_type, dict(valid, attempt=value))
+                    self.assertEqual((out["accepted"], out["return_code"]), (False, "R-13"))
+                    self.assertEqual(env.task(sc.BASIC), before)
+
+    def test_predicate_equality_is_type_strict_including_nested_values(self):
+        from daemon.core.gate_evaluator import Ctx
+        for left, right in ((True, 1), (False, 0), (1, 1.0), ("1", 1),
+                            ([True], [1]), ({"generation": True}, {"generation": 1})):
+            with self.subTest(left=left, right=right):
+                self.assertFalse(Ctx._compare(left, "==", right))
+                self.assertTrue(Ctx._compare(left, "!=", right))
+        for value in (True, False, 1, 1.0, "1", None, [1], {"generation": 1}):
+            self.assertTrue(Ctx._compare(value, "==", copy.deepcopy(value)))
+            self.assertFalse(Ctx._compare(value, "!=", copy.deepcopy(value)))
+
+    def test_invalid_identity_has_no_dedup_key_and_valid_keys_stay_compatible(self):
+        from daemon.core.envelope_validator import dedup_key
+        env = self.ready()
+        envelope = self.messages(env)["heartbeat"]
+        self.assertEqual(dedup_key(env.rules, sc.BASIC, "heartbeat", envelope),
+                         f"{sc.BASIC}|1|signal|{envelope['envelope_id']}")
+        for field, value in (("lease_generation", True), ("lease_generation", 1.0),
+                             ("envelope_id", 1), ("envelope_id", [])):
+            with self.subTest(field=field, value=value):
+                self.assertIsNone(dedup_key(env.rules, sc.BASIC, "heartbeat", dict(envelope, **{field: value})))
+
+    def test_text_envelope_ids_remain_opaque_and_distinct(self):
+        env = self.ready()
+        envelope = self.messages(env)["heartbeat"]
+        for envelope_id in ("1", "True", "a|b", "a", "a|b|c"):
+            with self.subTest(envelope_id=envelope_id):
+                request = dict(envelope, envelope_id=envelope_id)
+                self.assertTrue(env.submit(sc.BASIC, "heartbeat", request)["accepted"])
+                self.assertEqual(env.submit(sc.BASIC, "heartbeat", request)["noop"], "envelope_duplicate_delivery")
+
+
+class FencedWriteIdentityTypes(unittest.TestCase):
+    EVENTS = FencedWriteDedup.EVENTS
+    ready = FencedWriteDedup.ready
+    send = FencedWriteDedup.send
+
+    def test_invalid_identity_never_writes_or_claims_the_request(self):
+        for event in self.EVENTS:
+            for field, values in {
+                "lease_generation": (True, False, 1.0, "1", [], {}),
+                "fencing_token": (True, False, 1.0, "1", [], {}),
+                "envelope_id": (True, 1, 1.0, [], {}, "", " "),
+                "lease_id": (True, 1, 1.0, [], {}, "", " "),
+            }.items():
+                for value in values:
+                    with self.subTest(event=event, field=field, value=value):
+                        env, valid = self.ready()
+                        before = env.task(sc.BASIC)
+                        out = self.send(env, event, dict(valid, **{field: value}))
+                        self.assertEqual((out["accepted"], out["written"], out["return_code"]), (False, False, "R-13"))
+                        self.assertEqual(env.task(sc.BASIC), before)
+                        self.assertEqual(env.ports.remote.writes, [])
+                        self.assertTrue(self.send(env, event, valid)["written"])
+
+    def test_replay_deduplicates_by_envelope_id_with_changed_payload_and_event(self):
+        from daemon.runner_verify.adapters import FileStore
+        from daemon.runner_verify.common import Layout
+        for file_store in (False, True):
+            for event in self.EVENTS:
+                with self.subTest(file_store=file_store, event=event), tempfile.TemporaryDirectory() as tmp:
+                    env, request = self.ready()
+                    if file_store:
+                        layout = Layout(tmp).make()
+                        store = FileStore(layout)
+                        with store.transaction() as d:
+                            d.update(env.snap())
+                        env.ports.store = store
+                        env.new_core()
+                    self.assertTrue(self.send(env, event, request)["written"])
+                    seen = env.task(sc.BASIC)["inbox_seen"]
+                    if file_store:
+                        env.ports.store = FileStore(layout)
+                    env.new_core()
+                    replay = dict(request, sha="b" * 40, pr_number=7)
+                    for replay_event in self.EVENTS:
+                        out = self.send(env, replay_event, replay)
+                        self.assertEqual((out["written"], out["noop"]), (False, "envelope_duplicate_delivery"))
+                    for value in (True, 1.0, "1"):
+                        out = self.send(env, event, dict(replay, lease_generation=value))
+                        self.assertFalse(out["written"])
+                    self.assertEqual(env.task(sc.BASIC)["inbox_seen"], seen)
+                    self.assertEqual(len(env.ports.remote.writes), 1)
+                    self.assertTrue(self.send(env, event, dict(request, envelope_id="WRITE-2"))["written"])
+
+
 class PushRefspecFencing(unittest.TestCase):
     """audit6-daemon-push-refspec-validation: a push request must carry a full 40-hex lowercase object id and the
     branch of its own lease. A git option (--receive-pack=...), a +force prefix or a foreign branch is an invalid
@@ -1744,7 +1910,7 @@ class ResultGates(unittest.TestCase):
                 del envelope["pr_body"]
                 envelope["test_log_ref"] = "AKIA" + "Z" * 16
                 if failure == "stale":
-                    envelope["fencing_token"] = "stale"
+                    envelope["fencing_token"] -= 1  # well-typed stale token; malformed types are R-13
                 else:
                     env.clock.set(env.lease(sc.BASIC)["expires_at"] + 1)
                 before = env.task(sc.BASIC)
@@ -1803,7 +1969,7 @@ class ResultGates(unittest.TestCase):
 
     def test_stale_result_cannot_trigger_scope_or_body_rejection(self):
         env, envelope = self.ready(touched_paths=["docs/out.md"])
-        envelope["fencing_token"] = "stale"
+        envelope["fencing_token"] -= 1  # keep the lease-mismatch check distinct from identity type validation
         del envelope["pr_body"]
         before = env.task(sc.BASIC)
         out = self.submit(env, envelope)

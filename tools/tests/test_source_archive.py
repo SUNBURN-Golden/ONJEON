@@ -92,6 +92,45 @@ class Observations(Base):
                 sa.put_observation(self.raw, *self.args, extra)
         self.assertEqual(self.raw.list(""), [])
 
+    def test_core_fields_win_even_without_reserved_key_validation(self):
+        body = b"public disclosure"
+        digest, _ = sa.put_raw(self.raw, body, "text/html")
+        other_digest, _ = sa.put_raw(self.raw, b"another disclosure", "text/html")
+        args = (*self.args[:3], digest, len(body), "text/html")
+        core = dict(zip(("source_id", "url", "observed_at", "sha256", "bytes", "content_type"), args))
+        core["object_key"] = sa.object_key(digest)
+        forged = dict(zip(core, ("another_source", "https://example.org/other",
+                                "2000-01-01T00:00:00Z", other_digest, 0,
+                                "application/pdf", sa.object_key(other_digest))))
+        # Isolate the merge's own protection from the existing rejection layer.
+        with mock.patch.object(sa, "validate_observation_extra", side_effect=lambda extra: extra):
+            for field, value in forged.items():
+                with self.subTest(field=field):
+                    raw = sa.LocalStore(self.root / field)
+                    sa.put_raw(raw, body, "text/html")
+                    sa.put_raw(raw, b"another disclosure", "text/html")
+                    extra = {field: value, "note": "public"}
+                    key, state = sa.put_observation(raw, *args, extra)
+                    record = json.loads(raw.get(key))
+                    self.assertEqual(record, {**core, "note": "public"})
+                    self.assertEqual(raw.get(record["object_key"]), body)
+                    self.assertEqual(sa.sha256_bytes(body), record["sha256"])
+                    self.assertEqual(state, "stored")
+                    self.assertEqual(extra, {field: value, "note": "public"})
+
+    def test_existing_observation_with_extra_keeps_serialized_bytes_on_rerun(self):
+        extra = {"doc_role": "약관", "audit": {"sha256": "metadata only"}}
+        original = {
+            "source_id": self.args[0], "url": self.args[1], "observed_at": self.args[2],
+            "sha256": self.args[3], "bytes": self.args[4], "content_type": self.args[5],
+            "object_key": sa.object_key(self.args[3]), **extra,
+        }
+        key = f"observations/{self.args[0]}/20261009T044340Z_{self.args[3][:16]}.json"
+        body = (json.dumps(original, ensure_ascii=False, indent=2) + "\n").encode()
+        self.raw.put_new(key, body, "application/json")
+        self.assertEqual(sa.put_observation(self.raw, *self.args, extra), (key, "already_present"))
+        self.assertEqual(self.raw.get(key), body)
+
     def test_additional_metadata_preserves_provenance_and_input(self):
         extra = {"doc_role": "약관", "audit": {"sha256": "metadata only"}}
         key, state = sa.put_observation(self.raw, *self.args, extra)

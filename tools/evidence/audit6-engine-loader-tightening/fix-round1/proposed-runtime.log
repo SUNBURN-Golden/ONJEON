@@ -1,0 +1,15 @@
+Command: ['cargo', 'test', '--manifest-path', '<worktree>/target/audit6-runtime-gv6evy02/packages/twin-runtime/Cargo.toml', '--locked', '--offline', '--test', 'artifact_strict_json']
+   Compiling onjeon-twin-runtime v0.1.0 (<worktree>/target/audit6-runtime-gv6evy02/packages/twin-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.34s
+     Running tests/artifact_strict_json.rs (target/audit6-runtime-proposal/debug/deps/artifact_strict_json-52228adb4c5cb610)
+
+running 4 tests
+test unique_artifacts_preserve_declarations_hashes_and_evaluation ... ok
+test case_runner_rejects_duplicate_artifacts_with_zero_engine_calls ... ok
+test artifact_duplicates_fail_before_declaration_extraction ... ok
+test duplicate_artifacts_stop_requests_before_fill_or_engine ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s
+
+
+Exit: 0

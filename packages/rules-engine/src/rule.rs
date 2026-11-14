@@ -339,7 +339,7 @@ impl Rule {
     /// Load rule JSON text, rejecting duplicate keys at every depth (including
     /// keys that become equal after JSON escape decoding).
     pub fn from_json_str(s: &str) -> Result<Rule, RuleError> {
-        let crate::strict_json::StrictValue(v) = serde_json::from_str(s)
+        let v = crate::strict_json::from_slice(s.as_bytes())
             .map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))?;
         Rule::from_json(&v)
     }

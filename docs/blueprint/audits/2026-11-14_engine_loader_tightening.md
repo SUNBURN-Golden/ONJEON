@@ -87,3 +87,43 @@ P08·P14의 엔진 입력 검증과 계산 식별·불변성에 관한 로컬 �
 실제 전 상품 데이터·상품/계약 트윈·소비자 화면의 연결, P08·P14 전체 완료나
 첫 출시 완료 증거를 대체하지 않는다. 보호 문서·공유 픽스처는 변경하지 않았고,
 commit·push·GitHub 호출은 수행하지 않았다.
+
+
+## Fix round 1: 런타임 경계 재현과 적용 대기
+
+리뷰어의 P1은 재현됐다. `load_rule_artifact`가 일반 `Value`로 먼저 파싱하면
+`amount: {"krw": 999999999, "krw": 1}`의 앞 금액이 사라지고 `case-runner`가
+`evaluated`, `engine_calls: 1`, 1 KRW를 반환한다. 엔진 단독 검증으로 이 경계를
+해결했다고 볼 수 없다.
+
+허용 경로의 엔진에는 공개 `strict_json::from_slice`를 추가했고 `Rule::from_json_str`도
+이를 사용한다. 바이트 입력의 중복 선언·중첩 기간·이스케이프 키 충돌·잘못된 UTF-8을
+검사하는 단위 시험을 추가했다. 엔진 등록 수는 단위·통합 266개, doctest 3개다.
+
+런타임 소스와 회귀 시험은 이 노드의 명시적 허용 경로 밖이므로 범위 확대를 요청한
+상태다. [제안 패치와 검증 안내](../../../tools/evidence/audit6-engine-loader-tightening/fix-round1/README.md)에
+수정안과 네 회귀 시험을 보존했다. 작업 트리 안의 임시 크레이트에서 기존 로더가
+거부 시험 3개에 실패하고 정상 대조 1개가 통과함을 확인했으며, 제안 패치를 적용한
+임시 크레이트에서는 네 시험이 모두 통과했다. 요청 시험은 변조 탐지의 조기 차단으로
+가려지지 않도록 해당 바이트를 다시 고정해 무결성 검사가 깨끗하고 체인 연결에
+성공했음을 먼저 확인한다. 두 DSL 버전에서 중복 금액·동일 값·이스케이프 충돌·
+미선택 가지·최상위 선언·중첩 선언을 엔진 실행 전 거부한다.
+
+**실제 `packages/twin-runtime/`에는 아직 적용하지 않았다. 실행 경로의 P1은 열린
+상태이며 제안 패치의 통과를 실제 런타임 해결로 주장하지 않는다.** 편집 범위 승인이
+필요한 사안이며 비가역·비용·법률·비밀·운영 결정이 아니므로 `DECISION_REQUIRED.md`는
+생성하지 않는다.
+
+
+이번 라운드 직접 검증(실제 작업 트리, 런타임 패치 미적용):
+
+| 명령 | 결과·증거 |
+|---|---|
+| `cargo test -p onjeon-rules-engine --locked --offline` | 269개 통과(문서 시험 포함): [엔진](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-engine.log) |
+| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | 532개 통과·기존 ignored 1개: [작업 공간](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-workspace.log) |
+| 기존 5종 결함 복원 대조 | 모두 검출: [대조](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-negative-control.log) |
+| `cargo fmt --all -- --check` · `cargo clippy --all-targets --locked --offline -- -D warnings` | 종료 0: [fmt](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-fmt.log) · [clippy](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-clippy.log) |
+| 별도 온톨로지 runner `cargo test --locked --offline` | 4개 통과: [runner](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-ontology-runner.log) |
+| `python3 -I tools/blueprint_counts.py` · `python3 -I tools/blueprint_status.py` | 종료 0: [counts](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-counts-check.log) · [status](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-status.log) |
+
+Python 전체 시험도 1,609개 실행·실패 0·기존 skipped 6개로 종료했다([Python 로그](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-python.log)). 편집 경로 검사는 [scope](../../../packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-scope.log)에 기록한다.

@@ -5,6 +5,14 @@ use serde::{Deserialize, Deserializer};
 use serde_json::{Map, Value};
 use std::fmt;
 
+/// Parse a complete JSON artifact, rejecting duplicate object keys at every depth.
+///
+/// Use this before extracting metadata or passing a `Value` to a rule loader:
+/// ordinary `Value` deserialization irreversibly discards duplicate members.
+pub fn from_slice(bytes: &[u8]) -> Result<Value, serde_json::Error> {
+    serde_json::from_slice::<StrictValue>(bytes).map(|value| value.0)
+}
+
 pub(crate) struct StrictValue(pub Value);
 
 impl<'de> Deserialize<'de> for StrictValue {
@@ -81,7 +89,7 @@ mod tests {
     fn unique_json_preserves_serde_value_semantics() {
         let text = r#"{"null":null,"bool":[true,false],"numbers":[-9223372036854775808,18446744073709551615,1.5,-0.0,1e20],"text":"한글\n\"\\","nested":[{"a":1},{"a":2}]}"#;
         assert_eq!(
-            serde_json::from_str::<StrictValue>(text).unwrap().0,
+            from_slice(text.as_bytes()).unwrap(),
             serde_json::from_str::<Value>(text).unwrap()
         );
     }
@@ -89,10 +97,24 @@ mod tests {
     #[test]
     fn malformed_trailing_and_excessively_nested_json_still_fail() {
         for text in ["", "{", "[1,]", "{} {}", r#"{"x":1,}"#, "1e999"] {
-            assert!(serde_json::from_str::<StrictValue>(text).is_err(), "{text}");
+            assert!(from_slice(text.as_bytes()).is_err(), "{text}");
         }
         let text = format!("{}null{}", "[".repeat(130), "]".repeat(130));
-        let error = serde_json::from_str::<StrictValue>(&text).err().unwrap();
+        let error = from_slice(text.as_bytes()).unwrap_err();
         assert!(error.to_string().contains("recursion limit exceeded"));
+    }
+
+    #[test]
+    fn artifact_bytes_reject_duplicates_and_invalid_utf8() {
+        for bytes in [
+            br#"{"inputs_from_outside_dsl":[],"inputs_from_outside_dsl":[]}"#.as_slice(),
+            br#"{"inputs_from_outside_dsl":[{"duration":{"value":90,"value":1}}]}"#,
+            br#"{"amount":{"krw":999999999,"\u006brw":1}}"#,
+        ] {
+            let error = from_slice(bytes).unwrap_err();
+            assert!(error.to_string().contains("duplicate JSON key"), "{error}");
+            assert!(error.line() > 0 && error.column() > 0, "{error}");
+        }
+        assert!(from_slice(b"{\"text\":\"\xff\"}").is_err());
     }
 }

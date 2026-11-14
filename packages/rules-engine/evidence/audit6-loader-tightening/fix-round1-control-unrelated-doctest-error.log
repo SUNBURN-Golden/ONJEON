@@ -1,0 +1,85 @@
+Command: cargo test --locked --offline --manifest-path <worktree>/target/audit6-loader-hd_030de/Cargo.toml --test loader_tightening --test date_format --test identity_evidence --test immutable_rule_doctests --no-fail-fast
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/target/audit6-loader-hd_030de)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.35s
+     Running tests/date_format.rs (target/audit6-loader-control/debug/deps/date_format-f52c490b8f179f33)
+
+running 4 tests
+test non_canonical_date_inputs_are_rejected_at_evaluation ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+test non_canonical_date_literals_are_rejected_at_load ... ok
+test date_aliases_cannot_produce_alternate_rule_hashes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/identity_evidence.rs (target/audit6-loader-control/debug/deps/identity_evidence-d794a8734d028f95)
+
+running 7 tests
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test blank_rule_ids_are_rejected ... ok
+test json_escaped_whitespace_rule_ids_are_rejected_after_decoding ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test nonblank_rule_ids_are_preserved_in_every_result_state ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/immutable_rule_doctests.rs (target/audit6-loader-control/debug/deps/immutable_rule_doctests-79aff5fb6022bacd)
+
+running 1 test
+test immutable_rule_doctests_fail_only_on_private_field_access ... FAILED
+
+failures:
+
+---- immutable_rule_doctests_fail_only_on_private_field_access stdout ----
+
+thread 'immutable_rule_doctests_fail_only_on_private_field_access' (4114622) panicked at tests/immutable_rule_doctests.rs:49:9:
+I3 must fail only on private field access (E0616), got ["E0425"]:
+src/rule.rs - rule::Rule (line 283) stdout ----
+error[E0425]: cannot find type `UnrelatedDoctestType` in this scope
+   --> src/rule.rs:290:8
+    |
+290 | let _: UnrelatedDoctestType;
+    |        ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0425`.
+
+
+successes:
+    src/rule.rs - rule::Rule (line 270)
+    src/rule.rs - rule::Rule (line 283)
+    src/rule.rs - rule::Rule (line 292)
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+   Doc-tests onjeon_rules_engine
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    immutable_rule_doctests_fail_only_on_private_field_access
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.67s
+
+error: test failed, to rerun pass `--test immutable_rule_doctests`
+     Running tests/loader_tightening.rs (target/audit6-loader-control/debug/deps/loader_tightening-abe257845703e304)
+
+running 6 tests
+test duplicate_keys_are_compared_after_json_string_decoding ... ok
+test repeated_keys_in_separate_objects_and_key_like_string_contents_are_valid ... ok
+test duplicate_nested_members_fail_in_inputs_expressions_parameters_and_dead_branches ... ok
+test example_kind_rejects_wrong_types_blank_and_unknown_values ... ok
+test duplicate_top_level_members_fail_even_when_identical_or_last_value_is_valid ... ok
+test example_kind_is_optional_and_valid_tags_preserve_source_hash_and_results ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: 1 target failed:
+    `--test immutable_rule_doctests`
+
+Exit: 101

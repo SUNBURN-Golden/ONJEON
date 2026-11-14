@@ -1,0 +1,65 @@
+Command: ['cargo', 'test', '--manifest-path', '<worktree>/target/audit6-runtime-gv6evy02/packages/twin-runtime/Cargo.toml', '--locked', '--offline', '--test', 'artifact_strict_json']
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.154
+   Compiling generic-array v0.14.7
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.19
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling syn v3.0.10
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-contracts v0.1.0 (<worktree>/target/audit6-runtime-gv6evy02/packages/schemas)
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/target/audit6-runtime-gv6evy02/packages/rules-engine)
+   Compiling onjeon-ontology v0.1.0 (<worktree>/target/audit6-runtime-gv6evy02/packages/ontology)
+   Compiling onjeon-twin-runtime v0.1.0 (<worktree>/target/audit6-runtime-gv6evy02/packages/twin-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 20.51s
+     Running tests/artifact_strict_json.rs (target/audit6-runtime-proposal/debug/deps/artifact_strict_json-52228adb4c5cb610)
+
+running 4 tests
+test unique_artifacts_preserve_declarations_hashes_and_evaluation ... ok
+test artifact_duplicates_fail_before_declaration_extraction ... FAILED
+test duplicate_artifacts_stop_requests_before_fill_or_engine ... FAILED
+test case_runner_rejects_duplicate_artifacts_with_zero_engine_calls ... FAILED
+
+failures:
+
+---- artifact_duplicates_fail_before_declaration_extraction stdout ----
+
+thread 'artifact_duplicates_fail_before_declaration_extraction' (4131813) panicked at tests/artifact_strict_json.rs:65:76:
+called `Result::unwrap_err()` on an `Ok` value: (Rule { rule_id: "hana-2601-3d-cancer-dx", rule_version: "v1-ontology-case", release_id: None, content_hash: "420e3130feb6ff7a319db65e124af2fc0dcab5d26d646ff8923f697bc17a9551", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["hana_2601_3d#c_2_1_art1_1", "hana_2601_3d#c_2_1_art1_2", "hana_2601_3d#c_2_1_art4_1", "hana_2601_3d#annex1", "hana_2601_3d#annex12"], inputs: {"already_paid": Bool, "contract_date": Date, "diagnosis_date": Date, "dx_in_category": Bool, "insured_amount_krw": MoneyKrw, "is_initial_contract": Bool, "policy_end_date": Date, "renewal_date": Date}, eligibility: Lit(Bool(true)), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Bool(true), "evidence_refs": Array [String("hana_2601_3d#c_2_1_art1_1"), String("hana_2601_3d#c_2_1_art1_2"), String("hana_2601_3d#c_2_1_art4_1"), String("hana_2601_3d#annex1"), String("hana_2601_3d#annex12")], "example_kind": String("ontology_case_validation"), "inputs": Object {"already_paid": String("bool"), "contract_date": String("date"), "diagnosis_date": String("date"), "dx_in_category": String("bool"), "insured_amount_krw": String("money_krw"), "is_initial_contract": String("bool"), "policy_end_date": String("date"), "renewal_date": String("date")}, "publication_state": String("fixture_only"), "rule_id": String("hana-2601-3d-cancer-dx"), "rule_version": String("v1-ontology-case"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }, [OutsideInput { name: "dx_in_category", judged_by: Ontology, evidence_required: Some(true), code_fact: Some("dx_code"), as_of_fact: Some("diagnosis_date"), anchor_fact: None, duration: None, anchor_day_counted: None, dates_facts: [] }])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- duplicate_artifacts_stop_requests_before_fill_or_engine stdout ----
+
+thread 'duplicate_artifacts_stop_requests_before_fill_or_engine' (4131815) panicked at tests/artifact_strict_json.rs:94:22:
+loader must reject artifact
+
+---- case_runner_rejects_duplicate_artifacts_with_zero_engine_calls stdout ----
+
+thread 'case_runner_rejects_duplicate_artifacts_with_zero_engine_calls' (4131814) panicked at tests/artifact_strict_json.rs:167:9:
+assertion `left == right` failed: {"case_id":"rule-0.1-0","engine":{"contract_effect":{"kind":"none"},"eligibility":"true","engine_version":"0.1.0+snapshot-json-1","evidence_refs":["hana_2601_3d#c_2_1_art1_1","hana_2601_3d#c_2_1_art1_2","hana_2601_3d#c_2_1_art4_1","hana_2601_3d#annex1","hana_2601_3d#annex12"],"input_snapshot_hash":"54c36dce8f91340816d046a52fe64431b100aad433f51f844807ce7c69d15bbe","missing_inputs":[],"payout":{"amount":{"kind":"exact","krw":1},"kind":"payable"},"publication_state":"fixture_only","release_id":null,"rule_content_hash":"420e3130feb6ff7a319db65e124af2fc0dcab5d26d646ff8923f697bc17a9551","rule_id":"hana-2601-3d-cancer-dx","rule_version":"v1-ontology-case","schema_version":"rule-0.1","trace_head":[{"op":"lit","path":"eligibility","result":"true"},{"op":"lit","path":"amount","result":"1 KRW"}],"trace_len":2},"engine_calls":1,"judgements":[],"outcome":"evaluated"}
+  left: String("evaluated")
+ right: "load_error"
+
+
+failures:
+    artifact_duplicates_fail_before_declaration_extraction
+    case_runner_rejects_duplicate_artifacts_with_zero_engine_calls
+    duplicate_artifacts_stop_requests_before_fill_or_engine
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `--test artifact_strict_json`
+
+Exit: 101

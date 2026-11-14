@@ -1,0 +1,4 @@
+     Locking 24 packages to latest compatible versions
+before-runtime: 3 expected failures; verified
+proposed-runtime: 0 expected failures; verified
+Runtime sources unchanged; proposed patch verified in disposable crate.

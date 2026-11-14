@@ -52,7 +52,7 @@ def main():
             return Err(RuleError::at("rule_id", "must not be empty"));
         }
 '''
-    strict_parse = "let crate::strict_json::StrictValue(v) = serde_json::from_str(s)"
+    strict_parse = "let v = crate::strict_json::from_slice(s.as_bytes())"
     doctest = "/// rule.content_hash = String::new(); // private: does not compile"
     digit_guards = [f"        || !b[{a}..{b}].iter().all(u8::is_ascii_digit)\n"
                     for a, b in [(0, 4), (5, 7), (8, 10)]]

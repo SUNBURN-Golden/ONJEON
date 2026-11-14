@@ -1,0 +1,841 @@
+test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) ... 
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='put_new') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='get') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='exists') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='list') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='put_new') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='get') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='exists') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='list') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='put_new') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='get') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='exists') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='list') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='put_new') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='get') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='exists') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='list') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='put_new') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='get') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='exists') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='list') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='put_new') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='get') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='exists') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='list') ... ERROR
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='put_new') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='get') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='exists') ... FAIL
+  test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='list') ... ERROR
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 35, in <lambda>
+    "list": lambda: self.store.list(key),
+                    ~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 188, in list
+    base = self._path(prefix, listing=True)
+  File "<local-key-mutation>", line 8, in _path
+AttributeError: 'NoneType' object has no attribute 'endswith'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 35, in <lambda>
+    "list": lambda: self.store.list(key),
+                    ~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 188, in list
+    base = self._path(prefix, listing=True)
+  File "<local-key-mutation>", line 8, in _path
+AttributeError: 'int' object has no attribute 'endswith'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 162, in put_new
+    p = self._path(key)
+  File "<local-key-mutation>", line 9, in _path
+TypeError: argument of type 'bool' is not iterable
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 33, in <lambda>
+    "get": lambda: self.store.get(key),
+                   ~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 182, in get
+    return self._path(key).read_bytes()
+           ~~~~~~~~~~^^^^^
+  File "<local-key-mutation>", line 9, in _path
+TypeError: argument of type 'bool' is not iterable
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 34, in <lambda>
+    "exists": lambda: self.store.exists(key),
+                      ~~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 185, in exists
+    return self._path(key).exists()
+           ~~~~~~~~~~^^^^^
+  File "<local-key-mutation>", line 9, in _path
+TypeError: argument of type 'bool' is not iterable
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=True, operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 35, in <lambda>
+    "list": lambda: self.store.list(key),
+                    ~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 188, in list
+    base = self._path(prefix, listing=True)
+  File "<local-key-mutation>", line 8, in _path
+AttributeError: 'bool' object has no attribute 'endswith'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 162, in put_new
+    p = self._path(key)
+  File "<local-key-mutation>", line 9, in _path
+TypeError: a bytes-like object is required, not 'str'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 33, in <lambda>
+    "get": lambda: self.store.get(key),
+                   ~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 182, in get
+    return self._path(key).read_bytes()
+           ~~~~~~~~~~^^^^^
+  File "<local-key-mutation>", line 9, in _path
+TypeError: a bytes-like object is required, not 'str'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 34, in <lambda>
+    "exists": lambda: self.store.exists(key),
+                      ~~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 185, in exists
+    return self._path(key).exists()
+           ~~~~~~~~~~^^^^^
+  File "<local-key-mutation>", line 9, in _path
+TypeError: a bytes-like object is required, not 'str'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=b'key', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 35, in <lambda>
+    "list": lambda: self.store.list(key),
+                    ~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 188, in list
+    base = self._path(prefix, listing=True)
+  File "<local-key-mutation>", line 8, in _path
+TypeError: endswith first arg must be bytes or a tuple of bytes, not str
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 162, in put_new
+    p = self._path(key)
+  File "<local-key-mutation>", line 9, in _path
+TypeError: argument of type 'PosixPath' is not iterable
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 33, in <lambda>
+    "get": lambda: self.store.get(key),
+                   ~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 182, in get
+    return self._path(key).read_bytes()
+           ~~~~~~~~~~^^^^^
+  File "<local-key-mutation>", line 9, in _path
+TypeError: argument of type 'PosixPath' is not iterable
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 34, in <lambda>
+    "exists": lambda: self.store.exists(key),
+                      ~~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 185, in exists
+    return self._path(key).exists()
+           ~~~~~~~~~~^^^^^
+  File "<local-key-mutation>", line 9, in _path
+TypeError: argument of type 'PosixPath' is not iterable
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=PosixPath('key'), operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 35, in <lambda>
+    "list": lambda: self.store.list(key),
+                    ~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 188, in list
+    base = self._path(prefix, listing=True)
+  File "<local-key-mutation>", line 8, in _path
+AttributeError: 'PosixPath' object has no attribute 'endswith'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 35, in <lambda>
+    "list": lambda: self.store.list(key),
+                    ~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 188, in list
+    base = self._path(prefix, listing=True)
+  File "<local-key-mutation>", line 8, in _path
+AttributeError: 'list' object has no attribute 'endswith'
+
+======================================================================
+ERROR: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 64, in test_non_string_keys_fail_with_the_store_validation_error
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 35, in <lambda>
+    "list": lambda: self.store.list(key),
+                    ~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 188, in list
+    base = self._path(prefix, listing=True)
+  File "<local-key-mutation>", line 8, in _path
+AttributeError: 'dict' object has no attribute 'endswith'
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='put_new')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: None
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: None"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='get')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: None
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: None"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=None, operation='exists')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: None
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: None"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='put_new')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: 0
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: 0"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='get')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: 0
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: 0"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=0, operation='exists')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: 0
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: 0"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='put_new')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: []
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: []"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='get')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: []
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: []"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key=[], operation='exists')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: []
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: []"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='put_new')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: {}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: {}"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='get')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: {}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: {}"
+
+======================================================================
+FAIL: test_non_string_keys_fail_with_the_store_validation_error (test_source_archive_paths.LocalStorePaths.test_non_string_keys_fail_with_the_store_validation_error) (key={}, operation='exists')
+----------------------------------------------------------------------
+source_archive.UnsafeStoreKey: noncanonical key: {}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 62, in test_non_string_keys_fail_with_the_store_validation_error
+    with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                                                ~~~~~~~~~~~~~~~~~~~~~~^
+            sa.UnsafeStoreKey, "store key must be a string"):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "store key must be a string" does not match "noncanonical key: {}"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+FAILED (failures=12, errors=16)
+MUTATION REJECTED: key type guard removed
+test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) ... 
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='put_new') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='list') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='put_new') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='list') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='put_new') ... ERROR
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='list') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='put_new') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='list') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='put_new') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='list') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='put_new') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='get') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='exists') ... FAIL
+  test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='list') ... FAIL
+test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) ... FAIL
+
+======================================================================
+ERROR: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 42, in assert_rejected
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 164, in put_new
+    raise Exists(key)
+source_archive.Exists: a//b
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/../alias', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a/./b', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a//b', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='a\\..\\outside', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:/outside/x', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected) (key='C:outside', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_traversal_absolute_and_noncanonical_keys_are_rejected (test_source_archive_paths.LocalStorePaths.test_traversal_absolute_and_noncanonical_keys_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 51, in test_traversal_absolute_and_noncanonical_keys_are_rejected
+    self.assertEqual(list(self.root.iterdir()), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [PosixPath('/tmp/tmpc3the7fu/archive/a\\..[184 chars]/a')] != []
+
+First list contains 5 additional elements.
+First extra element 0:
+PosixPath('/tmp/tmpc3the7fu/archive/a\\..\\outside')
+
++ []
+- [PosixPath('/tmp/tmpc3the7fu/archive/a\\..\\outside'),
+-  PosixPath('/tmp/tmpc3the7fu/archive/alias'),
+-  PosixPath('/tmp/tmpc3the7fu/archive/C:outside'),
+-  PosixPath('/tmp/tmpc3the7fu/archive/C:'),
+-  PosixPath('/tmp/tmpc3the7fu/archive/a')]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.008s
+
+FAILED (failures=24, errors=1)
+MUTATION REJECTED: canonical key guard removed
+test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) ... 
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='put_new') ... ERROR
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='get') ... FAIL
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='exists') ... FAIL
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='list') ... FAIL
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='put_new') ... FAIL
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='get') ... FAIL
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='exists') ... FAIL
+  test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='list') ... FAIL
+test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) ... ERROR
+
+======================================================================
+ERROR: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 42, in assert_rejected
+    operation()
+    ~~~~~~~~~^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 32, in <lambda>
+    "put_new": lambda: self.store.put_new(key, b"new", "text/plain"),
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 164, in put_new
+    raise Exists(key)
+source_archive.Exists: alias/sentinel
+
+======================================================================
+ERROR: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 76, in test_resolved_sibling_with_matching_root_prefix_is_outside
+    self.store.list("alias/")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/source_archive.py", line 193, in list
+    key = p.relative_to(self.root).as_posix()
+          ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 385, in relative_to
+    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+ValueError: '/tmp/tmpr3bufwbi/archive-other/sentinel' is not in the subpath of '/tmp/tmpr3bufwbi/archive'
+
+======================================================================
+FAIL: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/sentinel', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='put_new')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='get')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='exists')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_resolved_sibling_with_matching_root_prefix_is_outside (test_source_archive_paths.LocalStorePaths.test_resolved_sibling_with_matching_root_prefix_is_outside) (key='alias/new', operation='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-localstore-key-confinement/tools/tests/test_source_archive_paths.py", line 41, in assert_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (failures=7, errors=2)
+MUTATION REJECTED: resolved containment guard removed

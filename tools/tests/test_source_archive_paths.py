@@ -56,6 +56,27 @@ class LocalStorePaths(unittest.TestCase):
                 self.operations("")[name]()
         self.assertEqual(self.store.list(""), [])
 
+    def test_non_string_keys_fail_with_the_store_validation_error(self):
+        for key in (None, 0, True, b"key", Path("key"), [], {}):
+            for name, operation in self.operations(key).items():
+                with self.subTest(key=key, operation=name), self.assertRaisesRegex(
+                        sa.UnsafeStoreKey, "store key must be a string"):
+                    operation()
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_resolved_sibling_with_matching_root_prefix_is_outside(self):
+        sibling = self.base / "archive-other"
+        sibling.mkdir()
+        sentinel = sibling / "sentinel"
+        sentinel.write_bytes(b"keep")
+        (self.root / "alias").symlink_to(sibling, target_is_directory=True)
+        for key in ("alias/sentinel", "alias/new"):
+            self.assert_rejected(key)
+        with self.assertRaises(sa.UnsafeStoreKey):
+            self.store.list("alias/")
+        self.assertEqual(sentinel.read_bytes(), b"keep")
+        self.assertEqual(list(sibling.iterdir()), [sentinel])
+
     def test_directory_suffix_is_only_valid_for_listing(self):
         self.store.put_new("nested/file", b"stored", "text/plain")
         for name in ("put_new", "get", "exists"):

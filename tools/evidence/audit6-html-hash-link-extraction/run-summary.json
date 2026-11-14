@@ -1,0 +1,93 @@
+{
+  "base_commit": "96a1fa44273aed8be9b6fa585334d80f4328e628",
+  "date": "2026-11-15",
+  "environment": {
+    "CARGO_TARGET_DIR": "/workspace/onjeon-run/wt/audit6-html-hash-link-extraction/target/audit6-html-hash",
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "ONJEON_ONTOLOGY_RUNNER": "/workspace/onjeon-run/wt/audit6-html-hash-link-extraction/target/audit6-html-hash/debug/ontology-case-runner"
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_html_content_hash.py",
+        "-v"
+      ],
+      "log": "hash-tests.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.05
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_verify_sources.py",
+        "-v"
+      ],
+      "log": "detect-tests.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.41
+    },
+    {
+      "command": [
+        "python3",
+        "tools/evidence/audit6-html-hash-link-extraction/check_link_mutations.py"
+      ],
+      "log": "link-mutations.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.22
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-v"
+      ],
+      "log": "python-tests.log",
+      "exit_code": 0,
+      "elapsed_seconds": 239.15
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--all",
+        "--locked",
+        "--offline"
+      ],
+      "log": "rust-tests.log",
+      "exit_code": 0,
+      "elapsed_seconds": 48.89
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--manifest-path",
+        "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+        "--locked",
+        "--offline"
+      ],
+      "log": "runner-tests.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.49
+    }
+  ]
+}

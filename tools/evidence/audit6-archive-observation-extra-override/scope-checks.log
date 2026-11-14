@@ -1,0 +1,13 @@
+PASS docs/blueprint/audits/2026-11-14_archive_observation_extra_override.md
+PASS docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+PASS tools/evidence/audit6-archive-observation-extra-override/README.md
+PASS tools/evidence/audit6-archive-observation-extra-override/archive-tests.log
+PASS tools/evidence/audit6-archive-observation-extra-override/before.log
+PASS tools/evidence/audit6-archive-observation-extra-override/python-tests.log
+PASS tools/evidence/audit6-archive-observation-extra-override/runner-tests.log
+PASS tools/evidence/audit6-archive-observation-extra-override/rust-tests.log
+PASS tools/evidence/audit6-archive-observation-extra-override/scope-checks.log
+PASS tools/evidence/audit6-archive-observation-extra-override/static-checks.log
+PASS tools/source_archive.py
+PASS tools/tests/test_source_archive.py
+PASS allowed paths, Python parsing, local Markdown links, whitespace

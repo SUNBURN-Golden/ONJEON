@@ -1,0 +1,22 @@
+Baseline HEAD: 98e062285f67b4244039de8862a7dd005db46cee
+PASS: all 34 changed/untracked files are within allowed paths
+PASS: unchanged: docs/PRINCIPLES.md
+PASS: unchanged: docs/data
+PASS: unchanged: docs/design/CONSUMER_FLOW_SPEC.md
+PASS: unchanged: DECISION_REQUIRED.md
+PASS: unchanged: packages/fixtures/rules
+PASS: unchanged: packages/rules-engine/tests/fixtures
+PASS: unchanged: packages/twin-runtime
+PASS: unchanged: Cargo.lock
+PASS: unchanged: packages/rules-engine/Cargo.toml
+PASS: git diff --check
+PASS: 32 audit document links resolve
+PASS: all final validation commands exit 0; negative-control script reports five expected mutants detected
+SHA-256 packages/rules-engine/src/rule.rs: 9df0f560367f1310dd3e4674df706998507d8329e4323b6bcaef1c234708ddce
+SHA-256 packages/rules-engine/src/date.rs: 1fb4c8f97a707a944364332e02fc9bc412a1c15c7151f1b80687b53bab977605
+SHA-256 packages/rules-engine/src/strict_json.rs: 39e56728d4fe60509cfa9c10ca1465882b5e0d44cb22c463985f685e1abd1ecd
+SHA-256 packages/rules-engine/tests/loader_tightening.rs: 354cbd51c10ffa9f694b63eefeec2016e2cb2455801217771975164a5ae6d711
+SHA-256 packages/rules-engine/tests/date_format.rs: a2f4d9bf3e7e4c2cac0f37b0c6f7890f53c99f36eb8b68cce2554229e8e70ae1
+SHA-256 packages/rules-engine/tests/identity_evidence.rs: 847e02cf62aec1a449e6d8626fa70c797324174b41c3ed30d8552d43a18db6e4
+SHA-256 packages/rules-engine/tests/immutable_rule_doctests.rs: c86222e70075977b43e1ce957c3195922f84e922cd9f14a1f234e266a534fb6d
+Exit: 0

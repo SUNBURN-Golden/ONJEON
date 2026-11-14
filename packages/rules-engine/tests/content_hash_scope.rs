@@ -52,9 +52,9 @@ fn top_level_release_id_is_excluded_but_a_nested_one_is_hashed() {
     assert_eq!(hash(&a), hash(&b));
 
     let mut nested = base("rule-0.1");
-    nested["example_kind"] = json!({"release_id": "x"});
+    nested["inputs"]["release_id"] = json!("string");
     let mut nested2 = base("rule-0.1");
-    nested2["example_kind"] = json!({"release_id": "y"});
+    nested2["inputs"]["release_id"] = json!("int");
     assert_ne!(hash(&nested), hash(&nested2));
 }
 

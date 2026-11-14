@@ -8,6 +8,7 @@
 //!   an input snapshot hash so it can be reproduced.
 
 mod canonical;
+mod strict_json;
 
 pub mod date;
 pub mod eval;

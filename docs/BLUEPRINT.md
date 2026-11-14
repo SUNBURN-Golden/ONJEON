@@ -242,7 +242,7 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 |---|---|---|---|
 | I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·온톨로지 금액 표시·비교 자체 시험([Audit 4 증거](blueprint/audits/2026-10-30_ontology_check_unknown_as_zero.md)) | 구현(엔진) |
 | I2 | 계산 결과는 규칙 버전·릴리스·내용 해시·근거를 갖는다 | 엔진 `review_fixes` | 구현(엔진) |
-| I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail` 문서 테스트 | 구현(엔진) |
+| I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail,E0616` 문서 테스트·`immutable_rule_doctests`의 실제 진단 코드 검사([Audit 6 재검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)) | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
 | I5 | 허용 목록 밖 연산과 타입이 맞지 않는 식은 로드되지 않는다 | 엔진 로더·`static_types`(#40: 로드 단계 타입 검사)·`range_comparisons`(범위 가능 금액 비교의 로드 거부, [Audit 3 증거](blueprint/audits/2026-10-28_engine_moneyrange_compare_load_check.md)) | 구현(엔진) |
 | I6 | 화면의 숫자·사실 문장은 근거 사슬(§5.2)을 끝까지 따라간다 | API 계약 테스트 | 미구현 |
@@ -369,7 +369,7 @@ CI의 최소 읽기 권한·checkout 자격 증명 비보존·액션 SHA 고정�
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 257 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 265 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
@@ -392,6 +392,8 @@ CI의 최소 읽기 권한·checkout 자격 증명 비보존·액션 SHA 고정�
 엔진 공통 시험 하네스는 실제 규칙 파일명과 `rule_id`의 일치를 검사하고, 공유·추가 사례의 알 수 없는 키와 객체가 아닌 `set`을 거부한다. 중복 ID로 규칙이 덮어써지거나 `Set` 오타로 기본 입력만 실행되는 결함의 회귀 검증과 검사 제거 변이 증거는 [Audit 5 하네스 검증](blueprint/audits/2026-11-10_engine_test_harness_guards.md)에 기록한다. P08·P14의 엔진 시험 기반 증거이며 실제 상품 트윈·화면 연결·첫 출시 완료 증거는 별도다.
 
 Audit 6은 하네스의 맵 삽입에서도 중복 `rule_id`를 명시적으로 거부하고, 종신보험 사례의 `rule_ids`를 실제 사례의 규칙 선택과 대조한다. 목록의 빈 값·중복·미사용 항목과 공유 목록 밖을 선택한 추가 사례를 거부하는 회귀·검사 제거 변이 증거는 [검증 기록](blueprint/audits/2026-11-14_engine_fixture_ruleid_uniqueness.md)을 따른다. P08·P14의 `fixture_only` 시험 기반 증거이며 제품 전체 완료 판정은 바꾸지 않는다.
+
+규칙 텍스트 로더는 모든 깊이의 중복 JSON 키(이스케이프 충돌 포함)를 거부하고, 선택적 `example_kind`는 기존 세 문자열만 허용한다. 날짜 부호·빈 규칙 ID의 기존 거부와 I3 doctest의 실제 `E0616` 진단도 함께 재검증했다([Audit 6 로더 검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)). P08·P14의 엔진 기반 증거이며 실제 릴리스·소비자 화면·첫 출시 완료 판정을 바꾸지 않는다.
 
 윤년 말일 계약의 자해 사망 경계(`2028-02-29` → `2030-02-28`)는 현재 clamp·당일 포함 가정에서 질병사망보험금 70,000,000원이 계산된다. 이를 엔진 소유 사례와 회귀 시험에서 **G13-pending**으로 고정했다([Audit 5 증거](blueprint/audits/2026-11-10_engine_flag_g13_wholelife.md)). 원문 날짜 관례는 미확인이며 `fixture_only` 기대값이다. G13 해결·실제 지급 확정·P08·P14 전체 완료를 뜻하지 않는다.
 

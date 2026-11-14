@@ -1,0 +1,89 @@
+Command: cargo test --locked --offline --manifest-path <worktree>/target/audit6-loader-otqe6101/Cargo.toml --test loader_tightening --test date_format --test identity_evidence --test immutable_rule_doctests --no-fail-fast
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/target/audit6-loader-otqe6101)
+warning: struct `StrictValue` is never constructed
+ --> src/strict_json.rs:8:19
+  |
+8 | pub(crate) struct StrictValue(pub Value);
+  |                   ^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `StrictVisitor` is never constructed
+  --> src/strict_json.rs:16:8
+   |
+16 | struct StrictVisitor;
+   |        ^^^^^^^^^^^^^
+
+warning: `onjeon-rules-engine` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.58s
+     Running tests/date_format.rs (target/audit6-loader-control/debug/deps/date_format-f52c490b8f179f33)
+
+running 4 tests
+test non_canonical_date_literals_are_rejected_at_load ... ok
+test non_canonical_date_inputs_are_rejected_at_evaluation ... ok
+test date_aliases_cannot_produce_alternate_rule_hashes ... ok
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/identity_evidence.rs (target/audit6-loader-control/debug/deps/identity_evidence-d794a8734d028f95)
+
+running 7 tests
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test json_escaped_whitespace_rule_ids_are_rejected_after_decoding ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test blank_rule_ids_are_rejected ... ok
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test nonblank_rule_ids_are_preserved_in_every_result_state ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/immutable_rule_doctests.rs (target/audit6-loader-control/debug/deps/immutable_rule_doctests-79aff5fb6022bacd)
+
+running 1 test
+test immutable_rule_doctests_fail_only_on_private_field_access ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.17s
+
+     Running tests/loader_tightening.rs (target/audit6-loader-control/debug/deps/loader_tightening-abe257845703e304)
+
+running 6 tests
+test duplicate_keys_are_compared_after_json_string_decoding ... FAILED
+test duplicate_nested_members_fail_in_inputs_expressions_parameters_and_dead_branches ... FAILED
+test duplicate_top_level_members_fail_even_when_identical_or_last_value_is_valid ... FAILED
+test example_kind_rejects_wrong_types_blank_and_unknown_values ... ok
+test repeated_keys_in_separate_objects_and_key_like_string_contents_are_valid ... ok
+test example_kind_is_optional_and_valid_tags_preserve_source_hash_and_results ... ok
+
+failures:
+
+---- duplicate_keys_are_compared_after_json_string_decoding stdout ----
+
+thread 'duplicate_keys_are_compared_after_json_string_decoding' (4001782) panicked at tests/loader_tightening.rs:30:43:
+duplicate member must not load: Rule { rule_id: "loader-tightening", rule_version: "1", release_id: Some("rel-1"), content_hash: "82d8bb3c73746d665d58eb26d9289ffb88185fc809cefb6d64d16d3e5b00ecbf", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["clause-1"], inputs: {"ok": Bool}, eligibility: Input("ok"), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "eligibility": Object {"input": String("ok")}, "evidence_refs": Array [String("clause-1")], "inputs": Object {"ok": String("bool")}, "publication_state": String("fixture_only"), "release_id": String("rel-1"), "rule_id": String("loader-tightening"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- duplicate_nested_members_fail_in_inputs_expressions_parameters_and_dead_branches stdout ----
+
+thread 'duplicate_nested_members_fail_in_inputs_expressions_parameters_and_dead_branches' (4001783) panicked at tests/loader_tightening.rs:30:43:
+duplicate member must not load: Rule { rule_id: "loader-tightening", rule_version: "1", release_id: Some("rel-1"), content_hash: "82d8bb3c73746d665d58eb26d9289ffb88185fc809cefb6d64d16d3e5b00ecbf", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["clause-1"], inputs: {"ok": Bool}, eligibility: Input("ok"), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "eligibility": Object {"input": String("ok")}, "evidence_refs": Array [String("clause-1")], "inputs": Object {"ok": String("bool")}, "publication_state": String("fixture_only"), "release_id": String("rel-1"), "rule_id": String("loader-tightening"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- duplicate_top_level_members_fail_even_when_identical_or_last_value_is_valid stdout ----
+
+thread 'duplicate_top_level_members_fail_even_when_identical_or_last_value_is_valid' (4001784) panicked at tests/loader_tightening.rs:30:43:
+duplicate member must not load: Rule { rule_id: "loader-tightening", rule_version: "1", release_id: Some("rel-1"), content_hash: "46fcd3b3e8d31762a2177578c4f58f973de2eebb5187525ddec16d299dcdfa1e", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: ["clause-1"], inputs: {"ok": Bool}, eligibility: Input("ok"), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"input": String("ok")}, "evidence_refs": Array [String("clause-1")], "example_kind": String("synthetic_not_a_real_product"), "inputs": Object {"ok": String("bool")}, "publication_state": String("fixture_only"), "release_id": String("rel-1"), "rule_id": String("loader-tightening"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+
+failures:
+    duplicate_keys_are_compared_after_json_string_decoding
+    duplicate_nested_members_fail_in_inputs_expressions_parameters_and_dead_branches
+    duplicate_top_level_members_fail_even_when_identical_or_last_value_is_valid
+
+test result: FAILED. 3 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `--test loader_tightening`
+error: 1 target failed:
+    `--test loader_tightening`
+
+Exit: 101

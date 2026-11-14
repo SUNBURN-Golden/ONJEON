@@ -17,6 +17,12 @@ pub const CONTRACT_EFFECTS: [&str; 3] = ["none", "void_refund_premium", "termina
 pub const UNKNOWN_POLICY: &str = "use_three_valued_logic_never_default_to_zero";
 /// Allowed `publication_state` values; must match `publication_state` in vocabulary.json.
 pub const PUBLICATION_STATES: [&str; 3] = ["fixture_only", "candidate", "released"];
+/// Existing example provenance tags. Optional and independent of publication state.
+pub const EXAMPLE_KINDS: [&str; 3] = [
+    "synthetic_not_a_real_product",
+    "real_clause_design_validation",
+    "ontology_case_validation",
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InputType {
@@ -330,12 +336,16 @@ const TOP_LEVEL_KEYS: [&str; 13] = [
 ];
 
 impl Rule {
+    /// Load rule JSON text, rejecting duplicate keys at every depth (including
+    /// keys that become equal after JSON escape decoding).
     pub fn from_json_str(s: &str) -> Result<Rule, RuleError> {
-        let v: J = serde_json::from_str(s)
+        let crate::strict_json::StrictValue(v) = serde_json::from_str(s)
             .map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))?;
         Rule::from_json(&v)
     }
 
+    /// Load an already parsed JSON value. Duplicate members cannot be recovered
+    /// from a `Value`; use [`Rule::from_json_str`] for untrusted JSON text.
     pub fn from_json(v: &J) -> Result<Rule, RuleError> {
         let obj = v
             .as_object()
@@ -343,6 +353,14 @@ impl Rule {
         for k in obj.keys() {
             if !TOP_LEVEL_KEYS.contains(&k.as_str()) {
                 return Err(RuleError::at("$", format!("unknown top-level key `{k}`")));
+            }
+        }
+        if let Some(kind) = obj.get("example_kind") {
+            if !kind.as_str().is_some_and(|s| EXAMPLE_KINDS.contains(&s)) {
+                return Err(RuleError::at(
+                    "example_kind",
+                    format!("must be one of {}", EXAMPLE_KINDS.join("|")),
+                ));
             }
         }
         let get_str = |key: &str| -> Result<String, RuleError> {

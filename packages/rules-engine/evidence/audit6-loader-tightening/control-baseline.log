@@ -1,0 +1,67 @@
+Command: cargo test --locked --offline --manifest-path <worktree>/target/audit6-loader-otqe6101/Cargo.toml --test loader_tightening --test date_format --test identity_evidence --test immutable_rule_doctests --no-fail-fast
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.6
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/target/audit6-loader-otqe6101)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.86s
+     Running tests/date_format.rs (target/audit6-loader-control/debug/deps/date_format-f52c490b8f179f33)
+
+running 4 tests
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+test non_canonical_date_inputs_are_rejected_at_evaluation ... ok
+test date_aliases_cannot_produce_alternate_rule_hashes ... ok
+test non_canonical_date_literals_are_rejected_at_load ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/identity_evidence.rs (target/audit6-loader-control/debug/deps/identity_evidence-d794a8734d028f95)
+
+running 7 tests
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test blank_rule_ids_are_rejected ... ok
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test json_escaped_whitespace_rule_ids_are_rejected_after_decoding ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test nonblank_rule_ids_are_preserved_in_every_result_state ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/immutable_rule_doctests.rs (target/audit6-loader-control/debug/deps/immutable_rule_doctests-79aff5fb6022bacd)
+
+running 1 test
+test immutable_rule_doctests_fail_only_on_private_field_access ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+
+     Running tests/loader_tightening.rs (target/audit6-loader-control/debug/deps/loader_tightening-abe257845703e304)
+
+running 6 tests
+test repeated_keys_in_separate_objects_and_key_like_string_contents_are_valid ... ok
+test duplicate_keys_are_compared_after_json_string_decoding ... ok
+test duplicate_nested_members_fail_in_inputs_expressions_parameters_and_dead_branches ... ok
+test example_kind_rejects_wrong_types_blank_and_unknown_values ... ok
+test duplicate_top_level_members_fail_even_when_identical_or_last_value_is_valid ... ok
+test example_kind_is_optional_and_valid_tags_preserve_source_hash_and_results ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+
+Exit: 0

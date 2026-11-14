@@ -1,0 +1,5 @@
+Command: python3 -I tools/blueprint_counts.py --write
+ONJ_REQUIRE_RULE_02=1
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 265, "tamper_tests": 40, "vocabulary_axes": 49}
+
+Exit: 0

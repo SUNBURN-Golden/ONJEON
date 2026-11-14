@@ -1,0 +1,7 @@
+PASS: baseline: 0 expected failures detected
+PASS: duplicate-overwrite: 3 expected failures detected
+PASS: unchecked-example-kind: 1 expected failures detected
+PASS: blank-rule-id: 2 expected failures detected
+PASS: signed-dates: 3 expected failures detected
+PASS: unrelated-doctest-error: 1 expected failures detected
+PASS: production sources unchanged; disposable crate removed.

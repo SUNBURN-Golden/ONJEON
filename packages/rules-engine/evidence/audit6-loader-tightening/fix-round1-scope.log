@@ -1,0 +1,34 @@
+PASS: all modified and untracked files are inside explicit allowed paths.
+PASS: packages/twin-runtime unchanged; proposed patch only.
+PASS: no protected documents modified.
+Files:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-11-14_engine_loader_tightening.md
+packages/rules-engine/README.md
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-clippy.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-control-baseline.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-control-blank-rule-id.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-control-duplicate-overwrite.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-control-signed-dates.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-control-unchecked-example-kind.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-control-unrelated-doctest-error.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-counts-check.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-counts.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-engine.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-fmt.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-negative-control.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-ontology-runner.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-python.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-status.log
+packages/rules-engine/evidence/audit6-loader-tightening/fix-round1-workspace.log
+packages/rules-engine/evidence/audit6-loader-tightening/negative_control.py
+packages/rules-engine/src/lib.rs
+packages/rules-engine/src/rule.rs
+packages/rules-engine/src/strict_json.rs
+tools/evidence/audit6-engine-loader-tightening/fix-round1/README.md
+tools/evidence/audit6-engine-loader-tightening/fix-round1/before-runtime.log
+tools/evidence/audit6-engine-loader-tightening/fix-round1/proposed-runtime.log
+tools/evidence/audit6-engine-loader-tightening/fix-round1/proposed-runtime.patch
+tools/evidence/audit6-engine-loader-tightening/fix-round1/runtime_tests.rs
+tools/evidence/audit6-engine-loader-tightening/fix-round1/verification.log
+tools/evidence/audit6-engine-loader-tightening/fix-round1/verify_proposed_runtime.py

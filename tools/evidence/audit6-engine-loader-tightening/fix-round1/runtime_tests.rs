@@ -1,0 +1,179 @@
+//! Audit 6: reject ambiguous artifacts before metadata extraction and execution.
+mod common;
+use common::*;
+use onjeon_rules_engine::Rule;
+use onjeon_twin_runtime::*;
+use serde_json::{json, Value};
+use std::io::Write;
+use std::process::{Command, Stdio};
+
+const RULE_PATH: &str = "규칙/hana-2601-3d-cancer-dx.json";
+
+fn artifact(version: &str, field: &str, raw: &str) -> Vec<u8> {
+    let mut body: Value = serde_json::from_slice(&declared_abox().rule_files[RULE_PATH]).unwrap();
+    body["schema_version"] = json!(version);
+    body["eligibility"] = json!(true);
+    body["amount"] = json!({"krw": 1});
+    body.as_object_mut().unwrap().remove(field);
+    let text = serde_json::to_string(&body).unwrap();
+    format!("{{{field:?}:{raw},{}", &text[1..]).into_bytes()
+}
+
+fn duplicates() -> Vec<(&'static str, &'static str, &'static str)> {
+    vec![
+        ("amount", r#"{"krw":999999999,"krw":1}"#, "krw"),
+        ("amount", r#"{"krw":1,"krw":1}"#, "krw"),
+        ("amount", r#"{"krw":999999999,"\u006brw":1}"#, "krw"),
+        (
+            "amount",
+            r#"{"if":false,"then":{"krw":9,"krw":1},"else":{"krw":1}}"#,
+            "krw",
+        ),
+        (
+            "inputs_from_outside_dsl",
+            r#"[],"inputs_from_outside_dsl":[]"#,
+            "inputs_from_outside_dsl",
+        ),
+        (
+            "inputs_from_outside_dsl",
+            r#"[{"name":"dx_in_category","judged_by":"ontology","judged_by":"time_stage"}]"#,
+            "judged_by",
+        ),
+        (
+            "inputs_from_outside_dsl",
+            r#"[{"name":"dx_in_category","judged_by":"time_stage","duration":{"value":90,"value":1,"unit":"day"}}]"#,
+            "value",
+        ),
+    ]
+}
+
+fn assert_duplicate(error: &str, key: &str) {
+    assert!(
+        error.contains(&format!("invalid JSON: duplicate JSON key {key:?}")),
+        "{error}"
+    );
+    assert!(
+        error.contains("line ") && error.contains("column "),
+        "{error}"
+    );
+}
+
+#[test]
+fn artifact_duplicates_fail_before_declaration_extraction() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for (field, raw, key) in duplicates() {
+            let error = load_rule_artifact(&artifact(version, field, raw)).unwrap_err();
+            assert_duplicate(&error, key);
+        }
+    }
+}
+
+#[test]
+fn duplicate_artifacts_stop_requests_before_fill_or_engine() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        for (field, raw, key) in duplicates() {
+            let mut abox = declared_abox();
+            abox.rule_files
+                .insert(RULE_PATH.into(), artifact(version, field, raw));
+            // Freeze these exact bytes so K15 cannot hide a loader failure.
+            let index = abox
+                .releases
+                .iter()
+                .position(|r| r.id == DECLARED_REL)
+                .unwrap();
+            let members = abox.releases[index].freeze.members.clone();
+            abox.releases[index].freeze =
+                onjeon_ontology::freeze(&abox, &members, "case-0.2").unwrap();
+            let snap = Snapshot::release(&abox, DECLARED_REL).unwrap();
+            assert!(snap.integrity_findings().is_empty());
+            let out = run(&snap, &question("Q1"));
+            assert!(matches!(out.chain, Some(Chain::Linked(_))));
+            assert_duplicate(
+                out.pre_engine_error
+                    .as_deref()
+                    .expect("loader must reject artifact"),
+                key,
+            );
+            assert_eq!(out.engine_calls, 0);
+            assert!(out.eval.is_none() && out.filled.is_none() && out.rule.is_none());
+            assert!(out.judgements.is_empty());
+        }
+    }
+}
+
+#[test]
+fn unique_artifacts_preserve_declarations_hashes_and_evaluation() {
+    for version in ["rule-0.1", "rule-0.2"] {
+        let bytes = artifact(version, "amount", r#"{"add":[{"krw":1},{"krw":1}]}"#);
+        let (rule, outside) = load_rule_artifact(&bytes).unwrap();
+        assert_eq!(outside, dx_outside());
+        let mut body: Value = serde_json::from_slice(&bytes).unwrap();
+        body.as_object_mut()
+            .unwrap()
+            .remove("inputs_from_outside_dsl");
+        let expected = Rule::from_json(&body).unwrap();
+        assert_eq!(rule.source_json(), &body);
+        assert_eq!(rule.content_hash(), expected.content_hash());
+        assert_eq!(
+            rule.evaluate(&json!({})).unwrap(),
+            expected.evaluate(&json!({})).unwrap()
+        );
+        assert!(load_rule_artifact(&[bytes.clone(), b" {}".to_vec()].concat()).is_err());
+        let mut invalid_utf8 = bytes;
+        invalid_utf8.extend_from_slice(b"\xff");
+        assert!(load_rule_artifact(&invalid_utf8).is_err());
+    }
+}
+
+#[test]
+fn case_runner_rejects_duplicate_artifacts_with_zero_engine_calls() {
+    let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let dir = root.join(format!("target/audit6-artifact-cli-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let mut jobs = Vec::new();
+    for version in ["rule-0.1", "rule-0.2"] {
+        for (index, (field, raw, _)) in duplicates().iter().enumerate() {
+            let path = dir.join(format!("{version}-{index}.json"));
+            std::fs::write(&path, artifact(version, field, raw)).unwrap();
+            jobs.push(json!({"case_id":format!("{version}-{index}"),"rule_path":path,"inputs":{}}));
+        }
+    }
+    let good = dir.join("good.json");
+    std::fs::write(&good, artifact("rule-0.1", "inputs_from_outside_dsl", "[]")).unwrap();
+    jobs.push(json!({"case_id":"good","rule_path":good,"inputs":{}}));
+    let mut child = Command::new(env!("CARGO_BIN_EXE_case-runner"))
+        .current_dir(&root)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(serde_json::to_string(&jobs).unwrap().as_bytes())
+        .unwrap();
+    let output = child.wait_with_output().unwrap();
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let results: Value = serde_json::from_slice(&output.stdout).unwrap();
+    let results = results.as_array().unwrap();
+    for (index, result) in results[..results.len() - 1].iter().enumerate() {
+        assert_eq!(result["outcome"], "load_error", "{result}");
+        assert_eq!(result["engine_calls"], 0, "{result}");
+        assert!(result.get("engine").is_none(), "{result}");
+        assert_duplicate(
+            result["error"].as_str().unwrap(),
+            duplicates()[index % duplicates().len()].2,
+        );
+    }
+    let good = results.last().unwrap();
+    assert_eq!(good["outcome"], "evaluated");
+    assert_eq!(good["engine_calls"], 1);
+    assert_eq!(good["engine"]["payout"]["amount"]["krw"], 1);
+}

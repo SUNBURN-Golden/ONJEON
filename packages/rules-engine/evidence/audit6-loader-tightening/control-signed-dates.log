@@ -1,0 +1,74 @@
+Command: cargo test --locked --offline --manifest-path <worktree>/target/audit6-loader-otqe6101/Cargo.toml --test loader_tightening --test date_format --test identity_evidence --test immutable_rule_doctests --no-fail-fast
+   Compiling onjeon-rules-engine v0.1.0 (<worktree>/target/audit6-loader-otqe6101)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.99s
+     Running tests/date_format.rs (target/audit6-loader-control/debug/deps/date_format-f52c490b8f179f33)
+
+running 4 tests
+test canonical_date_literals_and_inputs_still_evaluate ... ok
+test non_canonical_date_inputs_are_rejected_at_evaluation ... FAILED
+test non_canonical_date_literals_are_rejected_at_load ... FAILED
+test date_aliases_cannot_produce_alternate_rule_hashes ... FAILED
+
+failures:
+
+---- non_canonical_date_inputs_are_rejected_at_evaluation stdout ----
+
+thread 'non_canonical_date_inputs_are_rejected_at_evaluation' (4006180) panicked at tests/date_format.rs:52:69:
+called `Result::unwrap_err()` on an `Ok` value: EvaluationResult { rule_id: "date-format", rule_version: "1", release_id: None, rule_content_hash: "838f507b3395003d1f4cab049b79e38b0be3314fcea91c2b3b0add5e7a0cd707", evidence_refs: [], schema_version: "rule-0.1", engine_version: "0.1.0+snapshot-json-1", eligibility: False, payout: NotPayable, contract_effect: None, missing_inputs: [], trace: [TraceEntry { path: "eligibility.eq[0]", op: "input", result: "2026-01-05" }, TraceEntry { path: "eligibility.eq[1]", op: "lit", result: "2024-02-09" }, TraceEntry { path: "eligibility", op: "eq", result: "false" }], input_snapshot_hash: "65554c3a79261cafc3825771311c2a617e8bbad220423ca202f3f99bae24ffcc" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- non_canonical_date_literals_are_rejected_at_load stdout ----
+
+thread 'non_canonical_date_literals_are_rejected_at_load' (4006181) panicked at tests/date_format.rs:40:63:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "date-format", rule_version: "1", release_id: None, content_hash: "9cf3e98292da49999443561769b098f2430b6e7e9136dd19ba8684422bcb93e8", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"event_date": Date}, eligibility: Cmp(Eq, Input("event_date"), Lit(Date(20458))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [String("event_date"), Object {"date": String("2026-+1-+5")}]}, "evidence_refs": Array [], "inputs": Object {"event_date": String("date")}, "publication_state": String("fixture_only"), "rule_id": String("date-format"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+---- date_aliases_cannot_produce_alternate_rule_hashes stdout ----
+
+thread 'date_aliases_cannot_produce_alternate_rule_hashes' (4006179) panicked at tests/date_format.rs:102:59:
+called `Result::unwrap_err()` on an `Ok` value: Rule { rule_id: "date-format", rule_version: "1", release_id: None, content_hash: "9cf3e98292da49999443561769b098f2430b6e7e9136dd19ba8684422bcb93e8", schema_version: "rule-0.1", publication_state: "fixture_only", evidence_refs: [], inputs: {"event_date": Date}, eligibility: Cmp(Eq, Input("event_date"), Lit(Date(20458))), amount: Lit(Money(1)), contract_effect: None, source: Object {"amount": Object {"krw": Number(1)}, "calendar": String("Asia/Seoul"), "eligibility": Object {"eq": Array [String("event_date"), Object {"date": String("2026-+1-+5")}]}, "evidence_refs": Array [], "inputs": Object {"event_date": String("date")}, "publication_state": String("fixture_only"), "rule_id": String("date-format"), "rule_version": String("1"), "schema_version": String("rule-0.1"), "unknown_policy": String("use_three_valued_logic_never_default_to_zero")} }
+
+
+failures:
+    date_aliases_cannot_produce_alternate_rule_hashes
+    non_canonical_date_inputs_are_rejected_at_evaluation
+    non_canonical_date_literals_are_rejected_at_load
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--test date_format`
+     Running tests/identity_evidence.rs (target/audit6-loader-control/debug/deps/identity_evidence-d794a8734d028f95)
+
+running 7 tests
+test duplicate_evidence_refs_are_rejected_at_the_repeated_index ... ok
+test blank_rule_ids_are_rejected ... ok
+test json_escaped_whitespace_rule_ids_are_rejected_after_decoding ... ok
+test blank_evidence_refs_cannot_satisfy_the_evidence_requirement ... ok
+test valid_identity_and_distinct_refs_survive_loading_reloading_and_evaluation ... ok
+test empty_evidence_list_is_allowed_only_for_fixtures ... ok
+test nonblank_rule_ids_are_preserved_in_every_result_state ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/immutable_rule_doctests.rs (target/audit6-loader-control/debug/deps/immutable_rule_doctests-79aff5fb6022bacd)
+
+running 1 test
+test immutable_rule_doctests_fail_only_on_private_field_access ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/loader_tightening.rs (target/audit6-loader-control/debug/deps/loader_tightening-abe257845703e304)
+
+running 6 tests
+test repeated_keys_in_separate_objects_and_key_like_string_contents_are_valid ... ok
+test duplicate_nested_members_fail_in_inputs_expressions_parameters_and_dead_branches ... ok
+test duplicate_keys_are_compared_after_json_string_decoding ... ok
+test example_kind_rejects_wrong_types_blank_and_unknown_values ... ok
+test example_kind_is_optional_and_valid_tags_preserve_source_hash_and_results ... ok
+test duplicate_top_level_members_fail_even_when_identical_or_last_value_is_valid ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: 1 target failed:
+    `--test date_format`
+
+Exit: 101

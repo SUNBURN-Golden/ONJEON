@@ -1,0 +1,4 @@
+Command: cargo fmt --all -- --check
+ONJ_REQUIRE_RULE_02=1
+
+Exit: 0

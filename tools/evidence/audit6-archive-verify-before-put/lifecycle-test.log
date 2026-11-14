@@ -1,0 +1,6 @@
+test_cli_rejects_bad_cache_and_corrupt_store_through_archive_restore_lifecycle (tools.tests.test_source_archive_commands.ArchiveCommands.test_cli_rejects_bad_cache_and_corrupt_store_through_archive_restore_lifecycle) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.020s
+
+OK

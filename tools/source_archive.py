@@ -381,10 +381,12 @@ def put_observation(raw, source_id, url, observed_at, digest, size, content_type
         raise SystemExit(f"source_id must be lower snake_case: {source_id}")
     stamp = re.sub(r"[^0-9TZ]", "", observed_at)
     key = f"observations/{source_id}/{stamp}_{digest[:16]}.json"
-    rec = {"source_id": source_id, "url": url, "observed_at": observed_at, "sha256": digest,
-           "bytes": size, "content_type": content_type, "object_key": object_key(digest)}
-    rec.update(extra)
-    body = (json.dumps(rec, ensure_ascii=False, indent=2) + "\n").encode()
+    core = {"source_id": source_id, "url": url, "observed_at": observed_at, "sha256": digest,
+            "bytes": size, "content_type": content_type, "object_key": object_key(digest)}
+    rec = {**extra, **core}  # Provenance wins independently of reserved-key validation.
+    # Keep historical core-first JSON ordering: immutable records compare exact bytes on rerun.
+    ordered_rec = {field: rec[field] for field in (*core, *extra)}
+    body = (json.dumps(ordered_rec, ensure_ascii=False, indent=2) + "\n").encode()
     return key, put_once(raw, key, body, "application/json")
 
 

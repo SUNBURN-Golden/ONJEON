@@ -1,0 +1,158 @@
+test_absent_or_empty_extra_is_allowed (tools.tests.test_source_archive.Observations.test_absent_or_empty_extra_is_allowed) ... ok
+test_additional_metadata_preserves_provenance_and_input (tools.tests.test_source_archive.Observations.test_additional_metadata_preserves_provenance_and_input) ... ok
+test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) ... 
+  test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='source_id') ... FAIL
+  test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='url') ... FAIL
+  test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='observed_at') ... FAIL
+  test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='sha256') ... FAIL
+  test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='bytes') ... FAIL
+  test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='content_type') ... FAIL
+  test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='object_key') ... FAIL
+test_existing_observation_with_extra_keeps_serialized_bytes_on_rerun (tools.tests.test_source_archive.Observations.test_existing_observation_with_extra_keeps_serialized_bytes_on_rerun) ... ok
+test_extra_cannot_override_any_observation_field_even_with_same_value (tools.tests.test_source_archive.Observations.test_extra_cannot_override_any_observation_field_even_with_same_value) ... ok
+test_extra_must_be_an_object (tools.tests.test_source_archive.Observations.test_extra_must_be_an_object) ... ok
+test_identical_observation_is_already_present (tools.tests.test_source_archive.Observations.test_identical_observation_is_already_present) ... ok
+test_same_key_different_record_is_a_conflict (tools.tests.test_source_archive.Observations.test_same_key_different_record_is_a_conflict) ... ok
+
+======================================================================
+FAIL: test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='source_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-observation-extra-override/tools/tests/test_source_archive.py", line 115, in test_core_fields_win_even_without_reserved_key_validation
+    self.assertEqual(record, {**core, "note": "public"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'source_id': 'another_source', 'url': 'https://example.[282 chars]lic'} != {'source_id': 'kb_sample', 'url': 'https://example.org/a[277 chars]lic'}
+  {'bytes': 17,
+   'content_type': 'text/html',
+   'note': 'public',
+   'object_key': 'objects/sha256/19/83/1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'observed_at': '2026-10-09T04:43:40Z',
+   'sha256': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+-  'source_id': 'another_source',
++  'source_id': 'kb_sample',
+   'url': 'https://example.org/a'}
+
+======================================================================
+FAIL: test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='url')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-observation-extra-override/tools/tests/test_source_archive.py", line 115, in test_core_fields_win_even_without_reserved_key_validation
+    self.assertEqual(record, {**core, "note": "public"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sou[45 chars].org/other', 'observed_at': '2026-10-09T04:43:[241 chars]lic'} != {'sou[45 chars].org/a', 'observed_at': '2026-10-09T04:43:40Z'[237 chars]lic'}
+  {'bytes': 17,
+   'content_type': 'text/html',
+   'note': 'public',
+   'object_key': 'objects/sha256/19/83/1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'observed_at': '2026-10-09T04:43:40Z',
+   'sha256': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'source_id': 'kb_sample',
+-  'url': 'https://example.org/other'}
+?                              ^^^^^
+
++  'url': 'https://example.org/a'}
+?                              ^
+
+
+======================================================================
+FAIL: test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='observed_at')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-observation-extra-override/tools/tests/test_source_archive.py", line 115, in test_core_fields_win_even_without_reserved_key_validation
+    self.assertEqual(record, {**core, "note": "public"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sou[67 chars]: '2000-01-01T00:00:00Z', 'sha256': '1983bb6b8[215 chars]lic'} != {'sou[67 chars]: '2026-10-09T04:43:40Z', 'sha256': '1983bb6b8[215 chars]lic'}
+  {'bytes': 17,
+   'content_type': 'text/html',
+   'note': 'public',
+   'object_key': 'objects/sha256/19/83/1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+-  'observed_at': '2000-01-01T00:00:00Z',
+?                    ^   ^^^^  ^ ^^ ^
+
++  'observed_at': '2026-10-09T04:43:40Z',
+?                    ^^^^   ^  ^ ^^ ^
+
+   'sha256': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'source_id': 'kb_sample',
+   'url': 'https://example.org/a'}
+
+======================================================================
+FAIL: test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-observation-extra-override/tools/tests/test_source_archive.py", line 115, in test_core_fields_win_even_without_reserved_key_validation
+    self.assertEqual(record, {**core, "note": "public"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sou[99 chars]6': '77ba2e6fb3e166f08d737f9bded26fd8011ebd98c[183 chars]lic'} != {'sou[99 chars]6': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa[183 chars]lic'}
+  {'bytes': 17,
+   'content_type': 'text/html',
+   'note': 'public',
+   'object_key': 'objects/sha256/19/83/1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'observed_at': '2026-10-09T04:43:40Z',
+-  'sha256': '77ba2e6fb3e166f08d737f9bded26fd8011ebd98c1cfd68e804be1eadeb6cd15',
++  'sha256': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'source_id': 'kb_sample',
+   'url': 'https://example.org/a'}
+
+======================================================================
+FAIL: test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-observation-extra-override/tools/tests/test_source_archive.py", line 115, in test_core_fields_win_even_without_reserved_key_validation
+    self.assertEqual(record, {**core, "note": "public"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sou[175 chars]es': 0, 'content_type': 'text/html', 'object_k[106 chars]lic'} != {'sou[175 chars]es': 17, 'content_type': 'text/html', 'object_[107 chars]lic'}
+- {'bytes': 0,
+?           ^
+
++ {'bytes': 17,
+?           ^^
+
+   'content_type': 'text/html',
+   'note': 'public',
+   'object_key': 'objects/sha256/19/83/1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'observed_at': '2026-10-09T04:43:40Z',
+   'sha256': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'source_id': 'kb_sample',
+   'url': 'https://example.org/a'}
+
+======================================================================
+FAIL: test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='content_type')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-observation-extra-override/tools/tests/test_source_archive.py", line 115, in test_core_fields_win_even_without_reserved_key_validation
+    self.assertEqual(record, {**core, "note": "public"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sou[196 chars]e': 'application/pdf', 'object_key': 'objects/[92 chars]lic'} != {'sou[196 chars]e': 'text/html', 'object_key': 'objects/sha256[86 chars]lic'}
+  {'bytes': 17,
+-  'content_type': 'application/pdf',
++  'content_type': 'text/html',
+   'note': 'public',
+   'object_key': 'objects/sha256/19/83/1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'observed_at': '2026-10-09T04:43:40Z',
+   'sha256': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'source_id': 'kb_sample',
+   'url': 'https://example.org/a'}
+
+======================================================================
+FAIL: test_core_fields_win_even_without_reserved_key_validation (tools.tests.test_source_archive.Observations.test_core_fields_win_even_without_reserved_key_validation) (field='object_key')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-archive-observation-extra-override/tools/tests/test_source_archive.py", line 115, in test_core_fields_win_even_without_reserved_key_validation
+    self.assertEqual(record, {**core, "note": "public"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sou[238 chars]a256/77/ba/77ba2e6fb3e166f08d737f9bded26fd8011[44 chars]lic'} != {'sou[238 chars]a256/19/83/1983bb6b8eea3501af44a25979dc4839d5a[44 chars]lic'}
+  {'bytes': 17,
+   'content_type': 'text/html',
+   'note': 'public',
+-  'object_key': 'objects/sha256/77/ba/77ba2e6fb3e166f08d737f9bded26fd8011ebd98c1cfd68e804be1eadeb6cd15',
++  'object_key': 'objects/sha256/19/83/1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'observed_at': '2026-10-09T04:43:40Z',
+   'sha256': '1983bb6b8eea3501af44a25979dc4839d5a78d9fa0576a4dd59e72b79140ab51',
+   'source_id': 'kb_sample',
+   'url': 'https://example.org/a'}
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.020s
+
+FAILED (failures=7)

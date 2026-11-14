@@ -1,0 +1,63 @@
+{
+  "node": "audit6-archive-localstore-key-confinement",
+  "date": "2026-11-15",
+  "base_commit": "036644dcb4924edef10a5ce170620ac57b4e1c8a",
+  "commands": [
+    {
+      "command": "python3 -m unittest discover -s tools/tests -v",
+      "exit_code": 0,
+      "log": "python-tests.log"
+    },
+    {
+      "command": "cargo test --all --locked --offline",
+      "exit_code": 0,
+      "log": "rust-tests.log"
+    },
+    {
+      "command": "cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline",
+      "exit_code": 0,
+      "log": "runner-tests.log"
+    },
+    {
+      "command": "python3 tools/evidence/audit6-archive-localstore-key-confinement/check_key_mutations.py",
+      "exit_code": 0,
+      "log": "key-mutations.log"
+    },
+    {
+      "command": "python3 tools/evidence/audit5-samples-sha256-format-check/check_hash_mutations.py",
+      "exit_code": 0,
+      "log": "hash-mutations.log"
+    },
+    {
+      "command": "validation / vocabulary / blueprint / product-purpose / spec / whitespace checks (commands in log)",
+      "exit_code": 0,
+      "log": "static-checks.log"
+    },
+    {
+      "command": "allowed paths / protected paths / Python syntax / local links / whitespace",
+      "exit_code": 0,
+      "log": "scope-check.log"
+    }
+  ],
+  "sha256": {
+    "docs/BLUEPRINT.md": "00db2df23edb67d1d9d7b0d648e214705825ecde91d2888e9691701724d9ea93",
+    "docs/blueprint/audits/2026-11-15_archive_localstore_key_confinement.md": "6a8b9edb3979c205b5241981d2cdad5b1ce4206afad30463bed5112530f51aa0",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md": "aac618c67408c4be613fc84ad1e2879a34f1373f9f3324468c9964aba69a296c",
+    "tools/evidence/audit5-samples-sha256-format-check/check_hash_mutations.py": "a19cb2495ef5707f1ecaae40e1ada59337b48f16344b2ea3b7f638da8cefab36",
+    "tools/evidence/audit6-archive-localstore-key-confinement/README.md": "33505805e63ddb1eabf02b2b1f785ebee1f8392506c9a3d9c5a816e1ae9b698d",
+    "tools/evidence/audit6-archive-localstore-key-confinement/check_key_mutations.py": "5f50444f754291ced38b64d1b24b6206ca9123fda06c7a7e2e2c65835b7312cc",
+    "tools/evidence/audit6-archive-localstore-key-confinement/hash-mutations.log": "c9cd8ffe8e71fcbbc68fd73adc007544a59bbe02471d15a3b9028999b68327c1",
+    "tools/evidence/audit6-archive-localstore-key-confinement/key-mutations.log": "2b62eba7ab081db4f8bf7f527d67f6daf972d5164571aacaa2bec34e619af591",
+    "tools/evidence/audit6-archive-localstore-key-confinement/python-tests.log": "b2478a9fff602383c796814c906e6ed06fda3aa2610b2f148eec0a8fdbeee1b6",
+    "tools/evidence/audit6-archive-localstore-key-confinement/runner-tests.log": "31fa1735492fe6f3483bd4133b08db96c2be3e3219056eeceb23b2ae9f72541b",
+    "tools/evidence/audit6-archive-localstore-key-confinement/rust-tests.log": "afeed4e885664861c4cec11d8329d0bcbf100cee15174e6b94cef5d53766eac2",
+    "tools/evidence/audit6-archive-localstore-key-confinement/scope-check.log": "8b5895c9529346482ed65522c09425b539bdb37ff01cc7b6ede1c11740b1e351",
+    "tools/evidence/audit6-archive-localstore-key-confinement/static-checks.log": "25ff67b29dee8af73b230dcb772b618fbc9d0a2ddbbb894ef9ef48d79b3ca3ab",
+    "tools/source_archive.py": "fb7e165f32ce99bd13dd13d72d75c5a25a253373096cff6e2c9f2ebec26b2e1d",
+    "tools/source_metadata.py": "9635f61651b06e86849790654d9ae36cf8ab9a5727a064cdbb0770f943027df1",
+    "tools/tests/test_samples_csv_validation.py": "28e2a5945911cf852954c5eb560eed659576022e7c8710311433d094dbe6164c",
+    "tools/tests/test_source_archive_paths.py": "b041075fc21c55c7ac83b4da4feabc50d2cfecffc24a96565d995d12e6a20505",
+    "tools/validation_check.py": "25a82e6f8ea77bd2c9baa64326591692d731f756524a3366d6a26e8e8a25e5c4",
+    "tools/verify_sources.py": "7da417736d5ba55552ebee9eac5d6a030f51297df76bd1d0ff9d97ec68d05edd"
+  }
+}

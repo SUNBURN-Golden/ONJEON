@@ -6,7 +6,7 @@ import io
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import nullcontext, redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -129,6 +129,53 @@ class SampleMetadata(unittest.TestCase):
                 raw.exists.assert_not_called()
                 raw.list.assert_not_called()
                 self.assertEqual(list(Path(tmp).iterdir()), [])
+
+    def test_crafted_csv_digest_is_blocked_by_each_guard_with_real_local_store(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "archive"
+            root.mkdir()
+            outside = base / "outside"
+            outside.mkdir()
+            prefix = "ab/cd/" + "../" * 7 + "outside/"
+            name = "s" * (64 - len(prefix))
+            digest = prefix + name
+            self.assertEqual(len(digest), 64)
+            # Without either guard, the old key layout resolves to this external file.
+            unsafe_key = f"objects/sha256/{digest[:2]}/{digest[2:4]}/{digest}"
+            sentinel = outside / name
+            sentinel.write_bytes(b"outside bytes must not be read")
+            self.assertEqual((root / unsafe_key).resolve(), sentinel)
+            row = dict(self.data["samples"][0], sha256=digest, cache_path="document.pdf")
+            csv_path = base / "samples.csv"
+            with csv_path.open("w", encoding="utf-8", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=list(row))
+                writer.writeheader()
+                writer.writerow(row)
+            output = base / "output"
+            output.mkdir()
+            restored = output / "document.pdf"
+            restored.write_bytes(b"previous verified copy")
+            args = argparse.Namespace(raw=root.as_uri(), endpoint_url=None, out=str(output))
+            data = copy.deepcopy(self.data)
+            data["samples"] = [row]
+            self.assertEqual(vc.check(data)[0], [
+                "samples.csv: sample sha256 must be 64 hex characters"])
+            for bypass_hash_check in (False, True):
+                with self.subTest(bypass_hash_check=bypass_hash_check):
+                    guard = (mock.patch.object(sa.sm, "check_sha256", return_value=None)
+                             if bypass_hash_check else nullcontext())
+                    with guard, mock.patch.object(sa, "SAMPLES", csv_path), \
+                            mock.patch.object(Path, "read_bytes", autospec=True) as read, \
+                            redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()) as err:
+                        result = sa.with_budget(None, None, lambda: sa.cmd_fetch(args))
+                    self.assertEqual(result, 1)
+                    self.assertIn("unsafe store key", err.getvalue())
+                    self.assertEqual(out.getvalue(), "")
+                    read.assert_not_called()
+                    self.assertEqual(restored.read_bytes(), b"previous verified copy")
+                    self.assertEqual(sentinel.read_bytes(), b"outside bytes must not be read")
+                    self.assertEqual(list(root.iterdir()), [])
 
 
 if __name__ == "__main__":

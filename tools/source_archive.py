@@ -145,6 +145,8 @@ class LocalStore:
     def _path(self, key, *, listing=False):
         # Bucket keys are opaque strings. Reject aliases rather than normalizing them:
         # e.g. a/../b and b must never silently map to the same local archive object.
+        if not isinstance(key, str):
+            raise UnsafeStoreKey("store key must be a string")
         if listing and key == "":
             return self.root
         rel = key[:-1] if listing and key.endswith("/") else key

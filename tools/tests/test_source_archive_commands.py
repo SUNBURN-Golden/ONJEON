@@ -74,6 +74,67 @@ class ArchiveCommands(unittest.TestCase):
                          ("already_present", "already_present"))
         self.assertEqual(sa.listing_of(self.raw), before)
 
+    def test_cli_rejects_bad_cache_and_corrupt_store_through_archive_restore_lifecycle(self):
+        def invoke(*command):
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.object(sys, "argv", ["source_archive.py", *command]), \
+                    redirect_stdout(out), redirect_stderr(err):
+                code = sa.main()
+            return code, out.getvalue(), err.getvalue()
+
+        archive = ("archive-samples", "--cache", self.args.cache, "--raw", self.args.raw)
+        fetch = ("fetch", "--raw", self.args.raw, "--out", self.args.out)
+        cache = self.cache_original()
+        rejected = b"X" * len(self.body)
+        cache.write_bytes(rejected)
+        code, out, err = invoke(*archive)
+        self.assertEqual(code, 1)
+        self.assertEqual(json.loads(out)[0]["status"], "hash_differs_from_samples_csv")
+        self.assertEqual(err, "")
+        self.assertFalse(self.raw.root.exists())
+
+        # Repair the cache and retry through the same CLI path, then prove a bad
+        # rerun cannot add immutable objects or change the accepted provenance.
+        cache.write_bytes(self.body)
+        code, out, err = invoke(*archive)
+        self.assertEqual((code, err), (0, ""))
+        self.assertEqual(json.loads(out)[0]["object"], "stored")
+        key = sa.object_key(self.row["sha256"])
+        self.assertEqual(self.raw.get(key), self.body)
+        self.assertEqual(self.raw.list("objects/"), [key])
+        observations = self.raw.list("observations/")
+        self.assertEqual(len(observations), 1)
+        self.assertEqual(json.loads(self.raw.get(observations[0]))["sha256"], self.row["sha256"])
+        accepted = {k: self.raw.get(k) for k in self.raw.list("")}
+        cache.write_bytes(rejected)
+        self.assertEqual(invoke(*archive)[0], 1)
+        self.assertEqual({k: self.raw.get(k) for k in self.raw.list("")}, accepted)
+
+        code, out, err = invoke(*fetch)
+        self.assertEqual((code, err), (0, ""))
+        self.assertIn("restored originals", out)
+        dest = Path(self.args.out) / self.row["cache_path"]
+        self.assertEqual(dest.read_bytes(), self.body)
+
+        # Simulate external storage corruption, bypassing LocalStore's write-once
+        # API. A previous successful archive/restore must not authorize these bytes.
+        (self.raw.root / key).write_bytes(rejected)
+        for existing in (True, False):
+            with self.subTest(existing=existing):
+                if not existing:
+                    dest.unlink()
+                code, out, err = invoke(*fetch)
+                self.assertEqual(code, 1)
+                self.assertEqual(out, "")
+                self.assertIn("sample: hash_mismatch", err)
+                self.assertIn(f"expected {self.row['sha256']}", err)
+                self.assertIn(f"downloaded {sa.sha256_bytes(rejected)}", err)
+                if existing:
+                    self.assertEqual(dest.read_bytes(), self.body)
+                else:
+                    self.assertFalse(dest.exists())
+        self.assertEqual(self.raw.get(observations[0]), accepted[observations[0]])
+
     def test_archive_preserves_derived_manifest_and_raw_link(self):
         self.cache_original()
         src = self.root / "extracted" / "nested"

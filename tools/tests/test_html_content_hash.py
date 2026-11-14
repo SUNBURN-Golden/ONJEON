@@ -50,6 +50,35 @@ class MeaningfulChangesChangeTheHash(unittest.TestCase):
 class DownloadTargetsChangeTheHash(unittest.TestCase):
     """Audit 2: targets must survive attribute quoting and inline click handlers."""
 
+    def test_fn_down_filename_changes_without_visible_text_changes(self):
+        # Audit 6: insurer handlers need no recognized function-name allowlist.
+        for tag in ("a", "button", "input"):
+            for attr in ('onclick="fnDown(\'x.pdf\')"',
+                         'ONCLICK = "return fnDown(\'x.pdf\');"',
+                         "onclick=fnDown('x.pdf')",
+                         'onclick="fnDown(&quot;x.pdf&quot;)"'):
+                with self.subTest(tag=tag, attr=attr):
+                    before = f'<{tag} {attr}>약관</{tag}>'.encode()
+                    self.assertIn("[onclick:", h.normalized_text(before))
+                    self.assertIn("x.pdf", h.normalized_text(before))
+                    self.assertNotEqual(ch(before), ch(before.replace(b"x.pdf", b"y.pdf")))
+
+    def test_real_href_is_kept_regardless_of_data_href_order(self):
+        for quote in ('"', "'", ""):
+            for decoy_first in (True, False):
+                decoy, target = f'data-href={quote}/decoy.pdf{quote}', f'HREF={quote}/x.pdf{quote}'
+                attrs = f"{decoy} {target}" if decoy_first else f"{target} {decoy}"
+                with self.subTest(quote=quote, decoy_first=decoy_first):
+                    before = f'<a {attrs}>약관</a>'.encode()
+                    self.assertEqual(h.normalized_text(before), "[link:/x.pdf] 약관")
+                    self.assertNotEqual(ch(before), ch(before.replace(b"x.pdf", b"y.pdf")))
+                    self.assertEqual(ch(before), ch(before.replace(b"decoy.pdf", b"other.pdf")))
+
+    def test_exact_unquoted_href_filename_changes(self):
+        before = b'<a href=x.pdf>terms</a>'
+        self.assertEqual(h.normalized_text(before), "[link:x.pdf] terms")
+        self.assertNotEqual(ch(before), ch(before.replace(b"x.pdf", b"y.pdf")))
+
     def test_file_down_filename_changes_without_visible_text_changes(self):
         # Audit 5's exact handler: the filename is the only changed byte.
         for tag in ("a", "button"):

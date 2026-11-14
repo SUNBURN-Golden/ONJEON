@@ -1,0 +1,21 @@
+PASS allowed/protected path and applicable syntax/link checks: docs/blueprint/audits/2026-11-15_html_hash_link_extraction.md
+PASS allowed/protected path and applicable syntax/link checks: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/README.md
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/check_link_mutations.py
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/detect-tests.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/format-check.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/hash-tests.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/link-mutations.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/python-tests.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/run-summary.json
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/runner-build.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/runner-tests.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/rust-tests.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/scope-checks.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/static-checks.log
+PASS allowed/protected path and applicable syntax/link checks: tools/evidence/audit6-html-hash-link-extraction/static-results.json
+PASS allowed/protected path and applicable syntax/link checks: tools/tests/test_html_content_hash.py
+PASS allowed/protected path and applicable syntax/link checks: tools/tests/test_verify_sources.py
+PASS production module equals HEAD, sha256=95ab54870b838fe1abbfa95b73ecbc112d8c7c9220171e93f828a2953e747144
+PASS git diff --check
+PASS all recorded test and static-check exit codes are zero

@@ -33,8 +33,8 @@ Run control, in this order (each step before any later request):
      and remembers closure before reading the ledger, whether or not its reservation succeeds.
   4. reservation: the run's whole per-run profile, only if it fits under the caps after leaving
      room for every admission still allowed this month. Then archive requests may start.
-  5. settlement: what the run measured since step 3 plus the worst case of the settlement write
-     itself (every attempt, its bytes, its retries, its timeouts), never more than reserved. A run
+  5. settlement: what the run measured since step 3 plus the worst case of the settlement PUT
+     and a confirming GET on conflict (attempts, bytes, retries, timeouts), never more than reserved. A run
      that never settles keeps its admission and its whole reservation.
 
 Ledger size: records are never deleted, so a run reads the newest checkpoint plus the records after it
@@ -123,16 +123,25 @@ def load_policy(path=ROOT / "infra/r2/budget_policy.json"):
     return doc
 
 
-def settlement_worst_case(policy):
-    """The settlement PUT itself, every attempt counted (it happens after the measured snapshot)."""
+def settlement_worst_case(policy, *, reconciliation=True):
+    """Requests after the snapshot: PUT and, on an ambiguous conflict, a confirming GET.
+
+    The ordinary profile minimum excludes this optional GET. If reconciliation cannot fit
+    the remaining request/byte/retry allowance, settlement fails closed like any other read.
+    """
     n = policy["per_request"]["max_attempts"]
-    return {"put_bytes": n * RECORD_BYTES, "get_bytes": 0, "class_a": n, "class_b": 0,
-            "retries": n - 1, "seconds": n * (CONNECT_TIMEOUT + READ_TIMEOUT)}
+    reads = int(reconciliation)
+    return {"put_bytes": n * RECORD_BYTES, "get_bytes": reads * RECORD_BYTES,
+            "class_a": n, "class_b": reads * n,
+            "retries": (1 + reads) * (n - 1),
+            "seconds": (1 + reads) * n * (CONNECT_TIMEOUT + READ_TIMEOUT)}
 
 
 def profile_minimum(policy):
-    """What any run needs to get through admission, reserve, and settle (tail read + worst-case PUT)."""
-    adm, settle, n = policy["admission"]["limits"], settlement_worst_case(policy), policy["per_request"]["max_attempts"]
+    """Ordinary path minimum: admission, tail read and worst-case PUT; no conflict confirmation."""
+    adm = policy["admission"]["limits"]
+    settle = settlement_worst_case(policy, reconciliation=False)
+    n = policy["per_request"]["max_attempts"]
     tail = {"put_bytes": 0, "get_bytes": n * RECORD_BYTES, "class_a": n, "class_b": n, "retries": 2 * (n - 1),
             "seconds": 0}
     return {d: adm[d] + tail[d] + settle[d] for d in DIMENSIONS}
@@ -597,7 +606,9 @@ class Ledger:
         return glob, job
 
     def append(self, record_body, count, prev):
-        """Write record count+1; Exists -> another run won the race. The record cap counts records
+        """Write record count+1; reconcile Exists against the exact bytes we tried to write.
+        A committed PUT whose response was lost can return 412 on its HTTP retry. Only a
+        different stored record is a lost sequence race. The record cap counts records
         after the checkpoint this ledger last read. Recovery only bypasses the read cap; it must
         persist a checkpoint before appending a reservation at the cap."""
         import source_archive as sa
@@ -608,7 +619,14 @@ class Ledger:
         seq = count + 1
         rec = dict(record_body, seq=seq, prev_sha256=prev, policy_sha256=self.policy["_sha256"])
         body = json.dumps(rec, ensure_ascii=False, sort_keys=True, indent=1).encode() + b"\n"
-        self.st.put_new(f"{LEDGER_PREFIX}{seq:010d}.json", body, "application/json")
+        if len(body) > RECORD_BYTES:
+            raise BudgetError(f"ledger record exceeds {RECORD_BYTES} bytes; refusing to write")
+        key = f"{LEDGER_PREFIX}{seq:010d}.json"
+        try:
+            self.st.put_new(key, body, "application/json")
+        except sa.Exists:
+            if self._get(key, "conflicting ledger record") != body:
+                raise
         return rec, sa.sha256_bytes(body)
 
 
@@ -975,15 +993,22 @@ class Session:
         try:
             if self.reservation is None:
                 return None
-            count, prev = self.ledger.tail()
-            used = self.meter.snapshot()
-            worst = settlement_worst_case(self.policy)
-            used = {d: min(used[d] + worst[d], self.job["per_run"][d]) for d in DIMENSIONS}
-            body = {"format": "onjeon-budget-ledger-v1", "kind": "settlement", "job_id": self.job["job_id"],
-                    "run_id": self.run_id, "reservation_seq": self.reservation["seq"], "outcome": outcome,
-                    "at": stamp(), "amounts": used, "includes_settlement_worst_case": worst}
-            rec, _ = self.ledger.append(body, count, prev)
-            return rec
+            import source_archive as sa
+            attempts = self.policy["per_request"]["reserve_attempts"]
+            for _attempt in range(attempts):
+                count, prev = self.ledger.tail()
+                used = self.meter.snapshot()
+                worst = settlement_worst_case(self.policy)
+                used = {d: min(used[d] + worst[d], self.job["per_run"][d]) for d in DIMENSIONS}
+                body = {"format": "onjeon-budget-ledger-v1", "kind": "settlement", "job_id": self.job["job_id"],
+                        "run_id": self.run_id, "reservation_seq": self.reservation["seq"], "outcome": outcome,
+                        "at": stamp(), "amounts": used, "includes_settlement_worst_case": worst}
+                try:
+                    rec, _ = self.ledger.append(body, count, prev)
+                    return rec
+                except sa.Exists:
+                    continue  # fresh tail and snapshot include the failed PUT and confirming GET
+            raise BudgetError(f"could not settle after {attempts} attempts (concurrent runs)")
         except BaseException as e:
             return {"settlement_failed": type(e).__name__}
         finally:
@@ -1085,7 +1110,9 @@ def _cli():
         raise BudgetError("the ledger is initialised (genesis pinned in the policy); nothing was sent")
     job = load_job(a.job)
     meter = Meter(policy, job, policy["admission"]["limits"], policy["admission"]["limits"]["seconds"])
-    st = sa.S3Store(f"s3://{policy['ledger_bucket']}", a.endpoint_url, ledger=True)
+    from types import SimpleNamespace
+    st = sa.S3Store(f"s3://{policy['ledger_bucket']}", a.endpoint_url, ledger=True,
+                    budget=SimpleNamespace(policy=policy, meter=meter))
     meter.attach(st.s3, "ledger")
     ledger = Ledger(st, policy)
     records, prev = ledger.read()

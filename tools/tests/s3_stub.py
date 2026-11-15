@@ -14,6 +14,8 @@ class S3Stub:
         self.objects = {}   # (bucket, key) -> bytes
         self.log = []       # (kind, bucket, key_or_prefix, status, body_bytes); kind: put/get/head/list
         self.faults = []    # [(method, key_prefix, status)] each used once
+        self.committed_put_faults = []  # [(key_prefix, status)] commit, then report an error once
+        self.page_size = 1000
         self.lock = threading.Lock()
         stub = self
 
@@ -67,6 +69,11 @@ class S3Stub:
                         else:
                             stub.objects[(bucket, key)] = body
                             result = (200, None)
+                            for i, (prefix, status) in enumerate(stub.committed_put_faults):
+                                if key.startswith(prefix):
+                                    del stub.committed_put_faults[i]
+                                    result = (status, None)
+                                    break
                     elif self.command in ("GET", "HEAD") and key:
                         obj = stub.objects.get((bucket, key))
                         result = (200, obj) if obj is not None else (404, None)
@@ -74,7 +81,7 @@ class S3Stub:
                         prefix = q.get("prefix", [""])[0]
                         keys = sorted(k for (b, k) in stub.objects if b == bucket and k.startswith(prefix))
                         try:
-                            max_keys = min(int(q.get("max-keys", ["1000"])[0]), 1000)
+                            max_keys = min(int(q.get("max-keys", ["1000"])[0]), stub.page_size)
                             if max_keys < 0:
                                 raise ValueError("negative max-keys")
                             token = q.get("continuation-token", [None])[0]
@@ -89,6 +96,8 @@ class S3Stub:
                     stub.log.append((kind, bucket, logged, result[0], len(body)))
                 code, payload = result
                 if self.command == "PUT":
+                    if code >= 500:
+                        return self._error(code, "ServiceUnavailable")
                     return self._send(200, b"", {"ETag": '"x"'}) if code == 200 else self._error(412, "PreconditionFailed")
                 if self.command in ("GET", "HEAD") and key:
                     if code == 404:

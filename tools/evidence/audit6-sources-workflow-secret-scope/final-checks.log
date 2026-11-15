@@ -1,0 +1,1 @@
+Authorized paths only; ten secret references in consumer env blocks; bucket env bindings present; git diff --check passes.

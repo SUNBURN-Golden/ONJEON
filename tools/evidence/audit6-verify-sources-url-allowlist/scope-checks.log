@@ -1,0 +1,4 @@
+Allowed worktree paths only; protected paths unchanged; changed Python syntax valid.
+New Markdown links resolve, including all evidence README links.
+Final recorded source hashes match current files.
+git diff --check passed.

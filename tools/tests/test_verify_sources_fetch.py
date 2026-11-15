@@ -3,6 +3,7 @@
 Only loopback sockets and temporary local archives are used; no insurer or R2 access.
 """
 import argparse
+import csv
 import functools
 import io
 import json
@@ -28,8 +29,68 @@ HTML = b"<html><title>Disclosure</title><a href='/login'>Login</a><table><tr><td
 WAF = b"<html><title>Access Denied</title><p>Your IP has been blocked</p></html>"
 
 
+class SourceHostRegistry(unittest.TestCase):
+    def test_registry_is_explicit_and_covers_recorded_sources_and_samples(self):
+        hosts = vs.registered_source_hosts()
+        self.assertNotIn("example.org", hosts)
+        for host in hosts:
+            with self.subTest(host=host):
+                self.assertEqual(vs.source_origin(f"https://{host}/"), ("https", host, 443))
+        for row in vs.rows():
+            # Registration does not override the separate robots hold.
+            self.assertIn(vs.source_origin(row["url"])[1], hosts)
+        registry = vs.ROOT / "data/registry"
+        for name, columns in (("sources.csv", ("url",)),
+                              ("insurers.csv", ("home_url", "disclosure_url"))):
+            with (registry / name).open(encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    for column in columns:
+                        if row[column]:
+                            self.assertIn(vs.urllib.parse.urlsplit(row[column]).hostname, hosts)
+
+    def test_unregistered_initial_hosts_never_open_or_retry(self):
+        for host in ("example.org", "127.0.0.1", "localhost", "169.254.169.254", "[::1]",
+                     "sub.www.kyobo.com", "www.kyobo.com.evil.org", "www.kyobo.com.",
+                     "www%2ekyobo.com", "www.kyobo.com%00.evil.org"):
+            url = f"https://{host}/www.kyobo.com?next=https://www.kyobo.com/"
+            with self.subTest(host=host), \
+                    mock.patch.object(vs.urllib.request, "build_opener",
+                                      side_effect=AssertionError("unregistered URL reached opener")) as opener, \
+                    mock.patch.object(vs.time, "sleep") as sleep:
+                with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+                    vs.fetch(url)
+                opener.assert_not_called()
+                sleep.assert_not_called()
+
+    def test_missing_or_invalid_registry_fails_before_network(self):
+        bad = ("not JSON", "null", "[]", "{}", '{"hosts": "www.kyobo.com"}',
+               '{"hosts": []}', '{"hosts": [null]}', '{"hosts": [[]]}',
+               '{"hosts": ["www.kyobo.com", "www.kyobo.com"]}',
+               '{"hosts": ["*.kyobo.com"]}', '{"hosts": ["https://www.kyobo.com"]}',
+               '{"hosts": ["www.kyobo.com:443"]}', '{"hosts": ["WWW.KYOBO.COM"]}',
+               '{"hosts": ["www.kyobo.com."]}', '{"hosts": ["-bad.com"]}',
+               '{"hosts": ["a..com"]}', json.dumps({"hosts": ["a" * 64 + ".com"]}),
+               json.dumps({"hosts": ["a." * 127 + "com"]}))
+        with tempfile.TemporaryDirectory() as d:
+            policy = Path(d) / "hosts.json"
+            for contents in (None, *bad):
+                with self.subTest(contents=contents), \
+                        mock.patch.object(vs, "SOURCE_HOST_REGISTRY", policy), \
+                        mock.patch.object(vs.urllib.request, "build_opener") as opener:
+                    if contents is not None:
+                        policy.write_text(contents)
+                    with self.assertRaisesRegex(vs.FetchRejected, "registry unavailable or invalid"):
+                        vs.fetch("https://www.kyobo.com/file")
+                    opener.assert_not_called()
+
+    def test_adding_a_sample_url_does_not_register_its_host(self):
+        with mock.patch.object(vs, "rows", return_value=[{"url": "https://example.org/file"}]):
+            with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+                vs.source_origin("https://example.org/file")
+
+
 class Response(io.BytesIO):
-    def __init__(self, body, mime="application/pdf", url="https://example.org/final", status=200, length=None):
+    def __init__(self, body, mime="application/pdf", url="https://www.kyobo.com/final", status=200, length=None):
         super().__init__(body)
         self.headers = Message()
         if mime is not None:
@@ -52,7 +113,7 @@ class RedirectPolicy(unittest.TestCase):
         for code in (301, 302, 303, 307, 308):
             for length in (None, "invalid", 1, vs.MAX_FETCH_BYTES + 1):
                 with self.subTest(code=code, length=length):
-                    req = urllib.request.Request("https://example.org/start")
+                    req = urllib.request.Request("https://www.kyobo.com/start")
                     req.timeout = 120
                     response = Response(b"untrusted redirect body", length=length)
                     headers = Message()
@@ -65,14 +126,14 @@ class RedirectPolicy(unittest.TestCase):
                     self.assertTrue(response.closed)
                     self.assertEqual(response.read_sizes, [])
                     redirected = handler.parent.open.call_args.args[0]
-                    self.assertEqual(redirected.full_url, "https://example.org/document")
+                    self.assertEqual(redirected.full_url, "https://www.kyobo.com/document")
                     self.assertEqual(redirected.redirect_dict, {redirected.full_url: 1})
 
     def test_redirect_bodies_close_on_rejection_without_opening_target(self):
         for code in (301, 302, 303, 307, 308):
-            for target in ("//other.org/document", "http://example.org/document", "file:///tmp/document"):
+            for target in ("//other.org/document", "http://www.kyobo.com/document", "file:///tmp/document"):
                 with self.subTest(code=code, target=target):
-                    req = urllib.request.Request("https://example.org/start")
+                    req = urllib.request.Request("https://www.kyobo.com/start")
                     response = Response(b"untrusted redirect body")
                     headers = Message()
                     headers["Location"] = target
@@ -85,11 +146,12 @@ class RedirectPolicy(unittest.TestCase):
                     self.assertEqual(response.read_sizes, [])
 
     def test_every_redirect_code_refuses_cross_origin_before_standard_handler(self):
-        source = urllib.request.Request("https://example.org/source")
+        source = urllib.request.Request("https://www.kyobo.com/source")
         targets = (
-            "https://other.org/file", "https://sub.example.org/file", "https://example.org.evil.org/file",
-            "http://example.org/file", "https://example.org:444/file", "ftp://example.org/file",
-            "file:///tmp/document", "https://user@example.org/file", "https://example.org:bad/file",
+            "https://other.org/file", "https://sub.www.kyobo.com/file", "https://www.kyobo.com.evil.org/file",
+            "https://www.kbinsure.co.kr/file",  # Registered, but a different origin is still refused.
+            "http://www.kyobo.com/file", "https://www.kyobo.com:444/file", "ftp://www.kyobo.com/file",
+            "file:///tmp/document", "https://user@www.kyobo.com/file", "https://www.kyobo.com:bad/file",
         )
         for code in (301, 302, 303, 307, 308):
             for target in targets:
@@ -103,17 +165,32 @@ class RedirectPolicy(unittest.TestCase):
 
     def test_same_origin_and_default_port_are_allowed(self):
         for code in (301, 302, 303, 307, 308):
-            for target in ("https://example.org/new?version=2", "https://EXAMPLE.org:443/new"):
+            for target in ("https://www.kyobo.com/new?version=2", "https://WWW.KYOBO.com:443/new"):
                 with self.subTest(code=code, target=target):
-                    req = urllib.request.Request("https://example.org/start")
+                    req = urllib.request.Request("https://www.kyobo.com/start")
                     new = vs.PolicyRedirectHandler().redirect_request(req, None, code, "redirect", {}, target)
                     self.assertEqual(new.full_url, target)
 
+    def test_same_origin_redirect_still_requires_registered_host(self):
+        for code in (301, 302, 303, 307, 308):
+            with self.subTest(code=code), mock.patch.object(
+                    urllib.request.HTTPRedirectHandler, "redirect_request") as follow:
+                req = urllib.request.Request("https://example.org/start")
+                response = Response(b"untrusted redirect body")
+                with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+                    vs.PolicyRedirectHandler().redirect_request(
+                        req, response, code, "redirect", {}, "https://example.org/document")
+                follow.assert_not_called()
+                self.assertTrue(response.closed)
+                self.assertEqual(response.read_sizes, [])
+
     def test_non_https_and_credentialed_initial_urls_never_open(self):
-        for url in ("http://example.org/file", "file:///tmp/document", "ftp://example.org/file",
-                    "https://user:pass@example.org/file", "https:///file", "https://example.org:0/file",
-                    " https://example.org/file", "https://example.org/\nfile"):
-            with self.subTest(url=url), mock.patch.object(vs.urllib.request, "build_opener") as opener:
+        for url in ("http://www.kyobo.com/file", "file:///tmp/document", "ftp://www.kyobo.com/file",
+                    "https://user:pass@www.kyobo.com/file", "https:///file", "https://www.kyobo.com:0/file",
+                    " https://www.kyobo.com/file", "https://www.kyobo.com/\nfile"):
+            with self.subTest(url=url), mock.patch.object(
+                    vs.urllib.request, "build_opener",
+                    side_effect=AssertionError("invalid source URL reached opener")) as opener:
                 with self.assertRaises(vs.FetchRejected):
                     vs.fetch(url)
                 opener.assert_not_called()
@@ -126,7 +203,7 @@ class ResponseAdmission(unittest.TestCase):
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
             try:
-                return vs.fetch("https://example.org/start", **kwargs)
+                return vs.fetch("https://www.kyobo.com/start", **kwargs)
             finally:
                 opener.open.assert_called_once()
                 sleep.assert_not_called()
@@ -138,7 +215,7 @@ class ResponseAdmission(unittest.TestCase):
                          "Application/PDF; charset=binary"):
                 with self.subTest(fmt=fmt, mime=mime):
                     result = self.fetch_with(Response(PDF, mime), expected_format=fmt)
-                    self.assertEqual(result, (PDF, mime.split(";")[0].lower(), "https://example.org/final"))
+                    self.assertEqual(result, (PDF, mime.split(";")[0].lower(), "https://www.kyobo.com/final"))
 
     def test_mismatched_or_missing_mime_is_rejected_unread(self):
         for fmt, mime in (("pdf", "text/html"), ("pdf", "text/plain"), ("pdf", None),
@@ -177,7 +254,7 @@ class ResponseAdmission(unittest.TestCase):
         for page in pages:
             with self.subTest(page=page), self.assertRaisesRegex(vs.FetchRejected, "block_page") as raised:
                 self.fetch_with(Response(page, "text/html"), expected_format="html")
-            self.assertEqual(raised.exception.final_url, "https://example.org/final")
+            self.assertEqual(raised.exception.final_url, "https://www.kyobo.com/final")
 
     def test_public_html_navigation_and_binary_pdf_words_are_not_block_pages(self):
         for mime in ("text/html; charset=utf-8", "application/xhtml+xml"):
@@ -187,9 +264,11 @@ class ResponseAdmission(unittest.TestCase):
         self.assertEqual(self.fetch_with(Response(pdf))[0], pdf)
 
     def test_unexpected_success_status_and_final_origin_are_refused_unread(self):
-        for status, url, reason in ((204, "https://example.org/final", "unexpected_status"),
-                                    (206, "https://example.org/final", "unexpected_status"),
-                                    (200, "http://example.org/final", "redirect_disallowed")):
+        for status, url, reason in ((204, "https://www.kyobo.com/final", "unexpected_status"),
+                                    (206, "https://www.kyobo.com/final", "unexpected_status"),
+                                    (200, "https://example.org/final", "redirect_disallowed"),
+                                    (200, "https://www.kbinsure.co.kr/final", "redirect_disallowed"),
+                                    (200, "http://www.kyobo.com/final", "redirect_disallowed")):
             with self.subTest(status=status, url=url):
                 response = Response(PDF, url=url, status=status)
                 with self.assertRaisesRegex(vs.FetchRejected, reason):
@@ -208,7 +287,7 @@ class ResponseAdmission(unittest.TestCase):
         for cap in (0, -1, True, vs.MAX_FETCH_BYTES + 1):
             with self.subTest(cap=cap), mock.patch.object(vs.urllib.request, "build_opener") as opener:
                 with self.assertRaises(ValueError):
-                    vs.fetch("https://example.org/start", max_bytes=cap)
+                    vs.fetch("https://www.kyobo.com/start", max_bytes=cap)
                 opener.assert_not_called()
 
     def test_default_cap_rejects_declared_oversize_without_reading(self):
@@ -229,14 +308,14 @@ class ResponseAdmission(unittest.TestCase):
     def test_unsupported_expectation_never_opens(self):
         with mock.patch.object(vs.urllib.request, "build_opener") as opener:
             with self.assertRaisesRegex(vs.FetchRejected, "unsupported_format"):
-                vs.fetch("https://example.org/start", expected_format="unknown")
+                vs.fetch("https://www.kyobo.com/start", expected_format="unknown")
             opener.assert_not_called()
 
     def test_invalid_attempt_count_never_opens(self):
         for attempts in (0, -1, True):
             with self.subTest(attempts=attempts), mock.patch.object(vs.urllib.request, "build_opener") as opener:
                 with self.assertRaises(ValueError):
-                    vs.fetch("https://example.org/start", attempts=attempts)
+                    vs.fetch("https://www.kyobo.com/start", attempts=attempts)
                 opener.assert_not_called()
 
     def test_network_failures_are_retried_but_http_errors_are_not(self):
@@ -244,20 +323,30 @@ class ResponseAdmission(unittest.TestCase):
         opener.open.side_effect = [urllib.error.URLError("offline"), Response(PDF)]
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
-            self.assertEqual(vs.fetch("https://example.org/start")[0], PDF)
+            self.assertEqual(vs.fetch("https://www.kyobo.com/start")[0], PDF)
         self.assertEqual(opener.open.call_count, 2)
         sleep.assert_called_once_with(2)
         opener.reset_mock()
-        opener.open.side_effect = urllib.error.HTTPError("https://example.org/start", 403, "denied", {}, None)
+        opener.open.side_effect = urllib.error.HTTPError("https://www.kyobo.com/start", 403, "denied", {}, None)
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
             with self.assertRaises(urllib.error.HTTPError):
-                vs.fetch("https://example.org/start")
+                vs.fetch("https://www.kyobo.com/start")
         opener.open.assert_called_once()
         sleep.assert_not_called()
 
 
 class DetectLocalHTTPS(unittest.TestCase):
+    def setUp(self):
+        # Loopback hosts are admitted only in this isolated test registry.
+        policy_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(policy_dir.cleanup)
+        policy = Path(policy_dir.name) / "hosts.json"
+        policy.write_text(json.dumps({"hosts": ["127.0.0.1", "localhost"]}))
+        patch = mock.patch.object(vs, "SOURCE_HOST_REGISTRY", policy)
+        patch.start()
+        self.addCleanup(patch.stop)
+
     @classmethod
     def setUpClass(cls):
         cls.requests = []
@@ -365,6 +454,21 @@ class DetectLocalHTTPS(unittest.TestCase):
             self.assertEqual(self.requests, before)
             self.assertFalse((root / "downloads").exists())
             self.assertFalse((root / "archive").exists())
+
+    def test_unregistered_initial_url_and_file_fail_without_request_or_writes(self):
+        for origin in (self.origin, "file:///must-not-read", "ftp://127.0.0.1"):
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                before = list(self.requests)
+                with mock.patch.object(self, "origin", origin), mock.patch.object(
+                        vs, "SOURCE_HOST_REGISTRY", vs.ROOT / "data/registry/source_fetch_hosts.json"):
+                    code, result = self.run_detect(root, "/document")
+                self.assertEqual((code, result["status"]), (1, "fetch_failed"))
+                self.assertTrue(result["detail"].startswith("url_disallowed"), result)
+                self.assertEqual(self.requests, before)
+                self.assertFalse((root / "downloads").exists())
+                self.assertFalse((root / "archive").exists())
+                self.assertNotIn("sha256_now", result)
 
     def test_redirected_http_error_records_final_url_without_archiving(self):
         with tempfile.TemporaryDirectory() as d:

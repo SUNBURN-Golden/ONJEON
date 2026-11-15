@@ -232,10 +232,10 @@ class CliDependencies(unittest.TestCase):
                 with self.subTest(before=before, change=change), tempfile.TemporaryDirectory() as d:
                     after = before.replace(b"x.pdf", b"y.pdf") if change else before
                     status = "changed" if change else "unchanged_bytes"
-                    row = {"sample_id": "s1", "url": "https://example.org/disclosure",
+                    row = {"sample_id": "s1", "url": "https://www.kyobo.com/disclosure",
                            "format": "html", "cache_path": "s1/page.html",
                            "sha256": sa.sha256_bytes(before), "content_hash_rule": hch.RULE,
-                           "content_sha256": hch.content_sha256(before, "example.org")}
+                           "content_sha256": hch.content_sha256(before, "www.kyobo.com")}
                     out, report = Path(d) / "out", Path(d) / "report.json"
                     with mock.patch.object(vs, "rows", return_value=[row]), \
                             mock.patch.object(vs, "fetch", return_value=(after, "text/html", row["url"])):
@@ -267,10 +267,10 @@ class CliDependencies(unittest.TestCase):
                                   "bytes_changed_content_same"))
             for after, status in responses:
                 with self.subTest(before=before, status=status), tempfile.TemporaryDirectory() as d:
-                    row = {"sample_id": "s1", "url": "https://example.org/disclosure",
+                    row = {"sample_id": "s1", "url": "https://www.kyobo.com/disclosure",
                            "format": "html", "cache_path": "s1/page.html",
                            "sha256": sa.sha256_bytes(before), "content_hash_rule": hch.RULE,
-                           "content_sha256": hch.content_sha256(before, "example.org")}
+                           "content_sha256": hch.content_sha256(before, "www.kyobo.com")}
                     out, report = Path(d) / "out", Path(d) / "report.json"
                     with mock.patch.object(vs, "rows", return_value=[row]), \
                             mock.patch.object(vs, "fetch", return_value=(after, "text/html", row["url"])):
@@ -288,7 +288,7 @@ class CliDependencies(unittest.TestCase):
 
     def test_detect_without_pdfplumber_writes_report_and_preserves_exit_status(self):
         body = b"%PDF-1.4 sample bytes"
-        row = {"sample_id": "s1", "url": "https://example.org/source.pdf", "format": "pdf",
+        row = {"sample_id": "s1", "url": "https://www.kyobo.com/source.pdf", "format": "pdf",
                "cache_path": "s1/source.pdf", "sha256": sa.sha256_bytes(body)}
         cases = [(body, "unchanged_bytes", 0), (b"new PDF bytes", "changed", 0),
                  (OSError("offline"), "fetch_failed", 1)]
@@ -427,8 +427,8 @@ class DetectExit(unittest.TestCase):
 
     def html_row(self, rule, body):
         import html_content_hash as hch
-        return {"sample_id": "s1", "url": "https://example.org/p", "sha256": "0" * 64, "format": "html",
-                "cache_path": "s1/page.html", "content_sha256": hch.content_sha256(body, "example.org"),
+        return {"sample_id": "s1", "url": "https://www.kyobo.com/p", "sha256": "0" * 64, "format": "html",
+                "cache_path": "s1/page.html", "content_sha256": hch.content_sha256(body, "www.kyobo.com"),
                 "content_hash_rule": rule}
 
     def detect_html(self, rule, before, after):
@@ -512,14 +512,14 @@ class RecordedRobotsPolicy(unittest.TestCase):
                 opener.assert_not_called()
 
     def test_policy_matches_hostname_not_url_substrings(self):
-        for url in ("https://pub.insure.or.kr.example.org/", "https://example.org/pub.insure.or.kr",
-                    "https://example.org/?url=https://pub.insure.or.kr/", "https://www.klia.or.kr/"):
+        for url in ("https://pub.insure.or.kr.www.kyobo.com/", "https://www.kyobo.com/pub.insure.or.kr",
+                    "https://www.kyobo.com/?url=https://pub.insure.or.kr/", "https://www.klia.or.kr/"):
             with self.subTest(url=url):
                 vs.check_recorded_robots_policy(url)
 
     def test_redirect_to_recorded_disallow_is_refused_before_request(self):
         handler = vs.PolicyRedirectHandler()
-        req = vs.urllib.request.Request("https://example.org/source")
+        req = vs.urllib.request.Request("https://www.kyobo.com/source")
         for code in (301, 302, 303, 307, 308):
             with self.subTest(code=code), mock.patch.object(
                     vs.urllib.request.HTTPRedirectHandler, "redirect_request") as redirect:
@@ -528,14 +528,14 @@ class RecordedRobotsPolicy(unittest.TestCase):
                 redirect.assert_not_called()
 
     def test_permitted_redirect_uses_standard_handler(self):
-        req = vs.urllib.request.Request("https://example.org/source")
+        req = vs.urllib.request.Request("https://www.kyobo.com/source")
         redirected = vs.PolicyRedirectHandler().redirect_request(
-            req, None, 302, "redirect", {}, "https://example.org/new")
-        self.assertEqual(redirected.full_url, "https://example.org/new")
+            req, None, 302, "redirect", {}, "https://www.kyobo.com/new")
+        self.assertEqual(redirected.full_url, "https://www.kyobo.com/new")
 
     def test_blocked_redirect_is_reported_and_not_retried(self):
         import argparse
-        row = {"sample_id": "redirect", "url": "https://example.org/source", "sha256": "0" * 64,
+        row = {"sample_id": "redirect", "url": "https://www.kyobo.com/source", "sha256": "0" * 64,
                "format": "html", "cache_path": "redirect/page.html"}
         opener = mock.Mock()
         opener.open.side_effect = vs.RobotsDisallowed("robots_disallow: redirected target")
@@ -568,7 +568,7 @@ class FetchSizeCap(unittest.TestCase):
             self.status = 200
 
         def geturl(self):
-            return "https://example.org/x"
+            return "https://www.kyobo.com/x"
 
         def read(self, n=-1):
             self.reads += 1
@@ -586,11 +586,11 @@ class FetchSizeCap(unittest.TestCase):
         opener = mock.Mock()
         opener.open.return_value = resp
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener):
-            return vs.fetch("https://example.org/x", max_bytes=max_bytes)
+            return vs.fetch("https://www.kyobo.com/x", max_bytes=max_bytes)
 
     def test_body_at_the_cap_is_returned(self):
         body, ctype, final_url = self.fetch_with(self.Resp(b"%PDF-12345"), 10)
-        self.assertEqual((body, ctype, final_url), (b"%PDF-12345", "application/pdf", "https://example.org/x"))
+        self.assertEqual((body, ctype, final_url), (b"%PDF-12345", "application/pdf", "https://www.kyobo.com/x"))
 
     def test_streamed_body_over_the_cap_is_refused(self):
         resp = self.Resp(b"x" * 100)

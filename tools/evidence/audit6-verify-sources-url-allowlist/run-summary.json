@@ -1,0 +1,222 @@
+{
+  "node": "audit6-verify-sources-url-allowlist",
+  "baseline": "94c8b64cefb1ced5341d3e24e690915d085b3d5b",
+  "recorded_at_utc": "2026-11-15T16:10:57.584913+00:00",
+  "cwd": "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist",
+  "cargo_and_full_python_environment": {
+    "CARGO_TARGET_DIR": "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/target/audit6-verify-sources",
+    "ONJEON_ONTOLOGY_RUNNER": "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/target/audit6-verify-sources/debug/ontology-case-runner"
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_verify_sources*.py",
+        "-v"
+      ],
+      "exit_code": 1,
+      "log": "initial-tests.log",
+      "note": "Before isolated loopback registries: 63 run, 15 failures, 3 skips"
+    },
+    {
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--manifest-path",
+        "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "log": "runner-build.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_verify_sources*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "focused-tests.log",
+      "run": 69,
+      "skipped": 3
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/evidence/audit6-verify-sources-url-allowlist/check_mutations.py"
+      ],
+      "exit_code": 0,
+      "log": "mutations.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "python-tests.log",
+      "run": 1636,
+      "skipped": 6
+    },
+    {
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--all",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "log": "rust-tests.log",
+      "passed": 532,
+      "ignored": 1
+    },
+    {
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--manifest-path",
+        "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "seconds": 0.427,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.368,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/vocab_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.055,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/validation_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.043,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/validation_check.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.377,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-I",
+        "tools/blueprint_counts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.161,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-I",
+        "tools/blueprint_status.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.027,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-I",
+        "tools/ci/check_product_purpose.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.034,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-I",
+        "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.109,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-I",
+        "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+        "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/target/audit6-verify-sources/debug/ontology-case-runner"
+      ],
+      "exit_code": 0,
+      "seconds": 0.231,
+      "log": "static-checks.log"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.008,
+      "log": "static-checks.log"
+    }
+  ],
+  "final_source_sha256": {
+    "tools/verify_sources.py": "38f848a6d025a826e5a031a6b1030e4f5cf5aaafb1e880e202ea968ae8ff34a6",
+    "tools/tests/test_verify_sources.py": "afe9ea62c938e00f58651524103f4bfbfe457b1b0a572959a56117c0266fe67c",
+    "tools/tests/test_verify_sources_fetch.py": "81921559e20ec96077ac98f48ce564a6d91640e155afee073c295fbcc9c50136",
+    "data/registry/source_fetch_hosts.json": "f3450353004d3398cfcfb1c5fbd205efaa7900e193fc76da79ff60ad4278f027",
+    "data/registry/README.md": "e5179b301b60b62c973f4c15aed5ec1a7f89259c71610130fa7a410495a9a0dd",
+    "docs/BLUEPRINT.md": "7de2899b59de1a4ea185b5fc3153b97a95845c70550978ae256470ff05777c47",
+    "docs/blueprint/audits/2026-11-16_verify_sources_url_allowlist.md": "8dc375c2ceb71df2b4ec1f9b25fecb59b2ec94f82648dbaef39edf05d21488bf",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md": "c0f88e09f734fdaaa513f4fc1fa1bd5ae4b0ffd6183eb4a125292b71270e1d17",
+    "tools/evidence/audit6-verify-sources-url-allowlist/check_mutations.py": "48b72def588cee14348849fc674c8c2989f99c4b333036dce1fcf8433e43e76c"
+  }
+}

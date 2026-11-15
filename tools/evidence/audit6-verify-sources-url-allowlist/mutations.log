@@ -1,0 +1,750 @@
+=== baseline permits arbitrary initial HTTPS hosts ===
+test_adding_a_sample_url_does_not_register_its_host (test_verify_sources_fetch.SourceHostRegistry.test_adding_a_sample_url_does_not_register_its_host) ... FAIL
+test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) ... 
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='example.org') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='127.0.0.1') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='localhost') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='169.254.169.254') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='[::1]') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='sub.www.kyobo.com') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.evil.org') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www%2ekyobo.com') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com%00.evil.org') ... FAIL
+
+======================================================================
+FAIL: test_adding_a_sample_url_does_not_register_its_host (test_verify_sources_fetch.SourceHostRegistry.test_adding_a_sample_url_does_not_register_its_host)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 88, in test_adding_a_sample_url_does_not_register_its_host
+    with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='example.org')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='127.0.0.1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='localhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='169.254.169.254')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='[::1]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='sub.www.kyobo.com')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.evil.org')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www%2ekyobo.com')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com%00.evil.org')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 480, in fetch
+    )) or re.search(r"<title\b[^>]*>\s*(?:just a moment[.!…\s]*|attention required!\s*\|\s*cloudflare)\s*</title", text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.008s
+
+FAILED (failures=11)
+
+=== remove host admission ===
+test_adding_a_sample_url_does_not_register_its_host (test_verify_sources_fetch.SourceHostRegistry.test_adding_a_sample_url_does_not_register_its_host) ... FAIL
+test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) ... 
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='example.org') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='127.0.0.1') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='localhost') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='169.254.169.254') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='[::1]') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='sub.www.kyobo.com') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.evil.org') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www%2ekyobo.com') ... FAIL
+  test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com%00.evil.org') ... FAIL
+test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) ... 
+  test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=301) ... FAIL
+  test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=302) ... FAIL
+  test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=303) ... FAIL
+  test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=307) ... FAIL
+  test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=308) ... FAIL
+
+======================================================================
+FAIL: test_adding_a_sample_url_does_not_register_its_host (test_verify_sources_fetch.SourceHostRegistry.test_adding_a_sample_url_does_not_register_its_host)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 88, in test_adding_a_sample_url_does_not_register_its_host
+    with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='example.org')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='127.0.0.1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='localhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='169.254.169.254')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='[::1]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='sub.www.kyobo.com')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.evil.org')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www%2ekyobo.com')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_unregistered_initial_hosts_never_open_or_retry (test_verify_sources_fetch.SourceHostRegistry.test_unregistered_initial_hosts_never_open_or_retry) (host='www.kyobo.com%00.evil.org')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 61, in test_unregistered_initial_hosts_never_open_or_retry
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 498, in fetch
+    raise FetchRejected("unsupported_format: expected PDF or HTML")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: unregistered URL reached opener
+
+======================================================================
+FAIL: test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=301)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 180, in test_same_origin_redirect_still_requires_registered_host
+    with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=302)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 180, in test_same_origin_redirect_still_requires_registered_host
+    with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=303)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 180, in test_same_origin_redirect_still_requires_registered_host
+    with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=307)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 180, in test_same_origin_redirect_still_requires_registered_host
+    with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_same_origin_redirect_still_requires_registered_host (test_verify_sources_fetch.RedirectPolicy.test_same_origin_redirect_still_requires_registered_host) (code=308)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 180, in test_same_origin_redirect_still_requires_registered_host
+    with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.007s
+
+FAILED (failures=16)
+
+=== remove redirect origin comparison ===
+test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) ... 
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=301, target='https://www.kbinsure.co.kr/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=301, target='https://www.kyobo.com:444/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=302, target='https://www.kbinsure.co.kr/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=302, target='https://www.kyobo.com:444/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=303, target='https://www.kbinsure.co.kr/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=303, target='https://www.kyobo.com:444/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=307, target='https://www.kbinsure.co.kr/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=307, target='https://www.kyobo.com:444/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=308, target='https://www.kbinsure.co.kr/file') ... FAIL
+  test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=308, target='https://www.kyobo.com:444/file') ... FAIL
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=301, target='https://www.kbinsure.co.kr/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=301, target='https://www.kyobo.com:444/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=302, target='https://www.kbinsure.co.kr/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=302, target='https://www.kyobo.com:444/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=303, target='https://www.kbinsure.co.kr/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=303, target='https://www.kyobo.com:444/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=307, target='https://www.kbinsure.co.kr/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=307, target='https://www.kyobo.com:444/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=308, target='https://www.kbinsure.co.kr/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+======================================================================
+FAIL: test_every_redirect_code_refuses_cross_origin_before_standard_handler (test_verify_sources_fetch.RedirectPolicy.test_every_redirect_code_refuses_cross_origin_before_standard_handler) (code=308, target='https://www.kyobo.com:444/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 161, in test_every_redirect_code_refuses_cross_origin_before_standard_handler
+    with self.assertRaises(vs.FetchRejected):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: FetchRejected not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.020s
+
+FAILED (failures=10)
+
+=== remove initial HTTPS validation ===
+test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) ... 
+  test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='http://www.kyobo.com/file') ... FAIL
+  test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='ftp://www.kyobo.com/file') ... FAIL
+  test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='https://user:pass@www.kyobo.com/file') ... FAIL
+  test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='https://www.kyobo.com:0/file') ... FAIL
+  test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url=' https://www.kyobo.com/file') ... FAIL
+  test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='https://www.kyobo.com/\nfile') ... FAIL
+
+======================================================================
+FAIL: test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='http://www.kyobo.com/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 195, in test_non_https_and_credentialed_initial_urls_never_open
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 501, in fetch
+    for i in range(attempts):
+             ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: invalid source URL reached opener
+
+======================================================================
+FAIL: test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='ftp://www.kyobo.com/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 195, in test_non_https_and_credentialed_initial_urls_never_open
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 501, in fetch
+    for i in range(attempts):
+             ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: invalid source URL reached opener
+
+======================================================================
+FAIL: test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='https://user:pass@www.kyobo.com/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 195, in test_non_https_and_credentialed_initial_urls_never_open
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 501, in fetch
+    for i in range(attempts):
+             ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: invalid source URL reached opener
+
+======================================================================
+FAIL: test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='https://www.kyobo.com:0/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 195, in test_non_https_and_credentialed_initial_urls_never_open
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 501, in fetch
+    for i in range(attempts):
+             ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: invalid source URL reached opener
+
+======================================================================
+FAIL: test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url=' https://www.kyobo.com/file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 195, in test_non_https_and_credentialed_initial_urls_never_open
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 501, in fetch
+    for i in range(attempts):
+             ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: invalid source URL reached opener
+
+======================================================================
+FAIL: test_non_https_and_credentialed_initial_urls_never_open (test_verify_sources_fetch.RedirectPolicy.test_non_https_and_credentialed_initial_urls_never_open) (url='https://www.kyobo.com/\nfile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/tests/test_verify_sources_fetch.py", line 195, in test_non_https_and_credentialed_initial_urls_never_open
+    vs.fetch(url)
+    ~~~~~~~~^^^^^
+  File "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/tools/verify_sources.py", line 501, in fetch
+    for i in range(attempts):
+             ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: invalid source URL reached opener
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (failures=6)
+
+Baseline and three policy-removal mutations rejected by assertions.

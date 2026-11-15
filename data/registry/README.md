@@ -19,10 +19,19 @@
 | `cooperatives_and_others.csv` | 공제조합·우체국보험·한국무역보험공사 16행(시드 1 포함). **보험회사 수에 섞지 않는다.** 범위는 아래 "범위(ADR-0018)" |
 | `excluded_or_historical.csv` | 가져온 페이지에는 있으나 현행 협회 목록에 없는 49행: 과거·합병 추정 보험사, DART 업종 목록의 비보험 법인, KIDI '공영보험'의 사회보험 기관. 제외 사유를 남기려고 둔 파일이며 분모가 아니다 |
 | `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 75건과 응답 본문 sha256. 2026-11-10 감독당국 재조회 9건 포함 |
+| `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS·같은 출처 리다이렉트·robots 제한을 함께 적용한다 |
 | `access_log.csv` | 기록한 요청 112건(실패 포함)과 결과 분류. 2026-11-10 감독당국 재조회 14건 포함 |
 | `authority_crosscheck_2026-11-10.csv` | FISIS·파인 보험회사 목록과 `insurers.csv`·`excluded_or_historical.csv`의 기관별 대조 결과 57행 |
 
 `excluded_or_historical.csv` 49행도 `entity_evidence`로 정규화했다(`two_or_more_sources` 2, `one_source` 47). 기관 ID·출처·관측 시각·제외 사유는 보존한다. 제외 기록에는 공시 보관·상품 목록 추적 열을 추가하지 않는다. 이 파일은 현행 보험사 분모가 아니며, 과거 계약 약관의 대상 여부는 아래 알려진 공백 4번대로 미확정이다. 재생성은 `python3 tools/registry_normalize.py`, 정정·회귀 증거는 [Audit 2 기록](../../docs/blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)을 따른다.
+
+`source_fetch_hosts.json`은 `sources.csv`의 URL, `insurers.csv`의 홈페이지·공시 URL,
+우체국보험 홈페이지와 V1 법령 표본(`fss_std_terms_byl15`, `www.law.go.kr`)의 정확한 호스트를
+명시적으로 등록한다. HTTP로 기록된 홈페이지도 호스트만 등록하며 실제 요청은 HTTPS만 허용한다.
+표본 URL 추가만으로 호스트가 자동 허용되지 않는다. 새 출처는 근거를 확인해 목록을 따로 수정한다.
+서브도메인·접미사·말미 점은 자동 허용하지 않는다. 등록된 다른 호스트로의 리다이렉트도 거부한다.
+이 목록은 접근 성공·상품 범위 편입·수집 실행 승인을 뜻하지 않으며 robots 보류를 해제하지 않는다.
+기존 `--raw file://…` 로컬 보관소 재현은 네트워크 출처 허용 목록과 별개다.
 
 `insurers.csv` 열은 과제에서 정한 11개 뒤에 3개를 덧붙였다.
 - `in_current_assoc_list`: KLIA·KNIA 현행 목록에 있으면 true(이 파일에서는 전부 true).

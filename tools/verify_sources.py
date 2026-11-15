@@ -17,7 +17,8 @@ detect     현재 출처 변경 감지 — fetch permitted recorded URLs and com
            `fetch_failed` with detail `robots_disallow`, and keep the run nonzero.
 
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a
-cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: HTTPS-only, same-origin
+cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: HTTPS-only,
+exact hosts in data/registry/source_fetch_hosts.json, same-origin
 redirects only, final URL recorded, MIME/signature and known HTML block-page checks before any
 write. Redirect response bodies are closed unread. Final bodies over MAX_FETCH_BYTES are refused
 (streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
@@ -344,6 +345,7 @@ def cmd_reproduce(args):
 
 
 MAX_FETCH_BYTES = 256 * 1024 * 1024  # ~8x the largest recorded sample (32 MB); a bigger body is not a filing PDF/HTML
+SOURCE_HOST_REGISTRY = ROOT / "data/registry/source_fetch_hosts.json"
 # Conservative hold from the 2026-10-10 survey, not a live robots.txt observation.
 # Removing a hold requires reviewing the recorded policy; detect never overrides it.
 ROBOTS_DISALLOWED_HOSTS = frozenset({"pub.insure.or.kr"})
@@ -366,12 +368,30 @@ class FetchRejected(Exception):
     final_url = None
 
 
-def source_origin(url):
-    """Only HTTPS URLs without credentials; default ports compare equally."""
+def registered_source_hosts():
+    """Read the explicit host registry; missing/invalid policy never permits a request."""
     try:
-        return sm.https_origin(url)
+        hosts = json.loads(SOURCE_HOST_REGISTRY.read_text(encoding="utf-8"))["hosts"]
+        label = r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
+        if (not isinstance(hosts, list) or not hosts
+                or any(not isinstance(host, str) or len(host) > 253
+                       or re.fullmatch(rf"{label}(?:\.{label})*", host) is None for host in hosts)
+                or len(hosts) != len(set(hosts))):
+            raise ValueError("invalid hosts")
+        return frozenset(hosts)
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        raise FetchRejected("url_disallowed: source host registry unavailable or invalid") from e
+
+
+def source_origin(url):
+    """Only registered HTTPS hosts without credentials; default ports compare equally."""
+    try:
+        origin = sm.https_origin(url)
     except ValueError as e:
         raise FetchRejected("url_disallowed: invalid source URL") from e
+    if origin[1] not in registered_source_hosts():
+        raise FetchRejected("url_disallowed: host is not in the source host registry")
+    return origin
 
 
 def check_redirect(source, target):

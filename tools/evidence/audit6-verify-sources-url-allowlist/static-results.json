@@ -1,0 +1,107 @@
+[
+  {
+    "argv": [
+      "cargo",
+      "+1.98.1",
+      "test",
+      "--manifest-path",
+      "docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml",
+      "--locked",
+      "--offline"
+    ],
+    "exit_code": 0,
+    "seconds": 0.427
+  },
+  {
+    "argv": [
+      "cargo",
+      "+1.98.1",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.368
+  },
+  {
+    "argv": [
+      "python3",
+      "tools/vocab_check.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.055
+  },
+  {
+    "argv": [
+      "python3",
+      "tools/validation_check.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.043
+  },
+  {
+    "argv": [
+      "python3",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "seconds": 0.377
+  },
+  {
+    "argv": [
+      "python3",
+      "-I",
+      "tools/blueprint_counts.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.161
+  },
+  {
+    "argv": [
+      "python3",
+      "-I",
+      "tools/blueprint_status.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.027
+  },
+  {
+    "argv": [
+      "python3",
+      "-I",
+      "tools/ci/check_product_purpose.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.034
+  },
+  {
+    "argv": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/설계검토_결과/검증/spec_check.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.109
+  },
+  {
+    "argv": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/온톨로지/검증/ontology_check.py",
+      "/workspace/onjeon-run/wt/audit6-verify-sources-url-allowlist/target/audit6-verify-sources/debug/ontology-case-runner"
+    ],
+    "exit_code": 0,
+    "seconds": 0.231
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008
+  }
+]

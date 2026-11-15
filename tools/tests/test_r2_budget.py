@@ -890,7 +890,7 @@ class EndToEnd(Fixture):
                 seen = self.get_bytes_seen(before)
                 self.assertGreater(seen, admission_bytes + len(BODY))
                 rec = json.loads(self.stub.objects[("ledger", f"{b.LEDGER_PREFIX}{summary['settlement']:010d}.json")])
-                self.assertEqual(rec["amounts"]["get_bytes"], seen)
+                self.assertEqual(rec["amounts"]["get_bytes"], seen + b.RECORD_BYTES)
                 self.assertEqual(summary["used"]["get_bytes"], seen)
 
     def test_ledger_admission_archive_and_settlement_reads_are_charged(self):
@@ -990,9 +990,10 @@ class EndToEnd(Fixture):
                 rec = json.loads(self.stub.objects[("ledger", f"{b.LEDGER_PREFIX}0000000002.json")])
                 self.assertEqual(rec["includes_settlement_worst_case"], b.settlement_worst_case(s.policy))
                 self.assertEqual(summary["used"]["get_bytes"], self.get_bytes_seen(before))
-                self.assertEqual(rec["amounts"]["get_bytes"], summary["used"]["get_bytes"])
+                self.assertEqual(rec["amounts"]["get_bytes"], summary["used"]["get_bytes"] + b.RECORD_BYTES)
                 self.assertEqual(summary["used"]["retries"], 2 * (attempts - 1))
-                self.assertEqual(rec["amounts"]["retries"], summary["used"]["retries"])
+                self.assertEqual(rec["amounts"]["retries"],
+                                 summary["used"]["retries"] + attempts - 1)
                 for dim, actual in self.stub.counts(before).items():
                     self.assertEqual(summary["used"][dim], actual, dim)
                     self.assertGreaterEqual(rec["amounts"][dim], actual, dim)

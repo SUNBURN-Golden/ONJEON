@@ -1,0 +1,15 @@
+All changed/new paths are allowed, protected paths untouched; Python ASTs parse.
+BUDGET.md sections 4-6 are byte-identical to the parent.
+Only the explanatory fixture note/BUDGET hash changed; all gates and policy/profile caps retained.
+Changed source/document hashes:
+ac0160626855f26cb618935ddd21adb3ad8b51a682c14c019349cf0de9888d2d docs/BLUEPRINT.md
+76a560f32aaea84a621985315c3b6cb73a798bdf2fd892688da6b9a1344de6c7 docs/blueprint/audits/2026-11-15_r2_budget_settle_robustness.md
+c051767a1d9a35638509feb400eabad683ce863b1eca086e1d0132f6aa3942de docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+595b6e18235a5404d13b263c81df58680f3d1ad72753184af18985f4c4849ed0 infra/r2/BUDGET.md
+c8078602df7f99f9ee919a3537d3d6705fde8c277ef6ae3c5572381b4ea486d4 tools/r2_budget.py
+f18dd776d9157e12cbd0bec80fa0b137d6402f1b1c6504ec4c91cceecd6de9de tools/tests/fixtures/o13_unchanged_gates.json
+ddeb9e614547c2ed5e9614b8ce2657f0643a831ed645c185db81baa04620d381 tools/tests/s3_stub.py
+f98b35876067d0aa2ab4ffc67787f5ff7fdd494bc7dcf231d85dc4ddf4b0fb09 tools/tests/test_r2_budget.py
+3ebfbb6ec452463cf97684244641e4de3f6e79719b0a365f29197fb101103220 tools/tests/test_r2_budget_settlement.py
+git diff --check: PASS
+STATUS: READY

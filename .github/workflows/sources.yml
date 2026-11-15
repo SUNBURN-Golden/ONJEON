@@ -72,6 +72,9 @@ jobs:
     timeout-minutes: 120
     env:
       JOB: infra/r2/jobs/initial-119.json
+      # Repository variables are data, never interpolated into shell source.
+      ONJEON_RAW_BUCKET: ${{ vars.ONJEON_RAW_BUCKET }}
+      ONJEON_DERIVED_BUCKET: ${{ vars.ONJEON_DERIVED_BUCKET }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Extractors
@@ -92,9 +95,9 @@ jobs:
         run: |
           L=docs/blueprint/validation/source_checks
           python3 -I tools/source_archive.py --job "$JOB" verify-copy --expected $L/archive_listing_raw.json \
-            --dst "s3://${{ vars.ONJEON_RAW_BUCKET }}" --report "$RUNNER_TEMP/listing_raw.json"
+            --dst "s3://$ONJEON_RAW_BUCKET" --report "$RUNNER_TEMP/listing_raw.json"
           python3 -I tools/source_archive.py --job "$JOB" verify-copy --expected $L/archive_listing_derived_v2.json \
-            --dst "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" --report "$RUNNER_TEMP/listing_derived.json"
+            --dst "s3://$ONJEON_DERIVED_BUCKET" --report "$RUNNER_TEMP/listing_derived.json"
       - name: Reproduce from the archive
         if: always()
         env:
@@ -104,8 +107,8 @@ jobs:
           R2_LEDGER_ACCESS_KEY_ID: ${{ secrets.R2_LEDGER_ACCESS_KEY_ID }}
           R2_LEDGER_SECRET_ACCESS_KEY: ${{ secrets.R2_LEDGER_SECRET_ACCESS_KEY }}
         run: |
-          python3 -I tools/verify_sources.py --job "$JOB" reproduce --raw "s3://${{ vars.ONJEON_RAW_BUCKET }}" \
-            --derived "s3://${{ vars.ONJEON_DERIVED_BUCKET }}" ${{ inputs.ocr && '--ocr' || '--allow-unverified' }} \
+          python3 -I tools/verify_sources.py --job "$JOB" reproduce --raw "s3://$ONJEON_RAW_BUCKET" \
+            --derived "s3://$ONJEON_DERIVED_BUCKET" ${{ inputs.ocr && '--ocr' || '--allow-unverified' }} \
             --report "$RUNNER_TEMP/reproduce.json"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()

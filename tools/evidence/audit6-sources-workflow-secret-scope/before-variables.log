@@ -1,0 +1,19 @@
+Baseline: local HEAD sources.yml, in-memory copy; expected failure before env variable change.
+test_live_bucket_variables_are_env_bindings (test_workflow_source_variables.WorkflowSourceVariables.test_live_bucket_variables_are_env_bindings) ... FAIL
+
+======================================================================
+FAIL: test_live_bucket_variables_are_env_bindings (test_workflow_source_variables.WorkflowSourceVariables.test_live_bucket_variables_are_env_bindings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-sources-workflow-secret-scope/tools/tests/test_workflow_source_variables.py", line 40, in test_live_bucket_variables_are_env_bindings
+    self.assert_variables_are_data(SOURCE.read_text(encoding="utf-8"))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/onjeon-run/wt/audit6-sources-workflow-secret-scope/tools/tests/test_workflow_source_variables.py", line 33, in assert_variables_are_data
+    self.assertIn(f"      {key}: ${{{{ vars.{key} }}}}\n", env.group(1))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '      ONJEON_RAW_BUCKET: ${{ vars.ONJEON_RAW_BUCKET }}\n' not found in '      JOB: infra/r2/jobs/initial-119.json\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

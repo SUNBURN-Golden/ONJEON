@@ -1,0 +1,117 @@
+[
+  {
+    "name": "workflow-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_workflow*.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.37
+  },
+  {
+    "name": "ci-security-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-p",
+      "test_ci_workflow_security.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 1.03
+  },
+  {
+    "name": "permissions",
+    "command": [
+      "python3",
+      "tools/workflow_check.py",
+      ".github/workflows/ci.yml",
+      ".github/workflows/pr-traceability.yml"
+    ],
+    "exit_code": 0,
+    "seconds": 0.01
+  },
+  {
+    "name": "python-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools/tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 211.08
+  },
+  {
+    "name": "vocabulary",
+    "command": [
+      "python3",
+      "tools/vocab_check.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.07
+  },
+  {
+    "name": "validation",
+    "command": [
+      "python3",
+      "tools/validation_check.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04
+  },
+  {
+    "name": "validation-selftest",
+    "command": [
+      "python3",
+      "tools/validation_check.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "seconds": 0.38
+  },
+  {
+    "name": "product-purpose",
+    "command": [
+      "python3",
+      "-I",
+      "tools/ci/check_product_purpose.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04
+  },
+  {
+    "name": "spec-check",
+    "command": [
+      "python3",
+      "-I",
+      "docs/blueprint/proposals/\uc124\uacc4\uac80\ud1a0_\uacb0\uacfc/\uac80\uc99d/spec_check.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "tracked-secrets",
+    "command": [
+      "python3",
+      "-I",
+      "tools/check_tracked_secrets.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03
+  }
+]

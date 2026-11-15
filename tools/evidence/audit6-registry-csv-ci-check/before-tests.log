@@ -1,0 +1,41 @@
+Current checker/tests against baseline HEAD registry CSVs in a disposable copy.
+$ python3 -m unittest -v tools.tests.test_registry_check.RegistryCheck.test_repository_passes_without_writing_and_historical_rows_stay_excluded tools.tests.test_registry_check.RegistryCheck.test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup
+test_repository_passes_without_writing_and_historical_rows_stay_excluded (tools.tests.test_registry_check.RegistryCheck.test_repository_passes_without_writing_and_historical_rows_stay_excluded) ... FAIL
+test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup (tools.tests.test_registry_check.RegistryCheck.test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup) ... FAIL
+
+======================================================================
+FAIL: test_repository_passes_without_writing_and_historical_rows_stay_excluded (tools.tests.test_registry_check.RegistryCheck.test_repository_passes_without_writing_and_historical_rows_stay_excluded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-registry-csv-ci-check/tools/evidence/audit6-registry-csv-ci-check/baseline-qnfhsfss/tools/tests/test_registry_check.py", line 55, in test_repository_passes_without_writing_and_historical_rows_stay_excluded
+    self.assertEqual(rc.check(self.root), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ["data/registry/access_log.csv:77: purpose[238 chars]mo'"] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+"data/registry/access_log.csv:77: purpose references unknown insurer_id 'nonlife-mitsuisumitomo'"
+
++ []
+- ['data/registry/access_log.csv:77: purpose references unknown insurer_id '
+-  "'nonlife-mitsuisumitomo'",
+-  'data/registry/access_log.csv:84: purpose references unknown insurer_id '
+-  "'other-epost'",
+-  'data/registry/sources.csv:49: source_id references unknown insurer_id '
+-  "'nonlife-mitsuisumitomo'"]
+
+======================================================================
+FAIL: test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup (tools.tests.test_registry_check.RegistryCheck.test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-registry-csv-ci-check/tools/evidence/audit6-registry-csv-ci-check/baseline-qnfhsfss/tools/tests/test_registry_check.py", line 69, in test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup
+    self.assertIn(phrase, row["notes"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '초기' not found in 'KNIA 정회원사 / 홈페이지는 응답했으나 정적 HTML에서 상품공시 링크를 찾지 못함(SPA/JS 메뉴) — 브라우저 렌더링 또는 XHR 분석 필요'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.009s
+
+FAILED (failures=2)
+
+exit_code=1 (expected 1)

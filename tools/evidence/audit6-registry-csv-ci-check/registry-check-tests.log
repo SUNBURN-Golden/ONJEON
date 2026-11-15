@@ -1,0 +1,22 @@
+test_all_entity_purpose_and_source_prefixes_validate_ids (test_registry_check.RegistryCheck.test_all_entity_purpose_and_source_prefixes_validate_ids) ... ok
+test_declared_ci_command_passes_and_rejects_original_findings_read_only (test_registry_check.RegistryCheck.test_declared_ci_command_passes_and_rejects_original_findings_read_only) ... ok
+test_each_original_dangling_id_is_rejected (test_registry_check.RegistryCheck.test_each_original_dangling_id_is_rejected) ... ok
+test_empty_untrimmed_and_duplicate_ids_fail_in_each_namespace (test_registry_check.RegistryCheck.test_empty_untrimmed_and_duplicate_ids_fail_in_each_namespace) ... ok
+test_entity_ids_cannot_collide_across_tables (test_registry_check.RegistryCheck.test_entity_ids_cannot_collide_across_tables) ... ok
+test_entity_sources_must_trace_to_url_timestamp_result_and_purpose (test_registry_check.RegistryCheck.test_entity_sources_must_trace_to_url_timestamp_result_and_purpose) ... ok
+test_home_and_disclosure_summaries_use_final_observation_even_if_rows_are_reordered (test_registry_check.RegistryCheck.test_home_and_disclosure_summaries_use_final_observation_even_if_rows_are_reordered) ... ok
+test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup (test_registry_check.RegistryCheck.test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup) ... ok
+test_legacy_status_column_and_values_fail_without_rewriting (test_registry_check.RegistryCheck.test_legacy_status_column_and_values_fail_without_rewriting) ... ok
+test_listed_in_references_are_checked_in_all_entity_tables (test_registry_check.RegistryCheck.test_listed_in_references_are_checked_in_all_entity_tables) ... ok
+test_log_classification_cannot_disagree_with_raw_result (test_registry_check.RegistryCheck.test_log_classification_cannot_disagree_with_raw_result) ... ok
+test_missing_files_columns_and_malformed_csv_fail_with_locations (test_registry_check.RegistryCheck.test_missing_files_columns_and_malformed_csv_fail_with_locations) ... ok
+test_multiline_cells_keep_physical_line_diagnostics (test_registry_check.RegistryCheck.test_multiline_cells_keep_physical_line_diagnostics) ... ok
+test_raw_detail_cannot_contradict_final_state (test_registry_check.RegistryCheck.test_raw_detail_cannot_contradict_final_state) ... ok
+test_repository_passes_without_writing_and_historical_rows_stay_excluded (test_registry_check.RegistryCheck.test_repository_passes_without_writing_and_historical_rows_stay_excluded) ... ok
+test_seed_and_artifact_purposes_are_not_dangling_entity_references (test_registry_check.RegistryCheck.test_seed_and_artifact_purposes_are_not_dangling_entity_references) ... ok
+test_unknown_raw_evidence_fails_cleanly (test_registry_check.RegistryCheck.test_unknown_raw_evidence_fails_cleanly) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.343s
+
+OK

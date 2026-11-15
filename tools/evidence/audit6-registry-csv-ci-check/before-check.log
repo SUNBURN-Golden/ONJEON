@@ -1,0 +1,8 @@
+Current checker/tests against baseline HEAD registry CSVs in a disposable copy.
+$ python3 -I tools/registry_check.py
+registry check failed:
+  data/registry/access_log.csv:77: purpose references unknown insurer_id 'nonlife-mitsuisumitomo'
+  data/registry/access_log.csv:84: purpose references unknown insurer_id 'other-epost'
+  data/registry/sources.csv:49: source_id references unknown insurer_id 'nonlife-mitsuisumitomo'
+
+exit_code=1 (expected 1)

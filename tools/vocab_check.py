@@ -71,12 +71,13 @@ REGISTRY_REQUIRED = {
 }
 
 
-def lint_registry(v):
+def lint_registry(v, root=None):
     """Read-only, column-aware checks; prose exemptions do not apply to CSV cells."""
+    root = ROOT if root is None else Path(root)
     codes = {a["id"]: {x["code"] for x in a["values"]} for a in v["axes"]}
     problems = []
-    for path in sorted(ROOT.glob("data/registry/*.csv")):
-        rel = path.relative_to(ROOT).as_posix()
+    for path in sorted(root.glob("data/registry/*.csv")):
+        rel = path.relative_to(root).as_posix()
         with path.open(encoding="utf-8", newline="") as f:
             reader = csv.reader(f, strict=True)
             try:

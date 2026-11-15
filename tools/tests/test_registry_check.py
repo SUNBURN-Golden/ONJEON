@@ -1,0 +1,259 @@
+"""Registry integrity: live snapshot, disposable regressions and the real CI command."""
+import csv
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from collections import Counter
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import registry_check as rc
+
+ROOT = Path(__file__).resolve().parents[2]
+REG = ROOT / "data/registry"
+
+
+class RegistryCheck(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.reg = self.root / "data/registry"
+        shutil.copytree(REG, self.reg)
+        vocab = self.root / "packages/schemas/vocabulary.json"
+        vocab.parent.mkdir(parents=True)
+        shutil.copy2(ROOT / "packages/schemas/vocabulary.json", vocab)
+
+    def rows(self, name):
+        with (self.reg / name).open(encoding="utf-8", newline="") as f:
+            return list(csv.DictReader(f))
+
+    def write(self, name, rows):
+        with (self.reg / name).open("w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+            writer.writeheader()
+            writer.writerows(rows)
+
+    def change(self, name, key, value, **changes):
+        rows = self.rows(name)
+        row = next(r for r in rows if r[key] == value)
+        row.update(changes)
+        self.write(name, rows)
+
+    def assertFinding(self, expected):
+        problems = rc.check(self.root)
+        self.assertTrue(any(expected in p for p in problems), problems)
+
+    def snapshot(self):
+        return {p.name: p.read_bytes() for p in self.reg.glob("*.csv")}
+
+    def test_repository_passes_without_writing_and_historical_rows_stay_excluded(self):
+        before = self.snapshot()
+        self.assertEqual(rc.check(self.root), [])
+        self.assertEqual(self.snapshot(), before)
+        excluded = self.rows("excluded_or_historical.csv")
+        self.assertNotIn("status", excluded[0])
+        self.assertNotIn("product_list_status", excluded[0])
+        self.assertEqual(Counter(r["entity_evidence"] for r in excluded),
+                         Counter(two_or_more_sources=2, one_source=47))
+        self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in excluded))
+
+    def test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup(self):
+        row = next(r for r in self.rows("insurers.csv") if r["insurer_id"] == "nonlife-hyundai")
+        self.assertEqual(row["home_access"], "tls_error")
+        self.assertIn("200_js_shell -> tls_handshake_fail", row["home_access_detail"])
+        for phrase in ("초기", "200_js_shell", "후속", "tls_handshake_fail", "공시실 URL 미확인"):
+            self.assertIn(phrase, row["notes"])
+        self.assertNotIn("홈페이지는 응답했으나 정적 HTML에서 상품공시 링크를 찾지 못함", row["notes"])
+        attempts = [r for r in self.rows("access_log.csv") if r["purpose"].endswith(":nonlife-hyundai")]
+        self.assertEqual([r["host_access"] for r in attempts], ["js_shell", "tls_error"])
+
+    def test_each_original_dangling_id_is_rejected(self):
+        cases = [
+            ("access_log.csv", "purpose", "homepage:public-epost", "homepage:other-epost", ":84:"),
+            ("access_log.csv", "purpose", "homepage:nonlife-mitsuisumitomo-kr",
+             "homepage:nonlife-mitsuisumitomo", ":77:"),
+            ("sources.csv", "source_id", "homepage_nonlife-mitsuisumitomo-kr",
+             "homepage_nonlife-mitsuisumitomo", ":49:"),
+        ]
+        for name, key, good, bad, line in cases:
+            with self.subTest(name=name, bad=bad):
+                self.change(name, key, good, **{key: bad})
+                self.assertFinding(f"{name}{line}")
+                self.assertFinding("unknown insurer_id")
+                self.change(name, key, bad, **{key: good})
+
+    def test_all_entity_purpose_and_source_prefixes_validate_ids(self):
+        for prefix in rc.PREFIXES:
+            with self.subTest(prefix=prefix):
+                rows = self.rows("access_log.csv")
+                original = rows[0]["purpose"]
+                rows[0]["purpose"] = f"{prefix}:missing"
+                self.write("access_log.csv", rows)
+                self.assertFinding("purpose references unknown insurer_id 'missing'")
+                rows[0]["purpose"] = original
+                self.write("access_log.csv", rows)
+                rows = self.rows("sources.csv")
+                original = rows[0]["source_id"]
+                rows[0]["source_id"] = f"{prefix}_missing"
+                self.write("sources.csv", rows)
+                self.assertFinding("source_id references unknown insurer_id 'missing'")
+                rows[0]["source_id"] = original
+                self.write("sources.csv", rows)
+
+    def test_listed_in_references_are_checked_in_all_entity_tables(self):
+        for name in rc.ENTITY_TABLES:
+            rows = self.rows(name)
+            original = rows[0]["listed_in"]
+            rows[0]["listed_in"] += ";absent_source"
+            self.write(name, rows)
+            self.assertFinding("listed_in references unknown source_id 'absent_source'")
+            rows[0]["listed_in"] = original
+            self.write(name, rows)
+
+    def test_seed_and_artifact_purposes_are_not_dangling_entity_references(self):
+        self.assertTrue(any(not r["listed_in"] and r["entity_evidence"] == "seed"
+                            for r in self.rows("cooperatives_and_others.csv")))
+        rows = self.rows("access_log.csv")
+        for purpose in ("source:artifact.html", "probe:artifact.html", "meta:artifact.json",
+                        "discover:artifact.jsp", "wikipedia_search (tertiary source attempt)"):
+            rows[0]["purpose"] = purpose
+            self.write("access_log.csv", rows)
+            self.assertEqual(rc.check(self.root), [])
+
+    def test_empty_untrimmed_and_duplicate_ids_fail_in_each_namespace(self):
+        for name, field in (("insurers.csv", "insurer_id"), ("sources.csv", "source_id")):
+            rows = self.rows(name)
+            original = rows[1][field]
+            for bad in ("", " " + original, rows[0][field]):
+                with self.subTest(name=name, bad=bad):
+                    rows[1][field] = bad
+                    self.write(name, rows)
+                    self.assertFinding(field)
+            rows[1][field] = original
+            self.write(name, rows)
+
+    def test_entity_ids_cannot_collide_across_tables(self):
+        self.change("cooperatives_and_others.csv", "insurer_id", "coop-suhyup", insurer_id="life-hanwha")
+        self.assertFinding("duplicate insurer_id: 'life-hanwha'")
+
+    def test_legacy_status_column_and_values_fail_without_rewriting(self):
+        name = "excluded_or_historical.csv"
+        original = (self.reg / name).read_bytes()
+        for field, value in (("status", "verified_2_sources"), ("entity_evidence", "verified_2_sources")):
+            with self.subTest(field=field):
+                rows = self.rows(name)
+                for row in rows:
+                    row[field] = row.pop("entity_evidence") if field == "status" else value
+                self.write(name, rows)
+                before = self.snapshot()
+                self.assertFinding("deprecated field `status`" if field == "status" else "expected entity_evidence code")
+                self.assertEqual(self.snapshot(), before)
+                (self.reg / name).write_bytes(original)
+
+    def test_log_classification_cannot_disagree_with_raw_result(self):
+        self.change("access_log.csv", "purpose", "homepage:life-aia", host_access="tls_error")
+        self.assertFinding("host_access='tls_error' disagrees with raw access evidence '200'")
+
+    def test_unknown_raw_evidence_fails_cleanly(self):
+        self.change("access_log.csv", "purpose", "homepage:life-aia", result="mystery")
+        self.assertFinding("unmapped raw access evidence 'mystery'")
+
+    def test_home_and_disclosure_summaries_use_final_observation_even_if_rows_are_reordered(self):
+        attempts = self.rows("access_log.csv")
+        self.write("access_log.csv", list(reversed(attempts)))
+        self.assertEqual(rc.check(self.root), [])
+        for key, changes, expected in (
+            ("nonlife-hyundai", dict(home_access="js_shell", home_access_detail="200_js_shell"), "home_access"),
+            ("life-aia", dict(disclosure_access="tls_error", disclosure_access_detail="tls_handshake_fail"),
+             "disclosure_access"),
+        ):
+            with self.subTest(key=key):
+                self.change("insurers.csv", "insurer_id", key, **changes)
+                self.assertFinding(f"{expected}={changes[expected]!r} disagrees with latest access_log")
+
+    def test_raw_detail_cannot_contradict_final_state(self):
+        self.change("insurers.csv", "insurer_id", "nonlife-hyundai", home_access_detail="200_js_shell -> 200")
+        self.assertFinding("home_access='tls_error' disagrees with raw access evidence")
+
+    def test_entity_sources_must_trace_to_url_timestamp_result_and_purpose(self):
+        name = "sources.csv"
+        original = (self.reg / name).read_bytes()
+        for column, bad in (("url", "https://example.invalid/"), ("retrieved_at", "2026-10-09T00:00:00Z"),
+                            ("http_status", "403"), ("source_id", "disclosure_nonlife-mitsuisumitomo-kr-extra")):
+            with self.subTest(column=column):
+                self.change(name, "source_id", "homepage_nonlife-mitsuisumitomo-kr", **{column: bad})
+                self.assertFinding("no matching access_log observation")
+                (self.reg / name).write_bytes(original)
+
+    def test_missing_files_columns_and_malformed_csv_fail_with_locations(self):
+        name = "sources.csv"
+        path = self.reg / name
+        original = path.read_bytes()
+        for contents, expected in (
+            (None, "cannot read CSV"), (b"", "missing or duplicate CSV header"),
+            (b"source_id,source_id\n", "missing or duplicate CSV header"),
+            (b"source_id\n", "missing required columns"),
+            (b"source_id,url,retrieved_at,http_status\na,b\n", ":2: expected 4 cells, got 2"),
+            (b'source_id,url,retrieved_at,http_status\na,"unterminated\n', "invalid CSV"),
+        ):
+            with self.subTest(contents=contents):
+                if contents is None:
+                    path.unlink()
+                else:
+                    path.write_bytes(contents)
+                self.assertFinding(expected)
+                path.write_bytes(original)
+
+    def test_multiline_cells_keep_physical_line_diagnostics(self):
+        rows = self.rows("insurers.csv")
+        rows[0]["notes"] += "\nextra evidence"
+        rows[1]["listed_in"] = "absent_source"
+        self.write("insurers.csv", rows)
+        self.assertFinding("insurers.csv:4: listed_in references unknown source_id")
+
+    def test_declared_ci_command_passes_and_rejects_original_findings_read_only(self):
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        match = re.search(r"^      - name: Registry CSV references and access evidence\n"
+                          r"        run: (.+)$", workflow, re.MULTILINE)
+        self.assertIsNotNone(match)
+        command = match[1]
+        self.assertEqual(command, "python3 -I tools/registry_check.py")
+        self.assertLess(match.start(), workflow.index("python3 -m pip install"))
+        self.assertLess(match.start(), workflow.index("run: cargo build"))
+        scripts = self.root / "tools"
+        scripts.mkdir()
+        for name in ("registry_check.py", "registry_normalize.py", "vocab_check.py"):
+            shutil.copy2(ROOT / "tools" / name, scripts / name)
+        baseline = self.snapshot()
+        cases = (
+            (None, None, None, "registry check passed"),
+            ("access_log.csv", b"homepage:public-epost,", b"homepage:other-epost,",
+             "purpose references unknown insurer_id 'other-epost'"),
+            ("access_log.csv", b"homepage:nonlife-mitsuisumitomo-kr,", b"homepage:nonlife-mitsuisumitomo,",
+             "purpose references unknown insurer_id 'nonlife-mitsuisumitomo'"),
+            ("sources.csv", b"homepage_nonlife-mitsuisumitomo-kr,", b"homepage_nonlife-mitsuisumitomo,",
+             "source_id references unknown insurer_id 'nonlife-mitsuisumitomo'"),
+            ("excluded_or_historical.csv", b"entity_evidence,", b"status,", "deprecated field `status`"),
+        )
+        for name, old, new, expected in cases:
+            with self.subTest(name=name, expected=expected):
+                for filename, contents in baseline.items():
+                    (self.reg / filename).write_bytes(contents)
+                if name:
+                    self.assertEqual(baseline[name].count(old), 1)
+                    (self.reg / name).write_bytes(baseline[name].replace(old, new))
+                before = self.snapshot()
+                result = subprocess.run(["bash", "-e", "-c", command], cwd=self.root,
+                                        capture_output=True, text=True, timeout=30)
+                self.assertEqual(result.returncode, int(name is not None), result.stdout + result.stderr)
+                self.assertEqual(result.stderr, "")
+                self.assertIn(expected, result.stdout)
+                self.assertEqual(self.snapshot(), before)
+
+
+if __name__ == "__main__":
+    unittest.main()

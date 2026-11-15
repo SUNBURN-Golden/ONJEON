@@ -16,6 +16,7 @@ python3 -I tools/ci/check_pr_body_traceability.py --body-file FILE   # PR body n
 python3 -I tools/ci/check_pr_body_traceability.py --selftest
 python3 -I tools/blueprint_status.py          # §11 date/index matches every ADR/DEC path and content
 python3 -I tools/blueprint_counts.py          # §11 engine test/doctest, real-clause, mutation and vocabulary counts
+python3 -I tools/registry_check.py            # registry IDs, source references, canonical vocabulary and access evidence (read-only)
 python3 -I -m unittest discover -s tools/tests -p test_product_purpose.py -v
 python3 -I tools/ci/check_<name>.py --selftest # every checker has one
 python3 -I -m unittest discover -s tools/ci/tests
@@ -48,6 +49,17 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 `templates/test_skeleton_unexposed.py.tmpl` is copied into the api/web/mobile task that registers routes or screens. It fails (never skips) when the server URL or the UI route list is not supplied. It is exercised against a local stub server in `tests/test_ci_checkers.py`, green and red, but no real app route exists yet.
 
 ## CI wiring
+
+`ci.yml` runs `python3 -I tools/registry_check.py` before dependency installation
+and Rust builds. It reuses `vocab_check.lint_registry` and checks entity/source
+ID uniqueness, `listed_in`, entity-bearing access purposes/source IDs and access
+evidence consistency. Artifact filenames in probe/source purposes are preserved.
+`tools/tests/test_registry_check.py` runs through Python discovery and executes
+the declared CI command against disposable clean and regressed registries.
+It also checks the corrected Hyundai note and rejects legacy excluded-row
+status values. This is a local registry integrity gate, not proof of source
+preservation, product enumeration or release readiness.
+[Audit 6 evidence](../../docs/blueprint/audits/2026-11-16_registry_csv_ci_check.md).
 
 `ci.yml` runs `tools/blueprint_counts.py` after the Rust tests. It compares the
 generated §11 inventory with Cargo's registered tests for `onjeon-rules-engine`

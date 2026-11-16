@@ -1,0 +1,22 @@
+ALLOWED docs/BLUEPRINT.md
+ALLOWED docs/blueprint/DECISIONS.md
+ALLOWED docs/blueprint/audits/2026-11-16_blueprint_s12_decisions_sync.md
+ALLOWED docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/README.md
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/before.log
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/blueprint-counts.log
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/blueprint-status.log
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/focused.log
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/ontology-tests.log
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/python-tests.log
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/rust-tests.log
+ALLOWED tools/evidence/audit6-blueprint-s12-decisions-sync/scope.log
+ALLOWED tools/tests/test_audit6_blueprint_decisions_sync.py
+ALLOWED tools/tests/test_o13_ruling.py
+UNCHANGED docs/PRINCIPLES.md
+UNCHANGED docs/data
+UNCHANGED docs/design/CONSUMER_FLOW_SPEC.md
+UNCHANGED DECISION_REQUIRED.md
+UNCHANGED all 19 original O rows: question, role, timing, allowed/blocked scope
+UNCHANGED tasks.json and daemon_rules.json
+PASS git diff --check

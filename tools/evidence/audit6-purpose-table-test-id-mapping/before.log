@@ -1,0 +1,26 @@
+test_live_p06_and_p17_link_the_test_implementations (test_product_purpose.ProductPurposeTests.test_live_p06_and_p17_link_the_test_implementations) ... 
+  test_live_p06_and_p17_link_the_test_implementations (test_product_purpose.ProductPurposeTests.test_live_p06_and_p17_link_the_test_implementations) (row='P06') ... FAIL
+  test_live_p06_and_p17_link_the_test_implementations (test_product_purpose.ProductPurposeTests.test_live_p06_and_p17_link_the_test_implementations) (row='P17') ... FAIL
+
+======================================================================
+FAIL: test_live_p06_and_p17_link_the_test_implementations (test_product_purpose.ProductPurposeTests.test_live_p06_and_p17_link_the_test_implementations) (row='P06')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-purpose-table-test-id-mapping/tools/tests/test_product_purpose.py", line 151, in test_live_p06_and_p17_link_the_test_implementations
+    self.assertIn(owner, cells[6].split(", "))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'T-KN-04' not found in ['T-KN-06', 'T-KN-03', 'T-OP-03', 'T-KN-01', 'T-KN-02', 'T-WB-02']
+
+======================================================================
+FAIL: test_live_p06_and_p17_link_the_test_implementations (test_product_purpose.ProductPurposeTests.test_live_p06_and_p17_link_the_test_implementations) (row='P17')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-purpose-table-test-id-mapping/tools/tests/test_product_purpose.py", line 153, in test_live_p06_and_p17_link_the_test_implementations
+    self.assertIn(test_id, tasks[owner]["required_test_ids"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'no-composite-score' not found in ['need-result-reasons', 'need-flow-keep-addnone-hold-unknown', 'reason-evidence-by-kind']
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (failures=2)

@@ -176,7 +176,11 @@ class RulingAccessGates(unittest.TestCase):
                          {k: v for k, v in self.catalog["decision_index"].items() if k != "D-04"})
         ledger = (ROOT / "docs/blueprint/DECISIONS.md").read_text()
         for expected in self.baseline["ledger_rows"]:
-            self.assertIn(expected, ledger.splitlines())
+            # Audit 6 adds a decision-status column; the original five cells
+            # still pin the complete gate wording independently of that status.
+            prefix = expected.split("|", 2)[1].strip()
+            actual_row = row(ledger, f"| {prefix} |")
+            self.assertEqual(expected, actual_row.rsplit("|", 2)[0] + "|")
         for path, expected in self.baseline["unchanged_sha256"].items():
             with self.subTest(path=path):
                 self.assertEqual(expected, hashlib.sha256((ROOT / path).read_bytes()).hexdigest())

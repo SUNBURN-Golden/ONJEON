@@ -1,0 +1,10 @@
+test_checklist_covers_every_runner_scenario (test_spec_docs_daemon_status.SpecDocsDaemonStatus.test_checklist_covers_every_runner_scenario) ... ok
+test_each_status_summary_links_results_and_preserves_partial_results (test_spec_docs_daemon_status.SpecDocsDaemonStatus.test_each_status_summary_links_results_and_preserves_partial_results) ... ok
+test_inventory_describes_implemented_tools_and_limits (test_spec_docs_daemon_status.SpecDocsDaemonStatus.test_inventory_describes_implemented_tools_and_limits) ... ok
+test_r2_handoff_order_matches_rules (test_spec_docs_daemon_status.SpecDocsDaemonStatus.test_r2_handoff_order_matches_rules) ... ok
+test_task_counts_match_unique_live_tasks (test_spec_docs_daemon_status.SpecDocsDaemonStatus.test_task_counts_match_unique_live_tasks) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.011s
+
+OK

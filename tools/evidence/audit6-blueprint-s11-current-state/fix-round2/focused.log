@@ -1,0 +1,15 @@
+test_current_review_links_evidence_and_existing_source_paths (test_blueprint_current_state.CurrentState.test_current_review_links_evidence_and_existing_source_paths) ... ok
+test_data_row_registry_counts_match_the_committed_csvs (test_blueprint_current_state.CurrentState.test_data_row_registry_counts_match_the_committed_csvs) ... ok
+test_documented_release_counts_match_live_checker_not_test_registrations (test_blueprint_current_state.CurrentState.test_documented_release_counts_match_live_checker_not_test_registrations) ... ok
+test_each_milestone_separates_criteria_from_current_verdict (test_blueprint_current_state.CurrentState.test_each_milestone_separates_criteria_from_current_verdict) ... ok
+test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) ... ok
+test_m1_reports_generated_contracts_and_review_schema_limits (test_blueprint_current_state.CurrentState.test_m1_reports_generated_contracts_and_review_schema_limits) ... ok
+test_m2_reports_components_without_claiming_an_end_to_end_service (test_blueprint_current_state.CurrentState.test_m2_reports_components_without_claiming_an_end_to_end_service) ... ok
+test_source_total_accounts_for_every_dated_observation (test_blueprint_current_state.CurrentState.test_source_total_accounts_for_every_dated_observation) ... ok
+test_v1_preserves_historical_observation_and_remaining_conditions (test_blueprint_current_state.CurrentState.test_v1_preserves_historical_observation_and_remaining_conditions) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.015s
+
+OK
+exit=0

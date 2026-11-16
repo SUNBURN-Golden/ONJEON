@@ -1,0 +1,129 @@
+test_current_review_links_evidence_and_existing_source_paths (test_blueprint_current_state.CurrentState.test_current_review_links_evidence_and_existing_source_paths) ... FAIL
+test_documented_release_counts_match_live_checker_not_test_registrations (test_blueprint_current_state.CurrentState.test_documented_release_counts_match_live_checker_not_test_registrations) ... ERROR
+test_each_milestone_separates_criteria_from_current_verdict (test_blueprint_current_state.CurrentState.test_each_milestone_separates_criteria_from_current_verdict) ... FAIL
+test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) ...
+  test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M3', term='O19') ... FAIL
+  test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M3', term='미열거') ... FAIL
+  test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M5', term='PDF') ... FAIL
+  test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M5', term='두 안 비교') ... FAIL
+  test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M6', term='T-OP-08') ... FAIL
+  test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M6', term='P01~P19') ... FAIL
+test_m1_reports_generated_contracts_and_review_schema_limits (test_blueprint_current_state.CurrentState.test_m1_reports_generated_contracts_and_review_schema_limits) ... FAIL
+test_m2_reports_components_without_claiming_an_end_to_end_service (test_blueprint_current_state.CurrentState.test_m2_reports_components_without_claiming_an_end_to_end_service) ... FAIL
+test_v1_preserves_historical_observation_and_remaining_conditions (test_blueprint_current_state.CurrentState.test_v1_preserves_historical_observation_and_remaining_conditions) ... FAIL
+
+======================================================================
+ERROR: test_documented_release_counts_match_live_checker_not_test_registrations (test_blueprint_current_state.CurrentState.test_documented_release_counts_match_live_checker_not_test_registrations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 86, in test_documented_release_counts_match_live_checker_not_test_registrations
+    row = table_rows(self.inventory)["출시 증거"][0]
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: '출시 증거'
+
+======================================================================
+FAIL: test_current_review_links_evidence_and_existing_source_paths (test_blueprint_current_state.CurrentState.test_current_review_links_evidence_and_existing_source_paths)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 98, in test_current_review_links_evidence_and_existing_source_paths
+    self.assertIn(AUDIT, self.milestones)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'blueprint/audits/2026-11-16_blueprint_s11_current_state.md' not found in '\n\n| ID | 내용 | 해소하는 비대칭 | 통과 관문 |\n|---|---|---|---|\n| M0 | 엔진 v0.1과 합성 규칙 | 기반 | 완료. I1~I5, I18 |\n| V0 | 전체 수집 대상 목록(분모 최상위): 보험사 전부와 공시 진입점, 접근 결과, 미확보 사유 | 전체 | `data/registry/`에 증거와 함께 존재. 하위 상품·특약은 미열거 상태로 추적 |\n| V1 | 설계 확정: (a) 상태 어휘 정본 (b) 실제 조항·별표·가격표로 표현력 검증 (c) 소비자 화면 연결 검증 | A1, A2, A4 | (a) `vocabulary.json`과 검사기 (b) 표본별 매핑과 부족분 목록, 부족분의 설계 반영 (c) 같은 자료로 "무엇을 보장하나·언제 못 받나·왜 이 가격인가"가 선택 화면에 나타남. **설계 탐색 완료(2026-10-09), 관문 미통과**: [validation/](blueprint/validation/README.md), 부족분 G01~G26. 보관소는 [ADR-0016](decisions/ADR-0016-원본-보관소-R2.md)에 따라 Cloudflare R2로 확정(ADR-0015의 S3 결정을 대체), 원본 58키·파생 v2 61키를 R2에 보존하고 다시 받아 전부 바이트 일치(2026-10-09, 원본 해시·인용 14/14, 파생 결과까지 완전 재현 8/14, 나머지 6건은 재생성 도구 없음으로 미검증). 남은 조건: 파생 6건의 재생성 도구와 재현 검증, 다른 계열 AI 검수, 화면 열린 항목(S1·S6). 담당·순서·필수 증거는 [V1 종료 결정](decisions/audit2-v1-gate-closure.md)을 따른다 |\n| M1 | 데이터 척추: §6 어휘를 `packages/schemas`로 생성(Rust·Dart·TS), 공개/개인 분리 DB 스키마 초안 | 기반 | 어휘가 코드로 생성됨, I7·I12가 스키마 제약으로 존재 |\n| M2 | 걸어가는 뼈대: V1 표본 문서들을 L1~L9까지 관통 | A1, A2, A4 | 화면 숫자 하나에서 원문 좌표까지 따라감(I6), 보류 경로가 실제로 작동, 그림자 비교 1회 |\n| M3 | 분모와 수집 확장: AI 분모 조사, 어댑터 표준, 일일 스케줄, `/coverage` | A1~A3의 범위 | 분모 공개, 일일 확인 달성률 측정, I17 |\n| M4 | 같은 담보 비교와 공개 가격 | A3, A4 | I7, I8, 비교 기준 동작 |\n| M5 | 계약 트윈과 내 설계: PDF 가져오기, 두 안 비교, 만약에 | A5, A6 | I9, I11 |\n| M6 | 상품군 확장(W1~W6), 실손 상환형 연산, 출시 게이트 | 전체 | 출시 게이트 전 항목, I10·I13~I16 |\n\n각 마일스톤은 관문을 통과해야 다음으로 넘어간다. 관문에서 막히면 다음 단계로 건너뛰지 않고 원인을 고친다. 기간은 관문 통과로 관리하며 날짜를 약속하지 않는다.\n\n'
+
+======================================================================
+FAIL: test_each_milestone_separates_criteria_from_current_verdict (test_blueprint_current_state.CurrentState.test_each_milestone_separates_criteria_from_current_verdict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 32, in test_each_milestone_separates_criteria_from_current_verdict
+    self.assertEqual(self.rows["ID"][-1], "현재 구현·판정(§11 기준일)")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '통과 관문' != '현재 구현·판정(§11 기준일)'
+- 통과 관문
++ 현재 구현·판정(§11 기준일)
+
+
+======================================================================
+FAIL: test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M3', term='O19')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 75, in test_future_milestones_keep_actual_data_and_screen_gates_open
+    self.assertIn(term, self.rows[mid][-1])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'O19' not found in '분모 공개, 일일 확인 달성률 측정, I17'
+
+======================================================================
+FAIL: test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M3', term='미열거')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 75, in test_future_milestones_keep_actual_data_and_screen_gates_open
+    self.assertIn(term, self.rows[mid][-1])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '미열거' not found in '분모 공개, 일일 확인 달성률 측정, I17'
+
+======================================================================
+FAIL: test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M5', term='PDF')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 75, in test_future_milestones_keep_actual_data_and_screen_gates_open
+    self.assertIn(term, self.rows[mid][-1])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PDF' not found in 'I9, I11'
+
+======================================================================
+FAIL: test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M5', term='두 안 비교')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 75, in test_future_milestones_keep_actual_data_and_screen_gates_open
+    self.assertIn(term, self.rows[mid][-1])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '두 안 비교' not found in 'I9, I11'
+
+======================================================================
+FAIL: test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M6', term='T-OP-08')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 75, in test_future_milestones_keep_actual_data_and_screen_gates_open
+    self.assertIn(term, self.rows[mid][-1])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'T-OP-08' not found in '출시 게이트 전 항목, I10·I13~I16'
+
+======================================================================
+FAIL: test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) (milestone='M6', term='P01~P19')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 75, in test_future_milestones_keep_actual_data_and_screen_gates_open
+    self.assertIn(term, self.rows[mid][-1])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'P01~P19' not found in '출시 게이트 전 항목, I10·I13~I16'
+
+======================================================================
+FAIL: test_m1_reports_generated_contracts_and_review_schema_limits (test_blueprint_current_state.CurrentState.test_m1_reports_generated_contracts_and_review_schema_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 45, in test_m1_reports_generated_contracts_and_review_schema_limits
+    self.assertIn(source, current)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 'packages/schemas/codegen/generated/' not found in '어휘가 코드로 생성됨, I7·I12가 스키마 제약으로 존재'
+
+======================================================================
+FAIL: test_m2_reports_components_without_claiming_an_end_to_end_service (test_blueprint_current_state.CurrentState.test_m2_reports_components_without_claiming_an_end_to_end_service)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 59, in test_m2_reports_components_without_claiming_an_end_to_end_service
+    self.assertIn(source, current)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 'services/collect/' not found in '화면 숫자 하나에서 원문 좌표까지 따라감(I6), 보류 경로가 실제로 작동, 그림자 비교 1회'
+
+======================================================================
+FAIL: test_v1_preserves_historical_observation_and_remaining_conditions (test_blueprint_current_state.CurrentState.test_v1_preserves_historical_observation_and_remaining_conditions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 66, in test_v1_preserves_historical_observation_and_remaining_conditions
+    self.assertIn(term, v1)
+    ~~~~~~~~~~~~~^^^^^^^^^^
+AssertionError: '이종 계열' not found in '설계 확정: (a) 상태 어휘 정본 (b) 실제 조항·별표·가격표로 표현력 검증 (c) 소비자 화면 연결 검증 A1, A2, A4 (a) `vocabulary.json`과 검사기 (b) 표본별 매핑과 부족분 목록, 부족분의 설계 반영 (c) 같은 자료로 "무엇을 보장하나·언제 못 받나·왜 이 가격인가"가 선택 화면에 나타남. **설계 탐색 완료(2026-10-09), 관문 미통과**: [validation/](blueprint/validation/README.md), 부족분 G01~G26. 보관소는 [ADR-0016](decisions/ADR-0016-원본-보관소-R2.md)에 따라 Cloudflare R2로 확정(ADR-0015의 S3 결정을 대체), 원본 58키·파생 v2 61키를 R2에 보존하고 다시 받아 전부 바이트 일치(2026-10-09, 원본 해시·인용 14/14, 파생 결과까지 완전 재현 8/14, 나머지 6건은 재생성 도구 없음으로 미검증). 남은 조건: 파생 6건의 재생성 도구와 재현 검증, 다른 계열 AI 검수, 화면 열린 항목(S1·S6). 담당·순서·필수 증거는 [V1 종료 결정](decisions/audit2-v1-gate-closure.md)을 따른다'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.010s
+
+FAILED (failures=11, errors=1)

@@ -1,0 +1,26 @@
+Allowed paths only.
+Protected files and docs/data/ unchanged.
+New audit/evidence local links resolve.
+git diff --check and untracked-file whitespace: clean.
+Changed files:
+docs/BLUEPRINT.md
+docs/blueprint/audits/2026-11-16_blueprint_s11_current_state.md
+tools/evidence/audit6-blueprint-s11-current-state/README.md
+tools/evidence/audit6-blueprint-s11-current-state/before.log
+tools/evidence/audit6-blueprint-s11-current-state/blueprint-tests.log
+tools/evidence/audit6-blueprint-s11-current-state/counts.log
+tools/evidence/audit6-blueprint-s11-current-state/focused.log
+tools/evidence/audit6-blueprint-s11-current-state/ontology-build.log
+tools/evidence/audit6-blueprint-s11-current-state/ontology-tests.log
+tools/evidence/audit6-blueprint-s11-current-state/python-tests-initial-date.log
+tools/evidence/audit6-blueprint-s11-current-state/python-tests-isolated.log
+tools/evidence/audit6-blueprint-s11-current-state/python-tests.log
+tools/evidence/audit6-blueprint-s11-current-state/readiness.json
+tools/evidence/audit6-blueprint-s11-current-state/rust-tests.log
+tools/evidence/audit6-blueprint-s11-current-state/scope.log
+tools/evidence/audit6-blueprint-s11-current-state/spec-check.log
+tools/evidence/audit6-blueprint-s11-current-state/status.log
+tools/evidence/audit6-blueprint-s11-current-state/tamper-tests.log
+tools/evidence/audit6-blueprint-s11-current-state/validation.log
+tools/evidence/audit6-blueprint-s11-current-state/vocabulary.log
+tools/tests/test_blueprint_current_state.py

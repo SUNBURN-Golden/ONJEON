@@ -1,0 +1,36 @@
+allowed: docs/blueprint/proposals/설계검토_결과/02_구현계약.md
+allowed: docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md
+allowed: docs/blueprint/proposals/설계검토_결과/06_검토사항_점검.md
+allowed: docs/blueprint/proposals/설계검토_결과/README.md
+allowed: docs/blueprint/proposals/설계검토_결과/그록봇_인계/README.md
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/before.log
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/dry-run.log
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/focused.log
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/ontology-tests.log
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/python-tests.log
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/rust-tests.log
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/scope.log
+allowed: tools/evidence/audit6-spec-docs-stale-daemon-status/spec-check.log
+allowed: tools/tests/test_spec_docs_daemon_status.py
+link OK: docs/blueprint/proposals/설계검토_결과/02_구현계약.md ../../../vm_check/2026-10-16/RESULTS.md
+link OK: docs/blueprint/proposals/설계검토_결과/02_구현계약.md ../../../BLUEPRINT.md
+link OK: docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md ../../../vm_check/2026-10-16/RESULTS.md
+link OK: docs/blueprint/proposals/설계검토_결과/05_VM실행준비.md 그록봇_인계/README.md#3-가동-전-단계-순서대로-각-단계는-앞-단계-통과가-조건
+link OK: docs/blueprint/proposals/설계검토_결과/README.md ../../../vm_check/2026-10-16/RESULTS.md
+link OK: docs/blueprint/proposals/설계검토_결과/README.md ../../../BLUEPRINT.md
+link OK: docs/blueprint/proposals/설계검토_결과/README.md 그록봇_인계/README.md#3-가동-전-단계-순서대로-각-단계는-앞-단계-통과가-조건
+link OK: docs/blueprint/proposals/설계검토_결과/README.md ../../../../tools/evidence/audit6-spec-docs-stale-daemon-status/README.md
+link OK: docs/blueprint/proposals/설계검토_결과/그록봇_인계/README.md ../tasks.json
+link OK: docs/blueprint/proposals/설계검토_결과/그록봇_인계/README.md ../../../../vm_check/2026-10-16/RESULTS.md
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md ../../../docs/vm_check/2026-10-16/RESULTS.md
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md ../../../docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md before.log
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md focused.log
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md python-tests.log
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md spec-check.log
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md dry-run.log
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md rust-tests.log
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md ontology-tests.log
+link OK: tools/evidence/audit6-spec-docs-stale-daemon-status/README.md scope.log
+Allowed paths, protected-file exclusion, new local links and whitespace: PASS

@@ -1,0 +1,18 @@
+allowed: README.md
+allowed: tools/evidence/audit6-readme-drift/README.md
+allowed: tools/evidence/audit6-readme-drift/before-tests.log
+allowed: tools/evidence/audit6-readme-drift/blueprint-status.log
+allowed: tools/evidence/audit6-readme-drift/focused-tests.log
+allowed: tools/evidence/audit6-readme-drift/ontology-build.log
+allowed: tools/evidence/audit6-readme-drift/ontology-tests-fix1.log
+allowed: tools/evidence/audit6-readme-drift/ontology-tests.log
+allowed: tools/evidence/audit6-readme-drift/purpose-check.log
+allowed: tools/evidence/audit6-readme-drift/python-tests-fix1.log
+allowed: tools/evidence/audit6-readme-drift/python-tests.log
+allowed: tools/evidence/audit6-readme-drift/rust-tests-fix1.log
+allowed: tools/evidence/audit6-readme-drift/rust-tests.log
+allowed: tools/evidence/audit6-readme-drift/scope-check.log
+allowed: tools/tests/test_readme_index.py
+Evidence links, diff whitespace and protected paths: PASS
+sha256: README.md 34d4494e1f137d505766e78095b22be35273c6827ecdb9aea32d4e1ac1bdebca
+sha256: tools/tests/test_readme_index.py 0bace8dbb91c59bb26c049157aa9935bc4d453a633740b254285268030a2cf74

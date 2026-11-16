@@ -26,6 +26,7 @@
 | `data/registry/` | 수집 대상 기관의 1차 근거 목록·접근 결과·미확보 사유. ADR-0018 범위를 따르며 상품·특약·판매본 분모 열거는 미완료다([README](data/registry/README.md)) |
 | `infra/r2/` | 현재 원본·파생 보관소인 Cloudflare R2의 작업 명세·비용 정책·체크포인트. ADR-0016이 S3 선택을 대체했고 비용 제한은 ADR-0017을 따른다([README](infra/r2/README.md)) |
 | `infra/s3/` | `*.cfn.yaml`은 ADR-0015 당시의 AWS 대안 정의로 보존한다. ADR-0016 이후 미사용·미배포이며 현재 설정은 `infra/r2/`를 따른다([README](infra/s3/README.md)) |
+| `tools/` | [수집 도구](tools/crawler/)·[원본 보관](tools/source_archive.py)·[R2 비용 검사](tools/r2_budget.py)·[원장 정규화](tools/registry_normalize.py)·문서 정합성 검사와 [회귀 시험](tools/tests/). 자동 개발 도구는 아래 `tools/daemon/` 안내를 따른다 |
 | `tools/daemon/` | T-OP-00 모의 전이·검증 코어와 T-OP-09 실행기 검증 도구. 개발 도구의 검증은 상주 데몬 가동 승인이나 출시 완료 증거가 아니다([README](tools/daemon/README.md)) |
 
 문서 간 우선순위와 사용자 결정의 적용은 [BLUEPRINT §0.1 문서 위계](docs/BLUEPRINT.md#01-문서-위계)를 따른다.

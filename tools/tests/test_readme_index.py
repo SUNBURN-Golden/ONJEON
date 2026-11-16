@@ -3,6 +3,7 @@ import fnmatch
 import re
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 README = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -95,10 +96,24 @@ class IndexedPaths(unittest.TestCase):
             "data/registry/",
             "infra/r2/",
             "infra/s3/",
+            "tools/",
             "tools/daemon/",
         ):
             with self.subTest(path=cell):
                 row(cell)
+
+    def test_tools_row_points_to_collection_storage_and_checks(self):
+        text = row("tools/")
+        for path in (
+            "tools/crawler/",
+            "tools/source_archive.py",
+            "tools/r2_budget.py",
+            "tools/registry_normalize.py",
+            "tools/tests/",
+        ):
+            with self.subTest(path=path):
+                self.assertIn(f"]({path})", text)
+                self.assertTrue((ROOT / path).exists())
 
     def test_registry_is_an_institution_inventory_not_product_completion(self):
         text = row("data/registry/")
@@ -147,6 +162,38 @@ class ProductScope(unittest.TestCase):
         for required in ("내부 전용", "픽스처", "미완료"):
             self.assertIn(required, intro)
         self.assertNotIn("앱·크롤러·API는 아직 없다", intro)
+
+
+class AuditFindingRegressions(unittest.TestCase):
+    def test_reported_drift_is_rejected_by_the_guards(self):
+        decisions = row("docs/decisions/")
+        truncated = re.sub(r", 0012 .*?(?=\. 결정 기록)", "", decisions)
+        self.assertNotEqual(decisions, truncated)
+        priority = (
+            "문서 간 우선순위와 사용자 결정의 적용은 "
+            "[BLUEPRINT §0.1 문서 위계](docs/BLUEPRINT.md#01-문서-위계)를 따른다."
+        )
+        self.assertIn(priority, README)
+        old_priority = "우선순위는 불변 원칙 → 제2부 → 제3부 → 제1부 순이다."
+        cases = [
+            ("ADRs stop at 0011", README.replace(decisions, truncated),
+             DecisionsRow, "test_every_adr_number_is_listed"),
+            ("old hierarchy replaces delegation", README.replace(priority, old_priority),
+             DocumentHierarchy, "test_priority_points_to_blueprint_section_0_1"),
+            ("old hierarchy alongside delegation", README + "\n" + old_priority,
+             DocumentHierarchy, "test_replaced_masterplan_priority_is_not_present"),
+        ]
+        for path in ("tools/", "infra/r2/", "data/registry/"):
+            cases.append((f"missing {path}", README.replace(row(path), ""),
+                          IndexedPaths, "test_required_rows_present"))
+        for label, mutated, case, method in cases:
+            with self.subTest(mutation=label):
+                result = unittest.TestResult()
+                with patch(f"{__name__}.README", mutated):
+                    case(method).run(result)
+                self.assertEqual(result.testsRun, 1)
+                self.assertEqual(result.errors, [], "guard must fail an assertion")
+                self.assertEqual(len(result.failures), 1, "drift must be detected")
 
 
 if __name__ == "__main__":

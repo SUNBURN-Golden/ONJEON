@@ -1,0 +1,36 @@
+test_current_review_links_evidence_and_existing_source_paths (test_blueprint_current_state.CurrentState.test_current_review_links_evidence_and_existing_source_paths) ... ok
+test_data_row_registry_counts_match_the_committed_csvs (test_blueprint_current_state.CurrentState.test_data_row_registry_counts_match_the_committed_csvs) ...
+  test_data_row_registry_counts_match_the_committed_csvs (test_blueprint_current_state.CurrentState.test_data_row_registry_counts_match_the_committed_csvs) (csv='sources') ... FAIL
+test_documented_release_counts_match_live_checker_not_test_registrations (test_blueprint_current_state.CurrentState.test_documented_release_counts_match_live_checker_not_test_registrations) ... ok
+test_each_milestone_separates_criteria_from_current_verdict (test_blueprint_current_state.CurrentState.test_each_milestone_separates_criteria_from_current_verdict) ... ok
+test_future_milestones_keep_actual_data_and_screen_gates_open (test_blueprint_current_state.CurrentState.test_future_milestones_keep_actual_data_and_screen_gates_open) ... ok
+test_m1_reports_generated_contracts_and_review_schema_limits (test_blueprint_current_state.CurrentState.test_m1_reports_generated_contracts_and_review_schema_limits) ... ok
+test_m2_reports_components_without_claiming_an_end_to_end_service (test_blueprint_current_state.CurrentState.test_m2_reports_components_without_claiming_an_end_to_end_service) ... ok
+test_source_total_accounts_for_every_dated_observation (test_blueprint_current_state.CurrentState.test_source_total_accounts_for_every_dated_observation) ... FAIL
+test_v1_preserves_historical_observation_and_remaining_conditions (test_blueprint_current_state.CurrentState.test_v1_preserves_historical_observation_and_remaining_conditions) ... ok
+
+======================================================================
+FAIL: test_data_row_registry_counts_match_the_committed_csvs (test_blueprint_current_state.CurrentState.test_data_row_registry_counts_match_the_committed_csvs) (csv='sources')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 93, in test_data_row_registry_counts_match_the_committed_csvs
+    self.assertEqual(int(count), len(registry_rows(name)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"§11 {name} count is stale against data/registry/{name}.csv")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 66 != 75 : §11 sources count is stale against data/registry/sources.csv
+
+======================================================================
+FAIL: test_source_total_accounts_for_every_dated_observation (test_blueprint_current_state.CurrentState.test_source_total_accounts_for_every_dated_observation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit6-blueprint-s11-current-state/tools/tests/test_blueprint_current_state.py", line 98, in test_source_total_accounts_for_every_dated_observation
+    self.assertIn("data/registry/sources.csv", row)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'data/registry/sources.csv' not found in '전체 수집 대상 목록 V0: 보험사 53, 공제 등 16(공제는 범위 제외, 우체국보험 포함, ADR-0018), 제외·과거 49, 근거 66. **상품·특약은 53곳 모두 미열거**라 전 상품 목록은 아직 없다. 공시 진입점은 8곳만 확보했고 45곳은 해외 IP 샌드박스에서 확보하지 못해, 실데이터 열거는 국내 IP 수집 실행 환경(O19, 미준비) 뒤다(T-DT-04 `real_data`: O19, D-04는 해결). 설계 검증 표본 14개 파일(교보생명·KB손해보험·생명보험협회·법제처)의 인코딩. 원본 58키·파생 v2 61키를 R2에 보존하고 다시 받아 전부 바이트 일치한 것은 **2026-10-09 관측 기록**이며 이번 갱신에서 R2에 접근하지 않았다. 서비스용 전 상품 데이터는 아직 없다'
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.024s
+
+FAILED (failures=2)
+exit=1

@@ -1,0 +1,11 @@
+changed paths:
+  docs/BLUEPRINT.md
+  docs/blueprint/audits/2026-11-16_blueprint_s11_current_state.md
+  tools/evidence/audit6-blueprint-s11-current-state/README.md
+  tools/tests/test_blueprint_current_state.py
+  tools/evidence/audit6-blueprint-s11-current-state/fix-round1/
+protected files untouched: True
+local markdown links checked: 167
+problems: none
+SCOPE: OK
+exit=0

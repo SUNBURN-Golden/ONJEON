@@ -1,7 +1,9 @@
 """Audit 6: current implementation inventory must stay separate from gate evidence."""
+import csv
 import importlib.util
 import re
 import unittest
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -18,6 +20,11 @@ def table_rows(text):
         for line in text.splitlines() if line.startswith("| ")
         if (cells := [cell.strip() for cell in line.strip().strip("|").split("|")])
     }
+
+
+def registry_rows(name):
+    with (ROOT / "data/registry" / f"{name}.csv").open(encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
 
 
 class CurrentState(unittest.TestCase):
@@ -75,6 +82,30 @@ class CurrentState(unittest.TestCase):
                     self.assertIn(term, self.rows[mid][-1])
         self.assertIn("실제 제공자 어댑터 없음", self.inventory)
         self.assertIn("서비스 API·공개 웹의 출시 구현은 없다", self.inventory)
+
+    def test_data_row_registry_counts_match_the_committed_csvs(self):
+        row = table_rows(self.inventory)["데이터"][0]
+        stated = re.search(r"보험사 (\d+), 공제 등 (\d+).*?제외·과거 (\d+), 근거 (\d+)", row)
+        self.assertIsNotNone(stated, "§11 데이터 행 must state the four registry counts")
+        for name, count in zip(("insurers", "cooperatives_and_others",
+                                "excluded_or_historical", "sources"), stated.groups()):
+            with self.subTest(csv=name):
+                self.assertEqual(int(count), len(registry_rows(name)),
+                                 f"§11 {name} count is stale against data/registry/{name}.csv")
+
+    def test_source_total_accounts_for_every_dated_observation(self):
+        row = table_rows(self.inventory)["데이터"][0]
+        self.assertIn("data/registry/sources.csv", row)
+        stated = re.search(
+            r"근거 (\d+)\(2026-10-09 1차 조사 (\d+)건 \+ 2026-11-10 감독당국 재조회 (\d+)건", row)
+        self.assertIsNotNone(stated, "§11 must break the source total into dated observations")
+        total, first, recheck = map(int, stated.groups())
+        dates = Counter(r["retrieved_at"][:10] for r in registry_rows("sources"))
+        self.assertEqual(total, sum(dates.values()))
+        self.assertEqual(first, dates["2026-10-09"])
+        self.assertEqual(recheck, dates["2026-11-10"])
+        self.assertEqual(first + recheck, total,
+                         "every sources.csv record must belong to a stated observation date")
 
     def test_documented_release_counts_match_live_checker_not_test_registrations(self):
         path = ROOT / "tools/release_readiness/check.py"

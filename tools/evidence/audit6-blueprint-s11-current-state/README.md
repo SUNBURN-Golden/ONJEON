@@ -1,9 +1,15 @@
 # audit6-blueprint-s11-current-state 실행 증거
 
 노드: `audit6-blueprint-s11-current-state`.
-기록일: 2026-11-16 KST(대조 기준일 2026-11-15 UTC).
+기록일: 2026-11-16 KST(초회 대조 기준일 2026-11-15 UTC).
 대상: [BLUEPRINT §9.2·§11](../../../docs/BLUEPRINT.md),
 [감리 기록](../../../docs/blueprint/audits/2026-11-16_blueprint_s11_current_state.md).
+
+이 디렉터리는 초회 실행 증거다. §11 근거 수(66→75) 정정과 CSV 대조 회귀
+시험을 추가한 수정 1차 증거는 [fix-round1](fix-round1/README.md)에 있다.
+공용 cargo target의 잔존 바이너리(삭제된 다른 작업 트리 경로)로 보고된
+시험 실패를 진단하고 소스 변경 없이 재검증한 수정 2차 증거는
+[fix-round2](fix-round2/README.md)에 있다.
 
 ## 명령과 결과
 

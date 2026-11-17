@@ -1,0 +1,34 @@
+test_dt01_real_data_allowed_without_d04 (tools.tests.test_o13_ruling.RulingAccessGates.test_dt01_real_data_allowed_without_d04) ... ok
+test_dt04_still_requires_domestic_ip_gate (tools.tests.test_o13_ruling.RulingAccessGates.test_dt04_still_requires_domestic_ip_gate) ... ok
+test_independent_lock_bulk_and_all_other_gates_unchanged (tools.tests.test_o13_ruling.RulingAccessGates.test_independent_lock_bulk_and_all_other_gates_unchanged) ... ok
+test_op02_still_requires_d02_but_not_d04 (tools.tests.test_o13_ruling.RulingAccessGates.test_op02_still_requires_d02_but_not_d04) ... ok
+test_resolved_d04_needs_no_runtime_registration (tools.tests.test_o13_ruling.RulingAccessGates.test_resolved_d04_needs_no_runtime_registration) ... ok
+test_bundle_tables_and_handoff_do_not_reintroduce_d04 (tools.tests.test_o13_ruling.RulingDocumentation.test_bundle_tables_and_handoff_do_not_reintroduce_d04) ... ok
+test_explicit_owner_risk_acceptance_and_revisit_triggers (tools.tests.test_o13_ruling.RulingDocumentation.test_explicit_owner_risk_acceptance_and_revisit_triggers) ... ok
+test_live_policy_rows_follow_latest_owner_ruling (tools.tests.test_o13_ruling.RulingDocumentation.test_live_policy_rows_follow_latest_owner_ruling) ... ok
+test_missing_owner_or_env_and_stale_denial_are_rejected (tools.tests.test_o13_ruling.RulingDocumentation.test_missing_owner_or_env_and_stale_denial_are_rejected) ... ok
+test_report_and_readme_links_resolve (tools.tests.test_o13_ruling.RulingDocumentation.test_report_and_readme_links_resolve) ... ok
+test_separate_cfut_rule_and_daemon_secret_boundary_remain (tools.tests.test_o13_ruling.RulingDocumentation.test_separate_cfut_rule_and_daemon_secret_boundary_remain) ... ok
+test_cli_stale_check_does_not_write_and_returns_one (tools.tests.test_blueprint_status.Freshness.test_cli_stale_check_does_not_write_and_returns_one) ... ok
+test_cli_unreadable_input_returns_two (tools.tests.test_blueprint_status.Freshness.test_cli_unreadable_input_returns_two) ... ok
+test_cli_write_refuses_malformed_input (tools.tests.test_blueprint_status.Freshness.test_cli_write_refuses_malformed_input) ... ok
+test_cli_write_then_check_succeeds_without_other_file_changes (tools.tests.test_blueprint_status.Freshness.test_cli_write_then_check_succeeds_without_other_file_changes) ... ok
+test_each_record_mutation_requires_refresh_for_both_kinds (tools.tests.test_blueprint_status.Freshness.test_each_record_mutation_requires_refresh_for_both_kinds) ... ok
+test_empty_or_missing_record_kind_fails_closed (tools.tests.test_blueprint_status.Freshness.test_empty_or_missing_record_kind_fails_closed) ... ok
+test_historical_snapshot_does_not_expire_without_record_changes (tools.tests.test_blueprint_status.Freshness.test_historical_snapshot_does_not_expire_without_record_changes) ... ok
+test_index_cannot_be_edited_independently (tools.tests.test_blueprint_status.Freshness.test_index_cannot_be_edited_independently) ... ok
+test_invalid_future_or_mismatched_dates_fail (tools.tests.test_blueprint_status.Freshness.test_invalid_future_or_mismatched_dates_fail) ... ok
+test_missing_duplicate_reversed_or_outside_markers_fail (tools.tests.test_blueprint_status.Freshness.test_missing_duplicate_reversed_or_outside_markers_fail) ... ok
+test_missing_or_duplicate_heading_fails (tools.tests.test_blueprint_status.Freshness.test_missing_or_duplicate_heading_fails) ... ok
+test_missing_snapshot_fails (tools.tests.test_blueprint_status.Freshness.test_missing_snapshot_fails) ... ok
+test_refresh_checks_clean_and_stamps_both_dates (tools.tests.test_blueprint_status.Freshness.test_refresh_checks_clean_and_stamps_both_dates) ... ok
+test_refresh_preserves_status_rows_other_sections_and_is_idempotent (tools.tests.test_blueprint_status.Freshness.test_refresh_preserves_status_rows_other_sections_and_is_idempotent) ... ok
+test_same_day_edit_is_detected_and_next_day_refresh_restamps (tools.tests.test_blueprint_status.Freshness.test_same_day_edit_is_detected_and_next_day_refresh_restamps) ... ok
+test_unrelated_files_do_not_invalidate_snapshot (tools.tests.test_blueprint_status.Freshness.test_unrelated_files_do_not_invalidate_snapshot) ... ok
+test_current_status_mentions_new_tools_and_preserves_release_gate (tools.tests.test_blueprint_status.Repository.test_current_status_mentions_new_tools_and_preserves_release_gate) ... ok
+test_live_blueprint_matches_all_decision_records (tools.tests.test_blueprint_status.Repository.test_live_blueprint_matches_all_decision_records) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.054s
+
+OK

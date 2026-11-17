@@ -171,8 +171,24 @@ class RulingAccessGates(unittest.TestCase):
         self.assertEqual(["O17"], self.tasks["T-DT-05"]["decision_gates"]["release"])
         actual = {t["id"]: {k: v for k, v in t["decision_gates"].items() if v}
                   for t in self.catalog["tasks"] if any(t["decision_gates"].values())}
-        self.assertEqual(self.baseline["task_gates"], actual)
-        self.assertEqual(self.baseline["decision_index"],
+        # Preserve the historical D-04 baseline. Audit 6 separately restores
+        # these four pending gates; no other difference is permitted.
+        additions = {
+            "D-09": ("merge", ["T-CT-05"]),
+            "D-10": ("merge", ["T-CT-05"]),
+            "D-15": ("merge", ["T-CT-03", "T-CT-08", "T-MB-01"]),
+            "O03": ("release", ["T-KN-05", "T-KN-08"]),
+        }
+        expected_tasks = copy.deepcopy(self.baseline["task_gates"])
+        expected_index = copy.deepcopy(self.baseline["decision_index"])
+        for gate, (stage, task_ids) in additions.items():
+            self.assertNotIn(gate, expected_index)
+            expected_index[gate] = {s: task_ids if s == stage else []
+                                    for s in ("start", "real_data", "merge", "release")}
+            for tid in task_ids:
+                expected_tasks.setdefault(tid, {}).setdefault(stage, []).append(gate)
+        self.assertEqual(expected_tasks, actual)
+        self.assertEqual(expected_index,
                          {k: v for k, v in self.catalog["decision_index"].items() if k != "D-04"})
         ledger = (ROOT / "docs/blueprint/DECISIONS.md").read_text()
         for expected in self.baseline["ledger_rows"]:

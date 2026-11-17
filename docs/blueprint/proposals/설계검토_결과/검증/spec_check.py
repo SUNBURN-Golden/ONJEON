@@ -229,6 +229,35 @@ def cargo_test_filters(command):
     return filters
 
 
+def decision_scope_problems(registry):
+    """Audit 6: preserve the declared review/promotion boundaries, including the index.
+
+    A matching index alone is insufficient: deleting a gate from both copies must
+    still fail. These are pending gates, not records of approval.
+    """
+    scopes = {
+        "D-09": {("T-CT-05", "merge")},
+        "D-10": {("T-CT-05", "merge")},
+        "D-15": {("T-CT-03", "merge"), ("T-CT-08", "merge"), ("T-MB-01", "merge")},
+        "O03": {("T-KN-05", "release"), ("T-KN-08", "release")},
+    }
+    problems = []
+    for gate, expected in scopes.items():
+        actual = {(t["id"], stage) for t in registry.get("tasks", [])
+                  for stage, gates in (t.get("decision_gates") or {}).items()
+                  if isinstance(gates, list) and gate in gates}
+        if actual != expected:
+            problems.append(f"{gate}: task scope {sorted(actual)} != {sorted(expected)}")
+        index = registry.get("decision_index", {}).get(gate)
+        expected_index = {stage: sorted(tid for tid, s in expected if s == stage)
+                          for stage in ("start", "real_data", "merge", "release")}
+        if (not isinstance(index, dict) or set(index) != set(expected_index)
+                or any(not isinstance(index[stage], list)
+                       or sorted(index[stage]) != ids for stage, ids in expected_index.items())):
+            problems.append(f"{gate}: decision_index does not match required scope")
+    return problems
+
+
 def ancestors(tasks, tid, memo=None):
     memo = {} if memo is None else memo
     if tid in memo:
@@ -444,6 +473,10 @@ def run(repo, T=None, D=None):
     sides = {ops[0] for ops in merge_ops.values() if len(ops) == 1}
     check("gates", "G5c 병합 대기 전이(review_approved·audit_pending→merge_wait, 사유 갱신)의 cond가 decision_gates.merge를 본다(기록됨 subset_of·미기록 not_subset_of 둘 다)",
           bool(merge_tr) and not no_merge and {"subset_of", "not_subset_of"} <= sides, {"병합 관문 cond 없는 전이": no_merge, "전이별 op": merge_ops})
+
+    scope_problems = decision_scope_problems(T)
+    check("gates", "G5d D-09·D-10·D-15·O03의 과제 범위와 decision_index 일치",
+          not scope_problems, scope_problems)
 
     # G6 병합 뒤 상태(F12)
     post = set(D.get("post_merge_states", []))

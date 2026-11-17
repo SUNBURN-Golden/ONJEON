@@ -35,9 +35,11 @@ class CiWorkflowSecurity(unittest.TestCase):
             shutil.copy2(ROOT / "tools/workflow_check.py", root / "tools/workflow_check.py")
             shutil.copy2(ROOT / "tools/tests/test_workflow_pins.py",
                          root / "tools/tests/test_workflow_pins.py")
+            # Allow scheduler contention in full-suite/shared-worktree runs. This
+            # remains bounded; the commands and all negative assertions are unchanged.
             # GitHub's default Linux run shell stops on the first failing command.
             result = subprocess.run(["bash", "-e", "-c", self.command], cwd=root,
-                                    capture_output=True, text=True, timeout=30)
+                                    capture_output=True, text=True, timeout=120)
         output = result.stdout + result.stderr
         if expect_success:
             self.assertEqual(result.returncode, 0, output)

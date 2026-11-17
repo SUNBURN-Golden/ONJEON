@@ -1321,6 +1321,41 @@
       "release": [
         "T-OP-07"
       ]
+    },
+    "D-09": {
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-CT-05"
+      ],
+      "release": []
+    },
+    "D-10": {
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-CT-05"
+      ],
+      "release": []
+    },
+    "D-15": {
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-CT-03",
+        "T-CT-08",
+        "T-MB-01"
+      ],
+      "release": []
+    },
+    "O03": {
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-KN-05",
+        "T-KN-08"
+      ]
     }
   },
   "tasks": [
@@ -1812,7 +1847,8 @@
       "inputs": [
         "02_구현계약 §2",
         "SYSTEM_CONTRACT §10 경로 제안",
-        "제3부 §46.4"
+        "제3부 §46.4",
+        "docs/decisions/DEC-D-15.md (선택안·감리 대기, 승인 아님)"
       ],
       "prereq_tasks": [
         "T-CT-01"
@@ -1820,7 +1856,9 @@
       "decision_gates": {
         "start": [],
         "real_data": [],
-        "merge": [],
+        "merge": [
+          "D-15"
+        ],
         "release": []
       },
       "path_policy": {
@@ -1896,7 +1934,7 @@
         "docs/release-readiness/evidence/T-CT-03/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "D-11은 비회원 ephemeral 모드 한 항목만 보류 표시",
+      "blocked_by": "D-11은 비회원 ephemeral 모드 한 항목만 보류 표시; D-15 감리 통과와 결정 등록 전 merge 대기. 작성·로컬 시험 허용",
       "notes": ""
     },
     {
@@ -2002,7 +2040,9 @@
       "inputs": [
         "02_구현계약 §1.2~§1.6·§8.2",
         "06_검토사항_점검 D-09·D-10 선택안",
-        "온톨로지 tbox.json onto-0.2"
+        "온톨로지 tbox.json onto-0.2",
+        "docs/decisions/DEC-D-09.md (선택안·감리 대기, 승인 아님)",
+        "docs/decisions/DEC-D-10.md (선택안·감리 대기, 승인 아님)"
       ],
       "prereq_tasks": [
         "T-CT-01",
@@ -2011,7 +2051,10 @@
       "decision_gates": {
         "start": [],
         "real_data": [],
-        "merge": [],
+        "merge": [
+          "D-09",
+          "D-10"
+        ],
         "release": []
       },
       "path_policy": {
@@ -2084,7 +2127,7 @@
         "docs/release-readiness/evidence/T-CT-05/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "D-09·D-10은 설계 담당 선택(06 문서). 감리 통과 전 병합 대기(결정 ID 없음)",
+      "blocked_by": "D-09·D-10 감리 통과와 결정 등록 전 merge 대기. DEC 기록 존재만으로 승인하지 않는다. 작성·로컬 시험 허용",
       "notes": ""
     },
     {
@@ -2285,7 +2328,8 @@
         "02_구현계약 §2.4(금액 출처·근거 종류·적용 여부)",
         "화면 설계서 §11 뷰모델",
         "packages/schemas/README.md '어휘 승격 대기 축' 표",
-        "docs/decisions/audit1-ux-layer-zero-code.md"
+        "docs/decisions/audit1-ux-layer-zero-code.md",
+        "docs/decisions/DEC-D-15.md (선택안·감리 대기, 승인 아님)"
       ],
       "prereq_tasks": [
         "T-CT-01",
@@ -2295,7 +2339,9 @@
       "decision_gates": {
         "start": [],
         "real_data": [],
-        "merge": [],
+        "merge": [
+          "D-15"
+        ],
         "release": []
       },
       "path_policy": {
@@ -2393,7 +2439,7 @@
         "docs/release-readiness/evidence/T-CT-08/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "정본 절차 안의 변경(canon_change 참조). 임대 발급은 canon_change_approval 검증을 통과해야 한다",
+      "blocked_by": "정본 절차 안의 변경(canon_change 참조). 임대 발급은 canon_change_approval 검증을 통과해야 한다; D-15 감리 통과와 결정 등록 전 merge 대기. 작성·로컬 시험 허용",
       "notes": "audit1-ux-layer-zero-code 결정의 후속. T-AP-02 완료 기준(amounts[].source·evidence_kind·applicability)이 계약에서 강제되도록 T-AP-02의 선행에 넣었다. T-AP-02는 스키마·어휘를 고칠 수 없다"
     },
     {
@@ -3345,7 +3391,8 @@
       "inputs": [
         "DATA_PIPELINE_CONTRACT §5·§7.2",
         "T-DT-02 ClauseOccurrence",
-        "02_구현계약 §8.3 P3"
+        "02_구현계약 §8.3 P3",
+        "docs/decisions/DEC-O03.md (선택안·감리 대기, 승인 아님)"
       ],
       "prereq_tasks": [
         "T-KN-04",
@@ -3356,7 +3403,9 @@
         "start": [],
         "real_data": [],
         "merge": [],
-        "release": []
+        "release": [
+          "O03"
+        ]
       },
       "path_policy": {
         "precedence": "forbidden_first",
@@ -3377,7 +3426,8 @@
         "services/ai-review/**",
         "Cargo.toml",
         "Cargo.lock",
-        "docs/release-readiness/evidence/T-KN-05/**"
+        "docs/release-readiness/evidence/T-KN-05/**",
+        "data/label-dictionary/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3399,7 +3449,8 @@
       ],
       "produces": [
         "crate:onjeon-ai-review",
-        "path:docs/release-readiness/evidence/T-KN-05/**"
+        "path:docs/release-readiness/evidence/T-KN-05/**",
+        "path:data/label-dictionary/**"
       ],
       "consumes": [
         "crate:onjeon-knowledge",
@@ -3410,16 +3461,19 @@
       "outputs": [
         "추출 오케스트레이션(단일 계열로도 pending 생성 가능)",
         "코드 검사 5종",
-        "원문 속 지시문 미실행 시험"
+        "원문 속 지시문 미실행 시험",
+        "M1 완료 전 라벨 사전 v1 후보: 10종 정의·포함/제외 예·질병 코드 체계/개정차수/시행일/공식 출처·개정판 매핑과 미확정 공백. DEC-O03에 데이터 정책 책임의 검토 증거를 연결"
       ],
       "tests": [
-        "cargo test -p onjeon-ai-review extraction"
+        "cargo test -p onjeon-ai-review extraction",
+        "시험 O03-label-promotion: 미승인 사전·미등록 O03·개정판 불명확 코드의 정규 라벨 승격은 거부, 후보 추출은 허용. 승인된 사전 판과 매핑에 한해 승격하며 D-02 검수 조건을 대체하지 않는다"
       ],
       "done_criteria": [
         "근거 없는 필드 후보가 거절된다",
         "지시문이 든 합성 PDF가 데이터로만 처리된다(I13)",
         "요약서만 근거인 C0 후보가 basis로 저장되지 않는다(K1)",
-        "생성된 주장은 모두 pending·origin=pipeline이다"
+        "생성된 주장은 모두 pending·origin=pipeline이다",
+        "O03 미등록·사전 미승인·개정판 매핑 미확정이면 정규 라벨 승격을 거부한다. 후보 추출·형식 정의·로컬 시험·병합은 허용한다. 사전의 실제 승인과 승격 경로의 거부 시험은 M1 완료 전 필수"
       ],
       "required_test_ids": [],
       "features": [
@@ -3430,10 +3484,11 @@
         "services/ai-review/**",
         "Cargo.toml",
         "Cargo.lock",
-        "docs/release-readiness/evidence/T-KN-05/**"
+        "docs/release-readiness/evidence/T-KN-05/**",
+        "data/label-dictionary/**"
       ],
       "immediate_audit": false,
-      "blocked_by": "없음(D-02는 승인 단계만)",
+      "blocked_by": "없음(D-02는 승인 단계만); O03 release는 정규 라벨 승격만 차단. M1 완료 전 사전 검토·승격 거부 시험 필요",
       "notes": ""
     },
     {
@@ -4044,7 +4099,8 @@
         "CONSUMER_FLOW_SPEC",
         "화면 설계서 §1~§3·§9",
         "제3부 §44.1·§44.2",
-        "T-CT-03 생성 클라이언트"
+        "T-CT-03 생성 클라이언트",
+        "docs/decisions/DEC-D-15.md (선택안·감리 대기, 승인 아님)"
       ],
       "prereq_tasks": [
         "T-CT-03",
@@ -4053,7 +4109,9 @@
       "decision_gates": {
         "start": [],
         "real_data": [],
-        "merge": [],
+        "merge": [
+          "D-15"
+        ],
         "release": []
       },
       "path_policy": {
@@ -4122,7 +4180,7 @@
         "docs/release-readiness/evidence/T-MB-01/**"
       ],
       "immediate_audit": false,
-      "blocked_by": "D-05는 설계 담당 선택이며 06의 선택안을 입력으로 쓴다. 감리 전 라우팅 PR 병합 대기",
+      "blocked_by": "D-05는 설계 담당 선택이며 06의 선택안을 입력으로 쓴다. 감리 전 라우팅 PR 병합 대기; D-15 감리 통과와 결정 등록 전 merge 대기. 작성·로컬 시험 허용",
       "notes": ""
     },
     {
@@ -4414,7 +4472,8 @@
       ],
       "inputs": [
         "docs/blueprint/validation/encoded/*(형식 참고, 적재 금지)",
-        "SYSTEM_CONTRACT §14"
+        "SYSTEM_CONTRACT §14",
+        "docs/decisions/DEC-O03.md (선택안·감리 대기, 승인 아님)"
       ],
       "prereq_tasks": [
         "T-KN-05",
@@ -4425,7 +4484,9 @@
         "start": [],
         "real_data": [],
         "merge": [],
-        "release": []
+        "release": [
+          "O03"
+        ]
       },
       "path_policy": {
         "precedence": "forbidden_first",
@@ -4466,7 +4527,8 @@
       "consumes": [
         "crate:onjeon-knowledge",
         "crate:onjeon-ai-review",
-        "path:services/docproc/**"
+        "path:services/docproc/**",
+        "path:data/label-dictionary/**"
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
@@ -4479,7 +4541,8 @@
       "done_criteria": [
         "구조마다 관통하거나 '미지원'으로 기록된다",
         "표현하지 못한 구조는 capability에서 빠진다(ONJ-TW-U-010)",
-        "라벨 종류 전부가 실제 표본에 근거와 함께 구조화된다(label-kinds-complete)"
+        "라벨 종류 전부가 실제 표본에 근거와 함께 구조화된다(label-kinds-complete)",
+        "T-KN-05가 M1 전에 만든 승인된 라벨 사전 v1·코드 개정판 매핑을 사용한다. O03 등록은 정규 라벨 승격만 허용하며 D-02와 label-kinds-complete의 실제 accepted·basis 증거를 대신하지 않는다"
       ],
       "required_test_ids": [
         "label-kinds-complete"

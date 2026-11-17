@@ -191,6 +191,7 @@ class DecisionRecords(unittest.TestCase):
                 "DEC-O02", "DEC-O14", "DEC-O17", "DEC-BUNDLE-STATUS",
             },
         }
+        expected["Audit 6 관문 복원 기록(2026-11-18)"] = {"DEC-D-09", "DEC-D-10", "DEC-D-15", "DEC-O03"}
         for prefix, records in expected.items():
             with self.subTest(category=prefix):
                 self.assertEqual(records, self.classification_row(prefix))

@@ -15,7 +15,7 @@
     "prereq_tasks": "먼저 끝나야 하는 과제. 충족 판정은 daemon_rules.post_merge_states(merged·audit_queued·done)로 한다",
     "decision_gates": "네 키. start: 시작(임대) 전 결정. real_data: 실제 데이터(실제 제공자 검수·R2·실제 민감자료·대량 조회)에 접근하기 전 결정 — 지시 봉투의 real_data_allowed 로 전달되고 모의·로컬 작업은 막지 않는다. merge: 병합 대기(ready) 전 결정. release: 릴리스·서비스 모드 활성화 전 결정(릴리스 빌더·기능 플래그가 검사). 시작 전이는 start만, 병합 대기 전이는 merge만 본다",
     "canon_change": "정본 변경이 필요한 과제의 조건(ADR 절차·사용자 지시 후 병합). 경로 권한과 별개다",
-    "allowed_paths": "수정 허용 glob. 밖의 파일을 바꾸면 반송(R-01)",
+    "allowed_paths": "수정 허용 glob. 밖의 파일을 바꾸면 반송(R-01). 제품 과제(T-OP-00·T-OP-09 제외)는 docs/release-readiness/evidence/<과제 ID>/**에 자기 완료 증거·수락 실행 로그를 쓴다. 공용 readiness.json 집계는 T-OP-08만 수행한다",
     "forbidden_paths": "수정 금지. 정본·토의 자료·비밀값·고정 작업 파일. 허용 경로와 겹치지 않는다(T-CT-02는 어휘 정본이 허용에 있고 금지에 없다)",
     "produces": "이 과제가 만드는 산출물. crate:<이름> | path:<glob> | <종류>:<이름>",
     "consumes": "이 과제의 입력·시험이 쓰는 산출물. 저장소에 이미 있거나 선행 과제가 만들어야 한다",
@@ -1643,7 +1643,8 @@
         "packages/schemas/evidence_ref.md",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-CT-01/**"
+        "tools/task_tests/T-CT-01/**",
+        "docs/release-readiness/evidence/T-CT-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1666,7 +1667,8 @@
       "produces": [
         "crate:onjeon-contracts",
         "path:packages/schemas/json/**",
-        "path:packages/schemas/codegen/**"
+        "path:packages/schemas/codegen/**",
+        "path:docs/release-readiness/evidence/T-CT-01/**"
       ],
       "consumes": [
         "path:packages/schemas/vocabulary.json"
@@ -1696,7 +1698,8 @@
         "packages/schemas/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-CT-01/**"
+        "tools/task_tests/T-CT-01/**",
+        "docs/release-readiness/evidence/T-CT-01/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -1746,7 +1749,8 @@
         "packages/schemas/vocabulary.json",
         "docs/blueprint/VOCABULARY.md",
         "tools/vocab_check.py",
-        "tools/task_tests/T-CT-02/**"
+        "tools/task_tests/T-CT-02/**",
+        "docs/release-readiness/evidence/T-CT-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1766,7 +1770,8 @@
       ],
       "produces": [
         "path:packages/schemas/vocabulary.json",
-        "path:docs/blueprint/VOCABULARY.md"
+        "path:docs/blueprint/VOCABULARY.md",
+        "path:docs/release-readiness/evidence/T-CT-02/**"
       ],
       "consumes": [],
       "test_outputs_within_allowed": true,
@@ -1794,7 +1799,8 @@
       "conflict_paths": [
         "packages/schemas/vocabulary.json",
         "docs/blueprint/VOCABULARY.md",
-        "tools/task_tests/T-CT-02/**"
+        "tools/task_tests/T-CT-02/**",
+        "docs/release-readiness/evidence/T-CT-02/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음. 정본 절차 안의 변경(canon_change 참조). 임대 발급은 canon_change_approval 검증을 통과해야 한다",
@@ -1846,7 +1852,8 @@
         "packages/api-types/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-CT-03/**"
+        "tools/task_tests/T-CT-03/**",
+        "docs/release-readiness/evidence/T-CT-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1868,7 +1875,8 @@
       ],
       "produces": [
         "path:packages/schemas/openapi/**",
-        "crate:onjeon-api-types"
+        "crate:onjeon-api-types",
+        "path:docs/release-readiness/evidence/T-CT-03/**"
       ],
       "consumes": [
         "crate:onjeon-contracts"
@@ -1896,7 +1904,8 @@
         "packages/schemas/codegen/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-CT-03/**"
+        "tools/task_tests/T-CT-03/**",
+        "docs/release-readiness/evidence/T-CT-03/**"
       ],
       "immediate_audit": true,
       "blocked_by": "D-11은 비회원 ephemeral 모드 한 항목만 보류 표시",
@@ -1935,7 +1944,8 @@
         "packages/schemas/events/**",
         "packages/schemas/evidence_ref.md",
         "packages/schemas/src/**",
-        "tools/task_tests/T-CT-04/**"
+        "tools/task_tests/T-CT-04/**",
+        "docs/release-readiness/evidence/T-CT-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1958,7 +1968,8 @@
       "produces": [
         "path:packages/schemas/errors.json",
         "path:packages/schemas/analytics-events.json",
-        "path:packages/schemas/events/**"
+        "path:packages/schemas/events/**",
+        "path:docs/release-readiness/evidence/T-CT-04/**"
       ],
       "consumes": [
         "crate:onjeon-contracts"
@@ -1986,7 +1997,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/schemas/**",
-        "tools/task_tests/T-CT-04/**"
+        "tools/task_tests/T-CT-04/**",
+        "docs/release-readiness/evidence/T-CT-04/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -2029,7 +2041,8 @@
         "infra/db/personal/**",
         "infra/db/criteria/**",
         "infra/db/README.md",
-        "tools/task_tests/T-CT-05/**"
+        "tools/task_tests/T-CT-05/**",
+        "docs/release-readiness/evidence/T-CT-05/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2052,7 +2065,8 @@
       "produces": [
         "path:infra/db/public/**",
         "path:infra/db/personal/**",
-        "path:infra/db/criteria/**"
+        "path:infra/db/criteria/**",
+        "path:docs/release-readiness/evidence/T-CT-05/**"
       ],
       "consumes": [
         "crate:onjeon-contracts",
@@ -2086,7 +2100,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "infra/db/**",
-        "tools/task_tests/T-CT-05/**"
+        "tools/task_tests/T-CT-05/**",
+        "docs/release-readiness/evidence/T-CT-05/**"
       ],
       "immediate_audit": true,
       "blocked_by": "D-09·D-10은 설계 담당 선택(06 문서). 감리 통과 전 병합 대기(결정 ID 없음)",
@@ -2127,7 +2142,8 @@
         "infra/ci/**",
         "packages/schemas/feature_flags.json",
         "tools/ci/**",
-        "tools/task_tests/T-CT-06/**"
+        "tools/task_tests/T-CT-06/**",
+        "docs/release-readiness/evidence/T-CT-06/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2150,7 +2166,8 @@
       "produces": [
         "path:infra/ci/**",
         "path:tools/ci/**",
-        "path:packages/schemas/feature_flags.json"
+        "path:packages/schemas/feature_flags.json",
+        "path:docs/release-readiness/evidence/T-CT-06/**"
       ],
       "consumes": [
         "crate:onjeon-contracts"
@@ -2188,7 +2205,8 @@
       "conflict_paths": [
         "infra/ci/**",
         "tools/ci/**",
-        "tools/task_tests/T-CT-06/**"
+        "tools/task_tests/T-CT-06/**",
+        "docs/release-readiness/evidence/T-CT-06/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -2225,7 +2243,8 @@
       "canon_change": null,
       "allowed_paths": [
         "tools/ci/bootstrap_sample/**",
-        "tools/task_tests/T-CT-07/**"
+        "tools/task_tests/T-CT-07/**",
+        "docs/release-readiness/evidence/T-CT-07/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2246,7 +2265,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:tools/ci/bootstrap_sample/**"
+        "path:tools/ci/bootstrap_sample/**",
+        "path:docs/release-readiness/evidence/T-CT-07/**"
       ],
       "consumes": [
         "path:tools/ci/**",
@@ -2273,7 +2293,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "tools/ci/bootstrap_sample/**",
-        "tools/task_tests/T-CT-07/**"
+        "tools/task_tests/T-CT-07/**",
+        "docs/release-readiness/evidence/T-CT-07/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -2339,7 +2360,8 @@
         "packages/schemas/Cargo.toml",
         "packages/schemas/README.md",
         "Cargo.lock",
-        "tools/task_tests/T-CT-08/**"
+        "tools/task_tests/T-CT-08/**",
+        "docs/release-readiness/evidence/T-CT-08/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2359,7 +2381,8 @@
       ],
       "produces": [
         "schema:Amount.evidence_kind",
-        "schema:Amount.applicability"
+        "schema:Amount.applicability",
+        "path:docs/release-readiness/evidence/T-CT-08/**"
       ],
       "consumes": [
         "path:packages/schemas/vocabulary.json",
@@ -2400,7 +2423,8 @@
         "packages/schemas/**",
         "docs/blueprint/VOCABULARY.md",
         "Cargo.lock",
-        "tools/task_tests/T-CT-08/**"
+        "tools/task_tests/T-CT-08/**",
+        "docs/release-readiness/evidence/T-CT-08/**"
       ],
       "immediate_audit": true,
       "blocked_by": "정본 절차 안의 변경(canon_change 참조). 임대 발급은 canon_change_approval 검증을 통과해야 한다",
@@ -2436,7 +2460,8 @@
       "allowed_paths": [
         "infra/compose/**",
         "infra/README.md",
-        "tools/task_tests/T-OP-01/**"
+        "tools/task_tests/T-OP-01/**",
+        "docs/release-readiness/evidence/T-OP-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2457,7 +2482,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:infra/compose/**"
+        "path:infra/compose/**",
+        "path:docs/release-readiness/evidence/T-OP-01/**"
       ],
       "consumes": [],
       "test_outputs_within_allowed": true,
@@ -2478,7 +2504,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "infra/compose/**",
-        "tools/task_tests/T-OP-01/**"
+        "tools/task_tests/T-OP-01/**",
+        "docs/release-readiness/evidence/T-OP-01/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음. D-03은 로컬을 막지 않는다",
@@ -2530,7 +2557,8 @@
         "packages/schemas/ontology/tbox.json",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-01/**"
+        "tools/task_tests/T-KN-01/**",
+        "docs/release-readiness/evidence/T-KN-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2553,7 +2581,8 @@
       "produces": [
         "crate:onjeon-ontology",
         "path:packages/schemas/ontology/tbox.json",
-        "path:packages/ontology/tests/golden/**"
+        "path:packages/ontology/tests/golden/**",
+        "path:docs/release-readiness/evidence/T-KN-01/**"
       ],
       "consumes": [
         "crate:onjeon-contracts",
@@ -2619,7 +2648,8 @@
         "packages/schemas/ontology/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-01/**"
+        "tools/task_tests/T-KN-01/**",
+        "docs/release-readiness/evidence/T-KN-01/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -2658,7 +2688,8 @@
       "allowed_paths": [
         "packages/fixtures/ontology/**",
         "packages/ontology/tests/fixture_origin/**",
-        "tools/task_tests/T-KN-02/**"
+        "tools/task_tests/T-KN-02/**",
+        "docs/release-readiness/evidence/T-KN-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2679,7 +2710,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:packages/fixtures/ontology/**"
+        "path:packages/fixtures/ontology/**",
+        "path:docs/release-readiness/evidence/T-KN-02/**"
       ],
       "consumes": [
         "crate:onjeon-ontology",
@@ -2708,7 +2740,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/fixtures/ontology/**",
-        "tools/task_tests/T-KN-02/**"
+        "tools/task_tests/T-KN-02/**",
+        "docs/release-readiness/evidence/T-KN-02/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -2758,7 +2791,8 @@
         "services/ai-gateway/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-03/**"
+        "tools/task_tests/T-KN-03/**",
+        "docs/release-readiness/evidence/T-KN-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2779,7 +2813,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "crate:onjeon-ai-gateway"
+        "crate:onjeon-ai-gateway",
+        "path:docs/release-readiness/evidence/T-KN-03/**"
       ],
       "consumes": [
         "crate:onjeon-contracts"
@@ -2810,7 +2845,8 @@
         "services/ai-gateway/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-03/**"
+        "tools/task_tests/T-KN-03/**",
+        "docs/release-readiness/evidence/T-KN-03/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-02는 ReviewDecision 생성(이종 계열 2개)만 막는다",
@@ -2859,7 +2895,8 @@
         "packages/twin-runtime/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-TW-01/**"
+        "tools/task_tests/T-TW-01/**",
+        "docs/release-readiness/evidence/T-TW-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2880,7 +2917,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "crate:onjeon-twin-runtime"
+        "crate:onjeon-twin-runtime",
+        "path:docs/release-readiness/evidence/T-TW-01/**"
       ],
       "consumes": [
         "crate:onjeon-ontology",
@@ -2937,7 +2975,8 @@
         "packages/twin-runtime/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-TW-01/**"
+        "tools/task_tests/T-TW-01/**",
+        "docs/release-readiness/evidence/T-TW-01/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -2975,7 +3014,8 @@
       "allowed_paths": [
         "packages/rules-engine/**",
         "packages/fixtures/rules/**",
-        "tools/task_tests/T-TW-02/**"
+        "tools/task_tests/T-TW-02/**",
+        "docs/release-readiness/evidence/T-TW-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -2996,7 +3036,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:packages/rules-engine/src/**"
+        "path:packages/rules-engine/src/**",
+        "path:docs/release-readiness/evidence/T-TW-02/**"
       ],
       "consumes": [
         "crate:onjeon-rules-engine"
@@ -3027,7 +3068,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/rules-engine/src/**",
-        "tools/task_tests/T-TW-02/**"
+        "tools/task_tests/T-TW-02/**",
+        "docs/release-readiness/evidence/T-TW-02/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -3078,7 +3120,8 @@
         "services/collect/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-DT-01/**"
+        "tools/task_tests/T-DT-01/**",
+        "docs/release-readiness/evidence/T-DT-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3099,7 +3142,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "crate:onjeon-collect"
+        "crate:onjeon-collect",
+        "path:docs/release-readiness/evidence/T-DT-01/**"
       ],
       "consumes": [
         "path:tools/source_archive.py",
@@ -3134,7 +3178,8 @@
         "services/collect/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-DT-01/**"
+        "tools/task_tests/T-DT-01/**",
+        "docs/release-readiness/evidence/T-DT-01/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-04 해결: 기존 R2 토큰 사용(DEC-D-04), 폐기·재발급 선행 조건 없음. ONJEON box secrets env에서만 읽고 값 출력·로그 금지. 작업 파일·원장·ADR-0017 및 별도 운영 관문은 유지",
@@ -3175,7 +3220,8 @@
       "allowed_paths": [
         "services/docproc/**",
         "infra/compose/**",
-        "tools/task_tests/T-DT-02/**"
+        "tools/task_tests/T-DT-02/**",
+        "docs/release-readiness/evidence/T-DT-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3196,7 +3242,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/docproc/**"
+        "path:services/docproc/**",
+        "path:docs/release-readiness/evidence/T-DT-02/**"
       ],
       "consumes": [
         "path:infra/compose/**",
@@ -3228,7 +3275,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/docproc/**",
-        "tools/task_tests/T-DT-02/**"
+        "tools/task_tests/T-DT-02/**",
+        "docs/release-readiness/evidence/T-DT-02/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -3278,7 +3326,8 @@
         "services/knowledge/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-04/**"
+        "tools/task_tests/T-KN-04/**",
+        "docs/release-readiness/evidence/T-KN-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3299,7 +3348,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "crate:onjeon-knowledge"
+        "crate:onjeon-knowledge",
+        "path:docs/release-readiness/evidence/T-KN-04/**"
       ],
       "consumes": [
         "crate:onjeon-ontology",
@@ -3344,7 +3394,8 @@
         "services/knowledge/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-04/**"
+        "tools/task_tests/T-KN-04/**",
+        "docs/release-readiness/evidence/T-KN-04/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -3396,7 +3447,8 @@
         "services/ai-review/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-05/**"
+        "tools/task_tests/T-KN-05/**",
+        "docs/release-readiness/evidence/T-KN-05/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3417,7 +3469,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "crate:onjeon-ai-review"
+        "crate:onjeon-ai-review",
+        "path:docs/release-readiness/evidence/T-KN-05/**"
       ],
       "consumes": [
         "crate:onjeon-knowledge",
@@ -3450,7 +3503,8 @@
         "services/ai-review/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-05/**"
+        "tools/task_tests/T-KN-05/**",
+        "docs/release-readiness/evidence/T-KN-05/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음(D-02는 승인 단계만)",
@@ -3492,7 +3546,8 @@
       "allowed_paths": [
         "services/ai-review/src/review/**",
         "services/ai-review/tests/**",
-        "tools/task_tests/T-KN-06/**"
+        "tools/task_tests/T-KN-06/**",
+        "docs/release-readiness/evidence/T-KN-06/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3513,7 +3568,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/ai-review/src/review/**"
+        "path:services/ai-review/src/review/**",
+        "path:docs/release-readiness/evidence/T-KN-06/**"
       ],
       "consumes": [
         "crate:onjeon-ai-review"
@@ -3544,7 +3600,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/ai-review/src/review/**",
-        "tools/task_tests/T-KN-06/**"
+        "tools/task_tests/T-KN-06/**",
+        "docs/release-readiness/evidence/T-KN-06/**"
       ],
       "immediate_audit": true,
       "blocked_by": "실데이터: D-02(검수 모델 계열 2개 이상·정책 소유자)가 실제 제공자 ReviewDecision 생성만 막는다. 시작·모의 제공자(environment=test) 시험·병합은 막히지 않는다",
@@ -3587,7 +3644,8 @@
         "packages/twin-runtime/src/compiler/**",
         "packages/twin-runtime/tests/**",
         "services/knowledge/explain_templates/**",
-        "tools/task_tests/T-TW-03/**"
+        "tools/task_tests/T-TW-03/**",
+        "docs/release-readiness/evidence/T-TW-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3609,7 +3667,8 @@
       ],
       "produces": [
         "path:packages/twin-runtime/src/compiler/**",
-        "path:services/knowledge/explain_templates/**"
+        "path:services/knowledge/explain_templates/**",
+        "path:docs/release-readiness/evidence/T-TW-03/**"
       ],
       "consumes": [
         "crate:onjeon-twin-runtime",
@@ -3640,7 +3699,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/twin-runtime/src/compiler/**",
-        "tools/task_tests/T-TW-03/**"
+        "tools/task_tests/T-TW-03/**",
+        "docs/release-readiness/evidence/T-TW-03/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -3682,7 +3742,8 @@
         "services/knowledge/release/**",
         "services/knowledge/tests/**",
         "packages/twin-runtime/src/shadow/**",
-        "tools/task_tests/T-KN-07/**"
+        "tools/task_tests/T-KN-07/**",
+        "docs/release-readiness/evidence/T-KN-07/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3704,7 +3765,8 @@
       ],
       "produces": [
         "path:services/knowledge/release/**",
-        "path:packages/twin-runtime/src/shadow/**"
+        "path:packages/twin-runtime/src/shadow/**",
+        "path:docs/release-readiness/evidence/T-KN-07/**"
       ],
       "consumes": [
         "crate:onjeon-knowledge",
@@ -3751,7 +3813,8 @@
       "parallel_ok": false,
       "conflict_paths": [
         "services/knowledge/release/**",
-        "tools/task_tests/T-KN-07/**"
+        "tools/task_tests/T-KN-07/**",
+        "docs/release-readiness/evidence/T-KN-07/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -3800,7 +3863,8 @@
         "services/api/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-AP-01/**"
+        "tools/task_tests/T-AP-01/**",
+        "docs/release-readiness/evidence/T-AP-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3821,7 +3885,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "crate:onjeon-api"
+        "crate:onjeon-api",
+        "path:docs/release-readiness/evidence/T-AP-01/**"
       ],
       "consumes": [
         "crate:onjeon-api-types",
@@ -3857,7 +3922,8 @@
         "services/api/src/capability/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-AP-01/**"
+        "tools/task_tests/T-AP-01/**",
+        "docs/release-readiness/evidence/T-AP-01/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -3900,7 +3966,8 @@
         "services/api/src/public/coverages/**",
         "services/api/src/public/evidence/**",
         "services/api/src/viewmodel/**",
-        "tools/task_tests/T-AP-02/**"
+        "tools/task_tests/T-AP-02/**",
+        "docs/release-readiness/evidence/T-AP-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -3922,7 +3989,8 @@
       ],
       "produces": [
         "path:services/api/src/public/coverages/**",
-        "path:services/api/src/public/evidence/**"
+        "path:services/api/src/public/evidence/**",
+        "path:docs/release-readiness/evidence/T-AP-02/**"
       ],
       "consumes": [
         "crate:onjeon-api"
@@ -3958,7 +4026,8 @@
       "conflict_paths": [
         "services/api/src/public/coverages/**",
         "services/api/src/public/evidence/**",
-        "tools/task_tests/T-AP-02/**"
+        "tools/task_tests/T-AP-02/**",
+        "docs/release-readiness/evidence/T-AP-02/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-12는 인용·페이지 이미지 플래그만 막는다",
@@ -3999,7 +4068,8 @@
       "allowed_paths": [
         "services/api/src/public/scenarios/**",
         "services/api/src/explain_render/**",
-        "tools/task_tests/T-AP-03/**"
+        "tools/task_tests/T-AP-03/**",
+        "docs/release-readiness/evidence/T-AP-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4021,7 +4091,8 @@
       ],
       "produces": [
         "path:services/api/src/public/scenarios/**",
-        "path:services/api/src/explain_render/**"
+        "path:services/api/src/explain_render/**",
+        "path:docs/release-readiness/evidence/T-AP-03/**"
       ],
       "consumes": [
         "crate:onjeon-api",
@@ -4053,7 +4124,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/api/src/public/scenarios/**",
-        "tools/task_tests/T-AP-03/**"
+        "tools/task_tests/T-AP-03/**",
+        "docs/release-readiness/evidence/T-AP-03/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -4093,7 +4165,8 @@
       "allowed_paths": [
         "apps/mobile/**",
         "packages/design-tokens/**",
-        "tools/task_tests/T-MB-01/**"
+        "tools/task_tests/T-MB-01/**",
+        "docs/release-readiness/evidence/T-MB-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4115,7 +4188,8 @@
       ],
       "produces": [
         "path:apps/mobile/**",
-        "path:packages/design-tokens/**"
+        "path:packages/design-tokens/**",
+        "path:docs/release-readiness/evidence/T-MB-01/**"
       ],
       "consumes": [
         "path:packages/schemas/openapi/**",
@@ -4148,7 +4222,8 @@
       "conflict_paths": [
         "apps/mobile/lib/app/**",
         "apps/mobile/pubspec.yaml",
-        "tools/task_tests/T-MB-01/**"
+        "tools/task_tests/T-MB-01/**",
+        "docs/release-readiness/evidence/T-MB-01/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-05는 설계 담당 선택이며 06의 선택안을 입력으로 쓴다. 감리 전 라우팅 PR 병합 대기",
@@ -4190,7 +4265,8 @@
         "apps/mobile/lib/features/coverage_detail/**",
         "apps/mobile/lib/features/evidence/**",
         "apps/mobile/integration_test/**",
-        "tools/task_tests/T-MB-02/**"
+        "tools/task_tests/T-MB-02/**",
+        "docs/release-readiness/evidence/T-MB-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4212,7 +4288,8 @@
       ],
       "produces": [
         "path:apps/mobile/lib/features/coverage_detail/**",
-        "path:apps/mobile/lib/features/evidence/**"
+        "path:apps/mobile/lib/features/evidence/**",
+        "path:docs/release-readiness/evidence/T-MB-02/**"
       ],
       "consumes": [
         "path:apps/mobile/**",
@@ -4251,7 +4328,8 @@
       "conflict_paths": [
         "apps/mobile/lib/features/coverage_detail/**",
         "apps/mobile/lib/features/evidence/**",
-        "tools/task_tests/T-MB-02/**"
+        "tools/task_tests/T-MB-02/**",
+        "docs/release-readiness/evidence/T-MB-02/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -4292,7 +4370,8 @@
       "allowed_paths": [
         "docs/gates/s1/**",
         "tools/gate/**",
-        "tools/task_tests/T-OP-02/**"
+        "tools/task_tests/T-OP-02/**",
+        "docs/release-readiness/evidence/T-OP-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4314,7 +4393,8 @@
       ],
       "produces": [
         "path:docs/gates/s1/**",
-        "path:tools/gate/**"
+        "path:tools/gate/**",
+        "path:docs/release-readiness/evidence/T-OP-02/**"
       ],
       "consumes": [
         "path:apps/mobile/lib/features/coverage_detail/**",
@@ -4340,7 +4420,8 @@
       "parallel_ok": false,
       "conflict_paths": [
         "docs/gates/s1/**",
-        "tools/task_tests/T-OP-02/**"
+        "tools/task_tests/T-OP-02/**",
+        "docs/release-readiness/evidence/T-OP-02/**"
       ],
       "immediate_audit": true,
       "blocked_by": "실데이터 (b): D-02(실제 검수 결정)는 유지. D-04 해결: 기존 R2 토큰 사용(DEC-D-04), 폐기·재발급 선행 조건 없음. ONJEON box secrets env에서만 읽고 값 출력·로그 금지. (a) 코드 경로 관통은 계속 가능하며 (b)의 실제 검수·R2 보존 증거 없이 S1 통과 판정 금지",
@@ -4379,7 +4460,8 @@
       "canon_change": null,
       "allowed_paths": [
         "services/docproc/**",
-        "tools/task_tests/T-DT-03/**"
+        "tools/task_tests/T-DT-03/**",
+        "docs/release-readiness/evidence/T-DT-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4400,7 +4482,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/docproc/**"
+        "path:services/docproc/**",
+        "path:docs/release-readiness/evidence/T-DT-03/**"
       ],
       "consumes": [
         "path:services/docproc/**"
@@ -4427,7 +4510,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/docproc/**",
-        "tools/task_tests/T-DT-03/**"
+        "tools/task_tests/T-DT-03/**",
+        "docs/release-readiness/evidence/T-DT-03/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -4470,7 +4554,8 @@
         "services/knowledge/**",
         "data/label-dictionary/**",
         "packages/fixtures/structures/**",
-        "tools/task_tests/T-KN-08/**"
+        "tools/task_tests/T-KN-08/**",
+        "docs/release-readiness/evidence/T-KN-08/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4492,7 +4577,8 @@
       ],
       "produces": [
         "path:data/label-dictionary/**",
-        "path:packages/fixtures/structures/**"
+        "path:packages/fixtures/structures/**",
+        "path:docs/release-readiness/evidence/T-KN-08/**"
       ],
       "consumes": [
         "crate:onjeon-knowledge",
@@ -4523,7 +4609,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "data/label-dictionary/**",
-        "tools/task_tests/T-KN-08/**"
+        "tools/task_tests/T-KN-08/**",
+        "docs/release-readiness/evidence/T-KN-08/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-02는 accepted 전환만 막는다. O03은 정규 라벨 승격만 막는다",
@@ -4569,7 +4656,8 @@
         "packages/rules-engine/**",
         "packages/twin-runtime/**",
         "packages/fixtures/rules/**",
-        "tools/task_tests/T-TW-04/**"
+        "tools/task_tests/T-TW-04/**",
+        "docs/release-readiness/evidence/T-TW-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4591,7 +4679,8 @@
       ],
       "produces": [
         "path:packages/rules-engine/src/**",
-        "path:packages/twin-runtime/**"
+        "path:packages/twin-runtime/**",
+        "path:docs/release-readiness/evidence/T-TW-04/**"
       ],
       "consumes": [
         "crate:onjeon-rules-engine",
@@ -4620,7 +4709,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "packages/rules-engine/src/**",
-        "tools/task_tests/T-TW-04/**"
+        "tools/task_tests/T-TW-04/**",
+        "docs/release-readiness/evidence/T-TW-04/**"
       ],
       "immediate_audit": true,
       "blocked_by": "O12는 해당 연산의 릴리스 포함만 막는다",
@@ -4662,7 +4752,8 @@
       "allowed_paths": [
         "services/knowledge/premium/**",
         "services/knowledge/tests/**",
-        "tools/task_tests/T-KN-09/**"
+        "tools/task_tests/T-KN-09/**",
+        "docs/release-readiness/evidence/T-KN-09/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4683,7 +4774,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/knowledge/premium/**"
+        "path:services/knowledge/premium/**",
+        "path:docs/release-readiness/evidence/T-KN-09/**"
       ],
       "consumes": [
         "crate:onjeon-knowledge"
@@ -4711,7 +4803,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/knowledge/premium/**",
-        "tools/task_tests/T-KN-09/**"
+        "tools/task_tests/T-KN-09/**",
+        "docs/release-readiness/evidence/T-KN-09/**"
       ],
       "immediate_audit": false,
       "blocked_by": "O04는 compare_price enabled 전환만 막는다",
@@ -4762,7 +4855,8 @@
         "data/criteria/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-12/**"
+        "tools/task_tests/T-KN-12/**",
+        "docs/release-readiness/evidence/T-KN-12/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4784,7 +4878,8 @@
       ],
       "produces": [
         "crate:onjeon-criteria",
-        "path:data/criteria/**"
+        "path:data/criteria/**",
+        "path:docs/release-readiness/evidence/T-KN-12/**"
       ],
       "consumes": [
         "path:infra/db/**",
@@ -4820,7 +4915,8 @@
         "data/criteria/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-KN-12/**"
+        "tools/task_tests/T-KN-12/**",
+        "docs/release-readiness/evidence/T-KN-12/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다",
@@ -4858,7 +4954,8 @@
       "allowed_paths": [
         "data/criteria/defaults/**",
         "services/criteria/src/defaults/**",
-        "tools/task_tests/T-KN-13/**"
+        "tools/task_tests/T-KN-13/**",
+        "docs/release-readiness/evidence/T-KN-13/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4879,7 +4976,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:data/criteria/defaults/**"
+        "path:data/criteria/defaults/**",
+        "path:docs/release-readiness/evidence/T-KN-13/**"
       ],
       "consumes": [
         "crate:onjeon-criteria"
@@ -4905,7 +5003,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "data/criteria/defaults/**",
-        "tools/task_tests/T-KN-13/**"
+        "tools/task_tests/T-KN-13/**",
+        "docs/release-readiness/evidence/T-KN-13/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음. 후보 적재만 한다. 사용자에게 보이는 것은 T-KN-14의 적용 승인(D-08) 뒤",
@@ -4946,7 +5045,8 @@
       "allowed_paths": [
         "services/criteria/src/application/**",
         "data/criteria/applications/**",
-        "tools/task_tests/T-KN-14/**"
+        "tools/task_tests/T-KN-14/**",
+        "docs/release-readiness/evidence/T-KN-14/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -4968,7 +5068,8 @@
       ],
       "produces": [
         "path:services/criteria/src/application/**",
-        "path:data/criteria/applications/**"
+        "path:data/criteria/applications/**",
+        "path:docs/release-readiness/evidence/T-KN-14/**"
       ],
       "consumes": [
         "crate:onjeon-criteria",
@@ -4999,7 +5100,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/criteria/src/application/**",
-        "tools/task_tests/T-KN-14/**"
+        "tools/task_tests/T-KN-14/**",
+        "docs/release-readiness/evidence/T-KN-14/**"
       ],
       "immediate_audit": true,
       "blocked_by": "출시(서비스 적용): D-08(어떤 기준을 실제 사용자에게 적용할지, 기본 필요액 제공 여부와 산출 근거)이 criteria_application 기록 생성과 서비스 모드 활성화만 막는다. 관문 코드의 작성·병합, 구조·판·출처·정정 이력·의존 기록(T-KN-12), 사용자 가정 경로(T-AP-09)는 막지 않는다",
@@ -5039,7 +5141,8 @@
       "canon_change": null,
       "allowed_paths": [
         "docs/measurements/ai-review/**",
-        "tools/task_tests/T-OP-03/**"
+        "tools/task_tests/T-OP-03/**",
+        "docs/release-readiness/evidence/T-OP-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5060,7 +5163,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:docs/measurements/ai-review/**"
+        "path:docs/measurements/ai-review/**",
+        "path:docs/release-readiness/evidence/T-OP-03/**"
       ],
       "consumes": [
         "path:services/ai-review/src/review/**"
@@ -5084,7 +5188,8 @@
       "features": [],
       "parallel_ok": false,
       "conflict_paths": [
-        "tools/task_tests/T-OP-03/**"
+        "tools/task_tests/T-OP-03/**",
+        "docs/release-readiness/evidence/T-OP-03/**"
       ],
       "immediate_audit": false,
       "blocked_by": "시작: D-02(실제 이종 계열 없이는 측정 불가)",
@@ -5127,7 +5232,8 @@
       "allowed_paths": [
         "services/collect/**",
         "data/registry/README.md",
-        "tools/task_tests/T-DT-04/**"
+        "tools/task_tests/T-DT-04/**",
+        "docs/release-readiness/evidence/T-DT-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5148,7 +5254,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/collect/src/adapters/**"
+        "path:services/collect/src/adapters/**",
+        "path:docs/release-readiness/evidence/T-DT-04/**"
       ],
       "consumes": [
         "crate:onjeon-collect",
@@ -5182,7 +5289,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/collect/src/adapters/**",
-        "tools/task_tests/T-DT-04/**"
+        "tools/task_tests/T-DT-04/**",
+        "docs/release-readiness/evidence/T-DT-04/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-04 해결: 기존 R2 토큰 사용(DEC-D-04), 폐기·재발급 선행 조건 없음. ONJEON box secrets env에서만 읽고 값 출력·로그 금지. 실데이터 열거는 O19 국내 IP 수집 실행 환경(준비·비용은 준태님). 대량 자동 수집은 O17",
@@ -5226,7 +5334,8 @@
       "allowed_paths": [
         "services/collect/**",
         "infra/compose/**",
-        "tools/task_tests/T-DT-05/**"
+        "tools/task_tests/T-DT-05/**",
+        "docs/release-readiness/evidence/T-DT-05/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5247,7 +5356,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/collect/src/schedule/**"
+        "path:services/collect/src/schedule/**",
+        "path:docs/release-readiness/evidence/T-DT-05/**"
       ],
       "consumes": [
         "crate:onjeon-collect",
@@ -5280,7 +5390,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/collect/src/schedule/**",
-        "tools/task_tests/T-DT-05/**"
+        "tools/task_tests/T-DT-05/**",
+        "docs/release-readiness/evidence/T-DT-05/**"
       ],
       "immediate_audit": false,
       "blocked_by": "O17은 예약 실행 on 전환만 막는다",
@@ -5321,7 +5432,8 @@
         "infra/r2/**",
         "tools/r2_budget.py",
         "tools/tests/**",
-        "tools/task_tests/T-OP-04/**"
+        "tools/task_tests/T-OP-04/**",
+        "docs/release-readiness/evidence/T-OP-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5342,7 +5454,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:infra/r2/checkpoint/**"
+        "path:infra/r2/checkpoint/**",
+        "path:docs/release-readiness/evidence/T-OP-04/**"
       ],
       "consumes": [
         "path:tools/r2_budget.py"
@@ -5369,7 +5482,8 @@
       "conflict_paths": [
         "infra/r2/**",
         "tools/r2_budget.py",
-        "tools/task_tests/T-OP-04/**"
+        "tools/task_tests/T-OP-04/**",
+        "docs/release-readiness/evidence/T-OP-04/**"
       ],
       "immediate_audit": true,
       "blocked_by": "시작: D-04 해결(DEC-D-04), 기존 R2 토큰 사용에 폐기·재발급 선행 조건 없음. ONJEON box secrets env에서만 읽고 값 출력·로그 금지. 병합: O14(잠금 승인). O17 대량 자동 수집 관문은 유지",
@@ -5412,7 +5526,8 @@
       "allowed_paths": [
         "services/collect/src/adapters/price/**",
         "docs/research/price-grid/**",
-        "tools/task_tests/T-DT-06/**"
+        "tools/task_tests/T-DT-06/**",
+        "docs/release-readiness/evidence/T-DT-06/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5433,7 +5548,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/collect/src/adapters/price/**"
+        "path:services/collect/src/adapters/price/**",
+        "path:docs/release-readiness/evidence/T-DT-06/**"
       ],
       "consumes": [
         "path:services/collect/src/adapters/**",
@@ -5459,7 +5575,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/collect/src/adapters/price/**",
-        "tools/task_tests/T-DT-06/**"
+        "tools/task_tests/T-DT-06/**",
+        "docs/release-readiness/evidence/T-DT-06/**"
       ],
       "immediate_audit": false,
       "blocked_by": "O02는 대량 조회만 막는다",
@@ -5499,7 +5616,8 @@
       "allowed_paths": [
         "services/api/src/public/coverage_status/**",
         "tools/ci/check_i17.py",
-        "tools/task_tests/T-AP-04/**"
+        "tools/task_tests/T-AP-04/**",
+        "docs/release-readiness/evidence/T-AP-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5520,7 +5638,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/api/src/public/coverage_status/**"
+        "path:services/api/src/public/coverage_status/**",
+        "path:docs/release-readiness/evidence/T-AP-04/**"
       ],
       "consumes": [
         "crate:onjeon-api",
@@ -5553,7 +5672,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/api/src/public/coverage_status/**",
-        "tools/task_tests/T-AP-04/**"
+        "tools/task_tests/T-AP-04/**",
+        "docs/release-readiness/evidence/T-AP-04/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -5608,7 +5728,8 @@
         "infra/compose/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-PS-01/**"
+        "tools/task_tests/T-PS-01/**",
+        "docs/release-readiness/evidence/T-PS-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5629,7 +5750,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "crate:onjeon-personal"
+        "crate:onjeon-personal",
+        "path:docs/release-readiness/evidence/T-PS-01/**"
       ],
       "consumes": [
         "path:infra/db/**",
@@ -5662,7 +5784,8 @@
         "services/personal/**",
         "Cargo.toml",
         "Cargo.lock",
-        "tools/task_tests/T-PS-01/**"
+        "tools/task_tests/T-PS-01/**",
+        "docs/release-readiness/evidence/T-PS-01/**"
       ],
       "immediate_audit": true,
       "blocked_by": "D-17은 실제 민감자료의 외부 AI 처리만 막는다",
@@ -5707,7 +5830,8 @@
         "services/personal/src/mapping/**",
         "services/personal/tests/**",
         "packages/twin-runtime/src/contract_twin/**",
-        "tools/task_tests/T-PS-02/**"
+        "tools/task_tests/T-PS-02/**",
+        "docs/release-readiness/evidence/T-PS-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5729,7 +5853,8 @@
       ],
       "produces": [
         "path:services/personal/src/mapping/**",
-        "path:packages/twin-runtime/src/contract_twin/**"
+        "path:packages/twin-runtime/src/contract_twin/**",
+        "path:docs/release-readiness/evidence/T-PS-02/**"
       ],
       "consumes": [
         "crate:onjeon-personal",
@@ -5761,7 +5886,8 @@
       "conflict_paths": [
         "services/personal/src/mapping/**",
         "packages/twin-runtime/src/contract_twin/**",
-        "tools/task_tests/T-PS-02/**"
+        "tools/task_tests/T-PS-02/**",
+        "docs/release-readiness/evidence/T-PS-02/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -5806,7 +5932,8 @@
         "services/personal/src/export/**",
         "services/personal/src/family_history/**",
         "services/personal/tests/**",
-        "tools/task_tests/T-PS-03/**"
+        "tools/task_tests/T-PS-03/**",
+        "docs/release-readiness/evidence/T-PS-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5829,7 +5956,8 @@
       "produces": [
         "path:services/personal/src/consent/**",
         "path:services/personal/src/deletion/**",
-        "path:services/personal/src/export/**"
+        "path:services/personal/src/export/**",
+        "path:docs/release-readiness/evidence/T-PS-03/**"
       ],
       "consumes": [
         "crate:onjeon-personal"
@@ -5862,7 +5990,8 @@
       "conflict_paths": [
         "services/personal/src/consent/**",
         "services/personal/src/deletion/**",
-        "tools/task_tests/T-PS-03/**"
+        "tools/task_tests/T-PS-03/**",
+        "docs/release-readiness/evidence/T-PS-03/**"
       ],
       "immediate_audit": true,
       "blocked_by": "D-17은 백업 보존 기한 문구·외부 AI 처리만 막는다",
@@ -5905,7 +6034,8 @@
       "allowed_paths": [
         "packages/rules-engine/**",
         "packages/twin-runtime/**",
-        "tools/task_tests/T-TW-05/**"
+        "tools/task_tests/T-TW-05/**",
+        "docs/release-readiness/evidence/T-TW-05/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -5927,7 +6057,8 @@
       ],
       "produces": [
         "path:packages/twin-runtime/src/multi_contract/**",
-        "path:packages/twin-runtime/src/plan_diff/**"
+        "path:packages/twin-runtime/src/plan_diff/**",
+        "path:docs/release-readiness/evidence/T-TW-05/**"
       ],
       "consumes": [
         "crate:onjeon-rules-engine",
@@ -5969,7 +6100,8 @@
       "conflict_paths": [
         "packages/rules-engine/src/**",
         "packages/twin-runtime/**",
-        "tools/task_tests/T-TW-05/**"
+        "tools/task_tests/T-TW-05/**",
+        "docs/release-readiness/evidence/T-TW-05/**"
       ],
       "immediate_audit": true,
       "blocked_by": "O12는 해당 연산의 릴리스 포함만 막는다",
@@ -6010,7 +6142,8 @@
         "packages/twin-runtime/src/dependency/**",
         "packages/twin-runtime/tests/**",
         "services/api/src/compose/**",
-        "tools/task_tests/T-TW-06/**"
+        "tools/task_tests/T-TW-06/**",
+        "docs/release-readiness/evidence/T-TW-06/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6032,7 +6165,8 @@
       ],
       "produces": [
         "path:packages/twin-runtime/src/dependency/**",
-        "path:services/api/src/compose/**"
+        "path:services/api/src/compose/**",
+        "path:docs/release-readiness/evidence/T-TW-06/**"
       ],
       "consumes": [
         "crate:onjeon-twin-runtime",
@@ -6072,7 +6206,8 @@
       "conflict_paths": [
         "packages/twin-runtime/src/dependency/**",
         "services/api/src/compose/**",
-        "tools/task_tests/T-TW-06/**"
+        "tools/task_tests/T-TW-06/**",
+        "docs/release-readiness/evidence/T-TW-06/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -6111,7 +6246,8 @@
       "canon_change": null,
       "allowed_paths": [
         "services/api/src/personal/**",
-        "tools/task_tests/T-AP-05/**"
+        "tools/task_tests/T-AP-05/**",
+        "docs/release-readiness/evidence/T-AP-05/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6132,7 +6268,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/api/src/personal/**"
+        "path:services/api/src/personal/**",
+        "path:docs/release-readiness/evidence/T-AP-05/**"
       ],
       "consumes": [
         "crate:onjeon-api",
@@ -6168,7 +6305,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/api/src/personal/**",
-        "tools/task_tests/T-AP-05/**"
+        "tools/task_tests/T-AP-05/**",
+        "docs/release-readiness/evidence/T-AP-05/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-11은 ephemeral 모드만 막는다",
@@ -6209,7 +6347,8 @@
         "services/api/src/public/need/**",
         "services/api/src/personal/need/**",
         "services/personal/src/assumptions/**",
-        "tools/task_tests/T-AP-09/**"
+        "tools/task_tests/T-AP-09/**",
+        "docs/release-readiness/evidence/T-AP-09/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6232,7 +6371,8 @@
       "produces": [
         "path:services/api/src/public/need/**",
         "path:services/api/src/personal/need/**",
-        "path:services/personal/src/assumptions/**"
+        "path:services/personal/src/assumptions/**",
+        "path:docs/release-readiness/evidence/T-AP-09/**"
       ],
       "consumes": [
         "crate:onjeon-api",
@@ -6275,7 +6415,8 @@
       "conflict_paths": [
         "services/api/src/public/need/**",
         "services/api/src/personal/need/**",
-        "tools/task_tests/T-AP-09/**"
+        "tools/task_tests/T-AP-09/**",
+        "docs/release-readiness/evidence/T-AP-09/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음. D-08은 서비스 적용 승인 관문(T-KN-14)만 막는다. 적용 기록 전에는 사용자 가정 기반 결과만",
@@ -6318,7 +6459,8 @@
         "apps/web/app/(public)/**",
         "apps/web/package.json",
         "apps/web/lib/**",
-        "tools/task_tests/T-WB-01/**"
+        "tools/task_tests/T-WB-01/**",
+        "docs/release-readiness/evidence/T-WB-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6340,7 +6482,8 @@
       ],
       "produces": [
         "path:apps/web/app/(public)/**",
-        "path:apps/web/lib/**"
+        "path:apps/web/lib/**",
+        "path:docs/release-readiness/evidence/T-WB-01/**"
       ],
       "consumes": [
         "path:services/api/src/public/coverage_status/**",
@@ -6370,7 +6513,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "apps/web/app/(public)/**",
-        "tools/task_tests/T-WB-01/**"
+        "tools/task_tests/T-WB-01/**",
+        "docs/release-readiness/evidence/T-WB-01/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-20은 배포만 막는다",
@@ -6413,7 +6557,8 @@
       "allowed_paths": [
         "apps/web/app/console/**",
         "services/api/src/console/**",
-        "tools/task_tests/T-WB-02/**"
+        "tools/task_tests/T-WB-02/**",
+        "docs/release-readiness/evidence/T-WB-02/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6435,7 +6580,8 @@
       ],
       "produces": [
         "path:apps/web/app/console/**",
-        "path:services/api/src/console/**"
+        "path:services/api/src/console/**",
+        "path:docs/release-readiness/evidence/T-WB-02/**"
       ],
       "consumes": [
         "crate:onjeon-api",
@@ -6466,7 +6612,8 @@
       "conflict_paths": [
         "apps/web/app/console/**",
         "services/api/src/console/**",
-        "tools/task_tests/T-WB-02/**"
+        "tools/task_tests/T-WB-02/**",
+        "docs/release-readiness/evidence/T-WB-02/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-02 전에는 검수 감사 화면이 pending만 보인다",
@@ -6508,7 +6655,8 @@
       "allowed_paths": [
         "services/api/src/public/error_reports/**",
         "services/knowledge/isolation/**",
-        "tools/task_tests/T-AP-06/**"
+        "tools/task_tests/T-AP-06/**",
+        "docs/release-readiness/evidence/T-AP-06/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6530,7 +6678,8 @@
       ],
       "produces": [
         "path:services/api/src/public/error_reports/**",
-        "path:services/knowledge/isolation/**"
+        "path:services/knowledge/isolation/**",
+        "path:docs/release-readiness/evidence/T-AP-06/**"
       ],
       "consumes": [
         "crate:onjeon-api",
@@ -6562,7 +6711,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/api/src/public/error_reports/**",
-        "tools/task_tests/T-AP-06/**"
+        "tools/task_tests/T-AP-06/**",
+        "docs/release-readiness/evidence/T-AP-06/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -6603,7 +6753,8 @@
         "services/knowledge/gaps/**",
         "services/api/src/public/gaps/**",
         "apps/web/app/console/gaps/**",
-        "tools/task_tests/T-KN-10/**"
+        "tools/task_tests/T-KN-10/**",
+        "docs/release-readiness/evidence/T-KN-10/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6625,7 +6776,8 @@
       ],
       "produces": [
         "path:services/knowledge/gaps/**",
-        "path:services/api/src/public/gaps/**"
+        "path:services/api/src/public/gaps/**",
+        "path:docs/release-readiness/evidence/T-KN-10/**"
       ],
       "consumes": [
         "crate:onjeon-knowledge",
@@ -6652,7 +6804,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/knowledge/gaps/**",
-        "tools/task_tests/T-KN-10/**"
+        "tools/task_tests/T-KN-10/**",
+        "docs/release-readiness/evidence/T-KN-10/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음(초안 생성은 T-KN-11)",
@@ -6693,7 +6846,8 @@
       "allowed_paths": [
         "services/knowledge/gaps/inquiry/**",
         "apps/web/app/console/gaps/inquiry/**",
-        "tools/task_tests/T-KN-11/**"
+        "tools/task_tests/T-KN-11/**",
+        "docs/release-readiness/evidence/T-KN-11/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6714,7 +6868,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:services/knowledge/gaps/inquiry/**"
+        "path:services/knowledge/gaps/inquiry/**",
+        "path:docs/release-readiness/evidence/T-KN-11/**"
       ],
       "consumes": [
         "path:services/knowledge/gaps/**"
@@ -6739,7 +6894,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/knowledge/gaps/inquiry/**",
-        "tools/task_tests/T-KN-11/**"
+        "tools/task_tests/T-KN-11/**",
+        "docs/release-readiness/evidence/T-KN-11/**"
       ],
       "immediate_audit": false,
       "blocked_by": "병합: D-14(포함 여부·명의·승인자·자동화 범위). 부결 시 취소되고 선행 목록에서 제거된다(설계 변경 감리)",
@@ -6782,7 +6938,8 @@
       "allowed_paths": [
         "services/api/src/public/comparisons/**",
         "apps/mobile/lib/features/compare/**",
-        "tools/task_tests/T-AP-07/**"
+        "tools/task_tests/T-AP-07/**",
+        "docs/release-readiness/evidence/T-AP-07/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6804,7 +6961,8 @@
       ],
       "produces": [
         "path:services/api/src/public/comparisons/**",
-        "path:apps/mobile/lib/features/compare/**"
+        "path:apps/mobile/lib/features/compare/**",
+        "path:docs/release-readiness/evidence/T-AP-07/**"
       ],
       "consumes": [
         "path:services/api/src/public/scenarios/**",
@@ -6846,7 +7004,8 @@
       "conflict_paths": [
         "services/api/src/public/comparisons/**",
         "apps/mobile/lib/features/compare/**",
-        "tools/task_tests/T-AP-07/**"
+        "tools/task_tests/T-AP-07/**",
+        "docs/release-readiness/evidence/T-AP-07/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -6890,7 +7049,8 @@
       "allowed_paths": [
         "services/api/src/personal/events/**",
         "apps/mobile/lib/features/actual_event/**",
-        "tools/task_tests/T-AP-08/**"
+        "tools/task_tests/T-AP-08/**",
+        "docs/release-readiness/evidence/T-AP-08/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -6912,7 +7072,8 @@
       ],
       "produces": [
         "path:services/api/src/personal/events/**",
-        "path:apps/mobile/lib/features/actual_event/**"
+        "path:apps/mobile/lib/features/actual_event/**",
+        "path:docs/release-readiness/evidence/T-AP-08/**"
       ],
       "consumes": [
         "path:services/api/src/personal/**",
@@ -6945,7 +7106,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/api/src/personal/events/**",
-        "tools/task_tests/T-AP-08/**"
+        "tools/task_tests/T-AP-08/**",
+        "docs/release-readiness/evidence/T-AP-08/**"
       ],
       "immediate_audit": false,
       "blocked_by": "병합: D-06(사건 사실 입력 범위·진단서)·D-07(청구 안내 범위). 진술 입력·조건부 계산 골격은 ADR-0005 안에서 시작 가능",
@@ -6990,7 +7152,8 @@
         "apps/mobile/lib/features/what_if/**",
         "apps/mobile/lib/features/me/**",
         "apps/mobile/lib/features/import/**",
-        "tools/task_tests/T-MB-04/**"
+        "tools/task_tests/T-MB-04/**",
+        "docs/release-readiness/evidence/T-MB-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -7014,7 +7177,8 @@
         "path:apps/mobile/lib/features/my_design/**",
         "path:apps/mobile/lib/features/what_if/**",
         "path:apps/mobile/lib/features/me/**",
-        "path:apps/mobile/lib/features/import/**"
+        "path:apps/mobile/lib/features/import/**",
+        "path:docs/release-readiness/evidence/T-MB-04/**"
       ],
       "consumes": [
         "path:apps/mobile/**",
@@ -7061,7 +7225,8 @@
         "apps/mobile/lib/features/what_if/**",
         "apps/mobile/lib/features/me/**",
         "apps/mobile/lib/features/import/**",
-        "tools/task_tests/T-MB-04/**"
+        "tools/task_tests/T-MB-04/**",
+        "docs/release-readiness/evidence/T-MB-04/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음. D-08(적용 승인 관문) 전에는 기준 평가 이유·기본값 없이 사용자 가정 기반 결과만 표시",
@@ -7103,7 +7268,8 @@
       "canon_change": null,
       "allowed_paths": [
         "apps/mobile/**",
-        "tools/task_tests/T-MB-03/**"
+        "tools/task_tests/T-MB-03/**",
+        "docs/release-readiness/evidence/T-MB-03/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -7124,7 +7290,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:apps/mobile/lib/features/**"
+        "path:apps/mobile/lib/features/**",
+        "path:docs/release-readiness/evidence/T-MB-03/**"
       ],
       "consumes": [
         "path:apps/mobile/**"
@@ -7162,7 +7329,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "apps/mobile/lib/features/**",
-        "tools/task_tests/T-MB-03/**"
+        "tools/task_tests/T-MB-03/**",
+        "docs/release-readiness/evidence/T-MB-03/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -7206,7 +7374,8 @@
         "services/personal/tests/leak/**",
         "services/api/tests/leak/**",
         "tools/ci/**",
-        "tools/task_tests/T-PS-04/**"
+        "tools/task_tests/T-PS-04/**",
+        "docs/release-readiness/evidence/T-PS-04/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -7228,7 +7397,8 @@
       ],
       "produces": [
         "path:services/personal/tests/leak/**",
-        "path:services/api/tests/leak/**"
+        "path:services/api/tests/leak/**",
+        "path:docs/release-readiness/evidence/T-PS-04/**"
       ],
       "consumes": [
         "crate:onjeon-personal",
@@ -7259,7 +7429,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "services/personal/tests/leak/**",
-        "tools/task_tests/T-PS-04/**"
+        "tools/task_tests/T-PS-04/**",
+        "docs/release-readiness/evidence/T-PS-04/**"
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
@@ -7303,7 +7474,8 @@
         "infra/observability/**",
         "docs/runbooks/**",
         "services/api/src/ops/**",
-        "tools/task_tests/T-OP-05/**"
+        "tools/task_tests/T-OP-05/**",
+        "docs/release-readiness/evidence/T-OP-05/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -7325,7 +7497,8 @@
       ],
       "produces": [
         "path:infra/observability/**",
-        "path:docs/runbooks/**"
+        "path:docs/runbooks/**",
+        "path:docs/release-readiness/evidence/T-OP-05/**"
       ],
       "consumes": [
         "path:apps/web/app/console/**",
@@ -7355,7 +7528,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "docs/runbooks/**",
-        "tools/task_tests/T-OP-05/**"
+        "tools/task_tests/T-OP-05/**",
+        "docs/release-readiness/evidence/T-OP-05/**"
       ],
       "immediate_audit": false,
       "blocked_by": "D-19는 수치 확정만 막는다",
@@ -7393,7 +7567,8 @@
       "allowed_paths": [
         "docs/security/**",
         "infra/**",
-        "tools/task_tests/T-OP-06/**"
+        "tools/task_tests/T-OP-06/**",
+        "docs/release-readiness/evidence/T-OP-06/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -7414,7 +7589,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:docs/security/**"
+        "path:docs/security/**",
+        "path:docs/release-readiness/evidence/T-OP-06/**"
       ],
       "consumes": [
         "path:services/personal/tests/leak/**"
@@ -7440,7 +7616,8 @@
       "parallel_ok": true,
       "conflict_paths": [
         "docs/security/**",
-        "tools/task_tests/T-OP-06/**"
+        "tools/task_tests/T-OP-06/**",
+        "docs/release-readiness/evidence/T-OP-06/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음",
@@ -7482,7 +7659,8 @@
       "canon_change": null,
       "allowed_paths": [
         "docs/ux-tests/**",
-        "tools/task_tests/T-UX-01/**"
+        "tools/task_tests/T-UX-01/**",
+        "docs/release-readiness/evidence/T-UX-01/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -7503,7 +7681,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:docs/ux-tests/**"
+        "path:docs/ux-tests/**",
+        "path:docs/release-readiness/evidence/T-UX-01/**"
       ],
       "consumes": [
         "path:apps/mobile/lib/features/**"
@@ -7530,7 +7709,8 @@
       "parallel_ok": false,
       "conflict_paths": [
         "docs/ux-tests/**",
-        "tools/task_tests/T-UX-01/**"
+        "tools/task_tests/T-UX-01/**",
+        "docs/release-readiness/evidence/T-UX-01/**"
       ],
       "immediate_audit": false,
       "blocked_by": "시작: D-16(과제·표본·수락 수치가 고정되어야 실행)",
@@ -7580,7 +7760,8 @@
       "canon_change": null,
       "allowed_paths": [
         "docs/rehearsal/**",
-        "tools/task_tests/T-OP-07/**"
+        "tools/task_tests/T-OP-07/**",
+        "docs/release-readiness/evidence/T-OP-07/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -7601,7 +7782,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:docs/rehearsal/**"
+        "path:docs/rehearsal/**",
+        "path:docs/release-readiness/evidence/T-OP-07/**"
       ],
       "consumes": [
         "path:docs/runbooks/**",
@@ -7628,7 +7810,8 @@
       ],
       "parallel_ok": false,
       "conflict_paths": [
-        "tools/task_tests/T-OP-07/**"
+        "tools/task_tests/T-OP-07/**",
+        "docs/release-readiness/evidence/T-OP-07/**"
       ],
       "immediate_audit": false,
       "blocked_by": "시작: D-03(운영 환경). 출시: D-12·D-17·D-18(해당 기능 켜기). 리허설 기록의 병합은 막히지 않는다",
@@ -7703,7 +7886,8 @@
       "test_outputs_within_allowed": true,
       "outputs": [
         "감리 보고서, 다섯 축 보고",
-        "출시 준비 판정기 tools/release_readiness/check.py: feature_registry의 비제외 항목 전부가 tasks(post_merge 상태)·evidence(실제 데이터 증거 기록 참조)·acceptance_tests(실행 로그) 를 갖는지 검사"
+        "출시 준비 판정기 tools/release_readiness/check.py: feature_registry의 비제외 항목 전부가 tasks(post_merge 상태)·evidence(실제 데이터 증거 기록 참조)·acceptance_tests(실행 로그) 를 갖는지 검사",
+        "선행 제품 과제의 evidence/<과제 ID>/ 증거를 검토하고 readiness.json에 상대 경로·실행 결과·관측된 과제 상태를 집계한다. 개발 도구 회귀 로그만으로 제품 행을 닫지 않는다"
       ],
       "tests": [
         "python3 -I tools/release_readiness/check.py --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/",
@@ -7729,7 +7913,8 @@
       "features": [],
       "parallel_ok": false,
       "conflict_paths": [
-        "tools/task_tests/T-OP-08/**"
+        "tools/task_tests/T-OP-08/**",
+        "docs/release-readiness/**"
       ],
       "immediate_audit": true,
       "blocked_by": "출시 판정(L1)은 사용자 결정",

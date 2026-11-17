@@ -1,0 +1,5 @@
+64 tasks preserved; 61 product tasks receive isolated evidence grants.
+T-OP-00/T-OP-09 definitions unchanged.
+T-OP-08 keeps existing write grants; aggregate lock and output description added.
+All other per-task fields, including decision gates and acceptance criteria, unchanged.
+Actual daemon R-01 evidence artifact/log access: HEAD 1/62, working tree 62/62.

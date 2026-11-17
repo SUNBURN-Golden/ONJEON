@@ -1,0 +1,13 @@
+tasks.json T-AP-09 (main intent: no-composite-score; HEAD intent: evidence grant)
+  required_test_ids: ['need-result-reasons', 'need-flow-keep-addnone-hold-unknown', 'reason-evidence-by-kind', 'no-composite-score']
+  done_criteria[-1]: no-composite-score 통과: 공개·개인 필요성 판단 응답에 종합 점수·순위·추천 정답 없이 종류별 이유와 근거가 제공된다(09 P17)
+  tests has no-composite-score command: True
+  produces: ['path:services/api/src/public/need/**', 'path:services/api/src/personal/need/**', 'path:services/personal/src/assumptions/**', 'path:docs/release-readiness/evidence/T-AP-09/**']
+product tasks without evidence produces grant: ['T-OP-08']
+03 §7 T-AP-09 row keeps evidence grant: True
+03 §7 T-AP-09 row has main's criteria: True
+03 §7 T-AP-09 row has main's test ID: True
+09 §0 evidence-path bullet (HEAD intent) present: True
+09 P06 lists T-KN-04 (main intent): True
+09 §6 no-composite-score includes T-AP-09 (main intent): True
+09 §7 links new audit doc (main intent): True

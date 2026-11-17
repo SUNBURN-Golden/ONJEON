@@ -1,0 +1,10 @@
+test_every_product_task_has_effective_artifact_and_log_grants (test_evidence_paths.EvidencePathTests.test_every_product_task_has_effective_artifact_and_log_grants) ... ok
+test_evidence_locks_preserve_parallel_task_isolation_and_final_audit_lock (test_evidence_paths.EvidencePathTests.test_evidence_locks_preserve_parallel_task_isolation_and_final_audit_lock) ... ok
+test_generated_work_spec_lists_the_new_permissions_and_outputs (test_evidence_paths.EvidencePathTests.test_generated_work_spec_lists_the_new_permissions_and_outputs) ... ok
+test_live_denominators_can_reference_task_owned_artifacts_and_fail_if_removed (test_evidence_paths.EvidencePathTests.test_live_denominators_can_reference_task_owned_artifacts_and_fail_if_removed) ... ok
+test_only_final_auditor_can_aggregate_or_edit_another_tasks_evidence (test_evidence_paths.EvidencePathTests.test_only_final_auditor_can_aggregate_or_edit_another_tasks_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.070s
+
+OK

@@ -1,0 +1,7 @@
+bootstrap-clean-main: 6 finding(s)
+  [BOOT-PATH] tasks.json: T-OP-00: test command names services/knowledge/**, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-OP-00: test command names services/knowledge/release/**, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-AP-03: test command names services/api/contract_test.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-AP-05: test command names services/api/contract_test.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-OP-05: test command names tools/drills/circuit_breaker.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-OP-05: test command names tools/drills/rollback.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it

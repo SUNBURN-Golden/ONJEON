@@ -1,0 +1,72 @@
+Merge resolution (origin/main 7dc1241 into grokbot/onjeon-audit6-prose-test-coverage-guard), both intents kept.
+
+Conflicted files: docs/blueprint/proposals/설계검토_결과/03_작업명세.md,
+docs/blueprint/proposals/설계검토_결과/tasks.json,
+tools/tests/test_audit5_confirm_agent_made_decisions.py.
+
+HEAD intent (this node): every product task runs
+`python3 -I tools/task_test_coverage.py --task <ID>` exactly once in tests and
+done_criteria, may write `tools/task_tests/<ID>/**` (allowed_paths +
+conflict_paths), and the six prose-only tests carry explicit required_test_ids.
+main intent (audit6-evidence-path-for-all-tasks, PR #550): every product task
+may write `docs/release-readiness/evidence/<ID>/**` (allowed_paths + produces +
+conflict_paths; T-OP-08 keeps its aggregate grant and gains the
+release-readiness conflict lock).
+
+tasks.json — 123 conflict hunks, all the same shape: both sides appended one
+path to the same allowed_paths/conflict_paths list (62 conflict_paths +
+61 allowed_paths; T-OP-08's allowed_paths already covered evidence and
+auto-merged). Resolution keeps both entries: HEAD's tools/task_tests grant
+first, then main's evidence grant. Verified field-by-field against the
+merge-base (7abea57): allowed_paths/conflict_paths = union of both sides'
+appends; tests/done_criteria/required_test_ids = HEAD; produces/outputs =
+main; all other fields unchanged. Coverage command stays the last element of
+tests and done_criteria for all 62 product tasks. field_definitions
+auto-merged (HEAD changed tests/required_test_ids, main changed
+allowed_paths — different keys); all three texts verified present.
+
+03_작업명세.md — two conflict hunks: the §6 task table (61 rows) and the §7
+outputs/criteria table (62 rows). Cell-level comparison against the merge-base
+showed the sides changed disjoint columns: HEAD changed §6 시험 명령 (5 rows)
+and §7 완료 기준 (63 rows) + 필수 시험 ID (6 rows); main changed §6 수정 허용
+경로 (61 rows) and §7 산출물 (61 rows). Resolution merges cell-by-cell: each
+cell takes whichever side changed it from base. T-OP-08's §7 row is
+disambiguated by column count (its §6 row auto-merged outside the hunk).
+Verified: all 64 rows in each table keep 12/5 columns; §7 완료 기준 equals
+"; ".join(done_criteria) and 필수 시험 ID equals required_test_ids for every
+task; every non-table line equals HEAD except main's allowed_paths
+field-definition note. Main's §6/§7 evidence grants present for all 61
+non-final product tasks (test_evidence_paths table check passes).
+
+test_audit5_confirm_agent_made_decisions.py — one hunk: T-UX-01 allowed_paths
+expectation. HEAD expected [docs/ux-tests/**, tools/task_tests/T-UX-01/**];
+main expected [docs/ux-tests/**, docs/release-readiness/evidence/T-UX-01/**].
+Resolution expects all three grants in the merged tasks.json order; the
+preregistration and decision assertions are unchanged.
+
+Merge delta vs own branch (HEAD):
+ .../proposals/설계검토_결과/03_작업명세.md         | 246 ++++-----
+ docs/blueprint/proposals/설계검토_결과/tasks.json  | 557 ++++++++++++++-------
+ .../test_audit5_confirm_agent_made_decisions.py    |   6 +-
+ 3 files changed, 499 insertions(+), 310 deletions(-)
+
+diff --git a/tools/tests/test_audit5_confirm_agent_made_decisions.py b/tools/tests/test_audit5_confirm_agent_made_decisions.py
+index 53b0d42..e6c0e73 100644
+--- a/tools/tests/test_audit5_confirm_agent_made_decisions.py
++++ b/tools/tests/test_audit5_confirm_agent_made_decisions.py
+@@ -238,7 +238,11 @@ class D16ConfirmationHook(unittest.TestCase):
+     def test_tux01_owns_prereg_and_pre_fixed_numbers(self):
+         tasks = {t["id"]: t for t in json.loads(read(BUNDLE / "tasks.json"))["tasks"]}
+         tux = tasks["T-UX-01"]
+-        self.assertEqual(["docs/ux-tests/**", "tools/task_tests/T-UX-01/**"], tux["allowed_paths"])
++        self.assertEqual([
++            "docs/ux-tests/**",
++            "tools/task_tests/T-UX-01/**",
++            "docs/release-readiness/evidence/T-UX-01/**",
++        ], tux["allowed_paths"])
+         self.assertIn("수락 수치가 시험 전에 고정되어 있다", tux["done_criteria"])
+         u7 = next(item for item in tux["done_criteria"] if "U7" in item)
+         self.assertIn("설명과 원문 대조", u7)
+
+Both intents verified present after resolution: see merge-intents.log.
+No commit was made; the merge is left staged for the supervisor.

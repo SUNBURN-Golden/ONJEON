@@ -1,0 +1,5 @@
+Current guard against temporary HEAD copies (repository bundle unchanged)
+product-purpose: 2 finding(s)
+  [PURPOSE-OWNER] /tmp/tmpkk_t5ae9/tasks.json: T-AP-09: required product-purpose test ID 'no-composite-score' is not registered on its assigned task
+  [PURPOSE-ROW-OWNER] /tmp/tmpkk_t5ae9/09_제품목적_대응표.md:27: P06: cited test implementation task T-KN-04 is missing from the row
+Exit: 1

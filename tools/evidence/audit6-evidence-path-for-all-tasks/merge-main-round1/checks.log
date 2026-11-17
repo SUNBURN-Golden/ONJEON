@@ -1,0 +1,46 @@
+$ python3 -I tools/vocab_check.py
+vocabulary ok: 49 axes, 270 values
+Exit: 0
+
+$ python3 -I tools/validation_check.py
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+Exit: 0
+
+$ python3 -I tools/validation_check.py --selftest
+  caught: profile sex differs but still matched -> screen/coverage_detail.cancer.json: $.sections.why_this_price claims `sex` matches but profile='fema
+  caught: condition line hides 미확인 -> screen/coverage_detail.cancer.json: $.sections.why_this_price line must say the remaining conditions
+selftest ok: 40 mutations, each caught for its intended reason
+Exit: 0
+
+$ python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (37 ADR/DEC files)
+Exit: 0
+
+$ python3 -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 266, "tamper_tests": 40, "vocabulary_axes": 49}
+Exit: 0
+
+$ python3 -I tools/registry_check.py
+registry check passed (IDs, vocabulary, access evidence)
+Exit: 0
+
+$ python3 -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+Exit: 0
+
+$ python3 -I tools/ci/check_leak.py --selftest
+check_leak selftest ok: 29 violations each caught for its intended rule, 5 clean case(s) pass
+Exit: 0
+
+$ python3 -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+Exit: 0
+
+$ python3 -I tools/ci/check_bootstrap.py
+  [BOOT-PATH] tasks.json: T-OP-05: test command names tools/drills/circuit_breaker.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+  [BOOT-PATH] tasks.json: T-OP-05: test command names tools/drills/rollback.sh, which is not in the repo, not under the task's allowed_paths, and no prerequisite produces it
+bootstrap-clean-main: no G1/G2/G31 violations (static only; nothing was built); 6 advisory path note(s) above
+Exit: 0
+
+$ git diff --check
+Exit: 0

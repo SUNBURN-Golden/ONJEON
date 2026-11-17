@@ -34,7 +34,7 @@ class ProductPurposeTests(unittest.TestCase):
                 test for test, assigned in P.REQUIRED_TEST_OWNERS.items() if owner in assigned)}
             for owner in sorted(owners))
         self.text = "| # | 제품 목적 | 구현 작업(tasks.json) | 완료 증거 |\n|---|---|---|---|\n" + "".join(
-            f"| P{i:02} | purpose | T-AA-01, T-AA-02 | T-ZZ-99 is an evidence reference |\n"
+            f"| P{i:02} | purpose | {', '.join(['T-AA-01', 'T-AA-02', *sorted(P.REQUIRED_ROW_OWNERS.get(f'P{i:02}', set()))])} | T-ZZ-99 is an evidence reference |\n"
             for i in range(1, 20))
 
     def write(self):
@@ -108,7 +108,7 @@ class ProductPurposeTests(unittest.TestCase):
         self.assertEqual(["PURPOSE-OWNER"] * 3, [f.rule for f in found])
         self.assertTrue(all("T-AP-07" in f.message for f in found))
 
-    def test_live_ux_ownership_and_task_spec_agree(self):
+    def test_live_ownership_and_task_spec_agree(self):
         bundle = P.C.ROOT / P.BUNDLE
         tasks = {t["id"]: t for t in json.loads((bundle / "tasks.json").read_text(encoding="utf-8"))["tasks"]}
         spec = (bundle / "03_작업명세.md").read_text(encoding="utf-8")
@@ -120,28 +120,69 @@ class ProductPurposeTests(unittest.TestCase):
             "T-AP-02": {"decisive-conditions-not-hidden"},
             "T-MB-02": {"decisive-conditions-not-hidden"},
             "T-AP-08": {"decisive-conditions-not-hidden"},
+            "T-AP-09": {"no-composite-score"},
+            "T-KN-04": {"profile-historical-vs-service"},
         }
-        self.assertEqual(P.REQUIRED_TEST_IDS, P.REQUIRED_TEST_OWNERS.keys())
+        self.assertLessEqual(P.REQUIRED_TEST_IDS, P.REQUIRED_TEST_OWNERS.keys())
         for owner, required in expected.items():
             with self.subTest(owner=owner):
                 task = tasks[owner]
                 self.assertLessEqual(required, set(task["required_test_ids"]))
                 for test_id in required:
                     self.assertIn(owner, P.REQUIRED_TEST_OWNERS[test_id])
-                    self.assertTrue(any(f"시험 {test_id}(09 P" in test for test in task["tests"]))
-                rows = [line for line in spec.splitlines() if line.startswith(f"| {owner} | path:")]
+                    self.assertTrue(any(test.startswith(f"시험 {test_id}") for test in task["tests"]))
+                rows = [line for line in spec.splitlines()
+                        if re.match(rf"^\| {owner} \| (?:path|crate):", line)]
                 self.assertEqual(1, len(rows))
                 cells = [c.strip() for c in rows[0].strip("|").split("|")]
                 self.assertEqual(set(task["required_test_ids"]), set(cells[-1].split(", ")))
                 self.assertEqual("; ".join(task["done_criteria"]), cells[-2])
+
+    def test_live_p06_and_p17_link_the_test_implementations(self):
+        bundle = P.C.ROOT / P.BUNDLE
+        tasks = {t["id"]: t for t in json.loads((bundle / "tasks.json").read_text(encoding="utf-8"))["tasks"]}
+        text = (bundle / "09_제품목적_대응표.md").read_text(encoding="utf-8")
+        for row, owner, test_id in (
+            ("P06", "T-KN-04", "profile-historical-vs-service"),
+            ("P17", "T-AP-09", "no-composite-score"),
+        ):
+            with self.subTest(row=row):
+                line = next(line for line in text.splitlines() if line.startswith(f"| {row} |"))
+                cells = [c.strip() for c in line.strip("|").split("|")]
+                self.assertIn(owner, cells[6].split(", "))
+                self.assertIn(test_id, cells[7])
+                self.assertIn(test_id, tasks[owner]["required_test_ids"])
+
+    def test_row_owner_cannot_be_replaced_by_another_registered_task(self):
+        original = self.text
+        for row, owners in P.REQUIRED_ROW_OWNERS.items():
+            for owner in owners:
+                with self.subTest(row=row, owner=owner):
+                    self.text = original
+                    self.assertEqual([], self.check())
+                    self.text = self.text.replace(f", {owner}", "")
+                    found = self.check()
+                    self.assertEqual(["PURPOSE-ROW-OWNER"], [f.rule for f in found])
+                    self.assertIn(row, found[0].message)
+                    self.assertIn(owner, found[0].message)
+                    self.assertGreater(found[0].line, 0)
+
+    def test_profile_registration_is_required_beyond_the_nine_g12_ids(self):
+        self.assertNotIn("profile-historical-vs-service", P.REQUIRED_TEST_IDS)
+        task = next(t for t in self.data["tasks"] if t["id"] == "T-KN-04")
+        task["required_test_ids"].remove("profile-historical-vs-service")
+        found = self.check()
+        self.assertEqual(["PURPOSE-OWNER"], [f.rule for f in found])
+        self.assertIn("T-KN-04", found[0].message)
+        self.assertIn("profile-historical-vs-service", found[0].message)
 
     def test_every_row_rejects_unknown_task_with_row_and_line(self):
         original = self.text
         for i in range(1, 20):
             row = f"P{i:02}"
             with self.subTest(row=row):
-                self.text = original.replace(f"| {row} | purpose | T-AA-01, T-AA-02 |",
-                                             f"| {row} | purpose | T-AA-01, T-AA-99 |")
+                self.text = original.replace(f"| {row} | purpose | T-AA-01, T-AA-02",
+                                             f"| {row} | purpose | T-AA-01, T-AA-99")
                 found = self.check()
                 self.assertEqual(["PURPOSE-TASK"], [f.rule for f in found])
                 self.assertIn(row, found[0].message)

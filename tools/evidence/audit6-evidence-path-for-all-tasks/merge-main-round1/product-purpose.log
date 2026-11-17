@@ -1,0 +1,7 @@
+$ python3 -I tools/ci/check_product_purpose.py
+product-purpose: 09 P01..P19 task links, P06/P17 owners and product-purpose test IDs registered on assigned tasks (static only)
+Exit: 0
+
+$ python3 -I tools/ci/check_product_purpose.py --selftest
+check_product_purpose selftest ok: 5 violations each caught for its intended rule, 1 clean case(s) pass
+Exit: 0

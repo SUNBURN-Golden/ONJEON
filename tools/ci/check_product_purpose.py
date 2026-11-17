@@ -4,6 +4,7 @@
 Complements spec_check G12:
   PURPOSE-G12   all nine product-purpose test IDs from 09 section 6 are registered
   PURPOSE-OWNER each test is registered on every task assigned by 09 sections 4/6
+  PURPOSE-ROW-OWNER P06/P17 include the task implementing their cited test
   PURPOSE-TASK  each P row's implementation tasks are a subset of tasks.json IDs
   PURPOSE-ROWS  P01..P19 occur exactly once with a nonempty, parseable task list
 
@@ -38,7 +39,9 @@ REQUIRED_TEST_IDS = frozenset({
 EXPECTED_ROWS = {f"P{i:02}" for i in range(1, 20)}
 TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
 # 09 §6 assigns all three UX IDs to T-MB-03/T-MB-04/T-AP-07.
-# P16 additionally assigns non-hidden conditions to the API/detail/event tasks.
+# P16 additionally assigns non-hidden conditions to the API/detail/event tasks;
+# P17 requires the need API to omit composite scores. P06's profile rejection
+# belongs to the service loader, not the AI review or fixture import tasks.
 # These are minimum owners: other tasks may also register the same test ID.
 REQUIRED_TEST_OWNERS = {
     "acquisition-reason-not-counted": {"T-DT-04"},
@@ -50,9 +53,11 @@ REQUIRED_TEST_OWNERS = {
     "decisive-conditions-not-hidden": {
         "T-MB-03", "T-MB-04", "T-AP-07", "T-AP-02", "T-MB-02", "T-AP-08",
     },
-    "no-composite-score": {"T-MB-03", "T-MB-04", "T-AP-07"},
+    "no-composite-score": {"T-MB-03", "T-MB-04", "T-AP-07", "T-AP-09"},
+    "profile-historical-vs-service": {"T-KN-04"},
     "purpose-rows-all-closed": {"T-OP-08"},
 }
+REQUIRED_ROW_OWNERS = {"P06": {"T-KN-04"}, "P17": {"T-AP-09"}}
 
 
 def check(tasks_path, purpose_path):
@@ -111,6 +116,9 @@ def check(tasks_path, purpose_path):
         if unknown:
             out.append(C.Finding("PURPOSE-TASK", str(purpose_path), line_no,
                                  f"{row}: implementation tasks absent from tasks.json: {', '.join(sorted(unknown))}"))
+        for owner in sorted(REQUIRED_ROW_OWNERS.get(row, set()) - set(refs)):
+            out.append(C.Finding("PURPOSE-ROW-OWNER", str(purpose_path), line_no,
+                                 f"{row}: cited test implementation task {owner} is missing from the row"))
     missing = EXPECTED_ROWS - seen
     if missing:
         out.append(C.Finding("PURPOSE-ROWS", str(purpose_path), 0,
@@ -128,13 +136,15 @@ def selftest():
     missing_test = json.loads(tasks)
     next(t for t in missing_test["tasks"] if t["id"] == "T-OP-08")["required_test_ids"] = []
     purpose = "| # | 구현 작업 |\n|---|---|\n" + "".join(
-        f"| P{i:02} | T-AA-01 |\n" for i in range(1, 20))
+        f"| P{i:02} | {', '.join(['T-AA-01', *sorted(REQUIRED_ROW_OWNERS.get(f'P{i:02}', set()))])} |\n"
+        for i in range(1, 20))
     files = {"tasks.json": tasks, "purpose.md": purpose}
     cases = [
         ("registered and linked", files, None),
         ("missing purpose test", dict(files, **{"tasks.json": json.dumps(missing_test)}), "PURPOSE-G12"),
         ("missing assigned owner", dict(files, **{"tasks.json": tasks.replace('"first-view-priority",', "", 1)}), "PURPOSE-OWNER"),
         ("unknown row task", dict(files, **{"purpose.md": purpose.replace("T-AA-01", "T-AA-99", 1)}), "PURPOSE-TASK"),
+        ("missing row owner", dict(files, **{"purpose.md": purpose.replace(", T-KN-04", "", 1)}), "PURPOSE-ROW-OWNER"),
         ("missing rows", dict(files, **{"purpose.md": ""}), "PURPOSE-ROWS"),
     ]
     return C.run_selftest("check_product_purpose", cases,
@@ -155,7 +165,7 @@ def main(argv=None):
                          args.purpose or args.root / DEFAULT_PURPOSE)
     except (OSError, ValueError, KeyError, TypeError) as exc:
         return C.usage_error(f"cannot read product-purpose inputs: {exc}")
-    return C.report(findings, "09 P01..P19 task links and all nine G12 product-purpose test IDs registered on assigned tasks (static only)",
+    return C.report(findings, "09 P01..P19 task links, P06/P17 owners and product-purpose test IDs registered on assigned tasks (static only)",
                     "product-purpose")
 
 

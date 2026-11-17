@@ -1,0 +1,7 @@
+Base HEAD: 99e32113b980c8f697daa835c05970b18de713ce
+Worktree: /workspace/onjeon-run/wt/audit6-purpose-table-test-id-mapping
+bb526be374a15280c05284a3f47661d8ff6b05303a37bdb9e3b90eb15e9ae642  docs/blueprint/proposals/설계검토_결과/tasks.json
+0e27bf007fd1178421c007d1059a6e757079d1b6267b4ed9b663667e78d03f50  docs/blueprint/proposals/설계검토_결과/03_작업명세.md
+a86f883417af0fccbc68d7e469c44cb8b377f509ece6cb7eaa99c861992e99af  docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+6ba9f83630921b9ffe7a0c57922dea5b01c9001ed635ad86502fa00ccffce40c  tools/ci/check_product_purpose.py
+0a8f300718afe159de6c31a7e3a17ff7054ad8d01c372f74d28f32797f94bfc3  tools/tests/test_product_purpose.py

@@ -1,0 +1,41 @@
+{
+  "evidence_path_tests": {
+    "exit_code": 0,
+    "tests": 5
+  },
+  "decision_regressions": {
+    "exit_code": 0,
+    "tests": 22
+  },
+  "python_full": {
+    "exit_code": 0,
+    "run": 1684,
+    "skipped": 6
+  },
+  "cargo_workspace": {
+    "exit_code": 0,
+    "passed": 532,
+    "ignored": 1
+  },
+  "ontology_runner": {
+    "exit_code": 0,
+    "passed": 4
+  },
+  "product_purpose": {
+    "exit_code": 0
+  },
+  "spec_check": {
+    "exit_code": 0,
+    "mechanical_passed": 46,
+    "presence_passed": 72
+  },
+  "live_readiness": {
+    "exit_code": 1,
+    "expected": true,
+    "open_purpose_rows": 19,
+    "open_features": 64
+  },
+  "git_diff_check": {
+    "exit_code": 0
+  }
+}

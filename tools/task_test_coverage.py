@@ -3,8 +3,10 @@
 
 Registration: tools/task_tests/<task>/coverage.py, with a literal TEST_IDS list
 of (required_id, "TestCaseClass.test_method") pairs. Each target must resolve to
-one unittest in that module. Native Rust/Flutter/web tests use unittest adapters
-that verify the native test count, exit status and evidence (see task_tests/README.md).
+one unittest in that module, and each required ID needs its own implementation:
+aliases resolving to the same method are rejected. Native Rust/Flutter/web tests
+use unittest adapters that verify the native test count, exit status and
+evidence (see task_tests/README.md).
 This is a task completion check, not a claim of product/release readiness.
 """
 import argparse
@@ -134,12 +136,20 @@ def run_task(root, task, stream):
         spec.loader.exec_module(module)
         require(module.TEST_IDS == entries, "TEST_IDS changed during module execution")
         suite = unittest.TestSuite()
+        implementations = []
         for test_id, target in entries:
             cls_name, method = target.split(".")
             cls = getattr(module, cls_name, None)
+            function = getattr(cls, method, None) if isinstance(cls, type) else None
             require(isinstance(cls, type) and issubclass(cls, unittest.TestCase)
-                    and cls.__module__ == module.__name__ and callable(getattr(cls, method, None)),
+                    and cls.__module__ == module.__name__ and callable(function),
                     f"{test_id}: missing local unittest {target}")
+            # Distinct target strings can alias one implementation (test_b = test_a,
+            # assignment, inheritance). Compare resolved identities, not names.
+            alias = next((prev for fn, prev in implementations if fn is function), None)
+            require(alias is None,
+                    f"{test_id}: {target} reuses the test implementation of {alias}")
+            implementations.append((function, target))
             case = cls(method)
             require(type(case) is cls and case._testMethodName == method,
                     f"{test_id}: test target changed during construction")

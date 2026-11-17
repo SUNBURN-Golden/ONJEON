@@ -254,6 +254,37 @@ class Contract(unittest.TestCase):
                 self.path.write_text(source)
                 self.assertEqual(self.cli().returncode, 0)
 
+    def test_method_aliases_cannot_share_one_implementation(self):
+        # Reviewer reproduction: distinct target strings, one resolved method.
+        head = ('import unittest\n'
+                'TEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "{second}")]\n'
+                'class Contract(unittest.TestCase):\n'
+                '    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n')
+        for source in (
+            head.format(second='Contract.test_second') + '    test_second = test_first\n',
+            head.format(second='Contract.test_second') + '\nContract.test_second = Contract.test_first\n',
+            head.format(second='Second.test_second') + '\nclass Second(unittest.TestCase):\n    test_second = Contract.test_first\n',
+            head.format(second='Derived.test_first') + '\nclass Derived(Contract):\n    pass\n',
+        ):
+            with self.subTest(source=source):
+                self.path.write_text(source)
+                result = self.cli()
+                self.assertEqual(result.returncode, 1)
+                self.assertIn('reuses the test implementation', result.stderr)
+                with self.assertRaises(ValueError):
+                    self.run_task()
+
+    def test_distinct_implementations_with_same_method_name_pass(self):
+        self.path.write_text('import unittest\n'
+                             'TEST_IDS = [("first-id", "Contract.test_check"), ("second-id", "Other.test_check")]\n'
+                             'class Contract(unittest.TestCase):\n'
+                             '    def test_check(self):\n        self.assertEqual(2 + 2, 4)\n'
+                             'class Other(unittest.TestCase):\n'
+                             '    def test_check(self):\n        self.assertRaises(ValueError, int, "x")\n')
+        self.assertEqual(self.cli().returncode, 0)
+        self.assertEqual(self.run_task(), 0)
+        self.assertIn('required=2, ran=2', self.output.getvalue())
+
     def test_task_isolation_does_not_borrow_another_task_registration(self):
         self.task['id'] = 'T-AA-02'
         with self.assertRaises(OSError):

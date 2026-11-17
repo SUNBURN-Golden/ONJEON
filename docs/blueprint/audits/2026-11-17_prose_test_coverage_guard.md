@@ -23,7 +23,8 @@ T-OP-07의 운영 기록은 증거 내용 검증 시험도 작성해야 한다. 
 
 과제 완료 명령은 `coverage.py`의 리터럴 `TEST_IDS`와 필수 목록을 양방향으로
 대조하고, 각 ID의 로컬 unittest 메서드를 실제 실행한다. 누락·미등록·중복 ID,
-하나의 메서드를 여러 ID에 재사용, 등록 파일·함수 부재, 실패·오류·skip·예상 실패,
+하나의 메서드를 여러 ID에 재사용(별칭·상속으로 같은 함수를 가리키는 경우 포함),
+등록 파일·함수 부재, 실패·오류·skip·예상 실패,
 실행 개수 불일치와 assertion 없는 빈 시험은 종료 코드 1이다. assertion은 등록된
 시험 메서드 실행 중에만 집계하므로 `setUp`·`tearDown`·cleanup 픽스처의
 assertion이 빈 메서드를 통과시키지 않는다. 모듈·클래스 준비 단계의 skip도
@@ -55,4 +56,36 @@ assertion과 실제 메서드 assertion의 병존·도우미·subTest는 통과.
 2개가 수정 전 실행기에서 실패함도 확인했다. 재실행 증거는
 [검증 증거 fix-round2](../../../tools/evidence/audit6-prose-test-coverage-guard/README.md)에
 있다. 이 수정은 검사 장치의 결함 수정이며 제품 시험 구현이나 출시 완료를
+주장하지 않는다.
+
+## Fix round 3: 별칭 메서드의 필수 ID 재사용 차단
+
+리뷰는 대상 문자열이 서로 달라도 같은 메서드를 가리키는 별칭 등록
+(`test_second = test_first`)이 `required=2, ran=2, coverage=PASS`로 통과하는
+재현을 보고했다(3b109a4에서 종료 코드 0 확인). 실행기는 이제 스위트를 만들기
+전에 각 대상이 해석된 함수를 동일성으로 비교한다. 클래스 안 별칭, 클래스 생성
+후 대입, 다른 클래스로의 별칭, 상속으로 같은 구현을 여러 필수 ID에 배정하면
+종료 코드 1이다. 메서드 이름이 같아도 구현이 다르면 통과한다. 회귀 시험 2개가
+추가됐다: 별칭 4종 거부(리뷰 재현 포함), 같은 이름의 서로 다른 구현 통과
+(양성 대조). 거부 회귀가 수정 전 실행기(3b109a4)에서 실패함도 확인했다.
+재실행 증거는
+[검증 증거 fix-round3](../../../tools/evidence/audit6-prose-test-coverage-guard/README.md)에
+있다. 이 수정은 검사 장치의 결함 수정이며 제품 시험 구현이나 출시 완료를
+주장하지 않는다.
+
+## Fix round 4: 공유 Cargo 타깃의 삭제된 작업 트리 바이너리 수리
+
+감독 실행의 `onjeon-api-types` 시험 10개 실패는 코드 결함이 아니라 환경
+결함이었다. 공유 타깃(`CARGO_TARGET_DIR=/workspace/onjeon-run/shared-target`)의
+시험 바이너리에 이미 삭제된 다른 작업 트리
+(`audit6-stop-daemon-investment`)의 절대 경로가 컴파일 시점에 박혀 있었고,
+cargo는 재컴파일 없이 그 바이너리를 재사용했다(`Finished in 0.04s`). 이 작업
+트리의 Rust 소스는 HEAD 대비 무변경이며 같은 실패를 재현했다. 실행 중인
+cargo/rustc 프로세스가 없음을 확인한 뒤 워크스페이스 8개 패키지 전부
+`cargo clean -p`로 공유 타깃을 수리하고 이 작업 트리에서 재빌드했다. 재빌드
+바이너리에는 이 작업 트리 경로가 박히며 전체 Rust 532 통과·1 ignored, 전체
+Python 1,707개·실패 0·기존 skip 6으로 round 3과 같은 결과다. 소스·작업 계약·
+완료 기준은 변경하지 않았다. 진단·재현·수리·재실행 증거는
+[검증 증거 fix-round4](../../../tools/evidence/audit6-prose-test-coverage-guard/README.md)에
+있다. 이 라운드는 검증 장치의 환경 수리이며 제품 시험 구현이나 출시 완료를
 주장하지 않는다.

@@ -27,7 +27,9 @@ class CoverageContract(unittest.TestCase):
 ```
 
 등록은 리터럴 목록이며 ID별로 이 파일에 정의된 `TestCase.test_method`를
-하나씩 가리킨다. 서로 다른 ID를 같은 메서드에 배정할 수 없다. 한 메서드는
+하나씩 가리킨다. 서로 다른 ID를 같은 메서드에 배정할 수 없다. 별칭
+(`test_b = test_a`), 클래스 생성 후 대입, 상속으로 같은 함수를 가리키는
+등록도 이름이 달라도 같은 구현의 재사용이므로 거부한다. 한 메서드는
 필요한 정상·음성·변이 사례를 `subTest` 등으로 함께 검사할 수 있다.
 네이티브 Rust·Flutter·웹 시험은 이 메서드에서 어댑터로 실행할 수 있다.
 어댑터는 필터에 맞는 시험이 실제로 실행됐는지(0개 통과 금지), 종료 코드,
@@ -35,7 +37,7 @@ class CoverageContract(unittest.TestCase):
 제품 요구 의미가 검증되는 것은 아니다. 실제 사례와 변이 검출은 리뷰 대상이다.
 
 필수 ID 목록과 등록이 정확히 같아야 실행한다. 등록 파일·함수 부재,
-누락·미등록·중복 ID, 재사용 메서드, 실행 실패·오류·skip·expectedFailure,
+누락·미등록·중복 ID, 재사용 메서드(별칭·상속 포함), 실행 실패·오류·skip·expectedFailure,
 실행 개수 불일치, unittest assertion을 한 번도 호출하지 않은 빈 시험은 종료 코드 1이다.
 assertion은 등록된 시험 메서드 실행 중에 호출해야 하며, `setUp`·`tearDown`·cleanup
 픽스처의 assertion은 빈 메서드를 통과시키지 않는다.

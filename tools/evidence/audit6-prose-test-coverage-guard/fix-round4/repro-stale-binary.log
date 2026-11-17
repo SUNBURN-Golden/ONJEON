@@ -1,0 +1,113 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_api_types-7c4a02dd950953e7)
+
+running 17 tests
+test tests::comparison_and_evaluation_targets_are_exactly_one ... ok
+test tests::a_required_any_value_must_be_present ... ok
+test tests::an_unknown_confirm_party_fails_instead_of_passing_as_a_string ... FAILED
+test tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required ... FAILED
+test tests::every_response_body_type_has_a_required_release_id ... FAILED
+test tests::fixtures_round_trip ... FAILED
+test tests::lookup_helpers ... FAILED
+test tests::money_in_requests_is_integer_won ... ok
+test tests::multipart_form_has_no_binary_field_and_keeps_the_password_out_of_other_types ... ok
+test tests::operation_ids_and_routes_are_unique ... ok
+test tests::unknown_enum_values_fail_instead_of_defaulting ... FAILED
+test tests::personal_and_console_are_never_publicly_cacheable ... ok
+test tests::operation_table_matches_the_openapi_documents ... FAILED
+test tests::skeleton_operations_are_not_exposed_by_default ... ok
+test tests::the_spec_pins_private_no_store_on_every_personal_and_console_response ... FAILED
+python3: can't open file '/workspace/onjeon-run/wt/audit6-stop-daemon-investment/packages/api-types/../schemas/codegen/gen.py': [Errno 2] No such file or directory
+test tests::generated_files_are_up_to_date ... FAILED
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/lib/python3.13/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    ~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 103, in __init__
+    self.parseArgs(argv)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 119, in parseArgs
+    self._do_discovery(argv[2:])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 242, in _do_discovery
+    self.createTests(from_discovery=True, Loader=Loader)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 149, in createTests
+    self.test = loader.discover(self.start, self.pattern, self.top)
+                ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/loader.py", line 308, in discover
+    raise ImportError('Start directory is not importable: %r' % start_dir)
+ImportError: Start directory is not importable: '/workspace/onjeon-run/wt/audit6-stop-daemon-investment/packages/api-types/../schemas/codegen/tests'
+test tests::python_openapi_suite_passes ... FAILED
+
+failures:
+
+---- tests::an_unknown_confirm_party_fails_instead_of_passing_as_a_string stdout ----
+
+thread 'tests::an_unknown_confirm_party_fails_instead_of_passing_as_a_string' (2276316) panicked at packages/api-types/src/tests.rs:20:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required stdout ----
+
+thread 'tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required' (2276318) panicked at packages/api-types/src/tests.rs:20:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- tests::every_response_body_type_has_a_required_release_id stdout ----
+
+thread 'tests::every_response_body_type_has_a_required_release_id' (2276319) panicked at packages/api-types/src/tests.rs:20:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- tests::fixtures_round_trip stdout ----
+
+thread 'tests::fixtures_round_trip' (2276320) panicked at packages/api-types/src/tests.rs:20:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- tests::lookup_helpers stdout ----
+
+thread 'tests::lookup_helpers' (2276322) panicked at packages/api-types/src/tests.rs:15:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- tests::unknown_enum_values_fail_instead_of_defaulting stdout ----
+
+thread 'tests::unknown_enum_values_fail_instead_of_defaulting' (2276332) panicked at packages/api-types/src/tests.rs:20:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- tests::operation_table_matches_the_openapi_documents stdout ----
+
+thread 'tests::operation_table_matches_the_openapi_documents' (2276327) panicked at packages/api-types/src/tests.rs:15:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- tests::the_spec_pins_private_no_store_on_every_personal_and_console_response stdout ----
+
+thread 'tests::the_spec_pins_private_no_store_on_every_personal_and_console_response' (2276331) panicked at packages/api-types/src/tests.rs:15:54:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+---- tests::generated_files_are_up_to_date stdout ----
+
+thread 'tests::generated_files_are_up_to_date' (2276321) panicked at packages/api-types/src/tests.rs:385:5:
+generated files are stale: run `bash packages/schemas/codegen/gen.sh`
+
+---- tests::python_openapi_suite_passes stdout ----
+
+thread 'tests::python_openapi_suite_passes' (2276329) panicked at packages/api-types/src/tests.rs:406:5:
+packages/schemas/codegen/tests/test_openapi.py failed
+
+
+failures:
+    tests::an_unknown_confirm_party_fails_instead_of_passing_as_a_string
+    tests::console_release_id_is_null_before_the_first_release_but_the_key_is_required
+    tests::every_response_body_type_has_a_required_release_id
+    tests::fixtures_round_trip
+    tests::generated_files_are_up_to_date
+    tests::lookup_helpers
+    tests::operation_table_matches_the_openapi_documents
+    tests::python_openapi_suite_passes
+    tests::the_spec_pins_private_no_store_on_every_personal_and_console_response
+    tests::unknown_enum_values_fail_instead_of_defaulting
+
+test result: FAILED. 7 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p onjeon-api-types --lib`

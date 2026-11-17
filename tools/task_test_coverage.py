@@ -67,18 +67,35 @@ def inventory(path, required):
 
 
 class RequiredResult(unittest.TextTestResult):
-    """An empty method is not a passing counterpart to a required ID."""
+    """An empty method is not a passing counterpart to a required ID.
+
+    Only assertions run inside the registered test method count. Assertions
+    in setUp/tearDown/cleanup fixtures cannot satisfy an empty method.
+    """
     def startTest(self, test):
         super().startTest(test)
         test._required_assertions = 0
+        test._required_counting = False
         for name in dir(test):
             method = getattr(test, name)
             if name.startswith("assert") and callable(method):
                 @functools.wraps(method)
                 def counted(*args, _method=method, **kwargs):
-                    test._required_assertions += 1
+                    if test._required_counting:
+                        test._required_assertions += 1
                     return _method(*args, **kwargs)
                 setattr(test, name, counted)
+        if isinstance(test, unittest.TestCase):
+            name = test._testMethodName
+            method = getattr(test, name)
+            @functools.wraps(method)
+            def counted_method(*args, _method=method, **kwargs):
+                test._required_counting = True
+                try:
+                    return _method(*args, **kwargs)
+                finally:
+                    test._required_counting = False
+            setattr(test, name, counted_method)
 
     def addSuccess(self, test):
         if not test._required_assertions:

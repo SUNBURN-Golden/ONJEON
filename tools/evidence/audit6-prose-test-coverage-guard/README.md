@@ -77,3 +77,52 @@ Python 전체 실행 수는 병합 전 1,697개에서 main의 증거 경로 회�
 64과제 전부 tasks.json의 done_criteria와 동기화됐고, 필수 시험 ID 칸도 일치한다.
 이 로그들은 병합 정합성 증거이며 실제 데이터 확보·제품 시험 수행·출시 완료를
 주장하지 않는다. 커밋·푸시·GitHub 호출·비밀값·프로덕션 접근은 없었다.
+
+## Fix round 2: 픽스처 assertion이 빈 필수 ID 시험을 통과시키던 결함 수정
+
+리뷰 지적: `RequiredResult.startTest()`가 `setUp()` 이전부터 assertion을 세고
+`addSuccess()`가 시험 전체 수명주기의 assertion을 인정해서, 공유 픽스처의
+assertion 하나가 `pass` 본문인 필수 ID 시험을 통과시켰다. 22380d2에서 재현 확인
+(단일 필수 ID, `setUp`의 `self.assertTrue(True)`, 본문 `pass` → 종료 코드 0).
+수정은 등록된 시험 메서드 실행 중에만 assertion을 집계한다: 메서드 래퍼가
+집계 플래그를 켜고 끝나면 끄며, `setUp`·`tearDown`·`addCleanup` 콜백의
+assertion은 집계하지 않는다. `tools/task_tests/README.md`와 감리 문서에 이
+조건을 명시했다.
+
+새 회귀 시험 3개(`tools/tests/test_task_test_coverage.py`):
+
+- `test_fixture_assertions_cannot_pass_empty_required_methods`: setUp만·
+  tearDown만·둘 다·cleanup만 assertion이 있고 두 본문이 `pass`이면 종료 코드 1
+  (실패 메시지 확인). 리뷰의 단일 ID 재현도 포함한다.
+- `test_fixture_assertions_cannot_mask_one_empty_method_of_two`: 실제 assertion
+  메서드 하나와 빈 메서드 하나가 섞이고 setUp이 assertion을 해도 종료 코드 1.
+- `test_real_method_assertions_pass_alongside_fixture_assertions`: 픽스처
+  assertion과 실제 메서드 assertion 병존, 도우미 메서드·subTest assertion은
+  종료 코드 0(양성 대조).
+
+증명 스크립트 2개: `repro_fixture_assertions.py`는 주어진 트리의 실행기로 빈
+메서드 거부 6건과 양성 2건의 종료 코드를 검사한다.
+`check_regressions_detect_prefix.py`는 수정 전 실행기(22380d2)를 임시 트리에
+놓고 새 회귀 3개를 실행해, 거부 회귀 2개는 실패하고 양성 대조는 통과함을
+검사한다(회귀가 실제 결함을 잡음을 증명).
+
+재실행(모두 이 작업 트리 루트에서):
+
+| 명령 | 결과·로그 |
+|---|---|
+| `python3 -m unittest discover -s tools/tests -p test_task_test_coverage.py -v` | 18개 통과, [coverage-tests.log](fix-round2/coverage-tests.log) |
+| `python3 -I tools/evidence/audit6-prose-test-coverage-guard/fix-round2/repro_fixture_assertions.py "$PWD"` | 거부 6건·양성 2건 모두 의도한 종료 코드, [repro-fixture-assertions.log](fix-round2/repro-fixture-assertions.log) |
+| `python3 -I tools/evidence/audit6-prose-test-coverage-guard/fix-round2/check_regressions_detect_prefix.py "$PWD"` | 수정 전 실행기에서 거부 회귀 2개 실패·양성 통과, [regressions-vs-prefix.log](fix-round2/regressions-vs-prefix.log) |
+| `python3 -m unittest discover -s tools/tests -v` | 1,705개·실패 0·기존 skip 6, [python-tests.log](fix-round2/python-tests.log) |
+| `cargo test --all --locked --offline` | 532 통과·1 ignored, [cargo-tests.log](fix-round2/cargo-tests.log) |
+| `cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline` | 4 통과, [ontology-tests.log](fix-round2/ontology-tests.log) |
+| `python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py` | 기계 47/47·존재 72/72(G12c 포함), [spec-check.log](fix-round2/spec-check.log) |
+| `python3 -I tools/daemon/dry_run.py --rules docs/blueprint/proposals/설계검토_결과/daemon_rules.json --tasks tools/daemon/mock_tasks.json --scenario all --require-all --quiet` | 종료 코드 0, [daemon-tests.log](fix-round2/daemon-tests.log); 기존 모의 GAP은 제품 완료 증거 아님 |
+| `python3 -I tools/evidence/audit6-prose-test-coverage-guard/check_missing_task_suites.py` | 필수 ID 27과제 등록 부재 전부 종료 코드 1 거부, 35과제 빈 목록 명시, [missing-suites.log](fix-round2/missing-suites.log) |
+| `python3 -I tools/validation_check.py --selftest` | 변이 40개 모두 의도한 이유로 검출, [validation-selftest.log](fix-round2/validation-selftest.log) |
+
+Python 전체 실행 수는 round 1의 1,702개에 새 회귀 3개가 더해져 1,705개다.
+skip 6개는 같은 환경 의존 skip이다. Rust 코드는 변경하지 않았고 두 Cargo 실행은
+round 1과 같은 결과다. tasks.json·완료 기준 표는 변경하지 않았다. 이 수정은
+검사 장치의 결함 수정이며 제품 시험 구현·실제 데이터 확보·출시 완료를 주장하지
+않는다. 커밋·푸시·GitHub 호출·비밀값·프로덕션 접근은 없었다.

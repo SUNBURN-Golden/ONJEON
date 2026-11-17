@@ -37,6 +37,8 @@ class CoverageContract(unittest.TestCase):
 필수 ID 목록과 등록이 정확히 같아야 실행한다. 등록 파일·함수 부재,
 누락·미등록·중복 ID, 재사용 메서드, 실행 실패·오류·skip·expectedFailure,
 실행 개수 불일치, unittest assertion을 한 번도 호출하지 않은 빈 시험은 종료 코드 1이다.
+assertion은 등록된 시험 메서드 실행 중에 호출해야 하며, `setUp`·`tearDown`·cleanup
+픽스처의 assertion은 빈 메서드를 통과시키지 않는다.
 어댑터도 `self.assertEqual`·`self.assertTrue` 등 unittest assertion으로 결과를 검사한다. 실행기에서 일부 ID만 선택하는 기능은 없다.
 필수 ID가 빈 목록이면 그 사실을 출력한다. ID를 추가하면 등록 파일이 없는
 경우부터 실패한다. ID 없는 `시험 …` 설명도 실패한다.

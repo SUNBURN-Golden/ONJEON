@@ -203,6 +203,57 @@ class Contract(unittest.TestCase):
             'class Contract(unittest.TestCase):\n    @classmethod\n    def setUpClass(cls):\n        raise unittest.SkipTest("missing evidence")'))
         self.assertEqual(self.cli().returncode, 1)
 
+    def test_fixture_assertions_cannot_pass_empty_required_methods(self):
+        empty = self.source.replace('self.assertEqual(2 + 2, 4)', 'pass') \
+                           .replace('self.assertRaises(ValueError, int, "x")', 'pass')
+        for fixture in (
+            '    def setUp(self):\n        self.assertTrue(True)\n',
+            '    def tearDown(self):\n        self.assertTrue(True)\n',
+            '    def setUp(self):\n        self.assertTrue(True)\n'
+            '    def tearDown(self):\n        self.assertTrue(True)\n',
+            '    def setUp(self):\n        self.addCleanup(self.assertTrue, True)\n',
+        ):
+            with self.subTest(fixture=fixture):
+                self.path.write_text(empty.replace('class Contract(unittest.TestCase):\n',
+                                                   'class Contract(unittest.TestCase):\n' + fixture))
+                result = self.cli()
+                self.assertEqual(result.returncode, 1)
+                self.assertIn('required-ID test ran no unittest assertions', result.stdout)
+        # Reviewer reproduction: one required ID, shared setUp assertion, pass body.
+        self.task['required_test_ids'] = ['first-id']
+        self.task['tests'] = ['시험 first-id: first']
+        self.path.write_text('import unittest\n'
+                             'TEST_IDS = [("first-id", "EmptyRequiredTest.test_missing_product_behavior")]\n'
+                             'class EmptyRequiredTest(unittest.TestCase):\n'
+                             '    def setUp(self):\n        self.assertTrue(True)\n'
+                             '    def test_missing_product_behavior(self):\n        pass\n')
+        self.assertEqual(self.cli().returncode, 1)
+
+    def test_fixture_assertions_cannot_mask_one_empty_method_of_two(self):
+        source = self.source.replace('self.assertRaises(ValueError, int, "x")', 'pass')
+        source = source.replace('class Contract(unittest.TestCase):\n',
+                                'class Contract(unittest.TestCase):\n'
+                                '    def setUp(self):\n        self.assertTrue(True)\n')
+        self.path.write_text(source)
+        self.assertEqual(self.cli().returncode, 1)
+
+    def test_real_method_assertions_pass_alongside_fixture_assertions(self):
+        for fixture in (
+            '    def setUp(self):\n        self.assertTrue(True)\n',
+            '    def setUp(self):\n        self.assertTrue(True)\n'
+            '    def tearDown(self):\n        self.assertTrue(True)\n',
+            '    def helper(self):\n        self.assertEqual(1, 1)\n',
+        ):
+            with self.subTest(fixture=fixture):
+                source = self.source.replace('class Contract(unittest.TestCase):\n',
+                                             'class Contract(unittest.TestCase):\n' + fixture)
+                if 'helper' in fixture:
+                    source = source.replace('self.assertEqual(2 + 2, 4)',
+                                            'self.helper()\n        with self.subTest(x=1):\n'
+                                            '            self.assertTrue(True)')
+                self.path.write_text(source)
+                self.assertEqual(self.cli().returncode, 0)
+
     def test_task_isolation_does_not_borrow_another_task_registration(self):
         self.task['id'] = 'T-AA-02'
         with self.assertRaises(OSError):

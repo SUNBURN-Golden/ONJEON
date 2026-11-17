@@ -1,0 +1,3 @@
+HEAD strict-path findings: 6
+worktree strict-path findings: 6
+PASS: exact pre-existing strict-path findings unchanged

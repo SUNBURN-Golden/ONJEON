@@ -1,0 +1,64 @@
+product_tasks=62, prose_descriptions=64
+T-CT-01: required=0, exit=0, explicit empty required list
+T-CT-02: required=0, exit=0, explicit empty required list
+T-CT-03: required=0, exit=0, explicit empty required list
+T-CT-04: required=0, exit=0, explicit empty required list
+T-CT-05: required=0, exit=0, explicit empty required list
+T-CT-06: required=1, exit=1, missing suite rejected
+T-CT-07: required=1, exit=1, missing suite rejected
+T-CT-08: required=1, exit=1, missing suite rejected
+T-OP-01: required=0, exit=0, explicit empty required list
+T-KN-01: required=11, exit=1, missing suite rejected
+T-KN-02: required=0, exit=0, explicit empty required list
+T-KN-03: required=0, exit=0, explicit empty required list
+T-TW-01: required=10, exit=1, missing suite rejected
+T-TW-02: required=0, exit=0, explicit empty required list
+T-DT-01: required=0, exit=0, explicit empty required list
+T-DT-02: required=0, exit=0, explicit empty required list
+T-KN-04: required=2, exit=1, missing suite rejected
+T-KN-05: required=0, exit=0, explicit empty required list
+T-KN-06: required=1, exit=1, missing suite rejected
+T-TW-03: required=0, exit=0, explicit empty required list
+T-KN-07: required=4, exit=1, missing suite rejected
+T-AP-01: required=0, exit=0, explicit empty required list
+T-AP-02: required=1, exit=1, missing suite rejected
+T-AP-03: required=0, exit=0, explicit empty required list
+T-MB-01: required=0, exit=0, explicit empty required list
+T-MB-02: required=2, exit=1, missing suite rejected
+T-OP-02: required=0, exit=0, explicit empty required list
+T-DT-03: required=0, exit=0, explicit empty required list
+T-KN-08: required=1, exit=1, missing suite rejected
+T-TW-04: required=0, exit=0, explicit empty required list
+T-KN-09: required=0, exit=0, explicit empty required list
+T-KN-12: required=1, exit=1, missing suite rejected
+T-KN-13: required=0, exit=0, explicit empty required list
+T-KN-14: required=1, exit=1, missing suite rejected
+T-OP-03: required=1, exit=1, missing suite rejected
+T-DT-04: required=1, exit=1, missing suite rejected
+T-DT-05: required=0, exit=0, explicit empty required list
+T-OP-04: required=0, exit=0, explicit empty required list
+T-DT-06: required=0, exit=0, explicit empty required list
+T-AP-04: required=1, exit=1, missing suite rejected
+T-PS-01: required=0, exit=0, explicit empty required list
+T-PS-02: required=0, exit=0, explicit empty required list
+T-PS-03: required=0, exit=0, explicit empty required list
+T-TW-05: required=2, exit=1, missing suite rejected
+T-TW-06: required=3, exit=1, missing suite rejected
+T-AP-05: required=0, exit=0, explicit empty required list
+T-AP-09: required=4, exit=1, missing suite rejected
+T-WB-01: required=0, exit=0, explicit empty required list
+T-WB-02: required=0, exit=0, explicit empty required list
+T-AP-06: required=0, exit=0, explicit empty required list
+T-KN-10: required=0, exit=0, explicit empty required list
+T-KN-11: required=0, exit=0, explicit empty required list
+T-AP-07: required=3, exit=1, missing suite rejected
+T-AP-08: required=1, exit=1, missing suite rejected
+T-MB-04: required=3, exit=1, missing suite rejected
+T-MB-03: required=3, exit=1, missing suite rejected
+T-PS-04: required=0, exit=0, explicit empty required list
+T-OP-05: required=0, exit=0, explicit empty required list
+T-OP-06: required=1, exit=1, missing suite rejected
+T-UX-01: required=1, exit=1, missing suite rejected
+T-OP-07: required=1, exit=1, missing suite rejected
+T-OP-08: required=2, exit=1, missing suite rejected
+PASS: no unimplemented required ID was reported as passing

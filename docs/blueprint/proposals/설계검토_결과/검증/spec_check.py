@@ -34,6 +34,8 @@
   tasks[].verification_kind: dry_run | real_executor (해당 과제만)
   목록을 훑어 '나쁜 항목이 없음'을 보는 검사(G4c·G7b·G9·G26)는 훑은 항목이 0개면 실패한다(audit2-spec-check-vacuous).
   G12b는 T-OP-00 필수 ID와 두 시나리오 소스의 등록·함수 정의·모의 목록을 대조한다.
+  G12c는 모든 제품 과제에 필수 ID 실행 명령·완료 기준과 시험 작성 경로를 요구한다.
+  G12c 통과는 작업 계약 정합성이다. 각 과제 완료 시 task_test_coverage.py가 실제 시험을 실행한다.
   동작 통과는 별도 unittest와 dry_run.py --scenario all --require-all로 검증한다.
   07_수정대응표.md: 지적마다 변경 위치·시험 종류·증명 범위·미검증
 """
@@ -85,6 +87,45 @@ def check(fid, name, ok, detail, kind="기계"):
 
 
 # ---------- 공통 도구 ----------
+def product_test_contract_problems(tasks):
+    """Check obligations only; unimplemented task suites are checked at task completion."""
+    problems = []
+    products = [t for t in tasks.values() if t["id"] not in ("T-OP-00", "T-OP-09")]
+    if not products:
+        return ["no product tasks"]
+    for t in products:
+        tid = t["id"]
+        command = f"python3 -I tools/task_test_coverage.py --task {tid}"
+        scope = f"tools/task_tests/{tid}/**"
+        ids, tests = t.get("required_test_ids"), t.get("tests")
+        valid_ids = (isinstance(ids, list) and all(isinstance(i, str) and
+                     re.fullmatch(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)+", i) for i in ids))
+        if not valid_ids or len(ids) != len(set(ids)):
+            problems.append(f"{tid}: invalid/duplicate required_test_ids")
+            continue
+        if not isinstance(tests, list) or not all(isinstance(c, str) for c in tests):
+            problems.append(f"{tid}: invalid tests")
+            continue
+        if tests.count(command) != 1:
+            problems.append(f"{tid}: must run exactly once: {command}")
+        if command not in t.get("done_criteria", []):
+            problems.append(f"{tid}: missing required-ID completion criterion")
+        if scope not in t.get("allowed_paths", []) or scope not in t.get("conflict_paths", []):
+            problems.append(f"{tid}: coverage suite needs allowed/conflict path {scope}")
+        described = []
+        for description in tests:
+            if not description.startswith("시험 "):
+                continue
+            match = re.match(r"시험 ([a-z][a-z0-9]*(?:-[a-z0-9]+)+)(?=[:(\s])", description)
+            if not match or match[1] not in ids:
+                problems.append(f"{tid}: prose test has no required ID: {description}")
+            else:
+                described.append(match[1])
+        if set(ids) != set(described) or len(described) != len(set(described)):
+            problems.append(f"{tid}: required IDs and prose descriptions must match exactly once")
+    return problems
+
+
 def daemon_test_inventory(repo):
     """Read the two literal scenario registries without importing/executing their code.
 
@@ -563,6 +604,10 @@ def run(repo, T=None, D=None):
     ok = cov["required_count"] > 0 and cov["fixture_matches"] and not any(
         cov[k] for k in ("missing", "unlisted", "repeated", "repeated_required", "repeated_scenarios", "errors"))
     check("latewrite", "G12b T-OP-00 필수 시험 ID마다 등록된 시나리오 함수가 있고 모의 목록과 일치", ok, cov)
+    # Audit 6: the supervisor may skip prose, but must execute this task's ID coverage command.
+    product_problems = product_test_contract_problems(tasks)
+    check("ci", "G12c 모든 제품 과제의 필수 ID 실행 검사·완료 기준·시험 등록 경로가 있음",
+          not product_problems, product_problems)
     # G14 실제 실행기 검증 과제가 모의 검증(dry-run)과 분리되어 있다(추가 기준 5)
     real = [t for t in tasks.values() if t.get("verification_kind") == "real_executor"]
     mock = [t for t in tasks.values() if t.get("verification_kind") == "dry_run"]
@@ -785,7 +830,7 @@ def run(repo, T=None, D=None):
     t09 = " ".join(" ".join(t.get("tests", []) + [c if isinstance(c, str) else c.get("text", "") for c in t.get("done_criteria", [])]) for tid, t in tasks.items() if tid == "T-AP-09")
     check("consistency", "G41 [R06③] T-AP-09가 이유 종류별 근거(사실→주장, 가정→사용자 가정, 기준 평가→기준 판)를 검사", all(w in t09 for w in ("사실 이유", "가정 이유", "기준 평가 이유")), "", kind="존재 검사")
     # Audit 5: tasks.json 의 시험 명령이 셸에서 실행 가능해야 하고, cargo test 는 필터를 하나만 받는다.
-    # '시험 …' 으로 시작하는 줄은 명령이 아니라 설명(T-OP-00 필수 시험 ID 등)이므로 건너뛴다.
+    # '시험 …'은 셸 명령이 아니다. 제품 과제의 대응 ID·필수 실행 명령은 G12c가 검사한다.
     shell_bad, cargo_bad = [], []
     examined = skipped = registry_cargo = 0
     for tid, t in tasks.items():

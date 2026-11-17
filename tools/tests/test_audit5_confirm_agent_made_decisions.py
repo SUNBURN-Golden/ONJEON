@@ -238,7 +238,7 @@ class D16ConfirmationHook(unittest.TestCase):
     def test_tux01_owns_prereg_and_pre_fixed_numbers(self):
         tasks = {t["id"]: t for t in json.loads(read(BUNDLE / "tasks.json"))["tasks"]}
         tux = tasks["T-UX-01"]
-        self.assertEqual(["docs/ux-tests/**"], tux["allowed_paths"])
+        self.assertEqual(["docs/ux-tests/**", "tools/task_tests/T-UX-01/**"], tux["allowed_paths"])
         self.assertIn("수락 수치가 시험 전에 고정되어 있다", tux["done_criteria"])
         u7 = next(item for item in tux["done_criteria"] if "U7" in item)
         self.assertIn("설명과 원문 대조", u7)

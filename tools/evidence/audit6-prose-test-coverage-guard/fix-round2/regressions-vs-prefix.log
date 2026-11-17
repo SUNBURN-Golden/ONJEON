@@ -1,0 +1,70 @@
+test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) ... 
+  test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def setUp(self):\n        self.assertTrue(True)\n') ... FAIL
+  test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def tearDown(self):\n        self.assertTrue(True)\n') ... FAIL
+  test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def setUp(self):\n        self.assertTrue(True)\n    def tearDown(self):\n        self.assertTrue(True)\n') ... FAIL
+  test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def setUp(self):\n        self.addCleanup(self.assertTrue, True)\n') ... FAIL
+test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) ... FAIL
+test_fixture_assertions_cannot_mask_one_empty_method_of_two (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_mask_one_empty_method_of_two) ... FAIL
+test_real_method_assertions_pass_alongside_fixture_assertions (test_task_test_coverage.TaskCoverageExecution.test_real_method_assertions_pass_alongside_fixture_assertions) ... ok
+
+======================================================================
+FAIL: test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def setUp(self):\n        self.assertTrue(True)\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmp8iif2s16/tools/tests/test_task_test_coverage.py", line 220, in test_fixture_assertions_cannot_pass_empty_required_methods
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def tearDown(self):\n        self.assertTrue(True)\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmp8iif2s16/tools/tests/test_task_test_coverage.py", line 220, in test_fixture_assertions_cannot_pass_empty_required_methods
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def setUp(self):\n        self.assertTrue(True)\n    def tearDown(self):\n        self.assertTrue(True)\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmp8iif2s16/tools/tests/test_task_test_coverage.py", line 220, in test_fixture_assertions_cannot_pass_empty_required_methods
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods) (fixture='    def setUp(self):\n        self.addCleanup(self.assertTrue, True)\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmp8iif2s16/tools/tests/test_task_test_coverage.py", line 220, in test_fixture_assertions_cannot_pass_empty_required_methods
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_fixture_assertions_cannot_pass_empty_required_methods (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_pass_empty_required_methods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmp8iif2s16/tools/tests/test_task_test_coverage.py", line 230, in test_fixture_assertions_cannot_pass_empty_required_methods
+    self.assertEqual(self.cli().returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_fixture_assertions_cannot_mask_one_empty_method_of_two (test_task_test_coverage.TaskCoverageExecution.test_fixture_assertions_cannot_mask_one_empty_method_of_two)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmp8iif2s16/tools/tests/test_task_test_coverage.py", line 238, in test_fixture_assertions_cannot_mask_one_empty_method_of_two
+    self.assertEqual(self.cli().returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.348s
+
+FAILED (failures=6)
+
+pre-fix runner 22380d2: ran=3, failing=['test_fixture_assertions_cannot_mask_one_empty_method_of_two', 'test_fixture_assertions_cannot_pass_empty_required_methods']
+PASS: new regressions detect the pre-fix fixture-assertion bypass

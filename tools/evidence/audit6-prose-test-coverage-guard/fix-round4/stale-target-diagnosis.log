@@ -1,0 +1,19 @@
+# 재현: 공유 타깃의 삭제된 작업 트리 경로 박힌 시험 바이너리
+## 작업 트리 목록 (audit6-stop-daemon-investment 부재)
+_nogh
+audit6-archive-localstore-key-confinement
+audit6-d04-token-vs-gate
+audit6-daemon-secret-patterns
+audit6-engine-money-range-compare
+audit6-prose-test-coverage-guard
+owner-rulings-20261102
+
+## 실행 중 cargo/rustc 프로세스
+(없음)
+
+## 바이너리에 박힌 경로 (strings)
+/workspace/onjeon-run/wt/audit6-stop-daemon-investment
+/workspace/onjeon-run/wt/audit6-stop-daemon-investment/packages/api-types../schemaspathsoperationIdx-onjeon-skeletonget_current_releaseGET/v1/releases/currentrelease_idCurrentReleaseResponse
+
+## 이 작업 트리의 Rust 소스는 HEAD 대비 무변경
+(빈 출력 = 무변경)

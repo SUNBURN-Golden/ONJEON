@@ -1,0 +1,24 @@
+HEAD intent (audit6-prose-test-coverage-guard): coverage command + suite scope on every product task
+  product tasks missing exactly-once coverage command in tests+done_criteria: none (62/62)
+  product tasks missing tools/task_tests scope: none (62/62)
+  T-KN-06 required_test_ids: ['review-provider-run-evidence']
+  T-OP-03 required_test_ids: ['review-pilot-measurement-evidence']
+  T-OP-06 required_test_ids: ['security-inspection-evidence']
+  T-UX-01 required_test_ids: ['user-comprehension-evidence']
+  T-OP-07 required_test_ids: ['rehearsal-operation-evidence']
+  T-CT-08 required_test_ids: ['amount-evidence-axes-required']
+  spec_check G12c present: True
+  03 §7 coverage prose present: True
+  guard tool + regression suite exist: True True
+main intent (audit6-evidence-path-for-all-tasks): evidence write path on every product task
+  product tasks missing evidence allowed/produces/conflict grants: none (61/61)
+  T-OP-08 keeps aggregate grant: True and gains release-readiness conflict lock: True
+  field_definitions.allowed_paths evidence text: True
+  field_definitions.tests coverage text (HEAD): True
+  field_definitions.required_test_ids registration text (HEAD): True
+  03 field-definition line carries main's evidence note: True
+  09 §0 evidence-path bullet present: True
+  main's regression suite exists: True
+T-UX-01 allowed_paths (both grants + prereg): ['docs/ux-tests/**', 'tools/task_tests/T-UX-01/**', 'docs/release-readiness/evidence/T-UX-01/**']
+T-UX-01 conflict_paths: ['docs/ux-tests/**', 'tools/task_tests/T-UX-01/**', 'docs/release-readiness/evidence/T-UX-01/**']
+03 §7 done-criteria column synced with tasks.json for all 64 rows: yes

@@ -1,0 +1,7 @@
+OK  reviewer repro: in-class alias test_second = test_first: exit 1 (want 1)
+OK  assignment after class creation: exit 1 (want 1)
+OK  alias through another local TestCase class: exit 1 (want 1)
+OK  inherited method registered under a subclass target: exit 1 (want 1)
+OK  positive: two distinct methods: exit 0 (want 0)
+OK  positive: same method name, distinct implementations in two classes: exit 0 (want 0)
+PASS: one implementation per required ID, aliases rejected

@@ -240,6 +240,7 @@ class D16ConfirmationHook(unittest.TestCase):
         tux = tasks["T-UX-01"]
         self.assertEqual([
             "docs/ux-tests/**",
+            "tools/task_tests/T-UX-01/**",
             "docs/release-readiness/evidence/T-UX-01/**",
         ], tux["allowed_paths"])
         self.assertIn("수락 수치가 시험 전에 고정되어 있다", tux["done_criteria"])

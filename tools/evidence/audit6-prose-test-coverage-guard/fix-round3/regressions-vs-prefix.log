@@ -1,0 +1,50 @@
+test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) ... 
+  test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Contract.test_second")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n    test_second = test_first\n') ... FAIL
+  test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Contract.test_second")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n\nContract.test_second = Contract.test_first\n') ... FAIL
+  test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Second.test_second")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n\nclass Second(unittest.TestCase):\n    test_second = Contract.test_first\n') ... FAIL
+  test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Derived.test_first")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n\nclass Derived(Contract):\n    pass\n') ... FAIL
+test_distinct_implementations_with_same_method_name_pass (test_task_test_coverage.TaskCoverageExecution.test_distinct_implementations_with_same_method_name_pass) ... ok
+
+======================================================================
+FAIL: test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Contract.test_second")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n    test_second = test_first\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpybd9ac3v/tools/tests/test_task_test_coverage.py", line 272, in test_method_aliases_cannot_share_one_implementation
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Contract.test_second")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n\nContract.test_second = Contract.test_first\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpybd9ac3v/tools/tests/test_task_test_coverage.py", line 272, in test_method_aliases_cannot_share_one_implementation
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Second.test_second")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n\nclass Second(unittest.TestCase):\n    test_second = Contract.test_first\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpybd9ac3v/tools/tests/test_task_test_coverage.py", line 272, in test_method_aliases_cannot_share_one_implementation
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_method_aliases_cannot_share_one_implementation (test_task_test_coverage.TaskCoverageExecution.test_method_aliases_cannot_share_one_implementation) (source='import unittest\nTEST_IDS = [("first-id", "Contract.test_first"), ("second-id", "Derived.test_first")]\nclass Contract(unittest.TestCase):\n    def test_first(self):\n        self.assertEqual(2 + 2, 4)\n\nclass Derived(Contract):\n    pass\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpybd9ac3v/tools/tests/test_task_test_coverage.py", line 272, in test_method_aliases_cannot_share_one_implementation
+    self.assertEqual(result.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.193s
+
+FAILED (failures=4)
+
+pre-fix runner 3b109a4: ran=2, failing=['test_method_aliases_cannot_share_one_implementation']
+PASS: new regression detects the pre-fix method-alias bypass

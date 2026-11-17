@@ -1,0 +1,9 @@
+OK  reviewer repro: setUp assertion, pass body: exit 1 (want 1)
+OK  setUp only, both bodies empty: exit 1 (want 1)
+OK  tearDown only, both bodies empty: exit 1 (want 1)
+OK  setUp+tearDown, both bodies empty: exit 1 (want 1)
+OK  cleanup only, both bodies empty: exit 1 (want 1)
+OK  one real method, one empty, setUp asserts: exit 1 (want 1)
+OK  positive: fixture assertions + real bodies: exit 0 (want 0)
+OK  positive: helper + subTest assertions: exit 0 (want 0)
+PASS: fixture assertions cannot satisfy empty required-ID methods

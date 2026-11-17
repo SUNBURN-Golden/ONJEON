@@ -1,0 +1,51 @@
+BAD reviewer repro: in-class alias test_second = test_first: exit 0 (want 1)
+first-id -> Contract.test_first
+second-id -> Contract.test_second
+test_first (task_coverage_T_AA_01.Contract.test_first) ... ok
+test_second (task_coverage_T_AA_01.Contract.test_second) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+T-AA-01: required=2, ran=2, skipped=0, expected_failures=0, coverage=PASS
+
+BAD assignment after class creation: exit 0 (want 1)
+first-id -> Contract.test_first
+second-id -> Contract.test_second
+test_first (task_coverage_T_AA_01.Contract.test_first) ... ok
+test_second (task_coverage_T_AA_01.Contract.test_second) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+T-AA-01: required=2, ran=2, skipped=0, expected_failures=0, coverage=PASS
+
+BAD alias through another local TestCase class: exit 0 (want 1)
+first-id -> Contract.test_first
+second-id -> Second.test_second
+test_first (task_coverage_T_AA_01.Contract.test_first) ... ok
+test_second (task_coverage_T_AA_01.Second.test_second) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+T-AA-01: required=2, ran=2, skipped=0, expected_failures=0, coverage=PASS
+
+BAD inherited method registered under a subclass target: exit 0 (want 1)
+first-id -> Contract.test_first
+second-id -> Derived.test_first
+test_first (task_coverage_T_AA_01.Contract.test_first) ... ok
+test_first (task_coverage_T_AA_01.Derived.test_first) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+T-AA-01: required=2, ran=2, skipped=0, expected_failures=0, coverage=PASS
+
+OK  positive: two distinct methods: exit 0 (want 0)
+OK  positive: same method name, distinct implementations in two classes: exit 0 (want 0)
+FAIL: an alias registration was not rejected

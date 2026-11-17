@@ -1,0 +1,22 @@
+Pre-existing tools/ci/tests failures (2), NOT introduced by this merge:
+test_ci_checkers.RepoIsClean.test_real_repo_passes_every_checker and
+test_cli_exit_codes_under_isolated_mode fail on check_deps findings for packages/ontology:
+  [DEP-ZONE] packages/ontology/Cargo.toml:15 knowledge may not depend on onjeon-rules-engine (twin)
+  [IMP-ZONE] packages/ontology/tests/common/mod.rs:350 and tests/fixture_origin/main.rs:126
+The dependency is a [dev-dependencies] entry used only by ontology case tests (T-KN-02);
+infra/ci/deps.json dependency_exceptions has no entry for it (only onjeon-contracts).
+
+Proof the inputs are identical on both merge parents and unchanged by the resolution:
+$ git diff HEAD MERGE_HEAD -- packages/ontology infra/ci tools/ci/check_deps.py tools/ci/tests
+(empty diff: exit 0)
+$ git diff HEAD -- packages/ontology infra/ci tools/ci/check_deps.py tools/ci/tests (working tree vs HEAD)
+(empty diff: exit 0)
+
+ci.yml does not wire tools/ci/tests (its Python step discovers tools/tests only):
+29:          python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
+33:        run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v
+51:        run: python3 -m unittest discover -s tools/tests -v
+79:        run: ONJEON_ONTOLOGY_RUNNER="$RUNNER_TEMP/onto/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -p test_ontology_runner_io_error.py -v
+
+Zone-policy change (dependency_exceptions entry or zone rule) belongs to the T-CT-06/T-KN-02
+rule owners, not this evidence-path node; left untouched and reported here.

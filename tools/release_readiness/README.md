@@ -22,6 +22,23 @@ Malformed input never produces passing counts. Tests run in the existing CI
 `tools/tests` discovery step; CI does not require the unfinished product to pass
 the live readiness gate.
 
+## Task evidence ownership
+
+Every product task except the developer-tool tasks T-OP-00/T-OP-09 can write
+its own `docs/release-readiness/evidence/<task-id>/**` artifacts and acceptance
+logs. These paths are explicit in `tasks.json` permissions, outputs and conflict
+locks. T-OP-08 retains its existing release-readiness directory grant and
+aggregates reviewed artifacts into the shared `evidence/readiness.json`; other
+tasks cannot edit that manifest or one another's evidence. References in the
+manifest are relative to the evidence directory, e.g.
+`T-DT-04/denominator-report.md` and `T-DT-04/acceptance.log`. Evidence may be
+referenced by multiple purpose rows/features without copying it.
+
+Path grants do not waive data, privacy, publication or release decision gates.
+Developer-tool regressions remain outside product completion evidence. The
+existing Python CI discovery runs `test_evidence_paths.py` against every live
+product task using the daemon's actual R-01 scope predicate.
+
 ## Version 1 input
 
 The evidence directory contains `readiness.json`, an explicit snapshot maintained

@@ -43,7 +43,7 @@ class CurrentState(unittest.TestCase):
                 current = self.rows[mid][-1]
                 self.assertIn("완료" if mid in ("M0", "V0") else "관문 미통과", current)
         self.assertIn("기관", self.rows["V0"][-1])
-        self.assertIn("미열거", self.rows["V0"][-1])
+        self.assertIn("초기 관측과 전체 분모 판정은 M3", self.rows["V0"][-1])
 
     def test_m1_reports_generated_contracts_and_review_schema_limits(self):
         current = self.rows["M1"][-1]
@@ -74,7 +74,7 @@ class CurrentState(unittest.TestCase):
         self.assertIn("audit2-v1-gate-closure.md", v1)
 
     def test_future_milestones_keep_actual_data_and_screen_gates_open(self):
-        expected = {"M3": ("O19", "미열거"), "M4": ("I7", "I8"),
+        expected = {"M3": ("O19", "초기 실행", "전체 분모", "/coverage", "I17"), "M4": ("I7", "I8"),
                     "M5": ("PDF", "두 안 비교"), "M6": ("T-OP-08", "P01~P19")}
         for mid, terms in expected.items():
             for term in terms:

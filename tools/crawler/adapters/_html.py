@@ -63,15 +63,16 @@ class Element:
 
 
 class _Parser(HTMLParser):
-    def __init__(self):
+    def __init__(self, max_nodes):
         super().__init__(convert_charrefs=True)
         self.root = Element("root", closed=True)
         self.stack = [self.root]
         self.count = 0
+        self.max_nodes = max_nodes
 
     def handle_starttag(self, tag, attrs):
         self.count += 1
-        if self.count > MAX_NODES or len(self.stack) >= MAX_DEPTH:
+        if self.count > self.max_nodes or len(self.stack) >= MAX_DEPTH:
             raise ParseError("html_structure_limit")
         if len(dict(attrs)) != len(attrs):
             raise ParseError("duplicate_attributes")
@@ -96,12 +97,14 @@ class _Parser(HTMLParser):
         self.stack[-1].children.append(data)
 
 
-def parse_html(page_bytes, encoding="utf-8"):
+def parse_html(page_bytes, encoding="utf-8", *, max_bytes=None, max_nodes=None):
     if not isinstance(page_bytes, bytes):
         raise TypeError("page_bytes must be bytes")
-    if len(page_bytes) > MAX_HTML_BYTES:
+    if max_bytes is None:
+        max_bytes = MAX_HTML_BYTES
+    if len(page_bytes) > max_bytes:
         raise ParseError("html_size_limit")
-    parser = _Parser()
+    parser = _Parser(MAX_NODES if max_nodes is None else max_nodes)
     decoder = codecs.getincrementaldecoder(encoding)(errors="strict")
     try:
         for offset in range(0, len(page_bytes), 16384):

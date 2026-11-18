@@ -164,9 +164,13 @@ data = {"eval": "description", "system": "label"}
 class StaticCli(unittest.TestCase):
     def run_cli(self, script, *arguments):
         # A different cwd and isolated Python exercise path defaults and the standalone entry point.
+        # Each invocation runs all 13 checks over the whole daemon tree (~1s of CPU idle). The checker
+        # is purely static (no network, subprocess or stdin), so it always terminates; this timeout is
+        # a hang guard, not a performance budget. On the shared test machine other sessions can saturate
+        # the CPUs (load > nproc), stretching wall time far past 30s; 120s matches test_ci_workflow_security.
         with tempfile.TemporaryDirectory() as directory:
             return subprocess.run([sys.executable, "-I", str(script), *arguments], cwd=directory,
-                                  capture_output=True, text=True, timeout=30)
+                                  capture_output=True, text=True, timeout=120)
 
     def test_no_arguments_runs_all_checks(self):
         result = self.run_cli(Path(static_checks.__file__))

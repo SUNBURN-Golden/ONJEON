@@ -29,7 +29,7 @@ class CrosscheckNote(unittest.TestCase):
                        "파인 제도권 금융회사 조회", "authority_crosscheck_2026-11-10.csv",
                        "현행 `insurers.csv` 53곳은 두 목록 모두에 있다",
                        "젠워스", "동경해상일동화재보험", "다시 계산하지 않았다",
-                       "기관 목록에 한정", "상품 목록은 53곳 모두 `unqueried`",
+                       "기관 목록에 한정", "당시 상품 목록은 53곳 모두 `unqueried`",
                        "T-DT-04", "D-04", "O19", "Audit 5"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.fss_note)
@@ -60,12 +60,9 @@ class CrosscheckNote(unittest.TestCase):
         self.assertTrue(any(urlsplit(r["url"]).hostname == "dart.fss.or.kr"
                             for r in rows("sources")))
 
-    def test_product_enumeration_is_separate_and_still_unqueried(self):
-        insurers = rows("insurers")
-        self.assertEqual(Counter(r["product_list_status"] for r in insurers),
-                         Counter(unqueried=53))
-        for phrase in ("이 대조는 기관 목록에 한정", "상품 목록은 53곳 모두 `unqueried`",
-                       "T-DT-04", "D-04", "O19"):
+    def test_product_enumeration_has_separate_evidence_from_the_crosscheck(self):
+        for phrase in ("이 대조는 기관 목록에 한정", "당시 상품 목록은 53곳 모두 `unqueried`",
+                       "T-DT-04", "D-04", "O19", "초기 상품 목록 관측"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.fss_note)
 

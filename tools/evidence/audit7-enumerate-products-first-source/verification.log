@@ -1,0 +1,70 @@
+$ python3 -B -m unittest discover -s tools/tests -v
+Ran 1720 tests in 302.421s
+
+OK (skipped=6)
+
+$ cargo test --all --locked --offline
+536 passed, 0 failed, 1 ignored
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed, 0 ignored
+
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline
+4 passed, 0 failed, 0 ignored
+
+$ python3 -B tools/enumerate_products.py --check
+{"expected_documents": 11938, "scopes": {"blocked": 37, "complete": 10, "failed": 6, "partial": 1}, "source_products": 5213}
+
+$ python3 -B -I tools/registry_check.py
+registry check passed (IDs, vocabulary, access evidence)
+
+$ python3 -B -I tools/vocab_check.py
+vocabulary ok: 50 axes, 271 values
+
+$ python3 -B -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (42 ADR/DEC files)
+
+$ python3 -B -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 269, "tamper_tests": 40, "vocabulary_axes": 50}
+
+$ git -c core.whitespace=cr-at-eol diff --check
+OK
+
+# Fix round 1 (2026-11-19): the supervisor re-run hit a 30s subprocess timeout in
+# test_daemon_static_checks.py StaticCli.run_cli under shared-machine load (load 12
+# on 8 cores; other sessions' vitest workers and headless Chromium). Each CLI call
+# does ~1s of CPU work and the checker is purely static (always terminates), so the
+# hang guard was raised 30s -> 120s, matching test_ci_workflow_security.py. No
+# daemon source, rules or task file changed. Full project tests re-run:
+
+$ python3 -m unittest discover -s tools/tests
+Ran 1720 tests in 218.000s
+
+OK (skipped=6)
+
+$ cargo test --all --locked --offline
+536 passed, 0 failed, 1 ignored
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed, 0 ignored
+
+$ (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
+4 passed, 0 failed, 0 ignored
+
+$ python3 -B tools/enumerate_products.py --check
+{"expected_documents": 11938, "scopes": {"blocked": 37, "complete": 10, "failed": 6, "partial": 1}, "source_products": 5213}
+
+$ python3 -B -I tools/registry_check.py
+registry check passed (IDs, vocabulary, access evidence)
+
+$ python3 -B -I tools/vocab_check.py
+vocabulary ok: 50 axes, 271 values
+
+$ python3 -B -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (42 ADR/DEC files)
+
+$ python3 -B -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 269, "tamper_tests": 40, "vocabulary_axes": 50}
+
+$ git -c core.whitespace=cr-at-eol diff --check
+OK

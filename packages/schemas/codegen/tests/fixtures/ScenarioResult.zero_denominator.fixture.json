@@ -1,0 +1,60 @@
+{
+  "release_id": "rel:20261001-1",
+  "cov_id": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+  "evaluation": {
+    "rule_id": "fixture-rule-001",
+    "rule_version": "1",
+    "release_id": null,
+    "rule_content_hash": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+    "evidence_refs": [
+      "fixture"
+    ],
+    "schema_version": "rule-0.2",
+    "engine_version": "0.1.0",
+    "eligibility": "true",
+    "payout": {
+      "kind": "payable",
+      "amount": {
+        "kind": "unknown"
+      }
+    },
+    "contract_effect": {
+      "kind": "none"
+    },
+    "missing_inputs": [],
+    "trace": [
+      {
+        "path": "eligibility",
+        "op": "all",
+        "result": "true"
+      },
+      {
+        "path": "amount",
+        "op": "divide_count",
+        "result": "unknown"
+      }
+    ],
+    "input_snapshot_hash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "amount_issues": [
+      {
+        "code": "zero_denominator",
+        "path": "amount"
+      }
+    ]
+  },
+  "judgements": [],
+  "blocked_by": [],
+  "remaining_gaps": [],
+  "explain": {
+    "template_id": "zero_denominator",
+    "text": "나눌 기준이 0이라 금액을 계산할 수 없어요",
+    "amounts": []
+  },
+  "display_status": "hold",
+  "result_state": {
+    "input_freshness": "fresh",
+    "knowledge_freshness": "fresh",
+    "usage_restriction": "none",
+    "reproducible": true
+  }
+}

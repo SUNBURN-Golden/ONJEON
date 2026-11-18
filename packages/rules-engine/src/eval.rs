@@ -1,8 +1,7 @@
 //! Deterministic evaluation with three-valued logic and blocker tracking.
 //!
-//! Every unknown value carries the set of unknown inputs that caused it
-//! (`blockers`). A definite result (for example `false AND unknown`) has no
-//! blockers, so `missing_inputs` lists only inputs that actually matter.
+//! Unknown values carry the missing inputs and calculation issues that caused them.
+//! A definite result (for example `false AND unknown`) discards those causes.
 
 use crate::date::{add_days, add_months_clamped, civil_from_days, parse_date};
 use crate::rule::{Boundary, CmpOp, ContractEffect, DurUnit, Expr, InputType, Rounding, Rule};
@@ -101,6 +100,19 @@ pub enum ContractEffectOut {
     Undetermined { conditional_effect: ContractEffect },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CalculationIssueCode {
+    ZeroDenominator,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+pub struct CalculationIssue {
+    pub code: CalculationIssueCode,
+    /// Expression path in the same format as the evaluation trace.
+    pub path: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EvaluationResult {
     pub rule_id: String,
@@ -118,27 +130,53 @@ pub struct EvaluationResult {
     pub payout: Payout,
     pub contract_effect: ContractEffectOut,
     pub missing_inputs: Vec<String>,
+    /// Calculation issues that prevent an amount from being determined.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub amount_issues: Vec<CalculationIssue>,
     pub trace: Vec<TraceEntry>,
     pub input_snapshot_hash: String,
 }
 
+#[derive(Default)]
+struct UnknownCauses {
+    blockers: BTreeSet<String>,
+    issues: BTreeSet<CalculationIssue>,
+}
+
 struct Ev {
     v: Value,
-    blockers: BTreeSet<String>,
+    causes: UnknownCauses,
 }
 
 impl Ev {
     fn known(v: Value) -> Ev {
         Ev {
             v,
-            blockers: BTreeSet::new(),
+            causes: UnknownCauses::default(),
         }
     }
-    fn unknown(blockers: BTreeSet<String>) -> Ev {
+    fn unknown(causes: UnknownCauses) -> Ev {
         Ev {
             v: Value::Unknown,
-            blockers,
+            causes,
         }
+    }
+
+    fn missing_input(name: &str) -> Ev {
+        Ev::unknown(UnknownCauses {
+            blockers: BTreeSet::from([name.to_owned()]),
+            ..UnknownCauses::default()
+        })
+    }
+
+    fn zero_denominator(path: &str) -> Ev {
+        Ev::unknown(UnknownCauses {
+            issues: BTreeSet::from([CalculationIssue {
+                code: CalculationIssueCode::ZeroDenominator,
+                path: path.to_owned(),
+            }]),
+            ..UnknownCauses::default()
+        })
     }
 }
 
@@ -166,22 +204,21 @@ fn to_tri(ev: &Ev, path: &str) -> Result<Tri, EvalError> {
     }
 }
 
-fn from_tri(t: Tri, blockers: BTreeSet<String>) -> Ev {
+fn from_tri(t: Tri, causes: UnknownCauses) -> Ev {
     match t {
         Tri::True => Ev::known(Value::Bool(true)),
         Tri::False => Ev::known(Value::Bool(false)),
-        Tri::Unknown => Ev::unknown(blockers),
+        Tri::Unknown => Ev::unknown(causes),
     }
 }
 
-fn union_unknown<'a>(items: impl IntoIterator<Item = &'a Ev>) -> BTreeSet<String> {
-    let mut s = BTreeSet::new();
+fn union_unknown<'a>(items: impl IntoIterator<Item = &'a Ev>) -> UnknownCauses {
+    let mut causes = UnknownCauses::default();
     for e in items {
-        if e.v.is_unknown() {
-            s.extend(e.blockers.iter().cloned());
-        }
+        causes.blockers.extend(e.causes.blockers.iter().cloned());
+        causes.issues.extend(e.causes.issues.iter().cloned());
     }
-    s
+    causes
 }
 
 fn compare(a: &Value, b: &Value, path: &str) -> Result<Ordering, EvalError> {
@@ -339,7 +376,7 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
         Expr::Input(name) => {
             let v = ctx.inputs.get(name).cloned().unwrap_or(Value::Unknown);
             if v.is_unknown() {
-                Ok(Ev::unknown(BTreeSet::from([name.clone()])))
+                Ok(Ev::missing_input(name))
             } else {
                 Ok(Ev::known(v))
             }
@@ -376,7 +413,7 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
         Expr::Not(inner) => {
             let e = eval(inner, &format!("{path}.not"), ctx)?;
             let t = !to_tri(&e, path)?;
-            Ok(from_tri(t, e.blockers))
+            Ok(from_tri(t, e.causes))
         }
         Expr::Cmp(op, l, r) => {
             let a = eval(l, &format!("{path}.{}[0]", expr.op_name()), ctx)?;
@@ -424,8 +461,8 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
                     let (a, b) = match (a, b) {
                         (Err(err), Err(_)) => return Err(err),
                         (a, b) => (
-                            a.unwrap_or_else(|_| Ev::unknown(BTreeSet::new())),
-                            b.unwrap_or_else(|_| Ev::unknown(BTreeSet::new())),
+                            a.unwrap_or_else(|_| Ev::unknown(UnknownCauses::default())),
+                            b.unwrap_or_else(|_| Ev::unknown(UnknownCauses::default())),
                         ),
                     };
                     if !a.v.is_unknown() && a.v == b.v {
@@ -434,9 +471,16 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
                         // The condition is undecided and the branches disagree (or one is
                         // itself unknown or failed). Blockers are the condition's unknown
                         // inputs plus the unknown inputs inside any unknown branch.
-                        let mut blockers = cond.blockers;
-                        blockers.extend(union_unknown([&a, &b]));
-                        Ok(Ev::unknown(blockers))
+                        let mut causes = cond.causes;
+                        causes.blockers.extend(a.causes.blockers);
+                        causes.blockers.extend(b.causes.blockers);
+                        // A calculation issue in a speculative branch only prevents the
+                        // result if both branches have a calculation issue.
+                        if !a.causes.issues.is_empty() && !b.causes.issues.is_empty() {
+                            causes.issues.extend(a.causes.issues);
+                            causes.issues.extend(b.causes.issues);
+                        }
+                        Ok(Ev::unknown(causes))
                     }
                 }
             }
@@ -615,7 +659,11 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
             let p = eval(part, &format!("{path}.pro_rata[1]"), ctx)?;
             let w = eval(whole, &format!("{path}.pro_rata[2]"), ctx)?;
             if m.v.is_unknown() || p.v.is_unknown() || w.v.is_unknown() {
-                return Ok(Ev::unknown(union_unknown([&m, &p, &w])));
+                // A known zero whole is already enough to prevent division.
+                return Ok(match w.v {
+                    Value::Int(0) | Value::Money(0) => Ev::zero_denominator(path),
+                    _ => Ev::unknown(union_unknown([&m, &p, &w])),
+                });
             }
             let (pn, wn) = match (&p.v, &w.v) {
                 (Value::Int(a), Value::Int(b)) | (Value::Money(a), Value::Money(b)) => (*a, *b),
@@ -635,7 +683,7 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
             }
             // A zero whole has no share: the answer is unknown, not an error and not zero.
             if wn == 0 {
-                return Ok(Ev::unknown(BTreeSet::new()));
+                return Ok(Ev::zero_denominator(path));
             }
             if pn > wn {
                 return Err(type_err(path, format!("part {pn} exceeds whole {wn}")));
@@ -652,6 +700,9 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
         } => {
             let m = eval(money, &format!("{path}.divide_count[0]"), ctx)?;
             let c = eval(count, &format!("{path}.divide_count[1]"), ctx)?;
+            if matches!(c.v, Value::Int(0)) {
+                return Ok(Ev::zero_denominator(path));
+            }
             if m.v.is_unknown() || c.v.is_unknown() {
                 return Ok(Ev::unknown(union_unknown([&m, &c])));
             }
@@ -670,10 +721,6 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
                     ))
                 }
             };
-            // Dividing among zero has no answer: unknown, never zero.
-            if n == 0 {
-                return Ok(Ev::unknown(BTreeSet::new()));
-            }
             Ok(Ev::known(scale_money(&m.v, 1, n, *rounding, *unit, path)?))
         }
         Expr::AnniversaryBand {
@@ -727,9 +774,7 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
         Expr::MaxOver(name) => {
             let list = match ctx.inputs.get(name) {
                 Some(Value::List(items)) => items,
-                Some(Value::Unknown) | None => {
-                    return Ok(Ev::unknown(BTreeSet::from([name.clone()])))
-                }
+                Some(Value::Unknown) | None => return Ok(Ev::missing_input(name)),
                 Some(other) => {
                     return Err(type_err(
                         path,
@@ -739,7 +784,7 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
             };
             // An event with an unknown amount may be the largest of its class, so the total is unknown.
             if list.iter().any(|it| it.krw.is_none()) {
-                return Ok(Ev::unknown(BTreeSet::from([name.clone()])));
+                return Ok(Ev::missing_input(name));
             }
             let mut best: BTreeMap<&str, i64> = BTreeMap::new();
             for it in list {
@@ -783,8 +828,8 @@ fn eval_inner(expr: &Expr, path: &str, ctx: &mut Ctx<'_>) -> Result<Ev, EvalErro
     }
 }
 
-fn to_amount(ev: &Ev) -> Result<AmountOut, EvalError> {
-    match &ev.v {
+fn to_amount(value: &Value) -> Result<AmountOut, EvalError> {
+    match value {
         Value::Money(m) => Ok(AmountOut::Exact { krw: *m }),
         Value::MoneyRange { min, max } => Ok(AmountOut::Range {
             min_krw: *min,
@@ -795,6 +840,12 @@ fn to_amount(ev: &Ev) -> Result<AmountOut, EvalError> {
             found: other.type_name(),
         }),
     }
+}
+
+/// Engine input for an explicitly confirmed absence of events in a class-money list.
+/// Scenario intake is responsible for verifying the source and scope of the confirmation.
+pub fn confirmed_empty_class_money_list() -> J {
+    serde_json::json!({"confirmed_empty": true})
 }
 
 fn convert_inputs(rule: &Rule, inputs: &J) -> Result<BTreeMap<String, Value>, EvalError> {
@@ -828,8 +879,14 @@ fn convert_inputs(rule: &Rule, inputs: &J) -> Result<BTreeMap<String, Value>, Ev
                     InputType::Str => {
                         Value::Str(j.as_str().ok_or_else(|| bad("a string"))?.to_string())
                     }
+                    InputType::ClassMoneyList if *j == confirmed_empty_class_money_list() => {
+                        Value::List(Vec::new())
+                    }
+                    InputType::ClassMoneyList if j.as_array().is_some_and(Vec::is_empty) => {
+                        Value::Unknown
+                    }
                     InputType::ClassMoneyList => {
-                        const WANT: &str = "a list of {class, krw} (class: non-empty string, krw: non-negative integer or null)";
+                        const WANT: &str = "a list of {class, krw} (class: non-empty string, krw: non-negative integer or null) or a confirmed empty list";
                         let arr = j
                             .as_array()
                             .filter(|a| a.len() <= 1000)
@@ -878,7 +935,8 @@ fn snapshot_hash(inputs: &BTreeMap<String, Value>) -> String {
 }
 
 impl Rule {
-    /// Evaluate the rule against an input snapshot (a JSON object; missing or null means unknown).
+    /// Evaluate against a JSON object. Missing or null inputs are unknown. For a class-money
+    /// list, an empty array is also unknown unless supplied as a confirmed empty list.
     pub fn evaluate(&self, inputs: &J) -> Result<EvaluationResult, EvalError> {
         let values = convert_inputs(self, inputs)?;
         let mut ctx = Ctx {
@@ -887,36 +945,29 @@ impl Rule {
         };
         let elig = eval(&self.eligibility, "eligibility", &mut ctx)?;
         let eligibility = to_tri(&elig, "eligibility")?;
-        let (payout, missing): (Payout, BTreeSet<String>) = match eligibility {
-            Tri::False => (Payout::NotPayable, BTreeSet::new()),
+        let (payout, causes) = match eligibility {
+            Tri::False => (Payout::NotPayable, UnknownCauses::default()),
             Tri::True => {
                 let amt = eval(&self.amount, "amount", &mut ctx)?;
-                let blockers = if amt.v.is_unknown() {
-                    amt.blockers.clone()
-                } else {
-                    BTreeSet::new()
-                };
                 (
                     Payout::Payable {
-                        amount: to_amount(&amt)?,
+                        amount: to_amount(&amt.v)?,
                     },
-                    blockers,
+                    amt.causes,
                 )
             }
             Tri::Unknown => {
                 // Payment might not be due, so an amount error must not prevent an
                 // undetermined result. Preserve the error in the trace, as for an `if` branch.
                 let amt = eval_deferred(&self.amount, "amount", &mut ctx)
-                    .unwrap_or_else(|_| Ev::unknown(BTreeSet::new()));
-                let mut blockers = elig.blockers.clone();
-                if amt.v.is_unknown() {
-                    blockers.extend(amt.blockers.iter().cloned());
-                }
+                    .unwrap_or_else(|_| Ev::unknown(UnknownCauses::default()));
+                let mut causes = amt.causes;
+                causes.blockers.extend(elig.causes.blockers);
                 (
                     Payout::Undetermined {
-                        conditional_amount: to_amount(&amt)?,
+                        conditional_amount: to_amount(&amt.v)?,
                     },
-                    blockers,
+                    causes,
                 )
             }
         };
@@ -938,7 +989,8 @@ impl Rule {
             eligibility,
             payout,
             contract_effect,
-            missing_inputs: missing.into_iter().collect(),
+            missing_inputs: causes.blockers.into_iter().collect(),
+            amount_issues: causes.issues.into_iter().collect(),
             trace: ctx.trace,
             input_snapshot_hash: snapshot_hash(&values),
         })

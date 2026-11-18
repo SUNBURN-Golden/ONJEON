@@ -38,7 +38,8 @@
       "$ref": "#/$defs/Explain"
     },
     "display_status": {
-      "$ref": "vocabulary.schema.json#/$defs/display_status"
+      "$ref": "vocabulary.schema.json#/$defs/display_status",
+      "description": "금액 계산 사유(evaluation.amount_issues)가 있으면 hold, 필요한 입력만 누락되면 input_missing"
     },
     "result_state": {
       "$ref": "common.schema.json#/$defs/ResultState"
@@ -58,7 +59,8 @@
   ],
   "additionalProperties": false,
   "x-onjeon-invariants": [
-    "blocked_by가 비어 있지 않으면 evaluation과 explain은 없다(엔진 호출 0건, 02 §1.7)"
+    "blocked_by가 비어 있지 않으면 evaluation과 explain은 없다(엔진 호출 0건, 02 §1.7)",
+    "evaluation.amount_issues가 있으면 display_status=hold"
   ],
   "$defs": {
     "InputJudgement": {

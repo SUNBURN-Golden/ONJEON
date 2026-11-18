@@ -12,7 +12,8 @@ Rules:
   stop immediately with a typed Outcome: no retry, no header change, no alternate path;
 - a body stream that fails inside the marker prefix is the same class of failure as request()
   raising (classified the same way, retried only if transient); past the prefix a TransportError
-  reaches the body consumer, so a truncated body is never reported as a successful fetch;
+  reaches the body consumer. Callers that opt into buffering the bounded response get the
+  same retry handling for failures after the prefix;
 - a refusal before the wire (NetworkDisabledError, RefusedRequestError, or a caller-side error
   like a disallowed header) is not a billable request and never leaks the host reservation;
 - robots wire requests share the page limiter and source budget through an injected request
@@ -184,6 +185,8 @@ class PoliteFetcher:
         headers: Optional[Mapping[str, str]] = None,
         timeout: Optional[float] = None,
         max_bytes: Optional[int] = None,
+        *,
+        buffer_body: bool = False,
     ) -> Outcome:
         if not isinstance(url, str) or not url:
             return Outcome("blocked", "not_checked", url or "")
@@ -264,6 +267,19 @@ class PoliteFetcher:
                         response.close()
                     finally:
                         self._limiter.release(host)
+
+            if buffer_body and outcome.kind == "success":
+                # The body iterator holds the reservation until it finishes or
+                # raises. Retry a failed read under the same attempt budget.
+                try:
+                    body = b"".join(outcome.body_iter)
+                except TransportError as exc:
+                    kind, reason, retryable = _classify_transport_error(exc)
+                    if retryable and attempt < self._config.max_attempts:
+                        kind = "retry"
+                    outcome = Outcome(kind, reason, url, status=response.status, attempts=attempt)
+                else:
+                    outcome.body_iter = iter((body,))
 
             if outcome.kind == "retry":
                 if attempt == self._config.max_attempts:

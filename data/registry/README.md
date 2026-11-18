@@ -21,7 +21,7 @@
 | `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 75건과 응답 본문 sha256. 2026-11-10 감독당국 재조회 9건 포함 |
 | `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS·같은 출처 리다이렉트·robots 제한을 함께 적용한다 |
 | `access_log.csv` | 기록한 요청 112건(실패 포함)과 결과 분류. 2026-11-10 감독당국 재조회 14건 포함 |
-| `product_discovery.json` | 2026-11-18 초기 조회의 출처별 DiscoveryManifest와 상품·특약 관측행, ExpectedDocument 후보 |
+| `product_discovery.json` | 2026-11-19(KST) 재조회에서 확인한 출처별 DiscoveryManifest와 상품·특약 관측행, ExpectedDocument 후보 |
 | `authority_crosscheck_2026-11-10.csv` | FISIS·파인 보험회사 목록과 `insurers.csv`·`excluded_or_historical.csv`의 기관별 대조 결과 57행 |
 
 `excluded_or_historical.csv` 49행도 `entity_evidence`로 정규화했다(`two_or_more_sources` 2, `one_source` 47). 기관 ID·출처·관측 시각·제외 사유는 보존한다. 제외 기록에는 공시 보관·상품 목록 추적 열을 추가하지 않는다. 이 파일은 현행 보험사 분모가 아니며, 과거 계약 약관의 대상 여부는 아래 알려진 공백 4번대로 미확정이다. 재생성은 `python3 tools/registry_normalize.py`, 정정·회귀 증거는 [Audit 2 기록](../../docs/blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)을 따른다.
@@ -149,9 +149,9 @@
 9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제는 ADR-0018로 범위·확보율 분모에서 제외됐으므로 공제 상품공시 URL은 탐색하지 않는다. 행별 `notes`도 위 "범위(ADR-0018)" 표의 결정을 적는다(우체국보험 포함, 공제·한국무역보험공사 제외). 다만 정규화기는 범위 열 없이 이 파일의 모든 행에 `product_list_status=unqueried`와 `awaiting_T-DT-04` 사유를 붙이므로, 제외 행의 사유 코드는 분모 편입을 뜻하지 않는다.
 10. **KNIA 비회원사 목록 밖의 소형·신설 보험사가 더 있을 수 있다.** 2026-11-10 교차검증에서 FISIS에만 있는 젠워스 모기지 인슈어런스 코퍼레이션 한국지점과 파인에만 있는 동경해상일동화재보험(주)서울지점을 확인했다. 전자는 두 registry CSV 어디에도 없고, 후자는 `excluded_or_historical.csv`의 Aioi 영문명과 같은 기관으로 추정된다. 두 기관을 `insurers.csv` 분모에 넣을지는 편입 근거와 동경해상일동=Aioi 중복 여부를 확인한 뒤 결정한다.
 
-## 초기 상품 목록 관측 (2026-11-18)
+## 초기 상품 목록 관측 (2026-11-19 KST)
 
-`product_discovery.json`에는 수동 1회 실행의 출처·조회 조건·시각·페이지·본문 SHA-256·종료 근거와 차단 구간이 있다. 두 협회와 회사 원장의 확인된 공시 진입점 8곳을 대상으로 삼았다. 확인된 같은 회사의 실제 목록 URL을 사용했다. R2 없이 공개 목록 메타데이터만 조회했다.
+`product_discovery.json`에는 재조회의 출처·조회 조건·시각·페이지·본문 SHA-256·종료 근거와 차단 구간이 있다. 두 협회와 회사 원장의 확인된 공시 진입점 8곳을 대상으로 R2 없이 공개 목록 메타데이터를 조회했다. 이번 감사의 수락 범위는 허용된 목록을 종료까지 읽고 나머지에 접근 증거를 남기는 것이다. [감사 수락 범위](../../docs/decisions/audit7-enumerate-products-first-source.md).
 
 | 출처 | 관측 상품·특약 행 | ExpectedDocument 후보 | 범위·공백 |
 |---|---:|---:|---|
@@ -159,11 +159,11 @@
 | KNIA | 0 | 0 | robots.txt HTTP 403으로 비교공시 19개 조회 범위 차단 |
 | AIA생명 | 4,441 | 9,673 | 개인 판매·판매중지 및 별도 판매중지 특약 목록 |
 | BNP파리바카디프생명 | 183 | 549 | 판매·판매중지 × 두 상품군. 파일·개별 판매본 참조 미확인 |
-| 흥국화재 | 170 | 459 | 판매 장기·일반 전 페이지, 판매중지 장기 7/225쪽, 판매중지 일반 응답 읽기 오류 |
-| 에이스아메리칸(Chubb) | 419 | 1,257 | 판매 목록 관측, 판매중지 응답 시간 초과 |
+| 흥국화재 | 3,207 | 9,074 | 판매 장기·일반 전 페이지, 판매중지 장기 225쪽·일반 95쪽 |
+| 에이스아메리칸(Chubb) | 3,391 | 10,173 | 판매·판매중지 목록. 판매중지 2,972행 |
 | DB손해보험 | 0 | 0 | robots.txt의 공시 경로 금지 |
 | 처브라이프생명·교보라이프플래닛·미쓰이스미토모 한국지점 | 0 | 0 | robots.txt 연결 오류로 목록 보류 |
-| **합계** | **5,213** | **11,938** | 출처별 관측 행·문서 후보 수 |
+| **합계** | **11,222** | **29,469** | 출처별 관측 행·문서 후보 수 |
 
 `source_products`는 출처별 상품·특약·판매기간 표기를 보존한다. 동일한 이름의 서로 다른 기간·출처 ID를 구분하며, 행 키는 시스템 상품·판매본의 정규 식별자가 아니다. 명시적으로 식별한 단체보험·퇴직연금·자동차보험을 제외했다. 일반보험의 개인 여부·특약 연결·판매본은 후속 검증이 남아 있다. 우체국보험, 진입점 미확보 45곳, 별도 역사 목록은 이번 조사 대상 밖이다.
 
@@ -183,7 +183,7 @@ python3 -m unittest discover -s tools/tests -p test_product_discovery.py -v
 수동 재조회는 `network_enabled=true`와 운영자 연락처를 포함한 crawler JSON 설정으로 실행한다. 출력 경로는 명시하며, 보존된 관측 스냅샷을 대체하기 전에 조회 상태와 행을 검토한다. 아래에서 `crawler.json`은 수동 실행용 설정 파일이다.
 
 ```sh
-ONJEON_CRAWLER_ALLOW_NETWORK=1 python3 tools/enumerate_products.py --config crawler.json --snapshot product-discovery-new.json --max-pages 7
+ONJEON_CRAWLER_ALLOW_NETWORK=1 python3 tools/enumerate_products.py --config crawler.json --snapshot product-discovery-new.json --max-pages 500
 ```
 
 승인한 스냅샷을 `data/registry/product_discovery.json`에 옮긴 뒤 `python3 tools/enumerate_products.py --sync-registry`로 확인된 8곳의 `insurers.csv` 요약을 갱신한다. `--check`는 스냅샷 형식·출처·행 연결과 요약 일치를 로컬에서 검증한다.

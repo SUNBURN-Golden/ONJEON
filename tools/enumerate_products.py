@@ -16,10 +16,10 @@ from urllib.parse import urlencode, urlsplit
 from crawler import __version__ as crawler_version
 from crawler import product_lists as lists
 from crawler.adapters._html import ParseError
-from crawler.config import CrawlerConfig, load_config
+from crawler.config import load_config
 from crawler.hostlimit import HostRateLimiter
 from crawler.polite import PoliteFetcher
-from crawler.robots import RobotsCache, RobotsDecision
+from crawler.robots import ROBOTS_MAX_BYTES, RobotsCache, RobotsDecision
 from crawler.transport import ENV_ALLOW_NETWORK, RefusedRequestError, TransportError, UrllibTransport
 from registry_normalize import REG, atomic_write_csv, axis, disclosure_entry_reachable
 from source_metadata import check_sha256, https_origin
@@ -27,7 +27,12 @@ from source_metadata import check_sha256, https_origin
 
 SNAPSHOT = REG / "product_discovery.json"
 VERSION = 1
+# Heungkuk advertised 225 discontinued long-term pages on 2026-11-18.
+MAX_PAGES_CAP = 500
+# Historical listings can take longer to generate before the first response byte.
+LISTING_TIMEOUT_S = 120.0
 EXTRA_HOSTS = {"mypage.aia.co.kr", "ec.aceinsurance.co.kr"}
+# Preserve the reported disclosure restrictions when robots is ambiguous.
 RECORDED_HOLDS = {"pub.insure.or.kr", "www.idbins.com"}
 # Exact aliases. Keep ambiguous association names in the manifest until reviewed.
 ALIASES = {
@@ -149,12 +154,44 @@ class ListingRobots(RobotsCache):
 
     def check(self, url, *args, **kwargs):
         decision = super().check(url, *args, **kwargs)
-        # DB publishes an unscoped Disallow: / that a standards parser ignores.
-        # Retain both recorded holds even if a subsequent policy is ambiguous.
         if decision.allowed and urlsplit(url).hostname in RECORDED_HOLDS:
             decision = RobotsDecision(False, "robots_recorded_disallow")
         self.last_decision = decision
         return decision
+
+
+class _RobotsEvidence:
+    """Hash a robots body while the robots cache consumes it.
+
+    The hash and byte count land on the wire event only when the stream ends cleanly:
+    a truncated or unread body is not evidence of the host's policy. This makes a
+    recorded robots block re-checkable against the exact policy file we obeyed.
+    """
+
+    def __init__(self, event, body_iter):
+        self.event = event
+        self.body_iter = body_iter
+        self.hash = hashlib.sha256()
+        self.bytes = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            chunk = next(self.body_iter)
+        except StopIteration:
+            self.event["sha256"] = self.hash.hexdigest()
+            self.event["bytes"] = self.bytes
+            raise
+        self.hash.update(chunk)
+        self.bytes += len(chunk)
+        return chunk
+
+    def close(self):
+        closer = getattr(self.body_iter, "close", None)
+        if closer:
+            closer()
 
 
 class ListingSession:
@@ -184,6 +221,8 @@ class ListingSession:
             event["error"] = str(exc)
             raise
         event["http_status"] = response.status
+        if url == self.robots_url and response.status == 200:
+            response.body_iter = _RobotsEvidence(event, response.body_iter)
         return response
 
     def fetch(self, query, page):
@@ -195,7 +234,8 @@ class ListingSession:
         self.content_type = query.content_type
         self.wire = []
         self.robots.last_decision = None
-        outcome = self.fetcher.fetch(self.url, query.source, timeout=15, max_bytes=self.max_bytes)
+        outcome = self.fetcher.fetch(self.url, query.source, timeout=LISTING_TIMEOUT_S,
+                                     max_bytes=self.max_bytes, buffer_body=True)
         decision = self.robots.last_decision
         record = {
             "page": page, "url": self.url, "observed_at": now(), "http_status": outcome.status,
@@ -205,10 +245,7 @@ class ListingSession:
             if outcome.kind == "success":
                 if outcome.status != 200:
                     return record, None, "failed", "unexpected_http_status"
-                try:
-                    body = b"".join(outcome.body_iter)
-                except TransportError:
-                    return record, None, "failed", "listing_body_read_failed"
+                body = b"".join(outcome.body_iter)
                 length = outcome.headers.get("content-length", "")
                 if re.fullmatch(r"[0-9]{1,12}", length) and int(length) != len(body):
                     return record, None, "failed", "listing_content_length_mismatch"
@@ -295,9 +332,11 @@ def crawl_query(query, fetch, companies, max_pages):
                 raise ParseError("listing_page_count_changed")
             manifest["last_page"] = result.last_page
             fingerprint = frozenset(result.products)
+            # Distinct pages can each contain only excluded products.
             if fingerprint in fingerprint_set:
                 raise ParseError("listing_page_repeated")
-            fingerprint_set.add(fingerprint)
+            if fingerprint:
+                fingerprint_set.add(fingerprint)
         except ParseError as exc:
             state, reason = "failed", str(exc)
             break
@@ -356,7 +395,7 @@ def append_product(products, documents, manifest_id, page, insurer, product):
             row["pages"].append(page)
 
 
-def discover(insurers, fetch, max_pages):
+def discover(insurers, fetch, max_pages, checkpoint=None):
     companies = company_index(insurers)
     snapshot = {"version": VERSION, "crawler_version": crawler_version, "max_pages_per_scope": max_pages,
                 "manifests": [], "source_products": [], "expected_documents": []}
@@ -365,6 +404,8 @@ def discover(insurers, fetch, max_pages):
         snapshot["manifests"].append(manifest)
         snapshot["source_products"].extend(products.values())
         snapshot["expected_documents"].extend(documents.values())
+        if checkpoint is not None:
+            checkpoint(snapshot)
     return snapshot
 
 
@@ -374,8 +415,9 @@ def refresh_registry(snapshot, insurers):
         if not manifests:
             continue
         n = sum(m["product_rows"] for m in manifests)
-        # This read-only pass establishes no complete company-wide inventory or
-        # archive. Record whether the whole-list attempt is incomplete or blocked.
+        # This read-only pass establishes no archive and no verified denominator.
+        # Record whether the whole-list attempt is incomplete or blocked, and
+        # distinguish a fully paginated observation from a truncated one.
         if n:
             status, code = "failed", "initial_discovery_partial"
         elif all(m["state"] == "blocked" for m in manifests):
@@ -383,13 +425,17 @@ def refresh_registry(snapshot, insurers):
         else:
             status, code = "failed", "initial_discovery_failed"
         refs = ", ".join(sorted({m["reason"] for m in manifests}))
+        if n and all(m["state"] in ("complete", "empty_ok") for m in manifests):
+            tail = "관측 범위 전 쪽 완료, 원문 미보관·전체 분모 미확정"
+        else:
+            tail = "전체 목록 미확정"
         row.update(product_list_status=status, product_list_reason_codes=code,
-                   product_list_reason=f"초기 공시 목록 관측 후보 {n}행. 전체 목록 미확정 ({refs}). product_discovery.json")
+                   product_list_reason=f"초기 공시 목록 관측 후보 {n}행. {tail} ({refs}). product_discovery.json")
     return insurers
 
 
 def validate(snapshot, insurers):
-    if snapshot["version"] != VERSION or not 1 <= snapshot["max_pages_per_scope"] <= 20:
+    if snapshot["version"] != VERSION or not 1 <= snapshot["max_pages_per_scope"] <= MAX_PAGES_CAP:
         raise ValueError("unsupported snapshot version or page limit")
     plan = {f"{q.source}/{q.scope}": q for q in queries(insurers)}
     manifests = {row["id"]: row for row in snapshot["manifests"]}
@@ -417,20 +463,40 @@ def validate(snapshot, insurers):
             raise ValueError("invalid manifest outcome")
         if not 1 <= len(manifest["pages"]) <= snapshot["max_pages_per_scope"]:
             raise ValueError("invalid number of listing pages")
+        scheme, host, _ = https_origin(query.url)
+        robots_url = f"{scheme}://{host}/robots.txt"
         observed_pages[key] = set()
         for number, page in enumerate(manifest["pages"], 1):
             if page["page"] != number or page["url"] != query.request(number)[0]:
                 raise ValueError("page is outside source scope")
+            for event in page.get("wire", []):
+                if "sha256" in event:
+                    check_sha256(event["sha256"])
+                    size = event.get("bytes")
+                    if (event["url"] != robots_url or event["method"] != "GET" or event.get("http_status") != 200
+                            or type(size) is not int or not 0 <= size <= ROBOTS_MAX_BYTES):
+                        raise ValueError("invalid robots body evidence")
+                if (event["url"], event["method"]) == (robots_url, "GET"):
+                    continue
+                if (event["url"], event["method"]) != (page["url"], manifest["method"]):
+                    raise ValueError("wire request is outside source scope")
+                if page.get("robots") not in ("ok", "robots_not_found"):
+                    raise ValueError("listing request lacks robots permission")
             if "sha256" in page:
                 check_sha256(page["sha256"])
-                if page["http_status"] != 200 or not 0 < page["bytes"] <= lists.MAX_LIST_BYTES:
+                if page["http_status"] != 200 or not 0 <= page["bytes"] <= lists.MAX_LIST_BYTES:
                     raise ValueError("invalid listing body evidence")
             if "source_rows" in page:
-                if "sha256" not in page or page["source_rows"] < 0:
+                if "sha256" not in page or not page["bytes"] or page["source_rows"] < 0:
                     raise ValueError("listing rows lack body evidence")
                 observed_pages[key].add(number)
-        if manifest["state"] in ("complete", "empty_ok") and len(observed_pages[key]) != len(manifest["pages"]):
-            raise ValueError("successful manifest contains an unparsed page")
+        if manifest["state"] in ("complete", "empty_ok"):
+            pages = len(manifest["pages"])
+            last_page = manifest["last_page"]
+            if len(observed_pages[key]) != pages:
+                raise ValueError("successful manifest contains an unparsed page")
+            if (last_page is not None or manifest["reason"] == "pagination_last_page") and last_page != pages:
+                raise ValueError("successful manifest is missing its last page")
     for row in products.values():
         manifest = manifests[row["manifest_id"]]
         if (row["insurer_id"] not in ids or not row["name"].strip() or not row["pages"]
@@ -506,7 +572,8 @@ def main(argv=None):
     actions.add_argument("--check", action="store_true", help="validate a snapshot and the registry status offline")
     actions.add_argument("--sync-registry", action="store_true", help="update registry statuses from a validated snapshot")
     parser.add_argument("--snapshot", type=Path)
-    parser.add_argument("--max-pages", type=int, default=7, choices=range(1, 21), metavar="1..20")
+    parser.add_argument("--max-pages", type=int, default=7, choices=range(1, MAX_PAGES_CAP + 1),
+                        metavar=f"1..{MAX_PAGES_CAP}")
     args = parser.parse_args(argv)
 
     insurers = insurer_rows()
@@ -519,7 +586,8 @@ def main(argv=None):
                 parser.error(f"manual discovery requires config network_enabled=true and {ENV_ALLOW_NETWORK}=1")
             hosts = set(json.loads((REG / "source_fetch_hosts.json").read_text(encoding="utf-8"))["hosts"])
             session = ListingSession(config, UrllibTransport(config), hosts | EXTRA_HOSTS)
-            snapshot = discover(insurers, session.fetch, args.max_pages)
+            snapshot = discover(insurers, session.fetch, args.max_pages,
+                                checkpoint=lambda snap: write_snapshot(args.snapshot, snap))
             validate(snapshot, insurers)
             write_snapshot(args.snapshot, snapshot)
         else:

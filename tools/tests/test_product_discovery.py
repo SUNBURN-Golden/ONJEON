@@ -1,18 +1,23 @@
 """First-source L0 discovery, from permission checks to ExpectedDocument rows."""
+import contextlib
 import copy
+import io
 import json
 import sys
 import unittest
 from collections import Counter
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import Mock
+from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import enumerate_products as ep
 from crawler import product_lists as pl
 from crawler.adapters._html import ParseError
 from crawler.config import CrawlerConfig
-from crawler.transport import Response, TransportError
+from crawler.polite import BODY_PREFIX_BYTES
+from crawler.transport import BodyTooLargeError, Response, TransportError
 
 
 HTML = "text/html; charset=utf-8"
@@ -41,6 +46,14 @@ def fetched(query, page, body, content_type=HTML):
         "page": page, "url": query.request(page)[0], "content_type": content_type,
         "sha256": ep.digest(body), "bytes": len(body), "http_status": 200,
     }, body, None, None
+
+
+def robots_blocked(query, page):
+    url = query.request(page)[0]
+    host = urlsplit(url).hostname
+    record = {"page": page, "url": url, "robots": "robots_disallow",
+              "wire": [{"url": f"https://{host}/robots.txt", "method": "GET", "http_status": 200}]}
+    return record, None, "blocked", "robots_disallow"
 
 
 class Parsers(unittest.TestCase):
@@ -173,6 +186,127 @@ class Manifest(unittest.TestCase):
         manifest, products, _ = ep.crawl_query(QUERY, blocked, {}, 2)
         self.assertEqual((manifest["state"], manifest["reason"], len(products)), ("partial", "rate_limited", 1))
 
+    def test_discontinued_list_longer_than_twenty_pages_completes(self):
+        def fetch(query, number):
+            return fetched(query, number, heungkuk(number, 25, name=f"보험 {number}"))
+
+        manifest, products, _ = ep.crawl_query(QUERY, fetch, {}, 25)
+        self.assertEqual((manifest["state"], manifest["reason"], manifest["last_page"]),
+                         ("complete", "pagination_last_page", 25))
+        self.assertEqual((len(manifest["pages"]), len(products)), (25, 25))
+
+        capped, _, _ = ep.crawl_query(QUERY, fetch, {}, 24)
+        self.assertEqual((capped["state"], capped["reason"]), ("partial", "page_limit_reached"))
+
+    def test_pagination_continues_through_pages_with_only_excluded_products(self):
+        def fetch(query, number):
+            return fetched(query, number, heungkuk(number, 2, name=f"단체보험 {number}"))
+
+        manifest, products, documents = ep.crawl_query(QUERY, fetch, {}, 2)
+        self.assertEqual((manifest["state"], manifest["reason"], manifest["excluded_rows"]),
+                         ("empty_ok", "pagination_last_page", 2))
+        self.assertEqual((products, documents), ({}, {}))
+
+    def test_historical_link_without_a_supported_locator_keeps_document_role(self):
+        body = heungkuk(1, 1).replace(b"FILE.pdf", "구 약관.pdf".encode())
+        manifest, products, documents = ep.crawl_query(
+            QUERY, lambda q, n: fetched(q, n, body), {}, 1,
+        )
+        self.assertEqual((manifest["state"], manifest["reason"]), ("complete", "pagination_last_page"))
+        product, = products.values()
+        document, = documents.values()
+        self.assertEqual(document["source_product_id"], product["id"])
+        self.assertEqual((document["doc_role"], document["discovery_status"]), ("terms", "reference_unresolved"))
+        self.assertIsNone(document["source_ref"])
+        self.assertIsNone(document["source_url"])
+
+    def test_page_cap_and_checkpoint_bounds(self):
+        insurers = ep.insurer_rows()
+        plan = list(ep.queries(insurers))
+        sizes = []
+        snapshot = ep.discover(insurers, robots_blocked, ep.MAX_PAGES_CAP,
+                               checkpoint=lambda snap: sizes.append(len(snap["manifests"])))
+        self.assertEqual(sizes, list(range(1, len(plan) + 1)))
+        ep.validate(snapshot, insurers)
+        snapshot["max_pages_per_scope"] = ep.MAX_PAGES_CAP + 1
+        with self.assertRaisesRegex(ValueError, "page limit"):
+            ep.validate(snapshot, insurers)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            ep.main(["--config", "unused.json", "--snapshot", "unused.json",
+                     "--max-pages", str(ep.MAX_PAGES_CAP + 1)])
+
+    def test_validate_checks_robots_body_evidence(self):
+        insurers = ep.insurer_rows()
+        snapshot = ep.discover(insurers, robots_blocked, 7)
+        ep.validate(snapshot, insurers)
+        page = snapshot["manifests"][0]["pages"][0]
+        event = page["wire"][0]
+        policy = b"User-agent: *\nDisallow: /\n"
+        event["sha256"], event["bytes"] = ep.digest(policy), len(policy)
+        ep.validate(snapshot, insurers)
+        for field, value in (("bytes", -1), ("bytes", ep.ROBOTS_MAX_BYTES + 1), ("bytes", True),
+                             ("http_status", 403), ("url", "https://another.invalid/robots.txt"),
+                             ("method", "POST")):
+            with self.subTest(field=field):
+                saved = event[field]
+                event[field] = value
+                with self.assertRaisesRegex(ValueError, "invalid robots body evidence"):
+                    ep.validate(snapshot, insurers)
+                event[field] = saved
+
+        page["wire"].append({"url": page["url"], "method": "GET", "http_status": 200})
+        with self.assertRaisesRegex(ValueError, "lacks robots permission"):
+            ep.validate(snapshot, insurers)
+        page["wire"][-1]["url"] = "https://another.invalid/list"
+        with self.assertRaisesRegex(ValueError, "outside source scope"):
+            ep.validate(snapshot, insurers)
+
+    def test_validate_requires_evidence_of_the_last_page(self):
+        insurers = ep.insurer_rows()
+
+        def fetch(query, page):
+            if query == QUERY:
+                return fetched(query, page, heungkuk(page, 2, name=f"보험 {page}"))
+            return robots_blocked(query, page)
+
+        snapshot = ep.discover(insurers, fetch, 1)
+        ep.validate(snapshot, insurers)
+        manifest = next(m for m in snapshot["manifests"] if m["source_id"] == QUERY.source)
+        self.assertEqual(manifest["state"], "partial")
+        manifest.update(state="complete", reason="pagination_last_page")
+        with self.assertRaisesRegex(ValueError, "missing its last page"):
+            ep.validate(snapshot, insurers)
+
+    def test_validate_keeps_empty_http_responses_as_failures(self):
+        insurers = ep.insurer_rows()
+
+        def fetch(query, page):
+            return fetched(query, page, b"") if query == QUERY else robots_blocked(query, page)
+
+        snapshot = ep.discover(insurers, fetch, 1)
+        ep.validate(snapshot, insurers)
+        manifest = next(m for m in snapshot["manifests"] if m["source_id"] == QUERY.source)
+        self.assertEqual(manifest["state"], "failed")
+        self.assertEqual(manifest["pages"][0]["bytes"], 0)
+        self.assertEqual(manifest["product_rows"], 0)
+        manifest["pages"][0]["source_rows"] = 0
+        with self.assertRaisesRegex(ValueError, "rows lack body evidence"):
+            ep.validate(snapshot, insurers)
+
+    def test_refresh_registry_distinguishes_full_and_partial_observation(self):
+        insurers = [dict(insurer_id="nonlife-heungkuk", product_list_status="unqueried",
+                         product_list_reason_codes="", product_list_reason="")]
+        base = dict(source_id="nonlife-heungkuk", product_rows=3, reason="pagination_last_page")
+        full = [dict(base, state="complete"), dict(base, state="complete")]
+        row = ep.refresh_registry({"manifests": full}, [r.copy() for r in insurers])[0]
+        self.assertEqual((row["product_list_status"], row["product_list_reason_codes"]),
+                         ("failed", "initial_discovery_partial"))
+        self.assertIn("관측 범위 전 쪽 완료", row["product_list_reason"])
+        partial = [dict(base, state="complete"), dict(base, state="partial", reason="page_limit_reached")]
+        row = ep.refresh_registry({"manifests": partial}, [r.copy() for r in insurers])[0]
+        self.assertIn("전체 목록 미확정", row["product_list_reason"])
+        self.assertNotIn("전 쪽 완료", row["product_list_reason"])
+
     def test_company_mismatch_is_a_gap_and_keeps_known_products(self):
         query = ep.Query("knia", "PB15", "https://kpub.knia.or.kr/popup/disclosureList.do", "knia")
         raw = """{list:[
@@ -204,6 +338,7 @@ class TransportBoundaries(unittest.TestCase):
         first, body, state, reason = self.session.fetch(self.query, 1)
         self.assertEqual((body, state, reason), (None, "blocked", "robots_forbidden"))
         self.assertEqual(first["wire"][0]["http_status"], 403)
+        self.assertNotIn("sha256", first["wire"][0])
         self.session.fetch(self.query, 1)
         self.transport.request.assert_called_once()
         self.transport.request_listing.assert_not_called()
@@ -225,7 +360,33 @@ class TransportBoundaries(unittest.TestCase):
         self.assertEqual(record["sha256"], ep.digest(body))
         self.assertEqual([event["method"] for event in record["wire"]], ["GET", "POST"])
         self.assertIn(b"tabType=1&tptyCode=PB11", self.transport.request_listing.call_args.kwargs["data"])
+        self.assertEqual(self.transport.request_listing.call_args.args[2], ep.LISTING_TIMEOUT_S)
         self.assertEqual(ep.parse(self.query, 1, record, body).products, ())
+
+    def test_clean_robots_body_is_hashed_on_the_wire_event(self):
+        for policy in (b"User-agent: *\nDisallow: /private\n", b""):
+            with self.subTest(policy=policy):
+                self.transport.reset_mock()
+                self.transport.request.return_value = Response(200, {"content-type": "text/plain"}, iter((policy,)))
+                self.transport.request_listing.return_value = Response(
+                    200, {"content-type": "text/plain"}, iter((b"{list:[]}",)))
+                session = ep.ListingSession(self.config, self.transport, {"kpub.knia.or.kr"})
+                record, body, state, reason = session.fetch(self.query, 1)
+                self.assertEqual((body, state, reason), (b"{list:[]}", None, None))
+                event = record["wire"][0]
+                self.assertEqual((event["sha256"], event["bytes"]), (ep.digest(policy), len(policy)))
+                self.assertEqual(record["wire"][1]["method"], "POST")
+
+    def test_truncated_robots_body_leaves_no_hash_and_defers_the_host(self):
+        def failing_body():
+            yield b"User-agent: *\n"
+            raise TransportError("read failed: ConnectionResetError")
+
+        self.transport.request.return_value = Response(200, {"content-type": "text/plain"}, failing_body())
+        record, body, state, reason = self.session.fetch(self.query, 1)
+        self.assertEqual((body, state, reason), (None, "failed", "robots_unreachable"))
+        self.assertNotIn("sha256", record["wire"][0])
+        self.transport.request_listing.assert_not_called()
 
     def test_cross_origin_and_http_requests_are_refused_before_wire(self):
         for url in ("http://kpub.knia.or.kr/list", "https://evil.invalid/list", "https://kpub.knia.or.kr:444/list"):
@@ -243,6 +404,34 @@ class TransportBoundaries(unittest.TestCase):
         self.assertEqual((body, state, reason), (None, "failed", "listing_content_length_mismatch"))
         self.assertNotIn("sha256", record)
 
+    def test_late_body_read_retries_share_the_listing_attempt_budget(self):
+        def interrupted(error):
+            yield b" " * BODY_PREFIX_BYTES
+            raise error
+
+        reset = TransportError("read failed: ConnectionResetError")
+        complete = b"{list:[]}"
+        for steps, expected in (
+            ([reset, complete], (complete, None, None)),
+            ([reset] * 3, (None, "failed", "connection_reset")),
+            ([BodyTooLargeError("body limit exceeded")], (None, "failed", "empty_reply")),
+        ):
+            with self.subTest(steps=steps):
+                self.transport.reset_mock()
+                self.transport.request.return_value = Response(404, {}, iter(()))
+                self.transport.request_listing.side_effect = [
+                    Response(200, {"content-type": "text/plain"},
+                             iter((step,)) if isinstance(step, bytes) else interrupted(step))
+                    for step in steps
+                ]
+                session = ep.ListingSession(replace(self.config, max_attempts=3), self.transport, {"kpub.knia.or.kr"})
+                session.fetcher._limiter = self.session.fetcher._limiter
+                session.fetcher._sleep = lambda _: None
+                record, body, state, reason = session.fetch(self.query, 1)
+                self.assertEqual((body, state, reason), expected)
+                self.assertEqual([event["method"] for event in record["wire"]], ["GET"] + ["POST"] * len(steps))
+                self.assertEqual(record.get("sha256"), ep.digest(complete) if body else None)
+
 
 class CommittedEvidence(unittest.TestCase):
     @classmethod
@@ -250,22 +439,48 @@ class CommittedEvidence(unittest.TestCase):
         cls.snapshot = json.loads(ep.SNAPSHOT.read_text(encoding="utf-8"))
         cls.insurers = ep.insurer_rows()
 
-    def test_snapshot_validates_and_has_real_rows_and_recorded_gaps(self):
+    def test_snapshot_finishes_every_accessible_listing(self):
         ep.validate(self.snapshot, self.insurers)
         self.assertEqual(ep.refresh_registry(self.snapshot, [r.copy() for r in self.insurers]), self.insurers)
-        self.assertEqual(len(self.snapshot["source_products"]), 5213)
-        self.assertEqual(len(self.snapshot["expected_documents"]), 11938)
-        manifests = self.snapshot["manifests"]
-        self.assertEqual({m["source_id"] for m in manifests if m["product_rows"]},
-                         {"life-aia", "life-bnpcardif", "nonlife-ace-chubb", "nonlife-heungkuk"})
-        self.assertEqual(Counter(m["state"] for m in manifests), Counter(blocked=37, complete=10, failed=6, partial=1))
-        for assoc, reason in (("klia", "robots_disallow"), ("knia", "robots_forbidden")):
-            runs = [m for m in manifests if m["source_id"] == assoc]
-            self.assertTrue(runs)
-            for manifest in runs:
-                self.assertEqual(manifest["reason"], reason)
-                self.assertTrue(all(event["url"].endswith("/robots.txt")
-                                    for page in manifest["pages"] for event in page["wire"]))
+        accessible = {"life-aia", "life-bnpcardif", "nonlife-ace-chubb", "nonlife-heungkuk"}
+        completed = {m["id"]: m for m in self.snapshot["manifests"] if m["source_id"] in accessible}
+        self.assertEqual(Counter(m["state"] for m in completed.values()), {"complete": 13})
+        for manifest in completed.values():
+            with self.subTest(scope=manifest["id"]):
+                self.assertGreater(manifest["product_rows"], 0)
+                self.assertGreaterEqual(manifest["expected_document_rows"], manifest["product_rows"])
+        for scope in ("discontinued-long-term", "discontinued-general"):
+            manifest = completed[f"nonlife-heungkuk/{scope}"]
+            self.assertEqual(manifest["reason"], "pagination_last_page")
+            self.assertEqual(len(manifest["pages"]), manifest["last_page"])
+            self.assertGreater(manifest["last_page"], 20)
+        self.assertEqual(completed["nonlife-ace-chubb/discontinued"]["reason"], "inline_version_tables")
+
+    def test_snapshot_has_access_evidence_for_all_deferred_scopes(self):
+        # Each later scope can reuse the first robots result from the same host.
+        deferred = {
+            "klia": ("pub.insure.or.kr", 17, "blocked", "robots_disallow", 200),
+            "knia": ("kpub.knia.or.kr", 19, "blocked", "robots_forbidden", 403),
+            "nonlife-db": ("www.idbins.com", 1, "blocked", "robots_disallow", 200),
+            "life-chubb": ("www.chubblife.co.kr", 1, "failed", "robots_unreachable", None),
+            "life-kyobo-lifeplanet": ("www.lifeplanet.co.kr", 2, "failed", "robots_unreachable", None),
+            "nonlife-mitsuisumitomo-kr": ("www.ms-ins.co.kr", 1, "failed", "robots_unreachable", None),
+        }
+        for source, (host, count, state, reason, http_status) in deferred.items():
+            with self.subTest(source=source):
+                scopes = [m for m in self.snapshot["manifests"] if m["source_id"] == source]
+                self.assertEqual(len(scopes), count)
+                for manifest in scopes:
+                    self.assertEqual((manifest["state"], manifest["reason"]), (state, reason))
+                    self.assertEqual((manifest["product_rows"], manifest["expected_document_rows"]), (0, 0))
+                event, = [event for manifest in scopes for page in manifest["pages"] for event in page["wire"]]
+                self.assertEqual((event["url"], event["method"], event.get("http_status")),
+                                 (f"https://{host}/robots.txt", "GET", http_status))
+                if http_status == 200:
+                    ep.check_sha256(event["sha256"])
+                    self.assertGreater(event["bytes"], 0)
+                elif http_status is None:
+                    self.assertIn("SSLEOFError", event["error"])
 
     def test_snapshot_refuses_missing_source_evidence_or_archive_claim(self):
         snapshot = copy.deepcopy(self.snapshot)

@@ -208,11 +208,12 @@ def parse_heungkuk(body, content_type, page, mode, product_type):
         docs = []
         for link in elements(data[4], "a"):
             role = ROLES.get(link.text().replace(" ", ""))
-            ref = HEUNGKUK_FILE.fullmatch(link.attrs.get("onclick") or "")
             if not role:
                 continue
-            require(ref and PDF_NAME.fullmatch(ref[1]), "unknown_heungkuk_download_reference")
-            docs.append(Document(role, ref[1]))
+            ref = HEUNGKUK_FILE.fullmatch(link.attrs.get("onclick") or "")
+            # The label establishes the expected role even when a historical
+            # download link has no usable file locator.
+            docs.append(Document(role, ref[1] if ref and PDF_NAME.fullmatch(ref[1]) else None))
         if not any(doc.role == "terms" for doc in docs):
             docs.append(Document("terms"))
         products.append(Product(name, period or None, category or None, None, tuple(docs)))

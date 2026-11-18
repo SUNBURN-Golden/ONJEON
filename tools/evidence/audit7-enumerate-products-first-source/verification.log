@@ -68,3 +68,96 @@ BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 269
 
 $ git -c core.whitespace=cr-at-eol diff --check
 OK
+
+# Fix round 2 (2026-11-19 KST)
+
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/audit7-ontology/debug/ontology-case-runner" PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/tests -v
+Ran 1732 tests in 207.925s
+OK (skipped=6)
+
+$ python3 -B -m unittest discover -s tools/tests -p test_product_discovery.py -v
+Ran 27 tests in 2.858s
+OK
+
+$ cargo test --all --locked --offline --target-dir target/audit7-workspace
+536 passed, 0 failed, 1 ignored
+The separate target directory rebuilt workspace tests that embed absolute schema fixture paths.
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed, 0 ignored
+
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/audit7-ontology
+4 passed, 0 failed, 0 ignored
+
+$ python3 -B tools/enumerate_products.py --check
+{"expected_documents": 29469, "scopes": {"blocked": 37, "complete": 13, "failed": 4}, "source_products": 11222}
+
+$ python3 -B -I tools/registry_check.py
+registry check passed (IDs, vocabulary, access evidence)
+
+$ python3 -B -I tools/vocab_check.py
+vocabulary ok: 50 axes, 271 values
+
+$ python3 -B -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (42 ADR/DEC files)
+
+$ python3 -B -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 269, "tamper_tests": 40, "vocabulary_axes": 50}
+
+$ git -c core.whitespace=cr-at-eol diff --check
+OK
+
+# Fix round 3 (2026-11-19 KST): environmental repair, no source change.
+# The supervisor re-run failed 10 onjeon-api-types tests with NotFound/ImportError
+# naming /workspace/onjeon-run/wt/audit7-registry-supervisory-crosscheck-overdue —
+# a worktree that no longer exists. That worktree's absolute paths were embedded at
+# compile time in the shared CARGO_TARGET_DIR=/workspace/onjeon-run/shared-target
+# test binaries (confirmed with strings on onjeon_api_types-7c4a02dd950953e7);
+# identical source kept fingerprints fresh, so cargo reported "Finished in 0.06s"
+# without recompiling. Round 2 had verified with a worktree-private target
+# (target/audit7-workspace), which does not repair the supervisor's shared-target
+# run. This round repaired the shared target in place: no live cargo/rustc
+# processes, then cargo clean -p for all 8 workspace packages (onjeon-rules-engine,
+# onjeon-contracts, onjeon-api-types, onjeon-ontology, onjeon-twin-runtime,
+# onjeon-ai-gateway, onjeon-collect, onjeon-criteria) and a full rebuild from this
+# worktree. The rebuilt binary now embeds this worktree's path and all 10
+# previously failing tests pass. packages/ and services/ sources are unmodified
+# at HEAD; the node diff is unchanged from round 2.
+
+$ cargo test --all --locked --offline --no-fail-fast   # shared target, after clean -p of all 8 packages
+536 passed, 0 failed, 1 ignored
+
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/audit7-ontology/debug/ontology-case-runner" PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/tests -v
+Ran 1732 tests in 209.050s
+OK (skipped=6)
+
+$ python3 -B -m unittest discover -s tools/tests -p test_product_discovery.py -v
+Ran 27 tests in 2.876s
+OK
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed, 0 ignored
+
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/audit7-ontology
+4 passed, 0 failed, 0 ignored
+
+$ python3 -B tools/enumerate_products.py --check
+{"expected_documents": 29469, "scopes": {"blocked": 37, "complete": 13, "failed": 4}, "source_products": 11222}
+
+$ python3 -B -I tools/registry_check.py
+registry check passed (IDs, vocabulary, access evidence)
+
+$ python3 -B -I tools/vocab_check.py
+vocabulary ok: 50 axes, 271 values
+
+$ python3 -B -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (42 ADR/DEC files)
+
+$ python3 -B -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 269, "tamper_tests": 40, "vocabulary_axes": 50}
+
+$ sha256sum data/registry/product_discovery.json
+5cc477cc28944cad77ea766c9303ee82430997799ee43f74d2450619345c88cd  data/registry/product_discovery.json
+
+$ git -c core.whitespace=cr-at-eol diff --check
+OK

@@ -1,0 +1,9 @@
+{
+  "contact": "https://github.com/SUNBURN-Golden/onjeon",
+  "network_enabled": true,
+  "per_host_min_interval_s": 5,
+  "per_host_concurrency": 1,
+  "max_attempts": 3,
+  "daily_request_cap_default": 400,
+  "object_cap_bytes": 8388608
+}

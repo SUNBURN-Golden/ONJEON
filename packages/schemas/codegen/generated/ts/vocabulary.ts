@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /** Version of packages/schemas/vocabulary.json these unions were generated from. */
-export const VOCABULARY_VERSION = "1.8.0";
+export const VOCABULARY_VERSION = "1.9.0";
 
 /**
  * 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
@@ -317,6 +317,21 @@ export function parseAmountKind(value: unknown): AmountKind {
     return value as AmountKind;
   }
   throw new Error(`unknown amount_kind: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 금액 계산 보류 사유: 값이 주어졌으나 연산의 결과를 정할 수 없는 이유
+ *
+ * Axis `calculation_issue_code`.
+ */
+export const CalculationIssueCode = ["zero_denominator"] as const;
+export type CalculationIssueCode = (typeof CalculationIssueCode)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseCalculationIssueCode(value: unknown): CalculationIssueCode {
+  if (typeof value === "string" && (CalculationIssueCode as readonly string[]).includes(value)) {
+    return value as CalculationIssueCode;
+  }
+  throw new Error(`unknown calculation_issue_code: ${JSON.stringify(value)}`);
 }
 
 /**

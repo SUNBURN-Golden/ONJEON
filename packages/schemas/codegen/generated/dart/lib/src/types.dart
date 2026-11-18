@@ -1109,6 +1109,28 @@ class PayoutResult {
       };
 }
 
+/// 금액을 결정할 수 없는 연산의 구조화된 사유
+class CalculationIssue {
+  final CalculationIssueCode code;
+  /// 원인이 발생한 연산의 평가 trace 경로
+  final String path;
+
+  const CalculationIssue({
+    required this.code,
+    required this.path,
+  });
+
+  factory CalculationIssue.fromJson(Map<String, dynamic> json) => CalculationIssue(
+        code: CalculationIssueCode.fromJson(json['code'] as String),
+        path: json['path'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'code': code.toJson(),
+        'path': path,
+      };
+}
+
 /// 평가 trace 한 노드
 class TraceEntry {
   final String path;
@@ -1179,6 +1201,8 @@ class EvaluationResult {
   /// 규칙이 계약 자체에 미치는 효과(rule-0.2, G23). 엔진이 rule-0.2를 지원한 뒤(PR #105)로는 항상 실린다. 그 전 엔진 빌드의 결과에는 없으므로 선택 필드다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이다
   final ContractEffectResult? contractEffect;
   final List<String> missingInputs;
+  /// 금액이 미확인일 때의 연산 사유. 실제로 누락된 입력은 missing_inputs에 별도로 담는다
+  final List<CalculationIssue>? amountIssues;
   final List<TraceEntry> trace;
   final String inputSnapshotHash;
 
@@ -1194,6 +1218,7 @@ class EvaluationResult {
     required this.payout,
     this.contractEffect,
     required this.missingInputs,
+    this.amountIssues,
     required this.trace,
     required this.inputSnapshotHash,
   });
@@ -1210,6 +1235,7 @@ class EvaluationResult {
         payout: PayoutResult.fromJson(json['payout'] as Map<String, dynamic>),
         contractEffect: json['contract_effect'] == null ? null : ContractEffectResult.fromJson(json['contract_effect'] as Map<String, dynamic>),
         missingInputs: (json['missing_inputs'] as List<dynamic>).map((e) => e as String).toList(),
+        amountIssues: json['amount_issues'] == null ? null : (json['amount_issues'] as List<dynamic>).map((e) => CalculationIssue.fromJson(e as Map<String, dynamic>)).toList(),
         trace: (json['trace'] as List<dynamic>).map((e) => TraceEntry.fromJson(e as Map<String, dynamic>)).toList(),
         inputSnapshotHash: json['input_snapshot_hash'] as String,
       );
@@ -1226,6 +1252,7 @@ class EvaluationResult {
         'payout': payout.toJson(),
         if (contractEffect != null) 'contract_effect': contractEffect!.toJson(),
         'missing_inputs': missingInputs.map((e) => e).toList(),
+        if (amountIssues != null) 'amount_issues': amountIssues!.map((e) => e.toJson()).toList(),
         'trace': trace.map((e) => e.toJson()).toList(),
         'input_snapshot_hash': inputSnapshotHash,
       };
@@ -2192,6 +2219,7 @@ class ScenarioResult {
   final List<BlockedBy> blockedBy;
   final List<String> remainingGaps;
   final Explain? explain;
+  /// 금액 계산 사유(evaluation.amount_issues)가 있으면 hold, 필요한 입력만 누락되면 input_missing
   final DisplayStatus displayStatus;
   final ResultState resultState;
   final DependencyInfo? dependency;

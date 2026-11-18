@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-const String vocabularyVersion = '1.8.0';
+const String vocabularyVersion = '1.9.0';
 
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
@@ -622,6 +622,27 @@ enum AmountKind {
       if (v.code == code) return v;
     }
     throw FormatException('unknown amount_kind: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 금액 계산 보류 사유: 값이 주어졌으나 연산의 결과를 정할 수 없는 이유
+///
+/// Axis `calculation_issue_code`. Unknown values throw (never a default).
+enum CalculationIssueCode {
+  /// 분모가 0으로 확인돼 나눗셈의 결과를 정할 수 없음
+  zeroDenominator('zero_denominator');
+
+  const CalculationIssueCode(this.code);
+
+  final String code;
+
+  static CalculationIssueCode fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown calculation_issue_code: $code');
   }
 
   String toJson() => code;

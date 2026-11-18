@@ -1,6 +1,6 @@
 # 상태 어휘 (생성 문서)
 
-버전 1.8.0 | 2026-10-29 | 정본: `packages/schemas/vocabulary.json`
+버전 1.9.0 | 2026-11-18 | 정본: `packages/schemas/vocabulary.json`
 
 > 이 문서는 `python3 tools/vocab_check.py --write`로 생성한다. 직접 고치지 않는다.
 
@@ -14,7 +14,7 @@
 
 ## 축 목록
 
-전체 49개 축.
+전체 50개 축.
 
 | 축 | 이름 | 적용 대상 | 계층 |
 |---|---|---|---|
@@ -39,6 +39,7 @@
 | `tri` | 3값 | 규칙 엔진의 조건 | L6 |
 | `payout` | 지급 판정 | EvaluationResult | L6-L8 |
 | `amount_kind` | 금액 형태 | EvaluationResult의 금액 | L6-L8 |
+| `calculation_issue_code` | 금액 계산 보류 사유 | EvaluationResult.amount_issues | L6-L9 |
 | `price_basis` | 가격 근거 | PremiumObservation | L3-L9 |
 | `price_unavailable_reason` | 가격 미확인 사유 | 비교 기준 안에서 가격이 없을 때 | L5-L9 |
 | `freshness` | 최신성 | 소스, 가격, 릴리스 | L0-L9 |
@@ -328,6 +329,14 @@ Kleene 3값 논리
 | `exact` | 단일 금액 | (화면에 직접 표시 안 함) | - |
 | `range` | 반올림 미지정 등으로 하한~상한 | (화면에 직접 표시 안 함) | - |
 | `unknown` | 금액을 정할 수 없음 | 금액 확인 필요 | - |
+
+## `calculation_issue_code` 금액 계산 보류 사유
+
+값이 주어졌으나 연산의 결과를 정할 수 없는 이유
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `zero_denominator` | 분모가 0으로 확인돼 나눗셈의 결과를 정할 수 없음 | 나눌 기준이 0이라 금액을 계산할 수 없어요 | - |
 
 ## `price_basis` 가격 근거
 

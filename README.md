@@ -51,13 +51,15 @@ rustup toolchain install 1.98.1 --profile minimal
 rustup override set --path "$PWD" 1.98.1
 python3 -m pip install --user boto3==1.43.100
 cargo fetch --locked
+cargo fetch --manifest-path services/scenario-api/Cargo.toml --locked
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo fetch --locked)
 python3 -m unittest discover -s tools/tests -v
 cargo test --all --locked --offline
+cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
 ```
 
-오프라인 시험 전에는 도구 체인과 두 Cargo 작업 공간의 의존성이 설치돼 있어야 한다.
+오프라인 시험 전에는 도구 체인과 각 Cargo 작업 공간의 의존성이 설치돼 있어야 한다.
 Python 시험은 필요한 온톨로지 실행기를 오프라인으로 빌드한다.
 재정의는 rustup의 로컬 설정이며 Git에 포함되지 않는다. 새 작업 트리에서는 위 준비를
 반복한다. 해제하려면 해당 루트에서 `rustup override unset --path "$PWD"`를 실행한다.

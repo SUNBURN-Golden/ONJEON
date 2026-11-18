@@ -1,0 +1,18 @@
+[package]
+name = "onjeon-scenario-api"
+version = "0.1.0"
+edition = "2021"
+description = "ONJEON scenario API input preparation and result projection"
+publish = false
+
+[workspace]
+
+[dependencies]
+onjeon-api-types = { path = "../../packages/api-types" }
+onjeon-contracts = { path = "../../packages/schemas" }
+onjeon-rules-engine = { path = "../../packages/rules-engine" }
+onjeon-twin-runtime = { path = "../../packages/twin-runtime" }
+serde_json = "1"
+
+[dev-dependencies]
+onjeon-ontology = { path = "../../packages/ontology" }

@@ -418,6 +418,14 @@ pub struct PayoutResult {
     pub conditional_amount: Option<AmountOut>,
 }
 
+/// 금액을 결정할 수 없는 연산의 구조화된 사유
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CalculationIssue {
+    pub code: CalculationIssueCode,
+    /// 원인이 발생한 연산의 평가 trace 경로
+    pub path: String,
+}
+
 /// 평가 trace 한 노드
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TraceEntry {
@@ -459,6 +467,9 @@ pub struct EvaluationResult {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub contract_effect: Option<ContractEffectResult>,
     pub missing_inputs: Vec<String>,
+    /// 금액이 미확인일 때의 연산 사유. 실제로 누락된 입력은 missing_inputs에 별도로 담는다
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amount_issues: Option<Vec<CalculationIssue>>,
     pub trace: Vec<TraceEntry>,
     pub input_snapshot_hash: String,
 }
@@ -820,6 +831,7 @@ pub struct ScenarioResult {
     pub remaining_gaps: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub explain: Option<Explain>,
+    /// 금액 계산 사유(evaluation.amount_issues)가 있으면 hold, 필요한 입력만 누락되면 input_missing
     pub display_status: DisplayStatus,
     pub result_state: ResultState,
     #[serde(default, skip_serializing_if = "Option::is_none")]

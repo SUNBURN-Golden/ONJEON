@@ -1,7 +1,10 @@
 //! rule-0.2 operators (GAP_REPORT section 5): golden, boundary, mutation and soundness tests.
 //! Every rule here is synthetic (`fixture_only`); none encodes a real clause.
 
-use onjeon_rules_engine::{AmountOut, ContractEffect, ContractEffectOut, Payout, Rule, Tri};
+use onjeon_rules_engine::{
+    confirmed_empty_class_money_list, AmountOut, CalculationIssue, CalculationIssueCode,
+    ContractEffect, ContractEffectOut, Payout, Rule, Tri,
+};
 use serde_json::{json, Value as J};
 
 /// A synthetic rule-0.2 document around one amount expression.
@@ -498,6 +501,131 @@ fn divide_count_rounds_the_bounds_of_a_range() {
     );
 }
 
+#[test]
+fn zero_denominator_issue_follows_the_amount_that_is_used() {
+    let rounding = json!({"rounding": "floor", "unit": 1});
+    for op in [
+        json!({"pro_rata": [{"krw": 90}, 1, "denominator", rounding]}),
+        json!({"divide_count": [{"krw": 90}, "denominator", rounding]}),
+    ] {
+        let mut rule_doc = doc(
+            json!({"use_share": "bool", "eligible": "bool", "denominator": "int"}),
+            json!({"if": "use_share", "then": {"add": [op, {"krw": 1}]},
+                   "else": {"krw": 90}}),
+        );
+        rule_doc["eligibility"] = json!("eligible");
+        let rule = load(&rule_doc);
+        let issue = CalculationIssue {
+            code: CalculationIssueCode::ZeroDenominator,
+            path: "amount.then.add[0]".into(),
+        };
+        let mut facts = json!({"eligible": true, "use_share": true, "denominator": 0});
+
+        let result = rule.evaluate(&facts).unwrap();
+        assert_eq!(result.eligibility, Tri::True);
+        assert_eq!(
+            result.payout,
+            Payout::Payable {
+                amount: AmountOut::Unknown
+            }
+        );
+        assert_eq!(result.amount_issues, std::slice::from_ref(&issue));
+        assert!(result.missing_inputs.is_empty());
+        assert!(result.trace.iter().any(|step| step.path == issue.path));
+
+        facts["eligible"] = J::Null;
+        let result = rule.evaluate(&facts).unwrap();
+        assert_eq!(result.eligibility, Tri::Unknown);
+        assert_eq!(
+            result.payout,
+            Payout::Undetermined {
+                conditional_amount: AmountOut::Unknown
+            }
+        );
+        assert_eq!(result.missing_inputs, ["eligible"]);
+        assert_eq!(result.amount_issues, [issue]);
+
+        facts["eligible"] = json!(false);
+        let result = rule.evaluate(&facts).unwrap();
+        assert_eq!(result.payout, Payout::NotPayable);
+        assert!(result.amount_issues.is_empty());
+
+        facts["eligible"] = json!(true);
+        facts["use_share"] = json!(false);
+        let result = rule.evaluate(&facts).unwrap();
+        assert_eq!(result.payout, Payout::Payable { amount: exact(90) });
+        assert!(result.amount_issues.is_empty());
+        assert!(result.missing_inputs.is_empty());
+
+        facts["use_share"] = J::Null;
+        let result = rule.evaluate(&facts).unwrap();
+        assert_eq!(result.missing_inputs, ["use_share"]);
+        assert!(result.amount_issues.is_empty());
+
+        facts["use_share"] = json!(true);
+        facts["denominator"] = J::Null;
+        for missing in [facts.clone(), json!({"eligible": true, "use_share": true})] {
+            let result = rule.evaluate(&missing).unwrap();
+            assert_eq!(
+                result.payout,
+                Payout::Payable {
+                    amount: AmountOut::Unknown
+                }
+            );
+            assert_eq!(result.missing_inputs, ["denominator"]);
+            assert!(result.amount_issues.is_empty());
+        }
+    }
+}
+
+#[test]
+fn filling_other_operands_cannot_resolve_a_known_zero_denominator() {
+    let result = divide_rule("floor", 1).evaluate(&json!({"n": 0})).unwrap();
+    assert!(result.missing_inputs.is_empty());
+    assert_eq!(
+        result.amount_issues[0].code,
+        CalculationIssueCode::ZeroDenominator
+    );
+
+    for facts in [
+        json!({"all": 0}),
+        json!({"all": 0, "loss": 100}),
+        json!({"all": 0, "mine": 1}),
+    ] {
+        let result = pro_rata_rule("floor", 1).evaluate(&facts).unwrap();
+        assert!(result.missing_inputs.is_empty());
+        assert_eq!(
+            result.amount_issues[0].code,
+            CalculationIssueCode::ZeroDenominator
+        );
+    }
+}
+
+#[test]
+fn both_possible_branches_can_prevent_the_calculation() {
+    let divide = json!({"divide_count": [{"krw": 90}, 0, {"rounding": "floor", "unit": 1}]});
+    let rule = load(&doc(
+        json!({"select": "bool"}),
+        json!({"if": "select", "then": divide, "else": divide}),
+    ));
+    let result = rule.evaluate(&json!({})).unwrap();
+    assert_eq!(
+        result.payout,
+        Payout::Payable {
+            amount: AmountOut::Unknown
+        }
+    );
+    assert_eq!(result.missing_inputs, ["select"]);
+    assert_eq!(
+        result
+            .amount_issues
+            .iter()
+            .map(|issue| issue.path.as_str())
+            .collect::<Vec<_>>(),
+        ["amount.else", "amount.then"],
+    );
+}
+
 // ---------------------------------------------------------------- anniversary_band
 
 fn band_rule(boundary: &str) -> Rule {
@@ -627,7 +755,7 @@ fn max_over_rule() -> Rule {
 fn max_over_takes_the_highest_per_class_and_sums_classes() {
     let r = max_over_rule();
     let ev = |items: J| json!({ "events": items });
-    assert_eq!(amount(&r, ev(json!([]))), exact(0)); // known: no events happened
+    assert_eq!(amount(&r, ev(confirmed_empty_class_money_list())), exact(0));
     assert_eq!(
         amount(&r, ev(json!([{"class": "a", "krw": 100}]))),
         exact(100)
@@ -674,6 +802,7 @@ fn max_over_unknown_list_or_amount_is_unknown_not_zero() {
     let r = max_over_rule();
     for inputs in [
         json!({}),
+        json!({"events": []}),
         json!({"events": null}),
         json!({"events": [{"class": "a", "krw": null}]}),
         // an unknown amount may be the largest of its class, even next to a known one
@@ -706,6 +835,8 @@ fn list_inputs_are_validated() {
     let r = max_over_rule();
     for bad in [
         json!({"events": "x"}),
+        json!({"events": {"confirmed_empty": false}}),
+        json!({"events": {"confirmed_empty": true, "extra": true}}),
         json!({"events": [1]}),
         json!({"events": [{"class": "a"}]}),
         json!({"events": [{"class": "", "krw": 1}]}),
@@ -1003,7 +1134,7 @@ fn mutated_rule_02_operators_are_caught() {
                 json!({"e": [{"class": "a", "krw": 1}, {"class": "a", "krw": 5}, {"class": "b", "krw": 2}]}),
                 exact(7),
             ),
-            (json!({"e": []}), exact(0)),
+            (json!({"e": confirmed_empty_class_money_list()}), exact(0)),
             (
                 json!({"e": [{"class": "a", "krw": null}]}),
                 AmountOut::Unknown,

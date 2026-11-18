@@ -41,11 +41,13 @@
 |---|---|---|
 | `multiply_count` | `[money, int]` → money | 횟수는 0 이상(음수는 평가 오류), 오버플로는 오류. 금액 범위는 양 끝을 곱한다 |
 | `subtract_floor0` | `[money, money]` → money | 음수면 0. 한쪽이라도 모름이면 모름(0 하한이 모름을 0으로 만들지 않는다). 범위는 `[a.min-b.max, a.max-b.min]`을 각각 0으로 올린다 |
-| `pro_rata` | `[money, part, whole, {rounding, unit}]` → money | `part`·`whole`은 둘 다 int 또는 둘 다 정확한 money(범위 가능 식은 로드에서 거부). `whole=0`은 오류가 아니라 **모름**(blocker 없음), `part>whole`은 오류. 반올림·단위 필수 |
+| `pro_rata` | `[money, part, whole, {rounding, unit}]` → money | `part`·`whole`은 둘 다 int 또는 둘 다 정확한 money(범위 가능 식은 로드에서 거부). `whole=0`은 오류가 아니라 **모름**(`zero_denominator`), `part>whole`은 오류. 반올림·단위 필수 |
 | `divide_count` | `[money, int, {rounding, unit}]` → money | 균등 배분·1일 평균. 횟수 0은 모름. 반올림·단위 필수 |
 | `anniversary_band` | `[date_from, date_at, [[years, "rate"]...], {boundary}]` → rate | 경과 만 연수 구간표. 첫 구간은 0년, 시작 연수는 엄격 증가, 값은 요율 문자열(금액에는 `multiply_rate`로 곱한다). `boundary`는 필수: `lower_inclusive`(기념일 당일부터 새 구간) / `upper_inclusive`(기념일 당일까지 이전 구간, 다음 날부터 새 구간; 첫 구간은 항상 적용). 2월 29일 기산의 평년 기념일은 2월 말일(엔진 가정, 원문 관례는 G13). `date_at < date_from`은 오류 |
-| 목록 입력 `class_money_list` + `max_over` | 입력 `[{class, krw}]`, `{"max_over": "<입력 이름>"}` → money | 같은 `class`에서는 최고 금액 하나만, 다른 `class`는 각각 더한다(G04). 빈 목록은 0(사건 없음이 확정), 목록이 없거나 항목의 `krw`가 `null`이면 모름(모르는 항목이 최고일 수 있다). 목록은 비교할 수 없고 `max_over` 인자는 선언된 목록 입력의 이름이어야 한다 |
+| 목록 입력 `class_money_list` + `max_over` | 입력 `[{class, krw}]`, `{"max_over": "<입력 이름>"}` → money | 같은 `class`에서는 최고 금액 하나만, 다른 `class`는 각각 더한다(G04). 입력 단계에서 범위 내 사건 없음이 확인되어 엔진에 `{"confirmed_empty": true}`로 전달되면 0. 근거 없는 `[]`, `null`, 누락, 항목의 `krw: null`은 미확인. 목록은 비교할 수 없고 `max_over` 인자는 선언된 목록 입력의 이름이어야 한다 |
 | `contract_effect` | 최상위 키 `none`/`void_refund_premium`/`terminated_pay_reserve`(기본 `none`) | 결과의 `contract_effect`: 적격이면 `applies{effect}`, 부적격이면 `none`, **적격 미정이면 `undetermined{conditional_effect}`**(규칙이 효과를 선언했는데 `none`으로 바뀌지 않는다). rule-0.1 결과는 항상 `none`. 값은 규칙 내용 해시에 포함된다 |
+
+`pro_rata`와 `divide_count`의 0 분모가 금액 계산을 막으면 `amount_issues`에 `zero_denominator`와 trace 경로를 담는다. 누락·null 입력은 `missing_inputs`에 담는다. 시나리오 API의 표시와 목록 확인 출처는 [Audit 7 결정](../../docs/decisions/audit7-unknown-without-blockers.md)을 따른다.
 
 코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 여전히 DSL 밖(입력 단계)이다. 금액 범위와의 비교 및 `pro_rata`의 범위 가능 `part`·`whole`은 로드 단계에서 거부한다(정확한 값만 허용). 범위 비교의 의미는 [DEC-O12](../../docs/decisions/DEC-O12.md) S3에서 확정됐다: 범위의 모든 값이 같은 결론에 동의할 때만 참·거짓이고 아니면 모름, 구간 산술은 단조 연산에만, 범위를 대표값으로 접지 않음, `between`은 양 끝 포함 플래그 필수. 엔진은 연산별 S6 출시 조건 전까지 이 비교를 로드에서 거부하는 capability-blocked 상태다.
 

@@ -3,7 +3,7 @@
   "$id": "vocabulary.schema.json",
   "title": "Vocabulary",
   "description": "GENERATED from packages/schemas/vocabulary.json by codegen/gen.py. Do not edit.",
-  "x-onjeon-vocabulary-version": "1.8.0",
+  "x-onjeon-vocabulary-version": "1.9.0",
   "$defs": {
     "acquisition_status": {
       "type": "string",
@@ -241,6 +241,13 @@
         "exact",
         "range",
         "unknown"
+      ]
+    },
+    "calculation_issue_code": {
+      "type": "string",
+      "description": "금액 계산 보류 사유: 값이 주어졌으나 연산의 결과를 정할 수 없는 이유",
+      "enum": [
+        "zero_denominator"
       ]
     },
     "price_basis": {

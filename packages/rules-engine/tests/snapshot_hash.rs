@@ -152,12 +152,16 @@ fn list_member_order_amount_and_class_are_preserved_but_object_order_is_not() {
         serde_json::from_str(r#"{"events":[{"krw":null,"class":"A=\n"},{"krw":1,"class":"B"}]}"#)
             .unwrap();
     assert_eq!(hash(&rule, &initial), hash(&rule, &reversed_keys));
+    assert_eq!(
+        hash(&rule, &json!({"events": []})),
+        hash(&rule, &json!({"events": null}))
+    );
     let mut hashes = std::collections::BTreeSet::from([hash(&rule, &initial)]);
     for inputs in [
         json!({"events": [{"class": "B", "krw": 1}, {"class": "A=\n", "krw": null}]}),
         json!({"events": [{"class": "A=\n", "krw": 0}, {"class": "B", "krw": 1}]}),
         json!({"events": [{"class": "A=\\n", "krw": null}, {"class": "B", "krw": 1}]}),
-        json!({"events": []}),
+        json!({"events": onjeon_rules_engine::confirmed_empty_class_money_list()}),
         json!({"events": null}),
     ] {
         assert!(hashes.insert(hash(&rule, &inputs)), "{inputs}");

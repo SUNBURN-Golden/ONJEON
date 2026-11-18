@@ -1,0 +1,30 @@
+$ bash <tmp>.sh
+== open: ledger untouched
++ python3 -I -m unittest discover -s <tmp>/open/tools/tests -p test_decisions_o01.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+rc=0
+== closed: patch applied with git apply
++ git apply docs/review/2026-10-23_audit1_decisions_o01.patch
+rc=0
+52:| O01 | ~~공제·우체국보험의 포함 여부~~ → D19·ADR-0018 §4로 결정. 우체국보험 포함(기관 유형 구분), 공제 제외(확보율 분모에서도 제외). 전체 기관·소스 목록 작성 자체는 구현 작업(D11) | 제품 책임자 | ADR-0018로 확정 | 우체국보험 포함(기관 유형 구분) / 공제·확보율 분모 제외 |
++ python3 -I -m unittest discover -s <tmp>/closed/tools/tests -p test_decisions_o01.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+rc=0
+== tampered: O01 reworded without the decision references (must fail)
+52:| O01 | 공제·우체국보험 포함 여부 재검토(전체 기관·소스 목록 작성 자체는 구현 작업, D11) | 제품 책임자 | M3 확장 전 | 별도 분모로 조사 / 보험사 확보율에 혼합 금지 |
++ python3 -I -m unittest discover -s <tmp>/tampered/tools/tests -p test_decisions_o01.py
+FAIL: test_ledger_row_is_stale_or_closed (test_decisions_o01.O01Row.test_ledger_row_is_stale_or_closed)
+AssertionError: False is not true : 원장 O01 행: 질문에 취소선을 넣고 시작해야 한다 (O13처럼)
+Ran 7 tests in 0.001s
+FAILED (failures=1)
+rc=1
+EXIT_CODE=0
+

@@ -1,0 +1,9 @@
+$ git apply --check docs/review/2026-10-23_audit1_decisions_o01.patch
+EXIT_CODE=0
+
+$ git diff --check
+EXIT_CODE=0
+
+$ git diff --exit-code HEAD -- docs/PRINCIPLES.md docs/BLUEPRINT.md docs/blueprint/SYSTEM_CONTRACT.md docs/blueprint/REQUIREMENTS.md docs/blueprint/DECISIONS.md docs/decisions/ docs/data/ docs/design/CONSUMER_FLOW_SPEC.md docs/blueprint/proposals/ docs/blueprint/validation/extracts/ infra/r2/budget_policy.json infra/r2/jobs/ data/registry/ packages/schemas/vocabulary.json docs/blueprint/VOCABULARY.md .github/workflows/ DECISION_REQUIRED.md
+EXIT_CODE=0
+

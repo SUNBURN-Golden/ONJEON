@@ -16,7 +16,10 @@ pub mod rule;
 pub mod tri;
 pub mod value;
 
-pub use eval::{AmountOut, ContractEffectOut, EvalError, EvaluationResult, Payout, TraceEntry};
+pub use eval::{
+    confirmed_empty_class_money_list, AmountOut, CalculationIssue, CalculationIssueCode,
+    ContractEffectOut, EvalError, EvaluationResult, Payout, TraceEntry,
+};
 pub use rule::{ContractEffect, Rule, RuleError};
 pub use tri::Tri;
 

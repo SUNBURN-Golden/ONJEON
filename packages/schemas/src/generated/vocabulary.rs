@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 use serde::{Deserialize, Serialize};
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-pub const VOCABULARY_VERSION: &str = "1.8.0";
+pub const VOCABULARY_VERSION: &str = "1.9.0";
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
 /// Axis `acquisition_status`. Unknown values fail to deserialize (never a default).
@@ -937,6 +937,29 @@ impl AmountKind {
             AmountKind::Exact => "exact",
             AmountKind::Range => "range",
             AmountKind::Unknown => "unknown",
+        }
+    }
+}
+
+/// 금액 계산 보류 사유: 값이 주어졌으나 연산의 결과를 정할 수 없는 이유
+///
+/// Axis `calculation_issue_code`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum CalculationIssueCode {
+    /// 분모가 0으로 확인돼 나눗셈의 결과를 정할 수 없음
+    #[serde(rename = "zero_denominator")]
+    ZeroDenominator,
+}
+
+impl CalculationIssueCode {
+    pub const AXIS: &'static str = "calculation_issue_code";
+    pub const ALL: &'static [CalculationIssueCode] = &[
+        CalculationIssueCode::ZeroDenominator,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            CalculationIssueCode::ZeroDenominator => "zero_denominator",
         }
     }
 }
@@ -2259,6 +2282,7 @@ pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {
         (Tri::AXIS, Tri::ALL.iter().map(|v| v.as_str()).collect()),
         (Payout::AXIS, Payout::ALL.iter().map(|v| v.as_str()).collect()),
         (AmountKind::AXIS, AmountKind::ALL.iter().map(|v| v.as_str()).collect()),
+        (CalculationIssueCode::AXIS, CalculationIssueCode::ALL.iter().map(|v| v.as_str()).collect()),
         (PriceBasis::AXIS, PriceBasis::ALL.iter().map(|v| v.as_str()).collect()),
         (PriceUnavailableReason::AXIS, PriceUnavailableReason::ALL.iter().map(|v| v.as_str()).collect()),
         (Freshness::AXIS, Freshness::ALL.iter().map(|v| v.as_str()).collect()),

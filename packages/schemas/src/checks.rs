@@ -6,8 +6,8 @@
 //! name of the database constraint or contract rule it mirrors.
 
 use crate::{
-    AmountKind, AmountOut, Assertion, AssertionOrigin, ErrorClass, ErrorResponse, EvaluationResult,
-    Payout, PremiumObservation, ReviewStatus, ScenarioResult, Tri,
+    AmountKind, AmountOut, Assertion, AssertionOrigin, DisplayStatus, ErrorClass, ErrorResponse,
+    EvaluationResult, Payout, PremiumObservation, ReviewStatus, ScenarioResult, Tri,
 };
 
 /// `origin` value of rows that exist only for tests (02_구현계약 §1.2, §8): vocabulary axis
@@ -104,6 +104,16 @@ pub fn check_scenario_result(s: &ScenarioResult) -> Vec<Violation> {
     }
     if let Some(e) = &s.evaluation {
         out.extend(check_evaluation_result(e));
+        if e.amount_issues
+            .as_ref()
+            .is_some_and(|issues| !issues.is_empty())
+            && s.display_status != DisplayStatus::Hold
+        {
+            out.push(v(
+                "calculation_issue_means_hold",
+                "an amount calculation issue requires display_status=hold",
+            ));
+        }
     }
     out
 }
@@ -146,6 +156,21 @@ pub fn check_evaluation_result(e: &EvaluationResult) -> Vec<Violation> {
         .flatten()
     {
         out.extend(check_amount_out(a));
+    }
+    if e.amount_issues
+        .as_ref()
+        .is_some_and(|issues| !issues.is_empty())
+        && !e
+            .payout
+            .amount
+            .as_ref()
+            .or(e.payout.conditional_amount.as_ref())
+            .is_some_and(|amount| amount.kind == AmountKind::Unknown)
+    {
+        out.push(v(
+            "calculation_issue_means_unknown_amount",
+            "an amount calculation issue requires an unknown amount",
+        ));
     }
     if let Some(ce) = &e.contract_effect {
         let fields = match ce.kind.as_str() {

@@ -5,6 +5,7 @@ import type {
   AmountForm,
   AmountKind,
   AssertionOrigin,
+  CalculationIssueCode,
   Capability,
   CapabilityState,
   ConfirmParty,
@@ -537,6 +538,17 @@ export interface PayoutResult {
 }
 
 /**
+ * 금액을 결정할 수 없는 연산의 구조화된 사유
+ */
+export interface CalculationIssue {
+  code: CalculationIssueCode;
+  /**
+   * 원인이 발생한 연산의 평가 trace 경로
+   */
+  path: string;
+}
+
+/**
  * 평가 trace 한 노드
  */
 export interface TraceEntry {
@@ -590,6 +602,10 @@ export interface EvaluationResult {
    */
   contract_effect?: ContractEffectResult;
   missing_inputs: string[];
+  /**
+   * 금액이 미확인일 때의 연산 사유. 실제로 누락된 입력은 missing_inputs에 별도로 담는다
+   */
+  amount_issues?: CalculationIssue[];
   trace: TraceEntry[];
   input_snapshot_hash: string;
 }
@@ -1019,6 +1035,9 @@ export interface ScenarioResult {
   blocked_by: BlockedBy[];
   remaining_gaps: string[];
   explain?: Explain;
+  /**
+   * 금액 계산 사유(evaluation.amount_issues)가 있으면 hold, 필요한 입력만 누락되면 input_missing
+   */
   display_status: DisplayStatus;
   result_state: ResultState;
   dependency?: DependencyInfo;

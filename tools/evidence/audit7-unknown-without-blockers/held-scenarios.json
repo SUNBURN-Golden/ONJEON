@@ -1,0 +1,163 @@
+[
+  {
+    "blocked_by": [],
+    "cov_id": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+    "display_status": "hold",
+    "evaluation": {
+      "amount_issues": [
+        {
+          "code": "zero_denominator",
+          "path": "amount.then"
+        }
+      ],
+      "contract_effect": {
+        "kind": "none"
+      },
+      "eligibility": "true",
+      "engine_version": "0.1.0+snapshot-json-1",
+      "evidence_refs": [],
+      "input_snapshot_hash": "69d7dcb834535e4752fa908f02c5340f62126763fb3fcdc165fd5738200b3431",
+      "missing_inputs": [],
+      "payout": {
+        "amount": {
+          "kind": "unknown"
+        },
+        "kind": "payable"
+      },
+      "release_id": null,
+      "rule_content_hash": "c83ffcc90a8acc804c8b906e03714bac831aba9eb26e480ea6c2fda1bd1b780e",
+      "rule_id": "hana-2601-3d-cancer-dx",
+      "rule_version": "audit-7",
+      "schema_version": "rule-0.2",
+      "trace": [
+        {
+          "op": "lit",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.pro_rata[0]",
+          "result": "100 KRW"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.pro_rata[1]",
+          "result": "1"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.pro_rata[2]",
+          "result": "0"
+        },
+        {
+          "op": "pro_rata",
+          "path": "amount.then",
+          "result": "unknown"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "unknown"
+        }
+      ]
+    },
+    "explain": {
+      "amounts": [],
+      "template_id": "zero_denominator",
+      "text": "나눌 기준이 0이라 금액을 계산할 수 없어요"
+    },
+    "judgements": [],
+    "release_id": "rel:20261118-1",
+    "remaining_gaps": [],
+    "result_state": {
+      "input_freshness": "fresh",
+      "knowledge_freshness": "fresh",
+      "reproducible": true,
+      "usage_restriction": "none"
+    }
+  },
+  {
+    "blocked_by": [],
+    "cov_id": "cov:ted:01BX5ZZKBKACTAV9WEVGEMMVRY/art7",
+    "display_status": "hold",
+    "evaluation": {
+      "amount_issues": [
+        {
+          "code": "zero_denominator",
+          "path": "amount.then"
+        }
+      ],
+      "contract_effect": {
+        "kind": "none"
+      },
+      "eligibility": "true",
+      "engine_version": "0.1.0+snapshot-json-1",
+      "evidence_refs": [],
+      "input_snapshot_hash": "69d7dcb834535e4752fa908f02c5340f62126763fb3fcdc165fd5738200b3431",
+      "missing_inputs": [],
+      "payout": {
+        "amount": {
+          "kind": "unknown"
+        },
+        "kind": "payable"
+      },
+      "release_id": null,
+      "rule_content_hash": "e7f81e7918f7f76f9cac57eea9f67161f836b621a43122d348c7683ab84cd53c",
+      "rule_id": "hana-2601-3d-cancer-dx",
+      "rule_version": "audit-7",
+      "schema_version": "rule-0.2",
+      "trace": [
+        {
+          "op": "lit",
+          "path": "eligibility",
+          "result": "true"
+        },
+        {
+          "op": "input",
+          "path": "amount.if",
+          "result": "true"
+        },
+        {
+          "op": "lit",
+          "path": "amount.then.divide_count[0]",
+          "result": "100 KRW"
+        },
+        {
+          "op": "input",
+          "path": "amount.then.divide_count[1]",
+          "result": "0"
+        },
+        {
+          "op": "divide_count",
+          "path": "amount.then",
+          "result": "unknown"
+        },
+        {
+          "op": "if",
+          "path": "amount",
+          "result": "unknown"
+        }
+      ]
+    },
+    "explain": {
+      "amounts": [],
+      "template_id": "zero_denominator",
+      "text": "나눌 기준이 0이라 금액을 계산할 수 없어요"
+    },
+    "judgements": [],
+    "release_id": "rel:20261118-1",
+    "remaining_gaps": [],
+    "result_state": {
+      "input_freshness": "fresh",
+      "knowledge_freshness": "fresh",
+      "reproducible": true,
+      "usage_restriction": "none"
+    }
+  }
+]

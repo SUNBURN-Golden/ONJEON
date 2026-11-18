@@ -604,3 +604,32 @@ fn no_wire_type_exposes_floating_point_money() {
         ]
     );
 }
+
+#[test]
+fn amount_calculation_issues_require_an_unknown_amount_and_held_scenario() {
+    let fixture = fixture!("ScenarioResult.zero_denominator");
+    round_trip::<ScenarioResult>(fixture);
+    let mut result: ScenarioResult = serde_json::from_str(fixture).unwrap();
+    assert!(check_scenario_result(&result).is_empty());
+    result.display_status = DisplayStatus::InputMissing;
+    assert_eq!(
+        check_scenario_result(&result)[0].rule,
+        "calculation_issue_means_hold"
+    );
+
+    result.display_status = DisplayStatus::Hold;
+    let engine = result.evaluation.as_mut().unwrap();
+    let amount = engine.payout.amount.as_mut().unwrap();
+    amount.kind = AmountKind::Exact;
+    amount.krw = Some(0);
+    assert_eq!(
+        check_scenario_result(&result)[0].rule,
+        "calculation_issue_means_unknown_amount"
+    );
+
+    assert!(serde_json::from_str::<ScenarioResult>(&fixture.replace(
+        "\"code\": \"zero_denominator\"",
+        "\"code\": \"unrecognized\"",
+    ))
+    .is_err());
+}

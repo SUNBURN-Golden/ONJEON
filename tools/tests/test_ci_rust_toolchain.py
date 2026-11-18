@@ -43,7 +43,13 @@ class CiRustToolchain(unittest.TestCase):
     def test_ci_build_lint_and_test_commands_use_the_lockfile(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         commands = re.findall(r'(?m)^\s+run: (cargo (?:build|clippy|test)\b[^\n]*)', workflow)
-        self.assertEqual(len(commands), 5)  # two runner builds, runner test, workspace lint/test
+        # Two runner builds, runner test, workspace lint/test, and the scenario API test.
+        self.assertEqual(len(commands), 6)
+        self.assertTrue(any(
+            command.startswith("cargo test ")
+            and "--manifest-path services/scenario-api/Cargo.toml" in command
+            for command in commands
+        ))
         for command in commands:
             with self.subTest(command=command):
                 self.assertIn("--locked", command.split())

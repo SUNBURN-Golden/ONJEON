@@ -414,11 +414,11 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 266 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 269 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
-| 공유 어휘 축 | 49 | `packages/schemas/vocabulary.json`의 `axes` |
+| 공유 어휘 축 | 50 | `packages/schemas/vocabulary.json`의 `axes` |
 <!-- blueprint-counts:end -->
 
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
@@ -439,6 +439,8 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 Audit 6은 하네스의 맵 삽입에서도 중복 `rule_id`를 명시적으로 거부하고, 종신보험 사례의 `rule_ids`를 실제 사례의 규칙 선택과 대조한다. 목록의 빈 값·중복·미사용 항목과 공유 목록 밖을 선택한 추가 사례를 거부하는 회귀·검사 제거 변이 증거는 [검증 기록](blueprint/audits/2026-11-14_engine_fixture_ruleid_uniqueness.md)을 따른다. P08·P14의 `fixture_only` 시험 기반 증거이며 제품 전체 완료 판정은 바꾸지 않는다.
 
 규칙 텍스트 로더는 모든 깊이의 중복 JSON 키(이스케이프 충돌 포함)를 거부하고, 선택적 `example_kind`는 기존 세 문자열만 허용한다. 날짜 부호·빈 규칙 ID의 기존 거부와 I3 doctest의 실제 `E0616` 진단도 함께 재검증했다([Audit 6 로더 검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)). P08·P14의 엔진 기반 증거이며 실제 릴리스·소비자 화면·첫 출시 완료 판정을 바꾸지 않는다.
+
+Audit 7의 합성 검증에서 두 rule-0.2 나눗셈의 0 분모는 미확인 금액과 `zero_denominator` 경로를 반환한다. 시나리오 API 계산 어댑터는 이를 `hold`로 표시하고, 사건 목록이 비었다는 확인 출처를 입력 단계에서 구분한다. [결정과 실행 범위](decisions/audit7-unknown-without-blockers.md) · [검증 증거](../tools/evidence/audit7-unknown-without-blockers/README.md).
 
 윤년 말일 계약의 자해 사망 경계(`2028-02-29` → `2030-02-28`)는 현재 clamp·당일 포함 가정에서 질병사망보험금 70,000,000원이 계산된다. 이를 엔진 소유 사례와 회귀 시험에서 **G13-pending**으로 고정했다([Audit 5 증거](blueprint/audits/2026-11-10_engine_flag_g13_wholelife.md)). 원문 날짜 관례는 미확인이며 `fixture_only` 기대값이다. G13 해결·실제 지급 확정·P08·P14 전체 완료를 뜻하지 않는다.
 

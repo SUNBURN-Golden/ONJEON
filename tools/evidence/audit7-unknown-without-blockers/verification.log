@@ -1,0 +1,55 @@
+Audit 7 local verification (2026-11-18)
+
+$ cargo test --all --locked --offline
+536 passed, 0 failed, 1 ignored, exit 0
+test tests::amount_calculation_issues_require_an_unknown_amount_and_held_scenario ... ok
+test both_possible_branches_can_prevent_the_calculation ... ok
+test filling_other_operands_cannot_resolve_a_known_zero_denominator ... ok
+test max_over_takes_the_highest_per_class_and_sums_classes ... ok
+test max_over_unknown_list_or_amount_is_unknown_not_zero ... ok
+test zero_denominator_issue_follows_the_amount_that_is_used ... ok
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --target-dir target/scenario-api --locked --offline -- --nocapture --test-threads=1
+4 passed, 0 failed, 0 ignored, exit 0
+test tests::facts_are_normalized_before_runtime_fill ... ok
+test event_list_confirmation_is_scoped_and_preserves_unknown_amounts ... ok
+test pre_engine_link_block_retains_its_distinct_wire_shape ... ok
+test zero_and_missing_denominators_have_distinct_api_responses ... (captured response in held-scenarios.json)
+
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --target-dir target/audit7-ontology --locked --offline
+4 passed, 0 failed, 0 ignored, exit 0
+
+$ python3 -I -m unittest discover -s packages/schemas/codegen/tests
+129 tests, exit 0
+
+$ ONJ_REQUIRE_TOOLCHAINS=1 CARGO_NET_OFFLINE=true bash packages/schemas/codegen/build_check.sh
+TypeScript 5.9.3 and Dart 3.13.5 selected from local tool directories.
+Rust contracts and Rust API built, including skeleton feature.
+TypeScript contracts and API fixtures type-checked.
+Dart contracts and API analyzed and round-tripped.
+ScenarioResult.zero_denominator.fixture.json passed the generated Dart round trip.
+RESULT: all three languages build, exit 0
+
+ScenarioResult validator accepted both captured held responses.
+
+$ cargo clippy --locked --offline --all-targets -- -D warnings
+$ cargo clippy --manifest-path services/scenario-api/Cargo.toml --target-dir target/scenario-api --locked --offline --all-targets -- -D warnings
+$ cargo fmt --all -- --check
+$ cargo fmt --manifest-path services/scenario-api/Cargo.toml -- --check
+$ python3 -I tools/vocab_check.py
+$ python3 -I packages/schemas/codegen/gen.py --check
+$ python3 -I tools/workflow_check.py .github/workflows/ci.yml .github/workflows/pr-traceability.yml
+$ python3 -I tools/blueprint_counts.py
+$ python3 -I tools/validation_check.py
+$ python3 -I tools/validation_check.py --selftest
+$ python3 -I tools/ci/check_product_purpose.py
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+$ git diff --check
+All exited 0.
+
+Initial Python runs caught the stale vocabulary count and fixed CI command count.
+The generated inventory was refreshed and the CI guard now checks the scenario adapter command.
+$ python3 -m unittest tools.tests.test_ci_rust_toolchain tools.tests.test_blueprint_s11_refresh -v
+13 passed, exit 0
+$ python3 -m unittest discover -s tools/tests -v
+1702 tests, 1696 passed, 6 skipped, 0 failed, exit 0

@@ -1,6 +1,6 @@
 """The 2026-11-10 FISIS/Fine cross-check is committed, institution-level evidence.
 
-Reads registry CSVs and README only; no network requests are made.
+Checks the registry against the recorded retrieval manifest locally.
 """
 import csv
 import re
@@ -14,6 +14,7 @@ REG = ROOT / "data/registry"
 CROSSCHECK = REG / "authority_crosscheck_2026-11-10.csv"
 AUTHORITY_HOSTS = {"fisis.fss.or.kr", "fine.fss.or.kr"}
 OFFICIAL_DATE = "2026-11-10"
+REQUESTS = ROOT / "tools/evidence/audit5-registry-readme-sync/requests.tsv"
 
 
 def rows(name):
@@ -53,6 +54,13 @@ class CrosscheckTable(unittest.TestCase):
         for row in matched:
             with self.subTest(insurer=row["registry_id"]):
                 self.assertEqual(row["registry_name"], names[row["registry_id"]])
+
+    def test_each_evidence_cohort_has_both_supervisory_list_references(self):
+        insurer_ids = {r["insurer_id"]: r["entity_evidence"] for r in self.insurers}
+        coverage = Counter(insurer_ids[r["registry_id"]] for r in self.rows
+                           if r["comparison"] == "matched" and r["registry_table"] == "insurers.csv"
+                           and all(r[field] for field in ("fisis_id", "fine_id", "fisis_source_id", "fine_source_ids")))
+        self.assertEqual(coverage, Counter(two_or_more_sources=43, one_source=10))
 
     def test_excluded_rows_map_to_the_excluded_file(self):
         nonmatched = [r for r in self.rows if r["comparison"] != "matched"]
@@ -105,6 +113,32 @@ class RetrievalEvidence(unittest.TestCase):
                 self.assertRegex(source["sha256"], r"^[0-9a-f]{64}$")
                 self.assertTrue(source["what_it_lists"].strip())
         self.assertEqual(len({r["source_id"] for r in recheck}), 9)
+
+    def test_each_linked_source_matches_the_original_request_manifest(self):
+        with REQUESTS.open(encoding="utf-8", newline="") as f:
+            requests = {r["started_at"]: r for r in csv.DictReader(f, delimiter="\t")}
+        linked = {source_id for row in crosscheck_rows()
+                  for field in ("fisis_source_id", "fine_source_ids")
+                  for source_id in row[field].split(";") if source_id}
+        sources = {r["source_id"]: r for r in rows("sources")}
+        self.assertEqual(len(linked), 9)
+        for source_id in sorted(linked):
+            with self.subTest(source_id=source_id):
+                source = sources[source_id]
+                request = requests[source["retrieved_at"]]
+                self.assertEqual(source["url"], request["url"])
+                self.assertEqual(source["url"], request["final_url"])
+                self.assertEqual(source["http_status"], request["http_code"])
+                self.assertEqual(source["sha256"], request["sha256"])
+                self.assertEqual(request["curl_exit"], "0")
+                self.assertGreater(int(request["size"]), 0)
+                if source_id.startswith("fisis_"):
+                    self.assertEqual(request["method"], "POST")
+                    part = "H" if source_id.endswith("_life_list") else "I"
+                    self.assertEqual(request["post_data"], f"partDiv={part}&baseMonth=202606")
+                else:
+                    self.assertEqual(request["method"], "GET")
+                    self.assertEqual(request["post_data"], "")
 
     def test_fourteen_authority_requests_succeeded_without_an_outage_page(self):
         recheck = [r for r in rows("access_log")
@@ -163,9 +197,10 @@ class ReadmeTally(unittest.TestCase):
         section = self.text.split("## 감독당국 교차검증 (2026-11-10)", 1)[1].split("\n## ", 1)[0]
         for phrase in ("생명보험(`PART_DIV=H`) 22행", "손해보험(`PART_DIV=I`) 34행",
                        "기준년월 202606", "56행", "55곳", "합집합 57곳",
+                       "43/43", "10/10", "`fisis_source_id`", "`fine_source_ids`",
                        "MG손해보험", "캐롯손해보험", "젠워스", "동경해상일동화재보험",
-                       "`product_list_status`는 53곳 모두 `unqueried`",
-                       "`entity_evidence` 값도 이번 교차검증으로 다시 계산하지 않았다"):
+                       "상품 목록은 53곳 모두 `unqueried`",
+                       "`entity_evidence`는 기존 협회·KIDI·DART 조사 기준으로 계산했다"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, section)
 

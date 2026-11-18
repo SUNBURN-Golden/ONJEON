@@ -74,8 +74,9 @@ render_s3_config() {
   done
   local raw derived private
   raw="$(env_get S3_PUBLIC_RAW_BUCKET)"; derived="$(env_get S3_PUBLIC_DERIVED_BUCKET)"; private="$(env_get S3_PRIVATE_BUCKET)"
-  [ "$raw" != "$derived" ] && [ "$raw" != "$private" ] && [ "$derived" != "$private" ] \
-    || die "bucket names must be three different names"
+  if [[ "$raw" == "$derived" || "$raw" == "$private" || "$derived" == "$private" ]]; then
+    die "bucket names must be three different names"
+  fi
   mkdir -p "$GENERATED_DIR"
   chmod 700 "$GENERATED_DIR"
   (umask 077; : >"$S3_CONFIG_FILE.tmp")

@@ -285,7 +285,9 @@ class Scripts(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("shellcheck"), "shellcheck not installed")
     def test_shellcheck(self):
-        scripts = [str(p) for p in COMPOSE.rglob("*.sh") if "tests" not in p.parts]
+        # Lint the entry scripts used by smoke. The component harnesses archive past runs.
+        scripts = [str(p) for pattern in ("*.sh", "initdb/*.sh", "scripts/*.sh")
+                   for p in COMPOSE.glob(pattern)]
         r = subprocess.run(["shellcheck", "-x", *scripts], capture_output=True, text=True, cwd=COMPOSE)
         self.assertEqual(r.returncode, 0, r.stdout)
 
@@ -367,6 +369,16 @@ class Scripts(unittest.TestCase):
         for rc in (3, 126, 127):
             self.assertIn(f"FAIL g (격리가 아닌 오류: 종료 코드 {rc})\nfail=1", run(f"unreachable g sh -c 'exit {rc}'"))
         self.assertIn("FAIL h (격리가 아닌 오류: 종료 코드 127)\nfail=1", run("unreachable h no-such-command-onjeon"))
+
+    def test_private_log_check_requires_a_successful_search_with_no_matches(self):
+        helper = re.search(r"(?ms)^no_log_match\(\) \{.*?^\}", read("smoke.sh")).group()
+        for pattern, result in (("absent", 0), ("present", 1), ("[", 1)):
+            with self.subTest(pattern=pattern):
+                proc = subprocess.run(
+                    ["bash", "-c", f"{helper}\nprv_log=present\nno_log_match \"$1\"", "test", pattern],
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(result, proc.returncode, proc.stderr)
 
     def test_down_refuses_unknown_option(self):
         r = subprocess.run(["bash", str(COMPOSE / "down.sh"), "--wipe"], capture_output=True, text=True)

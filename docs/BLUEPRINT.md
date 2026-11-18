@@ -1,6 +1,6 @@
 # 온전 설계도 (Blueprint) v1.0
 
-2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-17 현황 갱신(§9.2·§11) | 이 문서가 구현의 단일 기준이다.
+2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-18 현황 갱신(ADR-0020·§9·§11) | 이 문서가 구현의 단일 기준이다.
 
 ## 0. 이 문서의 역할
 
@@ -232,9 +232,11 @@ P02·P03 수집 도구의 로컬 finding 증거이며 실제 수집·트윈·소
 | 접근성 | 목표 아님 | 제3부 §51.4 |
 | 판단 기준 | 소비자의 알 권리 | PRINCIPLES |
 | 제품 완료·작업 계약 | 09는 제품 완료 증거 기준, tasks.json은 데몬 작업 소스·개별 수락 기준으로 한정 채택. 상위 계약 우선, 공통 PR 기준·묶음의 나머지 채택 제외 | ADR-0019 |
+| 작업 단계·선행 구현 | S0~S5는 §9.6의 다대다 M0~M6 대응. T-OP-02는 V1을 대체하지 않는다. T-TW-02 조기 rule-0.2는 로컬 엔진·픽스처 검증만 허용 | ADR-0020 |
 
 ### 7.3 대체된 결정 (다시 살리지 않는다)
 
+- ADR-0014 결정 6의 선행 구현 금지 → [ADR-0020](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md)의 T-TW-02 로컬 엔진·픽스처 한정 예외. 서비스 상품군 적용은 M5·M6 실제 사례·검수·릴리스 증거 뒤다.
 - ADR-0015의 AWS S3·서울 리전·S3 고유 설정 → ADR-0016의 Cloudflare R2와 호환 설정으로 대체. 원본·파생 분리, SHA-256 경로, 덮어쓰기 금지 등 나머지 보존 규칙은 유지([Audit 2 정정·검증 증거](blueprint/audits/2026-10-27_blueprint_s3_r2_drift.md)).
 - ADR-0007의 "DNA를 제외한 전 기능 출시" → ADR-0008의 범위로 대체.
 - ADR-0008의 가격·예산 없음, 가족력 제외, 기본 격자 지도, 시나리오 슬라이더로 예산 대체 → ADR-0009·0010으로 대체.
@@ -275,6 +277,8 @@ P02·P03 수집 도구의 로컬 finding 증거이며 실제 수집·트윈·소
 
 대상은 보험사의 개인보험과 우체국보험의 전 상품·전 특약·과거 판매본이다(확정, ADR-0004·0013·0018). 공제는 범위·확보율 분모에서 제외하고, 단체보험·퇴직연금·자동차보험은 후속 통합이다. 보험사·상품 선정은 사용자 결정도 작업 시작 조건도 아니다. 전체 수집 대상 목록을 먼저 만들고, 설계 검증용 표본은 구현자가 다양한 상품 구조와 문서 형식을 다루도록 직접 고른다. 표본 검증은 서비스 범위 축소가 아니며, 전체 대상의 수집·처리 여부와 미확보 사유는 표본과 상관없이 추적한다.
 
+ADR-0020의 한정 예외: 이미 존재하는 T-TW-02 rule-0.2 구현은 로컬 엔진·픽스처 검증(`fixture_only`)에 한해 보존한다. V1 선행 관문을 통과한 것으로 세지 않으며 다른 기능의 선행 구현을 일괄 허용하지 않는다.
+
 ### 9.2 마일스톤
 
 통과 관문은 수락 조건이고 마지막 열은 현재 구현·증거 판정이다. 코드 존재·합성 시험 통과와 관문 통과를 구분한다. [Audit 6 현황 대조·실행 증거](blueprint/audits/2026-11-16_blueprint_s11_current_state.md).
@@ -293,6 +297,8 @@ P02·P03 수집 도구의 로컬 finding 증거이며 실제 수집·트윈·소
 
 각 마일스톤은 관문을 통과해야 다음으로 넘어간다. 관문에서 막히면 다음 단계로 건너뛰지 않고 원인을 고친다. 기간은 관문 통과로 관리하며 날짜를 약속하지 않는다.
 
+T-OP-02는 V1을 대체하지 않는다(ADR-0020). 전체 14/14 파생 재현·실제 이종 계열 검수·화면 S1·S6 해결은 독립 조건이다. 실제 관통 증거는 충족한 조건에만 재사용하며 모의 경로만으로 S1·M2를 통과시키지 않는다. 화면 S1·S6는 V1 검증 항목으로 작업 단계와 구분한다.
+
 ### 9.3 M2 걸어가는 뼈대의 최소 구성
 
 표본은 V1에서 구현자가 고른 다양한 구조·형식의 문서들이다. 아래는 표본마다 거치는 경로다.
@@ -310,7 +316,7 @@ M2의 산출물이 DSL·라벨 사전·FieldAssertion 스키마의 첫 실증이
 
 문자열 조건을 컴파일할 때 입력은 `{"input":"event"}`, 고정 라벨은 `{"str":"surgery"}`처럼 명시한다(rule-0.1·rule-0.2). 일반 문자열의 기존 입력명 우선·요율 해석은 유지하므로 새 문자열 상수에 사용하지 않는다. [Audit 2 결정·회귀 검증](decisions/audit2-engine-string-literals.md).
 
-V1-b가 실제 표본으로 미리 찾은 부족분은 [GAP_REPORT.md](blueprint/validation/GAP_REPORT.md)에 있다. 그에 따른 순서: M1은 CodeSet·ParameterTable·`value_kind`·`amount_form`을 스키마에 넣는다. M2는 V1 표본의 보류 항목(표 셀 좌표, 미발췌 조항)을 실제 파이프라인으로 해소한다. rule-0.2 연산(`multiply_count`, `subtract_floor0`, `pro_rata`, `divide_count`, `anniversary_band`, 목록 입력과 `max_over`, `contract_effect`)은 해당 상품군을 계산 범위에 넣는 마일스톤(M5·M6)에서 사례와 함께 추가한다. 코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 DSL에 넣지 않고 입력 단계가 맡는다.
+V1-b가 실제 표본으로 미리 찾은 부족분은 [GAP_REPORT.md](blueprint/validation/GAP_REPORT.md)에 있다. 그에 따른 순서: M1은 CodeSet·ParameterTable·`value_kind`·`amount_form`을 스키마에 넣는다. M2는 V1 표본의 보류 항목(표 셀 좌표, 미발췌 조항)을 실제 파이프라인으로 해소한다. rule-0.2 연산(`multiply_count`, `subtract_floor0`, `pro_rata`, `divide_count`, `anniversary_band`, 목록 입력과 `max_over`, `contract_effect`)의 서비스 상품군 적용은 마일스톤(M5·M6)에서 실제 사례와 검수·릴리스 증거를 갖춘 뒤 허용한다. ADR-0020에 따라 T-TW-02의 로컬 엔진·픽스처 검증(`fixture_only`)을 위한 조기 구현은 한정 예외로 보존한다. 이는 서비스 사용 승인이나 엔진의 자동 차단 기능이 아니며 서비스 적재·릴리스 검증과 해당하는 DEC-O12 연산별 S6는 별도다. 코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 DSL에 넣지 않고 입력 단계가 맡는다.
 
 ### 9.4 개발 구역과 레포 방향 (BP-D-15)
 
@@ -340,6 +346,19 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 첫 출시 최종 관문 T-OP-08의 `purpose-rows-all-closed`는 09의 모든 행(근거 있는 축소·후속 제외)이 실제 데이터·실제 화면 시험·출시 증거(`docs/release-readiness/evidence/`)로 닫혀야 통과한다. 합성 픽스처·전체 작업 시험 통과나 데몬 완성만으로 제품 완료를 선언하지 않는다. 개발 도구 T-OP-00·T-OP-09의 검증은 제품 완료와 구분한다. 문서 채택은 실데이터 접근·가동·출시 관문 통과가 아니다.
 
+### 9.6 작업 단계와 마일스톤 대응 (ADR-0020)
+
+다대다 작업 대응이며 단계 완료가 마일스톤 통과를 뜻하지 않는다. S0는 기존 M0 엔진을 재사용한다. S2의 M4·M6는 준비, S4의 M3·M4는 통합 기여다. V0·V1과 §9.2 관문을 유지한다.
+
+| 단계 | 마일스톤 대응 | 범위 |
+|---|---|---|
+| S0 | M0·M1 | 기존 엔진 재사용·공통 계약과 데이터 척추 기반 |
+| S1 | M2 | 실제 상품 하나 관통 검증, M2 최소 구성 |
+| S2 | M2·M4·M6 | 구조 다양성 관통·가격 기반·상품군 연산 준비 |
+| S3 | M3·M4 | 분모·수집 확장과 가격 수집 |
+| S4 | M3·M4·M5·M6 | 공개 웹 연결·비교·계약 트윈·상품군 확장 통합 |
+| S5 | M6 | 출시 리허설·최종 검증 |
+
 ## 10. 드리프트 방지 규칙
 
 1. 모든 PR은 템플릿(`.github/pull_request_template.md`)에 해당하는 A·Q·L·I·M을 적는다. 본문에 `tasks.json` 과제 ID(목록 외 작업은 노드 ID와 사유) 또는 09 P행(`P01`~`P19`) 중 하나로 작업·완료 기준 추적 지점을 적는다. `python3 -I tools/ci/check_pr_body_traceability.py`가 CI에서 이를 확인한다. 어디에도 연결되지 않으면 범위 밖이다.
@@ -351,7 +370,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 7. 마일스톤이 끝날 때마다 §4·§8·§9·§11의 상태 열을 갱신한다.
 8. 마일스톤과 별개로 `docs/decisions/ADR-*.md` 또는 `DEC-*.md`를 추가·수정·삭제·개명하는 변경은 같은 변경에서 §11의 영향받는 상태·관문을 검토·갱신하고 기준일(UTC)을 찍는다. 검토 뒤 `python3 -I tools/blueprint_status.py --write`로 §11 기준일과 전체 결정 색인·내용 해시를 갱신한다. `python3 -I tools/blueprint_status.py`와 CI의 `tools/tests/test_blueprint_status.py`가 누락을 거부한다. 자동 생성은 색인과 날짜만 바꾸며 상태 판단·관문 승인을 대신하지 않는다.
 
-## 11. 현재 위치 (2026-11-17)
+## 11. 현재 위치 (2026-11-18)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -369,6 +388,8 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 | 출시 증거 | `tools/release_readiness/check.py`는 09 P행과 `tasks.json.feature_registry`의 작업 상태·완료 증거 파일·수락 실행 로그를 대조하는 판정기 골격이다([범위·한계](../tools/release_readiness/README.md)). `docs/release-readiness/evidence/readiness.json`은 관측 작업 상태·행·기능 증거가 비어 있다. 이번 로컬 실행: P행 open=19·closed=0·excluded=0, 기능 open=64·closed=0·excluded=0, 종료 코드 1(미완료). 실제 데이터·화면·출시 완료 증거는 미등록이며 이 결과나 판정기 시험 통과는 T-OP-08 전체 완료·출시 승인이 아니다 |
 | 불변식 | §8의 기존 표기는 18개 중 6개 구현(엔진 범위)이다. 이번 현황 갱신으로 다른 불변식을 구현 완료로 승격하지 않는다 |
 | 마일스톤 | M0 완료(엔진 범위), V0 완료(기관 분모만, 상품·특약·판매본 미열거). V1은 설계 탐색·2026-10-09 원본 R2 보존·대조 기록이 있으나 완전 재현 8/14로 관문 미통과다. 남은 파생 6건 재생성 검증·실제 이종 계열 검수·S1·S6 해결이 필요하다. M1~M6는 부분 코드·계약·도구와 관문 증거를 §9.2에서 구분하며 모두 관문 미통과다. 첫 출시 완료는 09·T-OP-08의 실제 데이터·화면·출시 증거로 별도 판정한다 |
+
+[ADR-0020](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md)과 [Audit 7 검증](../tools/evidence/audit7-adopt-task-bundle-adr/README.md)은 단계 대응·V1 비대체·rule-0.2 픽스처 한정 예외를 정합화했다. 로컬 엔진의 연산 존재를 서비스 상품군 적용 완료로 세지 않는다. V1·M1~M6는 계속 관문 미통과이며 제품 완료는 09·T-OP-08의 실제 증거를 요구한다.
 
 [Audit 6 현황 대조](blueprint/audits/2026-11-16_blueprint_s11_current_state.md)는 §9.2의 각 마일스톤과 위 구현 목록·DB 검토본·출시 증거 등록부를 대조하고 프로젝트 시험을 재실행한 기록이다. 현재 수치가 이미 맞는 항목은 유지했고, 수정 1차에서 근거 수를 `data/registry/sources.csv`의 현재 75건(2026-11-10 감독당국 재조회 9건 포함)으로 정정했다. 원본 R2·실제 AI 제공자·프로덕션에 접근하지 않았다.
 
@@ -395,11 +416,11 @@ CI의 최소 읽기 권한·checkout 자격 증명 비보존·액션 SHA 고정�
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-11-17 | SHA-256(파일명·내용): `e5be0700d64e0d9433f73109c2be88b73be33ca27ea83a8fb7f0c3483dd9809f`
+결정 기록 대조일: 2026-11-18 | SHA-256(파일명·내용): `b9737674c2c0688d0d6fe9a2629fb053d866ccc567ec482613ba67c4befac43f`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|
-| ADR (19) | [ADR-0001-기술-스택](decisions/ADR-0001-기술-스택.md), [ADR-0002-합성-픽스처-우선](decisions/ADR-0002-합성-픽스처-우선.md), [ADR-0003-규칙-엔진-단일-구현](decisions/ADR-0003-규칙-엔진-단일-구현.md), [ADR-0004-대상-범위-전-보험사-전-상품](decisions/ADR-0004-대상-범위-전-보험사-전-상품.md), [ADR-0005-계약-가져오기-PDF-단일-경로](decisions/ADR-0005-계약-가져오기-PDF-단일-경로.md), [ADR-0006-AI-검수와-AI-분모-조사](decisions/ADR-0006-AI-검수와-AI-분모-조사.md), [ADR-0007-단일-완성-출시](decisions/ADR-0007-단일-완성-출시.md), [ADR-0008-첫-출시-범위-담보-파악-집중](decisions/ADR-0008-첫-출시-범위-담보-파악-집중.md), [ADR-0009-원구상-복원과-화면-데이터-계약](decisions/ADR-0009-원구상-복원과-화면-데이터-계약.md), [ADR-0010-선택화면과-공개가격-비교](decisions/ADR-0010-선택화면과-공개가격-비교.md), [ADR-0011-설계도-채택과-문서-위계](decisions/ADR-0011-설계도-채택과-문서-위계.md), [ADR-0012-설계도-실행계약과-구현-추적](decisions/ADR-0012-설계도-실행계약과-구현-추적.md), [ADR-0013-전체-대상-목록-우선과-설계-확정](decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md), [ADR-0014-V1-검증-결과의-설계-반영](decisions/ADR-0014-V1-검증-결과의-설계-반영.md), [ADR-0015-원본-보관소-S3](decisions/ADR-0015-원본-보관소-S3.md), [ADR-0016-원본-보관소-R2](decisions/ADR-0016-원본-보관소-R2.md), [ADR-0017-R2-비용-제한](decisions/ADR-0017-R2-비용-제한.md), [ADR-0018-보험-데이터-지식-기반의-정체성과-범위](decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md), [ADR-0019-제품-완료와-작업-계약-한정-채택](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md) |
+| ADR (20) | [ADR-0001-기술-스택](decisions/ADR-0001-기술-스택.md), [ADR-0002-합성-픽스처-우선](decisions/ADR-0002-합성-픽스처-우선.md), [ADR-0003-규칙-엔진-단일-구현](decisions/ADR-0003-규칙-엔진-단일-구현.md), [ADR-0004-대상-범위-전-보험사-전-상품](decisions/ADR-0004-대상-범위-전-보험사-전-상품.md), [ADR-0005-계약-가져오기-PDF-단일-경로](decisions/ADR-0005-계약-가져오기-PDF-단일-경로.md), [ADR-0006-AI-검수와-AI-분모-조사](decisions/ADR-0006-AI-검수와-AI-분모-조사.md), [ADR-0007-단일-완성-출시](decisions/ADR-0007-단일-완성-출시.md), [ADR-0008-첫-출시-범위-담보-파악-집중](decisions/ADR-0008-첫-출시-범위-담보-파악-집중.md), [ADR-0009-원구상-복원과-화면-데이터-계약](decisions/ADR-0009-원구상-복원과-화면-데이터-계약.md), [ADR-0010-선택화면과-공개가격-비교](decisions/ADR-0010-선택화면과-공개가격-비교.md), [ADR-0011-설계도-채택과-문서-위계](decisions/ADR-0011-설계도-채택과-문서-위계.md), [ADR-0012-설계도-실행계약과-구현-추적](decisions/ADR-0012-설계도-실행계약과-구현-추적.md), [ADR-0013-전체-대상-목록-우선과-설계-확정](decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md), [ADR-0014-V1-검증-결과의-설계-반영](decisions/ADR-0014-V1-검증-결과의-설계-반영.md), [ADR-0015-원본-보관소-S3](decisions/ADR-0015-원본-보관소-S3.md), [ADR-0016-원본-보관소-R2](decisions/ADR-0016-원본-보관소-R2.md), [ADR-0017-R2-비용-제한](decisions/ADR-0017-R2-비용-제한.md), [ADR-0018-보험-데이터-지식-기반의-정체성과-범위](decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md), [ADR-0019-제품-완료와-작업-계약-한정-채택](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md), [ADR-0020-작업-단계와-V1-관문-정합화](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md) |
 | DEC (22) | [DEC-BUNDLE-STATUS](decisions/DEC-BUNDLE-STATUS.md), [DEC-CANON-T-CT-02](decisions/DEC-CANON-T-CT-02.md), [DEC-D-02](decisions/DEC-D-02.md), [DEC-D-03](decisions/DEC-D-03.md), [DEC-D-04](decisions/DEC-D-04.md), [DEC-D-06](decisions/DEC-D-06.md), [DEC-D-07](decisions/DEC-D-07.md), [DEC-D-08](decisions/DEC-D-08.md), [DEC-D-09](decisions/DEC-D-09.md), [DEC-D-10](decisions/DEC-D-10.md), [DEC-D-12](decisions/DEC-D-12.md), [DEC-D-14](decisions/DEC-D-14.md), [DEC-D-15](decisions/DEC-D-15.md), [DEC-D-16](decisions/DEC-D-16.md), [DEC-D-17](decisions/DEC-D-17.md), [DEC-D-18](decisions/DEC-D-18.md), [DEC-O02](decisions/DEC-O02.md), [DEC-O03](decisions/DEC-O03.md), [DEC-O04](decisions/DEC-O04.md), [DEC-O12](decisions/DEC-O12.md), [DEC-O14](decisions/DEC-O14.md), [DEC-O17](decisions/DEC-O17.md) |
 <!-- blueprint-decisions:end -->
 
@@ -465,3 +486,5 @@ Audit 6은 하네스의 맵 삽입에서도 중복 `rule_id`를 명시적으로 
 A·Q·L·I·M을 대체하지 않는다. PR에는 관련 체계와 R 요구 ID, 실제 검증 증거를 함께 적는다. 규칙 엔진 테스트 통과는 실제 약관·가격 정확도나 사용성 검증 완료가 아니다. §11의 2026-10-09 테스트 수는 역사적 보고 기준이고, 현재 등록 수는 §11의 자동 생성 표, 재실행 결과는 §11에 연결한 갱신 검증 증거에서 확인한다.
 
 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)는 P01~P19의 제품 목적·작업·완료 증거를 연결하고, [tasks.json](blueprint/proposals/설계검토_결과/tasks.json)은 데몬 작업 소스와 개별 `done_criteria`·`required_test_ids`·`tests`를 고정한다([ADR-0019](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)). §0.1 위계 아래 §9.5의 T-OP-08·`purpose-rows-all-closed`로 제품 완료를 판정한다. `common_done_criteria`의 공통 PR 의무는 채택하지 않는다. 완료 범위·증거 기준 변경은 새 ADR과 §7·§9·이 절·결정 원장 및 두 계약을 함께 갱신하며 상위 계약과 충돌하는 제안은 D-21 경로를 따른다.
+
+[ADR-0020](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md)의 단계 대응은 §9.6, V1 비대체는 §9.2, T-TW-02의 로컬 엔진·픽스처 한정 예외는 §9.1·§9.3을 따른다. 두 계약의 작업 완료·제품 완료 판정에도 같은 제한을 적용한다.

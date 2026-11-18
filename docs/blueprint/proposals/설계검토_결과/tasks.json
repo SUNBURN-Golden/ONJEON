@@ -7,7 +7,7 @@
   "schema": "onjeon-tasks-0.3",
   "field_definitions": {
     "id": "T-<구역2자>-<번호>. CT contracts, DT data, KN knowledge, TW twin, PS personal, AP app·api, MB mobile, WB web·console, OP infra·ops, UX",
-    "stage": "S0~S5 내부 단계. 납품 단위가 아니다",
+    "stage": "S0~S5 내부 단계. 납품 단위가 아니다. ADR-0020·BLUEPRINT §9.6: S0→M0·M1, S1→M2, S2→M2·M4·M6, S3→M3·M4, S4→M3·M4·M5·M6, S5→M6. 다대다 작업 대응이며 단계 완료가 마일스톤 통과를 뜻하지 않는다",
     "twin_axis": "U-02 디지털 트윈 축(★)",
     "final_gate": "최종 관문 과제. 정확히 하나. 다른 모든 과제가 전이적 선행이어야 한다",
     "replaces_wp": "구현계획 §14의 WP 중 이 과제가 대체·분할한 것",
@@ -2988,7 +2988,8 @@
       "inputs": [
         "GAP_REPORT §5",
         "ADR-0014 §6",
-        "packages/rules-engine README"
+        "packages/rules-engine README",
+        "docs/decisions/ADR-0020-작업-단계와-V1-관문-정합화.md"
       ],
       "prereq_tasks": [],
       "decision_gates": {
@@ -3047,7 +3048,8 @@
         "연산마다 골든·경계·변이·건전성 시험",
         "미확인이 0으로 바뀌지 않는다(I1)",
         "pro_rata whole=0은 unknown",
-        "rule-0.1 시험이 그대로 통과한다"
+        "rule-0.1 시험이 그대로 통과한다",
+        "ADR-0020: 로컬 엔진·픽스처 검증(fixture_only) 결과로 범위를 명시하고 서비스 상품군 적용·V1·마일스톤 관문 통과로 표시하지 않는다"
       ],
       "required_test_ids": [],
       "features": [
@@ -3061,7 +3063,7 @@
       ],
       "immediate_audit": true,
       "blocked_by": "없음",
-      "notes": ""
+      "notes": "ADR-0020: T-TW-02 조기 rule-0.2는 로컬 엔진·픽스처 검증(fixture_only)에 한해 허용. 서비스 상품군 적용은 M5·M6에서 실제 사례와 검수·릴리스 증거를 갖춘 뒤이며 V1·서비스 적재·출시 관문은 유지한다. 엔진의 자동 차단 기능을 뜻하지 않는다."
     },
     {
       "id": "T-DT-01",
@@ -4297,7 +4299,8 @@
       "inputs": [
         "구현계획 §4 S1",
         "BLUEPRINT §9.3",
-        "T-DT-01~T-MB-02 산출물"
+        "T-DT-01~T-MB-02 산출물",
+        "docs/decisions/ADR-0020-작업-단계와-V1-관문-정합화.md"
       ],
       "prereq_tasks": [
         "T-MB-02",
@@ -4360,7 +4363,8 @@
         "관문 기록을 두 층으로 나눈다: (a) 코드 경로 관통 — 모의 제공자 2계열(environment=test)의 ReviewDecision으로 accepted된 주장 → 규칙 → test 릴리스 → API → 화면 숫자 → 원문 좌표(I6). D-02 없이 가능(D-04는 해결). (b) 실제 데이터 관문 통과 — 실제 제공자 ReviewDecision(D-02)과 R2 보존(기존 토큰, D-04 해결)이 있는 릴리스로 같은 경로. 둘 다 기록하되 (b) 없이 S1 관문을 통과로 적지 않는다",
         "보류 경로가 엔진을 부르지 않은 기록",
         "그림자 비교 보고 1건",
-        "test 환경 ReviewDecision으로 만든 릴리스는 environment=test 표시가 있어 서비스 릴리스 빌더가 거부한다(service_conformance)"
+        "test 환경 ReviewDecision으로 만든 릴리스는 environment=test 표시가 있어 서비스 릴리스 빌더가 거부한다(service_conformance)",
+        "ADR-0020: T-OP-02는 V1을 대체하지 않는다. 전체 14/14 파생 재현·실제 이종 계열 검수·화면 S1·S6 해결을 별도로 대조한다. 실제 관통 증거는 충족한 조건에만 재사용하며 모의 경로만으로 S1·M2를 통과시키지 않는다"
       ],
       "required_test_ids": [],
       "features": [],

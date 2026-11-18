@@ -1,0 +1,42 @@
+{
+  "node": "audit7-adopt-task-bundle-adr",
+  "recorded_at_utc": "2026-11-18T00:22:54.374838+00:00",
+  "base_head": "cd889a4078ac5db42fef9e52cd3d0f64cbc7a9af",
+  "python": "3.13.5",
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "source_sha256": {
+    "README.md": "96e2a5faec4ed9af0dbc285ec95475c2c1ffba378e18f0685d650b97c51804a2",
+    "docs/BLUEPRINT.md": "a414f4e098617cb4699cc2882f67cb7318141bf75db6cec09a56c0f497bce69f",
+    "docs/blueprint/DECISIONS.md": "424dfaa4ac20373e82ce01c49153ce8322da2e23ebe75e5bd54b73a13a55191a",
+    "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md": "11fd4934dbec8918cb00e7f56c6daa023fe8edee7d28a42876d87d46459d8e2f",
+    "docs/blueprint/proposals/설계검토_결과/tasks.json": "9537cbd31f0248496408c9ab117985316d443fa8e07bcf140ff51cda558f0f8d",
+    "docs/decisions/ADR-0014-V1-검증-결과의-설계-반영.md": "87190a92238f1a35cc47181b8d732289e757e4bdac1ad3f337d5bb1186b643ae",
+    "docs/decisions/ADR-0020-작업-단계와-V1-관문-정합화.md": "85c96a7070c801b1c9a0b2f7f93c31f638b27e4c670013b461d2a3e7fe2747cc",
+    "docs/decisions/audit7-adopt-task-bundle-adr.md": "5e3d85e12b068279ea2f8d1f1529fe74dadcc06b4bdd280e4474518943d45baa",
+    "tools/tests/test_audit7_task_bundle_adr.py": "c81d4ffc2342f8ba6a9398315d5e768aec9c4e817e15ba9e45f54305a2bfe296",
+    "tools/tests/test_decision_records.py": "922bf447588ec3ff0648469a697e8088fb8388edfcb3af701e7db927c2d0acf6"
+  },
+  "evidence_sha256": {
+    "README.md": "ccc32d0f5ac4d0047ea27bb3b91340a513881263ca5380e2acb4207fe3f03d8a",
+    "contract-checks.log": "09d8ec4289cef92242752e5ff6aaba090394a4f89c190d1ef56a1c2ca023fcb2",
+    "focused-tests.log": "82ab320a7703e87436a74693402256c5de45eeefccb66bdd18e867a331399763",
+    "ledger-tests-initial.log": "0f926484572c70c7b070e56a8282ce34986f255e1423cfc7e04f54816319f929",
+    "ledger-tests.log": "fa1c493739d3b468dbbb650e21c93fa6658265adeaaf60f046cd4e560a0381ac",
+    "ontology-runner-tests.log": "de951e82a39ed9c49079552381b51c709ac4b73b492c78ffca2b9e88f18be814",
+    "python-tests-initial.log": "b7af2c9bd8501a99be68f625ce251344653755e0602e256ba60bb5463929ac7e",
+    "python-tests.log": "c6812411420950da9b761bf5b3c6ceeb0440c9dbb910deb3d02192e6c5eb4642",
+    "rust-tests.log": "e47b2ea44136717f3e797388802649fae9bf87902575351f09b8dd02211dd305",
+    "status-checks.log": "100d727979f2345fc5ba304802245df6be934e717919b92a00ba7ea840d208df"
+  },
+  "results": {
+    "python": {
+      "tests": 1702,
+      "failures": 0,
+      "skipped": 6
+    },
+    "rust_tests_and_doctests": 532,
+    "ontology_runner_tests": 4,
+    "release_readiness_exit_code": 1
+  },
+  "limitations": "Document/fixture evidence only. V1 and release gates remain open; release-readiness exit 1 is expected."
+}

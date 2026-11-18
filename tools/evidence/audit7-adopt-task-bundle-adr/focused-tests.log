@@ -1,0 +1,11 @@
+test_decision_is_propagated_and_release_evidence_preserved (tools.tests.test_audit7_task_bundle_adr.Audit7Contract.test_decision_is_propagated_and_release_evidence_preserved) ... ok
+test_fixture_exception_reaches_previous_ban_and_both_contracts (tools.tests.test_audit7_task_bundle_adr.Audit7Contract.test_fixture_exception_reaches_previous_ban_and_both_contracts) ... ok
+test_mapping_matches_adopted_stages_and_milestones (tools.tests.test_audit7_task_bundle_adr.Audit7Contract.test_mapping_matches_adopted_stages_and_milestones) ... ok
+test_record_describes_saved_resolution_and_links_evidence (tools.tests.test_audit7_task_bundle_adr.Audit7Contract.test_record_describes_saved_resolution_and_links_evidence) ... ok
+test_reported_contract_regressions_are_detected (tools.tests.test_audit7_task_bundle_adr.Audit7Contract.test_reported_contract_regressions_are_detected) ... ok
+test_v1_stays_independent_in_adr_blueprint_and_task (tools.tests.test_audit7_task_bundle_adr.Audit7Contract.test_v1_stays_independent_in_adr_blueprint_and_task) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.005s
+
+OK

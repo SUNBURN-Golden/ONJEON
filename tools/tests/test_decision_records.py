@@ -17,9 +17,9 @@ LEGACY_ID = re.compile(r"(?<![A-Za-z0-9_-])D(?:0[1-9]|1[0-9]|20)(?![A-Za-z0-9_])
 class BlueprintDecisionIds(unittest.TestCase):
     def setUp(self):
         self.ledger = LEDGER.read_text(encoding="utf-8")
-        self.ids = [f"BP-D-{i:02}" for i in range(1, 22)]
+        self.ids = [f"BP-D-{i:02}" for i in range(1, 23)]
 
-    def test_all_twenty_one_directions_have_unique_namespaced_ids(self):
+    def test_all_directions_have_unique_namespaced_ids(self):
         section = self.ledger.split("## 1. ", 1)[1].split("### 1.1 ", 1)[0].split("## 2. ", 1)[0]
         ids = re.findall(r"^\| (BP-D-\d+|D\d+|D-\d+) \|", section, re.M)
         self.assertEqual(ids, self.ids)
@@ -29,7 +29,7 @@ class BlueprintDecisionIds(unittest.TestCase):
         self.assertEqual(self.ledger.count(MAPPING_END), 1)
         mapping = self.ledger.split(MAPPING_START)[1].split(MAPPING_END)[0]
         pairs = re.findall(r"^\| (D\d+) \| (BP-D-\d+) \|", mapping, re.M)
-        # BP-D-21 is new in ADR-0020 and has no historical unprefixed ID.
+        # The historical unprefixed IDs end at D20.
         self.assertEqual(pairs, [(f"D{i:02}", self.ids[i - 1]) for i in range(1, 21)])
 
     def test_current_document_references_use_only_known_namespaced_ids(self):

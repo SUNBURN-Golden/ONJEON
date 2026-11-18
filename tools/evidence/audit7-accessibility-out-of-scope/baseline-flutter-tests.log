@@ -1,0 +1,203 @@
+00:00 +0: loading /workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart
+00:00 +0: entry buttons and heading meet text and control contrast
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than or equal to <4.5>
+  Actual: <4.474258234280658>
+   Which: is not a value greater than or equal to <4.5>
+Color(alpha: 1.0000, red: 0.9647, green: 0.9569, blue: 0.9333, colorSpace: ColorSpace.sRGB) on
+Color(alpha: 1.0000, red: 0.6824, green: 0.3451, blue: 0.2471, colorSpace: ColorSpace.sRGB)
+
+When the exception was thrown, this was the stack:
+#4      _expectContrast (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:26:3)
+#5      main.<anonymous closure> (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:86:5)
+<asynchronous suspension>
+#6      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#7      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart line 26
+The test description was:
+  entry buttons and heading meet text and control contrast
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: entry buttons and heading meet text and control contrast [E]
+  Test failed. See exception logs above.
+  The test description was: entry buttons and heading meet text and control contrast
+
+00:00 +0 -1: example banner text and exit button meet contrast
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than or equal to <4.5>
+  Actual: <4.483462008353865>
+   Which: is not a value greater than or equal to <4.5>
+Color(alpha: 1.0000, red: 0.6314, green: 0.2706, blue: 0.1608, colorSpace: ColorSpace.sRGB) on
+Color(alpha: 1.0000, red: 0.9098, green: 0.8510, blue: 0.8039, colorSpace: ColorSpace.sRGB)
+
+When the exception was thrown, this was the stack:
+#4      _expectContrast (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:26:3)
+#5      main.<anonymous closure> (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:122:5)
+<asynchronous suspension>
+#6      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#7      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart line 26
+The test description was:
+  example banner text and exit button meet contrast
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -2: example banner text and exit button meet contrast [E]
+  Test failed. See exception logs above.
+  The test description was: example banner text and exit button meet contrast
+
+00:00 +0 -2: partial status text and frame button meet contrast
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than or equal to <4.5>
+  Actual: <4.143172230655014>
+   Which: is not a value greater than or equal to <4.5>
+Color(alpha: 1.0000, red: 0.8392, green: 0.2510, blue: 0.1059, colorSpace: ColorSpace.sRGB) on
+Color(alpha: 1.0000, red: 0.9647, green: 0.9569, blue: 0.9333, colorSpace: ColorSpace.sRGB)
+
+When the exception was thrown, this was the stack:
+#4      _expectContrast (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:26:3)
+#5      main.<anonymous closure> (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:152:5)
+<asynchronous suspension>
+#6      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#7      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart line 26
+The test description was:
+  partial status text and frame button meet contrast
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -3: partial status text and frame button meet contrast [E]
+  Test failed. See exception logs above.
+  The test description was: partial status text and frame button meet contrast
+
+00:00 +0 -3: tabs expose names, selected state and working screen-reader actions
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: The given node does not support SemanticsAction.tap. If the action is implicitly
+supported or an unsupported action is being tested for this node, set `checkForAction` to false.
+Node: SemanticsNode#13(Rect.fromLTRB(97.5, 785.0, 195.0, 844.0), flags: [isButton,
+hasSelectedState], label: "만약에", textDirection: ltr)
+
+When the exception was thrown, this was the stack:
+#0      SemanticsController.performAction (package:flutter_test/src/controller.dart:401:7)
+#1      SemanticsController.tap (package:flutter_test/src/controller.dart:420:5)
+#2      main.<anonymous closure> (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:183:26)
+<asynchronous suspension>
+#3      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  tabs expose names, selected state and working screen-reader actions
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -4: tabs expose names, selected state and working screen-reader actions [E]
+  Test failed. See exception logs above.
+  The test description was: tabs expose names, selected state and working screen-reader actions
+
+00:01 +0 -4: entry heading and choices follow the visible reading order
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: contains in order([
+            <has semantics with label: 내 보험, 직접 이해하세요 with flags: isHeader >,
+            <has semantics with label: 가입내역이나 건강 정보 없이도 시작할 수 있어요.>,
+            <has semantics with label: 예시로 둘러보기 with actions: [tap]  with flags: isButton >,
+            <has semantics with label: 처음부터 준비하기 with actions: [tap]  with flags: isButton >,
+            <has semantics with label: 가입내역 PDF 올리기 with actions: [tap]  with flags: isButton >
+          ])
+  Actual: SubListIterable<SemanticsNode>:[
+            SemanticsNode:SemanticsNode#4(Rect.fromLTRB(24.0, 16.0, 74.5, 52.0), label: "온전",
+textDirection: ltr),
+            SemanticsNode:SemanticsNode#5(Rect.fromLTRB(24.0, 76.0, 366.0, 168.0), label: "내 보험, 직접
+이해하세요", textDirection: ltr),
+            SemanticsNode:SemanticsNode#6(Rect.fromLTRB(24.0, 176.0, 366.0, 224.0), label: "가입내역이나
+건강 정보 없이도 시작할 수 있어요.", textDirection: ltr),
+            SemanticsNode:SemanticsNode#7(Rect.fromLTRB(24.0, 248.0, 366.0, 293.0), actions: [focus,
+tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "예시로 둘러보기", textDirection:
+ltr),
+            SemanticsNode:SemanticsNode#8(Rect.fromLTRB(24.0, 305.0, 366.0, 350.0), actions: [focus,
+tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "처음부터 준비하기", textDirection:
+ltr),
+            SemanticsNode:SemanticsNode#9(Rect.fromLTRB(24.0, 362.0, 366.0, 407.0), actions: [focus,
+tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "가입내역 PDF 올리기",
+textDirection: ltr)
+          ]
+   Which: did not find a value matching has semantics with label: 내 보험, 직접 이해하세요 with flags:
+isHeader  following expected prior values
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:205:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart line 205
+The test description was:
+  entry heading and choices follow the visible reading order
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -5: entry heading and choices follow the visible reading order [E]
+  Test failed. See exception logs above.
+  The test description was: entry heading and choices follow the visible reading order
+
+00:01 +0 -5: entry, banner and all four tabs fit and work at 360 px and 200% text
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: true
+  Actual: <false>
+Found 1 widget with text "예시로 둘러보기": [
+  Text("예시로 둘러보기", inherit: true, color: Color(alpha: 1.0000, red: 0.9647, green: 0.9569, blue:
+0.9333, colorSpace: ColorSpace.sRGB), size: 19.0, weight: 600, dependencies: [DefaultSelectionStyle,
+DefaultTextStyle, MediaQuery]),
+]
+
+When the exception was thrown, this was the stack:
+#4      _expectScaledLabelFits (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:51:5)
+#5      main.<anonymous closure> (file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart:224:9)
+<asynchronous suspension>
+#6      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#7      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart line 51
+The test description was:
+  entry, banner and all four tabs fit and work at 360 px and 200% text
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -6: entry, banner and all four tabs fit and work at 360 px and 200% text [E]
+  Test failed. See exception logs above.
+  The test description was: entry, banner and all four tabs fit and work at 360 px and 200% text
+
+00:01 +0 -6: Some tests failed.
+
+Failing tests:
+  /workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart: entry buttons and heading meet text and control contrast
+  /workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart: entry heading and choices follow the visible reading order
+  /workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart: entry, banner and all four tabs fit and work at 360 px and 200% text
+  /workspace/onjeon-run/wt/audit7-accessibility-out-of-scope/target/audit7-baseline/apps/mobile/test/accessibility_test.dart: example banner text and exit button meet contrast
+  ... and 2 more

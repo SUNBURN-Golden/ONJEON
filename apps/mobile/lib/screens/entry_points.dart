@@ -22,13 +22,19 @@ class EntryPoints extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final e in EntryPoint.values) ...[
-          SizedBox(
-            height: OnjeonDimension.buttonHeight,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: OnjeonDimension.buttonHeight),
             child: e == EntryPoint.example
                 ? FilledButton(
                     key: Key('entry-${e.name}'),
                     style: FilledButton.styleFrom(
                       backgroundColor: OnjeonColors.accent,
+                      foregroundColor: Colors.white,
+                      textStyle: OnjeonText.button,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: OnjeonSpace.lg,
+                        vertical: OnjeonSpace.sm,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(OnjeonDimension.buttonRadius),
                       ),
@@ -37,11 +43,17 @@ class EntryPoints extends StatelessWidget {
                       session.enter(e);
                       context.go(_target(e));
                     },
-                    child: Text(e.label, style: OnjeonText.button),
+                    child: Text(e.label, textAlign: TextAlign.center),
                   )
                 : OutlinedButton(
                     key: Key('entry-${e.name}'),
                     style: OutlinedButton.styleFrom(
+                      foregroundColor: OnjeonColors.accentText,
+                      textStyle: OnjeonText.button,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: OnjeonSpace.lg,
+                        vertical: OnjeonSpace.sm,
+                      ),
                       side: const BorderSide(color: OnjeonColors.accent),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(OnjeonDimension.buttonRadius),
@@ -51,10 +63,7 @@ class EntryPoints extends StatelessWidget {
                       session.enter(e);
                       context.go(_target(e));
                     },
-                    child: Text(
-                      e.label,
-                      style: OnjeonText.button.copyWith(color: OnjeonColors.accentText),
-                    ),
+                    child: Text(e.label, textAlign: TextAlign.center),
                   ),
           ),
           const SizedBox(height: OnjeonSpace.md),

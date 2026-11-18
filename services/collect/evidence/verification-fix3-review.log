@@ -1,0 +1,60 @@
+Fix round 3 — independent review findings on T-DT-04 (BLOCK verdict, PR #144 @ 7fc8339)
+
+Blocking finding addressed:
+
+1. robots.rs decoded the robots.txt body with String::from_utf8_lossy, which keeps a
+   leading U+FEFF. A BOM'd robots.txt (Windows/IIS-hosted sites can emit one) turned
+   the first line into "\u{feff}User-agent: *", the field name never matched
+   `user-agent`, the group ended with zero agents, and can_fetch fell through to an
+   empty rule set -> Allow for every path including `Disallow: /`. The Python port
+   decodes with utf-8-sig (tools/crawler/robots.py:185), which strips the BOM.
+   Fixed: fetch_entry strips a leading EF BB BF before lossy-decoding
+   (strip_utf8_bom), applied to both the whole-body and capped-last-line paths.
+   Regression test: robots_utf8_bom_does_not_disarm_disallow (BOM + Disallow:/ ->
+   Disallow; BOM + Disallow:/secret + Allow:/ -> open allowed, secret disallowed).
+
+Non-blocking findings also fixed:
+
+- fetch_entry built IPv6 robots URLs as "[host:port]" on non-default ports
+  (e.g. http://[::1:8080]/robots.txt — the port lands inside the brackets and the
+  URL re-parses to a different host). Now "[host]:port", matching the Python port;
+  join_url's authority construction got the same fix.
+  Test: robots_url_brackets_ipv6_host_before_port.
+- FetchError::Refused (transport refused before opening a socket, e.g. network
+  disabled) was folded into `robots_unreachable` — blaming the remote host. It is
+  now recorded as `transport_refused` (the refusal is ours); the host still defers
+  and is never fetched, the fail-soft equivalent of the Python port's
+  NetworkDisabledError re-raise. RobotsVerdict::Unverifiable docs updated.
+  Test: transport_refused_is_recorded_not_blamed_on_remote.
+- Mid-walk Forbidden/Unverifiable recorded gap range `whole_scope` even when
+  earlier pages had been fetched and recorded; now `remaining_pages` (same rule
+  Disallow already used), via shared unreached_range(). FixtureFetch gained the
+  per-URL response queue its doc comment promised (add_seq).
+  Tests: mid_walk_robots_hold_records_remaining_pages,
+  mid_walk_robots_forbidden_records_remaining_pages.
+- href_values also picked `href=` out of non-attribute contexts (e.g.
+  location.href='x' in script text). An attribute name now requires a whitespace
+  (or tolerated `/`) predecessor, which also subsumes the earlier word-character
+  exclusion of data-href/xhref.
+  Test: href_in_script_text_is_not_counted.
+- body_is_markup tolerates a leading UTF-8 BOM before the first tag (a BOM'd HTML
+  page with no Content-Type was NotListContent — fail-safe but wrong).
+- FixtureFetch.add_seq queues per-URL response sequences so mid-walk robots state
+  changes are testable with a zero-TTL gate.
+
+Not changed:
+
+- verification.json's `base_sha` field records `git rev-parse HEAD` at verify time
+  (the pre-fix commit while the supervisor creates the target commit); the file
+  pins match the fixed bytes. Labeling artifact as reviewed, not an integrity gap.
+- data/registry/README.md remains the only path outside produces
+  (services/collect/src/adapters/**); it documents the read-only input and is
+  already flagged for supervisor confirmation in handoff.json.
+
+Re-run: python3 services/collect/tests/verify.py
+  fmt/clippy/adapters(41 tests)/workspace test/build/collect py unittest/tools
+  unittest/leak(+selftest)/skeleton(+selftest): exit 0.
+  check_deps.py: exit 1 — same 3 pre-existing DEP-ZONE/IMP-ZONE findings in
+  unchanged packages/ontology (verification-07.log). Out of allowed paths; not
+  repaired, as before.
+verification.json regenerated: file SHA-256 pins updated to the fixed bytes.

@@ -1,0 +1,39 @@
+{
+  "historical_only": true,
+  "superseded_by": "services/collect/evidence/verification-fix-round-2.json",
+  "task_id": "T-DT-04",
+  "round": 5,
+  "base_sha": "a8f6791d22a1ad0c1aa37c2c5529be7e47b8e85a",
+  "target": "uncommitted worktree delta; final target SHA must be assigned by supervisor",
+  "author_role": "implementation_and_regression_testing",
+  "execution_path": "local_cli_in_task_worktree",
+  "independent_review": "not performed in this execution; supervisor must pin final SHA and attest distinct author/reviewer families using opaque role references",
+  "fixes": [
+    {"test": "empty_first_page_is_a_successful_empty_list / enumeration_terminates_on_empty_page", "detail": "HtmlLinks zero-item guard now requires positive list/empty evidence only when the plan declares a total_marker; a marker-less plan's zero-item page is an honest empty page the enumerator reconciles (first page EmptyPage/empty_success, mid-walk NextPointerAbsent)"},
+    {"test": "acquisition_reason_not_counted", "detail": "ProgressTable::for_denominator no longer pre-seeds unknown_denominators, so coverage rate() reports Some(0.0) for recorded-but-unacquired items instead of None"},
+    {"test": "denominator_loads_registry_with_adr0018_scope", "detail": "for_denominator starts every scope axis Unqueried; registry-carried statuses (preflight_states) reach the table through apply_discovery, not pre-seeding"},
+    {"detail": "apply_discovery documents axis now marks covered roles' denominators unknown only when the manifest did not reach evidence, and clears the mark when it did; regression assertions updated to the corrected semantics"}
+  ],
+  "results": [
+    {"command": "cargo test -p onjeon-collect --test adapters", "exit_code": 0, "result": "44 passed, 0 failed"},
+    {"command": "cargo test -p onjeon-collect", "exit_code": 0, "result": "all targets pass: 9 lib + 44 adapters + 10 conformance + 1 http + 2 s3"},
+    {"command": "cargo test --workspace --no-fail-fast", "exit_code": 0, "result": "all executed targets pass"},
+    {"command": "cargo clippy --all-targets -- -D warnings", "exit_code": 0},
+    {"command": "cargo fmt --all -- --check", "exit_code": 0},
+    {"command": "python3 -m unittest discover -s services/collect/tests -p 'test_*.py' -v", "exit_code": 0, "result": "2 passed"},
+    {"command": "python3 -m unittest discover -s tools/tests", "exit_code": 0, "result": "433 tests OK (skipped=6)"},
+    {"command": "python3 tools/vocab_check.py", "exit_code": 0},
+    {"command": "python3 tools/validation_check.py", "exit_code": 0},
+    {"command": "python3 tools/validation_check.py --selftest", "exit_code": 0, "result": "38 mutations each caught for its intended reason"},
+    {"command": "python3 -I tools/ci/check_leak.py", "exit_code": 0, "result": "no leak patterns"},
+    {"command": "python3 -I tools/ci/check_leak.py --selftest", "exit_code": 0, "result": "29 violations caught; 5 clean cases pass"},
+    {"command": "python3 -I tools/ci/check_skeleton.py", "exit_code": 0, "result": "flags off; no static exposure; runtime routes not probed"},
+    {"command": "python3 -I tools/ci/check_skeleton.py --selftest", "exit_code": 0, "result": "18 violations caught; 5 clean cases pass"},
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "scope": "Edits confined to services/collect/src/adapters/ (listpage.rs, progress.rs, regression.rs). No allowed_paths violations; tests/adapters.rs and all paths outside the produces scope untouched.",
+  "remaining_supervisor_actions": [
+    "Assign final commit SHA and obtain independent review tied to that SHA with opaque family-provenance attestation.",
+    "Finalize PR A/Q/L/I/M and R requirements metadata against the final SHA."
+  ]
+}

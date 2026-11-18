@@ -1,4 +1,4 @@
-$ python3 -I tools/ci/check_skeleton.py --selftest
-check_skeleton selftest ok: 18 violations each caught for its intended rule, 5 clean case(s) pass
+$ python3 -B -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
 
 exit_code=0

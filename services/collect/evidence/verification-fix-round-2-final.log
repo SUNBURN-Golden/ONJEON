@@ -1,0 +1,13 @@
+$ python3 -B -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+
+exit_code=0
+
+$ python3 -B -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+
+exit_code=0
+
+$ git diff --check
+
+exit_code=0

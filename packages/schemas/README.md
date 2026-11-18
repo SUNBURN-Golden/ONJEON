@@ -24,24 +24,25 @@ cargo test -p onjeon-contracts                           # Rust 시험
 python3 -I -m unittest discover -s packages/schemas/codegen/tests   # 스키마·호환 검사 시험
 bash packages/schemas/codegen/build_check.sh             # 세 언어 생성물 빌드
 bash packages/schemas/codegen/check_compat.sh <prev_tag> # 이전 태그와 호환 검사
+ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest  # CI와 같은 세 언어 호환 검사
 bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣으면 실패하는지 자체 시험
 ```
 
-`build_check.sh`는 TypeScript는 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능), Dart는 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 그 언어는 **빌드하지 않은 것**이고 `SKIPPED`와 종료 코드 3을 낸다. `ONJ_REQUIRE_TOOLCHAINS=1`이면 실패다. 기존 CI 워크플로는 TypeScript·Dart를 빌드하지 않으므로(아래 '한계'), 세 언어 빌드의 근거는 `ONJ_REQUIRE_TOOLCHAINS=1`로 돌린 이 스크립트의 로그(`RESULT: all three languages build`, tsc·Dart 버전 포함)를 `codegen/evidence/build_check.log`로 **커밋한 것**이다(아래 '증거'). PR 본문에 붙인 로그는 리뷰 대상이 아니다.
+`build_check.sh`는 현재 TypeScript 생성물을 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능), Dart 생성물을 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 `SKIPPED`와 종료 코드 3을 낸다. `ONJ_REQUIRE_TOOLCHAINS=1`이면 실패다. 이전 태그를 기준으로 하는 CI 호환 검사는 아래 '버전과 호환 검사'를 따른다.
 
 ## 증거 (`codegen/evidence/`)
 
-Audit 2 어휘 1.8.0의 최신 검증은 [별도 색인](../../tools/evidence/audit2-engine-string-literals/README.md)에 있다. 생성물 최신성·Rust 빌드와 workspace 시험은 통과했고, TypeScript·Dart는 도구 미설치로 빌드를 건너뛰었다. 아래 `codegen/evidence/`의 세 언어 빌드 기록은 해당 색인에 적힌 과거 트리의 증거다.
+[Audit 7 기록](../../docs/blueprint/audits/2026-11-18_s0_critical_path_merge.md)에 현재 세 언어 빌드와 태그 호환 검사의 재실행 증거를 기록했다. 아래 로그는 T-CT-01·02 당시 트리의 기록이다. Audit 2 어휘 1.8.0 변경의 결과는 [별도 색인](../../tools/evidence/audit2-engine-string-literals/README.md)에 있다.
 
-검증 명령의 실제 출력을 커밋한 디렉터리다. CI는 TypeScript·Dart를 빌드하지 않고 리뷰어는 PR 본문을 보지 않으므로, 커밋된 파일만이 리뷰어가 대상 SHA에서 읽을 수 있는 근거다. 색인은 [`codegen/evidence/EVIDENCE.md`](codegen/evidence/EVIDENCE.md)이고 로그마다 정확한 명령·종료 코드·도구 버전·로그를 만든 부모 커밋·`packages/schemas` 트리(증거 디렉터리 제외)의 sha256을 적는다.
+각 검증 명령의 실제 출력은 [`codegen/evidence/EVIDENCE.md`](codegen/evidence/EVIDENCE.md)에서 찾을 수 있다. 색인은 명령·종료 코드·도구 버전·로그를 만든 부모 커밋·`packages/schemas` 트리(증거 디렉터리 제외)의 sha256을 기록한다.
 
-- `build_check.log`: `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`. **세 언어 빌드의 유일한 근거**이며 `RESULT: all three languages build`로 끝난다. CI가 이 단계를 대신하지 않는다.
+- `build_check.log`: `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`가 `RESULT: all three languages build`로 끝났다.
 - `cargo_test.log`: `cargo test -p onjeon-contracts`(파이썬 시험 묶음, `gen.py --check`, `check_compat.sh --selftest` 포함).
 - `vocab_check.log`: `python3 tools/vocab_check.py`.
 - `check_compat.log`: `check_compat.sh --selftest`와 태그 없는 호출. `contracts-*` 태그가 없어 **실제 이전 태그와의 비교는 일어나지 않았다**(미검증). 자체 시험이 보이는 것은 필드 삭제가 실패한다는 것까지다.
 - `rule02.log`: `ONJ_REQUIRE_RULE_02=1 cargo test -p onjeon-contracts`. rule-0.2를 지원하는 `main`의 엔진과 합친 트리에서 돌려 round-trip 시험이 건너뛰지 않는다.
 
-로그는 자동으로 갱신되지 않는다. 스키마·생성기·시험·이 README가 바뀌면 EVIDENCE.md의 트리 해시(`bash packages/schemas/codegen/tree_hash.sh`로 다시 계산)가 맞지 않게 되므로 같은 명령을 다시 돌려 로그를 바꾼다. `codegen/tests/test_evidence.py`는 로그가 전부 있고 통과 기록이며 절대 경로·비밀값·버전 붙은 식별자가 없는지만 검사하고, 해시가 현재 트리와 같은지(신선도)는 검사하지 않는다. 이 디렉터리는 생성물도 스키마 입력도 아니라서 `gen.py --check`·lint·호환 검사가 읽지 않는다. 로그에 절대 경로·모델 식별자·비밀값을 넣지 않는다(기록 전에 치환하고 grep으로 확인).
+로그는 실행 당시 트리 해시를 보존한다. `bash packages/schemas/codegen/tree_hash.sh`로 현재 해시를 대조할 수 있다. `codegen/tests/test_evidence.py`는 로그의 존재·통과 기록과 절대 경로·비밀값·버전 붙은 식별자의 부재를 검사한다. 로그에 절대 경로·모델 식별자·비밀값을 넣지 않는다(기록 전에 치환하고 grep으로 확인).
 
 ## 규칙
 
@@ -57,15 +58,16 @@ Audit 2 어휘 1.8.0의 최신 검증은 [별도 색인](../../tools/evidence/au
 
 패키지 버전은 이 디렉터리 `Cargo.toml`의 `version`이고 태그는 `contracts-x.y.z`다. 깨지는 변경 = 필드 삭제·타입 변경·필수 ↔ 선택 변경·필수 필드 추가·enum 값 삭제·타입 삭제(major, `0.x`에서는 minor를 올려야 한다). 선택 필드·타입·enum 값 추가는 버전을 올리면 된다. 스키마가 바뀌었는데 버전이 그대로면 실패한다.
 
-`check_compat.sh <prev_tag>`는 (1) 이전 태그의 스키마와 구조 비교, (2) 깨지는 변경이 없으면 이전 태그의 스키마에서 현재 생성기(`emit_rust`)로 다시 만든 Rust 클라이언트(태그에 커밋된 생성물 그대로가 아니다)로 새 스키마에서 만든 최소 문서를 읽는 컴파일 탐침을 돌린다. 깨지는 변경을 major 상향으로 선언했으면 탐침은 건너뛴다. 탐침 문서의 enum 값은 이전·새 어휘에 **모두** 있는 값 중 새 어휘 순서의 첫 값이다(`compat.enum_sample`): 새 값이 축의 맨 앞에 들어와도 구버전 클라이언트가 모르는 값을 먹여 거짓 비호환을 내지 않는다. 이전 판에 없던 축이나 이전 값이 전부 지워진 축만 새 어휘의 첫 값으로 물러선다(후자는 구조 비교가 먼저 깨지는 변경으로 잡는다). `contracts-*` 태그가 하나도 없으면(첫 릴리스) 비교 대상이 없다고 밝히고 자체 시험만 돌린다.
+`check_compat.sh <prev_tag>`는 태그의 JSON Schema와 구조를 비교하고, 호환 변경이면 태그에 커밋된 Rust 생성물로 새 스키마에서 만든 최소 문서를 읽는다. `ONJ_COMPAT_ALL_CLIENTS=1`이면 태그에 커밋된 TypeScript 타입으로 같은 문서를 검사하고 Dart 생성물로 역직렬화한다. major 상향으로 선언한 깨지는 변경은 구조 비교에 기록하고 탐침을 건너뛴다. 탐침은 이전·새 어휘에 모두 있는 enum 값 중 새 어휘 순서의 첫 값을 사용한다. 이전 판에 없던 축은 새 어휘의 첫 값을 사용한다.
+
+CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest`를 실행한다. `--latest`는 HEAD보다 앞선 조상에서 버전이 가장 높은 `contracts-*` 태그를 고른다. 이전 태그가 없는 첫 릴리스 이력에서는 비교 대상 부재를 출력하고 필드 삭제 자체 시험을 실행한다. CI의 합성 태그 시험은 이 경우에도 세 언어의 태그 탐침을 실행한다. `ONJ_REQUIRE_BASELINE=1`로 비교 대상 부재를 오류로 만들 수 있다.
 
 탐침 크레이트는 실행마다 다른 이름(`compat_probe_<해시>`)을 받는다. 탐침들이 `CARGO_TARGET_DIR`(`target/compat-probe`)을 공유하므로 같은 이름이면 동시에 도는 두 탐침(`cargo test` 안의 자체 시험과 파이썬 시험)이 서로의 실행 파일을 실행할 수 있기 때문이다. 저장소에 `Cargo.lock`이 있으면 그 잠금으로 serde를 고정해 새로 해석하지 않는다(캐시에 있으면 레지스트리 접근도 없다). 종료 코드: 0 호환, 1 비호환, 2 사용법·준비 오류. 탐침을 만들거나 빌드하지 못한 것은 2이지 비호환 판정이 아니다.
 
 ## 한계와 열린 항목
 
-- **CI 워크플로 단계는 아직 연결되지 않았다(후속 과제로 남김).** 대신 `cargo test --all`이 `gen.py --check`, 파이썬 시험 묶음, `check_compat.sh --selftest`(필드 삭제 시 실패 확인)를 실행하므로 기존 CI의 cargo 단계가 이 셋을 지킨다. TypeScript·Dart 빌드는 도구가 필요해 cargo가 돌리지 않는다. 그 빌드의 근거는 커밋된 `codegen/evidence/build_check.log`뿐이다. `.github/workflows/`는 이 과제의 허용 경로 밖이다. 연결할 때 추가할 단계: `python3 -I packages/schemas/codegen/gen.py --check`, `python3 -I -m unittest discover -s packages/schemas/codegen/tests`, `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`(tsc·Dart SDK 설치 필요), `ONJ_REQUIRE_RULE_02=1 cargo test -p onjeon-contracts`(엔진이 rule-0.2를 지원하는 `main`에서 round-trip 시험이 건너뛰지 않게), 태그가 생긴 뒤 `bash packages/schemas/codegen/check_compat.sh contracts-<이전>`. 이 단계는 `git fetch --tags` 후 `ONJ_REQUIRE_BASELINE=1`로 돌려 태그가 없을 때 조용히 통과하지 않게 한다(`check_compat.sh`는 이 값이 1이면 태그 부재를 오류 2로 처리). 후속 연결 담당: **구현자(사람)**. 과제 그래프(tasks.json)는 `.github/workflows/**`를 어느 과제의 허용 경로에도 넣지 않고 구현자 관리로 둔다(T-CT-06 비고와 같은 규칙).
-- 호환 컴파일 탐침은 Rust만이다. TypeScript·Dart는 현재 스키마의 빌드와 픽스처 확인만 하고 이전 태그 생성물로의 교차 컴파일은 하지 않는다. 구조 비교는 세 언어에 공통이다.
-- 첫 `contracts-*` 태그는 아직 없다. 태그를 찍는 것은 릴리스 절차의 몫이다. 따라서 실제 이전 태그에 대한 호환 검사는 아직 한 번도 돌지 않았다(`codegen/evidence/check_compat.log`).
+- 태그 호환 검사의 범위는 T-CT-01의 JSON Schema와 생성 클라이언트다. 현재 OpenAPI 생성물의 빌드와 픽스처는 `build_check.sh`로 확인한다.
+- Audit 7 검증에 사용한 체크아웃에는 `contracts-*` 태그가 없었다. 태그가 필요한 경로는 임시 저장소의 합성 태그로 검증했다.
 - 02가 닫지 않은 것: 주장 ID 표기(`a:` 대 `assertion:`, `evidence_ref.md`), `release_hash`와 `content_sha256`의 관계(스키마는 `content_sha256`만), `need_result.id`·`conclusion_id` 형식, `special_conditions`·`usage_counters` 항목 형식(임의 JSON), `judged_by` 등의 값 집합. 임의로 정하지 않고 자리만 두었다(`scope_relation`의 값 집합은 어휘 1.6.0이 온톨로지 설계안 §13에서 가져와 닫았다).
 - `PlanView`는 화면 설계서 §11을 따른다. 검증 표본(`docs/blueprint/validation/screen/*.json`)은 `won`·`man_display` 같은 §11에 없는 필드를 쓰는 설계 검증용 사본이라 이 스키마에 맞추지 않았다.
 - OpenAPI(T-CT-03), 오류 코드 표·분석 이벤트·도메인 이벤트(T-CT-04)는 이 과제에 없다. `ErrorResponse`는 형태만 정의한다.

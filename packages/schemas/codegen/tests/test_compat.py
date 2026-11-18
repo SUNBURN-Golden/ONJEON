@@ -191,6 +191,8 @@ class Probe(unittest.TestCase):
             self.assertEqual(set(names), roots)
             doc = json.loads((Path(t) / "docs" / "EvaluationResult.json").read_text(encoding="utf-8"))
             self.assertIn("contract_effect", doc)  # optional fields are filled so the old client reads them too
+            for path in (sm.SCHEMAS_DIR / "src" / "generated").glob("*.rs"):
+                self.assertEqual((Path(t) / "src" / "generated" / path.name).read_bytes(), path.read_bytes())
 
     def test_probe_documents_use_enum_values_the_previous_client_knows(self):
         """A new enum value inserted FIRST is a compatible change; the probe must not feed it to the old client."""
@@ -206,7 +208,7 @@ class Probe(unittest.TestCase):
             self.assertEqual(doc["criticality"], "c0")
             self.assertNotIn("zz_new_first", (out / "docs" / "Assertion.json").read_text(encoding="utf-8"))
             # the previous client's types do not know the new value at all
-            self.assertNotIn("ZzNewFirst", (out / "src" / "vocabulary.rs").read_text(encoding="utf-8"))
+            self.assertNotIn("ZzNewFirst", (out / "src" / "generated" / "vocabulary.rs").read_text(encoding="utf-8"))
 
     def test_enum_sample_fallbacks(self):
         model = compat.model_of(sm.SCHEMAS_DIR)
@@ -234,13 +236,25 @@ class CheckCompatScript(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.target = tempfile.mkdtemp()
-        cls.env = {**os.environ, "CARGO_TARGET_DIR": os.environ.get("CARGO_TARGET_DIR", str(sm.SCHEMAS_DIR.parent.parent / "target" / "compat-probe"))}
+        cls.env = {
+            **os.environ,
+            "CARGO_TARGET_DIR": os.environ.get("CARGO_TARGET_DIR", str(sm.SCHEMAS_DIR.parent.parent / "target" / "compat-probe")),
+            "ONJ_COMPAT_ALL_CLIENTS": "0",
+            "ONJ_REQUIRE_BASELINE": "0",
+        }
 
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(cls.target, ignore_errors=True)
 
-    def repo(self, tagged=True, lockfile=True):
+    @staticmethod
+    def git(root, *args):
+        return subprocess.check_output(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "-C", str(root), *args],
+            text=True,
+        ).strip()
+
+    def repo(self, tagged=True, lockfile=True, generated=True, client_change=None):
         root = Path(tempfile.mkdtemp(dir=self.target))
         dst = root / "packages" / "schemas"
         (dst).mkdir(parents=True)
@@ -248,18 +262,31 @@ class CheckCompatScript(unittest.TestCase):
         shutil.copytree(sm.SCHEMAS_DIR / "codegen", dst / "codegen", ignore=shutil.ignore_patterns("tests", "generated", "evidence", "__pycache__"))
         shutil.copy(sm.VOCAB_PATH, dst / "vocabulary.json")
         shutil.copy(sm.SCHEMAS_DIR / "Cargo.toml", dst / "Cargo.toml")
+        if generated:
+            shutil.copytree(sm.SCHEMAS_DIR / "src" / "generated", dst / "src" / "generated")
+            for lang in ("ts", "dart"):
+                path = Path("codegen/generated") / lang
+                shutil.copytree(sm.SCHEMAS_DIR / path, dst / path)
+        if client_change:
+            path, before, after = client_change
+            client = dst / path
+            source = client.read_text(encoding="utf-8")
+            self.assertIn(before, source)
+            client.write_text(source.replace(before, after, 1), encoding="utf-8")
         if lockfile:
             shutil.copy(REPO_LOCK, root / "Cargo.lock")  # the script pins the probe with the repository lockfile
-        git = ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid"]
-        subprocess.run(["git", "init", "-q", str(root)], check=True)
-        subprocess.run([*git, "-C", str(root), "add", "-A"], check=True)
-        subprocess.run([*git, "-C", str(root), "commit", "-q", "-m", "baseline"], check=True)
+        self.git(root, "init", "-q")
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-q", "-m", "baseline")
         if tagged:
-            subprocess.run([*git, "-C", str(root), "tag", "contracts-0.1.0"], check=True)
+            self.git(root, "tag", "contracts-0.1.0")
+        if client_change:
+            shutil.copyfile(sm.SCHEMAS_DIR / path, client)
         return root, dst
 
-    def run_check(self, root, dst, *args):
-        p = subprocess.run(["bash", str(dst / "codegen" / "check_compat.sh"), *args], capture_output=True, text=True, env=self.env, cwd=root)
+    def run_check(self, root, dst, *args, **env):
+        p = subprocess.run(["bash", str(dst / "codegen" / "check_compat.sh"), *args],
+                           capture_output=True, text=True, env={**self.env, **env}, cwd=root)
         return p.returncode, p.stdout + p.stderr
 
     @staticmethod
@@ -273,6 +300,82 @@ class CheckCompatScript(unittest.TestCase):
         self.assertEqual(rc, 0, out)
         self.assertIn("compile probe", out)
         self.assertIn("compatible with contracts-0.1.0", out)
+
+    def test_tagged_rust_client_rejects_a_document_the_current_client_reads(self):
+        root, dst = self.repo(client_change=(
+            "src/generated/types.rs", "pub created_by_run: String",
+            '#[serde(rename = "old_created_by_run")]\n    pub created_by_run: String',
+        ))
+        rc, out = self.run_check(root, dst, "contracts-0.1.0")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("0 breaking, 0 compatible change(s)", out)
+        self.assertIn("FAIL Assertion: missing field `old_created_by_run`", out)
+
+    def test_latest_uses_highest_version_in_prior_history(self):
+        root, dst = self.repo(tagged=False)
+        self.git(root, "tag", "contracts-0.1.9")
+        self.git(root, "tag", "-a", "contracts-0.1.10", "-m", "release")
+        self.git(root, "commit", "-q", "--allow-empty", "-m", "candidate")
+        self.git(root, "tag", "contracts-0.2.0")
+        unrelated = self.git(root, "commit-tree", "HEAD^{tree}", "-m", "unrelated")
+        self.git(root, "tag", "contracts-9.0.0", unrelated)
+        self.bump(dst, "0.1.11")
+        rc, out = self.run_check(root, dst, "--latest")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("compatible with contracts-0.1.10", out)
+        self.assertIn("ok   Assertion", out)
+
+    def test_latest_rejects_a_shallow_checkout_instead_of_running_the_selftest(self):
+        root, _ = self.repo()
+        self.git(root, "commit", "-q", "--allow-empty", "-m", "candidate")
+        shallow = root.parent / f"{root.name}-shallow"
+        self.git(root, "clone", "-q", "--depth=1", "--no-tags", root.as_uri(), str(shallow))
+        rc, out = self.run_check(shallow, shallow / "packages/schemas", "--latest")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("requires a full checkout with tags", out)
+        self.assertNotIn("self-test", out)
+
+    def test_missing_tagged_client_files_are_a_setup_error(self):
+        root, dst = self.repo(generated=False)
+        shutil.copytree(sm.SCHEMAS_DIR / "src" / "generated", dst / "src" / "generated")
+        rc, out = self.run_check(root, dst, "contracts-0.1.0")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("missing required schema or generated client files", out)
+        self.assertNotIn("compatible with", out)
+
+    def test_all_client_mode_requires_the_language_toolchains(self):
+        root, dst = self.repo()
+        rc, out = self.run_check(root, dst, "contracts-0.1.0", ONJ_COMPAT_ALL_CLIENTS="1",
+                                 TSC=str(root / "missing-tsc"))
+        self.assertEqual(rc, 2, out)
+        self.assertIn("the full tagged probe requires tsc and dart", out)
+        self.assertNotIn("compatible with", out)
+
+    @unittest.skipUnless(os.environ.get("ONJ_COMPAT_ALL_CLIENTS") == "1", "needs tsc and dart")
+    def test_all_clients_read_compatible_documents_from_a_tagged_baseline(self):
+        root, dst = self.repo()
+        self.git(root, "commit", "-q", "--allow-empty", "-m", "candidate")
+        edit(dst / "json" / "assertion.schema.json", lambda d: d["properties"].update(note={"type": "string"}))
+        self.mutate_vocab(dst, insert_first("criticality", "zz_new_first"))
+        self.bump(dst, "0.1.1")
+        rc, out = self.run_check(root, dst, "--latest", ONJ_COMPAT_ALL_CLIENTS="1")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("== TypeScript: type-check documents against the tagged client", out)
+        self.assertIn("== Dart: read documents with the tagged client", out)
+        self.assertIn("compatible with contracts-0.1.0", out)
+
+    @unittest.skipUnless(os.environ.get("ONJ_COMPAT_ALL_CLIENTS") == "1", "needs tsc and dart")
+    def test_all_clients_surface_tagged_typescript_and_dart_rejections(self):
+        for path, before, after, expected in (
+            ("codegen/generated/ts/types.ts", "created_by_run: string", "created_by_run: number", "error TS2322"),
+            ("codegen/generated/dart/lib/src/types.dart", "json['created_by_run']", "json['old_created_by_run']", "FAIL Assertion:"),
+        ):
+            with self.subTest(path=path):
+                root, dst = self.repo(client_change=(path, before, after))
+                rc, out = self.run_check(root, dst, "contracts-0.1.0", ONJ_COMPAT_ALL_CLIENTS="1")
+                self.assertEqual(rc, 1, out)
+                self.assertIn("0 breaking, 0 compatible change(s)", out)
+                self.assertIn(expected, out)
 
     def test_selftest_runs_without_a_repository_lockfile(self):
         """No Cargo.lock: the probe resolves serde itself. The script's empty `--lock` argument list must
@@ -363,6 +466,17 @@ class CheckCompatScript(unittest.TestCase):
         self.assertEqual(rc, 0, out)
         self.assertIn("BASELINE: no contracts-* tag exists", out)
         self.assertIn("self-test ok", out)
+
+    def test_latest_without_a_predecessor_reports_first_release_and_honors_strict_mode(self):
+        root, dst = self.repo()
+        rc, out = self.run_check(root, dst, "--latest")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("BASELINE: no previous contracts-* tag in HEAD history", out)
+        self.assertIn("self-test ok", out)
+        rc, out = self.run_check(root, dst, "--latest", ONJ_REQUIRE_BASELINE="1")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("ONJ_REQUIRE_BASELINE=1 requires a previous release", out)
+        self.assertNotIn("self-test", out)
 
     def test_missing_argument_is_a_usage_error(self):
         root, dst = self.repo()

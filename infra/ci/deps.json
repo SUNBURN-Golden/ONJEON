@@ -66,7 +66,8 @@
     },
     "api": {
       "paths": [
-        "services/api/**"
+        "services/api/**",
+        "services/scenario-api/**"
       ],
       "allow_zones": [
         "contracts",
@@ -103,7 +104,22 @@
       "from": "onjeon-contracts",
       "to": "onjeon-rules-engine",
       "kind": "dev",
+      "import_paths": ["packages/schemas/src/tests.rs"],
       "reason": "T-CT-01 round-trip test: the real engine output must deserialize into EvaluationResult. Test-only, not linked into the library"
+    },
+    {
+      "from": "onjeon-ontology",
+      "to": "onjeon-rules-engine",
+      "kind": "dev",
+      "import_paths": ["packages/ontology/tests/**"],
+      "reason": "T-KN-01 golden tests exercise the engine against frozen ontology releases"
+    },
+    {
+      "from": "onjeon-scenario-api",
+      "to": "onjeon-ontology",
+      "kind": "dev",
+      "import_paths": ["services/scenario-api/tests/**"],
+      "reason": "Scenario API integration tests construct release fixtures with the ontology library"
     }
   ],
   "provider_sdk": {

@@ -138,11 +138,16 @@ class Zones:
         z = self.zones[src_zone]
         return dst_zone == src_zone or dst_zone in z["allow_zones"] or C.norm_pkg(dst_pkg) in {C.norm_pkg(p) for p in z["allow_packages"]}
 
-    def excepted(self, src_pkg, dst_pkg, kind):
+    def excepted(self, src_pkg, dst_pkg, kind, import_path=None):
         for i, e in enumerate(self.exceptions):
-            if C.norm_pkg(e["from"]) == C.norm_pkg(src_pkg or "") and C.norm_pkg(e["to"]) == C.norm_pkg(dst_pkg) and e.get("kind", kind) == kind:
-                self.used_exceptions.add(i)
-                return True
+            if (C.norm_pkg(e["from"]) != C.norm_pkg(src_pkg or "")
+                    or C.norm_pkg(e["to"]) != C.norm_pkg(dst_pkg)
+                    or e.get("kind", kind) != kind):
+                continue
+            if import_path is not None and not C.match(import_path, e.get("import_paths", [])):
+                continue
+            self.used_exceptions.add(i)
+            return True
         return False
 
 
@@ -261,7 +266,7 @@ def check_imports(root, rules, Z, pkg_zone, owners):
                     continue  # an app importing its own package (e.g. Flutter's generated widget test)
                 if zone == "client" and any(target.startswith(ns) or f"package:{target}".startswith(ns) for ns in namespaces) and key not in generated:
                     findings.append(C.Finding("IMP-CLIENT", rel, line, f"mobile/web may import only the generated contracts client, not '{target}'"))
-                elif dst and not Z.allowed(zone, dst, target) and not Z.excepted(owner_of(rel, owners), target, "dev"):
+                elif dst and not Z.allowed(zone, dst, target) and not Z.excepted(own, target, "dev", import_path=rel):
                     findings.append(C.Finding("IMP-ZONE", rel, line, f"zone '{zone}' may not import '{target}' (zone '{dst}')"))
             elif kind == "path":
                 dst_rel = target

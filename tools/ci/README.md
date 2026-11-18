@@ -40,7 +40,7 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 - `leak.i11.sensitive_labels` must contain every non-public code of the `sensitivity` axis in `packages/schemas/vocabulary.json`; a new code there fails `LEAK-VOCAB-DRIFT` until it is added.
 - `leak.analytics.allowed_fields` is empty: there is no analytics event schema yet, so any literal field key in an event call fails. The task that defines the event schema fills it.
 - `allow` entries (`leak.i10.allow`, `leak.i11.allow`) need `rule`, `path`, `reason`; an entry without a reason fails `LEAK-RULES`. Prefer an allow entry with a reason over loosening a pattern.
-- `dependency_exceptions` currently holds one: `onjeon-contracts` dev-depends on `onjeon-rules-engine` for the round-trip test (T-CT-01). An unused exception is reported as a warning.
+- `dependency_exceptions` allows the test-only dev dependencies for contract round trips, ontology golden cases, and scenario API release fixtures. Source imports must match the exception's `import_paths`. An unused exception is reported as a warning.
 - `api` may depend on `onjeon-personal-client` and `personal` on `onjeon-docproc-personal`. Those crate names are placeholders for the personal-client and personal-deployment crates (01 section 2); rename them in `deps.json` when the crates exist.
 - `inactive_response.statuses` ([404, 501]) in the flags file is a choice of this task, not a documented decision: the task that registers the routes may narrow it.
 

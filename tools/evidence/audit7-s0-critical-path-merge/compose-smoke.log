@@ -1,0 +1,59 @@
+# bash infra/compose/smoke.sh (2026-11-18 KST, extract)
+# Docker Engine 29.9.1 vfs, ShellCheck 0.10.0, exit 0
+Docker Compose version v5.6.0
+== 1) 정적 시험 ==
+Ran 33 tests in 1.051s
+== 2) 실제 기동 시험 ==
+-- 한 명령으로 기동 (두 번: 멱등)
+ok   up.sh 두 번 실행
+-- 자격 증명 분리
+ok   비밀값이 모두 채워져 있고 서로 다르다
+ok   공개·개인 DB의 사용자와 비밀번호가 다르다
+-- 영역별 DB
+ok   공개 DB의 영역 표지
+ok   개인 DB의 영역 표지
+ok   공개 DB 큐에 앱 역할이 넣고 꺼낸다
+ok   개인 DB 큐에 앱 역할이 넣고 꺼낸다
+ok   앱 역할은 관리용 DB에 접속할 수 없다(공개)
+ok   앱 역할은 관리용 DB에 접속할 수 없다(개인)
+ok   공개 DB 앱 역할은 테이블을 만들 수 없다
+ok   개인 DB 앱 역할은 테이블을 만들 수 없다
+ok   앱 역할은 슈퍼유저가 아니다
+ok   공개 DB 자격으로 개인 DB에 들어갈 수 없다(관리)
+ok   공개 DB 자격으로 개인 DB에 들어갈 수 없다(앱)
+ok   개인 DB 자격으로 공개 DB에 들어갈 수 없다(관리)
+ok   개인 DB 자격으로 공개 DB에 들어갈 수 없다(앱)
+ok   두 DB 컨테이너의 주소가 다르다
+ok   공개 DB 컨테이너는 자기 영역 주소에 닿는다(대조)
+ok   개인 DB 컨테이너는 자기 영역 주소에 닿는다(대조)
+ok   공개 DB 컨테이너에서 개인 DB 서버 주소에 닿지 않는다
+ok   개인 DB 컨테이너에서 공개 DB 서버 주소에 닿지 않는다
+ok   객체 저장소는 두 영역 모두에서 풀린다(대조)
+ok   객체 저장소는 두 영역 모두에서 풀린다(대조, 개인)
+-- 객체 저장소 신원 파일
+ok   신원 파일은 컨테이너 사용자가 root가 아니어도 읽힌다
+-- 개인 DB 서버 로그에 값이 남지 않는다(I11 서버 설정 부분)
+ok   (대조) 접속 실패(FATAL)는 로그에 남는다
+ok   개인 DB 로그에 payload·질의 값이 없다
+ok   개인 DB 로그에 ERROR·STATEMENT·DETAIL 줄이 없다
+-- 객체 저장소 영역 권한
+ok   허용: 공개 영역 신원이 onjeon-raw-sources 에 쓴다
+ok   허용: 공개 영역 신원이 onjeon-raw-sources 를 읽는다
+ok   거부: 개인 영역 신원이 onjeon-raw-sources 에 쓴다
+ok   거부: 개인 영역 신원이 onjeon-raw-sources 를 읽는다
+ok   허용: 공개 영역 신원이 onjeon-derived-sources 에 쓴다
+ok   허용: 공개 영역 신원이 onjeon-derived-sources 를 읽는다
+ok   거부: 개인 영역 신원이 onjeon-derived-sources 에 쓴다
+ok   거부: 개인 영역 신원이 onjeon-derived-sources 를 읽는다
+ok   허용: 개인 영역 신원이 onjeon-private-contracts 에 쓴다
+ok   허용: 개인 영역 신원이 onjeon-private-contracts 를 읽는다
+ok   거부: 공개 영역 신원이 onjeon-private-contracts 에 쓴다
+ok   거부: 공개 영역 신원이 onjeon-private-contracts 를 읽는다
+ok   공개 영역 신원에게는 공개 버킷만 보인다
+ok   개인 영역 신원에게는 개인 버킷만 보인다
+ok   거부: 공개 영역 신원이 버킷을 만든다
+ok   거부: 개인 영역 신원이 버킷을 만든다
+ok   객체 저장소 권한 분리
+-- 내리기
+ok   내린 뒤 컨테이너·볼륨·네트워크가 남지 않았다
+LIVE: PASSED

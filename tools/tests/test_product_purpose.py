@@ -53,11 +53,10 @@ class ProductPurposeTests(unittest.TestCase):
         # This is the live CI guard: removing an ID or adding a dangling P-row task fails CI.
         self.assertEqual([], P.check(P.C.ROOT / P.DEFAULT_TASKS, P.C.ROOT / P.DEFAULT_PURPOSE))
 
-    def test_required_ids_match_all_nine_in_section_six(self):
+    def test_required_ids_match_section_six(self):
         text = (P.C.ROOT / P.DEFAULT_PURPOSE).read_text(encoding="utf-8")
         section = text.split("## 6.", 1)[1].split("## 7.", 1)[0]
         ids = set(re.findall(r"`([a-z]+(?:-[a-z]+)+)`", section))
-        self.assertEqual(9, len(ids))
         self.assertEqual(ids, P.REQUIRED_TEST_IDS)
 
     def test_registered_ids_and_shared_row_tasks_pass(self):
@@ -67,7 +66,7 @@ class ProductPurposeTests(unittest.TestCase):
         self.data["tasks"][0]["required_test_ids"] = sorted(P.REQUIRED_TEST_IDS)
         self.assertEqual([], self.check())
 
-    def test_each_of_nine_missing_ids_fails_for_g12(self):
+    def test_each_missing_id_fails_for_g12(self):
         original = copy.deepcopy(self.data)
         for test_id in sorted(P.REQUIRED_TEST_IDS):
             with self.subTest(test_id=test_id):
@@ -114,7 +113,8 @@ class ProductPurposeTests(unittest.TestCase):
         spec = (bundle / "03_작업명세.md").read_text(encoding="utf-8")
         # Independent acceptance matrix for this finding (not the checker's constant).
         expected = {
-            "T-MB-03": {"first-view-priority", "decisive-conditions-not-hidden", "no-composite-score"},
+            "T-MB-03": {"first-view-priority", "decisive-conditions-not-hidden", "no-composite-score",
+                        "mobile-screen-accessibility"},
             "T-MB-04": {"first-view-priority", "decisive-conditions-not-hidden", "no-composite-score"},
             "T-AP-07": {"first-view-priority", "decisive-conditions-not-hidden", "no-composite-score"},
             "T-AP-02": {"decisive-conditions-not-hidden"},
@@ -122,6 +122,7 @@ class ProductPurposeTests(unittest.TestCase):
             "T-AP-08": {"decisive-conditions-not-hidden"},
             "T-AP-09": {"no-composite-score"},
             "T-KN-04": {"profile-historical-vs-service"},
+            "T-WB-01": {"public-web-accessibility"},
         }
         self.assertLessEqual(P.REQUIRED_TEST_IDS, P.REQUIRED_TEST_OWNERS.keys())
         for owner, required in expected.items():
@@ -138,13 +139,15 @@ class ProductPurposeTests(unittest.TestCase):
                 self.assertEqual(set(task["required_test_ids"]), set(cells[-1].split(", ")))
                 self.assertEqual("; ".join(task["done_criteria"]), cells[-2])
 
-    def test_live_p06_and_p17_link_the_test_implementations(self):
+    def test_live_rows_link_the_test_implementations(self):
         bundle = P.C.ROOT / P.BUNDLE
         tasks = {t["id"]: t for t in json.loads((bundle / "tasks.json").read_text(encoding="utf-8"))["tasks"]}
         text = (bundle / "09_제품목적_대응표.md").read_text(encoding="utf-8")
         for row, owner, test_id in (
             ("P06", "T-KN-04", "profile-historical-vs-service"),
             ("P17", "T-AP-09", "no-composite-score"),
+            ("P19", "T-MB-03", "mobile-screen-accessibility"),
+            ("P19", "T-WB-01", "public-web-accessibility"),
         ):
             with self.subTest(row=row):
                 line = next(line for line in text.splitlines() if line.startswith(f"| {row} |"))
@@ -167,7 +170,7 @@ class ProductPurposeTests(unittest.TestCase):
                     self.assertIn(owner, found[0].message)
                     self.assertGreater(found[0].line, 0)
 
-    def test_profile_registration_is_required_beyond_the_nine_g12_ids(self):
+    def test_profile_registration_is_required_beyond_the_g12_ids(self):
         self.assertNotIn("profile-historical-vs-service", P.REQUIRED_TEST_IDS)
         task = next(t for t in self.data["tasks"] if t["id"] == "T-KN-04")
         task["required_test_ids"].remove("profile-historical-vs-service")
@@ -209,8 +212,7 @@ class ProductPurposeTests(unittest.TestCase):
             original.replace("구현 작업(tasks.json)", "wrong column"),
             original.replace("T-AA-01, T-AA-02", ""),
             original.replace("T-AA-01, T-AA-02", "T-AA-01, typo"),
-            original.replace("| P19 | purpose | T-AA-01, T-AA-02 | T-ZZ-99 is an evidence reference |",
-                             "| P19 | purpose |"),
+            re.sub(r"^\| P19 \|.*$", "| P19 | purpose |", original, flags=re.M),
         ]
         for text in bad_texts:
             with self.subTest(text=text[:100]):

@@ -22,6 +22,7 @@ Tab state survives tab switches (`StatefulShellRoute`). `/entry` is the first-ru
 - **No amount arithmetic in screen code.** `tool/krw_lint.dart` rejects `+ - * / ~/ %`, compound assignment, `++`/`--`, negation, `.abs() .round() .floor() .ceil() .truncate() .clamp() .remainder() .toDouble()` and `fold`/`reduce`/`sum` on any identifier containing `krw`, and on one level of local aliases. It is textual and reads across line breaks. It does not see through parentheses around an operand. It does not follow an amount that is renamed to a name without `krw`; the generated types keep the suffix so that review can rely on it. `test/krw_lint_test.dart` plants 25 violations and 11 allowed uses and scans all of `lib/`.
 - **No invented numbers.** `lib/` has no price, payout or sample amount. The only numbers in the UI are counts passed in (`확인 필요 n건`) and layout sizes from the tokens.
 - **Tokens do not drift.** `python3 -I packages/design-tokens/gen_dart.py --check` and `test/design_tokens_test.dart`.
+- **Accessibility regressions on the shell.** `test/accessibility_test.dart` checks rendered contrast, heading and reading order, tab activation through the semantics tree, and entry, banner and tab controls at 200% text on a 360 px viewport. `test/states_test.dart` exercises the seven state frames at the same scale. Release-screen and assistive-technology evidence is tracked in [ADR-0021](../../docs/decisions/ADR-0021-첫-출시-최소-접근성.md).
 
 ## Run
 

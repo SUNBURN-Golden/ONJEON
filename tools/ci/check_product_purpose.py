@@ -2,9 +2,9 @@
 """Guard 09 product-purpose rows against tasks.json (static checks only).
 
 Complements spec_check G12:
-  PURPOSE-G12   all nine product-purpose test IDs from 09 section 6 are registered
+  PURPOSE-G12   product-purpose test IDs from 09 section 6 are registered
   PURPOSE-OWNER each test is registered on every task assigned by 09 sections 4/6
-  PURPOSE-ROW-OWNER P06/P17 include the task implementing their cited test
+  PURPOSE-ROW-OWNER rows include the tasks implementing their cited tests
   PURPOSE-TASK  each P row's implementation tasks are a subset of tasks.json IDs
   PURPOSE-ROWS  P01..P19 occur exactly once with a nonempty, parseable task list
 
@@ -35,6 +35,8 @@ REQUIRED_TEST_IDS = frozenset({
     "first-view-priority",
     "decisive-conditions-not-hidden",
     "no-composite-score",
+    "mobile-screen-accessibility",
+    "public-web-accessibility",
 })
 EXPECTED_ROWS = {f"P{i:02}" for i in range(1, 20)}
 TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
@@ -56,8 +58,14 @@ REQUIRED_TEST_OWNERS = {
     "no-composite-score": {"T-MB-03", "T-MB-04", "T-AP-07", "T-AP-09"},
     "profile-historical-vs-service": {"T-KN-04"},
     "purpose-rows-all-closed": {"T-OP-08"},
+    "mobile-screen-accessibility": {"T-MB-03"},
+    "public-web-accessibility": {"T-WB-01"},
 }
-REQUIRED_ROW_OWNERS = {"P06": {"T-KN-04"}, "P17": {"T-AP-09"}}
+REQUIRED_ROW_OWNERS = {
+    "P06": {"T-KN-04"},
+    "P17": {"T-AP-09"},
+    "P19": {"T-MB-03", "T-WB-01"},
+}
 
 
 def check(tasks_path, purpose_path):
@@ -165,7 +173,7 @@ def main(argv=None):
                          args.purpose or args.root / DEFAULT_PURPOSE)
     except (OSError, ValueError, KeyError, TypeError) as exc:
         return C.usage_error(f"cannot read product-purpose inputs: {exc}")
-    return C.report(findings, "09 P01..P19 task links, P06/P17 owners and product-purpose test IDs registered on assigned tasks (static only)",
+    return C.report(findings, "09 P01..P19 task links, P06/P17/P19 owners and product-purpose test IDs registered on assigned tasks (static only)",
                     "product-purpose")
 
 

@@ -197,7 +197,7 @@ class PartialFrame extends StatelessWidget {
           child: Text(
             '확인 필요 $unresolvedCount건',
             style: OnjeonText.rowSubtitle.copyWith(
-              color: OnjeonColors.statusAdd,
+              color: OnjeonColors.accentText,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -335,16 +335,22 @@ class _PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: OnjeonDimension.buttonHeight,
       child: FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: OnjeonColors.accent,
+          foregroundColor: Colors.white,
+          textStyle: OnjeonText.button,
+          minimumSize: const Size(0, OnjeonDimension.buttonHeight),
+          padding: const EdgeInsets.symmetric(
+            horizontal: OnjeonSpace.lg,
+            vertical: OnjeonSpace.sm,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(OnjeonDimension.buttonRadius),
           ),
         ),
-        child: Text(label, style: OnjeonText.button),
+        child: Text(label, textAlign: TextAlign.center),
       ),
     );
   }

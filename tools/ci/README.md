@@ -54,6 +54,9 @@ Exit codes: 0 clean, 1 findings, 2 usage or unreadable input. Every finding has 
 and Rust builds. It reuses `vocab_check.lint_registry` and checks entity/source
 ID uniqueness, `listed_in`, entity-bearing access purposes/source IDs and access
 evidence consistency. Artifact filenames in probe/source purposes are preserved.
+For the dated FISIS/Fine cross-check it also requires both list IDs for each
+insurer, references to the corresponding list sources and matching successful
+retrieval records. [Audit 7 evidence](../../docs/blueprint/audits/2026-11-19_registry_supervisory_crosscheck.md).
 `tools/tests/test_registry_check.py` runs through Python discovery and executes
 the declared CI command against disposable clean and regressed registries.
 It also checks the corrected Hyundai note and rejects legacy excluded-row

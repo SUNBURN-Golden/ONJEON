@@ -189,6 +189,72 @@ class RegistryCheck(unittest.TestCase):
                 self.assertFinding("no matching access_log observation")
                 (self.reg / name).write_bytes(original)
 
+    def test_supervisory_coverage_rejects_missing_row_or_one_sided_match(self):
+        snapshot = self.rows(rc.CROSSCHECK)
+        for insurer in ("life-hanwha", "nonlife-mybrown"):
+            with self.subTest(insurer=insurer):
+                self.write(rc.CROSSCHECK, [r for r in snapshot if r["registry_id"] != insurer])
+                self.assertFinding(f"no supervisory cross-check for {insurer!r}")
+        for column, ref in (("fisis_id", "fisis_source_id"), ("fine_id", "fine_source_ids")):
+            with self.subTest(column=column):
+                self.write(rc.CROSSCHECK, snapshot)
+                self.change(rc.CROSSCHECK, "registry_id", "life-hanwha", **{column: "", ref: ""})
+                self.assertFinding("insurer 'life-hanwha' requires both FISIS and Fine IDs")
+
+    def test_supervisory_rows_reject_broken_registry_joins_and_ids(self):
+        snapshot = self.rows(rc.CROSSCHECK)
+        cases = (
+            (dict(registry_id="no-such-insurer"), "invalid registry reference"),
+            (dict(registry_name="다른 기관"), "invalid registry reference"),
+            (dict(registry_id="life-kyobo", registry_name="교보생명보험"), "duplicate registry_id"),
+            (dict(comparison="excluded"), "invalid comparison"),
+            (dict(category="unknown"), "unknown supervisory category"),
+            (dict(fisis_id="0010619"), "duplicate fisis_id"),
+            (dict(fine_id=" 18942"), "invalid or duplicate fine_id"),
+        )
+        for changes, expected in cases:
+            with self.subTest(changes=changes):
+                self.write(rc.CROSSCHECK, snapshot)
+                self.change(rc.CROSSCHECK, "registry_id", "life-hanwha", **changes)
+                self.assertFinding(expected)
+
+    def test_supervisory_row_requires_the_right_lists_and_all_fine_pages(self):
+        snapshot = self.rows(rc.CROSSCHECK)
+        cases = (
+            ("life-hanwha", "fisis_source_id", ""),
+            ("life-hanwha", "fisis_source_id", "fisis_20261110_nonlife_list"),
+            ("life-hanwha", "fine_source_ids", "fine_20261110_life_domestic_p1"),
+            ("life-hanwha", "fine_source_ids", "fine_20261110_life_foreign_p1"),
+            ("dart-df7015d9", "fisis_source_id", "fisis_20261110_nonlife_list"),
+        )
+        for insurer, column, value in cases:
+            with self.subTest(insurer=insurer, column=column, value=value):
+                self.write(rc.CROSSCHECK, snapshot)
+                self.change(rc.CROSSCHECK, "registry_id", insurer, **{column: value})
+                self.assertFinding(f"{column} disagrees with")
+
+    def test_supervisory_provenance_requires_successful_sources_and_matching_requests(self):
+        source_id = "fisis_20261110_life_list"
+        sources = self.rows("sources.csv")
+        requests = self.rows("access_log.csv")
+        self.write("sources.csv", [r for r in sources if r["source_id"] != source_id])
+        self.assertFinding(f"missing supervisory list source {source_id!r}")
+        for column, value in (("url", "https://dart.fss.or.kr/"), ("sha256", "bad"),
+                              ("http_status", "200_service_outage_notice"),
+                              ("retrieved_at", "2026-10-09T04:23:09Z")):
+            with self.subTest(source_column=column):
+                self.write("sources.csv", sources)
+                self.change("sources.csv", "source_id", source_id, **{column: value})
+                self.assertFinding(f"invalid supervisory list source {source_id!r}")
+        self.write("sources.csv", sources)
+        for column, value in (("detail", "POST partDiv=I&baseMonth=202606"), ("http_code", "503"),
+                              ("curl_exit", "56"), ("final_url", "https://fisis.fss.or.kr/"),
+                              ("attempted_at", "2026-11-10T11:09:16Z"), ("result", "200_service_outage_notice")):
+            with self.subTest(request_column=column):
+                self.write("access_log.csv", requests)
+                self.change("access_log.csv", "purpose", f"source:{source_id}.json", **{column: value})
+                self.assertFinding(f"no matching successful access_log observation for {source_id!r}")
+
     def test_missing_files_columns_and_malformed_csv_fail_with_locations(self):
         name = "sources.csv"
         path = self.reg / name
@@ -197,8 +263,8 @@ class RegistryCheck(unittest.TestCase):
             (None, "cannot read CSV"), (b"", "missing or duplicate CSV header"),
             (b"source_id,source_id\n", "missing or duplicate CSV header"),
             (b"source_id\n", "missing required columns"),
-            (b"source_id,url,retrieved_at,http_status\na,b\n", ":2: expected 4 cells, got 2"),
-            (b'source_id,url,retrieved_at,http_status\na,"unterminated\n', "invalid CSV"),
+            (b"source_id,url,retrieved_at,http_status,sha256\na,b\n", ":2: expected 5 cells, got 2"),
+            (b'source_id,url,retrieved_at,http_status,sha256\na,"unterminated\n', "invalid CSV"),
         ):
             with self.subTest(contents=contents):
                 if contents is None:
@@ -238,6 +304,8 @@ class RegistryCheck(unittest.TestCase):
             ("sources.csv", b"homepage_nonlife-mitsuisumitomo-kr,", b"homepage_nonlife-mitsuisumitomo,",
              "source_id references unknown insurer_id 'nonlife-mitsuisumitomo'"),
             ("excluded_or_historical.csv", b"entity_evidence,", b"status,", "deprecated field `status`"),
+            (rc.CROSSCHECK, b",life-hanwha,", b",unmatched-hanwha,",
+             "no supervisory cross-check for 'life-hanwha'"),
         )
         for name, old, new, expected in cases:
             with self.subTest(name=name, expected=expected):

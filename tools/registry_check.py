@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Read-only registry ID, vocabulary and access-evidence checks (stdlib only).
+"""Read-only registry, access and supervisory evidence checks (stdlib only).
 
 Usage (repository root): python3 -I tools/registry_check.py
-Source/probe filenames in access_log.purpose are historical artifact names, not
-source_id references. Only homepage, homepage_redirect and disclosure identify
-entities; their sources.csv equivalents use an underscore after the prefix.
+Only homepage, homepage_redirect and disclosure purposes identify entities.
+The dated supervisory snapshot has its own recorded list artifact names.
 """
 import csv
 import json
+import re
 import sys
 from pathlib import Path
+from urllib.parse import urlencode, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import registry_normalize as rn
@@ -18,11 +19,25 @@ import vocab_check as vc
 ROOT = Path(__file__).resolve().parents[1]
 ENTITY_TABLES = ("insurers.csv", "cooperatives_and_others.csv", "excluded_or_historical.csv")
 PREFIXES = ("homepage_redirect", "homepage", "disclosure")
+CROSSCHECK_DATE = "2026-11-10"
+CROSSCHECK = f"authority_crosscheck_{CROSSCHECK_DATE}.csv"
+FISIS_BASE_MONTH = "202606"
+FISIS_URL = "https://fisis.fss.or.kr/fss/wa/fsv302_getFinanceList.do"
+FINE_URL = "https://fine.fss.or.kr/fine/fncco/systemFncCo/list.do"
+FINE_CATEGORIES = {
+    "life_domestic": ("국내생명보험회사", 2),
+    "life_foreign": ("외국생명보험회사", 1),
+    "nonlife_domestic": ("국내손해보험회사", 2),
+    "nonlife_foreign": ("외국손해보험회사", 2),
+}
 REQUIRED = {
-    **{name: {"insurer_id", "listed_in", "home_access", "disclosure_access"}
+    **{name: {"insurer_id", "name_ko", "listed_in", "home_access", "disclosure_access"}
        for name in ENTITY_TABLES},
-    "sources.csv": {"source_id", "url", "retrieved_at", "http_status"},
-    "access_log.csv": {"purpose", "url", "attempted_at", "result", "host_access"},
+    "sources.csv": {"source_id", "url", "retrieved_at", "http_status", "sha256"},
+    "access_log.csv": {"purpose", "url", "attempted_at", "result", "host_access", "host",
+                       "http_code", "curl_exit", "final_url", "detail"},
+    CROSSCHECK: {"category", "fisis_id", "fine_id", "registry_table", "registry_id",
+                 "registry_name", "comparison", "fisis_source_id", "fine_source_ids"},
 }
 
 
@@ -129,7 +144,87 @@ def check(root=ROOT):
                        for _, attempt in tables["access_log.csv"]):
                 fail(name, line, f"no matching access_log observation for {purpose!r}")
             break
+    check_authority_crosscheck(tables, entities, sources, fail)
     return problems
+
+
+def check_authority_crosscheck(tables, entities, sources, fail):
+    """Verify the dated list joins and their provenance using only local evidence."""
+    stamp = CROSSCHECK_DATE.replace("-", "")
+    requests = {}
+    categories = {}
+    for group, part in (("life", "H"), ("nonlife", "I")):
+        source_id = f"fisis_{stamp}_{group}_list"
+        requests[source_id] = (FISIS_URL, "json", f"POST partDiv={part}&baseMonth={FISIS_BASE_MONTH}")
+    for category, (name, pages) in FINE_CATEGORIES.items():
+        fine_ids = []
+        for page in range(1, pages + 1):
+            source_id = f"fine_{stamp}_{category}_p{page}"
+            query = urlencode(dict(menuNo=900038, pageIndex=page, searchTyin=name))
+            requests[source_id] = (f"{FINE_URL}?{query}", "html", "")
+            fine_ids.append(source_id)
+        group = category.split("_", 1)[0]
+        categories[category] = (f"fisis_{stamp}_{group}_list", ";".join(fine_ids))
+
+    for source_id, (url, extension, detail) in requests.items():
+        if source_id not in sources:
+            fail("sources.csv", 1, f"missing supervisory list source {source_id!r}")
+            continue
+        name, line, source = sources[source_id]
+        if (source["url"] != url or source["http_status"] != "200"
+                or not source["retrieved_at"].startswith(CROSSCHECK_DATE + "T")
+                or not re.fullmatch(r"[0-9a-f]{64}", source["sha256"])):
+            fail(name, line, f"invalid supervisory list source {source_id!r} (URL, status, date or SHA-256)")
+        if not any(attempt["purpose"] == f"source:{source_id}.{extension}"
+                   and attempt["host"] == urlsplit(url).hostname
+                   and attempt["url"] == attempt["final_url"] == url
+                   and attempt["attempted_at"] == source["retrieved_at"]
+                   and attempt["http_code"] == attempt["result"] == "200"
+                   and attempt["curl_exit"] == "0" and attempt["detail"] == detail
+                   for _, attempt in tables["access_log.csv"]):
+            fail(name, line, f"no matching successful access_log observation for {source_id!r}")
+
+    seen = {column: set() for column in ("fisis_id", "fine_id", "registry_id")}
+    matched = set()
+    for line, row in tables[CROSSCHECK]:
+        category = row["category"]
+        if category not in categories:
+            fail(CROSSCHECK, line, f"unknown supervisory category {category!r}")
+            continue
+        for column, ref, expected in zip(("fisis_id", "fine_id"), ("fisis_source_id", "fine_source_ids"),
+                                         categories[category]):
+            code = row[column]
+            if code:
+                if not re.fullmatch(r"[0-9]+", code) or code in seen[column]:
+                    fail(CROSSCHECK, line, f"invalid or duplicate {column} {code!r}")
+                seen[column].add(code)
+            if row[ref] != (expected if code else ""):
+                fail(CROSSCHECK, line, f"{ref} disagrees with {column} and supervisory category {category!r}")
+
+        table, key, name = (row[column] for column in ("registry_table", "registry_id", "registry_name"))
+        comparison = {"insurers.csv": "matched", "excluded_or_historical.csv": "excluded", "": "missing"}
+        if table not in comparison or row["comparison"] != comparison[table]:
+            fail(CROSSCHECK, line, f"invalid comparison for registry_table {table!r}")
+        if not row["fisis_id"] and not row["fine_id"]:
+            fail(CROSSCHECK, line, "supervisory row has neither list ID")
+        if not table:
+            if key or name:
+                fail(CROSSCHECK, line, "missing entity must have empty registry references")
+            continue
+        entity = entities.get(key)
+        if entity is None or entity[0] != table or entity[2]["name_ko"] != name:
+            fail(CROSSCHECK, line, f"invalid registry reference for {key!r} in {table!r}")
+        if key in seen["registry_id"]:
+            fail(CROSSCHECK, line, f"duplicate registry_id {key!r}")
+        seen["registry_id"].add(key)
+        if table == "insurers.csv":
+            if not row["fisis_id"] or not row["fine_id"]:
+                fail(CROSSCHECK, line, f"insurer {key!r} requires both FISIS and Fine IDs")
+            matched.add(key)
+
+    for line, row in tables["insurers.csv"]:
+        if row["insurer_id"] not in matched:
+            fail("insurers.csv", line, f"no supervisory cross-check for {row['insurer_id']!r}")
 
 
 def access_matches(name, line, column, code, raw, fail):
@@ -147,7 +242,7 @@ def main():
     if problems:
         print("registry check failed:\n  " + "\n  ".join(problems))
         return 1
-    print("registry check passed (IDs, vocabulary, access evidence)")
+    print("registry check passed (IDs, vocabulary, access and supervisory evidence)")
     return 0
 
 

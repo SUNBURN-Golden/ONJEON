@@ -2,21 +2,21 @@
 # Compatibility check of packages/schemas against a previous contracts tag (02_구현계약 §5).
 #
 #   bash packages/schemas/codegen/check_compat.sh contracts-0.1.0   # compare with that tag
+#   ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest  # CI
 #   bash packages/schemas/codegen/check_compat.sh --selftest         # prove the check fails on a deleted field
 #
 # 1. structural diff (compat.py): field/type/enum removal, newly required -> needs a new major
-# 2. compile probe: the PREVIOUS tag's generated Rust types must still read minimal documents
-#    built from the NEW schemas (a deleted or retyped field makes the probe binary fail). Skipped when
-#    step 1 found breaking changes and accepted them because the major version was raised.
+# 2. compile probe: use the generated files committed at the tag to read or type-check
+#    documents from the new schemas. Rust runs by default. ONJ_COMPAT_ALL_CLIENTS=1
+#    also requires TypeScript and Dart. Declared major breaks skip the probes.
 #    Each probe crate has its own name (probes share CARGO_TARGET_DIR, so a shared name would let two
 #    concurrent runs execute each other's binary) and, when the repository has a Cargo.lock, that
 #    lockfile pins serde (no fresh resolution; no registry access once the crates are cached).
-# Exit: 0 compatible, 1 incompatible, 2 usage or setup error. A probe that could not be generated
-# or built is a setup error, never an "incompatible" verdict.
+# Exit: 0 compatible or first-release self-test passes, 1 incompatible, 2 usage or setup error.
 #
-# With no `contracts-*` tag in the repository (first release) there is nothing to compare
-# with: the run says so, runs the self-test, and exits 0. ONJ_REQUIRE_BASELINE=1 turns that into
-# exit 2 (for CI once a tag exists). Once a tag exists, an unknown <prev_tag> is an error.
+# --latest requires full history and selects the highest version tag strictly before HEAD.
+# When there is no baseline, run the self-test and report why a tagged check did not run.
+# ONJ_REQUIRE_BASELINE=1 makes missing baselines a setup error.
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,17 +29,31 @@ lock=()
 [ -f "$repo/Cargo.lock" ] && lock=(--lock "$repo/Cargo.lock")
 compat() { python3 -I "$here/compat.py" "$@"; }
 
-# probe <prev_dir> <new_dir>: 0 the previous client reads every document, 1 it does not,
-# 2 the probe could not be generated or built (setup problem)
+# probe <prev_dir> <new_dir> [--all-clients]: 0 all requested probes pass,
+# 1 a probe rejected the documents, 2 a setup error
 probe() {
   local out rc=0
-  out="$(mktemp -d "$tmp/probe.XXXXXX")"
-  compat --probe "$out" --prev "$1" --new "$2" ${lock[@]+"${lock[@]}"} >/dev/null || return 2
+  out="$(mktemp -d "$tmp/probe.XXXXXX")" || return 2
+  compat --probe "$out" --prev "$1" --new "$2" "${@:3}" ${lock[@]+"${lock[@]}"} >/dev/null || return 2
   (cd "$out" && cargo run --quiet) || rc=$?
   case "$rc" in
-    0|1) return "$rc" ;;
+    0) ;;
+    1) return 1 ;;
     *) echo "error: compile probe could not be built or run (cargo exit $rc)" >&2; return 2 ;;
   esac
+  if [ "${3:-}" = "--all-clients" ]; then
+    local tsc_cmd=(tsc)
+    if [ -n "${TSC:-}" ]; then read -r -a tsc_cmd <<<"$TSC"; fi
+    if ! command -v "${tsc_cmd[0]:-}" >/dev/null || ! command -v dart >/dev/null; then
+      echo "error: the full tagged probe requires tsc and dart" >&2
+      return 2
+    fi
+    echo "== TypeScript: type-check documents against the tagged client"
+    "${tsc_cmd[@]}" -p "$out/ts/tsconfig.json" || return 1
+    echo "== Dart: read documents with the tagged client"
+    (cd "$out/dart" && dart pub get --offline) || return 2
+    (cd "$out/dart" && dart analyze --fatal-infos --fatal-warnings lib bin && dart run bin/compat.dart "$out/docs") || return 1
+  fi
 }
 
 selftest() {
@@ -68,51 +82,77 @@ selftest() {
   echo "self-test ok"
 }
 
-arg="${1:-}"
-if [ -z "$arg" ]; then
-  echo "usage: check_compat.sh <prev_tag> | --selftest" >&2
+no_baseline() {
+  if [ "${ONJ_REQUIRE_BASELINE:-0}" = "1" ]; then
+    echo "error: $1; ONJ_REQUIRE_BASELINE=1 requires a previous release" >&2
+    exit 2
+  fi
+  echo "BASELINE: $1; nothing to compare with."
+  selftest
+  exit $?
+}
+
+if [ "$#" -ne 1 ] || [ -z "$1" ]; then
+  echo "usage: check_compat.sh <prev_tag> | --latest | --selftest" >&2
   exit 2
 fi
-if [ "$arg" = "--selftest" ]; then
+tag="$1"
+if [ "$tag" = "--selftest" ]; then
   selftest
   exit $?
 fi
 
-if ! git -C "$repo" rev-parse --verify --quiet "refs/tags/$arg^{commit}" >/dev/null; then
-  if [ -z "$(git -C "$repo" tag --list 'contracts-*')" ]; then
-    if [ "${ONJ_REQUIRE_BASELINE:-0}" = "1" ]; then
-      echo "error: no contracts-* tag found (shallow clone without tags?); ONJ_REQUIRE_BASELINE=1 forbids the first-release pass" >&2
-      exit 2
-    fi
-    echo "BASELINE: no contracts-* tag exists yet (first release); nothing to compare with."
-    selftest
-    exit $?
+if [ "$tag" = "--latest" ]; then
+  shallow="$(git -C "$repo" rev-parse --is-shallow-repository)" || exit 2
+  if [ "$shallow" = "true" ]; then
+    echo "error: --latest requires a full checkout with tags" >&2
+    exit 2
   fi
-  echo "error: tag '$arg' does not exist" >&2
+  tags="$(git -C "$repo" tag --merged HEAD --no-contains HEAD --sort=-version:refname --list 'contracts-*')" || exit 2
+  tag="${tags%%$'\n'*}"
+  [ -n "$tag" ] || no_baseline "no previous contracts-* tag in HEAD history"
+fi
+
+if ! git check-ref-format "refs/tags/$tag"; then
+  echo "error: invalid tag '$tag'" >&2
+  exit 2
+fi
+if ! baseline="$(git -C "$repo" rev-parse --verify --quiet "refs/tags/$tag^{commit}")"; then
+  tags="$(git -C "$repo" tag --list 'contracts-*')" || exit 2
+  [ -n "$tags" ] || no_baseline "no contracts-* tag exists yet (first release)"
+  echo "error: tag '$tag' does not exist or does not point to a commit" >&2
   exit 2
 fi
 
 prev="$tmp/prev"
 mkdir -p "$prev"
-git -C "$repo" archive "$arg" packages/schemas/json packages/schemas/vocabulary.json packages/schemas/Cargo.toml \
-  | tar -x -C "$prev" --strip-components=2 || { echo "error: $arg has no packages/schemas/json" >&2; exit 2; }
+paths=(packages/schemas/{json,vocabulary.json,Cargo.toml,src/generated})
+clients=()
+if [ "${ONJ_COMPAT_ALL_CLIENTS:-0}" = "1" ]; then
+  paths+=(packages/schemas/codegen/generated/{ts,dart})
+  clients=(--all-clients)
+fi
+if ! git -C "$repo" archive "$baseline" -- "${paths[@]}" | tar -x -C "$prev" --strip-components=2; then
+  echo "error: $tag is missing required schema or generated client files" >&2
+  exit 2
+fi
 
-echo "== structural diff against $arg"
+echo "== structural diff against $tag ($baseline)"
 rc=0
 compat --prev "$prev" --new "$schemas" | tee "$tmp/diff.log" || rc=${PIPESTATUS[0]}
 [ "$rc" -eq 0 ] || exit "$rc"
 
 if grep -q '^BREAKING' "$tmp/diff.log"; then
   echo "breaking changes are declared by a major version bump; the previous client is expected to break, probe skipped"
-  echo "compatible with $arg (breaking, major bumped)"
+  echo "compatible with $tag (breaking, major bumped)"
   exit 0
 fi
 
-echo "== compile probe: $arg client reads documents built from the new schemas"
-rc=0; probe "$prev" "$schemas" || rc=$?
+echo "== compile probe: $tag client reads documents built from the new schemas"
+rc=0; probe "$prev" "$schemas" ${clients[@]+"${clients[@]}"} || rc=$?
 case "$rc" in
   0) ;;
-  1) echo "INCOMPATIBLE: the previous generated client cannot read documents of the new schemas" >&2; exit 1 ;;
+  1) echo "INCOMPATIBLE: a previous generated client rejected documents of the new schemas" >&2; exit 1 ;;
   *) echo "error: the compile probe could not be prepared or built; fix the setup (see above), this is not a compatibility verdict" >&2; exit 2 ;;
 esac
-echo "compatible with $arg"
+echo "compatible with $tag"

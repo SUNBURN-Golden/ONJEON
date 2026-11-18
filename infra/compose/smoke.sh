@@ -90,15 +90,16 @@ echo "-- 자격 증명 분리"
 # grep은 일치가 없으면 1을 돌려주므로(pipefail) 개수는 awk로 센다.
 dups="$(grep -E '_(PASSWORD|SECRET_KEY|ACCESS_KEY)=' "$ENV_FILE" | cut -d= -f2- | sort | uniq -d | awk 'END { print NR }')"
 empties="$(awk '/_(PASSWORD|SECRET_KEY|ACCESS_KEY)=$/ { n++ } END { print n + 0 }' "$ENV_FILE")"
-[ "$dups" = 0 ] && [ "$empties" = 0 ] && echo "ok   비밀값이 모두 채워져 있고 서로 다르다" || { echo "FAIL 비밀값 중복 또는 빈 값"; fail=1; }
-[ "$pub_admin_pw" != "$prv_admin_pw" ] && [ "$pub_app_pw" != "$prv_app_pw" ] && [ "$pub_admin_user" != "$prv_admin_user" ] \
-  && echo "ok   공개·개인 DB의 사용자와 비밀번호가 다르다" || { echo "FAIL 공개·개인 DB 자격 증명이 같다"; fail=1; }
+check "비밀값이 모두 채워져 있고 서로 다르다" test "$dups/$empties" = 0/0
+if [[ "$pub_admin_pw" != "$prv_admin_pw" && "$pub_app_pw" != "$prv_app_pw" && "$pub_admin_user" != "$prv_admin_user" ]]; then
+  echo "ok   공개·개인 DB의 사용자와 비밀번호가 다르다"
+else
+  echo "FAIL 공개·개인 DB 자격 증명이 같다"; fail=1
+fi
 
 echo "-- 영역별 DB"
-[ "$(psql_in db-public "$pub_app_user" "$pub_app_pw" "$pub_db" "SELECT current_setting('onjeon.zone')")" = public ] \
-  && echo "ok   공개 DB의 영역 표지" || { echo "FAIL 공개 DB의 영역 표지"; fail=1; }
-[ "$(psql_in db-private "$prv_app_user" "$prv_app_pw" "$prv_db" "SELECT current_setting('onjeon.zone')")" = private ] \
-  && echo "ok   개인 DB의 영역 표지" || { echo "FAIL 개인 DB의 영역 표지"; fail=1; }
+check "공개 DB의 영역 표지" test "$(psql_in db-public "$pub_app_user" "$pub_app_pw" "$pub_db" "SELECT current_setting('onjeon.zone')")" = public
+check "개인 DB의 영역 표지" test "$(psql_in db-private "$prv_app_user" "$prv_app_pw" "$prv_db" "SELECT current_setting('onjeon.zone')")" = private
 # 넣고, SKIP LOCKED로 하나 꺼내 running으로 바꾼 뒤 되돌린다(데이터를 남기지 않는다).
 queue_sql="BEGIN; INSERT INTO queue.jobs (queue_name) VALUES ('smoke'); UPDATE queue.jobs SET state = 'running', locked_by = 'smoke', attempts = attempts + 1 WHERE id = (SELECT id FROM queue.jobs WHERE queue_name = 'smoke' AND state = 'ready' AND run_after <= now() ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1); ROLLBACK;"
 queue_ok() { local out; out="$(psql_in "$@")" && grep -qx 'UPDATE 1' <<<"$out"; }
@@ -108,8 +109,7 @@ denied "앱 역할은 관리용 DB에 접속할 수 없다(공개)" 'permission 
 denied "앱 역할은 관리용 DB에 접속할 수 없다(개인)" 'permission denied for database' psql_in db-private "$prv_app_user" "$prv_app_pw" postgres "SELECT 1"
 denied "공개 DB 앱 역할은 테이블을 만들 수 없다" 'permission denied' psql_in db-public "$pub_app_user" "$pub_app_pw" "$pub_db" "CREATE TABLE public.probe (x int)"
 denied "개인 DB 앱 역할은 테이블을 만들 수 없다" 'permission denied' psql_in db-private "$prv_app_user" "$prv_app_pw" "$prv_db" "CREATE TABLE public.probe (x int)"
-[ "$(psql_in db-public "$pub_app_user" "$pub_app_pw" "$pub_db" "SELECT rolsuper FROM pg_roles WHERE rolname = current_user")" = f ] \
-  && echo "ok   앱 역할은 슈퍼유저가 아니다" || { echo "FAIL 앱 역할이 슈퍼유저"; fail=1; }
+check "앱 역할은 슈퍼유저가 아니다" test "$(psql_in db-public "$pub_app_user" "$pub_app_pw" "$pub_db" "SELECT rolsuper FROM pg_roles WHERE rolname = current_user")" = f
 denied "공개 DB 자격으로 개인 DB에 들어갈 수 없다(관리)" 'password authentication failed|no pg_hba.conf entry' psql_in db-private "$pub_admin_user" "$pub_admin_pw" "$prv_db" "SELECT 1"
 denied "공개 DB 자격으로 개인 DB에 들어갈 수 없다(앱)" 'password authentication failed|no pg_hba.conf entry' psql_in db-private "$pub_app_user" "$pub_app_pw" "$prv_db" "SELECT 1"
 denied "개인 DB 자격으로 공개 DB에 들어갈 수 없다(관리)" 'password authentication failed|no pg_hba.conf entry' psql_in db-public "$prv_admin_user" "$prv_admin_pw" "$pub_db" "SELECT 1"
@@ -118,7 +118,11 @@ denied "개인 DB 자격으로 공개 DB에 들어갈 수 없다(앱)" 'password
 # 자기 영역 컨테이너의 실제 IP에는 닿고(대조), 상대 영역 컨테이너의 실제 IP에는 닿지 않아야 한다.
 ip_of() { docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$(dc ps -q "$1")"; }
 pub_ip="$(ip_of db-public)"; prv_ip="$(ip_of db-private)"
-[ -n "$pub_ip" ] && [ -n "$prv_ip" ] && [ "$pub_ip" != "$prv_ip" ] && echo "ok   두 DB 컨테이너의 주소가 다르다" || { echo "FAIL DB 컨테이너 주소를 얻지 못했다"; fail=1; }
+if [[ -n "$pub_ip" && -n "$prv_ip" && "$pub_ip" != "$prv_ip" ]]; then
+  echo "ok   두 DB 컨테이너의 주소가 다르다"
+else
+  echo "FAIL 두 DB 컨테이너의 주소를 구분하지 못했다"; fail=1
+fi
 check "공개 DB 컨테이너는 자기 영역 주소에 닿는다(대조)" dc exec -T db-public pg_isready -h "$pub_ip" -t 3
 check "개인 DB 컨테이너는 자기 영역 주소에 닿는다(대조)" dc exec -T db-private pg_isready -h "$prv_ip" -t 3
 unreachable "공개 DB 컨테이너에서 개인 DB 서버 주소에 닿지 않는다" dc exec -T db-public pg_isready -h "$prv_ip" -t 3
@@ -140,9 +144,15 @@ psql_in db-private "$prv_app_user" "$prv_app_pw" "$prv_db" "SELECT '$marker'::in
 psql_in db-private "$prv_app_user" "wrong-$marker" "$prv_db" "SELECT 1" >/dev/null 2>&1 || true
 sleep 1
 prv_log="$(dc logs --no-color db-private 2>&1)"
-grep -q "FATAL" <<<"$prv_log" && echo "ok   (대조) 접속 실패(FATAL)는 로그에 남는다" || { echo "FAIL (대조) 로그에 FATAL이 없어 아래 검사가 의미 없다"; fail=1; }
-! grep -q "$marker" <<<"$prv_log" && echo "ok   개인 DB 로그에 payload·질의 값이 없다" || { echo "FAIL 개인 DB 로그에 값이 남았다"; fail=1; }
-! grep -qE "^.*(ERROR|STATEMENT|DETAIL):" <<<"$prv_log" && echo "ok   개인 DB 로그에 ERROR·STATEMENT·DETAIL 줄이 없다" || { echo "FAIL 개인 DB 로그에 ERROR·STATEMENT·DETAIL 줄이 있다"; fail=1; }
+check "(대조) 접속 실패(FATAL)는 로그에 남는다" grep -q "FATAL" <<<"$prv_log"
+# grep 종료 1만 불일치다. 정규식 오류·명령 실행 오류도 실패로 기록한다.
+no_log_match() {
+  local rc=0
+  grep -qE "$1" <<<"$prv_log" || rc=$?
+  test "$rc" = 1
+}
+check "개인 DB 로그에 payload·질의 값이 없다" no_log_match "$marker"
+check "개인 DB 로그에 ERROR·STATEMENT·DETAIL 줄이 없다" no_log_match '^.*(ERROR|STATEMENT|DETAIL):'
 
 echo "-- 객체 저장소 영역 권한"
 if dc --profile check run --rm -T s3-check; then echo "ok   객체 저장소 권한 분리"; else echo "FAIL 객체 저장소 권한 분리"; fail=1; fi
@@ -152,7 +162,10 @@ bash "$HERE/down.sh" --purge
 left="$(docker ps -aq --filter "label=com.docker.compose.project=$PROJECT" | wc -l)"
 vols="$(docker volume ls -q --filter "label=com.docker.compose.project=$PROJECT" | wc -l)"
 nets="$(docker network ls -q --filter "label=com.docker.compose.project=$PROJECT" | wc -l)"
-[ "$left" = 0 ] && [ "$vols" = 0 ] && [ "$nets" = 0 ] && echo "ok   내린 뒤 컨테이너·볼륨·네트워크가 남지 않았다" \
-  || { echo "FAIL 남은 자원: 컨테이너 $left, 볼륨 $vols, 네트워크 $nets"; fail=1; }
+if [[ "$left/$vols/$nets" == 0/0/0 ]]; then
+  echo "ok   내린 뒤 컨테이너·볼륨·네트워크가 남지 않았다"
+else
+  echo "FAIL 남은 자원: 컨테이너 $left, 볼륨 $vols, 네트워크 $nets"; fail=1
+fi
 
 if [ "$fail" = 0 ]; then echo "LIVE: PASSED"; else echo "LIVE: FAILED" >&2; exit 1; fi

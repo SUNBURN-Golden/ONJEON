@@ -10,9 +10,9 @@ Breaking (needs a new major; 0.x counts the minor as major):
 Compatible (needs a version bump, minor is enough):
   new type, new optional field, new enum value, new enum axis.
 
-`--probe` additionally writes a small Rust crate that holds the PREVIOUS generated
-types plus minimal documents derived from the NEW schemas; `check_compat.sh` builds
-and runs it, so "the previous client still reads new documents" is compiled, not argued.
+`--probe` writes a Rust crate containing the baseline's generated types and minimal
+documents derived from the new schemas. `--all-clients` also prepares TypeScript
+and Dart probes against the baseline's generated packages.
 
 Exit: 0 compatible, 1 incompatible, 2 usage error.
 """
@@ -20,12 +20,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import emit_rust  # noqa: E402
 import schema_model as sm  # noqa: E402
 
 
@@ -184,7 +184,8 @@ def probe_crate_name(out: Path) -> str:
     return "compat_probe_" + hashlib.sha256(str(out.resolve()).encode("utf-8")).hexdigest()[:12]
 
 
-def write_probe(out: Path, prev_dir: Path, new_dir: Path, lock: Path | None = None) -> list:
+def write_probe(out: Path, prev_dir: Path, new_dir: Path, lock: Path | None = None,
+                *, all_clients: bool = False) -> list:
     prev = model_of(prev_dir)
     new = model_of(new_dir)
     (out / "src").mkdir(parents=True, exist_ok=True)
@@ -198,10 +199,7 @@ def write_probe(out: Path, prev_dir: Path, new_dir: Path, lock: Path | None = No
         # pin serde/serde_json to the repository's locked versions: no fresh resolution, no drift,
         # and no registry access when the crates are already in the local cargo cache
         (out / "Cargo.lock").write_text(lock.read_text(encoding="utf-8"), encoding="utf-8")
-    rs = emit_rust.emit(prev)
-    (out / "src" / "vocabulary.rs").write_text(rs["vocabulary.rs"], encoding="utf-8")
-    types = rs["types.rs"].replace("use super::vocabulary::*;", "use crate::vocabulary::*;")
-    (out / "src" / "types.rs").write_text(types, encoding="utf-8")
+    shutil.copytree(prev_dir / "src" / "generated", out / "src" / "generated")
     roots = [s for s in new.structs.values() if s.root]
     arms = []
     for st in roots:
@@ -214,7 +212,7 @@ def write_probe(out: Path, prev_dir: Path, new_dir: Path, lock: Path | None = No
         f'    check::<types::{n}>("{n}", include_str!("../docs/{n}.json"), &mut failed);' for n in arms
     )
     (out / "src" / "main.rs").write_text(
-        "#![allow(dead_code)]\nmod types;\nmod vocabulary;\n\n"
+        "#![allow(dead_code)]\nmod generated;\nuse generated::types;\n\n"
         "fn check<T: serde::de::DeserializeOwned>(name: &str, src: &str, failed: &mut Vec<String>) {\n"
         "    match serde_json::from_str::<T>(src) {\n"
         '        Ok(_) => println!("ok   {name}"),\n'
@@ -224,13 +222,63 @@ def write_probe(out: Path, prev_dir: Path, new_dir: Path, lock: Path | None = No
         "    if !failed.is_empty() {\n        std::process::exit(1);\n    }\n}\n",
         encoding="utf-8",
     )
+    if all_clients:
+        write_ts_probe(out, prev_dir, arms)
+        write_dart_probe(out, prev_dir, arms)
     return arms
+
+
+def write_ts_probe(out: Path, prev_dir: Path, names: list[str]) -> None:
+    dest = out / "ts"
+    shutil.copytree(prev_dir / "codegen" / "generated" / "ts", dest)
+    lines = [
+        'import type * as client from "./index";',
+        # Use inferred variables to permit new optional properties. Preserve string
+        # literals for enum checks while allowing assignment to the client's arrays.
+        "type Mutable<T> = T extends object ? { -readonly [K in keyof T]: Mutable<T[K]> } : T;",
+    ]
+    for name in names:
+        doc = (out / "docs" / f"{name}.json").read_text(encoding="utf-8")
+        lines.extend([
+            f"const sample{name} = {doc} as const;",
+            f"declare const doc{name}: Mutable<typeof sample{name}>;",
+            f"export const check{name}: client.{name} = doc{name};",
+        ])
+    (dest / "compat.ts").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    config = dest / "tsconfig.json"
+    settings = json.loads(config.read_text(encoding="utf-8"))
+    settings.setdefault("files", []).append("compat.ts")
+    config.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+
+
+def write_dart_probe(out: Path, prev_dir: Path, names: list[str]) -> None:
+    dest = out / "dart"
+    shutil.copytree(prev_dir / "codegen" / "generated" / "dart", dest)
+    (dest / "bin").mkdir()
+    calls = "\n".join(f"  check('{name}', {name}.fromJson, args.single);" for name in names)
+    (dest / "bin" / "compat.dart").write_text(
+        "import 'dart:convert';\n"
+        "import 'dart:io';\n\n"
+        "import 'package:onjeon_contracts/onjeon_contracts.dart';\n\n"
+        "void check(String name, void Function(Map<String, dynamic>) read, String dir) {\n"
+        "  final doc = jsonDecode(File('$dir/$name.json').readAsStringSync());\n"
+        "  try {\n"
+        "    read(doc as Map<String, dynamic>);\n"
+        "    print('ok   $name');\n"
+        "  } catch (error) {\n"
+        "    stderr.writeln('FAIL $name: $error');\n"
+        "    exitCode = 1;\n"
+        "  }\n"
+        "}\n\n"
+        "void main(List<String> args) {\n"
+        f"{calls}\n"
+        "}\n",
+        encoding="utf-8",
+    )
 
 
 def make_mutant(src: Path, dst: Path, drop: str):
     """Copy a packages/schemas directory and delete one field (`Type.field`). Used by the self-test."""
-    import shutil
-
     type_name, field = drop.split(".")
     shutil.copytree(src / "json", dst / "json")
     shutil.copy(src / "vocabulary.json", dst / "vocabulary.json")
@@ -253,6 +301,7 @@ def main(argv: list) -> int:
     ap.add_argument("--prev", type=Path, required=True)
     ap.add_argument("--new", type=Path, default=sm.SCHEMAS_DIR)
     ap.add_argument("--probe", type=Path, help="write the probe crate here instead of diffing")
+    ap.add_argument("--all-clients", action="store_true", help="also prepare tagged TypeScript and Dart probes")
     ap.add_argument("--lock", type=Path, help="Cargo.lock to pin the probe's dependencies with (usually the repository's)")
     ap.add_argument("--make-mutant", type=Path, metavar="OUT", help="copy --prev to OUT with one field deleted (self-test)")
     ap.add_argument("--drop", metavar="TYPE.FIELD", help="field to delete for --make-mutant")
@@ -264,7 +313,7 @@ def main(argv: list) -> int:
         if args.probe:
             if args.lock is not None and not args.lock.is_file():
                 raise OSError(f"--lock {args.lock}: no such file")
-            names = write_probe(args.probe, args.prev, args.new, args.lock)
+            names = write_probe(args.probe, args.prev, args.new, args.lock, all_clients=args.all_clients)
             print(f"probe written: {len(names)} documents, crate {probe_crate_name(args.probe)}")
             return 0
         prev, new = model_of(args.prev), model_of(args.new)

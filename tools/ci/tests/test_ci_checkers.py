@@ -98,10 +98,16 @@ class DependencyExceptions(unittest.TestCase):
         files = {
             "packages/rules-engine/Cargo.toml": '[package]\nname = "onjeon-rules-engine"\n',
             "packages/schemas/Cargo.toml": '[package]\nname = "onjeon-contracts"\n\n[dependencies]\nonjeon-rules-engine = { path = "../rules-engine" }\n',
+            "packages/schemas/src/tests.rs": "use onjeon_rules_engine::Rule;\n",
+            "packages/schemas/src/lib.rs": "use onjeon_rules_engine::Rule;\n",
         }
         with tempfile.TemporaryDirectory() as tmp:
             write(tmp, files)
-            self.assertIn("DEP-ZONE", {f.rule for f in check_deps.check(Path(tmp), C.load_rules())}, "normal dependency is not covered by the dev-only exception")
+            self.assertCountEqual(
+                [(f.rule, f.path) for f in check_deps.check(Path(tmp))],
+                [("DEP-ZONE", "packages/schemas/Cargo.toml"),
+                 ("IMP-ZONE", "packages/schemas/src/lib.rs")],
+            )
 
     def test_unused_exception_is_reported(self):
         warn = []
@@ -109,6 +115,39 @@ class DependencyExceptions(unittest.TestCase):
             write(tmp, {"packages/schemas/Cargo.toml": '[package]\nname = "onjeon-contracts"\n'})
             check_deps.check(Path(tmp), C.load_rules(), warn)
         self.assertTrue(any("unused" in w for w in warn))
+
+    def test_ontology_engine_and_scenario_ontology_edges_are_test_only(self):
+        engine = '[package]\nname = "onjeon-rules-engine"\n'
+        ontology = ('[package]\nname = "onjeon-ontology"\n\n[dev-dependencies]\n'
+                    'onjeon-rules-engine = { path = "../rules-engine" }\n')
+        scenario = ('[package]\nname = "onjeon-scenario-api"\n\n[dependencies]\n'
+                    'onjeon-rules-engine = { path = "../../packages/rules-engine" }\n\n'
+                    '[dev-dependencies]\nonjeon-ontology = { path = "../../packages/ontology" }\n')
+        files = {
+            "packages/rules-engine/Cargo.toml": engine,
+            "packages/ontology/Cargo.toml": ontology,
+            "packages/ontology/tests/fixture.rs": "use onjeon_rules_engine::Rule;\n",
+            "services/scenario-api/Cargo.toml": scenario,
+            "services/scenario-api/src/lib.rs": "use onjeon_rules_engine::Rule;\n",
+            "services/scenario-api/tests/scenario.rs": "use onjeon_ontology::Release;\n",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, files)
+            self.assertEqual([], check_deps.check(root))
+            write(root, {
+                "packages/ontology/Cargo.toml": ontology.replace("dev-dependencies", "dependencies"),
+                "packages/ontology/src/lib.rs": "use onjeon_rules_engine::Rule;\n",
+                "services/scenario-api/Cargo.toml": scenario.replace("\n[dev-dependencies]\n", ""),
+                "services/scenario-api/src/lib.rs": "use onjeon_ontology::Release;\n",
+            })
+            self.assertCountEqual(
+                [(f.rule, f.path) for f in check_deps.check(root)],
+                [("DEP-ZONE", "packages/ontology/Cargo.toml"),
+                 ("IMP-ZONE", "packages/ontology/src/lib.rs"),
+                 ("DEP-ZONE", "services/scenario-api/Cargo.toml"),
+                 ("IMP-ZONE", "services/scenario-api/src/lib.rs")],
+            )
 
 
 class LeakRules(unittest.TestCase):

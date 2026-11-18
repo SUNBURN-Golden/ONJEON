@@ -1,0 +1,47 @@
+# Audit 7 fix round 1 — local compatibility evidence (2026-11-18 KST)
+# Worktree parent c95bd749b493b42866f475635423980de2246633
+# Schema tree SHA-256 eed66a26dd2e5bc64817b9749f9ff241f19fb66804198bfe9e693b53b9319c76
+# Rust 1.98.1, TypeScript 5.9.3, Dart 3.13.5
+
+$ git tag --list 'contracts-*'
+# no output, exit 0
+
+$ [local shell body of ci.yml's JSON Schema compatibility step]
+# Installer output excerpt. Temporary runner path removed.
+dartsdk-linux-x64-release.zip: OK
+BASELINE: no previous contracts-* tag in HEAD history; nothing to compare with.
+== self-test: a deleted field must fail the check
+   structural diff: deleted field detected
+   compile probe: previous client cannot read documents without the deleted field
+self-test ok
+test_all_clients_read_compatible_documents_from_a_tagged_baseline (test_compat.CheckCompatScript.test_all_clients_read_compatible_documents_from_a_tagged_baseline) ... ok
+test_all_clients_surface_tagged_typescript_and_dart_rejections (test_compat.CheckCompatScript.test_all_clients_surface_tagged_typescript_and_dart_rejections) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 16.459s
+
+OK
+# exit 0
+
+$ ONJ_COMPAT_ALL_CLIENTS=1 python3 -I -m unittest discover -s packages/schemas/codegen/tests -p test_compat.py -v
+# Regression and summary excerpt. Test repositories use synthetic tags.
+test_all_client_mode_requires_the_language_toolchains (test_compat.CheckCompatScript.test_all_client_mode_requires_the_language_toolchains) ... ok
+test_all_clients_read_compatible_documents_from_a_tagged_baseline (test_compat.CheckCompatScript.test_all_clients_read_compatible_documents_from_a_tagged_baseline) ... ok
+test_all_clients_surface_tagged_typescript_and_dart_rejections (test_compat.CheckCompatScript.test_all_clients_surface_tagged_typescript_and_dart_rejections) ... ok
+test_latest_rejects_a_shallow_checkout_instead_of_running_the_selftest (test_compat.CheckCompatScript.test_latest_rejects_a_shallow_checkout_instead_of_running_the_selftest) ... ok
+test_latest_uses_highest_version_in_prior_history (test_compat.CheckCompatScript.test_latest_uses_highest_version_in_prior_history) ... ok
+test_latest_without_a_predecessor_reports_first_release_and_honors_strict_mode (test_compat.CheckCompatScript.test_latest_without_a_predecessor_reports_first_release_and_honors_strict_mode) ... ok
+test_missing_tagged_client_files_are_a_setup_error (test_compat.CheckCompatScript.test_missing_tagged_client_files_are_a_setup_error) ... ok
+test_tagged_rust_client_rejects_a_document_the_current_client_reads (test_compat.CheckCompatScript.test_tagged_rust_client_rejects_a_document_the_current_client_reads) ... ok
+Ran 35 tests in 47.995s
+OK
+# exit 0
+
+$ ONJ_COMPAT_ALL_CLIENTS=1 python3 -I -m unittest discover -s packages/schemas/codegen/tests -v
+Ran 137 tests in 59.409s
+OK
+# exit 0
+
+$ ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh
+RESULT: all three languages build
+# exit 0

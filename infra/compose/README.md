@@ -64,7 +64,9 @@ docker가 없으면 2단계를 못 돌린 것이므로 `LIVE: FAILED`와 종료 
 
 ### 이 작업 환경에서 실제로 확인한 것과 한계
 
-`evidence/smoke.log`는 **실제 Docker 데몬**(Docker 29.9.1 + Compose v5.6.0, 작업 VM에 임시로 올림)에서 이 디렉터리의 현재 내용으로 `bash infra/compose/smoke.sh`를 끝까지 돌린 기록이고 `LIVE: PASSED`로 끝난다. 빈 data-root에서 시작해 이미지 세 개(`postgres:16.15-alpine`, `chrislusf/seaweedfs:4.48`, `amazon/aws-cli:2.38.1`)를 그 실행에서 레지스트리에서 당겼다(로그의 `Image ... Pulled` 줄, 다이제스트는 `evidence/images.log`). 확인한 것: `up.sh` 두 번(멱등), healthcheck가 초기화 완료 뒤에야 정상, 마운트한 `10-zone.sh` 실행, aws-cli v2로 버킷 생성·영역별 허용/거부 16항목, 공개↔개인 자격 거부 4방향(거부 사유까지 확인), 두 영역 컨테이너 사이 도달 불가("응답 없음"만 인정, 대조 포함), 신원 파일을 uid 65534로 읽기, 개인 DB 서버 로그 시험(대조 포함), `down.sh --purge` 뒤 컨테이너·볼륨·네트워크 0. 기본 경로(`up.sh`→`down.sh`→`down.sh --purge`, 고정 포트 15432·15433·18333)도 따로 한 번 실행했다.
+2026-11-18 Audit 7에서 `bash infra/compose/smoke.sh`를 다시 실행했다. ShellCheck를 포함한 정적 시험 33개가 통과했고 Docker 실기동은 `LIVE: PASSED`로 끝났다. [재검증 기록](../../docs/blueprint/audits/2026-11-18_s0_critical_path_merge.md)
+
+`evidence/smoke.log`는 원래 T-OP-01 병합본(`631331f`)의 실제 Docker 실행 기록이다(Docker 29.9.1 + Compose v5.6.0, 작업 VM에 임시로 올림). 빈 data-root에서 시작해 이미지 세 개(`postgres:16.15-alpine`, `chrislusf/seaweedfs:4.48`, `amazon/aws-cli:2.38.1`)를 그 실행에서 레지스트리에서 당겼다(로그의 `Image ... Pulled` 줄, 다이제스트는 `evidence/images.log`). 확인한 것: `up.sh` 두 번(멱등), healthcheck가 초기화 완료 뒤에야 정상, 마운트한 `10-zone.sh` 실행, aws-cli v2로 버킷 생성·영역별 허용/거부 16항목, 공개↔개인 자격 거부 4방향(거부 사유까지 확인), 두 영역 컨테이너 사이 도달 불가("응답 없음"만 인정, 대조 포함), 신원 파일을 uid 65534로 읽기, 개인 DB 서버 로그 시험(대조 포함), `down.sh --purge` 뒤 컨테이너·볼륨·네트워크 0. 기본 경로(`up.sh`→`down.sh`→`down.sh --purge`, 고정 포트 15432·15433·18333)도 따로 한 번 실행했다.
 
 변이 확인(`evidence/mutations.log`): 개인 DB에서 `log_min_messages=log`를 빼면 로그 시험 두 항목이 FAIL이고 `LIVE: FAILED`(종료 코드 1)다. 신원 파일을 600으로 바꾸면 uid 65534 컨테이너 사용자는 `Permission denied`로 읽지 못한다(644면 읽는다). `check-objects.sh`를 죽은 endpoint에 돌리면 16항목 전부 FAIL이고 "거부"로 통과하는 항목이 없다(`evidence/component_object_store.log`).
 

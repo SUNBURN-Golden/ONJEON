@@ -1,4 +1,4 @@
-Audit 7 / 2026-11-19 / local fixture_only validation
+Audit 7 / 2026-11-19 / initial fixture_only validation (d5f4800)
 
 $ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
 running 3 tests
@@ -44,3 +44,45 @@ Ran 1726 tests in 292.643s
 
 OK (skipped=6)
 Five archive-dependent checks and one old-botocore check skipped.
+
+Audit 7 / 2026-11-19 / review fix round 1
+
+$ cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+real_clauses_02:
+running 3 tests
+test kb_fine_prorates_only_excess_liability_and_rejects_a_precomputed_share ... ok
+test wholelife_replays_legacy_cases_with_article_8_partial_beneficiary_exception ... ok
+test real_02_clauses_match_their_sources_cases_and_executed_operators ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+Current encoded rules -> ontology-case-runner (two negative controls use temporary copies)
+kb-driver-fine/unconfirmed_fine false {"kind": "not_payable"} []
+kb-driver-fine/unknown_judgment_status unknown {"conditional_amount": {"kind": "exact", "krw": 15000000}, "kind": "undetermined"} ["fine_imposed_by_final_judgment"]
+kb-driver-fine/confirmed_fine_unknown_amount true {"amount": {"kind": "unknown"}, "kind": "payable"} ["fine_final_krw"]
+kyobo-wholelife-disease-death/first_anniversary_partial_beneficiary_caused_death unknown {"conditional_amount": {"kind": "unknown"}, "kind": "undetermined"} ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw"]
+kyobo-wholelife-disease-death/other_beneficiary_share_not_confirmed true {"amount": {"kind": "unknown"}, "kind": "payable"} ["confirmed_claimant_share_krw"]
+kyobo-wholelife-disease-death/offending_partial_beneficiary_claims false {"kind": "not_payable"} []
+kyobo-wholelife-disease-death/contractor_or_sole_beneficiary_caused_death false {"kind": "not_payable"} []
+58/58 matched eligibility, payout, missing_inputs and rule_content_hash across 7 current encodings.
+Negative control kb-driver-fine/unconfirmed_fine: former eligibility condition produced payable, expected not_payable.
+Negative control kyobo-wholelife-disease-death/first_anniversary_partial_beneficiary_caused_death: former eligibility condition produced not_payable, expected undetermined.
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ cargo fmt --all -- --check
+exit 0
+$ cargo clippy --locked --offline --all-targets -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 240.189s
+OK (skipped=6: five local archive checks and one old-botocore check).

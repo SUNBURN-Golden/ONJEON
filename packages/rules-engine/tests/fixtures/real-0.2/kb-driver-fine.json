@@ -7,6 +7,7 @@
   "inputs": {
     "accident_in_period": "bool",
     "driving_accident_bodily_injury": "bool",
+    "fine_imposed_by_final_judgment": "bool",
     "fine_final_krw": "money_krw",
     "hit_and_run": "bool",
     "racing_or_test_use": "bool",
@@ -21,6 +22,7 @@
     "all": [
       {"eq": ["accident_in_period", true]},
       {"eq": ["driving_accident_bodily_injury", true]},
+      {"eq": ["fine_imposed_by_final_judgment", true]},
       {"eq": ["hit_and_run", false]},
       {"eq": ["racing_or_test_use", false]},
       {"eq": ["dui_unlicensed_or_drugs", false]},

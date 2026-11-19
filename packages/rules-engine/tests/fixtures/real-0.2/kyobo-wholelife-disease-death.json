@@ -14,6 +14,9 @@
     "self_harm": "bool",
     "self_harm_without_free_will": "bool",
     "harmed_by_beneficiary_or_contractor": "bool",
+    "offender_is_partial_beneficiary_only": "bool",
+    "claimant_is_other_beneficiary": "bool",
+    "confirmed_claimant_share_krw": "money_krw",
     "basic_amount_krw": "money_krw",
     "insured_amount_krw": "money_krw",
     "additional_reserve_krw": "money_krw"
@@ -60,45 +63,54 @@
           }
         ]
       },
-      {"eq": ["harmed_by_beneficiary_or_contractor", false]}
+      {
+        "if": "harmed_by_beneficiary_or_contractor",
+        "then": {"all": ["offender_is_partial_beneficiary_only", "claimant_is_other_beneficiary"]},
+        "else": true
+      }
     ]
   },
   "amount": {
-    "add": [
-      {"multiply_rate": ["basic_amount_krw", "0.5", {"rounding": "unspecified", "unit": 1}]},
-      {
-        "if": {
-          "lt": [
-            "death_date",
-            {
-              "date_add": ["contract_date", {"value": 1, "unit": "calendar_year", "month_end": "clamp"}]
-            }
-          ]
+    "if": "harmed_by_beneficiary_or_contractor",
+    "then": "confirmed_claimant_share_krw",
+    "else": {
+      "add": [
+        {"multiply_rate": ["basic_amount_krw", "0.5", {"rounding": "unspecified", "unit": 1}]},
+        {
+          "if": {
+            "lt": [
+              "death_date",
+              {
+                "date_add": ["contract_date", {"value": 1, "unit": "calendar_year", "month_end": "clamp"}]
+              }
+            ]
+          },
+          "then": {"krw": 0},
+          "else": {
+            "multiply_rate": [
+              "insured_amount_krw",
+              {
+                "anniversary_band": [
+                  "contract_date",
+                  "death_date",
+                  [[0, "0"], [1, "0.1"], [2, "0.2"], [3, "0.3"], [4, "0.4"]],
+                  {"boundary": "lower_inclusive"}
+                ]
+              },
+              {"rounding": "unspecified", "unit": 1}
+            ]
+          }
         },
-        "then": {"krw": 0},
-        "else": {
-          "multiply_rate": [
-            "insured_amount_krw",
-            {
-              "anniversary_band": [
-                "contract_date",
-                "death_date",
-                [[0, "0"], [1, "0.1"], [2, "0.2"], [3, "0.3"], [4, "0.4"]],
-                {"boundary": "lower_inclusive"}
-              ]
-            },
-            {"rounding": "unspecified", "unit": 1}
-          ]
-        }
-      },
-      "additional_reserve_krw"
-    ]
+        "additional_reserve_krw"
+      ]
+    }
   },
   "unknown_policy": "use_three_valued_logic_never_default_to_zero",
   "evidence_refs": [
     "kyobo_wholelife#c_art3",
     "kyobo_wholelife#c_art8_1",
     "kyobo_wholelife#c_art8_1_b",
+    "kyobo_wholelife#c_art8_2_3",
     "kyobo_wholelife#c_annex1_period",
     "kyobo_wholelife#c_annex1_disease",
     "kyobo_wholelife#c_sum_disease_amount",

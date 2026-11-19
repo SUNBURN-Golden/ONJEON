@@ -49,7 +49,7 @@
   ],
   "rules": [
     {"rule_id": "kyobo-wholelife-accident-death", "status": "partially_expressed", "file": "packages/fixtures/rules/real/kyobo-wholelife-accident-death.json", "cases": 5, "inputs_from_outside_dsl": ["cause_in_accident_table (재해분류표 코드 판정)"], "reason": "제1보험기간만. 제2보험기간 사망보험금·특약은 인코딩하지 않음", "gaps": ["G08", "G10"]},
-    {"rule_id": "kyobo-wholelife-disease-death", "status": "partially_expressed", "file": "packages/rules-engine/tests/fixtures/real-0.2/kyobo-wholelife-disease-death.json", "cases": 10, "inputs_from_outside_dsl": ["cause_in_accident_table (재해 분류 판정)", "basic_amount_krw, insured_amount_krw, additional_reserve_krw (계약 금액과 적립액)"], "reason": "제1보험기간의 기본보험금액 50%와 별도로 계약해당일부터 보험가입금액의 10%씩 체증한다. 기존 적립액 해석은 약관·요약서 표 대조에 근거하며 좌표 확인이 남아 있다. 윤년 말일 관례는 G13 보류다.", "gaps": ["G10", "G13", "G15"]}
+    {"rule_id": "kyobo-wholelife-disease-death", "status": "partially_expressed", "file": "packages/rules-engine/tests/fixtures/real-0.2/kyobo-wholelife-disease-death.json", "cases": 15, "inputs_from_outside_dsl": ["cause_in_accident_table (재해 분류 판정)", "confirmed_claimant_share_krw (다른 수익자로 확인된 청구인의 개별 확정액)", "basic_amount_krw, insured_amount_krw, additional_reserve_krw (계약 금액과 적립액)"], "reason": "제1보험기간의 기본보험금액 50%와 별도로 계약해당일부터 보험가입금액의 10%씩 체증한다. 기존 적립액 해석은 약관·요약서 표 대조에 근거하며 좌표 확인이 남아 있다. 제8조 제2·3호에서 계약자·단독 수익자의 고의는 면책이다. 일부 수익자만 가해한 경우 청구인이 다른 수익자인지 모르면 판정을 보류하고, 그 몫은 개별 확인 전까지 미확정으로 둔다. 윤년 말일 관례는 G13 보류다.", "gaps": ["G10", "G11", "G13", "G15"]}
   ],
   "premium_observations": [
     {"observation_id": "p_sum_m_main", "price_basis": "illustrative", "amount_krw": 933000, "pay_cycle": "monthly", "components": [{"scope": "main", "insured_amount_krw": 100000000, "variant": "1종(8년 저해약환급금형)"}],

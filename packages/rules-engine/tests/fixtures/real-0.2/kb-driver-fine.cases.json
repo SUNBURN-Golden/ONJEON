@@ -1,9 +1,10 @@
 {
   "rule_id": "kb-driver-fine",
-  "rule_content_hash": "10010a2f989a361553e75e8790445aa8aa26ca992e63d78df50e6ff641c5de77",
+  "rule_content_hash": "d6d2024f4e1c13eaeac57f6b2a1d0fc9b600f6c03920391420186efed83746b8",
   "base": {
     "accident_in_period": true,
     "driving_accident_bodily_injury": true,
+    "fine_imposed_by_final_judgment": true,
     "fine_final_krw": 30000000,
     "hit_and_run": false,
     "racing_or_test_use": false,
@@ -80,6 +81,20 @@
     },
     {
       "id": "unconfirmed_fine",
+      "set": {"fine_imposed_by_final_judgment": false, "fine_final_krw": null},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "unknown_judgment_status",
+      "set": {"fine_imposed_by_final_judgment": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["fine_imposed_by_final_judgment"]
+      }
+    },
+    {
+      "id": "confirmed_fine_unknown_amount",
       "set": {"fine_final_krw": null},
       "expect": {
         "eligibility": "true",

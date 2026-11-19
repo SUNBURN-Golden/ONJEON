@@ -10,7 +10,7 @@ const DIR: &str = "packages/rules-engine/tests/fixtures/real-0.2";
 
 // Pin coverage independently of the files on disk. Each named operator must actually execute.
 const CLAUSES: &[(&str, &str, usize, &str)] = &[
-    ("kb-driver-fine", "kb_driver#c_fine_art3", 9, "pro_rata"),
+    ("kb-driver-fine", "kb_driver#c_fine_art3", 11, "pro_rata"),
     (
         "kb-driver-lawyer-fee",
         "kb_driver#c_lawyer_11_12",
@@ -38,7 +38,7 @@ const CLAUSES: &[(&str, &str, usize, &str)] = &[
     (
         "kyobo-wholelife-disease-death",
         "kyobo_wholelife#c_annex1_disease",
-        10,
+        15,
         "anniversary_band",
     ),
     (
@@ -161,21 +161,31 @@ fn kb_fine_prorates_only_excess_liability_and_rejects_a_precomputed_share() {
 }
 
 #[test]
-fn wholelife_anniversary_table_preserves_existing_clause_cases() {
+fn wholelife_replays_legacy_cases_with_article_8_partial_beneficiary_exception() {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/real-0.2/kyobo-wholelife-disease-death.json");
     let rule = Rule::from_json_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    assert!(rule
+        .evidence_refs()
+        .iter()
+        .any(|r| r == "kyobo_wholelife#c_art8_2_3"));
     let mut covered = BTreeSet::new();
     for (case, id, inputs) in common::real_cases() {
         if id == rule.rule_id() {
-            assert_eq!(
-                common::observe(&rule, &inputs),
-                case["expect"],
-                "{}",
-                case["id"]
-            );
+            // This v0.1 case identifies neither the offender's share nor the claimant.
+            let expected = if case["id"] == "w20_disease_harmed_by_beneficiary" {
+                json!({
+                    "eligibility": "unknown",
+                    "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}},
+                    "missing_inputs": ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw", "offender_is_partial_beneficiary_only"]
+                })
+            } else {
+                case["expect"].clone()
+            };
+            assert_eq!(common::observe(&rule, &inputs), expected, "{}", case["id"]);
             covered.insert(case["id"].as_str().unwrap().to_owned());
         }
     }
     assert!(covered.contains("w34_g13_pending_leap_day_self_harm_two_years"));
+    assert!(covered.contains("w20_disease_harmed_by_beneficiary"));
 }

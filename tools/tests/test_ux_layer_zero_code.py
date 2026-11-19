@@ -162,7 +162,7 @@ class PurposeRowsFollow09(unittest.TestCase):
     def test_title_labels_are_not_used_as_rows(self):
         for wrong in ("**P16 web", "**P17 state catalog", "**P19 user comprehension"):
             self.assertNotIn(wrong, self.text)
-        self.assertIn("Web is not one of the five rows", self.text)
+        self.assertIn("T-WB-01 supplies public web accessibility evidence for P19", self.text)
 
     def test_p18_explanation_versus_source_is_owned_by_d16_and_t_ux_01(self):
         dec = (ROOT / "docs/decisions/DEC-D-16.md").read_text(encoding="utf-8")

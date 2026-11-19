@@ -127,10 +127,10 @@ void main() {
     expect(ChangeCause.values.map((c) => c.label).toSet().length, 2);
   });
 
-  testWidgets('frames fit a 360px width at large text without overflow', (tester) async {
+  testWidgets('frames fit a 360px width at 200% text without overflow', (tester) async {
     tester.view.physicalSize = const Size(360, 780);
     tester.view.devicePixelRatio = 1.0;
-    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(() {
       tester.view.reset();
       tester.platformDispatcher.clearTextScaleFactorTestValue();

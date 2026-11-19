@@ -29,7 +29,7 @@ class ScreenPage extends StatelessWidget {
         children: [
           const Text('온전', style: OnjeonText.logo),
           const SizedBox(height: OnjeonSpace.xl),
-          Text(title, style: OnjeonText.headline),
+          Semantics(header: true, child: Text(title, style: OnjeonText.headline)),
           if (subtitle != null) ...[
             const SizedBox(height: OnjeonSpace.sm),
             Text(subtitle!, style: OnjeonText.subhead),

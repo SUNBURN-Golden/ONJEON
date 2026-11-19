@@ -22,7 +22,7 @@
 | `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS·같은 출처 리다이렉트·robots 제한을 함께 적용한다 |
 | `access_log.csv` | 기록한 요청 112건(실패 포함)과 결과 분류. 2026-11-10 감독당국 재조회 14건 포함 |
 | `product_discovery.json` | 2026-11-19(KST) 재조회에서 확인한 출처별 DiscoveryManifest와 상품·특약 관측행, ExpectedDocument 후보 |
-| `authority_crosscheck_2026-11-10.csv` | FISIS·파인 보험회사 목록과 `insurers.csv`·`excluded_or_historical.csv`의 기관별 대조 결과 57행 |
+| `authority_crosscheck_2026-11-10.csv` | FISIS·파인 보험회사 목록과 `insurers.csv`·`excluded_or_historical.csv`의 기관별 대조 결과 57행 및 조회 출처 ID |
 
 `excluded_or_historical.csv` 49행도 `entity_evidence`로 정규화했다(`two_or_more_sources` 2, `one_source` 47). 기관 ID·출처·관측 시각·제외 사유는 보존한다. 제외 기록에는 공시 보관·상품 목록 추적 열을 추가하지 않는다. 이 파일은 현행 보험사 분모가 아니며, 과거 계약 약관의 대상 여부는 아래 알려진 공백 4번대로 미확정이다. 재생성은 `python3 tools/registry_normalize.py`, 정정·회귀 증거는 [Audit 2 기록](../../docs/blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)을 따른다.
 
@@ -127,18 +127,19 @@
 
 ## 감독당국 교차검증 (2026-11-10)
 
-2026-10-09의 서비스 중단 안내 뒤 처음으로 FISIS와 파인을 다시 조회했다. 두 사이트는 이번에 정상 응답(200)했고, 결과를 `sources.csv`·`access_log.csv`와 `authority_crosscheck_2026-11-10.csv`에 남겼다.
+**공백 1 해소.** 2026-10-09 서비스 중단 이후 예정된 감독당국(FSS/FISIS/파인) 교차검증을 2026-11-10에 수행했다. 두 목록의 정상 응답(200)과 기관별 대조를 [대조표](authority_crosscheck_2026-11-10.csv)에 연결했다. [Audit 7 검증 기록](../../docs/blueprint/audits/2026-11-19_registry_supervisory_crosscheck.md).
 
 - FISIS 금융회사 목록: 생명보험(`PART_DIV=H`) 22행, 손해보험(`PART_DIV=I`) 34행. 기준년월 202606(FISIS 최신). `sources.csv`의 `fisis_20261110_*` 두 건.
 - 파인 제도권 금융회사 조회: 국내생명 14, 외국생명 8, 국내손해 18, 외국손해 16으로 56행. 페이지별 조회 시각·URL·응답 sha256은 `sources.csv`의 `fine_20261110_*` 일곱 건.
 - 두 목록은 55곳이 동일하고 서로 한 곳씩 다르다. FISIS에만 젠워스 모기지 인슈어런스 코퍼레이션 한국지점이, 파인에만 동경해상일동화재보험(주)서울지점이 있다.
 - 합집합 57곳 중 `insurers.csv` 53곳은 모두 두 목록에 있다. 나머지 4곳은 MG손해보험·캐롯손해보험(두 목록에 있고 `excluded_or_historical.csv`에 기록), 동경해상일동화재보험(파인에만 있고 `excluded_or_historical.csv`의 DART 영문명 `AioiNissayDowaInsuranceCo.,Ltd.`와 같은 기관으로 추정), 젠워스(두 파일 모두에 없음)다.
+- `registry_table=insurers.csv`, `registry_id=insurer_id`로 조인하면 `two_or_more_sources` 43/43곳과 `one_source` 10/10곳에서 두 목록의 기관 ID를 확인할 수 있다. `entity_evidence`는 기존 협회·KIDI·DART 조사 기준으로 계산했다.
+- `fisis_source_id`는 생명·손해보험 조회 1건, `fine_source_ids`는 해당 분류에서 조회한 전체 페이지를 세미콜론으로 연결한다. 파인 근거는 분류 단위이며 개별 기관의 페이지 번호는 미확인이다. 기관 ID가 비면 해당 사이트의 출처 참조도 비운다. 각 참조를 `sources.csv`의 URL·시각·응답 SHA-256과 `access_log.csv`의 정상 조회 기록으로 추적한다. `python3 -I tools/registry_check.py`가 이 연결과 53곳의 양쪽 목록 ID를 검사한다.
 - 동경해상일동화재보험은 파인이 현행 외국손해보험회사로 조회하므로 현행 기관 편입 여부가 미확정이다. 젠워스는 FISIS에만 있으므로 기관 편입 근거를 따로 확인해야 한다(공백 10).
-- 이 대조는 기관 목록에 한정된다. 상품·특약·판매본 목록이 아니며 당시 `product_list_status`는 53곳 모두 `unqueried`였다. `entity_evidence` 값도 이번 교차검증으로 다시 계산하지 않았다.
+- 이 대조는 기관 목록에 한정된다. 상품·특약·판매본 목록이 아니며 당시 상품 목록은 53곳 모두 `unqueried`였다. `entity_evidence` 값도 이번 교차검증으로 다시 계산하지 않았다. 상품·특약·판매본 분모 열거는 T-DT-04의 실데이터 관문 D-04·O19를 따른다(공백 7). 이후에는 아래 초기 상품 목록 관측을 따른다. 회귀 검증은 `tools/tests/test_registry_authority_crosscheck.py`·`test_registry_crosscheck_note.py`에 있다([Audit 5 기록](../../docs/blueprint/audits/2026-11-10_registry_readme_sync.md)).
 
 ## 알려진 공백
 
-1. **감독당국(FSS/FISIS/파인) 교차검증을 2026-11-10에 수행했다.** 2026-10-09의 서비스 중단 안내 이후 첫 재조회로, FISIS 금융회사 목록(기준년월 202606)과 파인 제도권 금융회사 조회를 조회해 위 "감독당국 교차검증"에 요약하고 `authority_crosscheck_2026-11-10.csv`에 기관별 결과를 남겼다. 현행 `insurers.csv` 53곳은 두 목록 모두에 있다. 다만 젠워스 모기지 인슈어런스 코퍼레이션 한국지점(FISIS에만)과 동경해상일동화재보험(파인에만, `excluded_or_historical.csv`의 Aioi 영문명과 같은 기관으로 추정)의 기관 편입 여부는 미확정이다(공백 10). `two_or_more_sources`는 여전히 "협회 + KIDI/DART" 기준 값이며 이번 조회로 다시 계산하지 않았다. 이 대조는 기관 목록에 한정됐고 당시 상품 목록은 53곳 모두 `unqueried`였다. 이후에는 아래 초기 상품 목록 관측을 따른다. T-DT-04의 실데이터 관문은 O19이며 D-04는 해결됐다(공백 7). 회귀 검증은 `tools/tests/test_registry_authority_crosscheck.py`·`test_registry_crosscheck_note.py`에 있다([Audit 5 기록](../../docs/blueprint/audits/2026-11-10_registry_readme_sync.md)).
 2. **DART는 허가를 증명하지 않는다.** DART는 법인 등록 정보다. 그래서 업종 목록에는 국민생명, 리젠트화재, 그린손보, 한덕생명, 한일생명, 오렌지라이프 등 현행 협회 목록에 없는 회사(폐업·합병 추정)와 펀드·보증기금이 섞여 있다. DART에만 있는 이름은 `excluded_or_historical.csv`로 보냈다.
 3. **KIDI 링크 목록은 일부 오래됐다.** DGB생명(현 iM라이프 표기와 매칭), MG손해보험, 캐롯손해보험이 들어 있다. MG손보와 캐롯은 KNIA 현행 목록에 없어 `excluded_or_historical.csv`로 보냈다. 영업 중단, 계약이전, 합병 여부는 출처로 확인하지 못했다. 예별손해보험과 MG손보의 관계도 확인하지 못했다.
 4. **판매중지 상품의 분모**(ADR-0004: 판매 중지 포함)는 과거 회사를 포함할 수 있다. MG손보와 캐롯처럼 사라졌거나 이전된 회사의 기존 계약 약관을 어느 회사 공시실에서 찾을지는 아직 정하지 않았다.

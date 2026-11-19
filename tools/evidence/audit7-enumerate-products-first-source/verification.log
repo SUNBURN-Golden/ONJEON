@@ -161,3 +161,48 @@ $ sha256sum data/registry/product_discovery.json
 
 $ git -c core.whitespace=cr-at-eol diff --check
 OK
+
+# Round 4 (2026-11-19 KST): resolve the origin/main merge (5f02e50) into
+# 28b3f5a. Conflicts: data/registry/README.md, docs/BLUEPRINT.md,
+# tools/tests/test_registry_crosscheck_note.py. Both intents kept: main's
+# supervisory-crosscheck section, source-ID linkage and gap-1 removal, plus
+# this node's initial product observation (4 insurers, 11,222 rows / 29,469
+# ExpectedDocument candidates). After the merge, Rust/Flutter/infra/CI code
+# is byte-identical to origin/main; the node diff is docs/data/tools only.
+
+$ python3 -m unittest discover -s tools/tests
+Ran 1744 tests in 238.868s
+OK (skipped=6)
+
+$ cargo test --all --locked --offline --no-fail-fast   # shared target, no concurrent builds
+536 passed, 0 failed, 1 ignored (71 test binaries ok)
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed, 0 ignored
+
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/audit7-ontology
+4 passed, 0 failed, 0 ignored
+
+$ python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (43 ADR/DEC files)
+
+$ python3 -I tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 269, "tamper_tests": 40, "vocabulary_axes": 50}
+
+$ python3 tools/vocab_check.py
+vocabulary ok: 50 axes, 271 values
+
+$ python3 -I tools/registry_check.py
+registry check passed (IDs, vocabulary, access and supervisory evidence)
+
+$ python3 tools/enumerate_products.py --check
+{"expected_documents": 29469, "scopes": {"blocked": 37, "complete": 13, "failed": 4}, "source_products": 11222}
+
+$ sha256sum data/registry/product_discovery.json
+5cc477cc28944cad77ea766c9303ee82430997799ee43f74d2450619345c88cd  data/registry/product_discovery.json
+
+$ git -c core.whitespace=cr-at-eol diff --check
+OK
+
+# Flutter toolchain is not installed in this sandbox; apps/mobile is
+# byte-identical to origin/main (PR #576 flutter test evidence applies).

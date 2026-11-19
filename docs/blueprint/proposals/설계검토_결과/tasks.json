@@ -6309,7 +6309,8 @@
       "inputs": [
         "통합안 §2.2",
         "제3부 §45.1",
-        "I15·I17"
+        "I15·I17",
+        "docs/decisions/ADR-0021-첫-출시-최소-접근성.md"
       ],
       "prereq_tasks": [
         "T-AP-04",
@@ -6366,14 +6367,18 @@
         "Next.js 공개 경로, 실제 집계 렌더링, 릴리스 이력·정정 이력, 문구 린트"
       ],
       "tests": [
-        "cd apps/web && npm test && npm run lint:phrases"
+        "cd apps/web && npm test && npm run lint:phrases",
+        "시험 public-web-accessibility(09 P19): 공개 웹 실제 경로에서 브라우저 200% 확대, 일반 텍스트 4.5:1·큰 텍스트와 필수 비텍스트 3:1, 제목·이름·역할·상태·읽기 순서·활성화 시맨틱 회귀 시험과 웹 스크린 리더 실행 기록"
       ],
       "done_criteria": [
         "'전문가 검수'·'검수 완료' 문구가 없다(I15)",
         "분모 근거 없이 '전수'가 없다(I17)",
-        "실제 집계로 렌더링된다"
+        "실제 집계로 렌더링된다",
+        "공개 웹의 09 P19 접근성 회귀 시험과 웹 스크린 리더 실행 기록을 등록한다"
       ],
-      "required_test_ids": [],
+      "required_test_ids": [
+        "public-web-accessibility"
+      ],
       "features": [
         "web-static",
         "web-coverage",
@@ -7087,7 +7092,8 @@
       "inputs": [
         "통합안 §2.1",
         "화면 설계서 §9·§12",
-        "06 D-05 선택안"
+        "06 D-05 선택안",
+        "docs/decisions/ADR-0021-첫-출시-최소-접근성.md"
       ],
       "prereq_tasks": [
         "T-MB-02",
@@ -7144,19 +7150,22 @@
         "cd apps/mobile && flutter test && flutter test integration_test",
         "시험 first-view-priority(09 P15): 기준 화면(홈·담보 상세·같은 담보 비교·만약에·실제 사건·내 설계·두 안 비교)마다 첫 뷰(스크롤·탭 없이 보이는 영역)에 상황, 금액과 보장, 중요한 차이, 필요한 질문(decisive_inputs·unresolved)이 있는지 캡처를 기준 화면과 대조한다",
         "시험 decisive-conditions-not-hidden(09 P16): 결과를 바꾸는 조건(면책·제외·감액·한도·미확인 입력·확인 주체)이 접힘·생략·'더 보기' 뒤에 숨지 않고 첫 화면 또는 단계 안에 항상 표시되며, 결과 금액을 보기 전에 지나칠 수 없다. 조건을 숨긴 변이 화면을 넣으면 시험이 실패한다",
-        "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)"
+        "시험 no-composite-score(09 P17): 모든 응답·화면에 종합 점수·순위·추천 정답·'최선' 표시가 없고, 결과마다 이유(사실/기준 평가/사용자 가정)와 근거 연결이 보인다. 뷰모델·OpenAPI 스키마에 score/rank 필드가 없다(정적 검사)",
+        "시험 mobile-screen-accessibility(09 P19): 실제 앱 화면에서 시스템 글자 200% 확대, 일반 텍스트 4.5:1·큰 텍스트와 필수 비텍스트 3:1, 제목·이름·역할·상태·읽기 순서·활성화 시맨틱 회귀 시험과 TalkBack·VoiceOver 실행 기록"
       ],
       "done_criteria": [
         "상태 카탈로그 1:1",
-        "기준 화면 ±2dp·ΔE 3",
+        "기준 화면 ±2dp·ΔE 3, BLUEPRINT §7.3에서 허용한 접근성 변경은 작업 증거에 기록",
         "실제 API E2E",
         "가격 미확인 상품이 목록에서 빠지지 않고 0원으로 합산되지 않는다",
-        "첫 뷰 우선순위·결과를 바꾸는 조건 비은닉·종합점수 없음이 전 화면에서 확인된다(09 P15~P17)"
+        "첫 뷰 우선순위·결과를 바꾸는 조건 비은닉·종합점수 없음이 전 화면에서 확인된다(09 P15~P17)",
+        "실제 앱 화면의 09 P19 접근성 회귀 시험과 TalkBack·VoiceOver 실행 기록을 등록한다"
       ],
       "required_test_ids": [
         "first-view-priority",
         "decisive-conditions-not-hidden",
-        "no-composite-score"
+        "no-composite-score",
+        "mobile-screen-accessibility"
       ],
       "features": [
         "entry-points",
@@ -7461,7 +7470,8 @@
         "CONSUMER_FLOW_SPEC §7",
         "화면 설계서 §12-6",
         "통합안 D-16 권고",
-        "docs/decisions/DEC-D-16.md(U1~U7·표본·수락 수치)"
+        "docs/decisions/DEC-D-16.md(U1~U7·표본·수락 수치)",
+        "docs/decisions/ADR-0021-첫-출시-최소-접근성.md"
       ],
       "prereq_tasks": [
         "T-MB-03"
@@ -7520,7 +7530,8 @@
         "수락 수치가 시험 전에 고정되어 있다",
         "실패 원인이 기록된다",
         "구현자 읽기 점검을 사용자 검증으로 쓰지 않는다",
-        "사전 고정 과제에 DEC-D-16 U7 '설명과 원문 대조'(09 P18)가 있고, 확인 회차의 U7 결과가 DEC-D-16 수락 수치로 판정된다"
+        "사전 고정 과제에 DEC-D-16 U7 '설명과 원문 대조'(09 P18)가 있고, 확인 회차의 U7 결과가 DEC-D-16 수락 수치로 판정된다",
+        "PREREG에 고령 참가자 모집·과제 계획을 고정하고 U7 설명·원문 대조 결과를 기록한다(09 P18)"
       ],
       "required_test_ids": [],
       "features": [],

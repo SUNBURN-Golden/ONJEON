@@ -51,7 +51,7 @@ class SyntheticBanner extends StatelessWidget {
             onPressed: session.endExample,
             child: Text(
               '예시 끝내기',
-              style: OnjeonText.caption.copyWith(color: OnjeonColors.accentText),
+              style: OnjeonText.caption.copyWith(color: OnjeonColors.tabSelected),
             ),
           ),
         ],
@@ -105,19 +105,22 @@ class AppShell extends StatelessWidget {
           border: Border(top: BorderSide(color: OnjeonColors.tabbarBorder)),
         ),
         child: SafeArea(
-          child: SizedBox(
-            height: OnjeonDimension.tabbarHeight,
-            child: Row(
-              children: [
-                for (var i = 0; i < appTabs.length; i++)
-                  Expanded(
-                    child: _TabItem(
-                      tab: appTabs[i],
-                      selected: shell.currentIndex == i,
-                      onTap: () => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: OnjeonDimension.tabbarHeight),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < appTabs.length; i++)
+                    Expanded(
+                      child: _TabItem(
+                        tab: appTabs[i],
+                        selected: shell.currentIndex == i,
+                        onTap: () => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -137,26 +140,32 @@ class _TabItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = selected ? OnjeonColors.tabSelected : OnjeonColors.tabUnselected;
     return Semantics(
+      container: true,
       button: true,
       selected: selected,
       label: tab.label,
+      onTap: onTap,
       excludeSemantics: true,
       child: InkWell(
         key: Key('tab-${tab.path.substring(1)}'),
         onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(tab.icon, color: color, size: 24),
-            const SizedBox(height: OnjeonSpace.xs),
-            Text(
-              tab.label,
-              style: OnjeonText.tabLabel.copyWith(
-                color: color,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: OnjeonSpace.xs),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(tab.icon, color: color, size: 24),
+              const SizedBox(height: OnjeonSpace.xs),
+              Text(
+                tab.label,
+                textAlign: TextAlign.center,
+                style: OnjeonText.tabLabel.copyWith(
+                  color: color,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -82,10 +82,13 @@ def disclosure(row):
 
 
 PRODUCT_LIST_REASON_CODES = {
-    "awaiting_T-DT-04": "상품·특약 목록 열거는 T-DT-04 몫이고 아직 실행 전",
+    "awaiting_T-DT-04": "이 기관의 상품·특약 목록은 아직 조회 전",
     "awaiting_domestic_env": "실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전",
     "disclosure_entry_missing": "공시 URL이 없거나 disclosure_access가 reachable이 아님",
     "foreign_sandbox_geo_blocked": "해외 IP 샌드박스에서 홈페이지·공시실이 해외 IP 차단됨",
+    "initial_discovery_partial": "초기 목록에서 상품·특약 후보를 관측했으나 기관 전체 분모는 미확정",
+    "initial_discovery_failed": "초기 목록 조회가 오류로 끝났으며 관측된 후보가 없음",
+    "initial_discovery_blocked": "초기 목록의 모든 조회 범위가 차단됨",
 }
 
 

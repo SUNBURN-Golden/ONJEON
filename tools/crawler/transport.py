@@ -139,13 +139,25 @@ class UrllibTransport(Transport):
         return out
 
     def request(self, url: str, headers: Optional[Mapping[str, str]], timeout: float, max_bytes: int) -> Response:
+        return self._request(url, headers, timeout, max_bytes)
+
+    def request_listing(self, url, headers, timeout, max_bytes, *, data, content_type):
+        """POST a fixed, read-only listing query selected by a source adapter."""
+        if (not isinstance(data, bytes) or not 0 < len(data) <= 4096
+                or content_type not in ("application/json", "application/x-www-form-urlencoded")):
+            raise ValueError("invalid listing request body")
+        return self._request(url, headers, timeout, max_bytes, data, content_type)
+
+    def _request(self, url, headers, timeout, max_bytes, data=None, content_type=None):
         self.check_destination(url)
         req_headers = self.build_headers(headers)
         if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("timeout must be a positive number")
         if isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or not 0 < max_bytes <= self._config.object_cap_bytes:
             raise ValueError("max_bytes must be between 1 and config.object_cap_bytes")
-        req = urllib.request.Request(url, headers=req_headers, method="GET")
+        if content_type:
+            req_headers["Content-Type"] = content_type
+        req = urllib.request.Request(url, data=data, headers=req_headers)
         try:
             resp = self._opener.open(req, timeout=timeout)
         except (OSError, http.client.HTTPException) as e:  # URLError, timeouts, TLS failures

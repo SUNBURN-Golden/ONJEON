@@ -43,13 +43,18 @@ class RegistryCounts(unittest.TestCase):
         self.assertEqual(sum(not r["disclosure_url"].strip() for r in self.insurers), 45)
         self.assertTrue(all(r["disclosure_status"] == "unqueried" for r in reachable))
 
-    def test_no_product_list_is_enumerated_yet(self):
-        self.assertEqual(Counter(r["product_list_status"] for r in self.insurers), Counter(unqueried=53))
+    def test_initial_discovery_updates_only_the_eight_verified_entries(self):
+        self.assertEqual(Counter(r["product_list_status"] for r in self.insurers),
+                         Counter(unqueried=45, failed=7, blocked=1))
+        self.assertEqual({r["insurer_id"] for r in self.insurers if r["product_list_status"] != "unqueried"},
+                         {r["insurer_id"] for r in self.insurers if rn.disclosure_entry_reachable(r)})
 
     def test_reason_code_counts(self):
         per_code = Counter(c for r in self.insurers for c in codes(r))
-        self.assertEqual(per_code, Counter({"awaiting_T-DT-04": 53, "awaiting_domestic_env": 53,
-                                            "disclosure_entry_missing": 45, "foreign_sandbox_geo_blocked": 3}))
+        self.assertEqual(per_code, Counter({"awaiting_T-DT-04": 45, "awaiting_domestic_env": 45,
+                                           "disclosure_entry_missing": 45, "foreign_sandbox_geo_blocked": 3,
+                                           "initial_discovery_partial": 4, "initial_discovery_failed": 3,
+                                           "initial_discovery_blocked": 1}))
 
 
 class RegistryConsistency(unittest.TestCase):

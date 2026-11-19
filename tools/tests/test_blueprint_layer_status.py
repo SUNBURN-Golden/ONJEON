@@ -25,10 +25,11 @@ class BlueprintLayerStatus(unittest.TestCase):
 
     def test_l0_distinguishes_v0_from_product_and_rider_denominators(self):
         status = self.rows["L0"][-1]
-        for phrase in ("V0", "기관 목록", "접근·공백", "어휘 정규화", "상품·특약 분모 미열거"):
+        for phrase in ("V0", "기관 목록", "접근·공백", "어휘 정규화", "ExpectedDocument", "전체 분모 미확정"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, status)
-        self.assert_references_exist(status, ("data/registry/", "tools/registry_normalize.py"))
+        self.assert_references_exist(status, ("data/registry/", "tools/registry_normalize.py",
+                                               "data/registry/product_discovery.json"))
 
     def test_l1_distinguishes_archive_tooling_from_daily_full_collection(self):
         status = self.rows["L1"][-1]

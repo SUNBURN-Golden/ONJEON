@@ -23,7 +23,7 @@
 | `docs/blueprint/VOCABULARY.md` | 상태 어휘 생성 문서(정본 `packages/schemas/vocabulary.json`, `tools/vocab_check.py --write`로 생성, 직접 수정 금지) |
 | `docs/blueprint/validation/` | V1 설계 검증 자료: 표본 목록·수집 기록·발췌·인코딩·GAP 보고·화면 연결·검사 실행 기록. 서비스 데이터가 아니다. 안내: `docs/blueprint/validation/README.md` |
 | `docs/blueprint/proposals/설계검토_결과/` | 설계 검토 결과 01 코드설계 · 02 구현계약 · 03 작업명세 · 04 자동개발명세 · 05 VM 실행 준비 · 06 검토사항 점검 · 07 수정 대응표 · 08 요구 추적표 · 09 제품 목적 대응표. ADR-0019로 09는 제품 완료 증거 기준, `tasks.json`은 데몬 작업 소스·개별 수락 기준으로 BLUEPRINT 하위에 한정 채택했다. `daemon_rules.json`은 실행 기준만 유지하며 묶음의 나머지(01~08, 온톨로지 제안, U-01~U-04, A-01)·common_done_criteria와 공통 PR 기준 채택은 제외한다. 자동 개발 입력 `tasks.json`·`daemon_rules.json`, 재검토 요청과 검증 기록도 같은 디렉터리에 있다(안내: 디렉터리의 `README.md`) |
-| `data/registry/` | 수집 대상 기관의 1차 근거 목록·접근 결과·미확보 사유. ADR-0018 범위를 따르며 상품·특약·판매본 분모 열거는 미완료다([README](data/registry/README.md)) |
+| `data/registry/` | 수집 대상 기관의 1차 근거 목록·접근 결과·미확보 사유. ADR-0018 범위와 출처별 초기 상품·특약·문서 후보를 추적한다. 전체 분모 열거는 미완료다([README](data/registry/README.md)) |
 | `infra/r2/` | 현재 원본·파생 보관소인 Cloudflare R2의 작업 명세·비용 정책·체크포인트. ADR-0016이 S3 선택을 대체했고 비용 제한은 ADR-0017을 따른다([README](infra/r2/README.md)) |
 | `infra/s3/` | `*.cfn.yaml`은 ADR-0015 당시의 AWS 대안 정의로 보존한다. ADR-0016 이후 미사용·미배포이며 현재 설정은 `infra/r2/`를 따른다([README](infra/s3/README.md)) |
 | `tools/` | [수집 도구](tools/crawler/)·[원본 보관](tools/source_archive.py)·[R2 비용 검사](tools/r2_budget.py)·[원장 정규화](tools/registry_normalize.py)·문서 정합성 검사와 [회귀 시험](tools/tests/). 자동 개발 도구는 아래 `tools/daemon/` 안내를 따른다 |

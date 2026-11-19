@@ -6,6 +6,7 @@
   "calendar": "Asia/Seoul",
   "inputs": {
     "accident_in_period_bodily_injury": "bool",
+    "rider_exclusions_cleared": "bool",
     "arrested": "bool",
     "indicted_not_summary": "bool",
     "summary_moved_to_trial": "bool",
@@ -30,6 +31,7 @@
   "eligibility": {
     "all": [
       {"eq": ["accident_in_period_bodily_injury", true]},
+      "rider_exclusions_cleared",
       {
         "any": [
           {"eq": ["arrested", true]},

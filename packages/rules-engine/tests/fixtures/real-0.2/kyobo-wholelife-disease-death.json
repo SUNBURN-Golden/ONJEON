@@ -73,7 +73,42 @@
   },
   "amount": {
     "if": "harmed_by_beneficiary_or_contractor",
-    "then": "confirmed_claimant_share_krw",
+    "then": {
+      "apply_cap": [
+        "confirmed_claimant_share_krw",
+        {
+          "add": [
+            {"multiply_rate": ["basic_amount_krw", "0.5", {"rounding": "unspecified", "unit": 1}]},
+            {
+              "if": {
+                "lt": [
+                  "death_date",
+                  {
+                    "date_add": ["contract_date", {"value": 1, "unit": "calendar_year", "month_end": "clamp"}]
+                  }
+                ]
+              },
+              "then": {"krw": 0},
+              "else": {
+                "multiply_rate": [
+                  "insured_amount_krw",
+                  {
+                    "anniversary_band": [
+                      "contract_date",
+                      "death_date",
+                      [[0, "0"], [1, "0.1"], [2, "0.2"], [3, "0.3"], [4, "0.4"]],
+                      {"boundary": "lower_inclusive"}
+                    ]
+                  },
+                  {"rounding": "unspecified", "unit": 1}
+                ]
+              }
+            },
+            "additional_reserve_krw"
+          ]
+        }
+      ]
+    },
     "else": {
       "add": [
         {"multiply_rate": ["basic_amount_krw", "0.5", {"rounding": "unspecified", "unit": 1}]},

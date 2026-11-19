@@ -1,6 +1,6 @@
 {
   "rule_id": "kyobo-wholelife-disease-death",
-  "rule_content_hash": "f4afd76132bb0b83a4bb39428f6a0095171b142d73436dda4d47dc2555f41f3b",
+  "rule_content_hash": "85157899b27b07ebbfaf25f36e40df01a50d8d590ac99311a9f8b7e7fd4b95ba",
   "base": {
     "contract_date": "2026-01-01",
     "coverage_start_date": "2026-01-01",
@@ -72,6 +72,54 @@
         "eligibility": "true",
         "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}},
         "missing_inputs": []
+      }
+    },
+    {
+      "id": "first_anniversary_share_exceeds_scheduled_benefit",
+      "set": {
+        "death_date": "2027-01-01",
+        "coverage_start_date": "2026-01-03",
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true,
+        "confirmed_claimant_share_krw": 60000000
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 50001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "third_anniversary_share_capped_at_fractional_benefit",
+      "set": {
+        "death_date": "2029-01-01",
+        "basic_amount_krw": 80000001,
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true,
+        "confirmed_claimant_share_krw": 80000000
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "range", "min_krw": 70001000, "max_krw": 70001001}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "confirmed_share_with_missing_scheduled_benefit_input",
+      "set": {
+        "death_date": "2027-01-01",
+        "insured_amount_krw": null,
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true,
+        "confirmed_claimant_share_krw": 60000000
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["insured_amount_krw"]
       }
     },
     {

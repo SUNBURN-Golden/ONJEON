@@ -14,7 +14,7 @@ const CLAUSES: &[(&str, &str, usize, &str)] = &[
     (
         "kb-driver-lawyer-fee",
         "kb_driver#c_lawyer_11_12",
-        10,
+        13,
         "divide_count",
     ),
     (
@@ -38,7 +38,7 @@ const CLAUSES: &[(&str, &str, usize, &str)] = &[
     (
         "kyobo-wholelife-disease-death",
         "kyobo_wholelife#c_annex1_disease",
-        18,
+        21,
         "anniversary_band",
     ),
     (

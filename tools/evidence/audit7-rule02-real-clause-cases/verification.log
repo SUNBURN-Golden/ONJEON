@@ -131,3 +131,46 @@ $ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
 $ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
 Ran 1726 tests in 208.915s
 OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-19 / review fix round 3 (baseline 32b02f2)
+
+Read-only ontology-case-runner, same contract and first-anniversary date
+                                      32b02f2                 round 3
+Kyobo full benefit                    payable 50,001,000      payable 50,001,000
+Kyobo eligible claimant, 60M share    payable 60,000,000      payable 50,001,000
+KB printed example 1, no clearance    payable 15,000,000      undetermined, conditional 15,000,000
+All amounts are KRW. The KB result now lists rider_exclusions_cleared as the only missing input.
+
+$ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
+3 passed, 0 failed. 77 case-table rows across 7 indexed rules.
+Independent replay through the indexed rule paths matched eligibility, payout, missing_inputs and rule_content_hash on all 77 rows.
+For KB printed example 1, clearance true returned payable 15,000,000 and clearance false returned not_payable.
+KB no_extracted_event_item8_and_exclusions_unconfirmed: both missing inputs reported, conditional 15,000,000.
+Kyobo third_anniversary_share_capped_at_fractional_benefit: 70,001,000..70,001,001.
+Kyobo confirmed_share_with_missing_scheduled_benefit_input: amount unknown, missing insured_amount_krw.
+An additional runner check exercised all five contract years with basic amounts of 80,000,000 and 80,000,001,
+insured amount 100,000,000 and reserve 1,000. Full amounts and shares at lower bound - 1, lower bound,
+upper bound and upper bound + 1 matched the hand-calculated ranges on 50/50 evaluations.
+
+$ cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+The nested codegen suite skipped 2 optional client compatibility checks.
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ cargo fmt --all -- --check
+exit 0
+$ cargo clippy --all-targets --offline --locked -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 238.644s
+OK (skipped=6: five local archive checks and one old-botocore check).

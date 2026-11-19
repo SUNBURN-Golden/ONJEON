@@ -22,6 +22,31 @@ Malformed input never produces passing counts. Tests run in the existing CI
 `tools/tests` discovery step; CI does not require the unfinished product to pass
 the live readiness gate.
 
+## Product purpose progress
+
+Run `python3 -I tools/release_readiness/progress.py`. CI appends the Markdown
+report to its job summary in the advisory Product purpose progress step.
+Open rows return exit 0. Input errors return exit 2 with a diagnostic, and CI
+continues to the test steps.
+
+The report derives linked tasks for P01–P19 from 09 and uses all
+`tasks.json` task IDs for the overall denominator, including developer tools.
+`merged_tasks.json` maps each observed task merge to its full Git commit SHA.
+Update that file after verifying a task merge in the integration branch's
+history. The report reads this snapshot directly and can run from a shallow
+checkout. [Initial snapshot and verification](../../docs/blueprint/audits/2026-11-19_purpose_progress_ledger.md).
+
+- **Tasks with evidence files** counts linked tasks that have at least one
+  nonempty regular file under `evidence/<task-id>/`. This is visible before
+  T-OP-08 reviews and references the artifacts in the shared manifest.
+- **Row evidence files present** counts present, valid completion artifacts
+  out of the row's registered evidence references in `readiness.json`.
+  `0/0` means the row has no registered references.
+- **Closed** requires every linked task in the merge inventory and a passing
+  row under the evidence coverage rules below, including observed post-merge
+  states and successful acceptance execution logs. T-OP-08 determines release
+  readiness.
+
 ## Task evidence ownership
 
 Every product task except the developer-tool tasks T-OP-00/T-OP-09 can write

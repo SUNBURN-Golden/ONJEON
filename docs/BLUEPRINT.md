@@ -1,6 +1,6 @@
 # 온전 설계도 (Blueprint) v1.0
 
-2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-18 현황 갱신(ADR-0020·0021·§7·§9·§11) | 이 문서가 구현의 단일 기준이다.
+2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-19 현황 갱신(§9.3·§11 실제 조항 규칙) | 이 문서가 구현의 단일 기준이다.
 
 ## 0. 이 문서의 역할
 
@@ -322,6 +322,8 @@ M2의 산출물이 DSL·라벨 사전·FieldAssertion 스키마의 첫 실증이
 
 V1-b가 실제 표본으로 미리 찾은 부족분은 [GAP_REPORT.md](blueprint/validation/GAP_REPORT.md)에 있다. 그에 따른 순서: M1은 CodeSet·ParameterTable·`value_kind`·`amount_form`을 스키마에 넣는다. M2는 V1 표본의 보류 항목(표 셀 좌표, 미발췌 조항)을 실제 파이프라인으로 해소한다. rule-0.2 연산(`multiply_count`, `subtract_floor0`, `pro_rata`, `divide_count`, `anniversary_band`, 목록 입력과 `max_over`, `contract_effect`)의 서비스 상품군 적용은 마일스톤(M5·M6)에서 실제 사례와 검수·릴리스 증거를 갖춘 뒤 허용한다. ADR-0020에 따라 T-TW-02의 로컬 엔진·픽스처 검증(`fixture_only`)을 위한 조기 구현은 한정 예외로 보존한다. 이는 서비스 사용 승인이나 엔진의 자동 차단 기능이 아니며 서비스 적재·릴리스 검증과 해당하는 DEC-O12 연산별 S6는 별도다. 코드 판정·시간 단위 판정·누적 사용량·외부 파라미터 조회는 DSL에 넣지 않고 입력 단계가 맡는다.
 
+Audit 7에서는 KB손해보험·교보생명 약관에 근거한 `rule-0.2` 규칙 7개를 로컬에서 실행한다. 벌금 비례분담, 심급별 비용, 입원 일당, 통원 공제, 동시 수술, 사망보험금 체증, 계약 소멸의 입력·기대값과 약관 위치는 [사례별 검증 기록](../tools/evidence/audit7-rule02-real-clause-cases/README.md)에 있다.
+
 ### 9.4 개발 구역과 레포 방향 (BP-D-15)
 
 data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고 app이 그 첫 응용이다(ADR-0018). 최종 방향은 네 레포(onjeon-data, onjeon-knowledge, onjeon-twin, onjeon-app)다. 다만 병렬 개발은 레포 분리를 기다리지 않는다. 지금 이 레포 안에서 구역과 공통 계약을 확정하고 구역별로 병렬 개발한다. 기존 폴더를 먼저 옮기지 않고, 구역별 책임과 허용 의존성부터 고정한다.
@@ -378,7 +380,7 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 7. 마일스톤이 끝날 때마다 §4·§8·§9·§11의 상태 열을 갱신한다.
 8. 마일스톤과 별개로 `docs/decisions/ADR-*.md` 또는 `DEC-*.md`를 추가·수정·삭제·개명하는 변경은 같은 변경에서 §11의 영향받는 상태·관문을 검토·갱신하고 기준일(UTC)을 찍는다. 검토 뒤 `python3 -I tools/blueprint_status.py --write`로 §11 기준일과 전체 결정 색인·내용 해시를 갱신한다. `python3 -I tools/blueprint_status.py`와 CI의 `tools/tests/test_blueprint_status.py`가 누락을 거부한다. 자동 생성은 색인과 날짜만 바꾸며 상태 판단·관문 승인을 대신하지 않는다.
 
-## 11. 현재 위치 (2026-11-18)
+## 11. 현재 위치 (2026-11-19)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -417,9 +419,9 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 269 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 272 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
-| 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
+| 실제 조항 규칙(fixture_only) | 11 | `packages/fixtures/rules/real/`와 `packages/rules-engine/tests/fixtures/real-0.2/`의 고유 `rule_id` (버전 중복·사례 파일 제외) |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
 | 공유 어휘 축 | 50 | `packages/schemas/vocabulary.json`의 `axes` |
 <!-- blueprint-counts:end -->
@@ -427,7 +429,7 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-11-18 | SHA-256(파일명·내용): `3f0c5a6f96e205ba5a614aac20f88031c61aa76f058102445a0d35c97b037184`
+결정 기록 대조일: 2026-11-19 | SHA-256(파일명·내용): `3f0c5a6f96e205ba5a614aac20f88031c61aa76f058102445a0d35c97b037184`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|

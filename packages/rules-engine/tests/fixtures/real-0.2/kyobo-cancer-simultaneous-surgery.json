@@ -1,0 +1,13 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kyobo-cancer-simultaneous-surgery",
+  "rule_version": "v2-validation",
+  "schema_version": "rule-0.2",
+  "calendar": "Asia/Seoul",
+  "inputs": {"covered_surgery_in_period": "bool", "simultaneous_surgeries": "class_money_list"},
+  "eligibility": "covered_surgery_in_period",
+  "amount": {"max_over": "simultaneous_surgeries"},
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": ["kyobo_cancer#c_surg_art5_3", "kyobo_cancer#c_surg_art5_4", "kyobo_cancer#c_surg_annex1"],
+  "publication_state": "fixture_only"
+}

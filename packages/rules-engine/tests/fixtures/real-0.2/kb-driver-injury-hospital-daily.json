@@ -1,0 +1,33 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kb-driver-injury-hospital-daily",
+  "rule_version": "v2-validation",
+  "schema_version": "rule-0.2",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "insured_daily_krw": "money_krw",
+    "covered_cash_admission": "bool",
+    "cash_days_claimed": "int",
+    "days_already_used_this_admission": "int"
+  },
+  "eligibility": "covered_cash_admission",
+  "amount": {
+    "min": [
+      {"multiply_count": ["insured_daily_krw", "cash_days_claimed"]},
+      {
+        "subtract_floor0": [
+          {"multiply_count": ["insured_daily_krw", 180]},
+          {"multiply_count": ["insured_daily_krw", "days_already_used_this_admission"]}
+        ]
+      }
+    ]
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "kb_driver#c_care_art1",
+    "kb_driver#c_care_art2",
+    "kb_driver#c_care_art2_hours",
+    "kb_driver#c_care_art1_def"
+  ],
+  "publication_state": "fixture_only"
+}

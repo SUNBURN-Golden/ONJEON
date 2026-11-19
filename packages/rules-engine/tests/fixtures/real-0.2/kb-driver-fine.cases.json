@@ -1,0 +1,96 @@
+{
+  "rule_id": "kb-driver-fine",
+  "rule_content_hash": "10010a2f989a361553e75e8790445aa8aa26ca992e63d78df50e6ff641c5de77",
+  "base": {
+    "accident_in_period": true,
+    "driving_accident_bodily_injury": true,
+    "fine_final_krw": 30000000,
+    "hit_and_run": false,
+    "racing_or_test_use": false,
+    "dui_unlicensed_or_drugs": false,
+    "intentional_insured_free_will": false,
+    "intentional_contractor": false,
+    "intentional_beneficiary_sole": false,
+    "has_other_contracts": true,
+    "other_contracts_liability_krw": 20000000
+  },
+  "cases": [
+    {
+      "id": "overlapping_liabilities",
+      "set": {},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "unequal_liabilities",
+      "set": {"other_contracts_liability_krw": 30000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 12000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "sum_below_loss",
+      "set": {"other_contracts_liability_krw": 9999999},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 20000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "sum_equals_loss",
+      "set": {"other_contracts_liability_krw": 10000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 20000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "fractional_won",
+      "set": {"fine_final_krw": 10, "other_contracts_liability_krw": 5},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "range", "min_krw": 6, "max_krw": 7}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "no_other_contract",
+      "set": {"has_other_contracts": false, "other_contracts_liability_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 20000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "unknown_other_liability",
+      "set": {"other_contracts_liability_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["other_contracts_liability_krw"]
+      }
+    },
+    {
+      "id": "unconfirmed_fine",
+      "set": {"fine_final_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["fine_final_krw"]
+      }
+    },
+    {
+      "id": "dui_exclusion",
+      "set": {"dui_unlicensed_or_drugs": true},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    }
+  ]
+}

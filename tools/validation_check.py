@@ -140,6 +140,13 @@ def walk_vocab(obj, where, errors):
             walk_vocab(x, where, errors)
 
 
+def real_rule_files(root):
+    for directory in ("packages/fixtures/rules/real", "packages/rules-engine/tests/fixtures/real-0.2"):
+        for path in sorted((root / directory).glob("*.json")):
+            if not path.name.endswith(".cases.json"):
+                yield path
+
+
 def load():
     data = {"samples": [], "gaps": set(), "families": {}, "screens": {}, "extracts": {}, "rules": {}}
     with (VAL / "samples.csv").open(encoding="utf-8", newline="") as f:
@@ -153,9 +160,8 @@ def load():
         data["screens"][p.name] = json.loads(p.read_text(encoding="utf-8"))
     for p in sorted((VAL / "extracts").glob("*.md")):
         data["extracts"][f"extracts/{p.name}"] = p.read_text(encoding="utf-8")
-    for p in sorted((ROOT / "packages/fixtures/rules/real").glob("*.json")):
-        if not p.name.endswith(".cases.json"):
-            data["rules"][str(p.relative_to(ROOT))] = json.loads(p.read_text(encoding="utf-8"))
+    for p in real_rule_files(ROOT):
+        data["rules"][str(p.relative_to(ROOT))] = json.loads(p.read_text(encoding="utf-8"))
     return data
 
 

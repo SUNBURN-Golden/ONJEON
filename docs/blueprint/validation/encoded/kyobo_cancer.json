@@ -1314,14 +1314,31 @@
       ]
     },
     {
-      "benefit": "NEW플러스수술특약 수술보험금",
-      "status": "not_expressible",
-      "reason": "동시 수술 집합에서 최고 종 하나 선택(부위 동치류·독립 목적 예외)과 수술분류표 판정이 rule-0.1에 없다",
+      "rule_id": "kyobo-cancer-simultaneous-surgery",
+      "status": "partially_expressed",
+      "file": "packages/rules-engine/tests/fixtures/real-0.2/kyobo-cancer-simultaneous-surgery.json",
+      "cases": 7,
+      "inputs_from_outside_dsl": [
+        "covered_surgery_in_period (특약 기간 내 보장 수술 발생)",
+        "simultaneous_surgeries (같은 시점의 수술별 별표 지급액 및 제5조③④에 따른 묶음. 다른 부위이면서 치료목적이 독립일 때만 분리)"
+      ],
+      "reason": "같은 묶음에서 가장 큰 지급액을 택해 묶음별로 합산한다. 분류표·부위·치료목적의 판정이 미확인이면 목록도 미확인이다.",
       "gaps": [
-        "G04",
         "G08",
         "G15"
       ]
+    },
+    {
+      "rule_id": "kyobo-cancer-death-reserve",
+      "status": "partially_expressed",
+      "file": "packages/rules-engine/tests/fixtures/real-0.2/kyobo-cancer-death-reserve.json",
+      "cases": 4,
+      "inputs_from_outside_dsl": [
+        "insured_died_in_period (보험기간 중 피보험자 사망 여부)",
+        "reserve_at_death_krw (사망 당시 계약자적립액)"
+      ],
+      "reason": "주계약 별표1 주2의 사망 시 적립액 지급과 계약 소멸. 적립액이 미확인인 경우에도 확인된 계약 효과를 보존한다.",
+      "gaps": []
     }
   ],
   "premium_observations": [

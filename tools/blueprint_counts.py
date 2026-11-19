@@ -51,17 +51,21 @@ def cargo_counts(output):
 def collect(root, listing):
     counts = cargo_counts(listing)
     axes = json.loads((root / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))["axes"]
-    rules = []
-    for path in sorted((root / "packages/fixtures/rules/real").glob("*.json")):
-        if path.name.endswith(".cases.json"):
-            continue
+    rule_ids = set()
+    versions = set()
+    for path in validation_check.real_rule_files(root):
         rule = json.loads(path.read_text(encoding="utf-8"))
-        if not rule.get("rule_id") or rule.get("publication_state") != "fixture_only":
+        rule_id = rule.get("rule_id")
+        version = (rule_id, rule.get("rule_version"))
+        if rule_id != path.stem or rule.get("publication_state") != "fixture_only":
             raise ValueError(f"invalid real-clause fixture: {path.name}")
-        rules.append(rule["rule_id"])
-    if not rules or len(set(rules)) != len(rules) or not axes:
-        raise ValueError("missing vocabulary/rules or duplicate rule IDs")
-    counts.update(real_clause_rules=len(rules), vocabulary_axes=len(axes),
+        if version in versions:
+            raise ValueError(f"duplicate real-clause fixture version: {version}")
+        versions.add(version)
+        rule_ids.add(rule_id)
+    if not rule_ids or not axes:
+        raise ValueError("missing vocabulary/rules")
+    counts.update(real_clause_rules=len(rule_ids), vocabulary_axes=len(axes),
                   tamper_tests=len(validation_check.mutations()))
     if not counts["tamper_tests"]:
         raise ValueError("no validation checker mutations")
@@ -79,7 +83,7 @@ def render(counts):
         "|---|---:|---|",
         f"| Rust 단위·통합 시험 | {counts['rust_tests']} | `cargo test -p onjeon-rules-engine -- --list` |",
         f"| Rust 문서 시험(doctest) | {counts['rust_doctests']} | 같은 Cargo 목록의 `Doc-tests` |",
-        f"| 실제 조항 규칙(fixture_only) | {counts['real_clause_rules']} | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |",
+        f"| 실제 조항 규칙(fixture_only) | {counts['real_clause_rules']} | `packages/fixtures/rules/real/`와 `packages/rules-engine/tests/fixtures/real-0.2/`의 고유 `rule_id` (버전 중복·사례 파일 제외) |",
         f"| 검증 자료 변조 시험 | {counts['tamper_tests']} | `tools/validation_check.py`의 `mutations()` |",
         f"| 공유 어휘 축 | {counts['vocabulary_axes']} | `packages/schemas/vocabulary.json`의 `axes` |",
         END,

@@ -1,0 +1,95 @@
+{
+  "rule_id": "kb-driver-lawyer-fee",
+  "rule_content_hash": "af1328337c03d959dee2a15379dff30393e41c07fce87eaec60c871b50d993e4",
+  "base": {
+    "accident_in_period_bodily_injury": true,
+    "arrested": false,
+    "indicted_not_summary": true,
+    "summary_moved_to_trial": false,
+    "formal_trial_requested": false,
+    "police_not_referred": false,
+    "summary_or_not_prosecuted": false,
+    "victim_died": false,
+    "major_violation": false,
+    "injury_grade_1_to_3": false,
+    "level1_used": true,
+    "level2_used": true,
+    "level3_used": true,
+    "level_cap_krw": 5000000,
+    "level1_agreement_fee_krw": 60000000,
+    "level1_contracted_levels": 3,
+    "level2_agreement_fee_krw": 60000000,
+    "level2_contracted_levels": 3,
+    "level3_agreement_fee_krw": 60000000,
+    "level3_contracted_levels": 3
+  },
+  "cases": [
+    {
+      "id": "printed_example_1",
+      "set": {},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "printed_example_2",
+      "set": {
+        "level1_agreement_fee_krw": 10000000,
+        "level1_contracted_levels": 2,
+        "level2_agreement_fee_krw": 10000000,
+        "level2_contracted_levels": 2,
+        "level3_agreement_fee_krw": 10000000,
+        "level3_contracted_levels": 1
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "only_first_reached",
+      "set": {"level2_used": false, "level3_used": false, "level1_agreement_fee_krw": 12000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 2000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "indivisible_agreement",
+      "set": {"level2_used": false, "level3_used": false, "level1_agreement_fee_krw": 13},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "range", "min_krw": 2, "max_krw": 3}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "unknown_agreement_size",
+      "set": {"level2_used": false, "level3_used": false, "level1_contracted_levels": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["level1_contracted_levels"]
+      }
+    },
+    {
+      "id": "zero_agreement_size",
+      "set": {"level2_used": false, "level3_used": false, "level1_contracted_levels": 0},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": [],
+        "amount_issues": [{"code": "zero_denominator", "path": "amount.add[0].then.min[0].multiply_rate[0]"}]
+      }
+    },
+    {
+      "id": "not_a_covered_prosecution",
+      "set": {"indicted_not_summary": false},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    }
+  ]
+}

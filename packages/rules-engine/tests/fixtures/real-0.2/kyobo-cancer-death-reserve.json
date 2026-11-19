@@ -1,0 +1,14 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kyobo-cancer-death-reserve",
+  "rule_version": "v2-validation",
+  "schema_version": "rule-0.2",
+  "calendar": "Asia/Seoul",
+  "inputs": {"insured_died_in_period": "bool", "reserve_at_death_krw": "money_krw"},
+  "eligibility": "insured_died_in_period",
+  "amount": "reserve_at_death_krw",
+  "contract_effect": "terminated_pay_reserve",
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": ["kyobo_cancer#c_main_annex1_note2"],
+  "publication_state": "fixture_only"
+}

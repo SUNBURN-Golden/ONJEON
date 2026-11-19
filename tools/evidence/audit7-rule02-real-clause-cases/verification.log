@@ -174,3 +174,88 @@ $ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
 $ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
 Ran 1726 tests in 238.644s
 OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-20 / review fix round 4 (baseline 7a49de7)
+
+Replayed the reviewer's three claims with ontology-case-runner before and after the changes.
+All three claims have confirmed eligibility. Amounts are in KRW.
+Claim                                              Baseline                         Round 4
+KB first instance, 2M criminal + 8M civil, 5M cap  5,000,000 (10M agreement input)  1,000,000 (2M covered criminal fee)
+KB 180 days already used, claimed days missing     unknown (cash_days_claimed)      0, missing_inputs=[]
+Kyobo 50M already paid, deductible missing         unknown (deductible_krw)         0, missing_inputs=[]
+
+$ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
+3 passed, 0 failed. 83 golden rows across 7 indexed rule-0.2 fixtures.
+Independent replay through the indexed rule paths matched eligibility, payout, missing_inputs and rule_content_hash on all 83 rows.
+A mixed agreement with an unconfirmed criminal portion returned unknown with level1_covered_criminal_fee_krw missing.
+With one day or one won remaining, the respective missing claimed days or deductible still blocked the amount.
+Omitting all claim-amount inputs except prior usage also returned exact zero with no blockers at both exhausted limits.
+Supplying the former level1, level2 or level3 agreement_fee_krw key gave UnknownInput in each case.
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ CARGO_TARGET_DIR="$PWD/target" cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+The nested codegen suite skipped 2 optional client compatibility checks.
+$ cargo fmt --all -- --check
+exit 0
+$ CARGO_TARGET_DIR="$PWD/target" cargo clippy --all-targets --locked --offline -- -D warnings
+exit 0
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 270.207s
+OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-20 / review fix round 5
+
+Replayed a worktree-local copy of the reported snapshot_hash-8f3c0914b196cffd executable.
+SHA-256 of the copied executable: 76d1874c41cfcd384a3cc35052696438efeccdb318af631ad6685a808b56807a
+$ target/round5-fresh/reported-snapshot-hash --exact hash_matches_independent_canonical_json_with_all_input_types
+packages/rules-engine/tests/snapshot_hash.rs:51:5
+  left: String("0.1.0+snapshot-json-1")
+ right: "0.2.0+snapshot-json-1"
+exit 101. The binary passed the canonical digest check before reaching the serialized engine version assertion.
+The cached expectation matches the engine-version-bump branch; this worktree's package version is 0.1.0.
+
+$ cargo test --locked --offline --target-dir target/round5-fresh -p onjeon-rules-engine --test snapshot_hash --test real_clauses_02
+Before the test edit, a build starting with an empty target passed all 6 snapshot and 3 real-clause tests.
+After the edit, 6 snapshot and 3 real-clause tests passed in the same local target.
+Negative control: compiled the edited test with CARGO_PKG_VERSION=0.2.0 against the locally built 0.1.0 engine.
+The canonical digest matched; the serialized engine version assertion failed with the same two values (exit 101).
+
+Independent ontology-case-runner replay of indexed rule-0.2 fixture files:
+83/83 matched eligibility, payout, missing_inputs and rule_content_hash across 7 clauses.
+KB fine: 18, lawyer fee: 15, hospital daily benefit: 9. Kyobo surgery: 7, death reserve: 4, outpatient: 9, whole life: 21.
+
+$ cargo test --all --locked --offline --target-dir target
+539 passed, 0 failed, 1 ignored (fixture regeneration). Nested codegen suite: 2 optional client checks skipped.
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ CARGO_TARGET_DIR="$PWD/target/ontology" python3 -m unittest discover -s tools/tests -p test_ontology_runner_io_error.py
+15 passed with the runner built by the Python suite.
+$ cargo fmt --all -- --check
+exit 0
+$ CARGO_TARGET_DIR="$PWD/target" cargo clippy --locked --offline --all-targets -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ CARGO_TARGET_DIR="$PWD/target" python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ CARGO_TARGET_DIR="$PWD/target" ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 231.623s
+OK (skipped=6: five local archive checks and one old-botocore check).

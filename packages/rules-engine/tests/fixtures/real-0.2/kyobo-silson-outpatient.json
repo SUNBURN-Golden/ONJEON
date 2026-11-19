@@ -13,12 +13,16 @@
   },
   "eligibility": "covered_disease_visit",
   "amount": {
-    "min": [
-      {"subtract_floor0": ["covered_patient_cost_krw", "deductible_krw"]},
-      "selected_visit_limit_krw",
-      {"krw": 200000},
-      {"subtract_floor0": [{"krw": 50000000}, "annual_paid_krw"]}
-    ]
+    "if": {"gte": ["annual_paid_krw", {"krw": 50000000}]},
+    "then": {"krw": 0},
+    "else": {
+      "min": [
+        {"subtract_floor0": ["covered_patient_cost_krw", "deductible_krw"]},
+        "selected_visit_limit_krw",
+        {"krw": 200000},
+        {"subtract_floor0": [{"krw": 50000000}, "annual_paid_krw"]}
+      ]
+    }
   },
   "unknown_policy": "use_three_valued_logic_never_default_to_zero",
   "evidence_refs": [

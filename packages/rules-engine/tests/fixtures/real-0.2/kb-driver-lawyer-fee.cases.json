@@ -1,6 +1,6 @@
 {
   "rule_id": "kb-driver-lawyer-fee",
-  "rule_content_hash": "77e1496710164f79448b1aa04b67063531e947f3e04f82d914af72277434d032",
+  "rule_content_hash": "284bfab405dcad3840742336241694cd4b896b9d06ca2b50d21153ade4f2a33b",
   "base": {
     "accident_in_period_bodily_injury": true,
     "arrested": false,
@@ -16,11 +16,11 @@
     "level2_used": true,
     "level3_used": true,
     "level_cap_krw": 5000000,
-    "level1_agreement_fee_krw": 60000000,
+    "level1_covered_criminal_fee_krw": 60000000,
     "level1_contracted_levels": 3,
-    "level2_agreement_fee_krw": 60000000,
+    "level2_covered_criminal_fee_krw": 60000000,
     "level2_contracted_levels": 3,
-    "level3_agreement_fee_krw": 60000000,
+    "level3_covered_criminal_fee_krw": 60000000,
     "level3_contracted_levels": 3
   },
   "cases": [
@@ -51,11 +51,11 @@
       "id": "printed_example_2",
       "set": {
         "rider_exclusions_cleared": true,
-        "level1_agreement_fee_krw": 10000000,
+        "level1_covered_criminal_fee_krw": 10000000,
         "level1_contracted_levels": 2,
-        "level2_agreement_fee_krw": 10000000,
+        "level2_covered_criminal_fee_krw": 10000000,
         "level2_contracted_levels": 2,
-        "level3_agreement_fee_krw": 10000000,
+        "level3_covered_criminal_fee_krw": 10000000,
         "level3_contracted_levels": 1
       },
       "expect": {
@@ -65,8 +65,40 @@
       }
     },
     {
+      "id": "first_instance_itemized_criminal_and_civil_fees",
+      "note": "1심 위임계약 1천만원 중 실제 부담한 형사 변호사비 200만원, 관련 민사소송 비용 800만원. 심급 한도 500만원.",
+      "set": {
+        "rider_exclusions_cleared": true,
+        "level1_covered_criminal_fee_krw": 2000000,
+        "level1_contracted_levels": 1,
+        "level2_used": false,
+        "level3_used": false
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 1000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "first_instance_criminal_portion_unconfirmed",
+      "note": "1심 형사·민사 위임계약의 총액 1천만원만 확인됐고 형사소송에 실제 부담한 금액은 미확인.",
+      "set": {
+        "rider_exclusions_cleared": true,
+        "level1_covered_criminal_fee_krw": null,
+        "level1_contracted_levels": 1,
+        "level2_used": false,
+        "level3_used": false
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["level1_covered_criminal_fee_krw"]
+      }
+    },
+    {
       "id": "only_first_reached",
-      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_agreement_fee_krw": 12000000},
+      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_covered_criminal_fee_krw": 12000000},
       "expect": {
         "eligibility": "true",
         "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 2000000}},
@@ -75,7 +107,7 @@
     },
     {
       "id": "indivisible_agreement",
-      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_agreement_fee_krw": 13},
+      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_covered_criminal_fee_krw": 13},
       "expect": {
         "eligibility": "true",
         "payout": {"kind": "payable", "amount": {"kind": "range", "min_krw": 2, "max_krw": 3}},

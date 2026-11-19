@@ -1,6 +1,6 @@
 {
   "rule_id": "kb-driver-injury-hospital-daily",
-  "rule_content_hash": "96fb242f3961ea250ddc423c281461006d2318d7f896e012ca160a40195586ba",
+  "rule_content_hash": "b242aa84fa9a8341890bce970e268c96d3fba32306fadfd4d611f8a66e27a46e",
   "base": {
     "insured_daily_krw": 30000,
     "covered_cash_admission": true,
@@ -51,6 +51,24 @@
         "eligibility": "true",
         "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 0}},
         "missing_inputs": []
+      }
+    },
+    {
+      "id": "allowance_exhausted_unknown_claimed_days",
+      "set": {"days_already_used_this_admission": 180, "cash_days_claimed": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 0}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "one_day_remaining_unknown_claimed_days",
+      "set": {"days_already_used_this_admission": 179, "cash_days_claimed": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["cash_days_claimed"]
       }
     },
     {

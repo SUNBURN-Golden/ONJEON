@@ -14,19 +14,19 @@ const CLAUSES: &[(&str, &str, usize, &str)] = &[
     (
         "kb-driver-lawyer-fee",
         "kb_driver#c_lawyer_11_12",
-        13,
+        15,
         "divide_count",
     ),
     (
         "kb-driver-injury-hospital-daily",
         "kb_driver#c_care_art1",
-        7,
+        9,
         "multiply_count",
     ),
     (
         "kyobo-silson-outpatient",
         "kyobo_silson#c_art3_outpatient",
-        7,
+        9,
         "subtract_floor0",
     ),
     (

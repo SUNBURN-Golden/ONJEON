@@ -12,15 +12,19 @@
   },
   "eligibility": "covered_cash_admission",
   "amount": {
-    "min": [
-      {"multiply_count": ["insured_daily_krw", "cash_days_claimed"]},
-      {
-        "subtract_floor0": [
-          {"multiply_count": ["insured_daily_krw", 180]},
-          {"multiply_count": ["insured_daily_krw", "days_already_used_this_admission"]}
-        ]
-      }
-    ]
+    "if": {"gte": ["days_already_used_this_admission", 180]},
+    "then": {"krw": 0},
+    "else": {
+      "min": [
+        {"multiply_count": ["insured_daily_krw", "cash_days_claimed"]},
+        {
+          "subtract_floor0": [
+            {"multiply_count": ["insured_daily_krw", 180]},
+            {"multiply_count": ["insured_daily_krw", "days_already_used_this_admission"]}
+          ]
+        }
+      ]
+    }
   },
   "unknown_policy": "use_three_valued_logic_never_default_to_zero",
   "evidence_refs": [

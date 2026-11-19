@@ -21,11 +21,11 @@
     "level2_used": "bool",
     "level3_used": "bool",
     "level_cap_krw": "money_krw",
-    "level1_agreement_fee_krw": "money_krw",
+    "level1_covered_criminal_fee_krw": "money_krw",
     "level1_contracted_levels": "int",
-    "level2_agreement_fee_krw": "money_krw",
+    "level2_covered_criminal_fee_krw": "money_krw",
     "level2_contracted_levels": "int",
-    "level3_agreement_fee_krw": "money_krw",
+    "level3_covered_criminal_fee_krw": "money_krw",
     "level3_contracted_levels": "int"
   },
   "eligibility": {
@@ -72,7 +72,7 @@
               "multiply_rate": [
                 {
                   "divide_count": [
-                    "level1_agreement_fee_krw",
+                    "level1_covered_criminal_fee_krw",
                     "level1_contracted_levels",
                     {"rounding": "unspecified", "unit": 1}
                   ]
@@ -94,7 +94,7 @@
               "multiply_rate": [
                 {
                   "divide_count": [
-                    "level2_agreement_fee_krw",
+                    "level2_covered_criminal_fee_krw",
                     "level2_contracted_levels",
                     {"rounding": "unspecified", "unit": 1}
                   ]
@@ -116,7 +116,7 @@
               "multiply_rate": [
                 {
                   "divide_count": [
-                    "level3_agreement_fee_krw",
+                    "level3_covered_criminal_fee_krw",
                     "level3_contracted_levels",
                     {"rounding": "unspecified", "unit": 1}
                   ]

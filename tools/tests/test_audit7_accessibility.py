@@ -14,7 +14,8 @@ LEDGER = Path("docs/blueprint/DECISIONS.md")
 BUNDLE = Path("docs/blueprint/proposals/설계검토_결과")
 PURPOSE = BUNDLE / "09_제품목적_대응표.md"
 EVIDENCE = Path("tools/evidence/audit7-accessibility-out-of-scope/README.md")
-PENDING = "위임 결정·가역·사용자 확정 아님"
+PENDING = "위임 결정·가역·사용자 확정 아님"  # Historical audit finding.
+RATIFIED = "2026-11-19 소유자 확정"
 
 
 def read(path):
@@ -44,7 +45,7 @@ class AccessibilityContract(unittest.TestCase):
     def test_blueprint_applies_the_same_minimum_as_the_adr(self):
         section = self.blueprint.split("### 7.2 ", 1)[1].split("### 7.3 ", 1)[0]
         _, decision, authority = row(section, "접근성")
-        self.require(decision, "앱·공개 웹", "개발·검증 기준", PENDING)
+        self.require(decision, "앱·공개 웹", "개발·검증 기준", RATIFIED)
         self.assertNotIn("목표 아님", decision)
         self.assertIn(ADR.name, authority)
         for content in (section, self.adr):
@@ -54,27 +55,29 @@ class AccessibilityContract(unittest.TestCase):
     def test_historical_exclusion_and_visual_restriction_are_superseded_for_development(self):
         replacements = self.blueprint.split("### 7.3 ", 1)[1].split("## 8. ", 1)[0]
         self.require(replacements, "§51.4", "당시 사용자 결정", "화면_조작_설계서.md",
-                     "시안 변경 제한", "색상·치수·줄바꿈·시맨틱", "§7.2", "사용자 확정")
+                     "시안 변경 제한", "색상·치수·줄바꿈·시맨틱", "§7.2", RATIFIED, "첫 출시 소비자 앱·공개 웹")
         self.require(read(DECISIONS / "ADR-0001-기술-스택.md"), ADR.name, "역사적 기록")
         self.require(read("docs/blueprint/SYSTEM_CONTRACT.md"), "72-방식", "200%", "비텍스트", "스크린 리더")
 
-    def test_prior_owner_decision_is_routed_for_explicit_ratification(self):
+    def test_owner_ratification_preserves_history_and_release_gates(self):
         _, direction, authority = row(read(LEDGER), "BP-D-22")
-        self.require(direction, "§51.4", "소유자 확정 대기", "09 P19")
-        self.require(authority, ADR.name + "#사용자-확정", PENDING)
-        self.require(self.adr, PENDING, "소유자에게", "확정·수정·거부", "T-OP-08 출시 판정")
+        self.require(direction, "§51.4", "당시 제외 결정", "이 첫 출시 범위에서 대체", "09 P19")
+        self.require(authority, ADR.name + "#사용자-확정", RATIFIED)
+        self.require(self.adr, "2026-11-19 | 소유자 확정", "2026-10-08 결정은 당시의 이력으로 보존",
+                     "첫 출시 소비자 앱·공개 웹에 한하여", "P19 실제 화면 검증 또는 출시 승인이 아니다",
+                     "T-OP-08 출시 판정")
         self.require(read(AUDIT), PENDING, ADR.name + "#사용자-확정")
-        self.require(read(DECISIONS / "README.md"), ADR.name + "#사용자-확정", "소유자 답")
+        self.require(read(DECISIONS / "README.md"), ADR.name + "#사용자-확정", RATIFIED, "P19", "T-OP-08")
         _, timing, authority = row(self.blueprint, "첫 출시 최소 접근성")
-        self.require(timing, "T-OP-08", "소유자 답")
-        self.require(authority, ADR.name + "#사용자-확정", "교체", "가역적 위임")
+        self.require(timing, "T-OP-08", "소유자 답", "P19")
+        self.require(authority, ADR.name + "#사용자-확정", "2026-11-19 소유자가 확정했다", "P19", "출시 판정은 별도")
 
     def test_p19_requires_real_mobile_and_web_evidence_and_assigns_owners(self):
         p19 = row(self.purpose, "P19")
         self.require(p19[7], "상태 카탈로그 캡처 1:1", "실제 참가자 이해 시험 결과",
                      "실제 앱·공개 웹", "200%", "대비", "시맨틱 트리", "TalkBack", "VoiceOver",
                      "웹 스크린 리더 실행 기록")
-        self.require(p19[9], ADR.name, "사용자 확정 대기")
+        self.require(p19[9], ADR.name, RATIFIED, "실제 화면과 보조 기술 시험은 미완료")
         for owner, test_id, platform in (
             ("T-MB-03", "mobile-screen-accessibility", "TalkBack·VoiceOver"),
             ("T-WB-01", "public-web-accessibility", "웹 스크린 리더"),

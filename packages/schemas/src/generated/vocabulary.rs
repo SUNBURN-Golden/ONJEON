@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 use serde::{Deserialize, Serialize};
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-pub const VOCABULARY_VERSION: &str = "1.9.0";
+pub const VOCABULARY_VERSION: &str = "1.10.0";
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
 /// Axis `acquisition_status`. Unknown values fail to deserialize (never a default).
@@ -905,6 +905,92 @@ impl Payout {
             Payout::Payable => "payable",
             Payout::Undetermined => "undetermined",
         }
+    }
+}
+
+/// 규칙이 정한 계약 효과: 규칙의 요건이 성립할 때 계약에 생기는 효과. rule-0.2에서 선언을 생략하면 none이다
+///
+/// Axis `contract_effect`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(try_from = "String")]
+pub enum ContractEffect {
+    /// 이 규칙에 따른 별도 계약 효과가 없음
+    #[serde(rename = "none")]
+    None,
+    /// 계약 무효와 보험료 반환
+    #[serde(rename = "void_refund_premium")]
+    VoidRefundPremium,
+    /// 계약 해지와 책임준비금 지급
+    #[serde(rename = "terminated_pay_reserve")]
+    TerminatedPayReserve,
+}
+
+impl ContractEffect {
+    pub const AXIS: &'static str = "contract_effect";
+    pub const ALL: &'static [ContractEffect] = &[
+        ContractEffect::None,
+        ContractEffect::VoidRefundPremium,
+        ContractEffect::TerminatedPayReserve,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ContractEffect::None => "none",
+            ContractEffect::VoidRefundPremium => "void_refund_premium",
+            ContractEffect::TerminatedPayReserve => "terminated_pay_reserve",
+        }
+    }
+}
+
+impl TryFrom<String> for ContractEffect {
+    type Error = String;
+
+    fn try_from(code: String) -> Result<Self, Self::Error> {
+        Self::ALL.iter().copied().find(|v| v.as_str() == code)
+            .ok_or_else(|| format!("unknown contract_effect: {code}"))
+    }
+}
+
+/// 계약 효과 적용 판정: 입력한 조건에서 규칙의 계약 효과가 적용되는가
+///
+/// Axis `contract_effect_kind`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(try_from = "String")]
+pub enum ContractEffectKind {
+    /// 규칙에 별도 효과가 없거나 요건이 거짓이어서 적용할 효과가 없음
+    #[serde(rename = "none")]
+    None,
+    /// 요건이 참이어서 effect의 계약 효과가 적용됨
+    #[serde(rename = "applies")]
+    Applies,
+    /// 요건이 미확정이며, 성립하는 경우의 계약 효과를 conditional_effect에 보존함
+    #[serde(rename = "undetermined")]
+    Undetermined,
+}
+
+impl ContractEffectKind {
+    pub const AXIS: &'static str = "contract_effect_kind";
+    pub const ALL: &'static [ContractEffectKind] = &[
+        ContractEffectKind::None,
+        ContractEffectKind::Applies,
+        ContractEffectKind::Undetermined,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ContractEffectKind::None => "none",
+            ContractEffectKind::Applies => "applies",
+            ContractEffectKind::Undetermined => "undetermined",
+        }
+    }
+}
+
+impl TryFrom<String> for ContractEffectKind {
+    type Error = String;
+
+    fn try_from(code: String) -> Result<Self, Self::Error> {
+        Self::ALL.iter().copied().find(|v| v.as_str() == code)
+            .ok_or_else(|| format!("unknown contract_effect_kind: {code}"))
     }
 }
 
@@ -2281,6 +2367,8 @@ pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {
         (RowLabel::AXIS, RowLabel::ALL.iter().map(|v| v.as_str()).collect()),
         (Tri::AXIS, Tri::ALL.iter().map(|v| v.as_str()).collect()),
         (Payout::AXIS, Payout::ALL.iter().map(|v| v.as_str()).collect()),
+        (ContractEffect::AXIS, ContractEffect::ALL.iter().map(|v| v.as_str()).collect()),
+        (ContractEffectKind::AXIS, ContractEffectKind::ALL.iter().map(|v| v.as_str()).collect()),
         (AmountKind::AXIS, AmountKind::ALL.iter().map(|v| v.as_str()).collect()),
         (CalculationIssueCode::AXIS, CalculationIssueCode::ALL.iter().map(|v| v.as_str()).collect()),
         (PriceBasis::AXIS, PriceBasis::ALL.iter().map(|v| v.as_str()).collect()),

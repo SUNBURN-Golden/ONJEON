@@ -1,12 +1,12 @@
 # packages/schemas: 계약 패키지 (`onjeon-contracts`)
 
-앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록, 1.8.0은 Audit 2의 명시적 문자열 리터럴 `str` 추가다. 근거: 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전), 화면 설계서 §11. 이 패키지는 계약의 **모양**이다. 의미 검사(릴리스 빌더, DB 제약, evidence_ref 파서)는 후속 과제(T-CT-03~05, T-KN-*)의 몫이다.
+앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록, 1.8.0은 Audit 2의 명시적 문자열 리터럴 `str`, 1.9.0은 계산 보류 사유, 1.10.0은 rule-0.2 계약 효과와 적용 판정을 추가했다. 근거: 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전), 화면 설계서 §11. 이 패키지는 계약의 **모양**이다. 의미 검사(릴리스 빌더, DB 제약, evidence_ref 파서)는 후속 과제(T-CT-03~05, T-KN-*)의 몫이다.
 
 ## 구성
 
 | 경로 | 내용 |
 |---|---|
-| `vocabulary.json` | 상태 어휘 정본(1.8.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |
+| `vocabulary.json` | 상태 어휘 정본(1.10.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |
 | `json/*.schema.json` | 손으로 쓴 JSON Schema(2020-12 부분집합). `common`(ID·근거 참조·금액·결과 상태), `assertion`, `release_manifest`, `evaluation_result`, `scenario_result`, `coverage_detail`, `compare_view`, `plan_view`, `evidence_view`, `need_result`, `premium_observation`, `contract_snapshot`, `error_response` |
 | `json/vocabulary.schema.json` | **생성물.** 어휘의 모든 축이 `enum`으로 들어 있는 유일한 스키마 |
 | `src/generated/` | 생성된 Rust(serde). `src/checks.rs`는 손으로 쓴 교차 필드 검사 |
@@ -75,15 +75,13 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 
 ### 어휘 승격 대기 축 (`x-onjeon-pending-axis`)
 
-값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 이 표와 스키마의 일치는 `codegen/tests/test_schemas.py`(`Readme`)가 검사한다. 어휘 1.6.0 이후 남은 대기 축은 18개, 필드 21개다.
+값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 이 표와 스키마의 일치는 `codegen/tests/test_schemas.py`(`Readme`)가 검사한다. 어휘 1.10.0에서 남은 대기 축은 16개, 필드 18개다.
 
 | 축 | 쓰는 필드 |
 |---|---|
 | `applicability` | `Amount.applicability`, `CompareCell.applicability` |
 | `blocked_reason` | `BlockedBy.reason` |
 | `chain_level` | `ChainStep.level` |
-| `contract_effect` | `ContractEffectResult.conditional_effect`, `ContractEffectResult.effect` |
-| `contract_effect_kind` | `ContractEffectResult.kind` |
 | `dependency_producer` | `ConclusionDependency.produced_by` |
 | `dependency_state` | `DependencyInfo.dependency_state` |
 | `detail_layer` | `DetailLayer.layer` |
@@ -97,6 +95,10 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 | `plan_tab` | `PlanView.tab` |
 | `statement_kind` | `NeedReason.statement_kind` |
 | `value_kind` | `AssertionValue.value_kind` |
+
+### 1.10.0의 계약 효과
+
+`ContractEffectResult.kind`는 `contract_effect_kind`, `effect`와 `conditional_effect`는 `contract_effect`를 참조한다. 생성 클라이언트에서 세 필드의 타입이 문자열에서 각 축의 enum으로 바뀌었다. 기존 엔진이 출력한 값과 결과 객체가 생략된 구버전 문서는 그대로 읽을 수 있다. 미등록 코드와 객체형 코드는 거부한다. 호환 검사기는 이 세 필드의 타입 변경을 깨지는 변경으로 분류한다. 0.1.0 기준 배포에는 계약 패키지의 minor 버전과 잠금 파일 갱신이 필요하다. [승인 범위](../../docs/decisions/DEC-CANON-AUDIT7-CONTRACT-EFFECT.md).
 
 ### 1.6.0에서 승격된 축 (T-CT-02)
 

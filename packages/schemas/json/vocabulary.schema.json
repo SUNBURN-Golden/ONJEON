@@ -3,7 +3,7 @@
   "$id": "vocabulary.schema.json",
   "title": "Vocabulary",
   "description": "GENERATED from packages/schemas/vocabulary.json by codegen/gen.py. Do not edit.",
-  "x-onjeon-vocabulary-version": "1.9.0",
+  "x-onjeon-vocabulary-version": "1.10.0",
   "$defs": {
     "acquisition_status": {
       "type": "string",
@@ -231,6 +231,24 @@
       "enum": [
         "not_payable",
         "payable",
+        "undetermined"
+      ]
+    },
+    "contract_effect": {
+      "type": "string",
+      "description": "규칙이 정한 계약 효과: 규칙의 요건이 성립할 때 계약에 생기는 효과. rule-0.2에서 선언을 생략하면 none이다",
+      "enum": [
+        "none",
+        "void_refund_premium",
+        "terminated_pay_reserve"
+      ]
+    },
+    "contract_effect_kind": {
+      "type": "string",
+      "description": "계약 효과 적용 판정: 입력한 조건에서 규칙의 계약 효과가 적용되는가",
+      "enum": [
+        "none",
+        "applies",
         "undetermined"
       ]
     },

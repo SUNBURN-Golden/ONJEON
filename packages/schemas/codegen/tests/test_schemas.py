@@ -322,6 +322,17 @@ class Fixtures(unittest.TestCase):
         self.assertTrue(self.broken(n, lambda d: d["groups"][0]["price_line"].update(price_unavailable_reason="because")))
         self.assertTrue(self.broken(n, lambda d: d["groups"][0]["price_line"].update(man=[1.0, 2.0, 3.0])))
 
+    def test_contract_effect_fields_require_codes_from_their_own_axes(self):
+        for fixture, field, wrong_axis_code in (
+            ("payable", "kind", "void_refund_premium"),
+            ("payable", "effect", "applies"),
+            ("undetermined", "conditional_effect", "undetermined"),
+        ):
+            with self.subTest(field=field):
+                errors = self.broken(f"EvaluationResult.{fixture}.fixture.json",
+                                     lambda d: d["contract_effect"].update({field: wrong_axis_code}))
+                self.assertTrue(any("vocabulary" in e for e in errors), errors)
+
     def test_pending_axes_are_closed_by_pattern_not_open_text(self):
         n = "NeedResult.fixture.json"
         self.assertTrue(self.broken(n, lambda d: d.update(verdict="Has Spaces")))

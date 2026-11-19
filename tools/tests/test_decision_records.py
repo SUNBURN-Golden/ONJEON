@@ -193,6 +193,7 @@ class DecisionRecords(unittest.TestCase):
             },
         }
         expected["Audit 6 관문 복원 기록(2026-11-18)"] = {"DEC-D-09", "DEC-D-10", "DEC-D-15", "DEC-O03"}
+        expected["Audit 7 정본 변경(2026-11-19)"] = {"DEC-CANON-AUDIT7-CONTRACT-EFFECT"}
         for prefix, records in expected.items():
             with self.subTest(category=prefix):
                 self.assertEqual(records, self.classification_row(prefix))
@@ -465,6 +466,20 @@ class DecisionRecords(unittest.TestCase):
             self.assertIn(path, cells[2])
         for phrase in ("병합 미승인", "독립 리뷰", "사용자 병합 지시", "canon_change_approval"):
             self.assertIn(phrase, cells[3])
+
+    def test_audit7_contract_effect_has_its_own_scoped_canon_approval(self):
+        record = "DEC-CANON-AUDIT7-CONTRACT-EFFECT"
+        note = (ROOT / f"docs/decisions/{record}.md").read_text(encoding="utf-8")
+        approval = json.loads(note.split("```json\n", 1)[1].split("```", 1)[0])["canon_change_approval"]
+        self.assertEqual(approval, {
+            "decision_ref": record,
+            "scope_paths": ["packages/schemas/vocabulary.json", "docs/blueprint/VOCABULARY.md"],
+        })
+        rows = re.findall(r"^\| `([a-z_]+)` \| ([^|]+) \|", note, re.M)
+        self.assertEqual({axis: re.findall(r"`([^`]+)`", codes) for axis, codes in rows}, {
+            "contract_effect": ["none", "void_refund_premium", "terminated_pay_reserve"],
+            "contract_effect_kind": ["none", "applies", "undetermined"],
+        })
 
 
 if __name__ == "__main__":

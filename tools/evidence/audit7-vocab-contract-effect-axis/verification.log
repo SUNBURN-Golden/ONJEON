@@ -1,0 +1,62 @@
+cargo test --locked --offline -p onjeon-rules-engine --test vocabulary contract_effect (mutated test copy, expected exit 101)
+test contract_effect_kinds_match_serialized_evaluations ... FAILED
+test contract_effect_codes_match_the_loader_and_serializer ... FAILED
+  left: Object {"effect": String("void_refund_premium"), "kind": String("renamed_result")}
+ right: Object {"effect": String("void_refund_premium"), "kind": String("applies")}
+  left: {"none", "terminated_pay_reserve", "unregistered_effect", "void_refund_premium"}
+ right: {"none", "terminated_pay_reserve", "void_refund_premium"}
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+Canonical vocabulary, engine wire and result schema checks (exit 0)
+test contract_effect_codes_match_the_loader_and_serializer ... ok
+test contract_effect_kinds_match_serialized_evaluations ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+test tests::contract_effect_requires_known_string_codes ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 54 filtered out; finished in 0.00s
+test tests::evaluation_result_invariants_catch_mismatched_kinds ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 55 filtered out; finished in 0.00s
+test_contract_effect_fields_require_codes_from_their_own_axes (test_schemas.Fixtures.test_contract_effect_fields_require_codes_from_their_own_axes) ... ok
+additive since 1.9.0: +2 axes, +6 values, nothing removed/renamed/reworded
+vocabulary ok: 52 axes, 277 values
+ok: 30 generated files are up to date
+BLUEPRINT-S11: current decision index (44 ADR/DEC files)
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 271, "tamper_tests": 40, "vocabulary_axes": 52}
+
+ONJ_COMPAT_ALL_CLIENTS=1 ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline (exit 0)
+71 suites: 539 passed, 0 failed, 1 ignored
+Ran 39 tests in 0.205s
+OK
+Ran 138 tests in 50.344s
+OK
+
+Scenario API and ontology runner (exit 0 each)
+scenario: 3 suites: 4 passed, 0 failed, 0 ignored
+ontology: 1 suites: 4 passed, 0 failed, 0 ignored
+
+ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh (exit 0)
+Rust: built
+Rust API: built (default and skeleton feature)
+TypeScript: built, fixtures type-check (tsc Version 5.9.3)
+TypeScript API: built, fixtures type-check, skeleton not exported by index.ts
+Dart: analyzed and round-tripped (Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on "linux_x64")
+Dart API: analyzed, round-tripped, skeleton not exported by onjeon_api.dart
+RESULT: all three languages build
+
+ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest (exit 0)
+BASELINE: no previous contracts-* tag in HEAD history; nothing to compare with.
+== self-test: a deleted field must fail the check
+   structural diff: deleted field detected
+   compile probe: previous client cannot read documents without the deleted field
+self-test ok
+
+python3 -m unittest discover -s tools/tests -v (exit 0)
+Ran 1725 tests in 225.427s
+OK (skipped=6)
+
+Decision, purpose table and README index suites after approval test addition (exit 0 each)
+Ran 40 tests in 0.119s
+OK
+Ran 16 tests in 0.739s
+OK
+Ran 15 tests in 0.015s
+OK

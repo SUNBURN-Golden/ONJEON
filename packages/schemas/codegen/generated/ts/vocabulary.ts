@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /** Version of packages/schemas/vocabulary.json these unions were generated from. */
-export const VOCABULARY_VERSION = "1.9.0";
+export const VOCABULARY_VERSION = "1.10.0";
 
 /**
  * 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
@@ -302,6 +302,36 @@ export function parsePayout(value: unknown): Payout {
     return value as Payout;
   }
   throw new Error(`unknown payout: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 규칙이 정한 계약 효과: 규칙의 요건이 성립할 때 계약에 생기는 효과. rule-0.2에서 선언을 생략하면 none이다
+ *
+ * Axis `contract_effect`.
+ */
+export const ContractEffect = ["none", "void_refund_premium", "terminated_pay_reserve"] as const;
+export type ContractEffect = (typeof ContractEffect)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseContractEffect(value: unknown): ContractEffect {
+  if (typeof value === "string" && (ContractEffect as readonly string[]).includes(value)) {
+    return value as ContractEffect;
+  }
+  throw new Error(`unknown contract_effect: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 계약 효과 적용 판정: 입력한 조건에서 규칙의 계약 효과가 적용되는가
+ *
+ * Axis `contract_effect_kind`.
+ */
+export const ContractEffectKind = ["none", "applies", "undetermined"] as const;
+export type ContractEffectKind = (typeof ContractEffectKind)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseContractEffectKind(value: unknown): ContractEffectKind {
+  if (typeof value === "string" && (ContractEffectKind as readonly string[]).includes(value)) {
+    return value as ContractEffectKind;
+  }
+  throw new Error(`unknown contract_effect_kind: ${JSON.stringify(value)}`);
 }
 
 /**

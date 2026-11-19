@@ -48,7 +48,7 @@
       "prompt_version": "p-1"
     }
   ],
-  "engine_version": "0.1.0",
+  "engine_version": "0.2.0+snapshot-json-1",
   "rule_schema_versions": [
     "rule-0.1"
   ],

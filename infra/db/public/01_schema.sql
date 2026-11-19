@@ -482,7 +482,7 @@ CREATE TABLE release_manifest (
     schema_version            text NOT NULL CHECK (schema_version ~ '^[0-9]+\.[0-9]+\.[0-9]+$'),
     extractor_versions        jsonb NOT NULL CHECK (jsonb_typeof(extractor_versions) = 'array'),
     model_versions            jsonb NOT NULL CHECK (jsonb_typeof(model_versions) = 'array'),   -- [{provider_family_label, model_ref_hash, prompt_version}]
-    engine_version            text NOT NULL CHECK (engine_version ~ '^[A-Za-z0-9._-]+$'),
+    engine_version            text NOT NULL CHECK (engine_version ~ '^[A-Za-z0-9._-]+([+][A-Za-z0-9.-]+)?$'),
     rule_schema_versions      jsonb NOT NULL CHECK (jsonb_typeof(rule_schema_versions) = 'array'),
     capability_table_hash     text NOT NULL CHECK (capability_table_hash ~ '^[0-9a-f]{64}$'),
     explain_template_hash     text NOT NULL CHECK (explain_template_hash ~ '^[0-9a-f]{64}$'),

@@ -48,7 +48,10 @@ fn hash_matches_independent_canonical_json_with_all_input_types() {
     // Repeated evaluations include the same trace and version as well as the same hash.
     let first = rule.evaluate(&inputs).unwrap();
     assert_eq!(first.engine_version, ENGINE_VERSION);
-    assert!(first.engine_version.ends_with("+snapshot-json-1"));
+    assert_eq!(
+        serde_json::to_value(&first).unwrap()["engine_version"],
+        "0.2.0+snapshot-json-1"
+    );
     assert_eq!(
         serde_json::to_vec(&first).unwrap(),
         serde_json::to_vec(&rule.evaluate(&inputs).unwrap()).unwrap()

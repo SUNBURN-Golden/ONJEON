@@ -109,10 +109,10 @@ P() {
     "$(uid "$1")" "$EV_OBS_RAW" "$8" "$6" "$7" "$9" "$2" "$3" "$5" "$4"
 }
 members() { printf '{"raw_assets":[],"segments":[],"terms_editions":[],"terms_lineages":[],"clauses":[],"nodes":[],"assertions":%s,"conflicts":[],"gaps":[],"premium_observations":%s}' "$1" "${2:-[]}"; }
-# R RELEASE_NUM KIND MEMBERS_JSON
+# R RELEASE_NUM KIND MEMBERS_JSON [ENGINE_VERSION]
 R() {
-  printf "INSERT INTO release_manifest (release_id,release_kind,created_at,frozen_at,members,rule_files,input_stage_edition,content_sha256,onto_version,vocabulary_version,label_dictionary_version,schema_version,extractor_versions,model_versions,engine_version,rule_schema_versions,capability_table_hash,explain_template_hash,shadow_compare_report_id,constraint_report_id) VALUES ('rel:20260101-%s','%s',now(),now(),'%s'::jsonb,'{}','case-0.2','%s','onto-0.2','1.6.0','dict-1','0.1.0','[]','[]','engine-1','[]','%s','%s','shadow-1','constraints-1');\n" \
-    "$1" "$2" "$3" "$SHA_A" "$SHA_B" "$SHA_C"
+  printf "INSERT INTO release_manifest (release_id,release_kind,created_at,frozen_at,members,rule_files,input_stage_edition,content_sha256,onto_version,vocabulary_version,label_dictionary_version,schema_version,extractor_versions,model_versions,engine_version,rule_schema_versions,capability_table_hash,explain_template_hash,shadow_compare_report_id,constraint_report_id) VALUES ('rel:20260101-%s','%s',now(),now(),'%s'::jsonb,'{}','case-0.2','%s','onto-0.2','1.6.0','dict-1','0.1.0','[]','[]','%s','[]','%s','%s','shadow-1','constraints-1');\n" \
+    "$1" "$2" "$3" "$SHA_A" "${4:-engine-1}" "$SHA_B" "$SHA_C"
 }
 
 say "server: $(psql_admin postgres -At -c 'SHOW server_version')${tmp_cluster:+ (temporary cluster, binaries: $(dirname "$PG_CTL"))}"
@@ -317,7 +317,8 @@ must_fail "release members must be sorted and unique" "$PUB" knowledge_writer "c
   "$(R 4 production "$(members "[\"a:$(uid 91)\",\"a:$(uid 90)\"]")")"
 must_ok "test release may contain test-environment and fixture rows" "$PUB" knowledge_writer \
   "$(R 5 test "$(members "[\"a:$(uid 44)\",\"a:$(uid 91)\"]")")"
-must_ok "clean production release is stored" "$PUB" knowledge_writer "$(R 6 production "$(members "[\"a:$(uid 90)\"]")")"
+must_ok "clean production release is stored with the snapshot-qualified engine version" "$PUB" knowledge_writer \
+  "$(R 6 production "$(members "[\"a:$(uid 90)\"]")" "0.2.0+snapshot-json-1")"
 must_fail "frozen release content cannot be changed" "$PUB" knowledge_writer "permission denied" "UPDATE release_manifest SET engine_version='x' WHERE release_id='rel:20260101-6';"
 must_fail "even the owner cannot change frozen release content" "$PUB" admin "append_only" "UPDATE release_manifest SET engine_version='x' WHERE release_id='rel:20260101-6';"
 must_ok "withdrawal mark is allowed" "$PUB" knowledge_writer "UPDATE release_manifest SET withdrawn_at=now(), withdrawal_reason='error confirmed' WHERE release_id='rel:20260101-6';"

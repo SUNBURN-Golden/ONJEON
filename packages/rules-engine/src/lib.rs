@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 //! ONJEON deterministic rule evaluator (DSL v0.1, plus the rule-0.2 operators).
 //!
 //! Design rules (see docs/masterplan, part 3 section 49):

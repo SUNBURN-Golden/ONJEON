@@ -427,7 +427,7 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-11-19 | SHA-256(파일명·내용): `489f71992778e93b53399a6019309d357371ddb8a3a96330ce590638bfb556c5`
+결정 기록 대조일: 2026-11-19 | SHA-256(파일명·내용): `ce71c8b339c1e6ced4db5eaf6e4a86639b4f93045da11a13792d0d6a2ae1772c`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|

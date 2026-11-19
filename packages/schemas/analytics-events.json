@@ -1,6 +1,6 @@
 {
-  "$comment": "분석 이벤트 허용 목록 (02_구현계약 §3.2, C-17). 검사: src/allowlist.rs(Rust)와 codegen/check_allowlist.py(Python, 누출 정적 검사가 가져다 쓴다). 두 검사기는 아래 examples를 똑같이 통과·거부해야 한다. 허용 목록 밖 필드는 보내지 않는다. contracts_version은 packages/schemas/Cargo.toml의 version과 같아야 한다(C-23).",
-  "contracts_version": "0.1.0",
+  "$comment": "분석 이벤트 허용 목록 (02_구현계약 §3.2, C-17). 검사: src/allowlist.rs(Rust)와 codegen/check_allowlist.py(Python, 누출 정적 검사가 가져다 쓴다). 두 검사기는 아래 examples를 똑같이 통과·거부해야 한다. 허용 목록 밖 필드는 보내지 않는다. contracts_version은 packages/schemas/Cargo.toml의 package.metadata.onjeon.contracts-version과 같아야 한다(C-23).",
+  "contracts_version": "0.2.0",
   "event_key": "event",
   "allowed_fields": {
     "screen_id": {

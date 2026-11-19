@@ -181,9 +181,15 @@ fn compat_check_selftest_detects_a_deleted_field() {
 
 #[test]
 fn contracts_version_matches_the_generated_clients() {
-    let ts =
-        std::fs::read_to_string(schemas_dir().join("codegen/generated/ts/package.json")).unwrap();
-    assert!(ts.contains(&format!("\"version\": \"{CONTRACTS_VERSION}\"")));
+    let clients = schemas_dir().join("codegen/generated");
+    let ts: Value =
+        serde_json::from_slice(&std::fs::read(clients.join("ts/package.json")).unwrap()).unwrap();
+    assert_eq!(ts["version"], CONTRACTS_VERSION);
+    let dart = std::fs::read_to_string(clients.join("dart/pubspec.yaml")).unwrap();
+    assert_eq!(
+        dart.lines().find_map(|line| line.strip_prefix("version: ")),
+        Some(CONTRACTS_VERSION)
+    );
 }
 
 // ---- wire compatibility with the real rule engine -----------------------

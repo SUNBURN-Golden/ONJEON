@@ -950,7 +950,7 @@
         },
         {
           "code": "terminated_pay_reserve",
-          "concept_ko": "계약 해지와 책임준비금 지급",
+          "concept_ko": "사망 시 계약자적립액 지급 후 소멸",
           "screen_ko": null,
           "deprecated_aliases": []
         }

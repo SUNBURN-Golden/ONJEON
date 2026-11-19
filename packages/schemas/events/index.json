@@ -1,6 +1,6 @@
 {
-  "$comment": "도메인 이벤트 색인 (02_구현계약 §3.1, C-21). 스키마 검사는 src/events.rs 시험이 한다. contracts_version은 packages/schemas/Cargo.toml의 version과 같아야 한다(C-23).",
-  "contracts_version": "0.1.0",
+  "$comment": "도메인 이벤트 색인 (02_구현계약 §3.1, C-21). 스키마 검사는 src/events.rs 시험이 한다. contracts_version은 packages/schemas/Cargo.toml의 package.metadata.onjeon.contracts-version과 같아야 한다(C-23).",
+  "contracts_version": "0.2.0",
   "queues": {
     "domain": "내부 큐. 개인정보 없음",
     "personal": "개인 영역 전용 큐. 이 큐의 이벤트는 큐 밖으로 나가지 않는다"

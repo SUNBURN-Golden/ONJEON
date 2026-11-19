@@ -330,7 +330,7 @@ Kleene 3값 논리
 |---|---|---|---|
 | `none` | 이 규칙에 따른 별도 계약 효과가 없음 | (화면에 직접 표시 안 함) | - |
 | `void_refund_premium` | 계약 무효와 보험료 반환 | (화면에 직접 표시 안 함) | - |
-| `terminated_pay_reserve` | 계약 해지와 책임준비금 지급 | (화면에 직접 표시 안 함) | - |
+| `terminated_pay_reserve` | 사망 시 계약자적립액 지급 후 소멸 | (화면에 직접 표시 안 함) | - |
 
 ## `contract_effect_kind` 계약 효과 적용 판정
 

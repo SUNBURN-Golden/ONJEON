@@ -9,6 +9,8 @@
 | `contract_effect` | `none`, `void_refund_premium`, `terminated_pay_reserve` | 규칙의 선언과 결과의 `effect`·`conditional_effect` |
 | `contract_effect_kind` | `none`, `applies`, `undetermined` | 결과의 `contract_effect.kind` |
 
+`terminated_pay_reserve`는 보험기간 중 피보험자가 사망하면 사망 당시의 계약자적립액을 지급하고 계약이 소멸하는 효과다. [G23](../blueprint/validation/GAP_REPORT.md) · [교보통합암보험 주계약 별표1 주 2](../blueprint/validation/extracts/kyobo_cancer_terms.md).
+
 ```json
 {
   "canon_change_approval": {

@@ -50,8 +50,8 @@ class CommittedFile(unittest.TestCase):
     def test_file_is_consistent(self):
         self.assertEqual(self.allow.problems(), [])
 
-    def test_contracts_version_is_the_crate_version(self):
-        self.assertEqual(self.allow.data["contracts_version"], ca.crate_version())
+    def test_allowlist_is_pinned_to_the_wire_contract_version(self):
+        self.assertEqual(self.allow.data["contracts_version"], ca.contracts_version(ca.CARGO_TOML))
 
     def test_examples_pass_and_fail_as_declared(self):
         self.assertEqual(self.allow.check_examples(), [])

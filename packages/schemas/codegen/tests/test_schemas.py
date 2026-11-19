@@ -78,6 +78,11 @@ class Lint(unittest.TestCase):
         self.assertTrue(used)
         self.assertLessEqual(used, vocab_ids)
 
+    def test_terminated_pay_reserve_has_the_g23_death_effect(self):
+        axis = next(a for a in sm.load_vocab()["axes"] if a["id"] == "contract_effect")
+        meanings = {value["code"]: value["concept_ko"] for value in axis["values"]}
+        self.assertEqual(meanings["terminated_pay_reserve"], "사망 시 계약자적립액 지급 후 소멸")
+
     def test_an_enum_in_a_schema_is_a_lint_error(self):
         def add_enum(d):
             edit(d / "plan_view.schema.json", lambda doc: doc["properties"]["tab"].update({"enum": ["current", "proposal"]}))

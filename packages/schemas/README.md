@@ -17,6 +17,8 @@
 
 ## 명령
 
+코드 생성과 호환 검사에는 Python 3.11 이상이 필요하다(표준 라이브러리 `tomllib`).
+
 ```text
 bash packages/schemas/codegen/gen.sh                     # 생성물 재생성
 bash packages/schemas/codegen/gen.sh --check             # 생성물이 최신인지(CI)
@@ -56,7 +58,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 
 ## 버전과 호환 검사 (02 §5)
 
-패키지 버전은 이 디렉터리 `Cargo.toml`의 `version`이고 태그는 `contracts-x.y.z`다. 깨지는 변경 = 필드 삭제·타입 변경·필수 ↔ 선택 변경·필수 필드 추가·enum 값 삭제·타입 삭제(major, `0.x`에서는 minor를 올려야 한다). 선택 필드·타입·enum 값 추가는 버전을 올리면 된다. 스키마가 바뀌었는데 버전이 그대로면 실패한다.
+전송 계약의 버전은 이 디렉터리 `Cargo.toml`의 `package.metadata.onjeon.contracts-version`으로 정하고 `contracts-x.y.z`로 태그한다. Rust의 `CONTRACTS_VERSION`, TypeScript·Dart 패키지 버전과 오류·이벤트 목록은 이 값을 따른다. Cargo는 비공개 워크스페이스 크레이트에 `package.version`을 사용한다. 호환 검사기는 계약 버전 메타데이터를 쓰기 전의 태그에서 당시 기준인 `package.version`을 읽는다. 깨지는 변경 = 필드 삭제·타입 변경·필수 ↔ 선택 변경·필수 필드 추가·enum 값 삭제·타입 삭제(major, `0.x`에서는 minor를 올려야 한다). 선택 필드·타입·enum 값 추가는 버전을 올리면 된다. 스키마가 바뀌었는데 버전이 그대로면 실패한다.
 
 `check_compat.sh <prev_tag>`는 태그의 JSON Schema와 구조를 비교하고, 호환 변경이면 태그에 커밋된 Rust 생성물로 새 스키마에서 만든 최소 문서를 읽는다. `ONJ_COMPAT_ALL_CLIENTS=1`이면 태그에 커밋된 TypeScript 타입으로 같은 문서를 검사하고 Dart 생성물로 역직렬화한다. major 상향으로 선언한 깨지는 변경은 구조 비교에 기록하고 탐침을 건너뛴다. 탐침은 이전·새 어휘에 모두 있는 enum 값 중 새 어휘 순서의 첫 값을 사용한다. 이전 판에 없던 축은 새 어휘의 첫 값을 사용한다.
 
@@ -98,7 +100,7 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 
 ### 1.10.0의 계약 효과
 
-`ContractEffectResult.kind`는 `contract_effect_kind`, `effect`와 `conditional_effect`는 `contract_effect`를 참조한다. 생성 클라이언트에서 세 필드의 타입이 문자열에서 각 축의 enum으로 바뀌었다. 기존 엔진이 출력한 값과 결과 객체가 생략된 구버전 문서는 그대로 읽을 수 있다. 미등록 코드와 객체형 코드는 거부한다. 호환 검사기는 이 세 필드의 타입 변경을 깨지는 변경으로 분류한다. 0.1.0 기준 배포에는 계약 패키지의 minor 버전과 잠금 파일 갱신이 필요하다. [승인 범위](../../docs/decisions/DEC-CANON-AUDIT7-CONTRACT-EFFECT.md).
+`ContractEffectResult.kind`는 `contract_effect_kind`, `effect`와 `conditional_effect`는 `contract_effect`를 참조한다. 생성 클라이언트에서 세 필드의 타입이 문자열에서 각 축의 enum으로 바뀌었다. 기존 엔진이 출력한 값과 결과 객체가 생략된 구버전 문서는 그대로 읽을 수 있다. 미등록 코드와 객체형 코드는 거부한다. 호환 검사기가 세 필드의 타입 변경을 깨지는 변경으로 분류하므로 전송 계약 버전을 0.1.0에서 0.2.0으로 올렸다. [승인 범위](../../docs/decisions/DEC-CANON-AUDIT7-CONTRACT-EFFECT.md).
 
 ### 1.6.0에서 승격된 축 (T-CT-02)
 

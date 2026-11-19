@@ -4,3 +4,6 @@
 
 pub mod types;
 pub mod vocabulary;
+
+/// Shared wire contract version from Cargo.toml (tag `contracts-x.y.z`).
+pub const CONTRACTS_VERSION: &str = "0.2.0";

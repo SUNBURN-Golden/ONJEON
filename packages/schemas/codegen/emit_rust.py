@@ -147,13 +147,20 @@ def emit_types(model: Model, structs=None, preamble: str | None = None, header: 
     return "".join(out).rstrip() + "\n"
 
 
-def emit_mod() -> str:
-    return HEADER + "#![allow(clippy::all)]\n\npub mod types;\npub mod vocabulary;\n"
+def emit_mod(version: str) -> str:
+    return HEADER + f"""#![allow(clippy::all)]
+
+pub mod types;
+pub mod vocabulary;
+
+/// Shared wire contract version from Cargo.toml (tag `contracts-x.y.z`).
+pub const CONTRACTS_VERSION: &str = "{version}";
+"""
 
 
-def emit(model: Model) -> dict:
+def emit(model: Model, version: str) -> dict:
     return {
-        "mod.rs": emit_mod(),
+        "mod.rs": emit_mod(version),
         "vocabulary.rs": emit_vocabulary(model),
         "types.rs": emit_types(model),
     }

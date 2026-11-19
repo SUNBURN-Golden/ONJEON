@@ -65,7 +65,7 @@ def expected_outputs(json_dir: Path = sm.JSON_DIR, vocab_path: Path = sm.VOCAB_P
     if model.errors:
         raise sm.SchemaError("schema lint failed:\n  " + "\n  ".join(model.errors))
     out = {json_dir / sm.VOCAB_FILE: vocabulary_schema_text(vocab)}
-    for rel, text in emit_rust.emit(model).items():
+    for rel, text in emit_rust.emit(model, version).items():
         out[RUST_DIR / rel] = text
     for rel, text in emit_ts.emit(model, version).items():
         out[TS_DIR / rel] = text

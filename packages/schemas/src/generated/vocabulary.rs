@@ -920,7 +920,7 @@ pub enum ContractEffect {
     /// 계약 무효와 보험료 반환
     #[serde(rename = "void_refund_premium")]
     VoidRefundPremium,
-    /// 계약 해지와 책임준비금 지급
+    /// 사망 시 계약자적립액 지급 후 소멸
     #[serde(rename = "terminated_pay_reserve")]
     TerminatedPayReserve,
 }

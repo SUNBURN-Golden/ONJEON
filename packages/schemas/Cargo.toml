@@ -5,6 +5,10 @@ edition = "2021"
 description = "ONJEON wire contracts: vocabulary enums and view/result types generated from packages/schemas"
 publish = false
 
+[package.metadata.onjeon]
+# Wire contract shared by the generated clients and contracts-x.y.z tags.
+contracts-version = "0.2.0"
+
 [lib]
 path = "src/lib.rs"
 

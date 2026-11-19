@@ -1,0 +1,143 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kb-driver-lawyer-fee",
+  "rule_version": "v2-validation",
+  "schema_version": "rule-0.2",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "accident_in_period_bodily_injury": "bool",
+    "rider_exclusions_cleared": "bool",
+    "arrested": "bool",
+    "indicted_not_summary": "bool",
+    "summary_moved_to_trial": "bool",
+    "formal_trial_requested": "bool",
+    "police_not_referred": "bool",
+    "summary_or_not_prosecuted": "bool",
+    "victim_died": "bool",
+    "major_violation": "bool",
+    "injury_grade_1_to_3": "bool",
+    "confirmed_article1_item8_applies": "bool",
+    "level1_used": "bool",
+    "level2_used": "bool",
+    "level3_used": "bool",
+    "level_cap_krw": "money_krw",
+    "level1_covered_criminal_fee_krw": "money_krw",
+    "level1_contracted_levels": "int",
+    "level2_covered_criminal_fee_krw": "money_krw",
+    "level2_contracted_levels": "int",
+    "level3_covered_criminal_fee_krw": "money_krw",
+    "level3_contracted_levels": "int"
+  },
+  "eligibility": {
+    "all": [
+      {"eq": ["accident_in_period_bodily_injury", true]},
+      "rider_exclusions_cleared",
+      {
+        "any": [
+          {"eq": ["arrested", true]},
+          {"eq": ["indicted_not_summary", true]},
+          {"eq": ["summary_moved_to_trial", true]},
+          {"eq": ["formal_trial_requested", true]},
+          {
+            "all": [
+              {"eq": ["police_not_referred", true]},
+              {"any": [{"eq": ["victim_died", true]}, {"eq": ["major_violation", true]}]}
+            ]
+          },
+          {
+            "all": [
+              {"eq": ["summary_or_not_prosecuted", true]},
+              {"any": [{"eq": ["victim_died", true]}, {"eq": ["major_violation", true]}]}
+            ]
+          },
+          {
+            "all": [
+              {"eq": ["summary_or_not_prosecuted", true]},
+              {"eq": ["injury_grade_1_to_3", true]},
+              {"eq": ["major_violation", false]}
+            ]
+          },
+          "confirmed_article1_item8_applies"
+        ]
+      }
+    ]
+  },
+  "amount": {
+    "add": [
+      {
+        "if": "level1_used",
+        "then": {
+          "min": [
+            {
+              "multiply_rate": [
+                {
+                  "divide_count": [
+                    "level1_covered_criminal_fee_krw",
+                    "level1_contracted_levels",
+                    {"rounding": "unspecified", "unit": 1}
+                  ]
+                },
+                "0.5",
+                {"rounding": "unspecified", "unit": 1}
+              ]
+            },
+            "level_cap_krw"
+          ]
+        },
+        "else": {"krw": 0}
+      },
+      {
+        "if": "level2_used",
+        "then": {
+          "min": [
+            {
+              "multiply_rate": [
+                {
+                  "divide_count": [
+                    "level2_covered_criminal_fee_krw",
+                    "level2_contracted_levels",
+                    {"rounding": "unspecified", "unit": 1}
+                  ]
+                },
+                "0.5",
+                {"rounding": "unspecified", "unit": 1}
+              ]
+            },
+            "level_cap_krw"
+          ]
+        },
+        "else": {"krw": 0}
+      },
+      {
+        "if": "level3_used",
+        "then": {
+          "min": [
+            {
+              "multiply_rate": [
+                {
+                  "divide_count": [
+                    "level3_covered_criminal_fee_krw",
+                    "level3_contracted_levels",
+                    {"rounding": "unspecified", "unit": 1}
+                  ]
+                },
+                "0.5",
+                {"rounding": "unspecified", "unit": 1}
+              ]
+            },
+            "level_cap_krw"
+          ]
+        },
+        "else": {"krw": 0}
+      }
+    ]
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "kb_driver#c_lawyer_art1",
+    "kb_driver#c_lawyer_table",
+    "kb_driver#c_lawyer_11_12",
+    "kb_driver#c_lawyer_example"
+  ],
+  "publication_state": "fixture_only"
+}

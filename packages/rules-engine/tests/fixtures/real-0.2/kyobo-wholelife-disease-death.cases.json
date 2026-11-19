@@ -1,0 +1,227 @@
+{
+  "rule_id": "kyobo-wholelife-disease-death",
+  "rule_content_hash": "85157899b27b07ebbfaf25f36e40df01a50d8d590ac99311a9f8b7e7fd4b95ba",
+  "base": {
+    "contract_date": "2026-01-01",
+    "coverage_start_date": "2026-01-01",
+    "is_revived": false,
+    "revival_application_date": null,
+    "death_date": "2026-06-01",
+    "cause_in_accident_table": false,
+    "self_harm": false,
+    "self_harm_without_free_will": false,
+    "harmed_by_beneficiary_or_contractor": false,
+    "basic_amount_krw": 80000000,
+    "insured_amount_krw": 100000000,
+    "additional_reserve_krw": 1000
+  },
+  "cases": [
+    {
+      "id": "first_year_before_increase",
+      "set": {"death_date": "2026-12-31", "insured_amount_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 40001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "first_anniversary",
+      "set": {"death_date": "2027-01-01", "coverage_start_date": "2026-01-03"},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 50001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "first_anniversary_partial_beneficiary_caused_death",
+      "set": {
+        "death_date": "2027-01-01",
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true
+      },
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}},
+        "missing_inputs": ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw"]
+      }
+    },
+    {
+      "id": "other_beneficiary_share_not_confirmed",
+      "set": {
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["confirmed_claimant_share_krw"]
+      }
+    },
+    {
+      "id": "other_beneficiary_with_confirmed_share",
+      "set": {
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true,
+        "confirmed_claimant_share_krw": 10000000
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "first_anniversary_share_exceeds_scheduled_benefit",
+      "set": {
+        "death_date": "2027-01-01",
+        "coverage_start_date": "2026-01-03",
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true,
+        "confirmed_claimant_share_krw": 60000000
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 50001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "third_anniversary_share_capped_at_fractional_benefit",
+      "set": {
+        "death_date": "2029-01-01",
+        "basic_amount_krw": 80000001,
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true,
+        "confirmed_claimant_share_krw": 80000000
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "range", "min_krw": 70001000, "max_krw": 70001001}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "confirmed_share_with_missing_scheduled_benefit_input",
+      "set": {
+        "death_date": "2027-01-01",
+        "insured_amount_krw": null,
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": true,
+        "confirmed_claimant_share_krw": 60000000
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["insured_amount_krw"]
+      }
+    },
+    {
+      "id": "offending_partial_beneficiary_claims",
+      "set": {
+        "harmed_by_beneficiary_or_contractor": true,
+        "offender_is_partial_beneficiary_only": true,
+        "claimant_is_other_beneficiary": false
+      },
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "contractor_or_sole_beneficiary_caused_death",
+      "set": {"harmed_by_beneficiary_or_contractor": true, "offender_is_partial_beneficiary_only": false},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "second_anniversary",
+      "set": {"death_date": "2028-01-01"},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 60001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "third_anniversary",
+      "set": {"death_date": "2029-01-01"},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 70001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "fourth_anniversary",
+      "set": {"death_date": "2030-01-01"},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 80001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "last_day_first_period",
+      "set": {"death_date": "2030-12-31"},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 80001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "second_period",
+      "set": {"death_date": "2031-01-01"},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "before_contract",
+      "set": {"death_date": "2025-12-31", "coverage_start_date": "2025-12-31"},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "ordinary_death_before_coverage_start",
+      "set": {"death_date": "2026-01-02", "coverage_start_date": "2026-01-03"},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "ordinary_death_on_coverage_start",
+      "set": {"death_date": "2026-01-03", "coverage_start_date": "2026-01-03"},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 40001000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "ordinary_death_coverage_start_unknown",
+      "set": {"death_date": "2026-01-02", "coverage_start_date": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 40001000}},
+        "missing_inputs": ["coverage_start_date"]
+      }
+    },
+    {
+      "id": "missing_increment_base",
+      "set": {"death_date": "2028-01-01", "insured_amount_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["insured_amount_krw"]
+      }
+    },
+    {
+      "id": "unknown_death_date",
+      "set": {"death_date": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}},
+        "missing_inputs": ["death_date"]
+      }
+    }
+  ]
+}

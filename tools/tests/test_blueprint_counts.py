@@ -61,6 +61,18 @@ class SourceCounts(unittest.TestCase):
         self.assertEqual(self.collect()["vocabulary_axes"], 3)
         self.assertEqual(self.collect()["real_clause_rules"], 2)
 
+    def test_new_clause_encodings_count_each_id_once_and_reject_duplicate_versions(self):
+        current = self.root / "packages/rules-engine/tests/fixtures/real-0.2"
+        current.mkdir(parents=True)
+        for rule_id in ("one", "two"):
+            self.write(current / f"{rule_id}.json", {
+                "rule_id": rule_id, "rule_version": "v2-validation", "publication_state": "fixture_only"})
+        self.write(current / "two.cases.json", {"cases": []})
+        self.assertEqual(self.collect()["real_clause_rules"], 2)
+        self.write(self.rules / "one.json", json.loads((current / "one.json").read_text()))
+        with self.assertRaisesRegex(ValueError, "duplicate real-clause fixture version"):
+            self.collect()
+
     def test_duplicate_or_publishable_or_missing_rule_ids_fail(self):
         for rule in ({"rule_id": "one", "publication_state": "fixture_only"},
                      {"rule_id": "two", "publication_state": "accepted"},

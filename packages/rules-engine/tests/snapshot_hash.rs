@@ -44,11 +44,18 @@ fn hash_matches_independent_canonical_json_with_all_input_types() {
         r#""}}"#
     );
     let expected = format!("{:x}", Sha256::digest(canonical.as_bytes()));
-    assert_eq!(hash(&rule, &inputs), expected);
-    // Repeated evaluations include the same trace and version as well as the same hash.
     let first = rule.evaluate(&inputs).unwrap();
+    assert_eq!(
+        first.input_snapshot_hash, expected,
+        "canonical input digest"
+    );
     assert_eq!(first.engine_version, ENGINE_VERSION);
-    assert!(first.engine_version.ends_with("+snapshot-json-1"));
+    assert_eq!(
+        serde_json::to_value(&first).unwrap()["engine_version"],
+        concat!(env!("CARGO_PKG_VERSION"), "+snapshot-json-1"),
+        "serialized engine version for the package under test"
+    );
+    // Repeated evaluations include the same trace and version as well as the same hash.
     assert_eq!(
         serde_json::to_vec(&first).unwrap(),
         serde_json::to_vec(&rule.evaluate(&inputs).unwrap()).unwrap()

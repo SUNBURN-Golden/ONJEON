@@ -1,0 +1,36 @@
+{
+  "example_kind": "real_clause_design_validation",
+  "rule_id": "kyobo-silson-outpatient",
+  "rule_version": "v2-validation",
+  "schema_version": "rule-0.2",
+  "calendar": "Asia/Seoul",
+  "inputs": {
+    "covered_patient_cost_krw": "money_krw",
+    "deductible_krw": "money_krw",
+    "selected_visit_limit_krw": "money_krw",
+    "annual_paid_krw": "money_krw",
+    "covered_disease_visit": "bool"
+  },
+  "eligibility": "covered_disease_visit",
+  "amount": {
+    "if": {"gte": ["annual_paid_krw", {"krw": 50000000}]},
+    "then": {"krw": 0},
+    "else": {
+      "min": [
+        {"subtract_floor0": ["covered_patient_cost_krw", "deductible_krw"]},
+        "selected_visit_limit_krw",
+        {"krw": 200000},
+        {"subtract_floor0": [{"krw": 50000000}, "annual_paid_krw"]}
+      ]
+    }
+  },
+  "unknown_policy": "use_three_valued_logic_never_default_to_zero",
+  "evidence_refs": [
+    "kyobo_silson#c_art3_outpatient",
+    "kyobo_silson#c_table1",
+    "kyobo_silson#c_art6_1",
+    "kyobo_silson#c_art6_2",
+    "kyobo_silson#c_art6_5"
+  ],
+  "publication_state": "fixture_only"
+}

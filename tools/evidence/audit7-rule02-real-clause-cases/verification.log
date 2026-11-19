@@ -1,0 +1,261 @@
+Audit 7 / 2026-11-19 / initial fixture_only validation (d5f4800)
+
+$ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
+running 3 tests
+test kb_fine_prorates_only_excess_liability_and_rejects_a_precomputed_share ... ok
+test wholelife_anniversary_table_preserves_existing_clause_cases ... ok
+test real_02_clauses_match_their_sources_cases_and_executed_operators ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+Current encoded family index -> ontology-case-runner -> rule-0.2 evaluator
+kb-driver-fine / overlapping_liabilities -> {"amount":{"kind":"exact","krw":15000000},"kind":"payable"}
+kb-driver-fine / sum_below_loss -> {"amount":{"kind":"exact","krw":20000000},"kind":"payable"}
+kb-driver-fine / sum_equals_loss -> {"amount":{"kind":"exact","krw":20000000},"kind":"payable"}
+kb-driver-fine / fractional_won -> {"amount":{"kind":"range","max_krw":7,"min_krw":6},"kind":"payable"}
+kb-driver-lawyer-fee / printed_example_1 -> {"amount":{"kind":"exact","krw":15000000},"kind":"payable"}
+kb-driver-lawyer-fee / printed_example_2 -> {"amount":{"kind":"exact","krw":10000000},"kind":"payable"}
+51/51 eligibility, payout and missing_inputs observations matched.
+Negative control: bypass Article 3 excess-liability condition in a temporary rule.
+sum_below_loss: expected exact 20000000, mutant produced {"kind":"range","max_krw":20000001,"min_krw":20000000}.
+
+$ cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored
+Ignored: regenerate_declared_abox_fixture (fixture regeneration). Two optional TS/Dart compatibility cases skipped in the nested codegen suite.
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed, 0 ignored
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed, 0 ignored
+$ cargo fmt --all -- --check
+exit 0
+$ cargo clippy --locked --offline --all-targets -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 prices, 2 screen models, 26 gaps; original files not re-fetched.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I tools/release_readiness/progress.py
+| P08 | 2/5 | T-AP-03, T-MB-02, T-TW-04 | 0/5 | 0/0 | Open |
+| P14 | 0/3 | T-AP-02, T-MB-02, T-TW-05 | 0/3 | 0/0 | Open |
+
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 292.643s
+
+OK (skipped=6)
+Five archive-dependent checks and one old-botocore check skipped.
+
+Audit 7 / 2026-11-19 / review fix round 1
+
+$ cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+real_clauses_02:
+running 3 tests
+test kb_fine_prorates_only_excess_liability_and_rejects_a_precomputed_share ... ok
+test wholelife_replays_legacy_cases_with_article_8_partial_beneficiary_exception ... ok
+test real_02_clauses_match_their_sources_cases_and_executed_operators ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+Current encoded rules -> ontology-case-runner (two negative controls use temporary copies)
+kb-driver-fine/unconfirmed_fine false {"kind": "not_payable"} []
+kb-driver-fine/unknown_judgment_status unknown {"conditional_amount": {"kind": "exact", "krw": 15000000}, "kind": "undetermined"} ["fine_imposed_by_final_judgment"]
+kb-driver-fine/confirmed_fine_unknown_amount true {"amount": {"kind": "unknown"}, "kind": "payable"} ["fine_final_krw"]
+kyobo-wholelife-disease-death/first_anniversary_partial_beneficiary_caused_death unknown {"conditional_amount": {"kind": "unknown"}, "kind": "undetermined"} ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw"]
+kyobo-wholelife-disease-death/other_beneficiary_share_not_confirmed true {"amount": {"kind": "unknown"}, "kind": "payable"} ["confirmed_claimant_share_krw"]
+kyobo-wholelife-disease-death/offending_partial_beneficiary_claims false {"kind": "not_payable"} []
+kyobo-wholelife-disease-death/contractor_or_sole_beneficiary_caused_death false {"kind": "not_payable"} []
+58/58 matched eligibility, payout, missing_inputs and rule_content_hash across 7 current encodings.
+Negative control kb-driver-fine/unconfirmed_fine: former eligibility condition produced payable, expected not_payable.
+Negative control kyobo-wholelife-disease-death/first_anniversary_partial_beneficiary_caused_death: former eligibility condition produced not_payable, expected undetermined.
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ cargo fmt --all -- --check
+exit 0
+$ cargo clippy --locked --offline --all-targets -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 240.189s
+OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-19 / review fix round 2 (baseline 8f62bb9)
+
+$ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
+3 passed, 0 failed. 71 case-table rows across 7 indexed rules.
+
+Indexed rules -> ontology-case-runner. Baseline comparisons used the previous rule and only its declared inputs.
+kb-driver-fine/only_sole_beneficiary_intent_known_false unknown {"conditional_amount":{"kind":"unknown"},"kind":"undetermined"} ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw", "intentional_beneficiary_partial"]
+kb-driver-fine/offending_partial_beneficiary_claims false {"kind":"not_payable"} []
+kb-driver-fine/other_beneficiary_share_unresolved true {"amount":{"kind":"unknown"},"kind":"payable"} ["confirmed_claimant_share_krw"]
+kb-driver-fine/other_beneficiary_confirmed_share true {"amount":{"kind":"exact","krw":5000000},"kind":"payable"} []
+kb-driver-lawyer-fee/no_extracted_event_item8_unconfirmed unknown {"conditional_amount":{"kind":"exact","krw":15000000},"kind":"undetermined"} ["confirmed_article1_item8_applies"]
+kb-driver-lawyer-fee/no_extracted_event_item8_confirmed true {"amount":{"kind":"exact","krw":15000000},"kind":"payable"} []
+kb-driver-lawyer-fee/not_a_covered_prosecution false {"kind":"not_payable"} []
+kyobo-wholelife-disease-death/offending_partial_beneficiary_claims false {"kind":"not_payable"} []
+kyobo-wholelife-disease-death/ordinary_death_before_coverage_start false {"kind":"not_payable"} []
+kyobo-wholelife-disease-death/ordinary_death_on_coverage_start true {"amount":{"kind":"exact","krw":40001000},"kind":"payable"} []
+kyobo-wholelife-disease-death/ordinary_death_coverage_start_unknown unknown {"conditional_amount":{"kind":"exact","krw":40001000},"kind":"undetermined"} ["coverage_start_date"]
+71/71 matched eligibility, payout, missing_inputs and rule_content_hash across 7 indexed rule-0.2 encodings.
+8f62bb9 -> round 2: kb-driver-fine/offending_partial_beneficiary_claims {"amount":{"kind":"exact","krw":15000000},"kind":"payable"} -> not_payable
+8f62bb9 -> round 2: kb-driver-lawyer-fee/no_extracted_event_item8_unconfirmed {"kind":"not_payable"} -> undetermined
+8f62bb9 -> round 2: kyobo-wholelife-disease-death/ordinary_death_before_coverage_start {"amount":{"kind":"exact","krw":40001000},"kind":"payable"} -> not_payable
+
+$ cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+The nested codegen suite skipped 2 optional TypeScript/Dart compatibility tests.
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ cargo fmt --all -- --check
+exit 0
+$ cargo clippy --locked --offline --all-targets -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 208.915s
+OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-19 / review fix round 3 (baseline 32b02f2)
+
+Read-only ontology-case-runner, same contract and first-anniversary date
+                                      32b02f2                 round 3
+Kyobo full benefit                    payable 50,001,000      payable 50,001,000
+Kyobo eligible claimant, 60M share    payable 60,000,000      payable 50,001,000
+KB printed example 1, no clearance    payable 15,000,000      undetermined, conditional 15,000,000
+All amounts are KRW. The KB result now lists rider_exclusions_cleared as the only missing input.
+
+$ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
+3 passed, 0 failed. 77 case-table rows across 7 indexed rules.
+Independent replay through the indexed rule paths matched eligibility, payout, missing_inputs and rule_content_hash on all 77 rows.
+For KB printed example 1, clearance true returned payable 15,000,000 and clearance false returned not_payable.
+KB no_extracted_event_item8_and_exclusions_unconfirmed: both missing inputs reported, conditional 15,000,000.
+Kyobo third_anniversary_share_capped_at_fractional_benefit: 70,001,000..70,001,001.
+Kyobo confirmed_share_with_missing_scheduled_benefit_input: amount unknown, missing insured_amount_krw.
+An additional runner check exercised all five contract years with basic amounts of 80,000,000 and 80,000,001,
+insured amount 100,000,000 and reserve 1,000. Full amounts and shares at lower bound - 1, lower bound,
+upper bound and upper bound + 1 matched the hand-calculated ranges on 50/50 evaluations.
+
+$ cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+The nested codegen suite skipped 2 optional client compatibility checks.
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ cargo fmt --all -- --check
+exit 0
+$ cargo clippy --all-targets --offline --locked -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 238.644s
+OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-20 / review fix round 4 (baseline 7a49de7)
+
+Replayed the reviewer's three claims with ontology-case-runner before and after the changes.
+All three claims have confirmed eligibility. Amounts are in KRW.
+Claim                                              Baseline                         Round 4
+KB first instance, 2M criminal + 8M civil, 5M cap  5,000,000 (10M agreement input)  1,000,000 (2M covered criminal fee)
+KB 180 days already used, claimed days missing     unknown (cash_days_claimed)      0, missing_inputs=[]
+Kyobo 50M already paid, deductible missing         unknown (deductible_krw)         0, missing_inputs=[]
+
+$ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
+3 passed, 0 failed. 83 golden rows across 7 indexed rule-0.2 fixtures.
+Independent replay through the indexed rule paths matched eligibility, payout, missing_inputs and rule_content_hash on all 83 rows.
+A mixed agreement with an unconfirmed criminal portion returned unknown with level1_covered_criminal_fee_krw missing.
+With one day or one won remaining, the respective missing claimed days or deductible still blocked the amount.
+Omitting all claim-amount inputs except prior usage also returned exact zero with no blockers at both exhausted limits.
+Supplying the former level1, level2 or level3 agreement_fee_krw key gave UnknownInput in each case.
+
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ CARGO_TARGET_DIR="$PWD/target" cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+The nested codegen suite skipped 2 optional client compatibility checks.
+$ cargo fmt --all -- --check
+exit 0
+$ CARGO_TARGET_DIR="$PWD/target" cargo clippy --all-targets --locked --offline -- -D warnings
+exit 0
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 270.207s
+OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-20 / review fix round 5
+
+Replayed a worktree-local copy of the reported snapshot_hash-8f3c0914b196cffd executable.
+SHA-256 of the copied executable: 76d1874c41cfcd384a3cc35052696438efeccdb318af631ad6685a808b56807a
+$ target/round5-fresh/reported-snapshot-hash --exact hash_matches_independent_canonical_json_with_all_input_types
+packages/rules-engine/tests/snapshot_hash.rs:51:5
+  left: String("0.1.0+snapshot-json-1")
+ right: "0.2.0+snapshot-json-1"
+exit 101. The binary passed the canonical digest check before reaching the serialized engine version assertion.
+The cached expectation matches the engine-version-bump branch; this worktree's package version is 0.1.0.
+
+$ cargo test --locked --offline --target-dir target/round5-fresh -p onjeon-rules-engine --test snapshot_hash --test real_clauses_02
+Before the test edit, a build starting with an empty target passed all 6 snapshot and 3 real-clause tests.
+After the edit, 6 snapshot and 3 real-clause tests passed in the same local target.
+Negative control: compiled the edited test with CARGO_PKG_VERSION=0.2.0 against the locally built 0.1.0 engine.
+The canonical digest matched; the serialized engine version assertion failed with the same two values (exit 101).
+
+Independent ontology-case-runner replay of indexed rule-0.2 fixture files:
+83/83 matched eligibility, payout, missing_inputs and rule_content_hash across 7 clauses.
+KB fine: 18, lawyer fee: 15, hospital daily benefit: 9. Kyobo surgery: 7, death reserve: 4, outpatient: 9, whole life: 21.
+
+$ cargo test --all --locked --offline --target-dir target
+539 passed, 0 failed, 1 ignored (fixture regeneration). Nested codegen suite: 2 optional client checks skipped.
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ CARGO_TARGET_DIR="$PWD/target/ontology" python3 -m unittest discover -s tools/tests -p test_ontology_runner_io_error.py
+15 passed with the runner built by the Python suite.
+$ cargo fmt --all -- --check
+exit 0
+$ CARGO_TARGET_DIR="$PWD/target" cargo clippy --locked --offline --all-targets -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ CARGO_TARGET_DIR="$PWD/target" python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ CARGO_TARGET_DIR="$PWD/target" ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 231.623s
+OK (skipped=6: five local archive checks and one old-botocore check).

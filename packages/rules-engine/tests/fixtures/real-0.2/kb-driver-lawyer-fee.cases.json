@@ -1,0 +1,174 @@
+{
+  "rule_id": "kb-driver-lawyer-fee",
+  "rule_content_hash": "284bfab405dcad3840742336241694cd4b896b9d06ca2b50d21153ade4f2a33b",
+  "base": {
+    "accident_in_period_bodily_injury": true,
+    "arrested": false,
+    "indicted_not_summary": true,
+    "summary_moved_to_trial": false,
+    "formal_trial_requested": false,
+    "police_not_referred": false,
+    "summary_or_not_prosecuted": false,
+    "victim_died": false,
+    "major_violation": false,
+    "injury_grade_1_to_3": false,
+    "level1_used": true,
+    "level2_used": true,
+    "level3_used": true,
+    "level_cap_krw": 5000000,
+    "level1_covered_criminal_fee_krw": 60000000,
+    "level1_contracted_levels": 3,
+    "level2_covered_criminal_fee_krw": 60000000,
+    "level2_contracted_levels": 3,
+    "level3_covered_criminal_fee_krw": 60000000,
+    "level3_contracted_levels": 3
+  },
+  "cases": [
+    {
+      "id": "printed_example_1",
+      "set": {"rider_exclusions_cleared": true},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "printed_example_1_exclusions_unchecked",
+      "set": {},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["rider_exclusions_cleared"]
+      }
+    },
+    {
+      "id": "printed_example_1_exclusion_applies",
+      "set": {"rider_exclusions_cleared": false},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "printed_example_2",
+      "set": {
+        "rider_exclusions_cleared": true,
+        "level1_covered_criminal_fee_krw": 10000000,
+        "level1_contracted_levels": 2,
+        "level2_covered_criminal_fee_krw": 10000000,
+        "level2_contracted_levels": 2,
+        "level3_covered_criminal_fee_krw": 10000000,
+        "level3_contracted_levels": 1
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 10000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "first_instance_itemized_criminal_and_civil_fees",
+      "note": "1심 위임계약 1천만원 중 실제 부담한 형사 변호사비 200만원, 관련 민사소송 비용 800만원. 심급 한도 500만원.",
+      "set": {
+        "rider_exclusions_cleared": true,
+        "level1_covered_criminal_fee_krw": 2000000,
+        "level1_contracted_levels": 1,
+        "level2_used": false,
+        "level3_used": false
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 1000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "first_instance_criminal_portion_unconfirmed",
+      "note": "1심 형사·민사 위임계약의 총액 1천만원만 확인됐고 형사소송에 실제 부담한 금액은 미확인.",
+      "set": {
+        "rider_exclusions_cleared": true,
+        "level1_covered_criminal_fee_krw": null,
+        "level1_contracted_levels": 1,
+        "level2_used": false,
+        "level3_used": false
+      },
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["level1_covered_criminal_fee_krw"]
+      }
+    },
+    {
+      "id": "only_first_reached",
+      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_covered_criminal_fee_krw": 12000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 2000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "indivisible_agreement",
+      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_covered_criminal_fee_krw": 13},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "range", "min_krw": 2, "max_krw": 3}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "unknown_agreement_size",
+      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_contracted_levels": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["level1_contracted_levels"]
+      }
+    },
+    {
+      "id": "zero_agreement_size",
+      "set": {"rider_exclusions_cleared": true, "level2_used": false, "level3_used": false, "level1_contracted_levels": 0},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": [],
+        "amount_issues": [{"code": "zero_denominator", "path": "amount.add[0].then.min[0].multiply_rate[0]"}]
+      }
+    },
+    {
+      "id": "no_extracted_event_item8_unconfirmed",
+      "set": {"rider_exclusions_cleared": true, "indicted_not_summary": false},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["confirmed_article1_item8_applies"]
+      }
+    },
+    {
+      "id": "no_extracted_event_item8_and_exclusions_unconfirmed",
+      "set": {"indicted_not_summary": false, "rider_exclusions_cleared": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["confirmed_article1_item8_applies", "rider_exclusions_cleared"]
+      }
+    },
+    {
+      "id": "no_extracted_event_item8_confirmed",
+      "set": {"rider_exclusions_cleared": true, "indicted_not_summary": false, "confirmed_article1_item8_applies": true},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "not_a_covered_prosecution",
+      "set": {"indicted_not_summary": false, "confirmed_article1_item8_applies": false},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "item8_cannot_override_accident_requirement",
+      "set": {"accident_in_period_bodily_injury": false, "indicted_not_summary": false, "confirmed_article1_item8_applies": true},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    }
+  ]
+}

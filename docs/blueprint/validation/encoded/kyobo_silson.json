@@ -66,7 +66,8 @@
     {"relation_id": "r_std_instance", "relation_type": "defined_by", "from": "main", "to": "standard_terms 제5조·제37조", "predicate": "상품 조문 번호가 다르다(표준 제5조 → 상품 제6조, 표준 제37조 → 상품 제41조). 번호로 매핑하지 않는다", "evidence_refs": ["c_std_art5_1", "c_art6_1", "c_std_art37", "c_art41"], "review_status": "pending", "gaps": ["G22", "G20"]}
   ],
   "rules": [
-    {"benefit": "급여 입원·통원 실손", "status": "not_expressible", "reason": "통원은 '본인부담 − 공제금액'(뺄셈), 공제금액은 max(정액, 20%, 본인부담률 곱) 표(판독 보류), 연간 한도·자기부담 200만원 상한은 같은 보험연도 누적 상태가 필요하다", "gaps": ["G02", "G05", "G15"]},
+    {"rule_id": "kyobo-silson-outpatient", "status": "partially_expressed", "file": "packages/rules-engine/tests/fixtures/real-0.2/kyobo-silson-outpatient.json", "cases": 9, "inputs_from_outside_dsl": ["covered_disease_visit (보상 대상 질병급여 통원 여부)", "covered_patient_cost_krw (외래·처방조제 합산 인정 본인부담금)", "deductible_krw (해당 표1 공제액, 표 판독 보류)", "selected_visit_limit_krw (증권의 선택 한도)", "annual_paid_krw (같은 보험연도의 질병급여형 입원·통원 합산 지급액)"], "reason": "주계약 질병급여형 단독계약의 보험기간 내 통원 1회. 공제 후 0 하한, 선택한 1회 한도와 연간 5천만원 잔여 한도를 적용한다. 연간 한도를 모두 지급했으면 공제액이 미확인이어도 추가 지급액은 0원이다. 입원·종료 후 계속 통원·다수보험은 별도다.", "gaps": ["G05", "G15"]},
+    {"benefit": "급여 입원 실손", "status": "not_expressible", "reason": "입원 본인부담금 연간 200만원 초과분과 연간 합산 한도에 보험연도별 이력이 필요하다", "gaps": ["G05"]},
     {"benefit": "다수보험 비례분담", "status": "not_expressible", "reason": "나눗셈과 다른 계약 목록이 필요하다", "gaps": ["G03"]},
     {"benefit": "비중증비급여 상급병실료 차액", "status": "not_expressible", "reason": "1일 평균 = 합계 / 일수(나눗셈) 뒤 한도 적용", "gaps": ["G03", "G05"]}
   ],

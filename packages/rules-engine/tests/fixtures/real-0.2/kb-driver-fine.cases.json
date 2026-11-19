@@ -1,0 +1,167 @@
+{
+  "rule_id": "kb-driver-fine",
+  "rule_content_hash": "67e7f7cc26915949ab52a2e5ad687d8f10764dcd3687f4890b632f14358e0b53",
+  "base": {
+    "accident_in_period": true,
+    "driving_accident_bodily_injury": true,
+    "fine_imposed_by_final_judgment": true,
+    "fine_final_krw": 30000000,
+    "hit_and_run": false,
+    "racing_or_test_use": false,
+    "dui_unlicensed_or_drugs": false,
+    "intentional_insured_free_will": false,
+    "intentional_contractor": false,
+    "intentional_beneficiary_sole": false,
+    "intentional_beneficiary_partial": false,
+    "has_other_contracts": true,
+    "other_contracts_liability_krw": 20000000
+  },
+  "cases": [
+    {
+      "id": "overlapping_liabilities",
+      "set": {},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "unequal_liabilities",
+      "set": {"other_contracts_liability_krw": 30000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 12000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "sum_below_loss",
+      "set": {"other_contracts_liability_krw": 9999999},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 20000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "sum_equals_loss",
+      "set": {"other_contracts_liability_krw": 10000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 20000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "fractional_won",
+      "set": {"fine_final_krw": 10, "other_contracts_liability_krw": 5},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "range", "min_krw": 6, "max_krw": 7}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "no_other_contract",
+      "set": {"has_other_contracts": false, "other_contracts_liability_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 20000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "unknown_other_liability",
+      "set": {"other_contracts_liability_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["other_contracts_liability_krw"]
+      }
+    },
+    {
+      "id": "unconfirmed_fine",
+      "set": {"fine_imposed_by_final_judgment": false, "fine_final_krw": null},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "unknown_judgment_status",
+      "set": {"fine_imposed_by_final_judgment": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["fine_imposed_by_final_judgment"]
+      }
+    },
+    {
+      "id": "confirmed_fine_unknown_amount",
+      "set": {"fine_final_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["fine_final_krw"]
+      }
+    },
+    {
+      "id": "only_sole_beneficiary_intent_known_false",
+      "set": {"intentional_beneficiary_partial": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}},
+        "missing_inputs": ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw", "intentional_beneficiary_partial"]
+      }
+    },
+    {
+      "id": "offending_sole_beneficiary",
+      "set": {"intentional_beneficiary_sole": true, "intentional_beneficiary_partial": null},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "offending_partial_beneficiary_claims",
+      "set": {"intentional_beneficiary_partial": true, "claimant_is_other_beneficiary": false, "confirmed_claimant_share_krw": 5000000},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    },
+    {
+      "id": "partial_beneficiary_offended_claimant_unknown",
+      "set": {"intentional_beneficiary_partial": true},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "unknown"}},
+        "missing_inputs": ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw"]
+      }
+    },
+    {
+      "id": "other_beneficiary_share_unresolved",
+      "set": {"intentional_beneficiary_partial": true, "claimant_is_other_beneficiary": true},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["confirmed_claimant_share_krw"]
+      }
+    },
+    {
+      "id": "other_beneficiary_confirmed_share",
+      "set": {"intentional_beneficiary_partial": true, "claimant_is_other_beneficiary": true, "confirmed_claimant_share_krw": 5000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 5000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "other_beneficiary_limited_by_contract_liability",
+      "set": {"intentional_beneficiary_partial": true, "claimant_is_other_beneficiary": true, "confirmed_claimant_share_krw": 18000000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "dui_exclusion",
+      "set": {"dui_unlicensed_or_drugs": true},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    }
+  ]
+}

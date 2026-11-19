@@ -15,7 +15,7 @@
 | `REVERIFY_AUDIT1_STORAGE_DOCS.md` | BLUEPRINT의 R2 보존 완료·남은 조건·코드 목록 수정과 회귀 시험, 기존 R2 기록 대조 |
 | `REVERIFY_AUDIT1_DEC_RECORDS.md` | BLUEPRINT §0.1의 DEC 결정 게이트 기록 정의와 결정 원장 §3의 세 기록·상태 등록, 회귀 시험과 프로젝트 검사 결과 |
 
-실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
+실제 조항 규칙의 현재 버전은 `encoded/*.json`의 `rules[].file`에서 찾는다. `packages/fixtures/rules/real/`에는 V1 당시의 0.1 규칙과 사례가 있고, `packages/rules-engine/tests/fixtures/real-0.2/`에는 개정·추가한 0.2 규칙과 사례가 있다. 양쪽 모두 `publication_state=fixture_only`다. [약관별 0.2 회귀 시험](../../../tools/evidence/audit7-rule02-real-clause-cases/README.md)
 
 V1 종료의 담당·순서·필수 증거와 미재생성 6건 목록은 [Audit 2 V1 종료 결정](../../decisions/audit2-v1-gate-closure.md)을 따른다. 현재 관문은 미통과이며, 로컬 시험 통과와 DEC-D-02 기록만으로 재현·교차 검수 완료로 바꾸지 않는다.
 

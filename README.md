@@ -45,6 +45,8 @@ CI는 Rust `1.98.1`을 명시한다. 아래 명령은 저장소 루트에서 실
 작업 트리 경로에만 rustup 재정의를 등록해 전역 Rust 기본값이 없어도
 같은 도구 체인을 선택한다. 이 설정은 다른 작업 트리에 적용되지 않는다.
 온톨로지 실행기의 `rust-toolchain.toml`은 해당 디렉터리에만 적용된다.
+Cargo 시험 산출물은 현재 작업 트리의 `target/`에 둔다. 여러 작업 트리가
+빌드 디렉터리를 공유하면 Cargo가 다른 판본의 시험 바이너리를 재사용할 수 있다.
 
 ```sh
 rustup toolchain install 1.98.1 --profile minimal
@@ -53,10 +55,10 @@ python3 -m pip install --user boto3==1.43.100
 cargo fetch --locked
 cargo fetch --manifest-path services/scenario-api/Cargo.toml --locked
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo fetch --locked)
-python3 -m unittest discover -s tools/tests -v
-cargo test --all --locked --offline
+CARGO_TARGET_DIR="$PWD/target/ontology" python3 -m unittest discover -s tools/tests -v
+cargo test --all --locked --offline --target-dir target
 cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
-(cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
+cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
 ```
 
 오프라인 시험 전에는 도구 체인과 각 Cargo 작업 공간의 의존성이 설치돼 있어야 한다.

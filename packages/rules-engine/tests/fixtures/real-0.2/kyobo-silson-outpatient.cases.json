@@ -1,0 +1,90 @@
+{
+  "rule_id": "kyobo-silson-outpatient",
+  "rule_content_hash": "cca7cd0c784133e24552ab66dcb9dda8af172c29000d35b56e3c69330ec7ef0a",
+  "base": {
+    "covered_disease_visit": true,
+    "covered_patient_cost_krw": 80000,
+    "deductible_krw": 20000,
+    "selected_visit_limit_krw": 100000,
+    "annual_paid_krw": 0
+  },
+  "cases": [
+    {
+      "id": "after_deductible",
+      "set": {},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 60000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "cost_equals_deductible",
+      "set": {"covered_patient_cost_krw": 20000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 0}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "below_deductible",
+      "set": {"covered_patient_cost_krw": 15000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 0}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "selected_visit_limit",
+      "set": {"covered_patient_cost_krw": 160000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 100000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "annual_remainder",
+      "set": {"annual_paid_krw": 49960000},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 40000}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "annual_allowance_exhausted_unknown_deductible",
+      "set": {"annual_paid_krw": 50000000, "deductible_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "exact", "krw": 0}},
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "one_won_remaining_unknown_deductible",
+      "set": {"annual_paid_krw": 49999999, "deductible_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["deductible_krw"]
+      }
+    },
+    {
+      "id": "unreadable_deductible",
+      "set": {"deductible_krw": null},
+      "expect": {
+        "eligibility": "true",
+        "payout": {"kind": "payable", "amount": {"kind": "unknown"}},
+        "missing_inputs": ["deductible_krw"]
+      }
+    },
+    {
+      "id": "excluded_visit",
+      "set": {"covered_disease_visit": false},
+      "expect": {"eligibility": "false", "payout": {"kind": "not_payable"}, "missing_inputs": []}
+    }
+  ]
+}

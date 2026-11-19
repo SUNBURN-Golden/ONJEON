@@ -120,7 +120,7 @@ fn validate_rule_ids(file: &J, path: &Path, default_rule_id: Option<&str>) {
 
 /// Case fields are format-specific: accepting an unused field can hide a misspelled
 /// override or make a real-clause case run against the base inputs accidentally.
-fn validate_case_keys(file: &J, uses_base: bool, path: &Path) {
+pub fn validate_case_keys(file: &J, uses_base: bool, path: &Path) {
     let cases = file["cases"]
         .as_array()
         .unwrap_or_else(|| panic!("{}: cases must be an array", path.display()));

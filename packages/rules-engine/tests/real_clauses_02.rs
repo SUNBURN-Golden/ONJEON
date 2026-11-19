@@ -10,11 +10,11 @@ const DIR: &str = "packages/rules-engine/tests/fixtures/real-0.2";
 
 // Pin coverage independently of the files on disk. Each named operator must actually execute.
 const CLAUSES: &[(&str, &str, usize, &str)] = &[
-    ("kb-driver-fine", "kb_driver#c_fine_art3", 11, "pro_rata"),
+    ("kb-driver-fine", "kb_driver#c_fine_art3", 18, "pro_rata"),
     (
         "kb-driver-lawyer-fee",
         "kb_driver#c_lawyer_11_12",
-        7,
+        10,
         "divide_count",
     ),
     (
@@ -38,7 +38,7 @@ const CLAUSES: &[(&str, &str, usize, &str)] = &[
     (
         "kyobo-wholelife-disease-death",
         "kyobo_wholelife#c_annex1_disease",
-        15,
+        18,
         "anniversary_band",
     ),
     (

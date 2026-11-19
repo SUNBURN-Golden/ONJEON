@@ -86,3 +86,48 @@ $ python3 -I tools/blueprint_counts.py
 $ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
 Ran 1726 tests in 240.189s
 OK (skipped=6: five local archive checks and one old-botocore check).
+
+Audit 7 / 2026-11-19 / review fix round 2 (baseline 8f62bb9)
+
+$ cargo test --locked --offline -p onjeon-rules-engine --test real_clauses_02
+3 passed, 0 failed. 71 case-table rows across 7 indexed rules.
+
+Indexed rules -> ontology-case-runner. Baseline comparisons used the previous rule and only its declared inputs.
+kb-driver-fine/only_sole_beneficiary_intent_known_false unknown {"conditional_amount":{"kind":"unknown"},"kind":"undetermined"} ["claimant_is_other_beneficiary", "confirmed_claimant_share_krw", "intentional_beneficiary_partial"]
+kb-driver-fine/offending_partial_beneficiary_claims false {"kind":"not_payable"} []
+kb-driver-fine/other_beneficiary_share_unresolved true {"amount":{"kind":"unknown"},"kind":"payable"} ["confirmed_claimant_share_krw"]
+kb-driver-fine/other_beneficiary_confirmed_share true {"amount":{"kind":"exact","krw":5000000},"kind":"payable"} []
+kb-driver-lawyer-fee/no_extracted_event_item8_unconfirmed unknown {"conditional_amount":{"kind":"exact","krw":15000000},"kind":"undetermined"} ["confirmed_article1_item8_applies"]
+kb-driver-lawyer-fee/no_extracted_event_item8_confirmed true {"amount":{"kind":"exact","krw":15000000},"kind":"payable"} []
+kb-driver-lawyer-fee/not_a_covered_prosecution false {"kind":"not_payable"} []
+kyobo-wholelife-disease-death/offending_partial_beneficiary_claims false {"kind":"not_payable"} []
+kyobo-wholelife-disease-death/ordinary_death_before_coverage_start false {"kind":"not_payable"} []
+kyobo-wholelife-disease-death/ordinary_death_on_coverage_start true {"amount":{"kind":"exact","krw":40001000},"kind":"payable"} []
+kyobo-wholelife-disease-death/ordinary_death_coverage_start_unknown unknown {"conditional_amount":{"kind":"exact","krw":40001000},"kind":"undetermined"} ["coverage_start_date"]
+71/71 matched eligibility, payout, missing_inputs and rule_content_hash across 7 indexed rule-0.2 encodings.
+8f62bb9 -> round 2: kb-driver-fine/offending_partial_beneficiary_claims {"amount":{"kind":"exact","krw":15000000},"kind":"payable"} -> not_payable
+8f62bb9 -> round 2: kb-driver-lawyer-fee/no_extracted_event_item8_unconfirmed {"kind":"not_payable"} -> undetermined
+8f62bb9 -> round 2: kyobo-wholelife-disease-death/ordinary_death_before_coverage_start {"amount":{"kind":"exact","krw":40001000},"kind":"payable"} -> not_payable
+
+$ cargo test --all --locked --offline
+539 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture).
+The nested codegen suite skipped 2 optional TypeScript/Dart compatibility tests.
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+4 passed, 0 failed.
+$ cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology
+4 passed, 0 failed.
+$ cargo fmt --all -- --check
+exit 0
+$ cargo clippy --locked --offline --all-targets -- -D warnings
+exit 0
+$ python3 -I tools/validation_check.py
+14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps.
+$ python3 -I tools/validation_check.py --selftest
+40/40 mutations caught for the intended reason.
+$ python3 -I tools/blueprint_counts.py
+272 unit/integration tests, 3 doctests, 11 distinct real clause rule IDs, 40 tamper tests, 50 vocabulary axes.
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+47/47 machine checks and 72/72 presence checks passed.
+$ ONJEON_ONTOLOGY_RUNNER="$PWD/target/ontology/debug/ontology-case-runner" python3 -m unittest discover -s tools/tests -v
+Ran 1726 tests in 208.915s
+OK (skipped=6: five local archive checks and one old-botocore check).

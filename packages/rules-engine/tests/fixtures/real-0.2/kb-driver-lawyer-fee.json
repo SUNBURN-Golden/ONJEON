@@ -15,6 +15,7 @@
     "victim_died": "bool",
     "major_violation": "bool",
     "injury_grade_1_to_3": "bool",
+    "confirmed_article1_item8_applies": "bool",
     "level1_used": "bool",
     "level2_used": "bool",
     "level3_used": "bool",
@@ -53,7 +54,8 @@
               {"eq": ["injury_grade_1_to_3", true]},
               {"eq": ["major_violation", false]}
             ]
-          }
+          },
+          "confirmed_article1_item8_applies"
         ]
       }
     ]

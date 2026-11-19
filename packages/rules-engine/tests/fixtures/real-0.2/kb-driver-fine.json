@@ -15,6 +15,9 @@
     "intentional_insured_free_will": "bool",
     "intentional_contractor": "bool",
     "intentional_beneficiary_sole": "bool",
+    "intentional_beneficiary_partial": "bool",
+    "claimant_is_other_beneficiary": "bool",
+    "confirmed_claimant_share_krw": "money_krw",
     "has_other_contracts": "bool",
     "other_contracts_liability_krw": "money_krw"
   },
@@ -28,29 +31,35 @@
       {"eq": ["dui_unlicensed_or_drugs", false]},
       {"eq": ["intentional_insured_free_will", false]},
       {"eq": ["intentional_contractor", false]},
-      {"eq": ["intentional_beneficiary_sole", false]}
+      {"eq": ["intentional_beneficiary_sole", false]},
+      {"if": "intentional_beneficiary_partial", "then": "claimant_is_other_beneficiary", "else": true}
     ]
   },
   "amount": {
-    "if": "has_other_contracts",
-    "then": {
-      "if": {
-        "gt": [
-          {"add": [{"min": ["fine_final_krw", {"krw": 20000000}]}, "other_contracts_liability_krw"]},
-          "fine_final_krw"
-        ]
-      },
-      "then": {
-        "pro_rata": [
-          "fine_final_krw",
-          {"min": ["fine_final_krw", {"krw": 20000000}]},
-          {"add": [{"min": ["fine_final_krw", {"krw": 20000000}]}, "other_contracts_liability_krw"]},
-          {"rounding": "unspecified", "unit": 1}
-        ]
-      },
-      "else": {"min": ["fine_final_krw", {"krw": 20000000}]}
-    },
-    "else": {"min": ["fine_final_krw", {"krw": 20000000}]}
+    "min": [
+      {"if": "intentional_beneficiary_partial", "then": "confirmed_claimant_share_krw", "else": "fine_final_krw"},
+      {
+        "if": "has_other_contracts",
+        "then": {
+          "if": {
+            "gt": [
+              {"add": [{"min": ["fine_final_krw", {"krw": 20000000}]}, "other_contracts_liability_krw"]},
+              "fine_final_krw"
+            ]
+          },
+          "then": {
+            "pro_rata": [
+              "fine_final_krw",
+              {"min": ["fine_final_krw", {"krw": 20000000}]},
+              {"add": [{"min": ["fine_final_krw", {"krw": 20000000}]}, "other_contracts_liability_krw"]},
+              {"rounding": "unspecified", "unit": 1}
+            ]
+          },
+          "else": {"min": ["fine_final_krw", {"krw": 20000000}]}
+        },
+        "else": {"min": ["fine_final_krw", {"krw": 20000000}]}
+      }
+    ]
   },
   "unknown_policy": "use_three_valued_logic_never_default_to_zero",
   "evidence_refs": ["kb_driver#c_fine_art1", "kb_driver#c_fine_art2", "kb_driver#c_fine_art3"],

@@ -24,6 +24,7 @@
   "eligibility": {
     "all": [
       {"gte": ["death_date", "contract_date"]},
+      {"gte": ["death_date", "coverage_start_date"]},
       {
         "lt": [
           "death_date",

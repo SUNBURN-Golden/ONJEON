@@ -30,6 +30,10 @@ jobs:
           python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
       - name: Tracked credentials and virtual environments
         run: python3 -I tools/check_tracked_secrets.py
+      - name: Product purpose progress
+        continue-on-error: true
+        shell: bash
+        run: python3 -I tools/release_readiness/progress.py 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Registry normalization regressions
         run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v
       - name: Registry CSV references and access evidence

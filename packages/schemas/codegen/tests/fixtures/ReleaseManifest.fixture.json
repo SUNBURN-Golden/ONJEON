@@ -50,7 +50,8 @@
   ],
   "engine_version": "0.2.0+snapshot-json-1",
   "rule_schema_versions": [
-    "rule-0.1"
+    "rule-0.1",
+    "rule-0.2"
   ],
   "capability_table_hash": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
   "explain_template_hash": "00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff",

@@ -3,7 +3,7 @@
 #
 # 서버 선택(순서대로):
 #   1) ONJEON_DB_ADMIN_URL=postgresql://<관리 역할>@host:port/postgres — 이미 떠 있는 서버(예: infra/compose의 공개 영역 DB). 관리 역할은 슈퍼유저여야 한다
-#      (SET ROLE로 네 역할을 흉내 내고 임시 DB를 만든다). 비밀번호는 PGPASSWORD로 준다. 기존 DB는 건드리지 않고 임시 DB 둘을 만들었다 지운다.
+#      (SET ROLE로 네 역할을 흉내 내고 임시 DB를 만든다). 비밀번호는 PGPASSWORD로 준다. 임시 DB 셋을 만들었다 지운다.
 #   2) PATH 또는 ONJEON_PG_BIN에 initdb·pg_ctl·psql이 있으면 임시 클러스터를 띄운다(소켓 전용, 시험 뒤 삭제).
 #      PATH에 없으면 Debian/Ubuntu 배치(/usr/lib/postgresql/<판>/bin, 가장 높은 판)를 찾아 쓴다. 어느 바이너리를 썼는지 첫 줄에 적는다.
 #   3) 둘 다 없으면 실패한다(건너뛰지 않는다: 시험하지 않은 것은 통과가 아니다).
@@ -126,6 +126,23 @@ if apply "$PUB" "$db_dir/public/apply.sh" >/tmp/onjeon-dbtest-pub.$$ 2>&1; then 
 if apply "$PRV" "$db_dir/personal/apply.sh" >/tmp/onjeon-dbtest-prv.$$ 2>&1; then ok "personal migrations apply"; else bad "personal migrations apply" "$(cat /tmp/onjeon-dbtest-prv.$$)"; exit 1; fi
 rm -f /tmp/onjeon-dbtest-pub.$$ /tmp/onjeon-dbtest-prv.$$
 if apply "$PUB" "$db_dir/public/apply.sh" >/dev/null 2>&1; then bad "re-applying must fail loudly (migrations are not idempotent)"; else ok "re-applying the schema is refused (no silent drift)"; fi
+
+say "== 공개 DB 02 → 03 업그레이드 =="
+# 뒤의 변이 시험이 재사용할 임시 DB에 기존 마이그레이션을 02까지 적용한다.
+psql_admin postgres -c "CREATE DATABASE \"$MUT\"" || exit 1
+psql_admin "$MUT" --single-transaction -f "$here/00_roles.sql" -f "$here/01_schema.sql" \
+  -f "$db_dir/criteria/01_criteria.sql" -f "$here/02_grants.sql" -f "$db_dir/criteria/02_grants.sql" || exit 1
+must_ok "previous schema stores a frozen 0.1.0 manifest" "$MUT" knowledge_writer \
+  "$(R 1 test "$(members '[]')" '0.1.0')"
+new_manifest="$(R 2 test "$(members '[]')" '0.2.0+snapshot-json-1')"
+must_fail "previous schema rejects the snapshot-qualified version" "$MUT" knowledge_writer \
+  "release_manifest_engine_version_check" "$new_manifest"
+psql_admin "$MUT" --single-transaction -f "$here/03_engine_version.sql" || exit 1
+must_ok "upgraded schema stores the same snapshot-qualified manifest" "$MUT" knowledge_writer "$new_manifest"
+[ "$(q "$MUT" "SELECT engine_version FROM release_manifest WHERE release_id='rel:20260101-1'")" = '0.1.0' ] \
+  && ok "upgrade preserves the frozen manifest's engine version" || bad "historical engine version changed during upgrade"
+must_fail "upgraded schema rejects an empty build suffix" "$MUT" knowledge_writer \
+  "chk_release_engine_version" "$(R 3 test "$(members '[]')" '0.2.0+')"
 
 say "== 구조: 모든 공개 테이블에 K8 트리거, 정본 대조 =="
 n_tables="$(q "$PUB" "SELECT count(*) FROM pg_tables WHERE schemaname IN ('public','criteria')")"

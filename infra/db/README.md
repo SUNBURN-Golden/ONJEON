@@ -4,7 +4,7 @@
 
 | 디렉터리 | 대상 DB | 내용 |
 |---|---|---|
-| `public/` | 공개 영역 DB | 역할(`00_roles.sql`), 15개 테이블(+보조 표 `conflict_member`)·제약·트리거(`01_schema.sql`), 권한(`02_grants.sql`), `apply.sh`, **시험 `test.sh`**, 어휘 대조 `tests/test_vocab_sync.py`, 실행 기록 `evidence/test.log`(임시 PostgreSQL 17)·`evidence/test_compose_pg16.log`(compose의 16.15) |
+| `public/` | 공개 영역 DB | 역할(`00_roles.sql`), 15개 테이블(+보조 표 `conflict_member`)·제약·트리거(`01_schema.sql`), 권한(`02_grants.sql`), 릴리스 엔진 빌드 식별자(`03_engine_version.sql`), `apply.sh`, **시험 `test.sh`**, 어휘 대조 `tests/test_vocab_sync.py`, 실행 기록 `evidence/test.log`(임시 PostgreSQL 17)·`evidence/test_compose_pg16.log`(compose의 16.15) |
 | `criteria/` | 공개 영역 DB의 `criteria` 스키마 | `criterion`·`criterion_version`·`criterion_source`(`01_criteria.sql`), 권한(`02_grants.sql`). `public/apply.sh`가 함께 적용한다 |
 | `personal/` | 개인 영역 DB (다른 서버) | `personal` 스키마 9개 테이블(`01_schema.sql`), 권한, `apply.sh` |
 
@@ -18,10 +18,16 @@ bash infra/db/personal/apply.sh postgresql://<admin>@<private-db-host>:<port>/<d
 
 마이그레이션은 한 번 적용하는 판이다(단일 트랜잭션, 다시 적용하면 거부된다). 변경은 새 번호의 파일로 낸다. `infra/compose`의 DB 초기화(`zone-init.psql`)는 앱 로그인 역할과 큐만 만들므로 순서는 *compose 기동 → apply.sh*다. 이 순서를 compose 스택(`postgres:16.15-alpine`)의 실제 두 DB(`onjeon_public`, `onjeon_private`)에서 한 번 실행해 확인했다(`public/evidence/test_compose_pg16.log` 뒷부분: 적용 성공, 재적용 거부, 앱 로그인 역할은 그룹 역할 구성원이 아니라서 도메인 표를 읽지 못함). compose는 이 디렉터리를 아직 자동 적용하지 않는다(그 연결은 `infra/compose/**` 소유 과제의 일이다).
 
+공개 DB에 이미 02까지 적용했다면 관리 역할의 접속 환경 변수(`PGDATABASE` 등)를 설정하고 저장소 루트에서 03만 적용한다. 새 DB에서는 `public/apply.sh`가 03까지 실행한다.
+
+```sh
+psql -X -v ON_ERROR_STOP=1 --single-transaction -f infra/db/public/03_engine_version.sql
+```
+
 ## 시험
 
 ```sh
-bash infra/db/public/test.sh    # 공개·criteria·개인 스키마를 임시 DB에 적용하고 166개 점검을 돌린다
+bash infra/db/public/test.sh    # 임시 DB에서 새 설치, 공개 DB의 02 → 03 업그레이드, 스키마 제약을 검증한다
 
 # compose 스택(bash infra/compose/up.sh)의 공개 DB에서 돌릴 때. 관리 역할 이름은 .env의 PUBLIC_DB_ADMIN_USER,
 # 비밀번호는 .env의 PUBLIC_DB_ADMIN_PASSWORD 값을 PGPASSWORD 환경 변수로만 넘긴다(명령줄·URL·파일에 쓰지 않는다).
@@ -74,5 +80,5 @@ PGPASSWORD="<.env의 PUBLIC_DB_ADMIN_PASSWORD>" ONJEON_DB_ADMIN_URL=postgresql:/
 - 개인 영역의 `components`·`plan.items` 등 jsonb 안쪽은 어휘 값과 필수 키만 확인한다. 나머지 모양은 `packages/schemas`의 JSON 스키마 검증 몫이다.
 - 원문 발췌는 저장하지 않는다(`clause.quote_sha256`만). PDF 비밀번호 열은 없다.
 - 이 스키마의 설계 근거 문서가 아직 채택본이 아니므로 이름·열은 채택 과정에서 바뀔 수 있다. 바뀌면 새 번호 마이그레이션이다.
-- 현재 스키마는 PostgreSQL 17.11(임시 클러스터)에서만 166/0으로 확인했다. compose가 쓰는 16.15(두 서버)에서는 수정 라운드 1 이전 스키마로 149/0이었고 이후 재실행하지 못했으니 같은 시험이 아니다. 다른 메이저 판은 확인하지 않았다. 생성 열, 도메인, 지연 제약 트리거, jsonb만 쓴다.
+- 03을 포함한 새 설치와 02에서의 업그레이드는 PostgreSQL 17.11 임시 클러스터에서 171개 점검을 통과했다([Audit 7 검증 기록](../../tools/evidence/audit7-engine-version-bump/README.md)). compose의 16.15 두 서버에서 기록한 149/0은 03 도입 전 스키마의 결과다. 다른 메이저 판은 확인하지 않았다. 생성 열, 도메인, 지연 제약 트리거, jsonb만 쓴다.
 - **가드 함수와 TEMP.** 다른 표를 읽는 가드 함수(`assertion_guard`·`premium_guard`·`release_manifest_guard`)는 `search_path = public, pg_temp`로 고정하고 `02_grants.sql`이 데이터베이스의 TEMPORARY 권한을 PUBLIC에서 회수한다. 슈퍼유저·DB 소유자는 여전히 임시 표를 만들 수 있다. 릴리스의 철회·대체 표시는 한 방향이다(철회 취소·사유 변경·대체 대상 재지정·자기 대체 거부). B5(fixture_only 규칙 거부)는 DB가 아니라 릴리스 빌더 몫이다. `conditions`는 비어 있지 않은 객체이기만 하면 되며 값의 의미는 보지 않는다.

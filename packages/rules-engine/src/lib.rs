@@ -25,5 +25,6 @@ pub use eval::{
 pub use rule::{ContractEffect, Rule, RuleError};
 pub use tri::Tri;
 
-/// Engine version recorded in every result. The suffix identifies the snapshot encoding change.
-pub const ENGINE_VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "+snapshot-json-1");
+/// Evaluator version recorded in results and release manifests. The suffix identifies
+/// the input snapshot encoding. This version is independent of the Cargo package version.
+pub const ENGINE_VERSION: &str = "0.2.0+snapshot-json-1";

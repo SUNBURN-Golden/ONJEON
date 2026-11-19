@@ -1,8 +1,9 @@
-//! Audits 2/3: dates must use zero-padded ASCII YYYY-MM-DD, with no signed aliases.
+//! Dates must use zero-padded ASCII YYYY-MM-DD, with no signed aliases.
 use onjeon_rules_engine::{AmountOut, EvalError, Payout, Rule};
 use serde_json::{json, Value};
 
 const NON_CANONICAL_DATES: &[&str] = &[
+    "2026-+1-+8",
     "2026-+1-+5",
     "2026-+1-05",
     "2026-01-+5",
@@ -66,6 +67,7 @@ fn canonical_date_literals_and_inputs_still_evaluate() {
             "2024-02-09",
             "2024-02-29",
             "2026-01-05",
+            "2026-01-08",
             "2199-12-31",
         ] {
             let rule = Rule::from_json(&rule(version, date)).unwrap();

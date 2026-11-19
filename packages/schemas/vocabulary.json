@@ -1,6 +1,6 @@
 {
-  "version": "1.9.0",
-  "updated": "2026-11-18",
+  "version": "1.10.0",
+  "updated": "2026-11-19",
   "rules": [
     "축(axis)이 다른 상태를 한 값에 섞지 않는다. 값 상태·검수 상태·기능 자격·화면 상태·초안 상태는 서로 다른 축이다.",
     "저장값은 소문자 snake_case ASCII다. 화면 문구는 이 파일의 screen_ko만 쓴다.",
@@ -925,6 +925,60 @@
           "code": "undetermined",
           "concept_ko": "필요한 사실이 없어 판단 불가",
           "screen_ko": "판단에 필요한 정보가 부족해요",
+          "deprecated_aliases": []
+        }
+      ]
+    },
+    {
+      "id": "contract_effect",
+      "name_ko": "규칙이 정한 계약 효과",
+      "applies_to": "rule-0.2의 contract_effect, EvaluationResult.contract_effect의 effect 및 conditional_effect",
+      "layer": "L6-L8",
+      "concept_ko": "규칙의 요건이 성립할 때 계약에 생기는 효과. rule-0.2에서 선언을 생략하면 none이다",
+      "values": [
+        {
+          "code": "none",
+          "concept_ko": "이 규칙에 따른 별도 계약 효과가 없음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "void_refund_premium",
+          "concept_ko": "계약 무효와 보험료 반환",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "terminated_pay_reserve",
+          "concept_ko": "사망 시 계약자적립액 지급 후 소멸",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        }
+      ]
+    },
+    {
+      "id": "contract_effect_kind",
+      "name_ko": "계약 효과 적용 판정",
+      "applies_to": "EvaluationResult.contract_effect.kind",
+      "layer": "L6-L8",
+      "concept_ko": "입력한 조건에서 규칙의 계약 효과가 적용되는가",
+      "values": [
+        {
+          "code": "none",
+          "concept_ko": "규칙에 별도 효과가 없거나 요건이 거짓이어서 적용할 효과가 없음",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "applies",
+          "concept_ko": "요건이 참이어서 effect의 계약 효과가 적용됨",
+          "screen_ko": null,
+          "deprecated_aliases": []
+        },
+        {
+          "code": "undetermined",
+          "concept_ko": "요건이 미확정이며, 성립하는 경우의 계약 효과를 conditional_effect에 보존함",
+          "screen_ko": null,
           "deprecated_aliases": []
         }
       ]

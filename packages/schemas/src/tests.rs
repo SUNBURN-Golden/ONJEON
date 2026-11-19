@@ -181,9 +181,15 @@ fn compat_check_selftest_detects_a_deleted_field() {
 
 #[test]
 fn contracts_version_matches_the_generated_clients() {
-    let ts =
-        std::fs::read_to_string(schemas_dir().join("codegen/generated/ts/package.json")).unwrap();
-    assert!(ts.contains(&format!("\"version\": \"{CONTRACTS_VERSION}\"")));
+    let clients = schemas_dir().join("codegen/generated");
+    let ts: Value =
+        serde_json::from_slice(&std::fs::read(clients.join("ts/package.json")).unwrap()).unwrap();
+    assert_eq!(ts["version"], CONTRACTS_VERSION);
+    let dart = std::fs::read_to_string(clients.join("dart/pubspec.yaml")).unwrap();
+    assert_eq!(
+        dart.lines().find_map(|line| line.strip_prefix("version: ")),
+        Some(CONTRACTS_VERSION)
+    );
 }
 
 // ---- wire compatibility with the real rule engine -----------------------
@@ -218,7 +224,8 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
             );
             if let Some(ce) = &typed.contract_effect {
                 assert_eq!(
-                    ce.kind, CONTRACT_EFFECT_NONE,
+                    ce.kind.as_str(),
+                    CONTRACT_EFFECT_NONE,
                     "fixture rules are rule-0.1: no effect declared"
                 );
                 with_effect += 1;
@@ -273,7 +280,7 @@ fn rule_02_contract_effects_round_trip_when_the_engine_supports_them() {
         (
             json!({"hit": true, "insured_amount_krw": 100}),
             CONTRACT_EFFECT_APPLIES,
-            Some("void_refund_premium"),
+            Some(ContractEffect::VoidRefundPremium),
             None,
         ),
         (json!({"hit": false}), CONTRACT_EFFECT_NONE, None, None),
@@ -281,7 +288,7 @@ fn rule_02_contract_effects_round_trip_when_the_engine_supports_them() {
             json!({"insured_amount_krw": 100}),
             CONTRACT_EFFECT_UNDETERMINED,
             None,
-            Some("void_refund_premium"),
+            Some(ContractEffect::VoidRefundPremium),
         ),
     ];
     for (inputs, kind, effect, conditional) in shapes {
@@ -291,9 +298,9 @@ fn rule_02_contract_effects_round_trip_when_the_engine_supports_them() {
         let ce = typed
             .contract_effect
             .expect("a rule-0.2 engine reports contract_effect");
-        assert_eq!(ce.kind, kind);
-        assert_eq!(ce.effect.as_deref(), effect);
-        assert_eq!(ce.conditional_effect.as_deref(), conditional);
+        assert_eq!(ce.kind.as_str(), kind);
+        assert_eq!(ce.effect, effect);
+        assert_eq!(ce.conditional_effect, conditional);
     }
 }
 
@@ -416,6 +423,28 @@ fn blocked_scenario_carries_no_engine_result() {
 }
 
 #[test]
+fn contract_effect_requires_known_string_codes() {
+    for (src, field) in [
+        (fixture!("EvaluationResult.payable"), "kind"),
+        (fixture!("EvaluationResult.payable"), "effect"),
+        (
+            fixture!("EvaluationResult.undetermined"),
+            "conditional_effect",
+        ),
+    ] {
+        let mut wire: Value = serde_json::from_str(src).unwrap();
+        let valid_code = wire["contract_effect"][field].as_str().unwrap().to_owned();
+        for invalid in [json!("cancelled"), json!({valid_code: null}), json!(0)] {
+            wire["contract_effect"][field] = invalid;
+            assert!(
+                serde_json::from_value::<EvaluationResult>(wire.clone()).is_err(),
+                "{wire}"
+            );
+        }
+    }
+}
+
+#[test]
 fn evaluation_result_invariants_catch_mismatched_kinds() {
     let payable: EvaluationResult =
         serde_json::from_str(fixture!("EvaluationResult.payable")).unwrap();
@@ -455,15 +484,11 @@ fn evaluation_result_invariants_catch_mismatched_kinds() {
 
     let mut e = payable.clone();
     let ce = e.contract_effect.as_mut().unwrap();
-    ce.conditional_effect = ce.effect.clone();
+    ce.conditional_effect = ce.effect;
     assert_eq!(rules(&e), vec!["contract_effect_fields_match_kind"]);
 
-    let mut e = payable.clone();
-    e.contract_effect.as_mut().unwrap().kind = "cancelled".into();
-    assert_eq!(rules(&e), vec!["contract_effect_kind_known"]);
-
     let mut e = undetermined.clone();
-    e.contract_effect.as_mut().unwrap().kind = "applies".into();
+    e.contract_effect.as_mut().unwrap().kind = ContractEffectKind::Applies;
     assert_eq!(
         rules(&e),
         vec![
@@ -473,8 +498,11 @@ fn evaluation_result_invariants_catch_mismatched_kinds() {
     );
 
     // a result from an engine build before rule-0.2 support carries no contract_effect at all
-    let mut e = payable.clone();
-    e.contract_effect = None;
+    let mut legacy = serde_json::to_value(payable).unwrap();
+    legacy["schema_version"] = json!("rule-0.1");
+    legacy.as_object_mut().unwrap().remove("contract_effect");
+    let e = round_trip::<EvaluationResult>(&legacy.to_string());
+    assert!(e.contract_effect.is_none());
     assert!(check_evaluation_result(&e).is_empty());
 }
 

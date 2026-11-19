@@ -157,6 +157,35 @@ class Diff(unittest.TestCase):
 
 
 class Versions(unittest.TestCase):
+    def test_contract_version_from_current_and_legacy_manifests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "Cargo.toml"
+            manifest.write_text('package = "invalid"\n', encoding="utf-8")
+            with self.assertRaises(sm.SchemaError):
+                sm.contracts_version(manifest)
+            legacy = '[package]\nversion = "0.1.0"\n'
+            manifest.write_text(legacy, encoding="utf-8")
+            self.assertEqual(sm.contracts_version(manifest), "0.1.0")
+            metadata = legacy + '[package.metadata.onjeon]\ncontracts-version = '
+            manifest.write_text(metadata + '"0.2.0"\n', encoding="utf-8")
+            self.assertEqual(sm.contracts_version(manifest), "0.2.0")
+            for value in ('"0.2"', '2'):
+                with self.subTest(value=value):
+                    manifest.write_text(metadata + value + "\n", encoding="utf-8")
+                    with self.assertRaises(sm.SchemaError):
+                        sm.contracts_version(manifest)
+
+    def test_contract_version_covers_the_0_1_contract_effect_type_changes(self):
+        def legacy_fields(result):
+            for field in ("kind", "effect", "conditional_effect"):
+                result["properties"][field] = {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+
+        current, legacy = models(prop("evaluation_result.schema.json", "ContractEffectResult")(legacy_fields))
+        breaking, compatible = compat.diff(legacy, current)
+        self.assertEqual(len(breaking), 3, breaking)
+        version = sm.contracts_version(sm.SCHEMAS_DIR / "Cargo.toml")
+        self.assertIsNone(compat.required_bump_ok("0.1.0", version, bool(breaking), bool(breaking or compatible)))
+
     def test_version_rule(self):
         ok = compat.required_bump_ok
         self.assertIsNone(ok("0.1.0", "0.1.0", False, False))
@@ -261,7 +290,8 @@ class CheckCompatScript(unittest.TestCase):
         shutil.copytree(sm.JSON_DIR, dst / "json")
         shutil.copytree(sm.SCHEMAS_DIR / "codegen", dst / "codegen", ignore=shutil.ignore_patterns("tests", "generated", "evidence", "__pycache__"))
         shutil.copy(sm.VOCAB_PATH, dst / "vocabulary.json")
-        shutil.copy(sm.SCHEMAS_DIR / "Cargo.toml", dst / "Cargo.toml")
+        # The legacy tag predates the wire version in package metadata.
+        (dst / "Cargo.toml").write_text('[package]\nname = "onjeon-contracts"\nversion = "0.1.0"\n', encoding="utf-8")
         if generated:
             shutil.copytree(sm.SCHEMAS_DIR / "src" / "generated", dst / "src" / "generated")
             for lang in ("ts", "dart"):
@@ -290,9 +320,11 @@ class CheckCompatScript(unittest.TestCase):
         return p.returncode, p.stdout + p.stderr
 
     @staticmethod
-    def bump(dst, version):
-        p = dst / "Cargo.toml"
-        p.write_text(p.read_text(encoding="utf-8").replace('version = "0.1.0"', f'version = "{version}"', 1), encoding="utf-8")
+    def set_version(dst, version):
+        (dst / "Cargo.toml").write_text(
+            '[package]\nname = "onjeon-contracts"\nversion = "0.1.0"\n'
+            f'[package.metadata.onjeon]\ncontracts-version = "{version}"\n', encoding="utf-8"
+        )
 
     def test_unchanged_schemas_pass_against_the_tag_including_the_compile_probe(self):
         root, dst = self.repo()
@@ -319,7 +351,7 @@ class CheckCompatScript(unittest.TestCase):
         self.git(root, "tag", "contracts-0.2.0")
         unrelated = self.git(root, "commit-tree", "HEAD^{tree}", "-m", "unrelated")
         self.git(root, "tag", "contracts-9.0.0", unrelated)
-        self.bump(dst, "0.1.11")
+        self.set_version(dst, "0.1.11")
         rc, out = self.run_check(root, dst, "--latest")
         self.assertEqual(rc, 0, out)
         self.assertIn("compatible with contracts-0.1.10", out)
@@ -357,7 +389,7 @@ class CheckCompatScript(unittest.TestCase):
         self.git(root, "commit", "-q", "--allow-empty", "-m", "candidate")
         edit(dst / "json" / "assertion.schema.json", lambda d: d["properties"].update(note={"type": "string"}))
         self.mutate_vocab(dst, insert_first("criticality", "zz_new_first"))
-        self.bump(dst, "0.1.1")
+        self.set_version(dst, "0.1.1")
         rc, out = self.run_check(root, dst, "--latest", ONJ_COMPAT_ALL_CLIENTS="1")
         self.assertEqual(rc, 0, out)
         self.assertIn("== TypeScript: type-check documents against the tagged client", out)
@@ -399,7 +431,7 @@ class CheckCompatScript(unittest.TestCase):
     def test_a_deleted_field_with_a_major_bump_is_accepted_as_declared(self):
         root, dst = self.repo()
         edit(dst / "json" / "assertion.schema.json", lambda d: (d["properties"].pop("created_by_run"), d["required"].remove("created_by_run")))
-        self.bump(dst, "0.2.0")
+        self.set_version(dst, "0.2.0")
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 0, out)
         self.assertIn("breaking, major bumped", out)
@@ -410,7 +442,7 @@ class CheckCompatScript(unittest.TestCase):
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 1, out)
         self.assertIn("schemas changed but the version is still 0.1.0", out)
-        self.bump(dst, "0.1.1")
+        self.set_version(dst, "0.1.1")
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 0, out)
         self.assertIn("compile probe", out)
@@ -426,7 +458,7 @@ class CheckCompatScript(unittest.TestCase):
         reached the previous client as an unknown enum value and the check reported a false INCOMPATIBLE."""
         root, dst = self.repo()
         self.mutate_vocab(dst, insert_first("criticality", "zz_new_first"))
-        self.bump(dst, "0.1.1")
+        self.set_version(dst, "0.1.1")
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 0, out)
         self.assertIn("compatible enum value added: criticality.zz_new_first", out)
@@ -437,7 +469,7 @@ class CheckCompatScript(unittest.TestCase):
     def test_a_removed_enum_value_fails_without_a_major_bump(self):
         root, dst = self.repo()
         self.mutate_vocab(dst, remove_value("criticality", "c2"))
-        self.bump(dst, "0.1.1")
+        self.set_version(dst, "0.1.1")
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 1, out)
         self.assertIn("BREAKING   enum value removed: criticality.c2", out)
@@ -448,7 +480,7 @@ class CheckCompatScript(unittest.TestCase):
         # an optional field whose pattern no probe sample satisfies: the probe cannot be generated
         edit(dst / "json" / "error_response.schema.json",
              lambda d: d["properties"].update(hint={"type": "string", "pattern": "^zzz[0-9]{5}$"}))
-        self.bump(dst, "0.1.1")
+        self.set_version(dst, "0.1.1")
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 2, out)
         self.assertIn("could not be prepared or built", out)

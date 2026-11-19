@@ -1,6 +1,6 @@
 # 온전 설계도 (Blueprint) v1.0
 
-2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-18 현황 갱신(ADR-0020·0021·§7·§9·§11) | 이 문서가 구현의 단일 기준이다.
+2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-19 현황 갱신(§11 계약 효과 어휘와 검증 수치) | 이 문서가 구현의 단일 기준이다.
 
 ## 0. 이 문서의 역할
 
@@ -378,7 +378,7 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 7. 마일스톤이 끝날 때마다 §4·§8·§9·§11의 상태 열을 갱신한다.
 8. 마일스톤과 별개로 `docs/decisions/ADR-*.md` 또는 `DEC-*.md`를 추가·수정·삭제·개명하는 변경은 같은 변경에서 §11의 영향받는 상태·관문을 검토·갱신하고 기준일(UTC)을 찍는다. 검토 뒤 `python3 -I tools/blueprint_status.py --write`로 §11 기준일과 전체 결정 색인·내용 해시를 갱신한다. `python3 -I tools/blueprint_status.py`와 CI의 `tools/tests/test_blueprint_status.py`가 누락을 거부한다. 자동 생성은 색인과 날짜만 바꾸며 상태 판단·관문 승인을 대신하지 않는다.
 
-## 11. 현재 위치 (2026-11-18)
+## 11. 현재 위치 (2026-11-19)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -417,22 +417,22 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 
 | 항목 | 등록 수 | 대조 원천 |
 |---|---:|---|
-| Rust 단위·통합 시험 | 269 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 271 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
-| 공유 어휘 축 | 50 | `packages/schemas/vocabulary.json`의 `axes` |
+| 공유 어휘 축 | 52 | `packages/schemas/vocabulary.json`의 `axes` |
 <!-- blueprint-counts:end -->
 
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-11-18 | SHA-256(파일명·내용): `3f0c5a6f96e205ba5a614aac20f88031c61aa76f058102445a0d35c97b037184`
+결정 기록 대조일: 2026-11-19 | SHA-256(파일명·내용): `ce71c8b339c1e6ced4db5eaf6e4a86639b4f93045da11a13792d0d6a2ae1772c`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|
 | ADR (21) | [ADR-0001-기술-스택](decisions/ADR-0001-기술-스택.md), [ADR-0002-합성-픽스처-우선](decisions/ADR-0002-합성-픽스처-우선.md), [ADR-0003-규칙-엔진-단일-구현](decisions/ADR-0003-규칙-엔진-단일-구현.md), [ADR-0004-대상-범위-전-보험사-전-상품](decisions/ADR-0004-대상-범위-전-보험사-전-상품.md), [ADR-0005-계약-가져오기-PDF-단일-경로](decisions/ADR-0005-계약-가져오기-PDF-단일-경로.md), [ADR-0006-AI-검수와-AI-분모-조사](decisions/ADR-0006-AI-검수와-AI-분모-조사.md), [ADR-0007-단일-완성-출시](decisions/ADR-0007-단일-완성-출시.md), [ADR-0008-첫-출시-범위-담보-파악-집중](decisions/ADR-0008-첫-출시-범위-담보-파악-집중.md), [ADR-0009-원구상-복원과-화면-데이터-계약](decisions/ADR-0009-원구상-복원과-화면-데이터-계약.md), [ADR-0010-선택화면과-공개가격-비교](decisions/ADR-0010-선택화면과-공개가격-비교.md), [ADR-0011-설계도-채택과-문서-위계](decisions/ADR-0011-설계도-채택과-문서-위계.md), [ADR-0012-설계도-실행계약과-구현-추적](decisions/ADR-0012-설계도-실행계약과-구현-추적.md), [ADR-0013-전체-대상-목록-우선과-설계-확정](decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md), [ADR-0014-V1-검증-결과의-설계-반영](decisions/ADR-0014-V1-검증-결과의-설계-반영.md), [ADR-0015-원본-보관소-S3](decisions/ADR-0015-원본-보관소-S3.md), [ADR-0016-원본-보관소-R2](decisions/ADR-0016-원본-보관소-R2.md), [ADR-0017-R2-비용-제한](decisions/ADR-0017-R2-비용-제한.md), [ADR-0018-보험-데이터-지식-기반의-정체성과-범위](decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md), [ADR-0019-제품-완료와-작업-계약-한정-채택](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md), [ADR-0020-작업-단계와-V1-관문-정합화](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md), [ADR-0021-첫-출시-최소-접근성](decisions/ADR-0021-첫-출시-최소-접근성.md) |
-| DEC (22) | [DEC-BUNDLE-STATUS](decisions/DEC-BUNDLE-STATUS.md), [DEC-CANON-T-CT-02](decisions/DEC-CANON-T-CT-02.md), [DEC-D-02](decisions/DEC-D-02.md), [DEC-D-03](decisions/DEC-D-03.md), [DEC-D-04](decisions/DEC-D-04.md), [DEC-D-06](decisions/DEC-D-06.md), [DEC-D-07](decisions/DEC-D-07.md), [DEC-D-08](decisions/DEC-D-08.md), [DEC-D-09](decisions/DEC-D-09.md), [DEC-D-10](decisions/DEC-D-10.md), [DEC-D-12](decisions/DEC-D-12.md), [DEC-D-14](decisions/DEC-D-14.md), [DEC-D-15](decisions/DEC-D-15.md), [DEC-D-16](decisions/DEC-D-16.md), [DEC-D-17](decisions/DEC-D-17.md), [DEC-D-18](decisions/DEC-D-18.md), [DEC-O02](decisions/DEC-O02.md), [DEC-O03](decisions/DEC-O03.md), [DEC-O04](decisions/DEC-O04.md), [DEC-O12](decisions/DEC-O12.md), [DEC-O14](decisions/DEC-O14.md), [DEC-O17](decisions/DEC-O17.md) |
+| DEC (23) | [DEC-BUNDLE-STATUS](decisions/DEC-BUNDLE-STATUS.md), [DEC-CANON-AUDIT7-CONTRACT-EFFECT](decisions/DEC-CANON-AUDIT7-CONTRACT-EFFECT.md), [DEC-CANON-T-CT-02](decisions/DEC-CANON-T-CT-02.md), [DEC-D-02](decisions/DEC-D-02.md), [DEC-D-03](decisions/DEC-D-03.md), [DEC-D-04](decisions/DEC-D-04.md), [DEC-D-06](decisions/DEC-D-06.md), [DEC-D-07](decisions/DEC-D-07.md), [DEC-D-08](decisions/DEC-D-08.md), [DEC-D-09](decisions/DEC-D-09.md), [DEC-D-10](decisions/DEC-D-10.md), [DEC-D-12](decisions/DEC-D-12.md), [DEC-D-14](decisions/DEC-D-14.md), [DEC-D-15](decisions/DEC-D-15.md), [DEC-D-16](decisions/DEC-D-16.md), [DEC-D-17](decisions/DEC-D-17.md), [DEC-D-18](decisions/DEC-D-18.md), [DEC-O02](decisions/DEC-O02.md), [DEC-O03](decisions/DEC-O03.md), [DEC-O04](decisions/DEC-O04.md), [DEC-O12](decisions/DEC-O12.md), [DEC-O14](decisions/DEC-O14.md), [DEC-O17](decisions/DEC-O17.md) |
 <!-- blueprint-decisions:end -->
 
 온톨로지 제안 원본 규칙 2개도 엔진 Cargo 시험에서 직접 로드하고 내용 해시·경계·미확인·결정성을 고정한다. runner 식별 정보와 잠금 파일 사용 검증은 [Audit 4 증거](blueprint/audits/2026-11-03_ontology_rules_in_cargo.md)에 기록한다. `fixture_only` 회귀 검증이며 실제 릴리스·소비자 화면·첫 출시 완료 판정을 바꾸지 않는다.

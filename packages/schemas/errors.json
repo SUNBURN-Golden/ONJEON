@@ -1,6 +1,6 @@
 {
-  "$comment": "오류 코드 정본 (02_구현계약 §4, C-22). 검사: src/errors.rs. classes는 코드의 클래스 글자와 어휘 축 error_class 값(vocabulary.json 1.6.0)의 대응이며, ErrorResponse.error_class에는 어휘 값을 싣고 code에는 글자를 싣는다(checks.rs가 대응을 확인). 계약 판 고정: contracts_version은 packages/schemas/Cargo.toml의 version과 같아야 한다(C-23).",
-  "contracts_version": "0.1.0",
+  "$comment": "오류 코드 정본 (02_구현계약 §4, C-22). 검사: src/errors.rs. classes는 코드의 클래스 글자와 어휘 축 error_class 값(vocabulary.json 1.6.0)의 대응이며, ErrorResponse.error_class에는 어휘 값을 싣고 code에는 글자를 싣는다(checks.rs가 대응을 확인). 계약 판 고정: contracts_version은 packages/schemas/Cargo.toml의 package.metadata.onjeon.contracts-version과 같아야 한다(C-23).",
+  "contracts_version": "0.2.0",
   "code_format": "ONJ-<zone>-<class>-<nnn>",
   "zones": {
     "CT": "contracts",

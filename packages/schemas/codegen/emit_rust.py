@@ -67,8 +67,13 @@ def emit_vocabulary(model: Model) -> str:
         variants = [variant(v["code"]) for v in axis.values]
         if len(set(variants)) != len(variants):
             raise ValueError(f"{axis.id}: variant name collision")
+        # These fields previously decoded as String. Serde's default unit-enum
+        # decoder would also accept {"applies": null} in place of a wire code.
+        string_only = axis.id in {"contract_effect", "contract_effect_kind"}
         out.append(doc(f"{axis.name_ko}: {axis.concept_ko}\n\nAxis `{axis.id}`. Unknown values fail to deserialize (never a default)."))
         out.append("#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]\n")
+        if string_only:
+            out.append('#[serde(try_from = "String")]\n')
         out.append(f"pub enum {name} {{\n")
         for v in axis.values:
             out.append(doc(v["concept_ko"], "    "))
@@ -84,6 +89,17 @@ def emit_vocabulary(model: Model) -> str:
         for v in axis.values:
             out.append(f'            {name}::{variant(v["code"])} => "{v["code"]}",\n')
         out.append("        }\n    }\n}\n\n")
+        if string_only:
+            out.append(f"""impl TryFrom<String> for {name} {{
+    type Error = String;
+
+    fn try_from(code: String) -> Result<Self, Self::Error> {{
+        Self::ALL.iter().copied().find(|v| v.as_str() == code)
+            .ok_or_else(|| format!("unknown {axis.id}: {{code}}"))
+    }}
+}}
+
+""")
     out.append("/// Every axis with its codes, in vocabulary order. Used by tests to compare with vocabulary.json.\n")
     out.append("pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {\n    vec![\n")
     for axis in model.axes.values():
@@ -131,13 +147,20 @@ def emit_types(model: Model, structs=None, preamble: str | None = None, header: 
     return "".join(out).rstrip() + "\n"
 
 
-def emit_mod() -> str:
-    return HEADER + "#![allow(clippy::all)]\n\npub mod types;\npub mod vocabulary;\n"
+def emit_mod(version: str) -> str:
+    return HEADER + f"""#![allow(clippy::all)]
+
+pub mod types;
+pub mod vocabulary;
+
+/// Shared wire contract version from Cargo.toml (tag `contracts-x.y.z`).
+pub const CONTRACTS_VERSION: &str = "{version}";
+"""
 
 
-def emit(model: Model) -> dict:
+def emit(model: Model, version: str) -> dict:
     return {
-        "mod.rs": emit_mod(),
+        "mod.rs": emit_mod(version),
         "vocabulary.rs": emit_vocabulary(model),
         "types.rs": emit_types(model),
     }

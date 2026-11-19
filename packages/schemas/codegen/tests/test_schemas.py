@@ -78,6 +78,11 @@ class Lint(unittest.TestCase):
         self.assertTrue(used)
         self.assertLessEqual(used, vocab_ids)
 
+    def test_terminated_pay_reserve_has_the_g23_death_effect(self):
+        axis = next(a for a in sm.load_vocab()["axes"] if a["id"] == "contract_effect")
+        meanings = {value["code"]: value["concept_ko"] for value in axis["values"]}
+        self.assertEqual(meanings["terminated_pay_reserve"], "사망 시 계약자적립액 지급 후 소멸")
+
     def test_an_enum_in_a_schema_is_a_lint_error(self):
         def add_enum(d):
             edit(d / "plan_view.schema.json", lambda doc: doc["properties"]["tab"].update({"enum": ["current", "proposal"]}))
@@ -321,6 +326,17 @@ class Fixtures(unittest.TestCase):
         self.assertTrue(self.broken(n, lambda d: d["groups"][0].update(plan_action="maybe")))
         self.assertTrue(self.broken(n, lambda d: d["groups"][0]["price_line"].update(price_unavailable_reason="because")))
         self.assertTrue(self.broken(n, lambda d: d["groups"][0]["price_line"].update(man=[1.0, 2.0, 3.0])))
+
+    def test_contract_effect_fields_require_codes_from_their_own_axes(self):
+        for fixture, field, wrong_axis_code in (
+            ("payable", "kind", "void_refund_premium"),
+            ("payable", "effect", "applies"),
+            ("undetermined", "conditional_effect", "undetermined"),
+        ):
+            with self.subTest(field=field):
+                errors = self.broken(f"EvaluationResult.{fixture}.fixture.json",
+                                     lambda d: d["contract_effect"].update({field: wrong_axis_code}))
+                self.assertTrue(any("vocabulary" in e for e in errors), errors)
 
     def test_pending_axes_are_closed_by_pattern_not_open_text(self):
         n = "NeedResult.fixture.json"

@@ -437,14 +437,13 @@ pub struct TraceEntry {
 /// 계약 효과 결과. kind에 따라 effect(applies) 또는 conditional_effect(undetermined). 엔진 ContractEffectOut과 같은 형태
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContractEffectResult {
-    /// none(효과 없음 또는 지급 사유 불성립), applies(성립), undetermined(판정 불가). 어휘 축 승격 대기
-    pub kind: String,
-    /// kind=applies일 때. none, void_refund_premium(무효·보험료 반환), terminated_pay_reserve(해지·책임준비금 지급). 어휘 축 승격 대기
+    pub kind: ContractEffectKind,
+    /// kind=applies일 때 적용되는 계약 효과
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub effect: Option<String>,
-    /// kind=undetermined일 때, 지급 사유가 성립하면 적용될 효과. 값은 effect와 같은 축
+    pub effect: Option<ContractEffect>,
+    /// kind=undetermined일 때, 요건이 성립하면 적용될 계약 효과
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub conditional_effect: Option<String>,
+    pub conditional_effect: Option<ContractEffect>,
 }
 
 /// 규칙 엔진 평가 결과. packages/rules-engine의 직렬화와 같은 형태다(시험이 엔진 출력으로 확인한다)

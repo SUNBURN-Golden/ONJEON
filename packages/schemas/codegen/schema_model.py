@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import re
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -289,13 +290,19 @@ def build_model(json_dir: Path = JSON_DIR, vocab_path: Path = VOCAB_PATH, strict
 
 
 def contracts_version(cargo_toml: Path) -> str:
-    in_package = False
-    for line in cargo_toml.read_text(encoding="utf-8").splitlines():
-        s = line.strip()
-        if s.startswith("["):
-            in_package = s == "[package]"
-        elif in_package:
-            m = re.match(r'version\s*=\s*"(\d+\.\d+\.\d+)"', s)
-            if m:
-                return m.group(1)
-    raise SchemaError(f"no package version in {cargo_toml}")
+    """Read the shared wire version. Earlier contracts tags used the Cargo package version."""
+    try:
+        with cargo_toml.open("rb") as manifest:
+            package = tomllib.load(manifest)["package"]
+        if not isinstance(package, dict):
+            raise SchemaError(f"expected a [package] table in {cargo_toml}")
+        metadata = package.get("metadata", {})
+        if "onjeon" in metadata:
+            version = metadata["onjeon"]["contracts-version"]
+        else:
+            version = package["version"]
+    except (KeyError, TypeError, tomllib.TOMLDecodeError, OSError) as e:
+        raise SchemaError(f"cannot read contracts version from {cargo_toml}: {e}") from e
+    if not isinstance(version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+        raise SchemaError(f"expected contracts version x.y.z in {cargo_toml}, got {version!r}")
+    return version

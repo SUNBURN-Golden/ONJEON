@@ -2,8 +2,8 @@
 //! (packages/schemas/vocabulary.json). This stops code and documents drifting apart.
 mod common;
 
-use onjeon_rules_engine::rule::{InputType, PUBLICATION_STATES};
-use onjeon_rules_engine::{AmountOut, Payout, Rule, Tri};
+use onjeon_rules_engine::rule::{InputType, CONTRACT_EFFECTS, PUBLICATION_STATES};
+use onjeon_rules_engine::{AmountOut, ContractEffect, ContractEffectOut, Payout, Rule, Tri};
 use serde_json::{json, Value as J};
 use std::collections::BTreeSet;
 
@@ -83,6 +83,60 @@ fn publication_states_are_canonical() {
     let want = axis("publication_state");
     let got: BTreeSet<String> = PUBLICATION_STATES.iter().map(|s| s.to_string()).collect();
     assert_eq!(got, want);
+}
+
+#[test]
+fn contract_effect_codes_match_the_loader_and_serializer() {
+    let codes = axis("contract_effect");
+    assert_eq!(
+        codes,
+        CONTRACT_EFFECTS.map(str::to_owned).into_iter().collect()
+    );
+    for code in codes {
+        let mut source = doc();
+        source["contract_effect"] = json!(code);
+        let rule = Rule::from_json(&source).unwrap();
+        let effect = rule.contract_effect();
+        // Adding an engine variant must also extend the approved wire contract.
+        let expected = match effect {
+            ContractEffect::None => "none",
+            ContractEffect::VoidRefundPremium => "void_refund_premium",
+            ContractEffect::TerminatedPayReserve => "terminated_pay_reserve",
+        };
+        assert_eq!(code, expected);
+        assert_eq!(json!(effect), code);
+        source["schema_version"] = json!("rule-0.1");
+        assert_eq!(
+            Rule::from_json(&source).unwrap_err().path,
+            "contract_effect"
+        );
+    }
+}
+
+#[test]
+fn contract_effect_kinds_match_serialized_evaluations() {
+    let mut source = doc();
+    source["inputs"] = json!({"hit": "bool"});
+    source["eligibility"] = json!("hit");
+    let mut kinds = BTreeSet::new();
+    for code in CONTRACT_EFFECTS {
+        source["contract_effect"] = json!(code);
+        let rule = Rule::from_json(&source).unwrap();
+        for inputs in [json!({"hit": true}), json!({"hit": false}), json!({})] {
+            let result = rule.evaluate(&inputs).unwrap();
+            let wire = &json!(result)["contract_effect"];
+            let expected = match result.contract_effect {
+                ContractEffectOut::None => json!({"kind": "none"}),
+                ContractEffectOut::Applies { .. } => json!({"kind": "applies", "effect": code}),
+                ContractEffectOut::Undetermined { .. } => {
+                    json!({"kind": "undetermined", "conditional_effect": code})
+                }
+            };
+            assert_eq!(wire, &expected);
+            kinds.insert(wire["kind"].as_str().unwrap().to_owned());
+        }
+    }
+    assert_eq!(kinds, axis("contract_effect_kind"));
 }
 
 #[test]

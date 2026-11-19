@@ -1,0 +1,180 @@
+cargo test --locked --offline -p onjeon-rules-engine --test vocabulary contract_effect (mutated test copy, expected exit 101)
+test contract_effect_kinds_match_serialized_evaluations ... FAILED
+test contract_effect_codes_match_the_loader_and_serializer ... FAILED
+  left: Object {"effect": String("void_refund_premium"), "kind": String("renamed_result")}
+ right: Object {"effect": String("void_refund_premium"), "kind": String("applies")}
+  left: {"none", "terminated_pay_reserve", "unregistered_effect", "void_refund_premium"}
+ right: {"none", "terminated_pay_reserve", "void_refund_premium"}
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+Canonical vocabulary, engine wire and result schema checks (exit 0)
+test contract_effect_codes_match_the_loader_and_serializer ... ok
+test contract_effect_kinds_match_serialized_evaluations ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+test tests::contract_effect_requires_known_string_codes ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 54 filtered out; finished in 0.00s
+test tests::evaluation_result_invariants_catch_mismatched_kinds ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 55 filtered out; finished in 0.00s
+test_contract_effect_fields_require_codes_from_their_own_axes (test_schemas.Fixtures.test_contract_effect_fields_require_codes_from_their_own_axes) ... ok
+additive since 1.9.0: +2 axes, +6 values, nothing removed/renamed/reworded
+vocabulary ok: 52 axes, 277 values
+ok: 30 generated files are up to date
+BLUEPRINT-S11: current decision index (44 ADR/DEC files)
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 271, "tamper_tests": 40, "vocabulary_axes": 52}
+
+ONJ_COMPAT_ALL_CLIENTS=1 ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline (exit 0)
+71 suites: 539 passed, 0 failed, 1 ignored
+Ran 39 tests in 0.205s
+OK
+Ran 138 tests in 50.344s
+OK
+
+Scenario API and ontology runner (exit 0 each)
+scenario: 3 suites: 4 passed, 0 failed, 0 ignored
+ontology: 1 suites: 4 passed, 0 failed, 0 ignored
+
+ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh (exit 0)
+Rust: built
+Rust API: built (default and skeleton feature)
+TypeScript: built, fixtures type-check (tsc Version 5.9.3)
+TypeScript API: built, fixtures type-check, skeleton not exported by index.ts
+Dart: analyzed and round-tripped (Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on "linux_x64")
+Dart API: analyzed, round-tripped, skeleton not exported by onjeon_api.dart
+RESULT: all three languages build
+
+ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest (exit 0)
+BASELINE: no previous contracts-* tag in HEAD history; nothing to compare with.
+== self-test: a deleted field must fail the check
+   structural diff: deleted field detected
+   compile probe: previous client cannot read documents without the deleted field
+self-test ok
+
+python3 -m unittest discover -s tools/tests -v (exit 0)
+Ran 1725 tests in 225.427s
+OK (skipped=6)
+
+Decision, purpose table and README index suites after approval test addition (exit 0 each)
+Ran 40 tests in 0.119s
+OK
+Ran 16 tests in 0.739s
+OK
+Ran 15 tests in 0.015s
+OK
+
+Review round 1 (worktree)
+python3 -I -m unittest discover -s packages/schemas/codegen/tests -p test_schemas.py -k g23 -v
+  reviewed label (exit 1): AssertionError: '계약 해지와 책임준비금 지급' != '사망 시 계약자적립액 지급 후 소멸'
+  corrected label (exit 0): test_terminated_pay_reserve_has_the_g23_death_effect ... ok
+
+python3 -I packages/schemas/codegen/compat.py --prev <f2811e8 schemas> --new <5a6090a schemas> (exit 1)
+version 0.1.0 -> 0.1.0: 3 breaking, 2 compatible change(s)
+INCOMPATIBLE: breaking change needs a new minor (0.x: the minor is the major): 0.1.0 -> 0.1.0
+
+python3 -I packages/schemas/codegen/compat.py --prev <f2811e8 schemas> --new packages/schemas (exit 0)
+BREAKING   field type changed: ContractEffectResult.kind: string pattern=^[a-z][a-z0-9_]*$ -> enum contract_effect_kind
+BREAKING   field type changed: ContractEffectResult.effect: string pattern=^[a-z][a-z0-9_]*$ -> enum contract_effect
+BREAKING   field type changed: ContractEffectResult.conditional_effect: string pattern=^[a-z][a-z0-9_]*$ -> enum contract_effect
+compatible vocabulary axis added: contract_effect
+compatible vocabulary axis added: contract_effect_kind
+version 0.1.0 -> 0.2.0: 3 breaking, 2 compatible change(s)
+compatible
+
+ONJ_COMPAT_ALL_CLIENTS=1 python3 -I -m unittest discover -s packages/schemas/codegen/tests -v (exit 0)
+test_contract_version_covers_the_0_1_contract_effect_type_changes ... ok
+test_terminated_pay_reserve_has_the_g23_death_effect ... ok
+Ran 140 tests in 80.673s
+OK
+
+python3 tools/vocab_check.py --additive-since <f2811e8 vocabulary.json> (exit 0)
+additive since 1.9.0: +2 axes, +6 values, nothing removed/renamed/reworded
+vocabulary ok: 52 axes, 277 values
+bash packages/schemas/codegen/gen.sh --check (exit 0)
+ok: 30 generated files are up to date
+
+cargo test --manifest-path services/scenario-api/Cargo.toml --offline --locked --target-dir target/scenario-api (exit 0)
+4 passed, 0 failed
+cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology (exit 0)
+4 passed, 0 failed
+
+python3 -I tools/blueprint_status.py (exit 0, after regenerating the decision index)
+BLUEPRINT-S11: current decision index (44 ADR/DEC files)
+ONJEON_ONTOLOGY_RUNNER=<runner> python3 -m unittest discover -s tools/tests -v (exit 0)
+Ran 1726 tests in 235.070s
+OK (skipped=6)
+
+cargo test --all --locked --offline (worktree with root Cargo.lock at 0.1.0, exit 101)
+error: cannot update the lock file <repo>/Cargo.lock because --locked was passed to prevent this
+
+Review round 1 (isolated local copy with the root Cargo.lock entry updated to 0.2.0)
+cargo update --offline -p onjeon-contracts (exit 0; one lockfile line changed)
+ONJ_COMPAT_ALL_CLIENTS=1 ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline (exit 0)
+71 suites: 539 passed, 0 failed, 1 ignored
+Ran 39 tests in 0.210s
+OK
+Ran 140 tests in 54.594s
+OK
+ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh (exit 0)
+Rust: built
+Rust API: built (default and skeleton feature)
+TypeScript: built, fixtures type-check (tsc Version 5.9.3)
+Dart: analyzed and round-tripped (Dart SDK 3.13.5)
+RESULT: all three languages build
+cargo clippy --all-targets --offline --locked -- -D warnings (exit 0)
+python3 -I tools/blueprint_counts.py (exit 0)
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 271, "tamper_tests": 40, "vocabulary_axes": 52}
+
+Review round 2 (worktree, both Cargo lockfiles from f2811e8)
+git diff --exit-code f2811e8 -- Cargo.lock services/scenario-api/Cargo.lock (exit 0)
+git rev-parse f2811e8:Cargo.lock and git hash-object Cargo.lock
+  45b781349f71ae11af7b13a4fcaed66a7e0ed383 (both)
+cargo metadata --locked --offline --format-version=1 (exit 0)
+  onjeon-contracts package.version = 0.1.0, package.metadata.onjeon.contracts-version = 0.2.0
+
+python3 -I packages/schemas/codegen/compat.py --prev <f2811e8 schemas> --new <candidate with contracts-version reset to 0.1.0> (exit 1)
+INCOMPATIBLE: breaking change needs a new minor (0.x: the minor is the major): 0.1.0 -> 0.1.0
+python3 -I packages/schemas/codegen/compat.py --prev <f2811e8 schemas> --new packages/schemas (exit 0)
+BREAKING   field type changed: ContractEffectResult.kind: string pattern=^[a-z][a-z0-9_]*$ -> enum contract_effect_kind
+BREAKING   field type changed: ContractEffectResult.effect: string pattern=^[a-z][a-z0-9_]*$ -> enum contract_effect
+BREAKING   field type changed: ContractEffectResult.conditional_effect: string pattern=^[a-z][a-z0-9_]*$ -> enum contract_effect
+compatible vocabulary axis added: contract_effect
+compatible vocabulary axis added: contract_effect_kind
+version 0.1.0 -> 0.2.0: 3 breaking, 2 compatible change(s)
+compatible
+bash packages/schemas/codegen/check_compat.sh --latest (exit 0)
+BASELINE: no previous contracts-* tag in HEAD history; nothing to compare with.
+== self-test: a deleted field must fail the check
+   structural diff: deleted field detected
+   compile probe: previous client cannot read documents without the deleted field
+self-test ok
+
+Worktree-local CARGO_TARGET_DIR (fresh build).
+ONJ_REQUIRE_RULE_02=1 ONJ_COMPAT_ALL_CLIENTS=1 cargo test --all --locked --offline (exit 0)
+71 suites: 539 passed, 0 failed, 1 ignored
+Ran 39 tests in 0.214s
+test tests::contracts_version_matches_the_generated_clients ... ok
+Ran 141 tests in 62.872s
+test contract_effect_codes_match_the_loader_and_serializer ... ok
+test contract_effect_kinds_match_serialized_evaluations ... ok
+
+cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api (exit 0): 4 passed
+cargo test --manifest-path docs/blueprint/proposals/온톨로지/검증/runner/Cargo.toml --locked --offline --target-dir target/ontology (exit 0): 4 passed
+ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh (exit 0)
+Rust: built
+TypeScript: built, fixtures type-check (tsc Version 5.9.3)
+Dart: analyzed and round-tripped (Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on "linux_x64")
+RESULT: all three languages build
+cargo fmt --all -- --check and cargo clippy --all-targets --locked --offline -- -D warnings (exit 0)
+python3 tools/vocab_check.py --additive-since <f2811e8 vocabulary.json> (exit 0)
+additive since 1.9.0: +2 axes, +6 values, nothing removed/renamed/reworded
+vocabulary ok: 52 axes, 277 values
+bash packages/schemas/codegen/gen.sh --check (exit 0): 30 generated files up to date
+python3 -I packages/schemas/codegen/check_allowlist.py --selftest (exit 0): 8 planted defects detected
+python3 -I tools/blueprint_counts.py and python3 -I tools/blueprint_status.py (exit 0)
+BLUEPRINT-COUNTS: {"real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 271, "tamper_tests": 40, "vocabulary_axes": 52}
+BLUEPRINT-S11: current decision index (44 ADR/DEC files)
+ONJ_COMPAT_ALL_CLIENTS=1 python3 -I -m unittest discover -s packages/schemas/codegen/tests -v (exit 0)
+Ran 141 tests in 48.718s
+OK
+ONJEON_ONTOLOGY_RUNNER=<worktree runner> python3 -m unittest discover -s tools/tests -v (exit 0)
+Ran 1726 tests in 222.837s
+OK (skipped=6)

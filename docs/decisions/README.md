@@ -13,6 +13,7 @@ O01은 ADR-0018로 해결했고 O04·O12의 규칙·의미론 질문도 각 DEC�
 | [DEC-D-15](DEC-D-15.md) | 선택안·담당 범위 기록, 미승인(2026-11-18) | T-CT-03, T-CT-08, T-MB-01 merge | 감리·검토 증거와 결정 등록은 별도 |
 | [DEC-O03](DEC-O03.md) | 선택안·담당 범위 기록, 미승인(2026-11-18) | 정규 라벨 승격, 사전 내용 미정 | 감리·검토 증거와 결정 등록은 별도 |
 | [DEC-BUNDLE-STATUS](DEC-BUNDLE-STATUS.md) | 실행 기준은 사용자 결정(2026-10-13), 정본 지위 구분은 위임 결정(2026-10-26), ADR-0019로 부분 대체 | [현행 요약·조건](../blueprint/DECISIONS.md#31-결정-게이트-기록-dec-) | 원문·원장 참조 |
+| [DEC-CANON-AUDIT7-CONTRACT-EFFECT](DEC-CANON-AUDIT7-CONTRACT-EFFECT.md) | 위임 결정·가역, 두 축 추가 승인(2026-11-19) | Audit 7 rule-0.2 계약 효과와 그 적용 결과 | [현행 요약·조건](../blueprint/DECISIONS.md#31-결정-게이트-기록-dec-) |
 | [DEC-CANON-T-CT-02](DEC-CANON-T-CT-02.md) | 기록(위임·조건부 승인; 2026-10-13), 병합 미승인 | [현행 요약·조건](../blueprint/DECISIONS.md#31-결정-게이트-기록-dec-) | 원문·원장 참조 |
 | [DEC-D-02](DEC-D-02.md) | 기록(위임 결정·가역, 사용자 확정 아님; 2026-10-14) | [현행 요약·조건](../blueprint/DECISIONS.md#31-결정-게이트-기록-dec-) | 원문·원장 참조 |
 | [DEC-D-03](DEC-D-03.md) | 기록(위임 결정·사용자 확정 아님; 2026-10-15) | [현행 요약·조건](../blueprint/DECISIONS.md#31-결정-게이트-기록-dec-) | 원문·원장 참조 |

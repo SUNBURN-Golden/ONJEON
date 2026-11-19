@@ -198,7 +198,7 @@
 
 | 영역(09 행) | 과제 | 단계별 결정·잔여 실행 조건 |
 |---|---|---|
-| 기반(계약·어휘·로컬) | T-CT-01~07, T-OP-01 | [DEC-CANON-T-CT-02](../../../../decisions/DEC-CANON-T-CT-02.md): T-CT-02 등 정본 변경은 `canon_change_approval` 필요·병합 미승인 |
+| 기반(계약·어휘·로컬) | T-CT-01~07, T-OP-01 | 정본 변경에는 과제별 `canon_change_approval`이 필요하다. T-CT-02는 [DEC-CANON-T-CT-02](../../../../decisions/DEC-CANON-T-CT-02.md), Audit 7 계약 효과 두 축은 [DEC-CANON-AUDIT7-CONTRACT-EFFECT](../../../../decisions/DEC-CANON-AUDIT7-CONTRACT-EFFECT.md)를 따른다. 병합 미승인 |
 | 수집·관리(P01~P03) | T-DT-01~06, T-OP-04, T-KN-09·10·11, T-AP-04·06, T-WB-01, T-PS-02 | [DEC-D-04](../../../../decisions/DEC-D-04.md)(2026-11-10 소유자 위험 수용 재확인, D-04 해결): 기존 R2 토큰을 폐기·재발급 없이 ONJEON box secrets env에서만 읽어 사용. 값 출력·로그 금지. T-DT-01·T-DT-04·T-OP-02(b)·T-OP-04의 다른 관문은 유지. [DEC-O02](../../../../decisions/DEC-O02.md): T-DT-06 실데이터. [DEC-D-14](../../../../decisions/DEC-D-14.md): T-KN-11 병합. [DEC-O04](../../../../decisions/DEC-O04.md): T-KN-09 release·가격 비교 시험 별도 |
 | 지식·레이블링(P04~P06) | T-KN-01~08, T-TW-01·03, T-OP-03, T-WB-02 | [DEC-D-02](../../../../decisions/DEC-D-02.md): 구성·정책 소유자 결정됨(위임·사용자 확정 아님). T-KN-06·T-OP-02 실데이터와 T-OP-03 착수는 비-claude 접근 확인·월 한도 확인·등록 조건 뒤 |
 | 디지털 트윈(P07~P14) | T-TW-02·04·05·06, T-AP-02·03·05·07·08, T-PS-01·02, T-MB-02·03·04 | [DEC-D-17](../../../../decisions/DEC-D-17.md): T-PS-01~03 실데이터. [DEC-D-06](../../../../decisions/DEC-D-06.md)·[DEC-D-07](../../../../decisions/DEC-D-07.md): T-AP-08 병합. [DEC-O12](../../../../decisions/DEC-O12.md): 의미론 결정 해결(위임·사용자 확정 아님), T-TW-04·05 release 등록·연산별 S6 별도 |

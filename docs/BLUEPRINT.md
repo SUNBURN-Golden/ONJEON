@@ -122,6 +122,8 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 
 원장 클라이언트는 `ACTIVE` 등록 전에 세션 정책·계량기를 받아 생성하며, HTTP 총 시도 횟수는 정책의 `max_attempts`를 따른다. 예약 전·정산 중 원장 GET 바이트와 정책별 실제 요청 횟수의 로컬 검증은 [Audit 5 원장 계측·재시도](blueprint/audits/2026-11-10_r2_budget_ledger_metering.md)에 기록한다. P02·P03 전체 완료 증거는 아니다.
 
+기본 정책의 원장 GET은 연속 503 응답 세 번에 두 번의 재시도를 계상하고 예약 전에 중단한다. 세 번째 시도에 성공하면 반환된 본문 바이트도 계상한다. [Audit 7 원장 GET·HTTP 시도 검증](blueprint/audits/2026-11-20_r2_budget_accounting_gaps.md).
+
 정산 순번 경합은 기존 정책 시도 횟수 안에서 새 꼬리·사용량으로 재시도하며, 조건부 PUT의 412는 저장 바이트 전체가 이번 기록과 같을 때 성공으로 확인한다. 확인 GET 비용을 정산 최악값에 포함하고, 시간 초과 후 요약·초기화 원장 계량·`IsTruncated` 페이지 비용을 [Audit 6 정산 안정성 검증](blueprint/audits/2026-11-15_r2_budget_settle_robustness.md)으로 대조한다. P02·P03의 로컬 비용 통제 finding 증거이며 실제 수집·트윈·소비자 UX·첫 출시 완료를 뜻하지 않는다.
 
 출처 변경 감지는 HTTPS와 `data/registry/source_fetch_hosts.json`의 정확한 호스트만 허용하며,

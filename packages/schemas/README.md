@@ -75,28 +75,28 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 
 ### 어휘 승격 대기 축 (`x-onjeon-pending-axis`)
 
-값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 이 표와 스키마의 일치는 `codegen/tests/test_schemas.py`(`Readme`)가 검사한다. 어휘 1.6.0 이후 남은 대기 축은 18개, 필드 21개다.
+값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 담당 과제는 [tasks.json](../../docs/blueprint/proposals/설계검토_결과/tasks.json)의 `vocabulary_axes`가 지정한다. `codegen/tests/test_schemas.py`(`Readme`)가 필드와 담당 과제를 대조한다. 어휘 1.6.0 이후 남은 대기 축은 18개, 필드 21개다.
 
-| 축 | 쓰는 필드 |
-|---|---|
-| `applicability` | `Amount.applicability`, `CompareCell.applicability` |
-| `blocked_reason` | `BlockedBy.reason` |
-| `chain_level` | `ChainStep.level` |
-| `contract_effect` | `ContractEffectResult.conditional_effect`, `ContractEffectResult.effect` |
-| `contract_effect_kind` | `ContractEffectResult.kind` |
-| `dependency_producer` | `ConclusionDependency.produced_by` |
-| `dependency_state` | `DependencyInfo.dependency_state` |
-| `detail_layer` | `DetailLayer.layer` |
-| `evidence_kind` | `Amount.evidence_kind`, `CompareCell.evidence_kind` |
-| `judged_by` | `InputJudgement.judged_by` |
-| `line_kind` | `ViewLine.kind` |
-| `not_comparable_reason` | `NotComparableReason.reason` |
-| `overlap_state` | `UnknownOverlap.state` |
-| `package_binding` | `PremiumObservation.package_binding` |
-| `payment_cycle` | `PremiumObservation.payment_cycle` |
-| `plan_tab` | `PlanView.tab` |
-| `statement_kind` | `NeedReason.statement_kind` |
-| `value_kind` | `AssertionValue.value_kind` |
+| 축 | 쓰는 필드 | 담당 과제 |
+|---|---|---|
+| `applicability` | `Amount.applicability`, `CompareCell.applicability` | T-CT-08 |
+| `blocked_reason` | `BlockedBy.reason` | T-CT-09 |
+| `chain_level` | `ChainStep.level` | T-CT-09 |
+| `contract_effect` | `ContractEffectResult.conditional_effect`, `ContractEffectResult.effect` | T-CT-09 |
+| `contract_effect_kind` | `ContractEffectResult.kind` | T-CT-09 |
+| `dependency_producer` | `ConclusionDependency.produced_by` | T-CT-09 |
+| `dependency_state` | `DependencyInfo.dependency_state` | T-CT-09 |
+| `detail_layer` | `DetailLayer.layer` | T-CT-09 |
+| `evidence_kind` | `Amount.evidence_kind`, `CompareCell.evidence_kind` | T-CT-08 |
+| `judged_by` | `InputJudgement.judged_by` | T-CT-09 |
+| `line_kind` | `ViewLine.kind` | T-CT-09 |
+| `not_comparable_reason` | `NotComparableReason.reason` | T-CT-09 |
+| `overlap_state` | `UnknownOverlap.state` | T-CT-09 |
+| `package_binding` | `PremiumObservation.package_binding` | T-CT-09 |
+| `payment_cycle` | `PremiumObservation.payment_cycle` | T-CT-09 |
+| `plan_tab` | `PlanView.tab` | T-CT-09 |
+| `statement_kind` | `NeedReason.statement_kind` | T-CT-09 |
+| `value_kind` | `AssertionValue.value_kind` | T-CT-09 |
 
 ### 1.6.0에서 승격된 축 (T-CT-02)
 

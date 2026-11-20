@@ -151,8 +151,9 @@ class Lint(unittest.TestCase):
 
 class Readme(unittest.TestCase):
     def test_pending_axis_table_matches_the_schemas(self):
+        model = sm.build_model()
         rows = {}
-        for st in sm.build_model().structs.values():
+        for st in model.structs.values():
             for f in st.fields:
                 t = f.type
                 while t.item is not None:
@@ -160,10 +161,24 @@ class Readme(unittest.TestCase):
                 if t.pending_axis:
                     rows.setdefault(t.pending_axis, []).append(f"`{st.name}.{f.name}`")
         text = (sm.SCHEMAS_DIR / "README.md").read_text(encoding="utf-8")
-        table = dict(re.findall(r"^\| `([a-z_]+)` \| (.+) \|$", text, re.M))
+        section = text.split("### 어휘 승격 대기 축", 1)[1].split("\n### ", 1)[0]
+        entries = re.findall(r"^\| `([a-z_]+)` \| ([^|\n]+) \| (T-[A-Z]{2}-\d{2}) \|$", section, re.M)
+        table = {axis: (fields, owner) for axis, fields, owner in entries}
+        self.assertEqual(len(entries), len(table), "README repeats a pending axis")
         self.assertEqual(set(table), set(rows), "README table and schemas disagree on pending axes")
+
+        bundle = sm.SCHEMAS_DIR.parents[1] / "docs/blueprint/proposals/설계검토_결과/tasks.json"
+        owners = {}
+        for task in json.loads(bundle.read_text(encoding="utf-8"))["tasks"]:
+            for axis in task.get("vocabulary_axes", []):
+                if axis not in rows:
+                    continue
+                self.assertNotIn(axis, owners, f"multiple assignments for {axis}")
+                owners[axis] = task["id"]
+
         for axis, fields in rows.items():
-            self.assertEqual(table[axis], ", ".join(sorted(fields)), axis)
+            self.assertIn(axis, owners, f"no task owns pending axis {axis}")
+            self.assertEqual(table[axis], (", ".join(sorted(fields)), owners[axis]), axis)
 
 
 class Generated(unittest.TestCase):

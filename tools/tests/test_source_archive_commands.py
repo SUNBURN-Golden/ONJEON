@@ -185,6 +185,29 @@ class ArchiveCommands(unittest.TestCase):
         self.assertEqual(self.raw.list(""), [])
         self.assertEqual(self.derived.list(""), [])
 
+    def test_hash_differs_from_samples_csv_when_cached_originals_are_swapped(self):
+        other_body = b"<html>another filing</html>"
+        other = dict(self.row, sample_id="other", cache_path="nested/other.html",
+                     sha256=sa.sha256_bytes(other_body))
+        self.write_samples(self.row, other)
+        self.cache_original().write_bytes(other_body)
+        (self.cache / other["cache_path"]).write_bytes(self.body)
+        derived_src = self.root / "extracted"
+        (derived_src / "nested").mkdir(parents=True)
+        (derived_src / "nested/page.tables.txt").write_bytes(b"table cells")
+        self.args.derived = self.derived.root.as_uri()
+        self.args.derived_src = str(derived_src)
+
+        code, result = self.archive()
+
+        self.assertEqual(code, 1)
+        self.assertEqual(result, [
+            dict(sample_id="sample", status="hash_differs_from_samples_csv", sha256=other["sha256"]),
+            dict(sample_id="other", status="hash_differs_from_samples_csv", sha256=self.row["sha256"]),
+        ])
+        self.assertFalse(self.raw.root.exists())
+        self.assertFalse(self.derived.root.exists())
+
     def test_hash_mismatch_preserves_existing_archive_without_calling_put_raw(self):
         p = self.cache_original()
         self.assertEqual(self.archive()[0], 0)
@@ -320,13 +343,17 @@ class ArchiveCommands(unittest.TestCase):
                 else:
                     self.assertFalse(Path(self.args.out).exists())
 
-    def test_fetch_stops_on_hash_mismatch_before_later_rows(self):
-        self.raw.put_new(sa.object_key(self.row["sha256"]), b"corrupt", "text/html")
-        later, _ = sa.put_raw(self.raw, b"later document", "application/pdf")
+    def test_fetch_rejects_bytes_for_another_row_and_stops_before_later_rows(self):
+        later_body = b"later document"
+        later, _ = sa.put_raw(self.raw, later_body, "application/pdf")
+        self.raw.put_new(sa.object_key(self.row["sha256"]), later_body, "text/html")
         self.write_samples(self.row, dict(self.row, sample_id="later", sha256=later,
                                          cache_path="later.pdf"))
-        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
             self.assertEqual(sa.cmd_fetch(self.args), 1)
+        self.assertEqual(out.getvalue(), "")
+        self.assertIn(f"expected {self.row['sha256']}, downloaded {later}", err.getvalue())
         self.assertFalse(Path(self.args.out).exists())
 
     def observation_args(self, **overrides):

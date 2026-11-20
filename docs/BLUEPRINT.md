@@ -410,6 +410,8 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 
 [Audit 6 워크플로 검증](blueprint/audits/2026-11-15_sources_workflow_secret_scope.md)은 기존 단계별 시크릿과 CI 읽기 권한을 재검증하고, 버킷 `vars.*`를 작업 `env`로 전달하도록 수정했다. 실제 소비 스크립트의 인자 보존·셸 주입 방지와 직접 삽입 회귀를 로컬에서 검사한 P03 기반 도구 증거이며, P03 전체·첫 출시 완료를 뜻하지 않는다.
 
+`sources.yml`의 두 checkout은 자격 증명을 저장하지 않으며, 두 pip 설치는 전이 의존성까지 버전과 SHA-256이 고정된 wheel을 사용한다. 목록 검사에서 예산 중단으로 종료 코드 4가 반환되면 재현 단계가 건너뛰어지고 생성된 보고서는 업로드 대상으로 남는다. [Audit 7 워크플로 로컬 검증](blueprint/audits/2026-11-20_sources_yml_secret_scope.md).
+
 현재 코드 수치 검사는 `python3 -I tools/blueprint_counts.py`이며 일반 CI에서 실행한다. 변경 시 `--write`로 아래 표만 갱신한다. 어휘 전체 수·목록은 §6의 생성 문서와도 대조한다. [Audit 2 수치·누락 현황 검증 증거](blueprint/audits/2026-10-27_blueprint_11_counts.md). [Audit 3 재검증](blueprint/audits/2026-10-28_blueprint_s11_refresh.md)은 ADR-0014의 규칙 수 정정과 §6·§7.3·§9.2·§11의 현재 코드·결정 이력 대조를 기록한다. [Audit 5 재검증](blueprint/audits/2026-11-10_blueprint_s11_refresh.md)은 손으로 적은 시험·규칙·축 수와 원장 범위, `infra/r2/BUDGET.md` 경로, 상단·§11 날짜, R2 전환 뒤 남은 S3 문구를 자동 생성 표·현재 코드와 다시 대조한 결과를 기록한다.
 
 <!-- blueprint-counts:start -->

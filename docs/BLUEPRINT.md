@@ -1,6 +1,6 @@
 # 온전 설계도 (Blueprint) v1.0
 
-2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-20 현황 갱신(Audit 7, §6·§9·§11·§12) | 이 문서가 구현의 단일 기준이다.
+2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-20 현황 갱신(Audit 7, §6·§9·§11·§12 — §11 공시 보관소 포함) | 이 문서가 구현의 단일 기준이다.
 
 ## 0. 이 문서의 역할
 
@@ -393,7 +393,7 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 | 목적·원칙·범위 | 확정(이 문서) |
 | 계약 문서 | 데이터 파이프라인, 공개 가격, 소비자 흐름, 화면 부록, 가격 부록 |
 | 코드 | L6 규칙 엔진(`packages/rules-engine/`), 계약 스키마·생성 타입·API 계약(`packages/schemas/`, `packages/api-types/`), 온톨로지·트윈 실행(`packages/ontology/`, `packages/twin-runtime/`), 수집 원본 보존 클라이언트(`services/collect/`), AI 게이트웨이(`services/ai-gateway/`, 실제 제공자 어댑터 없음), 판단 기준 관리(`services/criteria/`), 문서 복원 코드(`services/docproc/`)가 있다. 구현·픽스처 시험 범위이며 전 상품 서비스 연결 완료는 아니다. 엔진은 합성 규칙 1건과 실제 조항 규칙(설계 검증용, `fixture_only`)을 검증하며 현재 등록 수는 아래 자동 생성 표에서 대조한다. 로드 단계 타입 검사(#40, `packages/rules-engine/tests/static_types.rs`)는 비교·조건·금액 식의 타입 불일치를 오류 경로와 함께 거부한다. 역사적 엔진 검증: Rust 단위·통합 테스트 39개 + 문서 시험(doctest) 3개(2026-10-09 당시 합계 42건, 재실행 근거는 [REVERIFY_87a19c5 §2](blueprint/validation/REVERIFY_87a19c5.md#2-실제-실행-범위)). 이 값은 현재 등록 수가 아니며 현재 등록 수는 아래 자동 생성 표에서 대조한다. 2026-10-26 당시의 저장소 전체 시험은 [이전 갱신 검증 증거](blueprint/audits/2026-10-26_blueprint_s11_refresh.md)에 기록한다 |
-| 수집·검증 도구 | `tools/registry_normalize.py`(기관 목록의 정본 어휘 정규화·원문 접근 결과 보존), `tools/crawler/`(수집·변경 감지·표 추출·업로더), 어휘·검증 자료 내부 일관성·본문 해시 검사, `tools/source_archive.py`·`tools/verify_sources.py`(보존·재현·출처 변경 감지), `tools/r2_budget.py`(실행별 제한·원장·체크포인트·잠금 제안 오프라인 검사), `infra/r2/`(작업 명세·비용 정책·체크포인트·버킷 잠금 초안, 적용 승인 별도)가 있다. 비용 장치는 저장소 도구의 폭주 완화이며 계정 전체 과금 상한은 아니다(ADR-0017). AWS S3 정의(`infra/s3/`)는 대안·미배포 |
+| 수집·검증 도구 | `tools/registry_normalize.py`(기관 목록의 정본 어휘 정규화·원문 접근 결과 보존), `tools/crawler/`(수집·변경 감지·표 추출·업로더), 어휘·검증 자료 내부 일관성·본문 해시 검사, `tools/source_archive.py`·`tools/verify_sources.py`(보존·재현·출처 변경 감지), `tools/r2_budget.py`(실행별 제한·원장·체크포인트·잠금 제안 오프라인 검사), `infra/r2/`(작업 명세·비용 정책·체크포인트·버킷 잠금 초안, 적용 승인 별도)가 있다. 비용 장치는 저장소 도구의 폭주 완화이며 계정 전체 과금 상한은 아니다(ADR-0017). R2 접근에는 HTTPS 엔드포인트와 `--job`이 필요하다. 미배포 AWS 템플릿과 Python 기본 AWS 분기를 제거했다. [Audit 7 검증 기록](blueprint/audits/2026-11-20_s3_path_superseded.md) |
 | DB·실행 환경 | `infra/db/`에 공개·개인 분리 SQL·역할·제약과 시험 기록, `infra/compose/`에 로컬 실행 환경이 있다. DB는 검토본 구현이며 전체 서비스 적재·권한 연결·운영 적용 완료 증거가 아니다. I7은 특약 구성·기준일이 빈 원시 관측을 비교 불가로 저장할 수 있어 §8의 저장 불변식 전체와 차이가 있다([DB 제약·한계](../infra/db/README.md)). I7·I12 전체 구현 판정은 미승격 |
 | 개발 도구 | `tools/daemon/`의 T-OP-00 모의 전이·검증 코어와 `tools/daemon/runner_verify/`의 T-OP-09 실제 실행기 검증 도구가 있다. 개발 도구이며 출시 완성품의 일부가 아니다(09 §5). 모의 시험·격리 실행기 검증은 상주 데몬 가동 승인이 아니다. [각 도구의 범위·한계](../tools/daemon/README.md)와 [실행기 검증 한계](../tools/daemon/runner_verify/README.md)를 따른다. [Audit 4 정적 검사 허용 목록·회귀 증거](blueprint/audits/2026-11-03_daemon_static_check_bypass.md) |
 | S0 선행 병합 | T-CT-01(`#102`)과 T-OP-01(`#101`)은 이미 병합됐다. 연결된 T-CT-03·04·05·06, T-KN-01·03, T-DT-01도 선행 병합 이후 기준 이력에 들어왔다. T-OP-09(`#98`)는 먼저 병합된 개발 도구다. 병합 순서와 계약·Compose 재검증은 [Audit 7 S0 선행 경로](blueprint/audits/2026-11-18_s0_critical_path_merge.md)에 기록한다. V1·M1과 첫 출시 판정은 §9.2·§9.5의 증거를 따른다 |
@@ -438,7 +438,7 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-11-20 | SHA-256(파일명·내용): `3f0c5a6f96e205ba5a614aac20f88031c61aa76f058102445a0d35c97b037184`
+결정 기록 대조일: 2026-11-20 | SHA-256(파일명·내용): `ee1bfb51ae065428f7ec3f6a386f1dc3a4220643826f2f7f96add5b6ec6a5dba`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|

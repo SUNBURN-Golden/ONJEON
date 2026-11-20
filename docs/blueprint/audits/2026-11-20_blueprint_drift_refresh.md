@@ -30,4 +30,28 @@
 
 Rust `1.98.1`, Python `3.13.5`로 이 작업 트리의 별도 Cargo 타깃에서 실행했다. Python 시험에는 같은 작업 트리에서 빌드한 `ONJEON_ONTOLOGY_RUNNER`를 사용했다. 전체 시험에서 기존 D-12 행과 위임 상태 문구를 검사하는 두 곳의 실패를 확인하고, 행 참조를 갱신하고 위임 상태 문구를 복원한 뒤 재실행했다. 건너뜀 6건은 보관 원본 미설정 2건, 로컬 보관본·`pdftotext`가 필요한 시험 3건, 설치된 botocore가 조건부 쓰기를 지원해 해당하지 않는 구버전 시험 1건이다.
 
+## 수정 2차: main 병합 대조 (2026-11-20)
+
+`origin/main`의 `c777f98d9d28ef5ca4cdb99174a4221d4589d855`(PR #608, `audit7-s3-path-superseded`)을 병합했다. 충돌은 BLUEPRINT.md 세 곳뿐이며 양쪽 의도를 모두 살려 해소했다.
+
+| 충돌 | 해소 |
+|---|---|
+| 상단 갱신 문구 | Audit 7 범위(§6·§9·§11·§12)와 main의 §11 공시 보관소 갱신을 한 줄에 함께 기록 |
+| §11 앞 앵커 | `11-현재-위치` 앵커 유지. README §11 링크와 회귀 시험이 요구한다 |
+| 결정 기록 해시 | main이 ADR-0015·0017을 수정했으므로 병합된 결정 파일에서 `blueprint_status.py --write`로 재생성, `ee1bfb51…` 확인 |
+
+main의 §11 수집·검증 도구 행(S3 대안 문구 제거, AWS 템플릿·Python 기본 분기 제거 기록, [검증 기록](2026-11-20_s3_path_superseded.md))과 §11 기준일 2026-11-20은 그대로 반영됐다. §11 생성 표 6개 값(빌드 `0.2.0+snapshot-json-1`, 시험 270+doctest 3, 규칙 7, 변조 40, 축 50)은 병합 후에도 실제 목록과 일치한다. README는 충돌 없이 병합됐으며 ADR 0001~0021 목록·§0.1 위계 링크와 main의 `infra/s3/` 폐기 안내 행을 함께 유지한다.
+
+| 명령 | 결과 |
+|---|---|
+| `python3 -I tools/blueprint_status.py --write` 후 확인, `python3 -I tools/blueprint_counts.py` | 결정 색인 43개·해시 재생성 대조 통과, 현재 값 6개 대조 통과 |
+| BLUEPRINT·결정 기록·README·보관소 문서 집중 회귀 시험 | 232건 통과, 기존 환경 건너뜀 4건 |
+| `python3 -m unittest discover -s tools/tests -v` | 1,750건 통과, 기존 건너뜀 6건(main 병합으로 시험 2건 증가) |
+| `ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline` | Rust 537건 통과(문서 시험 3건 포함), 실패 0, 기존 ignored 1건 |
+| `cargo fmt --all -- --check`, `cargo clippy --locked --offline --all-targets -- -D warnings` | 통과 |
+| scenario-api·온톨로지 runner cargo 시험 | 각각 4건 통과 |
+| schemas codegen·spec_check·제품 목적·어휘·검증 selftest·출시 판정 | 1차와 동일: 136/138(건너뜀 2), 기계 47·존재 72 통과, 축 50·표본 14·변조 40 검출, 종료 1(미완료) |
+
+재실행 출력은 [검증 로그](../../../tools/evidence/audit7-blueprint-drift-refresh/verification.log)의 fix round 2 절에 기록했다. Rust는 이 작업 트리의 별도 타깃(`target/local`)에서 빌드·실행했다.
+
 Audit 7의 수락 증거는 문서 정합성과 회귀 검증 범위다. 실제 수집·트윈·화면·출시 완료 판정에는 09의 증거를 적용한다. [09_제품목적_대응표](../proposals/설계검토_결과/09_제품목적_대응표.md)

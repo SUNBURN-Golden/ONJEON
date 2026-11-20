@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-"""Reject tracked local credentials and virtual environments (Audit 5).
+"""Reject tracked credential, Terraform state, and virtual-environment paths.
 
-The finding asks for `.env*`, `*.pem`, `*.key` and `.venv/` ignore rules. The
-repository-root `.gitignore` is outside this node's allowed_paths, so the same
-outcome is enforced for tracked content at any depth: this gate fails CI when a
-tracked path has one of those names, wherever it lives. The per-tree
-`.gitignore` files (apps/, data/, infra/, packages/schemas/, packages/rules-engine/,
-services/, tools/) keep locally generated files out of `git add` in those trees.
+The CI gate checks path names at every depth. Subtree `.gitignore` files keep
+matching local files out of ordinary Git staging in their own trees.
 
 `infra/compose/.env.example` is the only allowed tracked `.env*` path. It is a
 placeholder template whose password and key fields are empty, and
@@ -31,9 +27,9 @@ ALLOWED_TRACKED = {"infra/compose/.env.example"}
 
 
 def kind(path):
-    """Return the credential/virtual-environment kind for a repository-relative path."""
+    """Return the sensitive path kind for a repository-relative path."""
     parts = PurePosixPath(path.replace("\\", "/")).parts
-    for part in parts:
+    for index, part in enumerate(parts):
         name = part.casefold()
         if name.startswith(".env"):
             return "environment file"
@@ -41,6 +37,12 @@ def kind(path):
             return "PEM file"
         if name.endswith(".key"):
             return "key file"
+        if name.startswith("credentials"):
+            return "credentials path"
+        if name == ".aws" and index < len(parts) - 1:
+            return "AWS configuration directory"
+        if name.endswith(".tfstate"):
+            return "Terraform state file"
         if name == ".venv":
             return "virtual environment"
     return None
@@ -83,6 +85,12 @@ def selftest():
         ("infra/compose/server.pem", True),
         ("private.key", True),
         ("services/app/config/private.key", True),
+        ("credentials", True),
+        ("services/app/credentials-cache/config.toml", True),
+        (".aws/config", True),
+        ("services/app/.AWS/config", True),
+        ("terraform.tfstate", True),
+        ("infra/app/terraform.TFSTATE", True),
         (".venv/pyvenv.cfg", True),
         ("services/app/.venv/bin/python", True),
         ("infra/compose/.env.example", False),
@@ -90,6 +98,10 @@ def selftest():
         ("services/app/env.example", False),
         ("services/app/certificate.pem.txt", False),
         ("services/app/private.key.example", False),
+        ("services/app/sample-credentials.json", False),
+        ("services/app/.aws", False),
+        ("services/app/.aws-notes/README.md", False),
+        ("infra/app/terraform.tfstate.example", False),
         ("services/app/.venv-notes/README.md", False),
     ]
     failed = 0
@@ -130,11 +142,11 @@ def main(argv):
         return 2
     found = violations(paths)
     for path, found_kind in found:
-        print(f"FAIL {path}: tracked {found_kind} (Audit 5)")
+        print(f"FAIL {path}: tracked {found_kind}")
     if not found:
-        print("ok   no tracked credential or virtual-environment paths")
+        print("ok   no tracked credential, Terraform state, or virtual-environment paths")
         return 0
-    print(f"{len(found)} tracked path(s) must be removed or ignored before merge")
+    print(f"{len(found)} tracked path(s) must be removed from the index before merge")
     return 1
 
 

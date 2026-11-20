@@ -1,4 +1,4 @@
-"""Audit 5: reject tracked credential and virtual-environment paths repo-wide.
+"""Reject tracked credential, Terraform state and virtual-environment paths.
 
 The live-tree test runs the same command as the early CI step. Synthetic
 mutations stay in temporary Git repositories under this worktree's ignored
@@ -35,6 +35,13 @@ class ViolationRules(unittest.TestCase):
             ("infra/compose/server.pem", "PEM file"),
             ("private.key", "key file"),
             ("services/app/config/private.key", "key file"),
+            ("credentials", "credentials path"),
+            ("services/app/credentials-local.json", "credentials path"),
+            ("services/app/Credentials-cache/config.toml", "credentials path"),
+            (".aws/config", "AWS configuration directory"),
+            ("services/app/.AWS/config", "AWS configuration directory"),
+            ("terraform.tfstate", "Terraform state file"),
+            ("infra/app/terraform.TFSTATE", "Terraform state file"),
             (".venv/pyvenv.cfg", "virtual environment"),
             ("services/app/.venv/bin/python", "virtual environment"),
         ]
@@ -48,6 +55,10 @@ class ViolationRules(unittest.TestCase):
             "services/app/env.example",
             "services/app/certificate.pem.txt",
             "services/app/private.key.example",
+            "services/app/sample-credentials.json",
+            "services/app/.aws",
+            "services/app/.aws-notes/README.md",
+            "infra/app/terraform.tfstate.example",
             "services/app/.venv-notes/README.md",
             "infra/compose/docker-compose.yml",
         ]
@@ -101,8 +112,18 @@ class TrackedTreeCheck(unittest.TestCase):
         repo.mkdir()
         subprocess.run(["git", "init", "--quiet"], cwd=repo, env=self.env,
                        check=True, timeout=15)
-        paths = [".env", "services/app/certificate.pem",
-                 "services/app/private.key", ".venv/pyvenv.cfg"]
+        paths = [
+            ".env",
+            "services/app/certificate.pem",
+            "services/app/private.key",
+            "credentials-local.json",
+            "services/app/credentials-cache/config.toml",
+            ".aws/config",
+            "services/app/.aws/config",
+            "terraform.tfstate",
+            "infra/app/terraform.tfstate",
+            ".venv/pyvenv.cfg",
+        ]
         for name in paths:
             path = repo / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -112,11 +133,14 @@ class TrackedTreeCheck(unittest.TestCase):
         result = self.run_check(repo)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         for name in paths:
-            self.assertIn(name, result.stdout)
+            self.assertIn(f"FAIL {name}: tracked ", result.stdout)
 
     def test_ci_runs_the_gate_before_dependency_install(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-        self.assertIn("run: python3 -I tools/check_tracked_secrets.py", workflow)
+        self.assertLess(
+            workflow.index("run: python3 -I tools/check_tracked_secrets.py"),
+            workflow.index("- name: Python test dependency"),
+        )
 
 
 if __name__ == "__main__":

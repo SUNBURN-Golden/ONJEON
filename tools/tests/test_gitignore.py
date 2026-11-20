@@ -1,10 +1,4 @@
-"""Verify the per-tree ignore policy using Git, without real credential contents.
-
-The repository-root `.gitignore` is outside this node's allowed_paths, so the
-same four rules are installed at the root of each writable code tree. These
-tests read those actual files instead of a copy, and stage empty synthetic files
-only in disposable repositories under this worktree's ignored `target/` directory.
-"""
+"""Verify the subtree ignore rules with Git and empty synthetic files."""
 import os
 from pathlib import Path
 import subprocess
@@ -22,7 +16,39 @@ TREES = (
     "services",
     "tools",
 )
-PATTERNS = {".env*", "*.pem", "*.key", ".venv/"}
+PATTERNS = {".env*", "*.pem", "*.key", "credentials*", ".aws/", "*.tfstate", ".venv/"}
+IGNORED_PATHS = (
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".envrc",
+    ".env.example",
+    "example/.env.test",
+    "certificate.pem",
+    "example/certificate.pem",
+    "private.key",
+    "example/private.key",
+    "credentials",
+    "example/credentials-local.json",
+    "example/credentials-cache/config.toml",
+    ".aws/config",
+    "example/.aws/config",
+    "terraform.tfstate",
+    "example/terraform.tfstate",
+    ".venv/pyvenv.cfg",
+    "example/.venv/bin/python",
+)
+CONTROL_PATHS = (
+    "env.example",
+    "example/certificate.pem.txt",
+    "example/private.key.example",
+    "example/sample-credentials.json",
+    "example/.aws-notes/README.md",
+    "example/standalone/.aws",
+    "example/terraform.tfstate.example",
+    "example/.venv-notes/README.md",
+    "example/main.py",
+)
 
 
 def git_env():
@@ -52,7 +78,7 @@ class GitignoreTests(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.touch()
 
-    def test_each_writable_tree_declares_the_four_rules(self):
+    def test_each_tree_declares_the_required_rules(self):
         for tree in TREES:
             with self.subTest(tree=tree):
                 path = ROOT / tree / ".gitignore"
@@ -63,38 +89,15 @@ class GitignoreTests(unittest.TestCase):
                 }
                 self.assertLessEqual(PATTERNS, rules, f"{path} is missing a rule")
 
-    def test_real_repository_ignores_credentials_at_every_depth(self):
-        ignored = []
-        for tree in TREES:
-            ignored += [
-                f"{tree}/.env",
-                f"{tree}/.env.local",
-                f"{tree}/.env.production",
-                f"{tree}/.envrc",
-                f"{tree}/.env.example",
-                f"{tree}/example/.env.test",
-                f"{tree}/certificate.pem",
-                f"{tree}/nested/certificate.pem",
-                f"{tree}/private.key",
-                f"{tree}/nested/private.key",
-                f"{tree}/.venv/pyvenv.cfg",
-                f"{tree}/example/.venv/bin/python",
-            ]
+    def test_real_repository_ignores_root_and_nested_paths_in_each_tree(self):
+        ignored = [f"{tree}/{name}" for tree in TREES for name in IGNORED_PATHS]
         result = self.git(ROOT, "check-ignore", "--no-index", "-z", "--stdin",
-                          input="\0".join(ignored) + "\0")
+                          input="\0".join(ignored) + "\0", check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.split("\0")[:-1], ignored)
 
     def test_real_repository_does_not_ignore_near_matches(self):
-        controls = []
-        for tree in TREES:
-            controls += [
-                f"{tree}/env.example",
-                f"{tree}/example/certificate.pem.txt",
-                f"{tree}/example/private.key.example",
-                f"{tree}/example/.venv-notes/README.md",
-                f"{tree}/example/main.py",
-                f"{tree}/.gitignore",
-            ]
+        controls = [f"{tree}/{name}" for tree in TREES for name in (*CONTROL_PATHS, ".gitignore")]
         result = self.git(ROOT, "check-ignore", "--no-index", "-z", "--stdin",
                           input="\0".join(controls) + "\0", check=False)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
@@ -104,27 +107,13 @@ class GitignoreTests(unittest.TestCase):
         repo = Path(self.tmp.name) / "repo"
         repo.mkdir()
         self.git(repo, "init", "--quiet")
-        controls = []
-        ignored = []
         for tree in TREES:
             source = ROOT / tree / ".gitignore"
             target = repo / tree / ".gitignore"
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(source.read_bytes())
-            ignored += [
-                f"{tree}/.env",
-                f"{tree}/example/.env.test",
-                f"{tree}/certificate.pem",
-                f"{tree}/nested/private.key",
-                f"{tree}/example/.venv/bin/python",
-            ]
-            controls += [
-                f"{tree}/example/main.py",
-                f"{tree}/example/env.example",
-                f"{tree}/example/certificate.pem.txt",
-                f"{tree}/example/private.key.example",
-                f"{tree}/example/.venv-notes/README.md",
-            ]
+        ignored = [f"{tree}/{name}" for tree in TREES for name in IGNORED_PATHS]
+        controls = [f"{tree}/{name}" for tree in TREES for name in CONTROL_PATHS]
         self.create_files(repo, ignored + controls)
         self.git(repo, "add", "--all")
         staged = self.git(repo, "ls-files", "-z").stdout.split("\0")[:-1]

@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import unittest
 
@@ -84,6 +85,25 @@ class WorkflowCheckTest(unittest.TestCase):
         path = os.path.join(REPO, ".github", "workflows", "ci.yml")
         with open(path, encoding="utf-8") as f:
             self.assertEqual(workflow_check.check(f.read()), [])
+
+    def test_source_checkouts_do_not_persist_credentials(self):
+        path = os.path.join(REPO, ".github", "workflows", "sources.yml")
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
+        self.assertEqual(workflow_check.check(text), [])
+        settings = list(re.finditer(
+            r"(?m)^      - uses: actions/checkout@[^\n]+\n"
+            r"        with:\n(?P<setting>          persist-credentials: false\n)", text
+        ))
+        self.assertEqual(len(settings), 2)
+        for setting in settings:
+            for replacement in ("", "          persist-credentials: true\n"):
+                with self.subTest(offset=setting.start(), replacement=replacement):
+                    mutated = (text[:setting.start("setting")] + replacement
+                               + text[setting.end("setting"):])
+                    problems = workflow_check.check(mutated)
+                    self.assertEqual(len(problems), 1)
+                    self.assertIn("persist-credentials: false", problems[0])
 
 
 if __name__ == "__main__":

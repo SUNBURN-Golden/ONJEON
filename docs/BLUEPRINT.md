@@ -412,6 +412,8 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 
 CI의 최소 읽기 권한·checkout 자격 증명 비보존·액션 SHA 고정은 [Audit 5 재검증](blueprint/audits/2026-11-10_ci_permissions_and_credentials.md)에 기록한다. 실제 CI 검사 명령에 대한 checkout별 변이 시험을 포함하며, 09 §5의 개발 도구 검증 근거다.
 
+T-OP-09의 `runner-verify` CI 작업은 데몬과 실행기 입력이 바뀌면 실제 어댑터 회귀와 정적 검사를 실행한다. 09 §5에 해당하는 개발 도구 검증이다. [Audit 7 검증 기록](blueprint/audits/2026-11-20_ci_runner_verify_tests.md).
+
 ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/README.md)은 모바일 골격의 확대·대비·시맨틱 회귀 시험과 문서·작업 계약 검사 결과를 담는다. 실제 앱·공개 웹·보조 기술 시험과 참가자 시험은 09 P18·P19 완료 증거로 남아 있다.
 
 `sources.yml`의 R2 endpoint·검증·원장 자격 증명은 두 보관소 소비 단계의 `env`에만 있다. [Audit 5 단계 범위 재검증](blueprint/audits/2026-11-10_sources_yml_step_scoped_secrets.md)은 실제 파일의 작업 수준 이동 및 설치·액션 등 8개 비소비 단계 노출 변이를 거부한다. P03의 보존 도구 회귀 증거이며 실제 R2 관측 대조·첫 출시 완료 판정은 별도다.

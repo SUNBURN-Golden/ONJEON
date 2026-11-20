@@ -5,8 +5,14 @@ T-OP-00의 모의 검증이 "규칙 파일대로 전이한다"까지만 증명�
 ```sh
 bash tools/daemon/runner_verify/run.sh --remote auto --report docs/vm_check/<날짜>/runner_verify.json \
   [--scenario R1,R5|<필수 시험 ID>] [--no-cli] [--time-scale 0.05]
-python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py
+python3 -m unittest discover -s tools/daemon/runner_verify/tests -v
 ```
+
+CI의 `runner-verify` 작업은 데몬 코드·테스트, 설계 묶음의 `daemon_rules.json`·`tasks.json`,
+보존된 실행기 보고서 또는 자체 워크플로가 바뀔 때 위 `unittest` 명령을 실행한다.
+`StaticChecks.test_all_static_checks_pass`가 전체 소스·픽스처 정적 검사를 호출하며,
+시나리오 시험은 리눅스에서 별도 프로세스와 임시 로컬 Git 원격을 사용한다.
+[워크플로](../../../.github/workflows/runner-verify.yml).
 
 `--remote`는 `auto`(버려지는 bare 저장소를 새로 만든다) 또는 **이 도구가 만든** 저장소의 경로다. URL과 제품 저장소는 거부한다(종료 코드 2). 실제 호스트의 보호 브랜치·단기 자격은 사람이 적용하는 설정(04 §8, 05 §4)이라 이 도구가 대신 만들지 못한다: 그 부분은 결과에 "증명하지 않은 것"으로 남는다. 하나라도 검사가 실패하거나 정적·로그 검사가 위반이면 종료 코드 1이다. 미확인은 기록되고 종료 코드를 바꾸지 않는다.
 

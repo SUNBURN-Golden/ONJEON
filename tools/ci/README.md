@@ -88,9 +88,9 @@ read-only token permissions. [Audit 2 evidence](../../docs/blueprint/audits/2026
 `ci.yml` runs the token policy and action-pin checks immediately after checkout,
 before installing dependencies or building Rust. The policy requires
 `contents: read` at workflow scope and in any job-level permissions block, and
-`persist-credentials: false` in every checkout's inputs across the CI, source
-and PR traceability workflows. `test_ci_workflow_security.py` runs that shell
-block on local workflow copies with mutations to the permissions, checkout
+`persist-credentials: false` in every checkout's inputs across the CI, source,
+PR traceability and runner verification workflows. `test_ci_workflow_security.py`
+runs that shell block on local workflow copies with mutations to the permissions, checkout
 inputs and every action reference.
 [Audit 7 evidence](../../docs/blueprint/audits/2026-11-20_ci_permissions_and_pins.md).
 

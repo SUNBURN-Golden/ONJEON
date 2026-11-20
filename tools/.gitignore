@@ -1,5 +1,8 @@
-# Local credentials and virtual environments (Audit 5).
+# Local credentials, Terraform state, and virtual environments.
 .env*
 *.pem
 *.key
+credentials*
+.aws/
+*.tfstate
 .venv/

@@ -111,12 +111,11 @@ The product-purpose guard runs through `tools/tests/test_product_purpose.py`, di
 Audit 6 adds P06's `profile-historical-vs-service` on T-KN-04 and P17's `no-composite-score` on T-AP-09 to the ownership guard. Removing either task from its purpose row also fails even if its ID remains registered. The existing first-view and non-hidden-condition registrations remain covered. [Audit 6 evidence](../../docs/blueprint/audits/2026-11-17_purpose_table_test_id_mapping.md).
 
 `ci.yml` also runs `python3 -I tools/check_tracked_secrets.py` immediately after
-checkout. It fails when `git ls-files` contains an `.env*` name, a `*.pem` or
-`*.key` name, or a `.venv` component; `infra/compose/.env.example` is the only
-allowed tracked template. This is the repo-wide enforcement for the Audit 5
-ignore finding, whose root `.gitignore` is outside that node's allowed_paths;
-per-tree `.gitignore` files cover locally generated files.
-[Audit 5 evidence](../../docs/blueprint/audits/2026-11-10_gitignore_secret_files.md).
+checkout. The gate checks the entire index for `.env*`, `*.pem`, `*.key`,
+`credentials*`, paths inside `.aws/`, `*.tfstate`, and `.venv` components.
+`infra/compose/.env.example` is the tracked template exception. The subtree
+`.gitignore` files keep matching local paths out of ordinary staging within
+their trees. [Audit 7 evidence](../evidence/audit7-gitignore-secrets/README.md).
 
 Local verification and environment limits: [Audit 1 product-purpose evidence](evidence/audit1-product-purpose.md).
 

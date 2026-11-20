@@ -244,13 +244,15 @@ class PushRefspecGit(unittest.TestCase):
         remote.run_git(["add", "-A"], cwd=self.layout.clone, env=env)
         remote.run_git(["commit", "-q", "-m", "refspec fixture"], cwd=self.layout.clone, env=env)
         self.sha = remote.run_git(["rev-parse", "HEAD"], cwd=self.layout.clone, env=env).stdout.strip()
-        with FileStore(self.layout).transaction() as d:
+        store = FileStore(self.layout)
+        with store.transaction() as d:
             d["tasks"]["T-MOCK-BASIC"] = {"lease_record": {
-                "lease_id": "L1", "status": "active", "expires_at": ClockFile(self.layout.clock).now() + 600}}
+                "lease_id": "L1", "branch": self.BRANCH, "status": "active",
+                "expires_at": ClockFile(self.layout.clock).now() + 600}}
         self.credentials = RemoteCredentials(self.layout, str(self.path), 600)
         self.credentials.issue("builder_write_credential", "T-MOCK-BASIC", "L1")
         self.git = RealGit(self.layout, str(self.path), [], self.credentials)
-        self.push_remote = PushRemote(self.layout, self.git, self.credentials)
+        self.push_remote = PushRemote(self.layout, self.git, self.credentials, store)
         self.request = {"lease_id": "L1", "sha": self.sha, "branch": self.BRANCH}
 
     def tearDown(self):
@@ -272,10 +274,9 @@ class PushRefspecGit(unittest.TestCase):
                          ("accepted", "ok", f"refs/heads/{self.BRANCH}", "daemon-fenced"))
 
     def test_invalid_refspec_never_reaches_git_or_the_remote(self):
-        # a wrong attempt of the same task (a2) is the core's lease-equality check, not the adapter's shape check
         bad = [{"sha": s} for s in ("--receive-pack=/bin/sh", "--force", "+" + self.sha, self.sha[:39], self.sha + "0",
                                     "A" * 40, "", None, 40)]
-        bad += [{"branch": b} for b in ("main", "task/T-MOCK-OTHER-a1", "--force",
+        bad += [{"branch": b} for b in ("main", "task/T-MOCK-OTHER-a1", "task/T-MOCK-BASIC-a2", "--force",
                                         self.BRANCH + ":refs/heads/main", self.BRANCH + " --force", "", None)]
         refs_before, log_before = remote.refs(self.path, self.home), remote.push_log(self.path)
         for kw in bad:

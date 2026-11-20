@@ -117,14 +117,14 @@ class SampleMetadata(unittest.TestCase):
                 args.out = tmp
                 row = {"sample_id": "sample", "sha256": digest, "cache_path": "document.pdf"}
                 with mock.patch.object(sa, "store", return_value=raw), \
-                        mock.patch.object(vs.tempfile, "mkdtemp", return_value=tmp), \
+                        mock.patch.object(vs.tempfile, "tempdir", tmp), \
                         mock.patch.object(sa.csv, "DictReader", return_value=[row]), \
                         mock.patch.object(sa, "SAMPLES", mock.MagicMock()), \
                         redirect_stderr(io.StringIO()):
                     self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_fetch(args)), 1)
                     self.assertEqual(sa.with_budget(None, None, lambda: sa.cmd_verify(args)), 1)
-                    with self.assertRaises(sa.UnsafeStoreKey):
-                        vs.materialize(args, [row])
+                    with self.assertRaises(sa.UnsafeStoreKey), vs.materialize(args, [row]):
+                        self.fail("unsafe digest reached reproduction")
                 raw.get.assert_not_called()
                 raw.exists.assert_not_called()
                 raw.list.assert_not_called()

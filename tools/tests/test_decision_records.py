@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RECORDS = tuple(sorted(p.stem for p in (ROOT / "docs/decisions").glob("DEC-*.md")))
 
 LEDGER = ROOT / "docs/blueprint/DECISIONS.md"
+BUNDLE = ROOT / "docs/blueprint/proposals/설계검토_결과"
+NAMESPACE_ANCHOR = "decision-id-namespaces"
 MAPPING_START = "<!-- blueprint-decision-id-mapping:start -->"
 MAPPING_END = "<!-- blueprint-decision-id-mapping:end -->"
 # ASCII boundaries also catch IDs directly followed by Korean particles.
@@ -59,11 +61,58 @@ class BlueprintDecisionIds(unittest.TestCase):
     def test_reported_collisions_keep_their_ledger_meaning(self):
         for number, meaning in ((2, "Rust/Flutter"), (4, "PDF 선택 입력"),
                                 (7, "예산·두 안 비교"), (12, "V1 설계 확정"),
-                                (16, "Cloudflare R2")):
+                                (16, "Cloudflare R2"), (17, "R2 비용 제한"),
+                                (18, "R2 초기 운영")):
             with self.subTest(number=number):
                 row = next((line for line in self.ledger.splitlines()
                             if line.startswith(f"| BP-D-{number:02} |")), "")
                 self.assertIn(meaning, row)
+
+    def test_audit7_table_distinguishes_the_three_pairs(self):
+        anchor = f'<a id="{NAMESPACE_ANCHOR}"></a>'
+        self.assertEqual(self.ledger.count(anchor), 1)
+        table = self.ledger.split(anchor, 1)[1].split("## 2. ", 1)[0]
+        rows = re.findall(r"^\| (1[678]) \| ([^|]+) \| ([^|]+) \|$", table, re.M)
+        self.assertEqual([number for number, _, _ in rows], ["16", "17", "18"])
+
+        meanings = {
+            "16": ("보관소 제공자", "사용자 이해 시험", "O07", "ADR-0016"),
+            "17": ("비용 제한", "외부 AI 전송·보존·삭제", "O08·O09", "ADR-0017"),
+            "18": ("초기 운영", "외부 검토 담당 지정", "O10", "ADR-0017"),
+        }
+        for number, direction, gate in rows:
+            with self.subTest(number=number):
+                r2_meaning, gate_meaning, tracking, adr = meanings[number]
+                self.assertIn(f"`BP-D-{number}`", direction)
+                self.assertIn(r2_meaning, direction)
+                self.assertIn(f"[{adr}](../decisions/{adr}-", direction)
+                self.assertNotIn(f"DEC-D-{number}", direction)
+                self.assertIn(f"`D-{number}`", gate)
+                self.assertIn(f"[DEC-D-{number}](../decisions/DEC-D-{number}.md)", gate)
+                self.assertIn(gate_meaning, gate)
+                self.assertIn(tracking, gate)
+                self.assertNotIn(f"BP-D-{number}", gate)
+                for target in re.findall(r"\]\(([^)]+)\)", f"{direction} {gate}"):
+                    self.assertTrue((LEDGER.parent / target).is_file(), target)
+
+    def test_audit7_table_is_usable_from_current_references(self):
+        references = {
+            ROOT / "docs/BLUEPRINT.md": "blueprint/DECISIONS.md",
+            ROOT / "docs/decisions/DEC-D-04.md": "../blueprint/DECISIONS.md",
+            BUNDLE / "README.md": "../../DECISIONS.md",
+            BUNDLE / "09_제품목적_대응표.md": "../../DECISIONS.md",
+        }
+        for path, target in references.items():
+            with self.subTest(path=path.relative_to(ROOT)):
+                document = path.read_text(encoding="utf-8")
+                fragment_link = f"]({target}#{NAMESPACE_ANCHOR})"
+                self.assertTrue(fragment_link in document, f"missing link {fragment_link}")
+                self.assertEqual((path.parent / target).resolve(), LEDGER)
+
+        record = (ROOT / "docs/decisions/DEC-D-04.md").read_text(encoding="utf-8")
+        current = record.split("## 현행 결정", 1)[1].split("## 당시 기록 항목", 1)[0]
+        for phrase in ("R2 토큰 처리", "R2 제공자·비용·초기 운영", "`BP-D-16`·`BP-D-17`·`BP-D-18`"):
+            self.assertTrue(phrase in current, f"missing DEC-D-04 scope phrase: {phrase}")
 
     def test_twentieth_direction_preserves_limited_contract_adoption(self):
         row = next(line for line in self.ledger.splitlines()
@@ -75,13 +124,12 @@ class BlueprintDecisionIds(unittest.TestCase):
                 self.assertIn(phrase, row)
 
     def test_execution_gate_ids_and_record_filenames_are_preserved(self):
-        tasks = json.loads((ROOT / "docs/blueprint/proposals/설계검토_결과/tasks.json")
-                           .read_text(encoding="utf-8"))
+        tasks = json.loads((BUNDLE / "tasks.json").read_text(encoding="utf-8"))
         used = {gate for task in tasks["tasks"]
                 for values in task.get("decision_gates", {}).values() for gate in values}
         self.assertFalse(set(self.ids) & used)
         self.assertFalse(set(self.ids) & set(tasks["decision_index"]))
-        for number in (2, 4, 7, 12, 16):
+        for number in (2, 4, 7, 12, 16, 17, 18):
             gate = f"D-{number:02}"
             with self.subTest(gate=gate):
                 if gate == "D-04":
@@ -94,6 +142,24 @@ class BlueprintDecisionIds(unittest.TestCase):
                 record = ROOT / f"docs/decisions/DEC-{gate}.md"
                 self.assertTrue(record.is_file())
                 self.assertIn(gate, record.read_text(encoding="utf-8"))
+
+    def test_audit7_gate_ids_keep_their_task_assignments(self):
+        tasks = json.loads((BUNDLE / "tasks.json").read_text(encoding="utf-8"))
+        expected = {
+            "D-16": {"start": {"T-UX-01"}},
+            "D-17": {"real_data": {"T-PS-01", "T-PS-02", "T-PS-03"}, "release": {"T-OP-07"}},
+            "D-18": {"release": {"T-OP-07"}},
+        }
+        for gate, assignments in expected.items():
+            with self.subTest(gate=gate):
+                indexed = {kind: set(ids) for kind, ids in tasks["decision_index"][gate].items() if ids}
+                self.assertEqual(indexed, assignments)
+                actual = {}
+                for task in tasks["tasks"]:
+                    for kind, gates in task["decision_gates"].items():
+                        if gate in gates:
+                            actual.setdefault(kind, set()).add(task["id"])
+                self.assertEqual(actual, assignments)
 
 
 class DecisionRecords(unittest.TestCase):

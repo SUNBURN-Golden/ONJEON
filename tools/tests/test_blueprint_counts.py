@@ -1,4 +1,4 @@
-"""Audit 2: generated counts follow live sources and reject drift in CI."""
+"""The generated inventory follows live sources and rejects drift in CI."""
 import contextlib
 import io
 import json
@@ -38,8 +38,12 @@ class SourceCounts(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.vocab = self.root / "packages/schemas/vocabulary.json"
         self.rules = self.root / "packages/fixtures/rules/real"
+        self.engine = self.root / bc.ENGINE_SOURCE
         self.vocab.parent.mkdir(parents=True)
         self.rules.mkdir(parents=True)
+        self.engine.parent.mkdir(parents=True)
+        self.engine.write_text('pub const ENGINE_VERSION: &str = "0.2.0+snapshot-json-1";\n',
+                               encoding="utf-8")
         self.write(self.vocab, {"axes": {"a": {}, "b": {}}})
         self.write(self.rules / "one.json", {"rule_id": "one", "publication_state": "fixture_only"})
         self.write(self.rules / "one.cases.json", {"cases": [{}, {}]})
@@ -53,7 +57,26 @@ class SourceCounts(unittest.TestCase):
 
     def test_live_counts_exclude_case_files_and_split_doctests(self):
         self.assertEqual(self.collect(), dict(rust_tests=3, rust_doctests=1,
-                                             real_clause_rules=1, vocabulary_axes=2, tamper_tests=2))
+                                             engine_version="0.2.0+snapshot-json-1", real_clause_rules=1,
+                                             vocabulary_axes=2, tamper_tests=2))
+
+    def test_engine_source_change_invalidates_inventory(self):
+        current = self.collect()
+        text = f"## 11. 상태\n{bc.render(current)}\n"
+        self.engine.write_text('pub const ENGINE_VERSION: &str = "0.3.0+snapshot-json-2";\n',
+                               encoding="utf-8")
+        changed = self.collect()
+        self.assertEqual(changed["engine_version"], "0.3.0+snapshot-json-2")
+        self.assertTrue(bc.check(text, changed))
+        self.assertEqual(bc.check(bc.refresh(text, changed), changed), [])
+
+    def test_missing_or_ambiguous_engine_version_is_an_error(self):
+        original = self.engine.read_text(encoding="utf-8")
+        for source in ("", original * 2, original.replace('"0.2.0+snapshot-json-1"', 'VERSION')):
+            with self.subTest(source=source):
+                self.engine.write_text(source, encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "expected one ENGINE_VERSION literal"):
+                    self.collect()
 
     def test_source_additions_change_the_counts(self):
         self.write(self.vocab, {"axes": {"a": {}, "b": {}, "c": {}}})
@@ -112,7 +135,7 @@ class CargoListing(unittest.TestCase):
 
 class DocumentCounts(unittest.TestCase):
     def setUp(self):
-        self.counts = dict(rust_tests=3, rust_doctests=1, real_clause_rules=7,
+        self.counts = dict(engine_version="0.2.0+snapshot-json-1", rust_tests=3, rust_doctests=1, real_clause_rules=7,
                            vocabulary_axes=49, tamper_tests=38)
         self.prefix = "# Blueprint\n\n## 6. Vocabulary\nunchanged\n\n## 11. 현재 위치 (2026-10-27)\nstatus\n\n"
         self.suffix = "\n\n## 12. Gates\npending\n"
@@ -122,9 +145,11 @@ class DocumentCounts(unittest.TestCase):
         self.assertEqual(bc.check(self.text, self.counts), [])
 
     def test_each_live_count_change_requires_refresh(self):
-        for key in self.counts:
+        for key, value in self.counts.items():
+            if not isinstance(value, int):
+                continue
             with self.subTest(key=key):
-                changed = {**self.counts, key: self.counts[key] + 1}
+                changed = {**self.counts, key: value + 1}
                 self.assertTrue(bc.check(self.text, changed))
                 refreshed = bc.refresh(self.text, changed)
                 self.assertEqual(bc.check(refreshed, changed), [])
@@ -132,8 +157,9 @@ class DocumentCounts(unittest.TestCase):
                 self.assertTrue(refreshed.endswith(self.suffix))
 
     def test_stale_audit_numbers_are_rejected(self):
-        for before, after in (("| 3 |", "| 42 |"), ("| 7 |", "| 8 |"),
-                              ("| 38 |", "| 28 |"), ("| 49 |", "| 31 |")):
+        for before, after in (("| 3 |", "| 42 |"), ("| 1 |", "| 3 |"),
+                              ("| 7 |", "| 8 |"), ("| 38 |", "| 28 |"),
+                              ("| 49 |", "| 31 |"), ("`0.2.0+snapshot-json-1`", "`v0.1`")):
             with self.subTest(after=after):
                 self.assertTrue(bc.check(self.text.replace(before, after), self.counts))
 

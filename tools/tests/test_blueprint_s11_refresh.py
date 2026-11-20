@@ -54,6 +54,12 @@ class S11Refresh(unittest.TestCase):
         self.assertIn("아래 자동 생성 표", code)
         self.assertIn("현재 등록 수", code)
 
+    def test_m0_points_to_the_live_engine_build_instead_of_pinning_one(self):
+        milestone = next(line for line in self.text.splitlines() if line.startswith("| M0 |"))
+        self.assertIn("현재 빌드 식별자", milestone)
+        self.assertIn("§11", milestone)
+        self.assertNotRegex(milestone, r"\bv?\d+\.\d+")
+
     def test_no_stale_audit_phrases_or_bare_budget_path(self):
         for phrase in STALE_PHRASES:
             with self.subTest(phrase=phrase):

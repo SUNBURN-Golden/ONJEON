@@ -542,8 +542,13 @@ class RecordedRobotsPolicy(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             args = argparse.Namespace(raw=None, out=str(Path(d) / "out"), archive_new=False,
                                       report=str(Path(d) / "r.json"))
+            # tool_version is mocked because report() probes pdftotext/tesseract with
+            # subprocess.run(timeout=...), whose POSIX busy-wait polls the *global*
+            # time.sleep this test patches (0.001s doubling to 0.05s). Under load those
+            # polls land in the mock and masquerade as fetch retries.
             with mock.patch.object(vs, "rows", return_value=[row]), \
                     mock.patch.object(vs, "fetch", vs._fetch_https), \
+                    mock.patch.object(vs, "tool_version", return_value=None), \
                     mock.patch.object(vs.urllib.request, "build_opener", return_value=opener) as build, \
                     mock.patch.object(vs.time, "sleep") as sleep, \
                     mock.patch("sys.stdout", new_callable=io.StringIO):

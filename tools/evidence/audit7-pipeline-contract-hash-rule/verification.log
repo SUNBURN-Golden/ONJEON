@@ -1,0 +1,168 @@
+# Audit 7 pipeline-contract-hash-rule 검증 로그 (2026-11-20, 작업 트리 루트에서 실행)
+
+## 1. 결정·보존 기준값 회귀 시험 + 갱신 도구 회귀 시험
+$ python3 -m unittest tools.tests.test_audit7_pipeline_contract_hash_rule tools.tests.test_rebaseline_html_samples -v
+test_decision_fixes_the_operator_copy_path (tools.tests.test_audit7_pipeline_contract_hash_rule.DeferredHtmlRebaseline.test_decision_fixes_the_operator_copy_path) ... ok
+test_pending_state_is_disclosed_and_linked (tools.tests.test_audit7_pipeline_contract_hash_rule.DeferredHtmlRebaseline.test_pending_state_is_disclosed_and_linked) ... ok
+test_preserved_v1_baselines_match_the_fixed_archive_keys (tools.tests.test_audit7_pipeline_contract_hash_rule.DeferredHtmlRebaseline.test_preserved_v1_baselines_match_the_fixed_archive_keys) ... ok
+test_protected_contract_lines_await_authorized_correction (tools.tests.test_audit7_pipeline_contract_hash_rule.DeferredHtmlRebaseline.test_protected_contract_lines_await_authorized_correction) ... ok
+test_blueprint_applies_current_rule_to_both_pipeline_sections (tools.tests.test_rebaseline_html_samples.RebaselineHtmlSamples.test_blueprint_applies_current_rule_to_both_pipeline_sections) ... ok
+test_missing_and_corrupt_final_original_leave_entire_csv_untouched (tools.tests.test_rebaseline_html_samples.RebaselineHtmlSamples.test_missing_and_corrupt_final_original_leave_entire_csv_untouched) ... ok
+test_publish_failure_leaves_original_and_removes_staging_file (tools.tests.test_rebaseline_html_samples.RebaselineHtmlSamples.test_publish_failure_leaves_original_and_removes_staging_file) ... ok
+test_rejects_missing_columns_or_no_html_rows (tools.tests.test_rebaseline_html_samples.RebaselineHtmlSamples.test_rejects_missing_columns_or_no_html_rows) ... ok
+test_verified_html_rows_use_the_source_host_and_preserve_other_fields (tools.tests.test_rebaseline_html_samples.RebaselineHtmlSamples.test_verified_html_rows_use_the_source_host_and_preserve_other_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.015s
+
+OK
+
+## 2. 실제 CSV + 빈 로컬 보관소 (원본 누락 중단, CSV 보존)
+$ RAW=$(mktemp -d); python3 -I tools/rebaseline_html_samples.py --raw-dir "$RAW"
+klia_pub_cancer_compare: [Errno 2] No such file or directory: '$RAW/objects/sha256/2d/38/2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5'
+exit=1
+samples.csv sha256 before=c20c0dd721e08751c6234291330827b6813e27d73541ed30d88a41e3e5f21c5f
+samples.csv sha256 after =c20c0dd721e08751c6234291330827b6813e27d73541ed30d88a41e3e5f21c5f
+
+## 3. 첫 전체 Python 실행의 실패(수정 전) — 전역 time.sleep 모의 오염
+$ python3 -m unittest discover -s tools/tests
+FAIL: test_blocked_redirect_is_reported_and_not_retried (test_verify_sources.RecordedRobotsPolicy.test_blocked_redirect_is_reported_and_not_retried)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/onjeon-run/wt/audit7-pipeline-contract-hash-rule/tools/tests/test_verify_sources.py", line 553, in test_blocked_redirect_is_reported_and_not_retried
+    sleep.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'sleep' to not have been called. Called 255 times.
+...(0.001, 0.002, 0.004, 0.008, 0.016, 0.032, 0.05... 바쁜 대기 폴링, 총 255회)
+Ran 1760 tests in 246.605s
+FAILED (failures=1, skipped=6)
+
+수정: test_blocked_redirect_is_reported_and_not_retried의 모의 창에 mock.patch.object(vs, "tool_version", return_value=None) 추가(다른 시험 관례).
+부하 상태 단일 시험 5회 반복 OK, RecordedRobotsPolicy 클래스 6건 OK.
+
+## 4. 전체 Python 스위트(수정 후, 문서 갱신 포함 최종 재실행)
+$ python3 -m unittest discover -s tools/tests
+Ran 1760 tests in 213.596s
+
+OK (skipped=6)
+detect:  (of 0)
+(직전 재실행도 217.931s에 OK (skipped=6). 건너뛴 6건: 보관 사본 필요 5건, 구버전 botocore 경로 1건.)
+
+## 5. Rust 워크스페이스
+$ cargo test --all --locked --offline
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 55 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 38.72s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+합계: 537 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture)
+
+## 6. 시나리오 API
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+## 7. 온톨로지 실행기
+$ (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+## 8. 라운드 2 — main 병합 충돌 해소 (2026-11-20)
+main(c13cc28, Audit 7 설계도 표류 갱신 병합)과의 병합에서 유일한 충돌은
+tools/tests/test_verify_sources.py의 test_blocked_redirect_is_reported_and_not_retried 주석이었다.
+양쪽 모두 같은 기능 수정(mock.patch.object(vs, "tool_version", return_value=None))을 추가했고
+주석 문구만 달랐다. 기능이 같으므로 origin/main의 더 상세한 주석(0.001→0.05 바쁜 대기 폴링 진단)을
+채택해 양쪽 의도를 보존했다. 해소 결과는 origin/main 버전과 바이트 일치(git diff MERGE_HEAD -- 해당 파일 = 빈 diff).
+자동 병합된 docs/BLUEPRINT.md·09_제품목적_대응표.md는 양쪽 변경이 서로 다른 구역이라 그대로 두었고,
+이 노드의 v3 선언 문단(§4)과 main의 빌드 식별자·§12 갱신이 모두 남아 있음을 확인했다.
+
+재실행(작업 트리 루트, 부하 평균 1.59/8코어):
+$ python3 -m unittest tools.tests.test_audit7_pipeline_contract_hash_rule tools.tests.test_rebaseline_html_samples -v
+Ran 9 tests in 0.011s — OK
+$ RAW=$(mktemp -d); python3 -I tools/rebaseline_html_samples.py --raw-dir "$RAW"
+klia_pub_cancer_compare: [Errno 2] No such file or directory: '$RAW/objects/sha256/2d/38/2d384476ec877db49fa7bb28488777c6040dc43e298f71703ec52f64bc598ff5'
+exit=1
+samples.csv sha256 before=c20c0dd721e08751c6234291330827b6813e27d73541ed30d88a41e3e5f21c5f
+samples.csv sha256 after =c20c0dd721e08751c6234291330827b6813e27d73541ed30d88a41e3e5f21c5f
+$ python3 -m unittest discover -s tools/tests
+Ran 1762 tests in 211.334s — OK (skipped=6)
+(main의 설계도 표류 갱신이 시험 2건을 추가해 1,760→1,762. 건너뛴 6건: 보관 사본 필요 5건, 구버전 botocore 경로 1건.)
+$ cargo test --all --locked --offline
+합계: 537 passed, 0 failed, 1 ignored (regenerate_declared_abox_fixture)
+$ cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
+test result: ok. 1 passed / 3 passed / 0 passed — 0 failed
+$ (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
+test result: ok. 4 passed; 0 failed; 0 ignored
+$ python3 tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (43 ADR/DEC files) — exit=0
+$ python3 tools/blueprint_counts.py
+BLUEPRINT-COUNTS: {"engine_version": "0.2.0+snapshot-json-1", "real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 270, "tamper_tests": 40, "vocabulary_axes": 50}
+(§11 자동 생성 표와 일치. git diff --check 깨끗, 미병합 경로 없음.)

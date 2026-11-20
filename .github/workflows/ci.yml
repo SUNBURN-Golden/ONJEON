@@ -26,7 +26,8 @@ jobs:
           fetch-depth: 0 # The tagged contract baseline is selected from the full history.
       - name: Workflow token permissions and immutable action refs
         run: |
-          python3 tools/workflow_check.py .github/workflows/ci.yml .github/workflows/sources.yml .github/workflows/pr-traceability.yml
+          python3 tools/workflow_check.py .github/workflows/ci.yml .github/workflows/sources.yml \
+            .github/workflows/pr-traceability.yml .github/workflows/runner-verify.yml
           python3 -m unittest discover -s tools/tests -p test_workflow_pins.py -v
       - name: Tracked credentials and virtual environments
         run: python3 -I tools/check_tracked_secrets.py

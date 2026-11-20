@@ -14,7 +14,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = ROOT / ".github/workflows"
 CI = WORKFLOWS / "ci.yml"
-CHECKED_WORKFLOWS = (CI, WORKFLOWS / "sources.yml", WORKFLOWS / "pr-traceability.yml")
+CHECKED_WORKFLOWS = (
+    CI, WORKFLOWS / "sources.yml", WORKFLOWS / "pr-traceability.yml",
+    WORKFLOWS / "runner-verify.yml",
+)
 
 
 class CiWorkflowSecurity(unittest.TestCase):

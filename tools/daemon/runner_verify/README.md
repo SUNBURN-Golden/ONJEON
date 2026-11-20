@@ -72,7 +72,10 @@ hook은 원자적으로 저장된 현재 리스를 읽어 자격의 `lease_id`�
 
 `runner_verify.json`(전체), `runner_verify.log`(검사마다 기대·실제를 줄이지 않고), `RESULTS.md`(R별 표·실패·미확인·증명하지 않은 것), `exit_code_table.md`(05 §1b 채움), `summary.json`(05 §2 형식, 확인하지 않은 칸은 "미확인"), `static_checks.log`, `unittest.log`.
 
-결과 값은 `PASS` / `FAIL` / `UNCONFIRMED`(측정할 수 없었음, 사유를 적는다) / `PARTIAL`(일부만 측정) / `GAP`(명세 문장과 관찰이 다르지만 그 R의 통과 기준은 아님)이다. 05 §6의 규칙대로 어느 장치에도 "검증됨"을 쓰지 않는다.
+검사 결과는 `PASS`, `FAIL`, `UNCONFIRMED`(측정하지 못한 사유 기록), `GAP`(명세와 관찰의 차이)으로 기록한다.
+시나리오는 실패한 검사가 하나라도 있으면 `FAIL`, 모든 검사가 통과하면 `PASS`, 검사가 없거나 모두 미확인이면 `UNCONFIRMED`다.
+그 밖에는 `PARTIAL`이며, `GAP`만 있는 경우에도 `PARTIAL`이다. `GAP` 자체는 종료 코드를 바꾸지 않는다.
+05 §6의 규칙대로 어느 장치에도 "검증됨"을 쓰지 않는다. [Audit 7 R1 보고서 회귀 증거](../../evidence/audit7-daemon-report-gap-status/README.md).
 
 ## T-OP-00 정적 검사와의 관계 (T-OP-00b에서 해결됨)
 

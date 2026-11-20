@@ -2,10 +2,9 @@
 
     python3 -m unittest tools/daemon/runner_verify/tests/test_runner_verify.py
 
-Fast tests first (adapters, hook, remote refusal, status rules, static checks, report logic), then every R scenario
-runs once against real processes and a real git remote and must come out PASS or UNCONFIRMED with no failed check.
-UNCONFIRMED parts are listed in the failure message of nothing: they are the honest "not measured here" records, and
-the tests below pin down which ones may exist so that a silently skipped part cannot hide."""
+Fast tests cover adapters, remote refusal, static checks and report logic. The scenario suite runs every R against
+real processes and a local Git remote and allows PASS, PARTIAL or UNCONFIRMED with no failed check. It checks which
+parts can be UNCONFIRMED on the host."""
 import json
 import os
 import re
@@ -713,19 +712,29 @@ class DrainPoisonMessage(unittest.TestCase):
 
 class ReportLogic(unittest.TestCase):
     def test_scenario_status(self):
-        rep = Rep()
-        self.assertEqual(rep.status(), UNCONFIRMED)
-        rep.eq("a", 1, 1)
-        self.assertEqual(rep.status(), PASS)
-        rep.unconfirmed("b", "no way")
-        self.assertEqual(rep.status(), PARTIAL)
-        rep.gap("c", "differs from the text")
-        self.assertEqual(rep.status(), PARTIAL)
-        rep.eq("d", 1, 2)
-        self.assertEqual(rep.status(), FAIL)
-        only = Rep()
-        only.unconfirmed("x", "y")
-        self.assertEqual(only.status(), UNCONFIRMED)
+        cases = (
+            ((), UNCONFIRMED),
+            ((PASS,), PASS),
+            ((UNCONFIRMED,), UNCONFIRMED),
+            ((PASS, UNCONFIRMED), PARTIAL),
+            ((GAP,), PARTIAL),
+            ((PASS, GAP), PARTIAL),
+            ((UNCONFIRMED, GAP), PARTIAL),
+            ((PASS, UNCONFIRMED, GAP), PARTIAL),
+            ((PASS, UNCONFIRMED, GAP, FAIL), FAIL),
+        )
+        for checks, expected in cases:
+            with self.subTest(checks=checks):
+                rep = Rep()
+                record = {
+                    PASS: lambda: rep.eq("matched", 1, 1),
+                    FAIL: lambda: rep.eq("mismatch", 1, 2),
+                    UNCONFIRMED: lambda: rep.unconfirmed("no measurement", "unavailable"),
+                    GAP: lambda: rep.gap("specification gap", "differs from the text"),
+                }
+                for check in checks:
+                    record[check]()
+                self.assertEqual(rep.status(), expected)
 
     def test_a_failure_is_recorded_as_a_failure(self):
         def boom(rep, cx):
@@ -788,15 +797,30 @@ class Cli(unittest.TestCase):
             self.assertEqual(res.returncode, 2)
             self.assertIn("remote refused", res.stderr)
 
-    def test_two_scenarios_end_to_end_write_every_output_file(self):
+    def test_scenarios_end_to_end_write_every_output_file(self):
         with tempfile.TemporaryDirectory() as d:
-            res = subprocess.run(["bash", str(RUN_SH), "--report", f"{d}/runner_verify.json", "--scenario", "R19,R20", "--no-cli", "--quiet"],
+            res = subprocess.run(["bash", str(RUN_SH), "--report", f"{d}/runner_verify.json", "--scenario", "R1,R19,R20", "--no-cli"],
                                  capture_output=True, text=True)
             self.assertEqual(res.returncode, 0, res.stdout + res.stderr)
             names = sorted(p.name for p in Path(d).iterdir())
             self.assertEqual(names, ["RESULTS.md", "exit_code_table.md", "runner_verify.json", "runner_verify.log", "static_checks.log", "summary.json"])
             report = json.loads((Path(d) / "runner_verify.json").read_text(encoding="utf-8"))
-            self.assertEqual([r["r"] for r in report["results"]], ["R19", "R20"])
+            self.assertEqual([(r["r"], r["status"]) for r in report["results"]],
+                             [("R1", PARTIAL), ("R19", PASS), ("R20", PASS)])
+            self.assertEqual(report["summary"]["status_counts"], {PASS: 2, FAIL: 0, PARTIAL: 1, UNCONFIRMED: 0})
+            self.assertEqual(report["summary"]["gaps"], 1)
+            self.assertEqual(report["required_test_ids"]["late-write-fenced"], [{"r": "R1", "status": PARTIAL}])
+            r1 = report["results"][0]
+            self.assertEqual([c["status"] for c in r1["checks"]].count(GAP), 1)
+            self.assertEqual(len(r1["findings"]), 1)
+            overview = (Path(d) / "RESULTS.md").read_text(encoding="utf-8")
+            self.assertRegex(overview, r"\| R1 \|[^\n]+\*\*PARTIAL\*\* \| 14/15 \|")
+            self.assertIn("PASS 2, FAIL 0, PARTIAL 1, UNCONFIRMED 0", overview)
+            self.assertIn("- **GAP** R1", overview)
+            log = (Path(d) / "runner_verify.log").read_text(encoding="utf-8")
+            self.assertRegex(log, r"== R1 late-write-fenced:[^\n]+\[PARTIAL\]")
+            self.assertIn("[GAP] R1", log)
+            self.assertRegex(res.stdout, r"R1\s+late-write-fenced\s+PARTIAL")
             self.assertTrue(report["product_branch_check"]["refs_unchanged"])
             self.assertEqual(report["product_branch_check"]["merge_calls"], 0)
             self.assertIn("가동 승인이 아니다", report["vm_approval"])

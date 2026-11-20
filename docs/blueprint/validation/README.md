@@ -50,13 +50,21 @@ Audit 4에서는 `samples.csv`의 `sha256`이 정확히 64자리 ASCII 16진수�
 
 Audit 3에서는 표준 urllib가 다음 URL을 열기 전에 중간 30x 본문을 무제한 `read()`하는 경로도 제거했다. 301·302·303·307·308 본문은 읽지 않고 연결을 닫으며, URL 정규화·출처 제한·루프 제한은 유지한다. 최종 문서만 위의 256 MiB 검사를 거쳐 해시·다운로드·보관 대상이 된다. [기준 코드 실패 재현과 회귀 검증](../audits/2026-10-28_verify_sources_redirect_cap.md).
 
+### HTML 본문 해시
+
 동적 HTML은 받을 때마다 세션 ID 등으로 바이트가 달라진다. 받은 바이트는 매번 새 원본으로 보존한다. `content_sha256`은 변경 감지의 보조 지표이고, 같아도 결과는 `bytes_changed_content_same`이지 바이트 일치가 아니다. 현재 규칙은 `html-visible-text-v3`다(`tools/html_content_hash.py`). 링크의 `sid`·`_t`·`_`·`ts`·`timestamp`는 사이트에 따라 문서 식별자일 수 있어 호스트별 목록(`HOST_VOLATILE_PARAMS`, 현재 KB손해보험의 `_t`)에서만 제거하고, `jsessionid`·`sessionid`·`phpsessid`는 모든 호스트에서 제거한다. KB의 목록이 실제 페이지의 변동 파라미터를 모두 덮는지는 비공개 원본으로 아직 확인하지 않았다.
 
 v3는 HTML 파서로 따옴표 없는 링크 속성까지 읽고, 모든 요소의 `onclick` 전체를 보수적으로 보존한다. JavaScript 실행이나 파일명 추정 없이 다운로드 인수·계산식 변경을 감지하며, 핸들러 안의 세션 값·코드 변경도 `changed`가 될 수 있다. HTML 엔티티는 한 번 해제한다. v1·v2 기준선은 v3와 비교하지 않는다. [Audit 2 회귀·변경 감지 검증 증거](../audits/2026-10-27_content_hash_onclick_links.md).
 
-알려진 열화(후속 작업): `samples.csv` 12~14행(HTML 3건)의 `content_hash_rule`은 아직 `html-visible-text-v1`이다. 규칙 이름이 다르면 `detect`는 본문 해시를 비교하지 않고 `changed`로 보고하므로, 기준선을 갱신하기 전까지 이 3건(특히 KB `CG802130001.ec`는 이전에 `bytes_changed_content_same`)은 변경 감지가 거칠어진다. 해시 재계산에는 비공개 R2 원본이 필요해 이 저장소에서는 하지 않았다. 기준선 갱신은 원본 접근 권한이 있는 담당자의 후속 작업이다. 같은 이유로 `source_checks/2026-10-09_detect_current_sources.json`(당시 기록)은 v1 결과 그대로 둔다.
+`DATA_PIPELINE_CONTRACT` §3·§3.1의 v1 표기에는 [BLUEPRINT §4](../../BLUEPRINT.md#4-시스템-계층)의 v3 기준을 적용한다. 보호 문서라 이 작업에서 고치지 않은 `docs/data/DATA_PIPELINE_CONTRACT.md` 40·55행의 v1→v3 직접 정정은 `docs/data/` 편집 권한이 있는 경로의 남은 작업이며, 정정 전에는 설계도가 문서 위계(ADR-0011)로 우선한다. `source_checks/2026-10-09_detect_current_sources.json`과 ADR-0015의 v1은 당시 실행과 채택 기록이라 고치지 않는다. [원본 사본 제공 결정](../../decisions/audit7-pipeline-contract-hash-rule.md).
 
-문서 불일치(후속 작업): 보호 문서라 이 변경에서 고치지 않은 `docs/data/DATA_PIPELINE_CONTRACT.md` 40·55행은 현재 규칙을 `html-visible-text-v1`로 적고 있어 v3로 갱신해야 한다. `docs/decisions/ADR-0015-원본-보관소-S3.md` 26행은 채택 당시 규칙을 적은 기록이므로 고치지 않고 v3로의 이행은 이 문서와 `tools/html_content_hash.py`의 History에 있다.
+2026-11-20 확인 시 `samples.csv`의 HTML 표본 3건은 2026-10-09에 계산한 v1 기준값을 사용한다. 기준값을 갱신하기 전까지 바이트가 달라진 응답은 `changed`로 보고된다. 승인된 담당자가 지정 실행 환경에서 고정 키의 원본 3건을 읽어 로컬 보관 사본을 제공하면([결정](../../decisions/audit7-pipeline-contract-hash-rule.md)) 아래 명령으로 기준값을 갱신한다. 입력 디렉터리는 `objects/sha256/<aa>/<bb>/<sha256>` 구조를 사용한다. 도구는 원본의 바이트 SHA-256을 각 행과 대조하고 `content_sha256`·`content_hash_rule`을 함께 갱신한다. 원본이 없거나 해시가 다르면 CSV 갱신 전에 중단한다.
+
+```bash
+python3 -I tools/rebaseline_html_samples.py --raw-dir path/to/local/raw
+```
+
+### 검증 이력
 
 문서 불일치 수정(Audit 1): `docs/BLUEPRINT.md` §11 "코드" 행(318행)을 2026-10-09 기준 단위·통합 테스트 39개 + 문서 시험(doctest) 3개로 나눠 적고, 재실행 근거인 `REVERIFY_87a19c5.md` §2에 연결했다. 두 커밋(87a19c5·839ecdb)의 `cargo test --workspace` 재실행 로그는 `docs/blueprint/validation/evidence/audit1_blueprint_test_count/`에 있다. `tools/tests/test_validation_test_counts.py`는 이제 합산값만 적은 행을 거부하며, 로그·REVERIFY·설계도의 39 + 3을 대조한다. [수정·검증 결과](REVERIFY_AUDIT1_BLUEPRINT_TEST_COUNT.md)에 회귀 시험과 재실행 결과를 적었다.
 

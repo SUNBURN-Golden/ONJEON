@@ -542,8 +542,11 @@ class RecordedRobotsPolicy(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             args = argparse.Namespace(raw=None, out=str(Path(d) / "out"), archive_new=False,
                                       report=str(Path(d) / "r.json"))
+            # report() probes pdftotext/tesseract versions; mock the spawner so their
+            # subprocess busy-wait polls cannot pollute the global time.sleep mock.
             with mock.patch.object(vs, "rows", return_value=[row]), \
                     mock.patch.object(vs, "fetch", vs._fetch_https), \
+                    mock.patch.object(vs, "tool_version", return_value=None), \
                     mock.patch.object(vs.urllib.request, "build_opener", return_value=opener) as build, \
                     mock.patch.object(vs.time, "sleep") as sleep, \
                     mock.patch("sys.stdout", new_callable=io.StringIO):

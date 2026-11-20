@@ -1,6 +1,6 @@
 # onjeon-rules-engine
 
-규칙 DSL v0.1의 결정적 평가기(`schema_version` `rule-0.1`, 그리고 `rule-0.2` 연산 확장). 제3부 §49, ADR-0003. 이 크레이트가 계산의 유일한 구현이다.
+엔진 0.2.0은 규칙 DSL `rule-0.1`과 `rule-0.2`를 평가한다. 두 DSL의 결과와 릴리스 매니페스트에는 `ENGINE_VERSION` 값인 `0.2.0+snapshot-json-1`을 기록한다. Cargo 패키지 버전은 별도로 관리한다. 제3부 §49, ADR-0003. 이 크레이트가 계산의 유일한 구현이다.
 
 ## 보장하는 것
 

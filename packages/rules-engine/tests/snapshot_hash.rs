@@ -22,6 +22,14 @@ fn hash(rule: &Rule, inputs: &J) -> String {
     rule.evaluate(inputs).unwrap().input_snapshot_hash
 }
 
+/// Golden pin for the build identifier recorded in every result and release
+/// manifest. It is the evaluator version, independent of the Cargo package
+/// version (see tools/evidence/audit7-engine-version-bump/README.md).
+#[test]
+fn engine_version_golden() {
+    assert_eq!(ENGINE_VERSION, "0.2.0+snapshot-json-1");
+}
+
 #[test]
 fn hash_matches_independent_canonical_json_with_all_input_types() {
     let rule = rule(
@@ -48,7 +56,10 @@ fn hash_matches_independent_canonical_json_with_all_input_types() {
     // Repeated evaluations include the same trace and version as well as the same hash.
     let first = rule.evaluate(&inputs).unwrap();
     assert_eq!(first.engine_version, ENGINE_VERSION);
-    assert!(first.engine_version.ends_with("+snapshot-json-1"));
+    assert_eq!(
+        serde_json::to_value(&first).unwrap()["engine_version"],
+        "0.2.0+snapshot-json-1"
+    );
     assert_eq!(
         serde_json::to_vec(&first).unwrap(),
         serde_json::to_vec(&rule.evaluate(&inputs).unwrap()).unwrap()

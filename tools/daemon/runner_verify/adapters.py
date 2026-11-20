@@ -320,11 +320,7 @@ _BRANCH_RE = re.compile(r"task/([A-Za-z0-9_-]+)-a([0-9]+)")
 
 
 def valid_push_refspec(task_id, sha, branch):
-    """The push refspec is built from the request, so both parts are validated before git sees them: a full
-    40-hex lowercase object id (git would resolve a truncated sha, and a + prefix forces the push) and the task's
-    own branch task/<task_id>-a<attempt> (a --... value would be read as a git option). The core's check
-    (fenced_write.checks[push_refspec]) additionally compares the branch with the lease's own branch, attempt
-    included; the adapter has no lease, so shape and task scope are its fence."""
+    """Validate a full lowercase Git object ID and a task-scoped branch before constructing a refspec."""
     return (isinstance(sha, str) and _SHA_RE.fullmatch(sha) is not None
             and isinstance(branch, str) and _BRANCH_RE.fullmatch(branch) is not None
             and _BRANCH_RE.fullmatch(branch).group(1) == task_id)
@@ -538,8 +534,8 @@ class PushRemote(Remote):
     """The fenced write after the core's checks passed: the daemon pushes with the lease's builder write credential.
     pr_update has no target at a bare repository and is recorded as such."""
 
-    def __init__(self, layout, git, credentials):
-        self.layout, self.git, self.credentials = layout, git, credentials
+    def __init__(self, layout, git, credentials, store):
+        self.layout, self.git, self.credentials, self.store = layout, git, credentials, store
 
     def execute(self, kind, task_id, request):
         if kind != "push":
@@ -547,21 +543,27 @@ class PushRemote(Remote):
                                                                     "reason": "no pull request API at the test remote",
                                                                     "ns": now_ns()})
             return
-        if not valid_push_refspec(task_id, request.get("sha"), request.get("branch")):
+        sha, branch = request.get("sha"), request.get("branch")
+        # The core holds dispatch_guard during this call. Read the committed lease without taking a second lock.
+        lease = self.store.snapshot()["tasks"].get(task_id, {}).get("lease_record")
+        if (not valid_push_refspec(task_id, sha, branch) or not isinstance(lease, dict)
+                or branch != lease.get("branch")):
             # the raw values are untrusted: record the refusal, not the payload
             append_jsonl(self.layout.root / "remote_writes.jsonl", {"kind": kind, "task_id": task_id, "executed": False,
                                                                     "reason": "invalid_refspec", "ns": now_ns()})
             raise PushFailed("other")
+        lease_id = lease.get("lease_id")
+        if not isinstance(lease_id, str) or not lease_id or lease_id != request.get("lease_id"):
+            raise PushFailed("permission_denied")
         credential = self.credentials.entry("builder_write_credential", task_id)
-        if (not credential or credential.get("revoked_ns")
-                or credential.get("lease_id") != request.get("lease_id")):
+        if not credential or credential.get("revoked_ns") or credential.get("lease_id") != lease_id:
             raise PushFailed("permission_denied")
         token = credential["token"]
-        res = self.git._git(["push", self.git.url, "--", f"{request['sha']}:refs/heads/{request['branch']}"],
+        res = self.git._git(["push", self.git.url, "--", f"{sha}:refs/heads/{lease['branch']}"],
                             env={"RV_PUSH_CREDENTIAL": token or "", "RV_PUSH_CLIENT": "daemon-fenced"}, check=False,
                             timeout=60)
         append_jsonl(self.layout.root / "remote_writes.jsonl", {
-            "kind": kind, "task_id": task_id, "executed": res.returncode == 0, "branch": request["branch"],
+            "kind": kind, "task_id": task_id, "executed": res.returncode == 0, "branch": lease["branch"],
             "lease_generation": request.get("lease_generation"), "envelope_id": request.get("envelope_id"),
             "ns": now_ns()})
         if res.returncode != 0:
@@ -648,13 +650,14 @@ def build_ports(layout, faults=None, net_block=False, git_env=None):
     url = "git://127.0.0.1:9/blocked.git" if net_block else cfg["remote"]
     excludes = Rules(read_json(cfg["rules"])).view["preserve_manifest"]["excludes"]
     git = RealGit(layout, cfg["remote"], excludes, credentials, extra_env=git_env, remote_url=url)
+    store = FileStore(layout, faults)
     pool = ProbedBuilderPool(layout, cfg["builders"])
     tasks = read_json(cfg["tasks"])["tasks"]
     ports = RealPorts(
-        clock=clock, store=FileStore(layout, faults), sender=FileSender(layout, process), process=process,
+        clock=clock, store=store, sender=FileSender(layout, process), process=process,
         credentials=credentials, worktree=FsWorktree(layout), git=git, guards=PoolGuards(pool), builders=pool,
         catalog=_Catalog(tasks, f"file://{layout.daemon_inbox}"), ids=UniqueIds(), faults=faults,
-        remote=PushRemote(layout, git, credentials), reviewers=MockReviewers(cfg["builders"]))
+        remote=PushRemote(layout, git, credentials, store), reviewers=MockReviewers(cfg["builders"]))
     return ports
 
 

@@ -141,7 +141,7 @@ class FencedWriteDedup(unittest.TestCase):
                         # Exercise the real push adapter with a Git spy, never a Git/network write.
                         git, credentials = mock.Mock(), mock.Mock()
                         git._git.return_value.returncode = 0
-                        env.ports.remote = PushRemote(layout, git, credentials)
+                        env.ports.remote = PushRemote(layout, git, credentials, env.ports.store)
                         after_commit = env.core._after_commit
 
                         def interleave(out):
@@ -172,23 +172,28 @@ class FencedWriteDedup(unittest.TestCase):
         from daemon.core.ports import PushFailed
         from daemon.runner_verify.adapters import PushRemote
         from daemon.runner_verify.common import Layout
+        request = {"lease_id": "L1", "sha": "a" * 40, "branch": "task/T-MOCK-BASIC-a1"}
+        store = mock.Mock()
+        store.snapshot.return_value = {"tasks": {sc.BASIC: {"lease_record": {
+            "lease_id": "L1", "branch": "task/T-MOCK-BASIC-a1"}}}}
         for entry in (None, {"lease_id": "other", "token": "fixture-other"},
                       {"lease_id": "L1", "token": "fixture-revoked", "revoked_ns": 1}):
             with self.subTest(entry=entry), tempfile.TemporaryDirectory() as tmp:
                 git, credentials = mock.Mock(), mock.Mock()
                 git._git.return_value.returncode = 0
                 credentials.entry.return_value = entry
-                remote = PushRemote(Layout(tmp).make(), git, credentials)
-                with self.assertRaises(PushFailed):
-                    remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/T-MOCK-BASIC-a1"})
+                remote = PushRemote(Layout(tmp).make(), git, credentials, store)
+                with self.assertRaisesRegex(PushFailed, "permission_denied"):
+                    remote.execute("push", sc.BASIC, request)
+                credentials.entry.assert_called_once_with("builder_write_credential", sc.BASIC)
                 git._git.assert_not_called()
 
         with tempfile.TemporaryDirectory() as tmp:
             git, credentials = mock.Mock(), mock.Mock()
             git._git.return_value.returncode = 0
             credentials.entry.return_value = {"lease_id": "L1", "token": "fixture-current"}
-            remote = PushRemote(Layout(tmp).make(), git, credentials)
-            remote.execute("push", sc.BASIC, {"lease_id": "L1", "sha": "a" * 40, "branch": "task/T-MOCK-BASIC-a1"})
+            remote = PushRemote(Layout(tmp).make(), git, credentials, store)
+            remote.execute("push", sc.BASIC, request)
             self.assertEqual(git._git.call_args.kwargs["env"]["RV_PUSH_CREDENTIAL"], "fixture-current")
 
     def test_dispatch_serializes_lease_replacement_through_remote_execution(self):
@@ -754,11 +759,10 @@ class PushRefspecFencing(unittest.TestCase):
 
 
 class PushRefspecAdapter(unittest.TestCase):
-    """audit6-daemon-push-refspec-validation: the push adapter re-validates the refspec before it touches the
-    credential or git, and passes -- so no part of the request can be read as a git option."""
+    """The push adapter validates the refspec and exact lease branch before using credentials or Git."""
 
     def setUp(self):
-        from daemon.runner_verify.adapters import PushRemote
+        from daemon.runner_verify.adapters import FileStore, PushRemote
         from daemon.runner_verify.common import Layout
         self.tmp = tempfile.TemporaryDirectory()
         self.layout = Layout(self.tmp.name).make()
@@ -766,8 +770,11 @@ class PushRefspecAdapter(unittest.TestCase):
         self.git._git.return_value.returncode = 0
         self.git.url = "remote.invalid"
         self.credentials.entry.return_value = {"lease_id": "L1", "token": "fixture-current"}
-        self.remote = PushRemote(self.layout, self.git, self.credentials)
         self.request = {"lease_id": "L1", "sha": "a" * 40, "branch": "task/T-MOCK-BASIC-a1"}
+        self.store = FileStore(self.layout)
+        with self.store.transaction() as d:
+            d["tasks"][sc.BASIC] = {"lease_record": {k: self.request[k] for k in ("lease_id", "branch")}}
+        self.remote = PushRemote(self.layout, self.git, self.credentials, self.store)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -796,6 +803,38 @@ class PushRefspecAdapter(unittest.TestCase):
         args = self.git._git.call_args.args[0]
         self.assertEqual(args, ["push", "remote.invalid", "--", "a" * 40 + ":refs/heads/task/T-MOCK-BASIC-a1"])
         self.assertEqual(self.git._git.call_args.kwargs["env"]["RV_PUSH_CREDENTIAL"], "fixture-current")
+
+    def test_other_attempt_of_same_task_is_rejected_before_credential_and_git(self):
+        from daemon.core.ports import PushFailed
+        from daemon.runner_verify.common import read_jsonl
+        request = dict(self.request, branch="task/T-MOCK-BASIC-a2")
+        with self.assertRaises(PushFailed):
+            self.remote.execute("push", sc.BASIC, request)
+        self.credentials.entry.assert_not_called()
+        self.git._git.assert_not_called()
+        [record] = read_jsonl(self.layout.root / "remote_writes.jsonl")
+        self.assertEqual((record["executed"], record["reason"]), (False, "invalid_refspec"))
+        self.assertNotIn("branch", record)
+
+    def test_push_without_an_authoritative_branch_is_rejected(self):
+        from daemon.core.ports import PushFailed
+        for task in ({}, {"lease_record": {"lease_id": "L1"}}):
+            with self.subTest(task=task):
+                with self.store.transaction() as d:
+                    d["tasks"][sc.BASIC] = task
+                with self.assertRaises(PushFailed):
+                    self.remote.execute("push", sc.BASIC, self.request)
+        self.credentials.entry.assert_not_called()
+        self.git._git.assert_not_called()
+
+    def test_lease_id_must_match_the_store_even_with_the_matching_branch(self):
+        from daemon.core.ports import PushFailed
+        with self.store.transaction() as d:
+            d["tasks"][sc.BASIC]["lease_record"]["lease_id"] = "L2"
+        with self.assertRaisesRegex(PushFailed, "permission_denied"):
+            self.remote.execute("push", sc.BASIC, self.request)
+        self.credentials.entry.assert_not_called()
+        self.git._git.assert_not_called()
 
     def test_preserve_push_validates_and_passes_the_option_separator(self):
         from daemon.core.ports import PushFailed

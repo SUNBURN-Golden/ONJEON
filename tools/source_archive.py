@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Content-addressed archive of public source originals and their derived outputs (ADR-0015).
+"""Content-addressed archive of public source originals and their derived outputs (ADR-0015/0016).
 
 Two stores, never mixed:
   raw     public disclosure originals (PDF, HTML, price tables) exactly as fetched
@@ -13,7 +13,7 @@ Derived store layout:
   derived/<raw sha256>/<kind>/<tool>@<version>/<name>
   derived/<raw sha256>/manifests/<sha256 of manifest>.json   (outputs: key + sha256)
 
-Rules enforced here (on AWS also by the bucket policy in infra/s3/; R2 has no bucket policy, see infra/r2/):
+Rules enforced by the archive tool (see infra/r2/ for storage controls):
 - a key is written once; an existing key is never overwritten (S3: If-None-Match: *;
   local: refuse). Re-archiving identical bytes is a no-op that is verified, not a rewrite.
 - a changed document at the same URL is a new object plus a new observation; the old object and
@@ -27,15 +27,14 @@ Rules enforced here (on AWS also by the bucket policy in infra/s3/; R2 has no bu
 - personal policy, health, family history or DNA data never enter these stores
   (only rows from docs/blueprint/validation/samples.csv or explicit public-source arguments).
 
-Targets: file:///abs/dir  or  s3://bucket[/prefix]. The S3 API endpoint comes from --endpoint-url or
-ONJEON_S3_ENDPOINT (unset = AWS S3, ap-northeast-2). An endpoint on *.r2.cloudflarestorage.com selects
-Cloudflare R2 (infra/r2/): region "auto", credentials from R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY,
-no SSE header (R2 encrypts every object at rest). Otherwise credentials come from the standard AWS chain.
-Only http(s) endpoints on localhost/127.0.0.1 are accepted as test emulators; other explicit
-endpoints (including AWS endpoints) are refused. DNS trailing dots are ignored for classification.
+Targets: file:///abs/dir or s3://bucket[/prefix]. The s3:// target requires an S3 API endpoint from
+--endpoint-url or ONJEON_S3_ENDPOINT. Cloudflare R2 (infra/r2/) requires HTTPS, a budget job
+(--job), region "auto", and credentials from R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY. R2 encrypts
+every object at rest. For local testing, HTTP(S) on localhost/127.0.0.1 uses the SDK credential chain.
+AWS S3 and other remote endpoints are unsupported. DNS trailing dots are ignored for classification.
 Never pass keys on the command line, never print them.
 
-Usage:
+Usage (pass --job before the subcommand for R2):
   source_archive.py archive-samples --cache DIR --raw T --derived T [--derived-src DIR]
   source_archive.py add-observation --file F --source-id ID --url U --observed-at TS --raw T
   source_archive.py fetch --raw T --out DIR          # restore samples.csv originals by hash (cache_path must stay inside DIR)
@@ -200,11 +199,11 @@ R2_HOST_SUFFIX = ".r2.cloudflarestorage.com"
 
 
 def provider_of(endpoint_url):
-    """Classify AWS defaults, R2 or allowlisted local emulators; refuse other endpoints."""
+    """Classify R2 or allowlisted local emulators; refuse missing or other endpoints."""
     if not endpoint_url:
-        return "aws"
+        raise SystemExit("S3 API endpoint is required for s3:// targets; set --endpoint-url or ONJEON_S3_ENDPOINT")
     from urllib.parse import urlparse
-    refused = "unsupported S3 endpoint; use HTTPS R2, localhost/127.0.0.1, or omit the endpoint for AWS"
+    refused = "unsupported S3 endpoint; use HTTPS R2 or a localhost/127.0.0.1 emulator"
     try:
         u = urlparse(endpoint_url)
         # A DNS root dot denotes the same host; it must not bypass R2's budget gate.
@@ -222,8 +221,6 @@ def provider_of(endpoint_url):
 
 class S3Store:
     def __init__(self, url, endpoint_url=None, ledger=False, *, budget=None):
-        import boto3  # only needed for s3:// targets
-        from botocore.config import Config
         rest = url[len("s3://"):]
         self.bucket, _, prefix = rest.partition("/")
         self.prefix = prefix.strip("/")
@@ -233,9 +230,8 @@ class S3Store:
         # The session opens its ledger before ACTIVE is set. Use that session's
         # policy and meter from construction, including the admission requests.
         budget = budget if budget is not None else r2_budget.ACTIVE
-        if self.provider in ("aws", "r2") and budget is None and not ledger:
-            raise SystemExit(f"{self.provider} access needs a budget job (--job infra/r2/jobs/<job>.json); "
-                             "nothing was sent")
+        if self.provider == "r2" and budget is None and not ledger:
+            raise SystemExit("r2 access needs a budget job (--job infra/r2/jobs/<job>.json); nothing was sent")
         kw = {}
         if self.provider == "r2":
             key, secret = os.environ.get("R2_ACCESS_KEY_ID"), os.environ.get("R2_SECRET_ACCESS_KEY")
@@ -244,6 +240,8 @@ class S3Store:
             if not (key and secret):  # never fall back to the AWS chain for R2
                 raise SystemExit("R2 endpoint selected but R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY are not set")
             kw = {"aws_access_key_id": key, "aws_secret_access_key": secret}
+        import boto3  # only needed for s3:// targets
+        from botocore.config import Config
         # checksums only when we send one ourselves (SHA-256 below); keeps S3-compatible stores working
         attempts = budget.policy["per_request"]["max_attempts"] if budget else 3
         # Config.max_attempts counts retries; the policy counts the initial attempt too.
@@ -254,6 +252,7 @@ class S3Store:
                          response_checksum_validation="when_required")
         except TypeError:
             cfg = Config(**base)
+        # Preserve the signing region used by existing loopback emulators.
         self.s3 = boto3.client("s3", region_name="auto" if self.provider == "r2" else "ap-northeast-2",
                                endpoint_url=endpoint_url, config=cfg, **kw)
         put = self.s3.meta.service_model.operation_model("PutObject").input_shape.members
@@ -270,15 +269,11 @@ class S3Store:
 
     def put_new(self, key, body, content_type):
         from botocore.exceptions import ClientError
-        kw = {}
-        if self.provider == "aws":
-            kw["ServerSideEncryption"] = "AES256"  # R2 encrypts at rest itself and rejects this header
         try:
             self.s3.put_object(
                 Bucket=self.bucket, Key=self._k(key), Body=body, ContentType=content_type,
-                IfNoneMatch="*",  # never overwrite (AWS: the bucket policy also denies writes without it)
+                IfNoneMatch="*",
                 ChecksumSHA256=base64.b64encode(hashlib.sha256(body).digest()).decode(),
-                **kw,
             )
         except ClientError as e:
             if e.response["Error"]["Code"] in ("PreconditionFailed", "ConditionalRequestConflict") \
@@ -603,8 +598,8 @@ def cmd_verify_copy(a):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--endpoint-url", help="S3 API endpoint (HTTPS R2 or localhost/127.0.0.1 emulator); "
-                    "default $ONJEON_S3_ENDPOINT, else AWS")
-    ap.add_argument("--job", help="budget job (infra/r2/jobs/*.json); required for R2/AWS targets")
+                    "required for s3:// targets unless ONJEON_S3_ENDPOINT is set")
+    ap.add_argument("--job", help="budget job (infra/r2/jobs/*.json); required for R2 targets")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("archive-samples")
     s.add_argument("--cache", required=True)

@@ -57,7 +57,7 @@
 | `tools/verify_sources.py` | 보관본 재현(reproduce)과 현재 출처 변경 감지(detect) 분리 | 구현 | 같음, 수동 `sources` 워크플로 |
 | `tools/r2_budget.py`, `infra/r2/` | R2 폭주 완화 장치(실행 전 예약 원장, 요청 계량, 고정 119키 작업) | 구현, 수동 1환경 | 같음 |
 | `tools/html_content_hash.py` | HTML 본문 해시 정규화 | 구현 | 같음 |
-| `infra/s3/` | S3 버킷 정의(미배포, R2로 대체) | 보존 | — |
+| `infra/s3/` | R2가 대체한 AWS 공시 보관소 이력 | Audit 7에서 미배포 템플릿 삭제, 폐기 안내만 보존 | — |
 | `.github/workflows/ci.yml` | 어휘·검증 자료·Python 시험·Rust fmt/clippy/test | 구현 | PR마다 |
 | `.github/workflows/sources.yml` | 원본 재현·변경 감지(수동) | 구현 | 수동 |
 | (없음) | Flutter 앱, Rust API, 워커, docproc, ai-review, Next.js 웹·관제, DB 스키마, OpenAPI | **미구현** | — |

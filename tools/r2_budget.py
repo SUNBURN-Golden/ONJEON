@@ -1020,7 +1020,7 @@ class Session:
                 "limits": self.meter.limits, "used": self.meter.snapshot(), "requests": self.meter.calls}
 
 
-ACTIVE = None  # the Session of this process; source_archive.store() refuses R2/AWS without it
+ACTIVE = None  # the Session of this process; source_archive.store() refuses R2 without it
 
 
 def start(job_path, endpoint_url=None, ledger_store=None, policy_path=None, gate_dir=None, purpose=None):

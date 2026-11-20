@@ -15,8 +15,7 @@
 //!                                                      and is not counted as acquired)
 //! ```
 //!
-//! Rules enforced here (on AWS also by the bucket policy in `infra/s3/`; R2 has no bucket
-//! policy, see `infra/r2/`):
+//! Rules enforced by the client (see `infra/r2/` for the Cloudflare R2 storage controls):
 //! - a key is written once; an existing key is never overwritten (`If-None-Match: *` on S3,
 //!   an atomic link on `file://`). Re-archiving identical bytes is a verified no-op.
 //! - a changed document at the same URL is a new object plus a new observation; the old
@@ -26,10 +25,8 @@
 //!
 //! Targets: `file:///abs/dir` or `s3://bucket[/prefix]`. S3-compatible endpoints speak the
 //! S3 REST API over plain HTTP (the local Compose object store and test emulators).
-//! `*.r2.cloudflarestorage.com` and AWS endpoints are refused unless an open
-//! [`budget::Session`] (job file + ledger) is passed, and they additionally need an HTTPS
-//! transport this crate does not build yet (D-04 pending); the gate is checked before any
-//! transport selection so nothing is ever sent to them without a job and a ledger.
+//! Remote calls are disabled in this crate. Its budget session has no public constructor and
+//! its archive store supports only loopback HTTP. Budgeted R2 runs use the Python tool.
 
 pub mod archive;
 pub mod budget;

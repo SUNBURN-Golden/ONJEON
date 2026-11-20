@@ -1,0 +1,33 @@
+name: runner-verify
+
+on:
+  push:
+    branches: [main, "claude/**"]
+    paths:
+      - '.github/workflows/runner-verify.yml'
+      - 'tools/daemon/**'
+      - 'docs/blueprint/proposals/설계검토_결과/daemon_rules.json'
+      - 'docs/blueprint/proposals/설계검토_결과/tasks.json'
+      - 'docs/vm_check/**'
+  pull_request:
+    paths:
+      - '.github/workflows/runner-verify.yml'
+      - 'tools/daemon/**'
+      - 'docs/blueprint/proposals/설계검토_결과/daemon_rules.json'
+      - 'docs/blueprint/proposals/설계검토_결과/tasks.json'
+      - 'docs/vm_check/**'
+
+permissions:
+  contents: read
+
+jobs:
+  runner-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      # The suite covers the real adapters with temporary local remotes and calls all_static().
+      - name: Runner verification suite and static checks
+        run: python3 -m unittest discover -s tools/daemon/runner_verify/tests -v

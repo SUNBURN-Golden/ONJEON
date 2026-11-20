@@ -54,6 +54,7 @@ cargo fetch --locked
 cargo fetch --manifest-path services/scenario-api/Cargo.toml --locked
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo fetch --locked)
 python3 -m unittest discover -s tools/tests -v
+python3 -m unittest discover -s tools/daemon/runner_verify/tests -v
 cargo test --all --locked --offline
 cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)

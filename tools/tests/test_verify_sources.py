@@ -405,8 +405,8 @@ class DetectExit(unittest.TestCase):
             cache.mkdir()
             (Path(t) / "outside.pdf").write_bytes(b"x")
             args = __import__("argparse").Namespace(raw=None, cache=str(cache))
-            paths = vs.materialize(args, [{"sample_id": "s", "cache_path": "../outside.pdf"}])
-            self.assertEqual(paths, {})
+            with vs.materialize(args, [{"sample_id": "s", "cache_path": "../outside.pdf"}]) as paths:
+                self.assertEqual(paths, {})
 
     def test_oversized_body_is_fetch_failed_too_large(self):
         from unittest import mock
@@ -506,10 +506,10 @@ class RecordedRobotsPolicy(unittest.TestCase):
     def test_policy_applies_to_host_regardless_of_path_case_port_or_scheme(self):
         for url in ("https://pub.insure.or.kr/", "http://PUB.INSURE.OR.KR:80/new/path?x=1",
                     "https://pub.insure.or.kr./download.pdf"):
-            with self.subTest(url=url), mock.patch.object(vs.urllib.request, "build_opener") as opener:
+            with self.subTest(url=url), mock.patch.object(vs.subprocess, "run") as run:
                 with self.assertRaises(vs.RobotsDisallowed):
                     vs.fetch(url)
-                opener.assert_not_called()
+                run.assert_not_called()
 
     def test_policy_matches_hostname_not_url_substrings(self):
         for url in ("https://pub.insure.or.kr.www.kyobo.com/", "https://www.kyobo.com/pub.insure.or.kr",
@@ -543,6 +543,7 @@ class RecordedRobotsPolicy(unittest.TestCase):
             args = argparse.Namespace(raw=None, out=str(Path(d) / "out"), archive_new=False,
                                       report=str(Path(d) / "r.json"))
             with mock.patch.object(vs, "rows", return_value=[row]), \
+                    mock.patch.object(vs, "fetch", vs._fetch_https), \
                     mock.patch.object(vs.urllib.request, "build_opener", return_value=opener) as build, \
                     mock.patch.object(vs.time, "sleep") as sleep, \
                     mock.patch("sys.stdout", new_callable=io.StringIO):
@@ -586,7 +587,7 @@ class FetchSizeCap(unittest.TestCase):
         opener = mock.Mock()
         opener.open.return_value = resp
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener):
-            return vs.fetch("https://www.kyobo.com/x", max_bytes=max_bytes)
+            return vs._fetch_https("https://www.kyobo.com/x", max_bytes=max_bytes)
 
     def test_body_at_the_cap_is_returned(self):
         body, ctype, final_url = self.fetch_with(self.Resp(b"%PDF-12345"), 10)

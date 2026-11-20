@@ -1,7 +1,6 @@
-"""Result records of the verification. A check is PASS, FAIL or UNCONFIRMED. A scenario (one R number) is FAIL if any
-check failed, PASS only if every check passed, UNCONFIRMED if nothing could be checked, PARTIAL otherwise. GAP marks
-a place where the specification text and what was observed differ without being one of the scenario's pass
-criteria; it is listed in the summary and never hidden."""
+"""Record PASS, FAIL, UNCONFIRMED and GAP checks. GAP records a difference between the specification and the
+observation. A scenario is FAIL if any check failed, PASS if every check passed, UNCONFIRMED if it has no checks
+or only UNCONFIRMED checks, and PARTIAL otherwise. A GAP makes the scenario PARTIAL unless a check failed."""
 import copy
 
 PASS, FAIL, UNCONFIRMED, GAP, PARTIAL = "PASS", "FAIL", "UNCONFIRMED", "GAP", "PARTIAL"
@@ -41,10 +40,10 @@ class Rep:
 
     def status(self):
         kinds = {c["status"] for c in self.checks}
-        if not self.checks:
-            return UNCONFIRMED
         if FAIL in kinds:
             return FAIL
-        if UNCONFIRMED in kinds:
-            return UNCONFIRMED if kinds <= {UNCONFIRMED, GAP} else PARTIAL
-        return PASS
+        if kinds == {PASS}:
+            return PASS
+        if kinds <= {UNCONFIRMED}:
+            return UNCONFIRMED
+        return PARTIAL

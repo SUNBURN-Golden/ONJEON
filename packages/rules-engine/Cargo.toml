@@ -1,8 +1,8 @@
 [package]
 name = "onjeon-rules-engine"
-version = "0.1.0"
+version = "0.1.0" # Cargo package version. Results use ENGINE_VERSION in src/lib.rs.
 edition = "2021"
-description = "ONJEON deterministic rule evaluator (DSL v0.1): three-valued logic, integer money, no floats"
+description = "ONJEON deterministic rule evaluator (rule-0.1 and rule-0.2): three-valued logic, integer money, no floats"
 publish = false
 
 [dependencies]

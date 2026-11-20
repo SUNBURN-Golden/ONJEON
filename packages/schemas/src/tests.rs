@@ -192,6 +192,7 @@ fn contracts_version_matches_the_generated_clients() {
 fn rule_engine_output_deserializes_into_evaluation_result() {
     use onjeon_rules_engine::Rule;
     let dir = schemas_dir().join("../fixtures/rules");
+    let manifest: ReleaseManifest = serde_json::from_str(fixture!("ReleaseManifest")).unwrap();
     let mut checked = 0;
     let mut with_effect = 0;
     for rule_file in [
@@ -211,6 +212,7 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
             };
             let wire = serde_json::to_string(&result).unwrap();
             let typed = round_trip::<EvaluationResult>(&wire);
+            assert_eq!(typed.engine_version, manifest.engine_version);
             assert_eq!(
                 check_evaluation_result(&typed),
                 vec![],

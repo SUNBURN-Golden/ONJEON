@@ -268,6 +268,21 @@ class Fixtures(unittest.TestCase):
         for name, doc in self.docs.items():
             self.assertEqual(self.v.validate(doc, name.split(".")[0]), [], name)
 
+    def test_results_for_the_manifest_release_use_its_engine(self):
+        manifest = self.docs["ReleaseManifest.fixture.json"]
+        for name, doc in self.docs.items():
+            if doc.get("release_id") != manifest["release_id"]:
+                continue
+            if name.startswith("EvaluationResult."):
+                result = doc
+            elif name.startswith("ScenarioResult.") and "evaluation" in doc:
+                result = doc["evaluation"]
+            else:
+                continue
+            with self.subTest(fixture=name):
+                self.assertEqual(result["engine_version"], manifest["engine_version"])
+                self.assertIn(result["schema_version"], manifest["rule_schema_versions"])
+
     def test_fixtures_are_marked_test_only(self):
         # Every fixture that carries an origin is origin=fixture and none is accepted, without
         # exception. An accepted (comparison-eligible) observation cannot be origin=fixture

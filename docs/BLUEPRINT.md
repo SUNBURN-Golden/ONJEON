@@ -132,6 +132,9 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 등록된 다른 호스트로의 이동도 기존 같은 출처 리다이렉트 제한으로 거부한다.
 최초 요청 전·리다이렉트·최종 URL의 검증과 실패 시 캐시·보관 쓰기 없음은
 [Audit 6 출처 호스트 제한](blueprint/audits/2026-11-16_verify_sources_url_allowlist.md)에 기록한다.
+
+동적 HTML의 현재 본문 해시 규칙은 `html-visible-text-v3`이다. `DATA_PIPELINE_CONTRACT` §3·§3.1의 규칙 버전 표기에는 이 기준을 적용한다. 본문 해시는 같은 규칙으로 계산한 기준값과 비교하는 보조 지표다. 바이트 SHA-256이 다르고 본문 해시가 같으면 `bytes_changed_content_same`으로 기록하고, 수집한 바이트와 그 SHA-256은 별도로 보존한다. 표본 기준값 갱신과 실측 상태는 [V1 검증 자료](blueprint/validation/README.md#html-본문-해시)를 따르며, 갱신에 필요한 원본 사본 제공은 [위임 결정](decisions/audit7-pipeline-contract-hash-rule.md)으로 기록했다.
+
 출처 하나의 연결·리다이렉트·본문 읽기·재시도에는 120초를 함께 적용한다. 보관본 재현은
 추출·OCR 명령당 120초, 도구 버전 조회당 10초를 적용하고 임시 원본과 OCR 이미지를 정리한다.
 [Audit 7 다운로드·재현 시간 제한](blueprint/audits/2026-11-20_verify_sources_deadlines.md)은 P02·P03의 수집·재현 도구 로컬 증거다.

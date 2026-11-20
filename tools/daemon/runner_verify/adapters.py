@@ -59,7 +59,7 @@ class FileStore(Store):
         self._local = threading.local()
         for stale in layout.store_dir.glob(".state.json.*.tmp"):
             try:
-                pid = int(stale.name.split(".")[2])
+                pid = int(stale.name.split(".")[3])  # .state.json.<pid>.<id>.tmp
             except (IndexError, ValueError):
                 pid = 0
             if not pid_alive(pid):

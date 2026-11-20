@@ -68,6 +68,15 @@ class Adapters(unittest.TestCase):
                 with store.transaction():
                     pass
 
+    def test_store_preserves_a_live_writers_temp_file(self):
+        tmp = self.layout.store_dir / f".state.json.{os.getpid()}.12345678.tmp"
+        tmp.write_text('{"tasks":', encoding="utf-8")
+
+        FileStore(self.layout)
+
+        self.assertTrue(tmp.is_file())
+        self.assertEqual(tmp.read_text(encoding="utf-8"), '{"tasks":')
+
     def test_store_survives_a_kill_in_the_middle_of_a_write(self):
         code = ("import sys; sys.path.insert(0, %r)\n"
                 "from daemon.runner_verify.adapters import FileStore, ProcessFaults\n"
@@ -78,6 +87,7 @@ class Adapters(unittest.TestCase):
             d["tasks"]["x"] = "old"
         res = subprocess.run([sys.executable, "-I", "-c", code])
         self.assertEqual(res.returncode, -9)
+        self.assertEqual(len(list(self.layout.store_dir.glob(".state.json.*.tmp"))), 1)
         self.assertEqual(FileStore(self.layout).snapshot()["tasks"]["x"], "old")
         self.assertEqual(list(self.layout.store_dir.glob(".state.json.*.tmp")), [], "a stale temp file is cleaned at start")
 

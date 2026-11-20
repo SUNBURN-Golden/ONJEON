@@ -9,5 +9,6 @@
 | [변경 감지 회귀 시험](../../tests/test_verify_sources.py) | v1·v2 기준선은 v3와 비교하지 않고 `changed`로 보고한다(`test_baseline_under_an_older_rule_is_not_compared`). 현재 규칙 기준선에서만 `bytes_changed_content_same`이 나온다. |
 | 실제 CSV + 빈 로컬 보관소 | `python3 -I tools/rebaseline_html_samples.py --raw-dir <빈 디렉터리>`는 첫 원본 누락(`klia_pub_cancer_compare`)으로 종료 1이며, 실행 전후 `samples.csv` 바이트 SHA-256이 같다. 이 작업 트리에는 2026-10-09 원본 3건의 바이트가 없어 실제 v3 기준값은 계산하지 않았다. |
 | [수면 모의 오염 수정](../../tests/test_verify_sources.py) | 첫 전체 실행에서 `test_blocked_redirect_is_reported_and_not_retried`가 공유 장비 부하 속 자식 프로세스 바쁜 대기 폴링(0.001→0.05)으로 실패했다. `report()`의 버전 확인 스포너(`vs.tool_version`)를 모의하는 관례를 적용해 고쳤고, 부하 상태에서 단일 시험 5회·클래스 전체·전체 스위트 재실행이 통과했다. |
+| 라운드 2 main 병합 충돌 해소 | 유일한 충돌은 그 시험의 주석이었고 양쪽이 같은 `vs.tool_version` 모의를 추가했으므로 main의 더 상세한 주석을 채택했다(해소 파일은 main과 바이트 일치). 자동 병합된 BLUEPRINT·대응표에서 이 노드의 v3 선언과 main의 갱신이 모두 남음을 확인했다. 병합 뒤 노드 시험 9건, Python 전체 1,762건(건너뜀 6), Rust 537건(무시 1), 시나리오 API·온톨로지 각 4건, BLUEPRINT 수치·결정 색인 검사 재실행이 통과했다. |
 
-전체 시험 명령·결과는 [검증 로그](verification.log)에 기록했다. 실제 v3 기준값 갱신은 승인된 담당자가 지정 실행 환경에서 원본 사본 3건을 제공한 뒤의 후속 작업이며, 보호 계약 40·55행의 직접 정정은 `docs/data/` 편집 권한이 있는 경로에 남는다.
+전체 시험 명령·결과(라운드 2 재실행 포함)는 [검증 로그](verification.log)에 기록했다. 실제 v3 기준값 갱신은 승인된 담당자가 지정 실행 환경에서 원본 사본 3건을 제공한 뒤의 후속 작업이며, 보호 계약 40·55행의 직접 정정은 `docs/data/` 편집 권한이 있는 경로에 남는다.

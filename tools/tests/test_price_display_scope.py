@@ -75,7 +75,7 @@ class PriceDisplayScope(unittest.TestCase):
     def test_gate_wording_is_shared_by_scope_docs_ledger_and_09(self):
         places = {
             "BLUEPRINT §7.1": one_row(self.scope, "| 첫 출시 데이터 |"),
-            "BLUEPRINT §12": one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)"),
+            "BLUEPRINT §12": one_row(self.open_decisions, "| 외부 검토 담당 지정 요건(D-18·O10)"),
             "README": next(p for p in self.readme.split("\n\n") if "ADR-0010." in p),
             "DECISIONS O04": one_row(self.open_items, "| O04 |"),
             "DECISIONS O10": one_row(self.open_items, "| O10 |"),
@@ -147,13 +147,13 @@ class PriceDisplayScope(unittest.TestCase):
 
     def test_d18_is_never_cited_as_the_r2_operations_direction(self):
         self.assertIn("R2 초기 운영", one_row(self.directions, "| BP-D-18 |"))
-        row = one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)")
+        row = one_row(self.open_decisions, "| 외부 검토 담당 지정 요건(D-18·O10)")
         for text in (row, one_row(self.scope, "| 첫 출시 데이터 |"),
                      one_row(self.purpose, "| P09 |")):
             self.assertNotRegex(text, r"(?<![-\w])BP-D-18(?!\w)")
 
     def test_s12_row_names_milestone_and_what_stays_allowed(self):
-        row = cells(one_row(self.open_decisions, "| 외부 검토 담당 지정(D-18·O10)"))
+        row = cells(one_row(self.open_decisions, "| 외부 검토 담당 지정 요건(D-18·O10)"))
         self.assertEqual(len(row), 3)
         self.assertEqual(row[1], "대외 출시")
         for phrase in ("[DEC-D-18](decisions/DEC-D-18.md)", "아직 지정되지 않았다",

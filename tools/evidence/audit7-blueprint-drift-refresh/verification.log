@@ -1,0 +1,123 @@
+afbb708e1c94273d8fce4142a13cf8bdded48680
+rustc 1.98.1 (48a229cea 2026-09-01)
+Python 3.13.5
+BLUEPRINT-COUNTS: {"engine_version": "0.2.0+snapshot-json-1", "real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 270, "tamper_tests": 40, "vocabulary_axes": 50}
+BLUEPRINT-S11: current decision index (43 ADR/DEC files)
+product-purpose: 09 P01..P19 task links, P06/P17/P19 owners and product-purpose test IDs registered on assigned tasks (static only)
+vocabulary ok: 50 axes, 271 values
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+selftest ok: 40 mutations, each caught for its intended reason
+baseline missing engine build row: rejected
+rust_tests=42: rejected
+rust_tests=122: rejected
+rust_doctests=42: rejected
+real_clause_rules=8: rejected
+tamper_tests=28: rejected
+tamper_tests=38: rejected
+vocabulary_axes=31: rejected
+vocabulary_axes=33: rejected
+engine_version=v0.1: rejected
+DEC-D-02 moved to §12.2 (2 rows tried): rejected
+DEC-D-03 moved to §12.2 (1 rows tried): rejected
+DEC-D-06 moved to §12.2 (1 rows tried): rejected
+DEC-D-12 moved to §12.2 (1 rows tried): rejected
+DEC-D-14 moved to §12.2 (1 rows tried): rejected
+DEC-D-17 moved to §12.2 (1 rows tried): rejected
+DEC-D-18 moved to §12.2 (1 rows tried): rejected
+DEC-O14 moved to §12.2 (1 rows tried): rejected
+DEC-O17 moved to §12.2 (1 rows tried): rejected
+----------------------------------------------------------------------
+Ran 164 tests in 0.226s
+
+OK
+purpose-rows-all-closed: open=19, closed=0, excluded=0
+release-readiness-rejects-incomplete: open=64, closed=0, excluded=0
+
+python-final unittest summary
+Ran 1748 tests in 213.745s
+
+OK (skipped=6)
+
+schemas unittest summary
+Ran 138 tests in 34.746s
+
+OK (skipped=2)
+
+rust cargo summary
+537 passed; 0 failed; 1 ignored
+
+scenario-api cargo summary
+4 passed; 0 failed; 0 ignored
+
+fix round 1 (2026-11-20): test_verify_sources.RecordedRobotsPolicy.test_blocked_redirect_is_reported_and_not_retried
+failure: sleep.assert_not_called() saw 44 calls (0.001, 0.002, 0.004, 0.008, 0.016, 0.032, then 0.05 caps; two sequences)
+root cause: the test patches vs.time.sleep, i.e. the global stdlib time.sleep. cmd_detect -> report()
+  probes pdftotext -v and tesseract --version via tool_version -> subprocess.run(timeout=...).
+  CPython 3.13 subprocess.Popen._wait busy-polls with delay=min(delay*2, .05) starting at 0.001
+  (/usr/lib/python3.13/subprocess.py:2060). Under load the two tool children outlive the first
+  waitpid poll, so their busy-wait sleeps are recorded by the test's mock: one backoff sequence
+  per tool. Not a fetch retry; the fetch path itself never slept (opener.open called once).
+repro (deterministic): PATH shims for pdftotext/tesseract that emit version output, close
+  stdout/stderr, then linger 0.3s force the communicate() -> wait() busy-poll window.
+  Pre-fix test body under the shims: sleep.call_count=138030, first calls exactly
+  [0.001, 0.002, 0.004, 0.008, 0.016, 0.032, 0.05, 0.05, ...] — diagnosis confirmed.
+fix: mock vs.tool_version (return None) in the test, the same convention as
+  test_verify_sources_fetch.py run_detect; no subprocess runs inside the patched window.
+  Fixed test under the same shims: OK (0.002s). No production code changed.
+re-run after fix:
+python tools unittest summary
+Ran 1748 tests in 211.576s
+OK (skipped=6)
+schemas unittest summary
+Ran 138 tests in 33.262s
+OK (skipped=2)
+rust cargo summary (ONJEON_REQUIRE_RULE_02=1 cargo test --all --locked --offline)
+537 passed; 0 failed; 1 ignored
+scenario-api cargo summary
+4 passed; 0 failed; 0 ignored
+ontology runner cargo summary
+4 passed; 0 failed; 0 ignored
+
+fix round 2 (2026-11-20): merge origin/main c777f98d9d28ef5ca4cdb99174a4221d4589d855 (PR #608, audit7-s3-path-superseded)
+conflicts: docs/BLUEPRINT.md only, 3 regions; both intents kept:
+  - top revision line: Audit 7 scope (§6·§9·§11·§12) + main's §11 공시 보관소 refresh combined
+  - <a id="11-현재-위치"></a> anchor kept (README link + test_readme_index require it)
+  - decision hash: main edited ADR-0015/0017, so regenerated from the merged decision files
+    with blueprint_status.py --write; main-side hash ee1bfb51... confirmed correct
+main's §11 수집·검증 도구 row (S3 alternative wording removed, AWS template/branch retirement,
+link to 2026-11-20_s3_path_superseded.md) and §11 date 2026-11-20 auto-merged and kept.
+
+post-merge generated-block checks:
+BLUEPRINT-S11: current decision index (43 ADR/DEC files)
+BLUEPRINT-S11: current decision index (43 ADR/DEC files)
+BLUEPRINT-COUNTS: {"engine_version": "0.2.0+snapshot-json-1", "real_clause_rules": 7, "rust_doctests": 3, "rust_tests": 270, "tamper_tests": 40, "vocabulary_axes": 50}
+
+focused regressions (python3 -m unittest discover -s tools/tests -p <pattern>, no -I):
+test_blueprint_*.py 75 OK; test_readme_index 15 OK; test_storage_provider_docs 16 OK;
+test_decision_records 32 OK; test_decisions_ledger_sync 7 OK; test_audit6_blueprint_decisions_sync 7 OK;
+test_price_display_scope 12 OK; test_verify_sources 39 OK (skipped=3); test_store_provider 29 OK (skipped=1)
+total 232, 4 pre-existing environment skips (local archive/pdftotext 3, botocore If-None-Match 1)
+
+note: a first full-suite attempt used python3 -I, which disables user site-packages
+(boto3 installed via pip --user) and drops cwd from sys.path (tools.daemon imports).
+That produced 66 artificial boto3 skips and 1 loader error; not a code failure.
+Re-ran with the README convention (no -I):
+Ran 1750 tests in 267.503s
+OK (skipped=6)
+skips: ONJEON_ARCHIVE_RAW not set 2, local archive and pdftotext required 3, installed botocore supports If-None-Match 1
+
+rust (worktree-local target/local, rustc 1.98.1):
+ONJ_REQUIRE_RULE_02=1 cargo test --all --locked --offline: 537 passed; 0 failed; 1 ignored (incl. 3 doctests)
+cargo fmt --all -- --check: pass; cargo clippy --locked --offline --all-targets -- -D warnings: pass
+scenario-api cargo test: 4 passed; ontology runner cargo test: 4 passed
+
+other checks (unchanged from round 1):
+schemas codegen: Ran 138 tests, OK (skipped=2, TypeScript/Dart tooling)
+요약: 기계 검사 47/47 · 존재 검사 72/72 · 전체 통과
+product-purpose: 09 P01..P19 task links, P06/P17/P19 owners and product-purpose test IDs registered on assigned tasks (static only)
+vocabulary ok: 50 axes, 271 values
+internal consistency ok (extracts and metadata; originals not re-verified): 14 samples, 6 families, 142 clauses, 74 fields, 15 price observations, 2 screen models, 26 gaps
+selftest ok: 40 mutations, each caught for its intended reason
+release_readiness exit=1 (incomplete, expected)
+purpose-rows-all-closed: open=19, closed=0, excluded=0
+release-readiness-rejects-incomplete: open=64, closed=0, excluded=0

@@ -49,6 +49,11 @@ hook은 원자적으로 저장된 현재 리스를 읽어 자격의 `lease_id`�
 기존 자격 만료·회수·과제 범위 검사를 유지한다.
 로컬 회귀와 수정 전 재현은 [Audit 6 증거](../../evidence/audit6-daemon-credential-ttl-vs-lease/README.md)에 있다.
 
+`PushRemote.execute`는 빌더 푸시의 SHA가 40자리 소문자 16진수인지 검사하고, 요청 브랜치와
+리스 ID를 데몬 저장소의 현재 리스 기록과 대조한다. 일치하는 빌더 쓰기 자격을 조회한 뒤
+저장소에서 읽은 브랜치로 refspec을 만들고 `--` 뒤에 전달한다. 같은 작업의 다른 시도 브랜치도
+자격 조회와 Git 실행 전에 거부한다. [Audit 7 증거](../../evidence/audit7-daemon-push-arg-validation/README.md).
+
 ## 구성
 
 | 파일 | 내용 |

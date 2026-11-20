@@ -1,4 +1,4 @@
-# generated from parent commit a51a495a6eb2a8518825e1f7951ea915aa10a088 + tree hash of tools/daemon sources sha256:e43581e34b264518b04c8a5d4f569d787d2391ad74757fd118897e351d5618c0
+# generated from parent commit 63ead4d39da4bf828f5b55888d96f37fccbb3923 + tree hash of tools/daemon sources sha256:0cfa2bcbaba68efd276f9c3c0aac6b5781e386e57d299e65ff36885538d4ee72
 test_a_read_list_entry_without_a_field_stops_the_core (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_a_read_list_entry_without_a_field_stops_the_core) ... ok
 test_accept_envelope_check_order_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_check_order_is_read_from_data) ... ok
 test_accept_envelope_on_fail_is_read_from_data (tools.tests.test_daemon_dry_run.BehaviorComesFromData.test_accept_envelope_on_fail_is_read_from_data) ... ok
@@ -188,7 +188,10 @@ A prerequisite the store does not hold is not satisfied. ... ok
 test_removing_the_merge_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_removing_the_merge_cond_reopens_the_gap) ... ok
 test_removing_the_prereq_cond_reopens_the_gap (tools.tests.test_daemon_dry_run.PrereqAndMergeGateCond.test_removing_the_prereq_cond_reopens_the_gap) ... ok
 test_invalid_refspec_raises_before_credential_and_git (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_invalid_refspec_raises_before_credential_and_git) ... ok
+test_lease_id_must_match_the_store_even_with_the_matching_branch (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_lease_id_must_match_the_store_even_with_the_matching_branch) ... ok
+test_other_attempt_of_same_task_is_rejected_before_credential_and_git (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_other_attempt_of_same_task_is_rejected_before_credential_and_git) ... ok
 test_preserve_push_validates_and_passes_the_option_separator (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_preserve_push_validates_and_passes_the_option_separator) ... ok
+test_push_without_an_authoritative_branch_is_rejected (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_push_without_an_authoritative_branch_is_rejected) ... ok
 test_valid_push_passes_the_option_separator_before_the_refspec (tools.tests.test_daemon_dry_run.PushRefspecAdapter.test_valid_push_passes_the_option_separator_before_the_refspec) ... ok
 test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_foreign_or_unsafe_branch_is_rejected_without_write_or_claim) ... ok
 test_invalid_sha_is_rejected_without_write_or_claim (tools.tests.test_daemon_dry_run.PushRefspecFencing.test_invalid_sha_is_rejected_without_write_or_claim) ... ok
@@ -341,6 +344,6 @@ Without the state predicate and the noop rule the redelivery sends done to retur
 test_wildcard_rows_exclude_the_states_without_rows_of_their_own (tools.tests.test_daemon_dry_run.TerminalStatesIgnoreUnmapped.test_wildcard_rows_exclude_the_states_without_rows_of_their_own) ... ok
 
 ----------------------------------------------------------------------
-Ran 315 tests in 226.711s
+Ran 318 tests in 70.578s
 
 OK

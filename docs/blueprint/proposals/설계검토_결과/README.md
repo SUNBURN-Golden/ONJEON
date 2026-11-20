@@ -53,7 +53,7 @@ Audit 4(2026-11-04)의 추적 요구는 PR 본문의 `tasks.json` 과제 ID·노
 |---|---|
 | [01_코드설계.md](01_코드설계.md) | 구역 책임(영역 C 판단 기준 관리 추가)·허용 의존, 기능 모듈 배정, 질문→조회→입력 단계→엔진→설명→의존 기록→필요성 판단 흐름, 재사용 범위표, 트윈 모듈, §7a 수정판 흐름 규칙 |
 | [02_구현계약.md](02_구현계약.md) | 데이터(원본·구획·본문 판·계열, 주장 통합, 릴리스 고정·사용 제한 공지, 개인 객체, **§1.5 판단 기준·적용 승인 관문, §1.6 결론별 의존·부분 보류**), API, 이벤트, 오류, 버전, 근거 문법·사슬, 개인정보 경계, 시험 전용 유지·승격 경로, C-01~C-28, **§10 구현됨/설계 구분** |
-| [03_작업명세.md](03_작업명세.md) + [tasks.json](tasks.json) | 과제 64개(T-CT-07 신설, audit1-ux-layer-zero-code가 T-CT-08 추가)(schema 0.3: produces/consumes, decision_gates 네 키, path_policy, final_gate, feature_registry 64(증거·수락 시험), test_profiles, required_test_ids, verification_kind) |
+| [03_작업명세.md](03_작업명세.md) + [tasks.json](tasks.json) | 과제 65개(T-CT-07·T-CT-08 신설, Audit 8에서 S1 모의 경로 T-OP-10 분리)(schema 0.3: produces/consumes, decision_gates 네 키, path_policy, final_gate, feature_registry 64(증거·수락 시험), test_profiles, required_test_ids, verification_kind) |
 | [04_자동개발명세.md](04_자동개발명세.md) + [daemon_rules.json](daemon_rules.json) | 상태 기계·사건, 결정 관문, 병합 뒤 상태, 출처 제한 전환 신호, 펜싱 토큰·격리·자격 회수(**명세됨/모의 검증 대상/실제 실행기 검증 필요** 표기), safety_verification_status |
 | [05_VM실행준비.md](05_VM실행준비.md) | CLI 확인 절차, §1b 종료 코드 확인표(전부 미확인), "확인됨" 기준, 한도, 비밀값, 모의 검증 M1~M44(T-OP-00)와 §5a 모의 코어 인터페이스, 실제 실행기 검증 R1~R22(T-OP-09) |
 | [06_검토사항_점검.md](06_검토사항_점검.md) | 검토 요청 1~8 판정, 선택안(D-05·D-09(onto-0.2 반영)·D-10·D-15·D-02 일부), 온톨로지 보강, 정본 충돌 점검 |
@@ -91,7 +91,7 @@ Audit 4(2026-11-04)의 추적 요구는 PR 본문의 `tasks.json` 과제 ID·노
 
 | 미해결 항목 | 시작(start) | 실데이터(real_data) | 병합(merge) | 출시·서비스 적용(release) | 막지 않는 것 |
 |---|---|---|---|---|---|
-| D-02 보험 지식 검수 모델 계열 2개 이상·정책 소유자 | T-OP-03 | T-KN-06, T-OP-02 | — | — | 추출(T-KN-05), 게이트웨이, 컴파일러·릴리스 빌더 코드, 모의 제공자 시험 |
+| D-02 보험 지식 검수 모델 계열 2개 이상·정책 소유자 | T-OP-03 | T-KN-06, T-OP-02 | T-OP-02 | — | 추출(T-KN-05), 게이트웨이, 컴파일러·릴리스 빌더 코드, T-KN-06·T-OP-10 모의 시험·병합 |
 | D-03 클라우드·배포·DB 운영 환경 | T-OP-07 | — | — | — | 로컬 Compose의 모든 작업 |
 | D-04 해결([DEC-D-04](../../../decisions/DEC-D-04.md)) | — | — | — | — | 기존 R2 토큰을 ONJEON box secrets env에서만 읽어 사용. 폐기·재발급 차단 없음. 값 출력·로그 금지. 다른 관문 유지 |
 | O14 R2 버킷 잠금 승인 | — | — | T-OP-04 | — | 체크포인트 설계·시험 |

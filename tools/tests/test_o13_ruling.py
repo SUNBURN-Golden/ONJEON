@@ -171,8 +171,8 @@ class RulingAccessGates(unittest.TestCase):
         self.assertEqual(["O17"], self.tasks["T-DT-05"]["decision_gates"]["release"])
         actual = {t["id"]: {k: v for k, v in t["decision_gates"].items() if v}
                   for t in self.catalog["tasks"] if any(t["decision_gates"].values())}
-        # Preserve the historical D-04 baseline. Audit 6 separately restores
-        # these four pending gates; no other difference is permitted.
+        # Preserve the historical D-04 baseline. Audit 6 restores four pending
+        # gates, and Audit 8 adds D-02 to the real S1 task's merge gates.
         additions = {
             "D-09": ("merge", ["T-CT-05"]),
             "D-10": ("merge", ["T-CT-05"]),
@@ -187,6 +187,8 @@ class RulingAccessGates(unittest.TestCase):
                                     for s in ("start", "real_data", "merge", "release")}
             for tid in task_ids:
                 expected_tasks.setdefault(tid, {}).setdefault(stage, []).append(gate)
+        expected_index["D-02"]["merge"] = ["T-OP-02"]
+        expected_tasks["T-OP-02"]["merge"] = ["D-02"]
         self.assertEqual(expected_tasks, actual)
         self.assertEqual(expected_index,
                          {k: v for k, v in self.catalog["decision_index"].items() if k != "D-04"})

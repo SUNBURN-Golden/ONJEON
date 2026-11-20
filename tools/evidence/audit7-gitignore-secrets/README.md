@@ -1,6 +1,8 @@
 # Audit 7 Git ignore rules for credential files
 
-Verified on 2026-11-20 against `1e8ea79` and this worktree patch. The development
+Verified on 2026-11-20 against `1e8ea79` and this worktree patch, then re-run
+after merging `origin/main` (`7a3d51e`, the Audit 7 CI permissions and pins
+node). The merge conflict in 09 §5 kept both Audit 7 paragraphs. The development
 tool evidence is linked from [09 §5](../../../docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md#5-출시-완성품이-아닌-것혼동-방지).
 
 The ignore files in `apps/`, `data/`, `infra/`, `packages/schemas/`,
@@ -31,7 +33,7 @@ probe at the worktree root returned exit 1 for all six filename patterns.
 | `python3 -m unittest tools/tests/test_gitignore.py tools/tests/test_tracked_secrets.py -v` | 12 passed |
 | `python3 -I tools/check_tracked_secrets.py` | Exit 0 on the worktree index |
 | `python3 -I tools/check_tracked_secrets.py --selftest` | 26 path cases passed |
-| `python3 -m unittest discover -s tools/tests -v` | 1,732 run, 6 skipped, exit 0 |
+| `python3 -m unittest discover -s tools/tests -v` | 1,737 run, 6 skipped, exit 0 (post-merge; 1,732 before the merge) |
 | `python3 -I -m unittest discover -s tools/ci/tests` | 21 passed |
 | `python3 -m unittest discover -s infra/compose/tests -p test_compose_static.py -v` | 32 passed, 1 skipped because ShellCheck was unavailable |
 | `cargo test --all --locked --offline` | 537 passed, 1 ignored |

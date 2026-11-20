@@ -85,16 +85,17 @@ the current block-style step/env layout; it is not a general YAML parser. Existi
 `test_workflow_pins.py` and `test_workflow_check.py` guard full action SHAs and `ci.yml`'s
 read-only token permissions. [Audit 2 evidence](../../docs/blueprint/audits/2026-10-26_ci_secrets_step_scope.md).
 
-`ci.yml` also runs `python3 tools/workflow_check.py` and the action-pin test file
-immediately after checkout, before installing dependencies or building Rust. On
-`pull_request` events it passes `github.event.pull_request.body` to
-`check_pr_body_traceability.py`; the selftest runs on every event. The check is
-traceability only and does not read or modify `.github/pull_request_template.md`.
-`test_ci_workflow_security.py` executes that declared shell block in temporary
-repository copies: the current workflows pass, while missing/write permissions
-and a tag, branch or short SHA substituted for each CI action fail. These are
-offline checks; they do not verify upstream tag-to-commit provenance or execute
-GitHub Actions. [Audit 3 evidence](../../docs/blueprint/audits/2026-10-28_ci_permissions_and_pins.md).
+`ci.yml` runs the token policy and action-pin checks immediately after checkout,
+before installing dependencies or building Rust. The policy requires
+`contents: read` at workflow scope and in any job-level permissions block, and
+`persist-credentials: false` in every checkout's inputs across the CI, source
+and PR traceability workflows. `test_ci_workflow_security.py` runs that shell
+block on local workflow copies with mutations to the permissions, checkout
+inputs and every action reference.
+[Audit 7 evidence](../../docs/blueprint/audits/2026-11-20_ci_permissions_and_pins.md).
+
+`pr-traceability.yml` passes `github.event.pull_request.body` to
+`check_pr_body_traceability.py` after running its self-test.
 
 The §11 decision-index guard runs through `tools/tests/test_blueprint_status.py`
 in the existing Python unit-test CI step. On every ADR/DEC addition, edit,

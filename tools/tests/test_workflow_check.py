@@ -50,6 +50,18 @@ class WorkflowCheckTest(unittest.TestCase):
         )
         self.assertTrue(any("top-level" in p for p in workflow_check.check(text)))
 
+    def test_job_override_is_detected_in_quoted_jobs_block(self):
+        text = GOOD.replace('jobs:\n  a:\n', '"jobs":\n  a:\n    permissions: write-all\n')
+        self.assertTrue(any("job-level" in p for p in workflow_check.check(text)))
+
+    def test_job_can_declare_the_same_read_only_permissions(self):
+        text = GOOD.replace("  a:\n", "  a:\n    permissions:\n      contents: read\n")
+        self.assertEqual(workflow_check.check(text), [])
+
+    def test_step_script_text_does_not_override_job_permissions(self):
+        text = GOOD.replace("      - run: echo hi\n", "      - run: |\n          permissions: write-all\n")
+        self.assertEqual(workflow_check.check(text), [])
+
     def test_checkout_without_with(self):
         text = GOOD.replace("        with:\n          persist-credentials: false\n", "", 1)
         probs = workflow_check.check(text)

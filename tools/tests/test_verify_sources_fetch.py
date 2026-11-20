@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 import urllib.error
 import urllib.request
@@ -54,12 +55,12 @@ class SourceHostRegistry(unittest.TestCase):
                      "www%2ekyobo.com", "www.kyobo.com%00.evil.org"):
             url = f"https://{host}/www.kyobo.com?next=https://www.kyobo.com/"
             with self.subTest(host=host), \
-                    mock.patch.object(vs.urllib.request, "build_opener",
-                                      side_effect=AssertionError("unregistered URL reached opener")) as opener, \
+                    mock.patch.object(vs.subprocess, "run", side_effect=AssertionError("worker started")) as run, \
+                    mock.patch.object(vs.urllib.request, "build_opener", side_effect=AssertionError("opener built")), \
                     mock.patch.object(vs.time, "sleep") as sleep:
                 with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
                     vs.fetch(url)
-                opener.assert_not_called()
+                run.assert_not_called()
                 sleep.assert_not_called()
 
     def test_missing_or_invalid_registry_fails_before_network(self):
@@ -76,12 +77,12 @@ class SourceHostRegistry(unittest.TestCase):
             for contents in (None, *bad):
                 with self.subTest(contents=contents), \
                         mock.patch.object(vs, "SOURCE_HOST_REGISTRY", policy), \
-                        mock.patch.object(vs.urllib.request, "build_opener") as opener:
+                        mock.patch.object(vs.subprocess, "run") as run:
                     if contents is not None:
                         policy.write_text(contents)
                     with self.assertRaisesRegex(vs.FetchRejected, "registry unavailable or invalid"):
                         vs.fetch("https://www.kyobo.com/file")
-                    opener.assert_not_called()
+                    run.assert_not_called()
 
     def test_adding_a_sample_url_does_not_register_its_host(self):
         with mock.patch.object(vs, "rows", return_value=[{"url": "https://example.org/file"}]):
@@ -187,13 +188,23 @@ class RedirectPolicy(unittest.TestCase):
     def test_non_https_and_credentialed_initial_urls_never_open(self):
         for url in ("http://www.kyobo.com/file", "file:///tmp/document", "ftp://www.kyobo.com/file",
                     "https://user:pass@www.kyobo.com/file", "https:///file", "https://www.kyobo.com:0/file",
-                    " https://www.kyobo.com/file", "https://www.kyobo.com/\nfile"):
-            with self.subTest(url=url), mock.patch.object(
-                    vs.urllib.request, "build_opener",
-                    side_effect=AssertionError("invalid source URL reached opener")) as opener:
+                    " https://www.kyobo.com/file", "https://www.kyobo.com/\nfile", "data:text/plain,body"):
+            with self.subTest(url=url), \
+                    mock.patch.object(vs.subprocess, "run", side_effect=AssertionError("worker started")) as run, \
+                    mock.patch.object(vs.urllib.request, "build_opener", side_effect=AssertionError("opener built")):
                 with self.assertRaises(vs.FetchRejected):
                     vs.fetch(url)
-                opener.assert_not_called()
+                run.assert_not_called()
+
+    def test_worker_entry_point_revalidates_source_url(self):
+        command = [sys.executable, "-I", str(Path(vs.__file__).resolve()), "--fetch-worker"]
+        for url in ("file:///must-not-read", "data:text/plain,body", "https://localhost/"):
+            with self.subTest(url=url):
+                proc = subprocess.run(command, input=json.dumps([url, 1, 1024, "html"]).encode(),
+                                      capture_output=True, check=True, timeout=5)
+                metadata = json.loads(proc.stdout)
+                self.assertEqual(metadata["error"], "FetchRejected")
+                self.assertTrue(metadata["detail"].startswith("url_disallowed:"))
 
 
 class ResponseAdmission(unittest.TestCase):
@@ -203,7 +214,7 @@ class ResponseAdmission(unittest.TestCase):
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
             try:
-                return vs.fetch("https://www.kyobo.com/start", **kwargs)
+                return vs._fetch_https("https://www.kyobo.com/start", **kwargs)
             finally:
                 opener.open.assert_called_once()
                 sleep.assert_not_called()
@@ -285,10 +296,10 @@ class ResponseAdmission(unittest.TestCase):
 
     def test_size_limit_cannot_be_disabled_or_raised(self):
         for cap in (0, -1, True, vs.MAX_FETCH_BYTES + 1):
-            with self.subTest(cap=cap), mock.patch.object(vs.urllib.request, "build_opener") as opener:
+            with self.subTest(cap=cap), mock.patch.object(vs.subprocess, "run") as run:
                 with self.assertRaises(ValueError):
                     vs.fetch("https://www.kyobo.com/start", max_bytes=cap)
-                opener.assert_not_called()
+                run.assert_not_called()
 
     def test_default_cap_rejects_declared_oversize_without_reading(self):
         self.assertEqual(vs.MAX_FETCH_BYTES, 256 * 1024 * 1024)
@@ -306,32 +317,34 @@ class ResponseAdmission(unittest.TestCase):
         self.assertEqual(sum(response.read_sizes), cap + 1)
 
     def test_unsupported_expectation_never_opens(self):
-        with mock.patch.object(vs.urllib.request, "build_opener") as opener:
+        with mock.patch.object(vs.subprocess, "run") as run:
             with self.assertRaisesRegex(vs.FetchRejected, "unsupported_format"):
                 vs.fetch("https://www.kyobo.com/start", expected_format="unknown")
-            opener.assert_not_called()
+            run.assert_not_called()
 
     def test_invalid_attempt_count_never_opens(self):
         for attempts in (0, -1, True):
-            with self.subTest(attempts=attempts), mock.patch.object(vs.urllib.request, "build_opener") as opener:
+            with self.subTest(attempts=attempts), mock.patch.object(vs.subprocess, "run") as run:
                 with self.assertRaises(ValueError):
                     vs.fetch("https://www.kyobo.com/start", attempts=attempts)
-                opener.assert_not_called()
+                run.assert_not_called()
 
     def test_network_failures_are_retried_but_http_errors_are_not(self):
         opener = mock.Mock()
         opener.open.side_effect = [urllib.error.URLError("offline"), Response(PDF)]
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
-            self.assertEqual(vs.fetch("https://www.kyobo.com/start")[0], PDF)
+            self.assertEqual(vs._fetch_https("https://www.kyobo.com/start")[0], PDF)
         self.assertEqual(opener.open.call_count, 2)
+        self.assertTrue(all(c.kwargs["timeout"] == vs.FETCH_SOCKET_TIMEOUT_SECONDS
+                            for c in opener.open.call_args_list))
         sleep.assert_called_once_with(2)
         opener.reset_mock()
         opener.open.side_effect = urllib.error.HTTPError("https://www.kyobo.com/start", 403, "denied", {}, None)
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
             with self.assertRaises(urllib.error.HTTPError):
-                vs.fetch("https://www.kyobo.com/start")
+                vs._fetch_https("https://www.kyobo.com/start")
         opener.open.assert_called_once()
         sleep.assert_not_called()
 
@@ -341,9 +354,9 @@ class DetectLocalHTTPS(unittest.TestCase):
         # Loopback hosts are admitted only in this isolated test registry.
         policy_dir = tempfile.TemporaryDirectory()
         self.addCleanup(policy_dir.cleanup)
-        policy = Path(policy_dir.name) / "hosts.json"
-        policy.write_text(json.dumps({"hosts": ["127.0.0.1", "localhost"]}))
-        patch = mock.patch.object(vs, "SOURCE_HOST_REGISTRY", policy)
+        self.policy = Path(policy_dir.name) / "hosts.json"
+        self.policy.write_text(json.dumps({"hosts": ["127.0.0.1", "localhost"]}))
+        patch = mock.patch.object(vs, "SOURCE_HOST_REGISTRY", self.policy)
         patch.start()
         self.addCleanup(patch.stop)
 
@@ -357,9 +370,19 @@ class DetectLocalHTTPS(unittest.TestCase):
 
             def do_GET(self):
                 cls.requests.append(self.path)
+                if self.path == "/disconnect":
+                    self.close_connection = True
+                    return
+                if self.path in ("/slow-redirect", "/slow-redirect-then-pdf"):
+                    time.sleep(0.65)
+                if self.path == "/slow-pdf":
+                    time.sleep(1.2)
                 targets = {"/start": "/middle", "/middle": "/document?edition=2",
+                           "/slow-redirect": "/drip",
+                           "/slow-redirect-then-pdf": "/slow-pdf",
                            "/redirect-body": "/document", "/chain-external": "/external",
                            "/relative-external": f"//localhost:{self.server.server_port}/must-not-fetch",
+                           "/robots-redirect": "https://pub.insure.or.kr/must-not-fetch",
                            "/denied-start": "/denied",
                            "/downgrade": f"http://127.0.0.1:{self.server.server_port}/must-not-fetch",
                            "/external": f"http://localhost:{self.server.server_port}/must-not-fetch",
@@ -375,20 +398,31 @@ class DetectLocalHTTPS(unittest.TestCase):
                     return
                 mime = "text/html" if self.path in ("/waf", "/public") else "application/pdf"
                 body = WAF if self.path in ("/waf", "/fake-pdf") else HTML if self.path == "/public" else PDF
+                if self.path == "/drip":
+                    body = PDF + b" " * 100
                 self.send_response(403 if self.path == "/denied" else 200)
                 self.send_header("Content-Type", mime)
                 if self.path == "/declared-large":
                     self.send_header("Content-Length", "100000")
                 elif self.path != "/streamed-large":
                     self.send_header("Content-Length", str(len(body)))
-                self.end_headers()
-                self.wfile.write(body)
+                try:
+                    self.end_headers()
+                    if self.path == "/drip":
+                        for value in body:
+                            self.wfile.write(bytes([value]))
+                            time.sleep(0.04)
+                    else:
+                        self.wfile.write(body)
+                except (ConnectionError, ssl.SSLError):
+                    if self.path not in ("/drip", "/slow-pdf"):
+                        raise
 
         # Ephemeral test certificate, trusted only by this test's HTTPS client.
         # Production fetch keeps urllib's normal certificate verification enabled.
         cert_dir = tempfile.TemporaryDirectory()
         cls.addClassCleanup(cert_dir.cleanup)
-        cert = Path(cert_dir.name) / "cert.pem"
+        cert = cls.cert = Path(cert_dir.name) / "cert.pem"
         key = Path(cert_dir.name) / "key.pem"
         subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
                         "-keyout", str(key), "-out", str(cert), "-days", "1",
@@ -396,7 +430,6 @@ class DetectLocalHTTPS(unittest.TestCase):
                        check=True, capture_output=True)
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         context.load_cert_chain(cert, key)
-        cls.client_context = ssl.create_default_context(cafile=str(cert))
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         cls.server.socket = context.wrap_socket(cls.server.socket, server_side=True)
         cls.worker = threading.Thread(target=cls.server.serve_forever, daemon=True)
@@ -415,18 +448,54 @@ class DetectLocalHTTPS(unittest.TestCase):
         row = {"sample_id": "source", "url": self.origin + path, "format": fmt,
                "cache_path": "source/document", "sha256": baseline}
         bounded_fetch = functools.partial(vs.fetch, max_bytes=cap)
-        build_opener = urllib.request.build_opener
-        def trusted_opener(*handlers):
-            return build_opener(*handlers, urllib.request.HTTPSHandler(context=self.client_context))
+        run = subprocess.run
+
+        def run_worker(command, **kwargs):
+            self.assertEqual(command, [sys.executable, "-I", str(Path(vs.__file__).resolve()), "--fetch-worker"])
+            # Start the real worker code with a test-only registry and TLS trust root.
+            script = ("import sys; from pathlib import Path; "
+                      "sys.path.insert(0, sys.argv[1]); import verify_sources as vs; "
+                      "vs.SOURCE_HOST_REGISTRY = Path(sys.argv[2]); "
+                      "vs._fetch_worker(sys.stdin.buffer, sys.stdout.buffer)")
+            return run([sys.executable, "-I", "-c", script, str(vs.ROOT / "tools"), str(self.policy)], **kwargs)
+
         with mock.patch.object(vs, "rows", return_value=[row]), \
                 mock.patch.object(vs, "fetch", bounded_fetch), \
-                mock.patch.object(vs.urllib.request, "build_opener", side_effect=trusted_opener), \
+                mock.patch.object(vs.subprocess, "run", side_effect=run_worker), \
                 mock.patch.object(vs, "tool_version", return_value=None), \
-                mock.patch.object(vs.time, "sleep") as sleep, \
+                mock.patch.dict("os.environ", {"SSL_CERT_FILE": str(self.cert), "no_proxy": "127.0.0.1,localhost"}), \
                 mock.patch("sys.stdout", new_callable=io.StringIO):
             code = vs.cmd_detect(args)
-        sleep.assert_not_called()
         return code, json.loads(Path(args.report).read_text())["results"][0]
+
+    def test_deadline_covers_redirect_then_continuously_streamed_body(self):
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(vs, "FETCH_DEADLINE_SECONDS", 1.5):
+            root = Path(d)
+            start = time.monotonic()
+            before = len(self.requests)
+            code, result = self.run_detect(root, "/slow-redirect")
+            self.assertLess(time.monotonic() - start, 3.5)
+            self.assertEqual(self.requests[before:], ["/slow-redirect", "/drip"])
+            self.assertEqual((code, result["status"]), (1, "fetch_failed"))
+            self.assertTrue(result["detail"].startswith("deadline_exceeded:"), result)
+            self.assertFalse((root / "downloads").exists())
+            self.assertFalse((root / "archive").exists())
+
+    def test_deadline_includes_retry_backoff(self):
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(vs, "FETCH_DEADLINE_SECONDS", 1.5):
+            before = len(self.requests)
+            code, result = self.run_detect(Path(d), "/disconnect")
+            self.assertEqual((code, result["status"]), (1, "fetch_failed"))
+            self.assertTrue(result["detail"].startswith("deadline_exceeded:"), result)
+            self.assertEqual(self.requests[before:], ["/disconnect"])
+
+    def test_redirect_does_not_reset_deadline_for_final_response_headers(self):
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(vs, "FETCH_DEADLINE_SECONDS", 1.5):
+            before = len(self.requests)
+            code, result = self.run_detect(Path(d), "/slow-redirect-then-pdf")
+            self.assertEqual((code, result["status"]), (1, "fetch_failed"))
+            self.assertTrue(result["detail"].startswith("deadline_exceeded:"), result)
+            self.assertEqual(self.requests[before:], ["/slow-redirect-then-pdf", "/slow-pdf"])
 
     def test_redirect_chain_records_final_url_in_report_and_actual_archive(self):
         with tempfile.TemporaryDirectory() as d:
@@ -497,6 +566,7 @@ class DetectLocalHTTPS(unittest.TestCase):
             ("/external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/chain-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/relative-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
+            ("/robots-redirect", "text_pdf", vs.MAX_FETCH_BYTES, "robots_disallow"),
             ("/downgrade", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/loop", "text_pdf", vs.MAX_FETCH_BYTES, "HTTPError"),
             ("/waf", "text_pdf", vs.MAX_FETCH_BYTES, "content_type_mismatch"),

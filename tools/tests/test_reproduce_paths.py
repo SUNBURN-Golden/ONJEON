@@ -1,5 +1,6 @@
 """Offline reproduction and extractor tests with LocalStore and mocked subprocess.run."""
 import argparse
+import io
 import json
 import subprocess
 import sys
@@ -117,8 +118,7 @@ class ReproduceOne(unittest.TestCase):
         self.row["format"] = "scanned_pdf"
         self.args.ocr = True
         self.extract("[PDF p.2]\nquoted benefit\nsecond line\n[PDF p.3]\nmissing quote")
-        with mock.patch.object(vs, "ocr_page", return_value="quoted benefit\nsecond line") as ocr, \
-                mock.patch.object(vs.tempfile, "mkdtemp", return_value=str(self.root / "ocr")):
+        with mock.patch.object(vs, "ocr_page", return_value="quoted benefit\nsecond line") as ocr:
             result = self.reproduce()
         self.assertEqual([call.args[1] for call in ocr.call_args_list], [2, 3])
         self.assertEqual((result["quoted_units"], result["not_found"]), (3, 1))
@@ -136,7 +136,7 @@ class ReproduceOne(unittest.TestCase):
         self.assertEqual(result["status"], "reproduced")
         self.assertEqual(result["derived"]["outputs"][0]["state"], "byte_identical")
         self.assertEqual(run.call_args_list[-1], mock.call(
-            ["pdftotext", "-layout", str(self.pdf), "-"], capture_output=True))
+            ["pdftotext", "-layout", str(self.pdf), "-"], capture_output=True, timeout=vs.EXTRACT_TIMEOUT_SECONDS))
 
     def test_derived_failure_states_propagate_from_local_store(self):
         key = self.pin()
@@ -168,12 +168,63 @@ class ReproduceOne(unittest.TestCase):
         sa.put_once(self.store, vs.manifest_key(digest, pin), manifest, "application/json")
         self.row["derived_manifest_sha256"] = pin
         with mock.patch.object(vs, "ocr_page", return_value=body.decode()) as ocr, \
-                mock.patch.object(vs.tempfile, "mkdtemp", return_value=str(self.root / "ocr")), \
                 mock.patch.object(vs.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, "tesseract 5.3.4", "")):
             result = self.reproduce(self.store)
         self.assertEqual(result["status"], "reproduced")
         ocr.assert_called_once()
         self.assertNotIn("_ocr_pages", result)
+
+    def test_page_text_extraction_bounds_both_poppler_modes(self):
+        doc = mock.MagicMock()
+        doc.__enter__.return_value.pages = [None, mock.Mock()]
+        doc.__enter__.return_value.pages[1].extract_text.return_value = "third source"
+        pdfplumber = mock.Mock()
+        pdfplumber.open.return_value = doc
+        with mock.patch.dict(sys.modules, {"pdfplumber": pdfplumber}), \
+                mock.patch.object(vs.subprocess, "run", return_value=mock.Mock(stdout="first source")) as run:
+            self.assertEqual(vs.pdf_page_texts(self.pdf, 2, {}), ["firstsource", "firstsource", "thirdsource"])
+        self.assertEqual(run.call_args_list, [mock.call(
+            ["pdftotext", *mode, "-f", "2", "-l", "2", str(self.pdf), "-"],
+            capture_output=True, text=True, timeout=vs.EXTRACT_TIMEOUT_SECONDS) for mode in (["-layout"], [])])
+
+    def test_reproduce_timeout_fails_and_removes_materialized_archive_even_if_unverified_allowed(self):
+        archive = sa.LocalStore(self.root / "archive")
+        sa.put_raw(archive, self.pdf.read_bytes(), "application/pdf")
+        args = argparse.Namespace(raw=archive.root.as_uri(), endpoint_url=None, ocr=False,
+                                  derived=None, allow_unverified=True, report=None)
+
+        def run(cmd, *, timeout, **kwargs):
+            self.assertEqual(timeout, vs.EXTRACT_TIMEOUT_SECONDS)
+            self.assertTrue(Path(cmd[-2]).is_file())  # materialized before starting the extractor
+            raise subprocess.TimeoutExpired(cmd, timeout)
+
+        with mock.patch.object(vs, "rows", return_value=[self.row]), \
+                mock.patch.object(vs.tempfile, "tempdir", str(self.root)), \
+                mock.patch.object(vs.subprocess, "run", side_effect=run), \
+                mock.patch("sys.stderr", new_callable=io.StringIO) as stderr:
+            self.assertEqual(vs.cmd_reproduce(args), 1)
+        self.assertIn("tool_timeout: sample: pdftotext", stderr.getvalue())
+        self.assertEqual(list(self.root.glob("onjeon-reproduce-*")), [])
+
+    def test_materialized_archive_lifetime_and_cleanup_on_partial_download(self):
+        archive = sa.LocalStore(self.root / "archive")
+        body = self.pdf.read_bytes()
+        sa.put_raw(archive, body, "application/pdf")
+        second = b"second sample"
+        sa.put_raw(archive, second, "application/pdf")
+        second_row = {"sample_id": "other", "sha256": sa.sha256_bytes(second)}
+        args = argparse.Namespace(raw=archive.root.as_uri(), endpoint_url=None)
+        with mock.patch.object(vs.tempfile, "tempdir", str(self.root)):
+            with vs.materialize(args, [self.row]) as paths:
+                work = paths["sample"].parent
+                self.assertEqual(paths["sample"].read_bytes(), body)
+            self.assertFalse(work.exists())
+            with mock.patch.object(sa, "store", return_value=archive), \
+                    mock.patch.object(archive, "get", side_effect=[body, OSError("archive read failed")]), \
+                    self.assertRaisesRegex(OSError, "archive read failed"), \
+                    vs.materialize(args, [self.row, second_row]):
+                self.fail("partial archive download reached reproduction")
+            self.assertEqual(list(self.root.glob("onjeon-reproduce-*")), [])
 
 
 class Regenerator(unittest.TestCase):
@@ -200,8 +251,8 @@ class Regenerator(unittest.TestCase):
                     self.assertEqual(self.regen("text", f"{tool}@24.02.0", name), expected)
         extractions = [c for c in calls if "-v" not in c[0]]
         self.assertEqual(extractions, [
-            (["pdftotext", "-layout", str(self.pdf), "-"], dict(capture_output=True)),
-            (["pdftotext", str(self.pdf), "-"], dict(capture_output=True)),
+            (["pdftotext", "-layout", str(self.pdf), "-"], dict(capture_output=True, timeout=vs.EXTRACT_TIMEOUT_SECONDS)),
+            (["pdftotext", str(self.pdf), "-"], dict(capture_output=True, timeout=vs.EXTRACT_TIMEOUT_SECONDS)),
         ])
 
     def test_missing_unknown_or_different_tool_version_prevents_extraction(self):
@@ -222,10 +273,10 @@ class Regenerator(unittest.TestCase):
         self.regen.ocr_enabled = False
         with mock.patch.object(vs.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, "tesseract 5.3.4", "")) as run:
             self.assertEqual(self.regen("ocr", "tesseract@5.3.4-kor-psm3-300dpi-gray", "ocr__p-2.txt"), "not_rerun")
-        run.assert_called_once_with(["tesseract", "--version"], capture_output=True, text=True)
+        run.assert_called_once_with(["tesseract", "--version"], capture_output=True, text=True,
+                                    timeout=vs.TOOL_VERSION_TIMEOUT_SECONDS)
 
     def test_ocr_rasterizes_requested_page_with_fixed_options_and_caches_utf8(self):
-        work = self.root / "ocr"
         commands = []
 
         def run(cmd, **kwargs):
@@ -233,21 +284,25 @@ class Regenerator(unittest.TestCase):
             if cmd == ["tesseract", "--version"]:
                 return subprocess.CompletedProcess(cmd, 0, "tesseract 5.3.4", "")
             if cmd[0] == "pdftoppm":
-                (work / "p2-02.png").write_bytes(b"synthetic PNG")
+                Path(cmd[-1] + "-02.png").write_bytes(b"synthetic PNG")
                 return subprocess.CompletedProcess(cmd, 0, b"", b"")
+            self.assertTrue(Path(cmd[1]).is_file())
             return subprocess.CompletedProcess(cmd, 0, "보험금\n", "")
 
-        with mock.patch.object(vs.tempfile, "mkdtemp", return_value=str(work)), \
+        with mock.patch.object(vs.tempfile, "tempdir", str(self.root)), \
                 mock.patch.object(vs.subprocess, "run", side_effect=run):
             for _ in range(2):
                 self.assertEqual(self.regen("ocr", "tesseract@5.3.4-kor-psm3-300dpi-gray", "ocr__p-2.txt"), "보험금\n".encode())
         extraction = [c for c in commands if "--version" not in c[0]]
+        work = Path(extraction[0][0][-1]).parent
         self.assertEqual(extraction, [
             (["pdftoppm", "-r", "300", "-gray", "-f", "2", "-l", "2", "-png", str(self.pdf), str(work / "p2")],
-             dict(check=True, capture_output=True)),
+             dict(check=True, capture_output=True, timeout=vs.EXTRACT_TIMEOUT_SECONDS)),
             (["tesseract", str(work / "p2-02.png"), "-", "-l", "kor", "--psm", "3"],
-             dict(capture_output=True, text=True)),
+             dict(capture_output=True, text=True, timeout=vs.EXTRACT_TIMEOUT_SECONDS)),
         ])
+        self.assertEqual(work.parent, self.root)
+        self.assertFalse(work.exists())
 
     def test_existing_ocr_page_cache_is_used(self):
         regen = vs.Regenerator(self.pdf, {2: "cached 한글"}, True)
@@ -270,11 +325,39 @@ class Regenerator(unittest.TestCase):
     def test_rasterization_failure_propagates_without_caching_page(self):
         responses = [subprocess.CompletedProcess([], 0, "5.3.4", ""),
                      subprocess.CalledProcessError(1, ["pdftoppm"])]
-        with mock.patch.object(vs.tempfile, "mkdtemp", return_value=str(self.root / "ocr")), \
+        with mock.patch.object(vs.tempfile, "tempdir", str(self.root)), \
                 mock.patch.object(vs.subprocess, "run", side_effect=responses):
             with self.assertRaises(subprocess.CalledProcessError):
                 self.regen("ocr", "tesseract@5.3.4-kor-psm3-300dpi-gray", "ocr__p-2.txt")
         self.assertNotIn(2, self.regen.ocr_pages)
+        self.assertEqual(list(self.root.glob("onjeon-ocr-*")), [])
+
+    def test_ocr_removes_partial_raster_on_either_tool_timeout(self):
+        for slow_tool in ("pdftoppm", "tesseract"):
+            with self.subTest(slow_tool=slow_tool):
+                def run(cmd, *, timeout, **kwargs):
+                    if cmd[0] == "pdftoppm":
+                        Path(cmd[-1] + "-02.png").write_bytes(b"partial raster")
+                    self.assertEqual(timeout, vs.EXTRACT_TIMEOUT_SECONDS)
+                    if cmd[0] == slow_tool:
+                        raise subprocess.TimeoutExpired(cmd, timeout)
+
+                with mock.patch.object(vs.tempfile, "tempdir", str(self.root)), \
+                        mock.patch.object(vs.subprocess, "run", side_effect=run), \
+                        self.assertRaises(subprocess.TimeoutExpired):
+                    vs.ocr_page(self.pdf, 2)
+                self.assertEqual(list(self.root.glob("onjeon-ocr-*")), [])
+
+    def test_tool_version_probes_can_time_out_without_blocking_a_completed_report(self):
+        args = argparse.Namespace(raw=None, report=str(self.root / "report.json"))
+        with mock.patch.object(vs, "TOOL_VERSION_TIMEOUT_SECONDS", 0.15):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                vs.tool_version([sys.executable, "-c", "import time; time.sleep(5)"])
+        with mock.patch.object(vs, "tool_version", side_effect=subprocess.TimeoutExpired(["pdftotext"], 10)):
+            self.assertEqual(vs.report("detect", args, [], ok=set()), 0)
+        tools = json.loads(Path(args.report).read_text())["tools"]
+        self.assertIsNone(tools["pdftotext"])
+        self.assertIsNone(tools["tesseract"])
 
 
 if __name__ == "__main__":

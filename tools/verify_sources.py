@@ -22,7 +22,8 @@ exact hosts in data/registry/source_fetch_hosts.json, same-origin
 redirects only, final URL recorded, MIME/signature and known HTML block-page checks before any
 write. Redirect response bodies are closed unread. Final bodies over MAX_FETCH_BYTES are refused
 (streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
-Rejections are `fetch_failed`, never new originals.
+Each fetch has one wall-clock deadline across redirects, body reads and retries. Rejections are
+`fetch_failed`. Reproduction bounds extractor subprocesses and removes its temporary files.
 
 Usage:
   verify_sources.py reproduce --raw file:///archive/raw [--derived file:///archive/derived] [--ocr] --report r.json
@@ -46,6 +47,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -57,6 +59,8 @@ ROOT = Path(__file__).resolve().parent.parent
 VAL = ROOT / "docs/blueprint/validation"
 EXTRACT_OF = {"klia_pub_cancer_criteria": "klia_pub_cancer_compare"}
 PAIRED_HTML = {"klia_pub_cancer_compare": "klia_pub_cancer_criteria", "klia_pub_cancer_criteria": "klia_pub_cancer_compare"}
+TOOL_VERSION_TIMEOUT_SECONDS = 10
+EXTRACT_TIMEOUT_SECONDS = 120
 
 
 def now():
@@ -101,7 +105,7 @@ def visible_text(raw):
 
 def tool_version(cmd):
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=TOOL_VERSION_TIMEOUT_SECONDS)
         m = re.search(r"(\d+\.\d+(?:\.\d+)?)", r.stdout + r.stderr)
         return m.group(1) if m else None
     except FileNotFoundError:
@@ -113,7 +117,8 @@ def pdf_page_texts(pdf, page, cache):
     if key not in cache:
         outs = []
         for args in (["-layout"], []):
-            r = subprocess.run(["pdftotext", *args, "-f", str(page), "-l", str(page), str(pdf), "-"], capture_output=True, text=True)
+            r = subprocess.run(["pdftotext", *args, "-f", str(page), "-l", str(page), str(pdf), "-"],
+                               capture_output=True, text=True, timeout=EXTRACT_TIMEOUT_SECONDS)
             outs.append(norm(r.stdout))
         import pdfplumber  # required: some quotes (HWP-converted PDFs) were taken from pdfplumber output
         with pdfplumber.open(pdf) as d:
@@ -122,13 +127,15 @@ def pdf_page_texts(pdf, page, cache):
     return cache[key]
 
 
-def ocr_page(pdf, page, workdir):
-    workdir.mkdir(parents=True, exist_ok=True)
-    stem = workdir / f"p{page}"
-    subprocess.run(["pdftoppm", "-r", "300", "-gray", "-f", str(page), "-l", str(page), "-png", str(pdf), str(stem)],
-                   check=True, capture_output=True)
-    png = sorted(workdir.glob(f"p{page}*.png"))[0]
-    return subprocess.run(["tesseract", str(png), "-", "-l", "kor", "--psm", "3"], capture_output=True, text=True).stdout
+def ocr_page(pdf, page):
+    with tempfile.TemporaryDirectory(prefix="onjeon-ocr-") as temp:
+        workdir = Path(temp)
+        stem = workdir / f"p{page}"
+        subprocess.run(["pdftoppm", "-r", "300", "-gray", "-f", str(page), "-l", str(page), "-png", str(pdf), str(stem)],
+                       check=True, capture_output=True, timeout=EXTRACT_TIMEOUT_SECONDS)
+        png = sorted(workdir.glob(f"p{page}*.png"))[0]
+        return subprocess.run(["tesseract", str(png), "-", "-l", "kor", "--psm", "3"],
+                              capture_output=True, text=True, timeout=EXTRACT_TIMEOUT_SECONDS).stdout
 
 
 def rows():
@@ -136,27 +143,29 @@ def rows():
         return list(csv.DictReader(f))
 
 
+@contextmanager
 def materialize(args, sample_rows):
-    """Return {sample_id: local path of the original}, pulling from the raw archive if given."""
+    """Keep local originals available for the duration of reproduction."""
     paths = {}
-    if args.raw:
-        raw = sa.store(args.raw, args.endpoint_url)
-        work = Path(tempfile.mkdtemp(prefix="onjeon-reproduce-"))
-        for r in sample_rows:
-            key = sa.object_key(r["sha256"])
-            if raw.exists(key):
-                p = work / r["sha256"]
-                p.write_bytes(raw.get(key))
-                paths[r["sample_id"]] = p
-    else:
-        for r in sample_rows:
-            try:
-                p = sa.confined_path(args.cache, r["cache_path"])
-            except sa.UnsafeCachePath:
-                continue  # treated as absent: a cache_path outside the cache is never read
-            if p.exists():
-                paths[r["sample_id"]] = p
-    return paths
+    with ExitStack() as stack:
+        if args.raw:
+            raw = sa.store(args.raw, args.endpoint_url)
+            work = Path(stack.enter_context(tempfile.TemporaryDirectory(prefix="onjeon-reproduce-")))
+            for r in sample_rows:
+                key = sa.object_key(r["sha256"])
+                if raw.exists(key):
+                    p = work / r["sha256"]
+                    p.write_bytes(raw.get(key))
+                    paths[r["sample_id"]] = p
+        else:
+            for r in sample_rows:
+                try:
+                    p = sa.confined_path(args.cache, r["cache_path"])
+                except sa.UnsafeCachePath:
+                    continue  # a cache_path outside the cache is treated as absent
+                if p.exists():
+                    paths[r["sample_id"]] = p
+        yield paths
 
 
 def reproduce_one(r, paths, args, derived):
@@ -188,11 +197,10 @@ def reproduce_one(r, paths, args, derived):
         if not args.ocr:
             res["status"] = "ocr_not_rerun"
             return res
-        work = Path(tempfile.mkdtemp(prefix="onjeon-ocr-"))
         pages = {}
         for page, line in quotes(md):
             if page not in pages:
-                pages[page] = ocr_page(p, page, work)
+                pages[page] = ocr_page(p, page)
             checked += 1
             if norm(line) not in norm(pages[page]):
                 missing.append(f"p{page}: {line.strip()[:80]}")
@@ -259,7 +267,8 @@ class Regenerator:
                 return "tool_version_differs"
             args = ["-layout"] if tool_name.endswith("layout") else []
             if tool_name not in self.cache:
-                self.cache[tool_name] = subprocess.run(["pdftotext", *args, str(self.pdf), "-"], capture_output=True).stdout
+                self.cache[tool_name] = subprocess.run(["pdftotext", *args, str(self.pdf), "-"],
+                                                       capture_output=True, timeout=EXTRACT_TIMEOUT_SECONDS).stdout
             return self.cache[tool_name]
         m = re.match(r"ocr__p-(\d+)\.txt$", name)
         if kind == "ocr" and tool_name == "tesseract" and m:
@@ -269,7 +278,7 @@ class Regenerator:
                 return "not_rerun"
             page = int(m.group(1))
             if page not in self.ocr_pages:
-                self.ocr_pages[page] = ocr_page(self.pdf, page, Path(tempfile.mkdtemp(prefix="onjeon-ocr-")))
+                self.ocr_pages[page] = ocr_page(self.pdf, page)
             return self.ocr_pages[page].encode("utf-8")
         return "no_regenerator"
 
@@ -337,14 +346,22 @@ def verify_derived(derived, raw_digest, pin, sample_id, regen):
 
 def cmd_reproduce(args):
     sample_rows = rows()
-    paths = materialize(args, sample_rows)
-    derived = sa.store(args.derived, args.endpoint_url) if args.derived else None
-    results = [reproduce_one(r, paths, args, derived) for r in sample_rows]
+    results = []
+    with materialize(args, sample_rows) as paths:
+        derived = sa.store(args.derived, args.endpoint_url) if args.derived else None
+        for r in sample_rows:
+            try:
+                results.append(reproduce_one(r, paths, args, derived))
+            except subprocess.TimeoutExpired as e:
+                print(f"tool_timeout: {r['sample_id']}: {e.cmd[0]} exceeded {e.timeout:g}s", file=sys.stderr)
+                return 1
     unverified = {"ocr_not_rerun", "derived_unverified"} if args.allow_unverified else set()
     return report("reproduce", args, results, ok={"reproduced"} | unverified)
 
 
 MAX_FETCH_BYTES = 256 * 1024 * 1024  # ~8x the largest recorded sample (32 MB); a bigger body is not a filing PDF/HTML
+FETCH_DEADLINE_SECONDS = 120
+FETCH_SOCKET_TIMEOUT_SECONDS = 30
 SOURCE_HOST_REGISTRY = ROOT / "data/registry/source_fetch_hosts.json"
 # Conservative hold from the 2026-10-10 survey, not a live robots.txt observation.
 # Removing a hold requires reviewing the recorded policy; detect never overrides it.
@@ -485,8 +502,7 @@ def check_source_body(body, kind):
         raise FetchRejected("block_page: challenge, login or denial HTML")
 
 
-def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
-    """Return (admitted bytes, MIME, final URL); rejection never returns a body."""
+def _validate_fetch_request(url, attempts, max_bytes, expected_format):
     if type(max_bytes) is not int or not 1 <= max_bytes <= MAX_FETCH_BYTES:
         raise ValueError("max_bytes must be between 1 and MAX_FETCH_BYTES")
     if type(attempts) is not int or attempts < 1:
@@ -496,11 +512,58 @@ def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
     kind = "pdf" if expected_format in {"pdf", "text_pdf", "scanned_pdf"} else expected_format
     if kind not in SOURCE_MIMES:
         raise FetchRejected("unsupported_format: expected PDF or HTML")
+    return kind
+
+
+def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
+    """Return (admitted bytes, MIME, final URL) within one deadline per source."""
+    kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
+    command = [sys.executable, "-I", str(Path(__file__).resolve()), "--fetch-worker"]
+    request = json.dumps([url, attempts, max_bytes, kind]).encode()
+    # A socket timeout only caps individual operations. A separate process can be
+    # killed and reaped even during DNS resolution or a slowly streamed response.
+    # Its temporary output is one JSON line followed by the admitted document bytes.
+    with tempfile.TemporaryFile() as output:
+        try:
+            subprocess.run(command, input=request, stdout=output, check=True, timeout=FETCH_DEADLINE_SECONDS)
+        except subprocess.TimeoutExpired as e:
+            raise FetchRejected(f"deadline_exceeded: source fetch exceeded {FETCH_DEADLINE_SECONDS:g}s") from e
+        output.seek(0)
+        result = json.loads(output.readline())
+        if "error" not in result:
+            return output.read(), result["content_type"], result["final_url"]
+    if result["error"] == "HTTPError":
+        raise urllib.error.HTTPError(result["final_url"], result["code"], result["detail"], {}, None)
+    error_type = {"FetchTooLarge": FetchTooLarge, "RobotsDisallowed": RobotsDisallowed}.get(result["error"], FetchRejected)
+    error = error_type(result["detail"])
+    if result.get("final_url"):
+        error.final_url = result["final_url"]
+    raise error
+
+
+def _fetch_worker(input_stream, output_stream):
+    url, attempts, max_bytes, kind = json.load(input_stream)
+    body = b""
+    try:
+        body, ctype, final_url = _fetch_https(url, attempts, max_bytes, expected_format=kind)
+        result = {"content_type": ctype, "final_url": final_url}
+    except urllib.error.HTTPError as e:
+        result = {"error": "HTTPError", "detail": e.reason, "code": e.code, "final_url": e.geturl()}
+    except (FetchRejected, FetchTooLarge, RobotsDisallowed) as e:
+        result = {"error": type(e).__name__, "detail": str(e), "final_url": getattr(e, "final_url", None)}
+    except Exception as e:
+        result = {"error": "FetchRejected", "detail": f"{type(e).__name__}: {e}"}
+    output_stream.write(json.dumps(result).encode() + b"\n")
+    output_stream.write(body)
+
+
+def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
+    kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (onjeon source change detection)"})
     opener = urllib.request.build_opener(PolicyRedirectHandler())
     for i in range(attempts):
         try:
-            with opener.open(req, timeout=120) as r:
+            with opener.open(req, timeout=FETCH_SOCKET_TIMEOUT_SECONDS) as r:
                 final_url = r.geturl()
                 try:
                     check_redirect(url, final_url)
@@ -607,7 +670,12 @@ def report(kind, args, results, ok):
     counts = {}
     for x in results:
         counts[x["status"]] = counts.get(x["status"], 0) + 1
-    env = {"pdftotext": tool_version(["pdftotext", "-v"]), "tesseract": tool_version(["tesseract", "--version"])}
+    env = {}
+    for name, flag in (("pdftotext", "-v"), ("tesseract", "--version")):
+        try:
+            env[name] = tool_version([name, flag])
+        except subprocess.TimeoutExpired:
+            env[name] = None  # version metadata is optional once the checks have finished
     try:
         import pdfplumber
         env["pdfplumber"] = pdfplumber.__version__
@@ -663,4 +731,7 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    if sys.argv[1:] == ["--fetch-worker"]:
+        _fetch_worker(sys.stdin.buffer, sys.stdout.buffer)
+    else:
+        sys.exit(main())

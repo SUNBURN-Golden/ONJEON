@@ -900,7 +900,7 @@ class EndToEnd(Fixture):
         self.check_ledger_read_accounting(checkpoint=True)
 
     def test_ledger_get_uses_policy_total_attempts_before_active_is_set(self):
-        for attempts in (1, 2, 4):
+        for attempts in (1, 2, 3, 4):
             for exhausted in (False, True):
                 with self.subTest(attempts=attempts, exhausted=exhausted):
                     self.write_policy(per_month_global=10)
@@ -917,6 +917,7 @@ class EndToEnd(Fixture):
                     self.seed_ledger()
                     key = f"{b.LEDGER_PREFIX}0000000001.json"
                     failures = attempts if exhausted else attempts - 1
+                    # An extra attempt after the queued 503s would get the seeded record.
                     self.stub.faults.extend([("GET", key, 503)] * failures)
                     before = len(self.stub.log)
                     s = self.session(self.root / f"retry-{attempts}-{exhausted}")
@@ -947,6 +948,8 @@ class EndToEnd(Fixture):
                         self.assertFalse(s.meter.archive_allowed)
                         self.assertIsNone(s.gate._lock)
                         self.assertTrue(s.admitted)
+                        admission = f"{b.ADMISSION_PREFIX}{MONTH}/{s.job['job_id']}/{s.run_id}.json"
+                        self.assertEqual(set(self.stub.objects), {("ledger", key), ("ledger", admission)})
                     else:
                         self.assertIsInstance(s.settle("ok").get("seq"), int)
 

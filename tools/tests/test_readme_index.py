@@ -49,7 +49,10 @@ class DecisionsRow(unittest.TestCase):
 
     def test_dec_records_exist_and_are_pointed_to(self):
         self.assertTrue(list((ROOT / "docs/decisions").glob("DEC-*.md")))
-        self.assertIn("DEC-*", row("docs/decisions/"))
+        text = row("docs/decisions/")
+        self.assertIn("DEC-*", text)
+        self.assertIn("[결정 색인](docs/decisions/README.md)", text)
+        self.assertTrue((ROOT / "docs/decisions/README.md").is_file())
 
     def test_dec_record_families_are_named_and_cover_every_record(self):
         text = row("docs/decisions/")
@@ -77,14 +80,19 @@ class DocumentHierarchy(unittest.TestCase):
         )
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
         self.assertIn("### 0.1 문서 위계", blueprint)
+        ledger = (ROOT / "docs/blueprint/DECISIONS.md").read_text(encoding="utf-8")
+        conflicts = ledger.split("## 2. 충돌 해소표", 1)[1].split("## 3. ", 1)[0]
+        self.assertIn("[BLUEPRINT §0.1 문서 위계](../BLUEPRINT.md#01-문서-위계)", conflicts)
 
     def test_replaced_masterplan_priority_is_not_present(self):
         self.assertNotRegex(
-            README, r"불변\s*원칙\s*→\s*제2부\s*→\s*제3부\s*→\s*제1부"
+            README.replace("`", ""),
+            r"(?:불변\s*원칙|(?:docs/)?PRINCIPLES(?:\.md)?)\s*→\s*제2부\s*→\s*제3부\s*→\s*제1부",
         )
         self.assertNotRegex(
             README, r"제3부\s*§56의\s*사용자\s*결정은\s*이\s*순서보다\s*우선"
         )
+        self.assertNotIn("다른 문서와 충돌하면 설계도를 따른다", README)
 
 
 class IndexedPaths(unittest.TestCase):
@@ -153,6 +161,9 @@ class IndexedPaths(unittest.TestCase):
 class ProductScope(unittest.TestCase):
     def test_introduction_points_to_scope_and_product_completion_criteria(self):
         intro = README.split("## ", 1)[0]
+        self.assertIn("[BLUEPRINT §11](docs/BLUEPRINT.md#11-현재-위치)", intro)
+        self.assertIn('<a id="11-현재-위치"></a>',
+                      (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8"))
         for path in (
             "docs/decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md",
             "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md",
@@ -181,6 +192,10 @@ class AuditFindingRegressions(unittest.TestCase):
             ("old hierarchy replaces delegation", README.replace(priority, old_priority),
              DocumentHierarchy, "test_priority_points_to_blueprint_section_0_1"),
             ("old hierarchy alongside delegation", README + "\n" + old_priority,
+             DocumentHierarchy, "test_replaced_masterplan_priority_is_not_present"),
+            ("old hierarchy naming PRINCIPLES", README + "\n`docs/PRINCIPLES.md` → 제2부 → 제3부 → 제1부",
+             DocumentHierarchy, "test_replaced_masterplan_priority_is_not_present"),
+            ("unqualified blueprint override", README + "\n다른 문서와 충돌하면 설계도를 따른다.",
              DocumentHierarchy, "test_replaced_masterplan_priority_is_not_present"),
         ]
         for path in ("tools/", "infra/r2/", "data/registry/"):

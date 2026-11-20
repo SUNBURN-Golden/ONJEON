@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare BLUEPRINT §11 counts with Cargo discovery and canonical repository data.
+"""Compare the BLUEPRINT §11 inventory with Cargo and canonical repository data.
 
 --write refreshes only the generated inventory, never status or release gates.
 Discovery counts registered tests (including ignored tests), not passing tests.
@@ -19,6 +19,7 @@ START = "<!-- blueprint-counts:start -->"
 END = "<!-- blueprint-counts:end -->"
 CARGO = ["cargo", "test", "--locked", "--color", "never", "-p",
          "onjeon-rules-engine", "--", "--list"]
+ENGINE_SOURCE = "packages/rules-engine/src/lib.rs"
 
 
 def cargo_counts(output):
@@ -50,6 +51,10 @@ def cargo_counts(output):
 
 def collect(root, listing):
     counts = cargo_counts(listing)
+    versions = re.findall(r'^pub const ENGINE_VERSION: &str = "([0-9A-Za-z.+-]+)";$',
+                          (root / ENGINE_SOURCE).read_text(encoding="utf-8"), re.M)
+    if len(versions) != 1:
+        raise ValueError(f"expected one ENGINE_VERSION literal in {ENGINE_SOURCE}")
     axes = json.loads((root / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))["axes"]
     rules = []
     for path in sorted((root / "packages/fixtures/rules/real").glob("*.json")):
@@ -61,7 +66,7 @@ def collect(root, listing):
         rules.append(rule["rule_id"])
     if not rules or len(set(rules)) != len(rules) or not axes:
         raise ValueError("missing vocabulary/rules or duplicate rule IDs")
-    counts.update(real_clause_rules=len(rules), vocabulary_axes=len(axes),
+    counts.update(engine_version=versions[0], real_clause_rules=len(rules), vocabulary_axes=len(axes),
                   tamper_tests=len(validation_check.mutations()))
     if not counts["tamper_tests"]:
         raise ValueError("no validation checker mutations")
@@ -71,12 +76,15 @@ def collect(root, listing):
 def render(counts):
     return "\n".join([
         START,
-        "현재 저장소의 등록 수(자동 생성). Rust는 `onjeon-rules-engine`만 세며, "
+        "현재 엔진 빌드 식별자와 등록 수(자동 생성). 평가 결과와 릴리스 매니페스트는 "
+        "`ENGINE_VERSION`을 기록한다. Cargo 패키지 버전과 규칙 DSL 판은 별도로 관리한다. "
+        "Rust는 `onjeon-rules-engine`만 세며, "
         "단위·통합 시험과 doctest를 구분한다. 무시된 시험도 등록 수에 포함하며 "
         "통과·출시 판정은 실행 증거에서 확인한다.",
         "",
-        "| 항목 | 등록 수 | 대조 원천 |",
+        "| 항목 | 현재 값 | 대조 원천 |",
         "|---|---:|---|",
+        f"| 엔진 빌드 식별자 | `{counts['engine_version']}` | `{ENGINE_SOURCE}`의 `ENGINE_VERSION` |",
         f"| Rust 단위·통합 시험 | {counts['rust_tests']} | `cargo test -p onjeon-rules-engine -- --list` |",
         f"| Rust 문서 시험(doctest) | {counts['rust_doctests']} | 같은 Cargo 목록의 `Doc-tests` |",
         f"| 실제 조항 규칙(fixture_only) | {counts['real_clause_rules']} | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |",
@@ -106,7 +114,7 @@ def check(text, counts):
         expected = refresh(text, counts)
     except ValueError as exc:
         return [str(exc)]
-    return [] if text == expected else ["§11 counts are stale; review and run python3 -I tools/blueprint_counts.py --write"]
+    return [] if text == expected else ["§11 inventory is stale; review and run python3 -I tools/blueprint_counts.py --write"]
 
 
 def main(argv=None):

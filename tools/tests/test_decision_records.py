@@ -421,7 +421,7 @@ class DecisionRecords(unittest.TestCase):
 
     def test_d12_app_display_is_allowed_but_repo_redistribution_stays_pending(self):
         blueprint_row = next(line for line in self.open_decisions.splitlines()
-                             if line.startswith("| 저장소 공개 범위"))
+                             if line.startswith("| 소비자 앱 원문 이미지·발췌 표시(D-12·O16) |"))
         ledger_row = next(line for line in self.section.splitlines() if line.startswith("| O16 |"))
         index = self.row("DEC-D-12")
         for row in (blueprint_row, ledger_row, " ".join(index)):

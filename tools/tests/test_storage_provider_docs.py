@@ -111,12 +111,12 @@ class Blueprint(unittest.TestCase):
                 self.assertNotIn(phrase, remaining)
         self.assertIn("관문 미통과", self.v1)
 
-    def test_tool_inventory_names_current_and_alternative_storage(self):
+    def test_tool_inventory_names_r2_and_records_legacy_aws_retirement(self):
         # §11 now separates service code from collection/validation tools.
         section = self.text.split("## 11.", 1)[1].split("## 12.", 1)[0]
         line = next(line for line in section.splitlines() if line.startswith("| 수집·검증 도구 |"))
         for phrase in ("tools/source_archive.py", "tools/verify_sources.py", "tools/r2_budget.py",
-                       "실행별 제한", "infra/r2/", "대안", "infra/s3/", "미배포"):
+                       "실행별 제한", "infra/r2/", "HTTPS 엔드포인트", "`--job`", "AWS 분기를 제거"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, line)
 
@@ -174,6 +174,17 @@ class Blueprint(unittest.TestCase):
         self.assertTrue(all("2026-10-09 관측 기록" in line for line in lines))
         # The same line must say it is the R2 round trip, not just contain the byte-match phrase.
         self.assertTrue(all("원본 R2" in l or "R2에 보존" in l for l in lines))
+
+
+class SupersededAwsArchive(unittest.TestCase):
+    def test_legacy_infra_has_a_retirement_notice_and_no_deploy_assets(self):
+        legacy = ROOT / "infra/s3"
+        self.assertEqual({p.name for p in legacy.iterdir()}, {"README.md"})
+        notice = read(legacy / "README.md")
+        for phrase in ("폐기", "ADR-0016", "[R2 안내](../r2/README.md)", "`--job`", "`ONJEON_S3_ENDPOINT`"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, notice)
+        self.assertNotIn("aws cloudformation deploy", notice)
 
 
 if __name__ == "__main__":

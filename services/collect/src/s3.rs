@@ -1,16 +1,14 @@
 //! `s3://bucket[/prefix]` store over the S3 REST API (port of `source_archive.S3Store`).
 //!
-//! Provider rules (unchanged from the reference):
-//! - no endpoint: AWS S3 (ap-northeast-2, SSE-S3 header sent);
-//! - `https://*.r2.cloudflarestorage.com`: Cloudflare R2 — region `auto`, `R2_*` credentials
-//!   only, no SSE header (R2 encrypts at rest and rejects it), and **refuses to build without
-//!   an open [`budget::Session`]** (job file + ledger);
-//! - any other endpoint: an emulator/local S3-compatible store (the Compose object store,
-//!   `tools/tests/s3_stub.py`); no budget required.
+//! Provider classifications retained by this crate:
+//! - no endpoint: the legacy AWS classification, rejected by the session gate below;
+//! - `https://*.r2.cloudflarestorage.com`: Cloudflare R2, also subject to the session gate;
+//! - other endpoints: emulator classification. Store construction accepts only loopback
+//!   HTTP for this provider, including the Compose store and `tools/tests/s3_stub.py`.
 //!
-//! This crate's transport is plain HTTP only. `https://` endpoints therefore fail at
-//! construction *after* the budget check: nothing is sent to AWS or R2 — with or without a
-//! job — until a TLS transport lands (post-D-04). Real R2 runs keep using the Python tool.
+//! Remote calls are disabled. The budget session has no public constructor, the meter refuses
+//! remote calls, and the store is limited to loopback HTTP. Budgeted R2 runs use
+//! the Python tool, where ADR-0016 superseded the AWS path.
 
 use std::sync::Arc;
 
@@ -345,7 +343,7 @@ impl Store for S3Store {
         use sha2::Digest;
         let mut headers = vec![
             ("content-type".to_string(), content_type.to_string()),
-            // never overwrite (AWS: the bucket policy also denies writes without it)
+            // Never overwrite an existing object.
             ("if-none-match".to_string(), "*".to_string()),
             (
                 "x-amz-checksum-sha256".to_string(),

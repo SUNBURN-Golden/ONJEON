@@ -121,14 +121,14 @@ class IndexedPaths(unittest.TestCase):
                          "[README](data/registry/README.md)"):
             self.assertIn(required, text)
 
-    def test_r2_is_current_and_s3_templates_are_unused_alternatives(self):
+    def test_r2_is_current_and_legacy_aws_path_is_retired(self):
         current = row("infra/r2/")
         for required in ("현재", "Cloudflare R2", "ADR-0016", "ADR-0017",
                          "[README](infra/r2/README.md)"):
             self.assertIn(required, current)
         historical = row("infra/s3/")
-        for required in ("*.cfn.yaml", "AWS", "대안", "미사용", "미배포", "ADR-0016",
-                         "[README](infra/s3/README.md)"):
+        for required in ("CloudFormation", "AWS", "폐기", "삭제", "ADR-0016",
+                         "[폐기 안내](infra/s3/README.md)"):
             self.assertIn(required, historical)
 
     def test_daemon_is_a_development_tool_with_limited_evidence(self):

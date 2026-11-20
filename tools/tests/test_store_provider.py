@@ -1,9 +1,8 @@
-"""S3-compatible store selection (AWS / Cloudflare R2 / emulator) and copy verification.
+"""S3-compatible store selection (Cloudflare R2 / loopback emulator) and copy verification.
 
 No network: S3 calls are checked with botocore's Stubber (skipped when boto3 is not installed).
-R2 differs from AWS in what the archive relies on: region "auto", its own credentials, and no
-SSE header (R2 encrypts at rest and rejects x-amz-server-side-encryption). The write-once
-guarantee must still come from If-None-Match: * on every put.
+R2 uses region "auto", its own credentials, and automatic encryption at rest. Every put must
+send If-None-Match: * and omit x-amz-server-side-encryption.
 """
 import base64
 import hashlib
@@ -38,9 +37,12 @@ FAKE = {"R2_ACCESS_KEY_ID": "k" * 32, "R2_SECRET_ACCESS_KEY": "s" * 64}
 
 
 class Provider(unittest.TestCase):
-    def test_selection(self):
-        self.assertEqual(sa.provider_of(None), "aws")
-        self.assertEqual(sa.provider_of(""), "aws")
+    def test_missing_endpoint_is_refused(self):
+        for endpoint in (None, ""):
+            with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "endpoint is required"):
+                sa.provider_of(endpoint)
+
+    def test_r2_endpoint_selects_r2(self):
         self.assertEqual(sa.provider_of(R2), "r2")
 
     def test_only_allowlisted_local_hosts_are_emulators(self):
@@ -105,13 +107,33 @@ class EndpointGate(unittest.TestCase):
                             self.assertNotIn(endpoint, str(cm.exception))
                             client.assert_not_called()
 
-    def test_default_aws_still_requires_a_budget(self):
-        with mock.patch.dict(os.environ, {"ONJEON_S3_ENDPOINT": ""}), \
-                mock.patch.object(r2_budget, "ACTIVE", None), \
-                mock.patch.object(boto3, "client") as client:
-            with self.assertRaisesRegex(SystemExit, "aws access needs a budget job"):
-                sa.S3Store("s3://raw")
-            client.assert_not_called()
+    def test_unset_or_empty_endpoint_is_refused_before_client_creation(self):
+        for env in ({}, {"ONJEON_S3_ENDPOINT": ""}):
+            for budget in (None, mock.Mock(meter=None, policy={"per_request": {"max_attempts": 3}})):
+                for ledger in (False, True):
+                    with self.subTest(env=env, budget=budget is not None, ledger=ledger), \
+                            mock.patch.dict(os.environ, env, clear=True), \
+                            mock.patch.object(r2_budget, "ACTIVE", None), \
+                            mock.patch.object(boto3, "client", side_effect=AssertionError("unexpected client")):
+                        with self.assertRaisesRegex(SystemExit, "endpoint is required"):
+                            sa.S3Store("s3://raw", ledger=ledger, budget=budget)
+
+    def test_archive_cli_cannot_open_aws_even_with_a_job(self):
+        job = sa.ROOT / "infra/r2/jobs/initial-119.json"
+        for endpoint, problem in (([], "endpoint is required"),
+                                  (["--endpoint-url", "https://s3.amazonaws.com"], "unsupported S3 endpoint")):
+            for job_args in ([], ["--job", str(job)]):
+                with self.subTest(endpoint=endpoint, job=bool(job_args)), tempfile.TemporaryDirectory() as tmp:
+                    report = Path(tmp) / "listing.json"
+                    argv = ["source_archive.py", *endpoint, *job_args,
+                            "listing", "--src", "s3://raw", "--out", str(report)]
+                    with mock.patch.dict(os.environ, {"ONJEON_GATE_DIR": tmp}, clear=True), \
+                            mock.patch.object(sys, "argv", argv), \
+                            mock.patch.object(boto3, "client", side_effect=AssertionError("unexpected client")):
+                        with self.assertRaisesRegex(SystemExit, problem):
+                            sa.main()
+                    self.assertFalse(report.exists())
+                    self.assertIsNone(r2_budget.ACTIVE)
 
     def test_local_emulator_can_create_a_client_without_a_budget(self):
         for endpoint in ("http://localhost:5000", "http://127.0.0.1:5000",
@@ -186,28 +208,16 @@ class R2Store(unittest.TestCase):
                 self.assertEqual(st.provider, "r2")
                 self.assertEqual(st.s3.meta.region_name, "auto")
 
-    def expected_put(self, body, sse):
-        p = {"Bucket": "onjeon-raw-sources", "Key": "k", "Body": body, "ContentType": "text/plain",
-             "IfNoneMatch": "*", "ChecksumSHA256": base64.b64encode(hashlib.sha256(body).digest()).decode()}
-        if sse:
-            p["ServerSideEncryption"] = "AES256"
-        return p
-
     def test_r2_put_is_conditional_and_has_no_sse_header(self):
+        expected = {"Bucket": "onjeon-raw-sources", "Key": "k", "Body": b"x", "ContentType": "text/plain",
+                    "IfNoneMatch": "*", "ChecksumSHA256": base64.b64encode(hashlib.sha256(b"x").digest()).decode()}
         for endpoint in (R2, R2 + "."):
             with self.subTest(endpoint=endpoint):
                 st = self.store(endpoint)
                 with Stubber(st.s3) as stub:
-                    stub.add_response("put_object", {}, self.expected_put(b"x", sse=False))
+                    stub.add_response("put_object", {}, expected)
                     st.put_new("k", b"x", "text/plain")
                     stub.assert_no_pending_responses()
-
-    def test_aws_put_keeps_sse(self):
-        with mock.patch.dict(os.environ, {"AWS_ACCESS_KEY_ID": "a", "AWS_SECRET_ACCESS_KEY": "b"}, clear=False):
-            st = sa.S3Store("s3://onjeon-raw-sources", None)
-        with Stubber(st.s3) as stub:
-            stub.add_response("put_object", {}, self.expected_put(b"x", sse=True))
-            st.put_new("k", b"x", "text/plain")
 
     def head_absent(self, stub):
         stub.add_client_error("head_object", service_error_code="404", http_status_code=404)

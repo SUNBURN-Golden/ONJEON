@@ -40,7 +40,7 @@ bash infra/compose/smoke.sh         # 시험(아래)
 | 객체 저장소 신원 | `public-zone`: `onjeon-raw-sources`, `onjeon-derived-sources`만 | `private-zone`: `onjeon-private-contracts`만 |
 | 작업 큐 | `db-public`의 `queue.jobs` | `db-private`의 `queue.jobs` |
 
-한 영역의 자격 증명으로는 다른 영역의 DB·버킷에 들어갈 수 없다. `smoke.sh`가 이 거부를 실제로 확인한다. 한 객체 저장소 프로세스를 두 영역이 공유하는 것은 로컬 편의이고, 분리는 신원별 버킷 권한으로 강제한다. 운영에서는 영역별 계정·버킷·키로 나눈다(`infra/s3/README.md` §1 마지막 문단).
+한 영역의 자격 증명으로는 다른 영역의 DB·버킷에 들어갈 수 없다. `smoke.sh`가 이 거부를 실제로 확인한다. 한 객체 저장소 프로세스를 두 영역이 공유하는 것은 로컬 편의이고, 분리는 신원별 버킷 권한으로 강제한다. 운영에서는 영역별 계정·버킷·키로 나눈다([BLUEPRINT §4](../../docs/BLUEPRINT.md#4-시스템-계층)).
 
 ### DB 초기화(`initdb/`)
 

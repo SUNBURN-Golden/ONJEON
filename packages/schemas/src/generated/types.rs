@@ -692,8 +692,9 @@ pub struct PremiumObservation {
     pub id: String,
     /// 근거 1개 이상
     pub evidence: Vec<EvidenceLink>,
-    /// 원문 금액(정수 원). 공백이 있어도 보존한다
-    pub raw_amount: i64,
+    /// 관측하거나 산출한 금액(정수 원). value_state가 observed 또는 derived이면 필수, 다른 상태에서는 금지
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub raw_amount: Option<i64>,
     pub price_basis: PriceBasis,
     pub observed_at: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -717,9 +718,12 @@ pub struct PremiumObservation {
     pub missing_dimensions: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comparison_basis_id: Option<String>,
-    /// 조건·구성·기준일이 모두 있고 accepted일 때만 true (K13)
+    /// 금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)
     pub comparison_eligible: bool,
     pub value_state: ValueState,
+    /// 금액을 알 수 없는 이유. value_state가 observed 또는 derived이면 금지, 다른 상태에서는 필수
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unknown_reason: Option<String>,
     pub review_status: ReviewStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub review_decision_id: Option<String>,

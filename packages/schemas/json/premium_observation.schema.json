@@ -18,7 +18,7 @@
     },
     "raw_amount": {
       "$ref": "common.schema.json#/$defs/Krw",
-      "description": "원문 금액(정수 원). 공백이 있어도 보존한다"
+      "description": "관측하거나 산출한 금액(정수 원). value_state가 observed 또는 derived이면 필수, 다른 상태에서는 금지"
     },
     "price_basis": {
       "$ref": "vocabulary.schema.json#/$defs/price_basis"
@@ -71,10 +71,15 @@
     },
     "comparison_eligible": {
       "type": "boolean",
-      "description": "조건·구성·기준일이 모두 있고 accepted일 때만 true (K13)"
+      "description": "금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)"
     },
     "value_state": {
       "$ref": "vocabulary.schema.json#/$defs/value_state"
+    },
+    "unknown_reason": {
+      "type": "string",
+      "pattern": "\\S",
+      "description": "금액을 알 수 없는 이유. value_state가 observed 또는 derived이면 금지, 다른 상태에서는 필수"
     },
     "review_status": {
       "$ref": "vocabulary.schema.json#/$defs/review_status"
@@ -90,7 +95,6 @@
   "required": [
     "id",
     "evidence",
-    "raw_amount",
     "price_basis",
     "observed_at",
     "missing_dimensions",
@@ -101,7 +105,9 @@
   ],
   "additionalProperties": false,
   "x-onjeon-invariants": [
-    "comparison_eligible=true => conditions, package_binding, source_as_of 있음, missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
+    "value_state=observed 또는 derived => raw_amount 필수, unknown_reason 금지 (chk_premium_amount_matches_value_state)",
+    "그 외 value_state => raw_amount 금지, 공백이 아닌 unknown_reason 필수 (chk_premium_unknown_reason_matches_value_state)",
+    "comparison_eligible=true => value_state=observed 또는 derived, conditions, package_binding, source_as_of 있음, missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
     "review_status=accepted => review_decision_id 있음",
     "origin=fixture => review_status<>accepted"
   ]

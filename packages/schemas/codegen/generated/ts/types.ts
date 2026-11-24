@@ -863,9 +863,9 @@ export interface PremiumObservation {
    */
   evidence: EvidenceLink[];
   /**
-   * 원문 금액(정수 원). 공백이 있어도 보존한다
+   * 관측하거나 산출한 금액(정수 원). value_state가 observed 또는 derived이면 필수, 다른 상태에서는 금지
    */
-  raw_amount: number;
+  raw_amount?: number;
   price_basis: PriceBasis;
   observed_at: string;
   source_published_at?: string;
@@ -895,10 +895,14 @@ export interface PremiumObservation {
   missing_dimensions: string[];
   comparison_basis_id?: string;
   /**
-   * 조건·구성·기준일이 모두 있고 accepted일 때만 true (K13)
+   * 금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)
    */
   comparison_eligible: boolean;
   value_state: ValueState;
+  /**
+   * 금액을 알 수 없는 이유. value_state가 observed 또는 derived이면 금지, 다른 상태에서는 필수
+   */
+  unknown_reason?: string;
   review_status: ReviewStatus;
   review_decision_id?: string;
   /**

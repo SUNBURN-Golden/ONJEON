@@ -307,6 +307,7 @@ class Fixtures(unittest.TestCase):
         self.assertEqual(set(with_origin), {
             "Assertion.relation.fixture.json", "Assertion.value.fixture.json",
             "PremiumObservation.full.fixture.json", "PremiumObservation.raw.fixture.json",
+            "PremiumObservation.unavailable.fixture.json",
         })
         for name, doc in with_origin.items():
             self.assertEqual(doc["origin"], "fixture", name)
@@ -340,6 +341,17 @@ class Fixtures(unittest.TestCase):
             self.assertTrue(self.broken(n, lambda d: d.update(price_basis=bad)), bad)
         self.assertTrue(self.broken(n, lambda d: d.update(raw_amount=51290.5)))
         self.assertTrue(self.broken(n, lambda d: d.update(raw_amount=-1)))
+
+    def test_premium_amount_may_be_omitted_and_unknown_reason_must_be_non_blank_text(self):
+        n = "PremiumObservation.unavailable.fixture.json"
+        self.assertNotIn("raw_amount", self.docs[n])
+        self.assertFalse(self.broken(
+            "PremiumObservation.raw.fixture.json", lambda d: d.update(raw_amount=0),
+        ))
+        for bad in ("", " \t\n", 0, None):
+            with self.subTest(reason=bad):
+                errors = self.broken(n, lambda d: d.update(unknown_reason=bad))
+                self.assertTrue(any("unknown_reason" in e for e in errors), errors)
 
     def test_money_must_be_integer_krw(self):
         n = "ScenarioResult.evaluated.fixture.json"

@@ -1,4 +1,4 @@
-"""Audit 6: product tasks can publish evidence under the real daemon policy.
+"""Task evidence outputs can be published under the real daemon policy.
 
 All generated artifacts are synthetic, temporary gate tests, never release evidence.
 """
@@ -15,8 +15,14 @@ from daemon.core.gate_evaluator import paths_within_scope, patterns_overlap  # n
 from release_readiness import check as readiness  # noqa: E402
 
 EVIDENCE = "docs/release-readiness/evidence"
-DEVELOPER_TOOLS = {"T-OP-00", "T-OP-09"}  # 09 §0 explicitly excludes these.
+TOOL_EVIDENCE = "tools/evidence"
+DEVELOPER_TOOLS = {"T-OP-00", "T-OP-09"}  # 09 §0 keeps these outside release evidence.
 FINAL = "T-OP-08"
+
+
+def evidence_grant(task_id):
+    root = TOOL_EVIDENCE if task_id in DEVELOPER_TOOLS else EVIDENCE
+    return f"{root}/{task_id}/**"
 
 
 class EvidencePathTests(unittest.TestCase):
@@ -27,25 +33,24 @@ class EvidencePathTests(unittest.TestCase):
         cls.tasks = {t["id"]: t for t in cls.data["tasks"]}
         cls.product = cls.tasks.keys() - DEVELOPER_TOOLS
 
-    def test_every_product_task_has_effective_artifact_and_log_grants(self):
+    def test_every_task_declares_its_effective_evidence_output(self):
         self.assertTrue(self.product)
-        for tid in sorted(self.product):
+        self.assertLessEqual(DEVELOPER_TOOLS | {FINAL}, self.tasks.keys())
+        for tid, task in self.tasks.items():
             with self.subTest(task=tid):
-                task = self.tasks[tid]
-                directory = f"{EVIDENCE}/{tid}"
-                paths = [f"{directory}/report.md", f"{directory}/acceptance/run.log"]
-                self.assertTrue(paths_within_scope(paths, task))
-                if tid == FINAL:
-                    continue  # Final auditor retains its existing aggregate grant.
-                grant = f"{directory}/**"
+                grant = evidence_grant(tid)
                 self.assertIn(grant, task["allowed_paths"])
                 self.assertIn(f"path:{grant}", task["produces"])
                 self.assertIn(grant, task["conflict_paths"])
-                # Removing the new grant recreates the original R-01 rejection.
-                original = copy.deepcopy(task)
-                original["allowed_paths"].remove(grant)
-                self.assertFalse(paths_within_scope(paths, original))
-                # A future forbidden path must not silently nullify the grant.
+
+                directory = grant.removesuffix("/**")
+                paths = [f"{directory}/report.md", f"{directory}/acceptance/run.log"]
+                self.assertTrue(paths_within_scope(paths, task))
+                if tid != FINAL:
+                    without_grant = copy.deepcopy(task)
+                    without_grant["allowed_paths"].remove(grant)
+                    self.assertFalse(paths_within_scope(paths, without_grant))
+
                 denied = copy.deepcopy(task)
                 denied["forbidden_paths"].append(grant)
                 self.assertFalse(paths_within_scope(paths, denied))
@@ -58,6 +63,11 @@ class EvidencePathTests(unittest.TestCase):
                 for owner in sorted(self.product - {tid}):
                     self.assertEqual(tid == FINAL, paths_within_scope(
                         [f"{EVIDENCE}/{owner}/acceptance/run.log"], task), owner)
+                for owner in sorted(DEVELOPER_TOOLS):
+                    self.assertEqual(tid == owner, paths_within_scope(
+                        [f"{TOOL_EVIDENCE}/{owner}/acceptance/run.log"], task), owner)
+                    self.assertEqual(tid == FINAL, paths_within_scope(
+                        [f"{EVIDENCE}/{owner}/acceptance/run.log"], task), owner)
                 if tid != FINAL:
                     self.assertFalse(paths_within_scope([f"{EVIDENCE}/unowned.md"], task))
 
@@ -68,24 +78,50 @@ class EvidencePathTests(unittest.TestCase):
             with self.subTest(task=tid):
                 self.assertFalse(paths_within_scope([path], task))
 
+    def test_final_auditor_declares_developer_tool_evidence_as_inputs(self):
+        # 09 §0 says the daemon records feed final-audit axis 5, so the
+        # dependency contract must name those directories as consumed inputs.
+        for owner in DEVELOPER_TOOLS:
+            with self.subTest(task=owner):
+                grant = f"{TOOL_EVIDENCE}/{owner}/**"
+                self.assertIn(f"path:{grant}", self.tasks[FINAL]["consumes"])
+                self.assertIn(f"path:{grant}", self.tasks[owner]["produces"])
+                # Reading is declared through consumes only; no write grant leaks.
+                self.assertNotIn(grant, self.tasks[FINAL]["allowed_paths"])
+
+    def test_09_puts_acceptance_results_in_manifest_and_state_in_ledger(self):
+        # The manifest aggregation recorded by T-OP-08 must stay limited to row
+        # and feature references plus acceptance results. check.py takes task
+        # state and merge SHAs from tasks_state.json, so 09 must not claim the
+        # manifest carries observed task state.
+        text = (readiness.BUNDLE / "09_제품목적_대응표.md").read_text(encoding="utf-8")
+        self.assertIn("행·기능별 증거 참조와 수락 실행 결과를 집계한다", text)
+        self.assertIn("과제 상태 원장", text)
+        self.assertNotIn("관측된 과제 상태를 집계", text)
+        self.assertNotIn("자기 증거 경로 밖을 쓰지 않는다", text)
+        outputs = "\n".join(self.tasks[FINAL]["outputs"])
+        self.assertIn("수락 실행 결과", outputs)
+        self.assertNotIn("관측된 과제 상태", outputs)
+
     def test_evidence_locks_preserve_parallel_task_isolation_and_final_audit_lock(self):
         final_locks = self.tasks[FINAL]["conflict_paths"]
         grants = []
-        for tid in sorted(self.product - {FINAL}):
-            grant = f"{EVIDENCE}/{tid}/**"
-            self.assertTrue(any(patterns_overlap(grant, lock) for lock in final_locks))
+        for tid in self.tasks:
+            grant = evidence_grant(tid)
+            self.assertEqual(tid in self.product,
+                             any(patterns_overlap(grant, lock) for lock in final_locks))
             self.assertFalse(any(patterns_overlap(grant, other) for other in grants))
             grants.append(grant)
 
-    def test_generated_work_spec_lists_the_new_permissions_and_outputs(self):
+    def test_work_spec_lists_every_evidence_permission_and_output(self):
         text = (readiness.BUNDLE / "03_작업명세.md").read_text(encoding="utf-8")
         for section, column, prefix in (("## 6.", 8, ""), ("## 7.", 1, "path:")):
             table = text.split(section, 1)[1].split("\n## ", 1)[0]
             rows = {cells[0]: cells for line in table.splitlines() if line.startswith("| T-")
                     for cells in [[c.strip() for c in line.strip("|").split("|")]]}
-            for tid in sorted(self.product - {FINAL}):
+            for tid in self.tasks:
                 with self.subTest(section=section, task=tid):
-                    self.assertIn(f"{prefix}{EVIDENCE}/{tid}/**", rows[tid][column].split(", "))
+                    self.assertIn(f"{prefix}{evidence_grant(tid)}", rows[tid][column].split(", "))
 
     def test_live_denominators_can_reference_task_owned_artifacts_and_fail_if_removed(self):
         # Exercise real P01..P19 + every feature and the existing readiness checker.

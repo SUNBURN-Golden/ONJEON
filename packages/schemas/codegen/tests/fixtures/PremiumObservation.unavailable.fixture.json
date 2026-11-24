@@ -1,0 +1,17 @@
+{
+  "id": "premium:01J0000000000000000000000B",
+  "evidence": [
+    {
+      "ref": "raw:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "role": "observation"
+    }
+  ],
+  "price_basis": "illustrative",
+  "observed_at": "2026-10-01T09:00:00Z",
+  "missing_dimensions": [],
+  "comparison_eligible": false,
+  "value_state": "not_found",
+  "unknown_reason": "조사한 예시 보험료 표에 해당 구성의 금액이 없음",
+  "review_status": "pending",
+  "origin": "fixture"
+}

@@ -1850,8 +1850,8 @@ class PremiumObservation {
   final String id;
   /// 근거 1개 이상
   final List<EvidenceLink> evidence;
-  /// 원문 금액(정수 원). 공백이 있어도 보존한다
-  final int rawAmount;
+  /// 관측하거나 산출한 금액(정수 원). value_state가 observed 또는 derived이면 필수, 다른 상태에서는 금지
+  final int? rawAmount;
   final PriceBasis priceBasis;
   final String observedAt;
   final String? sourcePublishedAt;
@@ -1868,9 +1868,11 @@ class PremiumObservation {
   /// 원문에 없는 조건 차원
   final List<String> missingDimensions;
   final String? comparisonBasisId;
-  /// 조건·구성·기준일이 모두 있고 accepted일 때만 true (K13)
+  /// 금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)
   final bool comparisonEligible;
   final ValueState valueState;
+  /// 금액을 알 수 없는 이유. value_state가 observed 또는 derived이면 금지, 다른 상태에서는 필수
+  final String? unknownReason;
   final ReviewStatus reviewStatus;
   final String? reviewDecisionId;
   /// pipeline, fixture
@@ -1879,7 +1881,7 @@ class PremiumObservation {
   const PremiumObservation({
     required this.id,
     required this.evidence,
-    required this.rawAmount,
+    this.rawAmount,
     required this.priceBasis,
     required this.observedAt,
     this.sourcePublishedAt,
@@ -1892,6 +1894,7 @@ class PremiumObservation {
     this.comparisonBasisId,
     required this.comparisonEligible,
     required this.valueState,
+    this.unknownReason,
     required this.reviewStatus,
     this.reviewDecisionId,
     required this.origin,
@@ -1900,7 +1903,7 @@ class PremiumObservation {
   factory PremiumObservation.fromJson(Map<String, dynamic> json) => PremiumObservation(
         id: json['id'] as String,
         evidence: (json['evidence'] as List<dynamic>).map((e) => EvidenceLink.fromJson(e as Map<String, dynamic>)).toList(),
-        rawAmount: json['raw_amount'] as int,
+        rawAmount: json['raw_amount'] == null ? null : json['raw_amount'] as int,
         priceBasis: PriceBasis.fromJson(json['price_basis'] as String),
         observedAt: json['observed_at'] as String,
         sourcePublishedAt: json['source_published_at'] == null ? null : json['source_published_at'] as String,
@@ -1913,6 +1916,7 @@ class PremiumObservation {
         comparisonBasisId: json['comparison_basis_id'] == null ? null : json['comparison_basis_id'] as String,
         comparisonEligible: json['comparison_eligible'] as bool,
         valueState: ValueState.fromJson(json['value_state'] as String),
+        unknownReason: json['unknown_reason'] == null ? null : json['unknown_reason'] as String,
         reviewStatus: ReviewStatus.fromJson(json['review_status'] as String),
         reviewDecisionId: json['review_decision_id'] == null ? null : json['review_decision_id'] as String,
         origin: AssertionOrigin.fromJson(json['origin'] as String),
@@ -1921,7 +1925,7 @@ class PremiumObservation {
   Map<String, dynamic> toJson() => {
         'id': id,
         'evidence': evidence.map((e) => e.toJson()).toList(),
-        'raw_amount': rawAmount,
+        if (rawAmount != null) 'raw_amount': rawAmount!,
         'price_basis': priceBasis.toJson(),
         'observed_at': observedAt,
         if (sourcePublishedAt != null) 'source_published_at': sourcePublishedAt!,
@@ -1934,6 +1938,7 @@ class PremiumObservation {
         if (comparisonBasisId != null) 'comparison_basis_id': comparisonBasisId!,
         'comparison_eligible': comparisonEligible,
         'value_state': valueState.toJson(),
+        if (unknownReason != null) 'unknown_reason': unknownReason!,
         'review_status': reviewStatus.toJson(),
         if (reviewDecisionId != null) 'review_decision_id': reviewDecisionId!,
         'origin': origin.toJson(),

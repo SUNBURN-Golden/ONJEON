@@ -7,7 +7,7 @@
 
 use crate::{
     AmountKind, AmountOut, Assertion, AssertionOrigin, DisplayStatus, ErrorClass, ErrorResponse,
-    EvaluationResult, Payout, PremiumObservation, ReviewStatus, ScenarioResult, Tri,
+    EvaluationResult, Payout, PremiumObservation, ReviewStatus, ScenarioResult, Tri, ValueState,
 };
 
 /// `origin` value of rows that exist only for tests (02_구현계약 §1.2, §8): vocabulary axis
@@ -59,6 +59,30 @@ pub fn check_assertion(a: &Assertion) -> Vec<Violation> {
 
 pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
     let mut out = Vec::new();
+    let amount_known = match p.value_state {
+        ValueState::Observed | ValueState::Derived => true,
+        ValueState::NotFound
+        | ValueState::Unreadable
+        | ValueState::Conflicting
+        | ValueState::NotApplicable
+        | ValueState::NotDisclosed => false,
+    };
+    if p.raw_amount.is_some() != amount_known {
+        out.push(v(
+            "chk_premium_amount_matches_value_state",
+            "raw_amount is required for observed or derived and forbidden for other value states",
+        ));
+    }
+    let reason_valid = match &p.unknown_reason {
+        Some(reason) => !amount_known && !reason.trim().is_empty(),
+        None => amount_known,
+    };
+    if !reason_valid {
+        out.push(v(
+            "chk_premium_unknown_reason_matches_value_state",
+            "a non-blank unknown_reason is required for unavailable amounts and forbidden for observed or derived",
+        ));
+    }
     if p.review_status == ReviewStatus::Accepted && p.review_decision_id.is_none() {
         out.push(v(
             "chk_accepted_needs_decision",
@@ -72,6 +96,12 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
         ));
     }
     if p.comparison_eligible {
+        if !amount_known || p.raw_amount.is_none() {
+            out.push(v(
+                "chk_premium_raw_vs_eligible",
+                "comparison_eligible needs an observed or derived amount",
+            ));
+        }
         let conditions_missing = p.conditions.as_ref().is_none_or(|c| c.is_empty());
         if conditions_missing
             || p.package_binding.is_none()

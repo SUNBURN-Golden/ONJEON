@@ -18,7 +18,8 @@ Text output identifies each item and its incomplete reasons and prints
 `features_counts`. Exit codes: **0** all evidence coverage checks pass,
 **1** incomplete, **2** invalid/unreadable contract or manifest. A missing
 evidence directory or missing manifest reports every item open (exit 1).
-Malformed input never produces passing counts. Tests run in the existing CI
+Missing or malformed `tasks_state.json` produces an input error (exit 2).
+Use `--tasks-state PATH` to read a different ledger. Tests run in the existing CI
 `tools/tests` discovery step; CI does not require the unfinished product to pass
 the live readiness gate.
 
@@ -31,10 +32,9 @@ continues to the test steps.
 
 The report derives linked tasks for P01–P19 from 09 and uses all
 `tasks.json` task IDs for the overall denominator, including developer tools.
-`merged_tasks.json` maps each observed task merge to its full Git commit SHA.
-Update that file after verifying a task merge in the integration branch's
-history. The report reads this snapshot directly and can run from a shallow
-checkout. [Initial snapshot and verification](../../docs/blueprint/audits/2026-11-19_purpose_progress_ledger.md).
+**Merged tasks** counts recorded merge SHAs from the same task ledger the
+checker uses. This includes historical merges awaiting state or evidence review.
+Both tools can run from a shallow checkout.
 
 - **Tasks with evidence files** counts linked tasks that have at least one
   nonempty regular file under `evidence/<task-id>/`. This is visible before
@@ -42,10 +42,9 @@ checkout. [Initial snapshot and verification](../../docs/blueprint/audits/2026-1
 - **Row evidence files present** counts present, valid completion artifacts
   out of the row's registered evidence references in `readiness.json`.
   `0/0` means the row has no registered references.
-- **Closed** requires every linked task in the merge inventory and a passing
-  row under the evidence coverage rules below, including observed post-merge
-  states and successful acceptance execution logs. T-OP-08 determines release
-  readiness.
+- **Closed** uses the same evidence checks as the judge. Every linked task needs
+  a qualifying ledger record, and the row needs release artifacts and successful
+  acceptance execution logs. T-OP-08 determines release readiness.
 
 ## Task evidence ownership
 
@@ -65,22 +64,49 @@ Path grants do not waive data, privacy, publication or release decision gates.
 Python CI discovery runs `test_evidence_paths.py` against every registered task
 using the daemon's R-01 scope predicate.
 
-## Version 1 input
+## Version 1 task ledger
 
-The evidence directory contains `readiness.json`, an explicit snapshot maintained
-from observed task states and reviewed completion evidence. `tasks.json` remains
-the task contract: its prose `evidence` fields and test registrations are never
-treated as observed results. An empty manifest is:
+The integration maintainer updates [docs/blueprint/progress/tasks_state.json](../../docs/blueprint/progress/tasks_state.json)
+after verifying the task's merge on the integration branch and reviewing its
+observed state and evidence reference. `tasks.json` supplies task IDs and
+acceptance requirements. This example shows the ledger format with synthetic values.
 
 ```json
-{"version": 1, "task_states": {}, "rows": {}, "features": {}}
+{
+  "version": 1,
+  "tasks": {
+    "T-DT-04": {
+      "state": "done",
+      "merge_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidence_path": "T-DT-04/denominator-report.md"
+    }
+  }
+}
 ```
 
-Each key in `task_states` is a registered task ID with its observed state string.
-All implementation tasks for an item must be `merged`, `audit_queued` or `done`,
-matching `daemon_rules.post_merge_states` (guarded by a regression test). Missing,
-unknown or pre-merge states, `cancelled`, and `merged_invalid_approval` leave
-affected items open. Task definitions do not supply execution states.
+Key each entry by a registered task ID. The three fields are required and accept
+`null` for facts still unverified. A linked task qualifies when its observed
+state is `merged`, `audit_queued` or `done`, its `merge_sha` is a full lowercase
+Git SHA, and `evidence_path` resolves to a nonempty regular file inside the
+evidence directory. The state set matches `daemon_rules.post_merge_states`.
+An absent task entry, a nonqualifying state (including `merged_invalid_approval`),
+an absent SHA or unusable evidence leaves affected rows and features open.
+Duplicate keys, unknown task IDs and malformed records are input errors.
+
+The initial ledger preserves 20 Git-verified merge SHAs from the advisory report.
+Their approved states and evidence references are `null` pending review.
+[Migration and verification](../../docs/blueprint/audits/2026-11-24_task_state_ledger.md).
+
+## Version 1 evidence manifest
+
+The evidence directory contains `readiness.json` for reviewed row and feature
+completion evidence. An empty manifest is shown below. Existing version 1
+manifests may still contain `task_states`. The reader validates that legacy field
+for compatibility and uses the ledger as the sole source of task state.
+
+```json
+{"version": 1, "rows": {}, "features": {}}
+```
 
 `rows` is keyed by P01–P19; `features` is keyed by the feature registry IDs.
 Missing entries stay open. An individual record has this shape (illustration
@@ -117,11 +143,9 @@ rows. Supporting future whole-item exclusions requires a reviewed canonical
 scope change and a checker update that verifies that authority; a manifest
 cannot grant it.
 
-This tool verifies supplied state strings, coverage metadata and local artifact
-presence. It cannot authenticate their provenance, establish freshness, inspect
-screen semantics, or prove that content came from actual data. `environment:
-release` is a declaration subject to review, not an attestation. Positive tests
-use synthetic temporary files solely to verify checker mechanics. Do not enter
-those tests, daemon regression logs or this scaffold's verification logs as
-product completion evidence. The scaffold neither completes T-OP-08's five-axis
-audit nor approves deployment, data access, participant studies or release.
+The checker verifies state strings, SHA format, coverage metadata and local
+artifact presence. The integration maintainer verifies the SHA against Git and
+the approval record. T-OP-08 reviews evidence provenance, freshness, actual-data
+coverage and screen semantics. Positive tests use synthetic temporary files to
+verify checker mechanics. Keep regression logs under `tools/evidence/` and use
+reviewed actual-data, actual-screen and release artifacts for completion evidence.

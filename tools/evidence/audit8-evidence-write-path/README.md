@@ -46,3 +46,16 @@ Python 전체 시험은 boto3 1.43.100 가상 환경과 사전 빌드한 온톨�
 적용한 뒤 위 명령을 다시 실행해 모두 통과했다. 이 재정의는 작업 트리 로컬
 rustup 설정이며 저장소 파일이 아니다. 전역 기본값을 만들지 않으므로
 `test_ci_rust_toolchain.py`가 검사하는 CI 고정·디렉터리 재정의 동작은 그대로다.
+
+## Fix round 2: origin/main 병합
+
+`origin/main`(`93d0d0f`, 과제 상태 원장)과 병합하면서 `03_작업명세.md`·`09_제품목적_대응표.md`·`tasks.json`의 충돌을 양쪽 의도를 남기도록 해소했다. T-OP-08 행은 `docs/release-readiness/evidence/T-OP-08/**` 산출물과 `docs/blueprint/progress/tasks_state.json` 입력을 함께 가지며, 09 §0은 과제별 증거 경로와 원장 기록 절차를 모두 설명한다.
+
+병합 뒤 이 작업 트리에서 다시 실행한 결과:
+
+| 명령 또는 검사 | 결과 |
+|---|---|
+| `python3 -m unittest tools.tests.test_evidence_paths tools.tests.test_product_purpose tools.tests.test_release_readiness tools.tests.test_purpose_progress -v` | 57개 통과. [실행 로그](regression-round2.log) |
+| `python3 -m unittest discover -s tools/tests` | 1,783개 실행, 1,712개 통과, 71개 건너뜀 |
+
+두 번째 행은 위 Fix round 1과 달리 boto3 가상 환경과 사전 빌드한 온톨로지 실행기를 쓰지 않아 건너뜀이 많다. 충돌 해소 뒤 `tasks.json`은 66개 과제 그대로이고, 모든 과제가 자기 증거 경로를 `allowed_paths`·`produces`·`conflict_paths`에 명시한다.

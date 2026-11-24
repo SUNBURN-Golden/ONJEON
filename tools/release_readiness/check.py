@@ -2,7 +2,7 @@
 """Report release evidence coverage; this scaffold does not authorize release.
 
 Exit 0: all declared rows/features covered; 1: incomplete; 2: invalid input.
-See README.md beside this script for the version 1 evidence manifest contract.
+See README.md beside this script for the task ledger and evidence manifest contracts.
 """
 import argparse
 import json
@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 BUNDLE = ROOT / "docs/blueprint/proposals/설계검토_결과"
 PURPOSE = BUNDLE / "09_제품목적_대응표.md"
+TASKS_STATE = ROOT / "docs/blueprint/progress/tasks_state.json"
 POST_MERGE = frozenset({"merged", "audit_queued", "done"})
 ROW_IDS = {f"P{i:02}" for i in range(1, 20)}
 TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
@@ -92,21 +93,23 @@ def read_manifest(directory, tasks, rows, features):
     path = directory / "readiness.json"
     # Missing evidence is incomplete, never an empty passing denominator.
     if not directory.exists():
-        return {"task_states": {}, "rows": {}, "features": {}}
+        return {"rows": {}, "features": {}}
     require(directory.is_dir(), "evidence must be a directory")
     if not path.exists():
-        return {"task_states": {}, "rows": {}, "features": {}}
+        return {"rows": {}, "features": {}}
     data = read_json(path)
     require(isinstance(data, dict), "readiness.json must be an object")
     require(type(data.get("version")) is int and data["version"] == 1,
             "readiness.json version must be 1")
-    require(set(data) == {"version", "task_states", "rows", "features"},
-            "readiness.json requires only version, task_states, rows, features")
-    for key, known in (("task_states", tasks), ("rows", rows), ("features", features)):
+    require({"version", "rows", "features"} <= set(data) <= {"version", "task_states", "rows", "features"},
+            "readiness.json requires version, rows, features, with optional legacy task_states")
+    legacy_states = data.pop("task_states", {})
+    require(isinstance(legacy_states, dict) and set(legacy_states) <= tasks
+            and all(isinstance(state, str) for state in legacy_states.values()),
+            "legacy task_states must map registered task IDs to state strings")
+    for key, known in (("rows", rows), ("features", features)):
         require(isinstance(data[key], dict), f"{key} must be an object")
         require(set(data[key]) <= set(known), f"{key}: unknown IDs {sorted(set(data[key]) - set(known))}")
-    require(all(isinstance(state, str) for state in data["task_states"].values()),
-            "task_states values must be state strings")
     for group in ("rows", "features"):
         for key, record in data[group].items():
             require(isinstance(record, dict), f"{key}: evidence record must be an object")
@@ -115,34 +118,72 @@ def read_manifest(directory, tasks, rows, features):
     return data
 
 
+def read_task_states(path, tasks):
+    data = read_json(path)
+    require(isinstance(data, dict) and set(data) == {"version", "tasks"},
+            "tasks_state.json requires version and tasks")
+    require(type(data["version"]) is int and data["version"] == 1,
+            "tasks_state.json version must be 1")
+    records = data["tasks"]
+    require(isinstance(records, dict), "tasks_state.json tasks must map task IDs to records")
+    for tid, record in records.items():
+        require(tid in tasks, f"tasks_state.json: unknown task {tid}")
+        require(isinstance(record, dict) and set(record) == {"state", "merge_sha", "evidence_path"},
+                f"{tid}: expected state, merge_sha and evidence_path")
+        for field in ("state", "evidence_path"):
+            value = record[field]
+            require(value is None or isinstance(value, str) and value.strip(),
+                    f"{tid}: {field} must be a nonempty string or null")
+        sha = record["merge_sha"]
+        require(sha is None or isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha) and sha.strip("0"),
+                f"{tid}: expected a full merge commit SHA or null")
+    return records
+
+
 def artifact_problem(directory, reference):
-    if not isinstance(reference, str) or not reference.strip():
+    if not isinstance(reference, str) or not reference.strip() or "\x00" in reference:
         return "invalid artifact path"
     relative = Path(reference)
     if relative.is_absolute() or ".." in relative.parts:
         return f"artifact must be relative within evidence directory: {reference}"
-    path = (directory / relative).resolve()
-    if not path.is_relative_to(directory.resolve()):
-        return f"artifact escapes evidence directory: {reference}"
     try:
+        path = (directory / relative).resolve()
+        if not path.is_relative_to(directory.resolve()):
+            return f"artifact escapes evidence directory: {reference}"
         if not path.is_file() or not path.read_bytes().strip():
             return f"missing/empty artifact: {reference}"
-    except OSError:
+    except (OSError, RuntimeError):
         return f"unreadable artifact: {reference}"
     return None
 
 
-def inspect_item(item, record, states, directory):
+def task_state_problem(tid, record, directory):
+    state = record.get("state")
+    if state not in POST_MERGE:
+        return f"{tid}: not post_merge (state={state or 'missing'})"
+    if record["merge_sha"] is None:
+        return f"{tid}: missing merge SHA"
+    if record["evidence_path"] is None:
+        return f"{tid}: missing task evidence path"
+    problem = artifact_problem(directory, record["evidence_path"])
+    if problem:
+        return f"{tid}: task evidence {problem}"
+    return None
+
+
+def task_state_problems(items, states, directory):
+    linked = {tid for item in items for tid in item["tasks"]}
+    return {tid: task_state_problem(tid, states.get(tid, {}), directory) for tid in linked}
+
+
+def inspect_item(item, record, task_problems, directory):
     reasons = []
     # No current P row or feature has approved whole-item exclusion. In
     # particular, ADR-0018's narrower denominator does not exclude P01.
     if (record.get("excluded", False) is not False or record.get("scope_decision")
             or item.get("excluded", False) or item.get("scope_decision")):
         reasons.append("unsupported exclusion: no approved whole-item scope decision")
-    for tid in item["tasks"]:
-        state = states.get(tid)
-        if state not in POST_MERGE:
-            reasons.append(f"{tid}: not post_merge (state={state or 'missing'})")
+    reasons.extend(task_problems[tid] for tid in item["tasks"] if task_problems[tid])
     if record.get("environment") != "release":
         reasons.append("missing release evidence environment (fixture/test evidence cannot close item)")
     evidence = record.get("evidence")
@@ -178,13 +219,15 @@ def inspect_item(item, record, states, directory):
     return {"status": "open" if reasons else "closed", "reasons": reasons}
 
 
-def check(registry, purpose, directory):
+def check(registry, purpose, directory, tasks_state=TASKS_STATE):
     tasks, rows, features = read_contract(registry, purpose)
+    states = read_task_states(tasks_state, tasks)
     manifest = read_manifest(directory, tasks, rows, features)
+    problems = task_state_problems([*rows.values(), *features.values()], states, directory)
     report = {"scope": "evidence coverage only; not T-OP-08 completion or release approval"}
     for group, items in (("rows", rows), ("features", features)):
         report[group] = {
-            key: inspect_item(item, manifest[group].get(key, {}), manifest["task_states"], directory)
+            key: inspect_item(item, manifest[group].get(key, {}), problems, directory)
             for key, item in sorted(items.items())
         }
         report[group + "_counts"] = {
@@ -198,11 +241,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--registry", type=Path, default=BUNDLE / "tasks.json")
     parser.add_argument("--purpose", type=Path, default=PURPOSE)
+    parser.add_argument("--tasks-state", type=Path, default=TASKS_STATE)
     parser.add_argument("--evidence", type=Path, default=ROOT / "docs/release-readiness/evidence")
     parser.add_argument("--json", action="store_true", help="emit structured diagnostics")
     args = parser.parse_args(argv)
     try:
-        report = check(args.registry, args.purpose, args.evidence)
+        report = check(args.registry, args.purpose, args.evidence, args.tasks_state)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"cannot read release-readiness inputs: {exc}", file=sys.stderr)
         return 2

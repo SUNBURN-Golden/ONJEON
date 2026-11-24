@@ -71,6 +71,13 @@ class EvidencePathTests(unittest.TestCase):
                 if tid != FINAL:
                     self.assertFalse(paths_within_scope([f"{EVIDENCE}/unowned.md"], task))
 
+    def test_final_auditor_reads_the_supervisor_ledger_without_task_write_grants(self):
+        path = readiness.TASKS_STATE.relative_to(ROOT).as_posix()
+        self.assertIn(f"path:{path}", self.tasks[FINAL]["consumes"])
+        for tid, task in self.tasks.items():
+            with self.subTest(task=tid):
+                self.assertFalse(paths_within_scope([path], task))
+
     def test_evidence_locks_preserve_parallel_task_isolation_and_final_audit_lock(self):
         final_locks = self.tasks[FINAL]["conflict_paths"]
         grants = []
@@ -98,9 +105,18 @@ class EvidencePathTests(unittest.TestCase):
         self.assertTrue(set().union(*(set(item["tasks"]) for item in rows.values())) <= self.product)
         self.assertTrue(set().union(*(set(item["tasks"]) for item in features.values())) <= self.product)
         with tempfile.TemporaryDirectory() as temporary:
-            evidence = Path(temporary)
-            manifest = {"version": 1, "task_states": {tid: "done" for tid in self.tasks},
-                        "rows": {}, "features": {}}
+            evidence = Path(temporary) / "evidence"
+            tasks_state = Path(temporary) / "tasks_state.json"
+            manifest = {"version": 1, "rows": {}, "features": {}}
+            linked = {tid for item in (*rows.values(), *features.values()) for tid in item["tasks"]}
+            records = {}
+            for tid in linked:
+                reference = f"{tid}/merge-review.md"
+                path = evidence / reference
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("Synthetic task evidence.\n")
+                records[tid] = {"state": "done", "merge_sha": "a" * 40, "evidence_path": reference}
+            tasks_state.write_text(json.dumps({"version": 1, "tasks": records}))
             for group, items in (("rows", rows), ("features", features)):
                 for key, item in items.items():
                     owner = item["tasks"][0]
@@ -118,12 +134,12 @@ class EvidencePathTests(unittest.TestCase):
                                              for name in item.get("acceptance_tests", ["row acceptance"])],
                     }
             (evidence / "readiness.json").write_text(json.dumps(manifest))
-            result = readiness.check(self.registry, readiness.PURPOSE, evidence)
+            result = readiness.check(self.registry, readiness.PURPOSE, evidence, tasks_state)
             self.assertEqual({"open": 0, "closed": 19, "excluded": 0}, result["rows_counts"])
             self.assertEqual(len(features), result["features_counts"]["closed"])
             removed = evidence / manifest["rows"]["P01"]["evidence"][0]
             removed.unlink()
-            result = readiness.check(self.registry, readiness.PURPOSE, evidence)
+            result = readiness.check(self.registry, readiness.PURPOSE, evidence, tasks_state)
             self.assertEqual("open", result["rows"]["P01"]["status"])
             self.assertEqual(1, result["rows_counts"]["open"])
 

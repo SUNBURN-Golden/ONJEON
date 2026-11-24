@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "tasks": {
+    "T-CT-01": {
+      "state": null,
+      "merge_sha": "57f14e7054cce2743c822af24cf9e823d6c683a6",
+      "evidence_path": null
+    },
+    "T-CT-02": {
+      "state": null,
+      "merge_sha": "5e06eb54172c7278b2e7466d5a7fe58534c3ecf7",
+      "evidence_path": null
+    },
+    "T-CT-03": {
+      "state": null,
+      "merge_sha": "6855ad3d69b6f00ba4a4b3c72ab7e833b780fe85",
+      "evidence_path": null
+    },
+    "T-CT-04": {
+      "state": null,
+      "merge_sha": "750d48d1ac44361eda87f6e58b3d03cf13500483",
+      "evidence_path": null
+    },
+    "T-CT-05": {
+      "state": null,
+      "merge_sha": "464ba25460c2eea3d99dadb2d2dfa612000af657",
+      "evidence_path": null
+    },
+    "T-CT-06": {
+      "state": null,
+      "merge_sha": "3ee000b3f45844fef857ff251f505a00392f299d",
+      "evidence_path": null
+    },
+    "T-CT-07": {
+      "state": null,
+      "merge_sha": "ea23bb57307a5a9669c6252418a3caf13a56fff5",
+      "evidence_path": null
+    },
+    "T-DT-01": {
+      "state": null,
+      "merge_sha": "c9157294e068f779fc82a0666ffcb0f2f162de23",
+      "evidence_path": null
+    },
+    "T-DT-02": {
+      "state": null,
+      "merge_sha": "b0b6942512996990ee2e408c809a8153f3fa3dd7",
+      "evidence_path": null
+    },
+    "T-KN-01": {
+      "state": null,
+      "merge_sha": "fd056057f979dbdfc43ebe87b4f51c4e29d06d41",
+      "evidence_path": null
+    },
+    "T-KN-02": {
+      "state": null,
+      "merge_sha": "9ce0bfd47bd4403b52d53a4f57ef99f405eb28f8",
+      "evidence_path": null
+    },
+    "T-KN-03": {
+      "state": null,
+      "merge_sha": "2621d66367637c649e7761c0ed70708d1636a6d2",
+      "evidence_path": null
+    },
+    "T-KN-12": {
+      "state": null,
+      "merge_sha": "28eabf5907302a233f3445a0a7b0acd8856918b4",
+      "evidence_path": null
+    },
+    "T-MB-01": {
+      "state": null,
+      "merge_sha": "38217cf812e511af634736e2740b81b5271bac17",
+      "evidence_path": null
+    },
+    "T-OP-00": {
+      "state": null,
+      "merge_sha": "c74a545a45d1aba9eee71b76d81b3017ac16bbbb",
+      "evidence_path": null
+    },
+    "T-OP-01": {
+      "state": null,
+      "merge_sha": "631331fde3f77072d7f5a2f1ac5afb1552ef9ac3",
+      "evidence_path": null
+    },
+    "T-OP-04": {
+      "state": null,
+      "merge_sha": "e69093b47c6db23496e68196f78c5c7d42fb3130",
+      "evidence_path": null
+    },
+    "T-OP-09": {
+      "state": null,
+      "merge_sha": "8d4c9d3bda3164b62699d0a8e773edaf7bee992c",
+      "evidence_path": null
+    },
+    "T-TW-01": {
+      "state": null,
+      "merge_sha": "cbdc0f8f8ec20f513d356d0c25193cbd38202ad5",
+      "evidence_path": null
+    },
+    "T-TW-02": {
+      "state": null,
+      "merge_sha": "973aec9b054a6a9e5d8bc6abeb064a59c14b5b9c",
+      "evidence_path": null
+    }
+  }
+}

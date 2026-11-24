@@ -27,6 +27,7 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.evidence.mkdir()
         self.registry = self.root / "tasks.json"
         self.purpose = self.root / "purpose.md"
+        self.tasks_state = self.root / "tasks_state.json"
         self.data = {
             "tasks": [{"id": f"T-AA-{i:02}"} for i in range(1, 20)],
             "feature_registry": [{"id": "feature", "tasks": ["T-AA-01"],
@@ -37,10 +38,17 @@ class ReleaseReadinessTests(unittest.TestCase):
             f"| P{i:02} | T-AA-{i:02} |\n" for i in range(1, 20))
         self.manifest = {
             "version": 1,
-            "task_states": {f"T-AA-{i:02}": "done" for i in range(1, 20)},
             "rows": {f"P{i:02}": self.record(f"P{i:02}") for i in range(1, 20)},
             "features": {"feature": self.record("feature", ["screen flow", "data trace"])},
         }
+        self.ledger = {"version": 1, "tasks": {}}
+        for task in self.data["tasks"]:
+            tid = task["id"]
+            reference = f"{tid}/review.md"
+            (self.evidence / tid).mkdir()
+            (self.evidence / reference).write_text("Synthetic task evidence.\n")
+            self.ledger["tasks"][tid] = {"state": "done", "merge_sha": "a" * 40,
+                                         "evidence_path": reference}
         self.write()
 
     def record(self, key, names=None):
@@ -53,11 +61,13 @@ class ReleaseReadinessTests(unittest.TestCase):
     def write(self):
         self.registry.write_text(json.dumps(self.data))
         self.purpose.write_text(self.table)
+        self.tasks_state.write_text(json.dumps(self.ledger))
         (self.evidence / "readiness.json").write_text(json.dumps(self.manifest))
 
     def cli(self, *extra):
         return subprocess.run([sys.executable, "-I", str(SCRIPT), "--registry", str(self.registry),
-                               "--purpose", str(self.purpose), "--evidence", str(self.evidence),
+                               "--purpose", str(self.purpose), "--tasks-state", str(self.tasks_state),
+                               "--evidence", str(self.evidence),
                                "--json", *map(str, extra)], cwd=self.root, capture_output=True, text=True)
 
     def report(self, code):
@@ -76,7 +86,7 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.assertEqual(set(rules["post_merge_states"]), C.POST_MERGE)
         for state in ("merged", "audit_queued", "done"):
             with self.subTest(state=state):
-                self.manifest["task_states"]["T-AA-01"] = state
+                self.ledger["tasks"]["T-AA-01"]["state"] = state
                 report = self.report(0)
                 self.assertEqual({"open": 0, "closed": 19, "excluded": 0}, report["rows_counts"])
                 self.assertEqual(1, report["features_counts"]["closed"])
@@ -120,18 +130,51 @@ class ReleaseReadinessTests(unittest.TestCase):
 
     def test_every_linked_task_requires_post_merge(self):
         for i in range(1, 20):
-            for state in (None, "building", "merge_wait", "merged_invalid_approval", "cancelled"):
+            tid = f"T-AA-{i:02}"
+            for state in (None, "building", "merge_wait", "merged_invalid_approval", "cancelled", "unknown"):
                 with self.subTest(task=i, state=state):
-                    tid = f"T-AA-{i:02}"
-                    if state is None:
-                        self.manifest["task_states"].pop(tid)
-                    else:
-                        self.manifest["task_states"][tid] = state
+                    self.ledger["tasks"][tid]["state"] = state
                     report = self.report(1)
-                    self.assert_open(report, f"P{i:02}", tid)
+                    self.assert_open(report, f"P{i:02}", f"{tid}: not post_merge")
                     if i == 1:
-                        self.assert_open(report, "feature", tid)
-                    self.manifest["task_states"][tid] = "done"
+                        self.assert_open(report, "feature", f"{tid}: not post_merge")
+            self.ledger["tasks"][tid]["state"] = "done"
+
+    def test_legacy_states_and_contract_prose_cannot_supply_or_override_ledger_state(self):
+        self.manifest["task_states"] = {"T-AA-01": "cancelled"}
+        self.report(0)
+        self.manifest["task_states"]["T-AA-01"] = "done"
+        self.data["tasks"][0].update(state="done", merge_sha="a" * 40, evidence_path="P01.txt")
+        del self.ledger["tasks"]["T-AA-01"]
+        report = self.report(1)
+        for key in ("P01", "feature"):
+            self.assert_open(report, key, "T-AA-01: not post_merge (state=missing)")
+
+    def test_post_merge_task_requires_both_sha_and_evidence(self):
+        record = self.ledger["tasks"]["T-AA-01"]
+        for field, reason in (("merge_sha", "missing merge SHA"),
+                              ("evidence_path", "missing task evidence path")):
+            with self.subTest(field=field):
+                saved = record[field]
+                record[field] = None
+                report = self.report(1)
+                for key in ("P01", "feature"):
+                    self.assert_open(report, key, f"T-AA-01: {reason}")
+                record[field] = saved
+
+    def test_task_evidence_requires_a_nonempty_regular_file_inside_evidence(self):
+        (self.evidence / "empty.log").write_text(" \n")
+        (self.root / "outside.log").write_text("outside")
+        (self.evidence / "escape.log").symlink_to(self.root / "outside.log")
+        (self.evidence / "cycle").symlink_to("cycle")
+        for reference in ("missing", "empty.log", "../outside.log", str(self.root / "outside.log"),
+                          "escape.log", "cycle", "T-AA-01", "illegal\x00path"):
+            with self.subTest(reference=reference):
+                self.ledger["tasks"]["T-AA-01"]["evidence_path"] = reference
+                report = self.report(1)
+                for key in ("P01", "feature"):
+                    self.assert_open(report, key, "T-AA-01: task evidence")
+                self.assertEqual(1, report["rows_counts"]["open"])
 
     def test_missing_row_record_and_reference_lists(self):
         saved = self.manifest["rows"].pop("P19")
@@ -147,7 +190,7 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.table = self.table.replace("| P01 | T-AA-01 |", "| P01 | `T-AA-01`, `T-AA-02` |")
         self.table = self.table.replace("| P10 |", "\n| # | 구현 작업 |\n|---|---|\n| P10 |")
         self.report(0)
-        del self.manifest["task_states"]["T-AA-02"]
+        del self.ledger["tasks"]["T-AA-02"]
         self.assert_open(self.report(1), "P01", "T-AA-02")
 
     def test_malformed_and_duplicate_execution_records_are_incomplete(self):
@@ -164,7 +207,8 @@ class ReleaseReadinessTests(unittest.TestCase):
 
     def test_text_output_reports_both_gate_counts(self):
         result = subprocess.run([sys.executable, "-I", str(SCRIPT), "--registry", str(self.registry),
-                                 "--purpose", str(self.purpose), "--evidence", str(self.evidence)],
+                                 "--purpose", str(self.purpose), "--tasks-state", str(self.tasks_state),
+                                 "--evidence", str(self.evidence)],
                                 cwd=self.root, capture_output=True, text=True)
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("purpose-rows-all-closed: open=0, closed=19, excluded=0", result.stdout)
@@ -231,6 +275,42 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.data["feature_registry"] = []
         self.write()
         self.assertEqual(2, self.cli().returncode)
+
+    def test_empty_ledger_is_incomplete_and_missing_ledger_is_an_input_error(self):
+        self.ledger["tasks"].clear()
+        report = self.report(1)
+        self.assertEqual(19, report["rows_counts"]["open"])
+        self.assertEqual(1, report["features_counts"]["open"])
+        self.tasks_state.unlink()
+        result = self.cli()
+        self.assertEqual(2, result.returncode)
+        self.assertIn("tasks_state.json", result.stderr)
+        self.assertEqual("", result.stdout)
+
+    def test_invalid_ledger_never_returns_passing_counts(self):
+        record = self.ledger["tasks"]["T-AA-01"]
+        variants = (
+            (["tasks"], "requires version and tasks"),
+            (dict(self.ledger, version=True), "version must be 1"),
+            (dict(self.ledger, tasks=[]), "must map task IDs"),
+            (dict(self.ledger, tasks={"T-AA-99": record}), "unknown task T-AA-99"),
+            (dict(self.ledger, tasks={"T-AA-01": {}}), "expected state, merge_sha and evidence_path"),
+        )
+        cases = [(json.dumps(value), reason) for value, reason in variants]
+        for field, value in (("state", True), ("evidence_path", []), ("merge_sha", "abc"),
+                             ("merge_sha", "0" * 40), ("merge_sha", 123), ("merge_sha", "Z" * 40)):
+            ledger = dict(self.ledger, tasks={"T-AA-01": dict(record, **{field: value})})
+            reason = "expected a full merge commit SHA" if field == "merge_sha" else f"{field} must be"
+            cases.append((json.dumps(ledger), reason))
+        cases += [('not JSON', 'Expecting value'),
+                  ('{"version":1,"tasks":{"T-AA-01":{},"T-AA-01":{}}}', 'duplicate JSON key: T-AA-01')]
+        for content, reason in cases:
+            with self.subTest(reason=reason, content=content[:85]):
+                self.tasks_state.write_text(content)
+                result = self.cli()
+                self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+                self.assertIn(reason, result.stderr)
+                self.assertEqual("", result.stdout)
 
     def test_live_contract_empty_evidence_and_default_purpose(self):
         empty = self.root / "empty"

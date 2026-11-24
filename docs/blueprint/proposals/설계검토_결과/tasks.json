@@ -8017,19 +8017,20 @@
         "path:docs/rehearsal/**",
         "path:tools/daemon/**",
         "path:docs/vm_check/**",
-        "path:data/criteria/applications/**"
+        "path:data/criteria/applications/**",
+        "path:docs/blueprint/progress/tasks_state.json"
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
         "감리 보고서, 다섯 축 보고",
-        "출시 준비 판정기 tools/release_readiness/check.py: feature_registry의 비제외 항목 전부가 tasks(post_merge 상태)·evidence(실제 데이터 증거 기록 참조)·acceptance_tests(실행 로그) 를 갖는지 검사",
-        "선행 제품 과제의 evidence/<과제 ID>/ 증거를 검토하고 readiness.json에 상대 경로·실행 결과·관측된 과제 상태를 집계한다. 개발 도구 회귀 로그만으로 제품 행을 닫지 않는다"
+        "출시 준비 판정기 tools/release_readiness/check.py는 docs/blueprint/progress/tasks_state.json의 과제별 post_merge 상태·병합 SHA·증거 파일과 readiness.json의 기능별 실제 데이터 증거·수락 실행 로그를 대조한다",
+        "선행 제품 과제의 evidence/<과제 ID>/ 증거를 검토하고 readiness.json에 행·기능별 상대 경로와 실행 결과를 집계한다. 개발 도구 회귀 로그만으로 제품 행을 닫지 않는다"
       ],
       "tests": [
         "python3 -I tools/release_readiness/check.py --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/",
         "시험 release-readiness-rejects-incomplete: 등록부 항목 하나의 evidence 또는 acceptance_tests 로그를 지우거나 과제 하나를 미완료로 바꾸면 판정기가 종료 코드 1을 내고 그 항목을 지목한다. 제외 항목은 scope_decision(승인된 범위 결정 ID)이 있을 때만 제외로 인정한다",
         "python3 -I tools/release_readiness/check.py --purpose docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/",
-        "시험 purpose-rows-all-closed(09 §6): 09 제품목적 대응표의 P01~P19 행마다 구현 작업 과제가 post_merge 상태이고 완료 증거 로그가 등록부에 있으면 통과. 행 하나의 증거를 지우거나 과제 하나를 미완료로 바꾸면 종료 코드 1과 그 행 번호. 축소·후속 칸이 있는 행은 근거(결정 ID·정본)가 있을 때만 제외로 인정"
+        "시험 purpose-rows-all-closed(09 §6). P01~P19 행마다 연결된 모든 과제의 원장에 post_merge 상태·병합 SHA·증거 파일이 있고 등록부에 행의 완료 증거와 수락 실행 로그가 있어야 통과한다. 과제 기록 또는 증거가 빠지면 종료 코드 1과 해당 행 번호를 출력한다. 행 전체 제외는 승인된 범위 근거가 필요하다"
       ],
       "done_criteria": [
         "확인하지 못한 구간을 '완료'로 포장하지 않는다",

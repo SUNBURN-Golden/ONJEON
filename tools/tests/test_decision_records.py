@@ -19,7 +19,7 @@ LEGACY_ID = re.compile(r"(?<![A-Za-z0-9_-])D(?:0[1-9]|1[0-9]|20)(?![A-Za-z0-9_])
 class BlueprintDecisionIds(unittest.TestCase):
     def setUp(self):
         self.ledger = LEDGER.read_text(encoding="utf-8")
-        self.ids = [f"BP-D-{i:02}" for i in range(1, 23)]
+        self.ids = [f"BP-D-{i:02}" for i in range(1, 24)]
 
     def test_all_directions_have_unique_namespaced_ids(self):
         section = self.ledger.split("## 1. ", 1)[1].split("### 1.1 ", 1)[0].split("## 2. ", 1)[0]

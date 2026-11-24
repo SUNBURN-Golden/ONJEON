@@ -1,6 +1,6 @@
 # 온전 설계도 (Blueprint) v1.0
 
-2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-20 현황 갱신(Audit 7, §6·§9·§11·§12 — §11 공시 보관소 포함) | 이 문서가 구현의 단일 기준이다.
+2026-10-09 최초 작성·채택(ADR-0011) | 2026-11-24 현황 갱신(Audit 8, §7·§9·§11·§13 — 완료 범위 P01~P20 확장) | 이 문서가 구현의 단일 기준이다.
 
 ## 0. 이 문서의 역할
 
@@ -246,6 +246,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | 판단 기준 | 소비자의 알 권리 | PRINCIPLES |
 | 제품 완료·작업 계약 | 09는 제품 완료 증거 기준, tasks.json은 데몬 작업 소스·개별 수락 기준으로 한정 채택. 상위 계약 우선, 공통 PR 기준·묶음의 나머지 채택 제외 | ADR-0019 |
 | 작업 단계·선행 구현 | S0~S5는 §9.6의 다대다 M0~M6 대응. T-OP-02는 V1을 대체하지 않는다. T-TW-02 조기 rule-0.2는 로컬 엔진·픽스처 검증만 허용 | ADR-0020 |
+| 제품 완료 범위 | 09 제품 목적 행은 P01~P20. P20은 동의·삭제·복원·누출 시험과 안전한 롤백의 실제 출시 증거를 담당하며, 승인된 범위 근거 없는 행 전체 제외는 없다 | [ADR-0022](decisions/ADR-0022-제품-완료-범위-P20-확장.md) |
 
 **최소 접근성 기준(ADR-0021).** 모바일 시스템 글자 크기와 웹 브라우저 확대를 각각 200%까지 적용해도 핵심 문구가 잘리지 않고 모든 조작에 도달할 수 있어야 한다. 일반 텍스트는 4.5:1 이상, 큰 텍스트와 조작·상태 식별에 필요한 비텍스트 표시는 3:1 이상으로 한다. 스크린 리더에서 제목, 조작 요소의 이름·역할·상태, 읽기 순서와 활성화 동작을 확인한다. 증거는 §9.5와 09 P19를 따른다.
 
@@ -361,7 +362,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 분리 순서: data를 첫 분리 대상으로 준비하고, 독립 빌드·계약 패키지·통합 시험이 갖춰지면 분리한다. 나머지는 독립 배포, 버전 고정, 호환성 검사, 통합 재현이 가능해졌을 때 분리한다.
 
-### 9.5 제품 완료와 개별 작업 완료 (ADR-0019)
+### 9.5 제품 완료와 개별 작업 완료 (ADR-0019·ADR-0022)
 
 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P20를 제품 완료 증거 기준으로, [tasks.json](blueprint/proposals/설계검토_결과/tasks.json)을 데몬 작업 소스와 개별 수락 기준으로 적용한다. 작업의 선행 관계·결정 관문·`done_criteria`·`required_test_ids`·`tests`를 만족해도 §9.2 마일스톤 관문을 생략하지 않는다.
 
@@ -369,7 +370,7 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 ADR-0021의 09 P19 완료 증거는 실제 앱·공개 웹 화면의 200% 확대·대비·시맨틱 트리 회귀 시험과 TalkBack·VoiceOver·웹 스크린 리더 실행 기록을 포함한다. T-MB-03·T-WB-01은 각 화면의 증거를 수집하고, T-UX-01은 고령 참가자 계획을 사전등록하고 P18의 U7 결과를 기록한다.
 
-09 P20은 기존 개인정보·복구 요구를 동의·선택 가족력·삭제, 누출 차단, 백업 복원과 안전한 롤백의 실제 출시 증거에 연결한다. DNA 기능은 §7.1의 동결 범위를 따르고 개인자료 처리에는 §12의 D-17 조건을 적용한다.
+09 P20은 기존 개인정보·복구 요구를 동의·선택 가족력·삭제, 누출 차단, 백업 복원과 안전한 롤백의 실제 출시 증거에 연결한다. DNA 기능은 §7.1의 동결 범위를 따르고 개인자료 처리에는 §12의 D-17 조건을 적용한다. [ADR-0022](decisions/ADR-0022-제품-완료-범위-P20-확장.md)가 완료 범위를 P01~P20으로 확장하고 P20의 담당 과제·요구 연결을 기록했다.
 
 CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#product-purpose-progress)는 P01~P20별 병합 집계와 과제별·등록부 증거 파일 현황, 행의 닫힘 여부를 표시한다. T-OP-08의 최종 검토 전에도 각 과제의 증거 수집 진척을 확인할 수 있다. 최초 기준과 검증 결과는 [Audit 7 기록](blueprint/audits/2026-11-19_purpose_progress_ledger.md)에 남겼다.
 
@@ -399,7 +400,7 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 
 <a id="11-현재-위치"></a>
 
-## 11. 현재 위치 (2026-11-20)
+## 11. 현재 위치 (2026-11-24)
 
 저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P20 완료 증거와 T-OP-08 관문으로 판정한다.
 
@@ -455,11 +456,11 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 §11 갱신 절차: ADR·DEC 변경마다 위 상태·관문을 검토한 후 `python3 -I tools/blueprint_status.py --write`를 실행하고 diff를 확인한다. 아래 색인은 자동 생성하며 직접 수정하지 않는다. 내용 해시는 같은 날짜 안의 기록 수정과 삭제·개명도 검출한다. 확인 명령은 `python3 -I tools/blueprint_status.py`이며 기존 Python CI 전체 시험에도 포함된다.
 
 <!-- blueprint-decisions:start -->
-결정 기록 대조일: 2026-11-20 | SHA-256(파일명·내용): `7fe4a94943f453558b5a6f99faf950c4d62ccd7f3ebcfcafbd143553f23ebb96`
+결정 기록 대조일: 2026-11-24 | SHA-256(파일명·내용): `a1c7b6fca28558c42fb7fe35bef1cfc235a4f4ec677642464182152250254745`
 
 | 기록 | 전체 파일 색인(상태·조건은 각 원문 참조) |
 |---|---|
-| ADR (21) | [ADR-0001-기술-스택](decisions/ADR-0001-기술-스택.md), [ADR-0002-합성-픽스처-우선](decisions/ADR-0002-합성-픽스처-우선.md), [ADR-0003-규칙-엔진-단일-구현](decisions/ADR-0003-규칙-엔진-단일-구현.md), [ADR-0004-대상-범위-전-보험사-전-상품](decisions/ADR-0004-대상-범위-전-보험사-전-상품.md), [ADR-0005-계약-가져오기-PDF-단일-경로](decisions/ADR-0005-계약-가져오기-PDF-단일-경로.md), [ADR-0006-AI-검수와-AI-분모-조사](decisions/ADR-0006-AI-검수와-AI-분모-조사.md), [ADR-0007-단일-완성-출시](decisions/ADR-0007-단일-완성-출시.md), [ADR-0008-첫-출시-범위-담보-파악-집중](decisions/ADR-0008-첫-출시-범위-담보-파악-집중.md), [ADR-0009-원구상-복원과-화면-데이터-계약](decisions/ADR-0009-원구상-복원과-화면-데이터-계약.md), [ADR-0010-선택화면과-공개가격-비교](decisions/ADR-0010-선택화면과-공개가격-비교.md), [ADR-0011-설계도-채택과-문서-위계](decisions/ADR-0011-설계도-채택과-문서-위계.md), [ADR-0012-설계도-실행계약과-구현-추적](decisions/ADR-0012-설계도-실행계약과-구현-추적.md), [ADR-0013-전체-대상-목록-우선과-설계-확정](decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md), [ADR-0014-V1-검증-결과의-설계-반영](decisions/ADR-0014-V1-검증-결과의-설계-반영.md), [ADR-0015-원본-보관소-S3](decisions/ADR-0015-원본-보관소-S3.md), [ADR-0016-원본-보관소-R2](decisions/ADR-0016-원본-보관소-R2.md), [ADR-0017-R2-비용-제한](decisions/ADR-0017-R2-비용-제한.md), [ADR-0018-보험-데이터-지식-기반의-정체성과-범위](decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md), [ADR-0019-제품-완료와-작업-계약-한정-채택](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md), [ADR-0020-작업-단계와-V1-관문-정합화](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md), [ADR-0021-첫-출시-최소-접근성](decisions/ADR-0021-첫-출시-최소-접근성.md) |
+| ADR (22) | [ADR-0001-기술-스택](decisions/ADR-0001-기술-스택.md), [ADR-0002-합성-픽스처-우선](decisions/ADR-0002-합성-픽스처-우선.md), [ADR-0003-규칙-엔진-단일-구현](decisions/ADR-0003-규칙-엔진-단일-구현.md), [ADR-0004-대상-범위-전-보험사-전-상품](decisions/ADR-0004-대상-범위-전-보험사-전-상품.md), [ADR-0005-계약-가져오기-PDF-단일-경로](decisions/ADR-0005-계약-가져오기-PDF-단일-경로.md), [ADR-0006-AI-검수와-AI-분모-조사](decisions/ADR-0006-AI-검수와-AI-분모-조사.md), [ADR-0007-단일-완성-출시](decisions/ADR-0007-단일-완성-출시.md), [ADR-0008-첫-출시-범위-담보-파악-집중](decisions/ADR-0008-첫-출시-범위-담보-파악-집중.md), [ADR-0009-원구상-복원과-화면-데이터-계약](decisions/ADR-0009-원구상-복원과-화면-데이터-계약.md), [ADR-0010-선택화면과-공개가격-비교](decisions/ADR-0010-선택화면과-공개가격-비교.md), [ADR-0011-설계도-채택과-문서-위계](decisions/ADR-0011-설계도-채택과-문서-위계.md), [ADR-0012-설계도-실행계약과-구현-추적](decisions/ADR-0012-설계도-실행계약과-구현-추적.md), [ADR-0013-전체-대상-목록-우선과-설계-확정](decisions/ADR-0013-전체-대상-목록-우선과-설계-확정.md), [ADR-0014-V1-검증-결과의-설계-반영](decisions/ADR-0014-V1-검증-결과의-설계-반영.md), [ADR-0015-원본-보관소-S3](decisions/ADR-0015-원본-보관소-S3.md), [ADR-0016-원본-보관소-R2](decisions/ADR-0016-원본-보관소-R2.md), [ADR-0017-R2-비용-제한](decisions/ADR-0017-R2-비용-제한.md), [ADR-0018-보험-데이터-지식-기반의-정체성과-범위](decisions/ADR-0018-보험-데이터-지식-기반의-정체성과-범위.md), [ADR-0019-제품-완료와-작업-계약-한정-채택](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md), [ADR-0020-작업-단계와-V1-관문-정합화](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md), [ADR-0021-첫-출시-최소-접근성](decisions/ADR-0021-첫-출시-최소-접근성.md), [ADR-0022-제품-완료-범위-P20-확장](decisions/ADR-0022-제품-완료-범위-P20-확장.md) |
 | DEC (22) | [DEC-BUNDLE-STATUS](decisions/DEC-BUNDLE-STATUS.md), [DEC-CANON-T-CT-02](decisions/DEC-CANON-T-CT-02.md), [DEC-D-02](decisions/DEC-D-02.md), [DEC-D-03](decisions/DEC-D-03.md), [DEC-D-04](decisions/DEC-D-04.md), [DEC-D-06](decisions/DEC-D-06.md), [DEC-D-07](decisions/DEC-D-07.md), [DEC-D-08](decisions/DEC-D-08.md), [DEC-D-09](decisions/DEC-D-09.md), [DEC-D-10](decisions/DEC-D-10.md), [DEC-D-12](decisions/DEC-D-12.md), [DEC-D-14](decisions/DEC-D-14.md), [DEC-D-15](decisions/DEC-D-15.md), [DEC-D-16](decisions/DEC-D-16.md), [DEC-D-17](decisions/DEC-D-17.md), [DEC-D-18](decisions/DEC-D-18.md), [DEC-O02](decisions/DEC-O02.md), [DEC-O03](decisions/DEC-O03.md), [DEC-O04](decisions/DEC-O04.md), [DEC-O12](decisions/DEC-O12.md), [DEC-O14](decisions/DEC-O14.md), [DEC-O17](decisions/DEC-O17.md) |
 <!-- blueprint-decisions:end -->
 
@@ -534,3 +535,5 @@ A·Q·L·I·M을 대체하지 않는다. PR에는 관련 체계와 R 요구 ID, 
 [ADR-0020](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md)의 단계 대응은 §9.6, V1 비대체는 §9.2, T-TW-02의 로컬 엔진·픽스처 한정 예외는 §9.1·§9.3을 따른다. 두 계약의 작업 완료·제품 완료 판정에도 같은 제한을 적용한다.
 
 [ADR-0021](decisions/ADR-0021-첫-출시-최소-접근성.md)의 접근성 기준은 §7.2, 실제 화면 증거는 §9.5와 09 P19, 검증 담당은 tasks.json의 T-MB-03·T-WB-01·T-UX-01을 따른다.
+
+[ADR-0022](decisions/ADR-0022-제품-완료-범위-P20-확장.md)는 09의 완료 범위를 P01~P20으로 확장하고 P20의 개인정보·복구 요구(R19·R20·R22·R23)와 담당 과제를 연결한다. ADR-0019·ADR-0020과 결정 원장 BP-D-23의 완료 행 수 문구를 같은 범위로 맞추며, 행 전체 제외는 승인된 범위 근거 없이는 허용하지 않는다.

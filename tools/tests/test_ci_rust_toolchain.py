@@ -54,10 +54,15 @@ class CiRustToolchain(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertIn("--locked", command.split())
 
-    def test_workspace_and_runner_select_the_same_toolchain(self):
+    def test_ci_runner_and_local_setup_pin_the_same_toolchain(self):
+        expected = ci_toolchain()
         pin = (RUNNER / "rust-toolchain.toml").read_text(encoding="utf-8")
         channel, = re.findall(r'(?m)^channel = "([^"]+)"$', pin)
-        self.assertEqual(ci_toolchain(), channel)
+        self.assertEqual(expected, channel)
+
+        readme = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
+        self.assertIn(f"rustup toolchain install {expected} --profile minimal", readme)
+        self.assertIn(f'rustup override set --path "$PWD" {expected}', readme)
 
     @unittest.skipUnless(shutil.which("rustup") and shutil.which("cargo"), "Rust tools not installed")
     def test_root_cargo_with_ci_pin_and_no_global_default(self):

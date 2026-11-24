@@ -1,0 +1,9 @@
+$ python3 -m unittest tools.tests.test_s1_prerequisites -v
+test_mock_merge_leaves_followups_blocked_until_real_gate_merges (tools.tests.test_s1_prerequisites.S1Prerequisites.test_mock_merge_leaves_followups_blocked_until_real_gate_merges) ... ok
+test_real_gate_and_followups_include_the_actual_data_pipeline (tools.tests.test_s1_prerequisites.S1Prerequisites.test_real_gate_and_followups_include_the_actual_data_pipeline) ... ok
+test_s1_waits_for_review_implementation_and_mock_merge (tools.tests.test_s1_prerequisites.S1Prerequisites.test_s1_waits_for_review_implementation_and_mock_merge) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.064s
+
+OK

@@ -435,7 +435,7 @@ class DecisionRecords(unittest.TestCase):
     def test_blueprint_d02_rows_distinguish_decided_setup_from_pending_conditions(self):
         for decision, note, gate in (
             ("AI 제공자 구성(서로 다른 모델 계열 2개 이상)", "ADR-0006 이행 조건",
-             "T-OP-03 start·T-KN-06/T-OP-02 real_data"),
+             "T-OP-03 start·T-KN-06/T-OP-02 real_data·T-OP-02 merge"),
             ("정책 소유자 지정(AI 승인 임계값·사고 시 중단)", "사람의 유일한 역할",
              "O06·D-19 임계값 확정"),
         ):
@@ -456,7 +456,8 @@ class DecisionRecords(unittest.TestCase):
         for phrase in ("[DEC-D-02](decisions/DEC-D-02.md)", "작성=claude",
                        "승인=비-claude X", "레드팀=별도 비-claude Y",
                        "degraded", "업체·모델 ID는 미고정", "접근 확인",
-                       "월 한도", "게이트 등록", "모의 시험·병합은 허용"):
+                       "월 한도", "게이트 등록", "T-KN-06·T-OP-10의 모의 시험·병합",
+                       "T-OP-02 병합에는 D-02 등록과 실제 관통 증거 감리"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, row)
 

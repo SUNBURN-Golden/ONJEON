@@ -65,7 +65,7 @@ product task using the daemon's actual R-01 scope predicate.
 
 ## Version 1 task ledger
 
-The integration maintainer updates [docs/progress/tasks_state.json](../../docs/progress/tasks_state.json)
+The integration maintainer updates [docs/blueprint/progress/tasks_state.json](../../docs/blueprint/progress/tasks_state.json)
 after verifying the task's merge on the integration branch and reviewing its
 observed state and evidence reference. `tasks.json` supplies task IDs and
 acceptance requirements. This example shows the ledger format with synthetic values.

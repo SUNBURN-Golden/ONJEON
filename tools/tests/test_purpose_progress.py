@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TOOL = Path("tools/release_readiness")
 BUNDLE = Path("docs/blueprint/proposals/설계검토_결과")
 EVIDENCE = Path("docs/release-readiness/evidence")
-TASKS_STATE = Path("docs/progress/tasks_state.json")
+TASKS_STATE = Path("docs/blueprint/progress/tasks_state.json")
 
 
 class PurposeProgress(unittest.TestCase):

@@ -5,7 +5,7 @@
 3건은 이 체크아웃의 병합 이력과 차이가 있다. `git log --first-parent --merges`의
 과제 브랜치 ID를 `tasks.json`과 대조해 20개 고유 ID와 병합 SHA를 확인했다.
 전체 과제 집계에는 개발 도구 T-OP-00·T-OP-09도 포함한다.
-당시 병합 목록의 SHA는 후속 [과제 상태 원장](../../progress/tasks_state.json)으로 옮겼다.
+당시 병합 목록의 SHA는 후속 [과제 상태 원장](../progress/tasks_state.json)으로 옮겼다.
 
 `python3 -I tools/release_readiness/progress.py`의 로컬 실행은 P01~P19를
 모두 표시하고 종료 코드 0을 반환했다. P02는 연결 과제 6개 중 T-DT-01·T-DT-02가

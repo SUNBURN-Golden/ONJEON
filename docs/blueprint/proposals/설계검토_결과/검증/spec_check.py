@@ -251,7 +251,8 @@ def decision_scope_problems(registry):
         index = registry.get("decision_index", {}).get(gate)
         expected_index = {stage: sorted(tid for tid, s in expected if s == stage)
                           for stage in ("start", "real_data", "merge", "release")}
-        if (not isinstance(index, dict) or set(index) != set(expected_index)
+        index_fields = expected_index.keys() | {"status", "decided_by", "record_ref"}
+        if (not isinstance(index, dict) or set(index) != index_fields
                 or any(not isinstance(index[stage], list)
                        or sorted(index[stage]) != ids for stage, ids in expected_index.items())):
             problems.append(f"{gate}: decision_index does not match required scope")

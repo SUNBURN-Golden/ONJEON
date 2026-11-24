@@ -57,7 +57,7 @@ class PriceDisplayScope(unittest.TestCase):
 
     def index_row(self, record_id):
         row = cells(one_row(self.index, f"| [{record_id}]("))
-        self.assertEqual(len(row), 4)
+        self.assertEqual(len(row), 6)
         target = re.fullmatch(r"\[[^]]+\]\(([^)]+)\)", row[0]).group(1)
         self.assertEqual((LEDGER.parent / target).resolve(),
                          ROOT / f"docs/decisions/{record_id}.md")

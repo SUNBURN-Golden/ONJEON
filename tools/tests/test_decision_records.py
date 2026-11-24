@@ -4,6 +4,8 @@ import re
 import unittest
 from pathlib import Path
 
+from tools.decision_status import PHASES
+
 ROOT = Path(__file__).resolve().parents[2]
 RECORDS = tuple(sorted(p.stem for p in (ROOT / "docs/decisions").glob("DEC-*.md")))
 
@@ -135,7 +137,7 @@ class BlueprintDecisionIds(unittest.TestCase):
                 if gate == "D-04":
                     # Owner acceptance resolved this gate; preserve its ID and record.
                     self.assertNotIn(gate, used)
-                    self.assertFalse(any(tasks["decision_index"][gate].values()))
+                    self.assertFalse(any(tasks["decision_index"][gate][phase] for phase in PHASES))
                 else:
                     self.assertIn(gate, used)
                 self.assertIn(gate, tasks["decision_index"])
@@ -152,7 +154,8 @@ class BlueprintDecisionIds(unittest.TestCase):
         }
         for gate, assignments in expected.items():
             with self.subTest(gate=gate):
-                indexed = {kind: set(ids) for kind, ids in tasks["decision_index"][gate].items() if ids}
+                entry = tasks["decision_index"][gate]
+                indexed = {phase: set(entry[phase]) for phase in PHASES if entry[phase]}
                 self.assertEqual(indexed, assignments)
                 actual = {}
                 for task in tasks["tasks"]:
@@ -353,7 +356,7 @@ class DecisionRecords(unittest.TestCase):
         for record_id in RECORDS:
             with self.subTest(record=record_id):
                 cells = self.row(record_id)
-                self.assertEqual(len(cells), 4)
+                self.assertEqual(len(cells), 6)
                 link = re.fullmatch(r"\[([^]]+)\]\(([^)]+)\)", cells[0])
                 self.assertIsNotNone(link)
                 target = (ROOT / "docs/blueprint" / link.group(2)).resolve()
@@ -367,7 +370,7 @@ class DecisionRecords(unittest.TestCase):
         dec_paragraph = next(paragraph for paragraph in self.hierarchy.split("\n\n")
                              if "DEC-*.md" in paragraph)
         self.assertRegex(dec_paragraph, r"§3\.1.*전체 기록.*색인")
-        index_intro = self.section.split("### 3.1 ", 1)[1].split("| 기록 |", 1)[0]
+        index_intro = self.section.split("### 3.1 ", 1)[1].split("| 기록 (record_ref) |", 1)[0]
         self.assertIn("전체 DEC 기록", index_intro)
         self.assertNotIn("전체 DEC 기록 목록은 아니다", index_intro)
         indexed = re.findall(r"^\| \[(DEC-[^]]+)\]", self.section, re.M)

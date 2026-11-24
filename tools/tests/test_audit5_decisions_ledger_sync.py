@@ -107,7 +107,7 @@ class Audit5DecisionsLedgerSync(unittest.TestCase):
                 self.assertTrue((ROOT / "docs/decisions" / f"{name}.md").is_file())
                 row = one_row(self.section31, f"| [{name}](")
                 cells = [cell.strip() for cell in row.strip("|").split("|")]
-                self.assertEqual(len(cells), 4, "status, scope and remaining conditions")
+                self.assertEqual(len(cells), 6, "record, scope, conditions and status metadata")
                 self.assertTrue(all(cells), f"empty DEC summary cell in {name}")
 
     def test_legacy_ledger_ids_do_not_collide_with_dec_gate_ids(self):

@@ -14,6 +14,7 @@
     "inputs": "읽어야 하는 문서·산출물",
     "prereq_tasks": "먼저 끝나야 하는 과제. 충족 판정은 daemon_rules.post_merge_states(merged·audit_queued·done)로 한다",
     "decision_gates": "네 키. start: 시작(임대) 전 결정. real_data: 실제 데이터(실제 제공자 검수·R2·실제 민감자료·대량 조회)에 접근하기 전 결정 — 지시 봉투의 real_data_allowed 로 전달되고 모의·로컬 작업은 막지 않는다. merge: 병합 대기(ready) 전 결정. release: 릴리스·서비스 모드 활성화 전 결정(릴리스 빌더·기능 플래그가 검사). 시작 전이는 start만, 병합 대기 전이는 merge만 본다",
+    "decision_index": "결정 원장 §3.1의 status(문서상의 결정 상태)·decided_by(결정자)·record_ref(저장소 루트 기준 원문 경로)와 decision_gates의 네 단계별 과제 역색인. 결정자·원문이 없으면 null. 색인은 decisions_recorded 등록과 별개다",
     "canon_change": "정본 변경이 필요한 과제의 조건(ADR 절차·사용자 지시 후 병합). 경로 권한과 별개다",
     "allowed_paths": "수정 허용 glob. 밖의 파일을 바꾸면 반송(R-01). 제품 과제는 docs/release-readiness/evidence/<과제 ID>/**에 자기 완료 증거·수락 실행 로그를 쓴다. 개발 도구 과제 T-OP-00·T-OP-09의 검증 기록 경로는 tools/evidence/<과제 ID>/**다. 공용 readiness.json 집계는 T-OP-08만 수행한다",
     "forbidden_paths": "수정 금지. 정본·토의 자료·비밀값·고정 작업 파일. 허용 경로와 겹치지 않는다(T-CT-02는 어휘 정본이 허용에 있고 금지에 없다)",
@@ -1188,13 +1189,28 @@
     }
   ],
   "decision_index": {
-    "D-04": {
+    "BUNDLE-STATUS": {
+      "status": "partially_superseded",
+      "decided_by": "사용자(실행 기준)·어시스턴트(ONJEON, 정본 지위 구분)",
+      "record_ref": "docs/decisions/DEC-BUNDLE-STATUS.md",
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": []
+    },
+    "CANON-T-CT-02": {
+      "status": "conditional",
+      "decided_by": "Fable 5.1 (ONJEON autoloop)",
+      "record_ref": "docs/decisions/DEC-CANON-T-CT-02.md",
       "start": [],
       "real_data": [],
       "merge": [],
       "release": []
     },
     "D-02": {
+      "status": "provisional",
+      "decided_by": "Fable 5.1 (ONJEON autoloop)",
+      "record_ref": "docs/decisions/DEC-D-02.md",
       "start": [
         "T-OP-03"
       ],
@@ -1207,7 +1223,85 @@
       ],
       "release": []
     },
+    "D-03": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-D-03.md",
+      "start": [
+        "T-OP-07"
+      ],
+      "real_data": [],
+      "merge": [],
+      "release": []
+    },
+    "D-04": {
+      "status": "scope_resolved",
+      "decided_by": "준태님(소유자)",
+      "record_ref": "docs/decisions/DEC-D-04.md",
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": []
+    },
+    "D-06": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-D-06.md",
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-AP-08"
+      ],
+      "release": []
+    },
+    "D-07": {
+      "status": "provisional",
+      "decided_by": "Fable 5.1 (ONJEON autoloop)",
+      "record_ref": "docs/decisions/DEC-D-07.md",
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-AP-08"
+      ],
+      "release": []
+    },
+    "D-08": {
+      "status": "provisional",
+      "decided_by": "Fable 5.1 (ONJEON autoloop), 2026-10-12 소유자 결정 범위 확인",
+      "record_ref": "docs/decisions/DEC-D-08.md",
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-KN-14"
+      ]
+    },
+    "D-09": {
+      "status": "awaiting_audit",
+      "decided_by": null,
+      "record_ref": "docs/decisions/DEC-D-09.md",
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-CT-05"
+      ],
+      "release": []
+    },
+    "D-10": {
+      "status": "awaiting_audit",
+      "decided_by": null,
+      "record_ref": "docs/decisions/DEC-D-10.md",
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-CT-05"
+      ],
+      "release": []
+    },
     "D-12": {
+      "status": "scope_resolved",
+      "decided_by": "준태님(소유자)",
+      "record_ref": "docs/decisions/DEC-D-12.md",
       "start": [],
       "real_data": [],
       "merge": [],
@@ -1216,56 +1310,45 @@
         "T-OP-07"
       ]
     },
-    "O12": {
-      "start": [],
-      "real_data": [],
-      "merge": [],
-      "release": [
-        "T-TW-04",
-        "T-TW-05"
-      ]
-    },
-    "O04": {
-      "start": [],
-      "real_data": [],
-      "merge": [],
-      "release": [
-        "T-KN-09"
-      ]
-    },
-    "D-08": {
-      "start": [],
-      "real_data": [],
-      "merge": [],
-      "release": [
-        "T-KN-14"
-      ]
-    },
-    "O17": {
-      "start": [],
-      "real_data": [],
-      "merge": [],
-      "release": [
-        "T-DT-05"
-      ]
-    },
-    "O14": {
+    "D-14": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-D-14.md",
       "start": [],
       "real_data": [],
       "merge": [
-        "T-OP-04"
+        "T-KN-11"
       ],
       "release": []
     },
-    "O02": {
+    "D-15": {
+      "status": "awaiting_audit",
+      "decided_by": null,
+      "record_ref": "docs/decisions/DEC-D-15.md",
       "start": [],
-      "real_data": [
-        "T-DT-06"
+      "real_data": [],
+      "merge": [
+        "T-CT-03",
+        "T-CT-08",
+        "T-MB-01"
       ],
+      "release": []
+    },
+    "D-16": {
+      "status": "provisional",
+      "decided_by": "Fable 5.1 (ONJEON autoloop)",
+      "record_ref": "docs/decisions/DEC-D-16.md",
+      "start": [
+        "T-UX-01"
+      ],
+      "real_data": [],
       "merge": [],
       "release": []
     },
     "D-17": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-D-17.md",
       "start": [],
       "real_data": [
         "T-PS-01",
@@ -1277,47 +1360,10 @@
         "T-OP-07"
       ]
     },
-    "D-14": {
-      "start": [],
-      "real_data": [],
-      "merge": [
-        "T-KN-11"
-      ],
-      "release": []
-    },
-    "D-06": {
-      "start": [],
-      "real_data": [],
-      "merge": [
-        "T-AP-08"
-      ],
-      "release": []
-    },
-    "D-07": {
-      "start": [],
-      "real_data": [],
-      "merge": [
-        "T-AP-08"
-      ],
-      "release": []
-    },
-    "D-16": {
-      "start": [
-        "T-UX-01"
-      ],
-      "real_data": [],
-      "merge": [],
-      "release": []
-    },
-    "D-03": {
-      "start": [
-        "T-OP-07"
-      ],
-      "real_data": [],
-      "merge": [],
-      "release": []
-    },
     "D-18": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-D-18.md",
       "start": [],
       "real_data": [],
       "merge": [],
@@ -1325,33 +1371,21 @@
         "T-OP-07"
       ]
     },
-    "D-09": {
+    "O02": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-O02.md",
       "start": [],
-      "real_data": [],
-      "merge": [
-        "T-CT-05"
+      "real_data": [
+        "T-DT-06"
       ],
-      "release": []
-    },
-    "D-10": {
-      "start": [],
-      "real_data": [],
-      "merge": [
-        "T-CT-05"
-      ],
-      "release": []
-    },
-    "D-15": {
-      "start": [],
-      "real_data": [],
-      "merge": [
-        "T-CT-03",
-        "T-CT-08",
-        "T-MB-01"
-      ],
+      "merge": [],
       "release": []
     },
     "O03": {
+      "status": "scope_only",
+      "decided_by": null,
+      "record_ref": "docs/decisions/DEC-O03.md",
       "start": [],
       "real_data": [],
       "merge": [],
@@ -1359,6 +1393,71 @@
         "T-KN-05",
         "T-KN-08"
       ]
+    },
+    "O04": {
+      "status": "provisional_scope_resolved",
+      "decided_by": "Fable 5.1 (ONJEON autoloop)",
+      "record_ref": "docs/decisions/DEC-O04.md",
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-KN-09"
+      ]
+    },
+    "O12": {
+      "status": "provisional_scope_resolved",
+      "decided_by": "Fable 5.1 (ONJEON autoloop)",
+      "record_ref": "docs/decisions/DEC-O12.md",
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-TW-04",
+        "T-TW-05"
+      ]
+    },
+    "O14": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-O14.md",
+      "start": [],
+      "real_data": [],
+      "merge": [
+        "T-OP-04"
+      ],
+      "release": []
+    },
+    "O16": {
+      "status": "scope_resolved",
+      "decided_by": "준태님(소유자)",
+      "record_ref": "docs/decisions/DEC-D-12.md",
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": []
+    },
+    "O17": {
+      "status": "delegated",
+      "decided_by": "어시스턴트(ONJEON)",
+      "record_ref": "docs/decisions/DEC-O17.md",
+      "start": [],
+      "real_data": [],
+      "merge": [],
+      "release": [
+        "T-DT-05"
+      ]
+    },
+    "O19": {
+      "status": "open",
+      "decided_by": null,
+      "record_ref": null,
+      "start": [],
+      "real_data": [
+        "T-DT-04"
+      ],
+      "merge": [],
+      "release": []
     }
   },
   "tasks": [

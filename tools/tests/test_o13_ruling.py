@@ -7,6 +7,8 @@ import sys
 import unittest
 from pathlib import Path
 
+from tools.decision_status import PHASES
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 
@@ -96,9 +98,9 @@ class RulingDocumentation(unittest.TestCase):
         rows = []
         for name in ("03_작업명세.md", "README.md"):
             text = (BUNDLE / name).read_text()
-            policy = row(text, "| D-04 해결(")
+            policy = row(text, "| [D-04](")
             rows.append(policy)
-            self.assertEqual(["—"] * 4, [c.strip() for c in policy.split("|")[2:6]])
+            self.assertEqual(["—"] * 4, [c.strip() for c in policy.split("|")[4:8]])
             note = text.split("D-04 기록: ", 1)[1].split("## ", 1)[0]
             self.assert_current_policy(note)
         self.assertEqual(rows[0], rows[1])
@@ -131,8 +133,8 @@ class RulingAccessGates(unittest.TestCase):
         return env
 
     def test_resolved_d04_needs_no_runtime_registration(self):
-        self.assertEqual(dict.fromkeys(("start", "real_data", "merge", "release"), []),
-                         self.catalog["decision_index"]["D-04"])
+        entry = self.catalog["decision_index"]["D-04"]
+        self.assertEqual(dict.fromkeys(PHASES, []), {phase: entry[phase] for phase in PHASES})
         for task_id in R2_TASKS:
             with self.subTest(task=task_id):
                 env = self.env(task_id)
@@ -189,9 +191,13 @@ class RulingAccessGates(unittest.TestCase):
                 expected_tasks.setdefault(tid, {}).setdefault(stage, []).append(gate)
         expected_index["D-02"]["merge"] = ["T-OP-02"]
         expected_tasks["T-OP-02"]["merge"] = ["D-02"]
+        # Audit 8 restores the reverse index of the already existing O19 gate.
+        expected_index["O19"] = {**dict.fromkeys(PHASES, []), "real_data": ["T-DT-04"]}
         self.assertEqual(expected_tasks, actual)
         self.assertEqual(expected_index,
-                         {k: v for k, v in self.catalog["decision_index"].items() if k != "D-04"})
+                         {k: {phase: v[phase] for phase in PHASES}
+                          for k, v in self.catalog["decision_index"].items()
+                          if k != "D-04" and any(v[phase] for phase in PHASES)})
         ledger = (ROOT / "docs/blueprint/DECISIONS.md").read_text()
         for expected in self.baseline["ledger_rows"]:
             # Audit 6 adds a decision-status column; the original five cells

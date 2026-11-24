@@ -38,6 +38,12 @@ class S1Prerequisites(unittest.TestCase):
                 self.assertIn(REAL_S1, keep_set(self.tasks, tid))
         self.assertIn(MOCK_S1, keep_set(self.tasks, REAL_S1))
 
+    def test_remaining_vocabulary_work_is_required_for_release_without_holding_s1(self):
+        for tid in (MOCK_S1, REAL_S1):
+            with self.subTest(task=tid):
+                self.assertNotIn("T-CT-09", keep_set(self.tasks, tid))
+        self.assertTrue({REAL_S1, "T-CT-09"} <= keep_set(self.tasks, "T-OP-08"))
+
     def test_s1_waits_for_review_implementation_and_mock_merge(self):
         env = self.env()
         for tid in ("T-MB-02", "T-KN-07"):

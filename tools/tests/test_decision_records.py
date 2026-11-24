@@ -11,7 +11,9 @@ RECORDS = tuple(sorted(p.stem for p in (ROOT / "docs/decisions").glob("DEC-*.md"
 
 LEDGER = ROOT / "docs/blueprint/DECISIONS.md"
 BUNDLE = ROOT / "docs/blueprint/proposals/설계검토_결과"
+PROPOSAL = BUNDLE.parent / "설계통합안_검토본.md"
 NAMESPACE_ANCHOR = "decision-id-namespaces"
+PROPOSAL_ANCHOR = "bundle-design-decisions"
 MAPPING_START = "<!-- blueprint-decision-id-mapping:start -->"
 MAPPING_END = "<!-- blueprint-decision-id-mapping:end -->"
 # ASCII boundaries also catch IDs directly followed by Korean particles.
@@ -70,39 +72,63 @@ class BlueprintDecisionIds(unittest.TestCase):
                             if line.startswith(f"| BP-D-{number:02} |")), "")
                 self.assertIn(meaning, row)
 
-    def test_audit7_table_distinguishes_the_three_pairs(self):
+    def test_namespace_table_covers_each_bundle_id_and_links_its_source(self):
         anchor = f'<a id="{NAMESPACE_ANCHOR}"></a>'
         self.assertEqual(self.ledger.count(anchor), 1)
         table = self.ledger.split(anchor, 1)[1].split("## 2. ", 1)[0]
-        rows = re.findall(r"^\| (1[678]) \| ([^|]+) \| ([^|]+) \|$", table, re.M)
-        self.assertEqual([number for number, _, _ in rows], ["16", "17", "18"])
+        rows = re.findall(r"^\| (\d{2}) \| ([^|]+) \| ([^|]+) \|$", table, re.M)
+        self.assertEqual([number for number, _, _ in rows], [f"{i:02}" for i in range(2, 19)])
 
+        task_contract = json.loads((BUNDLE / "tasks.json").read_text(encoding="utf-8"))
+        index = task_contract["decision_index"]
+        proposal_anchor = f'<a id="{PROPOSAL_ANCHOR}"></a>'
+        proposal = PROPOSAL.read_text(encoding="utf-8")
+        self.assertEqual(proposal.count(proposal_anchor), 1)
+        proposal_section = proposal.split(proposal_anchor, 1)[1].split("## 9. ", 1)[0]
+        proposal_ids = set(re.findall(r"^\| (D-\d{2})[ (|]", proposal_section, re.M))
+        proposal_only = set()
         meanings = {
+            "04": ("PDF 선택 입력", "기존 R2 토큰", "차단 해제", "ADR-0005"),
             "16": ("보관소 제공자", "사용자 이해 시험", "O07", "ADR-0016"),
             "17": ("비용 제한", "외부 AI 전송·보존·삭제", "O08·O09", "ADR-0017"),
             "18": ("초기 운영", "외부 검토 담당 지정", "O10", "ADR-0017"),
         }
-        for number, direction, gate in rows:
+        for number, direction, bundle in rows:
             with self.subTest(number=number):
-                r2_meaning, gate_meaning, tracking, adr = meanings[number]
+                gate = f"D-{number}"
+                self.assertIn(gate, proposal_ids)
                 self.assertIn(f"`BP-D-{number}`", direction)
-                self.assertIn(r2_meaning, direction)
-                self.assertIn(f"[{adr}](../decisions/{adr}-", direction)
-                self.assertNotIn(f"DEC-D-{number}", direction)
-                self.assertIn(f"`D-{number}`", gate)
-                self.assertIn(f"[DEC-D-{number}](../decisions/DEC-D-{number}.md)", gate)
-                self.assertIn(gate_meaning, gate)
-                self.assertIn(tracking, gate)
-                self.assertNotIn(f"BP-D-{number}", gate)
-                for target in re.findall(r"\]\(([^)]+)\)", f"{direction} {gate}"):
+                self.assertNotIn(f"DEC-{gate}", direction)
+                self.assertIn(f"`{gate}`", bundle)
+                self.assertNotIn(f"BP-D-{number}", bundle)
+                if gate in index:
+                    target = f"../decisions/DEC-{gate}.md"
+                    self.assertIn(f"[DEC-{gate}]({target})", bundle)
+                    self.assertEqual((LEDGER.parent / target).resolve(), ROOT / index[gate]["record_ref"])
+                else:
+                    proposal_only.add(gate)
+                    self.assertIn("검토 항목", bundle)
+                    self.assertIn(f"](proposals/{PROPOSAL.name}#{PROPOSAL_ANCHOR})", bundle)
+                    self.assertFalse((ROOT / f"docs/decisions/DEC-{gate}.md").exists())
+                    self.assertFalse(any(gate in gates for task in task_contract["tasks"]
+                                         for gates in task["decision_gates"].values()))
+                if number in meanings:
+                    direction_meaning, gate_meaning, tracking, adr = meanings[number]
+                    self.assertIn(direction_meaning, direction)
+                    self.assertIn(f"[{adr}](../decisions/{adr}-", direction)
+                    self.assertIn(gate_meaning, bundle)
+                    self.assertIn(tracking, bundle)
+                for target in re.findall(r"\]\(([^)#]+)(?:#[^)]*)?\)", f"{direction} {bundle}"):
                     self.assertTrue((LEDGER.parent / target).is_file(), target)
+        self.assertEqual(proposal_only, {"D-05", "D-11", "D-13"})
 
-    def test_audit7_table_is_usable_from_current_references(self):
+    def test_namespace_table_is_usable_from_current_references(self):
         references = {
             ROOT / "docs/BLUEPRINT.md": "blueprint/DECISIONS.md",
             ROOT / "docs/decisions/DEC-D-04.md": "../blueprint/DECISIONS.md",
             BUNDLE / "README.md": "../../DECISIONS.md",
             BUNDLE / "09_제품목적_대응표.md": "../../DECISIONS.md",
+            PROPOSAL: "../DECISIONS.md",
         }
         for path, target in references.items():
             with self.subTest(path=path.relative_to(ROOT)):

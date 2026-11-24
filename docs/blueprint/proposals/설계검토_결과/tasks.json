@@ -2286,7 +2286,7 @@
         "docs/release-readiness/evidence/T-CT-05/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "D-09·D-10 감리 통과와 결정 등록 전 merge 대기. DEC 기록 존재만으로 승인하지 않는다. 작성·로컬 시험 허용",
+      "blocked_by": "병합하려면 감리 통과 근거와 decisions_recorded의 실행 게이트 ID D-09·D-10 두 건이 필요하다. BP-D-09·BP-D-10은 원장 확정 방향이다. 선행 과제 충족 후 작성·로컬 시험 허용",
       "notes": ""
     },
     {

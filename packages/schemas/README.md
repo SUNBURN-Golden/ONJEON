@@ -4,6 +4,8 @@
 
 ## 구성
 
+M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공유 스키마와 생성 타입은 T-CT-10의 구현 산출물이다. 수집·복원 도구가 내는 기존 레코드와 식별자를 바탕으로 하며, 현재 이 패키지의 공유 스키마에는 5종 모두 구현 대기다. [작업 계약](../../docs/blueprint/proposals/설계검토_결과/tasks.json)
+
 | 경로 | 내용 |
 |---|---|
 | `vocabulary.json` | 상태 어휘 정본(1.8.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |

@@ -2658,6 +2658,132 @@
       "notes": "Audit 8 후속. S1 관통 검증의 선행은 추가하지 않는다. 공개 가격 수락과 출시 증거는 09 P09를 따른다"
     },
     {
+      "id": "T-CT-10",
+      "name": "M1 공유 계약 5종의 JSON Schema와 생성 타입",
+      "zone": "contracts",
+      "stage": "S0",
+      "twin_axis": false,
+      "final_gate": false,
+      "verification_kind": null,
+      "replaces_wp": [],
+      "inputs": [
+        "BLUEPRINT §5.1·§9.2·§9.3",
+        "DATA_PIPELINE_CONTRACT §3·§3.1·§4, V1 GAP_REPORT G07·G08",
+        "packages/schemas/evidence_ref.md 및 기존 원본 보관·관측·docproc·온톨로지의 식별자와 출력 형식"
+      ],
+      "prereq_tasks": [
+        "T-CT-04"
+      ],
+      "decision_gates": {
+        "start": [],
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선하며 공용 잠금 파일의 허용 범위는 아래 예외에 한정한다",
+        "exceptions": [
+          {
+            "path": "Cargo.lock",
+            "only": "계약 판 변경에 따른 cargo 재생성 결과만. 손으로 고치지 않음"
+          },
+          {
+            "path": "services/scenario-api/Cargo.lock",
+            "only": "계약 판 변경에 따른 cargo 재생성 결과만. 손으로 고치지 않음"
+          }
+        ]
+      },
+      "canon_change": null,
+      "allowed_paths": [
+        "packages/schemas/json/raw_asset.schema.json",
+        "packages/schemas/json/source_observation.schema.json",
+        "packages/schemas/json/clause_occurrence.schema.json",
+        "packages/schemas/json/code_set.schema.json",
+        "packages/schemas/json/parameter_table.schema.json",
+        "packages/schemas/json/common.schema.json",
+        "packages/schemas/codegen/generated/**",
+        "packages/schemas/codegen/tests/**",
+        "packages/schemas/src/generated/**",
+        "packages/schemas/src/checks.rs",
+        "packages/schemas/src/tests.rs",
+        "packages/schemas/Cargo.toml",
+        "packages/schemas/README.md",
+        "packages/api-types/src/generated/**",
+        "Cargo.lock",
+        "services/scenario-api/Cargo.lock",
+        "docs/release-readiness/evidence/T-CT-10/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/**",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "packages/schemas/vocabulary.json",
+        "packages/schemas/json/vocabulary.schema.json"
+      ],
+      "produces": [
+        "path:packages/schemas/json/raw_asset.schema.json",
+        "path:packages/schemas/json/source_observation.schema.json",
+        "path:packages/schemas/json/clause_occurrence.schema.json",
+        "path:packages/schemas/json/code_set.schema.json",
+        "path:packages/schemas/json/parameter_table.schema.json",
+        "path:packages/schemas/codegen/generated/**",
+        "path:packages/schemas/src/generated/**",
+        "path:docs/release-readiness/evidence/T-CT-10/**"
+      ],
+      "consumes": [
+        "crate:onjeon-contracts",
+        "path:packages/schemas/evidence_ref.md",
+        "path:packages/schemas/vocabulary.json"
+      ],
+      "test_outputs_within_allowed": true,
+      "outputs": [
+        "RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable의 개별 JSON Schema와 Rust·Dart·TypeScript 생성 타입",
+        "계약 판 상향과 두 Cargo.lock 재생성, 3개 언어의 합성 픽스처 검증·호환 검사 기록, 스키마 README의 객체 목록 갱신"
+      ],
+      "tests": [
+        "python3 -I packages/schemas/codegen/gen.py --check",
+        "python3 -I -m unittest discover -s packages/schemas/codegen/tests",
+        "env ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh",
+        "cargo test --all --locked",
+        "cargo test --manifest-path services/scenario-api/Cargo.toml --locked",
+        "env ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest",
+        "시험 raw-asset-content-addressed: 원본 ID와 바이트 해시가 일치하는 합성 레코드가 통과하고 잘못된 형식과 해시 불일치는 거부된다",
+        "시험 source-observation-preserves-history: 같은 원본의 서로 다른 관측 시각을 각각 보존하며 URL·시각·해시·크기·형식·변경 결과를 잃지 않는다. 관측 ID와 시각 또는 해시가 다르면 거부한다",
+        "시험 clause-occurrence-provenance: 구획·조항 경로·물리 쪽·추출 판으로 ID를 재현하고 좌표·정확 인용·표 셀 근거를 왕복한다. ID와 위치·추출 판의 불일치를 거부하며 추출 판이 바뀌면 ID도 바뀐다",
+        "시험 code-set-edition-as-of: 코드 체계·개정차수·고시일·시행일·판정 시점 규칙과 출처를 보존한다. 다른 개정판의 같은 코드를 구별하고 필수 판정 정보 누락을 검출한다",
+        "시험 parameter-table-observed-open-range: 가입일 또는 갱신일과 경과기간 키, 구간의 포함 경계, 원문 해시와 값 단위를 보존한다. 열린 구간의 관측 시각 누락과 뒤집힌 구간을 거부한다"
+      ],
+      "done_criteria": [
+        "다섯 객체가 독립 JSON Schema로 등록되고 합성 픽스처가 생성 클라이언트의 빌드·검증을 통과한다. 기존 식별자 문법과 승인된 어휘를 재사용한다",
+        "원본·관측·조항의 참조와 추출 판을 검증한다(raw-asset-content-addressed, source-observation-preserves-history, clause-occurrence-provenance)",
+        "코드 개정차수와 판정 시점, 공시 표의 원문·관측 시각·키 구간을 필드로 보존한다(code-set-edition-as-of, parameter-table-observed-open-range). 기존 parameter_from 관계로 표를 참조할 수 있다",
+        "계약 판 및 잠금 파일을 갱신하고 기존 계약과의 추가 호환성을 확인한다. 이전 출시 태그가 없으면 합성 기준으로 검사하고 실제 태그 비교 여부를 기록한다"
+      ],
+      "required_test_ids": [
+        "raw-asset-content-addressed",
+        "source-observation-preserves-history",
+        "clause-occurrence-provenance",
+        "code-set-edition-as-of",
+        "parameter-table-observed-open-range"
+      ],
+      "features": [],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "packages/schemas/**",
+        "packages/api-types/src/generated/**",
+        "Cargo.lock",
+        "services/scenario-api/Cargo.lock",
+        "docs/release-readiness/evidence/T-CT-10/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "없음",
+      "notes": "Audit 8 후속. 수집·복원 생산물은 이미 병합된 T-DT-01·T-DT-02에서 재사용한다. 이 과제는 공유 형식과 합성 검증을 맡는다. 실제 공시 표 적재·코드 판정 및 서비스 관통은 후속 작업과 09의 완료 증거로 검증한다"
+    },
+    {
       "id": "T-OP-01",
       "name": "로컬 Compose(Postgres, S3 호환 객체 저장소, 큐)",
       "zone": "infra·ops",
@@ -3614,7 +3740,8 @@
       "prereq_tasks": [
         "T-KN-04",
         "T-DT-02",
-        "T-KN-03"
+        "T-KN-03",
+        "T-CT-10"
       ],
       "decision_gates": {
         "start": [],
@@ -3672,7 +3799,10 @@
       "consumes": [
         "crate:onjeon-knowledge",
         "crate:onjeon-ai-gateway",
-        "path:services/docproc/**"
+        "path:services/docproc/**",
+        "path:packages/schemas/json/raw_asset.schema.json",
+        "path:packages/schemas/json/source_observation.schema.json",
+        "path:packages/schemas/json/clause_occurrence.schema.json"
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
@@ -4846,7 +4976,9 @@
         "crate:onjeon-knowledge",
         "crate:onjeon-ai-review",
         "path:services/docproc/**",
-        "path:data/label-dictionary/**"
+        "path:data/label-dictionary/**",
+        "path:packages/schemas/json/code_set.schema.json",
+        "path:packages/schemas/json/parameter_table.schema.json"
       ],
       "test_outputs_within_allowed": true,
       "outputs": [

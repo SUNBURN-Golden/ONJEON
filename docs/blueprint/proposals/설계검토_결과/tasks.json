@@ -8025,6 +8025,8 @@
         "path:docs/rehearsal/**",
         "path:tools/daemon/**",
         "path:docs/vm_check/**",
+        "path:tools/evidence/T-OP-00/**",
+        "path:tools/evidence/T-OP-09/**",
         "path:data/criteria/applications/**",
         "path:docs/blueprint/progress/tasks_state.json"
       ],
@@ -8032,7 +8034,7 @@
       "outputs": [
         "evidence/T-OP-08/에 감리·다섯 축 보고서와 수락 실행 로그",
         "출시 준비 판정기 tools/release_readiness/check.py는 docs/blueprint/progress/tasks_state.json의 과제별 post_merge 상태·병합 SHA·증거 파일과 feature_registry의 비제외 항목 전부의 tasks(post_merge 상태)·evidence(실제 데이터 증거 기록 참조)·acceptance_tests(실행 로그)를 대조한다",
-        "선행 제품 과제의 evidence/<과제 ID>/ 증거를 검토하고 readiness.json에 행·기능별 상대 경로·실행 결과·관측된 과제 상태를 집계한다. 개발 도구 회귀 로그만으로 제품 행을 닫지 않는다"
+        "선행 제품 과제의 evidence/<과제 ID>/ 증거를 검토하고 readiness.json에 행·기능별 상대 경로와 수락 실행 결과를 집계한다. 과제 상태·병합 SHA는 통합 담당자가 tasks_state.json에 기록하며 판정기는 원장만 상태 근거로 읽는다. 개발 도구 회귀 로그만으로 제품 행을 닫지 않는다"
       ],
       "tests": [
         "python3 -I tools/release_readiness/check.py --registry docs/blueprint/proposals/설계검토_결과/tasks.json --evidence docs/release-readiness/evidence/",

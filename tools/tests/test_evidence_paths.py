@@ -78,6 +78,31 @@ class EvidencePathTests(unittest.TestCase):
             with self.subTest(task=tid):
                 self.assertFalse(paths_within_scope([path], task))
 
+    def test_final_auditor_declares_developer_tool_evidence_as_inputs(self):
+        # 09 §0 says the daemon records feed final-audit axis 5, so the
+        # dependency contract must name those directories as consumed inputs.
+        for owner in DEVELOPER_TOOLS:
+            with self.subTest(task=owner):
+                grant = f"{TOOL_EVIDENCE}/{owner}/**"
+                self.assertIn(f"path:{grant}", self.tasks[FINAL]["consumes"])
+                self.assertIn(f"path:{grant}", self.tasks[owner]["produces"])
+                # Reading is declared through consumes only; no write grant leaks.
+                self.assertNotIn(grant, self.tasks[FINAL]["allowed_paths"])
+
+    def test_09_puts_acceptance_results_in_manifest_and_state_in_ledger(self):
+        # The manifest aggregation recorded by T-OP-08 must stay limited to row
+        # and feature references plus acceptance results. check.py takes task
+        # state and merge SHAs from tasks_state.json, so 09 must not claim the
+        # manifest carries observed task state.
+        text = (readiness.BUNDLE / "09_제품목적_대응표.md").read_text(encoding="utf-8")
+        self.assertIn("행·기능별 증거 참조와 수락 실행 결과를 집계한다", text)
+        self.assertIn("과제 상태 원장", text)
+        self.assertNotIn("관측된 과제 상태를 집계", text)
+        self.assertNotIn("자기 증거 경로 밖을 쓰지 않는다", text)
+        outputs = "\n".join(self.tasks[FINAL]["outputs"])
+        self.assertIn("수락 실행 결과", outputs)
+        self.assertNotIn("관측된 과제 상태", outputs)
+
     def test_evidence_locks_preserve_parallel_task_isolation_and_final_audit_lock(self):
         final_locks = self.tasks[FINAL]["conflict_paths"]
         grants = []

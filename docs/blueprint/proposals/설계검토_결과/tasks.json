@@ -1202,7 +1202,9 @@
         "T-KN-06",
         "T-OP-02"
       ],
-      "merge": [],
+      "merge": [
+        "T-OP-02"
+      ],
       "release": []
     },
     "D-12": {
@@ -4501,8 +4503,97 @@
       "notes": ""
     },
     {
+      "id": "T-OP-10",
+      "name": "S1 (a) 모의 관통 검증: 모의 2계열 검수부터 화면의 원문 좌표까지",
+      "zone": "infra·ops",
+      "stage": "S1",
+      "twin_axis": false,
+      "final_gate": false,
+      "verification_kind": null,
+      "replaces_wp": [],
+      "inputs": [
+        "BLUEPRINT §9.3",
+        "T-KN-06 모의 제공자",
+        "T-KN-07 테스트 릴리스 빌더",
+        "T-MB-02 화면"
+      ],
+      "prereq_tasks": [
+        "T-MB-02",
+        "T-KN-07",
+        "T-KN-06"
+      ],
+      "decision_gates": {
+        "start": [],
+        "real_data": [],
+        "merge": [],
+        "release": []
+      },
+      "path_policy": {
+        "precedence": "forbidden_first",
+        "note": "금지가 허용에 우선한다",
+        "exceptions": []
+      },
+      "canon_change": null,
+      "allowed_paths": [
+        "docs/gates/s1/mock/**",
+        "tools/gate/s1_mock.sh",
+        "docs/release-readiness/evidence/T-OP-10/**"
+      ],
+      "forbidden_paths": [
+        "docs/PRINCIPLES.md",
+        "docs/BLUEPRINT.md",
+        "docs/blueprint/SYSTEM_CONTRACT.md",
+        "docs/blueprint/REQUIREMENTS.md",
+        "docs/blueprint/DECISIONS.md",
+        "docs/decisions/**",
+        "docs/data/**",
+        "docs/design/CONSUMER_FLOW_SPEC.md",
+        "docs/design/화면_조작_설계서.md",
+        "docs/blueprint/proposals/**",
+        "docs/blueprint/validation/extracts/**",
+        "infra/r2/budget_policy.json",
+        "infra/r2/jobs/**",
+        "data/registry/*.csv",
+        "packages/schemas/vocabulary.json",
+        "docs/blueprint/VOCABULARY.md"
+      ],
+      "produces": [
+        "path:docs/gates/s1/mock/**",
+        "path:tools/gate/s1_mock.sh",
+        "path:docs/release-readiness/evidence/T-OP-10/**"
+      ],
+      "consumes": [
+        "path:apps/mobile/lib/features/coverage_detail/**",
+        "path:services/knowledge/release/**",
+        "path:services/ai-review/src/review/**"
+      ],
+      "test_outputs_within_allowed": true,
+      "outputs": [
+        "합성·모의 경로 실행 기록(명령·로그·해시, environment=test)"
+      ],
+      "tests": [
+        "bash tools/gate/s1_mock.sh"
+      ],
+      "done_criteria": [
+        "합성 입력과 모의 제공자 2계열(environment=test)만 사용한다. accepted ReviewDecision → 규칙 → test 릴리스 → API → 화면 숫자 → 합성 원문 좌표(I6)를 추적한다",
+        "보류 시 엔진 호출 0회를 기록하고 그림자 비교 보고 1건을 남긴다",
+        "environment=test ReviewDecision 또는 릴리스를 서비스 릴리스 빌더가 거부한다(service_conformance)"
+      ],
+      "required_test_ids": [],
+      "features": [],
+      "parallel_ok": false,
+      "conflict_paths": [
+        "docs/gates/s1/mock/**",
+        "tools/gate/s1_mock.sh",
+        "docs/release-readiness/evidence/T-OP-10/**"
+      ],
+      "immediate_audit": true,
+      "blocked_by": "선행 과제 병합. 모의 시험과 병합에는 D-02 등록이 필요 없다",
+      "notes": "S1 (a) 모의 실행 기록은 T-OP-02가 참조한다. 실제 공급자·R2·서비스 데이터는 이 작업 범위 밖이다"
+    },
+    {
       "id": "T-OP-02",
-      "name": "S1 관문 증거 묶음: 실제 상품 하나 관통 기록(원문→구획·본문 판→주장→(검수)→규칙→릴리스→API→화면), 보류 경로 실행, 그림자 비교 1회",
+      "name": "S1 (b) 실제 데이터 관문: 실제 상품 하나를 원본 보존부터 화면의 원문 좌표까지 관통 검증",
       "zone": "infra·ops",
       "stage": "S1",
       "twin_axis": false,
@@ -4512,19 +4603,24 @@
       "inputs": [
         "구현계획 §4 S1",
         "BLUEPRINT §9.3",
-        "T-DT-01~T-MB-02 산출물",
+        "T-DT-01 원본 보존, T-DT-02 추출·좌표, T-KN-03 게이트웨이, T-KN-05 주장 추출, T-KN-06 검수 산출물",
+        "T-OP-10 모의 관통 기록",
         "docs/decisions/ADR-0020-작업-단계와-V1-관문-정합화.md"
       ],
       "prereq_tasks": [
         "T-MB-02",
-        "T-KN-07"
+        "T-KN-07",
+        "T-KN-06",
+        "T-OP-10"
       ],
       "decision_gates": {
         "start": [],
         "real_data": [
           "D-02"
         ],
-        "merge": [],
+        "merge": [
+          "D-02"
+        ],
         "release": []
       },
       "path_policy": {
@@ -4534,8 +4630,8 @@
       },
       "canon_change": null,
       "allowed_paths": [
-        "docs/gates/s1/**",
-        "tools/gate/**",
+        "docs/gates/s1/real/**",
+        "tools/gate/s1.sh",
         "docs/release-readiness/evidence/T-OP-02/**"
       ],
       "forbidden_paths": [
@@ -4557,37 +4653,42 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:docs/gates/s1/**",
-        "path:tools/gate/**",
+        "path:docs/gates/s1/real/**",
+        "path:tools/gate/s1.sh",
         "path:docs/release-readiness/evidence/T-OP-02/**"
       ],
       "consumes": [
         "path:apps/mobile/lib/features/coverage_detail/**",
-        "path:services/knowledge/release/**"
+        "path:services/knowledge/release/**",
+        "path:services/docproc/**",
+        "path:services/ai-review/src/review/**",
+        "path:docs/gates/s1/mock/**"
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
-        "관문 기록(명령·로그·해시). AI 검수 칸은 D-02 전이면 '비어 있음'"
+        "실제 상품의 관문 기록(명령·로그·원본 해시·검수 대상 해시·릴리스 해시)과 T-OP-10 모의 실행 기록 참조"
       ],
       "tests": [
         "bash tools/gate/s1.sh"
       ],
       "done_criteria": [
-        "관문 기록을 두 층으로 나눈다: (a) 코드 경로 관통 — 모의 제공자 2계열(environment=test)의 ReviewDecision으로 accepted된 주장 → 규칙 → test 릴리스 → API → 화면 숫자 → 원문 좌표(I6). D-02 없이 가능(D-04는 해결). (b) 실제 데이터 관문 통과 — 실제 제공자 ReviewDecision(D-02)과 R2 보존(기존 토큰, D-04 해결)이 있는 릴리스로 같은 경로. 둘 다 기록하되 (b) 없이 S1 관문을 통과로 적지 않는다",
+        "관문 기록을 두 층으로 나눈다. (a) 코드 경로 관통은 T-OP-10의 environment=test 실행 기록을 참조하며 D-02 없이 가능하다. (b) 실제 데이터 관문 통과는 같은 실제 상품의 R2 원본 보존·해시 → 구획·조항 좌표 → 추출 주장 → 이종 계열 실제 제공자 ReviewDecision(D-02) → 규칙 → 릴리스 → API → 화면 숫자 → 원문 좌표(I6) 실행 기록을 요구한다. (b) 없이 S1 관문을 통과로 적지 않는다",
         "보류 경로가 엔진을 부르지 않은 기록",
         "그림자 비교 보고 1건",
         "test 환경 ReviewDecision으로 만든 릴리스는 environment=test 표시가 있어 서비스 릴리스 빌더가 거부한다(service_conformance)",
+        "즉시 감리에서 (b) 실행 기록과 참조 해시를 대조한 뒤에만 병합한다. 모의 기록만 있거나 실제 ReviewDecision·R2 보존·I6 근거가 누락되면 tools/gate/s1.sh는 실패한다",
         "ADR-0020: T-OP-02는 V1을 대체하지 않는다. 전체 14/14 파생 재현·실제 이종 계열 검수·화면 S1·S6 해결을 별도로 대조한다. 실제 관통 증거는 충족한 조건에만 재사용하며 모의 경로만으로 S1·M2를 통과시키지 않는다"
       ],
       "required_test_ids": [],
       "features": [],
       "parallel_ok": false,
       "conflict_paths": [
-        "docs/gates/s1/**",
+        "docs/gates/s1/real/**",
+        "tools/gate/s1.sh",
         "docs/release-readiness/evidence/T-OP-02/**"
       ],
       "immediate_audit": true,
-      "blocked_by": "실데이터 (b): D-02(실제 검수 결정)는 유지. D-04 해결: 기존 R2 토큰 사용(DEC-D-04), 폐기·재발급 선행 조건 없음. ONJEON box secrets env에서만 읽고 값 출력·로그 금지. (a) 코드 경로 관통은 계속 가능하며 (b)의 실제 검수·R2 보존 증거 없이 S1 통과 판정 금지",
+      "blocked_by": "실데이터·병합: D-02 등록과 실제 관통 수락 증거. D-04 해결: 기존 R2 토큰 사용(DEC-D-04), 폐기·재발급 선행 조건 없음. ONJEON box secrets env에서만 읽고 값 출력·로그 금지",
       "notes": "수정 권한 충돌 수정: 관문 기록 폴더를 토의 자료 폴더(docs/blueprint/proposals) 밖 docs/gates/로 옮겼다. D-04 해결(DEC-D-04, 2026-11-10 소유자 위험 수용): 기존 R2 토큰을 폐기·재발급 없이 사용한다. ONJEON box secrets env에서만 읽고 값 출력·로그·저장소·봉투 기록 금지. ADR-0017 작업 파일·원장·비용 제한과 O14·O17 등 별도 관문 유지."
     },
     {

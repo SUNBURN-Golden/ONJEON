@@ -19,7 +19,7 @@ class PurposeTableDecisionSync(unittest.TestCase):
         for line in self.text.splitlines():
             if re.match(r"^\| P\d{2} \|", line):
                 cells = [cell.strip() for cell in line.strip("|").split("|")]
-                self.assertEqual(10, len(cells))
+                self.assertEqual(11, len(cells))
                 self.assertNotIn(cells[0], self.rows)
                 self.rows[cells[0]] = cells
         self.assertEqual({f"P{i:02}" for i in range(1, 20)}, self.rows.keys())

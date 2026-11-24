@@ -211,7 +211,8 @@ class DomesticEnvironmentGate(unittest.TestCase):
                 rows = [line for line in text.splitlines() if line.startswith("| O19 ")]
                 self.assertEqual(len(rows), 1)
                 cells = [c.strip() for c in rows[0].strip("|").split("|")]
-                self.assertEqual(cells[1:5], ["—", "T-DT-04", "—", "—"])
+                self.assertEqual(cells[1:3], ["미정", "—"])
+                self.assertEqual(cells[3:], ["—", "T-DT-04", "—", "—"])
         spec = (BUNDLE / "03_작업명세.md").read_text(encoding="utf-8")
         self.assertIn("| T-DT-04 | 분모 열거 어댑터", spec)
         self.assertIn("| T-DT-01 | — / O19 / — / — |", spec)

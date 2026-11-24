@@ -29,6 +29,15 @@ class MissingGateContracts(unittest.TestCase):
     def test_live_scope_and_index_pass(self):
         self.assertEqual(SC.decision_scope_problems(REGISTRY), [])
 
+    def test_index_requires_status_metadata_and_only_the_four_phases(self):
+        data = copy.deepcopy(REGISTRY)
+        entry = data["decision_index"]["D-09"]
+        entry["production"] = []
+        self.assertTrue(SC.decision_scope_problems(data))
+        del entry["production"]
+        del entry["record_ref"]
+        self.assertTrue(SC.decision_scope_problems(data))
+
     def test_deleting_each_gate_even_from_both_copies_fails(self):
         for tid, task in TASKS.items():
             for stage, gates in task["decision_gates"].items():

@@ -156,7 +156,7 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 | DerivedOutput | 원본 해시별 추출·OCR 결과와 도구·버전. 원본과 다른 버킷 | L2 | DATA_PIPELINE_CONTRACT §3.1 |
 | ClauseOccurrence | 문서 버전, 조항 경로, 페이지, 좌표, 정확 인용 | L2 | DATA_PIPELINE_CONTRACT §3 |
 | FieldAssertion | raw·정규화 값, 단위, value_state, 근거, 적용 범위, 추출·검증 이력 | L3~L4 | 제2부 §29 |
-| PremiumObservation | 금액, 가격 근거, 조건과 조건 출처, 특약 구성·묶음, 기준일, 비교 기준 | L3~L5 | PREMIUM_DATA_CONTRACT, 가격 수집 명세 |
+| PremiumObservation | `value_state`와 금액 또는 미확인 사유, 가격 근거, 조건과 조건 출처, 특약 구성·묶음, 기준일, 비교 기준 | L3~L5 | PREMIUM_DATA_CONTRACT, 가격 수집 명세 |
 | CodeSet | 코드 체계, 개정차수, 고시·시행일, 판정 시점 규칙 | L3~L5 | DATA_PIPELINE_CONTRACT §4 |
 | ParameterTable | 약관이 밖으로 위임한 값의 공시 표: 키 구간, 열린 구간 관측 시각, 원문 해시 | L3~L5 | DATA_PIPELINE_CONTRACT §4 |
 | ProductVersion / CoverageOccurrence | 회사, 채널, 판매 기간, 문서 묶음, 담보 발생본 | L5 | 제2부 §27 |
@@ -268,7 +268,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 
 | ID | 불변식 | 강제 위치 | 상태 |
 |---|---|---|---|
-| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·온톨로지 금액 표시·비교 자체 시험([Audit 4 증거](blueprint/audits/2026-10-30_ontology_check_unknown_as_zero.md)) | 구현(엔진) |
+| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·온톨로지 금액 표시·비교 자체 시험([Audit 4 증거](blueprint/audits/2026-10-30_ontology_check_unknown_as_zero.md))·공유 보험료 관측 계약 시험([Audit 8 증거](blueprint/audits/2026-11-25_premium_unknown_as_zero.md)) | 구현(엔진·공유 가격 계약) |
 | I2 | 계산 결과는 규칙 버전·릴리스·내용 해시·근거를 갖는다 | 엔진 `review_fixes` | 구현(엔진) |
 | I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail,E0616` 문서 테스트·`immutable_rule_doctests`의 실제 진단 코드 검사([Audit 6 재검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)) | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |

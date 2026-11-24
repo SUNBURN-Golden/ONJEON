@@ -57,6 +57,7 @@ fn every_fixture_round_trips_through_its_type() {
     round_trip::<NeedResult>(fixture!("NeedResult"));
     round_trip::<PremiumObservation>(fixture!("PremiumObservation.raw"));
     round_trip::<PremiumObservation>(fixture!("PremiumObservation.full"));
+    round_trip::<PremiumObservation>(fixture!("PremiumObservation.unavailable"));
     round_trip::<ContractSnapshot>(fixture!("ContractSnapshot"));
     round_trip::<ErrorResponse>(fixture!("ErrorResponse"));
 }
@@ -359,6 +360,73 @@ fn assertion_is_a_relation_or_a_value_never_both_or_neither() {
 }
 
 #[test]
+fn premium_amount_and_reason_follow_value_state() {
+    let known: PremiumObservation =
+        serde_json::from_str(fixture!("PremiumObservation.raw")).unwrap();
+    for value_state in [ValueState::Observed, ValueState::Derived] {
+        let mut observation = known.clone();
+        observation.value_state = value_state;
+        observation.raw_amount = Some(0);
+        assert!(
+            check_premium_observation(&observation).is_empty(),
+            "{value_state:?}"
+        );
+
+        observation.unknown_reason = Some("A reason would contradict a known amount".into());
+        assert_eq!(
+            check_premium_observation(&observation)[0].rule,
+            "chk_premium_unknown_reason_matches_value_state",
+            "{value_state:?}"
+        );
+
+        observation.unknown_reason = None;
+        observation.raw_amount = None;
+        assert_eq!(
+            check_premium_observation(&observation)[0].rule,
+            "chk_premium_amount_matches_value_state",
+            "{value_state:?}"
+        );
+    }
+
+    let unavailable: PremiumObservation =
+        serde_json::from_str(fixture!("PremiumObservation.unavailable")).unwrap();
+    for value_state in [
+        ValueState::NotFound,
+        ValueState::Unreadable,
+        ValueState::Conflicting,
+        ValueState::NotApplicable,
+        ValueState::NotDisclosed,
+    ] {
+        let mut observation = unavailable.clone();
+        observation.value_state = value_state;
+        assert!(
+            check_premium_observation(&observation).is_empty(),
+            "{value_state:?}"
+        );
+
+        for raw_amount in [0, 51_290] {
+            observation.raw_amount = Some(raw_amount);
+            assert_eq!(
+                check_premium_observation(&observation)[0].rule,
+                "chk_premium_amount_matches_value_state",
+                "{value_state:?} with amount {raw_amount}"
+            );
+        }
+
+        observation.raw_amount = None;
+        for unknown_reason in [None, Some(String::new()), Some(" \t\n".into())] {
+            observation.unknown_reason = unknown_reason;
+            assert_eq!(
+                check_premium_observation(&observation)[0].rule,
+                "chk_premium_unknown_reason_matches_value_state",
+                "{value_state:?} with reason {:?}",
+                observation.unknown_reason
+            );
+        }
+    }
+}
+
+#[test]
 fn premium_comparison_eligibility_needs_the_full_condition_set() {
     let raw: PremiumObservation = serde_json::from_str(fixture!("PremiumObservation.raw")).unwrap();
     assert!(
@@ -380,6 +448,25 @@ fn premium_comparison_eligibility_needs_the_full_condition_set() {
     eligible.review_decision_id = Some("rd:01ARZ3NDEKTSV4RRFFQ69G5FAV".into());
     eligible.origin = AssertionOrigin::Pipeline;
     assert!(check_premium_observation(&eligible).is_empty());
+
+    let mut derived = eligible.clone();
+    derived.value_state = ValueState::Derived;
+    derived.raw_amount = Some(0);
+    assert!(check_premium_observation(&derived).is_empty());
+    derived.raw_amount = None;
+    assert!(check_premium_observation(&derived)
+        .iter()
+        .any(|v| v.rule == "chk_premium_raw_vs_eligible"));
+
+    let mut unavailable = eligible.clone();
+    unavailable.value_state = ValueState::NotFound;
+    unavailable.raw_amount = None;
+    unavailable.unknown_reason = Some("No source amount for the selected configuration".into());
+    let violations = check_premium_observation(&unavailable);
+    assert_eq!(violations.len(), 1);
+    assert_eq!(violations[0].rule, "chk_premium_raw_vs_eligible");
+    unavailable.comparison_eligible = false;
+    assert!(check_premium_observation(&unavailable).is_empty());
 
     let mut still_fixture = eligible.clone();
     still_fixture.origin = ORIGIN_FIXTURE;
@@ -491,6 +578,7 @@ fn every_fixture_satisfies_the_cross_field_checks_and_is_test_only() {
     for src in [
         fixture!("PremiumObservation.raw"),
         fixture!("PremiumObservation.full"),
+        fixture!("PremiumObservation.unavailable"),
     ] {
         let p: PremiumObservation = serde_json::from_str(src).unwrap();
         assert_eq!(check_premium_observation(&p), vec![]);

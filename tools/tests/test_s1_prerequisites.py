@@ -44,6 +44,18 @@ class S1Prerequisites(unittest.TestCase):
                 self.assertNotIn("T-CT-09", keep_set(self.tasks, tid))
         self.assertTrue({REAL_S1, "T-CT-09"} <= keep_set(self.tasks, "T-OP-08"))
 
+    def test_field_extraction_waits_for_m1_shared_contracts(self):
+        env = self.env()
+        for tid in ("T-KN-04", "T-DT-02", "T-KN-03"):
+            env.core.register_task(tid, "done")
+        env.core.register_task("T-CT-10", "merge_wait")
+        env.start_task("T-KN-05")
+        self.assertEqual(env.state("T-KN-05"), "blocked")
+
+        env.core.register_task("T-CT-10", "merged")
+        env.core.evaluate_prereqs("T-KN-05")
+        self.assertEqual(env.state("T-KN-05"), "queued")
+
     def test_s1_waits_for_review_implementation_and_mock_merge(self):
         env = self.env()
         for tid in ("T-MB-02", "T-KN-07"):

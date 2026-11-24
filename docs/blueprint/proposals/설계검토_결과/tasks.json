@@ -15,9 +15,9 @@
     "prereq_tasks": "먼저 끝나야 하는 과제. 충족 판정은 daemon_rules.post_merge_states(merged·audit_queued·done)로 한다",
     "decision_gates": "네 키. start: 시작(임대) 전 결정. real_data: 실제 데이터(실제 제공자 검수·R2·실제 민감자료·대량 조회)에 접근하기 전 결정 — 지시 봉투의 real_data_allowed 로 전달되고 모의·로컬 작업은 막지 않는다. merge: 병합 대기(ready) 전 결정. release: 릴리스·서비스 모드 활성화 전 결정(릴리스 빌더·기능 플래그가 검사). 시작 전이는 start만, 병합 대기 전이는 merge만 본다",
     "canon_change": "정본 변경이 필요한 과제의 조건(ADR 절차·사용자 지시 후 병합). 경로 권한과 별개다",
-    "allowed_paths": "수정 허용 glob. 밖의 파일을 바꾸면 반송(R-01). 제품 과제(T-OP-00·T-OP-09 제외)는 docs/release-readiness/evidence/<과제 ID>/**에 자기 완료 증거·수락 실행 로그를 쓴다. 공용 readiness.json 집계는 T-OP-08만 수행한다",
+    "allowed_paths": "수정 허용 glob. 밖의 파일을 바꾸면 반송(R-01). 제품 과제는 docs/release-readiness/evidence/<과제 ID>/**에 자기 완료 증거·수락 실행 로그를 쓴다. 개발 도구 과제 T-OP-00·T-OP-09의 검증 기록 경로는 tools/evidence/<과제 ID>/**다. 공용 readiness.json 집계는 T-OP-08만 수행한다",
     "forbidden_paths": "수정 금지. 정본·토의 자료·비밀값·고정 작업 파일. 허용 경로와 겹치지 않는다(T-CT-02는 어휘 정본이 허용에 있고 금지에 없다)",
-    "produces": "이 과제가 만드는 산출물. crate:<이름> | path:<glob> | <종류>:<이름>",
+    "produces": "이 과제가 만드는 산출물. crate:<이름> | path:<glob> | <종류>:<이름>. 모든 과제는 자기 증거 경로(제품 과제 docs/release-readiness/evidence/<과제 ID>/**, 개발 도구 과제 tools/evidence/<과제 ID>/**)를 산출물로 명시하고 allowed_paths·conflict_paths에 등록한다",
     "consumes": "이 과제의 입력·시험이 쓰는 산출물. 저장소에 이미 있거나 선행 과제가 만들어야 한다",
     "outputs": "산출물 설명",
     "tests": "실행 명령과 필수 시험의 내용",
@@ -1391,7 +1391,8 @@
       "canon_change": null,
       "allowed_paths": [
         "tools/daemon/**",
-        "tools/tests/test_daemon_dry_run.py"
+        "tools/tests/test_daemon_dry_run.py",
+        "tools/evidence/T-OP-00/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1412,7 +1413,8 @@
         "docs/blueprint/VOCABULARY.md"
       ],
       "produces": [
-        "path:tools/daemon/**"
+        "path:tools/daemon/**",
+        "path:tools/evidence/T-OP-00/**"
       ],
       "consumes": [
         "path:docs/blueprint/proposals/설계검토_결과/daemon_rules.json"
@@ -1507,7 +1509,8 @@
       "features": [],
       "parallel_ok": true,
       "conflict_paths": [
-        "tools/daemon/**"
+        "tools/daemon/**",
+        "tools/evidence/T-OP-00/**"
       ],
       "immediate_audit": false,
       "blocked_by": "없음. 규칙 검증용이며 가동이 아니다",
@@ -1544,7 +1547,8 @@
       "canon_change": null,
       "allowed_paths": [
         "tools/daemon/runner_verify/**",
-        "docs/vm_check/**"
+        "docs/vm_check/**",
+        "tools/evidence/T-OP-09/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -1566,7 +1570,8 @@
       ],
       "produces": [
         "path:tools/daemon/runner_verify/**",
-        "path:docs/vm_check/**"
+        "path:docs/vm_check/**",
+        "path:tools/evidence/T-OP-09/**"
       ],
       "consumes": [
         "path:tools/daemon/**"
@@ -1628,7 +1633,8 @@
       "features": [],
       "parallel_ok": false,
       "conflict_paths": [
-        "tools/daemon/**"
+        "tools/daemon/**",
+        "tools/evidence/T-OP-09/**"
       ],
       "immediate_audit": true,
       "blocked_by": "VM의 CLI·원격·자격 설정은 사람이 준비한다(05 §7). 결정 ID로 막히지는 않는다",
@@ -7989,7 +7995,8 @@
       "canon_change": null,
       "allowed_paths": [
         "docs/release-readiness/**",
-        "tools/release_readiness/**"
+        "tools/release_readiness/**",
+        "docs/release-readiness/evidence/T-OP-08/**"
       ],
       "forbidden_paths": [
         "docs/PRINCIPLES.md",
@@ -8011,7 +8018,8 @@
       ],
       "produces": [
         "path:docs/release-readiness/**",
-        "path:tools/release_readiness/**"
+        "path:tools/release_readiness/**",
+        "path:docs/release-readiness/evidence/T-OP-08/**"
       ],
       "consumes": [
         "path:docs/rehearsal/**",
@@ -8021,7 +8029,7 @@
       ],
       "test_outputs_within_allowed": true,
       "outputs": [
-        "감리 보고서, 다섯 축 보고",
+        "evidence/T-OP-08/에 감리·다섯 축 보고서와 수락 실행 로그",
         "출시 준비 판정기 tools/release_readiness/check.py: feature_registry의 비제외 항목 전부가 tasks(post_merge 상태)·evidence(실제 데이터 증거 기록 참조)·acceptance_tests(실행 로그) 를 갖는지 검사",
         "선행 제품 과제의 evidence/<과제 ID>/ 증거를 검토하고 readiness.json에 상대 경로·실행 결과·관측된 과제 상태를 집계한다. 개발 도구 회귀 로그만으로 제품 행을 닫지 않는다"
       ],
@@ -8047,7 +8055,8 @@
       "features": [],
       "parallel_ok": false,
       "conflict_paths": [
-        "docs/release-readiness/**"
+        "docs/release-readiness/**",
+        "docs/release-readiness/evidence/T-OP-08/**"
       ],
       "immediate_audit": true,
       "blocked_by": "출시 판정(L1)은 사용자 결정",

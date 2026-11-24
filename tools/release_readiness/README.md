@@ -49,20 +49,21 @@ checkout. [Initial snapshot and verification](../../docs/blueprint/audits/2026-1
 
 ## Task evidence ownership
 
-Every product task except the developer-tool tasks T-OP-00/T-OP-09 can write
-its own `docs/release-readiness/evidence/<task-id>/**` artifacts and acceptance
-logs. These paths are explicit in `tasks.json` permissions, outputs and conflict
-locks. T-OP-08 retains its existing release-readiness directory grant and
-aggregates reviewed artifacts into the shared `evidence/readiness.json`; other
-tasks cannot edit that manifest or one another's evidence. References in the
-manifest are relative to the evidence directory, e.g.
+Every task declares its own evidence path in `tasks.json` permissions, outputs
+and conflict locks. Product tasks write their artifacts and acceptance logs to
+`docs/release-readiness/evidence/<task-id>/`. T-OP-08 writes its audit reports and
+acceptance logs to `docs/release-readiness/evidence/T-OP-08/`. Its aggregate
+release-readiness grant lets it review the evidence and maintain the shared
+`docs/release-readiness/evidence/readiness.json`. References in the manifest
+are relative to the evidence directory, e.g.
 `T-DT-04/denominator-report.md` and `T-DT-04/acceptance.log`. Evidence may be
 referenced by multiple purpose rows/features without copying it.
 
+Developer-tool tasks T-OP-00 and T-OP-09 write verification records under
+`tools/evidence/<task-id>/` for the operational part of the final audit.
 Path grants do not waive data, privacy, publication or release decision gates.
-Developer-tool regressions remain outside product completion evidence. The
-existing Python CI discovery runs `test_evidence_paths.py` against every live
-product task using the daemon's actual R-01 scope predicate.
+Python CI discovery runs `test_evidence_paths.py` against every registered task
+using the daemon's R-01 scope predicate.
 
 ## Version 1 input
 
@@ -88,9 +89,9 @@ only; these files and outcomes are not supplied by the scaffold):
 ```json
 {
   "environment": "release",
-  "evidence": ["P01/denominator-report.md", "P01/screens.png"],
+  "evidence": ["T-DT-04/denominator-report.md", "T-WB-01/screens.png"],
   "acceptance_tests": [
-    {"name": "P01 actual-data acceptance", "log": "P01/acceptance.log", "exit_code": 0}
+    {"name": "P01 actual-data acceptance", "log": "T-DT-04/acceptance.log", "exit_code": 0}
   ]
 }
 ```

@@ -9,3 +9,5 @@ Decided by Claude Sonnet 5.5 xhigh (ONJEON autoloop, 2026-11-20 19:24 KST); reve
 **Options:** ['기존 ADR-0019·0020과 병합 원장을 유지한다 (채택).', '새 D-21 ADR로 두 파일을 다시 채택하고 proposals/ 밖으로 옮긴다.', 'tasks.json에 작업별 병합 상태를 추가한다.']
 
 **Revisit if:** 제품 완료 기준이나 두 계약의 권한·범위가 바뀌면 D-21 경로의 새 ADR로 검토한다. 후속 병합에서 원장과 Git 이력이 어긋나면 통합 브랜치의 병합 커밋을 확인해 원장을 정정한다.
+
+**후속 구현** — 작업 상태 읽기 경로는 [과제 상태 원장](../progress/tasks_state.json)으로 통합했다. 위의 병합 목록과 `readiness.json.task_states` 설명은 이 결정 당시의 구현을 기록한다. T-OP-08은 현재 별도 원장에서 상태·병합 SHA·과제 증거 경로를 읽고, `readiness.json`에서 행·기능별 증거와 수락 실행 결과를 읽는다. [Audit 8 검증 기록](../blueprint/audits/2026-11-24_task_state_ledger.md).

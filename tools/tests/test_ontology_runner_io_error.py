@@ -10,11 +10,11 @@ Set ONJEON_ONTOLOGY_RUNNER to use an already-built runner (both rules-engine and
 design-specs CI jobs build it before discovery). Otherwise build with
 `cargo build --locked --offline` and use its reported executable path (including target
 directory/target overrides). The runner's rust-toolchain.toml selects Rust for
-this fallback even when rustup has no global default; install that toolchain
-and cache the dependencies before running offline. A failed, timed-out build or missing executable
-artifact fails the tests. Only a missing cargo without a prebuilt runner skips
-them. The fallback build is bounded so a Cargo lock cannot consume the entire
-900-second local verification budget without identifying the blocked setup.
+this fallback even when rustup has no global default. Install that toolchain
+and run `cargo fetch --locked` in the runner directory with the same Cargo home
+as the tests. A failed or timed-out build reports Cargo's stderr. A missing
+executable artifact also fails setup. Only a missing cargo without a prebuilt
+runner skips the I/O tests. The real lock test uses a dependency-free crate.
 """
 import contextlib
 import io
@@ -79,6 +79,12 @@ class RunnerIoError(unittest.TestCase):
                 f"ontology runner cargo build exceeded {BUILD_TIMEOUT_S}s; "
                 "check for a competing Cargo build/target lock, or build the runner "
                 "first and set ONJEON_ONTOLOGY_RUNNER.\n" + stderr
+            ) from exc
+        except subprocess.CalledProcessError as exc:
+            raise RuntimeError(
+                f"ontology runner offline cargo build failed (exit {exc.returncode}); "
+                "run `cargo fetch --locked` in the runner directory with the same Cargo home "
+                "used for the tests.\n" + (exc.stderr or "")
             ) from exc
         for line in build.stdout.splitlines():
             artifact = json.loads(line)
@@ -302,11 +308,18 @@ class RunnerSetup(unittest.TestCase):
             build.assert_not_called()
 
     def test_failed_fallback_build_is_not_silently_skipped(self):
+        failure = subprocess.CalledProcessError(
+            101, ["cargo", "build"], stderr="error: no matching package named `serde_json` found",
+        )
         with mock.patch.dict(os.environ, {"ONJEON_ONTOLOGY_RUNNER": ""}), \
                 mock.patch.object(RunnerIoError, "runner", create=True), \
-                mock.patch.object(subprocess, "run", side_effect=subprocess.CalledProcessError(101, ["cargo", "build"])):
-            with self.assertRaises(subprocess.CalledProcessError):
+                mock.patch.object(subprocess, "run", side_effect=failure):
+            with self.assertRaisesRegex(RuntimeError, "offline cargo build failed \\(exit 101\\)") as caught:
                 RunnerIoError.setUpClass()
+            self.assertIn(failure.stderr, str(caught.exception))
+            self.assertIn("cargo fetch --locked", str(caught.exception))
+            self.assertIs(caught.exception.__cause__, failure)
+            self.assertFalse(RunnerIoError.runner)
 
     def test_stalled_fallback_build_fails_with_cargo_diagnostic(self):
         for stderr in (b"Blocking waiting for file lock on build directory", "cargo stalled", None):
@@ -330,15 +343,28 @@ class RunnerSetup(unittest.TestCase):
         import fcntl
 
         with tempfile.TemporaryDirectory() as directory:
-            target = Path(directory)
-            (target / "debug").mkdir()
-            with (target / "debug/.cargo-lock").open("w") as lock:
-                fcntl.flock(lock, fcntl.LOCK_EX)
-                with mock.patch.dict(os.environ, {
-                    "ONJEON_ONTOLOGY_RUNNER": "", "CARGO_TARGET_DIR": str(target),
-                }), mock.patch.object(sys.modules[__name__], "BUILD_TIMEOUT_S", 5), \
-                        mock.patch.object(RunnerIoError, "runner", create=True):
-                    os.environ.pop("CARGO_BUILD_TARGET", None)  # lock the native debug directory
+            crate = Path(directory)
+            target = crate / "target"
+            cargo_home = crate / "cargo-home"
+            cargo_home.mkdir()
+            (crate / "Cargo.toml").write_text(
+                '[package]\nname = "ontology-case-runner"\nversion = "0.0.0"\nedition = "2021"\n\n[workspace]\n',
+                encoding="utf-8",
+            )
+            (crate / "src").mkdir()
+            (crate / "src/main.rs").write_text("fn main() {}\n", encoding="utf-8")
+            shutil.copyfile(RUNNER_DIR / "rust-toolchain.toml", crate / "rust-toolchain.toml")
+            with mock.patch.dict(os.environ, {
+                "ONJEON_ONTOLOGY_RUNNER": "", "CARGO_HOME": str(cargo_home),
+                "CARGO_TARGET_DIR": str(target), "CARGO_BUILD_BUILD_DIR": str(target),
+            }), mock.patch.object(sys.modules[__name__], "BUILD_TIMEOUT_S", 5), \
+                    mock.patch.object(sys.modules[__name__], "RUNNER_DIR", crate), \
+                    mock.patch.object(RunnerIoError, "runner", create=True):
+                os.environ.pop("CARGO_BUILD_TARGET", None)  # lock the native debug directory
+                subprocess.run(["cargo", "generate-lockfile", "--offline"], cwd=crate, check=True, timeout=30)
+                (target / "debug").mkdir(parents=True)
+                with (target / "debug/.cargo-lock").open("w") as lock:
+                    fcntl.flock(lock, fcntl.LOCK_EX)
                     with self.assertRaisesRegex(RuntimeError, "Blocking waiting for file lock"):
                         RunnerIoError.setUpClass()
                     self.assertFalse(RunnerIoError.runner)

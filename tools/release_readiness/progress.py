@@ -2,23 +2,12 @@
 """Report P01–P19 progress as Markdown. Exit 0 for any progress, 2 for invalid inputs."""
 import argparse
 import os
-import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from check import (BUNDLE, PURPOSE, ROOT, artifact_problem, inspect_item, read_contract,
-                   read_json, read_manifest, require)
-
-
-def read_merged(path, tasks):
-    merges = read_json(path)
-    require(isinstance(merges, dict), "merged inventory must map task IDs to commit SHAs")
-    for task, commit in merges.items():
-        require(task in tasks, f"unknown merged task: {task}")
-        require(isinstance(commit, str) and re.fullmatch(r"[0-9a-f]{40}", commit),
-                f"{task}: expected a full merge commit SHA")
-    return set(merges)
+from check import (BUNDLE, PURPOSE, ROOT, TASKS_STATE, artifact_problem, inspect_item,
+                   read_contract, read_manifest, read_task_states, task_state_problems)
 
 
 def has_task_evidence(directory):
@@ -34,10 +23,12 @@ def has_task_evidence(directory):
     return False
 
 
-def report(registry, purpose, merged_path, directory):
+def report(registry, purpose, tasks_state, directory):
     tasks, rows, features = read_contract(registry, purpose)
-    merged = read_merged(merged_path, tasks)
+    states = read_task_states(tasks_state, tasks)
+    merged = {task for task, record in states.items() if record["merge_sha"] is not None}
     manifest = read_manifest(directory, tasks, rows, features)
+    problems = task_state_problems(rows.values(), states, directory)
     row_tasks = set().union(*(set(row["tasks"]) for row in rows.values()))
     task_evidence = {task for task in row_tasks if has_task_evidence(directory / task)}
 
@@ -53,8 +44,7 @@ def report(registry, purpose, merged_path, directory):
         references = record.get("evidence")
         references = references if isinstance(references, list) else []
         present = sum(artifact_problem(directory, reference) is None for reference in references)
-        closed = not pending and inspect_item(
-            row, record, manifest["task_states"], directory)["status"] == "closed"
+        closed = inspect_item(row, record, problems, directory)["status"] == "closed"
         closed_count += closed
         lines.append(
             f"| {row_id} | {len(linked & merged)}/{len(linked)} | "
@@ -78,11 +68,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--registry", type=Path, default=BUNDLE / "tasks.json")
     parser.add_argument("--purpose", type=Path, default=PURPOSE)
-    parser.add_argument("--merged", type=Path, default=Path(__file__).with_name("merged_tasks.json"))
+    parser.add_argument("--tasks-state", type=Path, default=TASKS_STATE)
     parser.add_argument("--evidence", type=Path, default=ROOT / "docs/release-readiness/evidence")
     args = parser.parse_args(argv)
     try:
-        print(report(args.registry, args.purpose, args.merged, args.evidence))
+        print(report(args.registry, args.purpose, args.tasks_state, args.evidence))
     except (OSError, ValueError, RuntimeError) as exc:
         print(f"Cannot report product purpose progress: {exc}", file=sys.stderr)
         return 2

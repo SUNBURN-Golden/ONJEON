@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 
 from tools.daemon.mock_env import MockEnv
-from tools.release_readiness.check import inspect_item
+from tools.release_readiness.check import inspect_item, task_state_problems
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -113,13 +113,15 @@ class MissingGateContracts(unittest.TestCase):
             record = {"environment": "release", "evidence": ["sample.log"],
                       "acceptance_tests": [{"name": "label-kinds-complete",
                                             "log": "sample.log", "exit_code": 0}]}
-            self.assertEqual(inspect_item(item, record, {"T-KN-08": "done"}, directory)["status"], "closed")
+            states = {"T-KN-08": {"state": "done", "merge_sha": "a" * 40, "evidence_path": "sample.log"}}
+            problems = task_state_problems([item], states, directory)
+            self.assertEqual(inspect_item(item, record, problems, directory)["status"], "closed")
             record["acceptance_tests"][0]["exit_code"] = 1
-            failed = inspect_item(item, record, {"T-KN-08": "done"}, directory)
+            failed = inspect_item(item, record, problems, directory)
             self.assertEqual(failed["status"], "open")
             self.assertIn("acceptance test did not pass: label-kinds-complete", failed["reasons"])
             record["acceptance_tests"] = []
-            missing = inspect_item(item, record, {"T-KN-08": "done"}, directory)
+            missing = inspect_item(item, record, problems, directory)
             self.assertIn("missing acceptance test: label-kinds-complete", missing["reasons"])
 
     def test_records_are_pending_and_documented_tables_match(self):

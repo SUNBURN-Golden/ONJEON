@@ -41,26 +41,32 @@
 
 ## 로컬 시험
 
-CI는 Rust `1.98.1`을 명시한다. 아래 명령은 저장소 루트에서 실행하며,
-작업 트리 경로에만 rustup 재정의를 등록해 전역 Rust 기본값이 없어도
-같은 도구 체인을 선택한다. 이 설정은 다른 작업 트리에 적용되지 않는다.
-온톨로지 실행기의 `rust-toolchain.toml`은 해당 디렉터리에만 적용된다.
+CI는 Rust `1.98.1`을 명시한다. 아래 명령은 저장소 루트의 같은 셸에서
+실행한다. 전역 Rust 기본값이 없어도 plain `cargo`가 같은 도구 체인을 쓰도록
+작업 트리 경로에만 rustup 재정의를 등록한다. 이 설정은 다른 작업 트리에
+적용되지 않으며, 온톨로지 실행기의 `rust-toolchain.toml`은 해당 디렉터리에만
+적용된다. Cargo 캐시와 Python 가상 환경은 작업 트리의 `target/`에 둔다.
 
 ```sh
 rustup toolchain install 1.98.1 --profile minimal
 rustup override set --path "$PWD" 1.98.1
-python3 -m pip install --user boto3==1.43.100
+export CARGO_HOME="$PWD/target/cargo-home"
+python3 -m venv target/test-venv
+target/test-venv/bin/python -m pip install boto3==1.43.100
 cargo fetch --locked
 cargo fetch --manifest-path services/scenario-api/Cargo.toml --locked
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo fetch --locked)
-python3 -m unittest discover -s tools/tests -v
-python3 -m unittest discover -s tools/daemon/runner_verify/tests -v
+target/test-venv/bin/python -m unittest discover -s tools/tests -v
+target/test-venv/bin/python -m unittest discover -s tools/daemon/runner_verify/tests -v
 cargo test --all --locked --offline
 cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
 ```
 
-오프라인 시험 전에는 도구 체인과 각 Cargo 작업 공간의 의존성이 설치돼 있어야 한다.
-Python 시험은 필요한 온톨로지 실행기를 오프라인으로 빌드한다.
-재정의는 rustup의 로컬 설정이며 Git에 포함되지 않는다. 새 작업 트리에서는 위 준비를
-반복한다. 해제하려면 해당 루트에서 `rustup override unset --path "$PWD"`를 실행한다.
+재정의는 rustup의 로컬 설정이며 Git에 포함되지 않는다. 새 작업 트리에서는
+위 준비를 반복하고, 해제하려면 저장소 루트에서
+`rustup override unset --path "$PWD"`를 실행한다.
+
+Python 시험은 필요한 온톨로지 실행기를 오프라인으로 빌드한다. 의존성을
+가져올 때와 시험할 때 같은 `CARGO_HOME`을 사용한다. 이미 의존성을 받은
+Cargo 캐시가 있으면 위 `CARGO_HOME`에 그 경로를 지정할 수 있다.

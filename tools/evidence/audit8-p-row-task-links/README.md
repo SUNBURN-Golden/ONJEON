@@ -32,6 +32,8 @@
 
 3차 수정은 완료 범위를 P01~P20으로 맞췄다. [ADR-0022](../../../docs/decisions/ADR-0022-제품-완료-범위-P20-확장.md)가 P20 추가와 완료 분모 변경을 기록하고, 결정 원장 BP-D-23과 BLUEPRINT §7·§9.5·§13, ADR-0019·ADR-0020의 완료 행 수를 동기화했다. `tools/tests/test_audit8_completion_scope.py`가 이 노드가 편집할 수 있는 문서·도구의 20행 분모와 P20의 요구·과제 연결을 대조한다.
 
+5차 수정은 `origin/main`과의 병합 충돌을 해소하되 양쪽 의도를 유지했다. `main`의 결정 상태 열·ID 구분표와 이 노드의 시험 담당 과제 연결·P20을 함께 남겼고, 결정 상태 칸은 `tools/decision_status.py --write`로 생성했다. 상세 내용과 최신 재실행 결과는 [fix-round5](fix-round5/README.md)에 있다.
+
 4차 수정은 3차가 허용 경로 밖의 `docs/release-readiness/evidence/README.md`를 편집한 것을 되돌렸다. 그 파일의 19행 문구는 이 노드가 고칠 수 없으므로 회귀 시험에서도 제외하고, 안내문 소유자가 P01~P20으로 동기화할 후속 항목으로 남겼다. CI 안내문의 시험 ID 개수 수정은 허용 경로 안이므로 유지한다. 상세 실행 기록은 [fix-round4](fix-round4/README.md)에 있다.
 
 실제 동의·삭제·복원·누출·롤백 실행 기록은 P20 출시 증거로 수집해야 한다. 이 기록은 대응표와 판정 도구의 감리 수정에 해당한다.

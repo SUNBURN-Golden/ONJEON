@@ -20,7 +20,7 @@
 
 `docs/decisions/DEC-*.md`는 실데이터 사용·정본 변경 등의 결정·위임 범위·조건·상태를 남기는 **결정 게이트 기록**이며, [결정 원장 §3](blueprint/DECISIONS.md#3-구현-전-미정-사항과-차단-범위)의 §3.1에는 전체 기록을 상태와 함께 색인한다. DEC 기록은 설계도를 변경하는 ADR을 대신하지 않는다.
 
-확정 방향은 `BP-D-xx`, 작업 묶음의 실행 게이트는 `D-xx`로 참조한다. 같은 번호 16~18을 쓰는 R2 확정 방향과 작업 묶음 게이트의 주제·근거는 ID 구분표에 있다. [결정 원장 §1.2](blueprint/DECISIONS.md#decision-id-namespaces).
+확정 방향은 `BP-D-xx`, 작업 묶음의 결정은 `D-xx`로 참조한다. 같은 번호 02~18의 주제와 결정 원문, 작업 게이트의 등록 기준은 ID 구분표에서 확인한다. [결정 원장 §1.2](blueprint/DECISIONS.md#decision-id-namespaces).
 
 [ADR-0019](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)는 09·tasks.json을 이 설계도 하위 계약으로 한정 채택한다. 기존 `proposals/` 경로는 유지한다. 09는 제품 완료 증거 기준, tasks.json은 데몬 작업 소스와 개별 수락 기준이다. 상위 계약과 충돌하면 상위를 따르며, 참조된 제안·온톨로지와 묶음 전체를 일괄 채택하지 않는다. `daemon_rules.json`은 실행 기준만 유지하고, `common_done_criteria`는 `non_binding_until_adopted`로 남는다.
 

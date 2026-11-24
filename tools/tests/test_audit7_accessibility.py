@@ -74,7 +74,7 @@ class AccessibilityContract(unittest.TestCase):
         self.require(p19[7], "상태 카탈로그 캡처 1:1", "실제 참가자 이해 시험 결과",
                      "실제 앱·공개 웹", "200%", "대비", "시맨틱 트리", "TalkBack", "VoiceOver",
                      "웹 스크린 리더 실행 기록")
-        self.require(p19[9], ADR.name, "사용자 확정 대기")
+        self.require(p19[-1], ADR.name, "사용자 확정 대기")
         for owner, test_id, platform in (
             ("T-MB-03", "mobile-screen-accessibility", "TalkBack·VoiceOver"),
             ("T-WB-01", "public-web-accessibility", "웹 스크린 리더"),

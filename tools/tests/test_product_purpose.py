@@ -198,7 +198,7 @@ class ProductPurposeTests(unittest.TestCase):
                          "늦은 쓰기 거부", "백업 복원 시 삭제 표시 재적용", "누출 시험", "롤백 리허설"):
             self.assertIn(evidence, privacy[7])
         for scope in ("첫 출시 기능 구현은 동결", "DEC-D-17", "합성 자료만", "O18 결정 전"):
-            self.assertIn(scope, privacy[9])
+            self.assertIn(scope, privacy[-1])
 
     def test_row_owner_cannot_be_replaced_by_another_registered_task(self):
         original = self.text

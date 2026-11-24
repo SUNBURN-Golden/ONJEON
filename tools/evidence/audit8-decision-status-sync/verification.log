@@ -1,0 +1,58 @@
+Decision status check and write, with deliberately stale copies of the four outputs
+Stale decision status: docs/blueprint/proposals/설계검토_결과/tasks.json
+Stale decision status: docs/blueprint/proposals/설계검토_결과/README.md
+Stale decision status: docs/blueprint/proposals/설계검토_결과/03_작업명세.md
+Stale decision status: docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+Run python3 tools/decision_status.py --write
+Updated docs/blueprint/proposals/설계검토_결과/tasks.json
+Updated docs/blueprint/proposals/설계검토_결과/README.md
+Updated docs/blueprint/proposals/설계검토_결과/03_작업명세.md
+Updated docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md
+Decision index and tables are synchronized
+Decision index and tables are synchronized
+Regenerated all four outputs byte-for-byte
+
+Comparison with worktree HEAD
+Unchanged task definitions: 67
+Unchanged feature evidence entries: 64
+Unchanged purpose rows through completion evidence and traceability: 19
+DEC records, task state ledger and daemon rules match HEAD
+
+Focused decision, scope and gate regressions
+----------------------------------------------------------------------
+Ran 92 tests in 0.508s
+
+OK
+
+Design bundle semantic check
+요약: 기계 검사 47/47 · 존재 검사 72/72 · 전체 통과
+
+Daemon dry run
+  필수 시험 ID 33개 중 이번에 실행한 것 33개, 실행하지 않은 것 0개(이번 범위 밖)
+
+Rust workspace
+537 tests and doctests passed
+
+Scenario API
+4 tests passed
+
+Ontology runner and validation
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+## 요약: r24 K1 위반 재현 True · r25·r26 위반 0 True · 범위 관계 narrower True · 질문 11/11 · 제약 자체 시험 15/15 · 릴리스·문서 모델 시험 25/25 · 금액 표시·비교 시험 10/10 · 전체 통과
+
+Daemon runner verification
+----------------------------------------------------------------------
+Ran 81 tests in 196.741s
+
+OK
+
+Existing table readers for accessibility, retail-price scope and O19
+----------------------------------------------------------------------
+Ran 34 tests in 0.046s
+
+OK
+
+Python tools test suite
+Ran 1799 tests in 415.416s
+OK (skipped=6)
+Five checks require local archived originals. One requires an older botocore without conditional PUT.

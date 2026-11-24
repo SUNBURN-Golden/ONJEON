@@ -22,7 +22,7 @@ class PurposeTableDecisionSync(unittest.TestCase):
                 self.assertEqual(10, len(cells))
                 self.assertNotIn(cells[0], self.rows)
                 self.rows[cells[0]] = cells
-        self.assertEqual({f"P{i:02}" for i in range(1, 20)}, self.rows.keys())
+        self.assertEqual({f"P{i:02}" for i in range(1, 21)}, self.rows.keys())
 
     def require_scope(self, row, *phrases):
         scope = self.rows[row][-1]

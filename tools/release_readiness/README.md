@@ -1,7 +1,7 @@
 # Release readiness evidence scaffold
 
 `check.py` implements the evidence-coverage portion of T-OP-08. It reads the
-implementation task column for all P01–P19 in 09 and every item in
+implementation task column for all P01–P20 in 09 and every item in
 `tasks.json.feature_registry`. The manifest cannot reduce either denominator.
 Both existing task commands check both sets; omitting `--purpose` selects the
 canonical 09 document relative to the script, independent of the working directory.
@@ -30,7 +30,7 @@ report to its job summary in the advisory Product purpose progress step.
 Open rows return exit 0. Input errors return exit 2 with a diagnostic, and CI
 continues to the test steps.
 
-The report derives linked tasks for P01–P19 from 09 and uses all
+The report derives linked tasks for P01–P20 from 09 and uses all
 `tasks.json` task IDs for the overall denominator, including developer tools.
 **Merged tasks** counts recorded merge SHAs from the same task ledger the
 checker uses. This includes historical merges awaiting state or evidence review.
@@ -108,7 +108,7 @@ for compatibility and uses the ledger as the sole source of task state.
 {"version": 1, "rows": {}, "features": {}}
 ```
 
-`rows` is keyed by P01–P19; `features` is keyed by the feature registry IDs.
+`rows` is keyed by P01–P20; `features` is keyed by the feature registry IDs.
 Missing entries stay open. An individual record has this shape (illustration
 only; these files and outcomes are not supplied by the scaffold):
 

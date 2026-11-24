@@ -308,7 +308,7 @@ ADR-0020의 한정 예외: 이미 존재하는 T-TW-02 rule-0.2 구현은 로컬
 | M3 | 분모와 수집 확장: AI 분모 조사, 어댑터 표준, 일일 스케줄, `/coverage` | A1~A3의 범위 | 분모 공개, 일일 확인 달성률 측정, I17 | 부분 구현·관문 미통과. `tools/crawler/`·`tools/registry_normalize.py`가 있으나 상품·특약·판매본은 미열거이며 국내 IP 실행 환경 O19가 남아 있다. 전 대상 일일 확인·실제 `/coverage` 공개 응답·I17 증거는 미완료다 |
 | M4 | 같은 담보 비교와 공개 가격 | A3, A4 | I7, I8, 비교 기준 동작 | 관문 미통과. 가격·비교 계약과 DB 초안은 있으나 실제 비교 뷰모델·화면 연결 및 I7·I8 통합 증거는 미완료다. 가격 열 대외 표시는 D-18(O10) 뒤이며 수집·저장·내부 개발은 범위 안이다 |
 | M5 | 계약 트윈과 내 설계: PDF 가져오기, 두 안 비교, 만약에 | A5, A6 | I9, I11 | 부분 구현·관문 미통과. `packages/twin-runtime/`의 판매 구성 선택·입력 연결과 `apps/mobile/` 프레임은 픽스처·골격 범위다. 개인 가입내역 PDF→계약 트윈→내 설계·두 안 비교·만약에 실제 흐름과 I9·I11 증거는 미완료다 |
-| M6 | 상품군 확장(W1~W6), 실손 상환형 연산, 출시 게이트 | 전체 | 출시 게이트 전 항목, I10·I13~I16 | 관문 미통과. 엔진·온톨로지의 픽스처 검증과 출시 증거 판정기는 있으나 실제 상품군 확장·릴리스·운영·화면·이해도 시험은 미완료다. `docs/release-readiness/evidence/` 등록부의 P01~P19·기능은 모두 열려 있으며 T-OP-08 완료·출시 승인 증거가 아니다 |
+| M6 | 상품군 확장(W1~W6), 실손 상환형 연산, 출시 게이트 | 전체 | 출시 게이트 전 항목, I10·I13~I16 | 관문 미통과. 엔진·온톨로지의 픽스처 검증과 출시 증거 판정기는 있으나 실제 상품군 확장·릴리스·운영·화면·이해도 시험은 미완료다. `docs/release-readiness/evidence/` 등록부의 P01~P20·기능은 모두 열려 있으며 T-OP-08 완료·출시 승인 증거가 아니다 |
 
 각 마일스톤은 관문을 통과해야 다음으로 넘어간다. 관문에서 막히면 다음 단계로 건너뛰지 않고 원인을 고친다. 기간은 관문 통과로 관리하며 날짜를 약속하지 않는다.
 
@@ -359,13 +359,15 @@ data·knowledge·twin 세 구역이 온전 보험 데이터·지식 기반이고
 
 ### 9.5 제품 완료와 개별 작업 완료 (ADR-0019)
 
-[09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19를 제품 완료 증거 기준으로, [tasks.json](blueprint/proposals/설계검토_결과/tasks.json)을 데몬 작업 소스와 개별 수락 기준으로 적용한다. 작업의 선행 관계·결정 관문·`done_criteria`·`required_test_ids`·`tests`를 만족해도 §9.2 마일스톤 관문을 생략하지 않는다.
+[09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P20를 제품 완료 증거 기준으로, [tasks.json](blueprint/proposals/설계검토_결과/tasks.json)을 데몬 작업 소스와 개별 수락 기준으로 적용한다. 작업의 선행 관계·결정 관문·`done_criteria`·`required_test_ids`·`tests`를 만족해도 §9.2 마일스톤 관문을 생략하지 않는다.
 
 첫 출시 최종 관문 T-OP-08의 `purpose-rows-all-closed`는 09의 모든 행(근거 있는 축소·후속 제외)이 실제 데이터·실제 화면 시험·출시 증거(`docs/release-readiness/evidence/`)로 닫혀야 통과한다. 합성 픽스처·전체 작업 시험 통과나 데몬 완성만으로 제품 완료를 선언하지 않는다. 개발 도구 T-OP-00·T-OP-09의 검증은 제품 완료와 구분한다. 문서 채택은 실데이터 접근·가동·출시 관문 통과가 아니다.
 
 ADR-0021의 09 P19 완료 증거는 실제 앱·공개 웹 화면의 200% 확대·대비·시맨틱 트리 회귀 시험과 TalkBack·VoiceOver·웹 스크린 리더 실행 기록을 포함한다. T-MB-03·T-WB-01은 각 화면의 증거를 수집하고, T-UX-01은 고령 참가자 계획을 사전등록하고 P18의 U7 결과를 기록한다.
 
-CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#product-purpose-progress)는 P01~P19별 병합 집계와 과제별·등록부 증거 파일 현황, 행의 닫힘 여부를 표시한다. T-OP-08의 최종 검토 전에도 각 과제의 증거 수집 진척을 확인할 수 있다. 최초 기준과 검증 결과는 [Audit 7 기록](blueprint/audits/2026-11-19_purpose_progress_ledger.md)에 남겼다.
+09 P20은 기존 개인정보·복구 요구를 동의·선택 가족력·삭제, 누출 차단, 백업 복원과 안전한 롤백의 실제 출시 증거에 연결한다. DNA 기능은 §7.1의 동결 범위를 따르고 개인자료 처리에는 §12의 D-17 조건을 적용한다.
+
+CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#product-purpose-progress)는 P01~P20별 병합 집계와 과제별·등록부 증거 파일 현황, 행의 닫힘 여부를 표시한다. T-OP-08의 최종 검토 전에도 각 과제의 증거 수집 진척을 확인할 수 있다. 최초 기준과 검증 결과는 [Audit 7 기록](blueprint/audits/2026-11-19_purpose_progress_ledger.md)에 남겼다.
 
 ### 9.6 작업 단계와 마일스톤 대응 (ADR-0020)
 
@@ -382,7 +384,7 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 
 ## 10. 드리프트 방지 규칙
 
-1. 모든 PR은 템플릿(`.github/pull_request_template.md`)에 해당하는 A·Q·L·I·M을 적는다. 본문에 `tasks.json` 과제 ID(목록 외 작업은 노드 ID와 사유) 또는 09 P행(`P01`~`P19`) 중 하나로 작업·완료 기준 추적 지점을 적는다. `python3 -I tools/ci/check_pr_body_traceability.py`가 CI에서 이를 확인한다. 어디에도 연결되지 않으면 범위 밖이다.
+1. 모든 PR은 템플릿(`.github/pull_request_template.md`)에 해당하는 A·Q·L·I·M을 적는다. 본문에 `tasks.json` 과제 ID(목록 외 작업은 노드 ID와 사유) 또는 09 P행(`P01`~`P20`) 중 하나로 작업·완료 기준 추적 지점을 적는다. `python3 -I tools/ci/check_pr_body_traceability.py`가 CI에서 이를 확인한다. 어디에도 연결되지 않으면 범위 밖이다.
 2. 새 상태값·enum은 §6에 먼저 추가하는 PR을 낸 뒤 쓴다.
 3. 결정 변경은 ADR → §7 갱신 순서다. 대화에서 바뀐 방향도 ADR로 남긴다.
 4. 불변식은 테스트로 강제될 때만 "구현"이다.
@@ -395,7 +397,7 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 
 ## 11. 현재 위치 (2026-11-20)
 
-저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P19 완료 증거와 T-OP-08 관문으로 판정한다.
+저장소 코드·결정 기록을 대조한 현황이다. 원본 보존과 시험 수의 과거 관측일은 각 항목에 따로 표시한다. 아래 도구·픽스처 구현과 결정 기록의 존재는 실제 데이터 접근·데몬 가동 승인이나 첫 출시 완료를 뜻하지 않는다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 P01~P20 완료 증거와 T-OP-08 관문으로 판정한다.
 
 | 항목 | 상태 |
 |---|---|
@@ -409,7 +411,7 @@ CI의 [제품 목적 진척 보고서](../tools/release_readiness/README.md#prod
 | 데이터 | 전체 수집 대상 목록 V0: 보험사 53, 공제 등 16(공제는 범위 제외, 우체국보험 포함, ADR-0018), 제외·과거 49, 근거 75(2026-10-09 1차 조사 66건 + 2026-11-10 감독당국 재조회 9건, `data/registry/sources.csv`). ‘두 곳 이상 출처’ 43/43곳을 포함한 보험사 53/53곳의 FISIS·파인 기관 ID를 조회 출처에 연결했다 ([Audit 7 교차검증](blueprint/audits/2026-11-19_registry_supervisory_crosscheck.md)). **상품·특약은 53곳 모두 미열거**라 전 상품 목록은 아직 없다. 공시 진입점은 8곳만 확보했고 45곳은 해외 IP 샌드박스에서 확보하지 못해, 실데이터 열거는 국내 IP 수집 실행 환경(O19, 미준비) 뒤다(T-DT-04 `real_data`: O19, D-04는 해결). 설계 검증 표본 14개 파일(교보생명·KB손해보험·생명보험협회·법제처)의 인코딩. 원본 58키·파생 v2 61키를 R2에 보존하고 다시 받아 전부 바이트 일치한 것은 **2026-10-09 관측 기록**이며 이번 갱신에서 R2에 접근하지 않았다. 서비스용 전 상품 데이터는 아직 없다 |
 | 결정 기록·운영 관문 | 2026-11-03 검토: DEC 전체 18개를 원장 §3.1·결정 디렉터리 색인·그록봇 인계에 연결했다. O01·O04·O12의 결정 질문은 해결됐으며 D-02 구성·소유자도 결정된 위임 개발 기준이다. 사용자 확정 상태는 승격하지 않고 접근 확인·게이트 등록·연산별 S6와 별도 실행 승인은 유지한다([검증 증거](../tools/evidence/audit4-decisions-ledger-sync/README.md)). 2026-10-29 검토: 원장 확정 방향의 BP-D-01~BP-D-19 개명과 참조 갱신 완료([대응표](blueprint/DECISIONS.md#11-이전-id-대응표), [검증 증거](../tools/evidence/audit3-dec-id-collision/fix-round1/README.md)). 실행 게이트 D-xx·Oxx와 결정 내용·승인 상태는 유지한다. 병합으로 추가된 ADR-0019의 한정 채택은 BP-D-20으로 기록한다([병합 검증](../tools/evidence/audit3-dec-id-collision/fix-round2/README.md)). 아래는 ADR·DEC 전체 파일 색인이다. DEC는 §0.1의 결정 게이트 기록이며 ADR을 대신하지 않는다. DEC-D-02의 모델 구성·정책 소유자는 위임 결정·사용자 확정 대기이며 접근 확인·게이트 등록이 별도다. DEC-D-02와 [DEC-O12](decisions/DEC-O12.md)는 위임 결정·가역·사용자 확정 아님인 잠정 개발 기준이다. O12는 T-TW-04·T-TW-05의 release 게이트이며 등록과 연산별 S6 검증은 별도다. S6 미충족 연산은 병합해도 capability-blocked를 유지한다(§12·원장 §3). DEC-D-04는 2026-11-10 소유자 위험 수용 재확인으로 해결: 기존 R2 토큰을 폐기·재발급 없이 ONJEON box secrets env에서만 읽어 사용하고 값 출력·로그를 금지한다. O14 잠금 적용 승인·미정값, O17 대량 자동 수집 차단과 다른 관문은 유지한다. DEC-CANON-T-CT-02는 추가 전용·조건부 위임 기록이며 병합 미승인이다. DEC-BUNDLE-STATUS의 실행 기준 채택(사용자 결정 2026-10-13)을 유지하며, ADR-0019로 09·tasks.json의 제품 완료·작업 계약을 BLUEPRINT 하위 정본에 한정 채택했다. 묶음의 나머지(01~08, 온톨로지 제안, U-01~U-04, A-01)와 common_done_criteria, daemon_rules.json은 이번 정본 채택 대상이 아니다. 그 밖의 정본 반영은 D-21 경로를 따른다. 다른 DEC의 위임·범위·조건도 각 원문을 따른다. 색인은 `decisions_recorded` 등록이나 관문 통과 증거가 아니다 |
 | 앱·웹·API | `apps/mobile/`에 Flutter 탭·진입점·공통 상태 프레임이 있다. 기능 화면·실데이터 연결·전 화면 상태 캡처·사용자 이해 시험은 미완료. API 타입·OpenAPI 계약은 있으나 서비스 API·공개 웹의 출시 구현은 없다 |
-| 출시 증거 | `tools/release_readiness/check.py`는 09 P행과 `tasks.json.feature_registry`에 연결된 과제의 상태·병합 SHA·증거 경로를 [과제 상태 원장](blueprint/progress/tasks_state.json)에서 읽고, `docs/release-readiness/evidence/readiness.json`에서 행·기능별 완료 증거와 수락 실행 로그를 읽는다. 원장에는 확인된 병합 SHA 20건이 있고, 승인 상태·과제 증거와 행·기능별 완료 증거는 미등록이다. 로컬 판정은 P행 open=19·closed=0·excluded=0, 기능 open=64·closed=0·excluded=0으로 종료 코드 1(미완료)이다. T-OP-08 전체 감리와 출시 승인은 별도다. [판정기 안내](../tools/release_readiness/README.md) |
+| 출시 증거 | `tools/release_readiness/check.py`는 09 P행과 `tasks.json.feature_registry`에 연결된 과제의 상태·병합 SHA·증거 경로를 [과제 상태 원장](blueprint/progress/tasks_state.json)에서 읽고, `docs/release-readiness/evidence/readiness.json`에서 행·기능별 완료 증거와 수락 실행 로그를 읽는다. 원장에는 확인된 병합 SHA 20건이 있고, 승인 상태·과제 증거와 행·기능별 완료 증거는 미등록이다. 로컬 판정은 P행 open=20·closed=0·excluded=0, 기능 open=64·closed=0·excluded=0으로 종료 코드 1(미완료)이다. T-OP-08 전체 감리와 출시 승인은 별도다. [판정기 안내](../tools/release_readiness/README.md) |
 | 불변식 | §8의 기존 표기는 18개 중 6개 구현(엔진 범위)이다. 이번 현황 갱신으로 다른 불변식을 구현 완료로 승격하지 않는다 |
 | 마일스톤 | M0 완료(엔진 범위), V0 완료(기관 분모만, 상품·특약·판매본 미열거). V1은 설계 탐색·2026-10-09 원본 R2 보존·대조 기록이 있으나 완전 재현 8/14로 관문 미통과다. 남은 파생 6건 재생성 검증·실제 이종 계열 검수·S1·S6 해결이 필요하다. M1~M6는 부분 코드·계약·도구와 관문 증거를 §9.2에서 구분하며 모두 관문 미통과다. 첫 출시 완료는 09·T-OP-08의 실제 데이터·화면·출시 증거로 별도 판정한다 |
 
@@ -523,7 +525,7 @@ Audit 7의 합성 검증에서 두 rule-0.2 나눗셈의 0 분모는 미확인 �
 
 A·Q·L·I·M을 대체하지 않는다. PR에는 관련 체계와 R 요구 ID, 실제 검증 증거를 함께 적는다. 규칙 엔진 테스트 통과는 실제 약관·가격 정확도나 사용성 검증 완료가 아니다. §11의 2026-10-09 테스트 수는 역사적 보고 기준이고, 현재 등록 수는 §11의 자동 생성 표, 재실행 결과는 §11에 연결한 갱신 검증 증거에서 확인한다.
 
-[09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)는 P01~P19의 제품 목적·작업·완료 증거를 연결하고, [tasks.json](blueprint/proposals/설계검토_결과/tasks.json)은 데몬 작업 소스와 개별 `done_criteria`·`required_test_ids`·`tests`를 고정한다([ADR-0019](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)). §0.1 위계 아래 §9.5의 T-OP-08·`purpose-rows-all-closed`로 제품 완료를 판정한다. `common_done_criteria`의 공통 PR 의무는 채택하지 않는다. 완료 범위·증거 기준 변경은 새 ADR과 §7·§9·이 절·결정 원장 및 두 계약을 함께 갱신하며 상위 계약과 충돌하는 제안은 D-21 경로를 따른다.
+[09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)는 P01~P20의 제품 목적·작업·완료 증거를 연결하고, [tasks.json](blueprint/proposals/설계검토_결과/tasks.json)은 데몬 작업 소스와 개별 `done_criteria`·`required_test_ids`·`tests`를 고정한다([ADR-0019](decisions/ADR-0019-제품-완료와-작업-계약-한정-채택.md)). §0.1 위계 아래 §9.5의 T-OP-08·`purpose-rows-all-closed`로 제품 완료를 판정한다. `common_done_criteria`의 공통 PR 의무는 채택하지 않는다. 완료 범위·증거 기준 변경은 새 ADR과 §7·§9·이 절·결정 원장 및 두 계약을 함께 갱신하며 상위 계약과 충돌하는 제안은 D-21 경로를 따른다.
 
 [ADR-0020](decisions/ADR-0020-작업-단계와-V1-관문-정합화.md)의 단계 대응은 §9.6, V1 비대체는 §9.2, T-TW-02의 로컬 엔진·픽스처 한정 예외는 §9.1·§9.3을 따른다. 두 계약의 작업 완료·제품 완료 판정에도 같은 제한을 적용한다.
 

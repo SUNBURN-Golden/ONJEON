@@ -42,7 +42,7 @@ class PurposeProgress(unittest.TestCase):
         self.purpose.write_text(
             "| # | 구현 작업 |\n|---|---|\n"
             "| P01 | T-AA-01, T-AA-02 |\n"
-            + "".join(f"| P{i:02} | T-AA-03 |\n" for i in range(2, 20)),
+            + "".join(f"| P{i:02} | T-AA-03 |\n" for i in range(2, 21)),
             encoding="utf-8",
         )
         self.write_states({"T-AA-01": {"merge_sha": "a" * 40, "state": None, "evidence_path": None}})
@@ -86,15 +86,15 @@ class PurposeProgress(unittest.TestCase):
 
     def test_complete_denominators_partial_merges_and_no_manifest(self):
         output = self.output()
-        self.assertIn("Closed purpose rows **0/19** · Merged tasks **1/3**", output)
-        self.assertEqual([f"P{i:02}" for i in range(1, 20)],
+        self.assertIn("Closed purpose rows **0/20** · Merged tasks **1/3**", output)
+        self.assertEqual([f"P{i:02}" for i in range(1, 21)],
                          re.findall(r"^\| (P\d+) \|", output, re.MULTILINE))
         self.assertIn("| P01 | 1/2 | T-AA-02 | 0/2 | 0/0 | Open |", output)
-        self.assertIn("| P19 | 0/1 | T-AA-03 | 0/1 | 0/0 | Open |", output)
+        self.assertIn("| P20 | 0/1 | T-AA-03 | 0/1 | 0/0 | Open |", output)
         self.evidence.rmdir()
         self.assertEqual(output, self.output())
         self.write_states({})
-        self.assertIn("Closed purpose rows **0/19** · Merged tasks **0/3**", self.output())
+        self.assertIn("Closed purpose rows **0/20** · Merged tasks **0/3**", self.output())
 
     def test_paths_can_be_supplied_from_another_working_directory(self):
         result = subprocess.run(
@@ -117,12 +117,12 @@ class PurposeProgress(unittest.TestCase):
         self.assertIn("| P01 | 1/2 | T-AA-02 | 0/2 | 0/0 | Open |", self.output())
         (task_dir / "directory/artifact").write_text("tentative artifact")
         self.assertIn("| P01 | 1/2 | T-AA-02 | 1/2 | 0/0 | Open |", self.output())
-        self.assertIn("| P19 | 0/1 | T-AA-03 | 0/1 | 0/0 | Open |", self.output())
+        self.assertIn("| P20 | 0/1 | T-AA-03 | 0/1 | 0/0 | Open |", self.output())
 
     def test_verified_row_closes_with_all_merges_and_successful_release_logs(self):
         self.write_release_record()
         output = self.output()
-        self.assertIn("Closed purpose rows **1/19** · Merged tasks **2/3**", output)
+        self.assertIn("Closed purpose rows **1/20** · Merged tasks **2/3**", output)
         self.assertIn("| P01 | 2/2 | — | 2/2 | 1/1 | Closed |", output)
         states = json.loads(self.tasks_state.read_text())["tasks"]
         states["T-AA-01"]["merge_sha"] = None
@@ -206,7 +206,7 @@ class PurposeProgress(unittest.TestCase):
         command = re.search(r"^        run: (.+)$", steps[0], re.MULTILINE)[1]
         summary = self.root / "job summary.md"
         for root, code, message in (
-            (ROOT, 0, "| P19 |"),
+            (ROOT, 0, "| P20 |"),
             (self.root, 0, "Merged tasks **1/3**"),
             (self.root, 2, "Cannot report product purpose progress"),
         ):

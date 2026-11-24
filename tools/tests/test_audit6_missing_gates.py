@@ -10,7 +10,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.daemon.bench import BASIC
 from tools.daemon.mock_env import MockEnv
+from tools.daemon.scenarios_flow import approve_to_wait, pr_of
 from tools.release_readiness.check import inspect_item, task_state_problems
 
 
@@ -66,6 +68,7 @@ class MissingGateContracts(unittest.TestCase):
         # Exercise the actual task's gates with the real shared transition core.
         task = copy.deepcopy(TASKS[tid])
         task["task_id"] = tid
+        task["limits"] = env.ports.catalog.task(BASIC)["limits"]
         env.ports.catalog.add(task)
         env.core.register_task(tid, state, decisions=approvals)
         return env
@@ -89,6 +92,27 @@ class MissingGateContracts(unittest.TestCase):
                 with self.subTest(task=tid, event=event):
                     env = self.env(tid, state, gates)
                     self.assertTrue(env.event(event, tid).get("applied"))
+
+    def test_ct05_decision_observations_require_both_execution_ids(self):
+        tid = "T-CT-05"
+        env = self.env(tid, "blocked")
+        for prereq in TASKS[tid]["prereq_tasks"]:
+            env.core.register_task(prereq, "done")
+        approve_to_wait(env, tid, touched=["infra/db/public/001.sql"])
+        self.assertEqual(env.state(tid), "audit_pending")
+        env.observe(tid, "audit_result", verdict="pass", sha=pr_of(env, tid)["head_sha"])
+        self.assertEqual(env.state(tid), "merge_wait")
+        self.assertEqual(pr_of(env, tid)["merge_wait_reason"], "decision_pending")
+
+        # The ledger's current and historical spellings are distinct from gate IDs.
+        for decision in ("BP-D-09", "BP-D-10", "D09", "D10", "D-09", "D-10"):
+            with self.subTest(decision=decision):
+                result = env.observe(None, "decision_record", decision_id=decision, recorded_at=env.clock.now(),
+                                     recorded_by="mock-owner", source_ref="mock://decision/ct05")
+                self.assertTrue(result["applied"])
+                self.assertEqual(env.state(tid), "merge_wait")
+                expected = "ready" if decision == "D-10" else "decision_pending"
+                self.assertEqual(pr_of(env, tid)["merge_wait_reason"], expected)
 
     def test_o03_does_not_block_candidate_code_merge(self):
         for tid in ("T-KN-05", "T-KN-08"):

@@ -148,7 +148,14 @@ pub struct UnknownOverlap {
     pub state: String,
 }
 
-/// 결론별 부분 보류 표시 (02 §1.6·§2.4)
+/// 결론의 보류 상태와 미확인 항목
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DependencyStatus {
+    pub dependency_state: String,
+    pub unknown_overlap: Vec<UnknownOverlap>,
+}
+
+/// 개인 계약 합산 결론의 부분 보류 표시 (02 §1.6·§2.4)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DependencyInfo {
     /// kept, held, partial. 어휘 축 승격 대기
@@ -197,7 +204,7 @@ pub struct ViewLine {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gaps: Option<Vec<String>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub dependency: Option<DependencyInfo>,
+    pub dependency: Option<DependencyStatus>,
 }
 
 /// 결론이 의존하는 집합 (02 §1.6)
@@ -349,7 +356,8 @@ pub struct ContractSnapshot {
     pub special_conditions: Vec<serde_json::Value>,
     /// 사용 횟수. 항목 형식은 02 §1.4에 아직 없다(개인 영역 과제가 확정)
     pub usage_counters: Vec<serde_json::Value>,
-    pub sensitivity: Sensitivity,
+    /// 계약 스냅샷에 허용하는 개인 계약·건강 민감도 (02 §1.4)
+    pub sensitivity: ContractSnapshotSensitivity,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user_confirmed_at: Option<String>,
 }
@@ -551,7 +559,7 @@ pub struct NeedResult {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub deps: Option<ConclusionDependency>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub dependency: Option<DependencyInfo>,
+    pub dependency: Option<DependencyStatus>,
     pub result_state: ResultState,
 }
 
@@ -875,5 +883,5 @@ pub struct ScenarioResult {
     pub display_status: DisplayStatus,
     pub result_state: ResultState,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub dependency: Option<DependencyInfo>,
+    pub dependency: Option<DependencyStatus>,
 }

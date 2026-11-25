@@ -1,6 +1,6 @@
 {
-  "version": "1.9.0",
-  "updated": "2026-11-18",
+  "version": "1.9.1",
+  "updated": "2026-11-25",
   "rules": [
     "축(axis)이 다른 상태를 한 값에 섞지 않는다. 값 상태·검수 상태·기능 자격·화면 상태·초안 상태는 서로 다른 축이다.",
     "저장값은 소문자 snake_case ASCII다. 화면 문구는 이 파일의 screen_ko만 쓴다.",
@@ -1186,6 +1186,9 @@
       "applies_to": "모든 데이터와 파생물",
       "layer": "전 계층",
       "concept_ko": "저장·권한·로그 경계. 파생물로 상속된다",
+      "subsets": {
+        "contract_snapshot_sensitivity": ["private_policy", "private_health"]
+      },
       "values": [
         {
           "code": "public_product",

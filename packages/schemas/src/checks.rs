@@ -14,7 +14,7 @@ use crate::{
     Amount, AmountKind, AmountOut, Assertion, AssertionOrigin, CompareView, ConfirmParty,
     ContractSnapshot, CoverageDetail, DisplayStatus, ErrorClass, ErrorResponse, EvaluationResult,
     EvidenceView, FactSource, NeedReason, NeedResult, Payout, PlanView, PremiumObservation,
-    ReleaseManifest, ReviewStatus, ScenarioResult, Sensitivity, Tri, ValueState,
+    ReleaseManifest, ReviewStatus, ScenarioResult, Tri, ValueState,
 };
 
 /// `origin` value of rows that exist only for tests (02_구현계약 §1.2, §8): vocabulary axis
@@ -624,15 +624,6 @@ pub fn check_release_manifest(manifest: &ReleaseManifest) -> Vec<Violation> {
 /// Checks the private snapshot's edition evidence and component confirmation metadata.
 pub fn check_contract_snapshot(snapshot: &ContractSnapshot) -> Vec<Violation> {
     let mut out = Vec::new();
-    if !matches!(
-        snapshot.sensitivity,
-        Sensitivity::PrivatePolicy | Sensitivity::PrivateHealth
-    ) {
-        out.push(v(
-            "contract_snapshot_sensitivity_private",
-            "a contract snapshot requires private policy or health sensitivity",
-        ));
-    }
     for edition in &snapshot.applied_editions {
         if validate(&edition.basis_evidence).is_err() {
             out.push(v(

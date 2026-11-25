@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-const String vocabularyVersion = '1.9.0';
+const String vocabularyVersion = '1.9.1';
 
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
@@ -1491,6 +1491,29 @@ enum RuleOperator {
       if (v.code == code) return v;
     }
     throw FormatException('unknown rule_operator: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 민감도: 저장·권한·로그 경계. 파생물로 상속된다
+///
+/// Axis `contract_snapshot_sensitivity`. Unknown values throw (never a default).
+enum ContractSnapshotSensitivity {
+  /// 사용자 계약 정보
+  privatePolicy('private_policy'),
+  /// 건강·가족력
+  privateHealth('private_health');
+
+  const ContractSnapshotSensitivity(this.code);
+
+  final String code;
+
+  static ContractSnapshotSensitivity fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown contract_snapshot_sensitivity: $code');
   }
 
   String toJson() => code;

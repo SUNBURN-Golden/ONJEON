@@ -50,6 +50,27 @@ def routes(doc):
     return {(m, p) for p, m, _ in om.iter_operations(doc)}
 
 
+def reachable_schema_refs(loader, file, schema):
+    """Walk used schema edges, keeping the names of scalar aliases such as ContractId."""
+    seen = set()
+    pending = [(file, schema)]
+    while pending:
+        file, schema = pending.pop()
+        if "$ref" in schema:
+            target_file, name, target = loader.resolve(schema["$ref"], file, file)
+            if target is None:
+                raise AssertionError(loader.model.errors[-1])
+            key = (target_file, name)
+            if key not in seen:
+                seen.add(key)
+                pending.append((target_file, target))
+        pending.extend((file, prop) for prop in schema.get("properties", {}).values())
+        for key in ("items", "additionalProperties"):
+            if isinstance(schema.get(key), dict):
+                pending.append((file, schema[key]))
+    return seen
+
+
 class Spec(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -58,6 +79,40 @@ class Spec(unittest.TestCase):
 
     def test_documents_pass_the_lint(self):
         self.assertEqual(self.am.errors, [])
+
+    def test_i12_public_response_type_graph_excludes_private_contract_types(self):
+        files = sm.read_schema_files(sm.JSON_DIR)
+        errors = []
+        files.update(om.pseudo_files(self.docs, errors))
+        self.assertEqual(errors, [])
+        loader = sm._Loader(files, sm.load_vocab())
+        contract_id = ("common.schema.json", "ContractId")
+        private_types = {
+            contract_id,
+            ("common.schema.json", "PersonId"),
+            ("common.schema.json", "UploadId"),
+            ("common.schema.json", "DependencyInfo"),
+            ("contract_snapshot.schema.json", "ContractSnapshot"),
+            (sm.VOCAB_FILE, "contract_snapshot_sensitivity"),
+            (sm.VOCAB_FILE, "sensitivity"),
+        }
+        public = self.docs["public"]
+        for _, _, operation in om.iter_operations(public):
+            for code, response in operation["responses"].items():
+                if "$ref" in response:
+                    name = response["$ref"].rsplit("/", 1)[-1]
+                    response = public["components"]["responses"][name]
+                schema = response["content"]["application/json"]["schema"]
+                with self.subTest(operation=operation["operationId"], status=code):
+                    rewritten = om.rewrite_refs(schema, operation["operationId"], errors)
+                    self.assertEqual(errors, [])
+                    refs = reachable_schema_refs(loader, "api_public.schema.json", rewritten)
+                    self.assertFalse(refs & private_types, refs & private_types)
+
+        # The authenticated evaluation still has a typed contract exclusion list.
+        personal = files["api_personal.schema.json"]["$defs"]["EvaluationResponse"]
+        exclusions = personal["properties"]["dependency"]
+        self.assertIn(contract_id, reachable_schema_refs(loader, "api_personal.schema.json", exclusions))
 
     def test_the_drafted_routes_are_exactly_the_contract_routes(self):
         self.assertEqual(routes(self.docs["public"]), EXPECTED_PUBLIC)

@@ -8,7 +8,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 
 | 경로 | 내용 |
 |---|---|
-| `vocabulary.json` | 상태 어휘 정본(1.8.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |
+| `vocabulary.json` | 상태 어휘 정본(1.9.1). 변경은 정본 변경을 승인한 과제에서 다룬다 |
 | `json/*.schema.json` | 손으로 쓴 JSON Schema(2020-12 부분집합). `common`(ID·근거 참조·금액·결과 상태), `assertion`, `release_manifest`, `evaluation_result`, `scenario_result`, `coverage_detail`, `compare_view`, `plan_view`, `evidence_view`, `need_result`, `premium_observation`, `contract_snapshot`, `error_response` |
 | `json/vocabulary.schema.json` | **생성물.** 어휘의 모든 축이 `enum`으로 들어 있는 유일한 스키마 |
 | `src/generated/` | 생성된 Rust(serde). `src/checks.rs`는 손으로 쓴 교차 필드 검사 |
@@ -48,11 +48,12 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 
 ## 규칙
 
-- **enum은 어휘 정본에서만 온다.** 스키마 파일에는 `enum`·`const`가 없고, 모든 어휘 값은 `vocabulary.schema.json`(생성물)을 `$ref`한다. 어휘와 다르게 손으로 고친 생성물, 스키마 안의 `enum`은 lint 오류다(`codegen/tests/test_schemas.py`).
+- **enum은 어휘 정본에서만 온다.** 스키마 파일에는 `enum`·`const`가 없고, 모든 어휘 값은 `vocabulary.schema.json`(생성물)을 `$ref`한다. 어휘 축의 `subsets`는 해당 축에서 재사용할 값만 지정한다. `ContractSnapshotSensitivity`는 민감도 축의 `private_policy`와 `private_health`를 쓴다. 어휘와 다르게 손으로 고친 생성물, 스키마 안의 `enum`은 lint 오류다(`codegen/tests/test_schemas.py`).
 - **어휘에 아직 없는 축은 `x-onjeon-pending-axis` 문자열이다.** 02_구현계약이 값을 정했지만 어휘(1.6.0)에 축이 없는 것(아래 표)은 닫힌 enum처럼 쓰지 않고 소문자 snake_case 패턴의 문자열로 둔다. 어휘 정본을 이 패키지의 과제가 바꿀 수 없기 때문이다. 어휘에 그 축이 들어오는 순간 lint가 실패해서 `$ref`로 바꾸게 한다. 어휘 1.6.0(T-CT-02)에서 아홉 축·열한 필드가 그렇게 `$ref`로 옮겨갔다(아래 '1.6.0에서 승격된 축').
 - 알 수 없는 enum 값은 역직렬화 실패다(성공으로 처리하지 않음). 알 수 없는 필드는 무시한다. 선택 필드 추가(minor)가 구버전 클라이언트를 깨지 않게 하려는 것이다. 스키마 문서는 `additionalProperties: false`로 닫혀 있다. 새 enum 값은 §5에서 minor지만 구버전 클라이언트는 그 값을 읽지 못한다. 앱이 지원 범위를 선언하는 이유다(§5 마지막 행).
 - 금액은 정수 원(`Krw`). 부동소수점은 화면 표시 전용 만원 값(`Budget.*_man`, `CurrentPaid.man`, `PriceLine.man`)에만 있고, 예산 판정과 정렬은 원 단위로 한다(화면 설계서 §11). 시험이 부동소수점 필드 목록을 고정한다.
 - `ViewLine.refs`는 근거 참조를 한 개 이상 담는다. `CompareCell.refs`는 화면에서 확인된 값·적용 여부·금액을 표시할 때 필요하다. 판단을 유보한 자리표시자는 `refs`를 생략할 수 있다. Rust 호출부는 직렬화 경계에서 [`checks::check_*`](src/checks.rs)를 호출해 교차 필드 규칙을 검사한다. [Audit 8 회귀 증거](../../docs/blueprint/audits/2026-11-25_view_model_checks.md).
+- 담보 상세·시나리오·필요성 판단의 `dependency`는 보류 상태와 미확인 항목을 담는다. 제외된 계약 ID 목록은 인증된 `EvaluationResponse.dependency`의 합산 결론에 둔다. 공개 응답의 참조 그래프를 I12 시험에서 검사한다. [Audit 8 증거](../../docs/blueprint/audits/2026-11-25_snapshot_sensitivity_enum.md).
 - `PremiumObservation`의 `raw_amount`와 `unknown_reason`은 생성 타입에서 선택 필드다. `check_premium_observation`은 `observed`·`derived`에 금액을, 그 밖의 상태에 공백이 아닌 사유를 요구한다. 두 필드는 함께 둘 수 없으며 금액이 없는 관측은 비교 자격을 얻을 수 없다.
 - 가격 대상은 `product_ref`, `sales_config_ref`, `components`에 기록한다. 특정 담보 가격은 `coverage_ref`에 해당 담보를 지정하고, 상품·묶음 전체 가격은 구성으로 표현한다. `source_revision`은 원문 바이트의 `raw:sha256` 참조다. 원시 관측의 새 필드는 선택이며, 비교 자격에는 대상·가입금액·원문 판과 `source_as_of`를 포함하는 적용 기간이 필요하다. 적용 기간의 양 끝은 포함하며, 문서가 종료기한 없음을 명시하면 `effective_open_ended=true`를 쓴다.
 - 시각 필드는 어휘 정본의 이름만 쓴다: 02가 쓴 `valid_from`·`valid_to`는 폐기 별칭이라 `effective_from`·`effective_to`, 가격 기준일은 `source_as_of`. 모델 식별자 원문은 싣지 않고 `model_ref_hash`만 싣는다.
@@ -80,7 +81,7 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 
 ### 어휘 승격 대기 축 (`x-onjeon-pending-axis`)
 
-값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 담당 과제는 [tasks.json](../../docs/blueprint/proposals/설계검토_결과/tasks.json)의 `vocabulary_axes`가 지정한다. `codegen/tests/test_schemas.py`(`Readme`)가 필드와 담당 과제를 대조한다. 어휘 1.6.0 이후 남은 대기 축은 18개, 필드 21개다.
+값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 담당 과제는 [tasks.json](../../docs/blueprint/proposals/설계검토_결과/tasks.json)의 `vocabulary_axes`가 지정한다. `codegen/tests/test_schemas.py`(`Readme`)가 필드와 담당 과제를 대조한다. 대기 축은 18개, 필드 22개다.
 
 | 축 | 쓰는 필드 | 담당 과제 |
 |---|---|---|
@@ -90,7 +91,7 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 | `contract_effect` | `ContractEffectResult.conditional_effect`, `ContractEffectResult.effect` | T-CT-09 |
 | `contract_effect_kind` | `ContractEffectResult.kind` | T-CT-09 |
 | `dependency_producer` | `ConclusionDependency.produced_by` | T-CT-09 |
-| `dependency_state` | `DependencyInfo.dependency_state` | T-CT-09 |
+| `dependency_state` | `DependencyInfo.dependency_state`, `DependencyStatus.dependency_state` | T-CT-09 |
 | `detail_layer` | `DetailLayer.layer` | T-CT-09 |
 | `evidence_kind` | `Amount.evidence_kind`, `CompareCell.evidence_kind` | T-CT-08 |
 | `judged_by` | `InputJudgement.judged_by` | T-CT-09 |

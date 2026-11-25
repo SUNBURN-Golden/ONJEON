@@ -70,7 +70,6 @@
   },
   "dependency": {
     "dependency_state": "kept",
-    "excluded_contracts": [],
     "unknown_overlap": []
   }
 }

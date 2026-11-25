@@ -9,6 +9,7 @@ import type {
   Capability,
   CapabilityState,
   ConfirmParty,
+  ContractSnapshotSensitivity,
   ContractVersionMatch,
   CorrectionReason,
   Criticality,
@@ -29,7 +30,6 @@ import type {
   ReviewStatus,
   RowLabel,
   ScopeRelation,
-  Sensitivity,
   Tri,
   UsageRestriction,
   ValueState,
@@ -206,7 +206,15 @@ export interface UnknownOverlap {
 }
 
 /**
- * 결론별 부분 보류 표시 (02 §1.6·§2.4)
+ * 결론의 보류 상태와 미확인 항목
+ */
+export interface DependencyStatus {
+  dependency_state: string;
+  unknown_overlap: UnknownOverlap[];
+}
+
+/**
+ * 개인 계약 합산 결론의 부분 보류 표시 (02 §1.6·§2.4)
  */
 export interface DependencyInfo {
   /**
@@ -269,7 +277,7 @@ export interface ViewLine {
   amounts?: Amount[];
   values?: ViewValue[];
   gaps?: string[];
-  dependency?: DependencyInfo;
+  dependency?: DependencyStatus;
 }
 
 /**
@@ -456,7 +464,10 @@ export interface ContractSnapshot {
    * 사용 횟수. 항목 형식은 02 §1.4에 아직 없다(개인 영역 과제가 확정)
    */
   usage_counters: unknown[];
-  sensitivity: Sensitivity;
+  /**
+   * 계약 스냅샷에 허용하는 개인 계약·건강 민감도 (02 §1.4)
+   */
+  sensitivity: ContractSnapshotSensitivity;
   user_confirmed_at?: string;
 }
 
@@ -706,7 +717,7 @@ export interface NeedResult {
   reasons: NeedReason[];
   decisive_inputs: DecisiveInput[];
   deps?: ConclusionDependency;
-  dependency?: DependencyInfo;
+  dependency?: DependencyStatus;
   result_state: ResultState;
 }
 
@@ -1091,5 +1102,5 @@ export interface ScenarioResult {
    */
   display_status: DisplayStatus;
   result_state: ResultState;
-  dependency?: DependencyInfo;
+  dependency?: DependencyStatus;
 }

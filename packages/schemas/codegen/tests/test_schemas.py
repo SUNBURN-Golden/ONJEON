@@ -68,15 +68,34 @@ class Lint(unittest.TestCase):
             self.assertNotIn('"anyOf"', text)
         axes = {a["id"]: [v["code"] for v in a["values"]] for a in vocab["axes"]}
         defs = json.loads((sm.JSON_DIR / sm.VOCAB_FILE).read_text(encoding="utf-8"))["$defs"]
-        self.assertEqual({k: v["enum"] for k, v in defs.items()}, axes)
+        subsets = {}
+        for axis in vocab["axes"]:
+            for name, codes in axis.get("subsets", {}).items():
+                self.assertLessEqual(set(codes), set(axes[axis["id"]]))
+                subsets[name] = codes
+        self.assertEqual({k: v["enum"] for k, v in defs.items()}, axes | subsets)
 
-    def test_every_vocabulary_reference_points_at_a_live_axis(self):
-        vocab_ids = {a["id"] for a in sm.load_vocab()["axes"]}
+    def test_every_vocabulary_reference_points_at_a_live_enum(self):
+        vocab_ids = set(sm.vocabulary_enums(sm.load_vocab()))
         used = set()
         for path in sm.JSON_DIR.glob("*.schema.json"):
             used |= set(re.findall(r'vocabulary\.schema\.json#/\$defs/([a-z_]+)', path.read_text(encoding="utf-8")))
         self.assertTrue(used)
         self.assertLessEqual(used, vocab_ids)
+
+    def test_enum_subsets_require_unique_existing_codes_and_names(self):
+        for name, codes in (
+            ("for_snapshot", ["invented"]),
+            ("for_snapshot", ["private_policy", "private_policy"]),
+            ("for_snapshot", []),
+            ("sensitivity", ["private_policy"]),
+        ):
+            with self.subTest(name=name, codes=codes):
+                vocab = sm.load_vocab()
+                sensitivity = next(a for a in vocab["axes"] if a["id"] == "sensitivity")
+                sensitivity["subsets"] = {name: codes}
+                with self.assertRaisesRegex(sm.SchemaError, "enum subset"):
+                    sm.vocabulary_schema(vocab)
 
     def test_an_enum_in_a_schema_is_a_lint_error(self):
         def add_enum(d):
@@ -326,6 +345,33 @@ class Fixtures(unittest.TestCase):
         doc = copy.deepcopy(self.docs[name])
         fn(doc)
         return self.v.validate(doc, name.split(".")[0])
+
+    def test_contract_snapshot_accepts_only_policy_and_health_sensitivity(self):
+        name = "ContractSnapshot.fixture.json"
+        for value in ("private_policy", "private_health"):
+            with self.subTest(value=value):
+                self.assertEqual(self.broken(name, lambda doc: doc.update(sensitivity=value)), [])
+        for value in ("public_product", "genetic_private", "unknown", None):
+            with self.subTest(value=value):
+                errors = self.broken(name, lambda doc: doc.update(sensitivity=value))
+                self.assertTrue(any(error.startswith("$.sensitivity:") for error in errors), errors)
+        self.assertEqual(self.broken(name, lambda doc: doc.pop("sensitivity")), [
+            "$: missing required 'sensitivity'",
+        ])
+
+    def test_public_view_dependencies_reject_excluded_contracts(self):
+        for name in ("CoverageDetail.fixture.json", "ScenarioResult.blocked.fixture.json",
+                     "NeedResult.fixture.json"):
+            with self.subTest(fixture=name):
+                doc = copy.deepcopy(self.docs[name])
+                container = doc["layers"][0]["lines"][0] if name.startswith("CoverageDetail") else doc
+                container["dependency"] = {"dependency_state": "held", "unknown_overlap": []}
+                root = name.split(".")[0]
+                self.assertEqual(self.v.validate(doc, root), [])
+                container["dependency"]["excluded_contracts"] = [self.docs["ContractSnapshot.fixture.json"]["id"]]
+                errors = self.v.validate(doc, root)
+                self.assertEqual(len(errors), 1, errors)
+                self.assertTrue(errors[0].endswith(".dependency: unknown field 'excluded_contracts'"), errors)
 
     def test_view_lines_require_nonempty_evidence_refs(self):
         name = "CoverageDetail.fixture.json"

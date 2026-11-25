@@ -97,6 +97,8 @@ def emit_vocabulary(model: Model) -> str:
     out.append("/// Every axis with its codes, in vocabulary order. Used by tests to compare with vocabulary.json.\n")
     out.append("pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {\n    vec![\n")
     for axis in model.axes.values():
+        if axis.source is not None:
+            continue
         name = pascal(axis.id)
         out.append(f"        ({name}::AXIS, {name}::ALL.iter().map(|v| v.as_str()).collect()),\n")
     out.append("    ]\n}\n")

@@ -71,6 +71,22 @@ void main(List<String> args) {
       print('FAIL $name: round trip changed the document');
       failed++;
     }
+    if (type == 'ContractSnapshot') {
+      final health = {...original, 'sensitivity': 'private_health'};
+      if (!same(codec(type)(health), health)) {
+        print('FAIL private_health: round trip changed the snapshot');
+        failed++;
+      }
+      for (final label in ['public_product', 'genetic_private']) {
+        try {
+          ContractSnapshot.fromJson({...original, 'sensitivity': label});
+          print('FAIL contract snapshot accepted $label');
+          failed++;
+        } on FormatException {
+          print('ok   contract snapshot rejected $label');
+        }
+      }
+    }
   }
   // unknown vocabulary values are errors, never defaults
   final bad = jsonDecode(

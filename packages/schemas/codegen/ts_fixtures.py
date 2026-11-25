@@ -29,6 +29,15 @@ def main(out_dir: str) -> int:
     missing = {k: v for k, v in base.items() if k != "evidence"}
     lines += ["", "// @ts-expect-error missing required field must not type-check",
               f"export const badMissing: Assertion = {json.dumps(missing, ensure_ascii=False)};", ""]
+    snapshot = json.loads((FIXTURES / "ContractSnapshot.fixture.json").read_text(encoding="utf-8"))
+    lines += [f"export const health: ContractSnapshot = {json.dumps(dict(snapshot, sensitivity='private_health'))};"]
+    for label in ("public_product", "genetic_private"):
+        lines += ["// @ts-expect-error this vocabulary value is outside the snapshot sensitivity subset",
+                  f"export const {label}: ContractSnapshot = {json.dumps(dict(snapshot, sensitivity=label))};"]
+    detail = json.loads((FIXTURES / "CoverageDetail.fixture.json").read_text(encoding="utf-8"))
+    detail["layers"][1]["lines"][0]["dependency"]["excluded_contracts"] = [snapshot["id"]]
+    lines += ["// @ts-expect-error public coverage cannot carry excluded contracts",
+              f"export const detailWithPrivateIds: CoverageDetail = {json.dumps(detail, ensure_ascii=False)};", ""]
     (out / "fixtures_check.ts").write_text("\n".join(lines), encoding="utf-8")
     cfg = json.loads((out / "tsconfig.json").read_text(encoding="utf-8"))
     cfg["files"].append("fixtures_check.ts")

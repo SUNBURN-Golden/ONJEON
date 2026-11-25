@@ -54,7 +54,16 @@
           ],
           "gaps": [
             "gap:01J0000000000000000000000A"
-          ]
+          ],
+          "dependency": {
+            "dependency_state": "held",
+            "unknown_overlap": [
+              {
+                "ref": "gap:01J0000000000000000000000A",
+                "state": "not_found"
+              }
+            ]
+          }
         }
       ]
     }

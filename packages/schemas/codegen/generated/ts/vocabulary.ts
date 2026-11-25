@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /** Version of packages/schemas/vocabulary.json these unions were generated from. */
-export const VOCABULARY_VERSION = "1.9.0";
+export const VOCABULARY_VERSION = "1.9.1";
 
 /**
  * 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
@@ -752,4 +752,19 @@ export function parseRuleOperator(value: unknown): RuleOperator {
     return value as RuleOperator;
   }
   throw new Error(`unknown rule_operator: ${JSON.stringify(value)}`);
+}
+
+/**
+ * 민감도: 저장·권한·로그 경계. 파생물로 상속된다
+ *
+ * Axis `contract_snapshot_sensitivity`.
+ */
+export const ContractSnapshotSensitivity = ["private_policy", "private_health"] as const;
+export type ContractSnapshotSensitivity = (typeof ContractSnapshotSensitivity)[number];
+/** Throws on an unknown value: unknown states are never treated as a success. */
+export function parseContractSnapshotSensitivity(value: unknown): ContractSnapshotSensitivity {
+  if (typeof value === "string" && (ContractSnapshotSensitivity as readonly string[]).includes(value)) {
+    return value as ContractSnapshotSensitivity;
+  }
+  throw new Error(`unknown contract_snapshot_sensitivity: ${JSON.stringify(value)}`);
 }

@@ -316,7 +316,10 @@ class Fixtures(unittest.TestCase):
             self.assertFalse(doc.get("comparison_eligible", False), name)
         full = self.docs["PremiumObservation.full.fixture.json"]
         self.assertTrue(full["comparison_basis_id"].startswith("cb-fixture"))
-        for key in ("conditions", "package_binding", "source_as_of", "payment_cycle"):
+        for key in (
+            "conditions", "package_binding", "source_as_of", "payment_cycle", "product_ref",
+            "sales_config_ref", "components", "effective_from", "effective_to", "source_revision",
+        ):
             self.assertIn(key, full)  # the fully populated shape is what the Dart/TS builds exercise
 
     def broken(self, name, fn):
@@ -352,6 +355,22 @@ class Fixtures(unittest.TestCase):
             with self.subTest(reason=bad):
                 errors = self.broken(n, lambda d: d.update(unknown_reason=bad))
                 self.assertTrue(any("unknown_reason" in e for e in errors), errors)
+
+    def test_premium_subject_and_period_field_shapes(self):
+        n = "PremiumObservation.full.fixture.json"
+        for key, bad in (
+            ("product_ref", ""), ("product_ref", "display name"),
+            ("sales_config_ref", "product:other"), ("coverage_ref", "rider label"),
+            ("effective_from", "2026-6-29"), ("effective_to", "2026-09-30T00:00:00Z"),
+            ("effective_open_ended", "true"), ("source_revision", "https://example.invalid/price"),
+            ("components", []), ("components", [{}]),
+        ):
+            with self.subTest(field=key, value=bad):
+                self.assertTrue(any(key in e for e in self.broken(n, lambda d: d.update({key: bad}))))
+        for key, bad in (("cov_ref", "rider label"), ("insured_amount_krw", -1), ("insured_amount_krw", 1.5)):
+            with self.subTest(component_field=key, value=bad):
+                errors = self.broken(n, lambda d: d["components"][0].update({key: bad}))
+                self.assertTrue(any(key in e for e in errors), errors)
 
     def test_money_must_be_integer_krw(self):
         n = "ScenarioResult.evaluated.fixture.json"

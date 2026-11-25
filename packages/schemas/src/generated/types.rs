@@ -240,6 +240,9 @@ pub struct CompareCell {
     /// applies, not_applies, unverified. 어휘 축 승격 대기
     pub applicability: String,
     pub display_status: DisplayStatus,
+    /// 근거 참조. 확인된 값·적용 여부·금액을 표시하는 셀에는 필수(check_compare_view)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub refs: Option<Vec<String>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub amounts: Option<Vec<Amount>>,
 }
@@ -477,7 +480,7 @@ pub struct EvaluationResult {
 /// 근거 사슬의 한 단계
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChainStep {
-    /// viewmodel, evaluation, rule, assertion, clause, segment, edition, raw, source, criterion (02 §2.4). 어휘 축 승격 대기
+    /// viewmodel, evaluation, rule, assertion, clause, segment, edition, premium, raw, source, criterion (BLUEPRINT §5.2, 02 §2.4). 어휘 축 승격 대기
     pub level: String,
     #[serde(rename = "ref")]
     pub ref_: String,

@@ -327,6 +327,28 @@ class Fixtures(unittest.TestCase):
         fn(doc)
         return self.v.validate(doc, name.split(".")[0])
 
+    def test_view_lines_require_nonempty_evidence_refs(self):
+        name = "CoverageDetail.fixture.json"
+        line = lambda doc: doc["layers"][0]["lines"][0]
+        self.assertEqual(
+            self.broken(name, lambda doc: line(doc).pop("refs")),
+            ["$.layers[0].lines[0]: missing required 'refs'"],
+        )
+        self.assertEqual(
+            self.broken(name, lambda doc: line(doc).update(refs=[])),
+            ["$.layers[0].lines[0].refs: fewer than minItems"],
+        )
+
+    def test_compare_cell_refs_are_nonempty_evidence_refs_when_present(self):
+        name = "CompareView.fixture.json"
+        cell = lambda doc: doc["axes"][0]["per_column"][0]
+        self.assertEqual(
+            self.broken(name, lambda doc: cell(doc).update(refs=[])),
+            ["$.axes[0].per_column[0].refs: fewer than minItems"],
+        )
+        errors = self.broken(name, lambda doc: cell(doc).update(refs=["unresolved"]))
+        self.assertTrue(any("$.axes[0].per_column[0].refs[0]" in error for error in errors), errors)
+
     def test_missing_required_unknown_field_bad_enum_bad_pattern_are_rejected(self):
         n = "Assertion.relation.fixture.json"
         self.assertTrue(any("missing required 'evidence'" in e for e in self.broken(n, lambda d: d.pop("evidence"))))

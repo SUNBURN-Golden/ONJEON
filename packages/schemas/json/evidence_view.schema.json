@@ -43,7 +43,7 @@
           "type": "string",
           "pattern": "^[a-z][a-z0-9_]*$",
           "x-onjeon-pending-axis": "chain_level",
-          "description": "viewmodel, evaluation, rule, assertion, clause, segment, edition, raw, source, criterion (02 §2.4). 어휘 축 승격 대기"
+          "description": "viewmodel, evaluation, rule, assertion, clause, segment, edition, premium, raw, source, criterion (BLUEPRINT §5.2, 02 §2.4). 어휘 축 승격 대기"
         },
         "ref": {
           "$ref": "common.schema.json#/$defs/Identifier"

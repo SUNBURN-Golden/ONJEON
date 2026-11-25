@@ -14,6 +14,9 @@ macro_rules! fixture {
     };
 }
 
+#[path = "view_model_tests.rs"]
+mod view_model_tests;
+
 fn schemas_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }

@@ -16,7 +16,7 @@
 |---|---|
 | `cargo test -p onjeon-contracts --locked --offline premium_missing_dimensions` | 수정 전 새 회귀 시험 2개가 실패했다. 고정 필드 공백의 미신고와 값이 있는 개별 조건의 누락 신고를 검출했다. |
 | `cargo test -p onjeon-contracts --locked --offline premium` | 수정 후 가격 관측 시험 4개 통과. main의 가격 대상·기간 시험과 합친 트리에서 8개 통과. |
-| `ONJ_REQUIRE_RULE_02=1 ONJ_COMPAT_ALL_CLIENTS=1 cargo test --all --locked --offline` | Rust 시험과 문서 시험 540개 통과, 픽스처 재생성용 1개 기본 제외. 내장 Python API 시험 39개와 계약 시험 139개 통과. |
+| `ONJ_REQUIRE_RULE_02=1 ONJ_COMPAT_ALL_CLIENTS=1 cargo test --all --locked --offline` | 검토 개정 `fff165a` 트리에서 Rust 시험과 문서 시험 544개 통과, 픽스처 재생성용 1개 기본 제외. 내장 Python API 시험 39개와 계약 시험 140개 통과. 계약 시험은 TypeScript 5.9.3을 `TSC`로, Dart 3.13.5를 PATH로 지정해 실행했다. |
 | `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh` | 생성물 확인, Rust 빌드, TypeScript 타입 검사, Dart 분석과 JSON 왕복 통과. |
 | `ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest` 및 `compat.py`로 작업 시작점과 직접 비교 | 이전 `contracts-*` 태그가 없어 `--latest`는 자체 시험까지 통과했다. 작업 시작점과 대조한 결과 스키마 구조 변경 0건, 이전 Rust·TypeScript·Dart 생성물의 문서 12종 읽기 또는 타입 검사 통과. |
 | `cargo fmt --all -- --check` 및 `cargo clippy --locked --offline --all-targets -- -D warnings` | 통과. |
@@ -26,4 +26,4 @@
 | 설계 묶음 `spec_check.py`, 온톨로지 `ontology_check.py`, `python3 -I tools/validation_check.py --selftest` | 명세 기계 검사 47/47, 존재 검사 72/72, 온톨로지 검사와 검증 도구 변이 40개 통과. |
 | `bash infra/db/public/test.sh` | 임시 PostgreSQL 17.12에서 기존 제약 검사 171개 통과. |
 
-검증 범위는 공유 Rust 계약 검사와 합성 관측이다. 상품군별 전체 조건 차원의 완전성은 라벨 사전과 함께 검사해야 한다. 공개 DB의 제약, P02 공시 문서 확보율, P09 실제 담보 비교 E2E는 각 구현과 완료 근거를 따른다. [제품 목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md).
+검증 범위는 공유 Rust 계약 검사와 합성 관측이다. 상품군별 전체 조건 차원의 완전성은 라벨 사전과 함께 검사해야 한다. 공개 DB `premium_observation`은 기준일 누락을 아직 `as_of` 이름으로 검사하므로(`infra/db/public/01_schema.sql`, `infra/db/public/test.sh`), 두 계약을 모두 만족하는 행은 `missing_dimensions`에 `source_as_of`와 `as_of`를 함께 적어야 한다. 같은 차원의 이름 정합은 DB 구현 과제다. 공개 DB의 나머지 제약, P02 공시 문서 확보율, P09 실제 담보 비교 E2E는 각 구현과 완료 근거를 따른다. [제품 목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md).

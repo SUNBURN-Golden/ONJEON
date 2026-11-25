@@ -1,0 +1,29 @@
+   Compiling onjeon-contracts v0.1.0 (/workspace/onjeon-run/wt/audit8-p-row-task-links/packages/schemas)
+   Compiling onjeon-rules-engine v0.1.0 (/workspace/onjeon-run/wt/audit8-p-row-task-links/packages/rules-engine)
+   Compiling onjeon-ontology v0.1.0 (/workspace/onjeon-run/wt/audit8-p-row-task-links/packages/ontology)
+   Compiling onjeon-api-types v0.1.0 (/workspace/onjeon-run/wt/audit8-p-row-task-links/packages/api-types)
+   Compiling onjeon-twin-runtime v0.1.0 (/workspace/onjeon-run/wt/audit8-p-row-task-links/packages/twin-runtime)
+   Compiling onjeon-scenario-api v0.1.0 (/workspace/onjeon-run/wt/audit8-p-row-task-links/services/scenario-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.05s
+     Running unittests src/lib.rs (/workspace/onjeon-run/shared-target/debug/deps/onjeon_scenario_api-11f347902aba3214)
+
+running 1 test
+test tests::facts_are_normalized_before_runtime_fill ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/scenario.rs (/workspace/onjeon-run/shared-target/debug/deps/scenario-0aa1f9d39b0474ee)
+
+running 3 tests
+test pre_engine_link_block_retains_its_distinct_wire_shape ... ok
+test event_list_confirmation_is_scoped_and_preserves_unknown_amounts ... ok
+test zero_and_missing_denominators_have_distinct_api_responses ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+   Doc-tests onjeon_scenario_api
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

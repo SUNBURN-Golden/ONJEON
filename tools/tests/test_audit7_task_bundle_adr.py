@@ -95,7 +95,7 @@ class Audit7Contract(unittest.TestCase):
             require(section, "ADR-0020")
         require(read("docs/blueprint/DECISIONS.md"), "BP-D-21", ADR)
         require(read("README.md"), "0020 작업 단계와 V1 관문 정합화")
-        require(self.adr, "ADR-0019", "P01~P19", "purpose-rows-all-closed")
+        require(self.adr, "ADR-0019", "P01~P20", "purpose-rows-all-closed")
         self.assertEqual(self.tasks_doc["_common_done_criteria_status"],
                          "non_binding_until_adopted")
         final = self.tasks["T-OP-08"]

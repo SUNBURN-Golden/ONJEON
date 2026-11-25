@@ -15,7 +15,7 @@ BUNDLE = ROOT / "docs/blueprint/proposals/설계검토_결과"
 PURPOSE = BUNDLE / "09_제품목적_대응표.md"
 TASKS_STATE = ROOT / "docs/blueprint/progress/tasks_state.json"
 POST_MERGE = frozenset({"merged", "audit_queued", "done"})
-ROW_IDS = {f"P{i:02}" for i in range(1, 20)}
+ROW_IDS = {f"P{i:02}" for i in range(1, 21)}
 TASK_ID = re.compile(r"T-[A-Z]{2}-\d{2}")
 
 

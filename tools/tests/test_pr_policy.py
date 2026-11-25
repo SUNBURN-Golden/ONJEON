@@ -165,8 +165,11 @@ class BundleStatus(unittest.TestCase):
         adr = self.ADR.read_text(encoding="utf-8")
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
         gate = blueprint.split("### 9.5 ", 1)[1].split("## 10.", 1)[0]
+        self.assertIn("P01~P20", adr)
+        self.assertNotIn("P01~P19", adr)
+        self.assertIn("P01~P20", gate)
         for text in (adr, gate):
-            for phrase in ("P01~P19", "T-OP-08", "purpose-rows-all-closed",
+            for phrase in ("T-OP-08", "purpose-rows-all-closed",
                            "docs/release-readiness/evidence/", "축소·후속", "합성", "마일스톤 관문"):
                 self.assertIn(phrase, text)
         for phrase in ("non_binding_until_adopted", "daemon_rules.json", "일괄 채택하지 않는다",

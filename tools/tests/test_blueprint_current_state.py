@@ -75,7 +75,7 @@ class CurrentState(unittest.TestCase):
 
     def test_future_milestones_keep_actual_data_and_screen_gates_open(self):
         expected = {"M3": ("O19", "미열거"), "M4": ("I7", "I8"),
-                    "M5": ("PDF", "두 안 비교"), "M6": ("T-OP-08", "P01~P19")}
+                    "M5": ("PDF", "두 안 비교"), "M6": ("T-OP-08", "P01~P20")}
         for mid, terms in expected.items():
             for term in terms:
                 with self.subTest(milestone=mid, term=term):

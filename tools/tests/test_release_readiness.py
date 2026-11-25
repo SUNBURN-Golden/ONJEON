@@ -29,16 +29,16 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.purpose = self.root / "purpose.md"
         self.tasks_state = self.root / "tasks_state.json"
         self.data = {
-            "tasks": [{"id": f"T-AA-{i:02}"} for i in range(1, 20)],
+            "tasks": [{"id": f"T-AA-{i:02}"} for i in range(1, 21)],
             "feature_registry": [{"id": "feature", "tasks": ["T-AA-01"],
                                   "acceptance_tests": ["screen flow", "data trace"],
                                   "excluded": False, "scope_decision": None}],
         }
         self.table = "| # | 구현 작업 |\n|---|---|\n" + "".join(
-            f"| P{i:02} | T-AA-{i:02} |\n" for i in range(1, 20))
+            f"| P{i:02} | T-AA-{i:02} |\n" for i in range(1, 21))
         self.manifest = {
             "version": 1,
-            "rows": {f"P{i:02}": self.record(f"P{i:02}") for i in range(1, 20)},
+            "rows": {f"P{i:02}": self.record(f"P{i:02}") for i in range(1, 21)},
             "features": {"feature": self.record("feature", ["screen flow", "data trace"])},
         }
         self.ledger = {"version": 1, "tasks": {}}
@@ -88,10 +88,10 @@ class ReleaseReadinessTests(unittest.TestCase):
             with self.subTest(state=state):
                 self.ledger["tasks"]["T-AA-01"]["state"] = state
                 report = self.report(0)
-                self.assertEqual({"open": 0, "closed": 19, "excluded": 0}, report["rows_counts"])
+                self.assertEqual({"open": 0, "closed": 20, "excluded": 0}, report["rows_counts"])
                 self.assertEqual(1, report["features_counts"]["closed"])
 
-    def test_empty_evidence_or_missing_directory_reports_19_open(self):
+    def test_empty_evidence_or_missing_directory_reports_20_open(self):
         empty = self.root / "empty"
         for exists in (False, True):
             if exists:
@@ -99,11 +99,11 @@ class ReleaseReadinessTests(unittest.TestCase):
             result = self.cli("--evidence", empty)
             self.assertEqual(1, result.returncode, result.stderr)
             report = json.loads(result.stdout)
-            self.assertEqual({"open": 19, "closed": 0, "excluded": 0}, report["rows_counts"])
-            self.assertEqual({f"P{i:02}" for i in range(1, 20)}, set(report["rows"]))
+            self.assertEqual({"open": 20, "closed": 0, "excluded": 0}, report["rows_counts"])
+            self.assertEqual({f"P{i:02}" for i in range(1, 21)}, set(report["rows"]))
 
     def test_purpose_rows_all_closed_every_row_requires_evidence_and_logs(self):
-        for i in range(1, 20):
+        for i in range(1, 21):
             key = f"P{i:02}"
             for suffix in ("txt", "log"):
                 with self.subTest(row=key, artifact=suffix):
@@ -129,7 +129,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             path.write_bytes(content)
 
     def test_every_linked_task_requires_post_merge(self):
-        for i in range(1, 20):
+        for i in range(1, 21):
             tid = f"T-AA-{i:02}"
             for state in (None, "building", "merge_wait", "merged_invalid_approval", "cancelled", "unknown"):
                 with self.subTest(task=i, state=state):
@@ -177,14 +177,14 @@ class ReleaseReadinessTests(unittest.TestCase):
                 self.assertEqual(1, report["rows_counts"]["open"])
 
     def test_missing_row_record_and_reference_lists(self):
-        saved = self.manifest["rows"].pop("P19")
-        self.assert_open(self.report(1), "P19", "missing")
-        self.manifest["rows"]["P19"] = saved
+        saved = self.manifest["rows"].pop("P20")
+        self.assert_open(self.report(1), "P20", "missing")
+        self.manifest["rows"]["P20"] = saved
         for field in ("evidence", "acceptance_tests"):
-            saved = self.manifest["rows"]["P19"][field]
-            self.manifest["rows"]["P19"][field] = []
-            self.assert_open(self.report(1), "P19", "missing")
-            self.manifest["rows"]["P19"][field] = saved
+            saved = self.manifest["rows"]["P20"][field]
+            self.manifest["rows"]["P20"][field] = []
+            self.assert_open(self.report(1), "P20", "missing")
+            self.manifest["rows"]["P20"][field] = saved
 
     def test_all_tasks_in_a_row_are_required_and_repeated_headers_work(self):
         self.table = self.table.replace("| P01 | T-AA-01 |", "| P01 | `T-AA-01`, `T-AA-02` |")
@@ -211,11 +211,11 @@ class ReleaseReadinessTests(unittest.TestCase):
                                  "--evidence", str(self.evidence)],
                                 cwd=self.root, capture_output=True, text=True)
         self.assertEqual(0, result.returncode, result.stderr)
-        self.assertIn("purpose-rows-all-closed: open=0, closed=19, excluded=0", result.stdout)
+        self.assertIn("purpose-rows-all-closed: open=0, closed=20, excluded=0", result.stdout)
         self.assertIn("release-readiness-rejects-incomplete: open=0, closed=1, excluded=0", result.stdout)
 
     def test_unsupported_exclusions_including_partial_scope_and_pending_gates(self):
-        for key in ("P01", "P02", "P18", "feature"):
+        for key in ("P01", "P02", "P18", "P20", "feature"):
             group = "features" if key == "feature" else "rows"
             for decision in (None, "invented", "ADR-0018", "DEC-D-18", "BLUEPRINT §1 A7"):
                 with self.subTest(key=key, decision=decision):
@@ -227,13 +227,13 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.assert_open(self.report(1), "feature", "unsupported exclusion")
 
     def test_fixture_evidence_failed_and_missing_named_tests(self):
-        record = self.manifest["rows"]["P01"]
+        record = self.manifest["rows"]["P20"]
         record["environment"] = "fixture"
-        self.assert_open(self.report(1), "P01", "fixture/test")
+        self.assert_open(self.report(1), "P20", "fixture/test")
         record["environment"] = "release"
         for code in (1, False, "0", None):
             record["acceptance_tests"][0]["exit_code"] = code
-            self.assert_open(self.report(1), "P01", "did not pass")
+            self.assert_open(self.report(1), "P20", "did not pass")
         record["acceptance_tests"][0]["exit_code"] = 0
         self.manifest["features"]["feature"]["acceptance_tests"].pop()
         self.assert_open(self.report(1), "feature", "missing acceptance test: data trace")
@@ -250,7 +250,7 @@ class ReleaseReadinessTests(unittest.TestCase):
     def test_invalid_inputs_exit_2_without_success_counts(self):
         original = copy.deepcopy(self.manifest)
         variants = [[], {}, dict(original, version=True), dict(original, task_states=[]),
-                    dict(original, rows={"P20": {}}), dict(original, features={"unknown": {}}),
+                    dict(original, rows={"P21": {}}), dict(original, features={"unknown": {}}),
                     dict(original, task_states={"T-AA-99": "done"}),
                     dict(original, rows={"P01": None}), dict(original, typo={})]
         for value in variants:
@@ -266,7 +266,7 @@ class ReleaseReadinessTests(unittest.TestCase):
 
     def test_invalid_denominators_never_pass(self):
         original = self.table
-        for table in ("", original.replace("P19", "P18"), original.replace("P19", "P20"),
+        for table in ("", original.replace("P20", "P19"), original.replace("P20", "P21"),
                       original.replace("T-AA-19", "T-AA-99"), original.replace("구현 작업", "wrong")):
             self.table = table
             self.write()
@@ -279,7 +279,7 @@ class ReleaseReadinessTests(unittest.TestCase):
     def test_empty_ledger_is_incomplete_and_missing_ledger_is_an_input_error(self):
         self.ledger["tasks"].clear()
         report = self.report(1)
-        self.assertEqual(19, report["rows_counts"]["open"])
+        self.assertEqual(20, report["rows_counts"]["open"])
         self.assertEqual(1, report["features_counts"]["open"])
         self.tasks_state.unlink()
         result = self.cli()
@@ -322,7 +322,17 @@ class ReleaseReadinessTests(unittest.TestCase):
             result = subprocess.run(args, cwd=self.root, capture_output=True, text=True)
             self.assertEqual(1, result.returncode, result.stderr)
             report = json.loads(result.stdout)
-            self.assertEqual({"open": 19, "closed": 0, "excluded": 0}, report["rows_counts"])
+            self.assertEqual({"open": 20, "closed": 0, "excluded": 0}, report["rows_counts"])
+            for row, owners in {
+                "P02": ("T-DT-04", "T-AP-04"),
+                "P03": ("T-WB-01",),
+                "P08": ("T-MB-04",),
+                "P16": ("T-MB-04",),
+                "P20": ("T-PS-03", "T-PS-04", "T-OP-05"),
+            }.items():
+                for owner in owners:
+                    with self.subTest(row=row, owner=owner):
+                        self.assert_open(report, row, f"{owner}: not post_merge")
             live = json.loads((C.BUNDLE / "tasks.json").read_text())
             self.assertEqual(len(live["feature_registry"]), report["features_counts"]["open"])
 
@@ -347,13 +357,13 @@ class RepositoryScaffoldTests(unittest.TestCase):
                 self.assertEqual(1, result.returncode, result.stdout + result.stderr)
                 if explicit:
                     report = json.loads(result.stdout)
-                    self.assertEqual({"open": 19, "closed": 0, "excluded": 0},
+                    self.assertEqual({"open": 20, "closed": 0, "excluded": 0},
                                      report["rows_counts"])
                     self.assertEqual({"open": 64, "closed": 0, "excluded": 0},
                                      report["features_counts"])
                     self.assertEqual(C.ROW_IDS, set(report["rows"]))
                 else:
-                    self.assertIn("purpose-rows-all-closed: open=19, closed=0, excluded=0",
+                    self.assertIn("purpose-rows-all-closed: open=20, closed=0, excluded=0",
                                   result.stdout)
                     self.assertIn("release-readiness-rejects-incomplete: open=64, closed=0, excluded=0",
                                   result.stdout)

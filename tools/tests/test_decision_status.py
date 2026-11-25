@@ -71,7 +71,7 @@ class DecisionStatusSync(unittest.TestCase):
             if re.match(r"^\| P\d{2} \|", line):
                 cells = sync.table_cells(line)
                 rows[cells[0]] = cells[-2]
-        self.assertEqual(set(rows), {f"P{i:02}" for i in range(1, 20)})
+        self.assertEqual(set(rows), {f"P{i:02}" for i in range(1, 21)})
         for purpose, phrases in {
             "P01": ("O19 ‒ 미정",),
             "P02": ("DEC-O02.md) ‒ 위임 결정", "DEC-D-18.md) ‒ 위임 결정"),

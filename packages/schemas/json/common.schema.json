@@ -291,14 +291,38 @@
       ],
       "additionalProperties": false
     },
-    "DependencyInfo": {
+    "DependencyState": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "x-onjeon-pending-axis": "dependency_state",
+      "description": "kept, held, partial. 어휘 축 승격 대기"
+    },
+    "DependencyStatus": {
       "type": "object",
-      "description": "결론별 부분 보류 표시 (02 §1.6·§2.4)",
+      "description": "결론의 보류 상태와 미확인 항목",
       "properties": {
         "dependency_state": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "x-onjeon-pending-axis": "dependency_state",
+          "$ref": "#/$defs/DependencyState"
+        },
+        "unknown_overlap": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnknownOverlap"
+          }
+        }
+      },
+      "required": [
+        "dependency_state",
+        "unknown_overlap"
+      ],
+      "additionalProperties": false
+    },
+    "DependencyInfo": {
+      "type": "object",
+      "description": "개인 계약 합산 결론의 부분 보류 표시 (02 §1.6·§2.4)",
+      "properties": {
+        "dependency_state": {
+          "$ref": "#/$defs/DependencyState",
           "description": "kept, held, partial. 어휘 축 승격 대기"
         },
         "excluded_contracts": {
@@ -409,7 +433,7 @@
           }
         },
         "dependency": {
-          "$ref": "common.schema.json#/$defs/DependencyInfo"
+          "$ref": "#/$defs/DependencyStatus"
         }
       },
       "required": [

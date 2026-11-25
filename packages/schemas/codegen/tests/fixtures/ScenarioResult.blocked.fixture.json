@@ -20,9 +20,6 @@
   },
   "dependency": {
     "dependency_state": "held",
-    "excluded_contracts": [
-      "contract:01H8XGJWBWBAQ4Z4RN3XPQ3BDY"
-    ],
     "unknown_overlap": [
       {
         "ref": "ted:01BX5ZZKBKACTAV9WEVGEMMVRY",

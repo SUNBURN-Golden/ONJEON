@@ -501,17 +501,32 @@ fn release_manifest_checks_withdrawal_and_supersession() {
 }
 
 #[test]
-fn snapshot_checks_sensitivity_edition_evidence_and_periods() {
-    let mut snapshot: ContractSnapshot =
-        serde_json::from_str(fixture!("ContractSnapshot")).unwrap();
-    for sensitivity in [Sensitivity::GeneticPrivate, Sensitivity::PublicProduct] {
-        snapshot.sensitivity = sensitivity;
-        assert_violation(
-            check_contract_snapshot(&snapshot),
-            "contract_snapshot_sensitivity_private",
+fn snapshot_deserializes_only_private_policy_and_health_sensitivity() {
+    let base: serde_json::Value = serde_json::from_str(fixture!("ContractSnapshot")).unwrap();
+    for expected in [
+        ContractSnapshotSensitivity::PrivatePolicy,
+        ContractSnapshotSensitivity::PrivateHealth,
+    ] {
+        let mut wire = base.clone();
+        wire["sensitivity"] = expected.as_str().into();
+        let snapshot = serde_json::from_value::<ContractSnapshot>(wire.clone()).unwrap();
+        assert_eq!(snapshot.sensitivity, expected);
+        assert_eq!(serde_json::to_value(snapshot).unwrap(), wire);
+    }
+    for invalid in ["public_product", "genetic_private", "unknown"] {
+        let mut wire = base.clone();
+        wire["sensitivity"] = invalid.into();
+        assert!(
+            serde_json::from_value::<ContractSnapshot>(wire).is_err(),
+            "{invalid}"
         );
     }
-    snapshot.sensitivity = Sensitivity::PrivateHealth;
+}
+
+#[test]
+fn snapshot_checks_edition_evidence_and_periods() {
+    let mut snapshot: ContractSnapshot =
+        serde_json::from_str(fixture!("ContractSnapshot")).unwrap();
     snapshot.applied_editions[0].to = Some(snapshot.applied_editions[0].from.clone());
     assert!(check_contract_snapshot(&snapshot).is_empty());
     for end in ["2024-02-30", "2023-12-31"] {

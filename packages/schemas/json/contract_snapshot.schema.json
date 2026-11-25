@@ -40,7 +40,8 @@
       "description": "사용 횟수. 항목 형식은 02 §1.4에 아직 없다(개인 영역 과제가 확정)"
     },
     "sensitivity": {
-      "$ref": "vocabulary.schema.json#/$defs/sensitivity"
+      "$ref": "vocabulary.schema.json#/$defs/contract_snapshot_sensitivity",
+      "description": "계약 스냅샷에 허용하는 개인 계약·건강 민감도 (02 §1.4)"
     },
     "user_confirmed_at": {
       "$ref": "common.schema.json#/$defs/Timestamp"

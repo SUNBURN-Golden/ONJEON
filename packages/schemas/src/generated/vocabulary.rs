@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 use serde::{Deserialize, Serialize};
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-pub const VOCABULARY_VERSION: &str = "1.9.0";
+pub const VOCABULARY_VERSION: &str = "1.9.1";
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
 /// Axis `acquisition_status`. Unknown values fail to deserialize (never a default).
@@ -2275,6 +2275,34 @@ impl RuleOperator {
             RuleOperator::DivideCount => "divide_count",
             RuleOperator::AnniversaryBand => "anniversary_band",
             RuleOperator::MaxOver => "max_over",
+        }
+    }
+}
+
+/// 민감도: 저장·권한·로그 경계. 파생물로 상속된다
+///
+/// Axis `contract_snapshot_sensitivity`. Unknown values fail to deserialize (never a default).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ContractSnapshotSensitivity {
+    /// 사용자 계약 정보
+    #[serde(rename = "private_policy")]
+    PrivatePolicy,
+    /// 건강·가족력
+    #[serde(rename = "private_health")]
+    PrivateHealth,
+}
+
+impl ContractSnapshotSensitivity {
+    pub const AXIS: &'static str = "contract_snapshot_sensitivity";
+    pub const ALL: &'static [ContractSnapshotSensitivity] = &[
+        ContractSnapshotSensitivity::PrivatePolicy,
+        ContractSnapshotSensitivity::PrivateHealth,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ContractSnapshotSensitivity::PrivatePolicy => "private_policy",
+            ContractSnapshotSensitivity::PrivateHealth => "private_health",
         }
     }
 }

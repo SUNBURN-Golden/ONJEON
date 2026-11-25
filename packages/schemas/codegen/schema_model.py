@@ -86,6 +86,7 @@ class Axis:
     values: list  # [{"code","concept_ko","screen_ko"}]
     concept_ko: str = ""
     name_ko: str = ""
+    source: str | None = None  # parent axis for a named enum subset
 
 
 @dataclass
@@ -108,15 +109,36 @@ def camel(snake: str) -> str:
     return p[:1].lower() + p[1:]
 
 
+def vocabulary_enums(vocab: dict) -> dict[str, Axis]:
+    """Canonical axes and named restrictions that reuse their value definitions."""
+    enums = {
+        a["id"]: Axis(a["id"], a["values"], a.get("concept_ko", ""), a.get("name_ko", ""))
+        for a in vocab["axes"]
+    }
+    for axis in vocab["axes"]:
+        base = enums[axis["id"]]
+        values = {value["code"]: value for value in base.values}
+        for name, codes in axis.get("subsets", {}).items():
+            if not SNAKE_RE.fullmatch(name) or name in enums:
+                raise SchemaError(f"{base.id}: invalid or duplicate enum subset name {name!r}")
+            if (not isinstance(codes, list) or not codes
+                    or any(not isinstance(code, str) or code not in values for code in codes)
+                    or len(set(codes)) != len(codes)):
+                raise SchemaError(f"{base.id}.{name}: enum subset needs unique codes from {base.id}")
+            enums[name] = Axis(name, [values[code] for code in codes], base.concept_ko, base.name_ko, source=base.id)
+    return enums
+
+
 def vocabulary_schema(vocab: dict) -> dict:
     """The only place where enum arrays are produced."""
-    defs = {}
-    for axis in vocab["axes"]:
-        defs[axis["id"]] = {
+    defs = {
+        name: {
             "type": "string",
-            "description": f"{axis['name_ko']}: {axis['concept_ko']}",
-            "enum": [v["code"] for v in axis["values"]],
+            "description": f"{axis.name_ko}: {axis.concept_ko}",
+            "enum": [v["code"] for v in axis.values],
         }
+        for name, axis in vocabulary_enums(vocab).items()
+    }
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": VOCAB_FILE,
@@ -250,8 +272,7 @@ class _Loader:
         self.model.structs[name] = st
 
     def run(self) -> Model:
-        for a in self.vocab["axes"]:
-            self.model.axes[a["id"]] = Axis(a["id"], a["values"], a.get("concept_ko", ""), a.get("name_ko", ""))
+        self.model.axes = vocabulary_enums(self.vocab)
         # the vocabulary schema must be exactly the generated one
         if VOCAB_FILE not in self.files:
             self.err(VOCAB_FILE, "missing (run codegen/gen.py --write)")

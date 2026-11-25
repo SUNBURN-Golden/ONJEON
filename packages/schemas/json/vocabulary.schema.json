@@ -3,7 +3,7 @@
   "$id": "vocabulary.schema.json",
   "title": "Vocabulary",
   "description": "GENERATED from packages/schemas/vocabulary.json by codegen/gen.py. Do not edit.",
-  "x-onjeon-vocabulary-version": "1.9.0",
+  "x-onjeon-vocabulary-version": "1.9.1",
   "$defs": {
     "acquisition_status": {
       "type": "string",
@@ -574,6 +574,14 @@
         "divide_count",
         "anniversary_band",
         "max_over"
+      ]
+    },
+    "contract_snapshot_sensitivity": {
+      "type": "string",
+      "description": "민감도: 저장·권한·로그 경계. 파생물로 상속된다",
+      "enum": [
+        "private_policy",
+        "private_health"
       ]
     }
   }

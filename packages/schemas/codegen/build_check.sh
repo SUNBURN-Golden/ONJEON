@@ -33,7 +33,7 @@ else
   mkdir -p "$ts_scratch/ts" "$ts_scratch/ts-api"
   cp -R "$here/generated/ts/." "$ts_scratch/ts/"
   cp -R "$here/generated/ts-api/." "$ts_scratch/ts-api/"
-  python3 -I "$here/ts_fixtures.py" "$ts_scratch/ts"   # every fixture as a typed constant + two expected type errors
+  python3 -I "$here/ts_fixtures.py" "$ts_scratch/ts"   # every fixture as a typed constant + expected type errors
   if "${tsc_cmd[@]}" -p "$ts_scratch/ts/tsconfig.json"; then echo "TypeScript: built, fixtures type-check (${tsc_cmd[*]} $("${tsc_cmd[@]}" --version))"
   else echo "TypeScript: FAILED"; failed=1; fi
   python3 -I "$here/ts_api_fixtures.py" "$ts_scratch/ts-api"   # API fixtures + release_id, enum and skeleton-export errors

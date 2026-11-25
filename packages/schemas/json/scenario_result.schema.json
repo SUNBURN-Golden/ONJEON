@@ -45,7 +45,7 @@
       "$ref": "common.schema.json#/$defs/ResultState"
     },
     "dependency": {
-      "$ref": "common.schema.json#/$defs/DependencyInfo"
+      "$ref": "common.schema.json#/$defs/DependencyStatus"
     }
   },
   "required": [

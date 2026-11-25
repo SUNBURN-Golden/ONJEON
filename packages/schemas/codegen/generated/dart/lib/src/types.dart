@@ -364,7 +364,28 @@ class UnknownOverlap {
       };
 }
 
-/// 결론별 부분 보류 표시 (02 §1.6·§2.4)
+/// 결론의 보류 상태와 미확인 항목
+class DependencyStatus {
+  final String dependencyState;
+  final List<UnknownOverlap> unknownOverlap;
+
+  const DependencyStatus({
+    required this.dependencyState,
+    required this.unknownOverlap,
+  });
+
+  factory DependencyStatus.fromJson(Map<String, dynamic> json) => DependencyStatus(
+        dependencyState: json['dependency_state'] as String,
+        unknownOverlap: (json['unknown_overlap'] as List<dynamic>).map((e) => UnknownOverlap.fromJson(e as Map<String, dynamic>)).toList(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'dependency_state': dependencyState,
+        'unknown_overlap': unknownOverlap.map((e) => e.toJson()).toList(),
+      };
+}
+
+/// 개인 계약 합산 결론의 부분 보류 표시 (02 §1.6·§2.4)
 class DependencyInfo {
   /// kept, held, partial. 어휘 축 승격 대기
   final String dependencyState;
@@ -453,7 +474,7 @@ class ViewLine {
   final List<Amount>? amounts;
   final List<ViewValue>? values;
   final List<String>? gaps;
-  final DependencyInfo? dependency;
+  final DependencyStatus? dependency;
 
   const ViewLine({
     required this.line,
@@ -474,7 +495,7 @@ class ViewLine {
         amounts: json['amounts'] == null ? null : (json['amounts'] as List<dynamic>).map((e) => Amount.fromJson(e as Map<String, dynamic>)).toList(),
         values: json['values'] == null ? null : (json['values'] as List<dynamic>).map((e) => ViewValue.fromJson(e as Map<String, dynamic>)).toList(),
         gaps: json['gaps'] == null ? null : (json['gaps'] as List<dynamic>).map((e) => e as String).toList(),
-        dependency: json['dependency'] == null ? null : DependencyInfo.fromJson(json['dependency'] as Map<String, dynamic>),
+        dependency: json['dependency'] == null ? null : DependencyStatus.fromJson(json['dependency'] as Map<String, dynamic>),
       );
 
   Map<String, dynamic> toJson() => {
@@ -890,7 +911,8 @@ class ContractSnapshot {
   final List<Object?> specialConditions;
   /// 사용 횟수. 항목 형식은 02 §1.4에 아직 없다(개인 영역 과제가 확정)
   final List<Object?> usageCounters;
-  final Sensitivity sensitivity;
+  /// 계약 스냅샷에 허용하는 개인 계약·건강 민감도 (02 §1.4)
+  final ContractSnapshotSensitivity sensitivity;
   final String? userConfirmedAt;
 
   const ContractSnapshot({
@@ -915,7 +937,7 @@ class ContractSnapshot {
         components: (json['components'] as List<dynamic>).map((e) => SnapshotComponent.fromJson(e as Map<String, dynamic>)).toList(),
         specialConditions: (json['special_conditions'] as List<dynamic>).map((e) => e).toList(),
         usageCounters: (json['usage_counters'] as List<dynamic>).map((e) => e).toList(),
-        sensitivity: Sensitivity.fromJson(json['sensitivity'] as String),
+        sensitivity: ContractSnapshotSensitivity.fromJson(json['sensitivity'] as String),
         userConfirmedAt: json['user_confirmed_at'] == null ? null : json['user_confirmed_at'] as String,
       );
 
@@ -1417,7 +1439,7 @@ class NeedResult {
   final List<NeedReason> reasons;
   final List<DecisiveInput> decisiveInputs;
   final ConclusionDependency? deps;
-  final DependencyInfo? dependency;
+  final DependencyStatus? dependency;
   final ResultState resultState;
 
   const NeedResult({
@@ -1442,7 +1464,7 @@ class NeedResult {
         reasons: (json['reasons'] as List<dynamic>).map((e) => NeedReason.fromJson(e as Map<String, dynamic>)).toList(),
         decisiveInputs: (json['decisive_inputs'] as List<dynamic>).map((e) => DecisiveInput.fromJson(e as Map<String, dynamic>)).toList(),
         deps: json['deps'] == null ? null : ConclusionDependency.fromJson(json['deps'] as Map<String, dynamic>),
-        dependency: json['dependency'] == null ? null : DependencyInfo.fromJson(json['dependency'] as Map<String, dynamic>),
+        dependency: json['dependency'] == null ? null : DependencyStatus.fromJson(json['dependency'] as Map<String, dynamic>),
         resultState: ResultState.fromJson(json['result_state'] as Map<String, dynamic>),
       );
 
@@ -2294,7 +2316,7 @@ class ScenarioResult {
   /// 금액 계산 사유(evaluation.amount_issues)가 있으면 hold, 필요한 입력만 누락되면 input_missing
   final DisplayStatus displayStatus;
   final ResultState resultState;
-  final DependencyInfo? dependency;
+  final DependencyStatus? dependency;
 
   const ScenarioResult({
     required this.releaseId,
@@ -2319,7 +2341,7 @@ class ScenarioResult {
         explain: json['explain'] == null ? null : Explain.fromJson(json['explain'] as Map<String, dynamic>),
         displayStatus: DisplayStatus.fromJson(json['display_status'] as String),
         resultState: ResultState.fromJson(json['result_state'] as Map<String, dynamic>),
-        dependency: json['dependency'] == null ? null : DependencyInfo.fromJson(json['dependency'] as Map<String, dynamic>),
+        dependency: json['dependency'] == null ? null : DependencyStatus.fromJson(json['dependency'] as Map<String, dynamic>),
       );
 
   Map<String, dynamic> toJson() => {

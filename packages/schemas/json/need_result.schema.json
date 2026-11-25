@@ -39,7 +39,7 @@
       "$ref": "common.schema.json#/$defs/ConclusionDependency"
     },
     "dependency": {
-      "$ref": "common.schema.json#/$defs/DependencyInfo"
+      "$ref": "common.schema.json#/$defs/DependencyStatus"
     },
     "result_state": {
       "$ref": "common.schema.json#/$defs/ResultState"

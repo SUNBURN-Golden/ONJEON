@@ -1,6 +1,6 @@
 # 상태 어휘 (생성 문서)
 
-버전 1.9.0 | 2026-11-18 | 정본: `packages/schemas/vocabulary.json`
+버전 1.9.1 | 2026-11-25 | 정본: `packages/schemas/vocabulary.json`
 
 > 이 문서는 `python3 tools/vocab_check.py --write`로 생성한다. 직접 고치지 않는다.
 

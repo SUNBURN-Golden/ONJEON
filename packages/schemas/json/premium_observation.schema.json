@@ -64,14 +64,14 @@
       "items": {
         "type": "string"
       },
-      "description": "원문에 없는 조건 차원"
+      "description": "비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 확보하지 못한 개별 조건 차원의 키"
     },
     "comparison_basis_id": {
       "$ref": "common.schema.json#/$defs/Identifier"
     },
     "comparison_eligible": {
       "type": "boolean",
-      "description": "금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)"
+      "description": "금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID가 모두 있으며 accepted일 때만 true (K13)"
     },
     "value_state": {
       "$ref": "vocabulary.schema.json#/$defs/value_state"
@@ -107,7 +107,8 @@
   "x-onjeon-invariants": [
     "value_state=observed 또는 derived => raw_amount 필수, unknown_reason 금지 (chk_premium_amount_matches_value_state)",
     "그 외 value_state => raw_amount 금지, 공백이 아닌 unknown_reason 필수 (chk_premium_unknown_reason_matches_value_state)",
-    "comparison_eligible=true => value_state=observed 또는 derived, conditions, package_binding, source_as_of 있음, missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
+    "고정 비교 필드의 누락과 개별 조건의 공백 값을 missing_dimensions에 기록하고, 값이 있는 차원은 제외 (chk_premium_missing_dimensions)",
+    "comparison_eligible=true => value_state=observed 또는 derived, conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id 있음, missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
     "review_status=accepted => review_decision_id 있음",
     "origin=fixture => review_status<>accepted"
   ]

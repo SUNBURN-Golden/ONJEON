@@ -95,6 +95,45 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
             "origin=fixture can never be accepted (ONJ-KN-S-050)",
         ));
     }
+
+    let has_value = |value: Option<&str>| value.is_some_and(|value| !value.trim().is_empty());
+    let fixed_dimensions = [
+        (
+            "conditions",
+            p.conditions.as_ref().is_some_and(|c| !c.is_empty()),
+        ),
+        ("package_binding", has_value(p.package_binding.as_deref())),
+        ("source_as_of", has_value(p.source_as_of.as_deref())),
+        ("payment_cycle", has_value(p.payment_cycle.as_deref())),
+        (
+            "comparison_basis_id",
+            has_value(p.comparison_basis_id.as_deref()),
+        ),
+    ];
+    // The label dictionary defines the open set of condition keys. Locally we can
+    // check the values carried by the record and let it report other missing keys.
+    let condition_dimensions = p
+        .conditions
+        .iter()
+        .flatten()
+        .map(|(dimension, value)| (dimension.as_str(), !value.trim().is_empty()));
+    let mut dimensions_complete = true;
+    for (dimension, present) in fixed_dimensions.into_iter().chain(condition_dimensions) {
+        dimensions_complete &= present;
+        let marked_missing = p
+            .missing_dimensions
+            .iter()
+            .any(|missing| missing == dimension);
+        if marked_missing == present {
+            let message = if present {
+                format!("{dimension} has a value and must be removed from missing_dimensions")
+            } else {
+                format!("{dimension} is absent and must be listed in missing_dimensions")
+            };
+            out.push(v("chk_premium_missing_dimensions", &message));
+        }
+    }
+
     if p.comparison_eligible {
         if !amount_known || p.raw_amount.is_none() {
             out.push(v(
@@ -102,15 +141,10 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
                 "comparison_eligible needs an observed or derived amount",
             ));
         }
-        let conditions_missing = p.conditions.as_ref().is_none_or(|c| c.is_empty());
-        if conditions_missing
-            || p.package_binding.is_none()
-            || p.source_as_of.is_none()
-            || !p.missing_dimensions.is_empty()
-        {
+        if !dimensions_complete || !p.missing_dimensions.is_empty() {
             out.push(v(
                 "chk_premium_raw_vs_eligible",
-                "comparison_eligible needs conditions, package_binding, source_as_of and no missing_dimensions (K13)",
+                "comparison_eligible needs conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id and no missing_dimensions (K13)",
             ));
         }
         if p.review_status != ReviewStatus::Accepted {

@@ -273,7 +273,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
 | I5 | 허용 목록 밖 연산과 타입이 맞지 않는 식은 로드되지 않는다 | 엔진 로더·`static_types`(#40: 로드 단계 타입 검사)·`range_comparisons`(범위 가능 금액 비교의 로드 거부, [Audit 3 증거](blueprint/audits/2026-10-28_engine_moneyrange_compare_load_check.md)) | 구현(엔진) |
 | I6 | 화면의 숫자·사실 문장은 근거 사슬(§5.2)을 끝까지 따라간다 | API 계약 테스트 | 미구현 |
-| I7 | 가격은 조건·특약 구성·기준일·근거 없이 저장되지 않는다 | DB 제약, 테스트 | 미구현 |
+| I7 | 가격은 조건·특약 구성·기준일·근거 없이 저장되지 않는다 | DB 제약·테스트, 공유 가격 관측의 누락 차원·비교 자격 검사([Audit 8 증거](blueprint/audits/2026-11-25_i7_missing_dimensions_check.md)) | 부분 구현(공유 가격 계약) |
 | I8 | 다른 비교 기준·버전·묶음의 가격을 합산하지 않는다 | 뷰모델 테스트 | 미구현 |
 | I9 | 보완안 비교는 줄어드는 것(면책·감액·제외 포함)을 항상 계산·표시 | 뷰모델 테스트 | 미구현 |
 | I10 | 광고비·수수료 필드는 정렬·추천 코드의 입력이 아니다 | 정적 검사 | 미구현 |

@@ -714,11 +714,11 @@ pub struct PremiumObservation {
     /// none, requires_main, source_bundle, requires_base_contract (PREMIUM_DATA_CONTRACT). 어휘 축 승격 대기
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub package_binding: Option<String>,
-    /// 원문에 없는 조건 차원
+    /// 비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 확보하지 못한 개별 조건 차원의 키
     pub missing_dimensions: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comparison_basis_id: Option<String>,
-    /// 금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)
+    /// 금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID가 모두 있으며 accepted일 때만 true (K13)
     pub comparison_eligible: bool,
     pub value_state: ValueState,
     /// 금액을 알 수 없는 이유. value_state가 observed 또는 derived이면 금지, 다른 상태에서는 필수

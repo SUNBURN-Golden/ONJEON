@@ -890,12 +890,12 @@ export interface PremiumObservation {
    */
   package_binding?: string;
   /**
-   * 원문에 없는 조건 차원
+   * 비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 확보하지 못한 개별 조건 차원의 키
    */
   missing_dimensions: string[];
   comparison_basis_id?: string;
   /**
-   * 금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)
+   * 금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID가 모두 있으며 accepted일 때만 true (K13)
    */
   comparison_eligible: boolean;
   value_state: ValueState;

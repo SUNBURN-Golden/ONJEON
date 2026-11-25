@@ -15,7 +15,7 @@
 | 명령 | 결과 |
 |---|---|
 | `cargo test -p onjeon-contracts --locked --offline premium_missing_dimensions` | 수정 전 새 회귀 시험 2개가 실패했다. 고정 필드 공백의 미신고와 값이 있는 개별 조건의 누락 신고를 검출했다. |
-| `cargo test -p onjeon-contracts --locked --offline premium` | 수정 후 가격 관측 시험 4개 통과. |
+| `cargo test -p onjeon-contracts --locked --offline premium` | 수정 후 가격 관측 시험 4개 통과. main의 가격 대상·기간 시험과 합친 트리에서 8개 통과. |
 | `ONJ_REQUIRE_RULE_02=1 ONJ_COMPAT_ALL_CLIENTS=1 cargo test --all --locked --offline` | Rust 시험과 문서 시험 540개 통과, 픽스처 재생성용 1개 기본 제외. 내장 Python API 시험 39개와 계약 시험 139개 통과. |
 | `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh` | 생성물 확인, Rust 빌드, TypeScript 타입 검사, Dart 분석과 JSON 왕복 통과. |
 | `ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest` 및 `compat.py`로 작업 시작점과 직접 비교 | 이전 `contracts-*` 태그가 없어 `--latest`는 자체 시험까지 통과했다. 작업 시작점과 대조한 결과 스키마 구조 변경 0건, 이전 Rust·TypeScript·Dart 생성물의 문서 12종 읽기 또는 타입 검사 통과. |

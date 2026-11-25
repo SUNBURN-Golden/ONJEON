@@ -854,14 +854,45 @@ export interface PlanView {
 }
 
 /**
+ * 가격에 포함된 담보 한 건. 묶음 금액을 담보 단가로 배분하지 않는다
+ */
+export interface PremiumComponent {
+  cov_ref: string;
+  /**
+   * 원문에서 확인한 담보 가입금액. 미확인 시 생략하며 비교 자격은 보류한다
+   */
+  insured_amount_krw?: number;
+}
+
+/**
  * 가격 관측치. 원시 관측은 공백이 있어도 보존하고 비교 자격은 따로 둔다 (02_구현계약 §1.2, PREMIUM_DATA_CONTRACT)
  */
 export interface PremiumObservation {
   id: string;
   /**
+   * 공시 가격이 적용되는 상품의 식별자. 상품명과 구분한다
+   */
+  product_ref?: string;
+  /**
+   * 가격이 적용되는 판매 구성 판(개정판·판매 채널 포함)
+   */
+  sales_config_ref?: string;
+  /**
+   * 가격이 특정 담보 행을 가리킬 때 그 담보. 상품·묶음 전체 가격에는 생략한다
+   */
+  coverage_ref?: string;
+  /**
+   * 가격이 포함하는 주계약·특약 담보와 담보별 가입금액. 구성을 모르는 원시 관측은 생략할 수 있다
+   */
+  components?: PremiumComponent[];
+  /**
    * 근거 1개 이상
    */
   evidence: EvidenceLink[];
+  /**
+   * 가격 원문 바이트의 불변 개정 식별자(raw:sha256). 같은 URL의 가격표 변경도 구분한다
+   */
+  source_revision?: string;
   /**
    * 관측하거나 산출한 금액(정수 원). value_state가 observed 또는 derived이면 필수, 다른 상태에서는 금지
    */
@@ -873,6 +904,18 @@ export interface PremiumObservation {
    * 소스가 밝힌 기준일
    */
   source_as_of?: string;
+  /**
+   * 원문 근거로 확인한 적용 시작일(포함)
+   */
+  effective_from?: string;
+  /**
+   * 원문 근거로 확인한 적용 종료일(포함). 미확인 또는 종료기한이 없으면 생략
+   */
+  effective_to?: string;
+  /**
+   * 종료기한 없이 적용됨이 확인된 경우 true. 종료일 미확인은 생략
+   */
+  effective_open_ended?: boolean;
   /**
    * 월납·연납 등. 연납÷12를 월납으로 쓰지 않는다. 어휘 축 승격 대기
    */
@@ -890,12 +933,12 @@ export interface PremiumObservation {
    */
   package_binding?: string;
   /**
-   * 비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 확보하지 못한 개별 조건 차원의 키
+   * 비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 원문에 없는 개별 조건 차원의 키
    */
   missing_dimensions: string[];
   comparison_basis_id?: string;
   /**
-   * 금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID가 모두 있으며 accepted일 때만 true (K13)
+   * 금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID와 가격 대상·적용 기간·원문 판이 확인되며 accepted일 때만 true (K13)
    */
   comparison_eligible: boolean;
   value_state: ValueState;

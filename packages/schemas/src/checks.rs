@@ -5,6 +5,9 @@
 //! checked here, against the typed vocabulary enums. Each violation carries the
 //! name of the database constraint or contract rule it mirrors.
 
+use std::collections::HashSet;
+
+use crate::evidence_ref::{is_iso_date, is_ulid, kind_of, no_ws, RefKind};
 use crate::{
     AmountKind, AmountOut, Assertion, AssertionOrigin, DisplayStatus, ErrorClass, ErrorResponse,
     EvaluationResult, Payout, PremiumObservation, ReviewStatus, ScenarioResult, Tri, ValueState,
@@ -95,7 +98,6 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
             "origin=fixture can never be accepted (ONJ-KN-S-050)",
         ));
     }
-
     let has_value = |value: Option<&str>| value.is_some_and(|value| !value.trim().is_empty());
     let fixed_dimensions = [
         (
@@ -134,6 +136,51 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
         }
     }
 
+    let components = p.components.as_deref().unwrap_or_default();
+    let mut component_refs = HashSet::new();
+    if p.product_ref.as_deref().is_some_and(|id| !no_ws(id))
+        || p.sales_config_ref
+            .as_deref()
+            .is_some_and(|id| !id.strip_prefix("sc:").is_some_and(is_ulid))
+        || p.coverage_ref
+            .as_deref()
+            .is_some_and(|id| !is_coverage_ref(id))
+        || p.components.as_ref().is_some_and(Vec::is_empty)
+        || components.iter().any(|component| {
+            !is_coverage_ref(&component.cov_ref)
+                || !component_refs.insert(&component.cov_ref)
+                || component
+                    .insured_amount_krw
+                    .is_some_and(|amount| amount < 0)
+        })
+    {
+        out.push(v(
+            "chk_premium_priced_subject",
+            "priced subject references must be valid and component coverage references must be unique with non-negative amounts",
+        ));
+    }
+    if p.source_revision
+        .as_deref()
+        .is_some_and(|id| kind_of(id) != Some(RefKind::Raw))
+    {
+        out.push(v(
+            "chk_premium_source_revision",
+            "source_revision must identify immutable source bytes with a raw:sha256 reference",
+        ));
+    }
+    let start = p.effective_from.as_deref();
+    let end = p.effective_to.as_deref();
+    let open_ended = p.effective_open_ended == Some(true);
+    let period_valid = start.is_none_or(is_iso_date)
+        && end.is_none_or(is_iso_date)
+        && start.zip(end).is_none_or(|(from, to)| from <= to)
+        && !(open_ended && end.is_some());
+    if !period_valid {
+        out.push(v(
+            "chk_premium_effective_period",
+            "the effective period must use valid dates in order and cannot have both an end date and an open end",
+        ));
+    }
     if p.comparison_eligible {
         if !amount_known || p.raw_amount.is_none() {
             out.push(v(
@@ -141,10 +188,35 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
                 "comparison_eligible needs an observed or derived amount",
             ));
         }
-        if !dimensions_complete || !p.missing_dimensions.is_empty() {
+        let conditions_missing = p.conditions.as_ref().is_none_or(|c| c.is_empty());
+        let composition_complete = !components.is_empty()
+            && components.iter().all(|c| c.insured_amount_krw.is_some())
+            && p.coverage_ref
+                .as_ref()
+                .is_none_or(|id| components.len() == 1 && components[0].cov_ref == *id)
+            && (p.package_binding.as_deref() != Some("source_bundle") || components.len() >= 2);
+        let covers_basis_date = period_valid
+            && p.source_as_of.as_deref().is_some_and(|as_of| {
+                is_iso_date(as_of)
+                    && start.is_some_and(|from| from <= as_of)
+                    && (open_ended || end.is_some_and(|to| as_of <= to))
+            });
+        if !dimensions_complete
+            || conditions_missing
+            || p.evidence.is_empty()
+            || p.payment_cycle.as_deref().is_none_or(|id| !no_ws(id))
+            || p.comparison_basis_id.as_deref().is_none_or(|id| !no_ws(id))
+            || p.package_binding.is_none()
+            || p.product_ref.is_none()
+            || p.sales_config_ref.is_none()
+            || p.source_revision.is_none()
+            || !composition_complete
+            || !covers_basis_date
+            || !p.missing_dimensions.is_empty()
+        {
             out.push(v(
                 "chk_premium_raw_vs_eligible",
-                "comparison_eligible needs conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id and no missing_dimensions (K13)",
+                "comparison_eligible needs an observed or derived amount, evidenced conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id, a complete priced subject, a source revision and a period covering source_as_of with no missing_dimensions (K13)",
             ));
         }
         if p.review_status != ReviewStatus::Accepted {
@@ -155,6 +227,12 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
         }
     }
     out
+}
+
+fn is_coverage_ref(id: &str) -> bool {
+    id.strip_prefix("cov:ted:")
+        .and_then(|id| id.split_once('/'))
+        .is_some_and(|(edition, path)| is_ulid(edition) && no_ws(path))
 }
 
 /// A blocked scenario makes no engine call, so it carries no evaluation or explanation (02 §1.7).

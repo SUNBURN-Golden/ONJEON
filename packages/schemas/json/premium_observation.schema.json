@@ -8,6 +8,26 @@
     "id": {
       "$ref": "common.schema.json#/$defs/PremiumId"
     },
+    "product_ref": {
+      "$ref": "common.schema.json#/$defs/Identifier",
+      "description": "공시 가격이 적용되는 상품의 식별자. 상품명과 구분한다"
+    },
+    "sales_config_ref": {
+      "$ref": "common.schema.json#/$defs/SalesConfigId",
+      "description": "가격이 적용되는 판매 구성 판(개정판·판매 채널 포함)"
+    },
+    "coverage_ref": {
+      "$ref": "common.schema.json#/$defs/CoverageId",
+      "description": "가격이 특정 담보 행을 가리킬 때 그 담보. 상품·묶음 전체 가격에는 생략한다"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PremiumComponent"
+      },
+      "minItems": 1,
+      "description": "가격이 포함하는 주계약·특약 담보와 담보별 가입금액. 구성을 모르는 원시 관측은 생략할 수 있다"
+    },
     "evidence": {
       "type": "array",
       "items": {
@@ -15,6 +35,10 @@
       },
       "minItems": 1,
       "description": "근거 1개 이상"
+    },
+    "source_revision": {
+      "$ref": "common.schema.json#/$defs/RawRef",
+      "description": "가격 원문 바이트의 불변 개정 식별자(raw:sha256). 같은 URL의 가격표 변경도 구분한다"
     },
     "raw_amount": {
       "$ref": "common.schema.json#/$defs/Krw",
@@ -32,6 +56,18 @@
     "source_as_of": {
       "$ref": "common.schema.json#/$defs/IsoDate",
       "description": "소스가 밝힌 기준일"
+    },
+    "effective_from": {
+      "$ref": "common.schema.json#/$defs/IsoDate",
+      "description": "원문 근거로 확인한 적용 시작일(포함)"
+    },
+    "effective_to": {
+      "$ref": "common.schema.json#/$defs/IsoDate",
+      "description": "원문 근거로 확인한 적용 종료일(포함). 미확인 또는 종료기한이 없으면 생략"
+    },
+    "effective_open_ended": {
+      "type": "boolean",
+      "description": "종료기한 없이 적용됨이 확인된 경우 true. 종료일 미확인은 생략"
     },
     "payment_cycle": {
       "type": "string",
@@ -64,14 +100,14 @@
       "items": {
         "type": "string"
       },
-      "description": "비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 확보하지 못한 개별 조건 차원의 키"
+      "description": "비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 원문에 없는 개별 조건 차원의 키"
     },
     "comparison_basis_id": {
       "$ref": "common.schema.json#/$defs/Identifier"
     },
     "comparison_eligible": {
       "type": "boolean",
-      "description": "금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID가 모두 있으며 accepted일 때만 true (K13)"
+      "description": "금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID와 가격 대상·적용 기간·원문 판이 확인되며 accepted일 때만 true (K13)"
     },
     "value_state": {
       "$ref": "vocabulary.schema.json#/$defs/value_state"
@@ -104,11 +140,32 @@
     "origin"
   ],
   "additionalProperties": false,
+  "$defs": {
+    "PremiumComponent": {
+      "type": "object",
+      "description": "가격에 포함된 담보 한 건. 묶음 금액을 담보 단가로 배분하지 않는다",
+      "properties": {
+        "cov_ref": {
+          "$ref": "common.schema.json#/$defs/CoverageId"
+        },
+        "insured_amount_krw": {
+          "$ref": "common.schema.json#/$defs/Krw",
+          "description": "원문에서 확인한 담보 가입금액. 미확인 시 생략하며 비교 자격은 보류한다"
+        }
+      },
+      "required": [
+        "cov_ref"
+      ],
+      "additionalProperties": false
+    }
+  },
   "x-onjeon-invariants": [
     "value_state=observed 또는 derived => raw_amount 필수, unknown_reason 금지 (chk_premium_amount_matches_value_state)",
     "그 외 value_state => raw_amount 금지, 공백이 아닌 unknown_reason 필수 (chk_premium_unknown_reason_matches_value_state)",
     "고정 비교 필드의 누락과 개별 조건의 공백 값을 missing_dimensions에 기록하고, 값이 있는 차원은 제외 (chk_premium_missing_dimensions)",
-    "comparison_eligible=true => value_state=observed 또는 derived, conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id 있음, missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
+    "effective_from과 effective_to는 실제 날짜이며 시작일 <= 종료일. effective_open_ended=true이면 effective_to 금지 (chk_premium_effective_period)",
+    "구성 내 cov_ref는 중복되지 않는다 (chk_premium_priced_subject)",
+    "comparison_eligible=true => value_state=observed 또는 derived, 근거, conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id, 묶음 종류, 상품·판매 구성, 담보별 가입금액, 원문 판 있음. source_as_of는 확인된 적용 기간 안에 있어야 한다. coverage_ref가 있으면 구성에 포함되고 source_bundle은 담보 2개 이상이어야 한다. missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
     "review_status=accepted => review_decision_id 있음",
     "origin=fixture => review_status<>accepted"
   ]

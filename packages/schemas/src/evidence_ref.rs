@@ -144,7 +144,7 @@ fn err<T>(reason: &'static str) -> Result<T, RefError> {
 
 // ---- character classes -----------------------------------------------------
 
-fn is_hex(s: &str, min: usize, max: usize) -> bool {
+pub(crate) fn is_hex(s: &str, min: usize, max: usize) -> bool {
     (min..=max).contains(&s.len()) && s.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
 }
 

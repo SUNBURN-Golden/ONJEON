@@ -104,6 +104,14 @@
         "display_status": {
           "$ref": "vocabulary.schema.json#/$defs/display_status"
         },
+        "refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EvidenceRef"
+          },
+          "minItems": 1,
+          "description": "근거 참조. 확인된 값·적용 여부·금액을 표시하는 셀에는 필수(check_compare_view)"
+        },
         "amounts": {
           "type": "array",
           "items": {

@@ -24,20 +24,17 @@
           "value": "90일",
           "evidence_kind": "terms",
           "applicability": "applies",
-          "display_status": "confirmed"
+          "display_status": "confirmed",
+          "refs": [
+            "clause:seg:0123456789ab:p12-14:terms:seg-1.0/art7#p12:docproc-text@1.0"
+          ]
         },
         {
           "sc_id": "sc:01BX5ZZKBKACTAV9WEVGEMMVRY",
           "value": "확인 필요",
           "evidence_kind": "summary",
           "applicability": "unverified",
-          "display_status": "data_missing",
-          "amounts": [
-            {
-              "krw": 10000000,
-              "source": "candidate:01BX5ZZKBKACTAV9WEVGEMMVRY"
-            }
-          ]
+          "display_status": "data_missing"
         }
       ]
     }

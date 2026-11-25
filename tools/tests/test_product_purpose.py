@@ -28,14 +28,14 @@ class ProductPurposeTests(unittest.TestCase):
             {"id": "T-AA-01", "required_test_ids": []},
             {"id": "T-AA-02", "required_test_ids": []},
         ]}
-        owners = set().union(*P.REQUIRED_TEST_OWNERS.values())
+        owners = set().union(*P.REQUIRED_TEST_OWNERS.values(), *P.REQUIRED_ROW_OWNERS.values())
         self.data["tasks"].extend(
             {"id": owner, "required_test_ids": sorted(
                 test for test, assigned in P.REQUIRED_TEST_OWNERS.items() if owner in assigned)}
             for owner in sorted(owners))
         self.text = "| # | 제품 목적 | 구현 작업(tasks.json) | 완료 증거 |\n|---|---|---|---|\n" + "".join(
             f"| P{i:02} | purpose | {', '.join(['T-AA-01', 'T-AA-02', *sorted(P.REQUIRED_ROW_OWNERS.get(f'P{i:02}', set()))])} | T-ZZ-99 is an evidence reference |\n"
-            for i in range(1, 20))
+            for i in range(1, 21))
 
     def write(self):
         self.tasks.write_text(json.dumps(self.data), encoding="utf-8")
@@ -144,7 +144,10 @@ class ProductPurposeTests(unittest.TestCase):
         tasks = {t["id"]: t for t in json.loads((bundle / "tasks.json").read_text(encoding="utf-8"))["tasks"]}
         text = (bundle / "09_제품목적_대응표.md").read_text(encoding="utf-8")
         for row, owner, test_id in (
+            ("P02", "T-DT-04", "acquisition-reason-not-counted"),
+            ("P02", "T-AP-04", "coverage-status-counts-acquired-only"),
             ("P06", "T-KN-04", "profile-historical-vs-service"),
+            ("P16", "T-MB-04", "decisive-conditions-not-hidden"),
             ("P17", "T-AP-09", "no-composite-score"),
             ("P19", "T-MB-03", "mobile-screen-accessibility"),
             ("P19", "T-WB-01", "public-web-accessibility"),
@@ -156,6 +159,47 @@ class ProductPurposeTests(unittest.TestCase):
                 self.assertIn(test_id, cells[7])
                 self.assertIn(test_id, tasks[owner]["required_test_ids"])
 
+    def test_live_rows_link_public_releases_and_mobile_scenario_tests(self):
+        bundle = P.C.ROOT / P.BUNDLE
+        registry = json.loads((bundle / "tasks.json").read_text(encoding="utf-8"))
+        features = {feature["id"]: feature for feature in registry["feature_registry"]}
+        text = (bundle / "09_제품목적_대응표.md").read_text(encoding="utf-8")
+        for row, owner, feature, command in (
+            ("P03", "T-WB-01", "web-releases", "npm test -- releases"),
+            ("P08", "T-MB-04", "what-if", "integration_test what_if_boundary_days"),
+        ):
+            with self.subTest(row=row):
+                line = next(line for line in text.splitlines() if line.startswith(f"| {row} |"))
+                cells = [cell.strip() for cell in line.strip("|").split("|")]
+                self.assertIn(owner, cells[6].split(", "))
+                self.assertIn(command.removeprefix("integration_test "), cells[7])
+                self.assertIn(owner, features[feature]["tasks"])
+                self.assertIn(command, features[feature]["acceptance_tests"])
+
+    def test_live_requirement_references_include_anonymous_access_and_privacy(self):
+        bundle = P.C.ROOT / P.BUNDLE
+        text = (bundle / "09_제품목적_대응표.md").read_text(encoding="utf-8")
+        rows = {}
+        for line in text.splitlines():
+            if re.match(r"^\| P\d+ \|", line):
+                cells = [cell.strip() for cell in line.strip("|").split("|")]
+                rows[cells[0]] = cells
+        requirements = (bundle.parents[1] / "REQUIREMENTS.md").read_text(encoding="utf-8")
+        self.assertEqual(set(re.findall(r"^\| (R\d{2}) \|", requirements, re.M)),
+                         {req for cells in rows.values() for req in re.findall(r"\bR\d{2}\b", cells[8])})
+
+        self.assertIn("R01", rows["P18"][8].split(", "))
+        self.assertIn("entry_points", rows["P18"][7])
+        self.assertIn("로그인·PDF·가족력·상담 없이", rows["P18"][7])
+        privacy = rows["P20"]
+        self.assertEqual({"R19", "R20", "R22", "R23"}, set(privacy[8].split(", ")))
+        self.assertLessEqual({"T-PS-03", "T-PS-04", "T-OP-05"}, set(privacy[6].split(", ")))
+        for evidence in ("consent", "deletion", "export", "family_history", "need-result-reasons",
+                         "늦은 쓰기 거부", "백업 복원 시 삭제 표시 재적용", "누출 시험", "롤백 리허설"):
+            self.assertIn(evidence, privacy[7])
+        for scope in ("첫 출시 기능 구현은 동결", "DEC-D-17", "합성 자료만", "O18 결정 전"):
+            self.assertIn(scope, privacy[-1])
+
     def test_row_owner_cannot_be_replaced_by_another_registered_task(self):
         original = self.text
         for row, owners in P.REQUIRED_ROW_OWNERS.items():
@@ -163,7 +207,8 @@ class ProductPurposeTests(unittest.TestCase):
                 with self.subTest(row=row, owner=owner):
                     self.text = original
                     self.assertEqual([], self.check())
-                    self.text = self.text.replace(f", {owner}", "")
+                    line = next(line for line in original.splitlines() if line.startswith(f"| {row} |"))
+                    self.text = original.replace(line, line.replace(f", {owner}", ""))
                     found = self.check()
                     self.assertEqual(["PURPOSE-ROW-OWNER"], [f.rule for f in found])
                     self.assertIn(row, found[0].message)
@@ -181,7 +226,7 @@ class ProductPurposeTests(unittest.TestCase):
 
     def test_every_row_rejects_unknown_task_with_row_and_line(self):
         original = self.text
-        for i in range(1, 20):
+        for i in range(1, 21):
             row = f"P{i:02}"
             with self.subTest(row=row):
                 self.text = original.replace(f"| {row} | purpose | T-AA-01, T-AA-02",
@@ -195,7 +240,7 @@ class ProductPurposeTests(unittest.TestCase):
     def test_removing_referenced_task_fails_all_rows(self):
         self.data["tasks"].pop(1)
         found = self.check()
-        self.assertEqual(19, len(found))
+        self.assertEqual(20, len(found))
         self.assertEqual({"PURPOSE-TASK"}, {f.rule for f in found})
 
     def test_repeated_headers_and_inline_code_task_ids_pass(self):
@@ -207,12 +252,12 @@ class ProductPurposeTests(unittest.TestCase):
         original = self.text
         bad_texts = [
             "",
-            original.replace("P19", "P18"),
-            original.replace("P19", "P20"),
+            original.replace("P20", "P19"),
+            original.replace("P20", "P21"),
             original.replace("구현 작업(tasks.json)", "wrong column"),
             original.replace("T-AA-01, T-AA-02", ""),
             original.replace("T-AA-01, T-AA-02", "T-AA-01, typo"),
-            re.sub(r"^\| P19 \|.*$", "| P19 | purpose |", original, flags=re.M),
+            re.sub(r"^\| P20 \|.*$", "| P20 | purpose |", original, flags=re.M),
         ]
         for text in bad_texts:
             with self.subTest(text=text[:100]):
@@ -230,7 +275,7 @@ class ProductPurposeTests(unittest.TestCase):
         result = self.cli(*args)
         self.assertEqual(1, result.returncode)
         self.assertIn("PURPOSE-TASK", result.stdout)
-        self.assertIn("P19", result.stdout)
+        self.assertIn("P20", result.stdout)
 
     def test_cli_root_selects_bundle(self):
         self.write()

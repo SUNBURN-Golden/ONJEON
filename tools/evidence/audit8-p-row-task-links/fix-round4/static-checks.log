@@ -1,0 +1,1218 @@
+## python3 -I tools/ci/check_product_purpose.py
+product-purpose: 09 P01..P20 task links, row evidence owners and product-purpose test IDs registered on assigned tasks (static only)
+exit=0
+
+## python3 -I tools/ci/check_pr_body_traceability.py --selftest
+check_pr_body_traceability selftest ok: 6 violations each caught for its intended rule, 8 clean case(s) pass
+exit=0
+
+## python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+PASS [— 그래프 기본] (기계) G1 선행 과제 존재·순환 없음
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (기계) G2 시험이 선행 과제의 산출물만 쓴다
+PASS [F05 허용·금지 경로 충돌과 공용 파일 잠금] (기계) G3 같은 과제의 허용·금지 경로가 겹치지 않음
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4a 최종 관문 과제가 하나로 지정됨(final_gate)
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4b 최종 관문이 다른 모든 과제를 선행으로 가짐
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4c 통합안 §2 기능 행이 전부 feature_registry에 매핑됨(읽은 행·기능 1개 이상)
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (기계) G4d 각 기능의 과제가 최종 관문의 선행에 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G5a 과제가 시작 차단과 병합 차단을 따로 적음(decision_gates)
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G5b 시작 전이(blocked→queued)의 cond가 decision_gates.start만 본다(task.decision_gates.start subset_of task_state.decisions_recorded, 병합 관문·prereq_decisions 없음)
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G5c 병합 대기 전이(review_approved·audit_pending→merge_wait, 사유 갱신)의 cond가 decision_gates.merge를 본다(기록됨 subset_of·미기록 not_subset_of 둘 다)
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G5d D-09·D-10·D-15·O03의 과제 범위와 decision_index 일치
+PASS [F07 데몬 대기·병합 후 재개 경로(병합 뒤 상태)] (기계) G6a post_merge_states가 merged에서 닿는 상태를 전부 포함
+PASS [F07 데몬 대기·병합 후 재개 경로(병합 뒤 상태)] (기계) G6b 선행 충족을 '==merged'가 아니라 post_merge_states로 판정(cond prereq_tasks_in(post_merge_states) == true)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G7a 대기·복구 전이(event 필드 기준)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G7b 종료가 아닌 상태마다 반송 외의 나가는 전이가 있음(종료 아닌 상태·전이 1개 이상)
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G8 임대 펜싱 토큰·격리·만료 시 프로세스 종료와 쓰기 권한 회수
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (기계) G9 전환 신호가 모델 제공자 응답·실행기 종료 코드로만 판정(신호·판정 규칙 1개 이상)
+PASS [본문 검증 수준 정정(검토서 본문, 번호 없음)] (기계) G10 CI가 spec_check.py와 ontology_check.py를 실행
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G11a 02가 약관 판을 '원본 해시 + 문서 역할'로 정의하지 않음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G11b 02가 원본·구획·본문 판·계열을 나눔
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G11c 02가 릴리스를 구성원 목록+내용 해시로 고정
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-criteria-versioned'를 가진 과제가 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-result-reasons'를 가진 과제가 있음
+PASS [F03 영향받는 결론만 보류] (존재 검사) G12 필수 시험 ID 'uncertainty-partial-hold'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-frozen-members'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'decision-gate-merge-only'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'stale-approval-invalidated'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'late-write-fenced'를 가진 과제가 있음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (존재 검사) G12 필수 시험 ID 'provider-scoped-switch'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로(병합 뒤 상태)] (존재 검사) G12 필수 시험 ID 'post-merge-prereq'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-referenced-nodes-frozen'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-usage-restriction-separate'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-not-auto-by-fingerprint'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-composition-annex'를 가진 과제가 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-criteria-service-gate'를 가진 과제가 있음
+PASS [F01 새 주장이 기존 릴리스에 유입] (존재 검사) G12 필수 시험 ID 'release-future-supersedes-frozen'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-integrated-vs-separate-file'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-repack-same'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-one-rider-revised-in-integrated'를 가진 과제가 있음
+PASS [F03 영향받는 결론만 보류] (존재 검사) G12 필수 시험 ID 'partial-hold-independent-contract-kept'를 가진 과제가 있음
+PASS [F03 영향받는 결론만 보류] (존재 검사) G12 필수 시험 ID 'no-completeness-from-equal-candidates'를 가진 과제가 있음
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (존재 검사) G12 필수 시험 ID 'bootstrap-clean-main'를 가진 과제가 있음
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (존재 검사) G12 필수 시험 ID 'release-readiness-rejects-incomplete'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'event-duplicate-noop'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'event-out-of-order'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'docs-pr-complete'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'eleventh-pr-audit'를 가진 과제가 있음
+PASS [F07 데몬 대기·병합 후 재개 경로] (존재 검사) G12 필수 시험 ID 'mis-merge-not-done'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'usage-recorded-not-capped'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'hard-stop-heartbeating-job'를 가진 과제가 있음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (존재 검사) G12 필수 시험 ID 'switch-negative-test-output'를 가진 과제가 있음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (존재 검사) G12 필수 시험 ID 'switch-negative-third-party-http'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'd02-mock-start-allowed'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'r2-local-work-allowed'를 가진 과제가 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G12 필수 시험 ID 'need-flow-keep-addnone-hold-unknown'를 가진 과제가 있음
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G12 필수 시험 ID 'profile-historical-vs-service'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-bundle-split-files'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-annex-missing-unconfirmed'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-ocr-normalization'를 가진 과제가 있음
+PASS [F02 약관 의미상 판과 파일 식별의 혼합] (존재 검사) G12 필수 시험 ID 'edition-annex-content-changed'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-other-company'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-other-edition'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-multiple-candidates'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-order-independent'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'late-result-no-state-change'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'lease-guards-all-paths'를 가진 과제가 있음
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (존재 검사) G12 필수 시험 ID 'envelope-permission-rejects-missing'를 가진 과제가 있음
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G12 필수 시험 ID 'price-raw-kept-comparison-gated'를 가진 과제가 있음
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G12 필수 시험 ID 'reason-evidence-by-kind'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'handoff-quiescent-before-preserve'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'retry-new-idempotency-key'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'duplicate-delivery-noop'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-multi-edition-config'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-unknown-scope-hold'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-unrelated-rider-allowed'를 가진 과제가 있음
+PASS [R02 입력 연결: 다른 회사 담보가 판매 구성에 붙음(재검토 R02, 추가 결함)] (존재 검사) G12 필수 시험 ID 'input-link-competing-editions-hold'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'preserve-manifest-same-function'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'preserve-failure-recoverable-stop'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'daemon-restart-during-handoff'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'envelope-id-distinct-events'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G12 필수 시험 ID 'lease-issue-atomic-single-owner'를 가진 과제가 있음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G12b T-OP-00 필수 시험 ID마다 등록된 시나리오 함수가 있고 모의 목록과 일치
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (존재 검사) G14 실제 실행기 검증 과제(verification_kind=real_executor)가 dry-run 과제와 분리되고 중단·재개·늦은 결과·중복 실행 시험을 가짐
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G15 daemon_rules.safety_verification_status가 있고 어느 장치도 '검증됨'이 아님
+PASS [본문 검증 수준 정정(검토서 본문, 번호 없음)] (존재 검사) G16 07_수정대응표.md가 지적마다 변경 위치·시험 종류·증명 범위·미검증 칸을 가짐
+PASS [F05 허용·금지 경로 충돌과 공용 파일 잠금] (기계) G17 공용 manifest·lockfile을 고치는 과제가 그 파일을 잠근다
+PASS [F05 허용·금지 경로 충돌과 공용 파일 잠금] (기계) G18 각 과제의 산출물 경로가 그 과제의 허용 경로 안
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (기계) G19 도구에 기대는 공통 완료 기준이 그 도구를 만드는 과제 이후에만 적용됨(applies_after)
+PASS [F06 최종 감리가 전체 완성품을 요구하지 않음] (존재 검사) G20 feature_registry 항목마다 필수 과제·실제 데이터 증거·수락 시험(제외는 범위 결정 근거)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G21 명시적 no-op 사건 목록(중복·대기 알림)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G22 문서 PR의 병합 뒤 완료 전이(cond event.docs_only == true, 같은 사건의 다른 행은 != true, 페이로드에 docs_only)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G23 유효한 승인 없이 병합된 사실은 기록하되 done으로 가지 않음
+PASS [F09 일반 오류를 모델 사용량 제한으로 오인] (기계) G24 전환 신호가 source·attempt·call_id를 검증
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G25 decision_gates가 start·real_data·merge·release를 따로 가짐
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G26 제약 범위 표기가 T-box(K1~K16)와 같음(T-box 제약·범위 표기 1개 이상)
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G27 시험 프로필이 역사적 사례(historical_fixture)와 서비스 적합성(service_conformance)으로 나뉨
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G28 02가 주장 종류별 근거 정책과 가격 관측의 보존·비교 자격 분리를 둠
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G46 [U-05] 비용 상한·예산 소진 정지가 규칙에 없고 사용량 기록(usage_recording)은 있음
+PASS [본문 요구사항→계약→작업→시험→출시 증거 대응표(검토서 다음 작업 3)] (존재 검사) G47 09_제품목적_대응표: 칸 7개, 과제 ID가 실재하고 최종 관문 선행 안, 원칙(미확보 사유≠확보, 종합점수 없음, 결과를 바꾸는 조건 공개)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G30 dry-run과 실제 실행기가 같은 전이·검증 코어를 쓴다(execution_core.shared_by)
+PASS [F04 먼저 통과해야 할 시험의 구현이 후속 작업에] (기계) G31 [R03] done_criteria·tests가 자신과 선행 과제의 산출물만 요구
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G32 [R04①] head_sha_changed의 목적지가 하나이고 stale-approval 시험의 기대 상태와 같음
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G33 [R04②] 이전 임대의 늦은 결과는 상태를 바꾸지 않음(전이는 현재 임대 조건, 이전 임대 사건은 no-op)
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G34 [R04③·S02] handoff_sequence가 stop → isolate → confirm_quiescent → preserve → revoke_token → issue_next_lease 순서
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G35 [R04④] 임대 발급 전이 전부(issue_lease·to leased·lease_granted)가 lease_guards(충돌 검사·잠금·예산 예약)를 거침(guard 또는 cond all_pass)
+PASS [F07 데몬 대기·병합 후 재개 경로] (기계) G36 [R04⑤] merged_sha == approved_sha 비교 없음, 승인 head·base·병합 커밋·통합 검증 구분
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G42 [S03·T04] 키에 lease_generation, 중복 전달·재시도 분리, 임대 발급은 issue_lease 한 곳(전이·인계 단계에서 따로 증가 안 함)
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G45 [T04] 봉투 식별 방식(envelope_id 또는 세대당 종류별 하나), 세대·임대 기록·outbox 원자 저장, 재시작 복구 규칙
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G43 [T02] preserve_manifest(function·삭제·미추적·권한·심볼릭 링크·제외 경로)를 정지 확인과 보존 확인이 같이 씀
+PASS [F08 점유 만료·중단 뒤 이전 작성자 차단] (기계) G44 [T03] 인계 실패 사건마다 전이(임대 발급 아님), 다음 임대는 보존 성공 또는 복구 결정 뒤, 재시도 한도, 보존 자격 항상 회수
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G37 [R05] 지시 봉투 필수 필드에 real_data_allowed·canon_change_approval
+PASS [F10 좁게 차단한다는 설명과 기계 규칙] (기계) G38 [R05] 정본 변경 금지 문구가 승인 예외(canon_change_approval)와 일치
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G39 [R06①] 02가 PremiumObservation을 조건 부족으로 저장 거부하지 않음(원시 보존·비교 자격 분리)
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (기계) G40 [R06②] 02의 ClauseOccurrence ID 형식이 하나이고 추출 판을 포함
+PASS [F12 제약·근거·승격 상태 정의의 정합성] (존재 검사) G41 [R06③] T-AP-09가 이유 종류별 근거(사실→주장, 가정→사용자 가정, 기준 평가→기준 판)를 검사
+PASS [Audit 5 시험 명령의 셸 구문 오류] (기계) G48 시험 명령이 셸 구문으로 유효하고 cargo test 필터가 하나 이하(설명 '시험 …'은 제외)
+PASS [본문 요구사항→계약→작업→시험→출시 증거 대응표(검토서 다음 작업 3)] (존재 검사) G29 08_요구추적표.md(요구→계약→작업→실제 데이터/화면 시험→출시 증거)
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G13 기능 '판단 기준 관리(기준·기준의 판·출처)'이 feature_registry에 있음
+PASS [F11 필요성 판단·판단 기준 관리] (존재 검사) G13 기능 '유지·추가 없음·보류 결과와 이유'이 feature_registry에 있음
+
+요약: 기계 검사 47/47 · 존재 검사 72/72 · 전체 통과
+주의: '기계' 검사는 JSON 구조·그래프를 계산해서 판정하지만, 명세의 정합성만 본다. 실제 데몬·서비스의 동작 검증이 아니다.
+      '존재 검사'는 필드·문구가 있는지만 본다. 판단 기준 관리·부분 보류 등 제품 의미의 적절성은 사람 검토 대상이다.
+exit=0
+
+## python3 -I tools/blueprint_status.py
+BLUEPRINT-S11: current decision index (44 ADR/DEC files)
+exit=0
+
+## python3 -I tools/ci/check_deps.py
+check_deps: no zone dependency violations
+exit=0
+
+## python3 -I tools/ci/check_leak.py
+check_leak: no leak patterns (I10, I11, 52.3)
+exit=0
+
+## python3 -I tools/ci/check_leak.py --selftest
+check_leak selftest ok: 29 violations each caught for its intended rule, 5 clean case(s) pass
+exit=0
+
+## python3 -I tools/ci/check_skeleton.py
+check_skeleton: skeleton flags off, no exposure (static); runtime routes not probed
+exit=0
+
+## python3 -I tools/release_readiness/progress.py
+## Product purpose progress
+
+Closed purpose rows **0/20** · Merged tasks **20/67**
+
+| Purpose | Tasks merged | Tasks pending merge | Tasks with evidence files | Row evidence files present | Status |
+| --- | ---: | --- | ---: | ---: | --- |
+| P01 | 0/5 | T-AP-04, T-DT-04, T-DT-05, T-PS-02, T-WB-01 | 0/5 | 0/0 | Open |
+| P02 | 2/9 | T-AP-04, T-CT-10, T-DT-03, T-DT-04, T-DT-06, T-KN-04, T-KN-09 | 0/9 | 0/0 | Open |
+| P03 | 2/9 | T-AP-06, T-CT-10, T-DT-05, T-KN-04, T-KN-07, T-KN-10, T-WB-01 | 0/9 | 0/0 | Open |
+| P04 | 1/5 | T-KN-04, T-KN-05, T-KN-08, T-TW-03 | 0/5 | 0/0 | Open |
+| P05 | 2/6 | T-CT-10, T-KN-08, T-TW-05, T-TW-06 | 0/6 | 0/0 | Open |
+| P06 | 3/7 | T-KN-04, T-KN-06, T-OP-03, T-WB-02 | 0/7 | 0/0 | Open |
+| P07 | 0/4 | T-AP-05, T-PS-01, T-PS-02, T-TW-06 | 0/4 | 0/0 | Open |
+| P08 | 2/7 | T-AP-03, T-CT-10, T-MB-02, T-MB-04, T-TW-04 | 0/7 | 0/0 | Open |
+| P09 | 0/3 | T-AP-07, T-DT-06, T-KN-09 | 0/3 | 0/0 | Open |
+| P10 | 0/4 | T-AP-05, T-MB-03, T-PS-02, T-TW-06 | 0/4 | 0/0 | Open |
+| P11 | 0/2 | T-AP-08, T-TW-06 | 0/2 | 0/0 | Open |
+| P12 | 0/3 | T-AP-05, T-MB-04, T-TW-05 | 0/3 | 0/0 | Open |
+| P13 | 0/3 | T-AP-05, T-TW-05, T-TW-06 | 0/3 | 0/0 | Open |
+| P14 | 0/3 | T-AP-02, T-MB-02, T-TW-05 | 0/3 | 0/0 | Open |
+| P15 | 1/4 | T-MB-02, T-MB-03, T-MB-04 | 0/4 | 0/0 | Open |
+| P16 | 0/5 | T-AP-02, T-AP-08, T-MB-02, T-MB-03, T-MB-04 | 0/5 | 0/0 | Open |
+| P17 | 1/5 | T-AP-07, T-AP-09, T-KN-14, T-MB-04 | 0/5 | 0/0 | Open |
+| P18 | 1/7 | T-AP-01, T-AP-02, T-AP-07, T-MB-02, T-MB-03, T-UX-01 | 0/7 | 0/0 | Open |
+| P19 | 1/4 | T-MB-03, T-UX-01, T-WB-01 | 0/4 | 0/0 | Open |
+| P20 | 2/8 | T-AP-06, T-AP-09, T-MB-04, T-OP-05, T-PS-03, T-PS-04 | 0/8 | 0/0 | Open |
+
+Task files show collection progress. Closed rows require recorded merges and pass the release evidence coverage check. T-OP-08 determines release readiness.
+exit=0
+
+## python3 -I tools/release_readiness/check.py --json
+{
+  "scope": "evidence coverage only; not T-OP-08 completion or release approval",
+  "rows": {
+    "P01": {
+      "status": "open",
+      "reasons": [
+        "T-DT-04: not post_merge (state=missing)",
+        "T-DT-05: not post_merge (state=missing)",
+        "T-AP-04: not post_merge (state=missing)",
+        "T-WB-01: not post_merge (state=missing)",
+        "T-PS-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P02": {
+      "status": "open",
+      "reasons": [
+        "T-DT-01: not post_merge (state=missing)",
+        "T-DT-02: not post_merge (state=missing)",
+        "T-DT-03: not post_merge (state=missing)",
+        "T-DT-04: not post_merge (state=missing)",
+        "T-DT-06: not post_merge (state=missing)",
+        "T-KN-09: not post_merge (state=missing)",
+        "T-KN-04: not post_merge (state=missing)",
+        "T-AP-04: not post_merge (state=missing)",
+        "T-CT-10: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P03": {
+      "status": "open",
+      "reasons": [
+        "T-DT-01: not post_merge (state=missing)",
+        "T-OP-04: not post_merge (state=missing)",
+        "T-DT-05: not post_merge (state=missing)",
+        "T-KN-04: not post_merge (state=missing)",
+        "T-KN-07: not post_merge (state=missing)",
+        "T-AP-06: not post_merge (state=missing)",
+        "T-KN-10: not post_merge (state=missing)",
+        "T-WB-01: not post_merge (state=missing)",
+        "T-CT-10: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P04": {
+      "status": "open",
+      "reasons": [
+        "T-KN-05: not post_merge (state=missing)",
+        "T-KN-08: not post_merge (state=missing)",
+        "T-KN-04: not post_merge (state=missing)",
+        "T-KN-01: not post_merge (state=missing)",
+        "T-TW-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P05": {
+      "status": "open",
+      "reasons": [
+        "T-KN-01: not post_merge (state=missing)",
+        "T-KN-08: not post_merge (state=missing)",
+        "T-TW-05: not post_merge (state=missing)",
+        "T-TW-06: not post_merge (state=missing)",
+        "T-TW-01: not post_merge (state=missing)",
+        "T-CT-10: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P06": {
+      "status": "open",
+      "reasons": [
+        "T-KN-06: not post_merge (state=missing)",
+        "T-KN-03: not post_merge (state=missing)",
+        "T-OP-03: not post_merge (state=missing)",
+        "T-KN-01: not post_merge (state=missing)",
+        "T-KN-02: not post_merge (state=missing)",
+        "T-KN-04: not post_merge (state=missing)",
+        "T-WB-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P07": {
+      "status": "open",
+      "reasons": [
+        "T-PS-01: not post_merge (state=missing)",
+        "T-PS-02: not post_merge (state=missing)",
+        "T-TW-06: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P08": {
+      "status": "open",
+      "reasons": [
+        "T-AP-03: not post_merge (state=missing)",
+        "T-TW-01: not post_merge (state=missing)",
+        "T-TW-02: not post_merge (state=missing)",
+        "T-TW-04: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "T-CT-10: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P09": {
+      "status": "open",
+      "reasons": [
+        "T-AP-07: not post_merge (state=missing)",
+        "T-KN-09: not post_merge (state=missing)",
+        "T-DT-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P10": {
+      "status": "open",
+      "reasons": [
+        "T-AP-05: not post_merge (state=missing)",
+        "T-PS-02: not post_merge (state=missing)",
+        "T-TW-06: not post_merge (state=missing)",
+        "T-MB-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P11": {
+      "status": "open",
+      "reasons": [
+        "T-AP-08: not post_merge (state=missing)",
+        "T-TW-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P12": {
+      "status": "open",
+      "reasons": [
+        "T-TW-05: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P13": {
+      "status": "open",
+      "reasons": [
+        "T-TW-05: not post_merge (state=missing)",
+        "T-TW-06: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P14": {
+      "status": "open",
+      "reasons": [
+        "T-AP-02: not post_merge (state=missing)",
+        "T-TW-05: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P15": {
+      "status": "open",
+      "reasons": [
+        "T-MB-01: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "T-MB-03: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P16": {
+      "status": "open",
+      "reasons": [
+        "T-AP-02: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "T-AP-08: not post_merge (state=missing)",
+        "T-MB-03: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P17": {
+      "status": "open",
+      "reasons": [
+        "T-AP-09: not post_merge (state=missing)",
+        "T-KN-12: not post_merge (state=missing)",
+        "T-KN-14: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "T-AP-07: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P18": {
+      "status": "open",
+      "reasons": [
+        "T-AP-01: not post_merge (state=missing)",
+        "T-AP-02: not post_merge (state=missing)",
+        "T-MB-01: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "T-MB-03: not post_merge (state=missing)",
+        "T-AP-07: not post_merge (state=missing)",
+        "T-UX-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P19": {
+      "status": "open",
+      "reasons": [
+        "T-MB-01: not post_merge (state=missing)",
+        "T-MB-03: not post_merge (state=missing)",
+        "T-WB-01: not post_merge (state=missing)",
+        "T-UX-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    },
+    "P20": {
+      "status": "open",
+      "reasons": [
+        "T-CT-05: not post_merge (state=missing)",
+        "T-CT-06: not post_merge (state=missing)",
+        "T-PS-03: not post_merge (state=missing)",
+        "T-PS-04: not post_merge (state=missing)",
+        "T-AP-09: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "T-AP-06: not post_merge (state=missing)",
+        "T-OP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs"
+      ]
+    }
+  },
+  "rows_counts": {
+    "open": 20,
+    "closed": 0,
+    "excluded": 0
+  },
+  "features": {
+    "account": {
+      "status": "open",
+      "reasons": [
+        "T-PS-01: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal auth",
+        "missing acceptance test: integration_test account_upgrade"
+      ]
+    },
+    "ai-review": {
+      "status": "open",
+      "reasons": [
+        "T-KN-03: not post_merge (state=missing)",
+        "T-KN-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-ai-review review",
+        "missing acceptance test: I14 정적 검사"
+      ]
+    },
+    "all-product-ops": {
+      "status": "open",
+      "reasons": [
+        "T-TW-04: not post_merge (state=missing)",
+        "T-TW-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-rules-engine",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime"
+      ]
+    },
+    "change-impact": {
+      "status": "open",
+      "reasons": [
+        "T-DT-05: not post_merge (state=missing)",
+        "T-AP-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-collect schedule",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime shadow"
+      ]
+    },
+    "collect": {
+      "status": "open",
+      "reasons": [
+        "T-DT-01: not post_merge (state=missing)",
+        "T-DT-04: not post_merge (state=missing)",
+        "T-DT-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-collect archive",
+        "missing acceptance test: cargo test -p onjeon-collect schedule"
+      ]
+    },
+    "consent-deletion": {
+      "status": "open",
+      "reasons": [
+        "T-PS-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal consent",
+        "missing acceptance test: cargo test -p onjeon-personal deletion"
+      ]
+    },
+    "console": {
+      "status": "open",
+      "reasons": [
+        "T-WB-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api console",
+        "missing acceptance test: npm test -- console"
+      ]
+    },
+    "contract-detail": {
+      "status": "open",
+      "reasons": [
+        "T-MB-03: not post_merge (state=missing)",
+        "T-PS-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: integration_test contract_detail",
+        "missing acceptance test: applied_editions가 근거로 확인한 판만(T-PS-02 시험)"
+      ]
+    },
+    "contract-snapshot": {
+      "status": "open",
+      "reasons": [
+        "T-PS-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal mapping"
+      ]
+    },
+    "cost": {
+      "status": "open",
+      "reasons": [
+        "T-KN-03: not post_merge (state=missing)",
+        "T-OP-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-ai-gateway",
+        "missing acceptance test: python3 -m unittest discover -s tools/tests"
+      ]
+    },
+    "coverage-detail": {
+      "status": "open",
+      "reasons": [
+        "T-CT-08: not post_merge (state=missing)",
+        "T-AP-02: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api coverage",
+        "missing acceptance test: integration_test coverage_detail_to_evidence(두 탭 이내)"
+      ]
+    },
+    "daily-ops": {
+      "status": "open",
+      "reasons": [
+        "T-DT-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-collect schedule"
+      ]
+    },
+    "denominator": {
+      "status": "open",
+      "reasons": [
+        "T-DT-04: not post_merge (state=missing)",
+        "T-AP-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-collect adapters",
+        "missing acceptance test: coverage_status I17 린트"
+      ]
+    },
+    "deterministic-eval": {
+      "status": "open",
+      "reasons": [
+        "T-TW-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-rules-engine"
+      ]
+    },
+    "entry-points": {
+      "status": "open",
+      "reasons": [
+        "T-MB-01: not post_merge (state=missing)",
+        "T-MB-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: flutter integration_test entry_points",
+        "missing acceptance test: 누출 시험: 전환 전 서버 요청 본문에 건강 필드 없음"
+      ]
+    },
+    "error-report": {
+      "status": "open",
+      "reasons": [
+        "T-AP-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api error_reports",
+        "missing acceptance test: cargo test -p onjeon-knowledge isolation"
+      ]
+    },
+    "evidence-view": {
+      "status": "open",
+      "reasons": [
+        "T-CT-08: not post_merge (state=missing)",
+        "T-AP-02: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api evidence",
+        "missing acceptance test: I6 계약 시험"
+      ]
+    },
+    "family-history": {
+      "status": "open",
+      "reasons": [
+        "T-PS-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal family_history"
+      ]
+    },
+    "gap-resolution": {
+      "status": "open",
+      "reasons": [
+        "T-KN-10: not post_merge (state=missing)",
+        "T-KN-11: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-knowledge gaps",
+        "missing acceptance test: cargo test -p onjeon-knowledge inquiry"
+      ]
+    },
+    "home": {
+      "status": "open",
+      "reasons": [
+        "T-MB-03: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: integration_test home_states_4",
+        "missing acceptance test: 미제출을 0원·무보험으로 표시하지 않음(계약 시험)"
+      ]
+    },
+    "incident": {
+      "status": "open",
+      "reasons": [
+        "T-AP-06: not post_merge (state=missing)",
+        "T-OP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: bash tools/drills/rollback.sh",
+        "missing acceptance test: cargo test -p onjeon-api error_reports"
+      ]
+    },
+    "input-stage": {
+      "status": "open",
+      "reasons": [
+        "T-TW-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime",
+        "missing acceptance test: case-runner 골든"
+      ]
+    },
+    "labeling": {
+      "status": "open",
+      "reasons": [
+        "T-KN-04: not post_merge (state=missing)",
+        "T-KN-05: not post_merge (state=missing)",
+        "T-KN-08: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-ai-review extraction",
+        "missing acceptance test: cargo test -p onjeon-knowledge store",
+        "missing acceptance test: cargo test -p onjeon-knowledge structures"
+      ]
+    },
+    "me": {
+      "status": "open",
+      "reasons": [
+        "T-PS-03: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal consent",
+        "missing acceptance test: cargo test -p onjeon-personal deletion",
+        "missing acceptance test: cargo test -p onjeon-personal export",
+        "missing acceptance test: integration_test me_tab"
+      ]
+    },
+    "multi-contract": {
+      "status": "open",
+      "reasons": [
+        "T-TW-05: not post_merge (state=missing)",
+        "T-TW-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime multi",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime dependency",
+        "missing acceptance test: partial-hold-independent-contract-kept"
+      ]
+    },
+    "my-design": {
+      "status": "open",
+      "reasons": [
+        "T-AP-05: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "T-AP-09: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: integration_test my_design",
+        "missing acceptance test: need-flow-keep-addnone-hold-unknown"
+      ]
+    },
+    "need-criteria": {
+      "status": "open",
+      "reasons": [
+        "T-KN-12: not post_merge (state=missing)",
+        "T-KN-13: not post_merge (state=missing)",
+        "T-KN-14: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-criteria",
+        "missing acceptance test: need-criteria-versioned",
+        "missing acceptance test: need-criteria-service-gate"
+      ]
+    },
+    "need-result-reasons": {
+      "status": "open",
+      "reasons": [
+        "T-AP-09: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: need-result-reasons",
+        "missing acceptance test: need-flow-keep-addnone-hold-unknown"
+      ]
+    },
+    "no-denominator-signal": {
+      "status": "open",
+      "reasons": [
+        "T-PS-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal leak",
+        "missing acceptance test: cargo test -p onjeon-personal denominator_signal"
+      ]
+    },
+    "node-evidence": {
+      "status": "open",
+      "reasons": [
+        "T-TW-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime"
+      ]
+    },
+    "observability": {
+      "status": "open",
+      "reasons": [
+        "T-OP-05: not post_merge (state=missing)",
+        "T-CT-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: python3 -I tools/ci/check_leak.py"
+      ]
+    },
+    "ontology": {
+      "status": "open",
+      "reasons": [
+        "T-KN-01: not post_merge (state=missing)",
+        "T-KN-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-ontology",
+        "missing acceptance test: cargo test -p onjeon-ontology fixture_origin"
+      ]
+    },
+    "pdf-import": {
+      "status": "open",
+      "reasons": [
+        "T-PS-01: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal import",
+        "missing acceptance test: integration_test import_confirm_before_calc"
+      ]
+    },
+    "personal-contract-model": {
+      "status": "open",
+      "reasons": [
+        "T-CT-02: not post_merge (state=missing)",
+        "T-PS-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: python3 tools/vocab_check.py",
+        "missing acceptance test: cargo test -p onjeon-personal mapping"
+      ]
+    },
+    "precheck": {
+      "status": "open",
+      "reasons": [
+        "T-TW-03: not post_merge (state=missing)",
+        "T-AP-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime compiler",
+        "missing acceptance test: cargo test -p onjeon-api capability"
+      ]
+    },
+    "preserve": {
+      "status": "open",
+      "reasons": [
+        "T-DT-01: not post_merge (state=missing)",
+        "T-OP-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-collect archive",
+        "missing acceptance test: python3 -m unittest discover -s tools/tests"
+      ]
+    },
+    "public-knowledge-model": {
+      "status": "open",
+      "reasons": [
+        "T-CT-05: not post_merge (state=missing)",
+        "T-KN-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: bash infra/db/test.sh",
+        "missing acceptance test: cargo test -p onjeon-knowledge store"
+      ]
+    },
+    "public-price": {
+      "status": "open",
+      "reasons": [
+        "T-KN-09: not post_merge (state=missing)",
+        "T-DT-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-knowledge premium",
+        "missing acceptance test: cargo test -p onjeon-collect price"
+      ]
+    },
+    "quality-guards": {
+      "status": "open",
+      "reasons": [
+        "T-OP-05: not post_merge (state=missing)",
+        "T-KN-07: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: bash tools/drills/circuit_breaker.sh",
+        "missing acceptance test: cargo test -p onjeon-knowledge release"
+      ]
+    },
+    "rehearsal": {
+      "status": "open",
+      "reasons": [
+        "T-OP-07: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: 시험 (운영 기록)"
+      ]
+    },
+    "release": {
+      "status": "open",
+      "reasons": [
+        "T-KN-07: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-knowledge release",
+        "missing acceptance test: release-frozen-members 외 3개"
+      ]
+    },
+    "restore": {
+      "status": "open",
+      "reasons": [
+        "T-DT-02: not post_merge (state=missing)",
+        "T-DT-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: docproc pytest",
+        "missing acceptance test: test_sandbox.sh"
+      ]
+    },
+    "rule-0-2": {
+      "status": "open",
+      "reasons": [
+        "T-TW-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-rules-engine"
+      ]
+    },
+    "same-coverage-compare": {
+      "status": "open",
+      "reasons": [
+        "T-AP-07: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api comparisons",
+        "missing acceptance test: flutter test compare"
+      ]
+    },
+    "scope": {
+      "status": "open",
+      "reasons": [
+        "T-DT-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-collect adapters"
+      ]
+    },
+    "screen-states": {
+      "status": "open",
+      "reasons": [
+        "T-MB-01: not post_merge (state=missing)",
+        "T-MB-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: integration_test state_catalog"
+      ]
+    },
+    "security": {
+      "status": "open",
+      "reasons": [
+        "T-OP-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: (점검 기록)"
+      ]
+    },
+    "sensitivity": {
+      "status": "open",
+      "reasons": [
+        "T-PS-03: not post_merge (state=missing)",
+        "T-PS-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-personal leak",
+        "missing acceptance test: cargo test -p onjeon-api leak"
+      ]
+    },
+    "skeleton": {
+      "status": "open",
+      "reasons": [
+        "T-CT-06: not post_merge (state=missing)",
+        "T-MB-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: python3 -I tools/ci/check_leak.py",
+        "missing acceptance test: flutter test skeleton_hidden"
+      ]
+    },
+    "storage-separation": {
+      "status": "open",
+      "reasons": [
+        "T-CT-05: not post_merge (state=missing)",
+        "T-CT-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: bash infra/db/test.sh",
+        "missing acceptance test: python3 -I tools/ci/check_deps.py"
+      ]
+    },
+    "twin-actual-event": {
+      "status": "open",
+      "reasons": [
+        "T-AP-08: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api events"
+      ]
+    },
+    "twin-change-impact": {
+      "status": "open",
+      "reasons": [
+        "T-KN-07: not post_merge (state=missing)",
+        "T-DT-05: not post_merge (state=missing)",
+        "T-AP-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime shadow",
+        "missing acceptance test: cargo test -p onjeon-knowledge isolation"
+      ]
+    },
+    "twin-compare": {
+      "status": "open",
+      "reasons": [
+        "T-AP-07: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api comparisons"
+      ]
+    },
+    "twin-multi": {
+      "status": "open",
+      "reasons": [
+        "T-TW-05: not post_merge (state=missing)",
+        "T-TW-06: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime multi",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime dependency"
+      ]
+    },
+    "twin-my-insurance": {
+      "status": "open",
+      "reasons": [
+        "T-PS-02: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api personal"
+      ]
+    },
+    "twin-switch": {
+      "status": "open",
+      "reasons": [
+        "T-TW-05: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime plan_diff"
+      ]
+    },
+    "twin-what-if": {
+      "status": "open",
+      "reasons": [
+        "T-AP-03: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api scenarios"
+      ]
+    },
+    "twin-what-if-line": {
+      "status": "open",
+      "reasons": [
+        "T-AP-02: not post_merge (state=missing)",
+        "T-AP-03: not post_merge (state=missing)",
+        "T-MB-02: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: integration_test coverage_detail_to_evidence"
+      ]
+    },
+    "two-plan-diff": {
+      "status": "open",
+      "reasons": [
+        "T-TW-05: not post_merge (state=missing)",
+        "T-AP-05: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-twin-runtime plan_diff",
+        "missing acceptance test: integration_test two_plan_diff_reduced_shown"
+      ]
+    },
+    "web-coverage": {
+      "status": "open",
+      "reasons": [
+        "T-AP-04: not post_merge (state=missing)",
+        "T-WB-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api coverage_status",
+        "missing acceptance test: python3 -I tools/ci/check_i17.py"
+      ]
+    },
+    "web-legal": {
+      "status": "open",
+      "reasons": [
+        "T-WB-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: npm test -- legal support status"
+      ]
+    },
+    "web-releases": {
+      "status": "open",
+      "reasons": [
+        "T-WB-01: not post_merge (state=missing)",
+        "T-KN-07: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: npm test -- releases"
+      ]
+    },
+    "web-static": {
+      "status": "open",
+      "reasons": [
+        "T-WB-01: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: npm test",
+        "missing acceptance test: npm run lint:phrases"
+      ]
+    },
+    "what-if": {
+      "status": "open",
+      "reasons": [
+        "T-AP-03: not post_merge (state=missing)",
+        "T-MB-04: not post_merge (state=missing)",
+        "missing release evidence environment (fixture/test evidence cannot close item)",
+        "missing/invalid evidence references",
+        "missing acceptance_tests execution logs",
+        "missing acceptance test: cargo test -p onjeon-api scenarios",
+        "missing acceptance test: integration_test what_if_boundary_days"
+      ]
+    }
+  },
+  "features_counts": {
+    "open": 64,
+    "closed": 0,
+    "excluded": 0
+  }
+}
+exit=1
+
+## python3 -I tools/ci/check_product_purpose.py --selftest
+check_product_purpose selftest ok: 5 violations each caught for its intended rule, 1 clean case(s) pass
+exit=0
+
+## python3 -I tools/ci/check_pr_body_traceability.py --selftest
+check_pr_body_traceability selftest ok: 6 violations each caught for its intended rule, 8 clean case(s) pass
+exit=0
+

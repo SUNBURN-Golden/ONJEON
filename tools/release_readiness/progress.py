@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report P01–P19 progress as Markdown. Exit 0 for any progress, 2 for invalid inputs."""
+"""Report product purpose progress as Markdown. Exit 0 for any progress, 2 for invalid inputs."""
 import argparse
 import os
 import sys

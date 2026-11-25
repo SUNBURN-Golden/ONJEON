@@ -8,6 +8,8 @@
 
 **2026-10-29 부분 대체:** [ADR-0019](ADR-0019-제품-완료와-작업-계약-한정-채택.md)가 아래 2번의 정본 미채택 판단 중 09·tasks.json의 역할만 대체한다. 두 파일은 이제 BLUEPRINT 하위의 제품 완료 증거·데몬 작업 소스 및 개별 수락 계약이다. 상위 계약이 우선하며 묶음의 나머지(01~08, 온톨로지 제안, U-01~U-04, A-01)와 common_done_criteria, daemon_rules.json은 이번 정본 채택 대상이 아니다. 아래는 2026-10-26 결정 이력이며 현재 상태는 ADR-0019·BLUEPRINT §0.1·§9·§13을 따른다.
 
+**2026-11-25 범위 갱신:** [ADR-0022](ADR-0022-제품-완료-범위-P20-확장.md)가 아래 1번의 완료 범위를 P01~P20으로 확장한다. 개인정보 보호·복구 행 P20이 추가됐으며, 아래 2026-10-26 문단은 당시 결정 이력으로 보존한다.
+
 **Decision (2026-10-26 historical):** The word '채택' (adopted) covered two different statuses. They are now stated separately:
 
 1. **Execution and completion basis: adopted.** By the user decision of 2026-10-13, [09_제품목적_대응표](../blueprint/proposals/설계검토_결과/09_제품목적_대응표.md) (P01~P19), `tasks.json` (tasks, done_criteria, required_test_ids) and `daemon_rules.json` are the binding basis for running tasks and judging completion. 09 stays the top completion criterion. This matches [BLUEPRINT §11](../BLUEPRINT.md), which already judges first-release completion by 09 P01~P19 and the T-OP-08 gate. Revisions after 12c1726 are handed over without waiting for a bundle-wide re-review (진행 지시 2026-10-13); review happens per PR.

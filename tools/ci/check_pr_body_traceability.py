@@ -6,7 +6,7 @@ The body may name any one of:
   - a `tasks.json` task ID (`T-XX-NN`), which must exist in tasks.json;
   - an out-of-list node ID: labelled, or a bare (not necessarily inline-code)
     `` auditN-some-node `` slug; the orchestrator emits it in prose and paths;
-  - an 09_제품목적_대응표 P row (`P01`..`P19`).
+  - an 09_제품목적_대응표 P row (`P01`..`P20`).
 
 The PR template is the usual place to record this, but this guard reads the body
 itself so a missing or edited template cannot leave a PR untraceable. Registration
@@ -40,7 +40,7 @@ TASK_ID = re.compile(r"(?<![A-Za-z0-9-])(T-[A-Z]{2}-\d{2})(?![A-Za-z0-9-])")
 # audit node slug in plain prose and filesystem paths without backticks.
 NODE_ID = re.compile(r"(?:노드(?:\s*ID)?|Node|node)\s*[:：]?\s*`([a-z0-9]+(?:-[a-z0-9]+)+)`")
 AUDIT_NODE_ID = re.compile(r"(?<![A-Za-z0-9])(audit\d+(?:-[a-z0-9]+)+)(?![A-Za-z0-9])")
-P_ROW = re.compile(r"(?<![A-Za-z0-9])(P(?:0[1-9]|1[0-9]))(?![0-9])")
+P_ROW = re.compile(r"(?<![A-Za-z0-9])(P(?:0[1-9]|1[0-9]|20))(?![0-9])")
 
 
 def check(body, tasks_path):
@@ -60,7 +60,7 @@ def check(body, tasks_path):
     if not task_ids and not node_ids and not p_rows:
         findings.append(C.Finding(
             "PR-TRACE-MISSING", "<pull request body>", 0,
-            "no tasks.json task ID, node ID, or 09 P row (P01..P19)"))
+            "no tasks.json task ID, node ID, or 09 P row (P01..P20)"))
     return findings
 
 
@@ -68,7 +68,7 @@ def selftest():
     files = {"tasks.json": json.dumps({"tasks": [{"id": "T-AA-01"}]})}
     cases = [
         ("task ID and P row", "T-AA-01 P03", None),
-        ("single P row", "Closes P19 evidence.", None),
+        ("single P row", "Closes P20 evidence.", None),
         ("labelled node ID", "Node `audit4-example-node`", None),
         ("inline-code audit node ID", "`audit4-example-node`", None),
         ("bare audit node ID in prose", "Node audit4-example-node — in scope fix", None),
@@ -79,7 +79,7 @@ def selftest():
         ("no trace handle", "Fixes a typo in the README.", "PR-TRACE-MISSING"),
         ("unknown task ID", "T-ZZ-99", "PR-TRACE-TASK"),
         ("unknown task ID beside a valid P row", "T-ZZ-99 P01", "PR-TRACE-TASK"),
-        ("out-of-range P row", "P20", "PR-TRACE-MISSING"),
+        ("out-of-range P row", "P21", "PR-TRACE-MISSING"),
         ("unlabelled non-audit slug", "example-node", "PR-TRACE-MISSING"),
     ]
     return C.run_selftest(

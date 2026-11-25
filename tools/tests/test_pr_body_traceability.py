@@ -35,7 +35,7 @@ class BodyCheck(unittest.TestCase):
         self.assertEqual([], self.rules("Agent node: `audit4-x`. Task T-AA-01."))
 
     def test_accepts_every_p_row_in_range(self):
-        for n in range(1, 20):
+        for n in range(1, 21):
             with self.subTest(row=f"P{n:02}"):
                 self.assertEqual([], self.rules(f"Closes P{n:02} evidence."))
                 self.assertEqual([], self.rules(f"Closes P{n:02}."))
@@ -70,7 +70,7 @@ class BodyCheck(unittest.TestCase):
                      "example-node",
                      "audit4",
                      "Xaudit4-example-node",
-                     "P00 P20", "T-aa-01"):
+                     "P00", "P21", "P200", "T-aa-01"):
             with self.subTest(body=body):
                 self.assertIn("PR-TRACE-MISSING", self.rules(body))
 
@@ -201,7 +201,7 @@ class CanonicalPolicy(unittest.TestCase):
         blueprint = (ROOT / "docs/BLUEPRINT.md").read_text(encoding="utf-8")
         rules = blueprint.split("## 10. 드리프트 방지 규칙", 1)[1].split("## 11.", 1)[0]
         for text in ("`tasks.json` 과제 ID", "노드 ID와 사유", "09 P행",
-                     "`P01`~`P19`", "tools/ci/check_pr_body_traceability.py"):
+                     "`P01`~`P20`", "tools/ci/check_pr_body_traceability.py"):
             with self.subTest(text=text):
                 self.assertIn(text, rules)
 

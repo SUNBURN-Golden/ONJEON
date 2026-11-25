@@ -124,7 +124,7 @@ class EvidencePathTests(unittest.TestCase):
                     self.assertIn(f"{prefix}{evidence_grant(tid)}", rows[tid][column].split(", "))
 
     def test_live_denominators_can_reference_task_owned_artifacts_and_fail_if_removed(self):
-        # Exercise real P01..P19 + every feature and the existing readiness checker.
+        # Exercise real P01..P20 + every feature and the existing readiness checker.
         # Synthetic content is confined to a temporary directory; no live manifest changes.
         _, rows, features = readiness.read_contract(self.registry, readiness.PURPOSE)
         self.assertTrue(set().union(*(set(item["tasks"]) for item in rows.values())) <= self.product)
@@ -160,7 +160,7 @@ class EvidencePathTests(unittest.TestCase):
                     }
             (evidence / "readiness.json").write_text(json.dumps(manifest))
             result = readiness.check(self.registry, readiness.PURPOSE, evidence, tasks_state)
-            self.assertEqual({"open": 0, "closed": 19, "excluded": 0}, result["rows_counts"])
+            self.assertEqual({"open": 0, "closed": 20, "excluded": 0}, result["rows_counts"])
             self.assertEqual(len(features), result["features_counts"]["closed"])
             removed = evidence / manifest["rows"]["P01"]["evidence"][0]
             removed.unlink()

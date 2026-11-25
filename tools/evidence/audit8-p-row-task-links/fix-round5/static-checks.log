@@ -1,0 +1,14 @@
+$ python3 -I tools/decision_status.py
+Decision index and tables are synchronized
+exit=0
+
+$ python3 -I tools/ci/check_product_purpose.py
+product-purpose: 09 P01..P20 task links, row evidence owners and product-purpose test IDs registered on assigned tasks (static only)
+exit=0
+
+$ python3 -I docs/blueprint/proposals/설계검토_결과/검증/spec_check.py
+
+요약: 기계 검사 47/47 · 존재 검사 72/72 · 전체 통과
+주의: '기계' 검사는 JSON 구조·그래프를 계산해서 판정하지만, 명세의 정합성만 본다. 실제 데몬·서비스의 동작 검증이 아니다.
+      '존재 검사'는 필드·문구가 있는지만 본다. 판단 기준 관리·부분 보류 등 제품 의미의 적절성은 사람 검토 대상이다.
+exit=0

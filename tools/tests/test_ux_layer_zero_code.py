@@ -152,7 +152,10 @@ class PurposeRowsFollow09(unittest.TestCase):
         for row, (_purpose, tasks, test_ids, _evidence) in self.rows.items():
             para = decision_paragraph(self.text, row)
             self.assertIsNotNone(para, f"{row} needs exactly one numbered paragraph")
-            self.assertIn(f"Tasks: {', '.join(tasks)}.", para, row)
+            # The audit decision records the owners known at the time. 09 can add owners.
+            recorded_tasks = re.search(r"Tasks: (.+?)\.", para)
+            self.assertIsNotNone(recorded_tasks, row)
+            self.assertLessEqual(set(TASK_ID.findall(recorded_tasks[1])), set(tasks), row)
             self.assertIn("Outstanding:", para, row)
             for test_id in test_ids:
                 self.assertIn(f"**`{test_id}`**", para, row)

@@ -273,10 +273,10 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail,E0616` 문서 테스트·`immutable_rule_doctests`의 실제 진단 코드 검사([Audit 6 재검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)) | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
 | I5 | 허용 목록 밖 연산과 타입이 맞지 않는 식은 로드되지 않는다 | 엔진 로더·`static_types`(#40: 로드 단계 타입 검사)·`range_comparisons`(범위 가능 금액 비교의 로드 거부, [Audit 3 증거](blueprint/audits/2026-10-28_engine_moneyrange_compare_load_check.md)) | 구현(엔진) |
-| I6 | 화면의 숫자·사실 문장은 근거 사슬(§5.2)을 끝까지 따라간다 | API 계약 테스트 | 미구현 |
+| I6 | 화면의 숫자·사실 문장은 근거 사슬(§5.2)을 끝까지 따라간다 | 공유 뷰모델·스키마 시험, API 계약 테스트 | 부분 구현. 근거 참조와 응답 내부 연결을 검사한다. 실제 화면에서 원문 좌표까지의 추적은 미완료다. [Audit 8 증거](blueprint/audits/2026-11-25_view_model_checks.md) |
 | I7 | 가격은 조건·특약 구성·기준일·근거 없이 저장되지 않는다 | DB 제약·테스트, 공유 가격 관측의 누락 차원·비교 자격 검사([Audit 8 증거](blueprint/audits/2026-11-25_i7_missing_dimensions_check.md)) | 공유 계약에서 비교 자격 검증. DB 저장 불변식은 미완료 |
 | I8 | 다른 비교 기준·버전·묶음의 가격을 합산하지 않는다 | 뷰모델 테스트 | 공유 계약에서 가격 대상·적용 기간·원문 판 구분. 뷰모델 합산 검증은 미완료 |
-| I9 | 보완안 비교는 줄어드는 것(면책·감액·제외 포함)을 항상 계산·표시 | 뷰모델 테스트 | 미구현 |
+| I9 | 보완안 비교는 줄어드는 것(면책·감액·제외 포함)을 항상 계산·표시 | 뷰모델 테스트 | 부분 구현. 모든 차이 유형의 묶음을 어휘 정본과 대조한다. 실제 보완안 차이 계산·표시는 미완료다. [Audit 8 증거](blueprint/audits/2026-11-25_view_model_checks.md) |
 | I10 | 광고비·수수료 필드는 정렬·추천 코드의 입력이 아니다 | 정적 검사 | 미구현 |
 | I11 | private_health·genetic_private는 로그·분석에 나가지 않는다. 외부 AI는 별도 동의·최소화·처리 조건 게이트, DNA의 보험사·설계사 전달은 금지 | 누출 테스트 | 미구현 |
 | I12 | 공개 데이터와 개인 데이터는 저장·권한이 분리된다 | 스키마 | 미구현 |

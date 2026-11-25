@@ -7,10 +7,14 @@
 
 use std::collections::HashSet;
 
-use crate::evidence_ref::{is_iso_date, is_ulid, kind_of, no_ws, RefKind};
+use crate::evidence_ref::{
+    is_hex, is_iso_date, is_rfc3339, is_ulid, kind_of, no_ws, validate, ParsedRef, RefKind,
+};
 use crate::{
-    AmountKind, AmountOut, Assertion, AssertionOrigin, DisplayStatus, ErrorClass, ErrorResponse,
-    EvaluationResult, Payout, PremiumObservation, ReviewStatus, ScenarioResult, Tri, ValueState,
+    Amount, AmountKind, AmountOut, Assertion, AssertionOrigin, CompareView, ConfirmParty,
+    ContractSnapshot, CoverageDetail, DisplayStatus, ErrorClass, ErrorResponse, EvaluationResult,
+    EvidenceView, FactSource, NeedReason, NeedResult, Payout, PlanView, PremiumObservation,
+    ReleaseManifest, ReviewStatus, ScenarioResult, Sensitivity, Tri, ValueState,
 };
 
 /// `origin` value of rows that exist only for tests (02_구현계약 §1.2, §8): vocabulary axis
@@ -233,6 +237,490 @@ fn is_coverage_ref(id: &str) -> bool {
     id.strip_prefix("cov:ted:")
         .and_then(|id| id.split_once('/'))
         .is_some_and(|(edition, path)| is_ulid(edition) && no_ws(path))
+}
+
+fn valid_refs(refs: &[String]) -> bool {
+    refs.iter().all(|reference| validate(reference).is_ok())
+}
+
+fn valid_amount(amount: &Amount) -> bool {
+    amount.krw >= 0
+        && amount.source.split_once(':').is_some_and(|(kind, id)| {
+            matches!(kind, "scenario" | "premium" | "candidate" | "clause") && no_ws(id)
+        })
+}
+
+/// Checks the two-plan diff classification and the evidence for display rows.
+pub fn check_plan_view(plan: &PlanView) -> Vec<Violation> {
+    let mut out = Vec::new();
+    if let Some(diff) = &plan.diff {
+        if !plan.diff_available {
+            out.push(v(
+                "plan_diff_is_available",
+                "a diff payload requires diff_available",
+            ));
+        }
+        let mut groups = HashSet::new();
+        for group in &diff.groups {
+            if !groups.insert(group.group) {
+                out.push(v(
+                    "plan_diff_group_unique",
+                    "a diff group appears more than once",
+                ));
+            }
+            for item in &group.items {
+                let expected = item.diff_type.group();
+                if group.group != expected {
+                    out.push(v(
+                        "plan_diff_type_matches_group",
+                        &format!(
+                            "{} belongs to {}, found {}",
+                            item.diff_type.as_str(),
+                            expected.as_str(),
+                            group.group.as_str()
+                        ),
+                    ));
+                }
+                if !item.amounts.iter().all(valid_amount) {
+                    out.push(v(
+                        "plan_diff_amount_has_source",
+                        "diff amounts need valid sources",
+                    ));
+                }
+            }
+        }
+    }
+    for group in &plan.groups {
+        let price = &group.price_line;
+        let valid_price = match &price.man {
+            None => price.price_unavailable_reason.is_some(),
+            Some(values) => {
+                price.price_unavailable_reason.is_none()
+                    && price.basis.is_some()
+                    && price.as_of.as_deref().is_some_and(is_iso_date)
+                    && (1..=2).contains(&values.len())
+                    && values.iter().all(|n| n.is_finite() && *n >= 0.0)
+                    && values.windows(2).all(|pair| pair[0] <= pair[1])
+            }
+        };
+        if !valid_price {
+            out.push(v(
+                "plan_price_has_basis_or_unavailable_reason",
+                "a displayed price needs its basis and date, or an unavailable price needs its reason",
+            ));
+        }
+        for item in &group.unresolved_items {
+            if !valid_refs(&item.refs) {
+                out.push(v(
+                    "plan_unresolved_refs_valid",
+                    "invalid unresolved item reference",
+                ));
+            }
+        }
+        if let Some(need) = &group.need {
+            check_need_reasons(&need.reasons, &mut out);
+        }
+    }
+    out
+}
+
+/// Checks I6 references and the position of the exclusion layer.
+pub fn check_coverage_detail(detail: &CoverageDetail) -> Vec<Violation> {
+    let mut out = Vec::new();
+    for (index, layer) in detail.layers.iter().enumerate() {
+        if layer.layer == "when_not_paid"
+            && (index != 1 || detail.layers[0].layer != "what_is_covered")
+        {
+            out.push(v(
+                "coverage_exclusion_layer_position",
+                "when_not_paid must be the second layer after what_is_covered",
+            ));
+        }
+        for line in &layer.lines {
+            if line.refs.is_empty() || !valid_refs(&line.refs) {
+                out.push(v(
+                    "coverage_line_has_evidence",
+                    "each view line needs valid evidence",
+                ));
+            }
+            if !line.amounts.iter().flatten().all(valid_amount)
+                || !line
+                    .values
+                    .iter()
+                    .flatten()
+                    .all(|value| no_ws(&value.source))
+            {
+                out.push(v(
+                    "coverage_line_values_have_sources",
+                    "each amount or value needs its source",
+                ));
+            }
+        }
+    }
+    out
+}
+
+/// Checks the alignment of comparison columns, cells and price availability.
+pub fn check_compare_view(view: &CompareView) -> Vec<Violation> {
+    let mut out = Vec::new();
+    let columns: HashSet<_> = view
+        .columns
+        .iter()
+        .map(|column| column.sc_id.as_str())
+        .collect();
+    if columns.len() != view.columns.len() {
+        out.push(v(
+            "compare_columns_unique",
+            "sc_id must identify a single column",
+        ));
+    }
+    for axis in &view.axes {
+        let cells: HashSet<_> = axis
+            .per_column
+            .iter()
+            .map(|cell| cell.sc_id.as_str())
+            .collect();
+        if cells != columns || cells.len() != axis.per_column.len() {
+            out.push(v(
+                "compare_cells_match_columns",
+                "each axis needs one cell for each column",
+            ));
+        }
+        for cell in &axis.per_column {
+            let has_amounts = cell
+                .amounts
+                .as_ref()
+                .is_some_and(|amounts| !amounts.is_empty());
+            let needs_refs = has_amounts
+                || matches!(
+                    cell.display_status,
+                    DisplayStatus::Confirmed | DisplayStatus::NotApplicable
+                )
+                || matches!(cell.applicability.as_str(), "applies" | "not_applies");
+            let refs_ok = cell
+                .refs
+                .as_ref()
+                .map_or(!needs_refs, |refs| !refs.is_empty() && valid_refs(refs));
+            if !refs_ok {
+                out.push(v(
+                    "compare_cell_has_evidence",
+                    "a factual cell or amount needs valid evidence",
+                ));
+            }
+            if !cell.amounts.iter().flatten().all(valid_amount) {
+                out.push(v(
+                    "compare_cell_amount_has_source",
+                    "comparison amounts require a valid source",
+                ));
+            }
+        }
+    }
+    if let Some(price) = &view.price {
+        if view.comparison_basis_id.as_ref() != Some(&price.basis_id) || !no_ws(&price.basis_id) {
+            out.push(v(
+                "compare_price_matches_basis",
+                "the price block must use the view's comparison basis",
+            ));
+        }
+        let priced_and_unpriced: HashSet<_> = price
+            .comparable_columns
+            .iter()
+            .map(String::as_str)
+            .chain(
+                price
+                    .unpriced_columns
+                    .iter()
+                    .map(|column| column.sc_id.as_str()),
+            )
+            .collect();
+        if priced_and_unpriced != columns
+            || priced_and_unpriced.len()
+                != price.comparable_columns.len() + price.unpriced_columns.len()
+        {
+            out.push(v(
+                "compare_price_partitions_columns",
+                "each column must appear once as priced or unpriced",
+            ));
+        }
+    }
+    out
+}
+
+/// Validates the local links of an evidence chain. Storage proves membership and provenance.
+pub fn check_evidence_view(view: &EvidenceView) -> Vec<Violation> {
+    let mut out = Vec::new();
+    if validate(&view.ref_).is_err() || view.chain.first().is_none_or(|step| step.ref_ != view.ref_)
+    {
+        out.push(v(
+            "evidence_chain_starts_at_ref",
+            "the evidence chain must start at the requested reference",
+        ));
+    }
+    let parsed: Vec<_> = view
+        .chain
+        .iter()
+        .map(|step| validate(&step.ref_).ok())
+        .collect();
+    for (index, step) in view.chain.iter().enumerate() {
+        let reference = parsed[index].as_ref();
+        let valid_level = match step.level.as_str() {
+            "viewmodel" => no_ws(&step.ref_),
+            "evaluation" => matches!(reference, Some(ParsedRef::Evaluation(_))),
+            "rule" => matches!(reference, Some(ParsedRef::Rule(_))),
+            "assertion" => matches!(reference, Some(ParsedRef::Assertion(_))),
+            "clause" => matches!(reference, Some(ParsedRef::Clause(_))),
+            "segment" => matches!(reference, Some(ParsedRef::Segment(_))),
+            "edition" => matches!(reference, Some(ParsedRef::Edition(_))),
+            "premium" => matches!(reference, Some(ParsedRef::Premium(_))),
+            "raw" => matches!(reference, Some(ParsedRef::Raw(_))),
+            "source" => matches!(reference, Some(ParsedRef::Observation(_))),
+            "criterion" => matches!(reference, Some(ParsedRef::Criterion(_))),
+            _ => false,
+        };
+        if !valid_level {
+            out.push(v(
+                "evidence_chain_ref_matches_level",
+                "a chain step needs a valid reference of its level",
+            ));
+        }
+        let next = parsed.get(index + 1).and_then(Option::as_ref);
+        let linked = match reference {
+            Some(ParsedRef::Clause(clause)) => {
+                matches!(next, Some(ParsedRef::Segment(segment)) if *segment == clause.segment)
+            }
+            Some(ParsedRef::Segment(segment)) => {
+                let raw = if matches!(next, Some(ParsedRef::Edition(_))) {
+                    parsed.get(index + 2).and_then(Option::as_ref)
+                } else {
+                    next
+                };
+                matches!(raw, Some(ParsedRef::Raw(sha)) if sha.starts_with(&segment.raw_sha))
+            }
+            Some(ParsedRef::Raw(sha)) => {
+                matches!(next, Some(ParsedRef::Observation(obs)) if sha.starts_with(&obs.sha16))
+            }
+            _ => true,
+        };
+        if !linked {
+            out.push(v(
+                "evidence_document_chain_link",
+                "clause, segment, raw and observation must link to the same document",
+            ));
+        }
+    }
+    if view.quote_shown
+        && !parsed
+            .iter()
+            .any(|reference| matches!(reference, Some(ParsedRef::Clause(_))))
+    {
+        out.push(v(
+            "evidence_quote_has_clause",
+            "a shown quote needs its clause",
+        ));
+    }
+    out
+}
+
+fn check_need_reasons(reasons: &[NeedReason], out: &mut Vec<Violation>) {
+    if reasons.is_empty() {
+        out.push(v(
+            "need_has_reasons",
+            "a need verdict requires at least one reason",
+        ));
+    }
+    for reason in reasons {
+        let has_basis = match reason.statement_kind.as_str() {
+            "fact" => {
+                !reason.assertion_refs.is_empty()
+                    && reason
+                        .assertion_refs
+                        .iter()
+                        .all(|id| id.strip_prefix("a:").is_some_and(is_ulid))
+            }
+            "criteria_eval" => {
+                reason.criterion_version_ref.as_deref().and_then(kind_of)
+                    == Some(RefKind::Criterion)
+            }
+            "user_assumption" => reason
+                .user_assumption_ref
+                .as_deref()
+                .and_then(|id| id.strip_prefix("assume:"))
+                .and_then(|id| id.split_once('@'))
+                .is_some_and(|(id, version)| {
+                    is_ulid(id)
+                        && !version.is_empty()
+                        && version.bytes().all(|byte| byte.is_ascii_digit())
+                }),
+            "calc_result" => {
+                reason.eval_ref.as_deref().and_then(kind_of) == Some(RefKind::Evaluation)
+            }
+            "unknown" => reason.unknown_overlap.as_ref().is_some_and(|items| {
+                !items.is_empty() && items.iter().all(|item| no_ws(&item.ref_))
+            }),
+            _ => false,
+        };
+        if !has_basis || !valid_refs(&reason.evidence) {
+            out.push(v(
+                "need_reason_has_basis_by_kind",
+                "each need reason requires evidence for its statement kind",
+            ));
+        }
+    }
+}
+
+/// Checks the reason payload and the presence of the criteria release reference when used.
+pub fn check_need_result(result: &NeedResult) -> Vec<Violation> {
+    let mut out = Vec::new();
+    check_need_reasons(&result.reasons, &mut out);
+    if result
+        .criteria_release_id
+        .as_deref()
+        .is_none_or(|id| !no_ws(id))
+        && result
+            .reasons
+            .iter()
+            .any(|reason| reason.statement_kind == "criteria_eval")
+    {
+        out.push(v(
+            "need_criteria_has_release",
+            "a criteria evaluation requires a criteria release",
+        ));
+    }
+    out
+}
+
+/// Checks manifest metadata locally. Rehashing needs the frozen rows and rule file bytes.
+pub fn check_release_manifest(manifest: &ReleaseManifest) -> Vec<Violation> {
+    let mut out = Vec::new();
+    let members = &manifest.members;
+    for (name, ids) in [
+        ("raw_assets", &members.raw_assets),
+        ("segments", &members.segments),
+        ("terms_editions", &members.terms_editions),
+        ("terms_lineages", &members.terms_lineages),
+        ("clauses", &members.clauses),
+        ("nodes", &members.nodes),
+        ("assertions", &members.assertions),
+        ("conflicts", &members.conflicts),
+        ("gaps", &members.gaps),
+        ("premium_observations", &members.premium_observations),
+    ] {
+        if !ids.iter().all(|id| no_ws(id)) || !ids.windows(2).all(|pair| pair[0] < pair[1]) {
+            out.push(v(
+                "release_members_sorted_unique",
+                &format!("{name} must contain sorted, unique IDs"),
+            ));
+        }
+    }
+    let sha256 = |hash: &str| is_hex(hash, 64, 64);
+    if ![
+        &manifest.content_sha256,
+        &manifest.capability_table_hash,
+        &manifest.explain_template_hash,
+    ]
+    .into_iter()
+    .all(|hash| sha256(hash))
+        || !manifest
+            .rule_files
+            .iter()
+            .all(|(path, hash)| !path.trim().is_empty() && sha256(hash))
+        || !manifest
+            .model_versions
+            .iter()
+            .all(|model| sha256(&model.model_ref_hash))
+    {
+        out.push(v(
+            "release_hashes_valid",
+            "manifest hashes must be lowercase SHA-256 values and rule paths must be non-blank",
+        ));
+    }
+    if !is_rfc3339(&manifest.created_at) || !is_rfc3339(&manifest.frozen_at) {
+        out.push(v(
+            "release_timestamps_valid",
+            "created_at and frozen_at must be valid timestamps",
+        ));
+    }
+    let withdrawal_ok = match (&manifest.withdrawn_at, &manifest.withdrawal_reason) {
+        (None, None) => true,
+        (Some(at), Some(reason)) => is_rfc3339(at) && !reason.trim().is_empty(),
+        _ => false,
+    };
+    if !withdrawal_ok {
+        out.push(v(
+            "release_withdrawal_has_time_and_reason",
+            "a withdrawal needs a valid time and reason",
+        ));
+    }
+    if manifest.superseded_by.as_ref() == Some(&manifest.release_id) {
+        out.push(v(
+            "release_cannot_supersede_itself",
+            "superseded_by must name another release",
+        ));
+    }
+    out
+}
+
+/// Checks the private snapshot's edition evidence and component confirmation metadata.
+pub fn check_contract_snapshot(snapshot: &ContractSnapshot) -> Vec<Violation> {
+    let mut out = Vec::new();
+    if !matches!(
+        snapshot.sensitivity,
+        Sensitivity::PrivatePolicy | Sensitivity::PrivateHealth
+    ) {
+        out.push(v(
+            "contract_snapshot_sensitivity_private",
+            "a contract snapshot requires private policy or health sensitivity",
+        ));
+    }
+    for edition in &snapshot.applied_editions {
+        if validate(&edition.basis_evidence).is_err() {
+            out.push(v(
+                "contract_edition_has_evidence",
+                "an applied edition needs valid basis evidence",
+            ));
+        }
+        if !is_iso_date(&edition.from)
+            || edition
+                .to
+                .as_ref()
+                .is_some_and(|to| !is_iso_date(to) || to < &edition.from)
+        {
+            out.push(v(
+                "contract_edition_period_valid",
+                "applied edition dates must be valid and in order",
+            ));
+        }
+    }
+    for component in &snapshot.components {
+        if !is_coverage_ref(&component.cov_ref)
+            || component.insured_amount_krw < 0
+            || !is_iso_date(&component.as_of)
+        {
+            out.push(v(
+                "contract_component_valid",
+                "a component needs a coverage reference, a non-negative amount and a valid date",
+            ));
+        }
+        if component.fact_source == FactSource::UserConfirmedExtract
+            && component.confirm_party != ConfirmParty::User
+        {
+            out.push(v(
+                "contract_component_confirmed_by_user",
+                "user_confirmed_extract requires confirm_party=user",
+            ));
+        }
+    }
+    if snapshot
+        .user_confirmed_at
+        .as_deref()
+        .is_some_and(|at| !is_rfc3339(at))
+    {
+        out.push(v(
+            "contract_confirmation_time_valid",
+            "user_confirmed_at must be a valid timestamp",
+        ));
+    }
+    out
 }
 
 /// A blocked scenario makes no engine call, so it carries no evaluation or explanation (02 §1.7).

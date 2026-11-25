@@ -83,7 +83,17 @@ def emit_vocabulary(model: Model) -> str:
         out.append("    pub fn as_str(self) -> &'static str {\n        match self {\n")
         for v in axis.values:
             out.append(f'            {name}::{variant(v["code"])} => "{v["code"]}",\n')
-        out.append("        }\n    }\n}\n\n")
+        out.append("        }\n    }\n")
+        if axis.id == "diff_type":
+            groups = {v["code"] for v in model.axes["diff_group"].values}
+            out.append("\n    /// The group declared in the vocabulary for this change.\n")
+            out.append("    pub fn group(self) -> DiffGroup {\n        match self {\n")
+            for v in axis.values:
+                if v.get("group") not in groups:
+                    raise ValueError(f"diff_type.{v['code']}: group must be a diff_group code")
+                out.append(f"            Self::{variant(v['code'])} => DiffGroup::{variant(v['group'])},\n")
+            out.append("        }\n    }\n")
+        out.append("}\n\n")
     out.append("/// Every axis with its codes, in vocabulary order. Used by tests to compare with vocabulary.json.\n")
     out.append("pub fn axes() -> Vec<(&'static str, Vec<&'static str>)> {\n    vec![\n")
     for axis in model.axes.values():

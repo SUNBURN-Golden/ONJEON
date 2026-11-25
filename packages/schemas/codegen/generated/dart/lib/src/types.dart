@@ -588,6 +588,8 @@ class CompareCell {
   /// applies, not_applies, unverified. 어휘 축 승격 대기
   final String applicability;
   final DisplayStatus displayStatus;
+  /// 근거 참조. 확인된 값·적용 여부·금액을 표시하는 셀에는 필수(check_compare_view)
+  final List<String>? refs;
   final List<Amount>? amounts;
 
   const CompareCell({
@@ -596,6 +598,7 @@ class CompareCell {
     required this.evidenceKind,
     required this.applicability,
     required this.displayStatus,
+    this.refs,
     this.amounts,
   });
 
@@ -605,6 +608,7 @@ class CompareCell {
         evidenceKind: json['evidence_kind'] as String,
         applicability: json['applicability'] as String,
         displayStatus: DisplayStatus.fromJson(json['display_status'] as String),
+        refs: json['refs'] == null ? null : (json['refs'] as List<dynamic>).map((e) => e as String).toList(),
         amounts: json['amounts'] == null ? null : (json['amounts'] as List<dynamic>).map((e) => Amount.fromJson(e as Map<String, dynamic>)).toList(),
       );
 
@@ -614,6 +618,7 @@ class CompareCell {
         'evidence_kind': evidenceKind,
         'applicability': applicability,
         'display_status': displayStatus.toJson(),
+        if (refs != null) 'refs': refs!.map((e) => e).toList(),
         if (amounts != null) 'amounts': amounts!.map((e) => e.toJson()).toList(),
       };
 }
@@ -1260,7 +1265,7 @@ class EvaluationResult {
 
 /// 근거 사슬의 한 단계
 class ChainStep {
-  /// viewmodel, evaluation, rule, assertion, clause, segment, edition, raw, source, criterion (02 §2.4). 어휘 축 승격 대기
+  /// viewmodel, evaluation, rule, assertion, clause, segment, edition, premium, raw, source, criterion (BLUEPRINT §5.2, 02 §2.4). 어휘 축 승격 대기
   final String level;
   final String ref;
   final String display;

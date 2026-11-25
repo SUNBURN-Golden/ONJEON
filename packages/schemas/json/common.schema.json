@@ -387,6 +387,7 @@
           "items": {
             "$ref": "common.schema.json#/$defs/EvidenceRef"
           },
+          "minItems": 1,
           "description": "근거 참조. 근거 사슬이 끊긴 줄은 사실로 표시하지 않는다(display_status=data_missing)"
         },
         "amounts": {

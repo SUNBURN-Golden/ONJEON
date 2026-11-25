@@ -326,6 +326,10 @@ export interface CompareCell {
    */
   applicability: string;
   display_status: DisplayStatus;
+  /**
+   * 근거 참조. 확인된 값·적용 여부·금액을 표시하는 셀에는 필수(check_compare_view)
+   */
+  refs?: string[];
   amounts?: Amount[];
 }
 
@@ -615,7 +619,7 @@ export interface EvaluationResult {
  */
 export interface ChainStep {
   /**
-   * viewmodel, evaluation, rule, assertion, clause, segment, edition, raw, source, criterion (02 §2.4). 어휘 축 승격 대기
+   * viewmodel, evaluation, rule, assertion, clause, segment, edition, premium, raw, source, criterion (BLUEPRINT §5.2, 02 §2.4). 어휘 축 승격 대기
    */
   level: string;
   ref: string;

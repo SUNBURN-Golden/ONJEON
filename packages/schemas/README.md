@@ -1,6 +1,6 @@
 # packages/schemas: 계약 패키지 (`onjeon-contracts`)
 
-앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록, 1.8.0은 Audit 2의 명시적 문자열 리터럴 `str` 추가다. 근거: 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전), 화면 설계서 §11. 이 패키지는 계약의 **모양**이다. 의미 검사(릴리스 빌더, DB 제약, evidence_ref 파서)는 후속 과제(T-CT-03~05, T-KN-*)의 몫이다.
+앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록, 1.8.0은 Audit 2의 명시적 문자열 리터럴 `str` 추가다. 근거는 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전)과 화면 설계서 §11이다. 공유 Rust 계약은 한 응답에서 판정할 수 있는 교차 필드 규칙과 근거 참조 문법을 검사한다. 릴리스 구성원 조회·해시 재계산과 실제 서비스 경계의 적용은 각 기능이 담당한다.
 
 ## 구성
 
@@ -52,6 +52,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 - **어휘에 아직 없는 축은 `x-onjeon-pending-axis` 문자열이다.** 02_구현계약이 값을 정했지만 어휘(1.6.0)에 축이 없는 것(아래 표)은 닫힌 enum처럼 쓰지 않고 소문자 snake_case 패턴의 문자열로 둔다. 어휘 정본을 이 패키지의 과제가 바꿀 수 없기 때문이다. 어휘에 그 축이 들어오는 순간 lint가 실패해서 `$ref`로 바꾸게 한다. 어휘 1.6.0(T-CT-02)에서 아홉 축·열한 필드가 그렇게 `$ref`로 옮겨갔다(아래 '1.6.0에서 승격된 축').
 - 알 수 없는 enum 값은 역직렬화 실패다(성공으로 처리하지 않음). 알 수 없는 필드는 무시한다. 선택 필드 추가(minor)가 구버전 클라이언트를 깨지 않게 하려는 것이다. 스키마 문서는 `additionalProperties: false`로 닫혀 있다. 새 enum 값은 §5에서 minor지만 구버전 클라이언트는 그 값을 읽지 못한다. 앱이 지원 범위를 선언하는 이유다(§5 마지막 행).
 - 금액은 정수 원(`Krw`). 부동소수점은 화면 표시 전용 만원 값(`Budget.*_man`, `CurrentPaid.man`, `PriceLine.man`)에만 있고, 예산 판정과 정렬은 원 단위로 한다(화면 설계서 §11). 시험이 부동소수점 필드 목록을 고정한다.
+- `ViewLine.refs`는 근거 참조를 한 개 이상 담는다. `CompareCell.refs`는 화면에서 확인된 값·적용 여부·금액을 표시할 때 필요하다. 판단을 유보한 자리표시자는 `refs`를 생략할 수 있다. Rust 호출부는 직렬화 경계에서 [`checks::check_*`](src/checks.rs)를 호출해 교차 필드 규칙을 검사한다. [Audit 8 회귀 증거](../../docs/blueprint/audits/2026-11-25_view_model_checks.md).
 - `PremiumObservation`의 `raw_amount`와 `unknown_reason`은 생성 타입에서 선택 필드다. `check_premium_observation`은 `observed`·`derived`에 금액을, 그 밖의 상태에 공백이 아닌 사유를 요구한다. 두 필드는 함께 둘 수 없으며 금액이 없는 관측은 비교 자격을 얻을 수 없다.
 - 가격 관측은 `conditions`·`package_binding`·`source_as_of`·`payment_cycle`·`comparison_basis_id`의 누락과 개별 조건의 공백 값을 `missing_dimensions`에 기록한다. 값이 있는 필드나 조건을 누락으로 신고하면 검사에서 거부한다. 비교 자격에는 이 다섯 필드, 검수 결정이 있는 `accepted` 상태, 비어 있는 `missing_dimensions`가 필요하다. 상품군별 조건 집합은 라벨 사전이 정의한다.
 - 가격 대상은 `product_ref`, `sales_config_ref`, `components`에 기록한다. 특정 담보 가격은 `coverage_ref`에 해당 담보를 지정하고, 상품·묶음 전체 가격은 구성으로 표현한다. `source_revision`은 원문 바이트의 `raw:sha256` 참조다. 원시 관측의 새 필드는 선택이며, 비교 자격에는 대상·가입금액·원문 판과 `source_as_of`를 포함하는 적용 기간이 필요하다. 적용 기간의 양 끝은 포함하며, 문서가 종료기한 없음을 명시하면 `effective_open_ended=true`를 쓴다.

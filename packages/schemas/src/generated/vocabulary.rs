@@ -1374,6 +1374,27 @@ impl DiffType {
             DiffType::Unknown => "unknown",
         }
     }
+
+    /// The group declared in the vocabulary for this change.
+    pub fn group(self) -> DiffGroup {
+        match self {
+            Self::GainCoverage => DiffGroup::Added,
+            Self::GainAmount => DiffGroup::Added,
+            Self::LoseCoverage => DiffGroup::Reduced,
+            Self::LoseAmount => DiffGroup::Reduced,
+            Self::NewWaiting => DiffGroup::Reduced,
+            Self::NewReduction => DiffGroup::Reduced,
+            Self::NewExclusion => DiffGroup::Reduced,
+            Self::TermChange => DiffGroup::Reduced,
+            Self::LimitChange => DiffGroup::Reduced,
+            Self::SurrenderLoss => DiffGroup::Reduced,
+            Self::Unchanged => DiffGroup::Unchanged,
+            Self::RenewalChange => DiffGroup::CostAndUnknown,
+            Self::PriceBasisDiff => DiffGroup::CostAndUnknown,
+            Self::UnderwritingUnknown => DiffGroup::CostAndUnknown,
+            Self::Unknown => DiffGroup::CostAndUnknown,
+        }
+    }
 }
 
 /// 문서 역할: 이 문서가 무엇인가

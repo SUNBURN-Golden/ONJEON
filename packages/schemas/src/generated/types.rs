@@ -686,12 +686,36 @@ pub struct PlanView {
     pub result_state: ResultState,
 }
 
+/// 가격에 포함된 담보 한 건. 묶음 금액을 담보 단가로 배분하지 않는다
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PremiumComponent {
+    pub cov_ref: String,
+    /// 원문에서 확인한 담보 가입금액. 미확인 시 생략하며 비교 자격은 보류한다
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub insured_amount_krw: Option<i64>,
+}
+
 /// 가격 관측치. 원시 관측은 공백이 있어도 보존하고 비교 자격은 따로 둔다 (02_구현계약 §1.2, PREMIUM_DATA_CONTRACT)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PremiumObservation {
     pub id: String,
+    /// 공시 가격이 적용되는 상품의 식별자. 상품명과 구분한다
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub product_ref: Option<String>,
+    /// 가격이 적용되는 판매 구성 판(개정판·판매 채널 포함)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sales_config_ref: Option<String>,
+    /// 가격이 특정 담보 행을 가리킬 때 그 담보. 상품·묶음 전체 가격에는 생략한다
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub coverage_ref: Option<String>,
+    /// 가격이 포함하는 주계약·특약 담보와 담보별 가입금액. 구성을 모르는 원시 관측은 생략할 수 있다
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub components: Option<Vec<PremiumComponent>>,
     /// 근거 1개 이상
     pub evidence: Vec<EvidenceLink>,
+    /// 가격 원문 바이트의 불변 개정 식별자(raw:sha256). 같은 URL의 가격표 변경도 구분한다
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_revision: Option<String>,
     /// 관측하거나 산출한 금액(정수 원). value_state가 observed 또는 derived이면 필수, 다른 상태에서는 금지
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub raw_amount: Option<i64>,
@@ -702,6 +726,15 @@ pub struct PremiumObservation {
     /// 소스가 밝힌 기준일
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub source_as_of: Option<String>,
+    /// 원문 근거로 확인한 적용 시작일(포함)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effective_from: Option<String>,
+    /// 원문 근거로 확인한 적용 종료일(포함). 미확인 또는 종료기한이 없으면 생략
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effective_to: Option<String>,
+    /// 종료기한 없이 적용됨이 확인된 경우 true. 종료일 미확인은 생략
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effective_open_ended: Option<bool>,
     /// 월납·연납 등. 연납÷12를 월납으로 쓰지 않는다. 어휘 축 승격 대기
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub payment_cycle: Option<String>,
@@ -718,7 +751,7 @@ pub struct PremiumObservation {
     pub missing_dimensions: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comparison_basis_id: Option<String>,
-    /// 금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)
+    /// 금액, 가격 대상과 구성, 조건, 기준일을 덮는 적용 기간과 원문 판을 확인하고 accepted일 때만 true (K13)
     pub comparison_eligible: bool,
     pub value_state: ValueState,
     /// 금액을 알 수 없는 이유. value_state가 observed 또는 derived이면 금지, 다른 상태에서는 필수

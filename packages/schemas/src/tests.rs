@@ -441,12 +441,7 @@ fn premium_comparison_eligibility_needs_the_full_condition_set() {
         "no fixture file is comparison-eligible: that needs accepted, which origin=fixture never is"
     );
 
-    // the eligible case exists only here, in memory: accepted pipeline data with every condition
-    let mut eligible = full.clone();
-    eligible.comparison_eligible = true;
-    eligible.review_status = ReviewStatus::Accepted;
-    eligible.review_decision_id = Some("rd:01ARZ3NDEKTSV4RRFFQ69G5FAV".into());
-    eligible.origin = AssertionOrigin::Pipeline;
+    let eligible = eligible_premium_bundle();
     assert!(check_premium_observation(&eligible).is_empty());
 
     let mut derived = eligible.clone();
@@ -487,6 +482,207 @@ fn premium_comparison_eligibility_needs_the_full_condition_set() {
     let mut no_as_of = eligible.clone();
     no_as_of.source_as_of = None;
     assert_eq!(check_premium_observation(&no_as_of).len(), 1);
+}
+
+fn eligible_premium_bundle() -> PremiumObservation {
+    // Accepted pipeline prices are created in memory, so fixture files remain test-only.
+    let mut observation: PremiumObservation =
+        serde_json::from_str(fixture!("PremiumObservation.full")).unwrap();
+    observation.comparison_eligible = true;
+    observation.review_status = ReviewStatus::Accepted;
+    observation.review_decision_id = Some("rd:01ARZ3NDEKTSV4RRFFQ69G5FAV".into());
+    observation.origin = AssertionOrigin::Pipeline;
+    observation
+}
+
+#[test]
+fn premium_comparison_requires_a_complete_priced_subject_and_source_revision() {
+    let eligible = eligible_premium_bundle();
+    let json = serde_json::to_value(&eligible).unwrap();
+    for field in [
+        "product_ref",
+        "sales_config_ref",
+        "components",
+        "source_revision",
+        "effective_from",
+        "effective_to",
+        "payment_cycle",
+        "comparison_basis_id",
+    ] {
+        let mut partial = json.clone();
+        partial.as_object_mut().unwrap().remove(field);
+        let mut observation = serde_json::from_value(partial).unwrap();
+        assert_eq!(
+            check_premium_observation(&observation)[0].rule,
+            "chk_premium_raw_vs_eligible",
+            "{field}"
+        );
+        observation.comparison_eligible = false;
+        assert!(
+            check_premium_observation(&observation).is_empty(),
+            "{field}"
+        );
+    }
+
+    let mut no_evidence = eligible.clone();
+    no_evidence.evidence.clear();
+    assert_eq!(
+        check_premium_observation(&no_evidence)[0].rule,
+        "chk_premium_raw_vs_eligible"
+    );
+
+    let mut partial_amount = eligible.clone();
+    partial_amount.components.as_mut().unwrap()[0].insured_amount_krw = None;
+    assert_eq!(
+        check_premium_observation(&partial_amount)[0].rule,
+        "chk_premium_raw_vs_eligible"
+    );
+    partial_amount.comparison_eligible = false;
+    assert!(check_premium_observation(&partial_amount).is_empty());
+
+    let mut partially_identified_bundle = eligible.clone();
+    let components = partially_identified_bundle.components.as_mut().unwrap();
+    let rider = components.pop().unwrap();
+    assert_eq!(
+        check_premium_observation(&partially_identified_bundle)[0].rule,
+        "chk_premium_raw_vs_eligible"
+    );
+
+    let mut single_coverage = partially_identified_bundle;
+    single_coverage.package_binding = Some("none".into());
+    single_coverage.coverage_ref = Some(rider.cov_ref);
+    assert_eq!(
+        check_premium_observation(&single_coverage)[0].rule,
+        "chk_premium_raw_vs_eligible"
+    );
+    single_coverage.coverage_ref = Some(
+        single_coverage.components.as_ref().unwrap()[0]
+            .cov_ref
+            .clone(),
+    );
+    assert!(check_premium_observation(&single_coverage).is_empty());
+
+    let mut scoped_bundle = eligible;
+    scoped_bundle.coverage_ref = single_coverage.coverage_ref;
+    assert_eq!(
+        check_premium_observation(&scoped_bundle)[0].rule,
+        "chk_premium_raw_vs_eligible"
+    );
+}
+
+#[test]
+fn premium_rejects_invalid_references_and_duplicate_components() {
+    let observation = eligible_premium_bundle();
+    let json = serde_json::to_value(observation).unwrap();
+    for (field, value, expected) in [
+        ("product_ref", "display name", "chk_premium_priced_subject"),
+        ("sales_config_ref", "sc:wrong", "chk_premium_priced_subject"),
+        ("coverage_ref", "rider label", "chk_premium_priced_subject"),
+        (
+            "source_revision",
+            "https://example.invalid/price",
+            "chk_premium_source_revision",
+        ),
+    ] {
+        let mut malformed = json.clone();
+        malformed[field] = value.into();
+        let observation = serde_json::from_value(malformed).unwrap();
+        assert_eq!(
+            check_premium_observation(&observation)[0].rule,
+            expected,
+            "{field}"
+        );
+    }
+
+    let mut observation: PremiumObservation = serde_json::from_value(json).unwrap();
+    let components = observation.components.as_mut().unwrap();
+    components[1].cov_ref = components[0].cov_ref.clone();
+    assert_eq!(
+        check_premium_observation(&observation)[0].rule,
+        "chk_premium_priced_subject"
+    );
+    observation.components.as_mut().unwrap().clear();
+    assert_eq!(
+        check_premium_observation(&observation)[0].rule,
+        "chk_premium_priced_subject"
+    );
+}
+
+#[test]
+fn premium_round_trip_keeps_subjects_and_revisions_distinct() {
+    let previous: PremiumObservation =
+        serde_json::from_str(fixture!("PremiumObservation.full")).unwrap();
+    let mut revised = previous.clone();
+    revised.id = "premium:01J0000000000000000000000C".into();
+    revised.sales_config_ref = Some("sc:01ARZ3NDEKTSV4RRFFQ69G5FAW".into());
+    revised.components.as_mut().unwrap()[1].insured_amount_krw = Some(20_000_000);
+    revised.effective_from = Some("2026-10-01".into());
+    revised.effective_to = Some("2026-12-31".into());
+    revised.source_as_of = revised.effective_from.clone();
+    let revision = format!("raw:sha256:{}", "f".repeat(64));
+    revised.evidence[0].ref_ = revision.clone();
+    revised.source_revision = Some(revision);
+
+    let wire = serde_json::to_string(&[&previous, &revised]).unwrap();
+    let [old, new]: [PremiumObservation; 2] = serde_json::from_str(&wire).unwrap();
+    assert_eq!(old, previous);
+    assert_eq!(new, revised);
+    assert_eq!(old.raw_amount, new.raw_amount);
+    assert_eq!(old.comparison_basis_id, new.comparison_basis_id);
+    assert_ne!(old.sales_config_ref, new.sales_config_ref);
+    assert_ne!(old.components, new.components);
+    assert_ne!(old.effective_from, new.effective_from);
+    assert_ne!(old.source_revision, new.source_revision);
+}
+
+#[test]
+fn premium_effective_period_covers_the_basis_date() {
+    let eligible = eligible_premium_bundle();
+    // Both bounds are inclusive. Observation and publication are outside the period in this fixture.
+    for date in ["2026-06-29", "2026-09-30"] {
+        let mut observation = eligible.clone();
+        observation.source_as_of = Some(date.into());
+        assert!(check_premium_observation(&observation).is_empty(), "{date}");
+    }
+    for date in ["2026-06-28", "2026-10-01", "2026-06-31"] {
+        let mut observation = eligible.clone();
+        observation.source_as_of = Some(date.into());
+        assert_eq!(
+            check_premium_observation(&observation)[0].rule,
+            "chk_premium_raw_vs_eligible",
+            "{date}"
+        );
+    }
+
+    for (start, end) in [
+        ("2026-07-01", "2026-06-30"),
+        ("2026-02-29", "2026-06-30"),
+        ("2026-06-29", "2026-09-31"),
+    ] {
+        let mut observation = eligible.clone();
+        observation.comparison_eligible = false;
+        observation.effective_from = Some(start.into());
+        observation.effective_to = Some(end.into());
+        assert_eq!(
+            check_premium_observation(&observation)[0].rule,
+            "chk_premium_effective_period"
+        );
+    }
+
+    let mut open_ended = eligible;
+    open_ended.effective_open_ended = Some(true);
+    assert_eq!(
+        check_premium_observation(&open_ended)[0].rule,
+        "chk_premium_effective_period"
+    );
+    open_ended.effective_to = None;
+    open_ended.source_as_of = Some("2026-10-01".into());
+    assert!(check_premium_observation(&open_ended).is_empty());
+    open_ended.effective_open_ended = Some(false);
+    assert_eq!(
+        check_premium_observation(&open_ended)[0].rule,
+        "chk_premium_raw_vs_eligible"
+    );
 }
 
 #[test]

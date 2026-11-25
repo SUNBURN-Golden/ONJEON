@@ -156,7 +156,7 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 | DerivedOutput | 원본 해시별 추출·OCR 결과와 도구·버전. 원본과 다른 버킷 | L2 | DATA_PIPELINE_CONTRACT §3.1 |
 | ClauseOccurrence | 문서 버전, 조항 경로, 페이지, 좌표, 정확 인용 | L2 | DATA_PIPELINE_CONTRACT §3 |
 | FieldAssertion | raw·정규화 값, 단위, value_state, 근거, 적용 범위, 추출·검증 이력 | L3~L4 | 제2부 §29 |
-| PremiumObservation | `value_state`와 금액 또는 미확인 사유, 가격 근거, 조건과 조건 출처, 특약 구성·묶음, 기준일, 비교 기준 | L3~L5 | PREMIUM_DATA_CONTRACT, 가격 수집 명세 |
+| PremiumObservation | `value_state`와 금액 또는 미확인 사유, 상품·판매 구성 판·담보 참조, 가입금액을 포함한 주계약·특약 구성과 묶음, 조건·조건 출처, 기준일·적용 기간, 가격 근거·원문 판, 비교 기준 | L3~L5 | PREMIUM_DATA_CONTRACT, 가격 수집 명세 |
 | CodeSet | 코드 체계, 개정차수, 고시·시행일, 판정 시점 규칙 | L3~L5 | DATA_PIPELINE_CONTRACT §4 |
 | ParameterTable | 약관이 밖으로 위임한 값의 공시 표: 키 구간, 열린 구간 관측 시각, 원문 해시 | L3~L5 | DATA_PIPELINE_CONTRACT §4 |
 | ProductVersion / CoverageOccurrence | 회사, 채널, 판매 기간, 문서 묶음, 담보 발생본 | L5 | 제2부 §27 |
@@ -274,8 +274,8 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
 | I5 | 허용 목록 밖 연산과 타입이 맞지 않는 식은 로드되지 않는다 | 엔진 로더·`static_types`(#40: 로드 단계 타입 검사)·`range_comparisons`(범위 가능 금액 비교의 로드 거부, [Audit 3 증거](blueprint/audits/2026-10-28_engine_moneyrange_compare_load_check.md)) | 구현(엔진) |
 | I6 | 화면의 숫자·사실 문장은 근거 사슬(§5.2)을 끝까지 따라간다 | API 계약 테스트 | 미구현 |
-| I7 | 가격은 조건·특약 구성·기준일·근거 없이 저장되지 않는다 | DB 제약, 테스트 | 미구현 |
-| I8 | 다른 비교 기준·버전·묶음의 가격을 합산하지 않는다 | 뷰모델 테스트 | 미구현 |
+| I7 | 가격은 조건·특약 구성·기준일·근거 없이 저장되지 않는다 | DB 제약, 테스트 | 공유 계약에서 비교 자격 검증. DB 저장 불변식은 미완료 |
+| I8 | 다른 비교 기준·버전·묶음의 가격을 합산하지 않는다 | 뷰모델 테스트 | 공유 계약에서 가격 대상·적용 기간·원문 판 구분. 뷰모델 합산 검증은 미완료 |
 | I9 | 보완안 비교는 줄어드는 것(면책·감액·제외 포함)을 항상 계산·표시 | 뷰모델 테스트 | 미구현 |
 | I10 | 광고비·수수료 필드는 정렬·추천 코드의 입력이 아니다 | 정적 검사 | 미구현 |
 | I11 | private_health·genetic_private는 로그·분석에 나가지 않는다. 외부 AI는 별도 동의·최소화·처리 조건 게이트, DNA의 보험사·설계사 전달은 금지 | 누출 테스트 | 미구현 |
@@ -286,6 +286,8 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | I16 | 공개 릴리스는 불변이고 롤백은 manifest 교체다 | 릴리스 테스트 | 미구현 |
 | I17 | 분모 근거 없이 "전수"라고 표시하지 않는다 | `/coverage` 생성 로직 | 미구현 |
 | I18 | 같은 입력·릴리스·엔진이면 같은 결과다 | 엔진 재현성(실제 조항 7개·파일 재로딩·중첩 키 순서 변경, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·`snapshot_hash` 테스트([정규 JSON 해시 검증](blueprint/audits/2026-10-26_engine_snapshot_hash_encoding.md)) | 구현(엔진) |
+
+보험료 공유 계약은 관측 원문에 있는 가격 대상과 적용 기간을 보존하고, 기준일에 적용되는 구성과 원문 판을 확인한 관측에만 비교 자격을 허용한다. [Audit 8 회귀 증거](blueprint/audits/2026-11-25_premium_subject_and_period.md).
 
 ## 9. 구현 순서와 관문
 

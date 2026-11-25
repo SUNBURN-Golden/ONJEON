@@ -1845,11 +1845,43 @@ class PlanView {
       };
 }
 
+/// 가격에 포함된 담보 한 건. 묶음 금액을 담보 단가로 배분하지 않는다
+class PremiumComponent {
+  final String covRef;
+  /// 원문에서 확인한 담보 가입금액. 미확인 시 생략하며 비교 자격은 보류한다
+  final int? insuredAmountKrw;
+
+  const PremiumComponent({
+    required this.covRef,
+    this.insuredAmountKrw,
+  });
+
+  factory PremiumComponent.fromJson(Map<String, dynamic> json) => PremiumComponent(
+        covRef: json['cov_ref'] as String,
+        insuredAmountKrw: json['insured_amount_krw'] == null ? null : json['insured_amount_krw'] as int,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'cov_ref': covRef,
+        if (insuredAmountKrw != null) 'insured_amount_krw': insuredAmountKrw!,
+      };
+}
+
 /// 가격 관측치. 원시 관측은 공백이 있어도 보존하고 비교 자격은 따로 둔다 (02_구현계약 §1.2, PREMIUM_DATA_CONTRACT)
 class PremiumObservation {
   final String id;
+  /// 공시 가격이 적용되는 상품의 식별자. 상품명과 구분한다
+  final String? productRef;
+  /// 가격이 적용되는 판매 구성 판(개정판·판매 채널 포함)
+  final String? salesConfigRef;
+  /// 가격이 특정 담보 행을 가리킬 때 그 담보. 상품·묶음 전체 가격에는 생략한다
+  final String? coverageRef;
+  /// 가격이 포함하는 주계약·특약 담보와 담보별 가입금액. 구성을 모르는 원시 관측은 생략할 수 있다
+  final List<PremiumComponent>? components;
   /// 근거 1개 이상
   final List<EvidenceLink> evidence;
+  /// 가격 원문 바이트의 불변 개정 식별자(raw:sha256). 같은 URL의 가격표 변경도 구분한다
+  final String? sourceRevision;
   /// 관측하거나 산출한 금액(정수 원). value_state가 observed 또는 derived이면 필수, 다른 상태에서는 금지
   final int? rawAmount;
   final PriceBasis priceBasis;
@@ -1857,6 +1889,12 @@ class PremiumObservation {
   final String? sourcePublishedAt;
   /// 소스가 밝힌 기준일
   final String? sourceAsOf;
+  /// 원문 근거로 확인한 적용 시작일(포함)
+  final String? effectiveFrom;
+  /// 원문 근거로 확인한 적용 종료일(포함). 미확인 또는 종료기한이 없으면 생략
+  final String? effectiveTo;
+  /// 종료기한 없이 적용됨이 확인된 경우 true. 종료일 미확인은 생략
+  final bool? effectiveOpenEnded;
   /// 월납·연납 등. 연납÷12를 월납으로 쓰지 않는다. 어휘 축 승격 대기
   final String? paymentCycle;
   /// 가격 조건(차원 -> 값). 조건 차원은 라벨 사전이 정의하는 열린 집합
@@ -1868,7 +1906,7 @@ class PremiumObservation {
   /// 원문에 없는 조건 차원
   final List<String> missingDimensions;
   final String? comparisonBasisId;
-  /// 금액을 관측하거나 산출했고 조건·구성·기준일이 모두 있으며 accepted일 때만 true (K13)
+  /// 금액, 가격 대상과 구성, 조건, 기준일을 덮는 적용 기간과 원문 판을 확인하고 accepted일 때만 true (K13)
   final bool comparisonEligible;
   final ValueState valueState;
   /// 금액을 알 수 없는 이유. value_state가 observed 또는 derived이면 금지, 다른 상태에서는 필수
@@ -1880,12 +1918,20 @@ class PremiumObservation {
 
   const PremiumObservation({
     required this.id,
+    this.productRef,
+    this.salesConfigRef,
+    this.coverageRef,
+    this.components,
     required this.evidence,
+    this.sourceRevision,
     this.rawAmount,
     required this.priceBasis,
     required this.observedAt,
     this.sourcePublishedAt,
     this.sourceAsOf,
+    this.effectiveFrom,
+    this.effectiveTo,
+    this.effectiveOpenEnded,
     this.paymentCycle,
     this.conditions,
     this.conditionSources,
@@ -1902,12 +1948,20 @@ class PremiumObservation {
 
   factory PremiumObservation.fromJson(Map<String, dynamic> json) => PremiumObservation(
         id: json['id'] as String,
+        productRef: json['product_ref'] == null ? null : json['product_ref'] as String,
+        salesConfigRef: json['sales_config_ref'] == null ? null : json['sales_config_ref'] as String,
+        coverageRef: json['coverage_ref'] == null ? null : json['coverage_ref'] as String,
+        components: json['components'] == null ? null : (json['components'] as List<dynamic>).map((e) => PremiumComponent.fromJson(e as Map<String, dynamic>)).toList(),
         evidence: (json['evidence'] as List<dynamic>).map((e) => EvidenceLink.fromJson(e as Map<String, dynamic>)).toList(),
+        sourceRevision: json['source_revision'] == null ? null : json['source_revision'] as String,
         rawAmount: json['raw_amount'] == null ? null : json['raw_amount'] as int,
         priceBasis: PriceBasis.fromJson(json['price_basis'] as String),
         observedAt: json['observed_at'] as String,
         sourcePublishedAt: json['source_published_at'] == null ? null : json['source_published_at'] as String,
         sourceAsOf: json['source_as_of'] == null ? null : json['source_as_of'] as String,
+        effectiveFrom: json['effective_from'] == null ? null : json['effective_from'] as String,
+        effectiveTo: json['effective_to'] == null ? null : json['effective_to'] as String,
+        effectiveOpenEnded: json['effective_open_ended'] == null ? null : json['effective_open_ended'] as bool,
         paymentCycle: json['payment_cycle'] == null ? null : json['payment_cycle'] as String,
         conditions: json['conditions'] == null ? null : (json['conditions'] as Map<String, dynamic>).map((k, v) => MapEntry(k, v as String)),
         conditionSources: json['condition_sources'] == null ? null : (json['condition_sources'] as Map<String, dynamic>).map((k, v) => MapEntry(k, v as String)),
@@ -1924,12 +1978,20 @@ class PremiumObservation {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        if (productRef != null) 'product_ref': productRef!,
+        if (salesConfigRef != null) 'sales_config_ref': salesConfigRef!,
+        if (coverageRef != null) 'coverage_ref': coverageRef!,
+        if (components != null) 'components': components!.map((e) => e.toJson()).toList(),
         'evidence': evidence.map((e) => e.toJson()).toList(),
+        if (sourceRevision != null) 'source_revision': sourceRevision!,
         if (rawAmount != null) 'raw_amount': rawAmount!,
         'price_basis': priceBasis.toJson(),
         'observed_at': observedAt,
         if (sourcePublishedAt != null) 'source_published_at': sourcePublishedAt!,
         if (sourceAsOf != null) 'source_as_of': sourceAsOf!,
+        if (effectiveFrom != null) 'effective_from': effectiveFrom!,
+        if (effectiveTo != null) 'effective_to': effectiveTo!,
+        if (effectiveOpenEnded != null) 'effective_open_ended': effectiveOpenEnded!,
         if (paymentCycle != null) 'payment_cycle': paymentCycle!,
         if (conditions != null) 'conditions': conditions!.map((k, v) => MapEntry(k, v)),
         if (conditionSources != null) 'condition_sources': conditionSources!.map((k, v) => MapEntry(k, v)),

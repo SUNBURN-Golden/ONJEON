@@ -148,7 +148,7 @@ fn is_hex(s: &str, min: usize, max: usize) -> bool {
     (min..=max).contains(&s.len()) && s.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
 }
 
-fn is_ulid(s: &str) -> bool {
+pub(crate) fn is_ulid(s: &str) -> bool {
     s.len() == ULID_LEN
         && s.bytes().all(|b| {
             matches!(b, b'0'..=b'9' | b'A'..=b'H' | b'J' | b'K' | b'M' | b'N' | b'P'..=b'T' | b'V'..=b'Z')
@@ -186,7 +186,7 @@ fn number(s: &str, reason: &'static str) -> Result<u32, RefError> {
     s.parse::<u32>().or_else(|_| err(reason))
 }
 
-fn no_ws(s: &str) -> bool {
+pub(crate) fn no_ws(s: &str) -> bool {
     !s.is_empty() && !s.chars().any(char::is_whitespace)
 }
 
@@ -200,20 +200,17 @@ fn digits(s: &str, n: usize) -> Option<u32> {
     }
 }
 
-/// `YYYY-MM-DDThh:mm:ss[.f+](Z|±hh:mm)`, uppercase `T` and `Z`, real calendar date.
-pub fn is_rfc3339(s: &str) -> bool {
-    let Some((date, time)) = s.split_once('T') else {
-        return false;
-    };
-    let d: Vec<&str> = date.split('-').collect();
+/// A real calendar date in `YYYY-MM-DD` form.
+pub(crate) fn is_iso_date(date: &str) -> bool {
+    let mut parts = date.split('-');
     let (Some(y), Some(m), Some(day)) = (
-        d.first().and_then(|x| digits(x, 4)),
-        d.get(1).and_then(|x| digits(x, 2)),
-        d.get(2).and_then(|x| digits(x, 2)),
+        parts.next().and_then(|x| digits(x, 4)),
+        parts.next().and_then(|x| digits(x, 2)),
+        parts.next().and_then(|x| digits(x, 2)),
     ) else {
         return false;
     };
-    if d.len() != 3 || !(1..=12).contains(&m) {
+    if parts.next().is_some() || !(1..=12).contains(&m) {
         return false;
     }
     let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
@@ -223,7 +220,15 @@ pub fn is_rfc3339(s: &str) -> bool {
         4 | 6 | 9 | 11 => 30,
         _ => 31,
     };
-    if !(1..=dim).contains(&day) {
+    (1..=dim).contains(&day)
+}
+
+/// `YYYY-MM-DDThh:mm:ss[.f+](Z|±hh:mm)`, uppercase `T` and `Z`, real calendar date.
+pub fn is_rfc3339(s: &str) -> bool {
+    let Some((date, time)) = s.split_once('T') else {
+        return false;
+    };
+    if !is_iso_date(date) {
         return false;
     }
     let (clock, zone) = if let Some(c) = time.strip_suffix('Z') {

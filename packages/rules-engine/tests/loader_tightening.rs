@@ -1,5 +1,5 @@
-//! Audit 6: validate example metadata and reject ambiguous JSON before hashing.
-use onjeon_rules_engine::Rule;
+//! Validate example metadata and reject ambiguous or oversized JSON before hashing.
+use onjeon_rules_engine::{Rule, RuleError};
 use serde_json::{json, Value as J};
 
 const KINDS: [&str; 3] = [
@@ -42,6 +42,89 @@ fn duplicate_error(text: &str, key: &str) {
 fn with_member(doc: &J, member: &str) -> String {
     let text = serde_json::to_string(doc).unwrap();
     format!("{{{member},{}", &text[1..])
+}
+
+fn load_both(doc: &J) -> [Result<Rule, RuleError>; 2] {
+    [Rule::from_json(doc), Rule::from_json_str(&doc.to_string())]
+}
+
+fn assert_json_limit(doc: &J, message: &str) {
+    for result in load_both(doc) {
+        let Err(error) = result else {
+            panic!("oversized rule JSON must fail at load");
+        };
+        assert_eq!(error.path, "$");
+        assert_eq!(error.message, message);
+    }
+}
+
+#[test]
+fn rule_json_depth_limit_is_inclusive() {
+    each_rule(|mut doc| {
+        let mut eligibility = json!(true);
+        // The rule root and the boolean each take one level. Each `all` adds
+        // two levels, one for the operator object and one for its arguments.
+        for _ in 0..31 {
+            eligibility = json!({"all": [eligibility]});
+        }
+        doc["eligibility"] = eligibility;
+        for result in load_both(&doc) {
+            assert_eq!(result.unwrap().source_json(), &doc);
+        }
+
+        doc["eligibility"] = json!({"not": doc["eligibility"].take()});
+        assert_json_limit(&doc, "rule JSON exceeds maximum depth of 64");
+
+        // A chain of `not` objects fits more recursive operators at the same depth.
+        let mut eligibility = json!(true);
+        for _ in 0..62 {
+            eligibility = json!({"not": eligibility});
+        }
+        doc["eligibility"] = eligibility;
+        for result in load_both(&doc) {
+            result.unwrap().evaluate(&json!({})).unwrap();
+        }
+        doc["eligibility"] = json!({"not": doc["eligibility"].take()});
+        assert_json_limit(&doc, "rule JSON exceeds maximum depth of 64");
+    });
+}
+
+#[test]
+fn rule_json_node_limit_is_inclusive_and_covers_metadata() {
+    each_rule(|mut doc| {
+        // Base consumes 14 values including the root, excluding array entries.
+        doc["evidence_refs"] = J::Array(
+            (0..8_192 - 14)
+                .map(|index| json!(format!("clause-{index}")))
+                .collect(),
+        );
+        for result in load_both(&doc) {
+            assert_eq!(result.unwrap().source_json(), &doc);
+        }
+
+        doc["inputs"]["another_flag"] = json!("bool");
+        assert_json_limit(&doc, "rule JSON exceeds maximum node count of 8192");
+    });
+}
+
+#[test]
+fn rule_json_node_budget_is_shared_by_eligibility_and_amount() {
+    each_rule(|mut doc| {
+        let wide = json!({"all": vec![json!({"all": vec![true; 64]}); 63]});
+        let eligibility = wide.clone();
+        let amount = json!({"if": wide, "then": {"krw": 1}, "else": {"krw": 2}});
+        for (field, expression) in [("eligibility", &eligibility), ("amount", &amount)] {
+            let mut single = doc.clone();
+            single[field] = expression.clone();
+            for result in load_both(&single) {
+                result.expect("each expression alone fits the rule budget");
+            }
+        }
+
+        doc["eligibility"] = eligibility;
+        doc["amount"] = amount;
+        assert_json_limit(&doc, "rule JSON exceeds maximum node count of 8192");
+    });
 }
 
 #[test]

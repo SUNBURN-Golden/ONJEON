@@ -216,6 +216,8 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 
 TypeScript 공유 계약의 생성 문서 파서는 읽는 시점에 중첩 필드까지 어휘 값을 검사하고, 미등록 값은 필드 경로와 함께 거부한다. [Audit 8 런타임 회귀 증거](blueprint/audits/2026-11-28_ts_runtime_enum_reject.md).
 
+Rust·TypeScript·Dart 공유 계약에서 축과 정본 코드별 `screen_ko`를 조회한다. `null`인 값은 화면에 직접 표시하지 않는다. `deprecated_aliases`는 과거 표기 조회용이며 역직렬화는 정본 코드만 허용한다. 생성물은 `maps_to`와 `diff_type`의 `group`도 제공한다. 시나리오 API의 계산 보류 설명과 모바일의 가입내역 상태 표시는 각 언어의 생성 문구를 사용한다. [Audit 8 어휘 생성 회귀 증거](blueprint/audits/2026-11-28_codegen_vocabulary_metadata.md).
+
 ## 7. 현행 결정 요약
 
 ### 7.1 범위

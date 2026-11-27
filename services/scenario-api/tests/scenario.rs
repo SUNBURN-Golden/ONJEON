@@ -132,19 +132,23 @@ fn zero_and_missing_denominators_have_distinct_api_responses() {
         let vocabulary: Value =
             serde_json::from_str(include_str!("../../../packages/schemas/vocabulary.json"))
                 .unwrap();
+        let issue_code = CalculationIssueCode::ZeroDenominator.as_str();
         let issue_axis = vocabulary["axes"]
             .as_array()
             .unwrap()
             .iter()
-            .find(|axis| axis["id"] == "calculation_issue_code")
+            .find(|axis| axis["id"] == CalculationIssueCode::AXIS)
             .unwrap();
-        assert_eq!(
-            explanation.template_id,
-            CalculationIssueCode::ZeroDenominator.as_str()
-        );
+        let vocabulary_value = issue_axis["values"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|value| value["code"] == issue_code)
+            .unwrap();
+        assert_eq!(explanation.template_id, issue_code);
         assert_eq!(
             explanation.text,
-            issue_axis["values"][0]["screen_ko"].as_str().unwrap()
+            vocabulary_value["screen_ko"].as_str().unwrap()
         );
         assert!(explanation.amounts.is_empty());
         let evaluated = held.evaluation.unwrap();

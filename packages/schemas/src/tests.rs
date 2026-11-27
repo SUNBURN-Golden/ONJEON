@@ -152,6 +152,66 @@ fn enum_serialization_uses_the_vocabulary_code() {
 }
 
 #[test]
+fn vocabulary_metadata_preserves_labels_and_rejects_aliases_on_the_wire() {
+    assert_eq!(DisplayStatus::InputMissing.screen_ko(), Some("입력 필요"));
+    assert_eq!(Tri::True.screen_ko(), None);
+    assert!(DisplayStatus::Confirmed.deprecated_aliases().is_empty());
+    assert_eq!(
+        HostAccess::TlsError.deprecated_aliases(),
+        &["ssl_legacy_renegotiation", "tls_handshake_fail"]
+    );
+    assert_eq!(
+        DisplayStatus::InputMissing.deprecated_aliases(),
+        &["confirm_input"]
+    );
+    for alias in DisplayStatus::InputMissing.deprecated_aliases() {
+        assert!(serde_json::from_value::<DisplayStatus>(json!(alias)).is_err());
+    }
+    assert_eq!(json!(DisplayStatus::InputMissing), "input_missing");
+    assert_eq!(
+        DiffType::NewWaiting.group().screen_ko(),
+        Some("줄어드는 것")
+    );
+}
+
+#[test]
+fn vocabulary_mappings_match_the_registry() {
+    let vocab: Value = serde_json::from_str(include_str!("../vocabulary.json")).unwrap();
+    let values = |axis_id: &str| {
+        vocab["axes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|axis| axis["id"] == axis_id)
+            .unwrap()["values"]
+            .as_array()
+            .unwrap()
+    };
+    for value in values(HostAccess::AXIS) {
+        let access: HostAccess = serde_json::from_value(value["code"].clone()).unwrap();
+        assert_eq!(json!(access.maps_to()), value["maps_to"], "{access:?}");
+        assert_eq!(
+            access.screen_ko(),
+            value["screen_ko"].as_str(),
+            "{access:?}"
+        );
+        assert_eq!(
+            json!(access.deprecated_aliases()),
+            value["deprecated_aliases"],
+            "{access:?}"
+        );
+        for alias in access.deprecated_aliases() {
+            assert!(serde_json::from_value::<HostAccess>(json!(alias)).is_err());
+        }
+    }
+    for value in values(DiffType::AXIS) {
+        let diff: DiffType = serde_json::from_value(value["code"].clone()).unwrap();
+        assert_eq!(json!(diff.group()), value["group"], "{diff:?}");
+        assert_eq!(diff.screen_ko(), value["screen_ko"].as_str(), "{diff:?}");
+    }
+}
+
+#[test]
 fn generated_files_are_up_to_date() {
     let status = std::process::Command::new("python3")
         .arg("-I")

@@ -1,6 +1,6 @@
 // Round trip of every fixture through the generated Dart classes.
 // Run by codegen/build_check.sh against a scratch copy of generated/dart:
-//   dart run bin/roundtrip.dart <fixtures dir>
+//   dart run bin/roundtrip.dart <fixtures dir> <vocabulary.json>
 import 'dart:convert';
 import 'dart:io';
 
@@ -51,7 +51,52 @@ bool same(Object? a, Object? b) {
   return a == b;
 }
 
+void checkVocabulary(String path) {
+  final vocab = jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
+  final axes = (vocab['axes'] as List).cast<Map<String, dynamic>>();
+  Iterable<Map<String, dynamic>> values(String id) =>
+      (axes.singleWhere((axis) => axis['id'] == id)['values'] as List)
+          .cast<Map<String, dynamic>>();
+
+  void check(bool matches, String context) {
+    if (!matches) throw StateError('Vocabulary differs for $context');
+  }
+
+  for (final value in values('display_status')) {
+    final status = DisplayStatus.fromJson(value['code'] as String);
+    check(status.toJson() == value['code'], status.code);
+    check(status.screenKo == value['screen_ko'], status.code);
+    check(
+        same(status.deprecatedAliases, value['deprecated_aliases']), status.code);
+    for (final alias in value['deprecated_aliases'] as List<dynamic>) {
+      try {
+        DisplayStatus.fromJson(alias as String);
+        throw StateError('DisplayStatus accepted historical spelling $alias');
+      } on FormatException {
+        // Historical spellings cannot enter the wire model.
+      }
+    }
+  }
+  for (final value in values('host_access')) {
+    final access = HostAccess.fromJson(value['code'] as String);
+    check(access.mapsTo?.code == value['maps_to'], access.code);
+    check(access.screenKo == value['screen_ko'], access.code);
+    check(same(access.deprecatedAliases, value['deprecated_aliases']), access.code);
+  }
+  final groupLabels = {
+    for (final value in values('diff_group')) value['code']: value['screen_ko'],
+  };
+  for (final value in values('diff_type')) {
+    final diff = DiffType.fromJson(value['code'] as String);
+    check(diff.group.code == value['group'], diff.code);
+    check(diff.group.screenKo == groupLabels[value['group']], diff.code);
+    check(diff.screenKo == value['screen_ko'], diff.code);
+  }
+  print('ok   vocabulary labels, aliases and typed mappings');
+}
+
 void main(List<String> args) {
+  checkVocabulary(args[1]);
   final dir = Directory(args.first);
   final files = dir
       .listSync()

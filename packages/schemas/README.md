@@ -8,7 +8,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 
 | 경로 | 내용 |
 |---|---|
-| `vocabulary.json` | 상태 어휘 정본(1.8.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |
+| `vocabulary.json` | 상태 어휘 정본(1.9.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |
 | `json/*.schema.json` | 손으로 쓴 JSON Schema(2020-12 부분집합). `common`(ID·근거 참조·금액·결과 상태), `assertion`, `release_manifest`, `evaluation_result`, `scenario_result`, `coverage_detail`, `compare_view`, `plan_view`, `evidence_view`, `need_result`, `premium_observation`, `contract_snapshot`, `error_response` |
 | `json/vocabulary.schema.json` | **생성물.** 어휘의 모든 축이 `enum`으로 들어 있는 유일한 스키마 |
 | `src/generated/` | 생성된 Rust(serde). `src/checks.rs`는 손으로 쓴 교차 필드 검사 |
@@ -30,7 +30,7 @@ ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest 
 bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣으면 실패하는지 자체 시험
 ```
 
-`build_check.sh`는 현재 TypeScript 생성물을 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능)로 검사하고, Node에서 컴파일된 공유 계약 파서의 픽스처 왕복·거부 시험을 실행한다. Dart 생성물은 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 `SKIPPED`와 종료 코드 3을 낸다. CI의 `ONJ_REQUIRE_TOOLCHAINS=1`에서는 도구 누락이 실패다. 이전 태그를 기준으로 하는 호환 검사는 아래 '버전과 호환 검사'를 따른다.
+`build_check.sh`는 현재 TypeScript 생성물을 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능)로 검사하고, Node에서 공유 계약 파서의 픽스처·거부 시험을 실행한다. Dart 생성물은 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 두 클라이언트 모두 어휘 메타데이터를 정본과 대조한다. 도구가 없으면 `SKIPPED`와 종료 코드 3을 낸다. CI의 `ONJ_REQUIRE_TOOLCHAINS=1`에서는 도구 누락이 실패다. 이전 태그를 기준으로 하는 호환 검사는 아래 '버전과 호환 검사'를 따른다.
 
 ## 증거 (`codegen/evidence/`)
 
@@ -71,6 +71,16 @@ const assertion = parseAssertion(document);
 ```
 
 파서는 필수 키, 명시적 `null`의 허용 여부, 필드 타입과 어휘 값을 중첩 객체·배열·맵까지 검사한다. 오류는 필드 경로를 포함한 `TypeError`다. 정규식·최솟값·배열 길이 등 JSON Schema 제약과 교차 필드 불변식에는 각각 스키마 검증과 불변식 검사가 필요하다. `as Assertion` 같은 타입 단언의 효력은 컴파일 시점에 한정된다. OpenAPI 전용 `ts-api` 인터페이스는 정적 타입이며 해당 구조체의 런타임 검증은 호출부가 담당한다.
+
+## 화면 문구와 어휘 메타데이터
+
+| 생성 패키지 | 화면 문구 | 과거 표기 | 수집 상태 매핑 | 차이 그룹 |
+|---|---|---|---|---|
+| Rust `onjeon_contracts` | `DisplayStatus::Hold.screen_ko()` | `DisplayStatus::Hold.deprecated_aliases()` | `HostAccess::Timeout.maps_to()` | `DiffType::NewWaiting.group()` |
+| TypeScript `onjeon-contracts` | `DisplayStatusMetadata[status].screenKo` | `DisplayStatusMetadata[status].deprecatedAliases` | `HostAccessMetadata[access].mapsTo` | `DiffTypeMetadata[diff].group` |
+| Dart `onjeon_contracts` | `DisplayStatus.hold.screenKo` | `DisplayStatus.hold.deprecatedAliases` | `HostAccess.timeout.mapsTo` | `DiffType.newWaiting.group` |
+
+화면 문구가 `None` 또는 `null`이면 해당 값을 직접 표시하지 않는다. 과거 표기는 조회용이며 각 언어의 디코더는 정본 코드만 받는다. `DiffType`의 그룹 문구는 Rust와 Dart에서는 해당 `DiffGroup` 값에서, TypeScript에서는 `DiffGroupMetadata`에서 조회한다. 원문을 `archived`로 기록하려면 실제 보관 증거가 필요하다. [Audit 8 검사 증거](../../docs/blueprint/audits/2026-11-28_codegen_vocabulary_metadata.md).
 
 ## 버전과 호환 검사 (02 §5)
 

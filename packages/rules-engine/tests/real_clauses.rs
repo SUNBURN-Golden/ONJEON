@@ -9,10 +9,6 @@ use serde_json::{json, Value as J};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
-// 47 shared design-validation cases + 59 engine-owned boundary cases.
-// Update deliberately when adding or removing cases; never derive this from discovered files.
-const EXPECTED_REAL_CLAUSE_CASES: usize = 47 + 59;
-
 fn rules() -> BTreeMap<String, Rule> {
     let rules = real_rules();
     for (id, rule) in &rules {

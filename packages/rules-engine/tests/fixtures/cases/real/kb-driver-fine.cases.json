@@ -90,6 +90,15 @@
         },
         "missing_inputs": []
       }
+    },
+    {
+      "id": "f13_sole_beneficiary_intent_unknown",
+      "set": {"intentional_beneficiary_sole": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["intentional_beneficiary_sole"]
+      }
     }
   ]
 }

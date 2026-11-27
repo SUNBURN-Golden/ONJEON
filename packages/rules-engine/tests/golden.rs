@@ -159,7 +159,7 @@ fn real_results_are_byte_identical_after_disk_reload_and_key_permutation() {
     );
     assert_eq!(
         per_rule.values().sum::<usize>(),
-        106,
+        EXPECTED_REAL_CLAUSE_CASES,
         "all real cases must execute"
     );
     println!("I18 reloaded/key-permuted cases by rule: {per_rule:?}; 4 independent order combinations per case");
@@ -341,7 +341,7 @@ fn real_rule_content_hashes_are_pinned() {
     );
     assert_eq!(
         per_rule.values().sum::<usize>(),
-        106,
+        EXPECTED_REAL_CLAUSE_CASES,
         "all real cases must execute"
     );
     println!("Pinned content hashes checked on every result: {per_rule:?}");

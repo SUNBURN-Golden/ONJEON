@@ -15,6 +15,10 @@ pub const REAL_RULE_IDS: [&str; 7] = [
     "kyobo-wholelife-disease-death",
 ];
 
+// 47 shared design-validation cases + 64 engine-owned boundary cases.
+// Update deliberately when adding or removing cases; never derive this from discovered files.
+pub const EXPECTED_REAL_CLAUSE_CASES: usize = 47 + 64;
+
 pub fn fixtures_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../fixtures/rules")
 }
@@ -248,6 +252,11 @@ pub fn merged(base: &J, set: Option<&J>) -> J {
 
 /// Every case of every `real/*.cases.json` as `(case, rule_id, full inputs)`.
 pub fn real_cases() -> Vec<(J, String, J)> {
+    real_cases_from(case_file)
+}
+
+/// Read the same shared tables with a selectable loader for shared-only controls.
+pub fn real_cases_from(load: impl Fn(&Path) -> J) -> Vec<(J, String, J)> {
     let mut paths: Vec<PathBuf> = std::fs::read_dir(real_dir())
         .unwrap()
         .map(|e| e.unwrap().path())
@@ -256,7 +265,7 @@ pub fn real_cases() -> Vec<(J, String, J)> {
     paths.sort();
     let mut out = Vec::new();
     for p in paths {
-        let file = case_file(p.strip_prefix(fixtures_dir()).unwrap());
+        let file = load(p.strip_prefix(fixtures_dir()).unwrap());
         for case in file["cases"].as_array().unwrap() {
             let rule_id = case["rule"]
                 .as_str()

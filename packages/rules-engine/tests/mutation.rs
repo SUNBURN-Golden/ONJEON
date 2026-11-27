@@ -8,6 +8,7 @@ mod common;
 use common::*;
 use onjeon_rules_engine::Rule;
 use serde_json::{json, Value as J};
+use std::collections::{BTreeMap, BTreeSet};
 
 type Mutation = Box<dyn Fn(&mut J)>;
 
@@ -115,7 +116,6 @@ fn every_mutant_is_killed_by_the_golden_table() {
 /// produce one mutant per site and mutator, so a new rule is covered with no new test code.
 mod generic {
     use super::*;
-    use std::collections::BTreeSet;
 
     #[derive(Clone, Debug)]
     enum Seg {
@@ -283,17 +283,6 @@ mod generic {
                     "all" | "any" => {
                         let other = if op == "all" { "any" } else { "all" };
                         out.push((format!("{op} -> {other}"), wrap(other, args.clone())));
-                        let items = args.as_array().unwrap();
-                        if items.len() >= 2 {
-                            for i in 0..items.len() {
-                                let mut rest = items.clone();
-                                rest.remove(i);
-                                out.push((
-                                    format!("drop {op} child {i}"),
-                                    wrap(op, J::Array(rest)),
-                                ));
-                            }
-                        }
                     }
                     _ => {}
                 }
@@ -303,22 +292,37 @@ mod generic {
         out
     }
 
-    /// All mutants of `rule`, each differing from it at exactly one site.
-    pub fn mutants_of(rule: &J) -> Vec<Mutant> {
-        let inputs: BTreeSet<String> = rule["inputs"]
-            .as_object()
-            .unwrap()
-            .keys()
-            .cloned()
-            .collect();
+    fn drop_logical_children(node: &J) -> Vec<(String, J)> {
+        let Some((op, args)) = node.as_object().and_then(|obj| obj.iter().next()) else {
+            return Vec::new();
+        };
+        if !matches!(op.as_str(), "all" | "any") {
+            return Vec::new();
+        }
+        let items = args.as_array().unwrap();
+        (0..items.len())
+            .map(|i| {
+                let mut remaining = items.clone();
+                remaining.remove(i);
+                // The DSL rejects empty operand lists. Encode the empty fold as its identity.
+                let replacement = if remaining.is_empty() {
+                    J::Bool(op == "all")
+                } else {
+                    json!({op: remaining})
+                };
+                (format!("drop {op} child {i}"), replacement)
+            })
+            .collect()
+    }
+
+    fn mutants_at_nodes(rule: &J, mutate: impl Fn(&J) -> Vec<(String, J)>) -> Vec<Mutant> {
         let mut out = Vec::new();
         for root in ["eligibility", "amount"] {
             let mut nodes = Vec::new();
             expr_nodes(&rule[root], vec![Seg::Key(root.into())], &mut nodes);
+            let mut probe = rule.clone();
             for path in nodes {
-                let mut probe = rule.clone();
-                let node = at(&mut probe, &path).clone();
-                for (what, new) in mutate_node(&node, &inputs) {
+                for (what, new) in mutate(at(&mut probe, &path)) {
                     let mut r = rule.clone();
                     *at(&mut r, &path) = new;
                     out.push(Mutant {
@@ -329,6 +333,25 @@ mod generic {
             }
         }
         out
+    }
+
+    /// All mutants of `rule`, each differing from it at exactly one site.
+    pub fn mutants_of(rule: &J) -> Vec<Mutant> {
+        let inputs = rule["inputs"]
+            .as_object()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect();
+        mutants_at_nodes(rule, |node| {
+            let mut mutations = mutate_node(node, &inputs);
+            mutations.extend(drop_logical_children(node));
+            mutations
+        })
+    }
+
+    pub fn logical_child_mutants(rule: &J) -> Vec<Mutant> {
+        mutants_at_nodes(rule, drop_logical_children)
     }
 
     /// Why the golden table notices `mutant`, or `None` if it survives.
@@ -364,21 +387,122 @@ fn all_rules_with_cases() -> Vec<RuleCases> {
             })
             .collect(),
     )];
-    let mut real: std::collections::BTreeMap<String, Vec<(J, J)>> = Default::default();
-    for (case, rule_id, inputs) in real_cases() {
+    out.extend(real_rules_with_cases(real_cases()));
+    out
+}
+
+fn real_rules_with_cases(cases: Vec<(J, String, J)>) -> Vec<RuleCases> {
+    let mut real = BTreeMap::<String, Vec<(J, J)>>::new();
+    for (case, rule_id, inputs) in cases {
         real.entry(rule_id).or_default().push((case, inputs));
     }
-    for (id, rule) in real_rules() {
-        let cases = real.remove(&id).unwrap_or_default();
-        out.push((id, rule.source_json().clone(), cases));
-    }
-    out
+    real_rules()
+        .into_iter()
+        .map(|(id, rule)| {
+            let cases = real.remove(&id).unwrap_or_default();
+            (id, rule.source_json().clone(), cases)
+        })
+        .collect()
 }
 
 /// Mutants no golden case can tell apart from the original because they do not change
 /// behaviour. Keyed by `(rule_id, description)`; each needs a reason. A stale entry (the mutant
 /// no longer exists or is now killed) fails `allowlist_has_no_stale_entries`.
 const EQUIVALENT: &[(&str, &str, &str)] = &[];
+
+fn mismatched_case<'a>(rule: &Rule, cases: &'a [(J, J)]) -> Option<&'a str> {
+    cases
+        .iter()
+        .find(|(case, inputs)| observe(rule, inputs) != case["expect"])
+        .map(|(case, _)| case["id"].as_str().expect("case ID"))
+}
+
+#[test]
+fn every_real_logical_child_removal_changes_a_golden_result() {
+    // Deliberate inventory: the broader mutation total can pass even if a subtree is skipped.
+    let expected = BTreeMap::from([
+        ("kb-driver-fine".to_string(), 8),
+        ("kb-driver-lawyer-fee".to_string(), 20),
+        ("kyobo-1995-cancer-waiting".to_string(), 2),
+        ("kyobo-cancer-main-dx".to_string(), 8),
+        ("kyobo-small-cancer-skin".to_string(), 8),
+        ("kyobo-wholelife-accident-death".to_string(), 9),
+        ("kyobo-wholelife-disease-death".to_string(), 10),
+    ]);
+    let mut generated = BTreeMap::new();
+    let mut survivors = Vec::new();
+    for (id, source, cases) in real_rules_with_cases(real_cases()) {
+        assert!(!cases.is_empty(), "{id}: no golden cases");
+        let original = Rule::from_json(&source).unwrap();
+        assert_eq!(mismatched_case(&original, &cases), None, "{id}: baseline");
+        let mutants = generic::logical_child_mutants(&source);
+        generated.insert(id.clone(), mutants.len());
+        for mutant in mutants {
+            let desc = format!("{id} :: {}", mutant.desc);
+            let rule = Rule::from_json(&mutant.rule)
+                .unwrap_or_else(|error| panic!("{desc}: child removal did not load: {error}"));
+            match mismatched_case(&rule, &cases) {
+                Some(case) => eprintln!("{desc} changes {case}"),
+                None => survivors.push(desc),
+            }
+        }
+    }
+    assert_eq!(generated, expected, "child removals per real rule");
+    assert!(
+        survivors.is_empty(),
+        "real logical child removals that survive every golden case:\n{}",
+        survivors.join("\n")
+    );
+}
+
+#[test]
+fn shared_cases_alone_miss_audited_logical_child_removals() {
+    let shared = real_cases_from(|path| load_json(&fixtures_dir().join(path)));
+    let mut survivors = BTreeSet::new();
+    for (id, source, cases) in real_rules_with_cases(shared) {
+        assert!(!cases.is_empty(), "{id}: no shared cases");
+        for mutant in generic::logical_child_mutants(&source) {
+            let rule = Rule::from_json(&mutant.rule).unwrap();
+            if mismatched_case(&rule, &cases).is_none() {
+                survivors.insert(format!("{id} :: {}", mutant.desc));
+            }
+        }
+    }
+    for missed in [
+        "kb-driver-fine :: eligibility: drop all child 3", // racing_or_test_use
+        "kb-driver-fine :: eligibility: drop all child 6", // intentional_contractor
+        "kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 3", // formal_trial_requested
+        "kyobo-cancer-main-dx :: eligibility: drop all child 5", // harmed_by_beneficiary_or_contractor
+        "kyobo-wholelife-accident-death :: eligibility: drop all child 2",
+        "kyobo-wholelife-disease-death :: eligibility: drop all child 2",
+    ] {
+        assert!(survivors.contains(missed), "shared cases detect {missed}");
+    }
+    eprintln!("shared cases alone miss {} child removals", survivors.len());
+}
+
+#[test]
+fn removing_a_single_logical_child_uses_the_empty_fold_identity() {
+    let mut source = rule_json();
+    source["eligibility"] = json!({"not": {"all": [false]}});
+    source["amount"] = json!({"if": {"any": [true]}, "then": {"krw": 100}, "else": {"krw": 200}});
+    Rule::from_json(&source).unwrap();
+    let mutants = generic::logical_child_mutants(&source);
+    let mut all_removed = source.clone();
+    all_removed["eligibility"]["not"] = json!(true);
+    let mut any_removed = source;
+    any_removed["amount"]["if"] = json!(false);
+
+    assert_eq!(mutants.len(), 2);
+    for (mutant, (desc, expected)) in mutants.iter().zip([
+        ("eligibility.not: drop all child 0", all_removed),
+        ("amount.if: drop any child 0", any_removed),
+    ]) {
+        assert_eq!(mutant.desc, desc);
+        assert_eq!(mutant.rule, expected);
+        Rule::from_json(&mutant.rule).unwrap();
+    }
+}
 
 #[test]
 fn skin_rule_boundary_supplement_kills_mutants_the_shared_table_misses() {

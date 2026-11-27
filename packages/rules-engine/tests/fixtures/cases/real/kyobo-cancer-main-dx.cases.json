@@ -46,6 +46,15 @@
         },
         "missing_inputs": []
       }
+    },
+    {
+      "id": "k19_beneficiary_or_contractor_harm_unknown",
+      "set": {"harmed_by_beneficiary_or_contractor": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["harmed_by_beneficiary_or_contractor"]
+      }
     }
   ]
 }

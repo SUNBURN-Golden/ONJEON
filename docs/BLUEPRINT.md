@@ -446,7 +446,7 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 | 항목 | 현재 값 | 대조 원천 |
 |---|---:|---|
 | 엔진 빌드 식별자 | `0.2.0+snapshot-json-1` | `packages/rules-engine/src/lib.rs`의 `ENGINE_VERSION` |
-| Rust 단위·통합 시험 | 274 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 277 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `tools/validation_check.py`의 `real_clause_rule_paths()` |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
@@ -471,6 +471,8 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 엔진 공통 시험 하네스는 실제 규칙 파일명과 `rule_id`의 일치를 검사하고, 공유·추가 사례의 알 수 없는 키와 객체가 아닌 `set`을 거부한다. 중복 ID로 규칙이 덮어써지거나 `Set` 오타로 기본 입력만 실행되는 결함의 회귀 검증과 검사 제거 변이 증거는 [Audit 5 하네스 검증](blueprint/audits/2026-11-10_engine_test_harness_guards.md)에 기록한다. P08·P14의 엔진 시험 기반 증거이며 실제 상품 트윈·화면 연결·첫 출시 완료 증거는 별도다.
 
 Audit 6은 하네스의 맵 삽입에서도 중복 `rule_id`를 명시적으로 거부하고, 종신보험 사례의 `rule_ids`를 실제 사례의 규칙 선택과 대조한다. 목록의 빈 값·중복·미사용 항목과 공유 목록 밖을 선택한 추가 사례를 거부하는 회귀·검사 제거 변이 증거는 [검증 기록](blueprint/audits/2026-11-14_engine_fixture_ruleid_uniqueness.md)을 따른다. P08·P14의 `fixture_only` 시험 기반 증거이며 제품 전체 완료 판정은 바꾸지 않는다.
+
+Audit 8은 현행 실제 조항 `fixture_only` 규칙 7개의 `all`·`any` 자식을 하나씩 제거해 68개 변이를 만들고, 변이마다 자격·지급·누락 입력을 대조해 골든 기대값이 어긋나는 사례를 확인한다. 공유 사례만으로는 39개 변이가 살아남았다. [회귀 검증 증거](blueprint/audits/2026-11-27_engine_real_logical_child_mutations.md).
 
 규칙 텍스트 로더는 모든 깊이의 중복 JSON 키(이스케이프 충돌 포함)를 거부하고, 선택적 `example_kind`는 기존 세 문자열만 허용한다. 날짜 부호·빈 규칙 ID의 기존 거부와 I3 doctest의 실제 `E0616` 진단도 함께 재검증했다([Audit 6 로더 검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)). P08·P14의 엔진 기반 증거이며 실제 릴리스·소비자 화면·첫 출시 완료 판정을 바꾸지 않는다.
 

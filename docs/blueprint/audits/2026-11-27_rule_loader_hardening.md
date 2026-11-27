@@ -26,3 +26,15 @@
 | `ontology_check.py`, `tools/vocab_check.py`, `tools/validation_check.py`와 `--selftest` | 통과. 검증 자료 변이 40개 검출 |
 
 첫 `tools/tests` 실행은 작업 트리 안으로 지정한 `TMPDIR` 때문에 임시 파일의 저장소 밖 격리를 검사하는 온톨로지 시험 3개가 실패했다. 표준 임시 디렉터리로 되돌린 뒤 해당 모듈 6개와 전체 재실행의 온톨로지 시험이 통과했다. 전체 재실행에서 시간 초과가 난 데몬 정적 검사는 `python3 -m unittest discover -s tools/tests -p test_daemon_static_checks.py -v`로 재검증했다.
+
+## 수정 1차 병합 재검증
+
+`main` 병합 결과에서 §11의 자동 생성 표를 다시 만들었다. 엔진 단위·통합 시험 277개와 doctest 3개가 등록됐다. §11에 로더 검증과 실제 조항 변이 검증을 함께 기록했다. [설계도 §11](../../BLUEPRINT.md#11-현재-위치).
+
+병합 트리에서 로더·ID·날짜 회귀 26개와 실제 조항 자식 제거 전용 시험 3개가 통과했다. 자식 제거 68건의 검출 사례와 공유 사례만 썼을 때의 생존 39건을 기존 결과와 대조했다. [실행 로그](../../../packages/rules-engine/evidence/audit8-real-rules-mutation-harness/child-removals.log).
+
+Rust 작업 공간 시험은 564개 통과, 기존 무시 1개였다. 별도 Cargo 매니페스트의 키 순서 보존·시나리오 API·온톨로지 실행기 시험은 각각 2개·4개·4개 통과했다. `cargo fmt --all -- --check`, Clippy, §11 수치·결정 색인, 제품 목적, 설계 묶음, 온톨로지, 어휘, 레지스트리 및 검증 자료 검사도 통과했다.
+
+Python `tools/tests`는 1,812개 실행 중 1,806개 통과, 기존 건너뜀 6개였다. 스키마 코드 생성 시험은 142개 실행 중 140개 통과, 선택적 전체 클라이언트 시험 2개를 건너뛰었다.
+
+`runner_verify`의 첫 실행에서 R1을 포함한 CLI 시험 1개가 실패했다. 해당 시험을 단독으로 다시 실행해 통과했고, 이어 전체 스위트 81개를 다시 실행해 모두 통과했다.

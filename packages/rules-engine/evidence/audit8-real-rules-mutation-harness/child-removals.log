@@ -1,0 +1,79 @@
+    Blocking waiting for file lock on package cache
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/mutation.rs (target/debug/deps/mutation-30bcc153d15232c8)
+
+running 3 tests
+test every_real_logical_child_removal_changes_a_golden_result ... kb-driver-fine :: eligibility: drop all child 0 changes f06_no_accident_in_period
+kb-driver-fine :: eligibility: drop all child 1 changes f07_not_a_driving_bodily_injury_accident
+kb-driver-fine :: eligibility: drop all child 2 changes f08_hit_and_run_excluded
+kb-driver-fine :: eligibility: drop all child 3 changes f09_racing_or_test_use_excluded
+kb-driver-fine :: eligibility: drop all child 4 changes f03_dui_excluded
+kb-driver-fine :: eligibility: drop all child 5 changes f10_intentional_insured_excluded
+kb-driver-fine :: eligibility: drop all child 6 changes f11_intentional_contractor_excluded
+kb-driver-fine :: eligibility: drop all child 7 changes f12_intentional_beneficiary_excluded
+kb-driver-lawyer-fee :: eligibility: drop all child 0 changes l06_no_accident
+kb-driver-lawyer-fee :: eligibility: drop all child 1 changes l04_minor_no_prosecution_not_covered
+kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 0 changes l07_arrested_only
+kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 1 changes l01_terms_example1
+kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 2 changes l08_summary_moved_to_trial_only
+kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 3 changes l09_formal_trial_requested_only
+kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 4 changes l10_not_referred_with_death
+kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 5 changes l14_not_prosecuted_with_death
+kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 6 changes l05_grade_unknown
+kb-driver-lawyer-fee :: eligibility.all[1].any[4]: drop all child 0 changes l13_death_without_any_proceeding_not_covered
+kb-driver-lawyer-fee :: eligibility.all[1].any[4]: drop all child 1 changes l12_not_referred_alone_not_covered
+kb-driver-lawyer-fee :: eligibility.all[1].any[4].all[1]: drop any child 0 changes l10_not_referred_with_death
+kb-driver-lawyer-fee :: eligibility.all[1].any[4].all[1]: drop any child 1 changes l11_not_referred_with_major_violation
+kb-driver-lawyer-fee :: eligibility.all[1].any[5]: drop all child 0 changes l13_death_without_any_proceeding_not_covered
+kb-driver-lawyer-fee :: eligibility.all[1].any[5]: drop all child 1 changes l04_minor_no_prosecution_not_covered
+kb-driver-lawyer-fee :: eligibility.all[1].any[5].all[1]: drop any child 0 changes l14_not_prosecuted_with_death
+kb-driver-lawyer-fee :: eligibility.all[1].any[5].all[1]: drop any child 1 changes l15_not_prosecuted_with_major_violation
+kb-driver-lawyer-fee :: eligibility.all[1].any[6]: drop all child 0 changes l17_grade_1_to_3_without_prosecution_state
+kb-driver-lawyer-fee :: eligibility.all[1].any[6]: drop all child 1 changes l04_minor_no_prosecution_not_covered
+kb-driver-lawyer-fee :: eligibility.all[1].any[6]: drop all child 2 changes l18_major_violation_unknown_blocks_grade_route
+kyobo-1995-cancer-waiting :: eligibility: drop all child 0 changes y01_last_waiting_day
+kyobo-1995-cancer-waiting :: eligibility: drop all child 1 changes y05_not_a_listed_cancer
+kyobo-cancer-main-dx :: eligibility: drop all child 0 changes k01_day90_still_waiting
+kyobo-cancer-main-dx :: eligibility: drop all child 1 changes k15_after_policy_end
+kyobo-cancer-main-dx :: eligibility: drop all child 2 changes k08_small_cancer_not_main
+kyobo-cancer-main-dx :: eligibility: drop all child 3 changes k10_second_diagnosis
+kyobo-cancer-main-dx :: eligibility: drop all child 4 changes k11_self_harm_excluded
+kyobo-cancer-main-dx :: eligibility: drop all child 5 changes k20_intentional_contractor_harm
+kyobo-cancer-main-dx :: eligibility: drop all child 6 changes k18_sole_beneficiary_harm
+kyobo-cancer-main-dx :: eligibility.all[4].not: drop all child 0 changes k02_next_day_covered_reduced
+kyobo-cancer-main-dx :: eligibility.all[4].not: drop all child 1 changes k12_self_harm_without_free_will_paid
+kyobo-small-cancer-skin :: eligibility: drop all child 0 changes s08_diagnosis_before_first_coverage_start
+kyobo-small-cancer-skin :: eligibility: drop all child 1 changes s10_diagnosis_before_period_start
+kyobo-small-cancer-skin :: eligibility: drop all child 2 changes s06_outside_current_period
+kyobo-small-cancer-skin :: eligibility: drop all child 3 changes s13_not_other_skin_cancer
+kyobo-small-cancer-skin :: eligibility: drop all child 4 changes s14_already_paid
+kyobo-small-cancer-skin :: eligibility: drop all child 5 changes s04_renewal_same_disease_excluded
+kyobo-small-cancer-skin :: eligibility.all[5].not: drop all child 0 changes s15_same_disease_flag_is_only_for_renewals
+kyobo-small-cancer-skin :: eligibility.all[5].not: drop all child 1 changes s03_renewal_reduction_base_is_first_contract
+kyobo-wholelife-accident-death :: eligibility: drop all child 0 changes w14_accident_first_period_ended
+kyobo-wholelife-accident-death :: eligibility: drop all child 1 changes w02_disease_year1_not_accident
+kyobo-wholelife-accident-death :: eligibility: drop all child 2 changes w36_intentional_contractor_harm
+kyobo-wholelife-accident-death :: eligibility: drop all child 3 changes w15_sole_beneficiary_harm
+kyobo-wholelife-accident-death :: eligibility.all[1]: drop any child 0 changes w05_accident
+kyobo-wholelife-accident-death :: eligibility.all[1]: drop any child 1 changes w09_incapacity_routes_to_accident
+kyobo-wholelife-accident-death :: eligibility.all[1].any[0]: drop all child 0 changes w02_disease_year1_not_accident
+kyobo-wholelife-accident-death :: eligibility.all[1].any[0]: drop all child 1 changes w16_accident_self_harm_with_free_will
+kyobo-wholelife-accident-death :: eligibility.all[1].any[1]: drop all child 0 changes w17_incapacity_flag_without_self_harm
+kyobo-wholelife-accident-death :: eligibility.all[1].any[1]: drop all child 1 changes w08_suicide_after_2y_not_accident
+kyobo-wholelife-disease-death :: eligibility: drop all child 0 changes w04_first_period_ends
+kyobo-wholelife-disease-death :: eligibility: drop all child 1 changes w06_suicide_within_2y_nothing
+kyobo-wholelife-disease-death :: eligibility: drop all child 2 changes w40_intentional_contractor_harm
+kyobo-wholelife-disease-death :: eligibility: drop all child 3 changes w20_sole_beneficiary_harm
+kyobo-wholelife-disease-death :: eligibility.all[1]: drop any child 0 changes w01_disease_year1
+kyobo-wholelife-disease-death :: eligibility.all[1]: drop any child 1 changes w07_suicide_after_2y_routes_to_disease
+kyobo-wholelife-disease-death :: eligibility.all[1].any[0]: drop all child 0 changes w11_cause_unknown
+kyobo-wholelife-disease-death :: eligibility.all[1].any[0]: drop all child 1 changes w06_suicide_within_2y_nothing
+kyobo-wholelife-disease-death :: eligibility.all[1].any[1]: drop all child 0 changes w21_accident_cause_not_paid_as_disease
+kyobo-wholelife-disease-death :: eligibility.all[1].any[1]: drop all child 1 changes w22_self_harm_with_incapacity_not_disease
+kyobo-wholelife-disease-death :: eligibility.all[1].any[1]: drop all child 2 changes w06_suicide_within_2y_nothing
+ok
+test removing_a_single_logical_child_uses_the_empty_fold_identity ... ok
+test shared_cases_alone_miss_audited_logical_child_removals ... shared cases alone miss 39 child removals
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.18s

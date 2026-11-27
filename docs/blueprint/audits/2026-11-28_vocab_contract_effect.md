@@ -23,3 +23,15 @@
 `ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest`는 이전 `contracts-*` 태그가 없어 자체 시험으로 실행했고 통과했다. 전체 Rust 시험에 포함된 세 언어의 합성 태그 탐침도 통과했다.
 
 이 증거의 범위는 [09 제품목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md) P08의 트윈 평가 결과 계약이다. P08 완료에는 실제 릴리스의 경계일 시나리오, 모바일 E2E 및 Q1~Q10 골든 증거가 필요하다.
+
+## 수정 1차 병합 재검증
+
+`main` 병합 충돌은 [설계도 §11](../../BLUEPRINT.md#11-현재-위치)의 자동 생성 시험 수에서 발생했다. `python3 -I tools/blueprint_counts.py --write`로 두 브랜치가 합쳐진 트리의 표를 다시 만들었다. 계약 효과 어휘 회귀와 `main`의 로더·날짜 회귀를 포함해 엔진 단위·통합 시험 279개와 doctest 3개가 등록됐다. 어휘 52축·277값과 생성물 30개의 일치도 확인했다.
+
+병합 트리에서 Rust·TypeScript·Dart 계약 빌드, 서식 검사와 Clippy, 별도 Cargo 매니페스트의 키 순서 보존·시나리오 API·온톨로지 시험(각각 2개·4개·4개)이 통과했다. 이전 `contracts-*` 태그가 없어 `check_compat.sh --latest`는 필드 삭제 검출 자체 시험을 실행해 통과했다.
+
+작업 트리의 `target/`을 지정해 `ONJ_REQUIRE_RULE_02=1 ONJ_COMPAT_ALL_CLIENTS=1 cargo test --all --locked --offline`을 실행했다. Rust 시험 567개가 통과했고 픽스처 재생성 시험 1개는 기본 설정에 따라 제외됐다. 내장 Python 시험은 API 39개와 계약 144개가 통과했다. 계약 효과 정본 일치·직렬화 왕복·미등록 코드 거부 시험과 로더 경계 시험도 통과했다.
+
+Python 도구 시험은 총 1,812개 중 1,806개가 통과했고 기존 건너뜀 6개가 있었다. 이 중 온톨로지 임시 파일 격리 시험 6개는 작업 트리 내부의 소스 복사본을 대상으로 실행했다. 임시 파일은 그 복사본의 바깥이면서 작업 트리 안에 두었다. 설계도 수치·결정 색인, 제품 목적, 레지스트리, 설계 묶음, 온톨로지와 검증 자료 검사도 통과했다.
+
+`runner_verify` 첫 실행에서 R3 작업 인계의 `drain`이 시간 초과되어 해당 시험과 시나리오 집계 시험이 실패했다. 로컬 원격을 사용한 R3 단독 실행의 검사 12건이 모두 통과했고, `python3 -m unittest discover -s tools/daemon/runner_verify/tests -v` 전체 재실행도 81개 모두 통과했다.

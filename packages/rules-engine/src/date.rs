@@ -190,6 +190,31 @@ mod tests {
     }
 
     #[test]
+    fn every_supported_date_round_trips() {
+        let mut ordinal = min_day();
+        for year in 1900..=2199 {
+            // In this range 2000 is a leap year, while 1900 and 2100 are not.
+            let february = if year % 4 == 0 && !matches!(year, 1900 | 2100) {
+                29
+            } else {
+                28
+            };
+            let month_lengths = [31, february, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            for (index, length) in month_lengths.into_iter().enumerate() {
+                let month = index + 1;
+                for day in 1..=length {
+                    let date = format!("{year:04}-{month:02}-{day:02}");
+                    assert_eq!(parse_date(&date), Some(ordinal), "{date}");
+                    assert_eq!(format_date(ordinal), date);
+                    ordinal += 1;
+                }
+            }
+        }
+        assert_eq!(ordinal - min_day(), 109_573);
+        assert_eq!(ordinal - 1, max_day());
+    }
+
+    #[test]
     fn month_end_clamps() {
         let jan31 = parse_date("2026-01-31").unwrap();
         assert_eq!(

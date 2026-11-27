@@ -65,6 +65,8 @@ jobs:
         run: cargo clippy --locked --all-targets -- -D warnings
       - name: Test (golden, mutation, soundness, loader, real clauses, screen numbers)
         run: cargo test --all --locked
+      - name: Rule content hash with insertion-ordered JSON
+        run: cargo test --manifest-path packages/rules-engine/order-tests/Cargo.toml --locked --target-dir target/order-tests
       - name: JSON Schema compatibility with the previous tagged clients
         env:
           ONJ_COMPAT_ALL_CLIENTS: "1"

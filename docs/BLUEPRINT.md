@@ -446,7 +446,7 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 | 항목 | 현재 값 | 대조 원천 |
 |---|---:|---|
 | 엔진 빌드 식별자 | `0.2.0+snapshot-json-1` | `packages/rules-engine/src/lib.rs`의 `ENGINE_VERSION` |
-| Rust 단위·통합 시험 | 270 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 274 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `tools/validation_check.py`의 `real_clause_rule_paths()` |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
@@ -473,6 +473,8 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 Audit 6은 하네스의 맵 삽입에서도 중복 `rule_id`를 명시적으로 거부하고, 종신보험 사례의 `rule_ids`를 실제 사례의 규칙 선택과 대조한다. 목록의 빈 값·중복·미사용 항목과 공유 목록 밖을 선택한 추가 사례를 거부하는 회귀·검사 제거 변이 증거는 [검증 기록](blueprint/audits/2026-11-14_engine_fixture_ruleid_uniqueness.md)을 따른다. P08·P14의 `fixture_only` 시험 기반 증거이며 제품 전체 완료 판정은 바꾸지 않는다.
 
 규칙 텍스트 로더는 모든 깊이의 중복 JSON 키(이스케이프 충돌 포함)를 거부하고, 선택적 `example_kind`는 기존 세 문자열만 허용한다. 날짜 부호·빈 규칙 ID의 기존 거부와 I3 doctest의 실제 `E0616` 진단도 함께 재검증했다([Audit 6 로더 검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)). P08·P14의 엔진 기반 증거이며 실제 릴리스·소비자 화면·첫 출시 완료 판정을 바꾸지 않는다.
+
+규칙 로더는 루트부터 깊이 64, 규칙 전체에서 JSON 값 8,192개까지 허용한다. 두 진입점에서 재귀식 파싱과 해시 계산 전에 초과를 거부한다. 기존 빈 ID·부호 날짜 거부와 1900~2199의 109,573일 왕복을 [Audit 8 로더 검증](blueprint/audits/2026-11-27_rule_loader_hardening.md)에 기록했다.
 
 Audit 7의 합성 검증에서 두 rule-0.2 나눗셈의 0 분모는 미확인 금액과 `zero_denominator` 경로를 반환한다. 시나리오 API 계산 어댑터는 이를 `hold`로 표시하고, 사건 목록이 비었다는 확인 출처를 입력 단계에서 구분한다. [결정과 실행 범위](decisions/audit7-unknown-without-blockers.md) · [검증 증거](../tools/evidence/audit7-unknown-without-blockers/README.md).
 

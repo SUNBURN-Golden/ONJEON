@@ -335,9 +335,43 @@ const TOP_LEVEL_KEYS: [&str; 13] = [
     "contract_effect",
 ];
 
+const MAX_DEPTH: usize = 64;
+const MAX_NODES: usize = 8_192;
+
+fn validate_json_size(root: &J) -> Result<(), RuleError> {
+    let mut pending = vec![(root, 1)];
+    let mut nodes = 1;
+    while let Some((value, depth)) = pending.pop() {
+        let children = value
+            .as_array()
+            .into_iter()
+            .flatten()
+            .chain(value.as_object().into_iter().flat_map(|obj| obj.values()));
+        for child in children {
+            if depth == MAX_DEPTH {
+                return Err(RuleError::at(
+                    "$",
+                    format!("rule JSON exceeds maximum depth of {MAX_DEPTH}"),
+                ));
+            }
+            // Count each child before pushing it so the traversal stays bounded.
+            if nodes == MAX_NODES {
+                return Err(RuleError::at(
+                    "$",
+                    format!("rule JSON exceeds maximum node count of {MAX_NODES}"),
+                ));
+            }
+            nodes += 1;
+            pending.push((child, depth + 1));
+        }
+    }
+    Ok(())
+}
+
 impl Rule {
     /// Load rule JSON text, rejecting duplicate keys at every depth (including
-    /// keys that become equal after JSON escape decoding).
+    /// keys that become equal after JSON escape decoding). After deserialization,
+    /// apply the tree limits in [`Rule::from_json`].
     pub fn from_json_str(s: &str) -> Result<Rule, RuleError> {
         let v = crate::strict_json::from_slice(s.as_bytes())
             .map_err(|e| RuleError::at("$", format!("invalid JSON: {e}")))?;
@@ -346,10 +380,15 @@ impl Rule {
 
     /// Load an already parsed JSON value. Duplicate members cannot be recovered
     /// from a `Value`; use [`Rule::from_json_str`] for untrusted JSON text.
+    ///
+    /// The whole rule is limited to 64 levels and 8,192 JSON values. The root
+    /// counts as both level one and one value. Object keys do not count as values.
+    /// The limits are checked before parsing expressions or hashing the rule.
     pub fn from_json(v: &J) -> Result<Rule, RuleError> {
         let obj = v
             .as_object()
             .ok_or_else(|| RuleError::at("$", "rule must be a JSON object"))?;
+        validate_json_size(v)?;
         for k in obj.keys() {
             if !TOP_LEVEL_KEYS.contains(&k.as_str()) {
                 return Err(RuleError::at("$", format!("unknown top-level key `{k}`")));

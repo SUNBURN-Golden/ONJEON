@@ -223,20 +223,6 @@ fn input_dates_outside_supported_range_are_rejected() {
 }
 
 #[test]
-fn content_hash_is_independent_of_key_order_in_the_file() {
-    let a = r#"{"rule_id":"k","rule_version":"1","schema_version":"rule-0.1","inputs":{"x":"int","y":"bool"},
-        "eligibility":{"gte":["x",0]},"amount":{"krw":1},
-        "unknown_policy":"use_three_valued_logic_never_default_to_zero","evidence_refs":["c"],"publication_state":"fixture_only"}"#;
-    let b = r#"{"publication_state":"fixture_only","evidence_refs":["c"],
-        "unknown_policy":"use_three_valued_logic_never_default_to_zero","amount":{"krw":1},
-        "eligibility":{"gte":["x",0]},"inputs":{"y":"bool","x":"int"},"schema_version":"rule-0.1","rule_version":"1","rule_id":"k"}"#;
-    assert_eq!(
-        Rule::from_json_str(a).unwrap().content_hash(),
-        Rule::from_json_str(b).unwrap().content_hash().to_string()
-    );
-}
-
-#[test]
 fn reloading_the_source_json_reproduces_the_same_rule_identity() {
     let r = Rule::from_json(&rule(json!({"krw": 1}), json!(true))).unwrap();
     let again = Rule::from_json(r.source_json()).unwrap();

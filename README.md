@@ -56,11 +56,13 @@ export CARGO_HOME="$PWD/target/cargo-home"
 python3 -m venv target/test-venv
 target/test-venv/bin/python -m pip install boto3==1.43.100
 cargo fetch --locked
+cargo fetch --manifest-path packages/rules-engine/order-tests/Cargo.toml --locked
 cargo fetch --manifest-path services/scenario-api/Cargo.toml --locked
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo fetch --locked)
 target/test-venv/bin/python -m unittest discover -s tools/tests -v
 target/test-venv/bin/python -m unittest discover -s tools/daemon/runner_verify/tests -v
 cargo test --all --locked --offline
+cargo test --manifest-path packages/rules-engine/order-tests/Cargo.toml --locked --offline --target-dir target/order-tests
 cargo test --manifest-path services/scenario-api/Cargo.toml --locked --offline --target-dir target/scenario-api
 (cd docs/blueprint/proposals/온톨로지/검증/runner && cargo test --locked --offline)
 ```

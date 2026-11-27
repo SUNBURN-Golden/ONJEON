@@ -65,6 +65,8 @@
 
 `cargo test`
 
+키 삽입 순서를 보존하는 JSON 맵으로 규칙 해시를 검증하려면 저장소 루트에서 `cargo test --manifest-path packages/rules-engine/order-tests/Cargo.toml --locked --target-dir target/order-tests`를 실행한다. CI도 이 시험을 실행한다. 두 시험은 각각 최상위 키와 배열 속 객체 키의 순서를 바꾸고, 로드된 두 JSON의 직렬화 바이트가 서로 다른 상태에서 규칙 내용 해시가 일치하는지 확인한다. [Audit 8 검증 증거](../../tools/evidence/audit8-hash-canonicalization-test/README.md).
+
 공유 `CARGO_TARGET_DIR`에서 다른 작업 트리의 시험 바이너리를 재사용하면 컴파일된 `CARGO_MANIFEST_DIR`가 삭제된 경로를 가리켜 fixture 로딩이 실패할 수 있다. 작업 트리별 검증은 `CARGO_TARGET_DIR="$PWD/target" cargo test --all --locked --offline`로 실행한다. [Audit 3 fix round 1 캐시 진단·재검증](../../docs/blueprint/audits/2026-10-28_engine_parse_date_strict.md#fix-round-1-공유-cargo-캐시의-다른-작업-트리-경로).
 
 | 테스트 | 내용 |

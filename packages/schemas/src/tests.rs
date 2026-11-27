@@ -532,6 +532,81 @@ fn premium_missing_dimensions_match_open_condition_keys() {
 }
 
 #[test]
+fn premium_missing_dimensions_distinguish_top_level_fields_from_conditions() {
+    let mut p = eligible_premium();
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("payment_cycle".into(), "monthly".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.comparison_eligible = false;
+    p.payment_cycle = None;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("payment_cycle "));
+
+    p.missing_dimensions = vec!["payment_cycle".into()];
+    assert_eq!(check_premium_observation(&p), vec![]);
+    p.comparison_eligible = true;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_raw_vs_eligible");
+    p.comparison_eligible = false;
+
+    p.missing_dimensions.push("conditions.payment_cycle".into());
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0]
+        .message
+        .starts_with("conditions.payment_cycle "));
+
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("payment_cycle".into(), " \t".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.payment_cycle = Some("monthly".into());
+    p.missing_dimensions.remove(0);
+    assert_eq!(check_premium_observation(&p), vec![]);
+    p.conditions.as_mut().unwrap().remove("payment_cycle");
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.missing_dimensions = vec!["payment_cycle".into()];
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("payment_cycle "));
+}
+
+#[test]
+fn premium_missing_dimensions_strip_the_condition_prefix_once() {
+    let mut p = eligible_premium();
+    p.comparison_eligible = false;
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("conditions.payment_cycle".into(), String::new());
+    p.missing_dimensions = vec!["conditions.conditions.payment_cycle".into()];
+    assert_eq!(check_premium_observation(&p), vec![]);
+}
+
+#[test]
+fn premium_missing_dimensions_reject_blank_names() {
+    let mut p = eligible_premium();
+    p.comparison_eligible = false;
+    for name in ["", " ", "\t\n\u{2003}", "conditions.", "conditions. \t"] {
+        p.missing_dimensions = vec![name.into()];
+        let violations = check_premium_observation(&p);
+        assert_eq!(violations.len(), 1, "{name:?}: {violations:?}");
+        assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    }
+}
+
+#[test]
 fn premium_comparison_eligibility_needs_the_full_condition_set() {
     let raw: PremiumObservation = serde_json::from_str(fixture!("PremiumObservation.raw")).unwrap();
     assert!(

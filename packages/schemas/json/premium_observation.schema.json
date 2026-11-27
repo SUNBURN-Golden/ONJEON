@@ -98,9 +98,10 @@
     "missing_dimensions": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(?:conditions\\.|(?!conditions\\.))[\\s\\S]*\\S"
       },
-      "description": "비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 원문에 없는 개별 조건 차원의 키"
+      "description": "누락된 최상위 비교 필드는 이름 그대로 기록한다(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id). 개별 조건은 conditions.<키>로 지정한다. 위 필드와 이름이 다르고 conditions.로 시작하지 않는 조건 키는 키만 적어도 된다"
     },
     "comparison_basis_id": {
       "$ref": "common.schema.json#/$defs/Identifier"
@@ -162,7 +163,7 @@
   "x-onjeon-invariants": [
     "value_state=observed 또는 derived => raw_amount 필수, unknown_reason 금지 (chk_premium_amount_matches_value_state)",
     "그 외 value_state => raw_amount 금지, 공백이 아닌 unknown_reason 필수 (chk_premium_unknown_reason_matches_value_state)",
-    "고정 비교 필드의 누락과 개별 조건의 공백 값을 missing_dimensions에 기록하고, 값이 있는 차원은 제외 (chk_premium_missing_dimensions)",
+    "누락된 고정 비교 필드와 개별 조건을 missing_dimensions에 기록한다. 값이 있는 차원과 공백 이름은 거부한다 (chk_premium_missing_dimensions)",
     "effective_from과 effective_to는 실제 날짜이며 시작일 <= 종료일. effective_open_ended=true이면 effective_to 금지 (chk_premium_effective_period)",
     "구성 내 cov_ref는 중복되지 않는다 (chk_premium_priced_subject)",
     "comparison_eligible=true => value_state=observed 또는 derived, 근거, conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id, 묶음 종류, 상품·판매 구성, 담보별 가입금액, 원문 판 있음. source_as_of는 확인된 적용 기간 안에 있어야 한다. coverage_ref가 있으면 구성에 포함되고 source_bundle은 담보 2개 이상이어야 한다. missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",

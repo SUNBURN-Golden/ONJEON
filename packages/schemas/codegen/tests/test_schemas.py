@@ -378,6 +378,20 @@ class Fixtures(unittest.TestCase):
                 errors = self.broken(n, lambda d: d.update(unknown_reason=bad))
                 self.assertTrue(any("unknown_reason" in e for e in errors), errors)
 
+    def test_premium_missing_dimensions_accept_scoped_names_and_reject_blank_names(self):
+        n = "PremiumObservation.full.fixture.json"
+        self.assertEqual(self.broken(
+            n, lambda d: d.update(missing_dimensions=[
+                "payment_cycle", "conditions.payment_cycle",
+                "conditions.conditions.payment_cycle", "channel",
+            ]),
+        ), [])
+        for name in ("", " ", "\t\n\u2003", "conditions.", "conditions. \t"):
+            with self.subTest(name=name):
+                errors = self.broken(n, lambda d: d.update(missing_dimensions=[name]))
+                self.assertEqual(len(errors), 1, errors)
+                self.assertIn("$.missing_dimensions[0]", errors[0])
+
     def test_premium_subject_and_period_field_shapes(self):
         n = "PremiumObservation.full.fixture.json"
         for key, bad in (

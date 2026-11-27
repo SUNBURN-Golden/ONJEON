@@ -116,20 +116,29 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
             has_value(p.comparison_basis_id.as_deref()),
         ),
     ];
-    // The label dictionary defines the open set of condition keys. Locally we can
-    // check the values carried by the record and let it report other missing keys.
-    let condition_dimensions = p
-        .conditions
-        .iter()
-        .flatten()
-        .map(|(dimension, value)| (dimension.as_str(), !value.trim().is_empty()));
+    // Bare fixed names refer to top-level fields. The prefix disambiguates
+    // condition keys that use the same name, including keys absent from the map.
+    const CONDITION_PREFIX: &str = "conditions.";
+    let mut missing_fields = HashSet::new();
+    let mut missing_conditions = HashSet::new();
+    for name in &p.missing_dimensions {
+        let scoped_key = name.strip_prefix(CONDITION_PREFIX);
+        let key = scoped_key.unwrap_or(name);
+        if key.trim().is_empty() {
+            out.push(v(
+                "chk_premium_missing_dimensions",
+                "missing_dimensions entries must name a non-blank field or condition key",
+            ));
+        } else if scoped_key.is_none() && fixed_dimensions.iter().any(|(field, _)| *field == key) {
+            missing_fields.insert(key);
+        } else {
+            missing_conditions.insert(key);
+        }
+    }
+
     let mut dimensions_complete = true;
-    for (dimension, present) in fixed_dimensions.into_iter().chain(condition_dimensions) {
+    let mut check_dimension = |dimension: &str, present, marked_missing| {
         dimensions_complete &= present;
-        let marked_missing = p
-            .missing_dimensions
-            .iter()
-            .any(|missing| missing == dimension);
         if marked_missing == present {
             let message = if present {
                 format!("{dimension} has a value and must be removed from missing_dimensions")
@@ -138,6 +147,18 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
             };
             out.push(v("chk_premium_missing_dimensions", &message));
         }
+    };
+    for (field, present) in fixed_dimensions {
+        check_dimension(field, present, missing_fields.contains(field));
+    }
+    // The label dictionary defines the open set of condition keys. The record
+    // can report additional missing keys that are not in its conditions map.
+    for (key, value) in p.conditions.iter().flatten() {
+        check_dimension(
+            &format!("{CONDITION_PREFIX}{key}"),
+            !value.trim().is_empty(),
+            missing_conditions.contains(key.as_str()),
+        );
     }
 
     let components = p.components.as_deref().unwrap_or_default();

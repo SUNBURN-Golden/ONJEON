@@ -750,7 +750,7 @@ pub struct PremiumObservation {
     /// none, requires_main, source_bundle, requires_base_contract (PREMIUM_DATA_CONTRACT). 어휘 축 승격 대기
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub package_binding: Option<String>,
-    /// 비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 원문에 없는 개별 조건 차원의 키
+    /// 누락된 최상위 비교 필드는 이름 그대로 기록한다(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id). 개별 조건은 conditions.<키>로 지정한다. 위 필드와 이름이 다르고 conditions.로 시작하지 않는 조건 키는 키만 적어도 된다
     pub missing_dimensions: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comparison_basis_id: Option<String>,

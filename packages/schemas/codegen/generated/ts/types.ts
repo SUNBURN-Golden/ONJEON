@@ -937,7 +937,7 @@ export interface PremiumObservation {
    */
   package_binding?: string;
   /**
-   * 비어 있는 비교 필드(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id)와 원문에 없는 개별 조건 차원의 키
+   * 누락된 최상위 비교 필드는 이름 그대로 기록한다(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id). 개별 조건은 conditions.<키>로 지정한다. 위 필드와 이름이 다르고 conditions.로 시작하지 않는 조건 키는 키만 적어도 된다
    */
   missing_dimensions: string[];
   comparison_basis_id?: string;

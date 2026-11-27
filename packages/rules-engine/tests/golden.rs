@@ -80,6 +80,11 @@ fn result_bytes(rule: &Rule, inputs: &J) -> Vec<u8> {
 fn assert_reproducible(source: &J, reloaded: &J, inputs: &J, id: &str) {
     let rule = Rule::from_json(source).unwrap();
     let expected = result_bytes(&rule, inputs);
+    let result: J = serde_json::from_slice(&expected).unwrap();
+    assert_eq!(
+        result["engine_version"], "0.2.0+snapshot-json-1",
+        "{id}: serialized engine version"
+    );
     assert_eq!(
         expected,
         result_bytes(&rule, inputs),

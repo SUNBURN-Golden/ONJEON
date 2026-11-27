@@ -285,7 +285,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | I15 | 출시 문구에 "전문가 검수"가 없다 | 문구 린트 | 미구현 |
 | I16 | 공개 릴리스는 불변이고 롤백은 manifest 교체다 | 릴리스 테스트 | 미구현 |
 | I17 | 분모 근거 없이 "전수"라고 표시하지 않는다 | `/coverage` 생성 로직 | 미구현 |
-| I18 | 같은 입력·릴리스·엔진이면 같은 결과다 | 엔진 재현성(실제 조항 7개·파일 재로딩·중첩 키 순서 변경, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·`snapshot_hash` 테스트([정규 JSON 해시 검증](blueprint/audits/2026-10-26_engine_snapshot_hash_encoding.md)) | 구현(엔진) |
+| I18 | 같은 입력·릴리스·엔진이면 같은 결과다 | 엔진 재현성(실제 조항 7개·파일 재로딩·중첩 키 순서 변경, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·`snapshot_hash` 테스트([정규 JSON 해시 검증](blueprint/audits/2026-10-26_engine_snapshot_hash_encoding.md))·평가 결과의 엔진 빌드 식별자 골든([Audit 8 증거](../tools/evidence/audit8-engine-version-bump/README.md)) | 구현(엔진) |
 
 보험료 공유 계약은 관측 원문에 있는 가격 대상과 적용 기간을 보존하고, 기준일에 적용되는 구성과 원문 판을 확인한 관측에만 비교 자격을 허용한다. [Audit 8 회귀 증거](blueprint/audits/2026-11-25_premium_subject_and_period.md).
 

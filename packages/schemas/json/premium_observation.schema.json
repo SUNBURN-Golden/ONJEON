@@ -98,16 +98,17 @@
     "missing_dimensions": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(?:conditions\\.|(?!conditions\\.))[\\s\\S]*[^\\u0009-\\u000D\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]"
       },
-      "description": "원문에 없는 조건 차원"
+      "description": "누락된 최상위 비교 필드는 이름 그대로 기록한다(conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id). 공개 DB의 기존 as_of 표기는 source_as_of의 별칭이다. 개별 조건은 conditions.<키>로 지정한다. 필드나 별칭과 겹치지 않고 conditions.로 시작하지 않는 조건 키는 키만 적어도 된다. 이름에는 유니코드 White_Space 이외의 문자가 있어야 한다"
     },
     "comparison_basis_id": {
       "$ref": "common.schema.json#/$defs/Identifier"
     },
     "comparison_eligible": {
       "type": "boolean",
-      "description": "금액, 가격 대상과 구성, 조건, 기준일을 덮는 적용 기간과 원문 판을 확인하고 accepted일 때만 true (K13)"
+      "description": "금액을 관측하거나 산출했고 조건·구성·기준일·납입주기·비교 기준 ID와 가격 대상·적용 기간·원문 판이 확인되며 accepted일 때만 true (K13)"
     },
     "value_state": {
       "$ref": "vocabulary.schema.json#/$defs/value_state"
@@ -162,9 +163,10 @@
   "x-onjeon-invariants": [
     "value_state=observed 또는 derived => raw_amount 필수, unknown_reason 금지 (chk_premium_amount_matches_value_state)",
     "그 외 value_state => raw_amount 금지, 공백이 아닌 unknown_reason 필수 (chk_premium_unknown_reason_matches_value_state)",
+    "누락된 고정 비교 필드와 개별 조건을 missing_dimensions에 기록한다. 값이 있는 차원과 공백 이름은 거부한다 (chk_premium_missing_dimensions)",
     "effective_from과 effective_to는 실제 날짜이며 시작일 <= 종료일. effective_open_ended=true이면 effective_to 금지 (chk_premium_effective_period)",
     "구성 내 cov_ref는 중복되지 않는다 (chk_premium_priced_subject)",
-    "comparison_eligible=true => 금액, 근거, 조건, 납입주기, 비교 기준 ID, 묶음 종류, 상품·판매 구성, 담보별 가입금액, 원문 판 필요. source_as_of는 확인된 적용 기간 안에 있어야 한다. coverage_ref가 있으면 구성에 포함되고 source_bundle은 담보 2개 이상이어야 한다. missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
+    "comparison_eligible=true => value_state=observed 또는 derived, 근거, conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id, 묶음 종류, 상품·판매 구성, 담보별 가입금액, 원문 판 있음. source_as_of는 확인된 적용 기간 안에 있어야 한다. coverage_ref가 있으면 구성에 포함되고 source_bundle은 담보 2개 이상이어야 한다. missing_dimensions 비어 있음, review_status=accepted (chk_premium_raw_vs_eligible)",
     "review_status=accepted => review_decision_id 있음",
     "origin=fixture => review_status<>accepted"
   ]

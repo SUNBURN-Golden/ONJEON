@@ -19,7 +19,14 @@
   "observed_at": "2026-10-01T09:00:00Z",
   "effective_from": "2026-10-01",
   "effective_open_ended": true,
-  "missing_dimensions": ["insured_amount_krw"],
+  "missing_dimensions": [
+    "conditions",
+    "package_binding",
+    "source_as_of",
+    "payment_cycle",
+    "comparison_basis_id",
+    "insured_amount_krw"
+  ],
   "comparison_eligible": false,
   "value_state": "not_found",
   "unknown_reason": "조사한 예시 보험료 표에 해당 구성의 금액이 없음",

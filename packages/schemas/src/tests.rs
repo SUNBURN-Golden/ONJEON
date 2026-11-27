@@ -429,6 +429,242 @@ fn premium_amount_and_reason_follow_value_state() {
     }
 }
 
+fn eligible_premium() -> PremiumObservation {
+    let mut p: PremiumObservation =
+        serde_json::from_str(fixture!("PremiumObservation.full")).unwrap();
+    p.comparison_eligible = true;
+    p.review_status = ReviewStatus::Accepted;
+    p.review_decision_id = Some("rd:01ARZ3NDEKTSV4RRFFQ69G5FAV".into());
+    p.origin = AssertionOrigin::Pipeline;
+    p
+}
+
+#[test]
+fn premium_missing_dimensions_match_comparison_fields() {
+    let full = serde_json::to_value(eligible_premium()).unwrap();
+    for (field, empty_value) in [
+        ("conditions", json!({})),
+        ("package_binding", json!("")),
+        ("source_as_of", json!("   ")),
+        ("payment_cycle", json!("")),
+        ("comparison_basis_id", json!(" \t")),
+    ] {
+        for missing_value in [None, Some(Value::Null), Some(empty_value)] {
+            let mut row = full.clone();
+            match missing_value {
+                None => {
+                    row.as_object_mut().unwrap().remove(field);
+                }
+                Some(value) => row[field] = value,
+            }
+            let mut p: PremiumObservation = serde_json::from_value(row).unwrap();
+            let violations = check_premium_observation(&p);
+            assert_eq!(violations.len(), 2, "{field}: {violations:?}");
+            assert!(violations
+                .iter()
+                .any(|v| v.rule == "chk_premium_raw_vs_eligible"));
+
+            p.comparison_eligible = false;
+            let violations = check_premium_observation(&p);
+            assert_eq!(violations.len(), 1, "{field}: {violations:?}");
+            assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+            assert!(violations[0].message.contains(field));
+
+            p.missing_dimensions.push(field.to_owned());
+            assert_eq!(check_premium_observation(&p), vec![], "{field}");
+            p.comparison_eligible = true;
+            let violations = check_premium_observation(&p);
+            assert_eq!(violations.len(), 1, "{field}: {violations:?}");
+            assert_eq!(violations[0].rule, "chk_premium_raw_vs_eligible");
+        }
+
+        let mut p = eligible_premium();
+        p.comparison_eligible = false;
+        p.missing_dimensions.push(field.to_owned());
+        let violations = check_premium_observation(&p);
+        assert_eq!(violations.len(), 1, "{field}: {violations:?}");
+        assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+        assert!(violations[0].message.contains(field));
+    }
+}
+
+#[test]
+fn premium_missing_dimensions_match_open_condition_keys() {
+    let mut p = eligible_premium();
+    p.comparison_eligible = false;
+    p.missing_dimensions.push("refund_type".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("refund_type".into(), "no_refund".into());
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1);
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.contains("refund_type"));
+
+    p.missing_dimensions.clear();
+    p.comparison_eligible = true;
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("refund_type".into(), " \t".into());
+    assert!(check_premium_observation(&p)
+        .iter()
+        .any(|v| v.rule == "chk_premium_raw_vs_eligible"));
+
+    p.comparison_eligible = false;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1);
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.contains("refund_type"));
+    p.missing_dimensions.push("refund_type".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.conditions.as_mut().unwrap().remove("refund_type");
+    p.comparison_eligible = true;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1);
+    assert_eq!(violations[0].rule, "chk_premium_raw_vs_eligible");
+}
+
+#[test]
+fn premium_missing_dimensions_distinguish_top_level_fields_from_conditions() {
+    let mut p = eligible_premium();
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("payment_cycle".into(), "monthly".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.comparison_eligible = false;
+    p.payment_cycle = None;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("payment_cycle "));
+
+    p.missing_dimensions = vec!["payment_cycle".into()];
+    assert_eq!(check_premium_observation(&p), vec![]);
+    p.comparison_eligible = true;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_raw_vs_eligible");
+    p.comparison_eligible = false;
+
+    p.missing_dimensions.push("conditions.payment_cycle".into());
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0]
+        .message
+        .starts_with("conditions.payment_cycle "));
+
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("payment_cycle".into(), " \t".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.payment_cycle = Some("monthly".into());
+    p.missing_dimensions.remove(0);
+    assert_eq!(check_premium_observation(&p), vec![]);
+    p.conditions.as_mut().unwrap().remove("payment_cycle");
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.missing_dimensions = vec!["payment_cycle".into()];
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("payment_cycle "));
+}
+
+#[test]
+fn premium_missing_dimensions_accept_legacy_as_of_as_a_top_level_marker() {
+    let mut p = eligible_premium();
+    p.comparison_eligible = false;
+    let source_as_of = p.source_as_of.take();
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("as_of".into(), "2026-10-01".into());
+
+    for markers in [
+        &["as_of"][..],
+        &["source_as_of"],
+        &["source_as_of", "as_of"],
+    ] {
+        p.missing_dimensions = markers.iter().map(|marker| (*marker).into()).collect();
+        assert_eq!(check_premium_observation(&p), vec![], "{markers:?}");
+    }
+
+    p.missing_dimensions = vec!["as_of".into()];
+    p.comparison_eligible = true;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_raw_vs_eligible");
+    p.comparison_eligible = false;
+
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("as_of".into(), " \t".into());
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("conditions.as_of "));
+
+    p.missing_dimensions.push("conditions.as_of".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.source_as_of = source_as_of;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("source_as_of "));
+
+    p.missing_dimensions.remove(0);
+    assert_eq!(check_premium_observation(&p), vec![]);
+}
+
+#[test]
+fn premium_missing_dimensions_strip_the_condition_prefix_once() {
+    let mut p = eligible_premium();
+    p.comparison_eligible = false;
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("conditions.payment_cycle".into(), String::new());
+    p.missing_dimensions = vec!["conditions.conditions.payment_cycle".into()];
+    assert_eq!(check_premium_observation(&p), vec![]);
+}
+
+#[test]
+fn premium_missing_dimensions_reject_blank_names() {
+    let mut p = eligible_premium();
+    p.comparison_eligible = false;
+    for name in ["", " ", "\t\n\u{2003}", "\u{0085}"] {
+        for marker in [name.to_owned(), format!("conditions.{name}")] {
+            p.missing_dimensions = vec![marker.clone()];
+            let violations = check_premium_observation(&p);
+            assert_eq!(violations.len(), 1, "{marker:?}: {violations:?}");
+            assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+        }
+    }
+    for name in [
+        "\u{001c}",
+        "\u{feff}",
+        "conditions.\u{feff}",
+        "conditions.\u{0085}channel",
+    ] {
+        p.missing_dimensions = vec![name.into()];
+        assert_eq!(check_premium_observation(&p), vec![], "{name:?}");
+    }
+}
+
 #[test]
 fn premium_comparison_eligibility_needs_the_full_condition_set() {
     let raw: PremiumObservation = serde_json::from_str(fixture!("PremiumObservation.raw")).unwrap();
@@ -444,7 +680,8 @@ fn premium_comparison_eligibility_needs_the_full_condition_set() {
         "no fixture file is comparison-eligible: that needs accepted, which origin=fixture never is"
     );
 
-    let eligible = eligible_premium_bundle();
+    // the eligible case exists only here, in memory: accepted pipeline data with every condition
+    let eligible = eligible_premium();
     assert!(check_premium_observation(&eligible).is_empty());
 
     let mut derived = eligible.clone();
@@ -480,27 +717,12 @@ fn premium_comparison_eligibility_needs_the_full_condition_set() {
     assert!(found
         .iter()
         .all(|v| v.rule == "chk_premium_raw_vs_eligible"));
-    assert_eq!(found.len(), 2, "conditions/as_of gaps and not accepted");
-
-    let mut no_as_of = eligible.clone();
-    no_as_of.source_as_of = None;
-    assert_eq!(check_premium_observation(&no_as_of).len(), 1);
-}
-
-fn eligible_premium_bundle() -> PremiumObservation {
-    // Accepted pipeline prices are created in memory, so fixture files remain test-only.
-    let mut observation: PremiumObservation =
-        serde_json::from_str(fixture!("PremiumObservation.full")).unwrap();
-    observation.comparison_eligible = true;
-    observation.review_status = ReviewStatus::Accepted;
-    observation.review_decision_id = Some("rd:01ARZ3NDEKTSV4RRFFQ69G5FAV".into());
-    observation.origin = AssertionOrigin::Pipeline;
-    observation
+    assert_eq!(found.len(), 2, "reported gaps and missing acceptance");
 }
 
 #[test]
 fn premium_comparison_requires_a_complete_priced_subject_and_source_revision() {
-    let eligible = eligible_premium_bundle();
+    let eligible = eligible_premium();
     let json = serde_json::to_value(&eligible).unwrap();
     for field in [
         "product_ref",
@@ -515,12 +737,25 @@ fn premium_comparison_requires_a_complete_priced_subject_and_source_revision() {
         let mut partial = json.clone();
         partial.as_object_mut().unwrap().remove(field);
         let mut observation = serde_json::from_value(partial).unwrap();
-        assert_eq!(
-            check_premium_observation(&observation)[0].rule,
-            "chk_premium_raw_vs_eligible",
-            "{field}"
+        let rules: Vec<_> = check_premium_observation(&observation)
+            .iter()
+            .map(|v| v.rule)
+            .collect();
+        assert!(
+            rules.contains(&"chk_premium_raw_vs_eligible"),
+            "{field}: {rules:?}"
         );
         observation.comparison_eligible = false;
+        if matches!(field, "payment_cycle" | "comparison_basis_id") {
+            // These are fixed comparison dimensions, so a raw observation must record
+            // the absence before missing_dimensions can be checked independently.
+            let rules: Vec<_> = check_premium_observation(&observation)
+                .iter()
+                .map(|v| v.rule)
+                .collect();
+            assert_eq!(rules, vec!["chk_premium_missing_dimensions"], "{field}");
+            observation.missing_dimensions.push(field.to_owned());
+        }
         assert!(
             check_premium_observation(&observation).is_empty(),
             "{field}"
@@ -575,7 +810,7 @@ fn premium_comparison_requires_a_complete_priced_subject_and_source_revision() {
 
 #[test]
 fn premium_rejects_invalid_references_and_duplicate_components() {
-    let observation = eligible_premium_bundle();
+    let observation = eligible_premium();
     let json = serde_json::to_value(observation).unwrap();
     for (field, value, expected) in [
         ("product_ref", "display name", "chk_premium_priced_subject"),
@@ -640,7 +875,7 @@ fn premium_round_trip_keeps_subjects_and_revisions_distinct() {
 
 #[test]
 fn premium_effective_period_covers_the_basis_date() {
-    let eligible = eligible_premium_bundle();
+    let eligible = eligible_premium();
     // Both bounds are inclusive. Observation and publication are outside the period in this fixture.
     for date in ["2026-06-29", "2026-09-30"] {
         let mut observation = eligible.clone();

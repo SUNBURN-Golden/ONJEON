@@ -6,6 +6,7 @@ import copy
 import json
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -19,6 +20,14 @@ import schema_model as sm  # noqa: E402
 import validate  # noqa: E402
 
 FIXTURES = HERE / "fixtures"
+PREMIUM_DIMENSION_NAMES = (
+    "payment_cycle", "conditions.payment_cycle", "conditions.conditions.payment_cycle",
+    "source_as_of", "as_of", "conditions.as_of", "channel",
+    "\u001c", "\ufeff", "conditions.\ufeff", "conditions.\u0085channel",
+)
+PREMIUM_BLANK_DIMENSION_NAMES = (
+    "", " ", "\t\n\u2003", "\u0085", "conditions.", "conditions. \t", "conditions.\u0085",
+)
 REQUIRED_TYPES = [
     "Assertion", "ReleaseManifest", "EvaluationResult", "ScenarioResult", "CoverageDetail", "CompareView",
     "PlanView", "EvidenceView", "NeedResult", "PremiumObservation", "ContractSnapshot", "ErrorResponse",
@@ -377,6 +386,37 @@ class Fixtures(unittest.TestCase):
             with self.subTest(reason=bad):
                 errors = self.broken(n, lambda d: d.update(unknown_reason=bad))
                 self.assertTrue(any("unknown_reason" in e for e in errors), errors)
+
+    def test_premium_missing_dimensions_accept_scoped_names_and_reject_blank_names(self):
+        n = "PremiumObservation.full.fixture.json"
+        self.assertEqual(self.broken(
+            n, lambda d: d.update(missing_dimensions=list(PREMIUM_DIMENSION_NAMES)),
+        ), [])
+        for name in PREMIUM_BLANK_DIMENSION_NAMES:
+            with self.subTest(name=name):
+                errors = self.broken(n, lambda d: d.update(missing_dimensions=[name]))
+                self.assertEqual(len(errors), 1, errors)
+                self.assertIn("$.missing_dimensions[0]", errors[0])
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is required for the ECMAScript regex check")
+    def test_premium_missing_dimensions_pattern_in_ecmascript(self):
+        schema = json.loads((sm.JSON_DIR / "premium_observation.schema.json").read_text(encoding="utf-8"))
+        pattern = schema["properties"]["missing_dimensions"]["items"]["pattern"]
+        names = PREMIUM_DIMENSION_NAMES + PREMIUM_BLANK_DIMENSION_NAMES
+        result = subprocess.run(
+            ["node", "-e", """
+                const {pattern, names} = JSON.parse(require('node:fs').readFileSync(0, 'utf8'));
+                const regex = new RegExp(pattern, 'u');
+                process.stdout.write(JSON.stringify(names.map(name => regex.test(name))));
+            """],
+            input=json.dumps({"pattern": pattern, "names": names}),
+            capture_output=True, text=True, check=True,
+        )
+        matches = json.loads(result.stdout)
+        self.assertEqual(len(matches), len(names))
+        for name, matched in zip(names, matches):
+            with self.subTest(name=name):
+                self.assertEqual(matched, name in PREMIUM_DIMENSION_NAMES)
 
     def test_premium_subject_and_period_field_shapes(self):
         n = "PremiumObservation.full.fixture.json"

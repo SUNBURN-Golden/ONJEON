@@ -102,6 +102,67 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
             "origin=fixture can never be accepted (ONJ-KN-S-050)",
         ));
     }
+    let has_value = |value: Option<&str>| value.is_some_and(|value| !value.trim().is_empty());
+    let fixed_dimensions = [
+        (
+            "conditions",
+            p.conditions.as_ref().is_some_and(|c| !c.is_empty()),
+        ),
+        ("package_binding", has_value(p.package_binding.as_deref())),
+        ("source_as_of", has_value(p.source_as_of.as_deref())),
+        ("payment_cycle", has_value(p.payment_cycle.as_deref())),
+        (
+            "comparison_basis_id",
+            has_value(p.comparison_basis_id.as_deref()),
+        ),
+    ];
+    // Bare fixed names and the public DB's legacy `as_of` marker refer to
+    // top-level fields. Condition keys with those names need the prefix.
+    const CONDITION_PREFIX: &str = "conditions.";
+    let mut missing_fields = HashSet::new();
+    let mut missing_conditions = HashSet::new();
+    for name in &p.missing_dimensions {
+        let scoped_key = name.strip_prefix(CONDITION_PREFIX);
+        let key = scoped_key.unwrap_or(name);
+        if key.trim().is_empty() {
+            out.push(v(
+                "chk_premium_missing_dimensions",
+                "missing_dimensions entries must name a non-blank field or condition key",
+            ));
+        } else if scoped_key.is_none() && key == "as_of" {
+            missing_fields.insert("source_as_of");
+        } else if scoped_key.is_none() && fixed_dimensions.iter().any(|(field, _)| *field == key) {
+            missing_fields.insert(key);
+        } else {
+            missing_conditions.insert(key);
+        }
+    }
+
+    let mut dimensions_complete = true;
+    let mut check_dimension = |dimension: &str, present, marked_missing| {
+        dimensions_complete &= present;
+        if marked_missing == present {
+            let message = if present {
+                format!("{dimension} has a value and must be removed from missing_dimensions")
+            } else {
+                format!("{dimension} is absent and must be listed in missing_dimensions")
+            };
+            out.push(v("chk_premium_missing_dimensions", &message));
+        }
+    };
+    for (field, present) in fixed_dimensions {
+        check_dimension(field, present, missing_fields.contains(field));
+    }
+    // The label dictionary defines the open set of condition keys. The record
+    // can report additional missing keys that are not in its conditions map.
+    for (key, value) in p.conditions.iter().flatten() {
+        check_dimension(
+            &format!("{CONDITION_PREFIX}{key}"),
+            !value.trim().is_empty(),
+            missing_conditions.contains(key.as_str()),
+        );
+    }
+
     let components = p.components.as_deref().unwrap_or_default();
     let mut component_refs = HashSet::new();
     if p.product_ref.as_deref().is_some_and(|id| !no_ws(id))
@@ -167,7 +228,8 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
                     && start.is_some_and(|from| from <= as_of)
                     && (open_ended || end.is_some_and(|to| as_of <= to))
             });
-        if conditions_missing
+        if !dimensions_complete
+            || conditions_missing
             || p.evidence.is_empty()
             || p.payment_cycle.as_deref().is_none_or(|id| !no_ws(id))
             || p.comparison_basis_id.as_deref().is_none_or(|id| !no_ws(id))
@@ -181,7 +243,7 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
         {
             out.push(v(
                 "chk_premium_raw_vs_eligible",
-                "comparison_eligible needs evidenced conditions, a comparison basis, a complete priced subject, a source revision and a period covering source_as_of (K13)",
+                "comparison_eligible needs an observed or derived amount, evidenced conditions, package_binding, source_as_of, payment_cycle, comparison_basis_id, a complete priced subject, a source revision and a period covering source_as_of with no missing_dimensions (K13)",
             ));
         }
         if p.review_status != ReviewStatus::Accepted {

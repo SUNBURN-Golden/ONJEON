@@ -10,6 +10,11 @@
   "price_basis": "illustrative",
   "observed_at": "2026-10-01T09:00:00Z",
   "missing_dimensions": [
+    "conditions",
+    "package_binding",
+    "source_as_of",
+    "payment_cycle",
+    "comparison_basis_id",
     "channel",
     "risk_class"
   ],

@@ -264,6 +264,15 @@
         },
         "missing_inputs": []
       }
+    },
+    {
+      "id": "l21_death_with_unknown_police_decision",
+      "set": {"indicted_not_summary": false, "police_not_referred": null, "victim_died": true},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
+        "missing_inputs": ["police_not_referred"]
+      }
     }
   ]
 }

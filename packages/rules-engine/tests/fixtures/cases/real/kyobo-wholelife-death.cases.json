@@ -538,6 +538,26 @@
         },
         "missing_inputs": []
       }
+    },
+    {
+      "id": "w43_accident_contractor_harm_unknown",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {"cause_in_accident_table": true, "intentional_contractor_harm": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 100000000}},
+        "missing_inputs": ["intentional_contractor_harm"]
+      }
+    },
+    {
+      "id": "w44_disease_contractor_harm_unknown",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {"intentional_contractor_harm": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 50000000}},
+        "missing_inputs": ["intentional_contractor_harm"]
+      }
     }
   ]
 }

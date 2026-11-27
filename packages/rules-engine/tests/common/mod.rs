@@ -14,7 +14,8 @@ pub const REAL_RULE_IDS: [&str; 7] = [
     "kyobo-wholelife-accident-death",
     "kyobo-wholelife-disease-death",
 ];
-pub const REAL_CASE_COUNT: usize = 47 + 71; // Shared cases + engine boundary cases.
+// Deliberate inventory of the shared design-validation and engine boundary cases.
+pub const REAL_CASE_COUNT: usize = 47 + 76;
 
 pub fn fixtures_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../fixtures/rules")
@@ -47,11 +48,21 @@ pub fn cases() -> Vec<J> {
 /// Extend a shared case table with engine-owned boundary cases. Supplements inherit the
 /// shared file's base inputs and rule ID; their expectations remain hand-authored.
 pub fn case_file(relative: &std::path::Path) -> J {
-    let mut file = case_file_in(
+    let file = case_file_in(
         &fixtures_dir(),
         &engine_fixtures_dir().join("cases"),
         relative,
     );
+    with_current_harm_inputs(file, relative)
+}
+
+/// Load the shared cases alone for comparison against the same current rules.
+pub fn shared_case_file(relative: &Path) -> J {
+    let file = load_json(&fixtures_dir().join(relative));
+    with_current_harm_inputs(file, relative)
+}
+
+fn with_current_harm_inputs(mut file: J, relative: &Path) -> J {
     if let Some(base) = file.get_mut("base").and_then(J::as_object_mut) {
         if let Some(legacy) = base.remove("harmed_by_beneficiary_or_contractor") {
             // These two historical base rows explicitly prescribe no intentional harm.
@@ -279,6 +290,11 @@ pub fn merged(base: &J, set: Option<&J>) -> J {
 
 /// Every case of every `real/*.cases.json` as `(case, rule_id, full inputs)`.
 pub fn real_cases() -> Vec<(J, String, J)> {
+    real_cases_from(case_file)
+}
+
+/// Read the same shared tables with a selectable loader for shared-only controls.
+pub fn real_cases_from(load: impl Fn(&Path) -> J) -> Vec<(J, String, J)> {
     let mut paths: Vec<PathBuf> = std::fs::read_dir(real_dir())
         .unwrap()
         .map(|e| e.unwrap().path())
@@ -287,7 +303,7 @@ pub fn real_cases() -> Vec<(J, String, J)> {
     paths.sort();
     let mut out = Vec::new();
     for p in paths {
-        let file = case_file(p.strip_prefix(fixtures_dir()).unwrap());
+        let file = load(p.strip_prefix(fixtures_dir()).unwrap());
         for case in file["cases"].as_array().unwrap() {
             let rule_id = case["rule"]
                 .as_str()

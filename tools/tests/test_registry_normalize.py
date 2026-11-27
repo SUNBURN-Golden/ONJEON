@@ -176,6 +176,15 @@ class RegistryCsv(unittest.TestCase):
                     rn.normalize(self.path)
                 self.assertEqual(self.path.read_bytes(), before)
 
+    def test_unsafe_host_projection_aborts_without_rewriting_csv(self):
+        self.write([dict(entity_evidence="seed", home_access="200"),
+                    dict(entity_evidence="seed", home_access="timeout")])
+        before = self.path.read_bytes()
+        with patch.dict(rn.HOST_CODES["timeout"], maps_to="archived"):
+            with self.assertRaisesRegex(SystemExit, "unsupported acquisition mapping: timeout -> archived"):
+                rn.normalize(self.path)
+        self.assertEqual(self.path.read_bytes(), before)
+
     def test_empty_registry_is_unchanged(self):
         for contents in (b"", b"status,home_access\r\n"):
             with self.subTest(contents=contents):

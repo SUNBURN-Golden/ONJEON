@@ -91,6 +91,8 @@
 
 이 8곳은 `disclosure_access=reachable`일 뿐 원문 보관 완료가 아니다. `disclosure_status`는 `acquisition_status` 축을 유지하므로 `reachable`을 넣지 않고, 보관 작업 전인 `unqueried`와 `disclosure_gap_reason`에 접근 확인·무결성 검사·불변 보관 전이라는 사유를 남긴다. 전체 53곳의 공시 접근 결과는 `reachable` 8, `not_checked` 45이고, `archived`는 0이다. HTTP 200·응답 해시·과거 `archived` 표기만으로 원문 불변 보관을 증명하지 않는다. 정규화기는 보관 증거를 검증하는 도구가 아니므로 `archived`를 생성하지 않는다.
 
+CI 원장 검사기는 기관 CSV의 `disclosure_status=archived`를 파일·행 번호·기관 ID와 함께 오류로 보고한다. `sources.csv`의 SHA-256은 응답 본문의 해시다. 원문 불변 보관을 확인하려면 `observations/` 기록을 통해 보관 객체와 해시를 대조해야 한다. [Audit 8 회귀 증거](../../docs/blueprint/audits/2026-11-28_registry_archived_without_bytes.md).
+
 ## 출처별 접근 결과 (이 환경, 2026-10-09)
 
 | 출처 | 결과 | 비고 |

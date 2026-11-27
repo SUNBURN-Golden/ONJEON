@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import re
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -288,14 +289,15 @@ def build_model(json_dir: Path = JSON_DIR, vocab_path: Path = VOCAB_PATH, strict
     return model
 
 
-def contracts_version(cargo_toml: Path) -> str:
-    in_package = False
-    for line in cargo_toml.read_text(encoding="utf-8").splitlines():
-        s = line.strip()
-        if s.startswith("["):
-            in_package = s == "[package]"
-        elif in_package:
-            m = re.match(r'version\s*=\s*"(\d+\.\d+\.\d+)"', s)
-            if m:
-                return m.group(1)
-    raise SchemaError(f"no package version in {cargo_toml}")
+def contracts_version(cargo_toml: Path = SCHEMAS_DIR / "Cargo.toml") -> str:
+    """Read the shared contract version, falling back to the crate version for legacy tags."""
+    try:
+        package = tomllib.loads(cargo_toml.read_text(encoding="utf-8")).get("package", {})
+    except tomllib.TOMLDecodeError as e:
+        raise SchemaError(f"{cargo_toml}: {e}") from e
+    metadata = package.get("metadata", {}) if isinstance(package, dict) else {}
+    contracts = metadata.get("onjeon-contracts", package) if isinstance(metadata, dict) else package
+    version = contracts.get("version") if isinstance(contracts, dict) else None
+    if not isinstance(version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+        raise SchemaError(f"expected a contracts version x.y.z in {cargo_toml}")
+    return version

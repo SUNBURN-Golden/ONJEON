@@ -30,10 +30,13 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SCHEMAS_DIR = HERE.parent
+sys.path.insert(0, str(HERE))
+
+import schema_model as sm  # noqa: E402
+
+SCHEMAS_DIR = sm.SCHEMAS_DIR
 ALLOWLIST_PATH = SCHEMAS_DIR / "analytics-events.json"
-VOCAB_PATH = SCHEMAS_DIR / "vocabulary.json"
-CARGO_TOML = SCHEMAS_DIR / "Cargo.toml"
+VOCAB_PATH = sm.VOCAB_PATH
 
 KINDS = ("token", "vocabulary", "integer", "release_id", "semver")
 # same shapes as src/allowlist.rs: is_token / is_release_id / is_semver (fullmatch: `$` would accept a trailing newline)
@@ -41,7 +44,6 @@ TOKEN_RE = re.compile(r"[a-z][a-z0-9_.\-]*")
 RELEASE_RE = re.compile(r"rel:[0-9]{8}-[0-9]+")
 SEMVER_RE = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
-CARGO_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"', re.M)
 
 
 class CheckError(Exception):
@@ -57,14 +59,6 @@ def load_json(path: Path):
         raise CheckError(f"{path.name}: {e}") from None
 
 
-def crate_version(cargo_toml: Path = CARGO_TOML) -> str:
-    """`version` of the contracts crate; analytics-events.json must carry the same value (C-23)."""
-    m = CARGO_VERSION_RE.search(cargo_toml.read_text(encoding="utf-8"))
-    if not m:
-        raise CheckError(f"{cargo_toml.name}: no version")
-    return m.group(1)
-
-
 def axis_codes(axis: str, vocabulary: dict) -> list:
     """Codes of one vocabulary axis (never deprecated aliases). Empty when the axis does not exist."""
     return [
@@ -77,7 +71,7 @@ def axis_codes(axis: str, vocabulary: dict) -> list:
 
 
 class AllowList:
-    """The allow list plus the canon it refers to (vocabulary axes) and the crate version."""
+    """The allow list plus the canon it refers to (vocabulary axes) and the contract version."""
 
     def __init__(self, data: dict, vocabulary: dict, package_version: str):
         self.data = data
@@ -91,8 +85,12 @@ class AllowList:
 
     @classmethod
     def load(cls, path: Path = ALLOWLIST_PATH) -> "AllowList":
-        """The committed allow list; the vocabulary and the crate version come from its siblings."""
-        return cls(load_json(path), load_json(VOCAB_PATH), crate_version())
+        """The allow list uses the repository's vocabulary and contract version."""
+        try:
+            version = sm.contracts_version()
+        except (OSError, ValueError, sm.SchemaError) as e:
+            raise CheckError(str(e)) from e
+        return cls(load_json(path), load_json(VOCAB_PATH), version)
 
     # ---- one event -------------------------------------------------------------------------------
 

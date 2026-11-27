@@ -1,9 +1,12 @@
 [package]
 name = "onjeon-contracts"
-version = "0.1.0"
+version = "0.1.0" # Private Cargo crate version
 edition = "2021"
 description = "ONJEON wire contracts: vocabulary enums and view/result types generated from packages/schemas"
 publish = false
+
+[package.metadata.onjeon-contracts]
+version = "0.2.0" # Shared wire contract version
 
 [lib]
 path = "src/lib.rs"

@@ -19,6 +19,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 import check_allowlist as ca  # noqa: E402
+import schema_model as sm  # noqa: E402
 
 # 02 §3.2 이벤트 목록(초안); import_started/finished are two events
 EVENTS_02 = {
@@ -50,8 +51,10 @@ class CommittedFile(unittest.TestCase):
     def test_file_is_consistent(self):
         self.assertEqual(self.allow.problems(), [])
 
-    def test_contracts_version_is_the_crate_version(self):
-        self.assertEqual(self.allow.data["contracts_version"], ca.crate_version())
+    def test_contracts_version_matches_the_manifest_metadata(self):
+        version = sm.contracts_version()
+        self.assertEqual(self.allow.data["contracts_version"], version)
+        self.assertEqual(self.allow.package_version, version)
 
     def test_examples_pass_and_fail_as_declared(self):
         self.assertEqual(self.allow.check_examples(), [])

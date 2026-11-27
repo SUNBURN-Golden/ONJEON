@@ -17,7 +17,7 @@
 //! T-CT-04 adds [`evidence_ref`] (grammar parser, validator and fixture-id converter,
 //! 02 §6.1), [`errors`] (`errors.json`, 02 §4), [`allowlist`] (`analytics-events.json`,
 //! 02 §3.2) and [`events`] (`events/*.schema.json`, 02 §3.1). The JSON files are the
-//! contract and carry `contracts_version`, which tests tie to this crate's version.
+//! contract and carry `contracts_version`, which tests tie to [`CONTRACTS_VERSION`].
 
 pub mod allowlist;
 pub mod checks;
@@ -29,9 +29,7 @@ pub mod generated;
 
 pub use generated::types::*;
 pub use generated::vocabulary::*;
-
-/// Contracts package version (semver, tag `contracts-x.y.z`). See `packages/schemas/README.md`.
-pub const CONTRACTS_VERSION: &str = env!("CARGO_PKG_VERSION");
+pub use generated::CONTRACTS_VERSION;
 
 #[cfg(test)]
 mod tests;

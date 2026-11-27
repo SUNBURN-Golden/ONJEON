@@ -61,7 +61,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 
 ## 버전과 호환 검사 (02 §5)
 
-패키지 버전은 이 디렉터리 `Cargo.toml`의 `version`이고 태그는 `contracts-x.y.z`다. 깨지는 변경 = 필드 삭제·타입 변경·필수 ↔ 선택 변경·필수 필드 추가·enum 값 삭제·타입 삭제(major, `0.x`에서는 minor를 올려야 한다). 선택 필드·타입·enum 값 추가는 버전을 올리면 된다. 스키마가 바뀌었는데 버전이 그대로면 실패한다.
+공유 계약 판은 `Cargo.toml`의 `[package.metadata.onjeon-contracts]`에 기록하고 태그는 `contracts-x.y.z`를 쓴다. 생성 클라이언트와 오류·이벤트 카탈로그가 같은 계약 판을 쓴다. `[package]`의 버전은 비공개 Rust 크레이트용이다. 호환 검사는 계약 메타데이터가 없는 이전 태그에서 `[package]` 버전을 읽는다. 필드 삭제·타입 변경·필수 ↔ 선택 변경·필수 필드 추가·enum 값 삭제·타입 삭제는 major를 올려야 한다(`0.x`에서는 minor). 선택 필드·타입·enum 값 추가는 버전을 올리면 된다. 스키마가 바뀌었는데 버전이 그대로면 실패한다.
 
 `check_compat.sh <prev_tag>`는 태그의 JSON Schema와 구조를 비교하고, 호환 변경이면 태그에 커밋된 Rust 생성물로 새 스키마에서 만든 최소 문서를 읽는다. `ONJ_COMPAT_ALL_CLIENTS=1`이면 태그에 커밋된 TypeScript 타입으로 같은 문서를 검사하고 Dart 생성물로 역직렬화한다. major 상향으로 선언한 깨지는 변경은 구조 비교에 기록하고 탐침을 건너뛴다. 탐침은 이전·새 어휘에 모두 있는 enum 값 중 새 어휘 순서의 첫 값을 사용한다. 이전 판에 없던 축은 새 어휘의 첫 값을 사용한다.
 
@@ -103,7 +103,7 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 
 ### 1.10.0에서 승격된 축 (Audit 8)
 
-`ContractEffectResult.kind`는 `contract_effect_kind`, `effect`와 `conditional_effect`는 `contract_effect`를 참조한다. 기존 엔진 출력은 같은 문자열을 전송한다. 공유 스키마와 생성 타입은 축에 없는 문자열을 거부한다. [검증 및 호환 기록](../../docs/blueprint/audits/2026-11-28_vocab_contract_effect.md).
+`ContractEffectResult.kind`는 `contract_effect_kind`, `effect`와 `conditional_effect`는 `contract_effect`를 참조한다. 생성 타입의 세 필드가 문자열에서 enum으로 바뀌어 계약 패키지는 0.2.0으로 올렸다. 기존 엔진 출력은 같은 문자열을 전송한다. 공유 스키마와 생성 타입은 축에 없는 문자열을 거부한다. [검증 및 호환 기록](../../docs/blueprint/audits/2026-11-28_vocab_contract_effect.md).
 
 ### 1.6.0에서 승격된 축 (T-CT-02)
 

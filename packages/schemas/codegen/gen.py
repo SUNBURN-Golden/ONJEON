@@ -58,14 +58,14 @@ def expected_outputs(json_dir: Path = sm.JSON_DIR, vocab_path: Path = sm.VOCAB_P
     """Map absolute path -> expected text. The vocabulary schema is generated first so lint passes."""
     vocab = sm.load_vocab(vocab_path)
     if version is None:
-        version = sm.contracts_version(sm.SCHEMAS_DIR / "Cargo.toml")
+        version = sm.contracts_version()
     files = sm.read_schema_files(json_dir)
     files[sm.VOCAB_FILE] = sm.vocabulary_schema(vocab)
     model = sm._Loader(files, vocab).run()
     if model.errors:
         raise sm.SchemaError("schema lint failed:\n  " + "\n  ".join(model.errors))
     out = {json_dir / sm.VOCAB_FILE: vocabulary_schema_text(vocab)}
-    for rel, text in emit_rust.emit(model).items():
+    for rel, text in emit_rust.emit(model, version).items():
         out[RUST_DIR / rel] = text
     for rel, text in emit_ts.emit(model, version).items():
         out[TS_DIR / rel] = text
@@ -78,7 +78,7 @@ def expected_outputs(json_dir: Path = sm.JSON_DIR, vocab_path: Path = sm.VOCAB_P
 def api_outputs(json_dir: Path = sm.JSON_DIR, vocab_path: Path = sm.VOCAB_PATH, version: str | None = None,
                 docs: dict | None = None) -> dict:
     if version is None:
-        version = sm.contracts_version(sm.SCHEMAS_DIR / "Cargo.toml")
+        version = sm.contracts_version()
     am = om.build(docs, json_dir, vocab_path)
     if am.errors:
         raise sm.SchemaError("openapi lint failed:\n  " + "\n  ".join(am.errors))

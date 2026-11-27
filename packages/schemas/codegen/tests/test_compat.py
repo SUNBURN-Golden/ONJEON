@@ -168,6 +168,49 @@ class Versions(unittest.TestCase):
         self.assertIsNone(ok("1.2.0", "2.0.0", True, True))
         self.assertIn("backwards", ok("1.2.0", "1.1.0", False, False))
 
+    def test_contract_effect_enum_promotion_requires_a_minor_bump(self):
+        axes = {
+            "kind": "contract_effect_kind",
+            "effect": "contract_effect",
+            "conditional_effect": "contract_effect",
+        }
+
+        def restore_string_fields(result):
+            for field, axis in axes.items():
+                result["properties"][field] = {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$",
+                    "x-onjeon-pending-axis": axis,
+                }
+
+        def remove_new_axes(vocab):
+            vocab["axes"] = [axis for axis in vocab["axes"] if axis["id"] not in axes.values()]
+
+        current, legacy = models(
+            prop("evaluation_result.schema.json", "ContractEffectResult")(restore_string_fields),
+            mutate_vocab=remove_new_axes,
+        )
+        breaking, _ = compat.diff(legacy, current)
+        self.assertCountEqual(
+            breaking,
+            [
+                f"field type changed: ContractEffectResult.{field}: string pattern=^[a-z][a-z0-9_]*$ -> enum {axis}"
+                for field, axis in axes.items()
+            ],
+        )
+        version = sm.contracts_version()
+        self.assertIsNone(compat.required_bump_ok("0.1.0", version, breaking=True, changed=True))
+
+    def test_invalid_contract_metadata_does_not_fall_back_to_the_crate_version(self):
+        with tempfile.TemporaryDirectory() as t:
+            manifest = Path(t) / "Cargo.toml"
+            manifest.write_text(
+                '[package]\nversion = "0.1.0"\n[package.metadata.onjeon-contracts]\nversion = "0.2"\n',
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(sm.SchemaError, r"expected a contracts version x\.y\.z"):
+                sm.contracts_version(manifest)
+
 
 class Probe(unittest.TestCase):
     def test_each_probe_directory_gets_its_own_crate_name(self):
@@ -254,14 +297,17 @@ class CheckCompatScript(unittest.TestCase):
             text=True,
         ).strip()
 
-    def repo(self, tagged=True, lockfile=True, generated=True, client_change=None):
+    def repo(self, tagged=True, lockfile=True, generated=True, client_change=None, version=None):
         root = Path(tempfile.mkdtemp(dir=self.target))
         dst = root / "packages" / "schemas"
         (dst).mkdir(parents=True)
         shutil.copytree(sm.JSON_DIR, dst / "json")
         shutil.copytree(sm.SCHEMAS_DIR / "codegen", dst / "codegen", ignore=shutil.ignore_patterns("tests", "generated", "evidence", "__pycache__"))
         shutil.copy(sm.VOCAB_PATH, dst / "vocabulary.json")
-        shutil.copy(sm.SCHEMAS_DIR / "Cargo.toml", dst / "Cargo.toml")
+        # Legacy tags stored the contract version in the manifest.
+        (dst / "Cargo.toml").write_text('[package]\nversion = "0.1.0"\n', encoding="utf-8")
+        if version is not None:
+            self.bump(dst, version)
         if generated:
             shutil.copytree(sm.SCHEMAS_DIR / "src" / "generated", dst / "src" / "generated")
             for lang in ("ts", "dart"):
@@ -279,7 +325,7 @@ class CheckCompatScript(unittest.TestCase):
         self.git(root, "add", "-A")
         self.git(root, "commit", "-q", "-m", "baseline")
         if tagged:
-            self.git(root, "tag", "contracts-0.1.0")
+            self.git(root, "tag", f"contracts-{version or '0.1.0'}")
         if client_change:
             shutil.copyfile(sm.SCHEMAS_DIR / path, client)
         return root, dst
@@ -291,8 +337,8 @@ class CheckCompatScript(unittest.TestCase):
 
     @staticmethod
     def bump(dst, version):
-        p = dst / "Cargo.toml"
-        p.write_text(p.read_text(encoding="utf-8").replace('version = "0.1.0"', f'version = "{version}"', 1), encoding="utf-8")
+        with (dst / "Cargo.toml").open("a", encoding="utf-8") as manifest:
+            manifest.write(f'\n[package.metadata.onjeon-contracts]\nversion = "{version}"\n')
 
     def test_unchanged_schemas_pass_against_the_tag_including_the_compile_probe(self):
         root, dst = self.repo()
@@ -414,6 +460,13 @@ class CheckCompatScript(unittest.TestCase):
         rc, out = self.run_check(root, dst, "contracts-0.1.0")
         self.assertEqual(rc, 0, out)
         self.assertIn("compile probe", out)
+
+    def test_tagged_contract_metadata_takes_precedence_over_the_crate_version(self):
+        root, dst = self.repo(version="0.2.0")
+        edit(dst / "json" / "error_response.schema.json", lambda d: d["properties"].update(hint={"type": "string"}))
+        rc, out = self.run_check(root, dst, "contracts-0.2.0")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("schemas changed but the version is still 0.2.0", out)
 
     def mutate_vocab(self, dst, fn):
         edit(dst / "vocabulary.json", fn)

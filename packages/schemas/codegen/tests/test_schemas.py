@@ -46,6 +46,15 @@ class Lint(unittest.TestCase):
         roots = {s.name for s in model.structs.values() if s.root}
         self.assertEqual(roots, set(REQUIRED_TYPES))
 
+    def test_terminated_pay_reserve_describes_g23_contract_expiry_on_death(self):
+        # G23 and kyobo_cancer_terms.md, main policy Appendix 1, note 2.
+        axis = sm.build_model().axes["contract_effect"]
+        effect = next(value for value in axis.values if value["code"] == "terminated_pay_reserve")
+        self.assertEqual(
+            effect["concept_ko"],
+            "보험기간 중 피보험자가 사망하면 보험회사가 사망 당시의 계약자적립액을 지급하고 계약은 소멸함",
+        )
+
     def lint_errors(self, mutate, vocab_mutate=None):
         with tempfile.TemporaryDirectory() as t:
             d = copy_schemas(Path(t))

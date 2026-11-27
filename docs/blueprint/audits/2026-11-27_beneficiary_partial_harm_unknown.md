@@ -23,5 +23,6 @@
 | `python3 -m unittest discover -s tools/tests -p 'test_blueprint*.py' -v` | 시험 78건 통과. 개정 규칙의 인벤토리 우선순위, 원본 없는 개정 규칙 거부, G11 인코딩의 과거 경로 재선택 또는 규칙 ID 불일치 거부를 검증했다. |
 | `python3 -m unittest discover -s tools/tests -v` | 1,812건 중 1,806건 통과. 로컬 원본 보관본이 필요한 5건과 이전 botocore가 필요한 1건은 건너뛰었다. |
 | README의 별도 프로젝트 시험 | 순서 보존 Rust 2건, 시나리오 API Rust 4건, 온톨로지 실행기 Rust 4건, 데몬 검증 Python 81건 통과. |
+| [Audit 3 음성 대조 실행기](../../../tools/evidence/audit3-engine-invariant-tests-strengthen/negative_controls.py) 수정 후 재실행 | 정상 기준 통과. 공유 해시 변조 7건과 누락 7건은 각각 공유 해시 값과 키 집합 검사에서 거부됐다. 공유 규칙과 해시를 함께 삭제한 21건 중 개정본이 있는 9건은 원본 누락 진단으로, 나머지 12건은 고정 규칙 ID 목록 검사로 거부됐다. |
 
 [실제 조항 및 화면 회귀](../../../packages/rules-engine/tests/real_clauses.rs) · [암 사례](../../../packages/rules-engine/tests/fixtures/cases/real/kyobo-cancer-main-dx.cases.json) · [종신 사례](../../../packages/rules-engine/tests/fixtures/cases/real/kyobo-wholelife-death.cases.json) · [계약 왕복 시험](../../../packages/schemas/src/tests.rs).

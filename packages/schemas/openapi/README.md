@@ -56,7 +56,8 @@ bash packages/schemas/codegen/gen.sh --check   # 최신 여부(CI)
 
 ## 증거와 한계
 
-- 실행 로그는 `packages/schemas/codegen/evidence/ct03/`에 커밋돼 있다(`ct03/EVIDENCE.md`가 색인).
+- 증거 색인에 T-CT-03 당시 실행 로그가 있다. [T-CT-03 증거 색인](../codegen/evidence/ct03/EVIDENCE.md)
+- CI의 계약 빌드 단계는 TypeScript와 Dart 도구를 설치하고 `ONJ_REQUIRE_TOOLCHAINS=1`로 `build_check.sh`를 실행한다. 이 스크립트는 OpenAPI TypeScript 픽스처의 타입 검사, Dart 분석과 픽스처 왕복, 두 언어의 기본 진입점에서 스켈레톤 비노출을 확인한다. `cargo test --all`도 생성물 최신 여부와 OpenAPI 시험을 확인한다. [CI 워크플로](../../../.github/workflows/ci.yml)
 - **인증 수단은 정해지지 않았다.** `POST /v1/auth/sessions`는 `provider`·`credential`을 불투명 값으로 받는 자리표시다(인증 설계는 제3부 §54.2 6번). 자격 증명은 저장·로그 금지.
 - **D-11(비회원 서버 저장 없는 계산)은 보류.** `POST /v1/evaluations`에 `ephemeral` 모드는 없고 연산에 `x-onjeon-pending-decision: D-11`만 적었다.
 - 내보내기는 기계 판독 JSON만 정했다. 사람용 PDF(제3부 §46.4)는 이 초안에 없다.
@@ -67,5 +68,3 @@ bash packages/schemas/codegen/gen.sh --check   # 최신 여부(CI)
 - 민감 필드(`SessionRequest.credential`, `PolicyImportForm.password`)를 가진 생성 Rust 타입은 `Debug`를 파생하므로 `{:?}`로 로그하면 값이 찍힌다. 로그 금지는 사용처의 규칙이다. 가림 처리는 T-AP-01 전에 생성기에 더할 후속이다.
 - `cov_ids` xor `concept_id`, `contract_ids` xor `cov_ids`는 JSON Schema 부분집합으로 쓸 수 없어 `onjeon-api-types`의 `checks`가 검사한다. 그 외 제약(`pattern`·`minimum`)은 파이썬 시험용 검증기만 확인하고 생성 타입은 강제하지 않는다(contracts와 같다).
 - **OpenAPI diff 호환 검사(02 §5의 "공개·개인·관제 API 경로 `/v1`")는 아직 없다.** `check_compat.sh`는 `json/` 스키마만 비교한다. 필드 삭제를 `/v2`로 강제하는 검사는 후속이다.
-- CI 워크플로(`.github/workflows/`)는 이 과제의 허용 경로 밖이라 연결하지 않았다. `cargo test --all`이 `gen.py --check`와 OpenAPI 시험을 돌리므로 기존 cargo 단계가 그것을 지킨다. TypeScript·Dart 빌드는 도구가 필요해 CI가 돌리지 않고, 근거는 커밋된 로그뿐이다.
-- `packages/schemas/README.md`(T-CT-01)는 이 과제의 허용 경로가 아니라 고치지 않았다. 그 문서의 구성표·`tree_hash.sh` 값(`codegen/evidence/EVIDENCE.md`)은 이 디렉터리와 새 생성물을 포함하지 않은 시점의 것이라 지금 트리와 해시가 다르다. T-CT-01 로그를 낡았다고 읽어야 한다(로그가 보이는 사실은 그 시점의 것).

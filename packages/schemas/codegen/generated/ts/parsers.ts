@@ -103,13 +103,23 @@ import {
 
 type Reader<T> = (value: unknown, path: string) => T;
 
+const objectConstructorSource = Function.prototype.toString.call(Object);
+
 function readObject(value: unknown, path: string): Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     throw new TypeError(`${path}: expected an object`);
   }
   const prototype = Object.getPrototypeOf(value);
   if (prototype !== Object.prototype && prototype !== null) {
-    throw new TypeError(`${path}: expected a plain object`);
+    // A foreign realm has its own Object.prototype and native Object constructor.
+    const constructor = Object.getOwnPropertyDescriptor(prototype, "constructor")?.value;
+    if (
+      typeof constructor !== "function" ||
+      Function.prototype.toString.call(constructor) !== objectConstructorSource ||
+      constructor.prototype !== prototype
+    ) {
+      throw new TypeError(`${path}: expected a plain object`);
+    }
   }
   return value as Record<string, unknown>;
 }

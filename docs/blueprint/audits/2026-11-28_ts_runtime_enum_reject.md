@@ -15,3 +15,11 @@
 | `python3 -m unittest discover -s tools/daemon/runner_verify/tests -v` | 첫 실행에서 로컬 Git 시간 초과와 제공자 전환 시나리오 실패가 발생했다. 전체 묶음을 단독 재실행해 81개 모두 통과했다. |
 
 CI는 계약 도구 설치 단계에서 `ONJ_REQUIRE_TOOLCHAINS=1`로 생성물 빌드와 런타임 시험을 실행한다. [CI 워크플로](../../../.github/workflows/ci.yml).
+
+## 1차 수정 검증
+
+- 기존 생성물에서 Node `vm` 내부의 `JSON.parse`로 읽은 `Assertion.relation` 픽스처를 `parseAssertion`에 넘기면 `Assertion: expected a plain object`로 실패했다. 새 회귀 시험만 실패했다(23개 통과, 1개 실패).
+- 재생성한 파서는 같은 픽스처의 중첩 객체와 배열까지 읽고, 그 배열 안의 미등록 `role`은 `Assertion.evidence[0].role` 경로로 거부한다. 다른 realm의 클래스 인스턴스와 직접 만든 프로토타입도 거부한다. [Node 런타임 회귀](../../../packages/schemas/codegen/tests/ts_roundtrip.cjs)
+- `ONJ_REQUIRE_TOOLCHAINS=1 bash packages/schemas/codegen/build_check.sh`가 생성물 일치와 Node 런타임 시험 24개를 모두 통과했다. OpenAPI TypeScript 픽스처 타입 검사, Dart 분석·픽스처 왕복, 기본 진입점의 스켈레톤 비노출 검사도 통과했다. README에 이 스크립트를 실행하는 현재 CI 단계를 기록했다. [OpenAPI README](../../../packages/schemas/openapi/README.md)
+- 최종 생성물로 Python 코드 생성 시험 142개와 Rust 작업 공간 시험 564개가 통과했다(Rust 기존 무시 1개). 별도 매니페스트의 키 순서 보존, 시나리오 API, 온톨로지 실행기 시험도 각각 2개, 4개, 4개 통과했다. 이전 `contracts-*` 태그가 없는 이력에서 `check_compat.sh --latest`는 필드 삭제 자체 시험을 통과했다.
+- 시스템 기본 임시 디렉터리로 재실행한 `tools/tests`는 1,806개 통과, 기존 건너뜀 6개였다. `tools/daemon/runner_verify/tests`는 81개 모두 통과했다.

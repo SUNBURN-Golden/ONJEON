@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const { readdirSync, readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { test } = require("node:test");
+const { runInNewContext } = require("node:vm");
 
 const [, , entryPoint, fixtures] = process.argv;
 const contracts = require(entryPoint);
@@ -23,6 +24,15 @@ for (const file of readdirSync(fixtures).filter((file) => file.endsWith(".fixtur
     assert.deepStrictEqual(contracts[`parse${type}`](input), input);
   });
 }
+
+test("decode JSON from another realm and validate its nested enums", () => {
+  const body = readFileSync(join(fixtures, "Assertion.relation.fixture.json"), "utf8");
+  const input = runInNewContext("JSON.parse(body)", { body });
+  assert.deepStrictEqual(parseAssertion(input), JSON.parse(body));
+
+  input.evidence[0].role = "future_role";
+  rejects(parseAssertion, input, "Assertion.evidence[0].role: unknown vocabulary value");
+});
 
 test("reject unknown enums at a document field and inside nested objects and arrays", () => {
   const assertion = readFixture("Assertion.relation");
@@ -58,6 +68,11 @@ test("reject missing keys, wrong scalar types and wrong container shapes", () =>
   rejects(parseAssertion, { ...assertion, evidence: evidence[0] }, "Assertion.evidence: expected an array");
   rejects(parseAssertion, [], "Assertion: expected an object");
   rejects(parseAssertion, Object.create(assertion), "Assertion: expected a plain object");
+  const customPrototype = Object.assign(Object.create(null), { constructor: Object });
+  rejects(parseAssertion, Object.assign(Object.create(customPrototype), assertion),
+    "Assertion: expected a plain object");
+  const foreignInstance = runInNewContext("Object.assign(new (class {})(), assertion)", { assertion });
+  rejects(parseAssertion, foreignInstance, "Assertion: expected a plain object");
 
   const premium = readFixture("PremiumObservation.full");
   rejects(parsePremiumObservation, { ...premium, raw_amount: 1.5 },

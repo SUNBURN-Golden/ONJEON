@@ -44,7 +44,11 @@ class RegistryCounts(unittest.TestCase):
         self.assertTrue(all(r["disclosure_status"] == "unqueried" for r in reachable))
 
     def test_no_product_list_is_enumerated_yet(self):
-        self.assertEqual(Counter(r["product_list_status"] for r in self.insurers), Counter(unqueried=53))
+        included = [row for row in self.insurers + rows("cooperatives_and_others")
+                    if row["in_denominator"] == "true"]
+        self.assertEqual(Counter(r["product_list_status"] for r in included), Counter(unqueried=54))
+        epost = next(row for row in included if row["insurer_id"] == "public-epost")
+        self.assertIn("disclosure_entry_missing", codes(epost))
 
     def test_reason_code_counts(self):
         per_code = Counter(c for r in self.insurers for c in codes(r))
@@ -181,6 +185,15 @@ class DomesticEnvironmentGate(unittest.TestCase):
         self.assertIn("O19", self.task["blocked_by"])
         self.assertIn("국내 IP", self.task["blocked_by"])
         self.assertIn("P01·P02", self.task["notes"])
+
+    def test_t_dt_04_consumes_both_registry_inputs_and_keeps_epost(self):
+        registry_inputs = {path for path in self.task["consumes"] if path.startswith("path:data/registry/")}
+        self.assertEqual(registry_inputs, {"path:data/registry/insurers.csv",
+                                           "path:data/registry/cooperatives_and_others.csv"})
+        criteria = "\n".join(self.task["done_criteria"])
+        self.assertIn("in_denominator=true", criteria)
+        self.assertIn("우체국보험을 포함", criteria)
+        self.assertIn("공제는 분모에서 제외", criteria)
 
     def test_o19_is_gated_only_on_t_dt_04_real_data(self):
         users = {(t["id"], k) for t in self.tasks for k, v in t["decision_gates"].items() if "O19" in (v or [])}

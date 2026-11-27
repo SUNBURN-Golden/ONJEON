@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../app/routes.dart';
 import '../design/tokens.g.dart';
 import '../session/app_session.dart';
-import '../states/frames.dart';
 import 'screen_page.dart';
 
 class MeScreen extends StatelessWidget {
@@ -12,7 +11,7 @@ class MeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
-    Widget row(String title, String subtitle) => Container(
+    Widget row(String title, String? subtitle) => Container(
           padding: const EdgeInsets.symmetric(vertical: OnjeonSpace.lg),
           decoration: const BoxDecoration(
             border: Border(bottom: BorderSide(color: OnjeonColors.divider)),
@@ -21,8 +20,10 @@ class MeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: OnjeonText.rowTitle),
-              const SizedBox(height: OnjeonSpace.xs),
-              Text(subtitle, style: OnjeonText.rowSubtitle),
+              if (subtitle != null) ...[
+                const SizedBox(height: OnjeonSpace.xs),
+                Text(subtitle, style: OnjeonText.rowSubtitle),
+              ],
             ],
           ),
         );
@@ -33,7 +34,7 @@ class MeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           row('프로필', '본인과 가족'),
-          row('가입내역', holdingsLine(session.holdings)),
+          row('가입내역', session.holdings.screenKo),
           row('동의·권한', '처리 동의와 삭제'),
           const SizedBox(height: OnjeonSpace.lg),
           const NotConnectedNotice(what: '프로필·가입내역·동의 관리'),

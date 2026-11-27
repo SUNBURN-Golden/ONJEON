@@ -5,7 +5,7 @@ const { join } = require("node:path");
 const { test } = require("node:test");
 const { runInNewContext } = require("node:vm");
 
-const [, , entryPoint, fixtures] = process.argv;
+const [, , entryPoint, fixtures, vocabulary] = process.argv;
 const contracts = require(entryPoint);
 const { parseAssertion, parsePlanView, parsePremiumObservation, parseScenarioResult } = contracts;
 
@@ -24,6 +24,38 @@ for (const file of readdirSync(fixtures).filter((file) => file.endsWith(".fixtur
     assert.deepStrictEqual(contracts[`parse${type}`](input), input);
   });
 }
+
+test("all vocabulary metadata matches the registry and cannot change wire decoding", () => {
+  const { axes } = JSON.parse(readFileSync(vocabulary, "utf8"));
+  for (const axis of axes) {
+    const name = axis.id.split("_").map(word => word[0].toUpperCase() + word.slice(1)).join("");
+    const metadata = contracts[`${name}Metadata`];
+    const parse = contracts[`parse${name}`];
+    assert.deepStrictEqual(Object.keys(metadata), axis.values.map(value => value.code), axis.id);
+    const hasMapsTo = axis.values.some(value => "maps_to" in value);
+    for (const value of axis.values) {
+      const label = `${axis.id}.${value.code}`;
+      const expected = { screenKo: value.screen_ko, deprecatedAliases: value.deprecated_aliases };
+      if (hasMapsTo) expected.mapsTo = value.maps_to ?? null;
+      if (axis.id === "diff_type") expected.group = value.group;
+      assert.deepStrictEqual(metadata[value.code], expected, label);
+      assert.equal(parse(value.code), value.code, label);
+      for (const alias of value.deprecated_aliases) {
+        assert.throws(() => parse(alias), /unknown /, `${label} accepted ${alias}`);
+      }
+    }
+  }
+});
+
+test("two-plan comparison reads the screen text from the change group", () => {
+  const { DiffGroupMetadata, DiffTypeMetadata } = contracts;
+  const plan = parsePlanView(readFixture("PlanView"));
+  const diffGroup = plan.diff.groups[0];
+  const diff = DiffTypeMetadata[diffGroup.items[0].diff_type];
+  assert.equal(diff.screenKo, null);
+  assert.equal(diff.group, diffGroup.group);
+  assert.equal(DiffGroupMetadata[diff.group].screenKo, "줄어드는 것");
+});
 
 test("decode JSON from another realm and validate its nested enums", () => {
   const body = readFileSync(join(fixtures, "Assertion.relation.fixture.json"), "utf8");

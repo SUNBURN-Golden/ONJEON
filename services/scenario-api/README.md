@@ -4,6 +4,8 @@
 
 For an event list, an explicit empty assumption or user confirmation means no events in the scope being evaluated. Supply server-verified facts only after confirming the entire scope for the coverage and event window. A bare empty list in the ordinary facts map means unknown. The precedence is assumptions, ordinary facts, user-confirmed facts, then server-verified facts, with later values taking priority.
 
+An amount calculation issue sets the display status to `hold`. The adapter builds the explanation from `CalculationIssueCode::screen_ko()` when the vocabulary supplies a screen label.
+
 Run the service tests from the repository root.
 
 ```sh

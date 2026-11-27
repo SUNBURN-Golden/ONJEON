@@ -116,8 +116,8 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
             has_value(p.comparison_basis_id.as_deref()),
         ),
     ];
-    // Bare fixed names refer to top-level fields. The prefix disambiguates
-    // condition keys that use the same name, including keys absent from the map.
+    // Bare fixed names and the public DB's legacy `as_of` marker refer to
+    // top-level fields. Condition keys with those names need the prefix.
     const CONDITION_PREFIX: &str = "conditions.";
     let mut missing_fields = HashSet::new();
     let mut missing_conditions = HashSet::new();
@@ -129,6 +129,8 @@ pub fn check_premium_observation(p: &PremiumObservation) -> Vec<Violation> {
                 "chk_premium_missing_dimensions",
                 "missing_dimensions entries must name a non-blank field or condition key",
             ));
+        } else if scoped_key.is_none() && key == "as_of" {
+            missing_fields.insert("source_as_of");
         } else if scoped_key.is_none() && fixed_dimensions.iter().any(|(field, _)| *field == key) {
             missing_fields.insert(key);
         } else {

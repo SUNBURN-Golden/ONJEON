@@ -583,6 +583,54 @@ fn premium_missing_dimensions_distinguish_top_level_fields_from_conditions() {
 }
 
 #[test]
+fn premium_missing_dimensions_accept_legacy_as_of_as_a_top_level_marker() {
+    let mut p = eligible_premium();
+    p.comparison_eligible = false;
+    let source_as_of = p.source_as_of.take();
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("as_of".into(), "2026-10-01".into());
+
+    for markers in [
+        &["as_of"][..],
+        &["source_as_of"],
+        &["source_as_of", "as_of"],
+    ] {
+        p.missing_dimensions = markers.iter().map(|marker| (*marker).into()).collect();
+        assert_eq!(check_premium_observation(&p), vec![], "{markers:?}");
+    }
+
+    p.missing_dimensions = vec!["as_of".into()];
+    p.comparison_eligible = true;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_raw_vs_eligible");
+    p.comparison_eligible = false;
+
+    p.conditions
+        .as_mut()
+        .unwrap()
+        .insert("as_of".into(), " \t".into());
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("conditions.as_of "));
+
+    p.missing_dimensions.push("conditions.as_of".into());
+    assert_eq!(check_premium_observation(&p), vec![]);
+
+    p.source_as_of = source_as_of;
+    let violations = check_premium_observation(&p);
+    assert_eq!(violations.len(), 1, "{violations:?}");
+    assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+    assert!(violations[0].message.starts_with("source_as_of "));
+
+    p.missing_dimensions.remove(0);
+    assert_eq!(check_premium_observation(&p), vec![]);
+}
+
+#[test]
 fn premium_missing_dimensions_strip_the_condition_prefix_once() {
     let mut p = eligible_premium();
     p.comparison_eligible = false;
@@ -598,11 +646,22 @@ fn premium_missing_dimensions_strip_the_condition_prefix_once() {
 fn premium_missing_dimensions_reject_blank_names() {
     let mut p = eligible_premium();
     p.comparison_eligible = false;
-    for name in ["", " ", "\t\n\u{2003}", "conditions.", "conditions. \t"] {
+    for name in ["", " ", "\t\n\u{2003}", "\u{0085}"] {
+        for marker in [name.to_owned(), format!("conditions.{name}")] {
+            p.missing_dimensions = vec![marker.clone()];
+            let violations = check_premium_observation(&p);
+            assert_eq!(violations.len(), 1, "{marker:?}: {violations:?}");
+            assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+        }
+    }
+    for name in [
+        "\u{001c}",
+        "\u{feff}",
+        "conditions.\u{feff}",
+        "conditions.\u{0085}channel",
+    ] {
         p.missing_dimensions = vec![name.into()];
-        let violations = check_premium_observation(&p);
-        assert_eq!(violations.len(), 1, "{name:?}: {violations:?}");
-        assert_eq!(violations[0].rule, "chk_premium_missing_dimensions");
+        assert_eq!(check_premium_observation(&p), vec![], "{name:?}");
     }
 }
 

@@ -76,7 +76,7 @@ must_ok() { # NAME DB ROLE SQL
 must_fail() { # NAME DB ROLE EXPECT SQL  — EXPECT는 오류 출력에 들어 있어야 하는 문구(제약 이름 등)
   run_sql "$2" "$3" "$5"
   if [ $rc -eq 0 ]; then bad "$1 (expected rejection, but it succeeded)"
-  elif printf '%s' "$out" | grep -qF -- "$4"; then ok "$1"
+  elif [[ "$out" == *"$4"* ]]; then ok "$1"
   else bad "$1 (rejected for the wrong reason; wanted '$4')" "$out"; fi
 }
 q() { psql_admin "$1" -At -c "$2" 2>&1; }
@@ -214,6 +214,8 @@ must_fail "accepted price row without review_decision is rejected" "$PUB" knowle
   "$(P 7 false accepted pipeline NULL "'{\"age\":\"40\"}'::jsonb" "'none'" "'2026-01-01'" "'{}'")"
 must_ok "price row with conditions but blank package/as-of is preserved with honest missing_dimensions, not eligible" "$PUB" data_writer \
   "$(P 8 false pending pipeline NULL "'{\"age\":\"40\"}'::jsonb" "NULL" "NULL" "'{package_binding,as_of}'")"
+must_ok "I7 legacy as_of marks a missing source date when conditions.as_of is populated" "$PUB" data_writer \
+  "$(P 13 false pending pipeline NULL "'{\"as_of\":\"2026-10-01\"}'::jsonb" "'none'" "NULL" "'{as_of,payment_cycle,comparison_basis_id}'")"
 must_ok "complete accepted price row is eligible" "$PUB" knowledge_writer \
   "$(P 9 true accepted pipeline "'$RD_OK'" "'{\"age\":\"40\"}'::jsonb" "'none'" "'2026-01-01'" "'{}'")"
 

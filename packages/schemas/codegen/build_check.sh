@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the three generated clients: Rust (cargo), TypeScript (tsc), Dart (dart analyze).
+# Build and test the three generated clients: Rust, TypeScript and Dart.
 #
 #   bash packages/schemas/codegen/build_check.sh           # a missing TypeScript/Dart toolchain is reported as SKIPPED
 #   ONJ_REQUIRE_TOOLCHAINS=1 bash .../build_check.sh       # CI: a missing toolchain is a failure
@@ -20,7 +20,7 @@ echo "== Rust: cargo build -p onjeon-contracts -p onjeon-api-types (default and 
 (cd "$repo" && cargo build -p onjeon-api-types --quiet && cargo build -p onjeon-api-types --features skeleton --quiet) \
   && echo "Rust API: built (default and skeleton feature)" || { echo "Rust API: FAILED"; failed=1; }
 
-echo "== TypeScript: tsc --noEmit"
+echo "== TypeScript: tsc + Node fixture decoding"
 tsc_cmd=()
 if [ -n "${TSC:-}" ]; then read -r -a tsc_cmd <<<"$TSC"
 elif command -v tsc >/dev/null 2>&1; then tsc_cmd=(tsc)
@@ -33,8 +33,18 @@ else
   mkdir -p "$ts_scratch/ts" "$ts_scratch/ts-api"
   cp -R "$here/generated/ts/." "$ts_scratch/ts/"
   cp -R "$here/generated/ts-api/." "$ts_scratch/ts-api/"
-  python3 -I "$here/ts_fixtures.py" "$ts_scratch/ts"   # every fixture as a typed constant + two expected type errors
-  if "${tsc_cmd[@]}" -p "$ts_scratch/ts/tsconfig.json"; then echo "TypeScript: built, fixtures type-check (${tsc_cmd[*]} $("${tsc_cmd[@]}" --version))"
+  if python3 -I "$here/ts_fixtures.py" "$ts_scratch/ts" \
+      && "${tsc_cmd[@]}" -p "$ts_scratch/ts/tsconfig.json"; then
+    echo "TypeScript: built, fixtures type-check ($("${tsc_cmd[@]}" --version))"
+    if ! command -v node >/dev/null 2>&1; then
+      echo "TypeScript runtime: SKIPPED (no node)"; skipped=1
+    elif "${tsc_cmd[@]}" -p "$ts_scratch/ts/tsconfig.json" --noEmit false \
+        --module Node16 --moduleResolution Node16 --outDir "$ts_scratch/ts-runtime" \
+        && node "$here/tests/ts_roundtrip.cjs" "$ts_scratch/ts-runtime/index.js" "$here/tests/fixtures"; then
+      echo "TypeScript runtime: fixture decoding and rejection tests passed"
+    else
+      echo "TypeScript runtime: FAILED"; failed=1
+    fi
   else echo "TypeScript: FAILED"; failed=1; fi
   python3 -I "$here/ts_api_fixtures.py" "$ts_scratch/ts-api"   # API fixtures + release_id, enum and skeleton-export errors
   if "${tsc_cmd[@]}" -p "$ts_scratch/ts-api/tsconfig.json"; then echo "TypeScript API: built, fixtures type-check, skeleton not exported by index.ts"

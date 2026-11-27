@@ -2,3 +2,4 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 export * from "./vocabulary";
 export * from "./types";
+export * from "./parsers";

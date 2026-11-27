@@ -14,7 +14,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | `src/generated/` | 생성된 Rust(serde). `src/checks.rs`는 손으로 쓴 교차 필드 검사 |
 | `codegen/generated/ts/`, `codegen/generated/dart/` | 생성된 TypeScript·Dart 패키지 |
 | `codegen/*.py`, `*.sh` | 생성기, 스키마 lint, 호환 검사, 빌드 확인 |
-| `codegen/tests/` | Python 시험, 시험 전용 픽스처(`*.fixture.json`) |
+| `codegen/tests/` | Python 시험, TypeScript·Dart 픽스처 시험, 시험 전용 픽스처(`*.fixture.json`) |
 | `evidence_ref.md` | evidence_ref 문법(정규식은 `json/common.schema.json`) |
 
 ## 명령
@@ -30,11 +30,11 @@ ONJ_COMPAT_ALL_CLIENTS=1 bash packages/schemas/codegen/check_compat.sh --latest 
 bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣으면 실패하는지 자체 시험
 ```
 
-`build_check.sh`는 현재 TypeScript 생성물을 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능), Dart 생성물을 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 `SKIPPED`와 종료 코드 3을 낸다. `ONJ_REQUIRE_TOOLCHAINS=1`이면 실패다. 이전 태그를 기준으로 하는 CI 호환 검사는 아래 '버전과 호환 검사'를 따른다.
+`build_check.sh`는 현재 TypeScript 생성물을 `tsc`(`TSC="node /path/tsc.js"`로 지정 가능)로 검사하고, Node에서 컴파일된 공유 계약 파서의 픽스처 왕복·거부 시험을 실행한다. Dart 생성물은 `dart analyze`와 픽스처 왕복 실행으로 확인한다. 도구가 없으면 `SKIPPED`와 종료 코드 3을 낸다. CI의 `ONJ_REQUIRE_TOOLCHAINS=1`에서는 도구 누락이 실패다. 이전 태그를 기준으로 하는 호환 검사는 아래 '버전과 호환 검사'를 따른다.
 
 ## 증거 (`codegen/evidence/`)
 
-[Audit 7 기록](../../docs/blueprint/audits/2026-11-18_s0_critical_path_merge.md)에 현재 세 언어 빌드와 태그 호환 검사의 재실행 증거를 기록했다. 아래 로그는 T-CT-01·02 당시 트리의 기록이다. Audit 2 어휘 1.8.0 변경의 결과는 [별도 색인](../../tools/evidence/audit2-engine-string-literals/README.md)에 있다.
+TypeScript 런타임 시험과 세 언어 빌드 결과는 [Audit 8 검증 기록](../../docs/blueprint/audits/2026-11-28_ts_runtime_enum_reject.md)에 있다. 이전 세 언어 빌드와 태그 호환 검사 결과는 [Audit 7 기록](../../docs/blueprint/audits/2026-11-18_s0_critical_path_merge.md)에 있다. 아래 로그는 T-CT-01·02 당시 트리의 기록이다. Audit 2 어휘 1.8.0 변경의 결과는 [별도 색인](../../tools/evidence/audit2-engine-string-literals/README.md)에 있다.
 
 각 검증 명령의 실제 출력은 [`codegen/evidence/EVIDENCE.md`](codegen/evidence/EVIDENCE.md)에서 찾을 수 있다. 색인은 명령·종료 코드·도구 버전·로그를 만든 부모 커밋·`packages/schemas` 트리(증거 디렉터리 제외)의 sha256을 기록한다.
 
@@ -50,7 +50,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 
 - **enum은 어휘 정본에서만 온다.** 스키마 파일에는 `enum`·`const`가 없고, 모든 어휘 값은 `vocabulary.schema.json`(생성물)을 `$ref`한다. 어휘와 다르게 손으로 고친 생성물, 스키마 안의 `enum`은 lint 오류다(`codegen/tests/test_schemas.py`).
 - **어휘에 아직 없는 축은 `x-onjeon-pending-axis` 문자열이다.** 02_구현계약이 값을 정했지만 어휘(1.6.0)에 축이 없는 것(아래 표)은 닫힌 enum처럼 쓰지 않고 소문자 snake_case 패턴의 문자열로 둔다. 어휘 정본을 이 패키지의 과제가 바꿀 수 없기 때문이다. 어휘에 그 축이 들어오는 순간 lint가 실패해서 `$ref`로 바꾸게 한다. 어휘 1.6.0(T-CT-02)에서 아홉 축·열한 필드가 그렇게 `$ref`로 옮겨갔다(아래 '1.6.0에서 승격된 축').
-- 알 수 없는 enum 값은 역직렬화 실패다(성공으로 처리하지 않음). 알 수 없는 필드는 무시한다. 선택 필드 추가(minor)가 구버전 클라이언트를 깨지 않게 하려는 것이다. 스키마 문서는 `additionalProperties: false`로 닫혀 있다. 새 enum 값은 §5에서 minor지만 구버전 클라이언트는 그 값을 읽지 못한다. 앱이 지원 범위를 선언하는 이유다(§5 마지막 행).
+- 공유 계약은 Rust·Dart 역직렬화와 TypeScript 문서 파서에서 알 수 없는 enum 값을 거부한다. 이 진입점들은 구버전 클라이언트도 새 선택 필드가 추가된 문서를 읽을 수 있도록 알 수 없는 구조체 필드를 무시한다. JSON Schema 문서 검증은 `additionalProperties: false`를 적용한다. 새 enum 값은 §5에서 minor이며 구버전 클라이언트의 어휘 범위를 벗어난다.
 - 금액은 정수 원(`Krw`). 부동소수점은 화면 표시 전용 만원 값(`Budget.*_man`, `CurrentPaid.man`, `PriceLine.man`)에만 있고, 예산 판정과 정렬은 원 단위로 한다(화면 설계서 §11). 시험이 부동소수점 필드 목록을 고정한다.
 - `ViewLine.refs`는 근거 참조를 한 개 이상 담는다. `CompareCell.refs`는 화면에서 확인된 값·적용 여부·금액을 표시할 때 필요하다. 판단을 유보한 자리표시자는 `refs`를 생략할 수 있다. Rust 호출부는 직렬화 경계에서 [`checks::check_*`](src/checks.rs)를 호출해 교차 필드 규칙을 검사한다. [Audit 8 회귀 증거](../../docs/blueprint/audits/2026-11-25_view_model_checks.md).
 - `PremiumObservation`의 `raw_amount`와 `unknown_reason`은 생성 타입에서 선택 필드다. `check_premium_observation`은 `observed`·`derived`에 금액을, 그 밖의 상태에 공백이 아닌 사유를 요구한다. 두 필드는 함께 둘 수 없으며 금액이 없는 관측은 비교 자격을 얻을 수 없다.
@@ -58,6 +58,19 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 - 시각 필드는 어휘 정본의 이름만 쓴다: 02가 쓴 `valid_from`·`valid_to`는 폐기 별칭이라 `effective_from`·`effective_to`, 가격 기준일은 `source_as_of`. 모델 식별자 원문은 싣지 않고 `model_ref_hash`만 싣는다.
 - 교차 필드 불변식은 `src/checks.rs`에서 검사한다: accepted ⇒ 검수 결정, `origin=fixture` ⇒ accepted 불가, 주장은 `object` 또는 `value` 하나, 가격 비교 자격의 조건(K13), 막힌 시나리오는 엔진 결과 없음, 엔진 결과 모양(`payout`·`contract_effect`가 `eligibility`를 따르고 `kind`마다 그 kind의 필드만 있음), 오류 클래스와 코드의 일치. DB 제약(T-CT-05)과 릴리스 빌더(T-KN-07)의 대체가 아니다.
 - 규칙 엔진 직렬화와 `EvaluationResult`가 같은 모양인지는 엔진을 실제로 돌려 확인한다(`rule_engine_output_deserializes_into_evaluation_result`; rule-0.2 규칙의 효과는 `rule_02_contract_effects_round_trip_when_the_engine_supports_them`). 후자는 엔진이 rule-0.2 규칙을 거부하면(이 브랜치가 갈라진 시점의 엔진, PR #105 이전) 거부 이유만 확인하고 `VACUOUS:`를 찍은 채 끝난다. 즉 그 엔진에서는 **아무것도 검증하지 않는다.** `main`(#105 병합 후)의 엔진과 합친 빌드(CI가 시험하는 것)에서만 세 모양(`applies`·`none`·`undetermined`)을 실제로 돌린다. `ONJ_REQUIRE_RULE_02=1 cargo test -p onjeon-contracts`는 그 건너뜀을 실패로 만든다. `contract_effect`(rule-0.2, G23)는 엔진이 rule-0.2를 지원한 뒤(PR #105)로 모든 결과에 실린다. 그 전 엔진 빌드의 결과에는 없으므로 계약에서는 **선택 필드**다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이고, 효과 없음은 `kind=none`이다. 필수로 올리는 것은 깨지는 변경(§5)이라 다음 계약 판의 몫이다.
+
+## TypeScript 문서 읽기
+
+생성된 `codegen/generated/ts/index.ts`는 구조체마다 `parse<Type>(value: unknown)`을 제공한다. 저장소 루트에서 JSON을 읽고 `Assertion`으로 파싱하는 예는 다음과 같다.
+
+```ts
+import { parseAssertion } from "./packages/schemas/codegen/generated/ts";
+
+const document: unknown = JSON.parse(body);
+const assertion = parseAssertion(document);
+```
+
+파서는 필수 키, 명시적 `null`의 허용 여부, 필드 타입과 어휘 값을 중첩 객체·배열·맵까지 검사한다. 오류는 필드 경로를 포함한 `TypeError`다. 정규식·최솟값·배열 길이 등 JSON Schema 제약과 교차 필드 불변식에는 각각 스키마 검증과 불변식 검사가 필요하다. `as Assertion` 같은 타입 단언의 효력은 컴파일 시점에 한정된다. OpenAPI 전용 `ts-api` 인터페이스는 정적 타입이며 해당 구조체의 런타임 검증은 호출부가 담당한다.
 
 ## 버전과 호환 검사 (02 §5)
 
